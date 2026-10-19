@@ -18,7 +18,10 @@ here under [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted
 Follow [maintainer guidance](../../../AGENTS.md) when authoring or reviewing it.
 
 Rank first. Persistent writes require an explicit developer choice of queued follow-up
-or a non-queue disposition and that path's supplied destinations. Ranking alone authorizes
+or a non-queue disposition and that path's supplied destinations. An explicitly
+invoked composing maintenance skill may supply delegated selection authority,
+its actual selected response and those destinations; it does not make ordinary
+recommendation-only triage writable or waive validation. Ranking alone authorizes
 no edit. Identity allocation, renaming, reconciliation, and occurrence collection belong to
 [reconcile-retrospective-findings](../reconcile-retrospective-findings/SKILL.md).
 Use only supplied evidence; do not fetch other projects or scan unrelated logs.
@@ -32,7 +35,9 @@ target from this skill's location, real `DearDough.md`, or `docs/maintainer/find
   including the catalog only when supplied. Source mappings may retain `DD-NNN`;
   source adoption is unnecessary. Use issue headings, concrete descriptions (catalog:
   **Meaning**), and occurrence rows as in [process findings](../dough-execution-retrospective/SKILL.md).
-  Naming-only entries or Evidence notes can support qualified advice, but no occurrence count.
+  Follow supplied catalog links to authoritative finding records before ranking;
+  inline and isolated supplied catalogs remain supported. Naming-only entries or
+  Evidence notes can support qualified advice, but no occurrence count.
 - **Direction:** supplied backlog/direction path or explicit invocation text. If absent,
   mark alignment unassessed and rank independently supported severity, recurrence, and
   confidence. Do not invent direction or guess `.planning/PRODUCT-BACKLOG.md`.
@@ -76,7 +81,9 @@ Identify issues only from supplied evidence:
   list** or **Taken** line for a usable link. Deferred, evidence-request, and no-change
   dispositions are recorded advice/decisions, not queue items.
 
-Do not import occurrences, counts, or execution history into the naming catalog.
+Do not collect occurrences here. Read reconciled evidence at its authoritative
+owner, including linked catalog finding files; do not copy it into an index or
+create a second evidence store.
 
 ## Rank and propose
 

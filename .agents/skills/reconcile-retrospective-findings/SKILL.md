@@ -7,19 +7,16 @@ description: Reconciles supplied retrospective findings under stable internal Op
 
 You are the maintainer agent working in the Open Dough source repository. This
 skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)):
-it is not in the released payload and must not be added to `install.sh`. Do not
-create a second procedure under `src/skills/`.
+it is not in the released payload and must not be added to `install.sh`. Do not create a second procedure under `src/skills/`.
 
 Follow [maintainer guidance](../../../AGENTS.md) when editing this skill.
 
 Two roles stay separate even when both are Open Dough:
 
 - **Source project** — the selected project whose supplied feedback or canonical
-  `DearDough.md` you inspect. Its local codes stay `DD-NNN` until a human adopts
-  an internal name. After that adoption, a source heading may already be
-  `ODF-NNN`.
-- **Open Dough catalog** — this repository's identity and evidence record. Internal codes are
-  `ODF-NNN`.
+  `DearDough.md` you inspect. Its local codes stay `DD-NNN` until an explicitly authorized adoption
+  applies an internal name. After that adoption, a source heading may already be `ODF-NNN`.
+- **Open Dough catalog** — this repository's identity and evidence record. Internal codes are `ODF-NNN`.
 
 Never treat those namespaces as interchangeable. This skill never writes the
 source log. The public retrospective skill does not read this catalog and does
@@ -43,9 +40,12 @@ Resolve these independently before matching:
 2. **Feedback** — supplied process feedback, or the source project's canonical
    `DearDough.md`. Do not search other repositories for a log.
 3. **Naming record** — `docs/maintainer/finding-names.md` in this Open Dough
-   catalog, unless the invocation supplies an isolated writable catalog. When an
-   isolated catalog is supplied, write only that file; leave the maintained
-   record unchanged.
+   catalog, unless the invocation supplies an isolated writable catalog. Follow
+   linked authoritative finding records; an index heading is navigation, not a
+   second evidence owner. An isolated catalog limits writes to that file and any
+   linked writable destinations explicitly included in the invocation. A copied
+   index's links alone do not authorize writes in the maintained catalog. Keep
+   isolated inline-catalog use supported; leave maintained records unchanged.
 4. **Current revision assessed** — for a continuity, correction, or
    uncertain-relationship decision, name the current guidance revision
    being assessed. Inspect only the relevant local Git history for that
@@ -68,10 +68,14 @@ Stop usefully when input is missing:
 
 ## Workflow
 
-1. Read the naming record. Confirm it follows the documented entry shape enough
-   to list existing `ODF-NNN` identities and the next unused code. Empty
-   scaffolding with no allocated findings is valid; it is not a finding, and
-   the next code is `ODF-001`.
+1. Read the naming record and follow its linked authoritative finding files.
+   Support inline catalogs and isolated supplied catalogs too; do not assume
+   evidence sits beneath index headings. Confirm the entry shape and allocated
+   identities. Allocate above the highest historically allocated code, including
+   the index's retained high-water mark and relevant catalog/record Git history;
+   pruning never releases a code. Missing required allocation history blocks a
+   new code, not matching already known identities. Empty scaffolding with no
+   historical allocation starts at `ODF-001`.
 2. Read only the supplied feedback or the selected source log. Identify each
    interpretable source finding (local code plus concrete meaning) and its
    supplied evidence. After resolving identity below, retain that evidence under
@@ -188,9 +192,12 @@ files in a Git repository. This is not a new history engine.
 
 ## Catalog entry
 
-Follow [docs/maintainer/finding-names.md](../../../docs/maintainer/finding-names.md).
-Keep the identity fields there and retain finding-relevant supplied evidence in
-that same entry, using its occurrence shape and replay rules. Preserve existing
+Follow the supplied catalog's conventions, normally
+[docs/maintainer/finding-names.md](../../../docs/maintainer/finding-names.md).
+For a linked catalog, write meaning, identity, disposition and supplied evidence
+in the authoritative finding file; add an anchored index link for a new identity
+and advance its retained highest-allocated number. For an inline catalog, keep
+those fields in its entry. Use that owner's occurrence shape and replay rules. Preserve existing
 human notes and Follow-up dispositions. No second evidence store or transcript
 copies. A source already using the matching ODF code needs no new alias.
 
@@ -216,7 +223,7 @@ change). Do not write continuity locators or a demonstrated-correction
 relationship as if those were proven.
 
 Replace `_No findings allocated yet._` with the first entry. Append later
-entries after existing findings. Do not rewrite unrelated catalog text. Verify
+entries or index links after existing findings. Do not rewrite unrelated catalog text. Verify
 the source checksum after the write; report the identity, retained evidence,
 and any provenance limitations. An identical replay leaves both files
 byte-identical. Supply the catalog explicitly to

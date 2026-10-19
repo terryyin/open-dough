@@ -9,7 +9,7 @@ description: >-
   execution before commit; `--keep-worktree` selects an explicit retained increment.
   Use only on explicit invocation, such as "/dough-land", "use Dough Land",
   "land this worktree", or "land" for changes made on the default checkout, or
-  when another skill's validated keep instruction or project-findings
+  when another skill's validated keep instruction or findings
   maintenance handoff links here. A casual
   "keep", "looks good", or approval does not invoke it.
   Hosted merges and pull requests are out of scope. With
@@ -29,10 +29,12 @@ With `--process-retrospective`, also
 [review this landing's process](#review-this-landings-process).
 
 Run only when the developer explicitly invokes Dough Land, or when a calling
-skill's own validated keep instruction links here. The explicitly invoked
-`dough-triage-project-findings` may instead supply its own validated maintenance
-instruction and link here; that instruction carries its maintenance-only
-publication authority without another keep question. Reviewing, approving,
+skill's own validated keep instruction links here. An explicitly invoked findings-maintenance skill may instead supply its own
+validated maintenance instruction and link here; that instruction carries its
+maintenance-only publication authority without another keep question. It supplies
+the reviewed owned result, checkout, starting revision and authorized target,
+and confirms the whole-checkout isolation required below. This handoff neither
+invokes maintenance from encountering a finding nor authorizes unrelated work. Reviewing, approving,
 pausing, or saying "keep" in passing does not start a landing. Do not open a
 pull request, request a hosted merge, or discard anything; when the developer
 wants one of those, stop and say that Dough Land does not do it.
