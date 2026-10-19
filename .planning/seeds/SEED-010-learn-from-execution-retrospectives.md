@@ -537,14 +537,15 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 **Identity:** SEED-010#run-combined-project-and-shared-feedback-cycle
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/321-combined-feedback-cycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3781012c0425f2067bfef347f679e5c7bc715978549b0d85b83cf2b67e2cfc1","plan":"1f1a3d3801429612506dd8abf20e8ee56d810238105007f99418b2cd759d334a"}}
 ```
 
 **Goal:** The maintainer invokes one internal Open Dough skill that first handles
 each project's own retrospective findings, then collects shared feedback and
 publishes Open Dough priorities, without manually connecting the two workflows.
 
-**Scope:** Compose the shared [project-findings maintenance](../../src/skills/dough-triage-project-findings/SKILL.md)
+**Scope:** Add the internal `maintain-feedback-cycle` skill. Compose the shared
+[project-findings maintenance](../../src/skills/dough-triage-project-findings/SKILL.md)
 contract with the internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md).
 Resolve the current
 client inventory, including Open Dough itself, using the established production
@@ -554,10 +555,13 @@ commit/integration/sync outcomes for that project set; children do not require
 the user to repeat that authorization.
 
 First run that maintained skill's local classification, cleanup, repair follow-up, and local
-backlog selection across the projects. Then run the shared-feedback skill
-against the resulting records. Reuse those behaviors as their authoritative
-owners, without a second copy of their rules. Preserve local stories when the
-shared cycle subsequently places Open Dough's top shared responses first.
+backlog selection across the projects, recording a result or explicit gap for each
+before entering shared collection. Then run the shared-feedback skill against
+the resulting records, carrying those gaps and each record's actual location and
+delivery state. Reuse those behaviors as their authoritative owners, including
+their existing selection limits, without a second copy of their rules. Preserve
+local stories when the shared cycle subsequently places Open Dough's top shared
+responses first; the shared skill still owns that later ordering decision.
 Synchronize the second phase's later client edits as well as the first phase's
 results and Open Dough's final records.
 
@@ -567,6 +571,65 @@ Continue independent supported work and qualify the incomplete scope. A rerun
 resumes unfinished boundaries without undoing delivered work or double-counting
 findings and stories. Consequential attribution, intent, or delivery conflicts
 receive a focused Jidoka decision with evidence; routine authorized steps proceed.
+
+Reuse the shared collector's inventory discovery and recheck convention, including
+an explicitly supplied isolated inventory for bounded demonstrations. Include Open
+Dough once even when it is already listed. An added project needs its local pass
+or an explicit gap before its shared evidence is consumed. A removed or retargeted
+project does not erase retained unfinished delivery. Resolve an ambiguous target
+before its dependent writes; never change configuration to make a run appear complete.
+
+The wrapper carries the originating instruction, resolved project and target,
+owned workspace and saved records, and outstanding delivery boundaries into each
+phase. Use maintained source guidance for the two named phases, resolving their
+installed helper commands in the target project. A missing compatible helper is
+an affected-project gap, not permission to install or release guidance. Existing
+Git facts and a concise run report supply recovery context; no permanent cycle
+ledger or second finding store is required. When dashboard reporting context is
+supplied, the combined invocation owns one final completion report after both
+phases and all required delivery have settled.
+
+**Key examples:**
+
+1. A configured project has a supported local defect and shared feedback, and
+   Open Dough has a local improvement candidate → the maintainer invokes
+   `maintain-feedback-cycle` once → each project, including Open Dough, receives
+   its local maintenance pass before shared collection; shared responses may
+   lead Open Dough's queue while the local stories remain, and every changed
+   repository has evidence of acceptance on its selected origin target.
+2. One project's log or required helper is unavailable → the local phase records
+   that gap and supported projects continue → shared collection neither treats
+   the failed pass as classification nor claims complete coverage or a passed
+   watch. Independently supported shared evidence can still be retained with
+   the gap explicit.
+3. A local pass has already published; shared adoption then edits that project's
+   log and Open Dough's catalog → the combined run delivers both later results
+   → the first phase's accepted commit is not mistaken for final synchronization.
+4. Publication stops after some repositories accept their candidates → rerun the
+   combined invocation with retained context → inspect current records and Git
+   facts, resume the first unfinished boundaries, preserve accepted work, and
+   create no duplicate occurrence, alias or covering story. A deferred default
+   checkout refresh remains distinct from accepted publication.
+5. The same completed cycle is invoked again with unchanged evidence → reuse
+   existing findings, responses and remote acceptance → report a synchronized
+   no-change result without empty commits or repeated publication.
+6. The inventory gains a project before final shared selection, or changes a
+   target while delivery remains pending → recheck through the discovery owner
+   → account for the new local phase and affected target before dependent work,
+   retain unfinished candidates, and qualify coverage until the change is resolved.
+7. A finding's proposed local remedy conflicts with evidence of shared ownership,
+   or a delivery checkout contains unrelated work → follow the owning skill's
+   conflict handling → stop only the dependent action with evidence and the
+   specific human decision needed; routine authorized work elsewhere continues.
+
+**Constraints and deferred promises:** Explicit invocation grants the finite
+maintenance and ordinary publication authority above, subject to narrower current
+instructions. Reading or authoring the skill grants none. Do not implement queued
+improvements, change product direction, or bypass ownership and publication
+safeguards. Scheduling, autonomous correction, new causal/measurement policy,
+release/install rollout, dashboard controls and a durable orchestration service
+are outside this delivery; they are not reasons to reject otherwise supported
+projects or findings.
 
 **Evaluation:** One explicit invocation traverses local maintenance across the
 configured set before shared collection and yields the appropriate project and
@@ -633,9 +696,9 @@ requested queue update:
   claim; preserve gaps when the necessary evidence is unavailable.
 - Select the first client and permitted evidence for the exchange. Later automated
   operation needs explicit sources, actions, notification boundaries, and authority.
-- Refine the internal skill names and representative partial-run/delivery cases.
-  Reuse current runbook watch and top-two rules; redesigning empirical control
-  policy is not a prerequisite for the requested automation structure.
+- Story 13 records the internal name and representative partial-run/delivery
+  cases. Reuse current runbook watch and top-two rules; redesigning empirical
+  control policy is not a prerequisite for the requested automation structure.
 - For later autonomous candidates, establish the correction class, policy, quality
   evaluation, budget, and stop/reversal rules before execution.
 - Establish S/M/L calibration only if effort bands are needed. No numeric or
