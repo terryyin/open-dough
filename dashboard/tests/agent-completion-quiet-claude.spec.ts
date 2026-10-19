@@ -19,8 +19,8 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { launchedStory, shortIdOf } from "./support/reportedLaunch.ts";
-import { queuedIdentity, startOrigin } from "./support/startOrigin.ts";
+import { launchedAdHoc, shortIdOf } from "./support/reportedLaunch.ts";
+import { startOrigin } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
 import { expect } from "./dashboardTest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
@@ -51,7 +51,7 @@ test.describe("within a wait the session outlasts", () => {
     origin,
   }) => {
     test.setTimeout(120_000);
-    const story = await launchedStory(dashboard, origin, queuedIdentity, title);
+    const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
     await story.report({ message: "" });
@@ -65,7 +65,7 @@ test.describe("within a wait the session outlasts", () => {
     await showColumn(page, "Recently done");
     const recent = parts(page)
       .recentlyDone.getByRole("article")
-      .filter({ hasText: title });
+      .filter({ hasText: sessionId });
     await expect(recent).toContainText(`Intended name ${doneName}`);
     await expect(recent.getByText(pending)).toBeVisible();
     await expect(recent.locator(".launch-problem")).not.toContainText(pending);
@@ -107,7 +107,7 @@ test.describe("within a wait the session outlasts", () => {
     origin,
   }) => {
     test.setTimeout(120_000);
-    const story = await launchedStory(dashboard, origin, queuedIdentity, title);
+    const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
     await story.report({ message: "" });
@@ -158,7 +158,7 @@ test.describe("within a short wait", () => {
     origin,
   }) => {
     test.setTimeout(120_000);
-    const story = await launchedStory(dashboard, origin, queuedIdentity, title);
+    const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
     await story.report({ message: "" });
@@ -205,7 +205,7 @@ test("a server closed during the wait leaves the pending mark and hangs up its a
   });
   let closed = false;
   try {
-    const story = await launchedStory(server, origin, queuedIdentity, title);
+    const story = await launchedAdHoc(server, origin, title);
     const { sessionId } = story;
     // Idle, but its attachment never shows a screen, so the rename waits.
     server.claudeSessionBecomes(sessionId, "done-live");

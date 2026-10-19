@@ -1,7 +1,7 @@
 // Native binding and reporting take the attempt lock before the records lock.
+import { completionClosesSession } from "./completionClosure.ts";
 import { randomUUID } from "node:crypto";
 import {
-  completedWithoutAttention,
   doneAutomatically,
   type CompletionReceipt,
 } from "../src/completionReport.ts";
@@ -65,6 +65,7 @@ export async function deliverCompletion(
           "This launch has no retained reporting session.",
         );
       }
+      const closesSession = await completionClosesSession(bound, saved);
       const binding = { found: false };
       await replaceRecords((kept) => ({
         ...kept,
@@ -84,7 +85,7 @@ export async function deliverCompletion(
             return entry;
           const automaticDone = doneAutomatically(entry);
           const quiet =
-            completedWithoutAttention(saved) &&
+            closesSession &&
             (entry.doneAt === undefined || automaticDone) &&
             (entry.dispositionChangedAt === undefined ||
               entry.dispositionChangedAt < saved.receivedAt);
@@ -94,7 +95,7 @@ export async function deliverCompletion(
           };
           // A newer qualification replaces previous automatic success, while
           // explicit local Done/reopen remains independent of reported outcome.
-          if (!completedWithoutAttention(saved) && automaticDone) {
+          if (!closesSession && automaticDone) {
             delete next.doneAt;
             delete next.doneProblem;
           }

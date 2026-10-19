@@ -145,3 +145,10 @@ test("only explicitly completed refinements with missing preparation workspaces 
     "This session is still working. Marking it done asks it to stop.",
   );
 });
+
+test("a quiet completion retained for wrap-up has no unread message or alert", () => {
+  const session = { ...working, completion: { ...report(), message: "" } };
+  expect(sessionShown(session).unreadReport).toBeUndefined();
+  expect(unreadReportSummary([session])).toBeUndefined();
+  expect(attentionCount([session])).toBe(0);
+});

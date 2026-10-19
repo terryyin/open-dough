@@ -7,8 +7,11 @@ import type { submitCompletion } from "../../server/completionReporting.ts";
 import { test, expect } from "../support/pageTest.ts";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
+import { completionReport } from "../support/completionReport.ts";
+import { storedRecords } from "../machineLaunchRecords.ts";
 import { accept, recordsOf, markDone } from "../agentLaunchBoundary.ts";
 import { settledOutcome, keptAttempts } from "../acceptedAttempts.ts";
 import {
@@ -153,13 +156,8 @@ for (const quiet of [false, true])
         });
         expect(bound?.request.reporting?.reference).toBe(accepted.attempt.id);
         expect(bound?.session.host).toBe("claude");
-        if (quiet) {
-          expect(bound?.doneAt).toBe(receipt.receivedAt);
-          // The session still lists busy, so its rename waits.
-          expect(bound?.doneProblem).toBe(
-            "Local done mark retained. Native done mark is pending.",
-          );
-        } else expect(bound?.doneAt).toBeUndefined();
+        expect(bound?.doneAt).toBeUndefined();
+        expect(bound?.doneProblem).toBeUndefined();
         if (bound === undefined) throw new Error("No bound record");
         const stale = { ...bound, completion: undefined, doneAt: undefined };
         for (const operation of ["updateRecord", "bindRecord"]) {
@@ -169,7 +167,7 @@ for (const quiet of [false, true])
             "open-dough",
           )) as LaunchRecord[];
           expect(current?.completion?.receipt).toBe(receipt.receipt);
-          if (quiet) expect(current?.doneAt).toBe(receipt.receivedAt);
+          expect(current?.doneAt).toBeUndefined();
         }
         // Its turn has ended; the session idles until it is marked done.
         server.claudeSessionBecomes(bound.session.sessionId, "done-live");
@@ -178,31 +176,8 @@ for (const quiet of [false, true])
           .find((listed) => listed["sessionId"] === bound.session.sessionId)?.[
           "id"
         ];
-        const doneName = `done-${bound.session.name}`;
-        if (quiet) {
-          // The binding's quiet report renames it once idle, through one
-          // private attachment, without stopping it.
-          await expect
-            .poll(
-              async () =>
-                ((await recordsOf(server, "open-dough")) as LaunchRecord[])[0]
-                  ?.doneProblem,
-              { timeout: 30_000 },
-            )
-            .toBeUndefined();
-          expect(
-            server.claudeListing().find((listed) => listed["id"] === shortId)?.[
-              "name"
-            ],
-          ).toBe(doneName);
-          expect(server.claudeAttaches()).toEqual([
-            expect.objectContaining({
-              lines: [`/rename ${doneName}`],
-              endedBy: "SIGHUP",
-            }),
-          ]);
-          expect(server.claudeStopCalls()).toEqual([]);
-        }
+        expect(server.claudeAttaches()).toEqual([]);
+        expect(server.claudeStopCalls()).toEqual([]);
         const done = await markDone(server, {
           source: "open-dough",
           host: "claude",
@@ -222,7 +197,6 @@ for (const quiet of [false, true])
             )
             .map((entry) => entry.argv),
         ).toEqual([
-          ...(quiet ? [["attach", shortId]] : []),
           ["attach", shortId],
           ["stop", shortId],
         ]);
@@ -236,3 +210,34 @@ for (const quiet of [false, true])
         origin.cleanup();
       }
     });
+
+test("binding preserves a quiet completion carried by a legacy record without a reporting attempt", async () => {
+  const machine = mkdtempSync(path.join(tmpdir(), "dough-legacy-completion-"));
+  try {
+    const completion = completionReport();
+    const record: LaunchRecord = {
+      request: {
+        source: "open-dough",
+        host: "codex",
+        workflow: "ad-hoc",
+        title: "Legacy session",
+      },
+      session: {
+        host: "codex",
+        sessionId: "legacy-session",
+        name: "Legacy session",
+      },
+      launchedAt: new Date().toISOString(),
+      completion,
+    };
+    await recordOperation({ home: path.join(machine, "home") }, "bindRecord", [
+      "open-dough",
+      record,
+    ]);
+    const [bound] = storedRecords(machine) as LaunchRecord[];
+    expect(bound?.completion).toEqual(completion);
+    expect(bound?.doneAt).toBe(completion.receivedAt);
+  } finally {
+    rmSync(machine, { recursive: true, force: true });
+  }
+});

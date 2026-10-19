@@ -201,5 +201,18 @@ for (const closure of [
         await reloadUntilRead(page);
         await expect(recent).toContainText("Done");
       },
+      process.env,
+      context.landingContext,
+      async () => {
+        // A retained increment has a real landing, but its story is still Taken.
+        await exec("bash", ["-c", `${context.command} --outcome completed`], {
+          cwd: origin.machine,
+        });
+        expect(stored(dashboard.home)[0]?.landing).toBeDefined();
+        expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
+        expect(
+          native.calls.filter((call) => call.method === "thread/name/set"),
+        ).toEqual([]);
+      },
     );
   });
