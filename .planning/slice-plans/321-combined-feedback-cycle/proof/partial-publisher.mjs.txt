@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const B='/private/tmp/dough321-combined-proof/partial';
+const S=JSON.parse(fs.readFileSync(B+'/cycle-context.json'));
+const phase=process.argv[2];
+for(const [name,p] of Object.entries(S)){
+ if(phase==='local' && p.local) continue;
+ if(phase==='shared' && !p.sharedCandidate) continue;
+ const w=p.workspace, runtime=w+'/.agents/skills/';
+ const {publishExecutionIncrement}=await import(runtime+'dough-execute-plan/scripts/execution-increment-publication.mjs');
+ const {checkQueuedClosures}=await import(runtime+'dough-land/scripts/queued-closure-check.mjs');
+ const git=(...args)=>execFileSync('git',['-C',w,...args],{encoding:'utf8'}).trim();
+ const validate=async()=>{git('diff','--check'); return true;};
+ await validate();
+ const candidate=git('rev-parse','HEAD');
+ const base=phase==='local'?p.start:(p.local?.receipt?.sha||p.start);
+ try{
+ p[phase]=await publishExecutionIncrement({workspace:w,branch:p.branch,previouslyPublishedBase:base,targetRef:'refs/heads/'+p.ref,remote:'origin',defaultCheckout:p.localPath,validatedCandidate:candidate,validate,
+ onFetchedTarget:async()=>{const q=await checkQueuedClosures({checkout:w,remote:'origin',targetRef:'refs/heads/'+p.ref});return q.status==='clear'?undefined:{status:q.status,fields:q};},
+ beforePush:async pair=>{fs.appendFileSync(B+'/cycle-pushes.jsonl',JSON.stringify({name,phase,workspace:w,target:p.origin+' refs/heads/'+p.ref,...pair})+'\n');},register:()=>{}});
+ }catch(e){p[phase]={ok:false,error:e.message,stderr:e.stderr?.toString(),candidate,base};}
+ fs.writeFileSync(B+'/cycle-context.json',JSON.stringify(S,null,2));
+ console.log(name,phase,JSON.stringify(p[phase]));
+}
