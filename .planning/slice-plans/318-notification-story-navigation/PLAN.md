@@ -1,14 +1,16 @@
 # Open the notified dashboard story on macOS
 
-**Source:** [Selected notification-navigation story](../../seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification)
+**Source:** [Selected notification-navigation story](../../seeds/SEED-140-notification-story-navigation.md#open-notified-story-from-macos-notification)
 **Identity:** SEED-140#open-notified-story-from-macos-notification
 
 ## Goal and scope
 
 A developer clicking a dashboard session notification reaches the correct
 project and story card, with useful focus, in Safari or Chrome as the default
-browser. This must work without a previously open dashboard page and after a
-direct URL open or reload. Receipt and dismissal do not navigate; a click does
+browser, reusing an existing tab for this running dashboard and foregrounding its
+window. Open a tab only when none matches, using an existing browser window when
+available. Direct URL opening and reload still resolve the target. Receipt and
+dismissal do not navigate; a click does
 not start or resume agent work. Missing targets are explained without selecting
 unrelated work. An unreachable dashboard is a failed destination.
 
@@ -19,7 +21,7 @@ the dashboard remains usable. Preserve the server's existing alert decisions,
 title/message/sound, startup baseline, unread-report behavior and cleanup.
 
 No automatic helper installation/update, custom native application, browser push
-service, exact-tab reuse, automatic terminal attachment, or duplicate-request
+service, automatic terminal attachment, or duplicate-request
 policy change is committed. The sibling deduplication story is independent;
 reconcile shared `sessionAlerts.ts` changes without taking over its outcome.
 Ad-hoc sessions have no story identity: preserve their alerts and never invent
@@ -48,11 +50,13 @@ a story target; an ordinary project destination is sufficient for them.
   Keep URL construction shared between sender and page without pulling React
   or browser state into the server. No generic notification-provider framework
   or new persisted target/session registry is needed.
-- Native delivery opens an HTTP URL through macOS, with no shell command
-  activation. Preserve argument text as data. Probe the installed helper's
-  accepted version, option-value escaping and diagnostics before selecting
-  those details. Do not use an AppleScript fallback that reproduces the wrong
-  click destination, or report delivery success from executable presence alone.
+- Terry's explicit existing-tab requirement replaces the earlier new-tab scope.
+  Plain native URL opening is insufficient. PFE found no existing dashboard tab
+  coordinator; browser scripting dictionaries can select an existing tab without
+  injecting page JavaScript. First prove the native click's Automation permission
+  path. A fixed callback may carry literal URL data through safely quoted system
+  tool arguments; the earlier no-shell design assumed tab reuse was excluded.
+  Never treat refused tab inspection as an absent tab or silently duplicate it.
 - Follow [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   for cohesive responsibility and existing solutions, and
   [ADR 0000](../../../docs/adrs/0000-use-adrs-accepted.md) for keeping this
@@ -65,26 +69,10 @@ a story target; an ordinary project destination is sufficient for them.
 
 ## Preparation evidence and decisive premises
 
-Observed in `/Users/terryyin/git/open-dough/.worktrees/open-the-relevant-dashboard-story-from-a-macos-n`
-at `2446f02c17735b08df833c3a4483fabb6f4b150a` on 2026-10-19. The same
-preparation branch is `codex/open-the-relevant-dashboard-story-from-a-macos-n`;
-the publication target is `origin/main`, and the integration checkout is
-`/Users/terryyin/git/open-dough`. These are preparation locations, not a future
-execution claim. Plan 318 follows the highest allocated number 317 in current
-paths and Git history; its path was checked immediately before creation.
-
-| Premise / consuming operation | Observation and limit |
-| --- | --- |
-| Existing cross-project navigation waits for the right data and reveals the intended card | `env -u NO_COLOR npm run test:dashboard -- session-sidebar-navigation.spec.ts --workers=1` passed. Its real preview page opens the other project's sidebar entry, withholds that project's response, then asserts the identified card in the viewport after release. This is reusable reveal behavior, not proof of a notification URL. |
-| That proof detects a missing reveal | Temporarily omitted only `element.scrollIntoView(...)` in `workFocus.ts`'s `keepInView`, then ran the same command. It failed at `session-sidebar-navigation.spec.ts:109`: target card viewport ratio was 0. Restored the exact source bytes; the combined run below passed. No scratch product edit remains. |
-| The local fixtures reach alert decisions, process arguments, unavailable UI, and shutdown without native notifications | `env -u NO_COLOR npm run test:dashboard -- session-sidebar-navigation.spec.ts session-alerts.spec.ts session-alerts-unavailable.spec.ts boundary/session-alerts-unread-report.spec.ts boundary/agent-launch-codex-observation-alerts.spec.ts --workers=2` passed. Tests drive isolated launch/session records and assert fake sender calls, alert availability in the page, and termination of a held sender. They do not establish actual delivery or clicks. |
-| A real helper can activate the correct default browser after the sending command exits, without navigating on receipt/dismissal | Unsettled, owned by slice 1. `sw_vers` reports macOS 26.6.2 (25G83); `command -v terminal-notifier` finds none on PATH. Safari and Chrome app bundles are present. The seed links the helper's documented URL action and Homebrew distribution. Presence and documentation are not a native result. Installing/authorizing a helper and changing the default browser are machine-state changes, so the permitted early probe owns them before dependent implementation. |
-
-The initial test invocation with inherited `NO_COLOR` failed the project's
-quiet-output rule on a Node color warning. The listed commands unset that
-variable and passed. Existing fixtures do not implement the new URL contract;
-slice 2 must add a discriminating test before implementing it. The complete
-native journey remains required in slice 3 even after the helper probe passes.
+[Preparation observations](PREPARATION-EVIDENCE.md) retain the original revision,
+locations, literal test commands, negative-control result, and their limits.
+They justify the reused reveal/alert boundaries; native final acceptance is
+still owned by slice 3 below.
 
 ## Outside-in proof ownership
 
@@ -92,6 +80,7 @@ native journey remains required in slice 3 even after the helper probe passes.
 | --- | --- | --- |
 | Real native activation uses the default browser, after helper exit; receipt/dismissal stay quiet | 1, confirmed end to end in 3 | Actual notifications clicked in Safari and Chrome conditions; observe destination and absence of navigation on delivery/dismissal. A directly opened URL or recorded `-open` argument is insufficient. |
 | Correct project and story after delayed loading, cold open, reload and direct open | 2; composed notification journey in 3 | Page fixture with two projects sharing a story identity, another off-screen target, held data, and assertions on selected project, card viewport and keyboard focus; repeat via the emitted URL. |
+| Reuse an existing dashboard tab and window, or open only when none matches | 3 | Actual Safari/Chrome clicks preserve matching tab/window identities and counts, foreground the reused tab at the target, preserve unrelated addresses, and still open a cold destination. |
 | Stale/unknown target is explicit, with useful project navigation | 2 | Unknown project and successfully loaded project with missing story show the requested target and a usable route back; no unrelated card is focused. Failed read is a read failure, not proof of absence; retry can resolve the target. |
 | User navigation wins over a pending target; ordinary project/view/history behavior survives | 2 | Move to another project while response is held, release it and assert no delayed jump; Back/Forward and reload use the URL target, and project-only routes retain their existing behavior. |
 | Actual serving origin and stable encoded identity travel from notification decision into the page | 3 | Isolated dev and preview servers on non-default/ephemeral ports emit their own reachable URL; visit the captured URL and observe the target card. Identity with `#`, changed title, and same identity in another project cannot misdirect it. |
@@ -99,15 +88,11 @@ native journey remains required in slice 3 even after the helper probe passes.
 | Missing/refused helper is explained; current alert semantics and literal text survive | 3 | Existing alert scenarios adapted to a fake notifier, unavailable sidebar and recovery, unread-report/Codex callers, quoted/backslash/leading-special-character text, and held child termination. Native setup/refusal check confirms what the helper can actually report. |
 | Unreachable destination is never called successful navigation | 1 and 3 | Stop the isolated destination before a click, observe browser connection failure and no product-success assertion; no server-start or agent-start side effect. Restore the test server for later cases. |
 
-## Execution context and accepted native evidence
+## Execution context
 
-Established start, 2026-10-19, for the identity above: publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`, Story Branch Mode; owned checkout `/Users/terryyin/git/open-dough/.worktrees/open-the-relevant-dashboard-story-from-a-macos-n`, branch `codex/open-the-relevant-dashboard-story-from-a-macos-n`. Integration checkout `/Users/terryyin/git/open-dough`; authorized trunk `origin/main`; increments publish to the recorded execution branch. Published base/initial candidate `3728ffc96fce3bbac71eddf4cb9146e30efc9e67`; starting revision `6af75e8834a0b9972692483c88ddc246879f1a22`. No second Take or replanning override; existing bounded planning authority remains.
-
-Checkout setup passed `node scripts/setup-native.mjs npm`, `node scripts/setup-native.mjs browser`, `node scripts/setup-native.mjs check` (Chromium 153.0.8010.12), and `npm run typecheck:dashboard`, using Node 24.21.0/current lockfile. Resumption repeated only the prerequisite check, passing. The hook checks staged lint and script-triggered dashboard types; selective formatting is `npm run format`.
-
-CI observer: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (`CI`), target the execution branch above, coordinator `seed140-navigation`, execution checkout as above; current yielded cell `31`, session `70451`, directory `/tmp/dough-ci-501/watch-RQPw1R`, PID `99558`. Previous cell `12` / `/tmp/dough-ci-501/watch-gzYIGr` stopped with zero unread records and confirmed exit. The trunk claim is outside this observer's coverage; accepted slice-1 increment `4392e0d6356357622be0e4843823fbb8ad9276f7` is registered on this observer and is the next publication's previously published base.
-
-Accepted [slice 1 native observations](NATIVE-EVIDENCE.md): helper 3.1.0 opens the default browser after sender exit, receipt/dismissal do not navigate, refusal recovers through ordinary settings, and a stopped destination fails visibly. Use uniform one-leading-backslash encoding for textual option values and ordinary HTTP URL arguments. Final story-card acceptance remains in slice 3.
+[Retained execution identity, setup, delivery and observer state](EXECUTION-CONTEXT.md)
+keeps the accepted earlier boundaries. [Sender evidence](SENDER-EVIDENCE.md)
+records the current native observations and remaining gaps.
 
 ## Story obligations
 
@@ -115,6 +100,16 @@ Accepted [slice 1 native observations](NATIVE-EVIDENCE.md): helper 3.1.0 opens t
 Reported: slice 1 — "Native activation in Safari and Chrome remains unobserved because the supported computer controls cannot reach the notification click surface."
 Story clause: "Observe a real click into Safari and Chrome as default browsers, with and without an existing dashboard page, and observe that receipt/dismissal does not navigate."
 Disposition: proved by slice 1: accepted native observations above; Terry's real Notification Center body clicks/dismissals, exact HTTP requests and browser user agents, Chrome rendered query, and restored default-browser settings.
+
+### G2. Final native story-card acceptance
+Reported: slice 3 — "Actual Safari/Chrome clicks into the final story cards under the required open/cold conditions, receipt/dismissal, stale target and stopped-server observations remain uncovered."
+Story clause: "Clicking the notification opens the dashboard at the correct project and reveals the associated story card, ready for the developer to inspect the session needing attention."
+Disposition: proved by slice 3: [final native evidence](FINAL-NATIVE-EVIDENCE.md) records real product Safari/Chrome body clicks, quiet receipt/dismissal, correct focused target, stale and stopped-server outcomes, and unchanged host actions; automated captured-URL/origin proof remains in [sender evidence](SENDER-EVIDENCE.md).
+
+### G3. Existing-tab reuse added by Terry
+Reported: slice 3 — "The plain URL sender does not identify or reuse an existing dashboard tab."
+Story clause: "Reuse an existing tab for the same running dashboard when one exists"
+Disposition: proved by slice 3: [native callback identities/counts](TAB-REUSE-EVIDENCE.md) and [final product clicks](FINAL-NATIVE-EVIDENCE.md) establish tab/window selection, cold existing-window opening, repeat reuse and preserved unrelated tabs; [automated callback proof](SENDER-EVIDENCE.md) covers refused inspection and zero-window fallback.
 
 ## Ordered slices
 
@@ -185,9 +180,11 @@ acceptance remains unfinished, not silently dropped.
 ### 3. Deliver server notifications with usable story destinations
 
 Type: Behavior
-Status: planned
-Proof: Server alert journeys and captured-URL page navigation, followed by real
-default-browser notification clicks into the completed dashboard behavior.
+Status: done
+Proof: [Sender/origin/page journeys, callback tests and independent refactor](SENDER-EVIDENCE.md)
+and [final native product acceptance and cleanup](FINAL-NATIVE-EVIDENCE.md) passed.
+The [bounded callback probe](TAB-REUSE-EVIDENCE.md) retains both browsers' actual
+identity/count evidence separately from automated external-API proof.
 
 Behavior: When the existing server alert rule emits a story session notification,
 the helper receives its unchanged title/message/sound and the serving
@@ -200,8 +197,12 @@ Use the actual server listening address and a shared URL contract; cover startup
 before listening and an unavailable address without inventing a successful
 destination. Preserve the notification loop's policy rather than taking on the
 sibling deduplication repair. Preserve ad-hoc notifications without a story ID.
-Use the argument and permission behavior observed in slice 1; do not invoke
-shell click commands. Document the separate prerequisite, tested version and
+Retain literal text behavior observed in slice 1. First settle the browser-aware
+callback's native permission and durable-click feasibility in a bounded early
+probe; failure stops dependent production changes. Then implement tab reuse with
+no duplicate on refused inspection. Verify existing-tab identities
+and tab/window counts in both browsers; retain cold-opening behavior.
+Document the separate prerequisite, tested version, browser permission and
 setup/recovery in `dashboard/README.md` and `AGENT-LAUNCH-HISTORY.md`, and align
 the helper-process description in `AGENT-LAUNCH-HOSTS.md`.
 
@@ -227,24 +228,5 @@ unfinished. Preserve/restore machine settings and remove probe-only artifacts.
 
 ## Verification and review
 
-Each implementation slice includes its focused verification and local cleanup;
-use the execution workflow's post-change refactor and commit gates. There is no
-project-supplied numeric slice limit to invent. Slice 1 has one native handoff
-question; slice 2 has one URL-resolution rule; slice 3 composes that rule with
-the existing notification lifecycle. Native final acceptance stays with the
-delivered behavior rather than becoming an unowned later task.
-
-For dashboard source changes run `npm run typecheck:dashboard` and the focused
-Playwright suites above, adding consumers when the effect trace requires them.
-These checks cover the changed typed boundary and actual rendered/process
-effects; a full repository suite is not a blanket local requirement. At each
-new proof boundary, confirm failure without its claimed behavior before green.
-For maintained prose, check links and the described setup against the observed
-journey. Keep temporary native observations here until wrap-up assimilates
-lasting behavior into the feature documentation.
-
-No remaining slice-specific concern was found in this construction review.
-Separate slice-plan refinement was not needed: the slices have distinct
-learning/delivery outcomes, one common target model and explicit proof owners.
-Native feasibility remains bounded by slice 1, not asserted as already proved.
-This plan grants no execution authority and records no execution completion.
+[Preparation and verification criteria](PREPARATION-EVIDENCE.md#verification-and-review)
+retain the focused checks, proof ownership and bounded native acceptance.

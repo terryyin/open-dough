@@ -1,5 +1,5 @@
 // Puts one synthetic executable from ../fixtures (the fake `gh`, the fake
-// `claude`, the fake `osascript`), or a module one loads from beside itself,
+// `claude`, the fake `terminal-notifier`), or a module one loads from beside itself,
 // into a test's own PATH directory under its command or module name.
 
 import { spawnSync } from "node:child_process";
@@ -24,7 +24,7 @@ export function installFixtureExecutable(
     | "fake-claude"
     | "fake-claude-attach.cjs"
     | "fake-host-environment.cjs"
-    | "fake-osascript"
+    | "fake-terminal-notifier"
     | "fake-codex"
     | "fake-cursor"
     | "fake-cursor-attach",
@@ -51,7 +51,7 @@ export function installFixtureExecutable(
 const refusingWithoutItsVariables = [
   "fake-gh",
   "fake-claude",
-  "fake-osascript",
+  "fake-terminal-notifier",
 ] as const;
 
 // Runs each of those once, for the suite's global setup (./globalSetup.ts):

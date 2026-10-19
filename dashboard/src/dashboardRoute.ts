@@ -4,13 +4,17 @@
 import { useEffect, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import { firstProject, useProjects } from "./projectList.tsx";
+import {
+  storyDestinationOf,
+  type StoryDestination,
+} from "./dashboardDestination.ts";
 
 export type DashboardView = "stories" | "roster";
 
 export type DashboardRoute = {
   readonly source: PublishedSource;
   readonly view: DashboardView;
-  readonly story?: { readonly project: string; readonly identity: string };
+  readonly story?: StoryDestination;
 };
 
 export function buildRouteUrl(
@@ -41,18 +45,18 @@ export function parseRoute(
   const params = new URLSearchParams(location.search);
   const projectParam = params.get("project");
   const requestedView = params.get("view");
-  const story = params.get("story");
+  const story = storyDestinationOf(params);
   // A story URL always names its project and stories view. Retain an unknown
   // project verbatim so the page can explain that destination, never silently
   // turn a notification into a different project's work.
-  if (story !== null && story !== "") {
-    const project = projectParam ?? "";
+  if (story !== undefined) {
     return {
       route: {
         source:
-          projects.find((source) => source.id === project) ?? defaultSource,
+          projects.find((source) => source.id === story.project) ??
+          defaultSource,
         view: "stories",
-        story: { project, identity: story },
+        story,
       },
       normalizedUrl: undefined,
     };

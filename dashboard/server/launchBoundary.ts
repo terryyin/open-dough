@@ -58,6 +58,7 @@ import {
 import { answer } from "./launchBoundaryAnswer.ts";
 import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
+import { dashboardOrigin } from "./dashboardOrigin.ts";
 
 export function installAgentLaunchMiddleware(
   middlewares: BoundaryMiddlewares,
@@ -69,7 +70,7 @@ export function installAgentLaunchMiddleware(
   );
   const doneMarks = new NativeDoneMarks(terminals);
   const launches: AgentLaunches = new AgentLaunches(doneMarks);
-  const alerts = new SessionAlerts(launches);
+  const alerts = new SessionAlerts(launches, () => dashboardOrigin(httpServer));
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {

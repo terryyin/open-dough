@@ -1,11 +1,11 @@
 // The Sessions sidebar says when the server cannot raise its macOS alerts
 // (./session-alerts.spec.ts is the alerts themselves): the open sidebar shows
-// "Alerts unavailable" with one of two fixed reasons while the latest
-// `osascript` the server ran (a start probe, then each notification) did not
+// "Alerts unavailable" with a fixed setup explanation while the latest
+// `terminal-notifier` probe or notification did not
 // work, says nothing while it does, and loses the note at the next read of the
 // machine's sessions after a notification worked again. A closed sidebar
 // shows no note and the Sessions button is as before. The synthetic `claude`
-// (./fixtures/fake-claude) and `osascript` (./fixtures/fake-osascript) are all
+// (./fixtures/fake-claude) and `terminal-notifier` (./fixtures/fake-terminal-notifier) are all
 // the server reaches; a real notification is never raised.
 
 import type { Page } from "@playwright/test";
@@ -24,19 +24,20 @@ import {
 } from "./support/dashboardServer.ts";
 import type { FakeClaudeOptions } from "./support/fakeClaude.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
+import { afterFurtherListings, becomes } from "./support/sessionAlerts.ts";
 
 const test = base.extend<{
-  osascript: FakeClaudeOptions["osascript"];
+  notifier: FakeClaudeOptions["notifier"];
   server: DashboardServer;
 }>({
-  osascript: [undefined, { option: true }],
-  server: async ({ osascript }, use) => {
+  notifier: [undefined, { option: true }],
+  server: async ({ notifier }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,
       projectFolders: ["open-dough"],
       alertCheckMs: 100,
-      osascript,
+      notifier,
     });
     await use(server);
     await server.close();
@@ -44,8 +45,9 @@ const test = base.extend<{
 });
 
 const notFound =
-  "osascript was not found on this machine, so alerts need macOS";
-const refused = "macOS did not accept the notification";
+  "terminal-notifier was not found. Install it separately with brew install terminal-notifier, then restart the dashboard.";
+const refused =
+  "terminal-notifier did not accept the notification. Check System Settings → Notifications → terminal-notifier and allow notifications.";
 
 const noteOf = (page: Page) => page.getByText(/Alerts unavailable/);
 
@@ -67,9 +69,9 @@ async function alertsAnswered(server: DashboardServer): Promise<unknown> {
   return (JSON.parse(response.body) as { alerts: unknown }).alerts;
 }
 
-test.describe("a working osascript", () => {
+test.describe("a working notifier", () => {
   test("leaves the open sidebar without a note", async ({ server, page }) => {
-    await expect.poll(() => server.osascriptProbes().length).toBe(1);
+    await expect.poll(() => server.notifierProbes().length).toBe(2);
     expect(await alertsAnswered(server)).toEqual({ available: true });
     const { sidebar } = await openSidebar(server, page);
     await expect(
@@ -79,8 +81,8 @@ test.describe("a working osascript", () => {
   });
 });
 
-test.describe("no osascript on the machine", () => {
-  test.use({ osascript: "absent" });
+test.describe("no notifier on the machine", () => {
+  test.use({ notifier: "absent" });
 
   test("the open sidebar says Alerts unavailable and why, and still lists sessions; closed, the note is not on the page", async ({
     server,
@@ -114,8 +116,8 @@ test.describe("no osascript on the machine", () => {
   });
 });
 
-test.describe("an osascript that refuses", () => {
-  test.use({ osascript: "failing" });
+test.describe("a notifier that refuses", () => {
+  test.use({ notifier: "failing" });
 
   test("the note gives the refusal, and goes at the next read after a notification worked", async ({
     server,
@@ -129,7 +131,7 @@ test.describe("an osascript that refuses", () => {
       sidebar.getByText(`Alerts unavailable: ${refused}`),
     ).toBeVisible();
 
-    server.osascriptBecomes("working");
+    server.notifierBecomes("working");
     const response = await launch(server, launchRequest);
     const session = (
       JSON.parse(response.body) as {
@@ -138,12 +140,66 @@ test.describe("an osascript that refuses", () => {
     ).record.session.sessionId;
     expect(await machineSessions(server)).toHaveLength(1);
     server.claudeSessionBecomes(session, "blocked", "Which database?");
-    await expect.poll(() => server.osascriptCalls().length).toBe(1);
+    await expect.poll(() => server.notifierCalls().length).toBe(1);
     expect(await alertsAnswered(server)).toEqual({ available: true });
 
     await page.reload();
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByRole("listitem")).toHaveCount(1);
     await expect(noteOf(page)).toHaveCount(0);
+  });
+});
+
+for (const mode of ["older", "unknown-version"] as const) {
+  test.describe(`a ${mode} helper`, () => {
+    test.use({ notifier: mode });
+    test("does not treat an existing executable or a successful unknown option as alert availability", async ({
+      server,
+      page,
+    }) => {
+      const reason =
+        "Alerts need terminal-notifier 3.1 or newer. Update it separately, then restart the dashboard.";
+      await expect
+        .poll(() => alertsAnswered(server))
+        .toEqual({ available: false, reason });
+      expect(server.notifierProbes()).toEqual([{ argv: ["-version"] }]);
+      expect(server.notifierCalls()).toEqual([]);
+      const { sidebar } = await openSidebar(server, page);
+      await expect(
+        sidebar.getByText(`Alerts unavailable: ${reason}`),
+      ).toBeVisible();
+    });
+  });
+}
+
+test.describe("a notification refused after successful diagnostics", () => {
+  test.use({ notifier: "send-failing" });
+  test("explains refusal without raw stderr and recovers on the next transition", async ({
+    server,
+  }) => {
+    await expect
+      .poll(() => alertsAnswered(server))
+      .toEqual({ available: true });
+    const response = await launch(server, launchRequest);
+    const session = (
+      JSON.parse(response.body) as {
+        record: { session: { sessionId: string } };
+      }
+    ).record.session.sessionId;
+    // Let the working baseline settle before the attention transition.
+    await afterFurtherListings(server);
+    server.claudeSessionBecomes(session, "blocked");
+    await expect
+      .poll(() => alertsAnswered(server))
+      .toEqual({ available: false, reason: refused });
+    expect(server.notifierCalls()).toHaveLength(1);
+    server.notifierBecomes("working");
+    await becomes(server, session, "working");
+    server.claudeSessionBecomes(session, "blocked");
+    await expect
+      .poll(() => alertsAnswered(server))
+      .toEqual({ available: true });
+    expect(server.notifierCalls()).toHaveLength(2);
+    expect(server.notifierProbes()).toHaveLength(4);
   });
 });
