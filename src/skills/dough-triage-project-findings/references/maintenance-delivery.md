@@ -64,6 +64,12 @@ Supply the owned checkout and its recorded base/ownership, the selected origin
 target, and the default checkout when established. Dough Land owns the commit,
 reconciliation, remote acceptance, optional refresh, retirement and interrupted
 landing mechanics; do not reproduce those steps or use an ad hoc push instead.
+Apply the complete linked landing and publication procedures, including
+[candidate retention before push](../../dough-execute-plan/references/publish-the-candidate.md#publish-the-candidate)
+when applicable: retain the full candidate SHA and the base its owned suffix
+extends before each push, then publish that pinned candidate as the shared
+procedure requires. Loading Dough Land or passing its queued-closure check
+alone does not complete the handoff.
 This is ordinary reviewed metadata work unless retained context establishes an
 execution: absence of a story or plan is not unfinished execution. When another
 workflow owns the checkout, its gates still apply.

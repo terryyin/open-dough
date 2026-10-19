@@ -35,6 +35,17 @@ Claude Code session in the client project and invoke:
 
 > /dough-update https://github.com/terryyin/open-dough.git
 
+## Project findings maintenance
+
+The same shared workflow is available as `$dough-triage-project-findings` in
+Codex and `/dough-triage-project-findings` in Cursor and Claude Code after a
+release containing it is installed. Start a fresh session in the project and
+explicitly invoke it to maintain existing retrospective findings, follow adopted
+fixes and queue up to three supported new improvement stories. Its invocation
+includes committing and synchronizing that maintenance result to the established
+origin target. Supply missing project record or publication context when needed.
+Reading findings or completing a retrospective does not invoke maintenance.
+
 ## Updater safety contract
 
 Ordinary updates of a recorded installation read that root's `SOURCE` and do

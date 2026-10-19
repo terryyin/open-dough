@@ -72,6 +72,9 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-work.mjs
   dough-product-backlog/scripts/product-backlog.mjs
   dough-maintain-findings/SKILL.md
+  dough-triage-project-findings/SKILL.md
+  dough-triage-project-findings/references/maintenance-delivery.md
+  dough-triage-project-findings/references/finding-lifecycle.md
   dough-story-decomposition/SKILL.md
   dough-story-decomposition/references/problem-decomposition.md
   dough-story-decomposition/references/seed-format.md
@@ -101,8 +104,7 @@ managed_files=(
   dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
   dough-land/references/completion-attention.md dough-land/references/dashboard-completion.md
-  dough-land/references/publish-reviewed-checkout.md
-  dough-land/references/worktree-retirement.md
+  dough-land/references/publish-reviewed-checkout.md dough-land/references/worktree-retirement.md
   dough-land/scripts/retirement-checks.mjs dough-land/scripts/worktree-retirement.mjs
   dough-land/scripts/queued-closure-check.mjs
   dough-resplit-story/SKILL.md
@@ -229,13 +231,11 @@ managed_files=(
   dough-execute-plan/scripts/workspace-publication-ownership.mjs
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
-  dough-post-change-refactor/SKILL.md
-  dough-post-change-refactor/references/refactor-checks.md
+  dough-post-change-refactor/SKILL.md dough-post-change-refactor/references/refactor-checks.md
   dough-test-optimization/SKILL.md
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/resolving-candidates.md
-  dough-manual-testing/SKILL.md
-  dough-manual-testing/references/exploration-workspace.md
+  dough-manual-testing/SKILL.md dough-manual-testing/references/exploration-workspace.md
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md

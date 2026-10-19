@@ -149,7 +149,7 @@ guidance; final supported delivery/native assessment remains slice 3's owner.
 ### 3. Deliver the complete shared skill through the existing installation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A reviewed candidate installs/updates with its complete dependencies and
 works through the native entry point, with affected behavior assessed for all
 three hosts independently.
@@ -214,14 +214,12 @@ gate. This plan itself authorizes no execution or paid launch; current user inst
 ## Execution context and learnings
 
 Story Branch Mode, origin/main; increments publish the established execution branch.
-[EXECUTION.md](EXECUTION.md) is this plan's retained execution identity, exact checkout/branch,
-base/candidate, setup, observer, literal commands and accepted proof appendix.
+[EXECUTION.md](EXECUTION.md) retains execution identity, setup and slices 1–2 proof;
+[DELIVERY.md](DELIVERY.md) continues with complete payload and remaining-host proof.
 
-User approved bounded paid native checks. Slice 1 first use, exact repeat and
-rejected-publication recovery passed on Codex; production guidance is byte-stable.
-Explicit maintenance owns supported compaction rather than retrospective append-only
-recording, and triage's requested report continues after Land operations before final
-reporting. Slice 2 lifecycle passed on Codex; slice 3 remaining-host/delivery proof remains open.
+User approved bounded paid native checks; accepted outcomes and proof limits
+are in the appendices. Explicit maintenance owns supported compaction and its
+requested report continues after Land operations before final reporting.
 
 ## Story obligations
 
@@ -241,4 +239,10 @@ Disposition: proved by slice 2: [accepted lifecycle proof](EXECUTION.md#slice-2-
 
 Reported: slice 2 — "other-host acceptance remains separate."
 Story clause: "Apply the shared behavior and affected native-acceptance boundaries above."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: [delivery/native proof](DELIVERY.md), including real complete-payload install/update and independently judged Cursor and Claude behavior with justified Codex reuse.
+
+### G4. Claude publication recovery boundary remains unproved
+
+Reported: slice 3 — "native proof does not establish required pre-push recovery boundary."
+Story clause: "with each changed maintenance result committed and synchronized to origin."
+Disposition: proved by slice 3: [focused Claude correction](DELIVERY.md#focused-claude-handoff-correction), retaining the full candidate/base before a pinned publication and verifying actual remote acceptance without repeating the earlier accepted fixture commits.
