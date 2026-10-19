@@ -162,6 +162,11 @@ Raw: `/tmp/seed136-hosted-runner-measurement-20261019/` (Jobs API, logs,
 twelve HTML reports/run, comparison). All watches/collectors exited 0 and
 both exact-SHA guarded owned aliases were removed. Root accepted the proof.
 
+## Execution complete
+
+Product advice: No further product work recommended. The 18.693% suite-step
+saving meets 8%; complete-workflow wall time remains unproved under queueing.
+
 ## Story obligations
 
 ### G1. Local host-capacity limitation
@@ -216,7 +221,7 @@ Disposition: proved by slice 3: control/push pairs 39188949666/39188970886 and 3
 - Resumption verified old stop/exit and native setup. Replacement retained stream:
   cell `65`, PTY `43383`, PID `16232`, `/tmp/dough-ci-501/watch-ZqcPTu`.
   Later delivery reuses it. Worktree, branch and evidence remain owned;
-  hosted proof is accepted; record delivery and retrospective/completion remain.
+  all slice proof is accepted; closure uses the final registered revision.
 
 ## Learnings
 
@@ -241,7 +246,3 @@ Details remain in `0133c0bf`'s plan and
 `/tmp/seed136-slice1-production-diagnostic.json`, with diagnostic script/logs at
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed136-npm-diagnostic-4aobk5x4/`.
 No hosted layout or production script changes follow from local contention.
-
-Removing isolated starts on four-vCPU shards needs Terry's deferred redesign.
-Preliminary slice-1 review found no defect; hosted proof is now accepted.
-Full retrospective/process recording await record delivery.
