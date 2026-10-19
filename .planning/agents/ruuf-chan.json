@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-010#exchange-retrospective-findings-with-another-project",
+  "mode": "story-branch",
+  "branch": "codex/collect-client-feedback-and-prioritize-open-doug",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

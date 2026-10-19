@@ -19,10 +19,10 @@ cost of the feedback process itself.
 ## Taken
 
 - [Open the relevant dashboard story from a macOS notification](seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification) — SEED-140#open-notified-story-from-macos-notification ([plan](slice-plans/318-notification-story-navigation/PLAN.md))
+- [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project ([plan](slice-plans/317-collect-client-feedback/PLAN.md))
 
 ## Backlog list
 
-- [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
 - [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
