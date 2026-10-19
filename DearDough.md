@@ -84,6 +84,14 @@ Former local code: DD-128. Startup boundary instructions require broad reference
   - Observed effect: oversized required-reference batches needed additional retrieval before delegation, including after recovery.
   - Inference: the reference surface and this coordinator's batching both contributed; targeted-retrieval guidance was not applied consistently. These output counts are not total cost and do not show that the underlying checks lack value.
 
+- Execution: `SEED-010#exchange-retrospective-findings-with-another-project` / plan 317, first implementation `6222747bc602a10c1ed833bc0d128e61ec2b005f`
+  - Timestamp: unknown (2026-10-19 JST, coordinator startup before delegation).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `ae9e5d4f`; installed execution/refactor guidance unchanged; internal candidate guidance modified).
+  - Evidence: launch `79f4fa14-9ba8-4cae-856e-bb4149ca47ca` coordinator startup outputs report 19,835 and 27,572 tokens with truncation, followed by targeted retrieval. The established start already supplied claim/workspace identity; all three managed increments reused the retained observer without reconciliation. `f492e533:.planning/slice-plans/317-collect-client-feedback/PLAN.md` retains source and delivery context.
+  - Observed effect: oversized reference/source batches required additional retrieval before the first implementation handoff.
+  - Inference: the broad reference surface and this coordinator's oversized batching both contributed; targeted retrieval was applied late. Output counts are not total token cost and do not establish that the underlying checks lack value.
+
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
 Former local code: DD-155. Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous. Open, unqueued. [Evidence and response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/finding-names.md#odf-106).
@@ -108,6 +116,14 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Evidence: `report_refactor` returned “none — already clean” and `REFACTOR COMPLETE`, approximately six active minutes, no edits and no verification reruns. It reviewed the local report wrapper/CSS, documentation, browser journeys and supporting fixture/geometry modules; unchanged proof was reused.
   - Observed effect: the required fresh independent handoff produced no further edits for this accepted presentation repair.
   - Inference: the agent's elapsed estimate supports the existing proportionality question; neither measured token cost nor absence of review value is established. Coordinator acceptance had already caught and returned the root-scroll experiment's resize-edge regression.
+
+- Execution: `SEED-010#exchange-retrospective-findings-with-another-project` / plan 317, first implementation `6222747bc602a10c1ed833bc0d128e61ec2b005f`
+  - Timestamp: unknown (2026-10-19 JST, slice-2 post-change review before `d4beef07`).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `ae9e5d4f`; installed execution/refactor guidance unchanged; internal candidate guidance modified).
+  - Evidence: `refactor2` returned no product refactor candidate for the four-line retention clarification, changed only plan whitespace (254 to 250 lines), reused native proof and reported approximately five active minutes. `d4beef07:.planning/slice-plans/317-collect-client-feedback/proof/observations-2.md` retains the accepted boundary; the coordinator handoff is in launch `79f4fa14-9ba8-4cae-856e-bb4149ca47ca`.
+  - Observed effect: the mandatory fresh independent handoff produced no behavior edit or additional proof; its only change met the file-size rule.
+  - Inference: this supports the existing proportionality question. The elapsed figure is the agent's estimate, not an independent timing or measured saving, and does not show that independent review or record organization lacked value.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
@@ -550,6 +566,14 @@ Slice delivery asks for the project's selective formatting command; this project
   - Evidence: `95c0af23:.planning/slice-plans/316-triage-project-findings/EXECUTION.md` delivery preparation, `4636b764` same path slice-2 preparation, and `6c7f316d:.planning/slice-plans/316-triage-project-findings/DELIVERY.md` acceptance/preparation record each passed `npm run format` without additional edits. `scripts/lint.mjs` at `6c7f316d` selects every tracked/untracked script and JSON file plus shell scripts; Markdown is outside those formatter selections.
   - Observed effect: three repository-wide formatter runs, including the two Markdown-only implementation increments; delivery waited for unchanged unrelated script checks and no formatter edit resulted.
   - Inference: the available command exceeds the workflow's selective-format intent. No elapsed-time or token-cost estimate is asserted; changing formatting is outside this story.
+
+- Execution: `SEED-010#exchange-retrospective-findings-with-another-project` / plan 317, first implementation `6222747bc602a10c1ed833bc0d128e61ec2b005f`
+  - Timestamp: unknown (2026-10-19 JST, three slice deliveries).
+  - Tool: Codex
+  - Open Dough release: 0.3.64 (checkout-bound installed dough-update/VERSION at claim `ae9e5d4f`; installed execution/refactor guidance unchanged; internal candidate guidance modified).
+  - Evidence: coordinator format receipts and `/tmp/open-dough-317-format-slice1.log`, `format-slice2.log` and `format-slice3.log` (same prefix) record four whole-command attempts: first slice twice after mechanical ShellCheck repair, then once per later slice. `scripts/lint.mjs` selects all tracked/untracked scripts and JSON plus shell paths; logs enumerate unchanged installed skills, unrelated sources and tests. Proof notes at `f492e533:.planning/slice-plans/317-collect-client-feedback/proof/` retain preparation outcomes.
+  - Observed effect: each delivery waited through repository-wide ESLint, Prettier and shell checks, including the four-line Markdown policy correction; no unrelated bytes changed.
+  - Inference: the available command exceeds the workflow's selective-format intent. No unloaded elapsed time or token cost is asserted, and this story does not authorize changing the formatter.
 
 ## DD-310 — Test runs leave detached product children after timed-out teardowns, and the developer found them first
 Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory.
