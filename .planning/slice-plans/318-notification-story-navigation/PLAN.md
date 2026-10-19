@@ -99,12 +99,29 @@ native journey remains required in slice 3 even after the helper probe passes.
 | Missing/refused helper is explained; current alert semantics and literal text survive | 3 | Existing alert scenarios adapted to a fake notifier, unavailable sidebar and recovery, unread-report/Codex callers, quoted/backslash/leading-special-character text, and held child termination. Native setup/refusal check confirms what the helper can actually report. |
 | Unreachable destination is never called successful navigation | 1 and 3 | Stop the isolated destination before a click, observe browser connection failure and no product-success assertion; no server-start or agent-start side effect. Restore the test server for later cases. |
 
+## Execution context and accepted native evidence
+
+Established start, 2026-10-19, for the identity above: publisher `dashboard-territory.local-open-dough`, agent `dbs-chan`, Story Branch Mode; owned checkout `/Users/terryyin/git/open-dough/.worktrees/open-the-relevant-dashboard-story-from-a-macos-n`, branch `codex/open-the-relevant-dashboard-story-from-a-macos-n`. Integration checkout `/Users/terryyin/git/open-dough`; authorized trunk `origin/main`; increments publish to the recorded execution branch. Published base/initial candidate `3728ffc96fce3bbac71eddf4cb9146e30efc9e67`; starting revision `6af75e8834a0b9972692483c88ddc246879f1a22`. No second Take or replanning override; existing bounded planning authority remains.
+
+Checkout setup passed `node scripts/setup-native.mjs npm`, `node scripts/setup-native.mjs browser`, `node scripts/setup-native.mjs check` (Chromium 153.0.8010.12), and `npm run typecheck:dashboard`, using Node 24.21.0/current lockfile. Resumption repeated only the prerequisite check, passing. The hook checks staged lint and script-triggered dashboard types; selective formatting is `npm run format`.
+
+CI observer: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (`CI`), target the execution branch above, coordinator `seed140-navigation`, execution checkout as above; current yielded cell `31`, session `70451`, directory `/tmp/dough-ci-501/watch-RQPw1R`, PID `99558`. Previous cell `12` / `/tmp/dough-ci-501/watch-gzYIGr` stopped with zero unread records and confirmed exit. The trunk claim is outside this observer's coverage; no increment has yet been published.
+
+Accepted [slice 1 native observations](NATIVE-EVIDENCE.md): helper 3.1.0 opens the default browser after sender exit, receipt/dismissal do not navigate, refusal recovers through ordinary settings, and a stopped destination fails visibly. Use uniform one-leading-backslash encoding for textual option values and ordinary HTTP URL arguments. Final story-card acceptance remains in slice 3.
+
+## Story obligations
+
+### G1. Native click surface is unavailable
+Reported: slice 1 — "Native activation in Safari and Chrome remains unobserved because the supported computer controls cannot reach the notification click surface."
+Story clause: "Observe a real click into Safari and Chrome as default browsers, with and without an existing dashboard page, and observe that receipt/dismissal does not navigate."
+Disposition: proved by slice 1: accepted native observations above; Terry's real Notification Center body clicks/dismissals, exact HTTP requests and browser user agents, Chrome rendered query, and restored default-browser settings.
+
 ## Ordered slices
 
 ### 1. Establish native notification activation in the default browser
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded real macOS notification probe using the selected helper and an
 isolated loopback destination owned by the execution checkout.
 
