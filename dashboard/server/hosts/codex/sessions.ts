@@ -121,6 +121,82 @@ async function state(rpc: CodexRpc, threadId: string): Promise<SessionState> {
   }
 }
 
+// One endpoint owns a shared observation budget, including overlapping page
+// and alert polls. A slot covers metadata and latest-turn history together.
+const maxConcurrentReads = 4;
+type QueuedRead = {
+  signal: AbortSignal;
+  read(): Promise<SessionState>;
+  resolve(state: SessionState): void;
+};
+type ReadQueue = { active: number; waiting: QueuedRead[] };
+const readQueues = new Map<string, ReadQueue>();
+
+function drainReads(endpoint: string): void {
+  const queue = readQueues.get(endpoint);
+  if (queue === undefined) return;
+  queue.waiting = queue.waiting.filter((job) => {
+    if (!job.signal.aborted) return true;
+    job.resolve({ kind: "unknown" });
+    return false;
+  });
+  while (queue.active < maxConcurrentReads && queue.waiting.length > 0) {
+    const job = queue.waiting.shift();
+    if (job === undefined) break;
+    queue.active++;
+    void job
+      .read()
+      .then(
+        (result) => {
+          job.resolve(result);
+        },
+        () => {
+          job.resolve({ kind: "unknown" });
+        },
+      )
+      .finally(() => {
+        queue.active--;
+        drainReads(endpoint);
+      });
+  }
+  if (queue.active === 0 && queue.waiting.length === 0)
+    readQueues.delete(endpoint);
+}
+
+async function boundedStates(
+  endpoint: string,
+  rpc: CodexRpc,
+  records: readonly LaunchRecord[],
+  signal: AbortSignal,
+): Promise<readonly SessionObservation[]> {
+  const queue = readQueues.get(endpoint) ?? { active: 0, waiting: [] };
+  readQueues.set(endpoint, queue);
+  const pending = records.map(
+    ({ session }) =>
+      new Promise<SessionObservation>((resolve) => {
+        queue.waiting.push({
+          signal,
+          read: () => state(rpc, session.sessionId),
+          resolve: (sessionState) => {
+            resolve({ session, sessionState });
+          },
+        });
+      }),
+  );
+  // One abort listener per observation batch, rather than one per saved
+  // session. Cancel queued work even while every native slot is occupied.
+  const aborted = () => {
+    drainReads(endpoint);
+  };
+  signal.addEventListener("abort", aborted, { once: true });
+  drainReads(endpoint);
+  try {
+    return await Promise.all(pending);
+  } finally {
+    signal.removeEventListener("abort", aborted);
+  }
+}
+
 async function endpointSessions(
   endpoint: string,
   records: readonly LaunchRecord[],
@@ -130,23 +206,10 @@ async function endpointSessions(
   try {
     // Settle each endpoint before the common ten-second observation deadline,
     // preserving completed independent endpoints when one never answers.
-    rpc = new CodexRpc(
-      endpoint,
-      AbortSignal.any([signal, AbortSignal.timeout(9_000)]),
-    );
+    const deadline = AbortSignal.any([signal, AbortSignal.timeout(9_000)]);
+    rpc = new CodexRpc(endpoint, deadline);
     await rpc.initialize();
-    const connected = rpc;
-    return await Promise.all(
-      records.map(async ({ session }) => {
-        let sessionState: SessionState;
-        try {
-          sessionState = await state(connected, session.sessionId);
-        } catch {
-          sessionState = { kind: "unknown" };
-        }
-        return { session, sessionState };
-      }),
-    );
+    return await boundedStates(endpoint, rpc, records, deadline);
   } catch {
     return records.map(({ session }) => ({
       session,

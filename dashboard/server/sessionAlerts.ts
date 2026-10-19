@@ -8,7 +8,9 @@ import { sessionKey } from "../src/sessionReference.ts";
 // existing waits; later sessions alert when they first need input. A handled
 // input request stays quiet across observation gaps, omissions and changed
 // summaries. Only available working rearms it, so work and a new question
-// missed entirely between polls may stay quiet. Other readings alert on entry,
+// missed entirely between polls may stay quiet. Review uses the same continuity
+// rule through observation gaps; a confirmed change of activity can rearm it.
+// Other readings alert on entry,
 // and reports alert once in their own words when they arrive unread. The notification is
 // `osascript` with the text passed as arguments, never spliced into script
 // text; where it cannot run, or refuses, the loop goes on. Availability is the latest `osascript` outcome,
@@ -106,6 +108,8 @@ export class SessionAlerts {
   // Input requests already notified or quietly baselined in this run. Unlike
   // the latest reading, this survives unknown observations and omitted records.
   private readonly handledInput = new Set<string>();
+  // Confirmed review survives gaps until known activity changes its meaning.
+  private readonly handledReview = new Set<string>();
   // Why the latest `osascript` did not work, or nothing while it did or none
   // has run.
   private unavailable: string | undefined;
@@ -153,29 +157,46 @@ export class SessionAlerts {
   private async poll(signal: AbortSignal): Promise<void> {
     const sessions = await this.launches.machineSessions();
     const before = this.lastAlerting;
-    const now = sessions.map((session) => ({
-      session,
-      id: sessionKey(session.session),
-      needsInput: sessionShown(session).tone === "needs-input",
-      alerting: {
-        reading: alertReading(session),
-        report: alertUnreadReport(session),
-      },
-    }));
+    const now = sessions.map((session) => {
+      const { tone } = sessionShown(session);
+      return {
+        session,
+        id: sessionKey(session.session),
+        needsInput: tone === "needs-input",
+        needsReview: tone === "ready",
+        alerting: {
+          reading: alertReading(session),
+          report: alertUnreadReport(session),
+        },
+      };
+    });
     this.lastAlerting = new Map(now.map(({ id, alerting }) => [id, alerting]));
-    for (const { session, id, needsInput, alerting } of now) {
+    for (const { session, id, needsInput, needsReview, alerting } of now) {
       if (
         session.sessionState.kind === "available" &&
         session.sessionState.activity === "working"
-      )
+      ) {
         this.handledInput.delete(id);
+        this.handledReview.delete(id);
+      } else if (
+        !needsReview &&
+        session.sessionState.kind === "available" &&
+        session.sessionState.activity !== "unknown"
+      ) {
+        this.handledReview.delete(id);
+      }
+      const repeatReview = needsReview && this.handledReview.has(id);
+      if (needsReview) this.handledReview.add(id);
       const repeatInput = needsInput && this.handledInput.has(id);
       if (needsInput) this.handledInput.add(id);
       if (before === undefined) continue;
       const { reading, report } = alerting;
       const last = before.get(id);
       const messages = [
-        ...(repeatInput || reading === undefined || reading === last?.reading
+        ...(repeatInput ||
+        repeatReview ||
+        reading === undefined ||
+        reading === last?.reading
           ? []
           : [readingMessage(reading, session)]),
         ...(report === undefined || report === last?.report ? [] : [report]),

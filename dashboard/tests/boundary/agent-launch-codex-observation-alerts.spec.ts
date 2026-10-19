@@ -97,3 +97,81 @@ test("native transition alerts unrecognized states once and stays quiet for inco
     await server.close();
   }
 });
+
+test("review baselines and notifications survive failed, incomplete and omitted observations until confirmed activity changes", async ({
+  machine,
+  codexProtocol: native,
+  dashboard,
+}) => {
+  if (native === undefined) throw new Error("Missing native fixture");
+  observed(native, "review", { type: "idle" }, "completed");
+  observed(native, "sentinel", { type: "active", activeFlags: [] });
+  const reviewed = record(dashboard, native, "review");
+  const sentinel = record(dashboard, native, "sentinel");
+  save(dashboard, [reviewed, sentinel]);
+  await dashboard.close();
+  const server = await startDashboardServer({
+    mode: "boundary",
+    machine,
+    projectFolders: ["open-dough"],
+    codexProtocol: native,
+    alertCheckMs: 50,
+  });
+  const further = () => afterFurtherReads(native, "sentinel");
+  const reviews = () =>
+    server
+      .osascriptCalls()
+      .filter((call) => call.argv.at(-2) === "Ready for review");
+  try {
+    await further();
+    expect(reviews()).toHaveLength(0);
+    for (const expected of [0, 1]) {
+      for (const gap of [
+        "failed",
+        "incomplete",
+        "history",
+        "omitted",
+      ] as const) {
+        if (gap === "failed")
+          native.observations.set("review", {
+            status: { type: "idle" },
+            turns: [],
+            metadataError: {
+              code: -32001,
+              message: "Server overloaded; retry later.",
+            },
+          });
+        if (gap === "incomplete")
+          observed(native, "review", { type: "active" });
+        if (gap === "history")
+          native.observations.set("review", {
+            status: { type: "idle" },
+            turns: [],
+            historyError: { code: -32601, message: "History unavailable" },
+          });
+        if (gap === "omitted") save(server, [sentinel]);
+        await further();
+        observed(native, "review", { type: "idle" }, "completed");
+        save(server, [reviewed, sentinel]);
+        await further();
+        expect(reviews()).toHaveLength(expected);
+      }
+      if (expected === 0) {
+        observed(native, "review", { type: "active", activeFlags: [] });
+        await further();
+        observed(native, "review", { type: "idle" }, "completed");
+        await expect.poll(() => reviews().length).toBe(1);
+      }
+    }
+    observed(native, "review", {
+      type: "active",
+      activeFlags: ["waitingOnUserInput"],
+    });
+    await further();
+    observed(native, "review", { type: "idle" }, "completed");
+    await expect.poll(() => reviews().length).toBe(2);
+    passive(native.calls);
+  } finally {
+    await server.close();
+  }
+});

@@ -113,8 +113,13 @@ supply unknown-reading wording, and adapters distinguish explicit unfamiliar
 native states from incomplete reads for shared alerting. Claude reads one machine
 listing. Codex groups
 recorded targets by saved endpoint, reads metadata and only the latest needed
-turn, without resume, subscription or interactive ownership. Endpoint failures
-leave independent healthy records readable. Cursor reads the screen of each
+turn, without resume, subscription or interactive ownership. At most four status
+reads run per endpoint across overlapping page and alert observations; each slot
+covers metadata and latest-turn history. Remaining targets queue within the same
+observation deadline. Cancellation or the deadline discards queued reads as
+unknown and releases active capacity; failures also release capacity without
+losing individual results. Endpoint failures leave independent healthy records
+readable. Cursor reads the screen of each
 client its runner already holds, without starting that runner or an agent.
 The card shows that screen's label: "at the follow-up prompt", "working", or
 "waiting for an answer". When the runner is not running, or cannot be reached,
@@ -154,10 +159,12 @@ when visible again. Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
 unmarked session enters an alerting native reading, and once, as “Unread report:
 <completion label>”, when its report arrives, whatever the native reading; its
-first read quietly baselines existing waits. Each host-qualified session's
-input alert stays handled across unknown, unreadable, incomplete, unrecognized,
+first read quietly baselines existing waits and reviews. Each host-qualified session's
+input and ready-for-review alerts stay handled across unknown, unreadable, incomplete, unrecognized,
 unavailable and omitted observations, including changed summaries. Only observed
 available working allows its next input alert, even with identical wording.
+Review alerts rearm when confirmed known activity changes the displayed review
+meaning; unavailable or unknown activity cannot establish that change.
 An answer/work/new-question cycle missed entirely between successful reads may
 stay quiet. Alert history is local to the server run and never replaces the
 current observation shown on the page. Unknown never alerts;
