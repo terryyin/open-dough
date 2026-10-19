@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-137#preserve-starts-during-dashboard-updates",
+  "title": "Preserve execution starts across automatic dashboard updates",
+  "completedAt": "2026-10-19T00:17:57.198Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "codex"
+}
