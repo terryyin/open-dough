@@ -40,6 +40,10 @@ knowledge and Git recovery. This retention decision never proves impossibility
 of recurrence. Retain uncertain candidates rather than treating a partial initial
 review as a successful watch.
 
+Keep retirement and pruning reasons in the recoverable maintenance commit or
+report. Leave no retired finding stubs, summaries or obsolete finding-only
+references in the maintained catalog, watch list or source logs.
+
 A supported same-mechanism failure resurfaces actionable evidence and the failed
 response. Follow reconciliation's continuity/correction rules, preserving unknowns;
 a genuine correction followed by reintroduction can need a new linked identity.

@@ -92,9 +92,7 @@ ranking.
 
 Type: Behavior
 Status: done
-Proof: Examples 1–3 through representative review and one bounded
-native first-use journey reaching real result files and local-origin acceptance, followed by an
-unchanged replay.
+Proof: Examples 1–3 through representative review and one bounded native first-use journey reaching real result files and local-origin acceptance, followed by an unchanged replay.
 
 Behavior: Given selected project records and explicit maintenance invocation, the internal skill resolves
 the maintained set and targets, collects shared evidence, reconciles/adopts names, selects up to two
@@ -131,9 +129,8 @@ slice 3 verifies multi-repository recovery. Do not claim whole-story completion 
 ### 2. Repeated maintenance reduces records without erasing uncertainty
 
 Type: Behavior
-Status: planned
-Proof: Examples 2, 4–5 through a bounded repeat-use sequence with
-independently reviewed evidence, removals, recovery locators and live story relationships.
+Status: done
+Proof: Examples 2, 4–5 through a bounded repeat-use sequence with independently reviewed evidence, removals, recovery locators and live story relationships.
 
 Behavior: Given retained occurrences and claimed responses, another invocation compacts duplicate narrative,
 follows verified release/adoption and relevant use, retires a passed watch, removes justified no-action
@@ -160,8 +157,7 @@ priorities. Partial/concurrent delivery assurance still belongs to slice 3.
 
 Type: Behavior
 Status: planned
-Proof: Example 6 and the missing/concurrent-source boundaries in
-example 1, through isolated native recovery with real accepted refs and byte preservation.
+Proof: Example 6 and the missing/concurrent-source boundaries in example 1, through isolated native recovery with real accepted refs and byte preservation.
 
 Behavior: Given a changed or inaccessible source, unrelated checkout work, or partially accepted
 publication, the invocation reports the actual per-repository state and continues safe independent work. A
@@ -209,7 +205,7 @@ See [accepted proof](proof/observations.md#slice-1-accepted-proof) and related
 ### G1. Full retention and response transitions (first reported in slice 1)
 Reported: slice 1 — "Actual release/adoption/exposure transitions, seven-day retirement, failed-response resurfacing, new-watch age, recoverable noise pruning and live-link protection through removals remain for slice 2."
 Story clause: "Unreleased, unused, and unknown-version cases cannot pass that watch."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: [repeat-use observations](proof/observations-2.md) and actual accepted finding/watch/source contents establish release/use distinctions, retirement, failed-response continuity, fresh corrective watch age, recoverable pruning, historical identity and preserved live work; fresh Claude replay preserves all three HEAD/tree/count/origin snapshots.
 
 ### G2. Partial and concurrent delivery (first reported in slice 1)
 Reported: slice 1 — "Unavailable/racing origins, partial-delivery recovery, unrelated dirty-byte preservation, deferred refresh, changed inventory/missing logs and clients-only publication refusal remain for slice 3."
@@ -220,6 +216,11 @@ Disposition: receiving slice 3
 Reported: slice 1 — "Separate native cases for a non-invoking context, zero/one actionable selections and isolated inline-catalog standalone use were not run; their source contracts were reviewed."
 Story clause: "Zero or one actionable problem yields zero or one selection."
 Disposition: proved by slice 1: [representative behavior review](proof/observations.md#slice-1-accepted-proof) inspects invocation exclusion, validated writable destinations, preserved inline-catalog route and fewer-than-two selection through report/delivery; current authoring changed no production findings. These conventional guidance paths require behavior review, not separate native cases; no native result is inferred.
+
+### G4. Retired identity remains in watch summary
+Reported: slice 2 — "Actual watch file confirms retired ODF-004 plain-code summary remains."
+Story clause: "retire the eligible finding from active/watch/source records with Git recovery."
+Disposition: proved by slice 2: [corrective continuation](proof/observations-2.md#corrective-continuation), actual watch at accepted a54a95a45d79066129b5e6954a58f4db5648500c and assess-repeat-use.py second show retired ODF-004/018 absent from maintained catalog/watch/source records while pre-removal Git evidence remains; the initial incomplete observation is retained.
 
 ## Execution context
 
@@ -233,7 +234,7 @@ Disposition: proved by slice 1: [representative behavior review](proof/observati
   Starting revision `73f1b19eebec713a9e0ef9e538d5828808b5d75f`;
   accepted claim and initial published base
   `ae9e5d4feed9f5ff6db44fead22612fccbad259a`.
-  Increments target `refs/heads/codex/collect-client-feedback-and-prioritize-open-doug`.
+  Increments target `refs/heads/codex/collect-client-feedback-and-prioritize-open-doug`; latest accepted `6222747bc602a10c1ed833bc0d128e61ec2b005f`, suffix base `ae9e5d4feed9f5ff6db44fead22612fccbad259a` (slice 1; observer reused).
 - Changed since readiness review remains recorded; the selected source and plan
   still describe the same three-slice outcome. Execution does not renew readiness.
   Existing planning authority is retained; no explicit no-replan restriction.
