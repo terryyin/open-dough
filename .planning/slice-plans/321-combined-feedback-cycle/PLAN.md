@@ -175,7 +175,8 @@ all captured values and native contracts; formatter passed. No further wrapper
 change was needed. G6 explicitly bounds the overwritten artifact without losing
 the independent Git, report, trace and publication proof.
 Automatic retrospective found no product correction; existing backlog order stands.
-Process review updated ODF-158/DD-309 and added DD-317; DearDough.md is 704 lines (500-line warning).
+Process review updated ODF-158/DD-309 and added DD-317; merged DearDough.md is 729 lines (500-line warning).
+CI at `2d7c7665` exposed a pre-existing notifier-test race; adopted published main `e218b198` through history-preserving integration, accepted at `4376842c9f1779a6c1f703e3059663e64326f2e5` (base `2d7c766553fde82281efc10d35aff251a2d9822f`). Strict focused selection/run `/tmp/dough321-notifier-1792447665455-{selection,run}.json` selected and passed four tests; native contract hashes and retrospective conclusions remain unchanged.
 
 ## Execution context
 
