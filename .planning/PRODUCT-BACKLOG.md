@@ -19,10 +19,10 @@ cost of the feedback process itself.
 ## Taken
 
 - [Open referenced stories in their dashboard blocks](seeds/SEED-141-dashboard-story-links.md#open-referenced-story-in-dashboard) — SEED-141#open-referenced-story-in-dashboard ([plan](slice-plans/320-dashboard-story-references/PLAN.md))
+- [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle ([plan](slice-plans/321-combined-feedback-cycle/PLAN.md))
 
 ## Backlog list
 
-- [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths

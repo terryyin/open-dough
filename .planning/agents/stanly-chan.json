@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-010#run-combined-project-and-shared-feedback-cycle",
+  "mode": "story-branch",
+  "branch": "codex/run-project-and-open-dough-feedback-maintenance",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
