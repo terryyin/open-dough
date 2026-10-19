@@ -235,11 +235,13 @@ neither the removed workspace nor the original message file. Each new report has
 its own delivery identity; retry returns the original receipt and preserves newer
 reports and deliberate local Done or reopen. A newer attention or unfinished
 report clears an earlier automatic quiet Done while preserving explicit manual Done.
-Automatic quiet Done uses the same native naming operation as manual Done; its
+Tracked execution stays open until published closure is locally confirmed under
+the [completion rule](AGENT-LAUNCH-COMPLETION.md); explicit Done remains authoritative.
+Eligible automatic quiet Done uses the same native naming operation as manual Done; its
 local mark reads `Native done mark is pending.` until one bounded rename wait
 that starts after the receipt is sent. Native failures retain a visible problem.
 Reporting preserves the sender's attachments and running turn for acknowledgment.
 Recovery beyond that wait is explicit and bounded, through Mark as done or a
 delivery retry;
 there is no background retry. Launch attempts retain receipts for their existing
-machine-local lifetime. Reporting performs no Git operations and preserves the sender's running turn and attachments.
+machine-local lifetime. Reporting reads local Git evidence for tracked execution closure, performs no Git mutations and preserves the sender's running turn and attachments.

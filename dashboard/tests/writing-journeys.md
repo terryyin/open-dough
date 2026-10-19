@@ -52,7 +52,7 @@ records of each `/__authenticated-read` answer, which shows where a slow
 read spent its time; the browser's time beyond `total` was spent outside the
 handler. To record traces of a passing run, add `--trace on --reporter=dot`.
 The run's global setup (`support/globalSetup.ts`) runs the synthetic `gh`,
-`claude`, and `osascript` once before any worker starts, because macOS
+`claude`, and `terminal-notifier` once before any worker starts, because macOS
 assesses a new executable on its first run and a fresh checkout's first
 reads would otherwise wait on it.
 

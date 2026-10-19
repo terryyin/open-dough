@@ -110,8 +110,14 @@ it to `claude --bg` and `claude attach`; Codex's daemon start and resume and
 Cursor's runner and the `cursor-agent` processes it starts follow the same rule;
 the runner applies it again at its own spawns, so a runner an earlier
 deployment started also starts clean clients.
-The dashboard's own helper processes (`git`, `gh`, `osascript`) are not
-sessions and keep its environment.
+The dashboard's own helper processes (`git`, `gh`, `terminal-notifier`) are not
+sessions and keep its environment. The separately installed notification
+helper receives a fixed inline browser callback with a safely quoted URL
+argument. Safari/Chrome Automation consent lets a click reuse the matching
+dashboard tab and foreground its window. The callback survives sender exit
+without a checkout file or Node process. The server owns and aborts delivery
+and diagnostic children on shutdown; a later clicked callback belongs to macOS.
+No notification click runs an agent command.
 
 Each dashboard server refuses an overlapping matching launch for every host,
 including ad hoc and workflows without an installed start. Matching uses project,

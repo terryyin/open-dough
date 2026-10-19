@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 315. Removed numbers are never reused.
+- Highest allocated local number: 316. Removed numbers are never reused.
 - Full source recovery before this cleanup: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275 and repaired DD-283/DD-290 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -658,3 +658,17 @@ A Playwright file regex intended to select review specs also matched the executi
   - Evidence: the plan's Learnings at ce227bd4 retains the bare story-review regex, 1,533 selected tests in 512 files, owned interruption and terminal exit 1. Collector /tmp/dough-completed-review-accidental-selection-20261018.json and dashboard/test-results/2026-10-18T00-13-16.986Z retain the run details; the anchored replacement collected and passed 122 tests in 48 unique files.
   - Observed effect: about nine minutes of an unintended broad run before interruption; that run was rejected as proof. The coordinator independently verified the replacement selection before acceptance.
   - Inference: checking the collector before execution, with an anchored repository-relative spec pattern, would have exposed this collision. The observed selection failure does not measure general test overhead or justify omitting relevant checks.
+
+## DD-316 — Permission-only probes split a human click journey
+
+Two read-only permission probes each required a human notification click before separate callback probes exercised the operation consuming that permission. Combining consent with a minimal safe operation may reduce manual rounds when permission inspection resolves no independent risk.
+
+### Occurrences
+
+- Execution: `SEED-140#open-notified-story-from-macos-notification` / plan 318, first implementation `45642b38746e2fe65d9c206f676ba3c2997927ef`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: `2ddae371e4b8ef96900332c08825228eca03220c:.planning/slice-plans/318-notification-story-navigation/TAB-REUSE-EVIDENCE.md`, Prepared permission probe, Safari/Chrome permission observations and Safari/Chrome callback results. The Safari permission notification was posted 2026-10-19T10:59:32Z; this does not timestamp the complete sequence. The permission callbacks deliberately performed no navigation, followed by consuming callbacks `Hk8pTb` and `9Bkx9y`.
+  - Observed effect: two permission-only click/response rounds preceded two consuming callback rounds, one pair per browser. Later production-composition checks and the developer's changed tab-reuse requirement are separate work.
+  - Inference: qualified. A combined consent and minimal consuming operation could plausibly have avoided the first two rounds. No time or token saving was measured; retain a separate permission probe when it resolves an independent risk.

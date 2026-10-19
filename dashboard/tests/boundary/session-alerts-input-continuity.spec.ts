@@ -192,7 +192,7 @@ test("Claude input survives unreadable listing and native omission recovery", as
     const session = await start(server);
     await afterFurtherListings(server);
     server.claudeSessionBecomes(session, "blocked", "Which database?");
-    await expect.poll(() => server.osascriptCalls().length).toBe(1);
+    await expect.poll(() => server.notifierCalls().length).toBe(1);
     const listed = server.claudeListing();
     for (const gap of ["unreadable", "omitted"] as const) {
       if (gap === "unreadable") server.claudeListingFails(true);

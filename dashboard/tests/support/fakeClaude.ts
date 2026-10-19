@@ -1,11 +1,11 @@
 // Prepares one dashboard server's side of the local launch boundary: the
 // synthetic `claude` (../fixtures/fake-claude, with its attach module) in its
-// own PATH directory, the synthetic `osascript` (../fixtures/fake-osascript)
+// own PATH directory, the synthetic `terminal-notifier` (../fixtures/fake-terminal-notifier)
 // before it, a temporary HOME holding only the project folders a test chooses
 // (inside a machine directory the test owns, if it passes one), and the
 // controls a test uses to choose the fake's scenario and read back what it was
 // asked. Nothing here starts a server (./dashboardServer.ts does), and no test
-// ever reaches the real `claude` or `osascript`: every server puts these first
+// ever reaches the real `claude` or `terminal-notifier`: every server puts these first
 // on PATH, or, to observe a missing one, a PATH holding none, so no test
 // raises a real notification.
 
@@ -18,11 +18,12 @@ import {
   serverClaudeAttaches,
   type ClaudeAttach,
   type FakeClaudeControls,
+  type NotifierMode,
 } from "./fakeClaudeControls.ts";
 export type {
   FakeClaudeScenario,
   ClaudeCall,
-  OsascriptCall,
+  NotifierCall,
   ClaudeAttach,
   ClaudeEnvironment,
   FakeClaudeControls,
@@ -40,10 +41,10 @@ export type FakeClaudeOptions = {
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
   // only the fake `gh` and Node.
   readonly claude?: "fake" | "absent";
-  // How the fake `osascript` starts: `absent` puts none on the server's PATH;
+  // How the fake `terminal-notifier` starts: `absent` puts none on the server's PATH;
   // `failing` refuses every notification; `hang` holds each one open. Working
   // when unset.
-  readonly osascript?: "absent" | "failing" | "hang" | undefined;
+  readonly notifier?: "absent" | NotifierMode | undefined;
   // How often the server reads the sessions to alert; an hour when unset, so
   // only a test about alerts sees the server read the sessions on its own.
   readonly alertCheckMs?: number | undefined;
@@ -82,7 +83,7 @@ export function installFakeClaude(
   readonly ownedAttaches: () => ClaudeAttach[];
 } {
   const binDir = path.join(tempRoot, fakeClaudeHost.binDir);
-  const osascriptBinDir = path.join(tempRoot, "osascript-bin");
+  const notifierBinDir = path.join(tempRoot, "notifier-bin");
   const machine = options.machine ?? tempRoot;
   const stateDir = path.join(machine, "claude-state");
   const home = path.join(machine, "home");
@@ -97,8 +98,12 @@ export function installFakeClaude(
     binDir,
     "fake-host-environment.cjs",
   );
-  if (options.osascript !== "absent") {
-    installFixtureExecutable("fake-osascript", osascriptBinDir, "osascript");
+  if (options.notifier !== "absent") {
+    installFixtureExecutable(
+      "fake-terminal-notifier",
+      notifierBinDir,
+      "terminal-notifier",
+    );
   }
   mkdirSync(stateDir, { recursive: true });
   for (const folder of ["", ...(options.projectFolders ?? [])]) {
@@ -106,15 +111,15 @@ export function installFakeClaude(
   }
 
   const env: Record<string, string> = {
-    // The real `claude` and `osascript` are never reached: the fake ones come
+    // The real `claude` and `terminal-notifier` are never reached: the fake ones come
     // first, or none is on PATH at all.
     // Where either is absent, the system's own PATH is left out, so a real
-    // `osascript` on a Mac is out of reach too.
+    // `terminal-notifier` on a Mac is out of reach too.
     PATH: [
-      ...(options.osascript === "absent" ? [] : [osascriptBinDir]),
+      ...(options.notifier === "absent" ? [] : [notifierBinDir]),
       ...(options.claude === "absent"
         ? [gh.binDir, nodeOnlyBinDir(tempRoot)]
-        : options.osascript === "absent"
+        : options.notifier === "absent"
           ? [binDir, gh.binDir, nodeOnlyBinDir(tempRoot)]
           : [binDir, gh.path]),
     ].join(path.delimiter),
@@ -130,8 +135,8 @@ export function installFakeClaude(
   }
 
   const state = (file: string) => path.join(stateDir, file);
-  if (options.osascript === "failing" || options.osascript === "hang") {
-    writeFileSync(state("osascript-mode"), options.osascript);
+  if (options.notifier !== undefined && options.notifier !== "absent") {
+    writeFileSync(state("notifier-mode"), options.notifier);
   }
   return {
     env,

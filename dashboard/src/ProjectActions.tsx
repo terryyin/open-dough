@@ -1,10 +1,11 @@
 import type { MachineSessions } from "./agentLaunches.ts";
-import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
+import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 import { StartSession } from "./StartSession.tsx";
 
+// Actions for the selected project's stories, independent of a URL destination.
 export function ProjectActions({
   source,
   work,

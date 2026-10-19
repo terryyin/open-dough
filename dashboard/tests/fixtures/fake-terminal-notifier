@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+"use strict";
+
+// A synthetic `terminal-notifier` first on PATH for one isolated
+// dashboard server (see ../support/fakeClaude), so no test ever raises a real
+// notification. It shows nothing: it appends its argv to `notifier-calls.jsonl`
+// in the fake `claude`'s state directory and, by the `notifier-mode` file
+// there, exits 0 (default), exits 1 (`failing`), or holds its answer
+// (`hang`), recording its pid in `notifier.pid` and, once a signal ends it,
+// that signal in `notifier.pid.exited`, for the controls to observe. The
+// Harmless version/permission probes are logged separately. Unknown options
+// are rejected; the click command is never executed here.
+
+const fs = require("fs");
+const path = require("path");
+
+const dir = process.env.FAKE_CLAUDE_DIR;
+if (!dir) {
+  process.stderr.write("fake notifier: FAKE_CLAUDE_DIR is not set\n");
+  process.exitCode = 1;
+  return;
+}
+
+const argv = process.argv.slice(2);
+const probe = argv.length === 1 && ["-version", "-diagnose"].includes(argv[0]);
+fs.appendFileSync(
+  path.join(dir, probe ? "notifier-probes.jsonl" : "notifier-calls.jsonl"),
+  `${JSON.stringify({ argv })}\n`,
+);
+
+let mode = "working";
+try {
+  mode = fs.readFileSync(path.join(dir, "notifier-mode"), "utf8").trim();
+} catch {
+  // No mode file: the default.
+}
+
+if (argv[0] === "-version") {
+  process.stdout.write(
+    mode === "older"
+      ? "terminal-notifier 2.0.0.\n"
+      : mode === "unknown-version"
+        ? "unrecognized command\n"
+        : "terminal-notifier 3.1.0.\n",
+  );
+  return;
+}
+if (mode === "failing" || (mode === "send-failing" && !probe)) {
+  process.stderr.write("fake notifier: notification refused\n");
+  process.exitCode = 3;
+  return;
+}
+if ((mode === "hang" && !probe) || (mode === "hang-probe" && probe)) {
+  fs.writeFileSync(path.join(dir, "notifier.pid"), String(process.pid));
+  for (const signal of ["SIGTERM", "SIGINT"]) {
+    process.on(signal, () => {
+      fs.writeFileSync(path.join(dir, "notifier.pid.exited"), signal);
+      process.exit(143);
+    });
+  }
+  setInterval(() => {}, 1000);
+  return;
+}
+if (probe) return;
+const expected = ["-title", "-message", "-sound", "-execute"];
+if (
+  argv.length !== expected.length * 2 ||
+  expected.some((option, index) => argv[index * 2] !== option) ||
+  !argv[1].startsWith("\\") ||
+  !argv[3].startsWith("\\") ||
+  argv[5] !== "Glass" ||
+  !argv[7].startsWith("'/usr/bin/osascript' '-l' 'JavaScript' '-e' '")
+) {
+  process.stderr.write("fake terminal-notifier: invalid argument contract\n");
+  process.exitCode = 2;
+}

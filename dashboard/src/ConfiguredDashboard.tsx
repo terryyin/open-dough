@@ -9,6 +9,7 @@ import { PageFrame } from "./PageFrame.tsx";
 import { ProjectActions } from "./ProjectActions.tsx";
 import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
+import { StoryDestination, useStoryDestination } from "./StoryDestination.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import {
@@ -104,6 +105,13 @@ export function ConfiguredDashboard({
     onForwardToRoster,
   });
 
+  const destination = useStoryDestination({
+    route,
+    work,
+    attempt,
+    enabled: !settingsOpen,
+  });
+
   useProjectKeyboardNavigation({
     source,
     selectProject,
@@ -191,6 +199,16 @@ export function ConfiguredDashboard({
               onSelect={selectProject}
             />
             <div className="page-header">
+              <StoryDestination
+                route={route}
+                status={destination}
+                retry={() => {
+                  window.location.reload();
+                }}
+                showStories={() => {
+                  showStories(source);
+                }}
+              />
               <PublishedReadStatus
                 attempt={attempt}
                 reading={reading}

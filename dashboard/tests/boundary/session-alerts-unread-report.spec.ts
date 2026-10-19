@@ -4,8 +4,8 @@
 // report: <completion label>”, whatever the native reading, which goes on
 // alerting as it would without a report; none for a session marked done.
 // Real start, launch, installed reporting command and store; the synthetic
-// `claude` (../fixtures/fake-claude) and `osascript`
-// (../fixtures/fake-osascript) are all the server reaches. The server reads
+// `claude` (../fixtures/fake-claude) and `terminal-notifier`
+// (../fixtures/fake-terminal-notifier) are all the server reaches. The server reads
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
@@ -52,10 +52,10 @@ test("a report arriving unread raises one notification in its own words, apart f
       "Marked done",
     );
     await afterFurtherListings(server);
-    expect(server.osascriptCalls()).toEqual([]);
+    expect(server.notifierCalls()).toEqual([]);
 
     await reported.report();
-    await expect.poll(() => server.osascriptCalls().length).toBe(1);
+    await expect.poll(() => server.notifierCalls().length).toBe(1);
     expect(notices(server)).toEqual([
       {
         message: "Unread report: Completed with attention",
@@ -64,10 +64,10 @@ test("a report arriving unread raises one notification in its own words, apart f
       },
     ]);
     await afterFurtherListings(server);
-    expect(server.osascriptCalls()).toHaveLength(1);
+    expect(server.notifierCalls()).toHaveLength(1);
 
     server.claudeSessionBecomes(reported.sessionId, "blocked", "Which port?");
-    await expect.poll(() => server.osascriptCalls().length).toBe(2);
+    await expect.poll(() => server.notifierCalls().length).toBe(2);
     await afterFurtherListings(server);
     expect(messages(server)).toEqual([
       "Unread report: Completed with attention",
@@ -86,7 +86,7 @@ test("a report arriving unread raises one notification in its own words, apart f
     await markedDone.report();
     await becomes(server, markedDone.sessionId, "stopped");
     await afterFurtherListings(server);
-    expect(server.osascriptCalls()).toHaveLength(2);
+    expect(server.notifierCalls()).toHaveLength(2);
   } finally {
     await server.close();
     origin.cleanup();

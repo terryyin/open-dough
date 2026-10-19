@@ -6,6 +6,7 @@ import path from "node:path";
 import { expect } from "@playwright/test";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { completionCi } from "./completionCi.ts";
+import { publishCompletionClosure } from "./completionClosurePublication.ts";
 import {
   claimCompletionObserver,
   completionCoordinator,
@@ -21,6 +22,8 @@ export async function withInstalledCompletionClosure(
   closure: CompletionClosure,
   observe: (final: string) => Promise<void>,
   proofEnv = process.env,
+  landingContext?: string,
+  observeKept?: () => Promise<void>,
 ): Promise<void> {
   const git = async (...args: string[]) =>
     (
@@ -46,14 +49,13 @@ export async function withInstalledCompletionClosure(
     "--path-format=absolute",
     "--git-common-dir",
   );
-  writeFileSync(
-    path.join(workspace, "product.txt"),
-    "Accepted product result\n",
+  const beforeCleanup = await publishCompletionClosure(
+    origin,
+    workspace,
+    proofEnv,
+    landingContext,
+    observeKept,
   );
-  await git("add", "product.txt");
-  await git("commit", "-m", "Retain product knowledge before closure");
-  const beforeCleanup = await git("rev-parse", "HEAD");
-  await git("push", "origin", "HEAD:refs/heads/main");
   let final = beforeCleanup;
   let mailbox: string | undefined;
   let ci: ReturnType<typeof completionCi> | undefined;

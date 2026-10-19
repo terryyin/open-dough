@@ -5,6 +5,25 @@ Its authority, scope, and revision policy apply to this guidance.
 
 ## Connected stages and spatial navigation
 
+A direct story destination uses `/?project=<encoded-project-id>&story=<encoded-story-identity>`
+on the serving dashboard's HTTP origin. Encode the entire stable identity,
+including `#`; a title, file path, stage or session ID cannot identify a story.
+The URL selects the named project's stories, waits for its published membership,
+then brings that card into view and puts the keyboard on it. The same rule
+applies to Backlog and Taken, including hidden columns and reduced motion, and
+keeps the card visible as detail loads until the developer moves. Reload and
+browser Back/Forward preserve the destination. Ordinary project, roster or
+session navigation leaves story targeting and takes over any pending reveal.
+Navigation alone never launches, resumes or attaches an agent session.
+
+An unknown project retains the requested URL and explains that the project is
+not configured; it never redirects the target to an identically named story in
+another project. After a successful read, an absent identity is reported as not
+listed. A failed read stays a read failure, with an explicit retry that can
+resolve the original target. These outcomes name the requested identity and
+offer project choices and **Show project stories** without focusing unrelated
+work. URLs without a story target retain ordinary project/view routing.
+
 Keep one story overview with an always-visible banner pinned to the viewport top.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page

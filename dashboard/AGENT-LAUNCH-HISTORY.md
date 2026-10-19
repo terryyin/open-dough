@@ -113,8 +113,13 @@ supply unknown-reading wording, and adapters distinguish explicit unfamiliar
 native states from incomplete reads for shared alerting. Claude reads one machine
 listing. Codex groups
 recorded targets by saved endpoint, reads metadata and only the latest needed
-turn, without resume, subscription or interactive ownership. Endpoint failures
-leave independent healthy records readable. Cursor reads the screen of each
+turn, without resume, subscription or interactive ownership. At most four status
+reads run per endpoint across overlapping page and alert observations; each slot
+covers metadata and latest-turn history. Remaining targets queue within the same
+observation deadline. Cancellation or the deadline discards queued reads as
+unknown and releases active capacity; failures also release capacity without
+losing individual results. Endpoint failures leave independent healthy records
+readable. Cursor reads the screen of each
 client its runner already holds, without starting that runner or an agent.
 The card shows that screen's label: "at the follow-up prompt", "working", or
 "waiting for an answer". When the runner is not running, or cannot be reached,
@@ -154,16 +159,61 @@ when visible again. Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
 unmarked session enters an alerting native reading, and once, as “Unread report:
 <completion label>”, when its report arrives, whatever the native reading; its
-first read quietly baselines existing waits. Each host-qualified session's
-input alert stays handled across unknown, unreadable, incomplete, unrecognized,
+first read quietly baselines existing waits and reviews. Each host-qualified session's
+input and ready-for-review alerts stay handled across unknown, unreadable, incomplete, unrecognized,
 unavailable and omitted observations, including changed summaries. Only observed
 available working allows its next input alert, even with identical wording.
+Review alerts rearm when confirmed known activity changes the displayed review
+meaning; unavailable or unknown activity cannot establish that change.
 An answer/work/new-question cycle missed entirely between successful reads may
 stay quiet. Alert history is local to the server run and never replaces the
 current observation shown on the page. Unknown never alerts;
-unavailable/unrecognized may. `osascript` receives argument text, never
-interpolated script; absence/refusal is reported in the open sidebar, and the
-watcher continues. Each server has its own alert baseline.
+unavailable/unrecognized may. Each server has its own alert baseline.
+
+Native delivery requires separately installed `terminal-notifier` 3.1 or newer
+(tested 3.1.0, Homebrew, macOS 26.6.2) and its ordinary macOS notification
+permission. Install with `brew install terminal-notifier`, open the installed
+app once if needed to expose its permission, and allow **terminal-notifier**
+in **System Settings → Notifications**. `terminal-notifier -diagnose` checks
+that permission. Restart the dashboard after installation/update; it performs
+neither automatically. A harmless version check and permission diagnostic run
+at startup, then again before retrying after a failure. An older or unrecognized
+helper is unavailable even if an executable exists or an unknown option exits
+zero. Absence, unsupported version and refusal use fixed explanations in the
+open Sessions sidebar; raw helper stderr is never exposed. Observation
+continues, and the next successful notification clears a refusal.
+
+Title/message are literal argument data with the tested helper's one-leading-
+backslash escape; the sound remains Glass. `-execute` stores a fixed inline
+browser callback using `/usr/bin/osascript` and a safely quoted HTTP URL argument.
+It needs no checkout file, Node process or dashboard response to run after a
+click. Its URL origin comes from this server's
+actual listening loopback address and bound port, including a dynamically
+allocated port; before listening or with no usable local address, it sends no
+notification with an invented destination. The shared URL contract is
+`/?project=<encoded-project-id>&story=<encoded-complete-identity>`; the complete
+identity includes its `#` fragment as query data. A changed title does not
+change the target. Ad hoc sessions keep their notifications with only the
+project parameter. No new target registry is persisted.
+
+Receipt/dismissal do not navigate. After the sending process exits, a click
+uses the current default Safari or Google Chrome, reusing a root dashboard tab
+at this origin and selecting/foregrounding its window. Other ports and API or
+asset pages are preserved. With no matching tab it creates one in an existing
+window, or opens a window if needed. Browser scripting needs **terminal-notifier**
+consent under **System Settings → Privacy & Security → Automation**; the first
+click can request it. A refused inspection stops with a recovery dialog rather
+than opening an extra tab. Open the dashboard manually after granting access;
+future notifications can reuse it. This click permission is separate from the
+notification-delivery availability diagnostic above. The page selects the named project and stories view,
+waits for that project's published membership, then reveals and focuses the
+identified card. It neither starts/resumes work nor attaches a terminal.
+Unknown projects, missing stories and failed reads have distinct destination
+explanations; a later user navigation supersedes a pending reveal. A stopped
+dashboard produces the browser's connection failure, not successful navigation.
+Closing the server aborts every owned helper operation, including startup
+diagnostics and in-flight delivery, without recording that shutdown as a
+notification refusal.
 
 Sessions sidebar lists unclosed records across projects: attention first oldest
 first, others newest first. Sessions button badge counts attention only. Rows

@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Open the relevant dashboard story from a macOS notification](seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification) — SEED-140#open-notified-story-from-macos-notification ([plan](slice-plans/318-notification-story-navigation/PLAN.md))
-- [Keep the execution terminal available while awaiting wrap-up](seeds/SEED-142-execution-terminal-until-wrap-up.md#keep-execution-terminal-until-wrap-up) — SEED-142#keep-execution-terminal-until-wrap-up
 - [Open referenced stories in their dashboard blocks](seeds/SEED-141-dashboard-story-links.md#open-referenced-story-in-dashboard) — SEED-141#open-referenced-story-in-dashboard ([plan](slice-plans/320-dashboard-story-references/PLAN.md))
 
 ## Backlog list

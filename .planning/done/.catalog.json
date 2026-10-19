@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-142_keep-execution-terminal-until-wrap-up.json",
+      "identity": "SEED-142#keep-execution-terminal-until-wrap-up",
+      "completedAt": "2026-10-19T13:08:03.922Z",
+      "blob": "15813c9f4cf8cc6c8bc1ef791be908bed6c9facc"
+    },
+    {
+      "fileName": "SEED-143_stable-review-alerts-and-bounded-codex-status-reads.json",
+      "identity": "SEED-143#stable-review-alerts-and-bounded-codex-status-reads",
+      "completedAt": "2026-10-19T13:05:36.696Z",
+      "blob": "1c6271243fec186bfe85dd4882604e37432d90e8"
+    },
+    {
+      "fileName": "SEED-140_open-notified-story-from-macos-notification.json",
+      "identity": "SEED-140#open-notified-story-from-macos-notification",
+      "completedAt": "2026-10-19T13:05:32.298Z",
+      "blob": "8aceff0b3022f7a6942ec16b9019bbf33b6c4888"
+    },
+    {
       "fileName": "SEED-010_exchange-retrospective-findings-with-another-project.json",
       "identity": "SEED-010#exchange-retrospective-findings-with-another-project",
       "completedAt": "2026-10-19T12:18:49.844Z",
