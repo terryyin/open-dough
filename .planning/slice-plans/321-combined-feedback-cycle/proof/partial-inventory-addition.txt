@@ -1,2 +1,0 @@
-Added gamma after alpha local acceptance; before shared selection.
-3323a925cc8ab580901a28aaed8635c19ef078e8 ba4ba82bc6a5c522ed5f2bd1df4eb5f3a004d17e refs/heads/master

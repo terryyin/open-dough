@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#run-combined-project-and-shared-feedback-cycle",
+  "title": "Run project and Open Dough feedback maintenance in one invocation",
+  "completedAt": "2026-10-19T22:27:08.171Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

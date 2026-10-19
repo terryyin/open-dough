@@ -50,11 +50,7 @@ The shared [project-findings maintenance contract](../../src/skills/dough-triage
 provides explicitly invoked local maintenance, repair observation, priority selection,
 and commit/sync. The remaining stories compose or evaluate that capability.
 
-Terry selected composing the local and shared feedback cycles into one internal
-skill, retained as Story 13. This planning selection does not authorize executing
-the proposed maintenance cycle.
-
-The ordering and cuts below preserve the remaining shared-feedback and combined-cycle selections.
+The ordering and cuts below preserve the remaining evaluation and autonomous-feedback selections.
 They extend the initial retrospective-focused delivery scope. The following
 initial delivery decisions remain context for the capabilities already present.
 
@@ -484,7 +480,8 @@ implementation, release, or client updates. Retain as a later candidate until
 the evidence and authority for a trial are supplied.
 
 The maintained [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md)
-and Story 13 own explicit maintenance-cycle selection. Reassess this candidate
+and [combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md)
+own explicit maintenance-cycle selection. Reassess this candidate
 against those behaviors: only a remaining need for recurring
 selection under a standing policy, with evaluated decision quality and human
 intervention, warrants further work. Do not build another ranking engine or
@@ -531,141 +528,15 @@ response can be used; autonomous triage is not a hard prerequisite.
 **Safe stopping point:** One bounded autonomous correction works without generic
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
-<a id="run-combined-project-and-shared-feedback-cycle"></a>
-
-### 13. Run project and Open Dough feedback maintenance in one invocation
-
-**Identity:** SEED-010#run-combined-project-and-shared-feedback-cycle
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/321-combined-feedback-cycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3781012c0425f2067bfef347f679e5c7bc715978549b0d85b83cf2b67e2cfc1","plan":"1f1a3d3801429612506dd8abf20e8ee56d810238105007f99418b2cd759d334a"}}
-```
-
-**Goal:** The maintainer invokes one internal Open Dough skill that first handles
-each project's own retrospective findings, then collects shared feedback and
-publishes Open Dough priorities, without manually connecting the two workflows.
-
-**Scope:** Add the internal `maintain-feedback-cycle` skill. Compose the shared
-[project-findings maintenance](../../src/skills/dough-triage-project-findings/SKILL.md)
-contract with the internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md).
-Resolve the current
-client inventory, including Open Dough itself, using the established production
-dashboard discovery convention rather than a remembered repository list. The
-explicit invocation authorizes both named maintenance phases and their ordinary
-commit/integration/sync outcomes for that project set; children do not require
-the user to repeat that authorization.
-
-First run that maintained skill's local classification, cleanup, repair follow-up, and local
-backlog selection across the projects, recording a result or explicit gap for each
-before entering shared collection. Then run the shared-feedback skill against
-the resulting records, carrying those gaps and each record's actual location and
-delivery state. Reuse those behaviors as their authoritative owners, including
-their existing selection limits, without a second copy of their rules. Preserve
-local stories when the shared cycle subsequently places Open Dough's top shared
-responses first; the shared skill still owns that later ordering decision.
-Synchronize the second phase's later client edits as well as the first phase's
-results and Open Dough's final records.
-
-Keep per-project phase and delivery outcomes clear. An unavailable or failed
-local pass is a gap, not proof that its remaining log is all shared feedback.
-Continue independent supported work and qualify the incomplete scope. A rerun
-resumes unfinished boundaries without undoing delivered work or double-counting
-findings and stories. Consequential attribution, intent, or delivery conflicts
-receive a focused Jidoka decision with evidence; routine authorized steps proceed.
-
-Reuse the shared collector's inventory discovery and recheck convention, including
-an explicitly supplied isolated inventory for bounded demonstrations. Include Open
-Dough once even when it is already listed. An added project needs its local pass
-or an explicit gap before its shared evidence is consumed. A removed or retargeted
-project does not erase retained unfinished delivery. Resolve an ambiguous target
-before its dependent writes; never change configuration to make a run appear complete.
-
-The wrapper carries the originating instruction, resolved project and target,
-owned workspace and saved records, and outstanding delivery boundaries into each
-phase. Use maintained source guidance for the two named phases, resolving their
-installed helper commands in the target project. A missing compatible helper is
-an affected-project gap, not permission to install or release guidance. Existing
-Git facts and a concise run report supply recovery context; no permanent cycle
-ledger or second finding store is required. When dashboard reporting context is
-supplied, the combined invocation owns one final completion report after both
-phases and all required delivery have settled.
-
-**Key examples:**
-
-1. A configured project has a supported local defect and shared feedback, and
-   Open Dough has a local improvement candidate → the maintainer invokes
-   `maintain-feedback-cycle` once → each project, including Open Dough, receives
-   its local maintenance pass before shared collection; shared responses may
-   lead Open Dough's queue while the local stories remain, and every changed
-   repository has evidence of acceptance on its selected origin target.
-2. One project's log or required helper is unavailable → the local phase records
-   that gap and supported projects continue → shared collection neither treats
-   the failed pass as classification nor claims complete coverage or a passed
-   watch. Independently supported shared evidence can still be retained with
-   the gap explicit.
-3. A local pass has already published; shared adoption then edits that project's
-   log and Open Dough's catalog → the combined run delivers both later results
-   → the first phase's accepted commit is not mistaken for final synchronization.
-4. Publication stops after some repositories accept their candidates → rerun the
-   combined invocation with retained context → inspect current records and Git
-   facts, resume the first unfinished boundaries, preserve accepted work, and
-   create no duplicate occurrence, alias or covering story. A deferred default
-   checkout refresh remains distinct from accepted publication.
-5. The same completed cycle is invoked again with unchanged evidence → reuse
-   existing findings, responses and remote acceptance → report a synchronized
-   no-change result without empty commits or repeated publication.
-6. The inventory gains a project before final shared selection, or changes a
-   target while delivery remains pending → recheck through the discovery owner
-   → account for the new local phase and affected target before dependent work,
-   retain unfinished candidates, and qualify coverage until the change is resolved.
-7. A finding's proposed local remedy conflicts with evidence of shared ownership,
-   or a delivery checkout contains unrelated work → follow the owning skill's
-   conflict handling → stop only the dependent action with evidence and the
-   specific human decision needed; routine authorized work elsewhere continues.
-
-**Constraints and deferred promises:** Explicit invocation grants the finite
-maintenance and ordinary publication authority above, subject to narrower current
-instructions. Reading or authoring the skill grants none. Do not implement queued
-improvements, change product direction, or bypass ownership and publication
-safeguards. Scheduling, autonomous correction, new causal/measurement policy,
-release/install rollout, dashboard controls and a durable orchestration service
-are outside this delivery; they are not reasons to reject otherwise supported
-projects or findings.
-
-**Evaluation:** One explicit invocation traverses local maintenance across the
-configured set before shared collection and yields the appropriate project and
-Open Dough backlog updates with per-repository publication evidence. A blocked
-project and a resumed partial run remain truthful and do not duplicate output.
-The user no longer supplies each phase or publication prompt separately.
-
-**Value / learning:** Establish the working automation structure for empirical
-process control now. Reuse the bounded fixes to known workflow problems; defer
-new measurement systems, better causal inference, and further decision-policy
-design to their later stories. This skill executes a finite maintenance cycle;
-Story 9 still owns initiation when due without a fresh user trigger, and no
-resulting improvement story is implemented by this wrapper.
-
-**Effort uncertainty:** Carrying project context, explicit authority, phase order,
-and partial delivery state through the existing operations.
-
-**Prerequisites:** Both constituent maintenance behaviors must be available for
-the selected projects before the combined outcome can be demonstrated. Reuse
-their maintained contracts; do not create an alternative implementation here.
-
-**Safe stopping point:** The combined human-invoked cycle is useful even if
-scheduled operation and autonomous correction remain deferred.
-
 ## Ordering and Scope Reduction
 
-Queue the next six outcomes in this order: Story 13 (combined cycle),
-Story 4 (response effectiveness),
+Queue the next five outcomes in this order: Story 4 (response effectiveness),
 Story 6 (preparation evidence), Story 7 (unreviewed execution/completion paths),
 Story 8 (later product consequences), and Story 9
 (automatic due maintenance). Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.
 
-The combined cycle connects the maintained shared-feedback skill with the local
-maintenance contract. Further
-stories evaluate broader response effectiveness and tradeoffs. The two
+The remaining stories evaluate broader response effectiveness and tradeoffs. The two
 observation stories address direct evidence gaps without requiring a new
 telemetry system. Product consequences prevent cost reduction from becoming the sole
 objective. Later unattended initiation builds on these explicit workflows.
@@ -696,9 +567,6 @@ requested queue update:
   claim; preserve gaps when the necessary evidence is unavailable.
 - Select the first client and permitted evidence for the exchange. Later automated
   operation needs explicit sources, actions, notification boundaries, and authority.
-- Story 13 records the internal name and representative partial-run/delivery
-  cases. Reuse current runbook watch and top-two rules; redesigning empirical
-  control policy is not a prerequisite for the requested automation structure.
 - For later autonomous candidates, establish the correction class, policy, quality
   evaluation, budget, and stop/reversal rules before execution.
 - Establish S/M/L calibration only if effort bands are needed. No numeric or

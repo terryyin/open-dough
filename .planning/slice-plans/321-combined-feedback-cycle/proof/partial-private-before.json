@@ -1,9 +1,0 @@
-{
-  "head": "f7506ebdbf72a17b87f78094b111c8251a7ec28e",
-  "index": "private staged bytes",
-  "worktree": "private unstaged bytes\n",
-  "status": "MM private-note.txt",
-  "expectedIndexOidFromSetupLiteral": "3a7ec6a575b8d26e341eb3c0bf832c58c13de617",
-  "expectedIndexHexFromSetupLiteral": "70726976617465207374616765642062797465730a",
-  "expectedWorktreeSha256FromSetupLiteral": "732c11957e3a3e31b0f4f3f86c5b5949a983ee91e2de56370cfb2f4e5babccbf"
-}

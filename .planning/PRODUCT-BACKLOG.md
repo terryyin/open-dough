@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle ([plan](slice-plans/321-combined-feedback-cycle/PLAN.md))
-
 ## Backlog list
 
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
