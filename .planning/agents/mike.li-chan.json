@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-142#keep-execution-terminal-until-wrap-up",
+  "mode": "story-branch",
+  "branch": "codex/keep-execution-terminal-until-wrap-up",
+  "host": "codex"
+}
