@@ -29,11 +29,11 @@ tests live in `boundary/` and normally use `startDashboardServer({ mode:
 (`../server/localBoundaries.ts`) on plain HTTP without Vite or a build. It uses
 the preview's production project environment, or the dev server's through
 `developmentBoundary` (`support/dashboardServer.ts`).
-`boundary/boundary-server.spec.ts` shows each environment answering from its
-own project file (`support/projectConfiguration.ts`), without Vite or a page.
-The exception is `boundary/serving-modes.spec.ts`, which starts real Vite
-dev and preview servers on the run's build to prove both mount the same
-boundaries.
+`boundary/boundary-server.spec.ts` shows each environment's own project file
+(`support/projectConfiguration.ts`) without Vite or a page.
+Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
+production keep source. `boundary/serving-modes.spec.ts` proves both real Vite
+servers mount the same boundaries and use those entries.
 
 `boundary/` holds every spec that opens no page, whatever it drives; a spec
 that opens a page is a journey, however small, and a journey never repeats a
@@ -104,7 +104,7 @@ helpers and the event each one waits for.
 
 ## What is real and what is replaced
 
-Each run bundles its checkout's Vite configuration and boundary server once
+Each run bundles its Vite configuration, boundary server and Cursor runner
 into its own directory under `node_modules`, preserving source-relative
 `import.meta` paths. Preview and boundary servers load it; dev serves source.
 It also builds the app once in a temporary directory. Success, failure or

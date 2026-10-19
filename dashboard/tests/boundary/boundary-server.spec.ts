@@ -14,6 +14,7 @@ import {
 import { boundaryServerCommand } from "../support/serverAddress.ts";
 import { serverBundleVariable } from "../support/serverBundle.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import { liveRunner, runnerCommand } from "../support/cursorRunnerJourney.ts";
 
 test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
   const bundle = process.env[serverBundleVariable];
@@ -41,6 +42,10 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
       ].join(" "),
     );
     expect(server.output()).not.toMatch(/vite/i);
+    const runner = await liveRunner(server.home);
+    expect(runnerCommand(runner.pid)).toBe(
+      [process.execPath, path.join(bundle ?? "", "runnerMain.mjs")].join(" "),
+    );
     expect(server.outDir).toBeUndefined();
     expect(
       (await rawRequest({ url: `${server.baseURL}/`, method: "GET" })).status,

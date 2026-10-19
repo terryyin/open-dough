@@ -94,6 +94,10 @@ async function releaseStartLock(home: string): Promise<void> {
 }
 
 function runnerEntry(): string {
+  // Resolve beside the emitted entry; bundles preserve import.meta.url as
+  // the original source location for source-relative reads.
+  const compiled = fileURLToPath(import.meta.resolve("./runnerMain.mjs"));
+  if (existsSync(compiled)) return compiled;
   const fromRoot = path.join(
     process.cwd(),
     "dashboard/server/hosts/cursor/runnerMain.ts",
@@ -106,9 +110,12 @@ async function spawnRunner(home: string): Promise<boolean> {
   const directory = cursorRunnerDirectory(home);
   await mkdir(directory, { recursive: true });
   const log = openSync(path.join(directory, "cursor-runner.log"), "a");
+  const entry = runnerEntry();
   const child = spawn(
     process.execPath,
-    ["--experimental-transform-types", "--no-warnings", runnerEntry()],
+    entry.endsWith(".mjs")
+      ? [entry]
+      : ["--experimental-transform-types", "--no-warnings", entry],
     {
       detached: true,
       stdio: ["ignore", log, log],

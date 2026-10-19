@@ -33,6 +33,7 @@ export async function bundleServerEntries(directory: string): Promise<void> {
   for (const [input, file] of [
     ["dashboard/vite.config.mts", "vite.config.mjs"],
     ["dashboard/server/boundaryServer.ts", "boundaryServer.mjs"],
+    ["dashboard/server/hosts/cursor/runnerMain.ts", "runnerMain.mjs"],
   ] as const) {
     await build({
       cwd: repoRoot,

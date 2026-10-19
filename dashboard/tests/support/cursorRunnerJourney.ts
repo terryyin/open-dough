@@ -28,7 +28,7 @@ function runnerPids(): number[] {
     encoding: "utf8",
   }).stdout;
   return listing.split("\n").flatMap((line) => {
-    const match = /^(\d+)\s+.*runnerMain\.ts/.exec(line.trim());
+    const match = /^(\d+)\s+.*runnerMain\.(?:ts|mjs)(?:\s|$)/.exec(line.trim());
     return match?.[1] === undefined ? [] : [Number(match[1])];
   });
 }
@@ -47,12 +47,18 @@ export function runnersFor(home: string): number {
     .length;
 }
 
+export function runnerCommand(pid: number): string {
+  return spawnSync("ps", ["-o", "command=", "-p", String(pid)], {
+    encoding: "utf8",
+  }).stdout.trim();
+}
+
 // The environment this home's live runner was started with, read back word
 // by word after its command, so values holding spaces are cut short.
 export function runnerEnvironment(home: string): Record<string, string> {
   const pid = readCursorRunnerAddress(home)?.pid;
   const listing = pid === undefined ? "" : commandAndEnvironment(pid);
-  const command = listing.indexOf("runnerMain.ts");
+  const command = /runnerMain\.(?:ts|mjs)(?:\s|$)/.exec(listing)?.index ?? -1;
   if (command < 0) {
     throw new Error("This home has no live Cursor runner to read.");
   }

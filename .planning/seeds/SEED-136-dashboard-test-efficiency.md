@@ -34,7 +34,7 @@ implement the campaign or create an executable plan.
 
 **Identity:** SEED-136#restore-ci-under-three-minutes
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"80f9ae334c2440ebb1aba38e30be5591b1be5da37f46cfff760ece262717f8ed","plan":"504ea7ca5c4c71ab111d89dba494a57ebfc290437c23a12353c5b4b0fcaaaaab"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/315-restore-ci-under-three-minutes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bbb6a094c1c786c4be85a39f105e27afe37e886184441118ba4cb998d8f0b88f","plan":"6e324712ce0c2c1ca1226d3ab0ec52438f0ce4ffa114b47e6c0a1cc237a32f3c"}}
 ```
 
 **Beneficiary:** Developers waiting for a complete CI verdict before continuing
@@ -52,6 +52,9 @@ Required:
   each suite run's global setup, from that run's checkout, into a run-owned
   directory that teardown removes. Preserve each bundled module's own
   `import.meta` location, so path-relative reads behave as from source.
+  Include the Cursor runner child entry in that bundle: profiling during
+  Terry's continued execution found its source transformation still repeated
+  at every fresh server HOME. Keep its ownership and source fallback.
 - Start every preview server and boundary-mode server from that bundle: the
   `dashboard` fixture, direct `startDashboardServer` callers, and the boundary
   command spec. Development servers keep serving source.
@@ -78,7 +81,8 @@ measured saving delivers, rather than redesign test isolation or buy capacity.
 **Key examples:**
 
 1. *Matched hosted saving.* Given the candidate revision and its unchanged
-   parent run concurrently on `ubuntu-24.04` with twelve dashboard shards, the
+   original unbundled control (`f4466c10`, retained by Terry's continuation on
+   2026-10-19) run concurrently on `ubuntu-24.04` with twelve dashboard shards, the
    candidate's summed dashboard suite-step seconds are lower in each of two
    matched pairs, by at least 8% on average, with every required check
    passing. A pair that shows no saving is reported, not retried away.
@@ -94,19 +98,59 @@ measured saving delivers, rather than redesign test isolation or buy capacity.
    the run fails in global setup naming the bundling error, before any test
    reports success.
 
-**Hosted probe evidence (2026-10-18):** Terry authorized plan 315's probe.
-[Probe 39106658930](https://github.com/terryyin/open-dough/actions/runs/39106658930)
-and unchanged [CI 39106658874](https://github.com/terryyin/open-dough/actions/runs/39106658874)
-ran concurrently at `94b65843` (preparation `37b3c3e1` plus env-gated probe
-code). All tests passed in both. On the idle runner, four concurrent starts
-took 1,035 ms for preview and 1,235 ms for boundary from source, against 404 ms
-and 241 ms from bundles. Within the suite, preview starts averaged 1.74 s
-(1,003 starts) and boundary starts 0.99 s (421 starts) from bundles. The
-twelve-shard suite steps fell from 2,496 to 2,230 seconds (−11%) and summed
-test seconds from 8,368 to 7,464. Identical shard-3 jobs ranged from 221 to
-271 s, so one pair is not proof. The superseded under-three-minute
-investigation is recoverable at
-`7d08bc72:.planning/seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes`.
+The original matched-run example began: "Given the candidate revision and its
+unchanged parent run concurrently on `ubuntu-24.04` with twelve dashboard
+shards". Terry's continuation retains that original unbundled parent as the
+control for further optimization, with the same 8% criterion.
+
+**Hosted delivered evidence (2026-10-19):** The delivered candidate
+`0133c0bfb0197e7681579520d3a4d79924297d44` was compared twice with its
+unchanged parent `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`, which includes
+the deterministic reporter-fixture repair. Each candidate run used a `push`
+event and each parent run a `workflow_dispatch` event, on `ubuntu-24.04`.
+
+| Pair | Parent run | Candidate run | Summed suite-step seconds, parent → candidate | Reduction | Summed test seconds, parent → candidate |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [39179538825](https://github.com/terryyin/open-dough/actions/runs/39179538825) | [39179487955](https://github.com/terryyin/open-dough/actions/runs/39179487955) | 2,191 → 2,131 | 2.738% | 7,444.239 → 7,119.728 |
+| 2 | [39180257177](https://github.com/terryyin/open-dough/actions/runs/39180257177) | [39180260655](https://github.com/terryyin/open-dough/actions/runs/39180260655) | 2,456 → 2,256 | 8.143% | 8,320.714 → 7,523.376 |
+
+Both pairs saved suite-step time, but their arithmetic mean reduction was
+5.441%, below the required 8%; the hosted-saving criterion remains unmet.
+Every run passed all
+16 jobs: twelve dashboard shards, three shell shares and one lint job. Each
+run's twelve HTML reports record all 1,537 tests passing, with no skipped,
+unexpected or flaky tests. Suite-step seconds come from the Jobs API's
+`Run the dashboard browser suite` timestamps; test seconds are the sum of
+`files[].tests[].duration` in the HTML reports' embedded `report.json` files.
+
+The runner image was `ubuntu-24.04` version `20261012.334.1` (Ubuntu 24.04.5),
+with Node 24.21.0 already in the tool cache in every job. Cache restore
+outcomes from the setup-node and Chromium-cache step logs were:
+
+| Run | npm cache, all 16 jobs | Chromium cache, twelve dashboard jobs |
+| --- | --- | --- |
+| Pair 1 parent | 16 hit | 12 hit |
+| Pair 1 candidate | 16 miss | 12 miss |
+| Pair 2 parent | 16 hit | 12 hit |
+| Pair 2 candidate | 10 hit, 6 miss | 5 hit, 7 miss |
+
+These are two hosted observations, subject to runner variance, unequal cache
+warmth and queue delays. Pair 1's candidate was created at 00:09:21 UTC and
+parent at 00:10:01 (40 seconds later); pair 2's parent was created at 00:19:24
+and candidate at 00:19:27 (three seconds later). Queuing initially affected
+parent jobs in pair 1 and candidate jobs in pair 2, so complete-run wall-clock
+times do not isolate the bundling effect. The first pair is retained as measured.
+
+The first attempt to launch pair 2 created the candidate alias branch at the
+candidate SHA but emitted only a branch `CreateEvent`, with no candidate CI
+run. Its unpaired parent [39180107803](https://github.com/terryyin/open-dough/actions/runs/39180107803)
+was cancelled. One launch repair created the owned alias at the parent, then
+fast-forward-pushed the same candidate while dispatching a new parent run;
+that produced pair 2 above. No measured result was retried or replaced.
+The prior probe evidence is recoverable at
+`f4466c10:.planning/seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes`;
+the superseded under-three-minute investigation is recoverable at the same
+path in `7d08bc72`.
 
 **Architecture:** Keep run lifecycle in `dashboard/tests/support/globalSetup.ts`
 and server launch in `dashboard/tests/support/serverAddress.ts`. One new
@@ -114,6 +158,8 @@ test-support module owns bundling. It uses `rolldown`, which Vite already
 locks at 1.2.9, declared as a direct development dependency rather than
 imported transitively. The bundle lives in a run-unique directory under the
 repository's `node_modules`, so bare imports resolve as they do from source.
+The existing Cursor launcher prefers an adjacent compiled runner when emitted
+with the server bundle, otherwise retaining its current source entry.
 Production serving is unchanged. Accepted ADR 0002 (empirical improvement,
 least complexity) applies; no ADR or North Star change is needed.
 
