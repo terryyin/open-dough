@@ -18,6 +18,7 @@ import {
   recordStoryState,
 } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
+import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
 import { git, exec, revParse } from "./publication-test-fixtures.mjs";
 
 export const storyA = "- [Story A](seeds/A.md#a) \u2014 SEED-A#a";
@@ -91,12 +92,7 @@ async function buildQueuedTrunk(
   { contributing, durableCommandEvidence },
 ) {
   const { origin, integration } = queuedTrunkLayout(fixture);
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-  // A push over the local transport drops the runner's GIT_CONFIG_COUNT
-  // settings, so without this the remote's receive-pack starts a detached
-  // `git maintenance run --auto`. It holds objects/maintenance.lock after the
-  // push returns, and a copy of the remote can list the lock and then miss it.
-  await git(origin, "config", "maintenance.auto", "false");
+  await createBareFixtureRemote(origin);
   await exec("git", ["init", "-b", "main", integration]);
   // Dashboard callers do not inherit the shell runner's Git overrides.
   // Protect the template's objects and every copied checkout from detached

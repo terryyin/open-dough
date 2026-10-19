@@ -205,7 +205,7 @@ All changed files remain below 250 lines. `git diff --check` passed.
 Reviewed claim `66e107fa488a238c9ca8b90de4d9ec145684928d` and delivered
 implementation `b7466164466a861c70b867fd1c56f055bfcc7510`; nearby guidance and
 sibling-story commits were excluded. Original scope and approved limitation hold.
-No correction, refactoring residue, architectural conflict or new backlog work
+No feature correction, refactoring residue, architectural conflict or new backlog work
 was found. ADR index and in-file statuses agree; ADR 0000/0002 support the existing
 feature-local owner. Product and enabled process review completed with no open
 findings or guidance proposals. CI remained pending on the retained branch
@@ -241,3 +241,9 @@ observer during review; the execution's completion operation owns that verdict.
 Reported: slice 1 — "without observed working, an entirely unseen answer/work/new-question cycle may stay quiet."
 Story clause: "A complete answer/work/new-question cycle between successful observations may remain quiet; Terry accepted this limit on 2026-10-19."
 Disposition: excluded "A complete answer/work/new-question cycle between successful observations may remain quiet; Terry accepted this limit on 2026-10-19."
+
+## CI repair
+
+Run `39229622300/1` failed during a fixture clone. A real-Git regression observed six detached-maintenance launches.
+Disabling maintenance in both bare remote creation paths in `publication-clean-trunk-fixtures.mjs` removed them; the regression, full closure integration and 13 direct consumer suites passed.
+The original disappearing-object causality remains inferred; alert behavior and its accepted proof were unaffected. Review found no further feature correction.
