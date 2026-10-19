@@ -2,17 +2,28 @@
 
 ## Near-future direction
 
-Enable agents to execute stories in parallel while collaborating through
-trunk-based development, with each agent working in its own Git worktree.
-Give developers visibility into a client project's status and progress through
-the user-story perspective of an Open Dough dashboard, showing how ideas move
-through development and become assimilated into the product.
-First, derive progress solely from Git state published to origin, treating
-developers as working on separate machines. Owned worktree workflows use remote
-history without requiring a default checkout. Then add local operational
-visibility for multiple agents working in worktrees on one machine.
+Build empirical process control into Open Dough and its client projects so
+observed experience improves useful product outcomes, quality, and the ability
+to change direction at low cost. Connect observations across development and
+later use to explicit improvement hypotheses, bounded responses, and evidence
+of whether those responses helped, including their human and resource costs.
+
+Start by closing useful response loops with existing evidence and workflows,
+then extend direct observation and automate recurring feedback maintenance.
+Progress toward an autonomous loop that collects, evaluates, prioritizes, and
+implements improvements within delegated authority, with Jidoka-style human
+intervention for consequential ambiguity, conflicting goals, or actions outside
+that authority. Judge success by sustained outcomes and learning, including the
+cost of the feedback process itself.
 
 ## Taken
 
 ## Backlog list
 
+- [Turn project-owned retrospective findings into prioritized improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#triage-project-owned-retrospective-findings) — SEED-010#triage-project-owned-retrospective-findings
+- [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
+- [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
+- [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
+- [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences
+- [Exchange retrospective findings with another project](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
+- [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance
