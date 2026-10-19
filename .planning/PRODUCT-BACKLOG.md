@@ -22,6 +22,8 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Avoid repeating input notifications after session reconnection](seeds/SEED-140-dashboard-session-notifications.md#avoid-repeating-input-notifications-after-reconnection) — SEED-140#avoid-repeating-input-notifications-after-reconnection
+- [Open the relevant dashboard story from a macOS notification](seeds/SEED-140-dashboard-session-notifications.md#open-notified-story-from-macos-notification) — SEED-140#open-notified-story-from-macos-notification
 - [Collect client feedback and prioritize Open Dough improvements](seeds/SEED-010-learn-from-execution-retrospectives.md#exchange-retrospective-findings-with-another-project) — SEED-010#exchange-retrospective-findings-with-another-project
 - [Run project and Open Dough feedback maintenance in one invocation](seeds/SEED-010-learn-from-execution-retrospectives.md#run-combined-project-and-shared-feedback-cycle) — SEED-010#run-combined-project-and-shared-feedback-cycle
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
