@@ -6,11 +6,10 @@ import { DashboardColumns } from "./DashboardColumns.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { PageFrame } from "./PageFrame.tsx";
-import { PreparationLegend } from "./PreparationLegend.tsx";
-import { NearFutureDirection } from "./NearFutureDirection.tsx";
-import { StartSession } from "./StartSession.tsx";
+import { ProjectActions } from "./ProjectActions.tsx";
 import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
+import { StoryDestination, useStoryDestination } from "./StoryDestination.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import {
@@ -104,6 +103,12 @@ export function ConfiguredDashboard({
     onReturnToStories,
     onForwardToRoster,
   });
+  const destination = useStoryDestination({
+    route,
+    work,
+    attempt,
+    enabled: !settingsOpen,
+  });
 
   useProjectKeyboardNavigation({
     source,
@@ -164,11 +169,6 @@ export function ConfiguredDashboard({
   }, [route.view, source.id, work]);
 
   const showsRoster = route.view === "roster";
-  const showsPreparation =
-    work &&
-    [...work.taken, ...work.backlog].some(
-      (entry) => entry.preparation !== undefined,
-    );
   return (
     <PageFrame
       sessions={launches}
@@ -185,6 +185,16 @@ export function ConfiguredDashboard({
         onSelect={selectProject}
       />
       <div className="page-header">
+        <StoryDestination
+          route={route}
+          status={destination}
+          retry={() => {
+            window.location.reload();
+          }}
+          showStories={() => {
+            showStories(source);
+          }}
+        />
         <PublishedReadStatus
           attempt={attempt}
           reading={reading}
@@ -193,26 +203,12 @@ export function ConfiguredDashboard({
           recoversAt={recoversAt}
           notice={notice}
         />
-        <div className="project-actions" hidden={showsRoster}>
-          {work && (
-            <NearFutureDirection key={source.id} direction={work.direction} />
-          )}
-          <div className="project-actions-end">
-            <StartSession
-              sourceId={source.id}
-              project={source.label}
-              attempt={launches.adHocAttemptOf(source.id)}
-              sessionPolicy={(host) =>
-                launches.sessionPolicyOffer(source.id, "ad-hoc", host)
-              }
-              onHostChanged={launches.rereadOffers}
-              onStart={(choices, onLaunched) =>
-                launches.startAdHoc(source.id, choices, onLaunched)
-              }
-            />
-            {showsPreparation && <PreparationLegend />}
-          </div>
-        </div>
+        <ProjectActions
+          source={source}
+          work={work}
+          launches={launches}
+          hidden={showsRoster}
+        />
         {!showsRoster && (
           <StartupRecovery sourceId={source.id} recoveries={launches} />
         )}

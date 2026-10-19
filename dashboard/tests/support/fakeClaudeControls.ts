@@ -27,7 +27,16 @@ export type ClaudeCall = {
 // the spec's pass-through marker `DOUGH_SPEC_PASSTHROUGH`, where set.
 export type ClaudeEnvironment = Readonly<Record<string, string>>;
 
-export type OsascriptCall = { readonly argv: readonly string[] };
+export type NotifierMode =
+  | "working"
+  | "failing"
+  | "send-failing"
+  | "hang"
+  | "hang-probe"
+  | "older"
+  | "unknown-version";
+
+export type NotifierCall = { readonly argv: readonly string[] };
 
 // One `claude attach` the fake ran: its pid, the short id it attached to,
 // each line entered in it, and the signal, or `Ctrl+Z`, that ended it, once
@@ -72,16 +81,16 @@ export type FakeClaudeControls = ClaudeListingControls & {
   claudeAttaches(): ClaudeAttach[];
   // The recorded environment of each `claude attach`, oldest first.
   claudeAttachEnvironments(): ClaudeEnvironment[];
-  // Every `osascript` the fake ran so far, oldest first.
-  osascriptCalls(): OsascriptCall[];
+  // Every `terminal-notifier` the fake ran so far, oldest first.
+  notifierCalls(): NotifierCall[];
   // Every start probe the server ran, apart from those calls.
-  osascriptProbes(): OsascriptCall[];
-  // Changes how the fake `osascript` answers from now on.
-  osascriptBecomes(mode: "working" | "failing" | "hang"): void;
+  notifierProbes(): NotifierCall[];
+  // Changes how the fake `terminal-notifier` answers from now on.
+  notifierBecomes(mode: NotifierMode): void;
   // The pid of a `hang` notification still open, and the signal that ended
   // it, once one did.
-  heldOsascriptPid(): number | undefined;
-  heldOsascriptEndedBy(): string | undefined;
+  heldNotifierPid(): number | undefined;
+  heldNotifierEndedBy(): string | undefined;
 };
 
 function readState(file: string): string | undefined {
@@ -169,18 +178,18 @@ export function fakeClaudeControls(
     releaseHeldClaude() {
       writeFileSync(state("release"), "");
     },
-    osascriptCalls() {
-      return jsonLines<OsascriptCall>("osascript-calls.jsonl");
+    notifierCalls() {
+      return jsonLines<NotifierCall>("notifier-calls.jsonl");
     },
-    osascriptProbes() {
-      return jsonLines<OsascriptCall>("osascript-probes.jsonl");
+    notifierProbes() {
+      return jsonLines<NotifierCall>("notifier-probes.jsonl");
     },
-    osascriptBecomes(mode) {
-      writeFileSync(state("osascript-mode"), mode);
+    notifierBecomes(mode) {
+      writeFileSync(state("notifier-mode"), mode);
     },
-    heldOsascriptPid: () => pidIn("osascript.pid"),
-    heldOsascriptEndedBy() {
-      return readState(state("osascript.pid.exited"));
+    heldNotifierPid: () => pidIn("notifier.pid"),
+    heldNotifierEndedBy() {
+      return readState(state("notifier.pid.exited"));
     },
     claudeRenamesIgnored: flag("renames-ignored"),
     claudeAttachesSilent: flag("attaches-silent"),

@@ -15,6 +15,7 @@ import {
   type DashboardServer,
 } from "./dashboardServer.ts";
 import type { ClaudeSessionChange } from "./fakeClaude.ts";
+import { notificationActivation } from "./notificationActivation.ts";
 
 export const alertCheckMs = 100;
 
@@ -39,14 +40,23 @@ export const test = base.extend<{ machine: string; server: DashboardServer }>({
   },
 });
 
-// What each notification said: its message, its title, and the sound its
-// script names.
+// Text after the tested helper's one-leading-backslash decode. The raw
+// argument assertion belongs to the literal-text scenario.
 export function notices(server: DashboardServer) {
-  return server.osascriptCalls().map(({ argv }) => ({
-    message: argv.at(-2),
-    title: argv.at(-1),
-    sound: /sound name "([^"]*)"/.exec(argv.join("\n"))?.[1],
-  }));
+  return server.notifierCalls().map(({ argv }) => {
+    const value = (name: string) => argv[argv.indexOf(name) + 1];
+    return {
+      message: value("-message")?.slice(1),
+      title: value("-title")?.slice(1),
+      sound: value("-sound"),
+    };
+  });
+}
+
+export function notificationUrls(server: DashboardServer): string[] {
+  return server
+    .notifierCalls()
+    .map(({ argv }) => notificationActivation(argv).destination);
 }
 
 export function messages(server: DashboardServer): (string | undefined)[] {

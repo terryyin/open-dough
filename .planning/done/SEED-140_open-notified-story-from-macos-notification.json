@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-140#open-notified-story-from-macos-notification",
+  "title": "Open the relevant dashboard story from a macOS notification",
+  "completedAt": "2026-10-19T13:05:32.298Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

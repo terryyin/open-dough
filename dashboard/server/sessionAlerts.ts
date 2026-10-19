@@ -11,13 +11,14 @@ import { sessionKey } from "../src/sessionReference.ts";
 // missed entirely between polls may stay quiet. Review uses the same continuity
 // rule through observation gaps; a confirmed change of activity can rearm it.
 // Other readings alert on entry,
-// and reports alert once in their own words when they arrive unread. The notification is
-// `osascript` with the text passed as arguments, never spliced into script
-// text; where it cannot run, or refuses, the loop goes on. Availability is the latest `osascript` outcome,
-// a probe at start and then each notification, with one of two fixed
-// reasons; raw stderr is never kept or forwarded.
+// and reports alert once in their own words when they arrive unread. Delivery is
+// separately installed `terminal-notifier`, opening the serving dashboard's
+// project/story URL on a click. Text uses the helper's leading-character escape;
+// its durable browser callback receives a safely quoted URL argument. A version and
+// permission diagnostic probes availability at start and after a refusal;
+// missing/unsupported/refused helpers leave the loop running. Raw stderr is
+// never forwarded. The server owns every child, including diagnostics.
 
-import { execFile } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import {
   launchSubject,
@@ -31,6 +32,11 @@ import {
   sessionShown,
 } from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
+import { dashboardDestinationPath } from "../src/dashboardDestination.ts";
+import {
+  probeTerminalNotifier,
+  sendTerminalNotification,
+} from "./terminalNotifier.ts";
 
 const defaultCheckMs = 15_000;
 
@@ -43,35 +49,8 @@ function checkMs(): number {
     : defaultCheckMs;
 }
 
-const notifyScript = [
-  "on run argv",
-  'display notification (item 1 of argv) with title (item 2 of argv) sound name "Glass"',
-  "end run",
-];
-
-const notFound =
-  "osascript was not found on this machine, so alerts need macOS";
-const refused = "macOS did not accept the notification";
-
-// Runs `osascript`, answering why alerts are unavailable, or nothing when it
-// worked. A run ended by closing the server says nothing.
-function osascript(
-  args: readonly string[],
-  signal: AbortSignal,
-): Promise<string | undefined> {
-  return new Promise((resolve) => {
-    execFile("osascript", args, { signal }, (error) => {
-      if (error === null) resolve(undefined);
-      else if (signal.aborted) resolve(undefined);
-      else
-        resolve(
-          (error as NodeJS.ErrnoException).code === "ENOENT"
-            ? notFound
-            : refused,
-        );
-    }).stdin?.end();
-  });
-}
+const noDestination =
+  "The dashboard has no listening loopback HTTP address for notification clicks.";
 
 // What a native reading's notification says: the reading, with what the
 // session waits for.
@@ -110,32 +89,63 @@ export class SessionAlerts {
   private readonly handledInput = new Set<string>();
   // Confirmed review survives gaps until known activity changes its meaning.
   private readonly handledReview = new Set<string>();
-  // Why the latest `osascript` did not work, or nothing while it did or none
-  // has run.
-  private unavailable: string | undefined;
+  // The latest helper outcome. Checking is not yet established availability.
+  private unavailable: string | undefined =
+    "Checking terminal-notifier availability.";
+  private readonly probing: Promise<void>;
 
-  constructor(private readonly launches: AgentLaunches) {
-    void this.probe();
+  constructor(
+    private readonly launches: Pick<AgentLaunches, "machineSessions">,
+    private readonly origin: () => string | undefined,
+  ) {
+    this.probing = this.probe();
     void this.run();
   }
 
-  // Whether alerts can be raised, as the latest `osascript` left it.
+  // A usable helper and an actual destination are both required.
   availability(): Alerts {
-    return this.unavailable === undefined
+    const reason =
+      this.unavailable ??
+      (this.origin() === undefined ? noDestination : undefined);
+    return reason === undefined
       ? { available: true }
-      : { available: false, reason: this.unavailable };
+      : { available: false, reason };
   }
 
-  private async attempt(args: readonly string[]): Promise<void> {
+  // Cancellation can change across awaits despite AbortSignal's readonly type.
+  private isStopped(): boolean {
+    return this.stopped.signal.aborted;
+  }
+
+  private async attempt(
+    session: LaunchWithState,
+    message: string,
+  ): Promise<void> {
     const { signal } = this.stopped;
-    const unavailable = await osascript(args, signal);
-    if (!signal.aborted) this.unavailable = unavailable;
+    await this.probing;
+    if (signal.aborted) return;
+    if (this.unavailable !== undefined) await this.probe();
+    if (this.isStopped() || this.unavailable !== undefined) return;
+    const origin = this.origin();
+    if (origin === undefined) return;
+    const { request } = session;
+    const unavailable = await sendTerminalNotification(
+      {
+        title: notificationTitle(session),
+        message,
+        destination: `${origin}${dashboardDestinationPath(request.source, launchSubject(request).identity)}`,
+      },
+      signal,
+    );
+    if (!this.isStopped()) this.unavailable = unavailable;
   }
 
-  // One harmless run at start, so a machine that cannot alert says so before
-  // any session needs the developer.
-  private probe(): Promise<void> {
-    return this.attempt(["-e", "return 0"]);
+  // These options do not post a notification or request permission. Reject
+  // older helpers before trusting -diagnose, and retry after a failed send.
+  private async probe(): Promise<void> {
+    const { signal } = this.stopped;
+    const unavailable = await probeTerminalNotifier(signal);
+    if (!signal.aborted) this.unavailable = unavailable;
   }
 
   private async run(): Promise<void> {
@@ -203,17 +213,12 @@ export class SessionAlerts {
       ];
       for (const message of messages) {
         if (signal.aborted) return;
-        await this.attempt([
-          ...notifyScript.flatMap((line) => ["-e", line]),
-          "--",
-          message,
-          notificationTitle(session),
-        ]);
+        await this.attempt(session, message);
       }
     }
   }
 
-  // Ends the loop and any `osascript` it started.
+  // Ends the loop and every owned notifier, including a startup diagnostic.
   close(): void {
     this.stopped.abort();
   }
