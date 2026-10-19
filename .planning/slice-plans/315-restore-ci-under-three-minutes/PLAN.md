@@ -14,13 +14,12 @@ mechanisms; Terry narrowed scope on 2026-10-18 and retained 8% on continuation.
 
 ## Evidence and premises
 
-The 2026-10-18 probe established a plausible mechanism, not acceptance:
-four concurrent idle starts fell from 1,035 → 404 ms (preview) and 1,235 →
-241 ms (boundary), with 199 ms bundling. One hosted pair at `94b65843`
-reduced summed suite steps 2,496 → 2,230 s with all tests passing; shard
-variance reached ±20%. Probe history is recoverable in
+The 2026-10-18 probe supported the mechanism, not acceptance: four concurrent
+idle starts fell from 1,035 → 404 ms (preview), 1,235 → 241 ms (boundary),
+with 199 ms bundling. One hosted pair at `94b65843` saved 2,496 → 2,230 s
+with all tests passing and ±20% shard variance. Probe history:
 `0133c0bf:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`.
-Delivered hosted measurements and their limits are retained in the seed.
+The seed retains delivered measurements and limits.
 
 ## Architecture and PFE
 
@@ -125,7 +124,7 @@ locator explanation and plan prose; accepted runtime proof stayed unchanged.
 
 ### 3. Prove the hosted saving and record it
 Type: Behavior
-Status: planned
+Status: done
 Proof: Two matched pairs on `ubuntu-24.04`. Each pair is the candidate's push
 run and a `workflow_dispatch` CI run of original unbundled control
 `f4466c10`, started together. Terry authorized continuing toward 8% against
@@ -148,17 +147,20 @@ every required check passing.
 
 Safe stop: the measured saving is recorded in the seed.
 
-First candidate `0133c0bf`, observed 2026-10-19: parent 39179538825 →
-candidate 39179487955 took 2,191 → 2,131 suite-step seconds (2.738476%);
-parent 39180257177 → candidate 39180260655 took 2,456 → 2,256 (8.143322%).
-Mean **5.440899%, below 8%**; all 16 checks and 1,537 tests passed per run,
-without skips/retries/flakiness. The seed retains links, test times, cache
-inequality, queue and launch limits. Raw jobs/logs/reports and comparison:
-`/tmp/seed136-hosted-measurement-20261019/`. Watches/collectors terminated;
-owned temporary refs were deleted. A CreateEvent-only alias launch produced
-no candidate run; cancelled unpaired control 39180107803 remains recorded.
-One normal fast-forward repair produced valid pair 2 three seconds apart;
-no measured result was retried or replaced. Acceptance remains unfinished.
+First candidate `0133c0bf`: 2,191 → 2,131 s (2.738476%) and 2,456 →
+2,256 s (8.143322%); mean **5.440899%, below 8%**. All 16 checks and 1,537
+tests passed per run. The seed retains exact runs, caches, queues and cancelled
+unpaired 39180107803 / CreateEvent launch repair; no result was replaced.
+Raw: `/tmp/seed136-hosted-measurement-20261019/`; watches/owned refs retired.
+
+Runner candidate `2a9ddc10`: control 39188949666 → push 39188970886 took
+2,396 → 1,844 s (23.038397%); control 39189551954 → push 39189557466 took
+2,335 → 2,000 s (14.346895%). Mean **18.692646%, meeting 8%**.
+All 64 jobs passed; each run passed 1,537 tests, no skips/retries/flakiness.
+Same image/Node; the seed retains cache inequality, queue and launch limits.
+Raw: `/tmp/seed136-hosted-runner-measurement-20261019/` (Jobs API, logs,
+twelve HTML reports/run, comparison). All watches/collectors exited 0 and
+both exact-SHA guarded owned aliases were removed. Root accepted the proof.
 
 ## Story obligations
 
@@ -175,16 +177,15 @@ Disposition: proved by slice 3: retained genuine push run 39180260655 at 0133c0b
 ### G3. Measured saving misses the selected threshold
 Reported: slice 2 — "Hosted criterion remains unmet: both pairs improved, but the mean reduction was 5.440899%, below 8%."
 Story clause: "the candidate's summed dashboard suite-step seconds are lower in each of two matched pairs, by at least 8% on average, with every required check passing"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: control/push pairs 39188949666/39188970886 and 39189551954/39189557466 saved 23.038397% and 14.346895%, averaging 18.692646%; all 64 jobs and 1,537 tests per run passed without skips/retries/flakiness. Root independently verified raw runs/jobs and all HTML reports in `/tmp/seed136-hosted-runner-measurement-20261019/root-independent-verification.json`; `comparison.json` retains the arithmetic mean and exact sources.
 
 ## Current decisions and preparation review
 
-- Refinement 2026-10-19 retains completed 1 and prior measurements, splitting
-  remaining work into runner behavior (2) and hosted acceptance (3, owning G3).
-  Three slices, no numeric budget. Terry's continued execution supplies authority.
-- The first mechanism missed 8% by 2.559101 points (~60 summed suite seconds).
-  Terry retained 8% and control `f4466c10`; the profile below supports the child
-  experiment. Imports, external bundling and compile cache cannot close that gap.
+- Refinement 2026-10-19 retained completed 1/prior measurements; 2 owns runner
+  behavior, 3 hosted acceptance/G3. Terry authorized the three slices.
+- The first candidate missed 8% by 2.559101 points (~60 summed suite seconds).
+  Terry retained 8%/control `f4466c10`; imports, external bundling and compile
+  cache could not close the gap. The child profile justified slice 2.
 - Apply [native setup](../../../tests/native-setup.md), independent refactoring,
   proof, agent commit and asynchronous CI ownership. Local broad proof/hosted
   waits are explicit; control dispatch uses the same free public CI workflow.
@@ -203,9 +204,10 @@ Disposition: receiving slice 3
   Slice 1 accepted `0133c0bfb0197e7681579520d3a4d79924297d44`, suffix base that
   claim, no rewrite. Parent/control `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
   contains the fixture repair. Both commits passed staged lint/typecheck.
-- Node 24.21.0; checkout-bound prerequisites and typecheck passed 2026-10-19.
-  Hook owns check-only staged lint/typecheck; formatter is `npm run format`.
-  No numeric slice budget or replan override; existing planning authority retained.
+- Slice 2 accepted `2a9ddc10002ba125cbc5d1aa6c69b6166c237512`, suffix base
+  `0133c0bf`, no rewrite, retained observation reused; staged hook passed.
+- Node 24.21.0; native setup/typecheck passed 2026-10-19; `npm run format`.
+  Hook owns check-only staged lint/typecheck. No numeric budget or replan override.
 - CI is GitHub Actions `ci.yml`, workflow 351271804 (`CI`), execution-branch
   target, coordinator `seed136-ebacky`. Initial cell 8 / PTY 88432 / PID 35734 /
   `/tmp/dough-ci-501/watch-lxenZg` stopped at the human-judgment pause with
@@ -213,8 +215,8 @@ Disposition: receiving slice 3
   Earlier trunk claim remains unobserved by this branch stream.
 - Resumption verified old stop/exit and native setup. Replacement retained stream:
   cell `65`, PTY `43383`, PID `16232`, `/tmp/dough-ci-501/watch-ZqcPTu`.
-  Later managed delivery reuses it. Worktree, branch and evidence remain owned;
-  remaining delivery, hosted proof and retrospective/completion are open.
+  Later delivery reuses it. Worktree, branch and evidence remain owned;
+  hosted proof is accepted; record delivery and retrospective/completion remain.
 
 ## Learnings
 
@@ -226,7 +228,7 @@ runners stopped. Local startup and adjacent-resolution/source-fallback HTTP proo
 `runner-results.json`, `runner-resolve.mjs`, `runner-resolve-proof.json`).
 External zod/ws bundling/compile cache gave no useful saving; policy stays.
 Seventy workers/run and 26.30 ms mean fresh local rolldown import reject tiny
-worker-import edits as a ~60-second saving. No extra hosted runs have started.
+worker-import edits as a ~60-second saving. Runner hosted pairs are above.
 
 The initial full run (`/tmp/seed136-slice1-full-20261019.json`) failed after
 920.52 s: 1,531 passed, two failed, four serial successors skipped. The storage
@@ -240,6 +242,6 @@ Details remain in `0133c0bf`'s plan and
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed136-npm-diagnostic-4aobk5x4/`.
 No hosted layout or production script changes follow from local contention.
 
-Four-vCPU shards repeat CPU work on isolated starts; removing starts needs
-Terry's deferred isolation redesign. Preliminary review found no slice-1 defect;
-full retrospective/process recording await hosted acceptance.
+Removing isolated starts on four-vCPU shards needs Terry's deferred redesign.
+Preliminary slice-1 review found no defect; hosted proof is now accepted.
+Full retrospective/process recording await record delivery.

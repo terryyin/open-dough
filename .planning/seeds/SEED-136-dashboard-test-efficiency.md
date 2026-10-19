@@ -103,7 +103,7 @@ unchanged parent run concurrently on `ubuntu-24.04` with twelve dashboard
 shards". Terry's continuation retains that original unbundled parent as the
 control for further optimization, with the same 8% criterion.
 
-**Hosted delivered evidence (2026-10-19):** The delivered candidate
+**First delivered candidate (2026-10-19):** The delivered candidate
 `0133c0bfb0197e7681579520d3a4d79924297d44` was compared twice with its
 unchanged parent `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`, which includes
 the deterministic reporter-fixture repair. Each candidate run used a `push`
@@ -115,7 +115,7 @@ event and each parent run a `workflow_dispatch` event, on `ubuntu-24.04`.
 | 2 | [39180257177](https://github.com/terryyin/open-dough/actions/runs/39180257177) | [39180260655](https://github.com/terryyin/open-dough/actions/runs/39180260655) | 2,456 → 2,256 | 8.143% | 8,320.714 → 7,523.376 |
 
 Both pairs saved suite-step time, but their arithmetic mean reduction was
-5.441%, below the required 8%; the hosted-saving criterion remains unmet.
+5.441%, below the required 8%; that candidate missed the hosted criterion.
 Every run passed all
 16 jobs: twelve dashboard shards, three shell shares and one lint job. Each
 run's twelve HTML reports record all 1,537 tests passing, with no skipped,
@@ -147,6 +147,39 @@ run. Its unpaired parent [39180107803](https://github.com/terryyin/open-dough/ac
 was cancelled. One launch repair created the owned alias at the parent, then
 fast-forward-pushed the same candidate while dispatching a new parent run;
 that produced pair 2 above. No measured result was retried or replaced.
+
+**Delivered runner bundle (2026-10-19):** Candidate
+`2a9ddc10002ba125cbc5d1aa6c69b6166c237512`, including the Cursor runner in
+the same run-owned bundle, was compared twice with original control
+`f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`. Terry authorized retaining that
+control and the 8% criterion after the first candidate's result.
+
+| Pair | Control dispatch | Candidate push | Summed suite-step seconds, control → candidate | Reduction | Summed test seconds, control → candidate |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [39188949666](https://github.com/terryyin/open-dough/actions/runs/39188949666) | [39188970886](https://github.com/terryyin/open-dough/actions/runs/39188970886) | 2,396 → 1,844 | 23.038% | 8,096.478 → 6,123.084 |
+| 2 | [39189551954](https://github.com/terryyin/open-dough/actions/runs/39189551954) | [39189557466](https://github.com/terryyin/open-dough/actions/runs/39189557466) | 2,335 → 2,000 | 14.347% | 7,867.517 → 6,637.008 |
+
+Both pairs saved suite-step time; their arithmetic mean reduction was
+**18.693%, meeting the unchanged 8% criterion**. Each run passed all sixteen
+jobs and 1,537 tests, without skips, retries, unexpected or flaky tests, on
+attempt 1. The twelve reports per run match the exact commit and contain
+one expected passing result per test, with no report errors. Metrics use the
+same Jobs API step and HTML report durations as the first candidate.
+
+All 64 jobs used the same image and Node version recorded above. Both
+controls and the first candidate run had sixteen npm and twelve Chromium
+cache hits. The second candidate run had ten npm hits / six misses
+(dashboard: eight hits / four misses), and eight Chromium hits / four misses.
+Pair 1 was created at 02:13:26 / 02:13:42 UTC (control / candidate); pair 2
+at 02:21:07 / 02:21:11 (sixteen and four seconds apart). Dashboard job queue
+delays were 3 s for control / 2–197 s for candidate in pair 1, and 5 s /
+3–206 s in pair 2. Creation-to-last-job times were 280 / 409 s and 254 / 434 s.
+These two observations retain runner variance, queue and cache limitations;
+summed suite-step saving does not establish lower complete-workflow wall time.
+The second candidate alias was created at the control, then fast-forward-pushed
+to the candidate, producing a genuine push. All watches and collectors exited
+successfully; both owned aliases were removed after exact-SHA checks.
+
 The prior probe evidence is recoverable at
 `f4466c10:.planning/seeds/SEED-136-dashboard-test-efficiency.md#restore-ci-under-three-minutes`;
 the superseded under-three-minute investigation is recoverable at the same
