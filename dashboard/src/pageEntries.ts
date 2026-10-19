@@ -7,7 +7,7 @@
 // (`./recentlyDoneFocus.ts`).
 
 import type { HeldEntry } from "./recentlyDoneRange.ts";
-import { workCard } from "./workFocus.ts";
+import { keepInView, workCard } from "./workFocus.ts";
 
 // The attribute by which a session entry names the session it shows.
 const showsSessionAttribute = "data-shows-session";
@@ -118,6 +118,17 @@ export const heldEntryShown = (held: HeldEntry) =>
       : { attribute: doneStoryAttribute, value: held.story },
     ".recently-done",
   );
+
+// Reveal the resolved story's rendered home, whether active or Recently done.
+// Callers own resolution, inspection and any demand to extend the Done range.
+// The keeper shows a hidden column and retains its card in view until the
+// developer moves, including while later reads change the surrounding layout.
+export function revealStory(identity: string): (() => void) | undefined {
+  const card = workCard(identity) ?? heldEntryShown({ story: identity });
+  if (card === null) return;
+  card.focus({ preventScroll: true });
+  return keepInView(card);
+}
 
 // The actual entry across all dashboard columns. The sidebar is navigation,
 // so it does not compete with the session's one column home.

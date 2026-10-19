@@ -78,27 +78,32 @@ const holdsEntry = (each: Listed, held: HeldEntry) =>
     : "record" in each && each.record.identity === held.story;
 
 // Answers the page's destination in this project once the list can place it:
-// not held here when no saved Done session is it, else, once the done
-// catalog has placed it, the range extended exactly through its entry, and
+// once the sessions and done catalog have placed its story or session, the
+// range extended exactly through its entry, and
 // reached once every entry through it is `settled`.
 function useDestinationAnswer(
   range: RecentlyDoneRange,
   sourceId: string,
   records: readonly LaunchWithState[] | undefined,
+  sessionsSettled: boolean,
   done: PublishedWork["done"],
   listed: readonly Listed[],
   settled: (each: Listed) => boolean,
 ) {
   const wanted = range.wanted(sourceId);
   useLayoutEffect(() => {
-    if (wanted === undefined || records === undefined) return;
-    const { id, session } = wanted;
-    if (!records.some((record) => sessionKey(record.session) === session)) {
+    if (wanted === undefined || !sessionsSettled) return;
+    const { id, entry } = wanted;
+    if (entry.session !== undefined && records === undefined) return;
+    if (
+      entry.session !== undefined &&
+      !records?.some((record) => sessionKey(record.session) === entry.session)
+    ) {
       range.settle(id, 0, "absent");
       return;
     }
     if (done === undefined || done.status === "loading") return;
-    const at = listed.findIndex((each) => holds(each, session));
+    const at = listed.findIndex((each) => holdsEntry(each, entry));
     if (at < 0) {
       range.settle(id, 0, "absent");
       return;
@@ -171,10 +176,17 @@ export function useRecentlyDone({
     ],
     sessionsSettled,
   );
-  useDestinationAnswer(range, sourceId, records, done, listed, (each) =>
-    "record" in each
-      ? details.detailOf(each.record).status !== "reading"
-      : true,
+  useDestinationAnswer(
+    range,
+    sourceId,
+    records,
+    sessionsSettled,
+    done,
+    listed,
+    (each) =>
+      "record" in each
+        ? details.detailOf(each.record).status !== "reading"
+        : true,
   );
   const refused = shown.some(
     (each) =>

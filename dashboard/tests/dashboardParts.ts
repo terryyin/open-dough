@@ -6,7 +6,7 @@ import type { Locator, Page } from "@playwright/test";
 
 export function parts(page: Page) {
   const stages = page.getByRole("region", { name: "Work stages" });
-  const status = page.getByRole("status");
+  const status = page.getByRole("status").and(page.locator(".read-status"));
   const direction = page.getByRole("region", { name: "Near-future direction" });
   return {
     banner: page.getByRole("banner"),

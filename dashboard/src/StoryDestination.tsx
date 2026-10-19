@@ -4,7 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 import type { DashboardRoute } from "./dashboardRoute.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import type { useObservationAttempt } from "./observationAttempt.ts";
-import { keepInView, workCard } from "./workFocus.ts";
+import { activeStoryAt } from "./dashboardDestination.ts";
+import { revealStory } from "./pageEntries.ts";
 
 export function useStoryDestination({
   route,
@@ -21,11 +22,7 @@ export function useStoryDestination({
   const knownProject = target?.project === route.source.id;
   const failed = attempt.status === "failed" && !attempt.afterMembership;
   const membership = knownProject && work?.source.id === target.project;
-  const listed =
-    membership &&
-    [...work.taken, ...work.backlog].some(
-      (entry) => entry.identity === target.identity,
-    );
+  const listed = knownProject && activeStoryAt(target, work) !== undefined;
   const revealed = useRef<typeof target>(undefined);
   useLayoutEffect(() => {
     if (
@@ -36,13 +33,9 @@ export function useStoryDestination({
       revealed.current === target
     )
       return;
-    const card = workCard(target.identity);
-    if (!card) return;
     revealed.current = target;
-    // Hidden columns must be shown before focus can land. keepInView also
-    // follows later preparation layout and stops when the developer moves.
-    const stop = keepInView(card);
-    card.focus({ preventScroll: true });
+    const stop = revealStory(target.identity);
+    if (stop === undefined) revealed.current = undefined;
     return stop;
   }, [target, listed, failed, enabled]);
 

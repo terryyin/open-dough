@@ -24,6 +24,13 @@ resolve the original target. These outcomes name the requested identity and
 offer project choices and **Show project stories** without focusing unrelated
 work. URLs without a story target retain ordinary project/view routing.
 
+Story references and direct URLs share a configured project and story identity
+as their target, and share card reveal. Active membership comes from that
+project's published work; Done references use the existing catalog and range.
+A reveal follows native scrolling until the card first reaches a usable reading
+place, then lets later navigation bring its next control into view. Layout
+changes can retain that reading place until the developer moves.
+
 Keep one story overview with an always-visible banner pinned to the viewport top.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page
@@ -185,66 +192,24 @@ card while a published preparation assignment names that story. The card keeps
 its region, priority, and badges; Preparing is not a stage every story passes
 through or evidence that an agent is running. The badge legend explains it.
 
-The initial layout hypothesis is a left-to-right flow with a visible connector,
-clear region boundaries, and story cards that stay attached to their stage as
-the user navigates. Reflow to a vertical connection on narrow screens if useful.
-The relationship between stages should be apparent, rather than presenting
-unrelated lists. A movable viewport is a later option when ordinary layout and
-scrolling stop serving the work. Exact geometry and styling can evolve.
+Following a supplier story reference in a dependency explanation stays in the
+dashboard, opens the referenced active story's existing inspection, and brings
+its card into view with the keyboard there. Following it again keeps inspection
+open and reveals the same card again. A reference to a published story in
+Recently done reveals its existing card, extending the shown range exactly
+through it when needed, without requiring or opening a session. The same list
+keeps its ordering, retained longer range, and ordinary detail reads; an
+identified card with unreadable detail keeps its read-gap explanation and
+existing retry. Navigation uses the recorded story
+identity, so sibling stories in one seed remain distinct. It starts no agent
+work and opens no terminal. A pending reference says which project and story it
+is reading; a failed read stays distinct from an unavailable block. A later
+choice or move cancels a pending jump, including returning Recently done to its
+latest ten. A reference whose block is unavailable, expired or unlisted says so
+in the dashboard, with ordinary navigation and retry still available; it
+neither creates a historical card nor reads Git history. Source links
+in a story's inspection, associated plans, and dependency revision evidence
+keep ordinary source navigation; repository files retain their pinned revisions.
 
-As density or richer evidence justifies zoom, support two useful levels of
-reading from the same snapshot:
-
-- **Overview:** fit the connected stages, their names, and entry counts into
-  view. Work remains visibly distributed across the stages; compact cards or
-  marks may stand in for full titles when fitting every title would be illegible.
-  Counts describe recorded entries, not completion percentages.
-- **Focused work:** selecting a work item brings it into readable view and
-  reveals its full title, identity, group/priority, and existing source links.
-  Zoom reveals existing information; it does not fetch new story or plan facts
-  in the first story. Keep the containing stage apparent and provide a clear
-  route back to the overview.
-
-When zoom is introduced, include named Zoom in, Zoom out, and Fit overview
-controls, with bounded zoom and pan so work cannot be lost indefinitely
-offscreen. Provide pointer pan on
-the background and a keyboard-equivalent way to reach offscreen work; keyboard
-focus brings a work card into view. Focused reading and Fit overview must also
-work on touch screens without precise gestures. Preserve browser page zoom and
-normal page scrolling; gestures may supplement, not replace, explicit controls.
-Do not require a minimap, physics simulation, freely draggable cards, or custom
-graph editor. Panning changes the view, never backlog order or membership.
-
-Illustrative compact overview; placeholders are not observed project data:
-
-```text
-┌──────────────── pinned viewport-top banner ──────────────┐
-│ [≡] ▸ <project>  [Open Dough|Doughnut|Pygardon] [↻] [⚙]  │
-└──────────────────────────────────────────────────────────┘
-▸ Near-future direction                                [?]
-
-┌──────────────────── connected stage ──────────────────────┐
-│  BACKLOG                         TAKEN                    │
-│  ┌──────────────────┐            ┌───────────────────┐    │
-│  │ 1 · <work card>  │ ── take ─▶ │ <work card>       │    │
-│  │ 2 · <work card>  │            │ <work card>       │    │
-│  │ …               │            │                   │    │
-│  └──────────────────┘            └───────────────────┘    │
-└──────────────────────────────────────────────────────────┘
-
-Each work card → readable title, stage/priority, developer, badges, warnings;
-Inspect story → identity, assignment records, evidence, source links
-```
-
-Do not hide already-readable entry information just to create a zoom interaction.
-The first story can use ordinary layout, wrapping, and scrolling; if a small
-focus or fit control materially helps, add it within that reading journey.
-Do not prebuild a viewport framework for future feature or structural views.
-
-As later stories deliver richer evidence, focused work can expose purpose,
-assignment/mode, independent refinement/planning facts, and named slices with
-completion evidence. Source revision and uncertainty stay attached to each
-fact. A readable anchored panel is an option for dense detail; it complements
-the stage rather than replacing spatial navigation with a list-and-detail app.
-Stories outside the backlog must become reachable when their discovery is in
-scope. Search or filtering can follow actual navigation needs.
+See [spatial-reading direction](dashboard-spatial-reading.md) for the layout
+hypothesis, compact overview and later zoom/pan guidance.
