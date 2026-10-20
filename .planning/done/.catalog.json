@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-052_cursor-unconfirmed-stop-after-local-done.json",
+      "identity": "SEED-052#cursor-unconfirmed-stop-after-local-done",
+      "completedAt": "2026-10-20T08:42:06.891Z",
+      "blob": "37f2a7f020d6417871b3fbbb1ae67afc21bc6451"
+    },
+    {
       "fileName": "SEED-052_safe-cursor-session-stop.json",
       "identity": "SEED-052#safe-cursor-session-stop",
       "completedAt": "2026-10-20T06:26:02.357Z",

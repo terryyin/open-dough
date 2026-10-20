@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#cursor-unconfirmed-stop-after-local-done",
+  "title": "An unconfirmed stop still blocks a replacement after local Done",
+  "completedAt": "2026-10-20T08:42:06.891Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "cursor",
+  "model": "auto"
+}

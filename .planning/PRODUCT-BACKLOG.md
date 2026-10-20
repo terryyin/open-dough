@@ -20,7 +20,6 @@ cost of the feedback process itself.
 
 - [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope ([plan](slice-plans/329-cursor-session-model-scope/PLAN.md))
-- [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done ([plan](slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md))
 
 ## Backlog list
 
