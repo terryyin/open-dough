@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-010#accept-original-story-promises",
+  "mode": "story-branch",
+  "branch": "codex/accept-slices-against-the-original-story-promise",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
