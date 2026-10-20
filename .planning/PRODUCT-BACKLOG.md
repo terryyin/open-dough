@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done ([plan](slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md))
-- [Finish landing and wrap-up silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up) — SEED-145#quiet-land-and-wrap-up ([plan](slice-plans/331-quiet-land-and-wrap-up/PLAN.md))
 
 ## Backlog list
 
