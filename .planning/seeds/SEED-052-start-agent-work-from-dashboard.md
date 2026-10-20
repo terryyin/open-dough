@@ -152,36 +152,127 @@ or claims of readiness.
 
 **Identity:** SEED-052#cursor-attention-and-results
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/324-cursor-attention-and-results/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"99de78ae398c6c972dcd6fefe0d4af016661404609a5826412ca92318a50a9f4","plan":"91aea72d16c8dba1baed32d49020a1de3c2e64270e98d7f0c4be8c382cc53399"}}
 ```
 
-**Beneficiary and outcome:** A developer following Cursor work can notice when
-the session needs an answer or review, finishes with attention, fails or is
-interrupted, and can read the relevant result without continually opening its
-terminal. The dashboard's attention indicators and notifications agree.
+**Goal:** For a developer following dashboard-launched Cursor work, the
+dashboard notices when the session needs an answer or review, finishes with
+attention, fails or is interrupted — where evidence proves that state — and
+lets the developer read the question or result without continually opening
+its terminal. The card, session entry, and desktop notification agree, and
+each actionable transition alerts once.
 
-**Scope and evaluation:** Cover the reported plan execution/review handoff and
-input, failure and interruption attention. Evaluate a working session that asks
-a question, resumes, and reaches review; an execution-complete handoff before
-Land/Wrap Up; and failure/interruption with a usable explanation. Each actionable
-transition alerts once, and the developer can read the question or final result.
-Preserve explicit reports, intentionally quiet successful closure, notification
-continuity, and correct session/story attribution. Keep unknown or unavailable
-observations honest: an idle composer or process exit alone proves no successful
-outcome. Select the smallest supported native or explicit-report route during
-refinement rather than requiring a speculative Cursor API.
+**Scope:**
 
-**Retained verification:** Confirm the affected notification/report journey in
-native Cursor. Include the still-unverified released CI identity-to-hook path
-from [ODF-154](../../docs/maintainer/findings/ODF-154.md) when evaluating delivery
+- Required: map the Cursor runner's held-screen evidence honestly into the
+  shared session reading — a clarifying/waiting screen reads as needing
+  input, the follow-up prompt after delivered work reads as ready for
+  review, a working screen reads as working. A state the screen cannot
+  prove (including failure or interruption shown only by a vanished client
+  or process exit) stays unknown/unsettled, never a guessed success,
+  failure, or review.
+- Required: extend the existing explicit completion-report channel to the
+  plan-execution/review handoff (execution complete before Land/Wrap Up),
+  so a finished-with-attention or unfinished handoff alerts through the
+  already-working unread-report path; intentionally quiet successful
+  closure (completed, no attention message) stays quiet.
+- Required: let a Cursor session's retained explicit report be read through
+  the same passive final-report route other hosts use, and show the waiting
+  question's text from the held screen where it is present. Reading never
+  takes interactive control, resumes, or marks the session done.
+- Required: failure and interruption attention only where a supported
+  signal proves it — a failure/interruption screen the runner still holds,
+  or an explicit unfinished report from the session. Where the native probe
+  (below) proves no such signal, those states remain honestly unknown and
+  this limit is recorded, not papered over.
+- Deferred: a native Cursor final-answer reader from the local chat store
+  or any speculative Cursor API; stopping/renaming Cursor sessions (story
+  2); session-only model scope (story 3); new hook registration for
+  dashboard attention.
+- Rejection constraints: an idle composer or process exit alone must not
+  be read as a successful outcome (existing seed boundary); unknown or
+  unavailable observation must not alert as if it were activity (existing
+  alert-selection rule).
+
+**Key examples:**
+
+1. Working session asks a clarifying question → the held screen shows the
+   question → entry/card read *Needs input* with the question text
+   readable, and one desktop notification fires; the developer answers in
+   the terminal, the session works again, and a later new question can
+   alert again.
+2. Session finishes its turn to the follow-up prompt after delivered work,
+   and plan execution hands off for review with an explicit
+   completed-with-attention (or unfinished) report before Land/Wrap Up →
+   entry/card read *Ready for review*, the unread report alerts once, and
+   its text is readable inline and through the final-report panel without
+   opening the terminal.
+3. Session completes quietly (completed report, no attention message, or
+   Land/Wrap Up's plain completed report) → no attention alert and no
+   unread report; successful closure stays intentionally quiet.
+4. Session fails or is interrupted and a held screen or explicit unfinished
+   report proves it → entry/card read as failed/stopped with a usable
+   explanation and alert once. If the client simply vanishes (runner not
+   holding it, process exit alone) → the reading stays honest
+   unknown/agent-not-running, with no success, failure, or review claim.
+5. Runner is not running or cannot be reached → every Cursor session keeps
+   its existing runner wording, needs no attention, and sends no alert;
+   existing Codex and Claude readings, alerts, and result reading are
+   unchanged.
+
+**Architecture:** This story moves one responsibility: the Cursor host
+boundary (`dashboard/server/cursorHost.ts`, today launch/options/sessions/
+attach only) gains the same normalized observation and passive result
+reading the other hosts already supply, instead of carrying raw screen
+labels as `unknown` into shared presentation. Consequences that constrain
+the promise: (a) shared presentation and alert selection already key on
+the normalized `available` activities (waiting/review/failed/interrupted)
+and suppress unknown observations, so honest screen→activity mapping is
+sufficient for indicators, counts, and notifications to agree without a
+second alert path; (b) the runner already holds each client's full screen
+text, so classification belongs at the Cursor host boundary, keeping
+screen wording private to that host like other hosts' native wording;
+(c) the explicit report remains independent of native activity and stays
+the only route that proves a *result*, so result reading reuses the
+retained report rather than extracting a native final answer; (d) per
+Accepted [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md),
+deterministic dashboard tests do not prove native Cursor behavior — the
+native probe and retained verification below own that evidence.
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+is Proposed and binds nothing here; no Accepted ADR conflicts with this
+scope.
+
+**Retained verification:** Confirm the affected notification/report journey
+in native Cursor with an early paid probe: a dashboard-launched session
+that asks a clarifying question, resumes, finishes to review, plus a
+failing/interrupted run, observing which held screens (and failure/
+interruption signals) actually occur before later work relies on them.
+Include the still-unverified released CI identity-to-hook path from
+[ODF-154](../../docs/maintainer/findings/ODF-154.md) when evaluating delivery
 of CI attention to that same coordinator. Keep CI observation and developer
 desktop alerts distinct. After delivery, update that finding with actual native
 evidence or the precise remaining gap; do not rewrite its pre-fix occurrences
 as post-fix failures or infer a watch start from installation alone.
 
-**Open questions and effort:** The available completion/input evidence, how to
-read a result without taking interactive control, and which existing reporting
-channel can close the gap remain for refinement. Size is unassigned.
+**Investigation (2026-10-20, this refinement):** Facts from this checkout:
+Cursor observation wraps runner screen labels as `unknown`, so
+`nativeSessionShown` grants no attention and `alertReading` suppresses
+them (only unread explicit reports alert today); the runner holds full
+screen text and classifies only working / waiting-for-an-answer / at the
+follow-up prompt; the Cursor boundary supplies no `readResult` (the
+final-report request refuses Cursor), no stop and no rename, while Codex
+supplies normalized activities and a passive final-answer reader and
+Claude supplies normalized activities; explicit report text is already
+readable inline for any host, and Land/Wrap Up — not the plan-execution
+finish — is the handoff currently instructed to send a report; locally,
+`cursor-agent` (2026.10.19) keeps per-chat `~/.cursor/chats/<hash>/<id>/
+store.db` blobs whose format is not a supported dashboard source.
+Hypotheses the probe must settle: which screens distinguish a clarifying
+question, a finished turn, failure, and interruption; whether any held
+screen proves failure/interruption at all. Terry selected the hybrid
+route (honest screen mapping + execution-handoff reporting + retained-
+report reading; no native final-answer extraction, no new hooks) and
+authorized the early native probe on 2026-10-20. Size is unassigned.
 
 **Depends on / safe stopping point:** No blocking story prerequisite is known.
 Deliver usable attention and result access independently of the later control
