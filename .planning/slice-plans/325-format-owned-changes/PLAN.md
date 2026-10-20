@@ -113,7 +113,8 @@ base `37e50618e7d830564ec3a45481ea54436b70d450`, 2026-10-20, Node 24.21.0,
   `PATH=/opt/homebrew/bin:$PATH npm ci` then exited 0 (134 packages),
   `npm run typecheck:dashboard` exited 0 with the same PATH, local
   `@eslint/js` resolution stayed inside this checkout, and the lockfile stayed
-  unchanged. The identical four-suite focused retry passed.
+  unchanged. The identical four-suite focused retry passed. After the CI repair,
+  `PATH=/opt/homebrew/bin:$PATH node scripts/setup-native.mjs check` also exited 0.
   Check-only staged lint/typecheck hook inspected; coordinator owns formatting
   and agent commits. No numeric slice hard limit is configured; existing
   planned refinement authority remains.
@@ -168,11 +169,19 @@ run lint` stays unchanged and is not a local gate here beyond the changed files.
 
 ### 2. Measure the response and record it in DD-309
 Type: Behavior
-Status: planned
+Status: done
 Proof: DD-309's response names the landed revision and, for each of the three
 representative changes, the paths listed, bytes changed, wall time and load
 average of `npm run format` beside the full-tree option, with no speedup
 extrapolated beyond the measured runs.
+
+Accepted proof: the six `measure.mjs <markdown|scripts|shell-valid>
+<selective|all>` invocations retained at `/tmp/dough-dd309-325-measure.uSvudR`
+exited 0. Inspected actual npm entry/spawn observations, all metrics and
+before/after byte manifests; each pair has identical preconditions and outputs,
+only named scratch paths changed, and every run restored clean. DD-309 records
+commands, revisions, load, paths, file sizes, limits and pending release.
+Independent refactor made no edits; record-only `npm run format` exited 0.
 
 Behavior: Given the slice 1 revision in this worktree, when the maintainer
 prepares a Markdown-only change, a one-script-plus-one-new-file change and a
@@ -221,3 +230,13 @@ Markdown pair are unaffected; slice 2 paused cleanly for this repair.
 Reported: slice 1 — "The new shell-format test requires shfmt, but hosted test jobs lack shell tools."
 Story clause: "Preserve lint and format confidence through the existing lint and hook tests plus focused tests of the selection."
 Disposition: proved by slice 1: `tests/support/format-changed-files.test.mjs` and the shared `shellToolsMissing` rule; the unchanged shell assertions execute with real tools, and four suites pass with tools absent after the original failure was reproduced. See the CI repair return and `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-format-shell-JtqPJQ/before.log`.
+
+### G2. Invalid first shell measurement setup
+Reported: slice 2 — "shell selective run appended its test block after scripts/test.sh's existing exit"
+Story clause: "compare the paths listed and bytes changed with the pre-change command"
+Disposition: proved by slice 2: the corrected reachable block produced passing `shell-valid-{selective,all}` observations with identical preconditions and outputs; DD-309 discloses the excluded SC2317 trial and retains its evidence.
+
+### G3. Future landing, release and usage evidence
+Reported: slice 2 — "trunk landing, containing release and later usage remain unobserved."
+Story clause: "On completion update DD-309 with the actual response, the repository revision, any containing release and the outcome evidence; queueing alone resolves nothing."
+Disposition: proved by slice 2: DD-309 records the actual implemented response, both measured revisions, observed outcomes and pending release/landing. No integrated, released or later-use result is claimed; those future facts are not required to observe this implementation's response.
