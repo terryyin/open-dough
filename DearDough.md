@@ -446,3 +446,11 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator functions.exec startup batches reported truncated outputs of 25,036 and 18,445 original tokens, followed by bounded rereads of CI adapter/runtime, delivery, completion and source context before delegation. Later acceptance retrieval also printed an overlarge pair-comparison object before a scalar-only check.
   - Observed effect: requested authoritative passages were omitted and had to be retrieved again; repeated reads and duplicated output occurred within this one execution.
   - Inference: the existing targeted-retrieval instruction already covered this case. Bound independent batches by response budget and print only needed evidence fields. No elapsed-time or aggregate-token saving is measured, and calls within this execution are not additional occurrences.
+
+- Execution: SEED-010#observe-retrospective-response-effectiveness / plan 328, first implementation `1219b54819763f72d3de87df0a788adcc77682e2`
+  - Timestamp: unknown (2026-10-20, execution startup)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed execute-plan guidance)
+  - Evidence: coordinator startup batches returned truncated outputs of 28,741 and 17,440 original tokens; subsequent targeted reads recovered delegation, delivery/publication and ADR/refactor context before implementation and delivery. Current coordinator conversation and the plan's execution context identify this run.
+  - Observed effect: passages were omitted and retrieved again, adding repeated tool output and reading within this execution. All required context was recovered before its dependent boundary; no dropped obligation is established.
+  - Inference: same broad-retrieval mechanism as the retained occurrence. Apply the existing targeted-retrieval instruction at each batch; no new guidance or measured time/token saving is established. Multiple truncated calls remain one occurrence.
