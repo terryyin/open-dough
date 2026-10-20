@@ -111,3 +111,8 @@ other attach failure, the panel keeps today's generic text.
   `npm run typecheck:dashboard` passed. Carrying uses the generic bounded
   `HostOperationFailure`/`terminalAttachRefusalSchema` (4002) pattern; no
   Cursor/scope logic in shared terminal code.
+
+## Execution complete
+
+Product advice: no change — the bounded correction is delivered exactly as
+scoped; no follow-up product work is advised.
