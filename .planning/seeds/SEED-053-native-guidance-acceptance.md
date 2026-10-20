@@ -23,6 +23,11 @@ The Cursor acceptance story is closed. Its evidence remains recoverable from the
 
 **Identity:** SEED-053#quiet-dashboard-completion
 **Completed implementation:** [SEED-008's completion story](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
+Quiet wording and its response consumers also follow [SEED-145's completed story](https://github.com/terryyin/open-dough/blob/1ad488d7f3757d7a85f54f2277424f7c301ff1bb/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up)
+and [plan 331](https://github.com/terryyin/open-dough/blob/1ad488d7f3757d7a85f54f2277424f7c301ff1bb/.planning/slice-plans/331-quiet-land-and-wrap-up/PLAN.md).
+Native cases must keep settled findings, authorized follow-up dispositions and
+verified retirement quiet, while preserving actionable exceptions and requested
+details. Their deterministic proof does not establish native compliance.
 **Outcome:** Developers can rely on the installed completion operation and quiet
 Land/Wrap Up behavior on Codex, Claude Code, and Cursor. This acceptance home
 tracks missing native proof separately from functional implementation; it adds
