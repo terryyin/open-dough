@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#cursor-attention-and-results",
+  "title": "Receive Cursor attention alerts and read the result",
+  "completedAt": "2026-10-20T04:29:32.305Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "cursor",
+  "model": "auto"
+}
