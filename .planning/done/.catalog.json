@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_observe-retrospective-response-effectiveness.json",
+      "identity": "SEED-010#observe-retrospective-response-effectiveness",
+      "completedAt": "2026-10-20T05:55:26.137Z",
+      "blob": "ee6332fb2ddcc8cc4641a8a8245e1288abb2f1c3"
+    },
+    {
       "fileName": "SEED-052_cursor-attention-and-results.json",
       "identity": "SEED-052#cursor-attention-and-results",
       "completedAt": "2026-10-20T04:29:32.305Z",

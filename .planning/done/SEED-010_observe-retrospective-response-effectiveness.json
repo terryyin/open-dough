@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#observe-retrospective-response-effectiveness",
+  "title": "Observe whether a retrospective response helped",
+  "completedAt": "2026-10-20T05:55:26.137Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
