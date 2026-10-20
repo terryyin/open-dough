@@ -21,6 +21,7 @@
 // still showing and Mark as done disabled until the question is answered.
 
 import {
+  useCallback,
   useLayoutEffect,
   useRef,
   useState,
@@ -119,6 +120,10 @@ export function TerminalPanel({
   const names = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<TerminalEnding | undefined>();
+  const [refusal, setRefusal] = useState<string | undefined>();
+  const onAttachRefusal = useCallback((explanation: string) => {
+    setRefusal(explanation);
+  }, []);
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
@@ -129,13 +134,23 @@ export function TerminalPanel({
     onAttached,
     setEnding,
     onWorkspaceUnavailable,
+    onAttachRefusal,
   );
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
   const attachAgain = () => {
     setEnding(undefined);
+    setRefusal(undefined);
     setAttempt((previous) => previous + 1);
   };
+  // A carried refusal replaces the attachment's generic ending, so the
+  // panel shows at most one status with its attach-again action.
+  const status =
+    refusal !== undefined
+      ? { says: refusal, action: "Reconnect" }
+      : ending !== undefined
+        ? endings[ending]
+        : undefined;
   const { title, name } = launchSubject(record.request);
   const agent = assignedAgent(record.start ?? record.preparation);
   const agentName = agentNameOf(agent);
@@ -184,15 +199,15 @@ export function TerminalPanel({
       <div role="status" className="terminal-status">
         {marking === "marking" && <p className="quiet">Marking as done…</p>}
         {marking === "not-marked" && <p>{notMarkedDone}</p>}
-        {ending && marking !== "marking" && (
+        {status && marking !== "marking" && (
           <>
-            <p>{endings[ending].says}</p>
+            <p>{status.says}</p>
             <button
               type="button"
               className="frame-button"
               onClick={attachAgain}
             >
-              {endings[ending].action}
+              {status.action}
             </button>
           </>
         )}

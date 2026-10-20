@@ -4,7 +4,9 @@
 // screen. Its caller waits for the host’s prompt before typing privately.
 import type { IPty } from "@lydell/node-pty";
 import type { HostSession } from "../src/agentLaunch.ts";
+import type { TerminalAttachRefusal } from "../src/agentTerminal.ts";
 import { sessionKey } from "../src/sessionReference.ts";
+import { HostOperationFailure } from "./hostLaunch.ts";
 import { launchHost, type UnavailableWorkspace } from "./launchHosts.ts";
 import type { LiveTerminalClientOptions } from "./liveTerminalClient.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -18,6 +20,7 @@ export function nativeAttach(
 ):
   | { readonly pty: IPty; readonly options: LiveTerminalClientOptions }
   | { readonly workspaceUnavailable: UnavailableWorkspace }
+  | { readonly attachRefusal: TerminalAttachRefusal }
   | { readonly failedHost: string } {
   const host = launchHost(session.host);
   const hostName = host?.name ?? session.host;
@@ -27,7 +30,12 @@ export function nativeAttach(
       throw new Error("This host cannot attach.");
     }
     attachment = host.attach(session, folder, initialSize);
-  } catch {
+  } catch (error) {
+    // Only a host's bounded diagnostic is carried to the panel; every
+    // other attach error keeps the generic host-only failure.
+    if (error instanceof HostOperationFailure) {
+      return { attachRefusal: { explanation: error.message } };
+    }
     return { failedHost: hostName };
   }
   if ("workspaceUnavailable" in attachment) return attachment;

@@ -80,7 +80,7 @@ No premise is left open.
 
 ### 1. Carry the scope refusal explanation to the terminal panel
 Type: Behavior
-Status: planned
+Status: done
 Proof: The missing-scope journey in
 `cursor-session-scope-continuation.spec.ts` shows the terminal panel
 presenting the scope refusal explanation while spawning nothing and
@@ -100,3 +100,14 @@ other attach failure, the panel keeps today's generic text.
   generic attach failure remains the surface for every other failure.
 - The explanation text is the one recovery already shows; no second
   wording is introduced.
+- Accepted proof: the missing-scope journey in
+  `dashboard/tests/cursor-session-scope-continuation.spec.ts` (panel shows
+  the scope refusal incl. "Nothing was started.", generic text absent, no
+  attach/runner calls, shared config unchanged) plus the generic
+  attach-failure specs `session-workspace-retirement-attach.spec.ts` and
+  `agent-terminal-done-codex-page.spec.ts` passed via
+  `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts <those specs>`
+  (unset both color vars or the quiet reporter fails on Node warnings);
+  `npm run typecheck:dashboard` passed. Carrying uses the generic bounded
+  `HostOperationFailure`/`terminalAttachRefusalSchema` (4002) pattern; no
+  Cursor/scope logic in shared terminal code.

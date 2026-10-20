@@ -7,6 +7,8 @@ import {
   agentTerminalEndpoint,
   terminalEndedCode,
   terminalAttachFailedCode,
+  terminalAttachRefusalCode,
+  terminalAttachRefusalSchema,
   terminalReadinessSchema,
   terminalReplaySchema,
   terminalWorkspaceUnavailableSchema,
@@ -49,6 +51,7 @@ export function useAttachedTerminal(
     request: SessionRequest,
     workspace: TerminalWorkspaceUnavailable,
   ) => void,
+  onAttachRefusal: (explanation: string) => void,
 ) {
   const url = terminalUrl(session.record);
   const takesKeyboard = session.takesKeyboard !== false;
@@ -91,6 +94,7 @@ export function useAttachedTerminal(
       send({ resize: size() });
     });
     let shown = false;
+    let refused = false;
     let observeReadiness = false;
     let framePending = false;
     let frameCompleted = false;
@@ -164,22 +168,36 @@ export function useAttachedTerminal(
             terminal.resize(replay.data.replay.cols, replay.data.replay.rows);
             return;
           }
-          const refusal = terminalWorkspaceUnavailableSchema.safeParse(payload);
-          if (refusal.success)
-            onWorkspaceUnavailable(session, refusal.data.workspaceUnavailable);
+          const workspaceRefusal =
+            terminalWorkspaceUnavailableSchema.safeParse(payload);
+          if (workspaceRefusal.success) {
+            onWorkspaceUnavailable(
+              session,
+              workspaceRefusal.data.workspaceUnavailable,
+            );
+            return;
+          }
+          const attachRefusal = terminalAttachRefusalSchema.safeParse(payload);
+          if (attachRefusal.success) {
+            refused = true;
+            onAttachRefusal(attachRefusal.data.attachRefusal.explanation);
+          }
         }
       }
     });
     socket.addEventListener("close", (event) => {
-      if (current && event.code !== terminalWorkspaceUnavailableCode) {
-        onEnded(
-          event.code === terminalEndedCode
-            ? "ended"
-            : event.code === terminalAttachFailedCode
-              ? "failed"
-              : "disconnected",
-        );
-      }
+      if (!current || event.code === terminalWorkspaceUnavailableCode) return;
+      // A carried refusal replaces the generic ending; without its bounded
+      // frame, the same close keeps the generic failed ending.
+      if (event.code === terminalAttachRefusalCode && refused) return;
+      onEnded(
+        event.code === terminalEndedCode
+          ? "ended"
+          : event.code === terminalAttachFailedCode ||
+              event.code === terminalAttachRefusalCode
+            ? "failed"
+            : "disconnected",
+      );
     });
     const typed = terminal.onData((input) => {
       send({ input });
@@ -214,6 +232,7 @@ export function useAttachedTerminal(
     onAttached,
     onEnded,
     onWorkspaceUnavailable,
+    onAttachRefusal,
     takesKeyboard,
   ]);
 }
