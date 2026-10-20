@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-052#cursor-session-model-scope",
+  "mode": "story-branch",
+  "branch": "cursor/choose-a-cursor-session-model-without-changing-l",
+  "host": "cursor",
+  "model": "auto"
+}
