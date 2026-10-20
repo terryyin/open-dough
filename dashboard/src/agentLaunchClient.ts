@@ -71,7 +71,10 @@ export type LaunchProblem = {
 // trusted, so the service may have accepted it); or, for its dialog, the
 // default checkout's existing changes to confirm before anything starts.
 export type AcceptanceAnswer =
-  | Extract<Acceptance, { readonly kind: "accepted" | "existing-changes" }>
+  | Extract<
+      Acceptance,
+      { readonly kind: "accepted" | "existing-changes" | "stop-unconfirmed" }
+    >
   | (LaunchProblem & { readonly unacknowledged?: true });
 
 function noTrustedAnswer(

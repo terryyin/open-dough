@@ -5,6 +5,7 @@ import { launchCursor } from "./hosts/cursor/launch.ts";
 import { cursorOptions } from "./hosts/cursor/options.ts";
 import { observeCursorSessions } from "./hosts/cursor/sessions.ts";
 import { attachCursor } from "./hosts/cursor/terminal.ts";
+import { stopCursor } from "./hosts/cursor/stop.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
 
 export const cursorHost: LaunchHost = {
@@ -16,4 +17,5 @@ export const cursorHost: LaunchHost = {
   options: cursorOptions,
   sessions: observeCursorSessions,
   attach: attachCursor,
+  stop: (...[session, , signal]) => stopCursor(session, signal),
 };

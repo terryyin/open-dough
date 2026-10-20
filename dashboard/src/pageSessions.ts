@@ -18,6 +18,7 @@ import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
 import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
 import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
+import type { StopSessionAnswer } from "./sessionStop.ts";
 
 // A request about one session the page shows: its launch record, joined with
 // its state where the operation needs it, and the control that asked, which
@@ -61,6 +62,11 @@ export type RecoverSession = SessionOperation<
   Promise<RecoverSessionAnswer | undefined>
 >;
 
+// Stops a session through its host, separate from Mark as done.
+export type StopSession = SessionOperation<
+  Promise<StopSessionAnswer | undefined>
+>;
+
 // The page's operations that session entries ask, and the session its
 // panel shows, if any, from which every entry derives its current-session mark.
 export type PageSessions = {
@@ -78,6 +84,7 @@ export type PageSessions = {
   readonly markRead: MarkSessionRead;
   readonly deleteRecord: DeleteSessionRecord;
   readonly recoverSession: RecoverSession;
+  readonly stopSession: StopSession;
 };
 
 export const SessionsOnPage = createContext<PageSessions | undefined>(

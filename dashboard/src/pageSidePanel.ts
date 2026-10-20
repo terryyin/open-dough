@@ -66,11 +66,17 @@ export function usePageSidePanel({
   markRead,
   deleteRecord,
   recoverSession,
+  stopSession,
   hostOperations,
   range,
 }: Pick<
   MachineSessions,
-  "markDone" | "markRead" | "deleteRecord" | "recoverSession" | "hostOperations"
+  | "markDone"
+  | "markRead"
+  | "deleteRecord"
+  | "recoverSession"
+  | "stopSession"
+  | "hostOperations"
 > & { readonly range: RecentlyDoneRange }) {
   const [panel, setPanel] = useState<Panel | undefined>();
   const shown = panel?.request;
@@ -209,6 +215,7 @@ export function usePageSidePanel({
     markRead: markSessionRead,
     deleteRecord: deleteSessionRecord,
     recoverSession: ({ record }) => recoverSession(record),
+    stopSession: ({ record }) => stopSession(record),
   };
   return {
     shown,

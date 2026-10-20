@@ -1,12 +1,10 @@
-// Dashboard calls into the Cursor runner: exec, keep, hangup, bridge, handoff
+// Dashboard calls into the Cursor runner: exec, keep, hangup, handoff
 // release, and a sessions read that starts nothing (see runnerProcess.ts).
+// Bridging a terminal to a held client lives in `./terminalBridge.ts`.
 import http from "node:http";
 import { homedir } from "node:os";
-import { WebSocket, type RawData } from "ws";
-import { terminalAttachFailedCode } from "../../../src/agentTerminal.ts";
 import type { CursorRunnerStatus } from "../../../src/cursorRunnerSessions.ts";
 import type { CursorSession } from "../../../src/hostSession.ts";
-import type { TerminalSession } from "../../agentTerminals.ts";
 import {
   cursorRunnerExecResult,
   cursorRunnerKeepResult,
@@ -22,8 +20,6 @@ import {
   ensureCursorRunner,
   stopCursorRunner,
 } from "./runnerProcess.ts";
-import { cursorRunnerAttachUrl } from "./runnerAttach.ts";
-
 export type { CursorRunnerExec };
 export { ensureCursorRunner, stopCursorRunner };
 
@@ -173,77 +169,21 @@ export async function keepCursorClient(
   }
 }
 
-// Hangs up one kept client when recovery must leave none.
+// Hangs up one kept client when recovery must leave none. Answers whether
+// the hangup reached the runner; existing callers may ignore that, while
+// stop must know delivery alone from confirmed cessation.
 export async function hangupCursorClient(
   session: CursorSession,
   home = homedir(),
-): Promise<void> {
+  signal?: AbortSignal,
+): Promise<boolean> {
   const port = await acceptingCursorRunnerPort(home);
-  if (port === undefined) return;
+  if (port === undefined) return false;
   try {
-    await postJson(port, "/hangup", { session });
+    await postJson(port, "/hangup", { session }, signal);
+    return true;
   } catch {
     // The runner is already gone.
+    return false;
   }
-}
-
-export async function bridgeCursorTerminal(
-  browser: WebSocket,
-  session: TerminalSession,
-  home = homedir(),
-): Promise<void> {
-  const fail = () => {
-    if (browser.readyState === WebSocket.OPEN) {
-      browser.close(
-        terminalAttachFailedCode,
-        "The Cursor runner could not be reached.",
-      );
-    }
-  };
-  const port = await cursorRunnerPort(home);
-  if (port === undefined || browser.readyState !== WebSocket.OPEN) {
-    fail();
-    return;
-  }
-  const runner = new WebSocket(cursorRunnerAttachUrl(port, session), {
-    perMessageDeflate: false,
-  });
-  const pending: { data: RawData; binary: boolean }[] = [];
-  let opened = false;
-  browser.on("message", (data, binary) => {
-    if (!opened) {
-      pending.push({ data, binary });
-      return;
-    }
-    if (runner.readyState === WebSocket.OPEN) runner.send(data, { binary });
-  });
-  browser.on("close", () => {
-    if (runner.readyState === WebSocket.CONNECTING) runner.terminate();
-    else if (runner.readyState === WebSocket.OPEN) runner.close();
-  });
-  runner.on("open", () => {
-    opened = true;
-    for (const message of pending) {
-      runner.send(message.data, { binary: message.binary });
-    }
-  });
-  runner.on("message", (data, binary) => {
-    if (browser.readyState === WebSocket.OPEN) browser.send(data, { binary });
-  });
-  runner.on("close", (code, reason) => {
-    if (
-      browser.readyState === WebSocket.OPEN ||
-      browser.readyState === WebSocket.CLOSING
-    ) {
-      const usable = code === 1005 || code === 1006 ? 1000 : code;
-      try {
-        browser.close(usable, reason);
-      } catch {
-        browser.terminate();
-      }
-    }
-  });
-  runner.on("error", () => {
-    if (!opened) fail();
-  });
 }

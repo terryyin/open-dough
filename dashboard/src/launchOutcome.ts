@@ -17,6 +17,7 @@ import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
+import { stopUnconfirmedFoundSchema } from "./sessionStop.ts";
 export {
   existingChangesFoundSchema,
   existingChangesShown,
@@ -239,11 +240,11 @@ export const changedAnswerSchema = z.object({
 
 export type ChangedAnswer = z.infer<typeof changedAnswerSchema>;
 
-// What asking for acceptance answers: the accepted attempt, or what was
-// answered before anything was accepted or started.
+// What asking for acceptance answers: the accepted attempt, or what was answered before anything was accepted or started.
 export const acceptanceSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("accepted"), attempt: attemptObservationSchema }),
   ...unlaunchedSchemas,
+  stopUnconfirmedFoundSchema,
 ]);
 
 export type Acceptance = z.infer<typeof acceptanceSchema>;

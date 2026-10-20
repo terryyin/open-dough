@@ -26,15 +26,16 @@ import { withStates } from "./launchStates.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import { changedAttempt } from "./launchAttemptChanges.ts";
+import { keptCreations, keptRecordsByProject } from "./launchRecordStore.ts";
 import {
-  keptCreations,
-  keptSession,
-  keptRecordsByProject,
-} from "./launchRecordStore.ts";
+  lookupRecordedSession,
+  type Recorded,
+} from "./recordedSessionLookup.ts";
 import { creationView } from "./launchCreation.ts";
 import {
   preAcceptanceAnswer,
   preContinuationAnswer,
+  replacementWriterBlock,
 } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
@@ -49,22 +50,7 @@ import {
   keptStarts,
   sessionPolicies,
 } from "./launchCatalog.ts";
-import {
-  folderExists,
-  machineFolder,
-  projectFolder,
-  type ProjectFolder,
-} from "./projectFolders.ts";
-
-// A kept session in its existing project folder, or why none is available.
-export type Recorded =
-  | {
-      readonly kind: "recorded";
-      readonly record: LaunchRecord;
-      readonly folder: ProjectFolder;
-    }
-  | { readonly kind: "unrecorded" }
-  | { readonly kind: "folder-not-found"; readonly folder: ProjectFolder };
+import { machineFolder, projectFolder } from "./projectFolders.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -142,14 +128,7 @@ export class AgentLaunches {
     session: SessionReference,
   ): Promise<Recorded> {
     await this.savedSessionServices.refresh();
-    const record = await keptSession(source.id, session);
-    if (record === undefined) {
-      return { kind: "unrecorded" };
-    }
-    const folder = projectFolder(source);
-    return (await folderExists(folder))
-      ? { kind: "recorded", record, folder }
-      : { kind: "folder-not-found", folder };
+    return lookupRecordedSession(source, session);
   }
 
   // The attempts this machine keeps and those this server owns, and whether
@@ -187,6 +166,8 @@ export class AgentLaunches {
         if (retained !== undefined && needsReconciliation(retained))
           return this.continueRequest(source, retained.id);
       }
+      const blocked = await replacementWriterBlock(source, request);
+      if (blocked !== undefined) return blocked;
       const answer = await preAcceptanceAnswer(source, request);
       if (answer !== undefined) return answer;
       return this.owner.accept(

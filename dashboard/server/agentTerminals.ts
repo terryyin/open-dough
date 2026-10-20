@@ -15,7 +15,7 @@ import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import type { HostSession } from "../src/agentLaunch.ts";
 import { TerminalAttachments } from "./terminalAttachments.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
-import { bridgeCursorTerminal } from "./hosts/cursor/runnerClient.ts";
+import { bridgeCursorTerminal } from "./hosts/cursor/terminalBridge.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { ScreenReadiness } from "./launchHosts.ts";

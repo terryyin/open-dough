@@ -16,9 +16,11 @@ import {
   requestMarkDone,
   requestMarkRead,
   requestRecoverSession,
+  requestStopSession,
   type DeleteRecordOutcome,
 } from "./sessionRecordRequests.ts";
 import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
+import type { StopSessionAnswer } from "./sessionStop.ts";
 
 export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked
@@ -36,6 +38,10 @@ export type LaunchRecordActions = {
   readonly recoverSession: (
     record: LaunchRecord,
   ) => Promise<RecoverSessionAnswer | undefined>;
+  // Stops a recorded session through its host, separate from Mark as done.
+  readonly stopSession: (
+    record: LaunchRecord,
+  ) => Promise<StopSessionAnswer | undefined>;
   // Reads a recorded session again at once.
   readonly readSession: (record: LaunchRecord) => Promise<void>;
 };
@@ -126,6 +132,15 @@ export function useLaunchRecordActions({
     [setRecords],
   );
 
+  const stopSession = useCallback(
+    async (record: LaunchRecord) => {
+      const answer = await requestStopSession(record);
+      if (answer !== undefined) replaceRecord(answer.record);
+      return answer;
+    },
+    [replaceRecord],
+  );
+
   const readSession = useCallback(
     async (record: LaunchRecord) => {
       const kept = await readMachineSessions();
@@ -140,5 +155,12 @@ export function useLaunchRecordActions({
     [replaceRecord, setFacts],
   );
 
-  return { markDone, markRead, deleteRecord, recoverSession, readSession };
+  return {
+    markDone,
+    markRead,
+    deleteRecord,
+    recoverSession,
+    stopSession,
+    readSession,
+  };
 }

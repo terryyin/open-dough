@@ -185,7 +185,7 @@ async function finishNativeDone(
   if (done.intent === "reporting" && done.stopped.aborted) return record;
   if (done.intent === "manual") {
     terminals.endAttachments(record.session);
-    const stop = host?.stop?.bind(host);
+    const stop = host?.doneStop?.bind(host);
     if (removal !== undefined)
       await attempt("removal", () =>
         removal(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
@@ -217,8 +217,8 @@ async function markSessionDone(
   stopped: AbortSignal,
 ): Promise<LaunchRecord> {
   const host = launchHost(record.session.host);
-  const stop = host?.stop?.bind(host);
-  // A reported session on a host without native stop is acknowledged locally.
+  const stop = host?.doneStop?.bind(host);
+  // A reported session on a host without a Done stop is acknowledged locally.
   if (record.completion !== undefined && stop === undefined) {
     const marked = await setRecordDoneAt(
       source.id,

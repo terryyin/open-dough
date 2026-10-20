@@ -1,27 +1,25 @@
 // Catalog and kept host-qualified identity are shared across local session requests.
 // Passive report admission does not require a project or continuation directory.
-import { recordedWorkspace, type LaunchRecord } from "../src/agentLaunch.ts";
-import { hostDescription } from "../src/hostDescription.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {
   reportUnread,
   type CompletionReport,
 } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
-import {
-  sessionHostSchema,
-  type SessionReference,
-} from "../src/sessionReference.ts";
+import type { SessionReference } from "../src/sessionReference.ts";
 import type { IncomingMessage } from "node:http";
 import { deleteRecordRequestSchema } from "../src/deleteRecord.ts";
 import { markDoneRequestSchema } from "../src/doneMark.ts";
+import { stopSessionRequestSchema } from "../src/sessionStop.ts";
 import {
   recoverSessionRequestSchema,
   sessionUnfinished,
 } from "../src/sessionRecovery.ts";
-import type { AgentLaunches, Recorded } from "./agentLaunches.ts";
+import type { AgentLaunches } from "./agentLaunches.ts";
+import type { Recorded } from "./recordedSessionLookup.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
-import { launchHost, type LaunchHost } from "./launchHosts.ts";
+import { launchHost } from "./launchHosts.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -136,11 +134,29 @@ export async function doneRequest(
   const { source, record, folder } = await namedSession(req, launches, "done");
   if (
     record.completion === undefined &&
-    launchHost(record.session.host)?.stop === undefined
+    launchHost(record.session.host)?.doneStop === undefined
   ) {
     throw new RefusedRequest(400, "This host cannot mark a session done.");
   }
   return { kind: "done" as const, source, record, folder };
+}
+
+// A stop on a recorded session whose host supplies a stop operation.
+export async function stopRequest(
+  req: IncomingMessage,
+  launches: AgentLaunches,
+) {
+  const parsed = stopSessionRequestSchema.safeParse(await jsonBody(req));
+  if (!parsed.success) {
+    throw new RefusedRequest(400, "The stop request is malformed.");
+  }
+  const source = knownSource(parsed.data.source);
+  const session = { sessionId: parsed.data.session, host: parsed.data.host };
+  const { record, folder } = await recordedSession(launches, source, session);
+  if (launchHost(record.session.host)?.stop === undefined) {
+    throw new RefusedRequest(400, "This host cannot stop a session.");
+  }
+  return { kind: "stop" as const, source, record, folder };
 }
 
 export async function readRequest(req: IncomingMessage) {
@@ -190,58 +206,4 @@ export async function recoverRequest(
     );
   }
   return { kind: "recover" as const, source, record };
-}
-
-// A kept session with its admitted passive final-report reader.
-export type AdmittedResult = {
-  readonly kind: "result";
-  readonly record: LaunchRecord;
-  readonly read: NonNullable<LaunchHost["readResult"]>;
-};
-
-// Recorded Claude and Cursor launches read dashboard completion evidence:
-// the retained explicit report is each host's result source, never a native
-// final-answer extraction. Legacy Claude records keep their existing
-// refusal, rather than implying a native reader.
-function retainedResultReader(
-  record: LaunchRecord,
-): AdmittedResult["read"] | undefined {
-  const { host } = record.session;
-  if (
-    (host !== "claude" && host !== "cursor") ||
-    recordedWorkspace(record) === undefined
-  )
-    return undefined;
-  const hostName = hostDescription(host).name;
-  return () => {
-    const { completion } = record;
-    if (completion === undefined || completion.message === "") {
-      return Promise.resolve({
-        kind: "unavailable",
-        explanation: `No retained final report is available. ${hostName} cannot read a native final report here. The saved conversation is unchanged.`,
-      });
-    }
-    return Promise.resolve({
-      kind: "available",
-      receipt: completion.receipt,
-      text: completion.message,
-    });
-  };
-}
-
-export async function resultRequest(url: URL): Promise<AdmittedResult> {
-  requireExactQuery(url, ["source", "host", "session"], "result");
-  const source = knownSource(url.searchParams.get("source"));
-  const host = sessionHostSchema.safeParse(url.searchParams.get("host"));
-  const sessionId = url.searchParams.get("session");
-  if (!host.success || !sessionId)
-    throw new RefusedRequest(400, "The result session is malformed.");
-  const record = await keptSession(source.id, { host: host.data, sessionId });
-  if (record === undefined) throw noSuchSession();
-  const boundary = launchHost(record.session.host);
-  const read =
-    boundary?.readResult?.bind(boundary) ?? retainedResultReader(record);
-  if (read === undefined)
-    throw new RefusedRequest(400, "This host cannot read a final report.");
-  return { kind: "result", record, read };
 }

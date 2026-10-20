@@ -36,6 +36,8 @@ export const claudeHost: LaunchHost = {
   rename: renameInClaudeCode,
   stop: (session, folder, signal) =>
     stopClaude(nativeAlias(session), folder, signal),
+  doneStop: (session, folder, signal) =>
+    stopClaude(nativeAlias(session), folder, signal),
   remove: (session, folder, signal) =>
     removeClaude(nativeAlias(session), folder, signal),
 };

@@ -214,7 +214,22 @@ limit, not as a result.
 
 ### 2. Stop a held Cursor session and report confirmed or unconfirmed
 Type: Behavior
-Status: planned
+Status: done
+
+Learnings (2026-10-20): Delivered as planned. The Cursor boundary's stop
+acts through the runner hangup and is confirmed only by re-observing the
+runner no longer holding the session; still-held, unreachable, and
+undelivered outcomes retain a durable `stopUnconfirmed` explanation on
+the record, which blocks a replacement writer for the same workspace
+until confirmation or an explicit Start anyway override naming the
+competing-writer risk. Done's native stop is now a separate host fact
+(`doneStop`, supplied by Claude/Codex) from the plain stop fact, so the
+report-backed Cursor Done path stayed local in this slice. Deterministic
+proof: `dashboard/tests/agent-session-cursor-stop.spec.ts` (confirmed,
+unconfirmed+block+override, later-confirmed-clears journeys) plus existing
+Cursor/Claude/Codex done specs. Named gap: the still-held-after-hangup
+branch shares the retained/block path but has no journey of its own;
+native termination remains slice 5's proof (ADR 0005).
 Proof: Fake-Cursor Playwright journeys show Stop on an active Cursor
 session ending the held client through the runner and reading as stopped
 once re-observation confirms it, with the record un-done and reopen

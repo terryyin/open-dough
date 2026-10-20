@@ -20,7 +20,7 @@ import { ChevronRight, MessageSquareText } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import { projectLabel, useProjects } from "./projectList.tsx";
-import { shownSession } from "./SessionEntry.tsx";
+import { shownSession } from "./ShownSession.tsx";
 import { sessionShown } from "./sessionShown.ts";
 import { elapsedWords } from "./sidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";

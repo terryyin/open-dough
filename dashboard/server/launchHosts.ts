@@ -144,6 +144,15 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ): Promise<void>;
+  // The same native stop as Mark as done's, where that mark stops the
+  // session natively. A host may supply `stop` for the separate Stop
+  // action without Done claiming it (Cursor until its acknowledgement
+  // is delivered); Done learns that only from this fact.
+  doneStop?(
+    session: HostSession,
+    folder: ProjectFolder,
+    signal: AbortSignal,
+  ): Promise<void>;
   // Removes an exited session's job from the host on Mark as done.
   remove?(
     session: HostSession,
@@ -173,6 +182,7 @@ export function hostOperations(): HostOperations {
       {
         attach: boundary?.attach !== undefined,
         stop: boundary?.stop !== undefined,
+        doneStop: boundary?.doneStop !== undefined,
         launchedSessions: boundary?.launchedSessions !== undefined,
       },
     ]),
