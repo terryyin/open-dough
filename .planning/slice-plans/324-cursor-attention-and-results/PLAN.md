@@ -458,3 +458,7 @@ claimed here.
   honest-unknown fallback is a deliverable, not a failure of the story.
 - Slices 3 and 4 are independent of the probe and may proceed if slice 1's
   native evidence is delayed; slices 2 and 5 consume its recorded learnings.
+
+## Execution complete
+
+Product advice: No product change. SEED-052#cursor-attention-and-results delivered its refined promises within the evidence limits named in plan 324 (no native failure/interruption screen exists; macOS banner display and the final-report panel-widget click remain unproved natively, and the pending CI verdict for 547db89d is still owed). Land the story branch as the next step, and keep SEED-052#safe-cursor-session-stop and SEED-052#cursor-session-model-scope as the queued Cursor follow-ups.
