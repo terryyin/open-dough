@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-119#align-story-top",
+  "mode": "story-branch",
+  "branch": "codex/story-link-top-alignment",
+  "host": "codex"
+}
