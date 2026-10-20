@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-052_cursor-scope-terminal-refusal-explanation.json",
+      "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
+      "completedAt": "2026-10-20T11:29:50.319Z",
+      "blob": "c20116abfbcd5c008d8b37e969ff2423f62e3b6e"
+    },
+    {
       "fileName": "SEED-052_cursor-session-model-scope.json",
       "identity": "SEED-052#cursor-session-model-scope",
       "completedAt": "2026-10-20T07:55:18.055Z",
