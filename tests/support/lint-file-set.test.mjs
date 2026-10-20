@@ -1,13 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  copyRepositoryFiles,
+  committedLintFixture,
   env,
-  excludeLinkedDependencies,
   gitOk,
   root,
   violation,
@@ -26,22 +24,13 @@ function lint(cwd) {
 // A committed repository running this repository's lint runner and config,
 // holding clean source and an ignored nested build bundle with a violation.
 function lintFixture(t) {
-  const fixture = mkdtempSync(join(tmpdir(), "lint-file-set-"));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  copyRepositoryFiles(fixture, [
-    "scripts/lint.mjs",
-    "eslint.config.mjs",
-    "eslint.ignores.mjs",
-    ".gitignore",
-    ".prettierignore",
-  ]);
-  write(join(fixture, "src/ok.mjs"), "export const ok = 1;\n");
-  write(join(fixture, "dashboard/dashboard/dist/assets/b.js"), violation);
-  gitOk(fixture, "init", "--quiet");
-  excludeLinkedDependencies(fixture);
-  gitOk(fixture, "add", ".");
-  gitOk(fixture, "commit", "--quiet", "-m", "fixture");
-  return fixture;
+  return committedLintFixture(t, {
+    prefix: "lint-file-set-",
+    files: {
+      "src/ok.mjs": "export const ok = 1;\n",
+      "dashboard/dashboard/dist/assets/b.js": violation,
+    },
+  });
 }
 
 test("lint reports no finding for ignored nested build output, consistently", (t) => {

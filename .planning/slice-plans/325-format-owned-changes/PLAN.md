@@ -30,7 +30,8 @@ the full-tree run already selects them today (source boundary assumption).
   drops deletions), and up-front `ignoredBy` filtering against
   `eslint.ignores.mjs` and `.prettierignore`. Extend that one owner: the
   default `--fix` listing becomes the change set (`git diff HEAD --name-only
-  -z --diff-filter=d` plus `git ls-files --others --exclude-standard -z`), the
+  -z --diff-filter=d`, the cached diff, and
+  `git ls-files --others --exclude-standard -z`), the
   up-front ignore filtering applies to every selective listing, and the
   full-tree listing moves behind an explicit option such as `--all`. Add no
   second script, lint-staged dependency, or path cache. The refusal of
@@ -91,16 +92,63 @@ base `37e50618e7d830564ec3a45481ea54436b70d450`, 2026-10-20, Node 24.21.0,
 - Tool presence: `node_modules/.bin/eslint` and `prettier` present after
   `npm ci`; `shellcheck` and `shfmt` on `/opt/homebrew/bin`.
 
+## Execution context
+
+- Established start: Story Branch Mode, publisher
+  `dashboard-territory.local-open-dough`, agent `mrsn-chan`, execution checkout
+  as named above, branch `codex/format-only-the-owned-change-during-delivery`.
+  Reused owned worktree; originating/integration checkout is not supplied and
+  is not mutated. Remote `origin`; trunk `main`; increments publish to the
+  remote execution branch. Starting revision
+  `a09612b577f39b287654264145884c0671b6c397`; accepted claim and first
+  previously published base `97d33e15a99ecf6a86e7c3e2b6a53bae9d4c88fe`.
+- Checkout setup reused the preparation's exact-checkout `npm ci` evidence:
+  `package-lock.json` is unchanged since `37e50618`. On execution entry,
+  `PATH=/opt/homebrew/bin:$PATH npm run typecheck:dashboard` exited 0.
+  Slice 1 fixture proof later invalidated that reuse: checkout-local
+  `node_modules/@eslint/js/package.json` was missing, while resolution from
+  the checkout could fall through to the parent repository. The fixtures
+  exposed the missing local dependency. A fresh checkout-local locked install
+  and applicable command were required before proof resumed.
+  `PATH=/opt/homebrew/bin:$PATH npm ci` then exited 0 (134 packages),
+  `npm run typecheck:dashboard` exited 0 with the same PATH, local
+  `@eslint/js` resolution stayed inside this checkout, and the lockfile stayed
+  unchanged. The identical four-suite focused retry passed.
+  Check-only staged lint/typecheck hook inspected; coordinator owns formatting
+  and agent commits. No numeric slice hard limit is configured; existing
+  planned refinement authority remains.
+- CI: GitHub Actions, `terryyin/open-dough`, verified selector `ci.yml`, name
+  `CI`, push-triggered. Observe remote execution branch; the earlier trunk
+  claim remains unobserved by this branch observer. Coordinator
+  `format-owned-mrsn`, stream directory `/tmp/dough-ci-501/watch-jp7W0C`, PID
+  `31036`, session `29045`, yielded cell `8`, bound to this execution checkout.
+
 ## Ordered slices
 
 ### 1. Format the change set by default and the whole tree on request
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new `tests/support/format-changed-files.test.mjs` on the lint-runner
 fixture observes examples 1–4 and 6, including a toolless planning-only run;
 `tests/support/lint-file-set.test.mjs` and
 `tests/support/pre-commit-lint-hook.test.mjs` stay green; the documentation
 paragraph describes the selection.
+
+Accepted proof: `PATH=/opt/homebrew/bin:$PATH npm test --
+tests/support/format-changed-files.test.mjs tests/support/lint-file-set.test.mjs
+tests/support/pre-commit-lint-hook.test.mjs
+tests/support/pre-commit-typecheck-hook.test.mjs` exited 0 after local setup
+repair and again after independent refactoring. Nine new npm-entry scenarios
+observe all source examples, index-only divergence, anchored untracked ignores,
+shell selection and the preserved staged-format refusal. Inspected fixture
+setup supplies committed source/configs, not the formatting outcome; byte
+snapshots observe exact changed paths and idempotence. Existing hook assertions
+retain index/file preservation and downstream typechecking. Package entries,
+CI plain lint, and automatic test discovery stay unchanged. Independent refactor
+consolidated committed lint-repository setup and toolless PATH in the existing
+fixture owner; no runtime behavior changed. `git diff --check` and coordinator
+`PATH=/opt/homebrew/bin:$PATH npm run format` exited 0; only the six changed
+eligible scripts were passed to tools. Story-obligations check passed, no gaps.
 
 Behavior: Given a checkout with edits, new files, deletions and unrelated
 unchanged files, when `npm run format` runs, only eligible paths in the change
@@ -147,6 +195,14 @@ prerequisite, and no numeric slice limit is supplied.
 
 ## Learnings
 
-No execution yet. Preparation found that the hook's `--staged` path already
-implements the selective listing and ignore filtering this story needs, so the
-change is a listing-mode choice rather than new machinery.
+Preparation found that the hook's `--staged` path already implements selective
+listing and ignore filtering, so the change is a listing-mode choice rather
+than new machinery. Slice 1 identified one correction to the proposed Git
+listing: `git diff HEAD` alone misses an index change when the working-tree
+copy has returned to `HEAD`. Include the cached diff too, with deduplication
+and existence filtering, to preserve the source's index-or-working-tree
+promise; focused proof covers this state.
+The existing `ignoredBy` listing also needs `--others`: tracked-only `-ci`
+does not match untracked ignored planning files, while `-cio` does. Extend
+that same owner and observe tracked plus untracked ignored inputs in the
+toolless fixture.

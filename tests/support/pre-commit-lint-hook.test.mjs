@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import {
   mkdtempSync,
   readFileSync,
-  realpathSync,
   rmSync,
   statSync,
   symlinkSync,
@@ -18,6 +17,7 @@ import {
   gitWith,
   gitOk,
   root,
+  toollessEnv,
   violation,
   write,
 } from "./lint-runner-fixture.mjs";
@@ -111,20 +111,8 @@ test("an unstaged violating file does not block a clean staged commit", (t) => {
   );
 });
 
-// A PATH holding only node, npm, git, env, and sh, so eslint, prettier, shellcheck,
-// and shfmt are absent wherever the host installs them.
-function toolless(t) {
-  const bin = mkdtempSync(join(tmpdir(), "toolless-bin-"));
-  t.after(() => rmSync(bin, { recursive: true, force: true }));
-  for (const tool of ["node", "npm", "git", "env", "sh"]) {
-    const found = execFileSync("which", [tool], { encoding: "utf8" }).trim();
-    symlinkSync(realpathSync(found), join(bin, tool));
-  }
-  return gitWith({ ...env, PATH: bin });
-}
-
 test("a records-only commit succeeds without lint tools", (t) => {
-  const gitToolless = toolless(t);
+  const gitToolless = gitWith(toollessEnv(t));
   const fixture = hookFixture(t, { dependencies: false });
   stage(fixture, ".planning/agents/x.json", '{"a":  1}\n');
   stage(fixture, ".planning/seeds/SEED-1.md", "# Seed\n");
@@ -140,7 +128,7 @@ test("a records-only commit succeeds without lint tools", (t) => {
 });
 
 test("a staged file whose tool is missing is refused naming the tool and npm ci", (t) => {
-  const gitToolless = toolless(t);
+  const gitToolless = gitWith(toollessEnv(t));
   for (const [file, content, tool] of [
     ["scripts/c.sh", '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n', "shfmt"],
     ["src/new.mjs", "export const n = 1;\n", "eslint"],

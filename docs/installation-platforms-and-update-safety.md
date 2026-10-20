@@ -136,9 +136,14 @@ PATH as well (`brew install shellcheck shfmt` on macOS).
 - `npm run lint` checks JavaScript with ESLint, code and JSON
   formatting with Prettier, and shell scripts with ShellCheck and shfmt.
 - `npm run format` applies ESLint fixes, Prettier formatting, ShellCheck's
-  available patch fixes, and shfmt formatting, then runs all checks again. It
-  exits unsuccessfully and prints remaining findings if anything cannot be
-  fixed automatically or a tool fails.
+  available patch fixes, and shfmt formatting only to tracked files whose index
+  or working-tree content differs from `HEAD`, plus untracked files Git does not
+  ignore. It skips deleted paths and drops ESLint- and Prettier-ignored files
+  before choosing those tools. A Markdown-only or planning-only change needs no
+  lint tools, including in a worktree without `node_modules`. It then rechecks
+  the selected files and exits unsuccessfully with remaining findings if
+  anything cannot be fixed automatically or a tool fails. Use
+  `npm run format -- --all` to format and recheck the whole tree.
 
 A tracked Git pre-commit hook (`.githooks/pre-commit`) runs
 `npm run lint -- --staged` and refuses a commit whose staged JavaScript,

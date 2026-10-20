@@ -15,6 +15,7 @@ process.chdir(fileURLToPath(new URL("..", import.meta.url)));
 
 const fix = process.argv.includes("--fix");
 const staged = process.argv.includes("--staged");
+const changed = fix && !process.argv.includes("--all");
 if (fix && staged) {
   console.error(
     "lint: --staged only checks and cannot be combined with --fix.",
@@ -53,22 +54,29 @@ function checkFiles(command, args, files) {
   }
 }
 
-// Include new files and paths containing spaces; honor Git's ignore rules.
-// With --staged, list only the added, copied, modified, or renamed staged paths
-// and check their working-tree copies.
-const listing = run(
-  "git",
-  staged
-    ? ["diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"]
-    : ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-  {
+// NUL-separated listings preserve spaces. Formatting selects changes against
+// HEAD plus new non-ignored files unless --all requests the full tree. Include
+// the index separately: a staged edit can have a working copy equal to HEAD.
+// --staged still checks only staged paths, using their working-tree copies.
+const listings = staged
+  ? [["diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"]]
+  : changed
+    ? [
+        ["diff", "HEAD", "--name-only", "--diff-filter=d", "-z"],
+        ["diff", "--cached", "--name-only", "--diff-filter=d", "-z"],
+        ["ls-files", "--others", "--exclude-standard", "-z"],
+      ]
+    : [["ls-files", "--cached", "--others", "--exclude-standard", "-z"]];
+const listed = listings.flatMap((args) => {
+  const listing = run("git", args, {
     stdio: ["ignore", "pipe", "inherit"],
-  },
-);
-if (listing.status !== 0) {
-  process.exit(1);
-}
-const files = [...new Set(listing.stdout.split("\0"))].filter(
+  });
+  if (listing.status !== 0) {
+    process.exit(1);
+  }
+  return listing.stdout.split("\0");
+});
+const files = [...new Set(listed)].filter(
   (file) => file && existsSync(file) && statSync(file).isFile(),
 );
 
@@ -80,7 +88,7 @@ function ignoredBy(excludeFrom, paths) {
   }
   const ignored = run(
     "git",
-    ["ls-files", "-ci", "-z", `--exclude-from=${excludeFrom}`, "--", ...paths],
+    ["ls-files", "-cio", "-z", `--exclude-from=${excludeFrom}`, "--", ...paths],
     { stdio: ["ignore", "pipe", "inherit"] },
   );
   if (ignored.status !== 0) {
@@ -90,15 +98,15 @@ function ignoredBy(excludeFrom, paths) {
 }
 
 // ESLint skips listed files under its own ignores (.planning/) silently, and
-// Prettier keeps honoring .prettierignore for explicit paths. Staged runs drop
-// such files up front so a tool is needed only when a file remains for it.
+// Prettier keeps honoring .prettierignore for explicit paths. Selective runs
+// drop such files up front so a tool is needed only when a file remains for it.
 const scriptFiles = files.filter((file) =>
   /\.(?:js|cjs|mjs|jsx|ts|mts|tsx)$/.test(file),
 );
 const jsonFiles = files.filter((file) => /\.jsonc?$/.test(file));
 let eslintFiles = scriptFiles;
 let prettierFiles = [...scriptFiles, ...jsonFiles];
-if (staged) {
+if (staged || changed) {
   // Git reads the patterns from a file; a pipe is not readable as one on Linux.
   const patterns = mkdtempSync(join(tmpdir(), "lint-eslint-ignores-"));
   const eslintIgnores = join(patterns, "ignores");
