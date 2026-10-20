@@ -504,6 +504,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Observed effect: omitted authoritative passages were retrieved again, adding repeated output and reading. Required context was recovered; no lost obligation is established.
   - Inference: same broad-retrieval mechanism as ODF-264; existing targeted retrieval applies. One execution, no measured time/token saving or new response claim.
 
+- Execution: SEED-145#continue-execution-into-wrap-up / plan 333, first implementation `c14f425972240b170c8e64037fbf5428c64f278c`
+  - Timestamp: unknown (2026-10-20, execution startup)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed execute-plan guidance)
+  - Evidence: coordinator startup batches reported truncated outputs of 16,650, 22,919 and 18,283 original tokens; subsequent bounded reads recovered execution, CI, publication and ADR context before dependent work. Current coordinator and delegated implementation/refactor history identify this execution.
+  - Observed effect: omitted passages required repeated retrieval and reading; the same execution produced multiple truncated batches. Required context was recovered before delegation/delivery; no lost obligation is established.
+  - Inference: this repeats ODF-264's retrieval mechanism; the existing targeted-retrieval instruction applies. No new process response or measured saving is claimed.
+
 ## DD-323 — A delegated native probe ended a pending consent prompt and recorded a refusal
 
 An implementation agent probing a new macOS notification identity ended the

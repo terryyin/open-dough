@@ -39,8 +39,7 @@ dashboard's existing native launch mode and input builder, a private installed
 representative skill, and a disposable launch-scoped receiver. Inspect native
 command use, received facts, and exact host/session association. Representative
 shared coverage must also observe Claude reporting before session binding,
-continuation context, and a callable reporting operation after workspace
-removal. Failure blocks dependent plan-220 slices.
+continuation context and reporting callability after removal. Failure blocks plan-220 dependents.
 
 **Integration acceptance after implementation:** On every affected host, fresh
 dashboard launch context reaches the installed operation, the receipt belongs
@@ -54,12 +53,11 @@ attention text retained by the dashboard when needed, and reports unfinished
 operations or unacknowledged delivery truthfully. Direct use needs no dashboard
 connection. Shared integration success does not prove these skill behaviors.
 
-**Completion criteria:** Required integration evidence on all three hosts plus
-representative Land/Wrap Up behavior evidence or justified reusable proof for
-each requirement; no pending requirement may be called passed. Complete before
-affected release under ADR 0005. The slice-1 fixture only proves feasibility.
-No prior evidence was reusable for this new callback mechanism. Paid runs remain
-explicitly invoked; add none to default tests or CI.
+**Completion criteria:** Require integration evidence on all three hosts and
+representative Land/Wrap Up behavior evidence or justified reuse per requirement;
+pending requirements cannot be called passed. Complete before affected release
+under ADR 0005. The slice-1 fixture proves only feasibility; no prior evidence was
+reusable for this new callback. Paid runs remain explicit, outside default tests/CI.
 
 **Current state:** [Recovered slice-1 observations](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md#accepted-execution-evidence-2026-10-02)
 retain accepted Codex reporting, same-session continuation and post-retirement callability,
@@ -93,18 +91,18 @@ semantics against the following expectations rather than adding another runner.
 | --- | --- |
 | Standalone settled review | No routine recap for no findings or already settled records; preserved proof, process findings and authorized dispositions remain inspectable. |
 | Standalone actionable review | A draft or unresolved correction/adoption choice starts with `DEVELOPER ATTENTION REQUIRED`, names consequence, action/owner and evidence links; an explicit detail or review request remains effective. |
-| Automatic review and quiet planned finish | Review returns without a separate visible report; record and records-only publication precede the completion operation. Actual applicable CI and product shutdown succeed before a quiet/minimal response, with workspace retained for separate wrap-up. |
-| Explicit review skip | Records `Product advice: retrospective skipped`, completes observation/shutdown, and finishes quietly without an optional-skip warning or automatic review. |
+| Explicit no-wrap-up control after review | The existing `execution-review` fixture expressly prohibits wrap-up. Review returns without a separate visible report; record and records-only publication precede the completion operation. Actual applicable CI and product shutdown succeed before a quiet/minimal response, with workspace retained for the requested stop. |
+| Explicit review skip with no-wrap-up control | Records `Product advice: retrospective skipped`, completes observation/shutdown, and finishes quietly without an optional-skip warning, automatic review or violation of the fixture's explicit stop. |
 | Duplicate attention followed by green CI | Overlapping reviews contribute one current issue after completion. A later successful check or no-change advice does not erase it; an evidenced authorized disposition can settle it. |
 | Failure or missing evidence | A required failure, missing attribution/requested process history, or unconfirmed shutdown produces marked limitation and recovery action; partial review and needed resources survive, and no unsupported success is claimed. |
 | Reporting boundary | Direct invocation makes no dashboard contact. Supplied context submits the exact marked attention text with completed/unfinished outcome and waits for its matching receipt; a quiet execution handoff submits nothing and leaves terminal/session continuation intact. |
 
-Evidence must distinguish accepted publication from validated integrated state,
-retain review limits, findings/correction records and completion receipts in
-their existing homes, and show that quiet output starts no wrap-up, retirement,
-follow-up execution or advice adoption. Empty response, a banner, host exit,
-static guidance assertions and substitute-process observations prove none of
-those operations. Assess native response meaning and actions, not just markers.
+Evidence distinguishes accepted publication from validated integrated state and
+retains review limits, findings/correction records and receipts in existing homes.
+Quiet output grants no wrap-up, retirement, follow-up execution or advice-adoption
+authority; explicit no-wrap-up controls retain their requested stop. Continuation
+is covered below. Empty response, a banner, host exit, static guidance assertions
+and substitute processes prove none of these operations. Assess native meaning and actions.
 
 **Reuse and outstanding proof:** The earlier three-host reporting feasibility
 evidence above remains limited to its unchanged callback mechanism. Inspect its
@@ -126,12 +124,15 @@ pass as full attention-response acceptance.
 | Claude Code | Prior feasibility only; shipped integration pending or justified reuse required | Pending |
 | Cursor | Prior feasibility only; shipped integration pending or justified reuse required | Pending |
 
-For every affected requirement on each host, record fresh evidence or justified
-reuse; select representative cases across hosts without inferring one host's
-success from another or demanding every scenario on every host. Keep integration
-claims separate from skill behavior claims. Functional implementation can close
-with this acceptance pending. Affected release waits for acceptance or an explicit
-human-owned exception under ADR 0005; paid native runs remain explicitly invoked.
+For each affected requirement on each host, record fresh evidence or justified reuse;
+select representative cases without transferring host results or requiring every
+scenario everywhere. Separate integration and skill behavior claims. Functional
+implementation may close with acceptance pending; affected release waits for acceptance
+or a human-owned ADR 0005 exception. Paid native runs remain explicitly invoked.
+
+**Additional covered work — planned continuation:** The linked
+[acceptance cases](SEED-053-native-guidance-acceptance/planned-continuation.md)
+extend this home. All three hosts remain pending; assignment and ADR 0005 still apply.
 
 <a id="guarded-local-delivery-prerequisites"></a>
 
@@ -239,8 +240,7 @@ exceptions establish neither a pass nor closure of these requirements.
 
 ## Priority and regrouping
 
-Keep the Cursor acceptance story in its existing product backlog position.
-Unrelated entries keep their order.
+Keep the Cursor acceptance story in its backlog position; unrelated entries keep their order.
 
 ## Breadcrumbs
 
