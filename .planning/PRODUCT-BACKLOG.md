@@ -25,6 +25,7 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
