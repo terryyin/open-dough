@@ -1,3 +1,13 @@
+## 0.3.66 - 2026-10-20
+
+- Refresh inherited CI coverage on every observation and select the nearest applicable ancestor across current runs and retained history, including a nearer failure that replaces an older success.
+- Withdraw inherited successful completion when its supporting evidence disappears, while preserving exact-candidate precedence and the provider's real run and attempt identities.
+- Cover inherited-basis transitions and ended-observer selection of stored verdicts with regression tests.
+
+Source revision `27a67521159eec5dbb63d6af63a0205596c3b0f8` passed the full hosted CI workflow, including all dashboard browser shards. The 33 focused CI test files, six focused coverage/completion/selection files after the fixture correction, lint, dashboard typecheck, and release self-installation check passed locally.
+
+The patch changes shared CI observation logic. Installation, discovery, and host notification mechanisms are unchanged; their existing Codex, Cursor, and Claude Code integration evidence is reused under ADR 0005. No fresh native-host acceptance or new exception is claimed; earlier outstanding native requirements remain with their owning work.
+
 ## 0.3.65 - 2026-10-20
 
 - Add `dough-triage-project-findings` to the released payload: separate project and shared responsibility, preserve finding lineage through adoption, observation, retirement and recurrence, select up to three supported improvements, and publish the owned maintenance result through Dough Land.
