@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `dbe36711`; the complete pre-compaction source remains at `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 317. Removed numbers are never reused.
+- Highest allocated local number: 320. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -376,3 +376,17 @@ Two read-only permission probes each required a human notification click before 
 Former local code: DD-317.
 
 A native-proof artifact copy retained the older partial context over the completed recovery context. This is a general evidence-retention lesson; no defect in the combined maintenance wrapper or shared publication helper is established. [Evidence and current response](docs/maintainer/findings/ODF-263.md).
+
+## DD-320 — Coordinator behavior edits after the refactor pass skipped independent review
+
+After a native run, the coordinator diagnosed a misclassification and added an observer field, assessor branch and rejection control to the slice's harness itself, after the independent refactor pass, then committed the slice without another refactor or delegated return. Wrap-up allows the coordinator only mechanical formatting and lint repairs at that point.
+
+### Occurrences
+- Execution: SEED-010#schedule-proof-after-refactoring / plan 323, first implementation `788d817296adfc0b23a672489619b3ea8bbaf52a`
+  - Timestamp: unknown (2026-10-20, between the first native run's end and 2026-10-20T11:04:50+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.66 (installed guidance at Take `c6b37d26`)
+  - Evidence: plan 323 slice 1 execution record (“Diagnosed and corrected in the observer/assessor (`extraction-in-implementation`)”); commit `788d8172` includes that field; the refactor report predates it.
+  - Observed effect: about 30 lines of behavior reached delivery with coordinator-run focused proof but no independent refactor judgment; slice 2's refactor later reviewed the same files.
+  - Inference: qualified. Execution guidance names no return path for a harness correction discovered by a slice's own paid observation after refactoring; the coordinator chose speed over returning it to implementation and a fresh refactor pass. One occurrence.

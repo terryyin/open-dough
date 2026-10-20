@@ -102,6 +102,38 @@ DD-243 remains the same finding; its later occurrences are
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-187).
 
+## Shell formatting can change harness semantics (open, unqueued)
+
+<a id="dd-318"></a>
+
+### DD-318 — The shell formatter turned hyphenated associative-array keys into arithmetic after proof had passed
+
+### Occurrences
+- Execution: SEED-010#schedule-proof-after-refactoring / plan 323, first implementation `788d817296adfc0b23a672489619b3ea8bbaf52a`
+  - Timestamp: unknown (2026-10-20, before the slice commit at 2026-10-20T11:04:50+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision 788d8172; base 0.3.66
+  - Evidence: after the refactor pass, `npm run format` rewrote `${obs[extraction-performed]}` in `tests/support/delivery-evidence-scheduling-native-assess.sh` to `${obs[extraction - performed]}`; the next `tests/proof-scheduling-native.sh` run failed with `obs[extraction - performed]: unbound variable`; quoting the keys fixed it and the formatter left them stable.
+  - Observed effect: implementation and refactor proof were green before formatting; only the coordinator's post-format rerun exposed the break.
+  - Inference: any unquoted hyphenated key in this repository's Bash harness is exposed; a lint rule or harness convention would prevent recurrence. One occurrence.
+
+## Native replays should reproduce what the historical agent knew (open, unqueued)
+
+<a id="dd-319"></a>
+
+### DD-319 — A replay fixture stated conditions the historical occurrences lacked, so its first paid run could not reach their boundary
+
+### Occurrences
+- Execution: SEED-010#schedule-proof-after-refactoring / plan 323, first implementation `788d817296adfc0b23a672489619b3ea8bbaf52a`
+  - Timestamp: 2026-10-20 (first native run started 2026-10-20T01:57:21Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision 788d8172; base 0.3.66
+  - Evidence: plan 323 slice 1 asked for “a fast representative suite with a stated realistic cost”; the fixture's AGENTS.md stated the fourteen-minute cost and a new-stylesheet layout rule; the native coordinator's refactor brief said “Do NOT run `bin/suite.sh` — the whole suite costs ~14 minutes”. Plan 302's brief had estimated the suite at “a few minutes”. Terry then added slice 2 to replay the historical conditions.
+  - Observed effect: one extra slice and one extra paid Claude run; the second replay still did not reach the delegated-implementer condition.
+  - Inference: qualified. Stating the cost changed what the agent knew, which the historical defect depended on; preparation can compare a replay's inputs with each occurrence's recorded context before the first paid launch.
+
 ## Paid native-run permission handoff (low priority, unqueued)
 
 <a id="dd-161"></a>

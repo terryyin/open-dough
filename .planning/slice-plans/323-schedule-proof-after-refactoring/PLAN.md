@@ -297,6 +297,19 @@ Update ODF-249 with actual response revision, evaluated cases, counterevidence
 and limitations. Name the first containing release only when verified; otherwise
 leave release/adoption pending. Do not perform a release or client rollout.
 
+## Execution complete
+
+Product advice: close SEED-010#schedule-proof-after-refactoring at wrap-up with
+contrary evidence and no guidance change, as the maintainer decided. ODF-249
+stays evaluated, to reopen on a recurrence with a delegated implementer; the
+retained `delivery-evidence/scheduling` harness supplies that replay. Two
+hypotheses for triage, not queued: native coordinators read “implement locally
+only for a single interactive slice” as permission for any single selected
+slice, so delegation-brief proof selection went unexercised; and one replay
+ran an unrequested pre-change whole-suite baseline. Keeping the harness's
+unpaid controls in the suite (about 20 job-seconds) matches the other native
+cases; no change.
+
 ## Sizing and safe stopping
 
 Two proof loops isolate the uncertain native observation from the one coordinated
