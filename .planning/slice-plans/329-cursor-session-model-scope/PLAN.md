@@ -255,6 +255,22 @@ it is not passed on deterministic evidence.
   therefore establish the scope as clone-plus-chats-symlink; slice 5
   re-verifies this natively. Scope removal must use a removal that does
   not follow the symlink.
+- Slice 5 attempt (2026-10-20, native, real `cursor-agent`
+  2026.10.19-6bbf2c4 from this machine's dashboard): native proof NOT
+  established and the requirement remains pending. The dev dashboard
+  reused the machine's single existing Cursor runner (started Monday
+  from the default checkout, predating slices 2–4 and holding 11
+  unrelated developer sessions); spawned clients therefore carried no
+  `CURSOR_CONFIG_DIR`, the chosen model persisted into the shared
+  config, and the record lost `configScope` (stranding the scope on
+  record deletion — removed manually in cleanup; the shared config's
+  model fields were restored to Auto and both verification clients,
+  records, and worktrees were cleaned up). Scope creation itself and
+  the this-session dialog wording were observed as designed. A valid
+  rerun requires restarting that runner with this checkout's code,
+  which ends its 11 held sessions — a developer decision, not taken
+  here. Deterministic slices 2–4 proof stands; do not pass this slice
+  on it.
 - Slice 4 (2026-10-20): scope removal rides one host-neutral
   `recordRemoved` dispatch, fired only after explicit record deletion
   lands and after retention-expiry drops land; the runner process does
