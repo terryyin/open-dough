@@ -25,7 +25,13 @@ later Enter, and the record says the first input was accepted only then. A
 screen that is not ready does not receive the instruction, the record stays
 uncertain, and the developer can still type. When that same client later
 becomes ready, it receives the instruction. The client exiting does not
-accept the instruction. The launch attempt settles once the client is running and the first screen
+accept the instruction. Continue of that unconfirmed launch starts no other
+conversation while the runner still holds the client, or when the runner
+cannot be reached. When the runner is up and no longer holds the client, or
+is not running, Continue creates a new chat in the recorded configuration
+scope, submits the same first prompt, and does not resume the exited session
+id. A missing or unreadable recorded scope refuses that Continue and starts
+nothing. The launch attempt settles once the client is running and the first screen
 has been judged, or when the shared launch wait
 (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s) ends while keep is still open —
 including a screen that never becomes ready, and a paste chip whose Enter was
