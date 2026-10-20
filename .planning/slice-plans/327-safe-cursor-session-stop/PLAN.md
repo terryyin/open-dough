@@ -250,7 +250,19 @@ independently of acknowledgement.
 
 ### 3. Acknowledge a Cursor session without claiming termination
 Type: Behavior
-Status: planned
+Status: done
+
+Learnings (2026-10-20): Delivered as planned. A new host fact (`localDone`,
+supplied only by Cursor) makes manual Mark as done a local acknowledgement
+only — no native stop, rename, or removal — offered independently of a
+completion report, with wording that claims only the local mark; slice 1
+proved no native Done naming, so none is attempted. A locally done session
+later observed still held/working reads as working and keeps its own Stop.
+Proof: `dashboard/tests/agent-session-cursor-done.spec.ts` plus the
+report-backed Cursor Done and Claude/Codex done specs. Named gap: the
+terminal panel's Mark-as-done icon remains gated by the native Done fact,
+so a Cursor session is marked from its entry/card, not inside the open
+terminal panel.
 Proof: Session journeys show Mark as done on an acknowledgeable Cursor
 session moving the record to Recently done with wording that claims only
 the local acknowledgement; where slice 1 proved a supported native Done

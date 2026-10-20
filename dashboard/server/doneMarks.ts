@@ -13,6 +13,7 @@ import { configuredProject } from "./projectConfiguration.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import {
+  acknowledgeDoneLocally,
   doneSessionRecord,
   reportedNativeDonePending,
 } from "./doneSessionRecord.ts";
@@ -218,17 +219,13 @@ async function markSessionDone(
 ): Promise<LaunchRecord> {
   const host = launchHost(record.session.host);
   const stop = host?.doneStop?.bind(host);
-  // A reported session on a host without a Done stop is acknowledged locally.
-  if (record.completion !== undefined && stop === undefined) {
-    const marked = await setRecordDoneAt(
-      source.id,
-      record.session,
-      new Date().toISOString(),
-    );
-    if (marked === undefined)
-      throw new Error("The reporting session was deleted.");
-    return marked;
-  }
+  // A local-Done host's mark, like a reported mark on a host without a
+  // Done stop, is acknowledged locally only.
+  if (
+    host?.localDone === true ||
+    (record.completion !== undefined && stop === undefined)
+  )
+    return acknowledgeDoneLocally(source.id, record);
   if (host === undefined || stop === undefined)
     throw new Error("This host cannot mark a session done.");
   const doneAt = new Date().toISOString();

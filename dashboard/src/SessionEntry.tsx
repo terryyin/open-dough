@@ -1,6 +1,6 @@
 import { hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { hostName, marksDone } from "./sessionCapabilities.ts";
+import { hostName, marksDone, marksLocalDone } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in either session column.
 // Its native observations and supported controls stay distinct from story facts.
 
@@ -60,9 +60,12 @@ export function SessionEntry({
   const { entryClass, stateWords } = shownSession(record);
   const { shownSession: shown, hostOperations } = usePageSessions();
   // Supported native done operations use the same intended name for every Done.
+  // A local-only Done attempts no native naming, so it claims none.
+  const localDone = marksLocalDone(hostOperations, record.session.host);
   const nativelyNamed =
-    record.completion === undefined ||
-    marksDone(hostOperations, record.session.host);
+    !localDone &&
+    (record.completion === undefined ||
+      marksDone(hostOperations, record.session.host));
   const current = shown?.key === sessionKey(record.session);
   const inResult = current && shown.kind === "result";
   const inTerminal = current && shown.kind === "terminal";
@@ -119,6 +122,12 @@ export function SessionEntry({
         <p>
           {record.doneProblem === undefined ? "Named" : "Intended name"}{" "}
           <code>{doneSessionName(record.session)}</code>
+        </p>
+      )}
+      {markedDone && localDone && (
+        <p>
+          Done is a dashboard-local name only; marking it done did not stop the
+          native session.
         </p>
       )}
       {record.doneProblem !== undefined && (

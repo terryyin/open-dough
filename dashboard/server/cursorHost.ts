@@ -18,4 +18,5 @@ export const cursorHost: LaunchHost = {
   sessions: observeCursorSessions,
   attach: attachCursor,
   stop: (...[session, , signal]) => stopCursor(session, signal),
+  localDone: true,
 };

@@ -68,6 +68,7 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
     attach: true,
     stop: true,
     doneStop: false,
+    localDone: true,
     launchedSessions: false,
   });
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
@@ -115,6 +116,7 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
     attach: true,
     stop: true,
     doneStop: false,
+    localDone: true,
     launchedSessions: false,
   });
   expect(cursorRecord(again, cursor.sessionId)?.sessionState).toEqual({

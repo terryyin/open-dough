@@ -125,16 +125,18 @@ export async function unreadReportSession(req: IncomingMessage): Promise<{
   return { source, record: { ...record, completion } };
 }
 
-// A done mark on a recorded session, which its host can stop or which has
-// reported.
+// A done mark on a recorded session, which its host can stop, which has
+// reported, or whose host's Done is a local acknowledgement only.
 export async function doneRequest(
   req: IncomingMessage,
   launches: AgentLaunches,
 ) {
   const { source, record, folder } = await namedSession(req, launches, "done");
+  const host = launchHost(record.session.host);
   if (
     record.completion === undefined &&
-    launchHost(record.session.host)?.doneStop === undefined
+    host?.doneStop === undefined &&
+    host?.localDone !== true
   ) {
     throw new RefusedRequest(400, "This host cannot mark a session done.");
   }

@@ -9,6 +9,7 @@ import { completionLabel, reportUnread } from "./completionReport.ts";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import { cursorHeldLabel } from "./cursorHeldLabel.ts";
 import { nativeSessionShown } from "./nativeSessionShown.ts";
+import { marksLocalDone, type HostOperations } from "./sessionCapabilities.ts";
 
 // What a session entry says of its session, and whether the developer is
 // needed there: the same semantic observation for every entry and card.
@@ -109,13 +110,23 @@ export function sessionShown(shown: ReadableSession): SessionShown {
 // input, reported unfinished, or not reported complete, with its reading.
 export function unfinishedIntention(
   session: ReadableSession,
+  operations?: HostOperations,
 ): string | undefined {
   const { sessionState, completion } = session;
   const held = sessionState.kind === "unknown" ? sessionState.label : undefined;
   const activity =
     sessionState.kind === "available" ? sessionState.activity : undefined;
-  if (activity === "working" || held === cursorHeldLabel.working)
+  if (activity === "working" || held === cursorHeldLabel.working) {
+    // Where the host boundary says Done is a local acknowledgement only,
+    // marking done does not ask the session to stop.
+    if (
+      operations !== undefined &&
+      session.session !== undefined &&
+      marksLocalDone(operations, session.session.host)
+    )
+      return "This session is still working. Marking it done only acknowledges it in this dashboard; it does not stop the session.";
     return "This session is still working. Marking it done asks it to stop.";
+  }
   if (completedRetiredRefinement(session)) return undefined;
   if (activity === "waiting" || held === cursorHeldLabel.waiting)
     return "This session is waiting for your input.";

@@ -153,6 +153,10 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ): Promise<void>;
+  // Mark as done is only a local dashboard acknowledgement for this host:
+  // it neither stops nor renames the native session. Absent means the
+  // mark is not local-only (native Done operations, where supplied, run).
+  readonly localDone?: true;
   // Removes an exited session's job from the host on Mark as done.
   remove?(
     session: HostSession,
@@ -183,6 +187,7 @@ export function hostOperations(): HostOperations {
         attach: boundary?.attach !== undefined,
         stop: boundary?.stop !== undefined,
         doneStop: boundary?.doneStop !== undefined,
+        localDone: boundary?.localDone === true,
         launchedSessions: boundary?.launchedSessions !== undefined,
       },
     ]),
