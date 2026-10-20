@@ -77,8 +77,8 @@ that separate acceptance before affected release. Selected plan execution and su
 acceptance selection retain their own authority boundaries.
 
 **Additional covered work:** [SEED-145's quiet retrospective and planned
-execution story](SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective),
-[plan 332](../slice-plans/332-quiet-execution-and-retrospective/PLAN.md). Its
+execution story](https://github.com/terryyin/open-dough/blob/651df7b18c3d873e4e81a3080db3b65aeb7aa0c8/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective),
+[plan 332](https://github.com/terryyin/open-dough/blob/651df7b18c3d873e4e81a3080db3b65aeb7aa0c8/.planning/slice-plans/332-quiet-execution-and-retrospective/PLAN.md). Its
 functional guidance and credential-free assessor checks do not prove native
 response selection. This extension changes no backlog assignment and authorizes
 no paid sessions, release or rollout.
