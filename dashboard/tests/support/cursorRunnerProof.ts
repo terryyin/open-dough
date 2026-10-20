@@ -18,10 +18,7 @@ import {
   keepCursorClient,
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
-import {
-  cursorRunnerAddressFile,
-  readCursorRunnerAddress,
-} from "../../server/hosts/cursor/runnerPaths.ts";
+import { writeRunnerAddress } from "./cursorRunnerRecordedAddress.ts";
 import { bridgeCursorTerminal } from "../../server/hosts/cursor/terminalBridge.ts";
 import type { TerminalSession } from "../../server/agentTerminals.ts";
 import { installFakeCursor, type FakeCursor } from "./fakeCursor.ts";
@@ -119,29 +116,6 @@ export function createChatOnRunner(fixture: RunnerProofFixture) {
     new AbortController().signal,
     fixture.home,
   );
-}
-
-export function writeRunnerAddress(
-  fixture: RunnerProofFixture,
-  address: unknown,
-): void {
-  mkdirSync(path.dirname(cursorRunnerAddressFile(fixture.home)), {
-    recursive: true,
-  });
-  writeFileSync(cursorRunnerAddressFile(fixture.home), JSON.stringify(address));
-}
-
-export function makeRecordedRunnerProofStale(home: string): void {
-  const address = readCursorRunnerAddress(home);
-  if (address === undefined) throw new Error("No runner address to tamper.");
-  writeFileSync(
-    cursorRunnerAddressFile(home),
-    JSON.stringify({ ...address, buildId: "stale-build" }),
-  );
-}
-
-export function tamperRecordedProof(fixture: RunnerProofFixture): void {
-  makeRecordedRunnerProofStale(fixture.home);
 }
 
 const standInSource = `

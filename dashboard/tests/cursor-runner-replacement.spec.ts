@@ -16,7 +16,7 @@ import {
   expectContinuationThroughScope,
   recordedScope,
 } from "./support/cursorScopeAssertions.ts";
-import { makeRecordedRunnerProofStale } from "./support/cursorRunnerProof.ts";
+import { makeRecordedRunnerProofStale } from "./support/cursorRunnerRecordedAddress.ts";
 import {
   agentCalls,
   cursorRecord,

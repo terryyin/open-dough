@@ -169,7 +169,7 @@ dashboard with no silent loss.
 
 ### 3. Restart resumability holds in the restart shapes developers hit
 Type: Behavior
-Status: planned
+Status: done
 Proof: Restart-shaped fake-Cursor journeys: runner killed with its
 address left stale (machine-restart shape) → reopening/Recover resumes
 the recorded session on a freshly started current runner; production
@@ -270,3 +270,12 @@ nothing could tell the developer or the dashboard that the accepting
 runner was old. The fix is therefore proof first and replacement
 second; a dashboard that restarts its runner on every start would
 trade that silent failure for killing held clients on every restart.
+
+Execution (2026-10-21): slices 1–3 delivered on deterministic
+fake-Cursor proof only. Native verification remains pending under
+ADR 0005 and is claimed nowhere: real `cursor-agent` resumption after
+a real runner kill and after a real machine reboot, with a scoped
+session, has not been observed. A killed runner that is a direct
+child of its starter can linger as a zombie whose pid still answers
+`kill(pid, 0)`; the new-work build-proof probe, not the pid/port
+acceptance check, is the guard against a dead runner looking current.

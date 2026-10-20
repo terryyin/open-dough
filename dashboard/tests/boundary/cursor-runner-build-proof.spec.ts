@@ -20,9 +20,11 @@ import {
   keepWorkingClient,
   startRunnerProofFixture,
   startStandInRunner,
+} from "../support/cursorRunnerProof.ts";
+import {
   tamperRecordedProof,
   writeRunnerAddress,
-} from "../support/cursorRunnerProof.ts";
+} from "../support/cursorRunnerRecordedAddress.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { repoRoot } from "../support/repositoryRoot.ts";
 
