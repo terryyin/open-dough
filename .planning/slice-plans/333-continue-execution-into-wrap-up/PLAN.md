@@ -76,7 +76,7 @@ instruction contracts; they are not observations of a native agent obeying them.
 
 ### 1. Continue settled planned execution through its existing closure workflow
 Type: Behavior
-Status: planned
+Status: done
 Proof: Representative guidance walks and a discriminating continuation contract
 check cover eligible and stopped branches; existing closure/reporting controls
 preserve the applicable publication, CI/shutdown, retirement and receipt gates.
@@ -143,19 +143,14 @@ installed reporting, stored receipt and retained terminal, not the agent's
 choice to continue. Reuse unchanged runtime proof only for what it observes.
 Do not add a full-suite local gate merely because hosted CI runs it.
 
-Before implementation closure, link outstanding behavior to a separate native
-acceptance story under ADR 0005, reusing an applicable active home or recording
-an unqueued candidate through the existing story workflow. That acceptance
-requires a positive planned execution with no separate wrap-up instruction,
-explicit review skip, settled findings, a genuine decision stop, and a required
-closure failure. Observe actual review/record ordering, correction preservation,
-published closure, applicable CI/shutdown, retirement and final dashboard receipt
-where supplied. Include Trunk and Story Branch mode risks and direct versus
-dashboard use; record evidence or justified reuse for each affected requirement
-on each host. Existing explicit-no-wrap-up native cases remain stop controls.
-No paid native run is implicit in implementation. Functional completion may
-precede linked native acceptance; affected release waits for acceptance or a
-human-owned exception.
+Before implementation closure, preserve outstanding native behavior under
+[SEED-053#quiet-dashboard-completion](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion).
+Its linked planned-continuation cases own positive/skip/settled-finding paths,
+decision and closure-failure stops, actual ordering and closure gates, mode and
+invocation risks, and fresh evidence or justified reuse per requirement/host.
+Existing explicit-no-wrap-up native cases remain stop controls. No paid native
+run is implicit; functional completion may precede native acceptance, while
+affected release waits for acceptance or a human-owned ADR 0005 exception.
 
 Safe stopping point: the selected planned journey can close without a manual
 round trip, while real decisions and failed duties remain resumable. Queued
@@ -168,8 +163,23 @@ slice. No numeric slice target or hard limit was supplied.
 
 ## Current decisions
 
-- This preparation authorizes no execution, Take, release or rollout. The slice
-  remains planned and the story queued.
+- Execution authorized on 2026-10-20 by `$dough-execute-plan` for this identity;
+  Story Branch Mode reuses this owned checkout/branch
+  `codex/continue-successful-execution-into-wrap-up-when`, without another startup.
+  Remote `origin` (`terryyin/open-dough`), target `main`; agent `ziqing-chan`,
+  publisher `dashboard-territory.local-open-dough`, claim/published base
+  `38f0a6aed1ea0a555db517cbfca977ccf69a67e9`, starting revision
+  `393b05bca09994588bc085500a60f4c8b3616b37`. No numeric budget/hard limit.
+- Locked `npm ci` and the three baseline guidance suites passed in this checkout.
+  Hook: check-only staged lint plus conditional dashboard typecheck. Formatter:
+  `npm run format`; runtime/commands bind to this owned checkout.
+- Observer: GitHub Actions `ci.yml` (`CI`), `terryyin/open-dough`, execution branch
+  above; coordinator `ziqing-chan-145`, `/tmp/dough-ci-501/watch-HmEL0J`, PID `43823`,
+  stream session `4214`, yielded cell `9`. It covers branch increments; claim CI on
+  trunk is unobserved. Supplied dashboard launch/reporting/landing context remains
+  in the session for closure.
+- Preparation granted no execution or Take; the current instruction above does.
+  Release/rollout remain unauthorized.
 - Edit guidance in `src/skills/`; do not hand-edit installed managed copies.
   Review descriptions, examples and references from the executing project's
   perspective and keep payload links complete.
@@ -186,12 +196,10 @@ Observed on 2026-10-20 in
 `/Users/terryyin/git/open-dough/.worktrees/continue-successful-execution-into-wrap-up-when`
 at `53c9758dbcb121537c5dc9211e726ee15a581176`.
 
-1. The current guidance's normal planned completion ends before wrap-up.
-   A representative branch walk through `finish-or-stop.md` reaches its explicit
-   `do not invoke it here` instruction after review/record/CI duties. The
-   wrap-up entry says the coordinator invokes it. This is the instruction
-   contract to change, not evidence of failed closure machinery.
-2. Existing focused proof does not discriminate that transition. Ran:
+1. The pre-change branch walk reached `do not invoke it here` in
+   `finish-or-stop.md` after review/record/CI; wrap-up required coordinator
+   invocation. This is the instruction contract to change, not failed machinery.
+2. Existing proof did not discriminate that transition. Ran:
 
    ```sh
    PATH="/opt/homebrew/bin:$PATH" npm test -- \
@@ -200,26 +208,36 @@ at `53c9758dbcb121537c5dc9211e726ee15a581176`.
      src/skills/dough-land/scripts/completion-attention-guidance.test.mjs
    ```
 
-   Baseline exited 0. In this owned checkout, replaced only
+   Baseline exited 0. Replaced only
    `worktree for story wrap-up; do not invoke it here.` with
    `worktree until automatically continuing into story wrap-up when all required choices are settled.`
-   and reran the identical command: exit 0 again. Restored the original bytes
-   before any record write. The assumed coverage is false; the slice therefore
-   owns new discriminating continuation proof.
+   in this checkout; identical rerun exited 0. Restored original bytes before
+   recording. This slice therefore owns new discriminating continuation proof.
 3. Following a valid correction into `follow-up-disposition.md` reaches explicit
-   default queue authority with no further approval. Following product advice
-   into wrap-up reaches authorized-compatible changes and a missing-input stop.
-   These existing guidance decisions support continuation without creating
-   backlog authority in retrospective or execution.
+   default queue authority without further approval. Product advice reaches
+   authorized-compatible changes and a missing-input stop in wrap-up. Neither
+   finding creates backlog authority in retrospective or execution.
 4. The native `ci_completion_prompt` in
    `tests/support/ci-completion-native-fixture.sh` expressly forbids story
-   wrap-up. Its successful result cannot establish positive continuation.
-   Native positive behavior is not claimed by this preparation or its static
-   checks; the linked acceptance above owns it. No unobserved runtime mechanism
-   is assumed to have changed.
+   wrap-up; its success cannot establish positive continuation. Linked native
+   acceptance owns that proof; no unobserved runtime mechanism is assumed changed.
 
 ## Learnings
 
 Queueing a valid correction before invoking wrap-up would invert ownership and
 create an unnecessary stop. Recognize existing authority at the continuation
 boundary, then let the workflow that owns the disposition apply it.
+
+## Story obligations
+
+### G1. Native agent follow-through remains unproved
+Reported: slice 1 — "Native follow-through remains unproved, separately tracked in SEED-053#quiet-dashboard-completion."
+Story clause: "Native behavioral acceptance is tracked separately under ADR 0005"
+Disposition: excluded "Native behavioral acceptance is tracked separately under ADR 0005"
+
+## Accepted slice proof
+
+Reviewed source/consumer assertions and representative walks: review/skip → record publication → completion receipt → conditional same-context wrap-up; default correction owner, real stops, no-push/planless/background boundaries and final reporter ownership preserved. Instruction contracts only; native acceptance remains pending under G1.
+Passed: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs src/skills/dough-land/scripts/completion-attention-guidance.test.mjs tests/payload-declaration-links.sh src/skills/dough-execute-plan/scripts/planned-completion-guidance.test.mjs src/skills/dough-execute-plan/scripts/planned-wrap-up-continuation-guidance.test.mjs`.
+New suite's named invocation assertion failed in isolated scratch copies for removed transition and unconditional closure. Restored scratch; source untouched. Additional host/obligation/ownership/review/handoff consumers and native-evidence identity passed; both skill validators passed.
+Independent refactor returned `## REFACTOR COMPLETE`; affected guidance/link checks passed after its prose/detail extraction. `npm run format` passed. CI timing baseline (`bash scripts/ci-test-times.sh` with the two changed guidance paths) found wide existing-suite headroom; new-suite timing remains CI-owned. No runtime machinery changed.

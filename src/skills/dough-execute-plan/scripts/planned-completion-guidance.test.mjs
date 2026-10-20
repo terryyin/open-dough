@@ -13,28 +13,28 @@ const reportingInstruction = read(
   "../../dashboard/server/reportingInstruction.ts",
 );
 
-test("reviewed and skipped planned completion apply shared quiet or actionable judgment after the operation", () => {
+test("planned continuation keeps the existing attention judgment for a stopped handoff", () => {
   assert.match(
     finish,
-    /both reviewed and skipped planned completion, apply the shared\s+\[completion attention\]\(\.\.\/\.\.\/dough-land\/references\/completion-attention\.md\)/,
+    /When continuation stops here, apply the shared\s+\[completion attention\]\(\.\.\/\.\.\/dough-land\/references\/completion-attention\.md\)/,
   );
   assert.match(finish, /judgment after completion handling/);
   assert.match(
     finish,
-    /when settled, give no\s+success message, or only the minimum native response/,
+    /Give no final execution response, routine recap or quiet dashboard report\s+between workflows/,
   );
   assert.match(
     finish,
-    /add no slice, proof, advice,\s+CI or shutdown recap or execution-completion banner/,
+    /Add no slice, proof,\s+advice, CI or shutdown recap or execution-completion banner/,
   );
   assert.doesNotMatch(finish, /PLAN EXECUTION COMPLETE/);
   assert.match(
     finish,
-    /attention remains, begin\s+with `DEVELOPER ATTENTION REQUIRED`[\s\S]+issue, consequence, next action\s+or decision, responsible owner[\s\S]+evidence or recovery links/,
+    /attention remains, begin with\s+`DEVELOPER ATTENTION REQUIRED`[\s\S]+issue, consequence, next action\s+or decision, responsible owner[\s\S]+evidence or recovery links/,
   );
   assert.match(
     finish,
-    /Keep an explicit review\/retain stop\s+and provide explicitly requested details/,
+    /Keep an explicit review\/retain\/stop instruction[\s\S]+Provide explicitly requested details without inventing a review\s+stop/,
   );
 });
 
@@ -57,7 +57,7 @@ test("one current attention set survives unrelated success and preserves its evi
   );
   assert.match(
     finish,
-    /Retain the completed plan, proof decisions, execution checkout, branch, and\s+worktree for story wrap-up; do not invoke it here/,
+    /Retain the completed plan,\s+proof decisions, execution checkout, branch, worktree and terminal continuation\s+needed to resume/,
   );
 });
 
@@ -105,11 +105,11 @@ test("the execution-complete handoff reports attention only when a supplied dash
   );
   assert.match(
     finish,
-    /`Product advice: retrospective skipped`[\s\S]+completion operation[\s\S]+handle its receipt[\s\S]+select the planned response below/,
+    /`Product advice: retrospective skipped`[\s\S]+completion operation[\s\S]+handle its receipt[\s\S]+apply \[planned continuation\]/,
   );
   assert.match(
     finish,
-    /review returns[\s\S]+completion operation, handle its receipt, and select the planned response below/,
+    /review returns[\s\S]+completion operation, handle its receipt, then apply\s+\[planned continuation\]/,
   );
   // Exact response, outcome per result, receipt awaited before giving it.
   assert.match(

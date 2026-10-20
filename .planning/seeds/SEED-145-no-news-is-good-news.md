@@ -132,7 +132,10 @@ execution's separate completion journey. Preserve the explicitly selected
 background-CI handoff while its required completion remains pending. This story
 consumes the earlier quiet/attention behavior; it adds no dashboard session model,
 new publication/CI mechanism or release/rollout. Native behavioral acceptance is
-tracked separately under ADR 0005.
+tracked separately under ADR 0005 in
+[SEED-053#quiet-dashboard-completion](SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion),
+including the pending planned-continuation cases. Functional guidance checks do
+not establish native follow-through.
 
 **Key examples:**
 
