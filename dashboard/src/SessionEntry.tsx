@@ -151,9 +151,7 @@ export function SessionEntry({
       <LaunchSession record={record} />
       <StopSession record={record} say={say} />
       <RecoverSession record={record} say={say} />
-      {(!markedDone || record.doneProblem !== undefined) && (
-        <MarkDone record={record} say={say} />
-      )}
+      <MarkDone record={record} say={say} />
       <DeleteRecord record={record} say={say} />
       <p role="status" className="launch-problem">
         {said}

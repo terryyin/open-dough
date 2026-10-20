@@ -92,7 +92,17 @@ claims termination, and a confirmed stop still clears the retention.
 
 ### 2. Offer the local Mark as done in the open terminal panel
 Type: Behavior
-Status: not started
+Status: done
+
+Learnings: `marksRecordDone` is an offerability predicate, not a
+not-yet-done one, so entry and terminal panel now share one `offersMarkDone`
+predicate in `sessionCapabilities.ts` (markable and not already done, except
+retrying a done mark that left a problem); the final-report panel keeps its
+plainer gate. Accepted proof: fake-Cursor journey in
+`agent-session-cursor-done.spec.ts` marks an active session done from its open
+terminal panel into Recently done with local-only wording and no SIGHUP;
+existing Claude/Codex terminal-panel Done journeys green;
+`npm run typecheck:dashboard` green.
 Proof: A fake-Cursor journey marks an active Cursor session done from its
 open terminal panel and lands in Recently done with the local-only wording,
 setting only the local mark (no SIGHUP to the held client). Existing

@@ -64,6 +64,20 @@ export function marksRecordDone(
     marksLocalDone(operations, record.session.host)
   );
 }
+// Whether Mark as done is offered for this record on its entry or in its
+// terminal: it can be marked (above) and is not already done, except
+// retrying a done mark whose native side left a problem behind. The final
+// report panel offers its mark only before any done mark, so it keeps the
+// plainer gate above.
+export function offersMarkDone(
+  operations: HostOperations,
+  record: LaunchRecord,
+): boolean {
+  return (
+    marksRecordDone(operations, record) &&
+    (record.doneAt === undefined || record.doneProblem !== undefined)
+  );
+}
 export function shellCommand(args: readonly string[]): string {
   return args.map((part) => `'${part.replaceAll("'", "'\\''")}'`).join(" ");
 }
