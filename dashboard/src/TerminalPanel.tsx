@@ -14,8 +14,10 @@
 // the same session anew. The terminal, and the panel's edge around it, show
 // the theme saved in System settings.
 // Each attachment reports native readiness; startup decisions remain interactive.
-// Where supported, Mark as done asks the boundary to finish this session;
-// the panel closes once marked and says if it could not be. A session whose
+// Where supported, Mark as done asks the boundary to finish this session, or,
+// where Done is only a local acknowledgement, marks it locally without
+// stopping the session; the panel closes once marked and says if it could
+// not be. A session whose
 // intended work is not known to be complete, as the page reads it now, is
 // asked about first within the panel, below its header, with the terminal
 // still showing and Mark as done disabled until the question is answered.
@@ -28,7 +30,7 @@ import {
   type RefObject,
 } from "react";
 import { CircleCheck } from "lucide-react";
-import { marksDone } from "./sessionCapabilities.ts";
+import { marksRecordDone } from "./sessionCapabilities.ts";
 import { PanelControls } from "./PanelControls.tsx";
 import "@xterm/xterm/css/xterm.css";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";
@@ -156,7 +158,10 @@ export function TerminalPanel({
           </div>
         </div>
         <div className="side-panel-actions">
-          {marksDone(hostOperations, record.session.host) && (
+          {/* Unlike the entry (`offersMarkDone`), the panel offers the
+              mark whenever the record can be marked, including a done
+              record reopened here. */}
+          {marksRecordDone(hostOperations, current) && (
             <IconButton
               ref={asking.control}
               label="Mark as done"

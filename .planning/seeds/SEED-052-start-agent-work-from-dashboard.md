@@ -146,31 +146,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-<a id="cursor-unconfirmed-stop-after-local-done"></a>
-
-### Correction: An unconfirmed stop still blocks a replacement after local Done
-
-**Identity:** SEED-052#cursor-unconfirmed-stop-after-local-done
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"be841e09f98ee9dffe66dabd843dcd7421abfd86668e60a57faee1609a45771b","plan":"039238e896960407a301046fb38852eccc8f0ef3d6e1f4d314006cc57abd597f"}}
-```
-
-**Goal:** For a developer who marked a still-working Cursor session done
-locally and then pressed Stop without confirmation, the dashboard still
-blocks a replacement writer in that workspace until confirmation or an
-explicit override, and offers the local Mark as done from the open terminal
-panel as it does from the session entry.
-
-**Scope:** Bounded retrospective correction of
-SEED-052#safe-cursor-session-stop (plan 327); adds no feature promise.
-Included: the replacement-writer block follows the retained
-`stopUnconfirmed` explanation regardless of the local done mark; the
-terminal panel's Mark as done follows the same host capability facts as
-the entry. Preserved: Stop and Mark as done stay separate, local Done
-never claims native termination, Claude and Codex behavior is unchanged,
-and native Cursor termination remains unverified. Plan:
-[329-cursor-unconfirmed-stop-after-local-done](../slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md).
-
 <a id="cursor-runner-restart-resume"></a>
 
 ### 4. Keep Cursor sessions resumable across runner and machine restarts

@@ -4,7 +4,7 @@
 import {
   hostName,
   marksLocalDone,
-  marksRecordDone,
+  offersMarkDone,
   offersSeparateStop,
 } from "./sessionCapabilities.ts";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
@@ -36,7 +36,7 @@ export function MarkDone({
 }) {
   const { markDone, hostOperations } = usePageSessions();
   const { asksFirst, marking, mark } = useDoneMark(record, hostOperations);
-  if (!marksRecordDone(hostOperations, record)) return null;
+  if (!offersMarkDone(hostOperations, record)) return null;
   return (
     <AskInPlace
       label="Mark as done"

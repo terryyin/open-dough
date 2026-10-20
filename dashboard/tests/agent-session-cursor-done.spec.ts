@@ -6,8 +6,7 @@
 // observed still held/working shows that native state as it is and
 // still offers Stop, which then works. The report-backed path is
 // covered by ./agent-completion-cursor.spec.ts.
-import type { Locator, Page } from "@playwright/test";
-import { parts } from "./dashboardPage.ts";
+import type { Page } from "@playwright/test";
 import {
   expectNormalizedReading,
   openTakenCursorSession,
@@ -17,10 +16,11 @@ import {
   keptRecord,
   workingCursorTest,
 } from "./support/cursorStart.ts";
-import { expectQuestion, markAsDone, markDone } from "./support/markDone.ts";
-
-const localWorkingStatement =
-  "This session is still working. Marking it done only acknowledges it in this dashboard; it does not stop the session.";
+import { markAsDone } from "./support/markDone.ts";
+import {
+  markLocallyDone,
+  markLocallyDoneFromPanel,
+} from "./support/cursorLocalDone.ts";
 
 const localDoneWording =
   "Done is a dashboard-local name only; marking it done did not stop the native session.";
@@ -29,18 +29,6 @@ async function closeTerminal(page: Page): Promise<void> {
   const panel = page.getByRole("region", { name: "Terminal" });
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(panel).toHaveCount(0);
-}
-
-// Marks the entry done through its ask-first question, asserting the
-// local-only wording, and returns the Recently done entry.
-async function markLocallyDone(page: Page, entry: Locator): Promise<Locator> {
-  await markAsDone(entry).click();
-  await expect(entry).not.toContainText("Marking it done asks it to stop.");
-  const question = await expectQuestion(entry, localWorkingStatement);
-  await markDone(question);
-  const recent = parts(page).recentlyDone.locator(".session-entry");
-  await expect(recent).toHaveCount(1);
-  return recent;
 }
 
 workingCursorTest(
@@ -70,6 +58,37 @@ workingCursorTest(
     expect(record.stopUnconfirmed).toBeUndefined();
     // No hangup reached the held fake client and no new native call ran:
     // the session was not stopped by the mark.
+    expect(cursor.signals(client?.pid ?? 0)).toBe(signalsBefore);
+    expect(cursor.signals(client?.pid ?? 0)).not.toContain("SIGHUP");
+    expect(cursor.calls()).toHaveLength(callsBefore);
+  },
+);
+
+workingCursorTest(
+  "Mark as done from the open terminal panel moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
+  async ({ page, dashboard, origin, cursor }) => {
+    workingCursorTest.setTimeout(120_000);
+    const entry = await openTakenCursorSession(page, origin);
+    const panel = page.getByRole("region", { name: "Terminal" });
+    await expect(panel.locator(".xterm-rows")).toContainText(/\S/u);
+    await expectNormalizedReading(entry, "Working", false);
+    const client = cursor.attaches()[0];
+    expect(client).toBeDefined();
+    await expect(
+      panel.locator("header").getByRole("button", { name: "Mark as done" }),
+    ).toHaveCount(1);
+    const signalsBefore = cursor.signals(client?.pid ?? 0);
+    const callsBefore = cursor.calls().length;
+
+    const recent = await markLocallyDoneFromPanel(page, panel);
+
+    await expect(panel).toHaveCount(0);
+    await expect(recent).toContainText(localDoneWording);
+    const record = keptRecord(dashboard.home);
+    expect(record.session.sessionId).toBe(cursor.sessionId);
+    expect(record.doneAt).toBeDefined();
+    expect(record.doneProblem).toBeUndefined();
+    expect(record.stopUnconfirmed).toBeUndefined();
     expect(cursor.signals(client?.pid ?? 0)).toBe(signalsBefore);
     expect(cursor.signals(client?.pid ?? 0)).not.toContain("SIGHUP");
     expect(cursor.calls()).toHaveLength(callsBefore);

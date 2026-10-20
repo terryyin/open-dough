@@ -5,19 +5,25 @@
 // reopen/recovery, and blocks a replacement session in the same
 // workspace until an explicit override carrying the competing-writer
 // risk.
-import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-import { occupyRunner } from "./support/cursorRunnerJourney.ts";
+import {
+  holdRunnerSessionsReads,
+  rekeepKeptCursorSession,
+} from "./support/cursorRunnerHeldReads.ts";
+import { markLocallyDone } from "./support/cursorLocalDone.ts";
+import {
+  entryWithRunnerUnreachable,
+  expectBlockThenAdmitReplacement,
+  expectRetainedUnconfirmed,
+} from "./support/cursorUnconfirmedStop.ts";
 import {
   expectNormalizedReading,
   openTakenCursorSession,
 } from "./support/cursorSessionReading.ts";
 import { keptRecord, workingCursorTest } from "./support/cursorStart.ts";
-import { keptRecords } from "./support/cursorSessionRecovery.ts";
-import { startSessionField } from "./launchCardPage.ts";
 import { expect } from "./support/cursorStart.ts";
 
 // The launch presents the session's terminal beside the entry; closing
@@ -77,27 +83,25 @@ workingCursorTest(
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
 
-    await stopCursorRunner(dashboard.home);
-    const release = await occupyRunner(dashboard.home);
+    const { entry: again, release } = await entryWithRunnerUnreachable(
+      page,
+      dashboard.home,
+      parts(page).taken,
+    );
     try {
-      await reloadUntilRead(page);
-      const again = parts(page).taken.locator(".session-entry");
-      await expect(again).toHaveCount(1);
       await expect(again).toContainText(cursorRunnerSentence("unreachable"));
       await expect(again.getByRole("button", { name: "Stop" })).toHaveCount(1);
 
       await again.getByRole("button", { name: "Stop" }).click();
 
-      await expect(again).toContainText("Stop unconfirmed");
-      await expect(again).toContainText(
+      const record = await expectRetainedUnconfirmed(
+        again,
+        dashboard.home,
+        cursor.sessionId,
         "the hangup could not be delivered to the Cursor runner",
+        "may still be held and working",
       );
-      await expect(again).toContainText("may still be held and working");
-      const record = keptRecord(dashboard.home);
-      expect(record.session.sessionId).toBe(cursor.sessionId);
       expect(record.doneAt).toBeUndefined();
-      expect(record.stopUnconfirmed).toContain("Stop unconfirmed");
-      expect(record.stopUnconfirmed).toContain("may still be held and working");
       // Reopen and recovery are preserved.
       await expect(
         again.getByRole("button", { name: "Open terminal" }),
@@ -106,30 +110,100 @@ workingCursorTest(
         1,
       );
 
-      // Starting a replacement session in the same workspace is blocked,
-      // with the competing-writer risk shown, and nothing starts.
-      await page
-        .getByRole("button", { name: "Start session in Open Dough" })
-        .click();
-      const dialog = page.getByRole("dialog");
-      await dialog
-        .getByRole("combobox", { name: "Host" })
-        .selectOption("cursor");
-      await startSessionField(dialog).fill("replacement writer session");
-      await dialog.getByRole("button", { name: "Start", exact: true }).click();
-      await expect(dialog).toContainText(
-        "A session in this workspace may still be running",
-      );
-      await expect(dialog).toContainText("competing writer");
-      await expect(dialog).toContainText("Stop unconfirmed");
-      // Still one kept record: the blocked launch started nothing.
-      expect(keptRecords(dashboard.home)).toHaveLength(1);
-
-      // The explicit override admits the replacement.
-      await dialog.getByRole("button", { name: "Start anyway" }).click();
-      await expect(dialog).toBeHidden({ timeout: 30_000 });
+      await expectBlockThenAdmitReplacement(page, dashboard.home);
     } finally {
       await release();
+    }
+  },
+);
+
+workingCursorTest(
+  "an unconfirmed stop on a locally done Cursor session retains its explanation on the done record, blocks a replacement in the same workspace, and admits one only on explicit override",
+  async ({ page, dashboard, origin, cursor }) => {
+    workingCursorTest.setTimeout(120_000);
+    const entry = await openTakenCursorSession(page, origin);
+    await closeTerminal(page);
+    await expectNormalizedReading(entry, "Working", false);
+
+    const recent = await markLocallyDone(page, entry);
+    expect(keptRecord(dashboard.home).doneAt).toBeDefined();
+    await expect(recent.getByRole("button", { name: "Stop" })).toHaveCount(1);
+
+    const { entry: again, release } = await entryWithRunnerUnreachable(
+      page,
+      dashboard.home,
+      parts(page).recentlyDone,
+    );
+    try {
+      await expect(again).toContainText(cursorRunnerSentence("unreachable"));
+      await expect(again.getByRole("button", { name: "Stop" })).toHaveCount(1);
+
+      await again.getByRole("button", { name: "Stop" }).click();
+
+      const record = await expectRetainedUnconfirmed(
+        again,
+        dashboard.home,
+        cursor.sessionId,
+        "the hangup could not be delivered to the Cursor runner",
+        "may still be held and working",
+      );
+      expect(record.doneAt).toBeDefined();
+
+      await expectBlockThenAdmitReplacement(page, dashboard.home);
+    } finally {
+      await release();
+    }
+  },
+);
+
+workingCursorTest(
+  "a stop the Cursor runner still holds past confirmation reads unconfirmed with the remaining state named and retains its explanation",
+  async ({ page, dashboard, origin, cursor }) => {
+    workingCursorTest.setTimeout(120_000);
+    // The runner stand-in is installed before the session opens, so the
+    // stop's confirmation reads pass through it; holding them while the
+    // runner keeps this session again has it held before the first read
+    // is answered, and still held past the confirmation deadline.
+    // (Freezing the held client with SIGSTOP cannot show this: the
+    // runner ends its tracking on hangup whether or not the frozen
+    // client has exited, so its next read already finds nothing held.)
+    const gate = await holdRunnerSessionsReads(dashboard.home);
+    try {
+      const entry = await openTakenCursorSession(page, origin);
+      await closeTerminal(page);
+      await expectNormalizedReading(entry, "Working", false);
+      const client = cursor.attaches()[0];
+      expect(client).toBeDefined();
+
+      gate.hold();
+      try {
+        await entry.getByRole("button", { name: "Stop" }).click();
+        // The held client's signal log proves the hangup reached it; the
+        // runner keeping this same session again (its keep answer, as
+        // recovery asks for) then lands before the held confirmation
+        // read is forwarded, so that read already finds it held.
+        await expect
+          .poll(() => cursor.signals(client?.pid ?? 0), {
+            timeout: 5_000,
+            intervals: [25, 50, 100, 200],
+          })
+          .toContain("SIGHUP");
+        const kept = await rekeepKeptCursorSession(dashboard.home);
+        expect(kept.kind).toBe("kept");
+        expect(cursor.attaches()).toHaveLength(2);
+      } finally {
+        gate.release();
+      }
+      const record = await expectRetainedUnconfirmed(
+        entry,
+        dashboard.home,
+        cursor.sessionId,
+        "still holds this session",
+        "may still be working",
+      );
+      expect(record.doneAt).toBeUndefined();
+    } finally {
+      await gate.close();
     }
   },
 );
@@ -141,11 +215,12 @@ workingCursorTest(
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
-    await stopCursorRunner(dashboard.home);
-    const release = await occupyRunner(dashboard.home);
+    const { entry: again, release } = await entryWithRunnerUnreachable(
+      page,
+      dashboard.home,
+      parts(page).taken,
+    );
     try {
-      await reloadUntilRead(page);
-      const again = parts(page).taken.locator(".session-entry");
       await again.getByRole("button", { name: "Stop" }).click();
       await expect(again).toContainText("Stop unconfirmed");
       expect(keptRecord(dashboard.home).stopUnconfirmed).toContain(
