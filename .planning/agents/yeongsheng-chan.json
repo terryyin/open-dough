@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-052#cursor-runner-restart-resume",
+  "mode": "story-branch",
+  "branch": "cursor/keep-cursor-sessions-resumable-across-runner-and",
+  "host": "cursor"
+}
