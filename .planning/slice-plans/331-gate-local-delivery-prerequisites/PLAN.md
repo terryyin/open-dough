@@ -155,16 +155,12 @@ guarded journey, current guidance and tracked native acceptance; no new engine.
 
 ## Preparation evidence
 
-Preparation observations at `f24c716fd8f289b70b5a65cb7002a5cf8f036503`
-used disposable Git repositories, local bare remotes and real commit,
-obligation, managed publication and observer machinery. Controlled formatter
-exit 7 and plan-update exit 1, real whitespace exit 2 and obligations refusal
-all permitted independently invoked later commit/delivery; rejecting hooks
-retained HEAD/index but separate delivery accepted the older candidate.
-Repeated delivery recovered already-published acceptance without another push.
-These establish the orchestration gap, not defective helpers or native proof.
-Full setup, literal control commands and qualified observations are recoverable
-from this plan at `44bf5b369c7cee3f5091f454200c075784e72acd`.
+At `f24c716fd8f289b70b5a65cb7002a5cf8f036503`, real Git/obligation/
+publication/observer scratch journeys showed independent later delivery still
+ran after formatter, plan-edit, whitespace, obligations and hook refusals;
+already-published repeat delivery required no push. This established orchestration
+ownership, not defective helpers or native proof. Full qualified observations
+and literal control commands remain at `44bf5b369c7cee3f5091f454200c075784e72acd`.
 
 ## Learnings
 
@@ -183,7 +179,7 @@ Story Branch Mode; reused owned checkout
 branch `codex/block-commits-and-delivery-after-failed-local-pr`.
 Remote `origin`, trunk `main`; increments target `refs/heads/codex/block-commits-and-delivery-after-failed-local-pr`.
 Claim `2e26b32763bf0b3263305bfbd805ead2219c3e98`; accepted slice 1 and next base
-`4a1fb686b9b30c83403172f017a0271879d5eb71` (suffix base: claim);
+`8ea3d654975028d66ff271b2f8f1479b3ec3575b` (slice 2; suffix base: `4a1fb686b9b30c83403172f017a0271879d5eb71`);
 starting revision `44bf5b369c7cee3f5091f454200c075784e72acd`.
 Node v24.21.0; locked `npm ci --ignore-scripts --no-audit --no-fund` and
 `npm run --silent lint -- package.json` passed (lint selected the whole repo).
@@ -239,3 +235,16 @@ recovery separate. SEED-053 tracks all hosts and pending affected-release gate.
 Refactor guidance proof passed (cd73ea): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs src/skills/dough-execute-plan/scripts/observer-owner-guidance.test.mjs src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs src/skills/dough-execute-plan/scripts/interrupted-delegation-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs`.
 Only guidance/blank-line edits; all runtime/mutation/installation evidence retained.
 Selective format passed after removing an unused test import; all changed files ≤250 lines.
+
+## Retrospective
+
+Related implementation: `4a1fb686`, `8ea3d654`; no interleaved branch work.
+Story/two-slice contract met; architecture/test assessment found no correction. New integrated cases preserve distinct failure, ownership,
+authorship, publication, candidate and recovery observations; existing lower-layer
+controls remain. Native acceptance is tracked, unproved and release-gating.
+Process review used coordinator history/agent handoffs; internal turns unavailable.
+ODF-264 added one occurrence; DearDough 530 lines, 500-line warning; no new product work queued.
+
+## Execution complete
+
+Product advice: Complete SEED-053#guarded-local-delivery-prerequisites before affected release, or record a human-owned exception. No additional product change recommended.
