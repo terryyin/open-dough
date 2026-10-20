@@ -73,25 +73,12 @@ test("delegation carries the installed listing as slice promises before assignme
   );
 });
 
-test("proof acceptance uses the structured record and delivery checks before done or commit", () => {
+test("acceptance links the obligation owner and delivery includes its precommit check", () => {
   const wrapUp = reference("wrap-up.md");
   const acceptance = markdownSection(wrapUp, "## Accept proof");
-  assert.match(
-    acceptance,
-    /every named gap, loss, limitation, or interim\s+behavior[\s\S]+structured \[story obligation\]/,
-  );
-  assert.match(
-    acceptance,
-    /story's goal, key examples, and exclusions[\s\S]+before choosing/,
-  );
-  assert.match(
-    acceptance,
-    /open\s+interim[\s\S]+return\s+owned by this slice[\s\S]+text and provenance/,
-  );
-  assert.match(
-    acceptance,
-    /quick\s+execution[\s\S]+same-slice rule without creating a plan/,
-  );
+  // This checks navigation to the executable record, not prose completeness or
+  // follow-through. Original-source acceptance is assessed in native journeys.
+  assert.match(acceptance, /\]\(story-obligations\.md(?:#[^)]+)?\)/);
   const delivery = markdownSection(wrapUp, "## Deliver the change");
   const update = delivery.slice(
     delivery.indexOf("5. For planned execution"),

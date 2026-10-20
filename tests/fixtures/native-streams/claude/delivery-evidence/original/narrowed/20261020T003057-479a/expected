@@ -1,0 +1,11 @@
+source: /tmp/open-dough-accept-original-promises-baseline-20261020/claude/delivery-evidence/original/narrowed/20261020T003057-479a/events.jsonl
+stream-status: complete
+response: present
+last-start-line: 31
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; ls -a; ls .claude .claude/skills; ls -R .planning; grep -ril \"acceptance\" .claude | head -30"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; ls .claude/skills/dough-execute-plan/references; grep -n -i \"accept\" .claude/skills/dough-execute-plan/SKILL.md .claude/skills/dough-execute-plan/references/delegation.md | head -60"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; sed -n 80,100p .claude/skills/dough-execute-plan/SKILL.md; sed -n 225,250p .claude/skills/dough-execute-plan/SKILL.md; cat .claude/skills/dough-execute-plan/references/wrap-up.md"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; cat .planning/implementation-return.md; echo ======; cat .planning/seeds/*.md; echo =====; cat .planning/slice-plans/311*/PLAN.md; echo ====; cat .planning/producer-proof.md"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; cat .planning/seeds/*.md; echo; echo \"#####\"; cat .planning/slice-plans/311*/PLAN.md; echo \"#####\"; cat .planning/producer-proof.md"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; git diff; echo \"#####\"; cat lib/readiness.mjs; echo \"#####\"; ls tests; cat tests/*.mjs; git status --short"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.61PtimTkbg/deoriginal.cJtjrw/workspace; git ls-files; grep -rn \"readinessView\\|reviewStory\" --include=*.mjs . | grep -v \"^./\\.\\(claude\\|agents\\|codex\\|cursor\\)\"; node --test tests/readiness.test.mjs 2>&1 | tail -12; cat .claude/skills/dough-execute-plan/references/story-obligations.md | head -80"

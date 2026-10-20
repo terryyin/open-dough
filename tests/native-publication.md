@@ -96,6 +96,43 @@ Codex runs without `--ephemeral`, because spawning a subagent thread needs the
 parent's persisted rollout. Those rollouts are kept in the developer's Codex
 home with their other sessions, which also keeps the developer's sign-in in place.
 
+`--case delivery-evidence/original` replays original-story acceptance with the
+full selected readiness story from `2f56bd2a`, a narrowed plan and return, and
+an inspectable reader. The prompt names the inputs without naming an omitted
+promise. `tests/delivery-evidence-original.sh` first proves that the narrowed
+product contradicts the source while its tests pass, and that a corrected
+control satisfies the source. Native observations retain the original and final
+product, proof commands, acceptance outcome and planning state for explicit
+review; the wrapper's nonzero review-required result is not a semantic verdict.
+Inspect detection, actual product behavior and withheld delivery or correction
+ownership together. No prose recognizer certifies these facts.
+
+`--case delivery-evidence/terminal` uses the same explicit-review acceptance
+route for Pygardon's terminal result. The selected story comes from `cdc136edf`,
+the narrowed plan from `cffbd3264`, and the precomputed summary fields and six
+observed labels from `fe322751e`. This is a deterministic record-producing
+boundary, not a rerun of the engine or research ledger. The focused check
+mirrors the historical dynamic JSON/prose label comparison, with no fixed
+label-count rejection. `tests/delivery-evidence-terminal.sh` exercises the
+narrowed output and a corrected control preserving both arms and all numbers.
+The native request names only source, plan and return; inspect the retained
+command results, actual labels and acceptance/obligation state yourself.
+Both original-story fixtures prepend their historical seed's actual H1 to the
+verbatim selected story, so the installed obligation parser can resolve a
+story home. The terminal cheap check exercises a real source quote through the
+installed list/check commands; an empty listing would bypass that resolution.
+
+`--case delivery-evidence/release` uses the selected story at `906631e26` and
+status projection at `403d1fb1b`. Independent record facts exercise stage times,
+latest measured capacity, healthy readiness and helper failure after coordinator
+exit. The current-stage fact uses correction 361's later record contract; no
+historical writer, Docker journey or supervision is rerun. The cheap release
+check compares actual output with `9fffcee62`'s corrected projection, keeping
+the parent's outcome null while exposing the helper's failure.
+Terminal also has `corrected` and `amended-corrected` scenarios through the shared
+scenario entry point. The latter's synthetic human amendment changes only the
+verdict qualifier's display owner; cheap controls do not establish native acceptance.
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

@@ -16,7 +16,9 @@ source "${delivery_evidence_support_dir}/native-observation.sh"
 source "${delivery_evidence_support_dir}/delivery-evidence-native-evidence.sh"
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-native-prompt.sh"
-for delivery_evidence_case in selection claims consumers gaps aggregate nostore deferred; do
+for delivery_evidence_content in "${delivery_evidence_support_dir}"/delivery-evidence-*-native-scenario-content.sh; do
+  delivery_evidence_case=${delivery_evidence_content##*/delivery-evidence-}
+  delivery_evidence_case=${delivery_evidence_case%-native-scenario-content.sh}
   for delivery_evidence_part in scenario-content observe assess; do
     # shellcheck disable=SC1090,SC1091
     source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
@@ -32,7 +34,6 @@ source "${delivery_evidence_support_dir}/delivery-evidence-deferred-native-check
 
 delivery_evidence_root=
 delivery_evidence_workspace=
-delivery_evidence_scenario=
 delivery_evidence_scenarios=
 delivery_evidence_pass_basis=
 
@@ -66,6 +67,10 @@ delivery_evidence_case_profile() {
     gaps)
       delivery_evidence_scenarios='repair-and-proceed unavailable-proof sufficient-reused'
       delivery_evidence_pass_basis='observable required-gap handling'
+      ;;
+    original | terminal | release)
+      delivery_evidence_scenarios='narrowed'
+      delivery_evidence_pass_basis='explicit review of original-story acceptance'
       ;;
     *) return 2 ;;
   esac
@@ -107,7 +112,6 @@ delivery_evidence_create_fixture() {
   mkdir -p -- "${workspace}"
   delivery_evidence_root=${root}
   delivery_evidence_workspace=${workspace}
-  delivery_evidence_scenario=${scenario}
 
   git init -b main "${workspace}" > /dev/null
   "delivery_evidence_${case_name}_populate_fixture" "${workspace}" "${scenario}"
@@ -201,7 +205,7 @@ delivery_evidence_run_scenario() {
       "${transcript}" "${output_file}" "${native_stderr}" \
       "${observations_file}" "delivery-evidence-${case_name}"
     if delivery_evidence_requires_review "${case_name}"; then
-      delivery_evidence_retain_review_artifacts
+      delivery_evidence_retain_review_artifacts "${case_name}"
     fi
     # Keep the agent-written outcome (and selection log) that observations
     # were derived from, so a verdict stays diagnosable after cleanup.

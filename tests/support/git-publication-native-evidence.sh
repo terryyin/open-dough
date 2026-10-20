@@ -120,8 +120,8 @@ git_publication_write_evidence_identity() {
     story-branch-closure)
       story_closure_write_evidence_identity
       ;;
-    delivery-evidence-selection | delivery-evidence-claims | \
-      delivery-evidence-consumers | delivery-evidence-gaps | delivery-evidence-aggregate | delivery-evidence-nostore | delivery-evidence-deferred)
+    delivery-evidence-*)
+      delivery_evidence_case_known "${1#delivery-evidence-}" || return 2
       delivery_evidence_write_evidence_identity "${1#delivery-evidence-}"
       ;;
     *) return 2 ;;

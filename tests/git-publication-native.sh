@@ -71,6 +71,9 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/nostore
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/aggregate
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/gaps
+   or: tests/git-publication-native.sh --native HOST --case delivery-evidence/original
+   or: tests/git-publication-native.sh --native HOST --case delivery-evidence/terminal
+   or: tests/git-publication-native.sh --native HOST --case delivery-evidence/release
    or: … --results-dir DIR  (with --native; retains inspectable observations)
 Credential-free default exercises the publication assessor and substitute
 runner. --native HOST requires that host's CLI and runs the host's assigned

@@ -2,10 +2,15 @@
 # Evidence identity and retained review artifacts for delivery-evidence journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# Profile lookup is read-only here; dispatch must not replace an active profile.
+delivery_evidence_case_known() (
+  delivery_evidence_case_profile "$1"
+)
+
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
   case $1 in
-    aggregate | nostore | deferred) return 0 ;;
+    aggregate | nostore | deferred | original | terminal | release) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -61,9 +66,73 @@ delivery_evidence_write_evidence_identity() {
     native_result_input_hash_lines \
       src/skills/dough-story-refinement/references/executable-proof.md
   fi
+  if [[ ${case_name} == original ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/readiness-original-story.md \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+  if [[ ${case_name} == terminal ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/terminal-original-story.md \
+      tests/fixtures/delivery-evidence/terminal-narrowed-plan.md \
+      tests/fixtures/delivery-evidence/terminal-implementation-return.md \
+      tests/fixtures/delivery-evidence/terminal-precomputed.json \
+      tests/fixtures/delivery-evidence/terminal-human-amendment.md \
+      tests/support/delivery-evidence-original-native-assess.sh \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+  if [[ ${case_name} == release ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/release-original-story.md \
+      tests/fixtures/delivery-evidence/release-narrowed-plan.md \
+      tests/fixtures/delivery-evidence/release-implementation-return.md \
+      tests/fixtures/delivery-evidence/release-status-projection.py \
+      tests/fixtures/delivery-evidence/release-corrected-status-projection.py \
+      tests/support/delivery-evidence-original-native-assess.sh \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+}
+
+# Original-source acceptance retains actual product/proof state for a human
+# review. Each product supplies its observer and focused proof command.
+delivery_evidence_observe_source_acceptance() {
+  local scenario=$1 workspace=$2 response=$3 transcript=$4 product_observer=$5
+  shift 5
+  local evidence_root product_status=0 proof_status=0
+  evidence_root=$(dirname -- "${transcript}")
+  native_host_stream "${native_case_host}" "${transcript}" calls \
+    > "${evidence_root}/command-results.jsonl"
+  native_host_stream "${native_case_host}" "${transcript}" reads \
+    > "${evidence_root}/file-reads.jsonl"
+  git -C "${workspace}" diff > "${evidence_root}/final-product.diff"
+  "${product_observer}" "${workspace}" \
+    > "${evidence_root}/product-observation.json" \
+    2> "${evidence_root}/product-observation.stderr" || product_status=$?
+  (cd -- "${workspace}" && "$@") \
+    > "${evidence_root}/final-proof.txt" 2>&1 || proof_status=$?
+  printf 'scenario: %s\n' "${scenario}"
+  printf 'judgment: review-required\n'
+  printf 'product-observation-status: %s\n' "${product_status}"
+  printf 'focused-proof-status: %s\n' "${proof_status}"
+  printf 'review-complete: false\n'
+  printf 'harness-inspected: %s\n' "$(native_harness_inspected 'tests/support/delivery-evidence-.*-native|native harness source' "${transcript}" "${response}")"
+}
+
+delivery_evidence_retain_source_acceptance() {
+  local file
+  for file in product-observation.json product-observation.stderr final-proof.txt; do
+    native_result_copy_if_present "${delivery_evidence_root}/${file}" "${file}"
+  done
+  cp -R -- "${delivery_evidence_root}/original-inputs" "${native_result_attempt_dir}/"
+  mkdir -p -- "${native_result_attempt_dir}/final-product"
+  cp -R -- "${delivery_evidence_workspace}/.planning" "${native_result_attempt_dir}/final-product/"
+  for file in "$@"; do
+    cp -R -- "${delivery_evidence_workspace}/${file}" "${native_result_attempt_dir}/final-product/"
+  done
 }
 
 delivery_evidence_retain_review_artifacts() {
+  local retain="delivery_evidence_${1}_retain_review_artifacts"
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/status-proof.md" status-proof.md
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/producer-proof.md" producer-proof.md
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/implementation-return.md" implementation-return.md
@@ -72,6 +141,10 @@ delivery_evidence_retain_review_artifacts() {
   native_result_copy_if_present "${delivery_evidence_root}/command-results.jsonl" command-results.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/file-reads.jsonl" file-reads.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/final-product.diff" final-product.diff
+  if declare -F "${retain}" > /dev/null; then
+    "${retain}"
+    return
+  fi
   mkdir -p -- "${native_result_attempt_dir}/final-product"
   cp -R -- "${delivery_evidence_workspace}/lib" "${delivery_evidence_workspace}/tests" "${delivery_evidence_workspace}/e2e" "${native_result_attempt_dir}/final-product/"
 }
