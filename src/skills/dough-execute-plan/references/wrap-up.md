@@ -39,12 +39,12 @@ amendment. Preserve legitimate remaining owners, exclusions and human
 changes; resolve disputes through [human judgment](execution-decisions.md#stop-for-human-judgment),
 stopping only dependent acceptance. Use existing records, not a second promise registry.
 
-Use the return as a location index, never the promise list or accepted evidence.
-Inspect product, setup and observing assertions/signals at each applicable boundary.
-Setup supplies preconditions; product and observation establish the outcome.
-Passing commands, test names, `proof:` summaries, coverage claims or setup supplying
-the outcome do not prove it. Untested or out-of-scope claims remain incomplete;
-they neither verify nor invent a source promise.
+If a delegated call was interrupted, or its return arrived only after interruption, follow
+[interrupted-delegation recovery](delegation.md#recover-an-interrupted-delegated-result) before accepting anything from it.
+Use the return as a location index, never the promise list or accepted evidence. Inspect product, setup and observing
+assertions/signals at each applicable boundary. Setup supplies preconditions; product and observation establish
+the outcome. Passing commands, test names, `proof:` summaries, coverage claims or setup supplying the outcome
+do not prove it. Untested or out-of-scope claims remain incomplete; they neither verify nor invent a source promise.
 
 For filtered proof, compare actually selected tests/observations with the claimed promises.
 A zero-exit command that selected nothing, or that selected fewer observations
