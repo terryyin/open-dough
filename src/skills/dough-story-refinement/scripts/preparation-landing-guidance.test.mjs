@@ -1,8 +1,8 @@
 // Preparation landing guidance: a queued story's completed preparation lands
 // through disposition's keep sequence at the journey's end unless an open
 // coordinator question or an opt-out remains; the recorded assessment does not
-// gate it; the session reports once, with the dashboard completion report
-// last; and slice planning and plan refinement link to that one policy.
+// gate it; and slice planning and plan refinement link to that one policy. The
+// session's finish is pinned in preparation-finish-guidance.test.mjs.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -55,11 +55,11 @@ test("completed preparation with no question or opt-out lands as one snapshot th
   );
 });
 
-test("plan refinement inside planning adds no approval step or second report", () => {
+test("plan refinement inside planning adds no approval step or report", () => {
   assert.match(end, /with any slice-plan refinement it invoked/);
   assert.match(
     end,
-    /adds nothing before landing: no approval step and no second report/,
+    /adds nothing before landing: no approval step or report of its own/,
   );
 });
 
@@ -68,6 +68,10 @@ test("the recorded assessment does not gate landing", () => {
   assert.match(
     end,
     /A `ready` or `not-ready` plan whose reasons, early probe slices, or pre-Take decisions the plan already names is a complete result/,
+  );
+  assert.match(
+    end,
+    /Reasons bounded by the plan's authorized early probe slices need no response now: they stay in the plan and the story's record\./,
   );
 });
 
@@ -178,34 +182,6 @@ test("landing leaves the story queued and grants no execution authority", () => 
     /neither Takes it, starts execution, nor completes it, and grants no execution authority/,
   );
   assert.match(end, /The story stays queued with the recorder's facts/);
-});
-
-test("the one final report carries the landing result, and the dashboard completion report runs last", () => {
-  const report = section(journey, "## Report once at the end");
-  assert.match(report, /final report is slice planning's report/);
-  assert.match(
-    report,
-    /or the plan refinement's when that skill was invoked directly, given once after the landing settles/,
-  );
-  assert.match(report, /refinement outcome/);
-  assert.match(report, /plan path/);
-  assert.match(report, /recorded readiness assessment/);
-  assert.match(
-    report,
-    /the landing result: the landed commit, the story's next step, and Dough Land's publication, refresh, and retirement results/,
-  );
-  assert.match(
-    report,
-    /For a retained or stopped result it carries the draft's workspace, the Preparing assignment others still see, and the expected response, which for a result the opt-out retained is an explicit keep\./,
-  );
-  assert.match(
-    report,
-    /With supplied dashboard reporting context, the completion report under \[dashboard completion\]\(\.\.\/\.\.\/dough-land\/references\/dashboard-completion\.md\) is the session's final operation, after the landing settles/,
-  );
-  assert.match(
-    report,
-    /A retained or stopped result reports `unfinished` with the expected response/,
-  );
 });
 
 test("slice planning and plan refinement end by linking to the journey's end, and no preparation skill carries disposition text", () => {

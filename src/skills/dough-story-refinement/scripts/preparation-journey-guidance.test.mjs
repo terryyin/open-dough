@@ -1,7 +1,9 @@
 // Preparation journey guidance: a ready refinement continues into slice
-// planning in the same workspace, branch, session, and assignment; an open
-// coordinator question or an explicit refine-only instruction stops it. The
-// journey's end is pinned in preparation-landing-guidance.test.mjs.
+// planning in the same workspace, branch, session, and assignment, with no
+// intermediate report; an open coordinator question or an explicit refine-only
+// instruction stops it. The journey's end is pinned in
+// preparation-landing-guidance.test.mjs and its finish in
+// preparation-finish-guidance.test.mjs.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -21,7 +23,7 @@ const journey = read("references/preparation-journey.md");
 const journeyLink = /\(references\/preparation-journey\.md\)/;
 
 test("refinement's workflow sends a ready story into slice planning", () => {
-  const report = section(skillText, "## Refine and report");
+  const report = section(skillText, "## Refine and continue");
   assert.match(report, journeyLink);
   assert.match(report, /continue a ready story into slice planning/);
   assert.match(
@@ -43,15 +45,20 @@ test("a refinement invocation authorizes planning and landing, never execution",
 test("the journey continues both ready outcomes for the story the invocation names", () => {
   const next = section(journey, "## Continue into slice planning");
   assert.match(next, /no question to the coordinator remains/);
-  assert.match(next, /report the story's refinement outcome/);
+  assert.match(
+    next,
+    /no question to the coordinator remains, invoke \[dough-slice-planning\]/,
+  );
+  assert.doesNotMatch(next, /\breport|announce|recap/i);
   assert.match(next, /in the same session/);
+  assert.match(next, /\(\.\.\/SKILL\.md#judge-the-refinement-outcome\)/);
   assert.match(next, /\(\.\.\/\.\.\/dough-slice-planning\/SKILL\.md\)/);
   assert.match(next, /Both ready outcomes continue/);
   assert.match(next, /Ready for slice planning and Flawless/);
   assert.match(next, /one-slice plan/);
   assert.match(next, /explicit skip-planning instruction/);
   assert.match(next, /the story the invocation names/);
-  assert.match(next, /sibling[\s\S]+its own refinement outcome/);
+  assert.match(next, /sibling[\s\S]+ends at its own refinement result/);
 });
 
 test("planning continues the same workspace, branch, session, and assignment", () => {
@@ -79,7 +86,10 @@ test("an open coordinator question or a refine-only instruction stops before pla
   assert.match(stops, /\(refinement-options\.json\)/);
   assert.match(stops, /ordinary-language instruction/);
   assert.match(stops, /composes with every option and focus/);
-  assert.match(stops, /slice planning in that workspace as the next step/);
+  assert.match(
+    stops,
+    /end with where the refined story waits and slice planning in that workspace as the next step/,
+  );
   assert.match(stops, /\(one-shot-refinement\.md\)/);
 });
 
@@ -94,7 +104,7 @@ test("the options file defines refine-only once among the options", () => {
   assert.match(refineOnly.summary, /leave slice planning for a later step/);
   assert.match(
     refineOnly.instruction,
-    /slice planning in that workspace as the next step/,
+    /End with where the refined story waits and slice planning in that workspace as the next step/,
   );
   assert.match(
     definition.selection,
@@ -129,14 +139,59 @@ test("the options file defines retain once as an ungrouped option after refine-o
   );
 });
 
-test("slice planning treats the continuation as a planning-only request whose report is the journey's one final report", () => {
-  const stay = section(
-    read("../dough-slice-planning/SKILL.md"),
-    "## Stay within the triggering instruction",
+test("slice planning keeps the continuation's facts in the plan and record and finishes under the journey's attention rule, while a parent still receives its return", () => {
+  const planning = read("../dough-slice-planning/SKILL.md");
+  const stay = section(planning, "## Stay within the triggering instruction");
+  assert.match(
+    stay,
+    /- Planning-only request, or a continuation from story refinement: do not implement and do not invoke execution\. The plan and the story's record hold the slices, exclusions, refinement decision, concerns, and assessment; the session finishes under the preparation journey's \[finish with only what needs a response\]\(\.\.\/dough-story-refinement\/references\/preparation-journey\.md#finish-with-only-what-needs-a-response\)\. - Parent-agent delegation/,
   );
   assert.match(
     stay,
-    /- Planning-only request, or a continuation from story refinement: do not implement and do not invoke execution\. The report carries the plan path[^:]+recorded readiness assessment, given under the preparation journey's \[report once at the end\]\(\.\.\/dough-story-refinement\/references\/preparation-journey\.md#report-once-at-the-end\)\. - Parent-agent delegation/,
+    /Parent-agent delegation that asks only for slice planning: return the plan path, the refinement decision and concerns, and the recorded readiness assessment to the parent/,
+  );
+  const record = section(
+    planning,
+    "## Record concern evidence and assess readiness",
+  );
+  assert.match(record, /none, the plan says so narrowly/);
+  assert.match(
+    record,
+    /A missing input, disputed constraint, or human-owned decision that refinement cannot resolve needs a response: report the expected response, who can give it when known, and what waits for it\./,
+  );
+  assert.match(record, /authorized early probe slice needs none/);
+  for (const text of [
+    planning,
+    read("../dough-slice-plan-refinement/SKILL.md"),
+  ]) {
+    assert.doesNotMatch(text, /SLICE PLAN (?:WRITTEN|REFINED)/);
+    assert.doesNotMatch(
+      text,
+      /no-concerns finding|reporting the plan|after reporting/,
+    );
+    assert.doesNotMatch(text, /\bReport the plan path/);
+  }
+});
+
+test("plan refinement records its reassessment, returns its facts to an invoking workflow, and reports only what needs a response", () => {
+  const planRefinement = read(
+    "../dough-slice-plan-refinement/SKILL.md",
+  ).replace(/\s+/g, " ");
+  assert.match(
+    planRefinement,
+    /Return the plan path, replaced slices, resulting slice count, sizing exceptions, any resplit recommendation, whether execution can resume, and the reassessment to an invoking workflow/,
+  );
+  assert.match(
+    planRefinement,
+    /A resplit recommendation, an Escalate finding, or another decision a person must make needs a response: report it with the expected response, who can give it when known, and what waits for it\./,
+  );
+  assert.match(
+    planRefinement,
+    /report `story resplit recommended: <count> slices; use dough-resplit-story`/,
+  );
+  assert.match(
+    planRefinement,
+    /A session that invoked this skill directly finishes under \[finish with only what needs a response\]\(\.\.\/dough-story-refinement\/references\/preparation-journey\.md#finish-with-only-what-needs-a-response\)/,
   );
 });
 

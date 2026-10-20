@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation ([plan](slice-plans/330-cursor-scope-terminal-refusal/PLAN.md))
-- [Finish the chained preparation journey silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-preparation-chain) — SEED-145#quiet-preparation-chain ([plan](slice-plans/332-quiet-preparation-chain/PLAN.md))
 
 ## Backlog list
 
