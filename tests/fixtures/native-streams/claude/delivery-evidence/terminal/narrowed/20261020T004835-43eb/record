@@ -1,0 +1,52 @@
+host: claude
+case: delivery-evidence/terminal/narrowed
+origin: fresh
+execution-status: completed
+execution-reason: native command exited 0
+assessment-status: fail
+assessment-reason: terminal observations retained; explicit review required
+native-executable: /Users/terryyin/.local/bin/claude
+native-version-command: claude --version
+native-version: 2.1.304 (Claude Code)
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: 02f53118f1da73de68c78485b559af130aa90b84
+fixture-tag: publication-native
+fixture-commit: 02f53118f1da73de68c78485b559af130aa90b84
+prompt-identity: a6a4efd63737104f6510e3e048352c22a5784e3a0722cf838f89f50cdb958fea
+helper-identity: tests/support/delivery-evidence-native-run.sh
+adapter-identity: claude-stream-json
+fixture-identity: tests/support/delivery-evidence-native-run.sh
+scenario-content-identity: tests/support/delivery-evidence-terminal-native-scenario-content.sh
+observe-identity: tests/support/delivery-evidence-terminal-native-observe.sh
+assessor-identity: tests/support/delivery-evidence-terminal-native-assess.sh
+input-hash: 786de5cc5e0ef1bdf67b18c2aea9f3d3a6fe443c5c87a6a8415d2f714081e766 tests/git-publication-native.sh
+input-hash: b4741d6764adb6178fd64b267c66ab03e06c677844f1b680628f60548c6fd926 tests/support/git-publication-native-host.sh
+input-hash: 801296542404a4ea706d9fdc0fe31bdca440cad797a73381ef2c67058b7eb8ad tests/support/delivery-evidence-native-run.sh
+input-hash: 18ffd1249de6018fb40bd1ccb0213059f8a54eeeeaa6b2bba4d243091535b06b tests/support/delivery-evidence-native-prompt.sh
+input-hash: 8a17ccb7b7aed45b8f41072028b1de96be09e074fe369b621d676e3a67a337e5 tests/support/delivery-evidence-native-evidence.sh
+input-hash: a409397ac125ae2475c26723df491c33b205e0b31c18c3a80c744a0caac3c146 tests/support/native-observation.sh
+input-hash: 18e1410c5c3efa554609cb84b756f604ae119dbed54463e0f68bd4051e665e2e tests/support/delivery-evidence-terminal-native-assess.sh
+input-hash: 7f274e83aac0467b9b77e7262855e6a1928a812dee92d73a49e5e5e0369d7852 tests/support/delivery-evidence-terminal-native-observe.sh
+input-hash: 49046ef673cbb62f7b4a47e60073d101087ddbd62736924fe5674929a98a0139 tests/support/delivery-evidence-terminal-native-scenario-content.sh
+input-hash: e7506a57fab20bfd7c1b2103a87f70d06212a121df0547c44e58636440d94f08 tests/support/git-publication-native-run.sh
+input-hash: 3d4f39bb5e1674dbbaabc559e859569ec0a9e66b7e0cbf4878d8fb29141490a1 tests/support/native-run-supervise.sh
+input-hash: df4be8a8b26fab523c3fcaf26c2886babfb8d1cace20cccc0c0d66ac2aaf480d tests/support/native-run-stream.sh
+input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+input-hash: 67fb420e6972d1b836a34c749ade72e4a5266419a60395597a3aff31cdb8bd00 tests/support/native-host-stream.mjs
+input-hash: e55493238d2ecef27fa82cf544feb5a4e6206c414effa7a419388166506a0353 tests/support/native-host-stream-adapters.mjs
+input-hash: 93ff8294ef14b954a9562f05fd997f36b369202688bdb1b4bdad6a2902ecae20 tests/support/native-run-watchdog.sh
+input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+input-hash: 8aa2e2bc5a3e0a82732632d819998abd8488fa16b0495ca6d1ccbf02c04eb70e src/skills/dough-execute-plan/references/wrap-up.md
+input-hash: b3b4e080d72990a4ee633c93b464c956e1c2b84d8b0c34235a13a2d5fc72ec7f src/skills/dough-execute-plan/references/delegation.md
+input-hash: 2090d7fa73b3e2fb2fae68683459282b39f92d0b29888c6eeebabf49dbf81211 src/skills/dough-story-refinement/references/executable-proof.md
+input-hash: 5b7652bc6b2276f86518e162e31904a54eadf72f35f74dfb796ffeade7b8460c tests/fixtures/delivery-evidence/terminal-original-story.md
+input-hash: bbcab7c03feac8b7266725183a5a19271f6785973c9b5924af23e15958cfcf11 tests/fixtures/delivery-evidence/terminal-narrowed-plan.md
+input-hash: c8869506265c7adb4e5f798de88ab14268d92da02504e2e196257381c2a74172 tests/fixtures/delivery-evidence/terminal-implementation-return.md
+input-hash: f45d09fcff5e9a2aaba86c55caff871585490bf799f503be794fbef41c408275 tests/fixtures/delivery-evidence/terminal-precomputed.json
+input-hash: cd3272188ffb12bc7cf6264cdbd6d005f85cbb36927013a1a148f78151e5e38d tests/support/delivery-evidence-original-native-assess.sh
+input-hash: 2d230de61ad6cd03fd70965a95e9ed379b73a7c237dc8face18debf3fb00df5c src/skills/dough-execute-plan/references/story-obligations.md
+artifact-events: events.jsonl
+artifact-response: response.md
+artifact-stderr: stderr.log
+artifact-observations: observations.txt

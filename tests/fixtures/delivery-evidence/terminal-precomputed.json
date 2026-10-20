@@ -1,0 +1,711 @@
+{
+  "input_hashes": {
+    "warehouse.duckdb": "d59f465beb8bc33b67a2f31e98430bb266ce5903ca8cde176acd405f4b33bec0",
+    "dataset.json": "f581cfa5e7299e469bc598abae3494bc6dd06ee962605a7da43047054bad69c8",
+    "reference.json": "996aa5e0d5adca29f9f481f126491d771edc667ea71648f96f8ae55931c388df",
+    "ablation.json": "f956c4df0f5e740869b75e603a5b76c63651aaa008a8d41551348e8d67a8c4fa",
+    "reference-projection.json": "6887a982dc224728a3c228ce61f2ac3818379d7777614130ebdb9f084b87d6bf",
+    "ablation-projection.json": "ad3a56e64b3ff8b460ed090dcab8fb676ea31c1a4ec06f8614961ef6073656e2"
+  },
+  "replacement_replay_sha256": "631606fed24016597bfebefb85a3afcf8cc212d5ce354d9111ece27c46ecd3e9",
+  "treatment_sha256": "0aca58a70f38af34b5292de102e3b3024affdd44036d04803982cc87666606bf",
+  "economics_sha256": "2d34c77998a7275995c42073bea8a1b15ee5f08b3c074495e29ad8a72767dbac",
+  "evaluator_revision": "d3f0546e2e3bf01a1c7041f4de12cdada6bc1b2b",
+  "pinned_tree": "b1b313f234b311b591a97c03ef79ec26c186166f",
+  "conventions": {
+    "identity": "Admission rows compare by (symbol, setup_day, fill_day); gained is admitted only in the released run, lost only in the baseline.",
+    "trade_match": "A changed row's trade is the run's trade with the row's symbol and entry_day equal to its fill_day: the released trade for gained, the baseline trade for lost.",
+    "windows": "A row with fill_day d falls in the window of every release whose recognition session is strictly before d: the release session's own admissions still see the holding, the next session's do not.",
+    "cascade": "Rows filled after an arm's first divergence fill day are cascades: earlier replacements may have changed their capacity as well as the releases.",
+    "effects": "Baseline is the recorded path, fixed is economics.json reconciled (fixed admissions), released is the replay; direct = fixed - baseline, capacity = released - fixed, total = released - baseline.",
+    "gate": "Ablation minus reference CAGR; original is the valuation record's zero row, negated.",
+    "window_2026": "20bps cost path restricted to sessions >= 2026-01-01, risk-free rate 0.0; drivers are changed rows whose trade exits in that window or stays open.",
+    "metric_units": "Returns/CAGR/drawdowns are fractions; Sharpe dimensionless."
+  },
+  "releases": [
+    { "symbol": "LNKD", "recognition_session": "2016-12-08" },
+    { "symbol": "CPN", "recognition_session": "2018-03-08" },
+    { "symbol": "IPHI", "recognition_session": "2021-04-20" },
+    { "symbol": "XEC", "recognition_session": "2021-10-01" }
+  ],
+  "counts": [
+    {
+      "arm": "reference",
+      "baseline_trades": 722,
+      "released_trades": 895,
+      "identities": 1761,
+      "gained": 197,
+      "lost": 24,
+      "only_baseline": 0,
+      "only_released": 0,
+      "unresolved": 0,
+      "open": 6,
+      "first_divergence": "2017-05-02",
+      "cascade": 220
+    },
+    {
+      "arm": "ablation",
+      "baseline_trades": 733,
+      "released_trades": 912,
+      "identities": 1761,
+      "gained": 205,
+      "lost": 26,
+      "only_baseline": 0,
+      "only_released": 0,
+      "unresolved": 0,
+      "open": 6,
+      "first_divergence": "2017-05-02",
+      "cascade": 230
+    }
+  ],
+  "effects": [
+    {
+      "arm": "reference",
+      "bps": 0,
+      "baseline": {
+        "total_return": 2.185364564710373,
+        "cagr": 0.11383993803783943,
+        "sharpe_ratio": 1.096474615260123,
+        "max_drawdown_pct": -0.12425005524335248,
+        "conditional_drawdown_pct": -0.11822275567509623
+      },
+      "fixed": {
+        "total_return": 2.200540185422695,
+        "cagr": 0.11433268681205355,
+        "sharpe_ratio": 1.1004170734522598,
+        "max_drawdown_pct": -0.12425005524335316,
+        "conditional_drawdown_pct": -0.11822275567509649
+      },
+      "released": {
+        "total_return": 3.775116733425129,
+        "cagr": 0.15660382874941003,
+        "sharpe_ratio": 1.222822640815004,
+        "max_drawdown_pct": -0.19307353707038447,
+        "conditional_drawdown_pct": -0.15170938918437854
+      },
+      "direct": {
+        "total_return": 0.015175620712322146,
+        "cagr": 0.0004927487742141246,
+        "sharpe_ratio": 0.0039424581921367885,
+        "max_drawdown_pct": -6.800116025829084e-16,
+        "conditional_drawdown_pct": -2.636779683484747e-16
+      },
+      "capacity": {
+        "total_return": 1.574576548002434,
+        "cagr": 0.04227114193735648,
+        "sharpe_ratio": 0.12240556736274422,
+        "max_drawdown_pct": -0.06882348182703131,
+        "conditional_drawdown_pct": -0.03348663350928205
+      },
+      "total": {
+        "total_return": 1.5897521687147562,
+        "cagr": 0.04276389071157061,
+        "sharpe_ratio": 0.126348025554881,
+        "max_drawdown_pct": -0.06882348182703199,
+        "conditional_drawdown_pct": -0.03348663350928231
+      }
+    },
+    {
+      "arm": "reference",
+      "bps": 5,
+      "baseline": {
+        "total_return": 1.9662967423282751,
+        "cagr": 0.10647896028623527,
+        "sharpe_ratio": 1.0318352962493162,
+        "max_drawdown_pct": -0.12885280287094686,
+        "conditional_drawdown_pct": -0.12132733491356511
+      },
+      "fixed": {
+        "total_return": 1.980182877718351,
+        "cagr": 0.10695995650838297,
+        "sharpe_ratio": 1.0357291854072206,
+        "max_drawdown_pct": -0.1288528028709464,
+        "conditional_drawdown_pct": -0.12132733491356472
+      },
+      "released": {
+        "total_return": 3.37107662508253,
+        "cagr": 0.1471273263980435,
+        "sharpe_ratio": 1.1570732724980586,
+        "max_drawdown_pct": -0.1990048677594529,
+        "conditional_drawdown_pct": -0.1567859232959956
+      },
+      "direct": {
+        "total_return": 0.013886135390075882,
+        "cagr": 0.00048099622214770044,
+        "sharpe_ratio": 0.00389388915790434,
+        "max_drawdown_pct": 4.718447854656915e-16,
+        "conditional_drawdown_pct": 3.885780586188048e-16
+      },
+      "capacity": {
+        "total_return": 1.3908937473641791,
+        "cagr": 0.04016736988966052,
+        "sharpe_ratio": 0.121344087090838,
+        "max_drawdown_pct": -0.0701520648885065,
+        "conditional_drawdown_pct": -0.03545858838243089
+      },
+      "total": {
+        "total_return": 1.404779882754255,
+        "cagr": 0.04064836611180822,
+        "sharpe_ratio": 0.12523797624874233,
+        "max_drawdown_pct": -0.07015206488850603,
+        "conditional_drawdown_pct": -0.0354585883824305
+      }
+    },
+    {
+      "arm": "reference",
+      "bps": 10,
+      "baseline": {
+        "total_return": 1.762375100463224,
+        "cagr": 0.09916959754886867,
+        "sharpe_ratio": 0.9672345529824858,
+        "max_drawdown_pct": -0.13342958225455792,
+        "conditional_drawdown_pct": -0.12445526775159145
+      },
+      "fixed": {
+        "total_return": 1.77507771528624,
+        "cagr": 0.09963897600084426,
+        "sharpe_ratio": 0.971079048173238,
+        "max_drawdown_pct": -0.13342958225455775,
+        "conditional_drawdown_pct": -0.12445526775159162
+      },
+      "released": {
+        "total_return": 3.0013638448226514,
+        "cagr": 0.13773217350818956,
+        "sharpe_ratio": 1.0913282762013516,
+        "max_drawdown_pct": -0.20489042719067627,
+        "conditional_drawdown_pct": -0.16204912271672955
+      },
+      "direct": {
+        "total_return": 0.012702614823016045,
+        "cagr": 0.00046937845197558836,
+        "sharpe_ratio": 0.0038444951907521396,
+        "max_drawdown_pct": 1.6653345369377348e-16,
+        "conditional_drawdown_pct": -1.6653345369377348e-16
+      },
+      "capacity": {
+        "total_return": 1.2262861295364114,
+        "cagr": 0.0380931975073453,
+        "sharpe_ratio": 0.12024922802811366,
+        "max_drawdown_pct": -0.07146084493611851,
+        "conditional_drawdown_pct": -0.03759385496513794
+      },
+      "total": {
+        "total_return": 1.2389887443594274,
+        "cagr": 0.03856257595932089,
+        "sharpe_ratio": 0.1240937232188658,
+        "max_drawdown_pct": -0.07146084493611835,
+        "conditional_drawdown_pct": -0.037593854965138104
+      }
+    },
+    {
+      "arm": "reference",
+      "bps": 20,
+      "baseline": {
+        "total_return": 1.3958327737609766,
+        "cagr": 0.08470418069342744,
+        "sharpe_ratio": 0.8381834770414761,
+        "max_drawdown_pct": -0.14250586653893615,
+        "conditional_drawdown_pct": -0.1312521547760095
+      },
+      "fixed": {
+        "total_return": 1.4064528324704413,
+        "cagr": 0.08515072258608236,
+        "sharpe_ratio": 0.8419267169647361,
+        "max_drawdown_pct": -0.14250586653893713,
+        "conditional_drawdown_pct": -0.13125215477601032
+      },
+      "released": {
+        "total_return": 2.353457356485873,
+        "cagr": 0.11918299137153499,
+        "sharpe_ratio": 0.959883404215902,
+        "max_drawdown_pct": -0.21652571571227425,
+        "conditional_drawdown_pct": -0.17448504990936162
+      },
+      "direct": {
+        "total_return": 0.010620058709464697,
+        "cagr": 0.00044654189265491695,
+        "sharpe_ratio": 0.003743239923259978,
+        "max_drawdown_pct": -9.71445146547012e-16,
+        "conditional_drawdown_pct": -8.326672684688674e-16
+      },
+      "capacity": {
+        "total_return": 0.9470045240154317,
+        "cagr": 0.034032268785452624,
+        "sharpe_ratio": 0.11795668725116593,
+        "max_drawdown_pct": -0.07401984917333712,
+        "conditional_drawdown_pct": -0.043232895133351296
+      },
+      "total": {
+        "total_return": 0.9576245827248964,
+        "cagr": 0.03447881067810754,
+        "sharpe_ratio": 0.1216999271744259,
+        "max_drawdown_pct": -0.07401984917333809,
+        "conditional_drawdown_pct": -0.04323289513335213
+      }
+    },
+    {
+      "arm": "reference",
+      "bps": 40,
+      "baseline": {
+        "total_return": 0.8028293403174465,
+        "cagr": 0.05637599608397692,
+        "sharpe_ratio": 0.5809222720437984,
+        "max_drawdown_pct": -0.1840125204593699,
+        "conditional_drawdown_pct": -0.16574071422141962
+      },
+      "fixed": {
+        "total_return": 0.8102233262799845,
+        "cagr": 0.05677842395013233,
+        "sharpe_ratio": 0.5844532195396014,
+        "max_drawdown_pct": -0.18401252045937044,
+        "conditional_drawdown_pct": -0.16574071422141978
+      },
+      "released": {
+        "total_return": 1.3563706462613774,
+        "cagr": 0.08302903308451937,
+        "sharpe_ratio": 0.6973964413623895,
+        "max_drawdown_pct": -0.24012602162099683,
+        "conditional_drawdown_pct": -0.20609113029534928
+      },
+      "direct": {
+        "total_return": 0.007393985962538041,
+        "cagr": 0.00040242786615540815,
+        "sharpe_ratio": 0.0035309474958029607,
+        "max_drawdown_pct": -5.551115123125783e-16,
+        "conditional_drawdown_pct": -1.6653345369377348e-16
+      },
+      "capacity": {
+        "total_return": 0.5461473199813929,
+        "cagr": 0.026250609134387037,
+        "sharpe_ratio": 0.11294322182278815,
+        "max_drawdown_pct": -0.05611350116162639,
+        "conditional_drawdown_pct": -0.0403504160739295
+      },
+      "total": {
+        "total_return": 0.5535413059439309,
+        "cagr": 0.026653037000542446,
+        "sharpe_ratio": 0.11647416931859111,
+        "max_drawdown_pct": -0.056113501161626944,
+        "conditional_drawdown_pct": -0.04035041607392967
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 0,
+      "baseline": {
+        "total_return": 2.145036889173486,
+        "cagr": 0.112520086635445,
+        "sharpe_ratio": 1.0857548521926301,
+        "max_drawdown_pct": -0.10514865653320116,
+        "conditional_drawdown_pct": -0.10045439715451422
+      },
+      "fixed": {
+        "total_return": 2.160036951261974,
+        "cagr": 0.113012794605867,
+        "sharpe_ratio": 1.0897547796887395,
+        "max_drawdown_pct": -0.10514865653320124,
+        "conditional_drawdown_pct": -0.1004543971545142
+      },
+      "released": {
+        "total_return": 3.574017880817249,
+        "cagr": 0.15198212056195537,
+        "sharpe_ratio": 1.2139554340007266,
+        "max_drawdown_pct": -0.1710901541324161,
+        "conditional_drawdown_pct": -0.13140308680426854
+      },
+      "direct": {
+        "total_return": 0.015000062088487809,
+        "cagr": 0.0004927079704220017,
+        "sharpe_ratio": 0.0039999274961093345,
+        "max_drawdown_pct": -8.326672684688674e-17,
+        "conditional_drawdown_pct": 2.7755575615628914e-17
+      },
+      "capacity": {
+        "total_return": 1.413980929555275,
+        "cagr": 0.038969325956088374,
+        "sharpe_ratio": 0.12420065431198712,
+        "max_drawdown_pct": -0.06594149759921486,
+        "conditional_drawdown_pct": -0.03094868964975435
+      },
+      "total": {
+        "total_return": 1.4289809916437628,
+        "cagr": 0.039462033926510376,
+        "sharpe_ratio": 0.12820058180809646,
+        "max_drawdown_pct": -0.06594149759921494,
+        "conditional_drawdown_pct": -0.03094868964975432
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 5,
+      "baseline": {
+        "total_return": 1.9255645382393465,
+        "cagr": 0.10505617953093749,
+        "sharpe_ratio": 1.0201318185213997,
+        "max_drawdown_pct": -0.1079637521400328,
+        "conditional_drawdown_pct": -0.10368033518504889
+      },
+      "fixed": {
+        "total_return": 1.9392752034042946,
+        "cagr": 0.10553708961512243,
+        "sharpe_ratio": 1.0240798563397062,
+        "max_drawdown_pct": -0.10796375214003269,
+        "conditional_drawdown_pct": -0.1036803351850487
+      },
+      "released": {
+        "total_return": 3.1798561270889376,
+        "cagr": 0.14236210305709962,
+        "sharpe_ratio": 1.145402793584644,
+        "max_drawdown_pct": -0.17718420834528414,
+        "conditional_drawdown_pct": -0.14021627952551285
+      },
+      "direct": {
+        "total_return": 0.013710665164948121,
+        "cagr": 0.00048091008418493786,
+        "sharpe_ratio": 0.003948037818306549,
+        "max_drawdown_pct": 1.1102230246251565e-16,
+        "conditional_drawdown_pct": 1.942890293094024e-16
+      },
+      "capacity": {
+        "total_return": 1.240580923684643,
+        "cagr": 0.036825013441977195,
+        "sharpe_ratio": 0.12132293724493781,
+        "max_drawdown_pct": -0.06922045620525145,
+        "conditional_drawdown_pct": -0.03653594434046416
+      },
+      "total": {
+        "total_return": 1.2542915888495911,
+        "cagr": 0.03730592352616213,
+        "sharpe_ratio": 0.12527097506324436,
+        "max_drawdown_pct": -0.06922045620525134,
+        "conditional_drawdown_pct": -0.03653594434046396
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 10,
+      "baseline": {
+        "total_return": 1.7214881950827974,
+        "cagr": 0.097645365959379,
+        "sharpe_ratio": 0.9545432741520297,
+        "max_drawdown_pct": -0.11752320576431897,
+        "conditional_drawdown_pct": -0.10719748254961504
+      },
+      "fixed": {
+        "total_return": 1.7340167533225093,
+        "cagr": 0.09811461527226206,
+        "sharpe_ratio": 0.9584386708487915,
+        "max_drawdown_pct": -0.11752320576431934,
+        "conditional_drawdown_pct": -0.10719748254961549
+      },
+      "released": {
+        "total_return": 2.819797287927318,
+        "cagr": 0.13282618491595444,
+        "sharpe_ratio": 1.0768678876520779,
+        "max_drawdown_pct": -0.18323121988840482,
+        "conditional_drawdown_pct": -0.1490970371833251
+      },
+      "direct": {
+        "total_return": 0.012528558239711884,
+        "cagr": 0.0004692493128830577,
+        "sharpe_ratio": 0.003895396696761866,
+        "max_drawdown_pct": -3.608224830031759e-16,
+        "conditional_drawdown_pct": -4.440892098500626e-16
+      },
+      "capacity": {
+        "total_return": 1.0857805346048086,
+        "cagr": 0.034711569643692375,
+        "sharpe_ratio": 0.11842921680328633,
+        "max_drawdown_pct": -0.06570801412408549,
+        "conditional_drawdown_pct": -0.041899554633709604
+      },
+      "total": {
+        "total_return": 1.0983090928445205,
+        "cagr": 0.03518081895657543,
+        "sharpe_ratio": 0.1223246135000482,
+        "max_drawdown_pct": -0.06570801412408585,
+        "conditional_drawdown_pct": -0.04189955463371005
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 20,
+      "baseline": {
+        "total_return": 1.3552576136353234,
+        "cagr": 0.08298141747880039,
+        "sharpe_ratio": 0.8235047259424599,
+        "max_drawdown_pct": -0.14137257263964972,
+        "conditional_drawdown_pct": -0.12104410977162473
+      },
+      "fixed": {
+        "total_return": 1.365709567332762,
+        "cagr": 0.08342775106155575,
+        "sharpe_ratio": 0.8272925957117258,
+        "max_drawdown_pct": -0.14137257263964936,
+        "conditional_drawdown_pct": -0.12104410977162446
+      },
+      "released": {
+        "total_return": 2.190396843091291,
+        "cagr": 0.11400357041989428,
+        "sharpe_ratio": 0.9398859797744735,
+        "max_drawdown_pct": -0.19518564027378174,
+        "conditional_drawdown_pct": -0.16676471248874553
+      },
+      "direct": {
+        "total_return": 0.010451953697438565,
+        "cagr": 0.00044633358275536494,
+        "sharpe_ratio": 0.003787869769265817,
+        "max_drawdown_pct": 3.608224830031759e-16,
+        "conditional_drawdown_pct": 2.7755575615628914e-16
+      },
+      "capacity": {
+        "total_return": 0.8246872757585288,
+        "cagr": 0.03057581935833853,
+        "sharpe_ratio": 0.11259338406274777,
+        "max_drawdown_pct": -0.05381306763413238,
+        "conditional_drawdown_pct": -0.04572060271712107
+      },
+      "total": {
+        "total_return": 0.8351392294559674,
+        "cagr": 0.031022152941093895,
+        "sharpe_ratio": 0.11638125383201359,
+        "max_drawdown_pct": -0.05381306763413202,
+        "conditional_drawdown_pct": -0.04572060271712079
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 40,
+      "baseline": {
+        "total_return": 0.7646373266246271,
+        "cagr": 0.05427320067686914,
+        "sharpe_ratio": 0.5622240219928439,
+        "max_drawdown_pct": -0.19568546155122882,
+        "conditional_drawdown_pct": -0.16982332425625188
+      },
+      "fixed": {
+        "total_return": 0.7718829901943876,
+        "cagr": 0.05467528807589539,
+        "sharpe_ratio": 0.565787958010992,
+        "max_drawdown_pct": -0.19568546155122965,
+        "conditional_drawdown_pct": -0.16982332425625263
+      },
+      "released": {
+        "total_return": 1.2265811031813176,
+        "cagr": 0.07733410561162302,
+        "sharpe_ratio": 0.6665142306586198,
+        "max_drawdown_pct": -0.22579646587997226,
+        "conditional_drawdown_pct": -0.20260877339021366
+      },
+      "direct": {
+        "total_return": 0.007245663569760419,
+        "cagr": 0.0004020873990262519,
+        "sharpe_ratio": 0.003563936018148084,
+        "max_drawdown_pct": -8.326672684688674e-16,
+        "conditional_drawdown_pct": -7.494005416219807e-16
+      },
+      "capacity": {
+        "total_return": 0.4546981129869301,
+        "cagr": 0.022658817535727627,
+        "sharpe_ratio": 0.10072627264762779,
+        "max_drawdown_pct": -0.030111004328742613,
+        "conditional_drawdown_pct": -0.03278544913396103
+      },
+      "total": {
+        "total_return": 0.4619437765566905,
+        "cagr": 0.02306090493475388,
+        "sharpe_ratio": 0.10429020866577587,
+        "max_drawdown_pct": -0.030111004328743446,
+        "conditional_drawdown_pct": -0.03278544913396178
+      }
+    }
+  ],
+  "gate": [
+    {
+      "bps": 0,
+      "original": -0.001319851402394434,
+      "baseline": -0.001319851402394434,
+      "fixed": -0.001319892206186557,
+      "released": -0.004621708187454665
+    },
+    {
+      "bps": 5,
+      "original": -0.0014227807552977811,
+      "baseline": -0.0014227807552977811,
+      "fixed": -0.0014228668932605437,
+      "released": -0.004765223340943869
+    },
+    {
+      "bps": 10,
+      "original": -0.0015242315894896663,
+      "baseline": -0.0015242315894896663,
+      "fixed": -0.001524360728582197,
+      "released": -0.004905988592235122
+    },
+    {
+      "bps": 20,
+      "original": -0.0017227632146270544,
+      "baseline": -0.0017227632146270544,
+      "fixed": -0.0017229715245266064,
+      "released": -0.005179420951640701
+    },
+    {
+      "bps": 40,
+      "original": -0.0021027954071077826,
+      "baseline": -0.0021027954071077826,
+      "fixed": -0.002103135874236939,
+      "released": -0.0056949274728963495
+    }
+  ],
+  "window_2026": [
+    {
+      "arm": "reference",
+      "bps": 20,
+      "start": "2026-01-01",
+      "sessions": 194,
+      "baseline": {
+        "total_return": 0.04960967587175502,
+        "cagr": 0.06491389837633821,
+        "sharpe_ratio": 0.5456670976719109,
+        "max_drawdown_pct": -0.05699974828955549,
+        "conditional_drawdown_pct": -0.051640043004481384
+      },
+      "released": {
+        "total_return": 0.2215754134492094,
+        "cagr": 0.29690080410383635,
+        "sharpe_ratio": 1.6430450986277345,
+        "max_drawdown_pct": -0.06879366249878316,
+        "conditional_drawdown_pct": -0.06308783384184644
+      }
+    },
+    {
+      "arm": "ablation",
+      "bps": 20,
+      "start": "2026-01-01",
+      "sessions": 194,
+      "baseline": {
+        "total_return": 0.07754175823377385,
+        "cagr": 0.10187138569421417,
+        "sharpe_ratio": 0.8039193566497201,
+        "max_drawdown_pct": -0.056999748289555806,
+        "conditional_drawdown_pct": -0.050995073767629864
+      },
+      "released": {
+        "total_return": 0.24887633439700174,
+        "cagr": 0.3346757269256584,
+        "sharpe_ratio": 1.8095307824519997,
+        "max_drawdown_pct": -0.06897957132897514,
+        "conditional_drawdown_pct": -0.06224674436030479
+      }
+    }
+  ],
+  "drivers_2026": [
+    {
+      "arm": "reference",
+      "gained": 36,
+      "gained_open": 1,
+      "gained_closed_return_pct_sum": 2.0722381671342163,
+      "gained_rows": [
+        ["CRH", "2025-12-08", "2026-01-07", 0.015590551181102282],
+        ["DB", "2025-12-11", "2026-01-12", 0.02589695213721539],
+        ["RKLB", "2025-12-19", "2026-01-21", 0.4147412518086981],
+        ["BIDU", "2026-01-02", "2026-02-02", 0.03777501037775016],
+        ["HALO", "2026-01-02", "2026-01-20", 0.0],
+        ["DAVE", "2026-01-05", "2026-01-14", -0.12149435274043649],
+        ["BLD", "2026-01-12", "2026-02-10", 0.09939666287221881],
+        ["FUTU", "2026-01-12", "2026-01-14", -0.07275695878725234],
+        ["ADM", "2026-01-14", "2026-02-03", -0.03323326476754774],
+        ["BG", "2026-01-14", "2026-02-12", 0.17223383594949318],
+        ["CACI", "2026-01-20", "2026-02-04", -0.06112913680629337],
+        ["MOD", "2026-01-30", "2026-03-02", 0.17275185016125932],
+        ["PBF", "2026-02-04", "2026-03-05", 0.30592294422081656],
+        ["APTV", "2026-02-11", "2026-02-19", -0.08492362766599483],
+        ["VTR", "2026-02-11", "2026-03-12", 0.007363911003421684],
+        ["XEL", "2026-02-13", "2026-03-16", 0.0188824833812203],
+        ["COKE", "2026-02-19", "2026-03-19", 0.22136430363699616],
+        ["AMD", "2026-04-10", "2026-05-08", 0.7095092888688034],
+        ["SGML", "2026-04-13", "2026-05-11", 0.356197245228218],
+        ["CHH", "2026-04-14", "2026-04-30", -0.07801787239446967],
+        ["BYD", "2026-04-15", "2026-04-24", -0.06593961986957855],
+        ["CNC", "2026-04-28", "2026-05-27", 0.2836465550254363],
+        ["NET", "2026-05-29", "2026-06-09", 0.0],
+        ["NIC", "2026-06-24", "2026-07-23", 0.06429508208260619],
+        ["SBUX", "2026-06-24", "2026-07-23", -0.01084128728063929],
+        ["SMG", "2026-06-24", "2026-07-23", 0.025218129024524607],
+        ["AROC", "2026-06-25", "2026-07-02", -0.07553110202123976],
+        ["PBF", "2026-07-06", "2026-08-03", 0.38440683614968285],
+        ["ARW", "2026-08-04", "2026-08-07", -0.08778845120576188],
+        ["STLD", "2026-08-04", "2026-08-19", -0.07848198181696035],
+        ["ITT", "2026-08-06", "2026-08-26", -0.07416382413294234],
+        ["AMBA", "2026-08-07", "2026-08-19", -0.18247673117919377],
+        ["OKE", "2026-08-18", "2026-08-26", -0.05995619239063077],
+        ["DAVE", "2026-09-04", "2026-09-11", -0.10788590096986567],
+        ["WMB", "2026-09-09", "2026-09-11", -0.048334421946440276],
+        ["AMD", "2026-09-21", null, null]
+      ],
+      "lost": 5,
+      "lost_open": 0,
+      "lost_closed_return_pct_sum": 0.0444508431034539,
+      "lost_rows": [
+        ["BPOP", "2025-12-18", "2026-01-20", 0.008458404852509887],
+        ["GD", "2026-01-06", "2026-01-07", -0.038060198474620034],
+        ["TECH", "2026-01-09", "2026-01-16", 0.03153520438727601],
+        ["BWXT", "2026-01-15", "2026-02-04", -0.07112603039347888],
+        ["PEP", "2026-01-30", "2026-03-02", 0.11364346273176693]
+      ]
+    },
+    {
+      "arm": "ablation",
+      "gained": 36,
+      "gained_open": 1,
+      "gained_closed_return_pct_sum": 2.044070786542609,
+      "gained_rows": [
+        ["EL", "2025-12-05", "2026-01-06", 0.0415240395549994],
+        ["R", "2025-12-11", "2026-01-05", -0.05660474348185312],
+        ["RKLB", "2025-12-19", "2026-01-21", 0.4147412518086981],
+        ["BIDU", "2026-01-02", "2026-02-02", 0.03777501037775016],
+        ["HALO", "2026-01-02", "2026-01-20", 0.0],
+        ["DAVE", "2026-01-05", "2026-01-14", -0.12149435274043649],
+        ["BLD", "2026-01-12", "2026-02-10", 0.09939666287221881],
+        ["FUTU", "2026-01-12", "2026-01-14", -0.07275695878725234],
+        ["ADM", "2026-01-14", "2026-02-03", -0.03323326476754774],
+        ["BG", "2026-01-14", "2026-02-12", 0.17223383594949318],
+        ["CACI", "2026-01-20", "2026-02-04", -0.06112913680629337],
+        ["MOD", "2026-01-30", "2026-03-02", 0.17275185016125932],
+        ["PBF", "2026-02-04", "2026-03-05", 0.30592294422081656],
+        ["APTV", "2026-02-11", "2026-02-19", -0.08492362766599483],
+        ["VTR", "2026-02-11", "2026-03-12", 0.007363911003421684],
+        ["XEL", "2026-02-13", "2026-03-16", 0.0188824833812203],
+        ["COKE", "2026-02-19", "2026-03-19", 0.22136430363699616],
+        ["AMD", "2026-04-10", "2026-05-08", 0.7095092888688034],
+        ["SGML", "2026-04-13", "2026-05-11", 0.356197245228218],
+        ["CHH", "2026-04-14", "2026-04-30", -0.07801787239446967],
+        ["BYD", "2026-04-15", "2026-04-24", -0.06593961986957855],
+        ["CNC", "2026-04-28", "2026-05-27", 0.2836465550254363],
+        ["NET", "2026-05-29", "2026-06-09", 0.0],
+        ["NIC", "2026-06-24", "2026-07-23", 0.06429508208260619],
+        ["SBUX", "2026-06-24", "2026-07-23", -0.01084128728063929],
+        ["SMG", "2026-06-24", "2026-07-23", 0.025218129024524607],
+        ["AROC", "2026-06-25", "2026-07-02", -0.07553110202123976],
+        ["PBF", "2026-07-06", "2026-08-03", 0.38440683614968285],
+        ["ARW", "2026-08-04", "2026-08-07", -0.08778845120576188],
+        ["STLD", "2026-08-04", "2026-08-19", -0.07848198181696035],
+        ["ITT", "2026-08-06", "2026-08-26", -0.07416382413294234],
+        ["AMBA", "2026-08-07", "2026-08-19", -0.18247673117919377],
+        ["OKE", "2026-08-18", "2026-08-26", -0.05995619239063077],
+        ["DAVE", "2026-09-04", "2026-09-09", -0.07948507431630156],
+        ["WMB", "2026-09-09", "2026-09-11", -0.048334421946440276],
+        ["AMD", "2026-09-21", null, null]
+      ],
+      "lost": 4,
+      "lost_open": 0,
+      "lost_closed_return_pct_sum": 0.08251104157807394,
+      "lost_rows": [
+        ["BPOP", "2025-12-18", "2026-01-20", 0.008458404852509887],
+        ["TECH", "2026-01-09", "2026-01-16", 0.03153520438727601],
+        ["BWXT", "2026-01-15", "2026-02-04", -0.07112603039347888],
+        ["PEP", "2026-01-30", "2026-03-02", 0.11364346273176693]
+      ]
+    }
+  ]
+}

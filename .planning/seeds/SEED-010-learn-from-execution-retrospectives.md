@@ -547,7 +547,7 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 **Identity:** SEED-010#accept-original-story-promises
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/322-accept-original-story-promises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bfc6ad8830fbeb5ff9ba45d00db2a25ff5d92b5a1a2ea39e5a54e3d736f30a8f","plan":"e40f362d6e15e26981105ae3dc64b3b120e485b7207a7fdbd328707caaaa99b6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/322-accept-original-story-promises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bfc6ad8830fbeb5ff9ba45d00db2a25ff5d92b5a1a2ea39e5a54e3d736f30a8f","plan":"ee34abaf53c7804057a3ee7f92539b371f401406b1447dd178c6fb9b788acb22"}}
 ```
 **Goal:** The developer receives the story's promised behavior because slice
 acceptance independently identifies the applicable original promises, including

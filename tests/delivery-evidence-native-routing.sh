@@ -11,7 +11,7 @@ trap 'rm -rf -- "${root}"' EXIT
 native_case_host=codex
 delivery_evidence_scenarios='active scenarios'
 delivery_evidence_pass_basis='active basis'
-for case_name in selection claims consumers gaps aggregate nostore deferred original; do
+for case_name in selection claims consumers gaps aggregate nostore deferred original terminal; do
   native_case_known "delivery-evidence/${case_name}"
 done
 [[ ${delivery_evidence_scenarios} == 'active scenarios' ]]
@@ -24,7 +24,7 @@ grep -q "unknown native case 'delivery-evidence/missing'" "${root}/unknown.txt"
 
 # Retention follows the family's artifact shape; ordinary review families keep
 # the default lib/tests/e2e copy and original acceptance adds its planning state.
-for case_name in original aggregate; do
+for case_name in original terminal aggregate; do
   scenario=narrowed
   [[ ${case_name} != aggregate ]] || scenario=heading-reorder
   delivery_evidence_create_fixture "${case_name}" "${source_dir}" claude \
@@ -33,17 +33,21 @@ for case_name in original aggregate; do
   mkdir -p -- "${native_result_attempt_dir}"
   printf 'retained command sentinel\n' > "${delivery_evidence_root}/command-results.jsonl"
   printf 'acceptance sentinel\n' > "${delivery_evidence_workspace}/.planning/acceptance-outcome.md"
-  if [[ ${case_name} == original ]]; then
-    delivery_evidence_original_product_observation "${delivery_evidence_workspace}" \
+  if [[ ${case_name} == original || ${case_name} == terminal ]]; then
+    "delivery_evidence_${case_name}_product_observation" "${delivery_evidence_workspace}" \
       > "${delivery_evidence_root}/product-observation.json"
     cp "${delivery_evidence_workspace}/.planning/producer-proof.md" "${delivery_evidence_root}/final-proof.txt"
   fi
   delivery_evidence_retain_review_artifacts "${case_name}"
   cmp "${delivery_evidence_root}/command-results.jsonl" \
     "${native_result_attempt_dir}/command-results.jsonl"
-  diff -r "${delivery_evidence_workspace}/lib" "${native_result_attempt_dir}/final-product/lib"
-  diff -r "${delivery_evidence_workspace}/tests" "${native_result_attempt_dir}/final-product/tests"
-  if [[ ${case_name} == original ]]; then
+  if [[ ${case_name} == terminal ]]; then
+    diff -r "${delivery_evidence_workspace}/research" "${native_result_attempt_dir}/final-product/research"
+  else
+    diff -r "${delivery_evidence_workspace}/lib" "${native_result_attempt_dir}/final-product/lib"
+    diff -r "${delivery_evidence_workspace}/tests" "${native_result_attempt_dir}/final-product/tests"
+  fi
+  if [[ ${case_name} == original || ${case_name} == terminal ]]; then
     cmp "${delivery_evidence_root}/product-observation.json" "${native_result_attempt_dir}/product-observation.json"
     cmp "${delivery_evidence_root}/final-proof.txt" "${native_result_attempt_dir}/final-proof.txt"
     diff -r "${delivery_evidence_root}/original-inputs" "${native_result_attempt_dir}/original-inputs"
@@ -60,7 +64,7 @@ codex() { :; }
 delivery_evidence_run_journey() {
   printf '%s\n' "$1" > "${root}/dispatched"
 }
-for case_name in gaps original; do
+for case_name in gaps original terminal; do
   run_native_host codex "delivery-evidence/${case_name}" "${root}/retained" \
     > "${root}/host.txt"
   [[ $(cat "${root}/dispatched") == "${case_name}" ]]

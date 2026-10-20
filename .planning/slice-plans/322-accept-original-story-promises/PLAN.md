@@ -6,69 +6,48 @@
 
 ## Goal and scope
 
-Acceptance derives the current slice's applicable promises from the original
-story and explicit human amendments before comparing the plan, implementation
-return, and product proof. A promise omitted by both plan and return must still
-reach correction, legitimate remaining ownership, or a human decision before
-its dependent delivery is accepted. Preserve sufficient proof and genuine slice
-boundaries. The source's six key examples are the acceptance basis.
+Derive current applicable promises from original story and human amendments
+before comparing plan, return and product proof. Omitted promises still need
+correction, legitimate remaining ownership or a human decision before dependent
+delivery. Preserve sufficient proof, genuine boundaries and all six examples.
 
-No second obligation registry, automated semantic completeness checker,
-historical product repairs, general reliability claim, release rollout, or
-sibling improvement work is included. A missing first containing release or
-later adoption remains explicit at ODF-139, rather than guessed or marked passed.
+No second obligation registry, semantic checker, historical product repair,
+general reliability claim, rollout or sibling work. Unknown release/adoption
+stays explicit at ODF-139.
 
 ## Current decisions and reuse
 
-- Change the existing acceptance owner,
-  [Accept proof](../../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof),
-  whose current first comparison begins with promises the return treats as
-  covered. Its named-gap path already reads the story. Extend that owner to
-  derive applicable original promises independently; a repeated slogan that
-  plans cannot narrow stories does not satisfy the outcome.
-- Reuse [story obligations](../../../src/skills/dough-execute-plan/references/story-obligations.md)
-  for discovered gaps and the existing delegation, correction, delivery and
-  completion paths. Keep the original story authoritative and a compact
-  source-to-slice/proof comparison in existing plan/acceptance records. Do not
-  add a competing promise store or make a quote check judge semantic coverage.
-  Inspect linked delegation and proof-ownership guidance for consistent entry
-  into this rule; link to its owner instead of copying it.
-- PFE considered planning's executable-proof mapping and retrospective's
-  original-intent review. They help locate intended proof and historical
-  counterevidence, but neither replaces acceptance before delivery. The gap
-  belongs in acceptance; existing dispositions still own what happens next.
-- Reuse the native delivery-evidence fixture, host adapters, isolated workspace,
-  retention and assessment infrastructure under `tests/support/`. The current
-  gaps fixture explicitly names readiness/requeue in its return, and the common
-  prompt supplies a slice-promises document. Those cases preserve reported-gap
-  behavior but do not prove discovering promises absent from both plan and
-  return. Extend this family with original-story inputs and a neutral acceptance
-  request; do not precompute the missing promise for the tested agent.
-- Follow [AGENTS.md](../../../AGENTS.md) behavior review and source ownership:
-  edit `src/skills/`, never installed managed copies. Apply Accepted
-  [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-  (one coherent responsibility and empirical improvement),
-  [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  (proposed source versus containing release),
-  [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-  (native behavior versus deterministic harness proof), and
-  [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-  (one authoritative runtime rule addressed to the executing project).
-  The current North Star topics concern dashboard/runtime boundaries and need
-  no change for this acceptance responsibility. No ADR exception is proposed.
+- Existing owner: [Accept proof](../../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof).
+  Derive original applicable promises before comparing the return; named-gap
+  checks alone cannot establish discovery of an omitted promise.
+- Reuse [story obligations](../../../src/skills/dough-execute-plan/references/story-obligations.md),
+  delegation, correction, delivery and completion. Keep source-to-slice/proof
+  comparisons in this plan; no competing store or semantic quote checker.
+- PFE: planning's proof mapping and retrospective's original-intent review help
+  locate evidence, but neither replaces pre-delivery acceptance. Preserve these
+  owners; inspect linked delegation/proof guidance only for consistent entry.
+- Reuse `tests/support/delivery-evidence-*` native adapters, retention and explicit
+  assessment. Existing gap fixtures disclose omissions; original-story probes
+  need full source and neutral requests without supplying the missing promise.
+- Follow [AGENTS.md](../../../AGENTS.md): edit `src/skills/`, never managed copies.
+  Accepted ADRs: [0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  (cohesion/empiricism), [0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+  (source/release), [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
+  (native versus harness proof), [0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+  (one executing-project rule). No exception or North Star change is needed.
 
 ## Outside-in proof ownership
 
 | Source promise | Owner | Observable result |
 | --- | --- | --- |
-| Example 1: readiness original example defeats narrowed plan sentence | 2 | Native acceptance identifies the contradictory supplier-resolution result, withholds it and returns original behavior/proof before delivery. |
-| Example 2: terminal result labels absent from both plan and return | 2 | Acceptance independently finds both missing qualifications from Scope; green subset assertions do not clear them. |
-| Example 3: release fields and both status journeys | 2 | Each original commitment reaches an applicable owner and actual product observation; an owner-decision label cannot erase an existing promise. |
-| Example 4: legitimate later owner, exclusion, explicit human amendment | 2 | Controls keep the early slice bounded, cite the real owner/decision, and do not invent work or drop a remaining promise. |
-| Example 5: sufficient reused proof and reported gaps | 2 | Sufficient case proceeds without blanket reruns or format-only changes; reported-gap correction retains existing ownership and independent accepted evidence. |
-| Example 6: unavailable proof or disputed decision | 2 | Exact dependent promise remains incomplete with missing evidence/decision named; independent proof is preserved. |
-| Representative native follow-through and honest limits | 1 establishes route; 2 establishes changed outcome | Native trace and resulting acceptance/obligation state agree; quotes, records and helper exits alone cannot pass. |
-| Response provenance, release/adoption and uncertainty at ODF-139 | 2 | Finding names actual response revision and observations; first release/adoption is evidenced or explicitly pending. |
+| Example 1: readiness original example defeats narrowed plan sentence | 3 | Native acceptance identifies the contradictory supplier-resolution result, withholds it and returns original behavior/proof before delivery. |
+| Example 2: terminal result labels absent from both plan and return | 3 | Acceptance independently finds both missing qualifications from Scope; green subset assertions do not clear them. |
+| Example 3: release fields and both status journeys | 3 | Each original commitment reaches an applicable owner and actual product observation; an owner-decision label cannot erase an existing promise. |
+| Example 4: legitimate later owner, exclusion, explicit human amendment | 3 | Controls keep the early slice bounded, cite the real owner/decision, and do not invent work or drop a remaining promise. |
+| Example 5: sufficient reused proof and reported gaps | 3 | Sufficient case proceeds without blanket reruns or format-only changes; reported-gap correction retains existing ownership and independent accepted evidence. |
+| Example 6: unavailable proof or disputed decision | 3 | Exact dependent promise remains incomplete with missing evidence/decision named; independent proof is preserved. |
+| Representative native follow-through and honest limits | 1/2 establish baseline; 3 owns final outcome | Native trace and resulting acceptance/obligation state agree; quotes, records and helper exits alone cannot pass. |
+| Response provenance, release/adoption and uncertainty at ODF-139 | 3 | Finding names actual response revision and observations; first release/adoption is evidenced or explicitly pending. |
 
 Assess the three retained failures against the source revisions cited in
 ODF-139, preserving their decisive contradictions. Reconstructed small fixtures
@@ -81,19 +60,15 @@ actual state and command evidence for review, not merely word recognition.
 
 ## Decisive premises and preparation observations
 
-Named checkout for these observations:
-`/Users/terryyin/git/open-dough/.worktrees/accept-slices-against-the-original-story-promise`,
+Checkout: `/Users/terryyin/git/open-dough/.worktrees/accept-slices-against-the-original-story-promise`;
 base `a42e5a51b3063ace98f56c40f8055d57ac64f391`, 2026-10-20.
 
-- Historical failures and source/product revisions remain at ODF-139;
-  they establish the seam, not deterministic reproduction on today's hosts.
-- Inspected acceptance, story obligations, executable-proof and native gap
-  helpers. Existing fixtures disclose the missing observation in their returns;
-  their passes do not prove discovery of a silent omission.
+- Historical source/product revisions remain at ODF-139; they establish the seam,
+  not reproduction on today's hosts. Inspected acceptance, obligations,
+  executable-proof and gap helpers; their disclosed gaps do not prove discovery.
 - Ran the existing obligation and assessor control operations with:
   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-cross-slice.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs tests/native-assessor-counterexamples.sh`.
-  The selected checks completed without failure output. This establishes the
-  current mechanical control route only, not native semantic acceptance.
+  Passed: mechanical control route only, not native semantic acceptance.
 - The default shell is Bash 3.2; `/opt/homebrew/bin/bash` supplies Bash 5.
   Version commands completed:
   `codex --version` → `codex-cli 0.163.0`; `claude --version` →
@@ -117,6 +92,8 @@ base `a42e5a51b3063ace98f56c40f8055d57ac64f391`, 2026-10-20.
   `/tmp/dough-ci-501/watch-q1pFUs`, PID `29073`, session `77728`, cell `12`.
   The trunk claim's CI is unobserved. Slice 1 had zero obligations on entry;
   coordinator owns acceptance, refactoring, formatting, commits and publication.
+  Slice 1 accepted on this branch at `02f53118f1da73de68c78485b559af130aa90b84`,
+  suffix base `39256f40f54cbdccf1fc963fbffbcb06f56d4aea`; observation reused.
 
 ## Ordered slices
 
@@ -132,120 +109,142 @@ when an isolated native session receives the ordinary acceptance task, the
 maintainer obtains a supported reproduction or an explicit non-reproduction /
 unavailable route result before investing in the remedy.
 
-Recover the cited historical inputs first and build the smallest controlled
-case in the existing delivery-evidence family. Exercise fixture product commands
-and assessor counterexamples through the repository runner before any paid run.
-The failing product must actually contradict the source example while the
-narrowed plan proof passes; the corrected control must satisfy that example.
+Recover historical inputs into delivery-evidence. Exercise product commands and
+assessor counterexamples through the runner before paid use. The failing product
+must contradict the source while narrowed proof passes; correction satisfies it.
 Use current native CLI adapters and candidate installation. Select Claude Code
 first because all three retained later failures name that host; use the existing
 bounded supervisor and one initial attempt, investigating a failed or inconclusive
 attempt before any retry. Retain candidate, host/runtime, source inputs and
 observed acceptance/correction state in this plan during execution.
 
-Stop dependent slice 2 if the fixture leaks the expected answer, does not reach
-acceptance, cannot observe its disposition, or current guidance does not reproduce
-the presumed failure. Record the result and revise the mechanism/proof on evidence;
-do not claim a fix from a baseline that already passes or widen story scope.
-An unavailable credential/owner-held step names its owner and stays stopped.
-This early probe bounds the paid decisive premise; it is not completed preparation
-proof and grants no launch authority beyond the later execution instruction.
+Stop dependent remedy work for answer leakage, unreachable/unobservable
+acceptance or non-reproduction. Revise mechanism/proof on evidence; a passing
+baseline cannot show improvement. Unavailable credentials/owner steps stay stopped.
+The probe bounds the paid premise; it grants no separate launch authority.
 
-### 2. Accept applicable promises independently of the plan and return
+### 2. Establish acceptance of a wholly omitted terminal qualification
+Type: Behavior
+Status: done
+Proof: the original terminal Scope, a green narrowed record/check and a neutral
+native acceptance request produce an inspectable disposition of both omitted
+qualifications. A corrected deterministic control satisfies the source.
+
+Behavior: Learn whether acceptance finds promises absent from plan and return.
+Readiness's detected inverse does not settle silent omission; preserve that baseline.
+
+Recover Pygardon's selected story at `cdc136edf`, plan at `cffbd3264`, and
+`replacement.json` / `check_replacement.py` at `fe322751e` (paths at ODF-139).
+Use the full selected source and the real six-label set; retain the missing
+current/not-point-in-time and no-live-readiness qualifications without naming
+them in the request. Reconstruct only the record-producing/acceptance boundary,
+not the research computation. Preserve real later owners and exclusions.
+Reuse the original-family native adapters/retention and explicit reviewer.
+Exercise narrowed/corrected output and assessor controls before one bounded
+Claude run. Inspect product, commands and acceptance; diagnose before retry.
+Record reproduction, non-reproduction or unavailable route. Missing/disputed
+source stops dependent work; passing baseline cannot establish improvement.
+Select further proof and remedy from this result.
+
+### 3. Accept applicable promises independently of the plan and return
 Type: Behavior
 Status: planned
-Proof: Changed native acceptance detects the three source-derived omissions,
-feeds real correction/ownership decisions, and preserves the unchanged controls;
-focused mechanical regression proof stays green.
+Proof: applicable original promises reach real correction/ownership before
+acceptance; readiness, terminal, release and unchanged controls discriminate the
+common rule. Mechanical regression proof remains green.
 
-Behavior: Given a slice whose plan and return omit or narrow an applicable
-original-story promise, when the coordinator accepts its proof, it identifies
-that promise from the original source and prevents dependent delivery until
-behavior/proof or a legitimate human decision resolves it. Given sufficient
-proof, an excluded promise or valid later ownership, it preserves that boundary
-and proceeds where supported.
+Behavior: Derive promises from original Goal/Scope/examples/exclusions and human
+amendments before comparing plan/return/proof. Slice 2 supports source-to-current-
+output ownership; preserve readiness non-reproduction and historical counterevidence.
+No-change retains evaluation limits; passing baseline cannot prove a fix. Reuse
+acceptance and obligation/correction/delivery/completion; no parallel registry.
 
-Change the acceptance rule and the smallest linked guidance needed to reach it.
-Keep scope derivation before comparison with the return, preserve explicit human
-amendments, and use existing obligation handling for newly found gaps. Exercise
-readiness, terminal-label and release-progress cases through the same common
-rule; do not create a recognizer or runtime branch for each historical symptom.
+Evaluate all three historical cases and mapped controls through neutral prompts.
+Preserve real later ownership, exclusions, human amendments, sufficient reused
+proof, reported gaps and unavailable-proof stops. At least one trace must show
+source discovery followed by a correction handoff or withheld dependent delivery;
+a corrected native case must subsequently proceed. Inspect actual product/proof
+and obligation state. Use representative native runs or justified reuse per
+affected requirement on Codex, Cursor and Claude; no cross-host inference.
+Missing native proof remains unfinished and blocks affected release.
 
-Extend the probe's fixtures and counterexamples only as required for the mapped
-proof. Use representative native runs and justified reuse per affected requirement
-on Codex, Cursor and Claude Code; one host's outcome proves nothing about another.
-Share cases rather than multiplying every case across every host. At least one
-native trace must show discovery followed by a correction handoff or a withheld
-dependent delivery, and a corrected case must subsequently be accepted. Inspect
-the concrete product/proof boundary and obligation ownership, not only the final
-report. Record unresolved native requirements explicitly; without evidence or
-justified reuse they remain unfinished and affected release is not cleared.
-
-After edits and independent post-change refactoring, run focused affected proof
-through `scripts/test.sh` with Bash 5 first on PATH. Preserve the existing
-obligation/control checks above; add the selected new fixture/assessor checks and
-any consumers their changes reach. Run `tests/payload-declaration-links.sh` if
-runtime references or declared dependencies change. The local skill-authoring
-gate is AGENTS.md's invocation/context/useful-outcome walkthrough, including the
-human-conflict control. Hosted CI configuration alone adds no whole-suite local
-gate. Follow ordinary execution delivery, agent commits and CI ownership; do not
-publish a knowingly failing increment.
-
-Update ODF-139 with the implemented response revision, observed discrimination,
-retained positive/counterevidence and limits. Verify a first containing release
-and adoption only if they actually exist; otherwise state they remain pending.
-No release or cross-project rollout is authorized by this story's preparation.
+After independent refactoring, run focused affected checks through `scripts/test.sh`
+with Bash 5 first on PATH: the existing obligation/control checks, new fixtures/
+assessors, shared routing/evidence/stream consumers. Run payload-declaration-links
+if runtime links/dependencies change. Apply AGENTS.md's invocation/context/outcome
+walkthrough including human conflict. Follow ordinary agent delivery and CI;
+no whole-suite local gate is added. Update ODF-139 with actual response revision,
+positive/counterevidence and limits; containing release/adoption remain pending
+unless evidenced. No release or cross-project rollout is authorized.
 
 ## Sizing and safe stopping
 
-Two cohesive proof loops: establish the uncertain native observation route,
-then change and prove one acceptance behavior. The three historical cases are
-examples of one rule, not separate production mechanisms. The probe can end
-with useful contrary evidence and stop the remedy. No numeric slice limit or
-S/M/L calibration is supplied; native availability and follow-through are the
-material sizing uncertainty. If new evidence changes source scope, stop that
-path for its human decision rather than expanding the plan.
+Three loops: readiness counterevidence, silent-omission probe, supported acceptance.
+All examples exercise one acceptance responsibility. No numeric limit is supplied;
+stop only affected work for unavailable evidence or a source decision.
 
 ## Learnings
 
-### Readiness replay: current guidance withheld delivery (2026-10-20)
+### Readiness baseline (2026-10-20; slice 1)
 
-Recovered the full readiness story and narrowed plan at `2f56bd2a`; this
-`delivery-evidence/original` replay is not the historical dashboard:
-current-format resolution is correct, legacy resolution renders `Changed since
-readiness review`, and all four narrowed tests pass. The corrected control removes
-that label while preserving eligibility and goal/agreement-change indications.
-
-Accepted: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/native-evidence-identity.sh`
-and `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/git-publication-native.sh`
-both exited 0. The test observes `readinessView` for both products; setup supplies
-dependency facts, not the indicator. Assessor controls reject unreviewed,
-quote-only, fabricated-workflow and unchanged-accepted claims: mechanical proof
-only. Preparation's four obligation/helper checks passed on unchanged boundaries.
-Independent refactoring consolidated supported-case routing and family retention;
+Recovered story/plan `2f56bd2a`. Narrowed legacy output shows the indicator while
+four tests pass; corrected control removes it without losing legitimate flags.
 `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh tests/git-publication-native.sh`
-passed after those edits. Inspected routing assertions observe actual original
-and aggregate artifact copies plus old/new/unknown dispatch. Native semantic
-boundaries stayed unchanged. `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/native-stream-replay.sh`
-passed for the reviewed corpus entry; it proves stream reading, not acceptance.
+passed after independent refactoring. Assertions inspect actual output, routing
+and original/aggregate retained artifacts. Existing obligation/helper checks also
+passed on unchanged boundaries. Reviewed corpus replay passed via
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/native-stream-replay.sh`.
 
-Native: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/original --results-dir /tmp/open-dough-accept-original-promises-baseline-20261020`.
-One attempt, no retry: native command succeeded; wrapper exit 1 requires review.
-Candidate `39256f40f54cbdccf1fc963fbffbcb06f56d4aea`, Node `24.21.0`, Claude Code
-`2.1.304`, raw model `claude-opus-5-5` (generic record unknown). The prompt named
-story/plan/return without the contradiction.
+Native command: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/original --results-dir /tmp/open-dough-accept-original-promises-baseline-20261020`.
+Candidate `39256f40`, Node24.21.0, Claude2.1.304/claude-opus-5-5 (raw init).
+One attempt completed0; wrapper1 requests review. Evidence at
+`/tmp/open-dough-accept-original-promises-baseline-20261020/claude/delivery-evidence/original/narrowed/20261020T003057-479a`;
+reviewed outcome, calls/reads, original/final state, actual product and proof.
+Current guidance found the inverse contradiction, retained three valid promises,
+and withheld delivery pending plan/story resolution. Product stayed wrong and
+4/4 tests stayed green: no corrected acceptance or obligation gate was observed.
+A failed unquoted consumer search is bounded by the tracked file list/full reads.
+Readiness did not reproduce; it is contrary evidence, not improvement proof.
 
-Evidence: `/tmp/open-dough-accept-original-promises-baseline-20261020/claude/delivery-evidence/original/narrowed/20261020T003057-479a`.
-Reviewed `acceptance-outcome.md`, command/reads, original/final planning, product
-diff, `product-observation.json`, `final-proof.txt`. The trace reads installed
-guidance and full source/reader/tests/setup, preserves three valid observations,
-and returns the legacy contradiction to slice 3: delivery withheld pending a
-plan/story decision. Product remains contradictory, tests 4/4 green. No obligation
-was created or gated; correction and further follow-through remain unproved.
-Unquoted zsh glob expansion broke a consumer search; `git ls-files` and complete
-reads still establish this fixture's narrow callers, not general search reliability.
+### Terminal baseline (2026-10-20; slice 2)
 
-**Decision:** readiness failure did not reproduce; stop the remedy. This test
-explicitly exercises an inverse expectation, leaving wholly absent terminal/
-release promises unsettled. Preserve the contrary evidence and refine the remaining
-proof toward the authorized terminal-label omission before selecting any remedy.
+Full selected story `cdc136edf59886605052ea309481cc4b9636ea23`, plan `cffbd3264732056b32727b2bfae655812d99e7de`,
+record/check `fe322751e0d6ad84db218d878f44b1f99ade6399`. Full source body and
+precomputed fields verified against Git. Check compares prose dynamically to JSON
+labels; six is observed, not a rejection constraint. The controlled producer
+publishes summaries, not a rerun of historical research. Corrected control adds
+the two qualifications while preserving both arms, all numbers and other labels.
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-terminal.sh tests/delivery-evidence-original.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh`
+passed, including real installed obligation list/check on a valid later owner.
+Publication and assessor-guard proof passed before envelope-only edits.
+
+First command: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/terminal --results-dir /tmp/open-dough-accept-original-promises-terminal-baseline-20261020`.
+Attempt `20261020T004835-43eb` accepted six labels without finding qualifications;
+its unrelated G1/G2 gate refused because the extracted seed lacked an H1.
+Diagnostic repair prepended actual historical H1s, preserved story bodies and
+other inputs, and proved the installed gate reads the fixture before retry.
+Retry: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/terminal --results-dir /tmp/open-dough-accept-original-promises-terminal-baseline-envelope-fixed-20261020`.
+Attempt `20261020T005224-6019` found both qualifications but assigned them to
+later prose and accepted the current JSON unchanged. No obligation or gate ran.
+Both sessions: candidate `02f53118`, Claude2.1.304/opus5.5, native0/wrapper1 for
+explicit review. Under each results root, inspected `claude/delivery-evidence/terminal/narrowed/<attempt>/`
+outcome, original/final product/planning, calls, actual output and final proof:
+all precomputed fields and six labels unchanged; dynamic check passes. Neither
+run proves correction. First has invalid-envelope limits; second demonstrates
+false later ownership despite reading the source's labels-on-every-result clause.
+Both raw streams are retained in the maintained corpus with reviewed expectations.
+Independent refactor proof passed: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/delivery-evidence-terminal.sh tests/delivery-evidence-native-routing.sh /tmp/open-dough-refactor-2-before/observation-equivalence.sh`; generated prompts, inputs and observed product/proof state stayed equivalent.
+Ordinary JSON formatting preserved the full decoded historical projection; terminal/original/routing checks passed afterward. Corpus replay passed with both terminal streams; slice-2 obligation gate passed with G1 owned by slice 3.
+
+**Decision:** continue slice 3 with source-to-current-output ownership before
+acceptance. Discovery alone is insufficient: later prose cannot qualify a
+current result already subject to an original promise. Preserve genuine later
+owners and the readiness counterexample. This refines the mechanism within the
+unchanged source Scope; it is no general reliability claim.
+
+## Story obligations
+
+### G1. Original qualifications wrongly assigned to later prose
+Reported: slice 2 — "Repaired-envelope run reproduces false later ownership: Claude found both omitted qualifications, assigned them to slice 4, and accepted the current six-label JSON unchanged."
+Story clause: "Compare those promises with slice ownership and observed product proof before accepting delivery."
+Disposition: receiving slice 3

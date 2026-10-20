@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 # Native task wording for implementation and returned-proof acceptance journeys.
 
+delivery_evidence_source_acceptance_prompt() {
+  local story=$1 plan=$2
+  printf '%s\n' \
+    "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted slice 3 work and its proof report at .planning/implementation-return.md. The selected story is ${story} and its plan is ${plan}. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming accepted or incomplete promises and the evidence you inspected. Treat the installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
+}
+
 delivery_evidence_prompt_for() {
   local request
   case ${1:-} in
+    terminal)
+      delivery_evidence_source_acceptance_prompt \
+        .planning/seeds/SEED-106-sharadar-search-confidence.md \
+        .planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md
+      return
+      ;;
     original)
-      printf '%s\n' \
-        "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted slice 3 work and its proof report at .planning/implementation-return.md. The selected story is .planning/seeds/SEED-138-computed-execution-readiness.md and its plan is .planning/slice-plans/311-compute-execution-readiness/PLAN.md. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming accepted or incomplete promises and the evidence you inspected. Treat the installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
+      delivery_evidence_source_acceptance_prompt \
+        .planning/seeds/SEED-138-computed-execution-readiness.md \
+        .planning/slice-plans/311-compute-execution-readiness/PLAN.md
       return
       ;;
     nostore)

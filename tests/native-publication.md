@@ -107,6 +107,21 @@ review; the wrapper's nonzero review-required result is not a semantic verdict.
 Inspect detection, actual product behavior and withheld delivery or correction
 ownership together. No prose recognizer certifies these facts.
 
+`--case delivery-evidence/terminal` uses the same explicit-review acceptance
+route for Pygardon's terminal result. The selected story comes from `cdc136edf`,
+the narrowed plan from `cffbd3264`, and the precomputed summary fields and six
+observed labels from `fe322751e`. This is a deterministic record-producing
+boundary, not a rerun of the engine or research ledger. The focused check
+mirrors the historical dynamic JSON/prose label comparison, with no fixed
+label-count rejection. `tests/delivery-evidence-terminal.sh` exercises the
+narrowed output and a corrected control preserving both arms and all numbers.
+The native request names only source, plan and return; inspect the retained
+command results, actual labels and acceptance/obligation state yourself.
+Both original-story fixtures prepend their historical seed's actual H1 to the
+verbatim selected story, so the installed obligation parser can resolve a
+story home. The terminal cheap check exercises a real source quote through the
+installed list/check commands; an empty listing would bypass that resolution.
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

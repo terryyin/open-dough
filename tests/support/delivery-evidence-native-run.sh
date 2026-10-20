@@ -68,7 +68,7 @@ delivery_evidence_case_profile() {
       delivery_evidence_scenarios='repair-and-proceed unavailable-proof sufficient-reused'
       delivery_evidence_pass_basis='observable required-gap handling'
       ;;
-    original)
+    original | terminal)
       delivery_evidence_scenarios='narrowed'
       delivery_evidence_pass_basis='explicit review of original-story acceptance'
       ;;

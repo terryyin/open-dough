@@ -1,3 +1,5 @@
+# SEED-138: Execution readiness from current preparation and dependency facts
+
 ### Compute story readiness from preparation and dependency facts
 
 **Identity:** SEED-138#compute-execution-readiness
