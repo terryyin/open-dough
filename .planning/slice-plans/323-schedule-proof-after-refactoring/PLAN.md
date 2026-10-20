@@ -244,12 +244,16 @@ Execution record (2026-10-20, coordinator Jane-chan):
 
 ### 3. Coordinate required proof around the final changed state
 Type: Structure
-Status: planned
+Status: done
 Revised by the slice 2 decision: record the two replays' contrary evidence,
 the unreached delegated-implementer condition and the observed pre-change
 baseline run at ODF-249, naming this execution's revisions, with release and
 adoption explicitly pending. No guidance change; the remedy text below stays
 only as the unexecuted original intent.
+
+Execution record (2026-10-20): ODF-249 gains “Response and evaluation
+(2026-10-20)” and its follow-up reads evaluated with contrary evidence and no
+guidance change. Proof: the finding's links and payload checks below.
 Proof: Changed native execution satisfies the source's six examples through
 actual command/state observations; meaningful fixture/assessor counterexamples
 reject omitted final coverage, stale proof and suppressed prerequisites.
