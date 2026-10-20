@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-144#recognize-opendough-by-its-icon",
+  "mode": "story-branch",
+  "branch": "claude/recognize-open-dough-by-its-icon-across-product",
+  "host": "claude"
+}

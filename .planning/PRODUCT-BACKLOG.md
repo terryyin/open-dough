@@ -21,10 +21,10 @@ cost of the feedback process itself.
 - [Avoid repeating whole-suite proof around refactoring](seeds/SEED-010-learn-from-execution-retrospectives.md#schedule-proof-after-refactoring) — SEED-010#schedule-proof-after-refactoring ([plan](slice-plans/323-schedule-proof-after-refactoring/PLAN.md))
 - [Receive Cursor attention alerts and read the result](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-attention-and-results) — SEED-052#cursor-attention-and-results ([plan](slice-plans/324-cursor-attention-and-results/PLAN.md))
 - [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes ([plan](slice-plans/325-format-owned-changes/PLAN.md))
+- [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 
 ## Backlog list
 
-- [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope
 - [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
