@@ -44,6 +44,18 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
 
 Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked. [Evidence and current response](docs/maintainer/findings/ODF-074.md).
 
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-074.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-052#cursor-session-model-scope / plan 329, first related commit `230b9018`
+  - Timestamp: unknown (2026-10-20, slice 5 native attempt; recorded in `7d110ef8`)
+  - Tool: Cursor
+  - Open Dough release: unknown (checkout-bound guidance in the execution worktree)
+  - Evidence: plan 329 slice 5 proof named a native run "from the dashboard on this machine" without a runner-freshness premise; its Learnings (`7d110ef8`, disposition `08fbe909`) record that the machine's single reused Cursor runner predated slices 2–4 and held 11 unrelated sessions, so spawned clients carried no `CURSOR_CONFIG_DIR`, the chosen model persisted into the shared config (restored afterwards), and the scope was stranded on record deletion (removed manually).
+  - Observed effect: the native attempt failed as proof, Terry was asked to decide on restarting the runner over 11 unrelated sessions (first chose restart; the call was interrupted; then skipped native confirmation by decision), and native end-to-end verification closed as the story's explicit limit rather than passed.
+  - Inference: qualified. The plan verified the `CURSOR_CONFIG_DIR` hook in slice 1 but never checked that the final native journey would run through current dashboard code; observing the reused runner's provenance at planning or slice 1 would have surfaced the restart decision before the attempt wrote to the shared config.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284.

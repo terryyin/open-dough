@@ -289,3 +289,7 @@ it is not passed on deterministic evidence.
 Reported: slice 4 — "Writes in a process that never installs the dispatch (e.g. the Cursor runner process, via updateRecord) still drop expired records from the file without retiring scopes."
 Story clause: "removed when that record is removed"
 Disposition: no user cost "that session — including its later resumption — runs on the chosen model": a stranded scope is one tiny cloned cli-config.json plus a chats symlink under the dashboard machine home; it is never reused, and no session, shared configuration, or saved conversation is affected.
+
+## Execution complete
+
+Product advice: Accept SEED-052#cursor-session-model-scope on deterministic slices 2–4 plus slice 1's native hook and chats-symlink probes, with native end-to-end dashboard launch/resume verification as the story's explicit limit — not passed; when SEED-052#cursor-runner-restart-resume is executed, prefer observing a scoped chosen-model launch and resume natively within that story's restart proof where its scope permits, without retroactively passing this story. The terminal-open scope-refusal explanation gap is separately planned as SEED-052#cursor-scope-terminal-refusal-explanation (plan 330, unqueued).
