@@ -8,6 +8,7 @@ import {
   committedLintFixture,
   env,
   gitOk,
+  shellToolsMissing,
   snapshot,
   toollessEnv,
   write,
@@ -199,31 +200,35 @@ test("selective ignore filtering honors root-anchored patterns for untracked fil
   assert.match(result.output, /src\/root-only\.json/);
 });
 
-test("format fixes and rechecks only the changed shell script", (t) => {
-  const fixture = formatFixture(t, {
-    files: {
-      "scripts/changed.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" old\n',
-      "scripts/untouched.sh": '#!/bin/sh\nprintf "%s\\n"  untouched\n',
-    },
-  });
-  write(
-    join(fixture, "scripts/changed.sh"),
-    '#!/bin/sh\nset -eu\nif true;then\nprintf "%s\\n" changed\nfi\n',
-  );
-  const before = snapshot(fixture);
+test(
+  "format fixes and rechecks only the changed shell script",
+  { skip: shellToolsMissing },
+  (t) => {
+    const fixture = formatFixture(t, {
+      files: {
+        "scripts/changed.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" old\n',
+        "scripts/untouched.sh": '#!/bin/sh\nprintf "%s\\n"  untouched\n',
+      },
+    });
+    write(
+      join(fixture, "scripts/changed.sh"),
+      '#!/bin/sh\nset -eu\nif true;then\nprintf "%s\\n" changed\nfi\n',
+    );
+    const before = snapshot(fixture);
 
-  const result = npm(fixture, "format");
+    const result = npm(fixture, "format");
 
-  assert.equal(result.status, 0, result.output);
-  assert.equal(
-    readFileSync(join(fixture, "scripts/changed.sh"), "utf8"),
-    '#!/bin/sh\nset -eu\nif true; then\n  printf "%s\\n" changed\nfi\n',
-  );
-  assert.deepEqual(changedPaths(before, snapshot(fixture)), [
-    "scripts/changed.sh",
-  ]);
-  assert.doesNotMatch(result.output, /untouched\.(?:mjs|sh)/);
-});
+    assert.equal(result.status, 0, result.output);
+    assert.equal(
+      readFileSync(join(fixture, "scripts/changed.sh"), "utf8"),
+      '#!/bin/sh\nset -eu\nif true; then\n  printf "%s\\n" changed\nfi\n',
+    );
+    assert.deepEqual(changedPaths(before, snapshot(fixture)), [
+      "scripts/changed.sh",
+    ]);
+    assert.doesNotMatch(result.output, /untouched\.(?:mjs|sh)/);
+  },
+);
 
 test("format continues to refuse --staged without changing any file", (t) => {
   const fixture = formatFixture(t, { dependencies: false });

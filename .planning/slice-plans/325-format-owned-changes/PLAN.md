@@ -206,3 +206,18 @@ The existing `ignoredBy` listing also needs `--others`: tracked-only `-ci`
 does not match untracked ignored planning files, while `-cio` does. Extend
 that same owner and observe tracked plus untracked ignored inputs in the
 toolless fixture.
+
+Slice 1 published as `43ff9dde9762edf400703c2925210383057e8522` on the
+execution branch. Hosted run `39361072552/1` exposed the new shell success
+test's missing prerequisite: test jobs lack shfmt, while the lint job installs
+it. The repair reuses the hook suite's optional-shell availability rule;
+four focused suites pass with real tools and with a controlled missing-tool
+PATH after reproducing the exact failure. Runtime code and the measured
+Markdown pair are unaffected; slice 2 paused cleanly for this repair.
+
+## Story obligations
+
+### G1. Shell-format proof requires tools absent from hosted test jobs
+Reported: slice 1 — "The new shell-format test requires shfmt, but hosted test jobs lack shell tools."
+Story clause: "Preserve lint and format confidence through the existing lint and hook tests plus focused tests of the selection."
+Disposition: proved by slice 1: `tests/support/format-changed-files.test.mjs` and the shared `shellToolsMissing` rule; the unchanged shell assertions execute with real tools, and four suites pass with tools absent after the original failure was reproduced. See the CI repair return and `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-format-shell-JtqPJQ/before.log`.

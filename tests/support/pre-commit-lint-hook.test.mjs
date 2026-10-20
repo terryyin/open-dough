@@ -17,6 +17,7 @@ import {
   gitWith,
   gitOk,
   root,
+  shellToolsMissing,
   toollessEnv,
   violation,
   write,
@@ -55,15 +56,6 @@ test("staged formatting drift is refused and nothing is changed", (t) => {
   assert.equal(gitOk(fixture, "diff", "--cached"), stagedDiff);
   assert.equal(gitOk(fixture, "diff"), "");
 });
-
-function onPath(tool) {
-  return spawnSync(tool, ["--version"], { env, stdio: "ignore" }).status === 0;
-}
-
-const shellToolsMissing =
-  onPath("shellcheck") && onPath("shfmt")
-    ? false
-    : "shellcheck and shfmt are not both on PATH";
 
 function commitsCleanFilesUnchanged(t, contents) {
   const fixture = hookFixture(t);

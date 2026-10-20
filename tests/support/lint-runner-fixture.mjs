@@ -28,6 +28,15 @@ export const env = {
   GIT_COMMITTER_EMAIL: "lint-fixture@example.com",
 };
 
+function onPath(tool) {
+  return spawnSync(tool, ["--version"], { env, stdio: "ignore" }).status === 0;
+}
+
+export const shellToolsMissing =
+  onPath("shellcheck") && onPath("shfmt")
+    ? false
+    : "shellcheck and shfmt are not both on PATH";
+
 const runnerFiles = [
   "scripts/lint.mjs",
   "eslint.config.mjs",
