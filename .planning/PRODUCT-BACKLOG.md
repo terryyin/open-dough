@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Avoid repeating whole-suite proof around refactoring](seeds/SEED-010-learn-from-execution-retrospectives.md#schedule-proof-after-refactoring) — SEED-010#schedule-proof-after-refactoring ([plan](slice-plans/323-schedule-proof-after-refactoring/PLAN.md))
 - [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes ([plan](slice-plans/325-format-owned-changes/PLAN.md))
 - [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 

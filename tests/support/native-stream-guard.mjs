@@ -58,6 +58,10 @@ const shapeWriters = new Map([
     "substitute agent writing publication streams",
   ],
   [
+    "tests/support/native-agent-proof-scheduling.sh",
+    "substitute agent writing a scheduling replay's command and result",
+  ],
+  [
     "tests/support/native-agent-recorded.sh",
     "substitute agent writing recorded-context streams",
   ],

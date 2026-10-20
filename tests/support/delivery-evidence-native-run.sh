@@ -1,80 +1,35 @@
 #!/usr/bin/env bash
-# Shared native journey for the delivery-evidence cases (selection, claims,
-# consumers, gaps, aggregate, nostore, deferred): disposable fixture scaffolding, prompt, native command,
-# assessment, retention, and evidence identity. Promise-status recognition
-# lives in delivery-evidence-promise-status.sh. Each case keeps its own
-# scenario content, observations, and assessor in
-# delivery-evidence-CASE-native-{scenario-content,observe,assess}.sh.
+# Shared native journey for the delivery-evidence cases registered in
+# delivery-evidence-native-cases.sh: disposable fixture scaffolding, prompt,
+# native command, assessment, retention, and evidence identity.
+# Promise-status recognition lives in delivery-evidence-promise-status.sh. Each
+# case keeps its own scenario content, observations, and assessor in
+# delivery-evidence-CASE-native-{scenario-content,observe,assess}.sh, and may
+# add delivery-evidence-CASE-native-checks.sh.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 delivery_evidence_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-promise-status.sh"
+for delivery_evidence_part in native-cases promise-status native-evidence native-prompt; do
+  # shellcheck disable=SC1090,SC1091
+  source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_part}.sh"
+done
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/native-observation.sh"
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-native-evidence.sh"
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-native-prompt.sh"
-for delivery_evidence_content in "${delivery_evidence_support_dir}"/delivery-evidence-*-native-scenario-content.sh; do
-  delivery_evidence_case=${delivery_evidence_content##*/delivery-evidence-}
-  delivery_evidence_case=${delivery_evidence_case%-native-scenario-content.sh}
-  for delivery_evidence_part in scenario-content observe assess; do
-    # shellcheck disable=SC1090,SC1091
-    source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
+for delivery_evidence_case in ${delivery_evidence_cases}; do
+  for delivery_evidence_part in scenario-content observe assess checks; do
+    delivery_evidence_file="${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
+    [[ ${delivery_evidence_part} != checks || -f ${delivery_evidence_file} ]] || continue
+    # shellcheck disable=SC1090
+    source "${delivery_evidence_file}"
   done
 done
-unset delivery_evidence_case delivery_evidence_part
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-aggregate-native-checks.sh"
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-nostore-native-checks.sh"
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-deferred-native-checks.sh"
+unset delivery_evidence_case delivery_evidence_part delivery_evidence_file
 
 delivery_evidence_root=
 delivery_evidence_workspace=
-delivery_evidence_scenarios=
-delivery_evidence_pass_basis=
-
-# Case table: scenarios in run order and the observable basis named on PASS.
-delivery_evidence_case_profile() {
-  case $1 in
-    selection)
-      delivery_evidence_scenarios='zero-test partial-selection complete-selection'
-      delivery_evidence_pass_basis='observable selection state'
-      ;;
-    claims)
-      delivery_evidence_scenarios='unsupported-claim corrected-no-link equivalent-layout'
-      delivery_evidence_pass_basis='observable claim support'
-      ;;
-    consumers)
-      delivery_evidence_scenarios='changed-contract corrected-consumer unchanged-boundary'
-      delivery_evidence_pass_basis='observable consumer applicability'
-      ;;
-    aggregate)
-      delivery_evidence_scenarios='heading-reorder'
-      delivery_evidence_pass_basis='reviewed native command results'
-      ;;
-    deferred)
-      delivery_evidence_scenarios='known-caller'
-      delivery_evidence_pass_basis='reviewed native command results'
-      ;;
-    nostore)
-      delivery_evidence_scenarios='single-read'
-      delivery_evidence_pass_basis='reviewed native command results'
-      ;;
-    gaps)
-      delivery_evidence_scenarios='repair-and-proceed unavailable-proof sufficient-reused'
-      delivery_evidence_pass_basis='observable required-gap handling'
-      ;;
-    original | terminal | release)
-      delivery_evidence_scenarios='narrowed'
-      delivery_evidence_pass_basis='explicit review of original-story acceptance'
-      ;;
-    *) return 2 ;;
-  esac
-}
+delivery_evidence_scenario=
+# A case assessor may name why it did not pass; the runner's reason carries it.
+delivery_evidence_assess_detail=
 
 # Reads KEY from a case observations file of "key: value" lines: the text
 # after "KEY: " on the first line that starts with it. Parsed in the shell:
@@ -151,7 +106,7 @@ delivery_evidence_run_scenario() {
   fi
   prompt=$(
     set -e
-    delivery_evidence_prompt_for "${case_name}"
+    delivery_evidence_prompt_for "${case_name}" "${scenario}"
   )
   native_case_host=${host}
   native_case_id="delivery-evidence/${case_name}"
@@ -173,6 +128,7 @@ delivery_evidence_run_scenario() {
   delivery_evidence_observe_scenario "${case_name}" "${scenario}" \
     > "${observations_file}"
 
+  delivery_evidence_assess_detail=
   # shellcheck disable=SC2310,SC2311
   if [[ ${native_run_stream_status:-missing} != complete ]]; then
     git_publication_assess_status=fail
@@ -187,6 +143,9 @@ delivery_evidence_run_scenario() {
   else
     git_publication_assess_status=fail
     git_publication_assess_reason="${case_name} acceptance mismatch for ${scenario}"
+  fi
+  if [[ -n ${delivery_evidence_assess_detail} ]]; then
+    git_publication_assess_reason+=": ${delivery_evidence_assess_detail}"
   fi
   # shellcheck disable=SC2310,SC2311
   if delivery_evidence_requires_review "${case_name}" \
@@ -214,6 +173,9 @@ delivery_evidence_run_scenario() {
       acceptance-outcome.md
     native_result_copy_if_present \
       "${delivery_evidence_workspace}/.planning/selection.log" selection.log
+    if declare -F "delivery_evidence_${case_name}_retain" > /dev/null; then
+      "delivery_evidence_${case_name}_retain" "${prompt}"
+    fi
   fi
 
   printf 'scenario: %s assessment-status: %s assessment-reason: %s\n' \
@@ -224,10 +186,20 @@ delivery_evidence_run_scenario() {
   [[ ${git_publication_assess_status} == pass ]]
 }
 
+# delivery_evidence_only_scenario, when set, runs only that scenario of the case.
 delivery_evidence_run_journey() {
   local case_name=$1 source_dir=$2 host=$3 results_dir=$4
   local root outstanding=0 scenario
   delivery_evidence_case_profile "${case_name}"
+  if [[ -n ${delivery_evidence_only_scenario:-} ]]; then
+    if ! delivery_evidence_case_has_scenario "${case_name}" \
+      "${delivery_evidence_only_scenario}"; then
+      printf 'error: delivery-evidence/%s has no scenario %s\n' \
+        "${case_name}" "${delivery_evidence_only_scenario}" >&2
+      return 2
+    fi
+    delivery_evidence_scenarios=${delivery_evidence_only_scenario}
+  fi
   root=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf -- '${root}'" RETURN
