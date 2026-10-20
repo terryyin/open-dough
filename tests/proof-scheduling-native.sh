@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 # Native replay of proof scheduling around an independent refactor
 # (delivery-evidence/scheduling): a stylesheet change that foreseeably needs a
-# file-size extraction, focused tests, and a whole dashboard suite with a
-# stated fourteen-minute cost that runs here in seconds.
+# file-size extraction, focused tests, and a whole dashboard suite that runs
+# here in seconds. Scenario stylesheet-extraction is planless work under a
+# stated fourteen-minute suite cost; planned-extraction is slice 1 of an
+# executable plan with a required suite and no stated cost.
 #
 # Usage:
 #   tests/proof-scheduling-native.sh
-#   tests/proof-scheduling-native.sh --native HOST [--results-dir DIR] [--deadline SECONDS]
+#   tests/proof-scheduling-native.sh --native HOST [--scenario NAME] [--results-dir DIR] [--deadline SECONDS]
 #
 # Default mode is credential-free: product-command checks of the fixture,
 # controlled sequences observed through its own commands, the assessor's
-# rejected cases, a prompt leakage check, and substitute-host runs through the
-# shared delivery-evidence runner and retention. --native HOST (claude, codex
-# or cursor) launches one paid fresh host session; run it only when a human
-# authorizes it.
+# rejected cases, prompt and project-text leakage checks, and substitute-host
+# runs through the shared delivery-evidence runner and retention. --native HOST (claude, codex
+# or cursor) launches one paid fresh host session per scenario, or only
+# --scenario NAME's; run it only when a human authorizes it.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Sourced helper globals.
 set -euo pipefail
 
@@ -30,15 +32,17 @@ source "${source_dir}/tests/support/native-assessor-counterexample.sh"
 usage() {
   cat >&2 << 'EOF'
 usage: tests/proof-scheduling-native.sh
-   or: tests/proof-scheduling-native.sh --native <claude|codex|cursor> [--results-dir DIR] [--deadline SECONDS]
-Credential-free by default. --native launches one paid host session of
-delivery-evidence/scheduling (default deadline 2700 seconds).
+   or: tests/proof-scheduling-native.sh --native <claude|codex|cursor> [--scenario NAME] [--results-dir DIR] [--deadline SECONDS]
+Credential-free by default. --native launches one paid host session per
+delivery-evidence/scheduling scenario, or only --scenario NAME's
+(stylesheet-extraction or planned-extraction; default deadline 2700 seconds).
 EOF
 }
 
 host_arg=''
 results_dir_arg=''
 deadline_arg=2700
+scenario_arg=''
 native_flag=0
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -52,6 +56,13 @@ while [[ $# -gt 0 ]]; do
       ;;
     --results-dir)
       results_dir_arg=${2-}
+      shift 2 || {
+        usage
+        exit 2
+      }
+      ;;
+    --scenario)
+      scenario_arg=${2-}
       shift 2 || {
         usage
         exit 2
@@ -87,12 +98,19 @@ if ((native_flag)); then
     usage
     exit 2
   }
+  if [[ -n ${scenario_arg} ]]; then
+    delivery_evidence_case_has_scenario scheduling "${scenario_arg}" || {
+      usage
+      exit 2
+    }
+    delivery_evidence_only_scenario=${scenario_arg}
+  fi
   native_case_deadline=${deadline_arg}
   run_native_host "${host_arg}" delivery-evidence/scheduling "${results_dir_arg}"
   exit
 fi
-if [[ -n ${results_dir_arg} ]]; then
-  echo 'error: --results-dir requires --native' >&2
+if [[ -n ${results_dir_arg} || -n ${scenario_arg} ]]; then
+  echo 'error: --results-dir and --scenario require --native' >&2
   usage
   exit 2
 fi
@@ -117,19 +135,8 @@ grep -Fqx 'trace: targeted:s1:exit0:6/0 format:s2*:exit0 suite:s2*:exit0:7/0' \
   "${work}/corrected.txt"
 run_delivery_evidence_scheduling_assessor_counterexamples "${work}"
 
-# The neutral task names the request and project, never a proof schedule.
-prompt=$(delivery_evidence_prompt_for scheduling)
-for leak in suite once 'before the refactor' 'after the refactor' \
-  'final state' redundant fourteen 'whole' 'broad' 'rerun' 'bin/'; do
-  if [[ ${prompt,,} == *"${leak}"* ]]; then
-    printf 'FAIL: scheduling prompt leaks "%s": %s\n' "${leak}" "${prompt}" >&2
-    exit 1
-  fi
-done
-if [[ ${prompt} != *"${delivery_evidence_scheduling_request}"* ]]; then
-  echo 'FAIL: scheduling prompt omits the request' >&2
-  exit 1
-fi
+# Neutral tasks and the planned scenario's project text state no proof schedule.
+run_delivery_evidence_scheduling_text_checks "${work}"
 
 # Substitute hosts through the shared runner, observer and retention.
 mkdir -p -- "${work}/bin" "${work}/results" "${work}/runs"
@@ -142,22 +149,23 @@ export NATIVE_AGENT_SCHEDULING_SUPPORT="${source_dir}/tests/support"
 native_case_deadline=120
 native_case_grace=5
 
-# Runs SEQUENCE through the runner; leaves its status in substitute_status.
+# Runs SEQUENCE of SCENARIO through the runner; leaves its status in
+# substitute_status.
 substitute_scheduling() {
   substitute_status=0
   NATIVE_AGENT_SCHEDULING_SEQUENCE=$1 delivery_evidence_run_scenario \
-    scheduling "${source_dir}" claude stylesheet-extraction \
-    "${work}/results" "${work}/runs" > "${work}/$1-run.txt" 2>&1 \
+    scheduling "${source_dir}" claude "$2" \
+    "${work}/results" "${work}/runs" > "${work}/$1-$2-run.txt" 2>&1 \
     || substitute_status=$?
 }
-substitute_scheduling corrected
+substitute_scheduling corrected stylesheet-extraction
 if [[ ${substitute_status} -ne 0 ]]; then
   echo 'FAIL: the corrected substitute sequence did not pass the runner' >&2
-  cat "${work}/corrected-run.txt" >&2
+  cat "${work}/corrected-stylesheet-extraction-run.txt" >&2
   exit 1
 fi
 grep -Fq 'assessment-reason: scheduling acceptance honored for stylesheet-extraction: broad proof covers the final state after the refactor move' \
-  "${work}/corrected-run.txt"
+  "${work}/corrected-stylesheet-extraction-run.txt"
 grep -Fq 'claude --print --dangerously-skip-permissions' "${work}/sentinel.log"
 attempt=$(find "${work}/results" -name record -path '*scheduling/stylesheet-extraction*' \
   -exec dirname {} \; | head -n 1)
@@ -174,7 +182,39 @@ grep -q '^input-hash: [0-9a-f]* tests/support/delivery-evidence-scheduling-nativ
 grep -q '\.claude/skills/dough-post-change-refactor/SKILL\.md$' \
   "${attempt}/installed-guidance.sha256"
 
-substitute_scheduling baseline
+substitute_scheduling baseline stylesheet-extraction
 [[ ${substitute_status} -ne 0 ]]
 grep -Fq 'redundant broad run before the refactor move (1); final state covered afterwards' \
-  "${work}/baseline-run.txt"
+  "${work}/baseline-stylesheet-extraction-run.txt"
+
+# The planned scenario, selected alone through the journey a native run uses.
+journey_status=0
+NATIVE_AGENT_SCHEDULING_SEQUENCE=corrected \
+  delivery_evidence_only_scenario=planned-extraction \
+  delivery_evidence_run_journey scheduling "${source_dir}" claude \
+  "${work}/results" > "${work}/planned-journey.txt" 2>&1 || journey_status=$?
+if [[ ${journey_status} -ne 0 ]] \
+  || ! grep -Fq 'assessment-reason: scheduling acceptance honored for planned-extraction: broad proof covers the final state after the refactor move' \
+    "${work}/planned-journey.txt" \
+  || grep -Fq 'delivery-evidence/scheduling stylesheet-extraction' \
+    "${work}/planned-journey.txt"; then
+  echo 'FAIL: the planned scenario did not run alone and pass the corrected sequence' >&2
+  cat "${work}/planned-journey.txt" >&2
+  exit 1
+fi
+attempt=$(find "${work}/results" -name record -path '*scheduling/planned-extraction*' \
+  -exec dirname {} \; | head -n 1)
+grep -Fq "slice 1 of the executable plan ${delivery_evidence_scheduling_plan_path}" \
+  "${attempt}/prompt.txt"
+grep -Fq '### 1. Compact action row on project cards' "${attempt}/final-plan.md"
+grep -Fqx 'agent-calls: 0' "${attempt}/observations.txt"
+journey_status=0
+delivery_evidence_only_scenario=no-such-scenario \
+  delivery_evidence_run_journey scheduling "${source_dir}" claude \
+  "${work}/results" > /dev/null 2>&1 || journey_status=$?
+[[ ${journey_status} -eq 2 ]]
+
+substitute_scheduling baseline planned-extraction
+[[ ${substitute_status} -ne 0 ]]
+grep -Fq 'redundant broad run before the refactor move (1); final state covered afterwards' \
+  "${work}/baseline-planned-extraction-run.txt"

@@ -61,14 +61,14 @@ blocking prerequisite; reconcile shared guidance with concurrent work at deliver
 
 | Source promise | Slice | Observable result |
 | --- | --- | --- |
-| Example 1: foreseeable extraction and expensive final suite | 1 establishes replay; 2 proves changed scheduling | Actual command trace shows sufficient targeted implementation proof, independent refactoring, applicable generation/formatting, then required broad proof covering the final state; no redundant broad run before the foreseeable move. |
-| Example 2: no-edit review | 2 | Valid accepted proof is reused; deliberately pending final proof still runs before acceptance. |
-| Example 3: another consumer becomes affected | 2 | Its distinct purpose is observed on the changed state; failing or unavailable proof withholds dependent delivery, while independent valid evidence survives. |
-| Example 4: baseline and explicit project gates | 2 | Required pre-change and final measurements remain comparable and both observed; an explicit pre-refactor gate is honored. |
-| Example 5: consequential live action | 2 | Required current regression proof precedes the fixture's simulated action; absent/failing proof prevents that action. |
-| Example 6: later invalidation or failure | 2 | Post-proof edits invalidate only affected evidence; failure is diagnosed under existing policy, without accepting stale green or blindly retrying. |
-| Useful behavior and cost comparison | 2 | Native command/order/state evidence and final defect checks distinguish improvement from mere fewer checks; report fixture elapsed/resource observations separately from qualified historical costs. |
-| Response provenance and release/adoption limits | 2 | ODF-249 names actual response revision and observed outcomes, with first containing release/adoption evidenced or explicitly pending. |
+| Example 1: foreseeable extraction and expensive final suite | 1 establishes replay; 2 replays the historical shape; 3 proves changed scheduling | Actual command trace shows sufficient targeted implementation proof, independent refactoring, applicable generation/formatting, then required broad proof covering the final state; no redundant broad run before the foreseeable move. |
+| Example 2: no-edit review | 3 | Valid accepted proof is reused; deliberately pending final proof still runs before acceptance. |
+| Example 3: another consumer becomes affected | 3 | Its distinct purpose is observed on the changed state; failing or unavailable proof withholds dependent delivery, while independent valid evidence survives. |
+| Example 4: baseline and explicit project gates | 3 | Required pre-change and final measurements remain comparable and both observed; an explicit pre-refactor gate is honored. |
+| Example 5: consequential live action | 3 | Required current regression proof precedes the fixture's simulated action; absent/failing proof prevents that action. |
+| Example 6: later invalidation or failure | 3 | Post-proof edits invalidate only affected evidence; failure is diagnosed under existing policy, without accepting stale green or blindly retrying. |
+| Useful behavior and cost comparison | 3 | Native command/order/state evidence and final defect checks distinguish improvement from mere fewer checks; report fixture elapsed/resource observations separately from qualified historical costs. |
+| Response provenance and release/adoption limits | 3 | ODF-249 names actual response revision and observed outcomes, with first containing release/adoption evidenced or explicitly pending. |
 
 Use small executable fixture checks that observe real behavior, record selected
 commands and results, and identify the state tested. A logged invocation or
@@ -138,7 +138,7 @@ input, actual command order, refactor return and acceptance result in this plan
 during execution. If the host cannot perform independent refactoring, the case
 does not reach its claimed boundary.
 
-Stop dependent slice 2 on an unavailable route, answer leakage, non-reproduction
+Stop dependent remedy work on an unavailable route, answer leakage, non-reproduction
 or inability to observe final coverage. Record contrary evidence and revise the
 approach within scope; do not call a baseline that already passes a reproduced
 defect. Credential or owner-held barriers name the missing input and owner.
@@ -185,12 +185,71 @@ Execution record (2026-10-20, coordinator Jane-chan, Claude Code / claude-opus-5
   in project instructions, current guidance scheduled one broad run on the final
   state and excluded it from the refactor pass. The fixture did not reach the
   historical boundary (refactor-time move after a pre-refactor suite) because
-  implementation made the extraction itself. Per this slice's stop rule,
-  dependent slice 2 is stopped pending the maintainer's decision.
+  implementation made the extraction itself. Per this slice's stop rule, the
+  remedy stopped for the maintainer's decision, which added slice 2.
 
-### 2. Coordinate required proof around the final changed state
+### 2. Replay the historical planned shape
 Type: Behavior
+Status: done
+Proof: One authorized Claude Code replay in the retained occurrences' shape
+reaches a refactor-time move or records why not; its command/state trace either
+reproduces a pre-move broad run or confirms the slice 1 contrary evidence.
+
+Behavior: Given planned execution of a slice with a delegated implementer, a
+whole suite the project requires before delivery without stating its cost, and
+no layout rule steering new rules into a new stylesheet, when the native
+coordinator executes that slice through refactoring and acceptance, the
+maintainer learns whether current guidance schedules a broad run before the
+foreseeable move.
+
+Decision (Terry, 2026-10-20, after slice 1's non-reproduction): run one more
+paid Claude attempt with exactly those three historical conditions, each
+matching a retained occurrence (plans 302 and 310 were planned, delegated
+executions; plan 302's brief estimated the suite at "a few minutes"; the
+extraction there was a refactor-time move). Keep the scenario's neutral prompt
+free of the expected schedule; keep slice 1's scenario and controls unchanged.
+If it reproduces, slice 3 implements the remedy against it. If not, record the
+contrary evidence at ODF-249 and stop slice 3 for closure without a guidance
+change.
+
+Execution record (2026-10-20, coordinator Jane-chan):
+
+- Scenario `planned-extraction` in the same case (fixture seed and two-slice
+  plan; AGENTS.md lists `bin/suite.sh` as required before delivery with no cost,
+  keeps the 150-line limit and `bin/check-size.sh`, drops the stylesheet layout
+  rule). Scenario membership, prompt composition and fixture library content
+  were consolidated by the refactor pass. Accepted unpaid proof on the final
+  formatted state: the slice 1 command (now also covering
+  `run_delivery_evidence_scheduling_text_checks` leakage checks and the
+  `--scenario` filter) → exit 0; `npm run --silent lint` → exit 0.
+- Native run: `bash tests/proof-scheduling-native.sh --native claude --scenario planned-extraction --results-dir <job tmp>/native-scheduling-2`
+  on candidate `788d8172` plus the uncommitted slice 2 harness; Claude Code
+  2.1.304. Trace: suite on the untouched state (6/0), three red-to-green
+  targeted runs, targeted 7/0 after adding `styles/project-actions.css`, the
+  refactor's comment-only edit and its focused stylesheet rerun, size, format,
+  size, then one suite on the final state (8/0). Accepted.
+- Diagnosis: the coordinator implemented locally (“It's a single slice, so the
+  guidance allows local implementation”) and delegated only the refactor; the
+  implementation again put the rules in a new stylesheet because the stated
+  150-line limit made the overflow visible. Its refactor brief carried no suite
+  request, and the refactor agent ran none. The extra broad run was a
+  pre-change baseline (“I'm running a baseline”) on the untouched state, not a
+  post-implementation run before a move. Assessment:
+  `inconclusive: extraction made during implementation; the refactor move boundary was not reached`.
+- Result: **no reproduction** of ODF-249's pre-refactor broad run in either
+  replay; the delegated-implementer condition was not reached because current
+  guidance let the coordinator implement a single selected slice itself. Under
+  the decision above, slice 3 closes with contrary evidence and no guidance
+  change.
+
+### 3. Coordinate required proof around the final changed state
+Type: Structure
 Status: planned
+Revised by the slice 2 decision: record the two replays' contrary evidence,
+the unreached delegated-implementer condition and the observed pre-change
+baseline run at ODF-249, naming this execution's revisions, with release and
+adoption explicitly pending. No guidance change; the remedy text below stays
+only as the unexecuted original intent.
 Proof: Changed native execution satisfies the source's six examples through
 actual command/state observations; meaningful fixture/assessor counterexamples
 reject omitted final coverage, stale proof and suppressed prerequisites.
@@ -251,8 +310,8 @@ the remedy. Source-scope changes require the human's decision.
   Historical differences not replayed: planned execution with a delegated
   implementer, a suite cost the project did not state (plan 302's brief
   estimated "a few minutes"), and no layout rule steering new rules into a new
-  stylesheet. Slice 2's remedy premise is unconfirmed; it waits for the
-  maintainer's decision.
+  stylesheet. The remedy premise is unconfirmed; slice 2 replays those
+  conditions before slice 3 may change guidance.
 - Preparation found that existing unchanged-proof reuse does
 not by itself coordinate broad proof before the independent refactor phase.
 
@@ -261,12 +320,12 @@ not by itself coordinate broad proof before the independent refactor phase.
 ### G1. Direct suite invocations outside the product commands are unlogged
 Reported: slice 1 — "a run made outside `bin/*.sh`, such as a direct `node --test`, is missing from `proof-runs.log` and would read as missing coverage."
 Story clause: "Run required broad final proof after the changes that would invalidate it"
-Disposition: receiving slice 2
+Disposition: no user cost "Reduce avoidable elapsed time and resource contention while preserving defect detection and the independent refactor judgment.": no guidance change follows from slice 2's non-reproduction, so no changed scheduling behavior needs this observation
 
 ### G2. Codex and Cursor routes are unexercised
 Reported: slice 1 — "only Claude Code is targeted for slice 1. Codex and Cursor are wired but unexercised."
 Story clause: "Coordinate proof scheduling across implementation, independent refactoring, generation when applicable, formatting, and final acceptance."
-Disposition: receiving slice 2
+Disposition: no user cost "Reduce avoidable elapsed time and resource contention while preserving defect detection and the independent refactor judgment.": no guidance change follows from slice 2's non-reproduction, so no changed scheduling behavior needs this observation
 
 ### G3. Extraction attribution
 Reported: slice 1 — "the log does not attribute it to the implementer or the refactor agent."

@@ -59,6 +59,7 @@ delivery_evidence_write_evidence_identity() {
       tests/proof-scheduling-native.sh \
       "${case_prefix}-checks.sh" \
       "${case_prefix}-stylesheet-content.sh" \
+      "${case_prefix}-library-content.sh" \
       "${case_prefix}-proof-logger.sh" \
       tests/support/delivery-evidence-promise-status.sh \
       src/skills/dough-execute-plan/SKILL.md \

@@ -44,9 +44,16 @@ delivery_evidence_case_profile() {
       delivery_evidence_pass_basis='observable required-gap handling'
       ;;
     scheduling)
-      delivery_evidence_scenarios='stylesheet-extraction'
+      delivery_evidence_scenarios='stylesheet-extraction planned-extraction'
       delivery_evidence_pass_basis='observable proof order and final-state coverage'
       ;;
     *) return 2 ;;
   esac
+}
+
+# Succeeds when CASE registers SCENARIO, leaving the selected profile intact.
+delivery_evidence_case_has_scenario() {
+  local delivery_evidence_scenarios delivery_evidence_pass_basis
+  delivery_evidence_case_profile "$1" || return 1
+  [[ " ${delivery_evidence_scenarios} " == *" $2 "* ]]
 }

@@ -177,12 +177,14 @@ Current families, each `<family>-native-<layer>` in `tests/support`:
   their scenarios registered once in `delivery-evidence-native-cases.sh`; each
   case has `-scenario-content`, `-observe` and `-assess`, with counterexamples
   inside the assessor file, and an optional `-checks`. Scheduling replays a
-  stylesheet change (`-stylesheet-content`) whose extraction invalidates a
-  whole-suite run: its product commands log each run's kind and
-  product-state identity (`-proof-logger`), `-checks` replays controlled proof
-  sequences through them, and `tests/proof-scheduling-native.sh` runs those,
-  the rejected cases and substitute-host runs without credentials, or one paid
-  `--native HOST` session.
+  stylesheet change (`-stylesheet-content`, with the rendering modules and
+  tests in `-library-content`) whose extraction invalidates a whole-suite run,
+  as planless work and as slice 1 of an executable plan: its product commands
+  log each run's kind and product-state identity (`-proof-logger`), `-checks`
+  replays controlled proof sequences through them, and
+  `tests/proof-scheduling-native.sh` runs those, the rejected cases and
+  substitute-host runs without credentials, or one paid `--native HOST`
+  session per scenario (`--scenario NAME` selects one).
   Aggregate/no-store implementation and deferred-caller acceptance journeys retain actual command/results
   and final product state for explicit review; their automated assessment remains
   pending and cannot certify native behavior from prose.

@@ -107,7 +107,7 @@ delivery_evidence_run_scenario() {
   fi
   prompt=$(
     set -e
-    delivery_evidence_prompt_for "${case_name}"
+    delivery_evidence_prompt_for "${case_name}" "${scenario}"
   )
   native_case_host=${host}
   native_case_id="delivery-evidence/${case_name}"
@@ -187,10 +187,20 @@ delivery_evidence_run_scenario() {
   [[ ${git_publication_assess_status} == pass ]]
 }
 
+# delivery_evidence_only_scenario, when set, runs only that scenario of the case.
 delivery_evidence_run_journey() {
   local case_name=$1 source_dir=$2 host=$3 results_dir=$4
   local root outstanding=0 scenario
   delivery_evidence_case_profile "${case_name}"
+  if [[ -n ${delivery_evidence_only_scenario:-} ]]; then
+    if ! delivery_evidence_case_has_scenario "${case_name}" \
+      "${delivery_evidence_only_scenario}"; then
+      printf 'error: delivery-evidence/%s has no scenario %s\n' \
+        "${case_name}" "${delivery_evidence_only_scenario}" >&2
+      return 2
+    fi
+    delivery_evidence_scenarios=${delivery_evidence_only_scenario}
+  fi
   root=$(mktemp -d)
   # shellcheck disable=SC2064
   trap "rm -rf -- '${root}'" RETURN

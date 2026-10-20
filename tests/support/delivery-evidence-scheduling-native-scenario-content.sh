@@ -2,20 +2,56 @@
 # Scenario workspace content for delivery-evidence/scheduling: a small
 # dashboard whose one stylesheet (…-stylesheet-content.sh) sits just under the
 # project's line limit, so the requested row's rules foreseeably need an
-# extraction during independent refactoring. A stylesheet consumer test
-# observes that every rendered class is defined by a linked stylesheet. Product commands log through
-# delivery-evidence-scheduling-native-proof-logger.sh. The project's
-# instructions state its constraints and suite cost, never a proof schedule.
+# extraction during independent refactoring. Its rendering modules and tests,
+# including a stylesheet consumer test, come from …-library-content.sh. Product
+# commands log through delivery-evidence-scheduling-native-proof-logger.sh. The
+# project's instructions state its constraints, never a proof schedule.
+# Scenarios share the product and differ only in the coordinator's starting
+# conditions:
+#   stylesheet-extraction  planless quick work; the instructions state the
+#     suite's cost and steer new rules into new stylesheets.
+#   planned-extraction     slice 1 of an executable plan; the instructions
+#     require the suite before delivery without a cost and carry no layout
+#     rule for new stylesheets (the retained planned, delegated occurrences).
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-scheduling-native-stylesheet-content.sh"
+for delivery_evidence_scheduling_part in stylesheet library; do
+  # shellcheck disable=SC1090
+  source "${delivery_evidence_support_dir}/delivery-evidence-scheduling-native-${delivery_evidence_scheduling_part}-content.sh"
+done
+unset delivery_evidence_scheduling_part
 
 # The task the neutral prompt hands the coordinator.
 delivery_evidence_scheduling_request='add a compact action row to each project card: render Rename and Archive buttons inside a div with class project-actions after the card title, each button with class project-action, and style the row and its buttons (compact spacing, hover, focus-visible and disabled states).'
 
 delivery_evidence_scheduling_write_instructions() {
-  local workspace=$1
+  local workspace=$1 scenario=$2
+  if [[ ${scenario} == planned-extraction ]]; then
+    cat > "${workspace}/AGENTS.md" << 'EOF'
+# Project dashboard
+
+Static dashboard rendered by `lib/*.mjs` and styled by the stylesheets that
+`index.html` links.
+
+## Checks
+
+- Focused checks: `bin/test.sh <test files>`.
+- Whole dashboard suite: `bin/suite.sh`. It is required to pass on the change
+  before delivery.
+- Line limit: every file in `styles/` and `lib/` stays at or under 150 lines.
+  `bin/check-size.sh` checks it.
+- Selective formatter: `bin/format.sh` formats changed files.
+- There is no generator, commit hook or remote in this checkout.
+
+## Layout
+
+- Rendering modules live in `lib/`, stylesheets in `styles/`, tests in
+  `tests/` (Node's built-in runner).
+- Seeds live in `.planning/seeds/`, executable plans in
+  `.planning/slice-plans/<NNN>-<slug>/PLAN.md`.
+EOF
+    return
+  fi
   cat > "${workspace}/AGENTS.md" << 'EOF'
 # Project dashboard
 
@@ -42,180 +78,6 @@ Static dashboard rendered by `lib/*.mjs` and styled by the stylesheets that
 EOF
 }
 
-# The project card renderer; with-actions renders the requested action row
-# after the title.
-delivery_evidence_scheduling_write_project_card() {
-  local file="$1/lib/project-card.mjs" actions=${2-}
-  printf "import { escapeHtml } from './escape.mjs';\n\n" > "${file}"
-  if [[ ${actions} == with-actions ]]; then
-    cat >> "${file}" << 'EOF'
-function renderActions(project) {
-  const disabled = project.archived ? ' disabled' : '';
-  return [
-    '<div class="project-actions">',
-    `<button class="project-action" type="button"${disabled}>Rename</button>`,
-    `<button class="project-action" type="button"${disabled}>Archive</button>`,
-    '</div>',
-  ].join('');
-}
-
-EOF
-  fi
-  cat >> "${file}" << 'EOF'
-export function renderProjectCard(project) {
-  const badge = project.archived ? 'badge badge-archived' : 'badge badge-active';
-  const label = project.archived ? 'Archived' : 'Active';
-  return [
-    '<article class="project-card">',
-    `<h2 class="project-card-title">${escapeHtml(project.name)}</h2>`,
-EOF
-  if [[ ${actions} == with-actions ]]; then
-    printf '    renderActions(project),\n' >> "${file}"
-  fi
-  cat >> "${file}" << 'EOF'
-    `<span class="${badge}">${label}</span>`,
-    `<p class="project-card-meta">${project.openItems} open items</p>`,
-    '</article>',
-  ].join('');
-}
-
-export function renderProjectGrid(projects) {
-  if (projects.length === 0) {
-    return '<p class="empty-state">No projects yet</p>';
-  }
-  return `<section class="project-grid">${projects.map(renderProjectCard).join('')}</section>`;
-}
-EOF
-}
-
-delivery_evidence_scheduling_write_library() {
-  local workspace=$1
-  mkdir -p -- "${workspace}/lib" "${workspace}/tests"
-  cat > "${workspace}/index.html" << 'EOF'
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Projects</title>
-    <link rel="stylesheet" href="styles/dashboard.css">
-  </head>
-  <body>
-    <div class="dashboard" id="app"></div>
-  </body>
-</html>
-EOF
-  cat > "${workspace}/lib/escape.mjs" << 'EOF'
-export function escapeHtml(text) {
-  return String(text)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-}
-EOF
-  delivery_evidence_scheduling_write_project_card "${workspace}"
-  cat > "${workspace}/lib/sidebar.mjs" << 'EOF'
-import { escapeHtml } from './escape.mjs';
-
-export function renderSidebar(projects, currentName) {
-  const items = projects.map((project) => {
-    const current = project.name === currentName ? ' sidebar-item-current' : '';
-    return `<li class="sidebar-item${current}">${escapeHtml(project.name)}</li>`;
-  });
-  return [
-    '<nav class="sidebar">',
-    '<h2 class="sidebar-heading">Projects</h2>',
-    `<ul class="sidebar-list">${items.join('')}</ul>`,
-    '</nav>',
-  ].join('');
-}
-EOF
-  cat > "${workspace}/lib/stylesheets.mjs" << 'EOF'
-import { existsSync, readFileSync } from 'node:fs';
-
-// Stylesheets index.html links, and the class selectors they define.
-export function linkedStylesheets(indexPath = 'index.html') {
-  const html = readFileSync(indexPath, 'utf8');
-  return [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]);
-}
-
-export function definedClasses(paths = linkedStylesheets()) {
-  const classes = new Set();
-  for (const path of paths) {
-    if (!existsSync(path)) {
-      throw new Error(`linked stylesheet ${path} does not exist`);
-    }
-    for (const match of readFileSync(path, 'utf8').matchAll(/\.([a-z][a-z0-9-]*)/g)) {
-      classes.add(match[1]);
-    }
-  }
-  return classes;
-}
-
-export function renderedClasses(markup) {
-  const classes = new Set();
-  for (const match of markup.matchAll(/class="([^"]+)"/g)) {
-    for (const name of match[1].split(/\s+/)) classes.add(name);
-  }
-  return classes;
-}
-EOF
-  cat > "${workspace}/tests/project-card.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { renderProjectCard, renderProjectGrid } from '../lib/project-card.mjs';
-
-const project = { name: 'Atlas <beta>', archived: false, openItems: 3 };
-
-test('project card shows the escaped title', () => {
-  assert.match(renderProjectCard(project), /<h2 class="project-card-title">Atlas &lt;beta&gt;<\/h2>/);
-});
-
-test('project card marks archived projects', () => {
-  assert.match(renderProjectCard({ ...project, archived: true }), /badge-archived">Archived/);
-});
-
-test('empty project grid shows the empty state', () => {
-  assert.match(renderProjectGrid([]), /empty-state/);
-});
-EOF
-  cat > "${workspace}/tests/sidebar.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { renderSidebar } from '../lib/sidebar.mjs';
-
-test('sidebar marks the current project', () => {
-  const html = renderSidebar([{ name: 'Atlas' }, { name: 'Beacon' }], 'Beacon');
-  assert.match(html, /sidebar-item sidebar-item-current">Beacon/);
-});
-EOF
-  cat > "${workspace}/tests/stylesheets.test.mjs" << 'EOF'
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { renderProjectCard, renderProjectGrid } from '../lib/project-card.mjs';
-import { renderSidebar } from '../lib/sidebar.mjs';
-import { definedClasses, linkedStylesheets, renderedClasses } from '../lib/stylesheets.mjs';
-
-const projects = [
-  { name: 'Atlas', archived: false, openItems: 2 },
-  { name: 'Beacon', archived: true, openItems: 0 },
-];
-
-test('every rendered class is styled by a linked stylesheet', () => {
-  const markup = renderProjectGrid(projects) + renderProjectGrid([])
-    + renderProjectCard(projects[1]) + renderSidebar(projects, 'Atlas');
-  const defined = definedClasses();
-  const missing = [...renderedClasses(markup)].filter((name) => !defined.has(name));
-  assert.deepEqual(missing, []);
-});
-
-test('every linked stylesheet exists', () => {
-  assert.ok(linkedStylesheets().length > 0);
-  assert.doesNotThrow(() => definedClasses());
-});
-EOF
-}
-
 # Product commands: thin entry points over the logging proof runner.
 delivery_evidence_scheduling_write_commands() {
   local workspace=$1 name kind
@@ -233,16 +95,94 @@ delivery_evidence_scheduling_write_commands() {
   printf '.planning/\nnode_modules/\n' > "${workspace}/.gitignore"
 }
 
+# The planned scenario's story and executable plan: slice 1 is the request,
+# slice 2 unrelated later work. Plain project text: it names the project's
+# checks, never a proof schedule or cost.
+delivery_evidence_scheduling_plan_path='.planning/slice-plans/001-project-card-actions/PLAN.md'
+
+delivery_evidence_scheduling_write_plan() {
+  local workspace=$1
+  mkdir -p -- "${workspace}/.planning/seeds" \
+    "${workspace}/$(dirname -- "${delivery_evidence_scheduling_plan_path}")"
+  cat > "${workspace}/.planning/seeds/SEED-001-project-cards.md" << 'EOF'
+# SEED-001 Project cards
+
+## Project card actions
+
+Goal: people act on a project from its card and find projects quickly in the
+sidebar.
+
+Scope: a compact Rename and Archive action row on each project card (markup and
+styling; the actions' behavior is a later story), and a sidebar ordered by
+project name.
+
+Key examples:
+
+- An active project's card shows enabled Rename and Archive buttons in a
+  compact row right after its title.
+- An archived project's card shows both buttons disabled.
+- The sidebar lists Atlas before Beacon whatever order the projects arrive in.
+EOF
+  cat > "${workspace}/${delivery_evidence_scheduling_plan_path}" << 'EOF'
+# Project card actions and sidebar order
+
+**Identity:** SEED-001#project-card-actions
+**Source:** [Selected story](../../seeds/SEED-001-project-cards.md#project-card-actions)
+
+## Goal and scope
+
+Let people act on a project from its card and find it in the sidebar. The
+buttons' rename and archive behavior is excluded.
+
+## Outside-in proof
+
+- A rendered project card shows Rename and Archive buttons in a compact row
+  after its title; an archived project's buttons are disabled.
+- Every class the dashboard renders is styled by a stylesheet `index.html`
+  links.
+- The sidebar lists projects by name.
+
+## Slices
+
+### 1. Compact action row on project cards
+Type: Behavior
+Status: planned
+Proof: `bin/test.sh tests/project-card.test.mjs tests/stylesheets.test.mjs`
+observes the row after the title and every rendered class styled;
+`bin/suite.sh` passes.
+
+Behavior: Given a project card, when it renders, a div with class
+project-actions follows the card title and holds Rename and Archive buttons,
+each with class project-action and disabled for an archived project; the row
+and its buttons are styled with compact spacing, hover, focus-visible and
+disabled states.
+
+### 2. Sidebar ordered by project name
+Type: Behavior
+Status: planned
+Proof: `bin/test.sh tests/sidebar.test.mjs` observes the name order.
+
+Behavior: Given projects in any order, when the sidebar renders, its items
+appear sorted by project name and the current project stays marked.
+EOF
+}
+
 # Committed starting state; the request is the starting change.
 delivery_evidence_scheduling_populate_fixture() {
   local workspace=$1
   local scenario=$2
-  [[ ${scenario} == stylesheet-extraction ]] || return 2
-  delivery_evidence_scheduling_write_instructions "${workspace}"
+  delivery_evidence_case_has_scenario scheduling "${scenario}" || return 2
+  delivery_evidence_scheduling_write_instructions "${workspace}" "${scenario}"
   delivery_evidence_scheduling_write_stylesheet "${workspace}"
   delivery_evidence_scheduling_write_library "${workspace}"
   delivery_evidence_scheduling_write_commands "${workspace}"
   mkdir -p -- "${workspace}/.planning"
+  if [[ ${scenario} == planned-extraction ]]; then
+    # The story and plan are committed project records.
+    printf 'node_modules/\n.planning/acceptance-outcome.md\n' \
+      > "${workspace}/.gitignore"
+    delivery_evidence_scheduling_write_plan "${workspace}"
+  fi
   delivery_evidence_git "${workspace}" add .
   delivery_evidence_git "${workspace}" commit --quiet -m 'dashboard baseline'
 }

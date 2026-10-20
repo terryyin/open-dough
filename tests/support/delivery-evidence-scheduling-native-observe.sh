@@ -17,6 +17,7 @@
 #     state already holding the final stylesheets: implementation made the
 #     extraction, so no refactor move could invalidate broad proof
 #   final-observed-suite: pass | fail (the harness's run on the final state)
+#   agent-calls: transcript lines delegating to an agent (diagnostic only)
 # shellcheck disable=SC2154,SC2312
 
 delivery_evidence_scheduling_logger() {
@@ -156,6 +157,8 @@ delivery_evidence_scheduling_observe() {
   printf 'refactor-delegated: %s\n' \
     "$(grep -Eq '"name":"(Task|Agent)".*post-change-refactor' "${transcript}" \
       2> /dev/null && echo true || echo false)"
+  printf 'agent-calls: %s\n' \
+    "$(grep -Ec '"name":"(Task|Agent)"' "${transcript}" 2> /dev/null || true)"
   printf 'host-suite-calls: %s\n' \
     "$(grep -c 'bin/suite\.sh' "${evidence_root}/command-results.jsonl" || true)"
   printf 'harness-inspected: %s\n' \
@@ -185,4 +188,7 @@ delivery_evidence_scheduling_retain() {
       && cp -R -- AGENTS.md index.html styles lib tests \
         "${native_result_attempt_dir}/final-product/"
   ) 2> /dev/null || true
+  native_result_copy_if_present \
+    "${delivery_evidence_workspace}/${delivery_evidence_scheduling_plan_path}" \
+    final-plan.md
 }

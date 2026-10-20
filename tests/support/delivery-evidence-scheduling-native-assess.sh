@@ -40,7 +40,7 @@ delivery_evidence_scheduling_verdict() {
       return 0
     fi
   done
-  if [[ ${obs[scenario]} != stylesheet-extraction ]]; then
+  if ! delivery_evidence_case_has_scenario scheduling "${obs[scenario]}"; then
     delivery_evidence_scheduling_reason="unknown scenario ${obs[scenario]}"
   elif [[ ${obs["extraction-performed"]} != true || ${obs["final-size-ok"]} != true ]]; then
     delivery_evidence_scheduling_status=inconclusive

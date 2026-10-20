@@ -5,7 +5,8 @@
 # on which state, and the stated outcome differ. They are controlled replays of
 # the retained stylesheet-extraction case, never native proof. The substitute
 # host (native-agent-proof-scheduling.sh) replays them through the native
-# runner; the credential-free suite observes them directly.
+# runner; the credential-free suite observes them directly, alongside the
+# fixture's product-command checks and its neutral-text checks.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 delivery_evidence_scheduling_sequences='corrected baseline dropped-final stale-pre-move invocation-only partial-suite broken-consumer no-targeted'
@@ -100,13 +101,14 @@ delivery_evidence_scheduling_observe_sequence() {
     "${root}/events.jsonl" > "${out}"
 }
 
-# Builds a populated fixture at PARENT/NAME/workspace and prints its path.
+# Builds a populated fixture of SCENARIO (default stylesheet-extraction) at
+# PARENT/NAME/workspace and prints its path.
 delivery_evidence_scheduling_fresh_workspace() {
   local workspace="$1/$2/workspace"
   mkdir -p -- "${workspace}"
   git init -q -b main "${workspace}"
   delivery_evidence_scheduling_populate_fixture "${workspace}" \
-    stylesheet-extraction
+    "${3:-stylesheet-extraction}"
   printf '%s\n' "${workspace}"
 }
 
@@ -162,4 +164,61 @@ run_delivery_evidence_scheduling_product_checks() {
   delivery_evidence_scheduling_expect_logged "${workspace}" \
     'exit=1 passed=1 failed=1 names=every linked stylesheet exists;every rendered class is styled by a linked stylesheet' \
     'the stylesheet consumer did not log its failing observation'
+}
+
+# Neutral-text checks: each scenario's task names the request or plan and the
+# project, never a proof schedule, and the planned scenario's committed project
+# text names its required checks without a cost, schedule or layout steer.
+run_delivery_evidence_scheduling_text_checks() {
+  local work=$1 scenario prompt leak required planned planned_text
+  local delivery_evidence_scenarios delivery_evidence_pass_basis
+  delivery_evidence_case_profile scheduling
+  for scenario in ${delivery_evidence_scenarios}; do
+    prompt=$(delivery_evidence_prompt_for scheduling "${scenario}")
+    for leak in suite once 'before the refactor' 'after the refactor' \
+      'final state' redundant fourteen 'whole' 'broad' 'rerun' 'bin/'; do
+      if [[ ${prompt,,} == *"${leak}"* ]]; then
+        printf 'FAIL: %s prompt leaks "%s": %s\n' "${scenario}" "${leak}" "${prompt}" >&2
+        return 1
+      fi
+    done
+  done
+  prompt=$(delivery_evidence_prompt_for scheduling stylesheet-extraction)
+  if [[ ${prompt} != *"${delivery_evidence_scheduling_request}"* ]]; then
+    echo 'FAIL: scheduling prompt omits the request' >&2
+    return 1
+  fi
+  prompt=$(delivery_evidence_prompt_for scheduling planned-extraction)
+  if [[ ${prompt} != *"slice 1 of the executable plan ${delivery_evidence_scheduling_plan_path}"* ||
+    ${prompt} == *"${delivery_evidence_scheduling_request}"* ]]; then
+    echo 'FAIL: planned prompt does not hand over slice 1 of the plan alone' >&2
+    return 1
+  fi
+  planned=$(delivery_evidence_scheduling_fresh_workspace "${work}" planned \
+    planned-extraction)
+  planned_text=$(cat -- "${planned}/AGENTS.md" \
+    "${planned}/${delivery_evidence_scheduling_plan_path}" \
+    "${planned}/.planning/seeds/SEED-001-project-cards.md")
+  for leak in once refactor 'final state' redundant fourteen minute cost \
+    rerun takes seconds 'new stylesheet' 'group rules' component; do
+    if [[ ${planned_text,,} == *"${leak}"* ]]; then
+      printf 'FAIL: planned project text leaks "%s"\n' "${leak}" >&2
+      return 1
+    fi
+  done
+  # shellcheck disable=SC2016 # Literal Markdown code spans.
+  for required in 'Whole dashboard suite: `bin/suite.sh`. It is required to pass' \
+    '`bin/check-size.sh` checks it.' '### 1. Compact action row on project cards' \
+    'Status: planned' '`bin/suite.sh` passes.' '### 2. Sidebar ordered by project name'; do
+    if [[ ${planned_text} != *"${required}"* ]]; then
+      printf 'FAIL: planned project text omits "%s"\n' "${required}" >&2
+      return 1
+    fi
+  done
+  if [[ -n $(git -C "${planned}" status --porcelain) ]] \
+    || ! git -C "${planned}" ls-files --error-unmatch \
+      "${delivery_evidence_scheduling_plan_path}" > /dev/null 2>&1; then
+    echo 'FAIL: the planned fixture is not a clean checkout tracking its plan' >&2
+    return 1
+  fi
 }
