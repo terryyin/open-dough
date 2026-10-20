@@ -130,7 +130,7 @@ nothing user-visible has changed yet for recorded sessions.
 
 ### 2. Sessions a replaced runner held remain resumable records
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor dashboard journey in the recovery/runner specs:
 launch two sessions (one with a recorded configuration scope), turn
 the live runner's proof stale, then launch a third session. The first

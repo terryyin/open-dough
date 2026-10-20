@@ -127,6 +127,46 @@ export async function startScopedCursorExecution(
   return startCursorExecution(page, origin, cursor, model);
 }
 
+// A second execution launch (Story B), with its own queued chat id so the
+// two held sessions' records stay distinct. No model: it is the unscoped
+// of the two sessions a stale runner can hold.
+export async function launchSecondHeldSession(
+  page: Page,
+  origin: Parameters<typeof openTakenCursorSession>[1],
+  cursor: FakeCursor,
+  home: string,
+  sessionId: string,
+): Promise<void> {
+  cursor.queueCreateChatId(sessionId);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  await page.goto("/");
+  await parts(page)
+    .backlog.getByRole("article", { name: "Story B", exact: true })
+    .getByRole("button", { name: "Start execution" })
+    .click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  await dialog
+    .getByRole("textbox", { name: "Instruction (optional)" })
+    .fill("Implement the selected slice.");
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(() => keptRecords(home).length, { timeout: launchWaitMs })
+    .toBe(2);
+  await expect
+    .poll(
+      () =>
+        cursor.attaches().filter((each) => each.sessionId === sessionId).length,
+      { timeout: launchWaitMs },
+    )
+    .toBe(1);
+}
+
 export function keptRecords(home: string): LaunchRecord[] {
   return (
     (

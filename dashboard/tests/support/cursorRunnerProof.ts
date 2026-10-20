@@ -131,13 +131,17 @@ export function writeRunnerAddress(
   writeFileSync(cursorRunnerAddressFile(fixture.home), JSON.stringify(address));
 }
 
-export function tamperRecordedProof(fixture: RunnerProofFixture): void {
-  const address = readCursorRunnerAddress(fixture.home);
+export function makeRecordedRunnerProofStale(home: string): void {
+  const address = readCursorRunnerAddress(home);
   if (address === undefined) throw new Error("No runner address to tamper.");
   writeFileSync(
-    cursorRunnerAddressFile(fixture.home),
+    cursorRunnerAddressFile(home),
     JSON.stringify({ ...address, buildId: "stale-build" }),
   );
+}
+
+export function tamperRecordedProof(fixture: RunnerProofFixture): void {
+  makeRecordedRunnerProofStale(fixture.home);
 }
 
 const standInSource = `

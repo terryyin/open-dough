@@ -1,8 +1,8 @@
 // Recover for an unfinished Cursor session the runner does not hold: the
 // not-held offer, resume through the runner, one continuation only on the
 // idle composer with confirmed first input, and cases that type nothing or
-// withhold Recover. Keep-wait expiry and cannot-load replacement live in
-// sibling specs.
+// withhold Recover. Keep-wait expiry, cannot-load replacement, and
+// sessions a replaced runner held live in sibling specs.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";

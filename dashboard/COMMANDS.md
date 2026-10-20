@@ -21,7 +21,10 @@ selects the commit origin's `main` names, installs that commit's locked
 dependencies and builds it in a separate checkout under
 `~/.open-dough/dashboard/deployments/`, then serves exactly that commit. It
 starts this machine's Cursor runner when none is already accepting
-connections. Local
+connections (start-if-absent: an accepting runner is left alone at
+startup, however old its code; new Cursor work reuses an accepting
+runner only when it proves it runs the current runner build, and
+replaces a stale one first). Local
 commits and edits in the development checkout, and its hot reload, leave that
 production app and server unchanged. Before each build, the watcher copies local
 WebP cartoons from `dashboard/public/agent-avatars/odd-e-nerds/cartoon/` in the
