@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#safe-cursor-session-stop",
+  "title": "Stop and acknowledge Cursor sessions safely",
+  "completedAt": "2026-10-20T06:26:02.357Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "cursor",
+  "model": "auto"
+}
