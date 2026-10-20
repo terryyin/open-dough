@@ -196,6 +196,8 @@ test.describe("a notification refused after successful diagnostics", () => {
     server.notifierBecomes("working");
     await becomes(server, session, "working");
     server.claudeSessionBecomes(session, "blocked");
+    // Recovery diagnostics can succeed before the notification is sent.
+    await expect.poll(() => server.notifierCalls().length).toBe(2);
     await expect
       .poll(() => alertsAnswered(server))
       .toEqual({ available: true });
