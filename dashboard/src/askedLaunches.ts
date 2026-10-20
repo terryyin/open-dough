@@ -80,7 +80,10 @@ export function useAskedLaunches({
       setPage(key, { kind: "submitting", request });
       const answer = await requestAgentAcceptance(request, attachTerminal);
       // Nothing started: the dialog asks the developer about the changes.
-      if (answer.kind === "existing-changes") {
+      if (
+        answer.kind === "existing-changes" ||
+        answer.kind === "stop-unconfirmed"
+      ) {
         setPage(key, undefined);
         return answer;
       }

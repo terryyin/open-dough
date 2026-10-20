@@ -1,7 +1,11 @@
 // Record actions shared by card and Recently done entries. Each says what
 // it came to through the entry's one status line (`say`), which nothing clears
 // but the next control asking.
-import { hostName, marksRecordDone } from "./sessionCapabilities.ts";
+import {
+  hostName,
+  marksRecordDone,
+  stopsSession,
+} from "./sessionCapabilities.ts";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
   doneAnswers,
@@ -94,6 +98,56 @@ export function DeleteRecord({
         });
       }}
     />
+  );
+}
+
+const notStopped = "The session could not be stopped.";
+const stoppedWording = "Session stopped.";
+
+// Stop for an active (not done) session whose host boundary supplies a
+// stop operation, shown by that fact alone and separate from Mark as
+// done: it never writes the done mark. A confirmed stop says so; an
+// unconfirmed one says why, with the remaining state named, and that
+// explanation is also retained on the record.
+export function StopSession({
+  record,
+  say,
+}: {
+  readonly record: LaunchWithState;
+  readonly say: (words: string | undefined) => void;
+}) {
+  const { stopSession, hostOperations } = usePageSessions();
+  const described = useFrameDescription();
+  const [stopping, setStopping] = useState(false);
+  if (record.doneAt !== undefined) return null;
+  if (!stopsSession(hostOperations, record.session.host)) return null;
+  return (
+    <p className="launch-open">
+      <button
+        type="button"
+        disabled={stopping}
+        aria-describedby={described}
+        onClick={(event) => {
+          say(undefined);
+          setStopping(true);
+          void stopSession({
+            record,
+            control: event.currentTarget,
+          }).then((answer) => {
+            setStopping(false);
+            if (answer === undefined) {
+              say(notStopped);
+              return;
+            }
+            say(
+              answer.kind === "stopped" ? stoppedWording : answer.explanation,
+            );
+          });
+        }}
+      >
+        Stop
+      </button>
+    </p>
   );
 }
 

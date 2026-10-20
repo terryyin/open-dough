@@ -28,6 +28,7 @@ export const codexHost: LaunchHost = {
   attach: attachCodex,
   rename: renameCodex,
   stop: (...[session, , signal]) => stopCodex(session, signal),
+  doneStop: (...[session, , signal]) => stopCodex(session, signal),
   prepareSavedSessions: async (signal) => {
     await daemonEndpoint(signal);
   },

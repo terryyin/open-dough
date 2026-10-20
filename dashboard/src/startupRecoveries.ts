@@ -134,7 +134,11 @@ export function useStartupRecovery({
             attempt.id,
             answer.kind === "existing-changes"
               ? existingChanges
-              : { kind: answer.kind, explanation: answer.explanation },
+              : {
+                  kind:
+                    answer.kind === "stop-unconfirmed" ? "failed" : answer.kind,
+                  explanation: answer.explanation,
+                },
           );
         else settle(attempt.id, { kind: "continuing", after: asksSoFar() });
         reread();

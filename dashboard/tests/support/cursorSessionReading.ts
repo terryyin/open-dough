@@ -94,9 +94,9 @@ export async function openTakenCursorSession(
   return recent;
 }
 
-// Actions on a held Cursor session's entry: Open terminal, and, because
-// its state is now known, no Delete record (that stays for unknown or
-// unavailable readings, as for every host); no Mark as done or rename.
+// Actions on a held Cursor session's entry: Open terminal and Stop, and,
+// because its state is now known, no Delete record (that stays for unknown
+// or unavailable readings, as for every host); no rename.
 export async function expectCursorSessionActions(
   page: Page,
   entry: Locator,
@@ -107,9 +107,7 @@ export async function expectCursorSessionActions(
   await expect(
     entry.getByRole("button", { name: "Delete record…" }),
   ).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    0,
-  );
+  await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /rename/i })).toHaveCount(0);
 }
 

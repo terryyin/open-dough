@@ -163,6 +163,23 @@ export async function setRecordDoneAt(
   });
 }
 
+// Retains an unconfirmed stop's explanation on one kept session, or clears
+// it when a later stop is confirmed (`stopUnconfirmed` undefined). Nothing
+// else changes: in particular the done mark is never written here.
+export async function setRecordStopUnconfirmed(
+  sourceId: string,
+  session: SessionReference,
+  stopUnconfirmed: string | undefined,
+): Promise<LaunchRecord | undefined> {
+  return changeSessionRecord(sourceId, session, (record) => {
+    const next: LaunchRecord = { ...record };
+    delete next.stopUnconfirmed;
+    return stopUnconfirmed === undefined
+      ? next
+      : { ...next, stopUnconfirmed: stopUnconfirmed.slice(0, 1_200) };
+  });
+}
+
 // Marks one kept session's report with `receipt` read, changing nothing else:
 // its done mark and disposition stay as they are. Answers the changed record,
 // or undefined when no such record is kept any more.
@@ -217,6 +234,7 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
+        stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,
       };
     }),

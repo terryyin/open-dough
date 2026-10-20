@@ -9,7 +9,6 @@ import {
   unattachedSessionPolicy,
 } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
-import { type LaunchModel } from "./hostDescription.ts";
 import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
@@ -119,6 +118,9 @@ const storyLaunchRequestSchema = z.object({
   ...launchOptions,
   policy: sessionPolicySchema.optional(),
   existingChanges: existingChangesSchema.optional(),
+  // Explicit override of an unconfirmed stop's replacement-writer block
+  // in the same workspace. Transient: never recorded.
+  overrideStopUnconfirmed: z.boolean().optional(),
 });
 
 // A session in a project with no story or skill: the request carries no
@@ -133,6 +135,7 @@ const adHocLaunchRequestSchema = z.strictObject({
   ...launchOptions,
   policy: unattachedSessionPolicySchema.optional(),
   existingChanges: existingChangesSchema.optional(),
+  overrideStopUnconfirmed: z.boolean().optional(),
 });
 
 export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
@@ -150,6 +153,7 @@ export function withoutConfirmation(
 ): AgentLaunchRequest {
   const kept = { ...request };
   delete kept.existingChanges;
+  delete kept.overrideStopUnconfirmed;
   return kept;
 }
 
@@ -175,56 +179,11 @@ export function sameLaunch(
   );
 }
 
-// What a launch dialog hands its caller: the developer's choices among the
-// request's options, as typed, before the request trims and omits them.
-export type LaunchChoices = {
-  readonly host: AgentLaunchRequest["host"];
-  readonly instruction: NonNullable<StoryLaunchRequest["instruction"]>;
-  // Absent for Default: the selected host's configured setting applies.
-  readonly model?: LaunchModel;
-  readonly effort?: string;
-  // The flags selected, absent when none.
-  readonly options?: readonly string[];
-  // A story session's policy, absent for the default.
-  readonly policy?: SessionPolicy;
-  // An unattached session's policy, absent for the default.
-  readonly unattached?: UnattachedSessionPolicy;
-  // The fingerprint of the existing changes the developer confirmed.
-  readonly existingChanges?: string;
-};
-
-// The choices every request carries alike: the chosen host, trimmed text
-// omitted when empty, and the model, options and confirmation only when
-// chosen.
-export function requestedSettings({
-  host,
-  instruction,
-  model,
-  effort,
-  options,
-  existingChanges,
-}: Omit<LaunchChoices, "policy" | "unattached">) {
-  const own = instruction.trim();
-  return {
-    host,
-    ...(own === "" ? {} : { instruction: own }),
-    ...(model === undefined ? {} : { model }),
-    ...(effort === undefined ? {} : { effort }),
-    ...(options === undefined || options.length === 0
-      ? {}
-      : { options: [...options] }),
-    ...(existingChanges === undefined ? {} : { existingChanges }),
-  };
-}
-
-// The choices as a story's request carries them: its settings, and its
-// policy only when chosen.
-export function requestedChoices(choices: LaunchChoices) {
-  return {
-    ...requestedSettings(choices),
-    ...(choices.policy === undefined ? {} : { policy: choices.policy }),
-  };
-}
+export {
+  type LaunchChoices,
+  requestedChoices,
+  requestedSettings,
+} from "./launchChoices.ts";
 
 // The request a record keeps: an ad hoc one with the label the server
 // derived as its title, and neither kind with a confirmation.
@@ -238,12 +197,14 @@ export type ReportingContext = z.infer<typeof reportingContextSchema>;
 
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
   storyLaunchRequestSchema
-    .omit({ existingChanges: true })
+    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
     .extend({ reporting: reportingContextSchema.optional() }),
-  adHocLaunchRequestSchema.omit({ existingChanges: true }).extend({
-    title: oneLine,
-    reporting: reportingContextSchema.optional(),
-  }),
+  adHocLaunchRequestSchema
+    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
+    .extend({
+      title: oneLine,
+      reporting: reportingContextSchema.optional(),
+    }),
 ]);
 
 export type RecordedLaunchRequest = z.infer<typeof recordedLaunchRequestSchema>;

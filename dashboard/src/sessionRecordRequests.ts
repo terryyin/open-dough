@@ -18,6 +18,11 @@ import {
   recoverSessionAnswerSchema,
   type RecoverSessionAnswer,
 } from "./sessionRecovery.ts";
+import {
+  agentStopEndpoint,
+  stopSessionAnswerSchema,
+  type StopSessionAnswer,
+} from "./sessionStop.ts";
 
 // What names a recorded session to the boundary.
 const sessionReference = (record: LaunchRecord) => ({
@@ -93,6 +98,24 @@ export async function requestDeleteRecord(
     return answer.success ? answer.data : { kind: "failed", reason: undefined };
   } catch {
     return { kind: "failed", reason: undefined };
+  }
+}
+
+// Asks the boundary to stop the recorded session through its host,
+// separate from Mark as done.
+export async function requestStopSession(
+  record: LaunchRecord,
+): Promise<StopSessionAnswer | undefined> {
+  try {
+    const response = await postJson(
+      agentStopEndpoint,
+      sessionReference(record),
+    );
+    if (!response.ok) return undefined;
+    const answer = stopSessionAnswerSchema.safeParse(await response.json());
+    return answer.success ? answer.data : undefined;
+  } catch {
+    return undefined;
   }
 }
 

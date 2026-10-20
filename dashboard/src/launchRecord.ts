@@ -155,6 +155,10 @@ export const launchRecordSchema = z.object({
   dispositionChangedAt: z.iso.datetime().optional(),
   // Native operations may fail even though local done intent was retained.
   doneProblem: z.string().max(1_200).optional(),
+  // A stop the host could not confirm, with the remaining state it named.
+  // Retained until a later stop is confirmed; it blocks a replacement
+  // writer in the same workspace unless explicitly overridden.
+  stopUnconfirmed: z.string().max(1_200).optional(),
 });
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;

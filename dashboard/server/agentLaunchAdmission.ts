@@ -52,6 +52,7 @@ import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { agentReadEndpoint } from "../src/readMark.ts";
 import { agentRecoverEndpoint } from "../src/sessionRecovery.ts";
+import { agentStopEndpoint } from "../src/sessionStop.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
@@ -70,9 +71,12 @@ import {
   knownSource,
   readRequest,
   recoverRequest,
+  stopRequest,
+} from "./sessionAdmission.ts";
+import {
   resultRequest,
   type AdmittedResult,
-} from "./sessionAdmission.ts";
+} from "./sessionResultAdmission.ts";
 
 export type Admitted =
   | { readonly kind: "sessions" }
@@ -114,6 +118,12 @@ export type Admitted =
       readonly kind: "recover";
       readonly source: PublishedSource;
       readonly record: LaunchRecord;
+    }
+  | {
+      readonly kind: "stop";
+      readonly source: PublishedSource;
+      readonly record: LaunchRecord;
+      readonly folder: ProjectFolder;
     }
   | {
       // A read mark on a session whose report is unread.
@@ -174,6 +184,7 @@ const postRequests = new Map<
   [agentReadEndpoint, readRequest],
   [agentDeleteEndpoint, deleteRequest],
   [agentRecoverEndpoint, recoverRequest],
+  [agentStopEndpoint, stopRequest],
   [storyReviewMarkEndpoint, markReviewedRequest],
   [agentAcceptEndpoint, launchRequest],
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],

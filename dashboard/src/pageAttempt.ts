@@ -83,7 +83,10 @@ export function shownAttempt(
 // it follows, a lost answer still to check against a read asked after the
 // first `lostAfter` reads, or the problem answered.
 export function answeredAttempt(
-  answer: Exclude<AcceptanceAnswer, { kind: "existing-changes" }>,
+  answer: Exclude<
+    AcceptanceAnswer,
+    { kind: "existing-changes" } | { kind: "stop-unconfirmed" }
+  >,
   request: AgentLaunchRequest,
   onLaunched: OnLaunched,
   lostAfter: number,

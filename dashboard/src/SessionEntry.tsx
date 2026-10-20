@@ -13,11 +13,7 @@ import {
 } from "./agentLaunch.ts";
 import { doneSessionName, nativeDoneMarkPending } from "./doneMark.ts";
 import { Moment } from "./Moment.tsx";
-import {
-  sessionShown,
-  unreadReportWording,
-  type SessionTone,
-} from "./sessionShown.ts";
+import { shownSession } from "./ShownSession.tsx";
 import { LaunchSession } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession } from "./pageEntries.ts";
@@ -26,6 +22,7 @@ import {
   DeleteRecord,
   MarkDone,
   RecoverSession,
+  StopSession,
 } from "./sessionRecordActions.tsx";
 import { SessionAssignment } from "./SessionAssignment.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";
@@ -137,7 +134,13 @@ export function SessionEntry({
           {record.doneProblem}
         </p>
       )}
+      {record.stopUnconfirmed !== undefined && (
+        <p role="status" className="launch-problem">
+          {record.stopUnconfirmed}
+        </p>
+      )}
       <LaunchSession record={record} />
+      <StopSession record={record} say={say} />
       <RecoverSession record={record} say={say} />
       {(!markedDone || record.doneProblem !== undefined) && (
         <MarkDone record={record} say={say} />
@@ -148,43 +151,6 @@ export function SessionEntry({
       </p>
     </article>
   );
-}
-
-// How every entry shows its session's state, by the one reading
-// (`sessionShown`): the class that gives an entry needing the developer its
-// heavier edge, the state's words, with an unread report's words in a line of
-// their own, and its label, tone, and unread report's words, for an entry
-// that marks its state by its own edge and its unread report by its own mark.
-export function shownSession(record: LaunchWithState): {
-  readonly entryClass: string;
-  readonly stateWords: ReactNode;
-  readonly label: string;
-  readonly tone: SessionTone;
-  readonly unreadReportWords?: string;
-} {
-  const { label, note, needsAttention, tone, unreadReport } =
-    sessionShown(record);
-  const unreadReportWords =
-    unreadReport === undefined ? undefined : unreadReportWording(unreadReport);
-  return {
-    label,
-    tone,
-    ...(unreadReportWords === undefined ? {} : { unreadReportWords }),
-    entryClass: needsAttention
-      ? "session-entry needs-attention"
-      : "session-entry",
-    stateWords: (
-      <>
-        <p className="session-state">
-          {label}
-          {note !== undefined && <span className="quiet">: {note}</span>}
-        </p>
-        {unreadReportWords !== undefined && (
-          <p className="session-unread-report">{unreadReportWords}</p>
-        )}
-      </>
-    ),
-  };
 }
 
 // A list of the machine's sessions: until they are first read it says it is

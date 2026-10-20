@@ -22,6 +22,7 @@ import { withResponseSignal } from "./responseSignal.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import { sessionResultResponse } from "./sessionResultResponse.ts";
+import { stopRecordedSession } from "./sessionStop.ts";
 import {
   storyReviewFileResponse,
   storyReviewResponse,
@@ -216,6 +217,16 @@ export async function answer(
           body: await recoverCursorSession(
             request.source,
             request.record,
+            launches,
+          ),
+        };
+      case "stop":
+        return {
+          status: 200,
+          body: await stopRecordedSession(
+            request.source,
+            request.record,
+            request.folder,
             launches,
           ),
         };

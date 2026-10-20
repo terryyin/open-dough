@@ -41,6 +41,7 @@ export function PageFrame({
     markRead,
     deleteRecord,
     recoverSession,
+    stopSession,
     readSession,
   },
   stories,
@@ -57,6 +58,7 @@ export function PageFrame({
     | "markRead"
     | "deleteRecord"
     | "recoverSession"
+    | "stopSession"
     | "readSession"
   >;
   readonly stories: {
@@ -77,6 +79,7 @@ export function PageFrame({
     markRead,
     deleteRecord,
     recoverSession,
+    stopSession,
     hostOperations,
     range,
   });

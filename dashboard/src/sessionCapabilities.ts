@@ -16,6 +16,7 @@ export const hostOperationsSchema = z.partialRecord(
   z.object({
     attach: z.boolean(),
     stop: z.boolean(),
+    doneStop: z.boolean(),
     launchedSessions: z.boolean(),
   }),
 );
@@ -27,11 +28,19 @@ export function embeddedTerminal(
 ): boolean {
   return operations[host]?.attach === true;
 }
-export function marksDone(
+// Whether the session's host boundary supplies a stop operation the
+// developer can ask for directly, separate from Mark as done.
+export function stopsSession(
   operations: HostOperations,
   host: SessionReference["host"],
 ): boolean {
   return operations[host]?.stop === true;
+}
+export function marksDone(
+  operations: HostOperations,
+  host: SessionReference["host"],
+): boolean {
+  return operations[host]?.doneStop === true;
 }
 // A reported session is marked done locally where its host has no native stop.
 export function marksRecordDone(

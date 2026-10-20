@@ -5,8 +5,8 @@
 // reads Working. A trust screen keeps the runner's label as an unknown
 // reading. A runner that is not running, or cannot be reached, says so and
 // shows no screen label. An unfinished recorded session the runner does
-// not hold says the agent is not running and offers Recover. Stop and
-// rename stay absent. Delete record stays only while a reading is unknown
+// not hold says the agent is not running and offers Recover. Rename
+// stays absent. Delete record stays only while a reading is unknown
 // or unavailable, as for every host. This read starts no agent.
 import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
@@ -43,7 +43,7 @@ import type { CursorScreen } from "./support/fakeCursor.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
-test("a held Cursor session at the follow-up prompt after its confirmed first instruction reads Ready for review, without stop or rename", async ({
+test("a held Cursor session at the follow-up prompt after its confirmed first instruction reads Ready for review, with stop and without rename", async ({
   page,
   dashboard,
   origin,
@@ -52,7 +52,7 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
   test.setTimeout(120_000);
   const cursorHost = launchHost("cursor");
   expect(cursorHost).toBeDefined();
-  expect(cursorHost).not.toHaveProperty("stop");
+  expect(cursorHost).toHaveProperty("stop");
   expect(cursorHost).not.toHaveProperty("rename");
   expectCursorUnknownWording();
 
@@ -66,7 +66,8 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
   const answer = await projectedSessions(page);
   expect(answer.hostOperations.cursor).toEqual({
     attach: true,
-    stop: false,
+    stop: true,
+    doneStop: false,
     launchedSessions: false,
   });
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
@@ -106,16 +107,14 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
 
   await reloadUntilRead(page);
   await expectNormalizedReading(recent, "Ready for review", true);
-  await expect(page.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    0,
-  );
   await expect(
     recent.getByRole("button", { name: "Delete record…" }),
   ).toHaveCount(0);
   const again = await projectedSessions(page);
   expect(again.hostOperations.cursor).toEqual({
     attach: true,
-    stop: false,
+    stop: true,
+    doneStop: false,
     launchedSessions: false,
   });
   expect(cursorRecord(again, cursor.sessionId)?.sessionState).toEqual({

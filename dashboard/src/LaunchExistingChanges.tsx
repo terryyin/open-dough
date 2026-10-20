@@ -19,11 +19,13 @@ import type {
   LaunchChoices,
   SessionPolicy,
 } from "./agentLaunch.ts";
+import type { StopUnconfirmedFound } from "./sessionStop.ts";
+import { LaunchStopUnconfirmed } from "./LaunchStopUnconfirmed.tsx";
 
 // What asking for a launch answers its dialog: whether the local service
 // accepted it (its startup goes on without the dialog), or the default
 // checkout's existing changes to confirm, with nothing started.
-export type StartAnswer = boolean | ExistingChangesFound;
+export type StartAnswer = boolean | ExistingChangesFound | StopUnconfirmedFound;
 
 // A launch dialog's confirmation state: `start` asks for the launch, which
 // is submitted (`submitting`) from that moment until an answer finds changes;
@@ -53,6 +55,7 @@ export function useExistingChangesConfirmation({
   readonly onCancel: (event: SyntheticEvent) => void;
 } {
   const [found, setFound] = useState<ExistingChangesFound>();
+  const [blocked, setBlocked] = useState<StopUnconfirmedFound>();
   const [submitting, setSubmitting] = useState(false);
   // Set at once, so a second Start before the next render sends nothing.
   const submitted = useRef(false);
@@ -70,11 +73,11 @@ export function useExistingChangesConfirmation({
     };
   }, [submitting]);
   useEffect(() => {
-    if (found === undefined && backToChoices.current) {
+    if (found === undefined && blocked === undefined && backToChoices.current) {
       backToChoices.current = false;
       startButton.current?.focus();
     }
-  }, [found]);
+  }, [found, blocked]);
   const start = (choices: LaunchChoices) => {
     if (submitted.current) return;
     submitted.current = true;
@@ -87,27 +90,47 @@ export function useExistingChangesConfirmation({
       submitted.current = false;
       setSubmitting(false);
       asked.current = choices;
-      setFound(answer);
+      if (answer.kind === "stop-unconfirmed") setBlocked(answer);
+      else setFound(answer);
     });
   };
   const back = () => {
     backToChoices.current = true;
     setFound(undefined);
+    setBlocked(undefined);
   };
   return {
-    view: found !== undefined && (
-      <LaunchExistingChanges
-        id={id}
-        found={found}
-        landing={landing}
-        starting={submitting}
-        onBack={back}
-        onContinue={() => {
-          if (asked.current === undefined) return;
-          start({ ...asked.current, existingChanges: found.fingerprint });
-        }}
-      />
-    ),
+    view:
+      blocked !== undefined ? (
+        <LaunchStopUnconfirmed
+          id={id}
+          blocked={blocked}
+          starting={submitting}
+          onBack={back}
+          onStartAnyway={() => {
+            if (asked.current === undefined) return;
+            setBlocked(undefined);
+            start({ ...asked.current, overrideStopUnconfirmed: true });
+          }}
+        />
+      ) : (
+        found !== undefined && (
+          <LaunchExistingChanges
+            id={id}
+            found={found}
+            landing={landing}
+            starting={submitting}
+            onBack={back}
+            onContinue={() => {
+              if (asked.current === undefined) return;
+              start({
+                ...asked.current,
+                existingChanges: found.fingerprint,
+              });
+            }}
+          />
+        )
+      ),
     startButton,
     submitting,
     start,
@@ -116,7 +139,7 @@ export function useExistingChangesConfirmation({
         event.preventDefault();
         return;
       }
-      if (found !== undefined) {
+      if (found !== undefined || blocked !== undefined) {
         event.preventDefault();
         back();
       }
