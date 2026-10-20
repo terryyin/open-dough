@@ -1,36 +1,24 @@
-OpenDough small-icon refinement prompt
+OpenDough outlined logo generation prompt
 
 Mode: built-in image_gen
-Date: 2026-10-20
 Final master: opendough-icon.png
-Reference: the accepted raw-dough design, retained in the final master. Earlier drafts were removed.
+Background: genuinely transparent
 Exports: favicon/icon-16.png through icon-512.png; favicon/favicon.ico
-PNG exports were resized from the generated master using macOS sips. ICO packages the exported PNGs.
+
+The accepted logo is the outlined mark. The PNG and ICO exports preserve its transparency and use the same artwork without a charcoal badge. Resized PNGs use macOS sips; the ICO packages those PNGs.
 
 Standalone reconstruction brief
 
-Create one minimal flat logo for OpenDough: a compact, softly irregular pale-cream piece of raw dough on an edge-to-edge warm-charcoal square. The dough is a single closed continuous mass, slightly lopsided and squat, occupying about 82 percent canvas width and 74 percent height. At the upper-left edge only, show one small corner tucked back and pressed into the dough. Indicate this with one short, broad, muted earthy-taupe shadow, approximately #92785F, attached to the outer contour and limited to the upper-left quarter. Keep the broad cream body uninterrupted. Use only cream, taupe and charcoal fills, with smooth bold contours. The tuck must remain visible at 16px and 32px. No ring, donut, finished bun, cut, cavity, filling, full-width seam, smile, face, texture, gradients, letters or extra objects.
+Create one minimal flat logo for OpenDough: a single compact, softly irregular pale-ivory piece of raw dough on a genuinely transparent square canvas. Preserve a slightly lopsided rounded quadrilateral silhouette and a broad continuous body, occupying about 82 percent canvas width and 74 percent height. At the upper-left edge only, show one small corner tucked back and pressed into the dough, indicated by one short, broad earthy-taupe shadow around #92785F. Keep this tuck attached to the outer contour and limited to the upper-left quarter. Add a smooth continuous warm-charcoal outer contour around #3D342E, approximately 3.5–4 percent of the dough width, so the ivory dough has a defined edge on light backgrounds. Do not outline the inner tuck. Use only uniform ivory, taupe and charcoal fills. No badge, ring, donut, finished bun, cut, cavity, filling, full-width seam, smile, face, texture, gradients, letters or extra objects. The same mark must remain recognizable on light and dark backgrounds and at 16px and 32px.
 
-The exact two edit prompts used for the final result follow. Use opendough-icon.png as the image reference for future edits.
+Exact edit prompt used to produce the accepted outlined mark
 
-Initial refinement
-
-Use case: precise-object-edit
-Asset type: Final small-size OpenDough logo, optimized for 16px and 32px web favicons.
-Input image 1: EDIT TARGET, the accepted OpenDough raw-dough logo.
-Primary request: Refine this SAME accepted design for tiny icon use. Preserve its identity: a single closed cream piece of raw dough with one small attached kneaded tuck at the upper-left corner, on a charcoal square. Do not introduce another concept.
-Make just these optical refinements:
-1. Make the mound about 12 percent taller and a little more compact, keeping the wide soft base, slightly lopsided rounded quadrilateral silhouette, natural uneven top, and closed uninterrupted body. Center it optically; aim for about 82 percent canvas width and 74 percent canvas height, with comfortable dark margins.
-2. Make the small upper-left tuck clearer: a short, broader, slightly darker muted warm-taupe fold shadow with a soft blunt taper rather than a needle point. At 16px it should retain about 1–2 pixels of visible thickness. Keep the tuck entirely within the upper-left quarter, attached to the outer edge. Its modest rounded lip should read as a small corner pressed back into the dough, never as a cut or opening. Do not extend the crease across the body.
-Style: Exceptionally clean flat logo. Only three uniform solid fills total: pale raw-dough cream, muted warm-taupe for the small localized tuck, and dark warm-charcoal background. Smooth bold edges. No texture, gradients or lighting.
-Must preserve: one solid piece; no visible interior; no separate top/bottom layer. Avoid reintroducing a smile, mouth, eye, ring, donut, bun, sandwich, filling, diagonal stripe or long swoosh. No decorations, outline, tiny creases, flour speckles, shadows, letters, text or watermark.
-Output: one centered finished square icon, not a preview board, not a favicon grid.
-
-Final contrast refinement after inspecting 16px and 32px exports
+The edit used the earlier accepted dough shape as its reference. Use opendough-icon.png as the reference for future edits; earlier design attempts are not retained as alternative logos.
 
 Use case: precise-object-edit
-Asset type: Final OpenDough favicon master.
-Input image 1: edit target.
-Change ONLY the color of the small upper-left kneaded-tuck shadow: make it a noticeably darker muted earthy taupe, approximately #92785F, so this little fold retains visible contrast when the icon is reduced to sixteen pixels. Use a single uniform flat taupe fill.
-Preserve everything else exactly: the short local tuck's shape and size, its connection to the outside edge, the closed uninterrupted pale cream dough mass, the slightly lopsided compact silhouette, its framing and scale, and the solid charcoal background.
-Do not enlarge or extend the fold. No additional marks, shading, texture, gradients, outline, surface creases, letters or text. One complete square icon only.
+Asset type: Preview of a universal light/dark OpenDough logo mark.
+Input image 1: EDIT TARGET, the accepted OpenDough raw-dough logo on charcoal.
+Primary request: Keep this exact dough logo and turn it into a freestanding mark with a warm dark contour. Remove the charcoal square background entirely, replacing it with genuine transparency. Add one clean, continuous, medium-weight WARM CHARCOAL outline around the OUTER silhouette of the dough only, approximately #3D342E. Make the outer outline about 3.5–4 percent of the dough's width, smooth and consistent, strong enough to remain visible on a white background at small sizes. Preserve the pale ivory fill and the small earthy-taupe kneaded tuck at the upper-left edge exactly. Do not outline the inner tuck or add any interior strokes.
+Invariants: Preserve the accepted asymmetric compact raw-dough silhouette, the closed uninterrupted body, the shallow localized fold connected to the upper-left edge, its orientation, proportions, placement and size. Keep the natural dough form. One closed piece only.
+Style: Exceptionally simple clean flat identity mark, smooth contours, uniform matte ivory, taupe and warm charcoal fills. No gradients, textures, shadows, glow or extra detailing. No lettering, no border around the square canvas, no badge, no smile, no face, no bun split, no donut, no holes or additional elements.
+Composition: Same square canvas, one centered outlined dough mark and genuinely transparent space surrounding it. This is a single logo asset, not a presentation board or multiple concepts.

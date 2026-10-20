@@ -2,7 +2,8 @@ OpenDough favicon exports
 
 favicon.ico contains 16, 32, 48, 64, 128, and 256 pixel images.
 icon-N.png files provide standalone PNG exports from 16 to 512 pixels.
-All variants use the same refined raw-dough logo with a stronger corner fold.
+All variants use the accepted outlined raw-dough mark, with a warm charcoal
+outer contour and transparent background. The ICO preserves transparency.
 
 Basic website use: copy favicon.ico to the site's public assets and add:
 <link rel="icon" href="/favicon.ico" sizes="any">
