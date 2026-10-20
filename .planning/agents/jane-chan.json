@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-144#branded-alert-click-automation",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
