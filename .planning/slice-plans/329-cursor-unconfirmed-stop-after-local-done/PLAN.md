@@ -122,3 +122,11 @@ rule; hosts whose Done is native keep their current panel behavior.
 - This correction is queued; this preparation neither Takes it nor
   authorizes execution. Native verification remains pending under plan 327 slice 5's
   named manual actions and is not part of this correction.
+
+## Execution complete
+
+Product advice: no change. The retrospective found the delivered correction
+matches the seed's goal, scope, and preserved promises, with no product,
+architecture, or process findings requiring follow-up; native Cursor
+verification remains pending under plan 327 as already recorded. Proceed to
+story wrap-up and landing when the developer chooses.
