@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Accept slices against the original story promises](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-original-story-promises) — SEED-010#accept-original-story-promises ([plan](slice-plans/322-accept-original-story-promises/PLAN.md))
-
 ## Backlog list
 
 - [Avoid repeating whole-suite proof around refactoring](seeds/SEED-010-learn-from-execution-retrospectives.md#schedule-proof-after-refactoring) — SEED-010#schedule-proof-after-refactoring
