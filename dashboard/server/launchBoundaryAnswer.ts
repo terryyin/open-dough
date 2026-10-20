@@ -15,6 +15,7 @@ import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { recoverCursorSession } from "./hosts/cursor/recover.ts";
 import { hostOperations } from "./launchHosts.ts";
+import { notifyRecordRemoved } from "./launchRecordRemoval.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
@@ -66,7 +67,8 @@ async function markedRead(
 // A delete of the admitted recorded session's record, made only while the
 // boundary's own reading of its state is unknown or unavailable. Nothing is stopped,
 // renamed, or marked; a record file that cannot be written is answered with
-// why, the record kept.
+// why, the record kept. After the record is gone, its host retires the
+// session-local state that record alone remembered.
 async function deleted(
   { source, record }: Extract<Admitted, { readonly kind: "delete" }>,
   launches: AgentLaunches,
@@ -75,13 +77,28 @@ async function deleted(
   if (!recordDeletable(joined)) {
     return { kind: "state-known", record: joined };
   }
+  let wasDeleted: boolean;
   try {
-    await deleteRecord(source.id, record.session);
+    wasDeleted = await deleteRecord(source.id, record.session);
   } catch (error) {
     throw new RefusedRequest(
       500,
       `The session record could not be deleted: ${error instanceof Error ? error.message : String(error)}`,
     );
+  }
+  // Only once the record is actually gone may its host retire the
+  // session-local state that record alone remembered; a kept record
+  // (a failed deletion above) keeps that state, so a session whose
+  // record survives stays resumable exactly as before.
+  if (wasDeleted) {
+    try {
+      await notifyRecordRemoved(record);
+    } catch (error) {
+      throw new RefusedRequest(
+        500,
+        `The session record was deleted, but its session-local state could not be removed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
   return { kind: "deleted" };
 }

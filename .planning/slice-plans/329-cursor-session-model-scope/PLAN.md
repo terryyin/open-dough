@@ -194,7 +194,7 @@ recorded scope keep today's behavior.
 
 ### 4. Prove non-interference across sessions and remove the scope with its record
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor journeys show two overlapping chosen-model launches
 keeping separate scopes and models with the fake shared configuration
 untouched; a deliberate change to the fake shared default between launch
@@ -255,3 +255,14 @@ it is not passed on deterministic evidence.
   therefore establish the scope as clone-plus-chats-symlink; slice 5
   re-verifies this natively. Scope removal must use a removal that does
   not follow the symlink.
+- Slice 4 (2026-10-20): scope removal rides one host-neutral
+  `recordRemoved` dispatch, fired only after explicit record deletion
+  lands and after retention-expiry drops land; the runner process does
+  not install that dispatch (see Story obligations G1).
+
+## Story obligations
+
+### G1. Runner-process retention drop can strand a scope
+Reported: slice 4 — "Writes in a process that never installs the dispatch (e.g. the Cursor runner process, via updateRecord) still drop expired records from the file without retiring scopes."
+Story clause: "removed when that record is removed"
+Disposition: no user cost "that session — including its later resumption — runs on the chosen model": a stranded scope is one tiny cloned cli-config.json plus a chats symlink under the dashboard machine home; it is never reused, and no session, shared configuration, or saved conversation is affected.
