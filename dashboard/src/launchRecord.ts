@@ -159,21 +159,7 @@ export const launchRecordSchema = z.object({
 
 export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
-// Native Codex continuation and Claude's established launch retain the saved
-// directory independently of whether the session still exists.
-export function recordedWorkspace(record: LaunchRecord): string | undefined {
-  if (record.session.host === "codex")
-    return record.session.continuation?.workspace;
-  if (record.session.host === "claude")
-    return establishedPlace(record)?.workspace;
-  return undefined;
-}
-
-// Where a launch's start established its session to work, a story's or an
-// unattached session's, if its start did.
-export const establishedPlace = (
-  record: Pick<LaunchRecord, "start" | "preparation" | "establishedSession">,
-) => record.start ?? record.preparation ?? record.establishedSession;
+export { establishedPlace, recordedWorkspace } from "./establishedPlace.ts";
 
 // Current native availability and activity, normalized by the host. A retained
 // conversation can be continued even when unloaded. Unknown observation is

@@ -1,6 +1,7 @@
 // Catalog and kept host-qualified identity are shared across local session requests.
 // Passive report admission does not require a project or continuation directory.
 import { recordedWorkspace, type LaunchRecord } from "../src/agentLaunch.ts";
+import { hostDescription } from "../src/hostDescription.ts";
 import {
   reportUnread,
   type CompletionReport,
@@ -198,23 +199,26 @@ export type AdmittedResult = {
   readonly read: NonNullable<LaunchHost["readResult"]>;
 };
 
-// Recorded Claude launches read dashboard completion evidence. Legacy Claude
-// records keep their existing refusal, rather than implying a native reader.
+// Recorded Claude and Cursor launches read dashboard completion evidence:
+// the retained explicit report is each host's result source, never a native
+// final-answer extraction. Legacy Claude records keep their existing
+// refusal, rather than implying a native reader.
 function retainedResultReader(
   record: LaunchRecord,
 ): AdmittedResult["read"] | undefined {
+  const { host } = record.session;
   if (
-    record.session.host !== "claude" ||
+    (host !== "claude" && host !== "cursor") ||
     recordedWorkspace(record) === undefined
   )
     return undefined;
+  const hostName = hostDescription(host).name;
   return () => {
     const { completion } = record;
     if (completion === undefined || completion.message === "") {
       return Promise.resolve({
         kind: "unavailable",
-        explanation:
-          "No retained final report is available. Claude Code cannot read a native final report here. The saved conversation is unchanged.",
+        explanation: `No retained final report is available. ${hostName} cannot read a native final report here. The saved conversation is unchanged.`,
       });
     }
     return Promise.resolve({

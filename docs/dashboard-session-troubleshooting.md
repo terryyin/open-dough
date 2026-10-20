@@ -36,10 +36,12 @@ full transcript.
 
 Claude Code sessions with a recorded execution or preparation workspace use
 this same report access when that directory is missing or its availability is
-unknown. The panel shows the completion message retained by the dashboard,
-identified by its receipt, rather than reading Claude's native turn history.
-When no completion text was retained, it explains that no retained final report
-is available and Claude Code cannot read a native final report here. Reading
+unknown. Cursor sessions use it when the workspace their continuation names
+is missing or its availability is unknown. The panel shows the completion
+message retained by the dashboard, identified by its receipt, rather than
+reading the host's native turn history. When no completion text was retained,
+it explains that no retained final report is available and Claude Code (or
+Cursor) cannot read a native final report here. Reading
 the panel leaves the developer's read and done marks unchanged; **Mark as read**
 and **Mark as done** remain deliberate actions.
 

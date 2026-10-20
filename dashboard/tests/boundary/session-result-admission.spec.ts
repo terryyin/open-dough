@@ -11,7 +11,7 @@ test("result admission refuses unknown projects, unrecorded or wrong-host sessio
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { record } = await retained(dashboard, native);
+  const { record, workspace } = await retained(dashboard, native);
   const attention = "Reminder: check the migration before landing.";
   save(dashboard.home, [
     ...stored(dashboard.home),
@@ -25,6 +25,30 @@ test("result admission refuses unknown projects, unrecorded or wrong-host sessio
       },
       completion: completionReport({ message: attention }),
     },
+  ]);
+  const cursorCompletion = completionReport({ message: attention });
+  const cursorSessionId = "22222222-2222-4222-8222-222222222222";
+  const cursorEmptySessionId = "33333333-3333-4333-8333-333333333333";
+  const cursorRecord = (
+    sessionId: string,
+    completion: typeof cursorCompletion,
+  ) => ({
+    ...record,
+    session: {
+      host: "cursor" as const,
+      sessionId,
+      name: record.session.name,
+      continuation: {
+        workspace,
+        args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
+      },
+    },
+    completion,
+  });
+  save(dashboard.home, [
+    ...stored(dashboard.home),
+    cursorRecord(cursorSessionId, cursorCompletion),
+    cursorRecord(cursorEmptySessionId, completionReport({ message: "" })),
   ]);
   const since = native.calls.length;
   const query = new URLSearchParams({
@@ -104,6 +128,35 @@ test("result admission refuses unknown projects, unrecorded or wrong-host sessio
   expect(claude.status).toBe(400);
   expect(claude.body).toContain("This host cannot read a final report.");
   expect(claude.body).not.toContain(attention);
+  // A kept Cursor session reads its retained explicit report, receipt-bound,
+  // with no native read; without a report message it answers honestly.
+  const cursor = await request(
+    new URLSearchParams({
+      source: "open-dough",
+      host: "cursor",
+      session: cursorSessionId,
+    }),
+  );
+  expect(cursor.status).toBe(200);
+  expect(JSON.parse(cursor.body)).toEqual({
+    kind: "available",
+    receipt: cursorCompletion.receipt,
+    text: attention,
+  });
+  const cursorEmpty = await request(
+    new URLSearchParams({
+      source: "open-dough",
+      host: "cursor",
+      session: cursorEmptySessionId,
+    }),
+  );
+  expect(cursorEmpty.status).toBe(200);
+  expect(JSON.parse(cursorEmpty.body)).toEqual({
+    kind: "unavailable",
+    explanation:
+      "No retained final report is available. Cursor cannot read a native final report here. The saved conversation is unchanged.",
+  });
+  expect(nativeReads()).toBe(readsBeforeClaude);
   const answer = await request(query);
   expect(answer.status).toBe(200);
   expect(JSON.parse(answer.body)).toEqual({

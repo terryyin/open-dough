@@ -263,7 +263,7 @@ historical occurrence.
 
 ### 3. Read a Cursor session's retained report and waiting question passively
 Type: Behavior
-Status: planned
+Status: done
 Proof: Session-result journeys show a Cursor session with an attention report
 reading that report's text in the final-report panel (receipt-bound, as other
 hosts) without opening or resuming the terminal; a Cursor session with no
