@@ -85,53 +85,27 @@ alone does not prove downstream operations were withheld.
 
 ### 1. Required local preparation controls whether work can be committed
 Type: Behavior
-Status: planned
-Proof: Fresh-work CLI in local-only authority, through actual prerequisite
-processes and Git, observes no commit after each failure and the successful
-commit receipt after repair. Extend existing commit/obligation controls.
+Status: done
+Proof: Installed fresh-work CLI, local-only authority, real prerequisites,
+obligations, Git and hooks; observe withheld commit after every failure and the
+exact commit receipt after repair. The proof mapping above remains authoritative.
 
-Behavior: Given accepted proof, resolved project requirements and owned changes,
-invoking the maintained fresh increment operation executes required preparation
-in dependency order. Terminal failure names the operation and its result, leaves
-work recoverable, and stops before dependent staging/commit. With successful
-preparation, owned staging and the ordinary project hook/commit contract produce
-the exact commit receipt.
+Resolve planned/quick context, applicable generator/formatter/summary, executable
+plan/status mutation, selected obligations and owned staging before mutation.
+Run direct argv commands to their terminal result in dependency order; compound
+scripts own a meaningful exit. Missing context, nonzero, throw, signal or
+unterminated operation must not permit commit. Check obligations before the done
+mutation and again before commit. Preserve hooks, agent/ordinary authorship,
+partial owned staging and unrelated bytes. Refuse ambiguous staging without
+unstaging; retain recoverable edits/index and useful repair instructions.
+Declare every deployed dependency and teach the shared source entry.
 
-- Resolve the existing execution context, including planned versus quick work,
-  triggered generation, formatter, required plan/status update and selected
-  obligation check. Missing required context is a refusal, not an empty list.
-  Keep human/agent semantic review outside the mechanical command.
-- Run required commands directly with terminal result handling. Where an
-  operation needs a compound script, require its own meaningful terminal
-  result; do not implement a Bash parser or accept a trailing output filter's
-  exit as that of the prerequisite. The maintained path must not build such a
-  status-losing pipeline itself.
-- Execute required plan/status mutations within this sequence, preserving
-  their failure results. Reuse the obligation validator before the applicable
-  done/commit transition. Keep quick work's no-plan behavior.
-- Preserve owned staging boundaries and ordinary Git hooks. Delegate assigned
-  workspace commits to `agentCommit`; keep ordinary-Git callers' existing
-  authorship. A failure returns a usable recovery instruction without destructive
-  rollback, speculative restaging, or a global latch.
-- Teach this commit behavior in the shared runtime source, with any new runtime
-  dependencies included in the declared payload and corresponding fixtures.
-  Local-only success is committed/pending publication, not published.
-
-Focused proof: Add the cohesive fresh-entry regression suite beside execution
-scripts, covering the rows owned above, and run it through `npm test -- <file>`.
-Run `agent-commit.test.mjs` and `story-obligations.test.mjs` when their contracts
-or direct consumers change. Preserve hook tests as controls; change the project
-hook only if independently necessary, not to replace the shared gate.
-
-Safe stopping point: A usable guarded local-only commit operation and its
-guidance. Publication still uses the existing separate entry path until slice 2;
-this interim does not claim the story's complete failure-to-delivery guarantee
-or permit release of the unfinished journey.
-
-Sizing: One preparation-to-commit proof loop, including implementation, focused
-proof and cleanup. No numeric slice target or hard limit is supplied. If the
-operation requires a general task graph, persistent ledger or independent
-project-policy redesign, reassess the approach before adding that machinery.
+Focused proof: fresh-entry suite, agent-commit and story-obligations controls,
+changed consumers and declared-payload checks via `npm test -- <files>`.
+Safe stop: guarded local-only commit, pending publication; slice 2 owns the
+complete failure-to-delivery guarantee. No release of this interim journey.
+Sizing: one preparation-to-commit proof loop, no numeric limit; reassess any
+need for a general task graph, ledger or independent policy redesign.
 
 ### 2. Deliver only the successful candidate and preserve publication recovery
 Type: Behavior
@@ -202,85 +176,27 @@ No separate Structure slice is justified by current evidence.
 
 ## Current decisions
 
-- Preparation-only request: do not Take or implement. Planned slices remain
-  `planned`; execution starts only from a later explicit instruction.
-- Two Behavior slices share one attempt model. The first delivers guarded
-  local-only commits; the second completes publication with preserved recovery.
-  The named interim belongs to slice 2 and is not a final scope exclusion.
-- Project-specific commands and plan context are resolved from the project
-  being worked on. Do not hard-code Open Dough's npm command or planning layout
-  into published runtime guidance.
-- Commit success, proof acceptance, publication acceptance, observer coverage
-  and readiness remain different facts. Add no duplicate state authority.
-- Source edits belong in `src/skills/`; leave installed managed copies unchanged.
-  Follow the installed execution workflow's independent review/refactor and
-  commit gates when authorized execution begins. In this repository, run the
-  selective `npm run format` before staging, use `git diff --cached --check`,
-  and let `.githooks/pre-commit` own staged lint and conditional typecheck.
-  Hosted CI alone does not make the full suite a local gate.
+- Explicit execution authorized on 2026-10-20; established start reused.
+- Two Behavior slices share one attempt model; slice 2 owns the interim journey.
+- Resolve project commands/context from the executing project; no Open Dough
+  npm command or planning layout in runtime guidance.
+- Commit/proof/publication/observation/readiness remain distinct; no new ledger.
+- Edit `src/skills/` only. Coordinator uses selective `npm run format`, staged
+  `git diff --cached --check`, and check-only `.githooks/pre-commit` lint/typecheck.
+  Full hosted CI is not an additional local gate.
 
-## Decisive premises and observations
+## Preparation evidence
 
-Observed on 2026-10-20 in
-`/Users/terryyin/git/open-dough/.worktrees/block-commits-and-delivery-after-failed-local-pr`
-at `f24c716fd8f289b70b5a65cb7002a5cf8f036503`, Node `v24.21.0`
-(matching `.node-version`). Scratch source was removed before preparation writes;
-fixtures and workers were cleaned up. No product implementation changed.
-
-1. **The missing gate is outside successful lower-layer failure reporting.**
-   `node .seed146-observe.mjs` constructed disposable repositories with
-   `createManagedFixture`, configured agent authorship, staged `work.txt`, and
-   deliberately invoked `agentCommit` and managed delivery after failures.
-   Formatter substitute exit 7, plan-edit substitute exit 1 and actual
-   `git diff --cached --check` exit 2 all still allowed commit/publication.
-   An actual rejecting pre-commit hook produced `commit-failed`, unchanged HEAD
-   and retained staged `work.txt`; subsequent delivery published the prior
-   fixture SHA and attached observation. A further inline observation through
-   `node --input-type=module` composed `story-obligations.mjs check --plan
-   <fixture PLAN.md> --slice 4`, `agentCommit`, and managed delivery, using
-   `story-obligations-test-fixtures.mjs`'s real open-obligation record and
-   `createManagedFixture`. It observed exit 1 / `open-obligation`, then
-   `committed`, `accepted`, the exact new SHA on the bare remote, and `attached`.
-   Both fixtures and the observer were cleaned up. These deliberately independent
-   calls reproduce the gap; slice 1/2 must prove the guarded entry prevents it.
-2. **Publication and recovery can retain their current owner.**
-   In that same scratch journey, each delivered SHA matched the bare remote,
-   repeat delivery returned `already-published`, the observer was `reused`,
-   and a `beforePush` counter stayed at one. This proves the constructed
-   already-accepted case, not every resume variation or native follow-through.
-   The fixture supplies an earlier unpublished commit and a controlled external
-   CI adapter; real Git, publisher, observer and registration execute.
-3. **The maintained local proof route works in this worktree.**
-   Initial hook controls could not reach lint/typecheck because dependencies
-   were absent. `npm ci --ignore-scripts --no-audit --no-fund` installed the
-   locked packages. Direct control runs then passed (40 tests across seven
-   files), but [tests/README.md](../../../tests/README.md) requires the runner.
-   The runner initially refused system Bash 3.2; using Homebrew Bash resolved it.
-   The following invocation passed all seven maintained control files; its
-   scratch probe alone was refused for printing output despite its assertions
-   passing:
-
-   ```sh
-   PATH="/opt/homebrew/bin:$PATH" npm test -- .seed146-observe.mjs \
-     tests/support/pre-commit-lint-hook.test.mjs \
-     tests/support/pre-commit-typecheck-hook.test.mjs \
-     src/skills/dough-execute-plan/scripts/agent-commit.test.mjs \
-     src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs \
-     src/skills/dough-execute-plan/scripts/execution-increment-publication-reconciliation.test.mjs \
-     src/skills/dough-execute-plan/scripts/story-obligations.test.mjs \
-     src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs
-   ```
-
-   Removing diagnostic printing, without changing the observed operations or
-   success assertions, made
-   `PATH="/opt/homebrew/bin:$PATH" npm test -- .seed146-observe.mjs`
-   exit 0 silently. The scratch probe was then deleted. No repeated test was used
-   to hide a product failure.
-
-The control suites are evidence for existing protections, not proof of the
-proposed gate. New-entry proof remains implementation work. Native behavior is
-an explicitly separate acceptance requirement, not a cheap premise asserted
-without observation.
+Preparation observations at `f24c716fd8f289b70b5a65cb7002a5cf8f036503`
+used disposable Git repositories, local bare remotes and real commit,
+obligation, managed publication and observer machinery. Controlled formatter
+exit 7 and plan-update exit 1, real whitespace exit 2 and obligations refusal
+all permitted independently invoked later commit/delivery; rejecting hooks
+retained HEAD/index but separate delivery accepted the older candidate.
+Repeated delivery recovered already-published acceptance without another push.
+These establish the orchestration gap, not defective helpers or native proof.
+Full setup, literal control commands and qualified observations are recoverable
+from this plan at `44bf5b369c7cee3f5091f454200c075784e72acd`.
 
 ## Learnings
 
@@ -289,3 +205,46 @@ Therefore adding a failure flag only in the lower publisher would leave the
 story's no-observer-after-failed-fresh-commit example unfulfilled. Place the
 fresh success dependency before the managed delivery call, while retaining the
 existing already-committed and accepted-candidate recovery responsibilities.
+
+## Execution context
+
+Identity `SEED-146#gate-local-prerequisites-before-commit-and-delivery`;
+publisher `dashboard-territory.local-open-dough`; agent `terry-chan`.
+Story Branch Mode; reused owned checkout
+`/Users/terryyin/git/open-dough/.worktrees/block-commits-and-delivery-after-failed-local-pr`,
+branch `codex/block-commits-and-delivery-after-failed-local-pr`.
+Remote `origin`, trunk `main`; increments target `refs/heads/codex/block-commits-and-delivery-after-failed-local-pr`.
+Claim/initial published base/candidate `2e26b32763bf0b3263305bfbd805ead2219c3e98`;
+starting revision `44bf5b369c7cee3f5091f454200c075784e72acd`.
+Node v24.21.0; locked `npm ci --ignore-scripts --no-audit --no-fund` and
+`npm run --silent lint -- package.json` passed (lint selected the whole repo).
+No numeric slice budget/limit or explicit replanning override.
+CI: verified GitHub `ci.yml` (`CI`), same-checkout installed runtime;
+coordinator `seed146-terry-chan`, cell 13, session 63052,
+`/tmp/dough-ci-501/watch-cGbcTb`, PID 97562. Trunk claim remains unobserved.
+Accepted ADRs 0002/3/5/6 reviewed; source-only edits and separate native acceptance.
+
+## Story obligations
+
+### G1. Fresh publication and recovery await slice 2
+Reported: slice 1 — "Remaining limits belong to slice 2: fresh publication, exact-receipt downstream delivery, output-filter failure observation, and retained-candidate publication recovery."
+Story clause: "successful commit before delivery"
+Disposition: receiving slice 2
+
+### G2. Native follow-through remains unproved
+Reported: slice 1 — "Native host follow-through remains unproved."
+Story clause: "Keep native host requirements distinct from deterministic proof"
+Disposition: receiving slice 2
+
+## Accepted slice 1 proof
+
+Installed fresh CLI observes real prerequisite/Git/index/hook/remote outcomes;
+`execution-increment-fresh-test-fixtures.mjs` supplies disposable repositories,
+bare remotes and controlled project programs. Fresh preparation, ownership,
+authorship and commit suites assert retained bytes, withheld downstream work,
+plan mutation, hook/signing refusal, repairs and exact successful commit metadata.
+Request extraction preserves existing managed/closure/one-shot contracts.
+Refactor proof passed (61778): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-authorship.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-commit.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
+Unchanged commit/obligation proof passed (26342): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/agent-commit.test.mjs src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
+Selective format passed after removing an unused test import; staged/hook gates follow.
+Publication/native gaps remain G1/G2, owned by slice 2.

@@ -1,7 +1,6 @@
 # Slice wrap-up
 
-The coordinator runs this sequence after implementation, including owned CI repair.
-Use [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair) for validated work.
+The coordinator runs this sequence after implementation, including owned CI repair, using [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair) for validated work.
 
 ## Accept proof
 
@@ -109,12 +108,10 @@ coverage, boundaries, setup and observation locations need no report-only resend
 or formatting retry. Missing terminal results or contradictions remain incomplete.
 Explicit completion markers such as `## REFACTOR COMPLETE` stay verbatim.
 
-Reuse accepted inspection while its promise, boundary, implementation, setup and
-observations remain unchanged. Recover literal commands from the original handoff.
-Rerun only for missing or ambiguous proof, a boundary changed during wrap-up, or
-omitted required integration proof. Do not sample randomly or repeat valid proof
-to manufacture process compliance. Preserve failures under
-[execution decisions](execution-decisions.md#diagnose-failed-proof).
+Reuse accepted inspection only while its promise, boundary, implementation, setup
+and observations match. Recover literal commands from the original handoff; rerun
+only missing, ambiguous, changed-boundary or omitted required integration proof.
+Preserve failures under [execution decisions](execution-decisions.md#diagnose-failed-proof).
 
 Require CI-safe work: no deliberate failing tests or unfinished end-to-end proof
 represented as complete. Mark unfinished proof by this project's convention;
@@ -130,16 +127,19 @@ or remove a retained execution branch or worktree. After the commit, publish
 the owned unpublished increment or repair through
 [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair).
 
-As each obligation finishes, retain the current delivery boundary in the
-execution conversation with the owned unfinished paths, accepted proof and its
-boundary, applicable implementation or refactor return, exact observer
-identity when present, and the unpublished candidate with its final `suffixBase`,
-previously published base, and accepted revision and target after any rewrite. On recovery,
-reconcile this focused record with actual Git, agent, and observer state under
-[execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
-Classify the increment or repair with
-[interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
-and continue that unfinished obligation only.
+As each obligation finishes, retain its delivery boundary in the execution conversation:
+owned unfinished paths, accepted proof and boundary, implementation or refactor return,
+exact observer identity when present, unpublished candidate and final `suffixBase`,
+previously published base, and accepted revision and target after any rewrite.
+On recovery, reconcile actual Git, agent and observer state under
+[execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary), classify the increment or repair with
+[interrupted publication](trunk-publication.md#resume-an-interrupted-publication), and continue only that unfinished obligation.
+
+For a fresh local-only increment or owned repair, after proof acceptance and the
+independent refactor below, use [guarded fresh preparation](fresh-increment.md)
+for steps 3–7. Resolve its requirements first. Failure stops the attempt; do not
+follow it with a separate commit or delivery of an older HEAD. Its local-only
+receipt records committed work pending publication.
 
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
