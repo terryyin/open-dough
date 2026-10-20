@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-146#gate-local-prerequisites-before-commit-and-delivery",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
