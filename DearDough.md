@@ -104,6 +104,16 @@ Former local code: DD-219.
 
 An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
 
+### Occurrences
+
+- Execution: SEED-146#gate-local-prerequisites-before-commit-and-delivery / plan 331, first implementation `4a1fb686b9b30c83403172f017a0271879d5eb71`
+  - Timestamp: unknown (2026-10-20, slice 2 refactor and CI repair)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (installed execution/refactor guidance)
+  - Evidence: the slice-2 refactor reported no executable candidate and shortened `wrap-up.md` and `trunk-publication.md` to 250 lines. Commit `8ea3d654` changed the pre-existing accepted-claim sentence to equivalent wording; CI runs `39423276552/1` and `39423628393/1` rejected the unchanged literal assertion at `workspace-ownership-lifecycle.test.mjs:155`. The focused runner reproduced it and passed after restoring the phrase without weakening assertions.
+  - Observed effect: one owned failure cause across two published revisions required a repair/refactor/publication cycle; runtime publication behavior was unchanged.
+  - Inference: size-only prose cleanup expanded the changed consumer surface, and the neighboring guidance assertion was omitted from focused proof. This is evidence of extra repair work, not a broader file-size policy conclusion or native behavioral failure.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221.

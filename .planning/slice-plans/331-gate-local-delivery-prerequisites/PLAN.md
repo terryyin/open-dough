@@ -155,12 +155,8 @@ guarded journey, current guidance and tracked native acceptance; no new engine.
 
 ## Preparation evidence
 
-At `f24c716fd8f289b70b5a65cb7002a5cf8f036503`, real Git/obligation/
-publication/observer scratch journeys showed independent later delivery still
-ran after formatter, plan-edit, whitespace, obligations and hook refusals;
-already-published repeat delivery required no push. This established orchestration
-ownership, not defective helpers or native proof. Full qualified observations
-and literal control commands remain at `44bf5b369c7cee3f5091f454200c075784e72acd`.
+The qualified pre-change Git/prerequisite/publication observations and commands
+remain recoverable from this plan at `44bf5b369c7cee3f5091f454200c075784e72acd`.
 
 ## Learnings
 
@@ -202,11 +198,9 @@ Disposition: proved by slice 2: SEED-053#guarded-local-delivery-prerequisites tr
 
 ## Accepted slice 1 proof
 
-Installed fresh CLI observes real prerequisite/Git/index/hook/remote outcomes;
-`execution-increment-fresh-test-fixtures.mjs` supplies disposable repositories,
-bare remotes and controlled project programs. Fresh preparation, ownership,
-authorship and commit suites assert retained bytes, withheld downstream work,
-plan mutation, hook/signing refusal, repairs and exact successful commit metadata.
+Installed fresh CLI/fixture observes real prerequisites, Git/index/hooks, remote
+and retained bytes; preparation/ownership/authorship/commit suites cover plan
+mutation, refusal, repair and exact metadata in disposable repositories.
 Request extraction preserves existing managed/closure/one-shot contracts.
 Refactor proof passed (61778): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-authorship.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-commit.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
 Unchanged commit/obligation proof passed (26342): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/agent-commit.test.mjs src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
@@ -239,12 +233,18 @@ Selective format passed after removing an unused test import; all changed files 
 ## Retrospective
 
 Related implementation: `4a1fb686`, `8ea3d654`; no interleaved branch work.
-Story/two-slice contract met; architecture/test assessment found no correction. New integrated cases preserve distinct failure, ownership,
-authorship, publication, candidate and recovery observations; existing lower-layer
-controls remain. Native acceptance is tracked, unproved and release-gating.
-Process review used coordinator history/agent handoffs; internal turns unavailable.
-ODF-264 added one occurrence; DearDough 530 lines, 500-line warning; no new product work queued.
+Story/architecture/test review found no product correction; native acceptance stays release-gating.
+Process review: coordinator/agent handoffs only; internal turns unavailable; ODF-264/152 recorded.
+DearDough 540 lines, 500-line warning; no new queue work; CI repair leaves runtime conclusions valid.
 
 ## Execution complete
 
 Product advice: Complete SEED-053#guarded-local-delivery-prerequisites before affected release, or record a human-owned exception. No additional product change recommended.
+
+## CI repair
+
+Owned runs `39423276552/1` (`8ea3d654`) and `39423628393/1` (`dd5d297a`)
+failed the same lifecycle wording assertion. Red: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs` (exit 1).
+Restored existing claim-persistence phrase in `trunk-publication.md`; no assertion/runtime change.
+Green: `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/observer-owner-guidance.test.mjs` (exit 0).
+Independent refactor: no edits; unchanged runtime/payload/mutation proof retained.

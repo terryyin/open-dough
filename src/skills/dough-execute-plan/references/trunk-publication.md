@@ -14,10 +14,10 @@ For Story Branch and Trunk Mode, [Take or admit work](../SKILL.md#take-or-admit-
 including [admission](admit-accepted-work.md) of accepted unlisted work,
 uses the installed startup operation to publish and confirm the claim on remote
 trunk before implementation. Retain its published SHA and recovery coordinates;
-register that SHA after the observer is armed. Later preparation cannot unpublish
-it. An unavailable destination or failed publication preserves the reported state
-and does not authorize unclaimed work. Claim coverage, including a Story Branch
-claim's unobserved trunk target, follows [Own one observer](ci-monitor.md#own-one-observer).
+register that SHA after the observer is armed. Later environment preparation does
+not unpublish that SHA. An unavailable destination or failed publication preserves
+the reported state and does not authorize unclaimed work. Claim coverage, including
+a Story Branch claim's unobserved trunk target, follows [Own one observer](ci-monitor.md#own-one-observer).
 
 ## Publish an execution increment or repair
 
