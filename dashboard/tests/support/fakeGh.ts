@@ -1,12 +1,11 @@
-// Installs the synthetic `gh` (../fixtures/fake-gh) on a temp PATH directory
-// and reads back the pid files it writes. What that `gh` answers comes from
+// Installs the synthetic `gh` (../fixtures/fake-gh) on a temp PATH directory. What that `gh` answers comes from
 // the test's own fake GitHub (./fakeGitHub.ts); nothing here launches a Vite
 // dev/preview server (./dashboardServer.ts does). Every process given this
 // `gh` asks it through a GitHub request owner (github-request-owner.mjs) at
 // an endpoint of this installation's own, so no test shares another's owner,
 // rate-limit wait or turns, nor this machine's real one.
 
-import { readFileSync, rmSync } from "node:fs";
+import { rmSync } from "node:fs";
 import path from "node:path";
 import {
   endRequestOwners,
@@ -65,16 +64,4 @@ export function fakeGhEnv(
     FAKE_GH_PIDFILE: gh.pidPath,
     ...requestOwnerEnvironmentAt(gh.requestOwnerRoot),
   };
-}
-
-// The one place that reads a pid file written by the fake `gh` back into a
-// number, shared by the harness's `DashboardServer.ghPid()` and any test
-// that drives `installFakeGh` directly.
-export function readPid(pidPath: string): number | undefined {
-  try {
-    const raw = readFileSync(pidPath, "utf8").trim();
-    return raw ? Number(raw) : undefined;
-  } catch {
-    return undefined;
-  }
 }

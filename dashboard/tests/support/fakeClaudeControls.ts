@@ -7,6 +7,7 @@ import {
   fakeClaudeListing,
   type ClaudeListingControls,
 } from "./fakeClaudeListing.ts";
+import { readPid } from "./processGroup.ts";
 
 export type FakeClaudeScenario =
   | "launched"
@@ -158,10 +159,6 @@ export function fakeClaudeControls(
     if (on) writeFileSync(state(file), "");
     else rmSync(state(file), { force: true });
   };
-  const pidIn = (file: string) => {
-    const pid = readState(state(file));
-    return pid === undefined ? undefined : Number(pid);
-  };
   return {
     ...fakeClaudeListing(stateDir, home),
     home,
@@ -187,7 +184,7 @@ export function fakeClaudeControls(
     notifierBecomes(mode) {
       writeFileSync(state("notifier-mode"), mode);
     },
-    heldNotifierPid: () => pidIn("notifier.pid"),
+    heldNotifierPid: () => readPid(state("notifier.pid")),
     heldNotifierEndedBy() {
       return readState(state("notifier.pid.exited"));
     },
@@ -196,7 +193,7 @@ export function fakeClaudeControls(
     claudeAttachPromptDelay(ms) {
       writeFileSync(state("attach-prompt-delay-ms"), String(ms));
     },
-    heldClaudePid: () => pidIn("pid"),
+    heldClaudePid: () => readPid(state("pid")),
     heldClaudeEndedBy() {
       return readState(state("pid.exited"));
     },
