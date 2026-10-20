@@ -94,6 +94,9 @@ export async function openTakenCursorSession(
   return recent;
 }
 
+// Actions on a held Cursor session's entry: Open terminal, and, because
+// its state is now known, no Delete record (that stays for unknown or
+// unavailable readings, as for every host); no Mark as done or rename.
 export async function expectCursorSessionActions(
   page: Page,
   entry: Locator,
@@ -103,19 +106,11 @@ export async function expectCursorSessionActions(
   ).toHaveCount(1);
   await expect(
     entry.getByRole("button", { name: "Delete record…" }),
-  ).toHaveCount(1);
+  ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Mark as done" })).toHaveCount(
     0,
   );
   await expect(page.getByRole("button", { name: /rename/i })).toHaveCount(0);
-}
-
-export async function expectNoBorrowedActivity(entry: Locator): Promise<void> {
-  await expect(entry).not.toContainText("session list could not be read");
-  await expect(entry).not.toContainText("Continue this conversation in Codex");
-  await expect(entry).not.toContainText("Working");
-  await expect(entry).not.toContainText("Needs input");
-  await expect(entry).not.toContainText("Ready for review");
 }
 
 export async function expectHeldLabel(
@@ -127,6 +122,25 @@ export async function expectHeldLabel(
   await expect(sessionStateOf(entry)).not.toContainText("Needs input");
   await expect(sessionStateOf(entry)).not.toContainText("Working");
   await expect(entry).not.toHaveClass(/needs-attention/);
+}
+
+// The question text a native clarifying-question screen yields, numbered
+// line included, as the entry's Needs input note shows it.
+export const cursorQuestion = "1. Which color do you prefer, Red or Blue?";
+
+// The entry shows this normalized reading (not a runner screen label), and
+// needs attention exactly when the reading says so.
+export async function expectNormalizedReading(
+  entry: Locator,
+  words: string,
+  needsAttention: boolean,
+): Promise<void> {
+  await expectReadingWithoutScreenLabel(entry, words);
+  if (needsAttention) {
+    await expect(entry).toHaveClass(/needs-attention/);
+  } else {
+    await expect(entry).not.toHaveClass(/needs-attention/);
+  }
 }
 
 // The entry shows these words and none of the runner's screen labels.

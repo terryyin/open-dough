@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-052_cursor-attention-and-results.json",
+      "identity": "SEED-052#cursor-attention-and-results",
+      "completedAt": "2026-10-20T04:29:32.305Z",
+      "blob": "182674817d2c4b101a45028271e230cb4a68e939"
+    },
+    {
       "fileName": "SEED-010_accept-original-story-promises.json",
       "identity": "SEED-010#accept-original-story-promises",
       "completedAt": "2026-10-20T02:23:03.299Z",

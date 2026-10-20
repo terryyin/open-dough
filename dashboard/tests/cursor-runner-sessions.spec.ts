@@ -54,7 +54,7 @@ const held = [
   {
     screen: "waiting" as const,
     label: "waiting for an answer",
-    terminal: "Clarifying Questions",
+    terminal: "Which color do you prefer, Red or Blue?",
   },
   {
     screen: "trust" as const,

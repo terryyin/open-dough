@@ -7,6 +7,7 @@ import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { WebSocketServer } from "ws";
 import type { TerminalSession } from "../../agentTerminals.ts";
 import { TerminalAttachments } from "../../terminalAttachments.ts";
+import { cursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 import { execCursor } from "./exec.ts";
 import { cursorSessionLabel } from "./idleScreen.ts";
 import { answerHangup, answerKeep } from "./runnerKeep.ts";
@@ -90,17 +91,22 @@ async function answer(
   if (req.method === "GET" && url.pathname === "/sessions") {
     const held = await attachments.held();
     sendJson(res, 200, {
-      sessions: held.flatMap((client) =>
-        client.session.host === "cursor"
-          ? [
-              {
-                session: client.session,
-                label: cursorSessionLabel(client.screen),
-                workspaceTrust: showsCursorWorkspaceTrust(client.screen),
-              },
-            ]
-          : [],
-      ),
+      sessions: held.flatMap((client) => {
+        if (client.session.host !== "cursor") return [];
+        const label = cursorSessionLabel(client.screen);
+        return [
+          {
+            session: client.session,
+            label,
+            workspaceTrust: showsCursorWorkspaceTrust(client.screen),
+            // Only a waiting-labeled screen travels, so the dashboard's
+            // Cursor boundary can extract a proved question from it.
+            ...(label === cursorHeldLabel.waiting
+              ? { screen: client.screen }
+              : {}),
+          },
+        ];
+      }),
     });
     return;
   }

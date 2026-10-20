@@ -1,9 +1,13 @@
 // Labels for a Cursor screen the runner still holds.
 import type { CursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 
-// A screen that shows one of these is working. The follow-up prompt is the
-// follow-up line with none of them and no clarifying question.
-const workingScreenMarkers = ["Working", "Running", "ctrl+c to stop"] as const;
+// A screen is working only while its current status region shows the live
+// stop hint. Prose such as `Working` or `Running` also appears in viewport
+// history on a finished screen (slice 1 of plan 324 observed a finished
+// screen pinned to working by a history line), so those words never prove
+// work on their own.
+const workingMarker = "ctrl+c to stop";
+const statusRegionLines = 6;
 
 // Cursor's empty composer. Older builds say "Add a follow-up". The current
 // build says "Plan, search, build anything". Either line is ready for the
@@ -13,12 +17,39 @@ const composerPrompts = [
   "Plan, search, build anything",
 ] as const;
 
+// A clarifying-question screen, by the structural shape slice 1 of plan 324
+// proved natively: a `Question N of M` line and the selection footer. The
+// literal words `Clarifying Questions` never appear on the native screen.
+export function showsCursorWaitingQuestion(screen: string): boolean {
+  const flattened = screen.replace(/\s+/gu, " ");
+  return (
+    /Question \d+ of \d+/u.test(flattened) &&
+    flattened.includes("Space select · Enter next/submit")
+  );
+}
+
+// The question text on that screen: its numbered question lines, without
+// any box border. Nothing when the screen is not a proved question screen
+// or carries no numbered question line.
+export function cursorWaitingQuestion(screen: string): string | undefined {
+  if (!showsCursorWaitingQuestion(screen)) return undefined;
+  const questions = screen
+    .split(/\r?\n/u)
+    .map((line) =>
+      /^\s*[│|]?\s*(\d+\.\s+.+?)\s*$/u
+        .exec(line)?.[1]
+        ?.replace(/[\s│|]+$/u, ""),
+    )
+    .filter((line) => line !== undefined);
+  return questions.length === 0 ? undefined : questions.join(" ");
+}
+
 // Follow-up line present (launch may type). A working paint still includes
-// that line under `ctrl+c to stop`.
+// that line under `ctrl+c to stop`. A question screen is never the composer.
 export function showsFollowUpLine(screen: string): boolean {
   return (
     composerPrompts.some((prompt) => screen.includes(prompt)) &&
-    !screen.includes("Clarifying Questions")
+    !showsCursorWaitingQuestion(screen)
   );
 }
 
@@ -29,7 +60,13 @@ export function showsCursorComposer(screen: string): boolean {
 }
 
 function showsWorkingScreen(screen: string): boolean {
-  return workingScreenMarkers.some((marker) => screen.includes(marker));
+  const lines = screen
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+  return lines
+    .slice(-statusRegionLines)
+    .some((line) => line.includes(workingMarker));
 }
 
 function showsFollowUpPrompt(screen: string): boolean {

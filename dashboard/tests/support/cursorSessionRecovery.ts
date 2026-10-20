@@ -4,7 +4,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -13,7 +12,7 @@ import { parts } from "../dashboardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   agentCalls,
-  expectHeldLabel,
+  expectNormalizedReading,
   expectReadingWithoutScreenLabel,
   openTakenCursorSession,
 } from "./cursorSessionReading.ts";
@@ -64,7 +63,7 @@ export async function openStoppedCursorEntry(
   home: string,
 ) {
   const recent = await openTakenCursorSession(page, origin);
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
+  await expectNormalizedReading(recent, "Ready for review", true);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await endHeldClient(page, cursor, home);

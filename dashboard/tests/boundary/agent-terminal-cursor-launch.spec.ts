@@ -137,7 +137,7 @@ test.describe(`Cursor launch turn`, () => {
           server,
           recorded.session.sessionId,
         );
-        expect(await shows(terminal, "Clarifying Questions")).toBe(true);
+        expect(await shows(terminal, "Which color do you prefer")).toBe(true);
         expect(terminal.output()).not.toContain(notice);
         terminal.send({ input: "Red" });
         await expect.poll(() => cursor.input(pid)).toContain("Red");

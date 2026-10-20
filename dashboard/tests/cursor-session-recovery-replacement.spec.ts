@@ -2,11 +2,10 @@
 // a new id, the continuation targets the replacement, and completion binds
 // only to that recorded session.
 import { cursorCannotLoadChat } from "../src/cursorCannotLoad.ts";
-import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
-import { expectHeldLabel } from "./support/cursorSessionReading.ts";
+import { expectNormalizedReading } from "./support/cursorSessionReading.ts";
 import {
   endHeldClient,
   keptRecords,
@@ -66,7 +65,7 @@ test("cannot-load resume replaces the chat on the same launch", async ({
     kind: "recovered",
     sessionId: replacementId,
   });
-  await expectHeldLabel(entry, cursorHeldLabel.followUp);
+  await expectNormalizedReading(entry, "Awaiting first instruction", false);
   await expect
     .poll(
       () =>

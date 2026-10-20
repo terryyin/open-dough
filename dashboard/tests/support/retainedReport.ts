@@ -61,12 +61,14 @@ export async function retained(
   save(dashboard.home, records);
   return { record: { ...record, session: record.session }, workspace };
 }
-// A Claude launch of the not-refined story recorded with a prepared workspace
-// that still exists, for a journey to retire, and a completion report saying
-// `message`; the session has exited.
-export async function recordedClaude(
+// A launch of the not-refined story recorded with a prepared workspace that
+// still exists, for a journey to retire; the host helpers below specialize
+// its session and completion report saying `message`.
+async function recordedRetired(
   dashboard: DashboardServer,
-  message = report,
+  workspaceName: string,
+  branch: string,
+  missing: string,
 ) {
   await launch(dashboard, {
     ...refinementRequest,
@@ -74,18 +76,58 @@ export async function recordedClaude(
     title: notRefinedStory,
   });
   const record = stored(dashboard.home)[0];
-  if (record === undefined) throw new Error("Missing Claude launch");
-  const workspace = path.join(dashboard.home, "retired-claude-workspace");
+  if (record === undefined) throw new Error(missing);
+  const workspace = path.join(dashboard.home, workspaceName);
   mkdirSync(workspace);
   record.preparation = {
     identity: notRefinedIdentity,
     workspace,
-    branch: "claude/retired",
+    branch,
     remote: "origin",
     target: "main",
   };
+  return { record, workspace };
+}
+// The Claude specialization: its session has exited.
+export async function recordedClaude(
+  dashboard: DashboardServer,
+  message = report,
+) {
+  const { record, workspace } = await recordedRetired(
+    dashboard,
+    "retired-claude-workspace",
+    "claude/retired",
+    "Missing Claude launch",
+  );
   record.completion = completionReport({ message });
   dashboard.claudeSessionBecomes(record.session.sessionId, "done-exited");
+  save(dashboard.home, [record]);
+  return { record, workspace };
+}
+// The Cursor specialization, seeded from a story launch record. Its
+// continuation names that workspace, as a real Cursor record's resume
+// command does; no Cursor runner holds the session.
+export async function recordedCursor(
+  dashboard: DashboardServer,
+  message = report,
+) {
+  const { record, workspace } = await recordedRetired(
+    dashboard,
+    "retired-cursor-workspace",
+    "cursor/retired",
+    "Missing Cursor launch",
+  );
+  const sessionId = "11111111-1111-4111-8111-111111111111";
+  record.session = {
+    host: "cursor",
+    sessionId,
+    name: record.session.name,
+    continuation: {
+      workspace,
+      args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
+    },
+  };
+  record.completion = completionReport({ message });
   save(dashboard.home, [record]);
   return { record, workspace };
 }

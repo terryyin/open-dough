@@ -15,6 +15,9 @@ const monitor = read("dough-execute-plan/references/ci-monitor.md");
 const planning = read("dough-story-refinement/references/planning.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const wrapUp = read("dough-story-wrap-up/SKILL.md");
+const reportingInstruction = read(
+  "../../dashboard/server/reportingInstruction.ts",
+);
 
 // The documented record is the section's fenced Markdown example; the prose
 // around it is the guidance.
@@ -112,6 +115,67 @@ test("the final handoff reports the recorded product advice", () => {
     finish,
     /review returns[\s\S]+report completion[\s\S]+recorded product advice[\s\S]+CI verdict[\s\S]+`## PLAN EXECUTION COMPLETE`[\s\S]+final execution\/review handoff/,
   );
+});
+
+test("the execution-complete handoff reports attention only when a supplied dashboard context needs the developer", () => {
+  const handoff = section(
+    finish,
+    "## Report attention at the execution-complete handoff",
+  );
+  // Conditional on the launch-supplied context, named for the executing agent.
+  assert.match(
+    handoff,
+    /only when the launch supplied a dashboard reporting context[\s\S]+project, host, launch reference, and reporting command/,
+  );
+  assert.match(
+    handoff,
+    /Without\s+that context, make no dashboard report at this handoff/,
+  );
+  // After the record and the completion operation receipts, before Land/Wrap Up.
+  assert.match(
+    handoff,
+    /before Dough Land\s+or Story Wrap Up\. For a completed handoff it is after the[\s\S]+execution-complete record[\s\S]+published and\s+the completion operation's receipts are handled/,
+  );
+  assert.match(
+    finish,
+    /`Product advice: retrospective skipped`[\s\S]+completion operation[\s\S]+apply\s+\[report attention at the execution-complete handoff\]\(#report-attention-at-the-execution-complete-handoff\)/,
+  );
+  assert.match(
+    finish,
+    /review returns[\s\S]+completion operation, handle its receipt, apply\s+\[report attention at the execution-complete handoff\]\(#report-attention-at-the-execution-complete-handoff\)/,
+  );
+  // Exact response, outcome per result, receipt awaited before giving it.
+  assert.match(
+    handoff,
+    /finished with a reminder, write that exact response to a message file,\s+append `--outcome completed --message-file <file>`[\s\S]+wait for its matching receipt before giving exactly that\s+response/,
+  );
+  assert.match(
+    handoff,
+    /incomplete, failed, cancelled, or human-judgment stop[\s\S]+settle the exact stop response[\s\S]+`--outcome unfinished --message-file <file>`[\s\S]+wait for its matching receipt before giving\s+exactly that response/,
+  );
+  assert.match(
+    finish,
+    /For incomplete work, failed delivery\/shutdown, cancellation, or a human-judgment stop, report[\s\S]+apply\s+\[report attention at the execution-complete handoff\]\(#report-attention-at-the-execution-complete-handoff\)\s+as an unfinished report/,
+  );
+  // Quiet success submits nothing at the handoff; Land/Wrap Up stays final.
+  assert.match(
+    handoff,
+    /nothing at the handoff requires attention, submit nothing there, so a\s+plain completed report at Dough Land or Story Wrap Up stays the quiet final\s+operation/,
+  );
+  assert.match(
+    handoff,
+    /handoff report is attention-only: it does not stop the session,\s+declare the story complete, or invoke Dough Land or Story Wrap Up/,
+  );
+});
+
+test("the launch-supplied dashboard reporting context names the same execution-complete handoff", () => {
+  for (const rule of [
+    /execution-complete handoff, before Dough Land or Story Wrap Up, submit that handoff[\s\S]+--outcome completed when it finished with a reminder, or --outcome unfinished when it is unfinished[\s\S]+--message-file <file containing your exact response>, and wait for its receipt/,
+    /nothing at that handoff requires attention, submit nothing there/,
+    /handoff submission is not the final operation: Dough Land or Story Wrap Up remains the final operation, with quiet --outcome completed/,
+    /For Dough Land or Story Wrap Up, after all required operations and final wording settle, append --outcome completed with no message file/,
+  ])
+    assert.match(reportingInstruction, rule);
 });
 
 test("wholly planless completion keeps its record-free handoff", () => {

@@ -3,8 +3,10 @@
 // argument, including `--model` and no prompt, is a separate attach record
 // and exits on SIGHUP. Working mode paints `ctrl+c to stop`. The default
 // attach screen is the ordinary finished prompt. Waiting mode paints the
-// clarifying question. Trust mode paints a screen that is not ready for an
-// instruction. Composer mode paints `→ Plan, search, build anything` with
+// native clarifying-question screen (a `Question N of M` line, numbered
+// question lines, and the `Space select · Enter next/submit` footer). Trust mode paints a screen that is not ready for an
+// instruction. Cancelled-follow-up mode paints cancelled/failed history
+// above the ordinary follow-up prompt. Composer mode paints `→ Plan, search, build anything` with
 // the cursor hidden and no synchronized-update frame. Unrecognized mode
 // paints neither the prompt nor a question.
 // Trust-unframed models the native trust screen without a synchronized
@@ -72,7 +74,8 @@ export type FakeCursor = {
   sizes(pid: number): { readonly cols: number; readonly rows: number }[];
   // Repaint the ordinary follow-up prompt on the running terminal client.
   showReady(): void;
-  // Next resume/attach reads this mode (overrides FAKE_CURSOR_ATTACH_MODE).
+  // Held clients repaint in this mode; the next resume/attach also reads it
+  // (overrides FAKE_CURSOR_ATTACH_MODE).
   setAttachMode(mode: CursorScreen | undefined): void;
   // Next create-chat prints this id once, then returns to sessionId.
   queueCreateChatId(sessionId: string): void;
@@ -94,6 +97,8 @@ function readJsonl<T>(file: string): T[] {
 
 export type CursorScreen =
   | "working"
+  | "follow-up"
+  | "cancelled-follow-up"
   | "waiting"
   | "unrecognized"
   | "trust"

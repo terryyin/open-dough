@@ -101,16 +101,17 @@ export async function withCursorLaunch(
   cursor: FakeCursor,
   body: (server: DashboardServer) => Promise<void>,
   launchTimeoutMs?: number,
+  options?: { readonly alertCheckMs?: number },
 ): Promise<void> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-launch-"));
   let server: DashboardServer | undefined;
   try {
-    server = await startCursorDashboard(
-      boundary,
-      cursor,
-      machine,
-      launchTimeoutMs === undefined ? undefined : { launchTimeoutMs },
-    );
+    server = await startCursorDashboard(boundary, cursor, machine, {
+      ...(launchTimeoutMs === undefined ? {} : { launchTimeoutMs }),
+      ...(options?.alertCheckMs === undefined
+        ? {}
+        : { alertCheckMs: options.alertCheckMs }),
+    });
     await body(server);
   } finally {
     await server?.close();
@@ -124,7 +125,10 @@ export async function startCursorDashboard(
   boundary: CursorServer,
   cursor: FakeCursor,
   machine: string,
-  options?: { readonly launchTimeoutMs?: number },
+  options?: {
+    readonly launchTimeoutMs?: number;
+    readonly alertCheckMs?: number;
+  },
 ): Promise<DashboardServer> {
   return startDashboardServer({
     ...boundary,
@@ -135,6 +139,9 @@ export async function startCursorDashboard(
     ...(options?.launchTimeoutMs === undefined
       ? {}
       : { launchTimeoutMs: options.launchTimeoutMs }),
+    ...(options?.alertCheckMs === undefined
+      ? {}
+      : { alertCheckMs: options.alertCheckMs }),
   });
 }
 

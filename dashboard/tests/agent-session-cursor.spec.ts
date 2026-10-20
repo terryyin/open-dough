@@ -1,13 +1,14 @@
-// A launched Cursor session's entry shows the screen the runner holds.
-// Those words stay the runner's labels. A runner that is not running, or
-// cannot be reached, says so and shows no screen label. An unfinished
-// recorded session the runner does not hold says the agent is not running
-// and offers Recover. Stop and rename stay absent. Delete record remains.
-// This read starts no agent.
-import {
-  cursorHeldLabel,
-  type CursorHeldLabel,
-} from "../src/cursorHeldLabel.ts";
+// A launched Cursor session's entry reads the screen the runner holds as
+// the shared normalized activities: a proved clarifying question reads
+// Needs input with the question text, the follow-up prompt after a
+// confirmed first instruction reads Ready for review, and a working screen
+// reads Working. A trust screen keeps the runner's label as an unknown
+// reading. A runner that is not running, or cannot be reached, says so and
+// shows no screen label. An unfinished recorded session the runner does
+// not hold says the agent is not running and offers Recover. Stop and
+// rename stay absent. Delete record stays only while a reading is unknown
+// or unavailable, as for every host. This read starts no agent.
+import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launchHost } from "../server/launchHosts.ts";
@@ -21,11 +22,12 @@ import {
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import {
   agentCalls,
+  cursorQuestion,
   cursorRecord,
   expectCursorSessionActions,
   expectCursorUnknownWording,
   expectHeldLabel,
-  expectNoBorrowedActivity,
+  expectNormalizedReading,
   expectReadingWithoutScreenLabel,
   instruction,
   openTakenCursorSession,
@@ -41,7 +43,7 @@ import type { CursorScreen } from "./support/fakeCursor.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
-test("a held Cursor session shows its screen label, without stop or rename", async ({
+test("a held Cursor session at the follow-up prompt after its confirmed first instruction reads Ready for review, without stop or rename", async ({
   page,
   dashboard,
   origin,
@@ -57,8 +59,7 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   const recent = await openTakenCursorSession(page, origin);
   await expect(recent).toContainText(cursor.sessionId);
   await expect(recent).toContainText("Continue in Cursor:");
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
-  await expectNoBorrowedActivity(recent);
+  await expectNormalizedReading(recent, "Ready for review", true);
   await expectCursorSessionActions(page, recent);
   await expect(recent.getByRole("button", { name: "Recover" })).toHaveCount(0);
 
@@ -69,19 +70,17 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
     launchedSessions: false,
   });
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
-    kind: "unknown",
-    label: cursorHeldLabel.followUp,
+    kind: "available",
+    availability: "loaded",
+    activity: "review",
   });
 
   const sidebar = sidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(1);
-  await expectSidebarSessionShown(
-    sidebar.entries,
-    cursorHeldLabel.followUp,
-    "unsettled",
-  );
-  await expect(sidebar.badge).toHaveCount(0);
+  await expectSidebarSessionShown(sidebar.entries, "Ready for review", "ready");
+  await expect(sidebar.badge).toHaveCount(1);
+  await expect(sidebar.badge).toHaveAccessibleName("1 session needs attention");
   await expect(
     sidebar.sidebar.getByRole("button", {
       name: /Delete record|Mark as done|Rename/i,
@@ -106,13 +105,13 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
   expect(readLog(dashboard.codex.env["FAKE_CODEX_DAEMON_LOG"])).toBe("");
 
   await reloadUntilRead(page);
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
+  await expectNormalizedReading(recent, "Ready for review", true);
   await expect(page.getByRole("button", { name: "Mark as done" })).toHaveCount(
     0,
   );
   await expect(
     recent.getByRole("button", { name: "Delete record…" }),
-  ).toHaveCount(1);
+  ).toHaveCount(0);
   const again = await projectedSessions(page);
   expect(again.hostOperations.cursor).toEqual({
     attach: true,
@@ -120,8 +119,9 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
     launchedSessions: false,
   });
   expect(cursorRecord(again, cursor.sessionId)?.sessionState).toEqual({
-    kind: "unknown",
-    label: cursorHeldLabel.followUp,
+    kind: "available",
+    availability: "loaded",
+    activity: "review",
   });
   expect(agentCalls(cursor)).toEqual(callsAfterView);
   expect(dashboard.claudeCalls()).toEqual([]);
@@ -131,29 +131,108 @@ test("a held Cursor session shows its screen label, without stop or rename", asy
 
 const heldScreens: readonly {
   readonly screen: CursorScreen;
-  readonly label: CursorHeldLabel;
+  readonly reading: string;
+  readonly needsAttention: boolean;
+  readonly state: Record<string, string>;
 }[] = [
-  { screen: "working", label: cursorHeldLabel.working },
-  { screen: "waiting", label: cursorHeldLabel.waiting },
+  {
+    screen: "working",
+    reading: "Working",
+    needsAttention: false,
+    state: { kind: "available", availability: "loaded", activity: "working" },
+  },
+  {
+    screen: "waiting",
+    reading: `Needs input: ${cursorQuestion}`,
+    needsAttention: true,
+    state: {
+      kind: "available",
+      availability: "loaded",
+      activity: "waiting",
+      waitingFor: cursorQuestion,
+    },
+  },
+  {
+    // Cancelled and failed history above the follow-up prompt proves
+    // neither failure nor interruption: the same review reading.
+    screen: "cancelled-follow-up",
+    reading: "Ready for review",
+    needsAttention: true,
+    state: { kind: "available", availability: "loaded", activity: "review" },
+  },
 ];
 
-for (const { screen, label } of heldScreens) {
+for (const { screen, reading, needsAttention, state } of heldScreens) {
   test.describe(`a held ${screen} screen`, () => {
     test.use({ cursorScreen: screen });
 
-    test(`the session entry shows ${label}`, async ({
+    test(`the session entry reads ${reading}`, async ({
       page,
       origin,
       cursor,
     }) => {
       test.setTimeout(120_000);
       const recent = await openTakenCursorSession(page, origin);
-      await expectHeldLabel(recent, label);
+      await expectNormalizedReading(recent, reading, needsAttention);
+      const answer = await projectedSessions(page);
+      expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual(
+        state,
+      );
       expect(agentCalls(cursor)).toEqual([["create-chat"]]);
       expect(cursor.attaches()).toHaveLength(1);
     });
   });
 }
+
+test.describe("a held trust screen", () => {
+  test.use({ cursorScreen: "trust" });
+
+  test("the session entry keeps the waiting label as an unknown reading, with no attention", async ({
+    page,
+    origin,
+    cursor,
+  }) => {
+    test.setTimeout(120_000);
+    const recent = await openTakenCursorSession(page, origin);
+    await expectHeldLabel(recent, cursorHeldLabel.waiting);
+    const answer = await projectedSessions(page);
+    expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
+      kind: "unknown",
+      label: cursorHeldLabel.waiting,
+    });
+    expect(agentCalls(cursor)).toEqual([["create-chat"]]);
+    expect(cursor.attaches()).toHaveLength(1);
+  });
+});
+
+test.describe("a held waiting screen that settles to the follow-up prompt", () => {
+  test.use({ cursorScreen: "waiting" });
+
+  test("reads Ready for review once that prompt accepts the pending first instruction", async ({
+    page,
+    origin,
+    cursor,
+  }) => {
+    test.setTimeout(120_000);
+    const recent = await openTakenCursorSession(page, origin);
+    await expectNormalizedReading(
+      recent,
+      `Needs input: ${cursorQuestion}`,
+      true,
+    );
+    cursor.setAttachMode("follow-up");
+    await reloadUntilRead(page);
+    await expectNormalizedReading(recent, "Ready for review", true);
+    const answer = await projectedSessions(page);
+    expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
+      kind: "available",
+      availability: "loaded",
+      activity: "review",
+    });
+    expect(agentCalls(cursor)).toEqual([["create-chat"]]);
+    expect(cursor.attaches()).toHaveLength(1);
+  });
+});
 
 test("a stopped runner says so, shows no screen label, and starts no agent", async ({
   page,
@@ -163,7 +242,7 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
 }) => {
   test.setTimeout(120_000);
   const recent = await openTakenCursorSession(page, origin);
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
+  await expectNormalizedReading(recent, "Ready for review", true);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
@@ -186,7 +265,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
 }) => {
   test.setTimeout(120_000);
   const recent = await openTakenCursorSession(page, origin);
-  await expectHeldLabel(recent, cursorHeldLabel.followUp);
+  await expectNormalizedReading(recent, "Ready for review", true);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
