@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-010#observe-retrospective-response-effectiveness",
+  "mode": "story-branch",
+  "branch": "codex/observe-whether-a-retrospective-response-helped",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

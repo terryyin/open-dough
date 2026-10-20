@@ -20,11 +20,11 @@ cost of the feedback process itself.
 
 - [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop ([plan](slice-plans/327-safe-cursor-session-stop/PLAN.md))
+- [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness ([plan](slice-plans/328-observe-retrospective-response-effectiveness/PLAN.md))
 
 ## Backlog list
 
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope
-- [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
 - [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences
