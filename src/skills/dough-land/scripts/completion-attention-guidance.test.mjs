@@ -6,38 +6,98 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const attention = readFileSync(
-  join(
-    dirname(fileURLToPath(import.meta.url)),
-    "../references/completion-attention.md",
-  ),
-  "utf8",
-);
+const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
+const read = (path) => readFileSync(join(skills, path), "utf8");
+const attention = read("dough-land/references/completion-attention.md");
 
-test("a session whose checkout retirement removed closes as finished with stated reminders", () => {
-  const start = attention.indexOf("When retirement removed the checkout");
-  assert.ok(start >= 0);
-  const retired = attention.slice(start).split("\n- ")[0];
+test("settled closure is quiet, including findings, follow-ups and retired resources", () => {
+  assert.match(attention, /no success\s+message/);
+  assert.match(attention, /minimum native response/);
+  assert.match(
+    attention,
+    /no completion banner[\s\S]+finding-ID list[\s\S]+acknowledgement task/,
+  );
+  assert.match(
+    attention,
+    /verified retirement, including\s+already-absent resources, require no attention message/,
+  );
+  assert.match(
+    attention,
+    /historical session\s+path[\s\S]+does not make its retirement incomplete/,
+  );
+  assert.match(
+    attention,
+    /process findings[\s\S]+follow-up queued[\s\S]+authorized drop[\s\S]+no reminder/,
+  );
+  assert.match(attention, /Their dispositions must be settled/);
+});
 
+test("quiet wording preserves exceptions, authority, requested details and operational proof", () => {
+  assert.match(
+    attention,
+    /unresolved recommendation, adoption choice, missing correction input/,
+  );
+  assert.match(
+    attention,
+    /no\s+authority to start wrap-up, execute a follow-up, or drop a finding/,
+  );
+  assert.match(
+    attention,
+    /deferred or stopped refresh, or blocked,\s+partial, or unverified retirement/,
+  );
+  assert.match(
+    attention,
+    /requested process review that was\s+unavailable or could not record or publish its findings/,
+  );
+  assert.match(
+    attention,
+    /their consequence, and the next action, naming its\s+responsible owner/,
+  );
+  assert.match(attention, /recovery repeats only unfinished work/);
+  assert.match(attention, /requests details[\s\S]+provide the requested facts/);
+  assert.match(attention, /Preserve[\s\S]+review or retain stop/);
+  assert.match(attention, /silence and a marker never prove completion/);
+  assert.match(
+    attention,
+    /publication, observation, shutdown, recovery, or retirement gates/,
+  );
+  const retired = attention
+    .slice(attention.indexOf("When retirement removed the checkout"))
+    .split("\n- ")[0];
+  assert.match(retired, /retirement alone adds no statement/);
   assert.match(
     retired,
-    /^When retirement removed the checkout this session ran in[\s\S]+State that the work is finished and where it landed, then list any\s+reminders/,
+    /Ask no\s+question, request no decision from this session/,
   );
   assert.match(
     retired,
-    /each reminder as its fact, consequence, and next action with\s+its owner, for the developer to take up in a new session or by hand/,
+    /While the checkout survives[\s\S]+may still ask for the input needed to continue/,
+  );
+  assert.doesNotMatch(attention, /client project/i);
+});
+
+test("both closing skills use the shared rule without a required success marker", () => {
+  const land = read("dough-land/SKILL.md");
+  const wrapUp = read("dough-story-wrap-up/SKILL.md");
+  const followUp = read(
+    "dough-story-wrap-up/references/follow-up-disposition.md",
+  );
+  assert.match(land, /\(references\/completion-attention\.md\)/);
+  assert.match(
+    wrapUp,
+    /\[completion attention\]\(\.\.\/dough-land\/SKILL\.md#completion-attention\)/,
   );
   assert.match(
-    retired,
-    /Ask no\s+question, request no decision from this session, and give no command for it to\s+run next/,
+    followUp,
+    /\[completion attention\]\(\.\.\/\.\.\/dough-land\/SKILL\.md#completion-attention\)/,
+  );
+  assert.doesNotMatch(wrapUp, /STORY WRAP-UP COMPLETE|blocks that marker/);
+  assert.match(
+    attention,
+    /Without supplied dashboard launch context[\s\S]+no dashboard contact/,
   );
   assert.match(
-    retired,
-    /record removed so Git can recover it as a fact, such as\s+"… stays recoverable at `<sha>`"/,
+    attention,
+    /\[dashboard completion operation\]\(dashboard-completion\.md\)/,
   );
-  assert.match(
-    retired,
-    /While the checkout survives, because\s+retirement was held, a step remains unfinished, or the work is local-only, the\s+response may still ask for the input needed to continue/,
-  );
-  assert.doesNotMatch(retired, /dashboard|client project/i);
 });

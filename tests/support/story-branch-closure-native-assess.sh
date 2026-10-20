@@ -16,12 +16,15 @@ story_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/s
 # assessor-signal: observer-count observer-count
 # assessor-signal: harness-inspected harness-inspected
 # assessor-signal: forced-stop forced-stop
+# assessor-signal: ci trunk-coverage-state
+# assessor-signal: shutdown branch-product-shutdown trunk-product-shutdown
 # assessor-signal: trunk-registration trunk-registered
 # assessor-signal: retire-command retire-command
 # assessor-signal: worktree worktree-present
 # assessor-signal: local-branch local-branch-present
 # assessor-signal: cleanup-observers cleanup-observer-states
 # assessor-signal: remote-branch branch-remote
+# assessor-signal: retirement cleanup-complete
 # assessor-signal: control-order control-order
 # assessor-signal: response response
 # assessor-signal: refresh-attention refresh-attention
@@ -60,6 +63,7 @@ story_closure_assess() {
   grep -Fqx 'cleanup-complete: true' "${observations}" || return 1
   grep -Fqx 'human-edit-preserved: true' "${observations}" || return 1
   grep -Eqx 'refresh-attention: (true|false)' "${observations}" || return 1
+  grep -Fqx 'response:' "${observations}" || return 1
   [[ $(closure_response_settled_result \
     <(native_response_field_read "${observations}") \
     "$(native_observation_field "${observations}" refresh-attention)") == true ]] || return 1

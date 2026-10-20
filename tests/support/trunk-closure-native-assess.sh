@@ -14,10 +14,13 @@ trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/t
 # assessor-signal: control-order control-order
 # assessor-signal: registration registered
 # assessor-signal: forced-stop forced-stop
+# assessor-signal: ci coverage-state
+# assessor-signal: shutdown product-shutdown
 # assessor-signal: provider-calls provider-candidate-calls
 # assessor-signal: cleanup-observer cleanup-observer-state
 # assessor-signal: worktree checkout-present-after
 # assessor-signal: branch branch-present
+# assessor-signal: retirement cleanup-complete
 # assessor-signal: repository-intact repository-intact
 # assessor-signal: other-checkouts other-checkouts
 # assessor-signal: default-checkout default-checkout-present

@@ -53,12 +53,21 @@ missing-finish finish finish-count: 0
 second-finish finish finish-count: 2
 agent-complete complete-revision complete-revision-count: 1
 forced-stop forced-stop forced-stop: true
+failed-ci ci coverage-state: failed
+unconfirmed-shutdown shutdown product-shutdown: false
+partial-retirement retirement cleanup-complete: false
 unregistered registration registered: false
 observer-missing cleanup-observer cleanup-observer-state: missing
 observer-running cleanup-observer cleanup-observer-state: running
 worktree-kept worktree checkout-present-after: true
 branch-kept branch branch-present: true
 recap response response-completion-result: false
+EOF
+  native_assessor_rejects_missing_fields << 'EOF'
+ci coverage-state
+shutdown product-shutdown
+retirement cleanup-complete
+worktree checkout-present-after
 EOF
   trunk_closure_write_assessor_observation \
     "${work}/early-shutdown.txt" source success none 1 early

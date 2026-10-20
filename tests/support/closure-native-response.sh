@@ -2,24 +2,26 @@
 # Shared settled-response and refresh-attention observations for Wrap Up.
 # shellcheck disable=SC2312
 
-# A settled Wrap Up response uses its existing marker alone, or gives a useful
-# reminder about a deferred default-checkout refresh. Operational observations,
+# A settled Wrap Up response is empty or a minimal native acknowledgment, or
+# gives useful attention about a deferred default-checkout refresh when needed.
+# The acknowledgment examples below are assessor cases, not required wording.
+# Operational observations,
 # not a prose trunk-pass recap, establish successful publication and CI. This
 # bounded assessor covers these maintained cases; other attention needs review.
 closure_response_settled_result() {
-  local response details refresh_attention=${2:-false}
-  response=$(cat -- "$1")
-  if ! grep -Fxq '## STORY WRAP-UP COMPLETE' <<< "${response}"; then
+  local details refresh_attention=${2:-false}
+  if ! details=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+    -e '/^$/d' "$1"); then
     printf 'false\n'
     return
   fi
-  details=$(grep -Fvx '## STORY WRAP-UP COMPLETE' <<< "${response}" \
-    | sed '/^[[:space:]]*$/d')
-  if [[ -z ${details} ]]; then
+  if [[ -z ${details} ]] || grep -Eiq '^(done|finished|complete)[.!]?$' <<< "${details}" \
+    && [[ ${details} != *$'\n'* ]]; then
     [[ ${refresh_attention} == false ]] && printf 'true\n' || printf 'false\n'
-  elif ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' <<< "${details}" \
+  elif [[ ${refresh_attention} == true ]] \
+    && ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' <<< "${details}" \
     | grep -Ei 'trunk|(^|[^[:alpha:]])CI([^[:alpha:]]|$)|coverage|receipt|verdict|observer|watcher|checks?([^[:alpha:]]|$)' \
-    | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green' \
+      | grep -Eiq 'failed|failing|unavailable|undiscovered|did not pass|not (a )?green' \
     && grep -Eiq '(default|integration) checkout|checkout .+ (edit|dirty)' <<< "${details}" \
     && grep -Eiq 'deferred|pending .*edit|human .*edit' <<< "${details}" \
     && grep -Eiq 'refresh .*(after|once|when)|rerun .*(after|once|when)' <<< "${details}"; then
