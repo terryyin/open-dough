@@ -130,7 +130,7 @@ DD-243 remains the same finding; its later occurrences are
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: modified; revision 788d8172; base 0.3.66
-  - Evidence: plan 323 slice 1 asked for “a fast representative suite with a stated realistic cost”; the fixture's AGENTS.md stated the fourteen-minute cost and a new-stylesheet layout rule; the native coordinator's refactor brief said “Do NOT run `bin/suite.sh` — the whole suite costs ~14 minutes”. Plan 302's brief had estimated the suite at “a few minutes”. Terry then added slice 2 to replay the historical conditions.
+  - Evidence: plan 323 (`6922dc32:.planning/slice-plans/323-schedule-proof-after-refactoring/PLAN.md`) slice 1 asked for “a fast representative suite with a stated realistic cost”; the fixture's AGENTS.md stated the fourteen-minute cost and a new-stylesheet layout rule; the native coordinator's refactor brief said “Do NOT run `bin/suite.sh` — the whole suite costs ~14 minutes”. Plan 302's brief had estimated the suite at “a few minutes”. Terry then added slice 2 to replay the historical conditions.
   - Observed effect: one extra slice and one extra paid Claude run; the second replay still did not reach the delegated-implementer condition.
   - Inference: qualified. Stating the cost changed what the agent knew, which the historical defect depended on; preparation can compare a replay's inputs with each occurrence's recorded context before the first paid launch.
 

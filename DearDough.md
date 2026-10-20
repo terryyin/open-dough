@@ -387,6 +387,6 @@ After a native run, the coordinator diagnosed a misclassification and added an o
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.66 (installed guidance at Take `c6b37d26`)
-  - Evidence: plan 323 slice 1 execution record (“Diagnosed and corrected in the observer/assessor (`extraction-in-implementation`)”); commit `788d8172` includes that field; the refactor report predates it.
+  - Evidence: plan 323 slice 1 execution record at `6922dc32:.planning/slice-plans/323-schedule-proof-after-refactoring/PLAN.md` (“Diagnosed and corrected in the observer/assessor (`extraction-in-implementation`)”); commit `788d8172` includes that field; the refactor report predates it.
   - Observed effect: about 30 lines of behavior reached delivery with coordinator-run focused proof but no independent refactor judgment; slice 2's refactor later reviewed the same files.
   - Inference: qualified. Execution guidance names no return path for a harness correction discovered by a slice's own paid observation after refactoring; the coordinator chose speed over returning it to implementation and a fresh refactor pass. One occurrence.

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_schedule-proof-after-refactoring.json",
+      "identity": "SEED-010#schedule-proof-after-refactoring",
+      "completedAt": "2026-10-20T04:25:03.137Z",
+      "blob": "98afeeafcd94bef64ea8ffdf67d548172b3d2d53"
+    },
+    {
       "fileName": "SEED-119_align-story-top.json",
       "identity": "SEED-119#align-story-top",
       "completedAt": "2026-10-20T00:57:31.838Z",
