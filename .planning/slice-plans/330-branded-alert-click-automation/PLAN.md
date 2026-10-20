@@ -36,32 +36,183 @@ URL argument; tab reuse and foregrounding; a refused inspection shows the
 recovery dialog instead of opening an extra tab; the branded sender's identity,
 icon and Notifications permission.
 
+## Key examples
+
+- A developer has no Apple Events consent for the process attributed to a
+  branded alert click. Clicking the alert asks to control the selected supported
+  browser. Refusing produces the recovery dialog, leaves existing tabs intact,
+  and opens no extra tab. The corrected dialog names the actual Automation row
+  and browser control to enable.
+- After enabling that browser under the observed row, a subsequent branded
+  alert click reuses and foregrounds an existing dashboard tab and reaches its
+  requested story. Both Safari and Google Chrome remain supported.
+- A developer updates terminal-notifier. The setup documentation tells them to
+  re-run `npm run setup-notifier:dashboard` to refresh the copied Open Dough
+  sender. This correction adds the missing instruction, not automatic refresh.
+
+## Existing solution and constraints
+
+PFE: change the existing recovery message in
+`dashboard/server/notificationActivation.ts`. `terminalNotifier.ts` embeds that
+source in the safely quoted `-execute` command; `notifierApp.ts` owns the stable
+branded app and explicit snapshot refresh. `notifierSetup.ts` and
+`terminalNotifier.ts` already tell users to re-run setup after an unsupported
+helper version. Extend the maintained setup instructions to cover ordinary
+updates; do not introduce another recovery, sender, or permission model.
+
+Consumers: the callback becomes a shell argument, then JXA source, then a native
+`displayAlert` message. `dashboard/README.md` and `AGENT-LAUNCH-HISTORY.md`
+explain that same click recovery; `dashboard/COMMANDS.md` explains setup.
+`tests/support/notificationActivation.ts` decodes the emitted command;
+`tests/support/browserActivation.ts` runs its actual source against browser API
+stand-ins. The activation spec currently observes only the alert title, so it
+cannot prove accurate recovery text. Extend that stand-in to expose message
+options and assert the observed entry in the refusal case. Preserve source and
+shell encoding; do not impose an artificial ban on punctuation in user text.
+
+This is a local recovery correction, with no new architectural boundary or
+North Star change. The ADR index and dashboard North Star were reviewed;
+[ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+supports learning from the native attribution before committing to wording.
+The browser, sender, click mechanism and Notifications identity remain as above.
+
+## Decisive premises and preparation observations
+
+Observed on 2026-10-21 JST at revision
+`051435a6d9c2b779e7f088964231fd2b797025cd` in the preparation checkout
+`/Users/terryyin/git/open-dough/.worktrees/name-the-automation-consent-a-branded-alert-clic`.
+Execution uses its own established checkout and repeats the native probe there;
+these observations do not establish consent attribution.
+
+1. The native route's read-only prefix is available. `sw_vers` reported macOS
+   26.6.2 (25G83). The following command reached the production notifier probe,
+   reporting terminal-notifier 3.1.0 and `available` for the stable branded app:
+
+   ```sh
+   node --input-type=module <<'JS'
+   import { brandedNotifierExecutable } from './dashboard/server/notifierApp.ts';
+   import { probeTerminalNotifier } from './dashboard/server/terminalNotifier.ts';
+   import { execFileSync } from 'node:child_process';
+   console.log(execFileSync(brandedNotifierExecutable(), ['-version'], {encoding:'utf8'}).trim());
+   console.log(await probeTerminalNotifier(new AbortController().signal) ?? 'available');
+   JS
+   ```
+
+   Read-only `mdfind 'kMDItemCFBundleIdentifier == "com.apple.Safari"'` and the
+   equivalent `com.google.Chrome` query found both applications. This proves
+   availability, not successful Apple Events or the granting identity. The
+   remaining observation changes consent state and is bounded by slice 1.
+2. The existing command, activation and story-navigation route runs here:
+   `env -u NO_COLOR npm run test:dashboard -- boundary/session-alerts-activation.spec.ts boundary/session-alerts-activation-command.spec.ts notification-story-navigation.spec.ts`
+   passed after `npm ci --ignore-scripts --no-audit --no-fund`.
+   The first run failed the quiet-output gate because inherited `NO_COLOR`
+   conflicted with `FORCE_COLOR`; unsetting `NO_COLOR` resolved that environment
+   issue without changing product or test code.
+3. The refusal observation discriminates dialog presence. In a temporary local
+   edit, replacing `application.displayAlert(` with
+   `return; application.displayAlert(` in `notificationActivation.ts`, then
+   running `env -u NO_COLOR npm run test:dashboard -- boundary/session-alerts-activation.spec.ts`,
+   failed both browser cases at the dialog-title assertion (empty alerts).
+   The original bytes were restored and `git diff` confirmed no product change.
+   Message accuracy is still unproved by this test, as its stand-in discards
+   the message; slice 2 adds that observation and demonstrates its failure
+   against the old generic wording before accepting the correction.
+
 ## Outside-in proof ownership
 
 | Promise | Owner | Observable result |
 | --- | --- | --- |
-| Entry macOS consults for the click is known | 1 | On a Mac, after resetting Apple Events consent for the candidate identities with the developer's agreement, a real branded alert click raises the Automation prompt; record the app it names and the row it creates |
-| Refusal yields accurate recovery | 1 | Denying that prompt shows the recovery dialog naming that same entry; allowing it afterwards lets the next click navigate |
-| Wording matches the observed entry | 1 | Dialog text and README/AGENT-LAUNCH-HISTORY name the observed entry; `boundary/session-alerts-activation-command.spec.ts` and `notification-story-navigation.spec.ts` stay green |
-| Setup refresh after helper update is documented | 1 | `dashboard/COMMANDS.md` setup paragraph says to re-run setup after updating terminal-notifier, keeping the same identity and permission |
-
-Proof boundary: direct native observation under the manual-testing workflow
-(it changes this Mac's consent state and needs the developer's clicks, so
-announce the desktop takeover once), plus the focused alert specs and
-`npm run typecheck:dashboard`.
+| Known entry for real branded clicks | 1 | Prompt app name, System Settings Automation row and browser child control recorded from a real click, with actual sender/browser versions and launch context |
+| Refusal preserves tabs; allowing restores navigation | 1 baseline, 2 final | Deny the attributed consent, observe recovery with no new tab; enable the identified browser control and click again to reuse/foreground the dashboard tab and reach the story |
+| Dialog and maintained recovery docs name that entry | 2 | Real refusal dialog matches the observed row; emitted-source regression asserts its message; README and AGENT-LAUNCH-HISTORY match that evidence |
+| Safe, durable inline callback and destination quoting | 2 | Full activation-command and activation specs pass, including literal quote/substitution destinations and both browser models |
+| Sender identity, icon and Notifications permission preserved | 2 | Native before/after observation of the same branded sender and Notifications entry; no sender setup or identity change is introduced by the correction |
+| Helper-update refresh instruction is present | 2 | COMMANDS setup paragraph explicitly says to re-run setup after updating terminal-notifier; review matches the existing explicit snapshot-refresh behavior |
 
 ## Ordered slices
 
-### 1. Observe and name the Automation entry for branded alert clicks
+### 1. Establish the consent attribution of a real branded alert click
 Type: Behavior
 Status: planned
-Proof: As in the table above. If the observed attribution shows the click
-depends on a grant other than the branded sender's own and that cannot be
-named stably for a fresh machine, stop with the evidence for a product
-decision instead of guessing wording.
+Proof: Native baseline through the existing sender and inline callback, under
+`dough-manual-testing`; no product change is required for this early probe.
 
-Given a branded alert and no Automation consent for the attributed process,
-when the developer clicks it, macOS asks about one named app; refusing shows
-the recovery dialog naming that app's Automation entry, and allowing lets later
-clicks reuse the dashboard tab. Keep the dialog text free of apostrophes (it
-sits in a single-quoted JXA string).
+Given the developer's agreed, narrowly scoped consent reset or toggle for the
+candidate app, when a real branded alert is clicked, record the prompt's app
+name, its browser target, and the resulting System Settings Automation row.
+Refuse and observe the existing recovery dialog and unchanged tab count; then
+allow that control and verify a later click reuses/foregrounds the dashboard
+and reaches its story. Exercise Safari and Google Chrome as default browsers
+in turn, keeping their observations separate if attribution differs.
+
+Record the execution checkout/revision, actual posting command or application
+trigger and destination, sender bundle/path/version, browser versions, exact
+prompt and row wording, refusal and successful retry results. Use the production
+`sendTerminalNotification` path from that checkout with a controlled dashboard
+story destination; do not replace it with standalone osascript, which can have
+different attribution. Announce desktop takeover under the manual-testing
+workflow, agree the specific consent change before resetting it, and restore
+agreed consent/default-browser settings afterwards. Never reset all apps'
+consents. No permission change is authorized by preparation alone.
+
+Safe stop: no wording changes until this evidence supports a stable recovery
+instruction. If consent cannot be isolated, attribution varies without an
+explainable stable instruction, refusal fails to show recovery, or enabling the
+identified control does not restore navigation, stop dependent slice 2, record
+what happened and return the product decision to the developer. A successful
+probe completes the learning, not the correction. This state-changing probe is
+the permitted early-probe exception; no cheap unresolved premise is deferred.
+
+### 2. Recover using the observed Automation entry
+Type: Behavior
+Status: planned
+Proof: Native final refusal/allow journey, message regression through the actual
+emitted callback, and maintained-document review as mapped above.
+
+Given the attribution established in slice 1, when a branded click cannot
+control the supported browser, the recovery dialog and maintained alert docs
+name the entry and browser control the developer can actually enable. Enabling
+it makes the next click navigate as before. Keep the manual-open fallback and
+Safari/Chrome advice. Document re-running setup after a helper update as part
+of the same maintained alert guidance.
+
+Extend the existing activation stand-in/spec to observe the recovery message,
+show the new assertion fails with the old generic wording, then update the
+existing callback and docs. Rerun the native denied/allowed journey for the
+corrected emitted callback. Do not claim mocked APIs establish TCC attribution.
+Preserve the established branded sender and Notifications permission without
+rebuilding it merely to change this inline message.
+
+Focused local verification:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- boundary/session-alerts-activation.spec.ts boundary/session-alerts-activation-command.spec.ts notification-story-navigation.spec.ts
+npm run typecheck:dashboard
+```
+
+The activation spec owns message/refusal/tab behavior, the command spec owns
+shell argument integrity, and navigation specs preserve the URL-to-story
+consumer. Typechecking covers the changed shared test stand-in. The commit
+hook owns staged lint (and typechecking for staged scripts). Broader suites
+are needed only if the actual changes reach additional consumers. Apply the
+normal execution skill's post-change refactor and delivery gates after edits.
+
+## Current decisions
+
+- Retain this correction's identity and existing plan; no new plan or feature
+  promise. No Take, implementation, or native consent mutation during preparation.
+- The observed Automation name is not assumed to equal Open Dough or
+  terminal-notifier. Notifications consent and Automation consent are distinct.
+- Both slices are bounded by one native recovery journey: the first isolates
+  its consequential uncertainty; the second delivers the evidenced correction.
+  No Structure slice, abstraction, permission detector, automatic refresh,
+  additional browser support, or sender redesign is needed.
+- Native user interaction may dominate elapsed time. No numeric slice limit is
+  supplied; stop on the probe's failure criteria rather than guess attribution.
+
+## Learnings
+
+Preparation located the previously omitted activation proof and its missing
+message observation. The native attribution remains explicitly owned by the
+first slice. No remaining slice-specific design or proof-ownership concern was
+identified after that correction; a separate slice-plan refinement is unnecessary.

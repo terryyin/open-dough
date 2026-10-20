@@ -28,7 +28,7 @@ to each display size.
 
 **Identity:** SEED-144#branded-alert-click-automation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/330-branded-alert-click-automation/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/330-branded-alert-click-automation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20aaee07281d8aacd608d50e13d6c38e4078c916b36239a304fc226cccecb7c2","plan":"48e2fd2d50fe737fb7e0e0b4aebb7dd499fc6405671163ffd51edcc9e5736017"}}
 ```
 
 **Goal:** A developer whose branded Open Dough alert cannot open the dashboard
@@ -42,6 +42,10 @@ Included: observe on a Mac which app macOS asks about (and records) for the
 branded alert's browser scripting, including a refusal; name that entry in the
 click-recovery dialog and the maintained alert docs; one setup sentence on
 re-running `npm run setup-notifier:dashboard` after updating terminal-notifier.
+The name is established by a real branded alert click, its Automation prompt,
+and the resulting System Settings row, not inferred from the notification's
+Open Dough branding. The existing correction plan owns the examples and the
+early native probe; an unstable attribution stops dependent wording changes.
 Preserved: the inline click callback, destination quoting, tab reuse and the
 dialog-instead-of-extra-tab behavior; the branded sender identity and its
 Notifications permission. Plan:
