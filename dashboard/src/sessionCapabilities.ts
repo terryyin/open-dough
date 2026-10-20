@@ -28,19 +28,21 @@ export function embeddedTerminal(
 ): boolean {
   return operations[host]?.attach === true;
 }
-// Whether the session's host boundary supplies a stop operation the
-// developer can ask for directly, separate from Mark as done.
-export function stopsSession(
-  operations: HostOperations,
-  host: SessionReference["host"],
-): boolean {
-  return operations[host]?.stop === true;
-}
 export function marksDone(
   operations: HostOperations,
   host: SessionReference["host"],
 ): boolean {
   return operations[host]?.doneStop === true;
+}
+// Whether the entry offers a Stop separate from Mark as done: the host
+// boundary supplies a stop operation, and its Mark as done does not
+// already stop the session (`doneStop`). Where Mark as done already
+// stops, a separate Stop would duplicate it, so none is offered.
+export function offersSeparateStop(
+  operations: HostOperations,
+  host: SessionReference["host"],
+): boolean {
+  return operations[host]?.stop === true && !marksDone(operations, host);
 }
 // A reported session is marked done locally where its host has no native stop.
 export function marksRecordDone(
