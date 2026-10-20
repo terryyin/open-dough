@@ -125,11 +125,12 @@ export function instrumentedGithubFixture(t, state) {
   const set = (held) =>
     writeFileSync(file("github.json"), JSON.stringify(held));
   set(state);
+  // An append can be observed before its bytes or final newline arrive.
   const calls = () =>
     existsSync(file("calls.jsonl"))
       ? readFileSync(file("calls.jsonl"), "utf8")
-          .trimEnd()
           .split("\n")
+          .slice(0, -1)
           .map((line) => JSON.parse(line))
       : [];
   const environment = {
