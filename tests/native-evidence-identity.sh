@@ -159,6 +159,27 @@ for entry in "${closure_journey_inputs[@]}"; do
   done
 done
 
+# Response observation and shared attention belong to the execution-review
+# identity too; closure's minimal-response reader has the same shared input.
+for index in "${!identity_writers[@]}"; do
+  case ${identity_writers[index]#* } in
+    'git_publication_write_evidence_identity execution-review')
+      inputs='tests/support/native-response-field.sh src/skills/dough-land/references/completion-attention.md'
+      ;;
+    trunk_closure_write_evidence_identity | story_closure_write_evidence_identity)
+      inputs='tests/support/native-response-field.sh'
+      ;;
+    *) continue ;;
+  esac
+  for input in ${inputs}; do
+    if ! lists_input "${identity_out}/baseline/${index}" "${input}"; then
+      printf 'FAIL: evidence identity %s omits response input %s.\n' \
+        "${identity_writers[index]}" "${input}" >&2
+      identity_failures=1
+    fi
+  done
+done
+
 # Every module a listed command imports or spawns, directly or transitively,
 # is listed too, so the per-input change check below covers what the command
 # runs.

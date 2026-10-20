@@ -1,5 +1,5 @@
-// Guidance structure (not native agent evidence): the shared closing-response
-// rule that Dough Land and Story Wrap Up apply after their operations settle.
+// Guidance structure, not native agent evidence: shared response judgment with
+// workflow-specific completion operations retained by each caller.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -74,6 +74,38 @@ test("quiet wording preserves exceptions, authority, requested details and opera
     /While the checkout survives[\s\S]+may still ask for the input needed to continue/,
   );
   assert.doesNotMatch(attention, /client project/i);
+});
+
+test("attention is prominent, current and separate from the caller's completion operations", () => {
+  assert.match(
+    attention,
+    /workflow keeps ownership of its[\s\S]+dashboard reporting duties/,
+  );
+  assert.match(
+    attention,
+    /does\s+not acquire another workflow's operations or gates/,
+  );
+  assert.match(
+    attention,
+    /`DEVELOPER ATTENTION REQUIRED`[\s\S]+before its actionable content/,
+  );
+  assert.match(attention, /combine overlapping unresolved items once/);
+  assert.match(attention, /retain them\s+across unrelated successful checks/);
+  assert.match(attention, /authorized disposition settles it/);
+  assert.match(
+    attention,
+    /green CI result does not dispose of\s+an unresolved finding/,
+  );
+  assert.match(attention, /draft\s+awaiting keep\/disposition/);
+  assert.match(attention, /confidence[\s\S]+cannot replace its human owner/);
+  assert.match(
+    attention,
+    /intentionally skipped optional review is not itself an exception/,
+  );
+  assert.match(
+    attention,
+    /do not run\s+that closure operation for a retrospective or execution-complete handoff/,
+  );
 });
 
 test("both closing skills use the shared rule without a required success marker", () => {

@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective ([plan](slice-plans/332-quiet-execution-and-retrospective/PLAN.md))
-
 ## Backlog list
 
 - [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up

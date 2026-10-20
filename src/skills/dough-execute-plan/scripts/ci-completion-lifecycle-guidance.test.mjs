@@ -49,7 +49,10 @@ test("review overlaps pending CI and one completion operation owns final handoff
   );
   assert.match(waitMechanics, /await-revision[\s\S]+read-only purpose/);
 
-  assert.match(finish, /Do not emit[\s\S]+PLAN EXECUTION COMPLETE[\s\S]+first/);
+  assert.match(
+    finish,
+    /Delivered implementation starts\s+review; require no execution-completion banner as input/,
+  );
   assert.match(finish, /partial review[\s\S]+applicable target\/revision/);
   assert.match(finish, /`--skip-retro`[\s\S]+completion obligations/);
   assert.match(finish, /applicable CI failure[\s\S]+incomplete stop/);
@@ -64,11 +67,11 @@ test("review overlaps pending CI and one completion operation owns final handoff
   );
   assert.match(
     retrospective,
-    /marker completes review, not the[\s\S]+final CI handoff/,
+    /return completes review, not the[\s\S]+final CI\s+handoff/,
   );
   assert.match(
     retrospective,
-    /do not end the turn at this marker[\s\S]+completion operation/,
+    /return\s+immediately[\s\S]+completion operation[\s\S]+without a separate visible\s+final report or confirmation/,
   );
 });
 

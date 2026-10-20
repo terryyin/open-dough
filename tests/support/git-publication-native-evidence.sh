@@ -98,6 +98,7 @@ git_publication_write_evidence_identity() {
         tests/support/ci-completion-native-assess.sh \
         tests/support/ci-completion-native-observe.sh \
         tests/support/ci-completion-native-counterexamples.sh \
+        tests/support/native-response-field.sh \
         tests/support/native-completion-observation.sh \
         tests/support/native-observation.sh \
         tests/support/ci-completion-native-fixture.sh \
@@ -112,7 +113,8 @@ git_publication_write_evidence_identity() {
         src/skills/dough-execute-plan/references/ci-monitor.md \
         src/skills/dough-execute-plan/references/ci-completion-wait.md \
         src/skills/dough-execute-plan/references/finish-or-stop.md \
-        src/skills/dough-execution-retrospective/SKILL.md
+        src/skills/dough-execution-retrospective/SKILL.md \
+        src/skills/dough-land/references/completion-attention.md
       ;;
     trunk-closure)
       trunk_closure_write_evidence_identity
