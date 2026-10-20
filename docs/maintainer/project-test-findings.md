@@ -325,7 +325,7 @@ with load 16 at the start and 65 at the end.
 
 
 
-## Formatting every path repeats unrelated work (queued, not resolved)
+## Formatting every path repeats unrelated work (measured response, release pending)
 
 <a id="dd-309"></a>
 
@@ -389,7 +389,23 @@ Slice delivery asks for the project's selective formatting command; this project
   - Observed effect: both deliveries waited through repository-wide ESLint, Prettier and shell formatting, enumerating unchanged installed skills and unrelated source/tests; no unrelated bytes changed.
   - Inference: the available command exceeds selective-format intent and repeats its broad cost after mechanical repair. Unloaded elapsed time and token cost were not measured; this story does not authorize formatter changes.
 
-**Responsibility and response (2026-10-20):** Project-owned. Shared delivery asks for selective formatting; `scripts/lint.mjs` supplies a whole-tree `--fix` command and explicitly refuses `--fix --staged`. Seven distinct executions above report this mismatch; load affected duration, so no unloaded saving is claimed. [Format only the owned change during delivery](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) is queued, not resolved. Preserve ordinary full-tree checks and hooks. Source recovery: `dae40ae3ed427d6827828b43c4fecc794d60cd85:DearDough.md#dd-309`.
+**Responsibility and response (2026-10-20):** Project-owned. Seven distinct executions above establish the mismatch between selective delivery and this project's former whole-tree formatter. [Format only the owned change during delivery](https://github.com/terryyin/open-dough/blob/5bb581028f16a5307f4bf4104088d19f1b62d0e9/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) changes `npm run format` to select tracked index/worktree changes and non-ignored new files, with existing ignore filtering before tool selection. `npm run format -- --all` retains whole-tree formatting; ordinary full-tree lint and check-only hooks remain unchanged. The implemented response is recoverable at the revisions below; the containing release remains pending. No released guidance or installed skill copy changed. Source recovery: `dae40ae3ed427d6827828b43c4fecc794d60cd85:DearDough.md#dd-309`.
+
+**Measured response:** On 2026-10-20 in `/Users/terryyin/git/open-dough/.worktrees/format-only-the-owned-change-during-delivery`, Markdown measurements used `43ff9dde9762edf400703c2925210383057e8522`; script/shell measurements used `be20c7cd0b30c2a52edce659297c6288cc526e3c`. The intervening CI repair changed only test-support shell-tool availability gating and plan records; the formatter, configs, package manifest and lockfile were identical. Setup was Node 24.21.0, npm 11.19.0, ShellCheck 0.11.0 and shfmt 3.14.0, with checkout-local locked dependencies and `/opt/homebrew/bin` first on PATH.
+
+Each passing pair ran `npm run format` and `npm run format -- --all` once each, serially, from identical prepared bytes. A private observation-only Node preload logged the actual runner's Git listings and tool arguments in both modes; wall time includes that instrumentation. Counts below distinguish Git-listed paths from the union of paths passed to tools; full-tree ESLint/Prettier still apply their own ignores internally. Load is the one-minute average at command start and end; raw evidence also retains five- and fifteen-minute averages.
+
+| Prepared change | Default listed / passed | Full-tree listed / passed | Default wall s; load start → end | Full-tree wall s; load start → end |
+| --- | --- | --- | --- | --- |
+| Markdown-only: `README.md` | 1 / 0 | 3,525 / 2,752 | 0.173; 11.04 → 11.04 | 88.196; 11.04 → 10.20 |
+| Edited `scripts/install-hooks.mjs` plus new `scripts/dd309-measurement-scratch.mjs` | 2 / 2 | 3,526 / 2,753 | 1.846; 14.04 → 14.04 | 86.889; 14.92 → 10.67 |
+| Shell: `scripts/test.sh` | 1 / 1 | 3,525 / 2,752 | 0.491; 10.05 → 10.05 | 94.519; 10.52 → 12.75 |
+
+Default selection listed exactly the named paths in each row. Markdown invoked no tool; the script pair passed exactly its two paths to ESLint and Prettier; the shell edit passed only `scripts/test.sh` to ShellCheck and shfmt. Full-tree runs passed 2,330 script paths to ESLint, 2,468 script/JSON paths to Prettier and 284 shell paths to each shell tool; the new-script case added one to the first two counts. All six primary runs exited 0.
+
+Both modes produced identical final bytes in each pair. Markdown changed no bytes. The script pair changed only `scripts/install-hooks.mjs` (1,044 → 1,043 bytes) and the new script (50 → 56 bytes); the shell pair changed only `scripts/test.sh` (9,121 → 9,124 bytes). These are file sizes before/after, not counts of differing byte positions. Complete before/after SHA-256 manifests for every Git-listed regular file and exact scratch-byte snapshots establish matching preconditions, matching outputs and no unrelated byte changes. Scratch files, original bytes and modes were restored, and the checkout was verified clean before this finding was edited.
+
+**Method limits and recovery:** The first shell setup mistakenly appended its block after the script's final `exit`; ShellCheck correctly reported SC2317. That trial exited 1 in 0.450797 s and is excluded from the primary comparison. Its evidence is retained; no invalid full-tree counterpart ran. The corrected pair inserted the same block before the final exit and ran once per mode. Raw evidence and the disposable harness remain at `/tmp/dough-dd309-325-measure.uSvudR`: `markdown-{selective,all}`, `scripts-{selective,all}`, `shell-valid-{selective,all}` and the excluded `shell-selective`. Each contains `metrics.json`, actual listing/tool invocations, NUL-separated path lists, byte manifests/snapshots, stdout/stderr and restoration evidence; `pair-comparisons.json` records equality checks. The harness was invoked as `PATH=/opt/homebrew/bin:$PATH node /tmp/dough-dd309-325-measure.uSvudR/measure.mjs` with each listed scenario/mode pair. The observed response bounds formatter work to the change set while preserving full-tree output. These single loaded-host observations make no unloaded timing or general speedup claim; the containing release and later usage remain unobserved.
 
 
 ## Worker fixture populations split hosted workers (repaired)

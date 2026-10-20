@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#format-owned-changes",
+  "title": "Format only the owned change during delivery",
+  "completedAt": "2026-10-20T04:28:10.871Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

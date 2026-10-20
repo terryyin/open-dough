@@ -15,7 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-10-20):** DD-309 is the leading uncovered local response: seven distinct executions repeat whole-tree formatting despite the selective-format contract. Queue its bounded repository-tooling correction first; it reduces the measured feedback-process cost without changing shared guidance. Existing repaired responses remain historical; incomplete exposure does not establish retirement of other local findings. DD-312 moves here as a repaired fixture-specific observation, not a shared defect.
+**Maintenance assessment (2026-10-20):** DD-309's repository-tooling response is implemented and measured: default formatting selects the change set, with the full-tree run available explicitly. Its [response and measured evidence](docs/maintainer/project-test-findings.md#dd-309) retain the observed load and pending containing release. No further response is selected here. Existing repaired responses remain historical; incomplete exposure does not establish retirement of other local findings. DD-312 moves here as a repaired fixture-specific observation, not a shared defect.
 
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
@@ -259,11 +259,11 @@ cache growth is prevented in these observations; the source of the historical
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
 
-## Selective formatting during delivery (queued, not resolved)
+## Selective formatting during delivery (implemented and measured, release pending)
 
 <a id="dd-309"></a>
 
-[DD-309 evidence and queued response](docs/maintainer/project-test-findings.md#dd-309) retain seven distinct executions, their provenance and qualified cost.
+[DD-309 evidence and measured response](docs/maintainer/project-test-findings.md#dd-309) retain seven distinct executions, their provenance, qualified cost and the implemented formatter's measured selection and output.
 
 ## Hosted worker population regression (repaired)
 
