@@ -137,7 +137,7 @@ Left to the early probe (slice 1), because Cursor versions move:
 
 ### 1. Re-probe the session-config hook on the installed Cursor
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded unpaid native probe against the then-installed
 `cursor-agent`, run as in refinement (isolated config copy, chosen model,
 no prompt submitted): the session shows the chosen model, the isolated
@@ -157,7 +157,8 @@ Type: Behavior
 Status: planned
 Proof: Fake-Cursor journeys in `agent-launch-cursor-model.spec.ts` show:
 choosing a model clones the current fake Cursor configuration into a new
-session scope under the dashboard machine home, records that scope on the
+session scope under the dashboard machine home (with the scope's `chats`
+linked to the shared Cursor chats, per slice 1 learnings), records that scope on the
 session's continuation, and keeps the first client with that scope in its
 environment and `--model` as today; the fake shared configuration is
 byte-unchanged after launch; the dialog's chosen-model wording states the
@@ -236,3 +237,21 @@ it is not passed on deterministic evidence.
 - The dialog keeps offering Cursor's transient model catalog; only the
   chosen-model note changes, from the saved-for-later-sessions warning to
   a this-session statement.
+
+## Learnings
+
+- Slice 1 (2026-10-20, `cursor-agent` 2026.10.19-6bbf2c4, unpaid, no
+  prompt): the `CURSOR_CONFIG_DIR` hook is honored — session showed
+  GPT-5.2, the isolated config alone persisted `gpt-5.2`, the shared
+  config's model fields stayed `default`/Auto (byte-identical), `models`
+  read the isolated config, and MCP stayed shared from `~/.cursor/mcp.json`.
+  Premise correction: chat storage follows `CURSOR_CONFIG_DIR`
+  (`chatsDir = join(configDir, "chats")`; `CURSOR_DATA_DIR` does not move
+  it), contrary to the refinement premise that chats stay shared by
+  default. Verified preserving variant: a scope holding the cloned
+  `cli-config.json` plus a `chats` symlink to the shared `~/.cursor/chats`
+  keeps the saved conversation shared and surviving scope removal
+  (Node `fs.promises.rm` does not follow the symlink). Slices 2–4
+  therefore establish the scope as clone-plus-chats-symlink; slice 5
+  re-verifies this natively. Scope removal must use a removal that does
+  not follow the symlink.
