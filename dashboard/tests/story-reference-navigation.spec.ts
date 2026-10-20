@@ -11,6 +11,7 @@ import {
 import { notFoundAnswer } from "./originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { writePlanning } from "./storyReadinessCli.ts";
+import { expectReadingTop } from "./readingPlace.ts";
 
 test.setTimeout(120_000);
 test.use({ hasTouch: true });
@@ -20,7 +21,14 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   origin,
   dashboard,
 }) => {
-  const revision = await twoDependencies(origin);
+  await page.setViewportSize({ width: 1280, height: 500 });
+  await twoDependencies(origin);
+  writePlanning(
+    origin.project,
+    "seeds/B.md",
+    `---\nid: SEED-B\n---\n\n# Seed B\n\n<a id="b"></a>\n\n### Story B\n\n**Identity:** SEED-B#b\n\n${"A detailed example of the published endpoint contract.\n\n".repeat(24)}`,
+  );
+  const revision = await publishDependencies(origin);
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -51,7 +59,10 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
     supplier.getByRole("region", { name: "Detail for Story B" }),
   ).toBeVisible();
   await expect(supplier).toBeFocused();
-  await expect(supplier).toBeInViewport({ ratio: 0.5 });
+  expect(
+    await supplier.evaluate((card) => card.getBoundingClientRect().height),
+  ).toBeGreaterThan(await page.evaluate(() => innerHeight));
+  await expectReadingTop(supplier);
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
   await consumer
     .getByRole("link", { name: suppliers[0].identity, exact: true })
