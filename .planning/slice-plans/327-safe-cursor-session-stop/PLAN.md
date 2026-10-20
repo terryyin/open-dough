@@ -281,7 +281,19 @@ a termination claim.
 
 ### 4. Recover an interrupted delegated agent before any replacement writer
 Type: Behavior
-Status: planned
+Status: done
+
+Learnings (2026-10-20): Delivered as guidance in
+`src/skills/dough-execute-plan/references/delegation.md` (new recovery
+section, with an Accept-proof cross-reference in `wrap-up.md`): an
+interrupted call with no return leaves the slice incomplete; the
+coordinator inspects the diff, the plan, and the remote branch and
+re-establishes focused proof from the checkout before any replacement
+writer, formatter, or delivery; an unexpected commit pauses for the
+developer's decision. The premise states interruption may not stop the
+agent, resting on slice 1's cited ODF-204/ODF-229 pattern (no new
+reproduction). Proof:
+`src/skills/dough-execute-plan/scripts/interrupted-delegation-guidance.test.mjs`.
 Proof: Execute-plan guidance tests show the delegation/wrap-up guidance
 requiring, on an interrupted call with no return: treat the slice as
 incomplete; inspect the checkout's diff and plan and the remote branch
