@@ -27,6 +27,18 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
     "follow-up": "→ Add a follow-up\r\n",
+    // The native interruption/failure shape slice 1 of plan 324 recorded:
+    // a cancelled command and a nonzero exit sit in viewport history
+    // above an ordinary follow-up prompt. No screen proves either state.
+    "cancelled-follow-up": `${[
+      "$ sleep 45",
+      "Cancelled • 3.7s",
+      "$ false",
+      "exit 1 • 184ms",
+      "The exit code was 1.",
+      "→ Add a follow-up",
+      "Press Ctrl+C again to exit",
+    ].join("\r\n")}\r\n`,
     // The native clarifying-question shape: an agent-chosen title, a
     // `Question N of M` line, numbered question lines, and the selection
     // footer. The words `Clarifying Questions` never appear natively.

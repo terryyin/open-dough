@@ -5,7 +5,8 @@
 // attach screen is the ordinary finished prompt. Waiting mode paints the
 // native clarifying-question screen (a `Question N of M` line, numbered
 // question lines, and the `Space select · Enter next/submit` footer). Trust mode paints a screen that is not ready for an
-// instruction. Composer mode paints `→ Plan, search, build anything` with
+// instruction. Cancelled-follow-up mode paints cancelled/failed history
+// above the ordinary follow-up prompt. Composer mode paints `→ Plan, search, build anything` with
 // the cursor hidden and no synchronized-update frame. Unrecognized mode
 // paints neither the prompt nor a question.
 // Trust-unframed models the native trust screen without a synchronized
@@ -97,6 +98,7 @@ function readJsonl<T>(file: string): T[] {
 export type CursorScreen =
   | "working"
   | "follow-up"
+  | "cancelled-follow-up"
   | "waiting"
   | "unrecognized"
   | "trust"

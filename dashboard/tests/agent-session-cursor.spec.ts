@@ -152,6 +152,14 @@ const heldScreens: readonly {
       waitingFor: cursorQuestion,
     },
   },
+  {
+    // Cancelled and failed history above the follow-up prompt proves
+    // neither failure nor interruption: the same review reading.
+    screen: "cancelled-follow-up",
+    reading: "Ready for review",
+    needsAttention: true,
+    state: { kind: "available", availability: "loaded", activity: "review" },
+  },
 ];
 
 for (const { screen, reading, needsAttention, state } of heldScreens) {

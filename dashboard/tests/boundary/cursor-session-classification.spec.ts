@@ -34,6 +34,34 @@ test("a finished screen whose history mentions Running is at the follow-up promp
   expect(showsCursorComposer(finished)).toBe(true);
 });
 
+test("cancelled and failed history above the follow-up prompt is at the follow-up prompt, not failed or stopped", () => {
+  const settled = [
+    "$ sleep 45",
+    "Cancelled • 3.7s",
+    "$ false",
+    "exit 1 • 184ms",
+    "The exit code was 1.",
+    "→ Add a follow-up",
+    "Press Ctrl+C again to exit",
+  ].join("\n");
+  expect(cursorSessionLabel(settled)).toBe(cursorHeldLabel.followUp);
+  expect(showsCursorComposer(settled)).toBe(true);
+  expect(showsCursorWaitingQuestion(settled)).toBe(false);
+  expect(cursorWaitingQuestion(settled)).toBeUndefined();
+});
+
+test("cancelled history without a follow-up prompt, live stop hint, or structural question proves no failure or interruption", () => {
+  const settled = ["$ sleep 45", "Cancelled • 3.7s", "exit 1 • 184ms"].join(
+    "\n",
+  );
+  // It falls back to the waiting label only; no failed/interrupted
+  // classification or question text is derived from the history lines.
+  expect(cursorSessionLabel(settled)).toBe(cursorHeldLabel.waiting);
+  expect(showsCursorComposer(settled)).toBe(false);
+  expect(showsCursorWaitingQuestion(settled)).toBe(false);
+  expect(cursorWaitingQuestion(settled)).toBeUndefined();
+});
+
 test("a screen whose current status region shows the live stop hint is working, whatever its history says", () => {
   const working = [
     "Running false to check its exit code.",

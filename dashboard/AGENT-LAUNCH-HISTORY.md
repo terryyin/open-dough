@@ -121,12 +121,23 @@ unknown and releases active capacity; failures also release capacity without
 losing individual results. Endpoint failures leave independent healthy records
 readable. Cursor reads the screen of each
 client its runner already holds, without starting that runner or an agent.
-The card shows that screen's label: "at the follow-up prompt", "working", or
-"waiting for an answer". When the runner is not running, or cannot be reached,
-the card says so and shows no screen label. An unfinished recorded session the
-runner does not hold says "The agent is not running." and offers Recover on the
-session entry. A finished session the runner does not hold stays Activity
-unknown: Cursor has no passive status for this session. Recover is absent for
+On a card or session entry, a held screen reads by the shared normalized
+activities: a proved clarifying-question screen reads Needs input with its
+question text, the follow-up prompt after a confirmed first instruction reads
+Ready for review, and a working screen reads Working; a workspace-trust
+screen or any other unproved held screen keeps the runner's screen label
+("at the follow-up prompt", "working", or "waiting for an answer") as an
+unknown reading that never alerts. Those labels are what the Running Cursor
+sessions list shows. Held screens prove only working, a waiting question, or
+the follow-up prompt: no held screen proves failure or interruption — a
+failed command inside a turn and a cancelled turn settle to ordinary
+screens — so for Cursor those states come only from an explicit unfinished
+report the session submits. When the runner is not running, or cannot be
+reached, the card says so and shows no screen label. An unfinished recorded
+session the runner does not hold says "The agent is not running." and offers
+Recover on the session entry, with no success, failure, or review claim. A
+finished session the runner does not hold stays Activity unknown: Cursor has
+no passive status for this session. Recover is absent for
 held, done, and completed sessions. When resume exits because the chat could
 not be loaded, Recover starts one replacement chat on that same launch record
 and updates the stored session id before instructing it.

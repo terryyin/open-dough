@@ -25,6 +25,7 @@ import {
 } from "./support/keptCursorTurn.ts";
 import { messages } from "./support/sessionAlerts.ts";
 import { cursorQuestion } from "./support/cursorSessionReading.ts";
+import { completionReport } from "./support/completionReport.ts";
 import { waitUntil } from "./support/waitUntil.ts";
 
 // This spec's alert loop reads every 100 ms. After a screen change, give
@@ -33,6 +34,40 @@ import { waitUntil } from "./support/waitUntil.ts";
 // own session reads.
 async function awaitAlertPolls(): Promise<void> {
   await waitUntil(() => false, { timeoutMs: 350 });
+}
+
+type CursorServer = Parameters<typeof launch>[0];
+
+// Launches one instructed Cursor session and requires its first
+// instruction to be confirmed delivered.
+async function launchConfirmed(server: CursorServer): Promise<void> {
+  const launched = await launch(
+    server,
+    instructedCursorRequest("inspect this session"),
+  );
+  expect(launched.status).toBe(200);
+  expect(keptCursor(server.home).firstInput?.state).toBe("confirmed");
+}
+
+// Replaces the one kept Cursor record with `change` applied to it.
+function rewriteKeptRecord(
+  server: CursorServer,
+  change: (record: LaunchRecord) => LaunchRecord,
+): void {
+  const recordsFile = path.join(
+    server.home,
+    ".open-dough",
+    "dashboard",
+    "agent-launches.json",
+  );
+  const kept = JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
+    string,
+    LaunchRecord[]
+  >;
+  const [record] = kept["open-dough"] ?? [];
+  if (record === undefined) throw new Error("No Cursor session recorded.");
+  kept["open-dough"] = [change(record)];
+  writeFileSync(recordsFile, JSON.stringify(kept));
 }
 
 test("a follow-up prompt whose first instruction was never confirmed reads Awaiting first instruction and alerts nothing", async () => {
@@ -46,29 +81,14 @@ test("a follow-up prompt whose first instruction was never confirmed reads Await
     { alertCheckMs: 100 },
   );
   try {
-    const launched = await launch(
-      server,
-      instructedCursorRequest("inspect this session"),
-    );
-    expect(launched.status).toBe(200);
-    expect(keptCursor(server.home).firstInput?.state).toBe("confirmed");
+    await launchConfirmed(server);
     await server.close();
     // The record now says its first instruction was never confirmed; the
     // already-delivered instruction cannot confirm it again.
-    const recordsFile = path.join(
-      server.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
-    const kept = JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-      string,
-      LaunchRecord[]
-    >;
-    const [record] = kept["open-dough"] ?? [];
-    if (record === undefined) throw new Error("No Cursor session recorded.");
-    kept["open-dough"] = [{ ...record, firstInput: { state: "awaiting" } }];
-    writeFileSync(recordsFile, JSON.stringify(kept));
+    rewriteKeptRecord(server, (record) => ({
+      ...record,
+      firstInput: { state: "awaiting" },
+    }));
     cursor.setAttachMode("follow-up");
     server = await startCursorDashboard({ mode: "boundary" }, cursor, machine, {
       alertCheckMs: 100,
@@ -115,12 +135,7 @@ test("a held Cursor session alerts once per actionable entry, re-arms after work
     { mode: "boundary" },
     cursor,
     async (server) => {
-      const launched = await launch(
-        server,
-        instructedCursorRequest("inspect this session"),
-      );
-      expect(launched.status).toBe(200);
-      expect(keptCursor(server.home).firstInput?.state).toBe("confirmed");
+      await launchConfirmed(server);
       const pid = cursor.attaches()[0]?.pid ?? 0;
       await expect
         .poll(() => cursorState(server))
@@ -213,4 +228,108 @@ test("a held Cursor session alerts once per actionable entry, re-arms after work
     undefined,
     { alertCheckMs: 100 },
   );
+});
+
+test("cancelled and failed history settling to the follow-up prompt reads only Ready for review, alerts no failure, and vanishing stays unknown", async () => {
+  test.setTimeout(120_000);
+  const cursor = installFakeCursor({ screen: "working" });
+  await withCursorLaunch(
+    { mode: "boundary" },
+    cursor,
+    async (server) => {
+      await launchConfirmed(server);
+      const pid = cursor.attaches()[0]?.pid ?? 0;
+      await expect
+        .poll(() => cursorState(server))
+        .toEqual({
+          kind: "available",
+          availability: "loaded",
+          activity: "working",
+        });
+      expect(server.notifierCalls()).toEqual([]);
+
+      // History alone proves neither failure nor interruption: the exact
+      // state is review (never failed/interrupted), and the only alert is
+      // the follow-up prompt's Ready for review.
+      cursor.setAttachMode("cancelled-follow-up");
+      await expect
+        .poll(() => cursorState(server))
+        .toEqual({
+          kind: "available",
+          availability: "loaded",
+          activity: "review",
+        });
+      await expect.poll(() => server.notifierCalls().length).toBe(1);
+      expect(messages(server)).toEqual(["Ready for review"]);
+      await awaitAlertPolls();
+      expect(server.notifierCalls()).toHaveLength(1);
+
+      // The client vanishes (runner still running, session unfinished):
+      // agent-not-running unknown, with no success, failure, or review
+      // claim and no further alert.
+      process.kill(pid, "SIGTERM");
+      await expect
+        .poll(() => cursorState(server))
+        .toEqual({
+          kind: "unknown",
+          label: agentNotRunningLabel,
+        });
+      await awaitAlertPolls();
+      expect(server.notifierCalls()).toHaveLength(1);
+      expect(messages(server)).toEqual(["Ready for review"]);
+    },
+    undefined,
+    { alertCheckMs: 100 },
+  );
+});
+
+test("a finished Cursor record the runner does not hold stays unknown with no claim and no alert", async () => {
+  test.setTimeout(120_000);
+  const cursor = installFakeCursor({ screen: "working" });
+  const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-finished-"));
+  let server = await startCursorDashboard(
+    { mode: "boundary" },
+    cursor,
+    machine,
+    { alertCheckMs: 100 },
+  );
+  try {
+    await launchConfirmed(server);
+    await expect
+      .poll(() => cursorState(server))
+      .toEqual({
+        kind: "available",
+        availability: "loaded",
+        activity: "working",
+      });
+    const pid = cursor.attaches()[0]?.pid ?? 0;
+    // Process exit alone: the client goes, then the record is finished
+    // (a quiet completed report). Neither fact proves success, failure,
+    // interruption, or review.
+    process.kill(pid, "SIGTERM");
+    await expect
+      .poll(() => cursorState(server))
+      .toEqual({
+        kind: "unknown",
+        label: agentNotRunningLabel,
+      });
+    await server.close();
+    rewriteKeptRecord(server, (record) => ({
+      ...record,
+      completion: completionReport(),
+    }));
+    server = await startCursorDashboard({ mode: "boundary" }, cursor, machine, {
+      alertCheckMs: 100,
+    });
+    // No observation for a finished, unheld session: plain unknown with
+    // no label, activity, success, failure, or review claim.
+    await expect.poll(() => cursorState(server)).toEqual({ kind: "unknown" });
+    await awaitAlertPolls();
+    expect(server.notifierCalls()).toEqual([]);
+  } finally {
+    await server.close();
+    await stopCursorRunner(path.join(machine, "home"));
+    cursor.cleanup();
+    rmSync(machine, { recursive: true, force: true });
+  }
 });

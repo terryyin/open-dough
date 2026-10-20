@@ -75,7 +75,11 @@ normalized activities: a proved clarifying-question screen (a
 footer) reads _Needs input_ with its question text, the follow-up prompt
 after a confirmed first instruction reads _Ready for review_, a working
 screen reads _Working_, and a trust prompt or any unproved screen keeps
-the label above as an unknown reading that never alerts. Choosing a row opens that session's terminal on the
+the label above as an unknown reading that never alerts. No held screen
+proves failure or interruption — a failed command inside a turn and a
+cancelled turn settle to ordinary screens — so for Cursor those states
+come only from an explicit unfinished report the session submits, never
+from its screen. Choosing a row opens that session's terminal on the
 client the runner holds. When the runner is not running, or cannot be
 reached, the list says so, shows no sessions, and offers nothing that starts
 an agent; a later successful read lists the held sessions again, and a running

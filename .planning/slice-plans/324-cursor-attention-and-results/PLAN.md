@@ -298,7 +298,7 @@ report channel; it does not stop the session or declare the story complete.
 
 ### 5. Read proven Cursor failure and interruption honestly
 Type: Behavior
-Status: planned
+Status: done
 Proof: For each failure/interruption signal slice 1 proved, a fake-Cursor (or
 recorded-screen) journey shows the failed/stopped reading, a usable
 explanation, and exactly one alert; for every unproven vanishing (client no
