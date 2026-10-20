@@ -31,7 +31,7 @@ import {
   type KeptLaunch,
   type KeepOutcome,
 } from "./terminalKeep.ts";
-import { refuseWorkspace } from "./terminalSocketFrame.ts";
+import { refuseAttach, refuseWorkspace } from "./terminalSocketFrame.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 
 export type { KeptLaunch, KeepOutcome };
@@ -56,6 +56,10 @@ export class TerminalAttachments {
       return;
     }
     const attached = nativeAttach(session.session, session.folder, false);
+    if ("attachRefusal" in attached) {
+      refuseAttach(ws, attached.attachRefusal);
+      return;
+    }
     if ("failedHost" in attached) {
       const unavailable = workspaceUnavailable();
       if (unavailable !== undefined) {

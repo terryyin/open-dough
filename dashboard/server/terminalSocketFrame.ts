@@ -3,9 +3,11 @@
 import type { RawData, WebSocket } from "ws";
 import {
   terminalAttachFailedCode,
+  terminalAttachRefusalCode,
   terminalEndedCode,
   terminalMessageSchema,
   terminalWorkspaceUnavailableCode,
+  type TerminalAttachRefusal,
   type TerminalControl,
   type TerminalMessage,
 } from "../src/agentTerminal.ts";
@@ -44,14 +46,37 @@ export function closeUnlessTerminalMessage(
   return message;
 }
 
+// A refusal carries its bounded frame on the socket before closing it
+// with the code that names the refusal.
+function refuse(
+  ws: WebSocket,
+  frame: object,
+  code: number,
+  reason: string,
+): void {
+  if (ws.readyState === ws.OPEN) {
+    ws.send(JSON.stringify(frame), { binary: true });
+    ws.close(code, reason);
+  }
+}
+
+export function refuseAttach(
+  ws: WebSocket,
+  attachRefusal: TerminalAttachRefusal,
+): void {
+  refuse(ws, { attachRefusal }, terminalAttachRefusalCode, "Attach refused.");
+}
+
 export function refuseWorkspace(
   ws: WebSocket,
   workspaceUnavailable: UnavailableWorkspace,
 ): void {
-  if (ws.readyState === ws.OPEN) {
-    ws.send(JSON.stringify({ workspaceUnavailable }), { binary: true });
-    ws.close(terminalWorkspaceUnavailableCode, "Saved workspace unavailable.");
-  }
+  refuse(
+    ws,
+    { workspaceUnavailable },
+    terminalWorkspaceUnavailableCode,
+    "Saved workspace unavailable.",
+  );
 }
 
 // The process is gone. A client that never became ready may instead report

@@ -183,7 +183,12 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   rmSync(scope, { recursive: true, force: true });
   await entry.getByRole("button", { name: "Open terminal" }).click();
   const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toContainText("The session could not be attached");
+  await expect(panel).toContainText(scopeRefusal);
+  await expect(panel).toContainText(
+    "not continued with your shared Cursor configuration",
+  );
+  await expect(panel).toContainText("Nothing was started.");
+  await expect(panel).not.toContainText("The session could not be attached");
   expect(cursor.attaches()).toHaveLength(attachesBefore);
   expect(cursor.calls()).toHaveLength(callsBefore);
   expect(cursor.sharedConfig()).toBe(sharedBefore);

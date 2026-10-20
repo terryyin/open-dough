@@ -24,6 +24,13 @@ export const terminalEndedCode = 4000;
 // Native attachment failed before readiness; the existing done intent remains.
 export const terminalAttachFailedCode = 1011;
 export const terminalWorkspaceUnavailableCode = 4001;
+export const terminalAttachRefusalCode = 4002;
+export const terminalAttachRefusalSchema = z.strictObject({
+  attachRefusal: z.strictObject({ explanation: z.string().max(500) }),
+});
+export type TerminalAttachRefusal = z.infer<
+  typeof terminalAttachRefusalSchema
+>["attachRefusal"];
 export const terminalWorkspaceUnavailableSchema = z.strictObject({
   workspaceUnavailable: z.discriminatedUnion("kind", [
     z.strictObject({ kind: z.literal("missing") }),

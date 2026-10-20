@@ -13,6 +13,7 @@
 import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
+import { HostOperationFailure } from "../../hostLaunch.ts";
 import { showsFollowUpLine } from "./idleScreen.ts";
 import { recordedCursorSessionScope } from "./sessionScope.ts";
 
@@ -59,7 +60,7 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   }
   const scope = recordedCursorSessionScope(continuation.configScope);
   if (scope.kind === "unavailable") {
-    throw new Error(scope.explanation);
+    throw new HostOperationFailure(scope.explanation);
   }
   return {
     pty: spawnCursorPty(

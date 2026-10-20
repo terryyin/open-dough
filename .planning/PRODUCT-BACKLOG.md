@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation ([plan](slice-plans/330-cursor-scope-terminal-refusal/PLAN.md))
-
 ## Backlog list
 
 - [Block commits and delivery after failed local prerequisites](seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery) — SEED-146#gate-local-prerequisites-before-commit-and-delivery

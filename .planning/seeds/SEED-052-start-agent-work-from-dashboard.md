@@ -202,29 +202,6 @@ deterministic recovery specs exist; what is unestablished is native
 resumption after a real runner or machine restart and any guard
 against silently reusing a stale-code runner.
 
-<a id="cursor-scope-terminal-refusal-explanation"></a>
-
-### 5. Show why a scoped Cursor session's terminal open was refused
-
-**Identity:** SEED-052#cursor-scope-terminal-refusal-explanation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/330-cursor-scope-terminal-refusal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a9b7c72487a338694b4f1793a3363b3a9c8c023082655fe68e122a969fa28cf7","plan":"89318116f21da9cd8db93f30bc8aba560058bce75c2c2c3ab834cb05e0501a75"}}
-```
-
-**Goal:** For a developer opening the terminal of a chosen-model Cursor
-session whose recorded configuration scope is missing or unreadable, the
-terminal surface shows the scope refusal explanation — the session was not
-continued with the shared Cursor configuration and nothing was started —
-instead of only the generic attach failure.
-
-**Scope:** Bounded retrospective correction of
-SEED-052#cursor-session-model-scope (plan
-[330](../slice-plans/330-cursor-scope-terminal-refusal/PLAN.md)). Only the
-terminal attach/open surface changes; recovery/resume and cannot-load
-replacement already surface the explanation and stay unchanged, other
-attach failures keep the generic text, and no continuation falls back to
-the shared configuration. Adds no feature promise.
-
 ## Ordering and Scope Reduction
 
 On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued
