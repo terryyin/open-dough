@@ -1,3 +1,17 @@
+## 0.3.67 - 2026-10-21
+
+- Finish settled preparation, retrospective, landing and story closure quietly, while preserving actionable attention, requested details, durable records and dashboard receipts. Continue successfully completed planned execution into Story Wrap Up in the same session when existing authority settles the remaining choices.
+- Gate fresh execution commits, publication and observation on successful local prerequisites and commit hooks, preserving staged work and resumable already-published candidates on failure.
+- Review original story commitments independently of plans and implementation returns, retain independently discovered gaps, schedule proof after refactoring, and inspect checkout and remote state before recovering interrupted delegated work.
+- Improve Cursor session attention and retained reports, runner-confirmed stopping, local Done acknowledgment, model-scoped launch/continuation, and retry of an exited unconfirmed start. Explain scoped terminal-open refusals and prevent replacement writers after unconfirmed stops.
+- Apply the Open Dough identity to dashboard shells, browser icons and the macOS notification sender. Limit automatic formatting to changed files, retaining an explicit whole-tree option.
+
+The Promoted installation payload adds guarded fresh-execution support and updates existing lifecycle guidance. Proposed guidance outside the installer declaration remains outside the released payload. Dashboard and repository-tooling changes remain source functionality.
+
+Validation: representative source-level behavior review completed. Release self-installation, lint and dashboard typecheck passed locally. All 401 credential-free deterministic checks passed locally. Hosted CI passed source revision b09c5fcd60d7a933db363454d316ea4d1e0f6b4a; the subsequent current source changes are planning records. This is earlier hosted CI, not fresh native acceptance.
+
+Terry explicitly approved an ADR 0005 exception on 2026-10-21 to publish and roll out 0.3.67 with native acceptance pending. No fresh native acceptance is claimed. Outstanding acceptance remains pending for quiet completion/reporting and planned continuation into wrap-up on Codex, Cursor and Claude Code; guarded local preparation, commit and publication on all three hosts; and affected Cursor session behavior, including stopping and model-scoped continuation. Cursor runner/machine restart resumability remains active work, and branded-alert Automation consent identification remains a queued correction. This release does not close those requirements.
+
 ## 0.3.66 - 2026-10-20
 
 - Refresh inherited CI coverage on every observation and select the nearest applicable ancestor across current runs and retained history, including a nearer failure that replaces an older success.
