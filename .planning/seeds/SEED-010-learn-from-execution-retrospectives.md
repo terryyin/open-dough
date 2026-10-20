@@ -237,25 +237,92 @@ obligations passed.
 
 **Identity:** SEED-010#observe-retrospective-response-effectiveness
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/328-observe-retrospective-response-effectiveness/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"112fce56f4f9c6c786f1921f8a8df0384fad0f7c10f08f037255f73e84846dfc","plan":"162cddb7264f870b368a06a3f446cea398b37172a7e91c47c5006214b4a02573"}}
 ```
 
 **Goal:** The developer and maintainer can decide whether to retain, revise,
 abandon, or continue observing one recorded response using relevant later evidence.
 
-**Scope:** Reuse the finding and watch workflow for one response. State the
-hypothesized mechanism, expected useful effect, comparison, relevant exposure,
-quality/cost guardrails, and later observation needed. Include successful use,
-recurrence, no relevant exposure, and uncertainty. Distinguish operational
-retirement from confidence in effectiveness. General log recategorization,
-cleanup automation, and a new measurement service are outside this outcome.
+**Scope:** Evaluate ODF-139's structured-obligation response first released in
+0.3.58, using its [current finding and retained evidence](../../docs/maintainer/findings/ODF-139.md).
+The hypothesis is that explicit ownership and story-based disposition of a
+reported gap prevent erroneous plan-scope dismissal and later correction work
+at a worthwhile acceptance cost. Reuse the finding and watch workflow; retain
+one compact assessment in the finding's existing home.
 
-**Evaluation:** The maintainer can explain a response decision from linked
-observations and its introduced effort, including later corrections where
-relevant. An unexercised response remains unproven. ODF-139 is a suggested first
-case: verify its current evidence before selection; its recorded watch being due
-does not establish success. Assess disposition of reported gaps independently
-and do not equate that with detecting unreported gaps.
+Before scoring, fix the response revision, eligible opportunity, comparison,
+expected benefit, quality/cost guardrails, and observation boundary. An eligible
+opportunity is a named gap requiring disposition against the original story
+while this response applies. Establish the expected disposition from the
+original story and any human amendment independently of the accepted plan or
+coordinator's answer. Keep gaps and distinct executions separate; rereviewing
+one execution adds no occurrence.
+
+Use the already retained positive Pygardon plan 327 and later 0.3.63 evidence
+from Open Dough plan 311 and Pygardon's capacity and release-progress work,
+with the earlier plan 303 failure as a historical comparison. Examine the
+response actually used, the immediate disposition, later correction, and
+available human/agent effort. These selected cases are an exploratory sample,
+not a complete exposure denominator or a matched causal comparison. Separately
+assess named-gap handling and original promises absent from the return; the
+first cannot establish detection of the second.
+
+The current finding, assessed on 2026-10-20, already records a failed watch and
+the newer `9e6caaae` response as implemented but unreleased. Preserve that history.
+The successor's controlled proof is context, not ordinary adoption or evidence
+that the selected 0.3.58 response worked. A missing source, unknown release,
+unavailable cost, or insufficiently comparable case limits the corresponding
+conclusion instead of being filled in. An attributable failure can defeat a
+sufficiency claim without establishing that the response had no benefit.
+
+The result supports retain, revise, abandon, or continue observing, with
+confidence, counterevidence, and the next relevant observation. Consider
+correctness, legitimate exclusions, unnecessary returns/escalations, and later
+rework alongside acceptance and assessment effort. No reduction in work counts
+as benefit when it drops a story promise. Do not invent token or time savings;
+qualify effort inferred from correction rounds and identify missing costs.
+Operational retirement remains separate from effectiveness confidence.
+
+**Deferred promises:** No general log recategorization, cleanup automation,
+measurement service, standing cross-project access, automatic response rollout,
+or new runtime guidance is required. This evaluation may establish that existing
+behavior suffices. It does not implement a suggested revision, release the
+successor, or retire unrelated findings. Full detection of unreported gaps and
+product-wide quality measurement remain separate outcomes.
+
+**Key examples:**
+
+1. Plan 327 contains two named gaps returned and corrected within one execution
+   under 0.3.58 → assess the response → retain two opportunity observations
+   linked to one execution, the extra correction rounds, and the limited
+   evidence of useful ownership; do not report two independent successes or
+   a population success rate.
+2. Plan 311 records a named gap dismissed against a narrower plan, and an
+   original example omitted from implementation under 0.3.63 → compare each
+   with its original story and later correction → distinguish failed
+   reported-gap disposition from the unreported-promise coverage limit;
+   preserve counterevidence and the already failed watch.
+3. A gap concerns behavior genuinely excluded by the story or a human amendment
+   → assess its disposition using an attributable case, or an explicitly
+   labelled illustrative boundary when no such case is available → a justified
+   no-change decision is acceptable; returning every gap is not success.
+4. The successor has controlled proof but no verified ordinary use, or a watch
+   has elapsed without eligible exposure → assess that boundary → label ordinary
+   effectiveness unproven and name the adoption/use evidence needed; neither
+   elapsed time nor silence establishes improvement.
+5. Retained cases show useful corrections and later failures, but comparable
+   effort or complete source history is unavailable → assess benefit and cost
+   → record the supported observations, an explicitly limited or inconclusive
+   net-benefit judgment, and what later evidence could change the decision.
+   Administrative retirement cannot strengthen that judgment.
+
+**Evaluation:** A maintainer can trace the assessment to the selected response,
+original promise, exposure, observed disposition, later consequence, and
+introduced effort. The assessment explains what the existing failed watch does
+and does not establish, rather than merely repeating its status. It preserves
+unknowns, separates controlled examples from actual use, and identifies the
+smallest useful next observation. A bounded inconclusive result completes the
+evaluation without claiming that the response is effective.
 
 **Value / learning:** Test whether existing records can close one useful learning
 loop before generalizing the machinery. This includes whether recording and
