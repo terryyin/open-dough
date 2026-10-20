@@ -18,9 +18,10 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Block commits and delivery after failed local prerequisites](seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery) — SEED-146#gate-local-prerequisites-before-commit-and-delivery ([plan](slice-plans/331-gate-local-delivery-prerequisites/PLAN.md))
+
 ## Backlog list
 
-- [Block commits and delivery after failed local prerequisites](seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery) — SEED-146#gate-local-prerequisites-before-commit-and-delivery
 - [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective
 - [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
