@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `dbe36711`; the complete pre-compaction source remains at `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 321. Removed numbers are never reused.
+- Highest allocated local number: 322. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -418,6 +418,20 @@ After a native run, the coordinator diagnosed a misclassification and added an o
   - Evidence: plan 323 slice 1 execution record at `6922dc32:.planning/slice-plans/323-schedule-proof-after-refactoring/PLAN.md` (“Diagnosed and corrected in the observer/assessor (`extraction-in-implementation`)”); commit `788d8172` includes that field; the refactor report predates it.
   - Observed effect: about 30 lines of behavior reached delivery with coordinator-run focused proof but no independent refactor judgment; slice 2's refactor later reviewed the same files.
   - Inference: qualified. Execution guidance names no return path for a harness correction discovered by a slice's own paid observation after refactoring; the coordinator chose speed over returning it to implementation and a fresh refactor pass. One occurrence.
+
+## DD-322 — A new cross-host action's focused proof missed the spec pinning the other hosts' entries
+
+Slice 2 offered a separate Stop from the host `stop` fact alone, which also gave Claude/Codex entries a duplicate Stop beside their stopping Mark as done. The slice's focused proof ran the Cursor stop and existing done specs but not `recently-done-story-sessions.spec.ts`, which pins those entries; CI caught it and a two-file repair (`fa05f9ec`) narrowed the offer to hosts whose Done does not already stop.
+
+### Occurrences
+
+- Execution: SEED-052#safe-cursor-session-stop, plan 327, first implementation `f121d999c5f10c9a0f944263302f0c4454abbeb0`
+  - Timestamp: unknown (2026-10-20, slice 2 delivery through the CI repair at `fa05f9ec`)
+  - Tool: Cursor
+  - Open Dough release: unknown
+  - Evidence: CI run 39376174156 failure in `recently-done-story-sessions.spec.ts`; repair commit `fa05f9ec` (`sessionCapabilities.ts`, `sessionRecordActions.tsx`); plan 327 slice 2 proof named existing Claude/Codex done specs as its unchanged-host proof.
+  - Observed effect: one owned CI failure and a repair cycle that paused slice 3 work (restored afterward through the CI-repair stash flow) before delivery could continue.
+  - Inference: qualified one-off. When a capability fact changes what every host's entry offers, the focused proof set needs the specs that pin the unaffected hosts' entries, not only the changed host's journeys and the shared flow's own specs. No elapsed-time or token cost is measured.
 
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 

@@ -298,6 +298,26 @@ selection changes or richer result reading. Story 1's attention reading is
 independent: an unconfirmed stop is explained from runner/process evidence
 this story owns, not from story 1's normalized activities.
 
+### Correction: An unconfirmed stop still blocks a replacement after local Done
+
+**Identity:** SEED-052#cursor-unconfirmed-stop-after-local-done
+
+**Goal:** For a developer who marked a still-working Cursor session done
+locally and then pressed Stop without confirmation, the dashboard still
+blocks a replacement writer in that workspace until confirmation or an
+explicit override, and offers the local Mark as done from the open terminal
+panel as it does from the session entry.
+
+**Scope:** Bounded retrospective correction of
+SEED-052#safe-cursor-session-stop (plan 327); adds no feature promise.
+Included: the replacement-writer block follows the retained
+`stopUnconfirmed` explanation regardless of the local done mark; the
+terminal panel's Mark as done follows the same host capability facts as
+the entry. Preserved: Stop and Mark as done stay separate, local Done
+never claims native termination, Claude and Codex behavior is unchanged,
+and native Cursor termination remains unverified. Plan:
+[329-cursor-unconfirmed-stop-after-local-done](../slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md).
+
 <a id="cursor-session-model-scope"></a>
 
 ### 3. Choose a Cursor session model without changing later defaults

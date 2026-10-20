@@ -350,6 +350,23 @@ examples, and deterministic-test evidence is not substituted for this
 native proof (ADR 0005). Missing native proof stays pending and named;
 it is not marked passed by this slice's deterministic companions.
 
+## Execution complete
+
+Product advice: Execution complete (deterministic delivery): Cursor
+sessions can be stopped through the runner with confirmation by
+re-observation or a durable unconfirmed explanation that blocks a
+replacement writer until confirmation or an explicit competing-writer
+override, and can be marked done as a dashboard-local acknowledgement
+that never claims native termination; interrupted delegated agents are
+recovered from the checkout under new execute-plan guidance. Native
+Cursor termination by hangup/SIGHUP and native interrupted-Task behavior
+were not verified in this execution and remain pending as named in
+slice 5 and ODF-204/ODF-229. A retrospective correction (plan 329)
+covers an unconfirmed stop on a locally done session not yet blocking a
+replacement writer, the terminal panel's missing local Mark as done, and
+the still-held stop journey. CI for the final revision is pending via
+the retained observer; no CI success is claimed here.
+
 ## Current decisions
 
 - Stop acts through the Cursor runner on the held client and is confirmed
