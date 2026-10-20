@@ -84,6 +84,54 @@ proof. A general workflow engine, new execution ledger, or imported Bash parser
 is outside this story. Refinement selects the smallest coherent integration with
 the existing owners rather than prescribing a new module or command here.
 
+### Refinement comparison and investigation — 2026-10-20
+
+The selected direction remains unchanged. The options were compared against
+failure propagation, exact-candidate delivery, recovery, and project portability:
+
+| Candidate | Assessment |
+| --- | --- |
+| Keep separate commands, add `&&`/pipeline advice | Smallest change, but still relies on each coordinator constructing and inspecting the chain correctly. The retained occurrences already violate that contract. |
+| Put every prerequisite in a universal Git hook | Can protect a commit, but duplicates project policy and cannot establish that an earlier required plan mutation succeeded or prevent delivery of an older commit. |
+| Give the existing execution path one success-dependent preparation → commit → delivery operation | Recommended. Its owner observes each terminal result before invoking the dependent operation, passes the successful commit SHA, and delegates publication/recovery to their existing owners. |
+
+The borrowed mechanism is build dependency failure propagation: a failed
+prerequisite prevents dependent targets from being built
+([GNU Make's error handling](https://www.gnu.org/s/make/manual/html_node/Errors.html)).
+Here required local operations correspond to prerequisites, committing to a
+dependent target, and publication to its downstream consumer. Adapt that
+dependency rule, without introducing Make or a task graph. The analogy ends at
+recovery: a remote-accepted commit is durable external state, and accepted
+semantic proof is a judgment, neither a timestamped build output nor something
+to delete after failure.
+
+Local observations at preparation revision `f24c716fd8f289b70b5a65cb7002a5cf8f036503`
+used the real commit helper, managed delivery, bare local remotes, and real
+observer workers with a controlled CI adapter:
+
+- A controlled formatter failure (exit 7), controlled failed plan edit (exit 1),
+  and real staged whitespace refusal (exit 2) each preceded a successful
+  separately invoked commit and managed publication. These reproduce missing
+  orchestration, not failures inside those commands. The formatter and plan-edit
+  processes were substitutes; no project formatter or semantic plan editor was
+  claimed defective.
+- A rejecting project hook produced `commit-failed`, unchanged HEAD, and retained
+  staged work. Calling managed delivery separately still published the earlier
+  fixture commit and attached an observer. This is a constructed reproduction;
+  it does not change the qualified historical claims in ODF-097.
+- Repeating each accepted publication returned `already-published`, reused its
+  observer, and made no second push. A real obligations invocation returned exit 1
+  with `open-obligation`; an additional composed observation confirmed that a
+  separately invoked commit and managed delivery still proceeded after it.
+- Existing commit/authorship, hook, obligation, publication/reconciliation, and
+  managed-delivery controls passed after installing this worktree's locked
+  dependencies. The plan records commands, setup, limitations, and results.
+
+This settles the premise that the missing responsibility is success-dependent
+orchestration outside the lower-level helpers. Native agents choosing the new
+path remains unproved and must receive separate acceptance under ADR 0005.
+No unresolved goal or scope decision was found.
+
 ## Story Decomposition
 
 <a id="gate-local-prerequisites-before-commit-and-delivery"></a>
@@ -92,7 +140,7 @@ the existing owners rather than prescribing a new module or command here.
 
 **Identity:** SEED-146#gate-local-prerequisites-before-commit-and-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/331-gate-local-delivery-prerequisites/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"16463e26ba089e00962e2ec269ab848d42fa673769dda633573e8f9dc3653cc3","plan":"d34a0e82c1a3a30bdff23b4d47ab50ecd254c0abae9402c036187daf85f8b629"}}
 ```
 
 **For / why:** A developer delegating execution needs failed required local work
@@ -130,6 +178,50 @@ preserving legitimate recovery of a SHA the remote already accepted.
 - Keep shared behavior portable across Codex, Cursor, and Claude Code with the
   smallest necessary host adaptation. Update the runtime guidance at its shared
   source; installed copies change only through a released payload.
+
+Required operations are those resolved for the current attempt from its project
+and execution context. Planned work must supply its active plan and selected
+slice; quick work keeps its existing planless contract. A required mutation must
+run within the guarded sequence with its terminal outcome retained: checking
+that a plan file exists, or passing a caller's unconditional success flag, does
+not establish that the intended update succeeded. Required inputs cannot be
+omitted to turn a failed prerequisite into a no-op.
+
+The gate covers the maintained execution journey, including its owned repairs.
+It does not sandbox arbitrary shell commands, reinterpret every earlier failure
+as permanent invalidity, or replace proof review. Failed attempts may leave
+their already-made owned preparation edits available for repair; no transaction
+rollback is promised. Output filtering outside the operation cannot enable
+downstream effects that its owner has withheld.
+
+**Architecture:**
+
+- Put success dependencies in the existing execution/delivery ownership. Keep
+  project-specific preparation and selected work context explicit; keep proof
+  acceptance with its current reviewer. Reuse `agent-commit` for assigned
+  workspaces and ordinary Git for the callers whose contract requires it.
+- Carry the successful commit's SHA into managed delivery before observation
+  starts. Keep `validatedCandidate`, reconciliation/renewed proof, remote
+  acceptance, and resume with their existing owners. Fresh work and recovery
+  have different inputs; recovery is not a failed fresh attempt reclassified
+  merely because HEAD exists.
+- Preserve one representation of those responsibilities under
+  [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
+  No new execution ledger, global failure latch, or workflow engine is needed.
+  The existing [North Star](../NORTH-STAR.md) concerns other responsibilities;
+  this feature-local design needs no new topic or ADR.
+- Author runtime guidance in `src/skills/` for the agent's established project,
+  with shared behavior across hosts under
+  [ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+  Source/installed separation follows
+  [ADR 0003 — Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+- Deterministic failure, publication, and recovery proof is implementation
+  acceptance. Native selection and follow-through of changed guidance remains
+  separate under
+  [ADR 0005 — Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md);
+  neither fixture installation nor another host's success substitutes for it.
+  No Accepted ADR conflict was found; Proposed ADRs 0007–0009 were not treated
+  as constraints.
 
 **Key examples and evaluation:**
 
@@ -187,8 +279,9 @@ Keep the implementation bounded to the success dependencies above. A broader
 policy engine, exact-index lint redesign, automatic repair of semantic proof,
 and unrelated runner improvements remain outside this story.
 
-Effort is unestimated. This is queued, non-executable input; no refinement,
-execution approach, readiness assessment, slice plan, or Take is granted here.
+Effort is unestimated; this repository supplies no applicable S/M/L bands.
+The story remains queued. Its structured preparation facts and associated plan
+record preparation judgment; neither grants Take or execution.
 
 ## Breadcrumbs
 
