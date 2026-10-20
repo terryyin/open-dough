@@ -11,6 +11,7 @@ import { publishedMainFixture } from "./support/publishedMainFixture.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { deploymentCheckout } from "./support/productionWatcher.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
+import { expectSuppliedIcons } from "./support/brandIcons.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -134,6 +135,8 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
         ),
       ),
     ).toEqual(["stanly.webp"]);
+    // The pinned checkout's build serves Open Dough's supplied icon exports.
+    await expectSuppliedIcons(request, preview.url);
     const boundary = `${preview.url}/__authenticated-read?source=unknown`;
     const sameOrigin = await request.get(boundary, {
       headers: { Origin: preview.url },

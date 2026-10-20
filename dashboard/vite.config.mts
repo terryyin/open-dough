@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { localBoundaries } from "./server/localBoundaries.ts";
 import { localBoundaryPlugin } from "./server/localBoundaryPlugin.ts";
 
@@ -42,8 +43,13 @@ export default defineConfig(({ command }) => {
   }
   return {
     root: dashboardRoot,
-    // The local boundaries (`./server/localBoundaries.ts`), each as its plugin.
-    plugins: [react(), ...localBoundaries.map(localBoundaryPlugin)],
+    // Open Dough's icon exports at stable root URLs (`./server/brandAssetPlugin.ts`),
+    // then the local boundaries (`./server/localBoundaries.ts`), each as its plugin.
+    plugins: [
+      react(),
+      brandAssetPlugin(),
+      ...localBoundaries.map(localBoundaryPlugin),
+    ],
     server: {
       host: loopbackOnly,
       port: 43127,

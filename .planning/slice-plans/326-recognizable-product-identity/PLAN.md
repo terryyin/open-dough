@@ -212,7 +212,7 @@ workflow: automated argv/exit assertions do not establish the icon.
 
 ### 3. Recognize the dashboard in browser tabs, bookmarks, and touch metadata
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fresh built-preview HTML references served accepted ICO/PNG and touch
 assets with correct type/size/content. The isolated production-deployment
 fixture requests and compares the brand bytes from its built pinned checkout.
@@ -338,6 +338,18 @@ session-alerts boundary/session-alerts notification-story-navigation.spec.ts
 boundary/notifier-setup.spec.ts agent-launch-codex-observation-alerts
 agent-terminal-close agent-terminal-codex-close` plus the three machine-home
 listing specs, and the native alert/click observations recorded in G1–G3.
+
+Slice 3 (execution, 2026-10-20): `dashboard/server/brandAssetPlugin.ts` serves
+every `assets/brand/favicon/` export at `/<file name>` in dev and emits the
+same bytes in the build; `index.html` declares `/favicon.ico`, `/icon-32.png`,
+`/icon-16.png` and the 180-pixel `apple-touch-icon`. Accepted proof:
+`env -u NO_COLOR npm run test:dashboard -- browser-identity.spec.ts
+boundary/serving-modes.spec.ts production-deployment.spec.ts` (removing the
+links and plugin failed all three new assertions). Direct observation: a fresh
+Chromium profile's tab and a pre-seeded bookmark-bar entry showed the mark in
+dark browser chrome; the 16/32-pixel exports rendered on white and #202124 keep
+the cream silhouette recognizable, with the fold visible at 32 pixels and only
+faint at 16. Slice 4 reuses `/icon-<size>.png` for the in-page mark.
 
 Preparation found that macOS sender identity, rather than a missing icon flag,
 owns the difficult part of the requested outcome. The current helper is

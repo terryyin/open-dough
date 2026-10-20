@@ -32,6 +32,7 @@ import {
 import { rawRequest, type RawResponse } from "../support/rawHttp.ts";
 import { liveRunner, runnerCommand } from "../support/cursorRunnerJourney.ts";
 import { repoRoot } from "../support/repositoryRoot.ts";
+import { expectSuppliedIcons } from "../support/brandIcons.ts";
 import { serverBundleVariable } from "../support/serverBundle.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
@@ -219,6 +220,12 @@ test.describe("serving modes mount the same boundaries", () => {
     );
     expect(dev).toMatchObject({ status: 404 });
     expect(preview).toEqual(dev);
+  });
+
+  test("both serve Open Dough's declared icon exports", async ({ request }) => {
+    for (const { baseURL } of Object.values(servers)) {
+      await expectSuppliedIcons(request, baseURL);
+    }
   });
 
   test("the upgrade guard leaves Vite's own HMR socket working, which only the dev server has", async () => {

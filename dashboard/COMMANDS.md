@@ -74,6 +74,14 @@ port fails rather than silently choosing another URL. `build:dashboard` and
 `preview:dashboard` remain available for manually previewing the current
 checkout; use the watcher for production from published `main`.
 
+Every serving mode shows the dashboard's browser tab, bookmarks and touch icon
+as Open Dough: `index.html` declares `/favicon.ico`, `/icon-16.png`,
+`/icon-32.png` and the 180-pixel `/icon-180.png` touch icon, with no web
+manifest. `server/brandAssetPlugin.ts` serves every supplied export in
+`assets/brand/favicon/` at `/<file name>` from that one source: the dev server
+answers from the files, and each build, production deployments included, writes
+the same unrenamed bytes beside `index.html`.
+
 `npm run setup-notifier:dashboard` is an explicit, one-time macOS setup for
 alerts sent as **Open Dough**. It needs separately installed `terminal-notifier`
 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and the system's own
