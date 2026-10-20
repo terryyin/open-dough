@@ -1,0 +1,7 @@
+source: /tmp/open-dough-accept-original-promises-readiness-comparison-20261020/cursor/delivery-evidence/original/narrowed/20261020T015348-0c1e/events.jsonl
+stream-status: complete
+response: present
+last-start-line: 56
+command: "git status --short; echo ---; git diff --stat; echo ---; git diff"
+command: "git log --oneline -5 -- lib/readiness.mjs tests/readiness.test.mjs; echo ---; git log --oneline -3; echo ---; git show HEAD:lib/readiness.mjs; echo ---; git show HEAD:tests/readiness.test.mjs 2>/dev/null | head -n 60"
+command: "node '.claude/skills/dough-execute-plan/scripts/story-obligations.mjs' check --plan '.planning/slice-plans/311-compute-execution-readiness/PLAN.md' --slice 3; echo exit:$?; echo ---; git status --short"

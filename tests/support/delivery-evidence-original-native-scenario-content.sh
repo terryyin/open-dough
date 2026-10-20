@@ -208,6 +208,13 @@ s = p.read_text().replace('retains the legacy as-written comparison', 'uses comp
 s = s.replace('as-written legacy comparison', 'legacy supplier-resolution result')
 s = s.replace('legacy review follows the as-written dependency comparison', 'supplier resolution alone leaves a legacy review unchanged')
 p.write_text(s)
+plan = p.parent / 'slice-plans/311-compute-execution-readiness/PLAN.md'
+s = plan.read_text().replace(
+    '`changedSinceReview: false` while a legacy record whose dependency state\nchanged since review keeps `true`.',
+    '`changedSinceReview: false`; supplier resolution alone also leaves a legacy\nrecord unchanged.')
+s = s.replace('and `true` once its dependency state changes. Goal edits still flag.',
+    'and `false` once only its supplier resolution changes. Goal edits still flag.')
+plan.write_text(s)
 PY
   fi
   (

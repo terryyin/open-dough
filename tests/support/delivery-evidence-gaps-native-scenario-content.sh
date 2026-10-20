@@ -206,6 +206,7 @@ It covers ready-tag start and failed-readiness requeue then start-on-next-observ
 `tests/readiness-requeue.test.mjs` — `failed readiness requeues then starts on next observation`
 asserting requeued status, the tag put back ahead of an already
 pending tag, and startNextQueued. Setup: none.
+The current terminal result and Node runtime are retained in `.planning/producer-proof.md`.
 EOF
       ;;
     *) return 2 ;;
@@ -217,7 +218,7 @@ EOF
 # sufficient current proof. Does not name the acceptance decision.
 delivery_evidence_gaps_populate_fixture() {
   local workspace=$1
-  local scenario=$2
+  local scenario=$2 proof_status=0
   delivery_evidence_gaps_write_baseline_revision "${workspace}"
   delivery_evidence_git "${workspace}" add lib tests
   delivery_evidence_git "${workspace}" \
@@ -227,4 +228,14 @@ delivery_evidence_gaps_populate_fixture() {
   delivery_evidence_gaps_write_product "${workspace}"
   delivery_evidence_gaps_write_promises_and_return "${workspace}" \
     "${scenario}"
+  if [[ ${scenario} == sufficient-reused ]]; then
+    (
+      cd -- "${workspace}" || exit
+      printf 'command: node --test tests/admission-happy.test.mjs tests/readiness-requeue.test.mjs\nruntime: '
+      node --version
+      node --test tests/admission-happy.test.mjs tests/readiness-requeue.test.mjs
+    ) > "${workspace}/.planning/producer-proof.md" 2>&1 || proof_status=$?
+    printf 'exit: %s\n' "${proof_status}" >> "${workspace}/.planning/producer-proof.md"
+    [[ ${proof_status} -eq 0 ]] || return "${proof_status}"
+  fi
 }

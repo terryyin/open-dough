@@ -17,7 +17,7 @@ LABELS = {
     "capacity_path_c": "Resolved within this scope.",
 }
 EOF
-  if [[ ${variant} == corrected ]]; then
+  if [[ ${variant} == corrected || ${variant} == amended-corrected ]]; then
     cat << 'EOF'
 LABELS["classifications"] = "Current, not point-in-time, Sharadar classifications."
 LABELS["live_readiness"] = "No live-readiness conclusion."
@@ -25,6 +25,35 @@ EOF
   elif [[ ${variant} == baseline ]]; then
     printf 'LABELS.pop("capacity_path_c")\n'
   fi
+  if [[ ${variant} == amended-corrected ]]; then
+    printf 'LABELS.pop("verdict")\n'
+  fi
+}
+
+delivery_evidence_terminal_write_control_context() {
+  local workspace=$1 scenario=$2
+  [[ ${scenario} == corrected || ${scenario} == amended-corrected ]] || return 0
+  python3 - "${workspace}" "${scenario}" \
+    "${source_dir}/tests/fixtures/delivery-evidence/terminal-human-amendment.md" << 'PY'
+from pathlib import Path
+import sys
+root, scenario = Path(sys.argv[1]), sys.argv[2]
+plan = root / ".planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md"
+text = plan.read_text().replace(
+    "- classifications: Current classifications of the frozen candidate.",
+    "- classifications: Current, not point-in-time, Sharadar classifications.\n"
+    "- live_readiness: No live-readiness conclusion.")
+returned = root / ".planning/implementation-return.md"
+returned.write_text(returned.read_text().replace("the plan's six labels", "the current result qualifications"))
+if scenario == "amended-corrected":
+    story = root / ".planning/seeds/SEED-106-sharadar-search-confidence.md"
+    story.write_text(story.read_text() + "\n" + Path(sys.argv[3]).read_text())
+    text = text.replace("- verdict: The gate verdict and the four failed lower bounds stand.\n", "")
+    text = text.replace("Owns `replacement.md`, all human-readable tables, reproduction instructions,",
+        "Owns the verdict qualification under the explicit human amendment.\n"
+        "Owns `replacement.md`, all human-readable tables, reproduction instructions,")
+plan.write_text(text)
+PY
 }
 
 delivery_evidence_terminal_write_product() {
@@ -92,6 +121,7 @@ delivery_evidence_terminal_populate_fixture() {
     "${workspace}/.planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md"
   cp -- "${fixture_dir}/terminal-implementation-return.md" \
     "${workspace}/.planning/implementation-return.md"
+  delivery_evidence_terminal_write_control_context "${workspace}" "${scenario}"
   delivery_evidence_terminal_write_product "${workspace}" baseline
   delivery_evidence_terminal_write_tests "${workspace}" "${scenario}"
   delivery_evidence_git "${workspace}" add research .planning

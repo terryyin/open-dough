@@ -37,6 +37,7 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity deferred'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity original'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity terminal'
+  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity release'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'

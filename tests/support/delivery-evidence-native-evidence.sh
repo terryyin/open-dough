@@ -10,7 +10,7 @@ delivery_evidence_case_known() (
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
   case $1 in
-    aggregate | nostore | deferred | original | terminal) return 0 ;;
+    aggregate | nostore | deferred | original | terminal | release) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -77,6 +77,17 @@ delivery_evidence_write_evidence_identity() {
       tests/fixtures/delivery-evidence/terminal-narrowed-plan.md \
       tests/fixtures/delivery-evidence/terminal-implementation-return.md \
       tests/fixtures/delivery-evidence/terminal-precomputed.json \
+      tests/fixtures/delivery-evidence/terminal-human-amendment.md \
+      tests/support/delivery-evidence-original-native-assess.sh \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+  if [[ ${case_name} == release ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/release-original-story.md \
+      tests/fixtures/delivery-evidence/release-narrowed-plan.md \
+      tests/fixtures/delivery-evidence/release-implementation-return.md \
+      tests/fixtures/delivery-evidence/release-status-projection.py \
+      tests/fixtures/delivery-evidence/release-corrected-status-projection.py \
       tests/support/delivery-evidence-original-native-assess.sh \
       src/skills/dough-execute-plan/references/story-obligations.md
   fi

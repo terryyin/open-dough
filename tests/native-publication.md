@@ -122,6 +122,17 @@ verbatim selected story, so the installed obligation parser can resolve a
 story home. The terminal cheap check exercises a real source quote through the
 installed list/check commands; an empty listing would bypass that resolution.
 
+`--case delivery-evidence/release` uses the selected story at `906631e26` and
+status projection at `403d1fb1b`. Independent record facts exercise stage times,
+latest measured capacity, healthy readiness and helper failure after coordinator
+exit. The current-stage fact uses correction 361's later record contract; no
+historical writer, Docker journey or supervision is rerun. The cheap release
+check compares actual output with `9fffcee62`'s corrected projection, keeping
+the parent's outcome null while exposing the helper's failure.
+Terminal also has `corrected` and `amended-corrected` scenarios through the shared
+scenario entry point. The latter's synthetic human amendment changes only the
+verdict qualifier's display owner; cheap controls do not establish native acceptance.
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

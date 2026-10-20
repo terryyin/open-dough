@@ -18,8 +18,7 @@ stays explicit at ODF-139.
 ## Current decisions and reuse
 
 - Existing owner: [Accept proof](../../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof).
-  Derive original applicable promises before comparing the return; named-gap
-  checks alone cannot establish discovery of an omitted promise.
+  Fresh source-only review derives original promises; named-gap checks do not prove discovery.
 - Reuse [story obligations](../../../src/skills/dough-execute-plan/references/story-obligations.md),
   delegation, correction, delivery and completion. Keep source-to-slice/proof
   comparisons in this plan; no competing store or semantic quote checker.
@@ -66,14 +65,10 @@ base `a42e5a51b3063ace98f56c40f8055d57ac64f391`, 2026-10-20.
 - Historical source/product revisions remain at ODF-139; they establish the seam,
   not reproduction on today's hosts. Inspected acceptance, obligations,
   executable-proof and gap helpers; their disclosed gaps do not prove discovery.
-- Ran the existing obligation and assessor control operations with:
-  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-cross-slice.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs tests/native-assessor-counterexamples.sh`.
-  Passed: mechanical control route only, not native semantic acceptance.
-- The default shell is Bash 3.2; `/opt/homebrew/bin/bash` supplies Bash 5.
-  Version commands completed:
-  `codex --version` → `codex-cli 0.163.0`; `claude --version` →
-  `2.1.304 (Claude Code)`; `agent --version` → `2026.10.18-ea085cb`.
-  Version commands do not prove authenticated native follow-through.
+- Obligation and assessor preparation checks passed; exact operations remain in
+  this plan at `415759fb`. They prove the mechanical route, not native semantics.
+- Use Bash5; default is 3.2. CLI versions: Codex0.163.0, Claude2.1.304,
+  Cursor2026.10.18-ea085cb. Versions do not prove authenticated follow-through.
 
 ## Execution context
 
@@ -89,9 +84,9 @@ base `a42e5a51b3063ace98f56c40f8055d57ac64f391`, 2026-10-20.
   runner. In-scope refinement is authorized; no numeric slice limit is supplied.
 - CI `ci.yml` / `CI` verified by `node .agents/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs workflow terryyin/open-dough`.
   Branch observer: coordinator `viktor-chan-accept-promises`, directory
-  `/tmp/dough-ci-501/watch-q1pFUs`, PID `29073`, session `77728`, cell `12`.
-  The trunk claim's CI is unobserved. Slice 1 had zero obligations on entry;
-  coordinator owns acceptance, refactoring, formatting, commits and publication.
+  `/tmp/dough-ci-501/watch-xpP9US`, PID `13440`, session `86862`, cell `92`.
+  Replaces stopped `watch-q1pFUs` after human approval; unread0, old PID exited.
+  Pending CI and trunk claim unobserved. Coordinator owns acceptance/delivery.
   Slice 1 accepted on this branch at `02f53118f1da73de68c78485b559af130aa90b84`,
   suffix base `39256f40f54cbdccf1fc963fbffbcb06f56d4aea`; observation reused.
 
@@ -148,13 +143,13 @@ Select further proof and remedy from this result.
 
 ### 3. Accept applicable promises independently of the plan and return
 Type: Behavior
-Status: planned
+Status: done
 Proof: applicable original promises reach real correction/ownership before
 acceptance; readiness, terminal, release and unchanged controls discriminate the
 common rule. Mechanical regression proof remains green.
 
-Behavior: Derive promises from original Goal/Scope/examples/exclusions and human
-amendments before comparing plan/return/proof. Slice 2 supports source-to-current-
+Behavior: Fresh source-only review derives Goal/Scope/examples/exclusions and human
+amendments before coordinator comparison. Slice 2 supports source-to-current-
 output ownership; preserve readiness non-reproduction and historical counterevidence.
 No-change retains evaluation limits; passing baseline cannot prove a fix. Reuse
 acceptance and obligation/correction/delivery/completion; no parallel registry.
@@ -177,74 +172,42 @@ no whole-suite local gate is added. Update ODF-139 with actual response revision
 positive/counterevidence and limits; containing release/adoption remain pending
 unless evidenced. No release or cross-project rollout is authorized.
 
-## Sizing and safe stopping
+## Learnings and proof
 
-Three loops: readiness counterevidence, silent-omission probe, supported acceptance.
-All examples exercise one acceptance responsibility. No numeric limit is supplied;
-stop only affected work for unavailable evidence or a source decision.
-
-## Learnings
-
-### Readiness baseline (2026-10-20; slice 1)
-
-Recovered story/plan `2f56bd2a`. Narrowed legacy output shows the indicator while
-four tests pass; corrected control removes it without losing legitimate flags.
-`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh tests/git-publication-native.sh`
-passed after independent refactoring. Assertions inspect actual output, routing
-and original/aggregate retained artifacts. Existing obligation/helper checks also
-passed on unchanged boundaries. Reviewed corpus replay passed via
-`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/native-stream-replay.sh`.
-
-Native command: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/original --results-dir /tmp/open-dough-accept-original-promises-baseline-20261020`.
-Candidate `39256f40`, Node24.21.0, Claude2.1.304/claude-opus-5-5 (raw init).
-One attempt completed0; wrapper1 requests review. Evidence at
-`/tmp/open-dough-accept-original-promises-baseline-20261020/claude/delivery-evidence/original/narrowed/20261020T003057-479a`;
-reviewed outcome, calls/reads, original/final state, actual product and proof.
-Current guidance found the inverse contradiction, retained three valid promises,
-and withheld delivery pending plan/story resolution. Product stayed wrong and
-4/4 tests stayed green: no corrected acceptance or obligation gate was observed.
-A failed unquoted consumer search is bounded by the tracked file list/full reads.
-Readiness did not reproduce; it is contrary evidence, not improvement proof.
-
-### Terminal baseline (2026-10-20; slice 2)
-
-Full selected story `cdc136edf59886605052ea309481cc4b9636ea23`, plan `cffbd3264732056b32727b2bfae655812d99e7de`,
-record/check `fe322751e0d6ad84db218d878f44b1f99ade6399`. Full source body and
-precomputed fields verified against Git. Check compares prose dynamically to JSON
-labels; six is observed, not a rejection constraint. The controlled producer
-publishes summaries, not a rerun of historical research. Corrected control adds
-the two qualifications while preserving both arms, all numbers and other labels.
-`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-terminal.sh tests/delivery-evidence-original.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh`
-passed, including real installed obligation list/check on a valid later owner.
-Publication and assessor-guard proof passed before envelope-only edits.
-
-First command: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/terminal --results-dir /tmp/open-dough-accept-original-promises-terminal-baseline-20261020`.
-Attempt `20261020T004835-43eb` accepted six labels without finding qualifications;
-its unrelated G1/G2 gate refused because the extracted seed lacked an H1.
-Diagnostic repair prepended actual historical H1s, preserved story bodies and
-other inputs, and proved the installed gate reads the fixture before retry.
-Retry: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/terminal --results-dir /tmp/open-dough-accept-original-promises-terminal-baseline-envelope-fixed-20261020`.
-Attempt `20261020T005224-6019` found both qualifications but assigned them to
-later prose and accepted the current JSON unchanged. No obligation or gate ran.
-Both sessions: candidate `02f53118`, Claude2.1.304/opus5.5, native0/wrapper1 for
-explicit review. Under each results root, inspected `claude/delivery-evidence/terminal/narrowed/<attempt>/`
-outcome, original/final product/planning, calls, actual output and final proof:
-all precomputed fields and six labels unchanged; dynamic check passes. Neither
-run proves correction. First has invalid-envelope limits; second demonstrates
-false later ownership despite reading the source's labels-on-every-result clause.
-Both raw streams are retained in the maintained corpus with reviewed expectations.
-Independent refactor proof passed: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/delivery-evidence-terminal.sh tests/delivery-evidence-native-routing.sh /tmp/open-dough-refactor-2-before/observation-equivalence.sh`; generated prompts, inputs and observed product/proof state stayed equivalent.
-Ordinary JSON formatting preserved the full decoded historical projection; terminal/original/routing checks passed afterward. Corpus replay passed with both terminal streams; slice-2 obligation gate passed with G1 owned by slice 3.
-
-**Decision:** continue slice 3 with source-to-current-output ownership before
-acceptance. Discovery alone is insufficient: later prose cannot qualify a
-current result already subject to an original promise. Preserve genuine later
-owners and the readiness counterexample. This refines the mechanism within the
-unchanged source Scope; it is no general reliability claim.
+Detailed candidate/input/native observations remain in [PROOF.md](PROOF.md).
+The original source-only reviewer was approved by the human after two guide-only
+failures. Claude terminal and recovered Codex release traces establish discovery
+and real obligation refusal for their target omissions; the source-coherent
+Cursor corrected control proceeds. The narrowed readiness case initially failed
+despite correct source extraction.
+The expected-versus-observed comparison revision returned that actual mismatch
+through the obligation gate with source/plan/product/prompt unchanged. G4 proof
+is accepted. Reported/unavailable/reused/amended controls are accepted at their
+inspected boundaries; sufficient proof repeated two focused tests, so pure reuse
+is not claimed. Fresh independent refactor 3 returned `none — already clean`;
+consumer/old-reference trace found no gap and invalidated no accepted proof.
+Coordinator selective formatting succeeded (15 shell files, one unchanged JS);
+installed slice-3 obligation check passed all four entries before this done mark.
+Implementation publication and ODF-139 revision capture follow in delivery.
 
 ## Story obligations
 
 ### G1. Original qualifications wrongly assigned to later prose
 Reported: slice 2 — "Repaired-envelope run reproduces false later ownership: Claude found both omitted qualifications, assigned them to slice 4, and accepted the current six-label JSON unchanged."
 Story clause: "Compare those promises with slice ownership and observed product proof before accepting delivery."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: /tmp/open-dough-accept-original-promises-terminal-source-review-20261020/claude/delivery-evidence/terminal/narrowed/20261020T012956-42e9/acceptance-outcome.md; raw Agent/source-only read/commitments and actual G1/G3 gate refusal inspected; hierarchy/audit revision leaves this observed boundary unchanged.
+
+### G2. Corrected source behavior returned to satisfy a contrary plan (discovered in acceptance)
+Reported: slice 3 — "Cursor corrected readiness rejects source-correct legacy false to satisfy the narrowed plan's contrary true requirement."
+Story clause: "Require a corrected case to proceed"
+Disposition: proved by slice 3: /tmp/open-dough-accept-original-promises-readiness-coherent-source-review-20261020/cursor/delivery-evidence/original/corrected/20261020T014629-3f81/acceptance-outcome.md; actual source-only Task/input/commitments and accepted legacy false, four passing observations, aligned plan and bounded remaining owners inspected. Earlier opposite-plan diagnostic retained in PROOF.md.
+
+### G3. Fresh review claimed without inspectable invocation (discovered in acceptance)
+Reported: slice 3 — "Codex release found and gated the four omissions but claimed an isolated review without a child invocation or fresh CLI command in the retained trace."
+Story clause: "a quote, structured record, passing helper, or asserted coverage alone does not pass."
+Disposition: proved by slice 3: /tmp/open-dough-accept-original-promises-release-source-review2-20261020/codex/delivery-evidence/release/narrowed/20261020T014019-61f1/native-source-review-provenance.json; actual forknone lineage, source-only read/commitments and parent gap/gate inspected. First run also had a real reviewer; CLI visibility/retention gap, not spawning failure. Stored launch message plaintext is unavailable; source data/read and lineage are observed.
+
+### G4. Explicit original journey result misread at acceptance (discovered in acceptance)
+Reported: slice 3 — "Cursor narrowed readiness accepted legacy supplier resolution changedSinceReview true although its isolated source-only reviewer E7 requires no indicator."
+Story clause: "Acceptance identifies the contradiction from the story, requires that behavior and its observation, and does not accept the plan's narrower result."
+Disposition: proved by slice 3: /tmp/open-dough-accept-original-promises-readiness-comparison-20261020/cursor/delivery-evidence/original/narrowed/20261020T015348-0c1e/acceptance-outcome.md; raw Task34/35 source-only expected no indicator, actual legacy true, current return and actual gate56/57 open-obligation/exit1 inspected. Product remains wrong; detection/ownership/withholding only, not correction.

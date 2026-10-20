@@ -26,10 +26,13 @@ assert.deepEqual(view.legacy.supplierResolved.labels, ['Changed since readiness 
 assert.equal(view.legacy.supplierResolved.startEligibility, 'eligible');
 assert.equal(view.legacy.goalEdited.changedSinceReview, true);
 JS
-# The very same legacy resolution must satisfy the original key example in
-# the corrected control; the narrowed assertion is replaced by that observation.
-delivery_evidence_original_write_product "${workspace}" corrected
-delivery_evidence_original_write_tests "${workspace}" corrected
+# The complete corrected control aligns product, proof and plan with the source.
+# Historical narrowed inputs above stay unchanged.
+delivery_evidence_create_fixture original "${source_dir}" claude corrected "${root}" \
+  > "${root}/corrected-fixture.txt" 2>&1
+workspace=${delivery_evidence_workspace}
+cmp "${source_dir}/tests/fixtures/delivery-evidence/readiness-original-story.md" \
+  "${workspace}/.planning/seeds/SEED-138-computed-execution-readiness.md"
 (cd "${workspace}" && node --test tests/readiness.test.mjs) > "${root}/corrected.txt" 2>&1
 delivery_evidence_original_product_observation "${workspace}" > "${root}/corrected.json"
 node --input-type=module - "${root}/corrected.json" << 'JS'

@@ -81,3 +81,27 @@ assert after["classifications"] == "Current, not point-in-time, Sharadar classif
 assert after["live_readiness"] == "No live-readiness conclusion."
 PY
 run_delivery_evidence_original_assessor_counterexamples
+
+# Native controls use a corrected output and an explicit synthetic human
+# amendment, with real later prose/assessment owners and research exclusions.
+for scenario in corrected amended-corrected; do
+  delivery_evidence_create_fixture terminal "${source_dir}" cursor "${scenario}" "${root}" \
+    > "${root}/control-${scenario}.txt" 2>&1
+  python3 - "${delivery_evidence_workspace}" "${scenario}" << 'PY'
+import json, sys
+from pathlib import Path
+root, scenario = Path(sys.argv[1]), sys.argv[2]
+record = json.loads((root / "research/replacement.json").read_text())
+labels = record.pop("labels")
+assert record == json.loads((root / "research/precomputed.json").read_text())
+assert labels["classifications"] == "Current, not point-in-time, Sharadar classifications."
+assert labels["live_readiness"] == "No live-readiness conclusion."
+assert ("verdict" in labels) == (scenario == "corrected")
+story = (root / ".planning/seeds/SEED-106-sharadar-search-confidence.md").read_text()
+assert "Point-in-time classifications, actual account cash, settlement" in story
+assert ("Explicit human amendment" in story) == (scenario == "amended-corrected")
+plan = (root / ".planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md").read_text()
+assert "### 4. Replacement record" in plan
+assert "### 5. The materiality assessment" in plan
+PY
+done

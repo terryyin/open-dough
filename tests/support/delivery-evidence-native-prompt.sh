@@ -10,6 +10,12 @@ delivery_evidence_source_acceptance_prompt() {
 delivery_evidence_prompt_for() {
   local request
   case ${1:-} in
+    release)
+      delivery_evidence_source_acceptance_prompt \
+        .planning/seeds/SEED-120-release-readiness.md \
+        .planning/slice-plans/360-release-progress-and-terminal-failures/PLAN.md
+      return
+      ;;
     terminal)
       delivery_evidence_source_acceptance_prompt \
         .planning/seeds/SEED-106-sharadar-search-confidence.md \

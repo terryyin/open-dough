@@ -1,0 +1,10 @@
+Applying the project's acceptance workflow to the slice 3 return — verifying its promises against the evidence, without committing.The source-only review is back — now mapping slice 3's claims against the story, plan, product code, and test evidence.Found a source-vs-plan mismatch on the legacy (pre-change) basis: the story's example expects no change indication when only a resolution changes, but the returned code — and the test pinning it — gives `true`. Recording that as a slice-3 obligation and writing the acceptance outcome.**Outcome: incomplete — returned for correction. Not committed.**
+
+Wrote `.planning/acceptance-outcome.md`:
+
+- **Accepted (slice 3):** current review with only fulfillment change → `changedSinceReview: false` with eligibility preserved; goal and agreement (condition) edits → `true` for current and legacy; unchanged legacy review → `false`.
+- **Incomplete:** pre-change (legacy) basis where only B's resolution changed — the story's Key example and “Records assessed before this change keep an accurate indication” expect no “Changed since readiness review”, but `lib/readiness.mjs` returns `true` (its legacy branch re-adds the full-dependency comparison). The plan/test pin `true`; per the installed acceptance workflow (`dough-execute-plan/references/wrap-up.md#accept-proof`), the source outranks plan/return and a test pinning the loss is not proof.
+
+Evidence inspected: the fresh source-only reviewer’s commitments (Agent ID `5fa73411-06b4-4135-ab07-c588b501cbcb`, commitments 18–23, 59–60), the seed and plan slice 3, the implementation return (as a location index only), the uncommitted `lib/readiness.mjs` diff, `tests/readiness.test.mjs`/`tests/readiness-fixture.mjs`, and the recorded `producer-proof.md` run (4 pass, reused rather than rerun).
+
+Also recorded the gap as plan obligation **G1** (`Disposition: return`) in the slice plan per `story-obligations.md`; the obligation check correctly refuses slice 3 closure with only `open-obligation` for G1. Remaining slices keep their existing owners; no commit was made.
