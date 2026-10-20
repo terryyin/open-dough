@@ -82,6 +82,24 @@ test("the native question screen yields its numbered question and is never the c
   expect(showsCursorComposer(waitingScreen)).toBe(false);
 });
 
+test("a native question line with trailing padding and box border yields clean question text", () => {
+  const bordered = [
+    "Color preference",
+    "Question 1 of 1",
+    "│ 1. Which color do you prefer, Red or Blue?   │",
+    "› [ ] Red",
+    "  [ ] Blue",
+    "  [ ] Other: (type to answer)",
+    "↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
+  ].join("\n");
+  expect(showsCursorWaitingQuestion(bordered)).toBe(true);
+  expect(cursorWaitingQuestion(bordered)).toBe(
+    "1. Which color do you prefer, Red or Blue?",
+  );
+  expect(cursorSessionLabel(bordered)).toBe(cursorHeldLabel.waiting);
+  expect(showsCursorComposer(bordered)).toBe(false);
+});
+
 test("screens without the structural question shape yield no question text", () => {
   const trust = [
     "Workspace Trust Required",

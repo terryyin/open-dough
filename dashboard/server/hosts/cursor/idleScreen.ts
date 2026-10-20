@@ -35,7 +35,11 @@ export function cursorWaitingQuestion(screen: string): string | undefined {
   if (!showsCursorWaitingQuestion(screen)) return undefined;
   const questions = screen
     .split(/\r?\n/u)
-    .map((line) => /^\s*[│|]?\s*(\d+\.\s+.+?)\s*$/u.exec(line)?.[1])
+    .map((line) =>
+      /^\s*[│|]?\s*(\d+\.\s+.+?)\s*$/u
+        .exec(line)?.[1]
+        ?.replace(/[\s│|]+$/u, ""),
+    )
     .filter((line) => line !== undefined);
   return questions.length === 0 ? undefined : questions.join(" ");
 }

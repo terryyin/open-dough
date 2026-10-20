@@ -322,7 +322,7 @@ The explicit unfinished-report route remains slice 4's.
 
 ### 6. Verify the Cursor journey natively and settle ODF-154's retained check
 Type: Behavior
-Status: planned
+Status: done
 Proof: A native Cursor run through the dashboard — launch, clarifying
 question (alert + readable question), resume, finish to review with handoff
 report (alert + readable result), quiet completion (no alert), and the
@@ -337,6 +337,114 @@ and readable texts match the seed's key examples, and deterministic-test
 evidence is not substituted for this native proof (ADR 0005). Missing native
 proof stays pending and named; it is not marked passed by this slice's
 deterministic companions.
+
+**Learnings — native verification, 2026-10-20 (cursor-agent
+2026.10.19-6bbf2c4, this worktree's dashboard build):**
+
+Method and isolation tradeoff: the delivered dashboard was built from this
+worktree (`npm run build:dashboard`) and previewed on `127.0.0.1:4174`
+(production 4173 untouched) with an isolated `HOME`
+(`/tmp/dough324-s6-home`), so its project list, launch records, alert loop,
+and Cursor runner (isolated runner on `127.0.0.1:65228`, pid 25999) were its
+own and the production runner (`127.0.0.1:49444`, pid 1980) and the
+coordinator's sessions were never touched. Auth was reached through links
+into that home (`.cursor`, `.config`, the login keychain), so the agent was
+the real signed-in `cursor-agent`; a logging shim on the server's `PATH`
+recorded every `terminal-notifier` invocation and then exec'd the real
+Homebrew `terminal-notifier` 3.1.0, and the server reported
+`alerts: {available: true}` throughout. Evidence files are retained under
+`/tmp/dough324-s6-evidence/` (numbered below). One scratch project
+(`scratch324`, workspace `/tmp/dough324-s6-proj`, a throwaway git repo with
+this repo's installed `dough-execute-plan` skill copied in for the reporting
+command) was configured; no real project was launched against. Two new
+Cursor conversations were created: session A consumed no model turn (below),
+session B ran the whole journey; both probe clients were hung up and both
+records deleted afterwards, the isolated server and runner were stopped,
+and the production runner still held its 7 sessions at the end.
+
+Session A (`97fee5cc…`, unpaid, no turn ran): the first launch sat at
+Cursor's `Press any key to log in...` screen because the isolated home
+could not reach the login keychain; the dashboard read it as
+`{kind:"unknown", label:"waiting for an answer"}` (the held runner label)
+and sent no notification. After the keychain link, its client was hung up
+through the runner: the dashboard then read
+`{kind:"unknown", label:"The agent is not running."}` with no completion
+and no notification (`02-a-vanished-unknown.json`, notifier log) — the
+honest-unknown half of slice 5 observed natively. A dashboard Recover
+attempt then honestly refused at the fresh workspace's trust screen
+("Workspace trust is required. No agent was left running…",
+`03-recover-a.json`); the same conversation was re-kept through the runner,
+trusted with `a` via the runner's `/attach` socket, and hung up, which
+pre-trusted the scratch workspace. While the trust screen was held, the
+dashboard again read labeled unknown and alerted nothing.
+
+Session B (`ca909019…`, the paid journey), all observed on the real
+dashboard at `http://127.0.0.1:4174/?project=scratch324`:
+
+- *Working*: runner label `working`; dashboard
+  `{kind:"available", activity:"working"}`, first input `confirmed`
+  (03:10:57Z, `06-poll-b-waiting.txt`).
+- *Clarifying question*: by 03:11:02Z the runner labeled it
+  `waiting for an answer` with the held question screen, and the dashboard
+  read `{activity:"waiting", waitingFor:"1. Which color do you prefer, Red
+  or Blue? … │"}` (`07-b-waiting.json`). The page's Taken card read "Needs
+  input: 1. Which color do you prefer, Red or Blue? │" and the Sessions
+  button badged "1 session needs attention". Exactly one desktop alert was
+  sent at 03:11:01Z: title `Scratch324 · PROBE324-B…`, message
+  `Needs input: 1. Which color do you prefer, Red or Blue? … │`
+  (`notifier.log`). Named imperfections: the extracted `waitingFor` kept
+  trailing box padding and the `│` border character — fixed in this slice's
+  delivery (extraction now strips trailing box border/padding, proved by the
+  native-shape classification case) — and the native screen
+  never showed the fake fixture's `Clarifying Questions` marker (the
+  terminal replay instead showed Cursor's own `AskQuestion Clarifying
+  Questions (1)` history line only after answering).
+- *Resume/answer*: Red was selected through the runner `/attach` socket
+  (`Space`, `Enter`, slice 1's technique; `08-answer-attach.txt`); the
+  reading returned to `working`, re-arming alerting, with no extra send.
+- *Finish to review with handoff report*: the agent wrote only
+  `handoff-b.txt` in the scratch workspace and submitted the supplied
+  reporting command; at 03:12:33Z the dashboard held completion
+  `{outcome:"completed", message:"RESULT-324-B: You selected Red. Ready
+  for your review.", receipt:"c011bdf1…"}` with activity `review`
+  (`09-b-review.json`). The card read "Ready for review" plus "Unread
+  report: Completed with attention" with the exact message in its
+  Attention message region. Two sends fired for this combined transition,
+  each alertable once: `Unread report: Completed with attention`
+  (03:12:34Z) and `Ready for review` (03:12:37Z). The final-report read the
+  panel performs (`GET /__agent-launch/result?source=scratch324&host=
+  cursor&session=ca909019…`) answered `{kind:"available", receipt:
+  "c011bdf1…", text:"RESULT-324-B: You selected Red. Ready for your
+  review."}` (`10-b-result-panel.json`).
+- *Quiet completion*: a follow-up typed into the same session asked for a
+  quiet handoff report; at 03:14:30Z a second completion arrived with
+  `outcome:"completed"` and an empty message (`12-poll-quiet.txt`). No
+  further notification was sent (send count stayed 3 over 45+ seconds of
+  3-second alert polls), the card settled to "Done" under the quiet
+  automatic-completion rule, and the Sessions attention badge cleared.
+- *Vanished client, again*: hanging B's client up through the runner left
+  `{kind:"unknown"}` with the quiet completion retained and still no new
+  send — no success, failure, or review claim was added.
+
+Unproved / named gaps: (1) Actual macOS banner *display* cannot be observed
+from this harness; what is proved is that the real `terminal-notifier`
+binary accepted exactly the sends above (the shim exec'd it, and the
+server's availability stayed `available:true`, which a refusal would have
+cleared). (2) The final-report *panel widget* was not clicked through: for
+a still-attachable Cursor session the card offers Open terminal rather
+than Read final report, so panel proof here is the panel's own result
+endpoint answering with receipt and text, plus the inline card reading;
+panel-widget clicking remains deterministic-test evidence only.
+(3) No distinct failure or interruption screen exists (slice 1), so none
+was mapped or alerted: the interrupted/failing-turn half stays at its
+honest-unknown limit, observed above only as vanished-client unknown.
+(4) ODF-154's retained CI check is settled separately in that finding:
+this execution's five managed deliveries each reused the mailbox
+`watch-w1fH6s` whose `owner` claim recomputes exactly from the
+coordinator's `CURSOR_CONVERSATION_ID` conversation, with no manual
+observer start — distinct from every desktop-alert observation above;
+the coordinator's own CI completion wait is still pending and is not
+claimed here.
 
 ## Current decisions
 
