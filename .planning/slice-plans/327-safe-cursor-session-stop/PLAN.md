@@ -143,7 +143,7 @@ them:
 
 ### 1. Probe native Cursor stop, Done naming, and interrupted delegation
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded paid native run of a dashboard-launched Cursor session
 doing real work (including, where the session supports it, a delegated
 subagent), stopped through each candidate the preparation identified,
@@ -161,6 +161,56 @@ Failure of a premise here stops the dependent part of slices 2–3 and
 replans it (for example to an honest unconfirmed-only stop); it does not
 block the acknowledgement separation in slice 3 or the guidance in
 slice 4, whose cautious path assumes interruption may not stop the agent.
+
+#### Learnings (2026-10-20, read-only re-verification; no paid native run)
+
+A paid dashboard-launched native Cursor run was **not** performed in
+this execution, and no bounded interrupted-Task reproduction was run.
+The findings below rest only on the read-only evidence named in each
+item; anything that evidence cannot settle is recorded as an explicit
+limit, not as a result.
+
+- **Candidate stop (dashboard protocol only).** The candidate stop is
+  the Cursor runner's hangup: `hangupCursorClient`
+  (`dashboard/server/hosts/cursor/runnerClient.ts`) posts to the
+  runner's `/hangup` (`dashboard/server/hosts/cursor/runnerMain.ts`),
+  whose `answerHangup` (`dashboard/server/hosts/cursor/runnerKeep.ts`)
+  ends attachments, and the held PTY receives SIGHUP
+  (`dashboard/server/liveTerminalClient.ts`). Confirmation must be
+  re-observation of the runner no longer holding the client; sending
+  the hangup request alone confirms nothing. The fake Cursor client
+  (`dashboard/tests/support/fakeCursor.ts`) exits on SIGHUP, which
+  proves the dashboard protocol route only. **Explicit limit:** whether
+  SIGHUP to the held PTY terminates a native in-flight Cursor turn, or
+  any delegated subagents that turn spawned, is **UNPROVEN**; it
+  remains pending slice 5's native verification and must not be
+  claimed before then.
+- **No supported native Done naming found.** Locally,
+  `cursor-agent --help` (2026.10.19-6bbf2c4) shows `--resume` but no
+  stop or rename for the runner-kept resume sessions the dashboard
+  launches. `cursor-agent persist stop <session>` manages tmux-backed
+  persisted sessions; `which tmux` finds no tmux on this machine and
+  the dashboard does not launch that mode, so it is not a naming (or
+  stop) source for these sessions. **Consequence:** slice 3 delivers
+  dashboard-local naming only; no native Done name is claimed.
+- **Interrupted delegated Task — cautious assumption, cited not
+  reproduced.** Slice 4's assumption that interruption may not stop
+  the agent rests on
+  [ODF-204](../../../docs/maintainer/findings/ODF-204.md) and
+  [ODF-229](../../../docs/maintainer/findings/ODF-229.md), not on a new
+  reproduction. ODF-204 records one interrupted delegated refactor
+  that went on to commit and push its slice and mark it done despite a
+  no-commit delegation, while a second writer was active in the same
+  checkout; its inference is qualified — whether the interrupt failed
+  to stop it or a later "continue" reached it as its own instruction
+  is unknown. ODF-229 records one interrupted implementation Task that
+  left edits in the checkout with no agent return, so the coordinator
+  inspected the diff and re-ran proof from the checkout; it did not
+  commit or push. **Explicit limit:** neither file establishes that an
+  interrupt generally fails to stop a native Task, and no new
+  reproduction settles that here; the cautious assumption is a safety
+  posture from these two occurrences, pending any later native
+  evidence.
 
 ### 2. Stop a held Cursor session and report confirmed or unconfirmed
 Type: Behavior
