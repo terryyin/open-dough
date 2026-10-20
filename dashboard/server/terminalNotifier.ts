@@ -34,7 +34,7 @@ function notifier(
 
 // 3.1 is the tested permission-diagnostic contract; an old binary can exit
 // successfully for an unknown flag, so its presence/exit alone proves nothing.
-function supportedVersion(output: string): boolean {
+export function supportedVersion(output: string): boolean {
   const version = /^terminal-notifier (\d+)\.(\d+)\.(\d+)\.\s*$/.exec(output);
   if (version === null) return false;
   const major = Number(version[1]);
@@ -52,6 +52,22 @@ export async function probeTerminalNotifier(
   return (await notifier(["-diagnose"], signal)).unavailable;
 }
 
+// Literal title/message with the helper's one-leading-backslash escape, and
+// the alert sound.
+export function notificationContent(
+  title: string,
+  message: string,
+): readonly string[] {
+  return [
+    "-title",
+    `\\${title}`,
+    "-message",
+    `\\${message}`,
+    "-sound",
+    "Glass",
+  ];
+}
+
 export async function sendTerminalNotification(
   {
     title,
@@ -66,12 +82,7 @@ export async function sendTerminalNotification(
 ): Promise<string | undefined> {
   const { unavailable } = await notifier(
     [
-      "-title",
-      `\\${title}`,
-      "-message",
-      `\\${message}`,
-      "-sound",
-      "Glass",
+      ...notificationContent(title, message),
       "-execute",
       shellCommand([
         "/usr/bin/osascript",

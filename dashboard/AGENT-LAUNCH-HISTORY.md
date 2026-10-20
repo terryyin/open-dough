@@ -183,6 +183,10 @@ zero. Absence, unsupported version and refusal use fixed explanations in the
 open Sessions sidebar; raw helper stderr is never exposed. Observation
 continues, and the next successful notification clears a refusal.
 
+The separate Open Dough sender, prepared by
+`npm run setup-notifier:dashboard`, has its own app, icon and permission entry;
+see [Dashboard commands](COMMANDS.md). Dashboard alerts do not use it yet.
+
 Title/message are literal argument data with the tested helper's one-leading-
 backslash escape; the sound remains Glass. `-execute` stores a fixed inline
 browser callback using `/usr/bin/osascript` and a safely quoted HTTP URL argument.

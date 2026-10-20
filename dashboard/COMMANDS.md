@@ -10,6 +10,7 @@ Run these from the repository root after the [native setup](../tests/native-setu
 | `npm run test:dashboard`      | Build the production app, serve it, and run the Playwright suite against it in Chromium.   |
 | `npm run build:dashboard`     | Write production assets to `dashboard/dist/`.                                              |
 | `npm run preview:dashboard`   | Serve the production assets that `build:dashboard` wrote.                                  |
+| `npm run setup-notifier:dashboard` | Prepare Open Dough's own macOS notification sender; `-- --test` posts a test notification. |
 
 Before browser checks, `node scripts/setup-native.mjs check` validates the
 selected Node, installed Playwright and its headless Chromium. A changed
@@ -72,6 +73,29 @@ For a different loopback production port, use
 port fails rather than silently choosing another URL. `build:dashboard` and
 `preview:dashboard` remain available for manually previewing the current
 checkout; use the watcher for production from published `main`.
+
+`npm run setup-notifier:dashboard` is an explicit, one-time macOS setup for
+alerts sent as **Open Dough**. It needs separately installed `terminal-notifier`
+3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and the system's own
+`sips`, `iconutil`, `plutil`, `codesign` and `lsregister`; it downloads
+nothing. It copies the installed helper's app, which it only reads, to
+`~/.open-dough/dashboard/notifier/Open Dough.app`, outside every checkout and
+deployment. The copy keeps the `terminal-notifier` executable and protocol,
+takes its icon from `assets/brand/opendough-icon.png`, is named **Open Dough**
+with bundle identifier `dev.opendough.dashboard-notifier`, is signed ad hoc and
+registered with Launch Services. The command prints the app path and the
+permission entry, **System Settings → Notifications → Open Dough**, and then
+checks only that app's own permission: it posts nothing and asks for nothing.
+The installed helper's permission does not count for Open Dough.
+`npm run setup-notifier:dashboard -- --test` also posts one notification titled
+Open Dough, “Test notification from Open Dough notification setup.”, with the
+Glass sound. The first one makes macOS ask whether Open Dough may send
+notifications; choose Allow, and leave the command running until it is
+answered. After Don't Allow, or when the test is not accepted, turn on Allow
+notifications in that settings entry and run the test again. Running setup
+again replaces the app at the same location with the same identity, which keeps
+its permission. Until the dashboard switches to this sender, alerts still come
+from `terminal-notifier`.
 
 To dictate startup instructions, open System settings → OpenAI and explicitly
 save an API key. It configures general OpenAI access on this machine; saving

@@ -148,7 +148,7 @@ base `a09612b577f39b287654264145884c0671b6c397`, 2026-10-20, Node 24.21.0.
 
 ### 1. Set up and observe a persistent Open Dough notification sender
 Type: Behavior
-Status: planned
+Status: done
 Proof: The explicit setup command builds/prepares the branded helper from the
 supported local prerequisite, names its stable app path and permission entry,
 and can emit a clearly labelled authorization/test notification. Direct native
@@ -286,7 +286,47 @@ placement; `dashboard/COMMANDS.md` owns native prerequisite validation. No skill
 guidance or cross-tool activation mechanism changes, so no routine tool-by-tool
 skill discovery matrix is added.
 
+## Story obligations
+
+### G1. Click after the sender exits
+Reported: slice 1 — "A click callback after the sender exits. The setup test notification deliberately has no `-execute`, so this is left to slice 2."
+Story clause: "After the sending process exits, clicking still reaches the correct dashboard project/story."
+Disposition: receiving slice 2
+
+### G2. Browser Automation consent
+Reported: slice 1 — "Automation consent."
+Story clause: "Observe browser Automation permission or refusal separately"
+Disposition: receiving slice 2
+
+### G3. Dashboard alerts still use the old sender
+Reported: slice 1 — "Until the dashboard switches to this sender, alerts still come from `terminal-notifier`."
+Story clause: "The actual sender icon is the accepted mark, with an Open Dough sender identity."
+Disposition: interim until slices 2
+
+### G4. Linux CI skips the macOS build fixture tests
+Reported: slice 1 — "CI is Linux, so CI runs only the two refusal tests. The three build tests skip there, because they need macOS `sips`/`iconutil`/`plutil`/`codesign`."
+Story clause: "an explicit one-time setup command prepares the Open Dough sender and offers a clearly identified test/authorization notification"
+Disposition: no user cost "receiving an attention alert recognizes Open Dough by the accepted raw-dough mark": the sender is a macOS-only setup that runs only on a developer's Mac; `boundary/notifier-setup.spec.ts` runs its three build tests on every macOS run, and the native setup was observed directly on macOS (slice 1 proof).
+
 ## Learnings
+
+Slice 1 (execution, 2026-10-20, macOS 26.6.2, terminal-notifier 3.1.0):
+`npm run setup-notifier:dashboard` (`dashboard/server/notifierSetup.ts`)
+copies the installed helper app to
+`~/.open-dough/dashboard/notifier/Open Dough.app`, bundle identifier
+`dev.opendough.dashboard-notifier`, icon `OpenDough.icns` derived from
+`assets/brand/opendough-icon.png`, ad hoc signed, and registers it with
+Launch Services. Accepted proof: `env -u NO_COLOR npm run test:dashboard --
+boundary/notifier-setup.spec.ts` (5 tests: absent helper, unsupported version,
+build plus diagnose-only, explicit test plus refresh, refusal recovery) and
+direct native observation: the first-use consent prompt and the actual
+`--test` pop-up both showed the accepted raw-dough icon and the Open Dough
+name; `-diagnose` stayed `authorized` across a setup refresh at the same
+location; denied permission gave the Settings recovery and also persisted
+across refresh. A copied bundle must be registered with Launch Services
+before macOS asks for or keeps its permission. Ending the sender while its
+consent prompt is pending records Denied, so setup docs say to leave the
+command running. Slice 2 switches the dashboard to `brandedNotifierExecutable()`.
 
 Preparation found that macOS sender identity, rather than a missing icon flag,
 owns the difficult part of the requested outcome. The current helper is
