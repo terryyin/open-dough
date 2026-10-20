@@ -63,11 +63,19 @@ reading until a read answers. That list says whether the Cursor
 runner is running. Each row is one session the runner holds: the project,
 what was started, and one label from that client's current screen. The
 ordinary follow-up prompt (`→ Add a follow-up` or
-`→ Plan, search, build anything`, with none of `ctrl+c to stop`,
-`Working`, `Running`, or `Clarifying Questions`) is "at the follow-up
-prompt". A screen with `Working`, `Running`, or `ctrl+c to stop` is
-"working". Any other held screen, including a question or a trust prompt, is
-"waiting for an answer". Choosing a row opens that session's terminal on the
+`→ Plan, search, build anything`, with no live `ctrl+c to stop` in its
+current status region and no clarifying-question screen) is "at the
+follow-up prompt". A screen whose current status region shows the live
+`ctrl+c to stop` hint is "working"; `Working` or `Running` prose in
+viewport history does not prove work. Any other held screen, including a
+question or a trust prompt, is "waiting for an answer". On a story card or
+session entry, a held Cursor session instead reads by the shared
+normalized activities: a proved clarifying-question screen (a
+`Question N of M` line with the `Space select · Enter next/submit`
+footer) reads _Needs input_ with its question text, the follow-up prompt
+after a confirmed first instruction reads _Ready for review_, a working
+screen reads _Working_, and a trust prompt or any unproved screen keeps
+the label above as an unknown reading that never alerts. Choosing a row opens that session's terminal on the
 client the runner holds. When the runner is not running, or cannot be
 reached, the list says so, shows no sessions, and offers nothing that starts
 an agent; a later successful read lists the held sessions again, and a running

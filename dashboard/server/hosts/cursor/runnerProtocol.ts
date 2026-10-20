@@ -67,6 +67,10 @@ export const cursorRunnerSessionsResult = z.object({
       // Older accepting runners may omit this observation. Missing evidence
       // keeps Start's existing timeout wording; the read starts nothing.
       workspaceTrust: z.boolean().optional(),
+      // The held screen text, only for a screen labeled waiting, so the
+      // dashboard's Cursor boundary can extract a proved question from it.
+      // Older runners omit it; screens are never shipped for other labels.
+      screen: z.string().optional(),
     }),
   ),
 });

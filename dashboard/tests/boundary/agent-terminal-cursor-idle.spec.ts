@@ -71,7 +71,7 @@ test.describe(`detached Cursor screen`, () => {
           .toContain("→ Add a follow-up");
         expect(terminal.output()).not.toContain("done");
         expect(terminal.output()).not.toContain("ctrl+c to stop");
-        expect(terminal.output()).not.toContain("Clarifying Questions");
+        expect(terminal.output()).not.toContain("Which color do you prefer");
         terminal.send({
           cursorVisible: true,
           screen: ["→ Add a follow-up"],
@@ -104,7 +104,7 @@ test.describe(`detached Cursor screen`, () => {
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect
         .poll(() => terminal.output())
-        .toContain("Clarifying Questions");
+        .toContain("Which color do you prefer");
       expect(terminal.output()).toContain("Red");
       expect(terminal.output()).toContain("Blue");
       expect(terminal.output()).not.toContain("Add a follow-up");
@@ -122,7 +122,7 @@ test.describe(`detached Cursor screen`, () => {
       await expect.poll(() => terminal.output()).toContain("Cursor Agent");
       expect(terminal.output()).not.toContain("Add a follow-up");
       expect(terminal.output()).not.toContain("ctrl+c to stop");
-      expect(terminal.output()).not.toContain("Clarifying Questions");
+      expect(terminal.output()).not.toContain("Which color do you prefer");
       terminal.socket.close();
       await terminal.closed;
       await stayedUp(cursor, pid, 500);
@@ -135,7 +135,7 @@ test.describe(`detached Cursor screen`, () => {
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
       expect(terminal.output()).toContain("Add a follow-up");
-      expect(terminal.output()).not.toContain("Clarifying Questions");
+      expect(terminal.output()).not.toContain("Which color do you prefer");
       terminal.socket.close();
       await terminal.closed;
       await stayedUp(cursor, pid, 500);

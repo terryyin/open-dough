@@ -103,7 +103,7 @@ export async function waitingAnswerSurvivesRestart(): Promise<void> {
     await stayedUp(cursor, pid, 500);
     server = await startCursorDashboard(developmentBoundary, cursor, machine);
     const terminal = await openCursorTerminal(server, sessionId);
-    expect(await shows(terminal, "Clarifying Questions")).toBe(true);
+    expect(await shows(terminal, "Which color do you prefer")).toBe(true);
     terminal.send({ input: "Red" });
     await expect.poll(() => cursor.input(pid)).toContain("Red");
     expect(cursor.input(pid)).not.toContain(instruction);

@@ -5,7 +5,6 @@
 // sibling specs.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
@@ -14,7 +13,7 @@ import { parts } from "./dashboardPage.ts";
 import { completionReport } from "./support/completionReport.ts";
 import {
   agentCalls,
-  expectHeldLabel,
+  expectNormalizedReading,
   expectReadingWithoutScreenLabel,
   openTakenCursorSession,
   projectedSessions,
@@ -82,7 +81,7 @@ test("Recover on the idle composer with confirmed first input resumes the same c
   const stopped = parts(page).taken.locator(".session-entry");
   await expectReadingWithoutScreenLabel(stopped, agentNotRunningLabel);
   await stopped.getByRole("button", { name: "Recover" }).click();
-  await expectHeldLabel(stopped, cursorHeldLabel.followUp);
+  await expectNormalizedReading(stopped, "Ready for review", true);
   await expect(stopped.getByRole("button", { name: "Recover" })).toHaveCount(0);
   await expect.poll(() => cursor.attaches().length).toBe(before + 1);
   const resumed = cursor.attaches().at(-1);
@@ -124,7 +123,7 @@ test("Recover on a working screen types nothing", async ({
   cursor.setAttachMode("working");
   const before = cursor.attaches().length;
   await entry.getByRole("button", { name: "Recover" }).click();
-  await expectHeldLabel(entry, cursorHeldLabel.working);
+  await expectNormalizedReading(entry, "Working", false);
   await expect.poll(() => cursor.attaches().length).toBe(before + 1);
   const resumed = cursor.attaches().at(-1);
   expect(cursor.input(resumed?.pid ?? 0)).toBe("");
@@ -164,7 +163,7 @@ test("Recover with unconfirmed first input types nothing", async ({
   await page.reload();
   const entry = parts(page).taken.locator(".session-entry");
   await entry.getByRole("button", { name: "Recover" }).click();
-  await expectHeldLabel(entry, cursorHeldLabel.followUp);
+  await expectNormalizedReading(entry, "Awaiting first instruction", false);
   const resumed = cursor.attaches().at(-1);
   expect(cursor.input(resumed?.pid ?? 0)).toBe("");
   await expect(entry).toContainText("First input acceptance uncertain");
@@ -244,6 +243,6 @@ test("runner not running offers Recover; the click starts the runner and resumes
   expect(agentCalls(cursor)).toEqual(calls);
   expect(cursor.attaches()).toHaveLength(attaches);
   await entry.getByRole("button", { name: "Recover" }).click();
-  await expectHeldLabel(entry, cursorHeldLabel.followUp);
+  await expectNormalizedReading(entry, "Ready for review", true);
   await expect.poll(() => cursor.attaches().length).toBeGreaterThan(attaches);
 });

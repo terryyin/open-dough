@@ -26,12 +26,18 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   }\r\n`;
   const screens = {
     working: "→ Add a follow-up\r\nctrl+c to stop\r\n",
+    "follow-up": "→ Add a follow-up\r\n",
+    // The native clarifying-question shape: an agent-chosen title, a
+    // `Question N of M` line, numbered question lines, and the selection
+    // footer. The words `Clarifying Questions` never appear natively.
     waiting: `${[
-      "│ Clarifying Questions",
-      "│ 1. Which do you choose?",
-      "│   › [ ] Red",
-      "│     [ ] Blue",
-      "│ ↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
+      "Color preference",
+      "Question 1 of 1",
+      "1. Which color do you prefer, Red or Blue?",
+      "› [ ] Red",
+      "  [ ] Blue",
+      "  [ ] Other: (type to answer)",
+      "↑/↓ option · ←/→ question · Space select · Enter next/submit · Esc to skip",
     ].join("\r\n")}\r\n`,
     unrecognized: "Cursor Agent\r\n",
     trust: "Do you trust this workspace?\r\n",
@@ -180,6 +186,23 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
       if (fs.existsSync(readyFile)) {
         clearInterval(timer);
         mode = "";
+        paint();
+      }
+    }, 20);
+  }
+  // A mode written after this client started repaints it in that mode, so a
+  // test can walk one held session through working, waiting, and review.
+  if (modeFile) {
+    setInterval(() => {
+      let next;
+      try {
+        next = fs.readFileSync(modeFile, "utf8").trim();
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+        return;
+      }
+      if (next !== "" && next !== mode) {
+        mode = next;
         paint();
       }
     }, 20);

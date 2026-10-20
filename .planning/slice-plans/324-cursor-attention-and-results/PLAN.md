@@ -231,7 +231,7 @@ stays unverified and no watch start is inferred.
 
 ### 2. Read held Cursor sessions as waiting, review, or working
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor Playwright journeys (held-screen session states, card
 counts, session alerts) show a waiting screen reading *Needs input* with the
 question note where slice 1 proved it extractable, a follow-up screen after
