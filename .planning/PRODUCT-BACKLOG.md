@@ -20,10 +20,10 @@ cost of the feedback process itself.
 
 - [Accept slices against the original story promises](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-original-story-promises) — SEED-010#accept-original-story-promises ([plan](slice-plans/322-accept-original-story-promises/PLAN.md))
 - [Avoid repeating whole-suite proof around refactoring](seeds/SEED-010-learn-from-execution-retrospectives.md#schedule-proof-after-refactoring) — SEED-010#schedule-proof-after-refactoring ([plan](slice-plans/323-schedule-proof-after-refactoring/PLAN.md))
+- [Receive Cursor attention alerts and read the result](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-attention-and-results) — SEED-052#cursor-attention-and-results ([plan](slice-plans/324-cursor-attention-and-results/PLAN.md))
 
 ## Backlog list
 
-- [Receive Cursor attention alerts and read the result](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-attention-and-results) — SEED-052#cursor-attention-and-results
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope
 - [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes

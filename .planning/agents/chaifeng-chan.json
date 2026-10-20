@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-052#cursor-attention-and-results",
+  "mode": "story-branch",
+  "branch": "cursor/receive-cursor-attention-alerts-and-read-the-res",
+  "host": "cursor",
+  "model": "auto"
+}
