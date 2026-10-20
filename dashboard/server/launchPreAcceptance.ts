@@ -76,7 +76,6 @@ export async function replacementWriterBlock(
     const recordWorkspace = recordedWorkspace(record);
     return (
       record.stopUnconfirmed !== undefined &&
-      record.doneAt === undefined &&
       recordWorkspace !== undefined &&
       localFolder(recordWorkspace).path === workspace
     );

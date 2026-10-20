@@ -6,8 +6,7 @@
 // observed still held/working shows that native state as it is and
 // still offers Stop, which then works. The report-backed path is
 // covered by ./agent-completion-cursor.spec.ts.
-import type { Locator, Page } from "@playwright/test";
-import { parts } from "./dashboardPage.ts";
+import type { Page } from "@playwright/test";
 import {
   expectNormalizedReading,
   openTakenCursorSession,
@@ -17,10 +16,8 @@ import {
   keptRecord,
   workingCursorTest,
 } from "./support/cursorStart.ts";
-import { expectQuestion, markAsDone, markDone } from "./support/markDone.ts";
-
-const localWorkingStatement =
-  "This session is still working. Marking it done only acknowledges it in this dashboard; it does not stop the session.";
+import { markAsDone } from "./support/markDone.ts";
+import { markLocallyDone } from "./support/cursorLocalDone.ts";
 
 const localDoneWording =
   "Done is a dashboard-local name only; marking it done did not stop the native session.";
@@ -29,18 +26,6 @@ async function closeTerminal(page: Page): Promise<void> {
   const panel = page.getByRole("region", { name: "Terminal" });
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(panel).toHaveCount(0);
-}
-
-// Marks the entry done through its ask-first question, asserting the
-// local-only wording, and returns the Recently done entry.
-async function markLocallyDone(page: Page, entry: Locator): Promise<Locator> {
-  await markAsDone(entry).click();
-  await expect(entry).not.toContainText("Marking it done asks it to stop.");
-  const question = await expectQuestion(entry, localWorkingStatement);
-  await markDone(question);
-  const recent = parts(page).recentlyDone.locator(".session-entry");
-  await expect(recent).toHaveCount(1);
-  return recent;
 }
 
 workingCursorTest(

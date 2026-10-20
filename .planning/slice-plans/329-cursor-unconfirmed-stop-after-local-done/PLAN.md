@@ -65,7 +65,17 @@ Native Cursor proof is explicitly out of scope (ADR 0005).
 
 ### 1. Block a replacement writer after an unconfirmed stop on a locally done session
 Type: Behavior
-Status: not started
+Status: done
+
+Learnings: the runner untracks a client on hangup before killing it, so a
+still-held stop cannot be simulated by freezing/ignoring the client; the
+journey instead holds the runner's `/sessions` confirmation reads
+(`cursorRunnerHeldReads.ts`) while the runner keeps the same session again,
+so re-observation finds it held past the deadline. Accepted proof: fake-Cursor
+journeys in `agent-session-cursor-stop.spec.ts` (locally done + unconfirmed
+retains explanation on the done record and blocks a replacement until Start
+anyway; still-held stop named and retained), existing Cursor stop/done and
+Claude/Codex done/stop specs green, `npm run typecheck:dashboard` green.
 Proof: Fake-Cursor journeys show (a) a locally done, still-working Cursor
 session whose Stop is unconfirmed (runner unreachable) retains its
 explanation and blocks a replacement launch in the same workspace until the
