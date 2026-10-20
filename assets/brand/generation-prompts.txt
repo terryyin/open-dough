@@ -1,0 +1,36 @@
+OpenDough small-icon refinement prompt
+
+Mode: built-in image_gen
+Date: 2026-10-20
+Final master: opendough-icon.png
+Reference: the accepted raw-dough design, retained in the final master. Earlier drafts were removed.
+Exports: favicon/icon-16.png through icon-512.png; favicon/favicon.ico
+PNG exports were resized from the generated master using macOS sips. ICO packages the exported PNGs.
+
+Standalone reconstruction brief
+
+Create one minimal flat logo for OpenDough: a compact, softly irregular pale-cream piece of raw dough on an edge-to-edge warm-charcoal square. The dough is a single closed continuous mass, slightly lopsided and squat, occupying about 82 percent canvas width and 74 percent height. At the upper-left edge only, show one small corner tucked back and pressed into the dough. Indicate this with one short, broad, muted earthy-taupe shadow, approximately #92785F, attached to the outer contour and limited to the upper-left quarter. Keep the broad cream body uninterrupted. Use only cream, taupe and charcoal fills, with smooth bold contours. The tuck must remain visible at 16px and 32px. No ring, donut, finished bun, cut, cavity, filling, full-width seam, smile, face, texture, gradients, letters or extra objects.
+
+The exact two edit prompts used for the final result follow. Use opendough-icon.png as the image reference for future edits.
+
+Initial refinement
+
+Use case: precise-object-edit
+Asset type: Final small-size OpenDough logo, optimized for 16px and 32px web favicons.
+Input image 1: EDIT TARGET, the accepted OpenDough raw-dough logo.
+Primary request: Refine this SAME accepted design for tiny icon use. Preserve its identity: a single closed cream piece of raw dough with one small attached kneaded tuck at the upper-left corner, on a charcoal square. Do not introduce another concept.
+Make just these optical refinements:
+1. Make the mound about 12 percent taller and a little more compact, keeping the wide soft base, slightly lopsided rounded quadrilateral silhouette, natural uneven top, and closed uninterrupted body. Center it optically; aim for about 82 percent canvas width and 74 percent canvas height, with comfortable dark margins.
+2. Make the small upper-left tuck clearer: a short, broader, slightly darker muted warm-taupe fold shadow with a soft blunt taper rather than a needle point. At 16px it should retain about 1–2 pixels of visible thickness. Keep the tuck entirely within the upper-left quarter, attached to the outer edge. Its modest rounded lip should read as a small corner pressed back into the dough, never as a cut or opening. Do not extend the crease across the body.
+Style: Exceptionally clean flat logo. Only three uniform solid fills total: pale raw-dough cream, muted warm-taupe for the small localized tuck, and dark warm-charcoal background. Smooth bold edges. No texture, gradients or lighting.
+Must preserve: one solid piece; no visible interior; no separate top/bottom layer. Avoid reintroducing a smile, mouth, eye, ring, donut, bun, sandwich, filling, diagonal stripe or long swoosh. No decorations, outline, tiny creases, flour speckles, shadows, letters, text or watermark.
+Output: one centered finished square icon, not a preview board, not a favicon grid.
+
+Final contrast refinement after inspecting 16px and 32px exports
+
+Use case: precise-object-edit
+Asset type: Final OpenDough favicon master.
+Input image 1: edit target.
+Change ONLY the color of the small upper-left kneaded-tuck shadow: make it a noticeably darker muted earthy taupe, approximately #92785F, so this little fold retains visible contrast when the icon is reduced to sixteen pixels. Use a single uniform flat taupe fill.
+Preserve everything else exactly: the short local tuck's shape and size, its connection to the outside edge, the closed uninterrupted pale cream dough mass, the slightly lopsided compact silhouette, its framing and scale, and the solid charcoal background.
+Do not enlarge or extend the fold. No additional marks, shading, texture, gradients, outline, surface creases, letters or text. One complete square icon only.

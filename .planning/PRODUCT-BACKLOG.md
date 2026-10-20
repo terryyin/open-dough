@@ -23,6 +23,7 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope
 - [Format only the owned change during delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#format-owned-changes) — SEED-010#format-owned-changes
