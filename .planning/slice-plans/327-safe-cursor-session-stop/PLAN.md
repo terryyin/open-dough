@@ -312,7 +312,29 @@ and does not claim a dashboard stop controls an in-session Task.
 
 ### 5. Verify the Cursor journey natively and settle ODF-204 and ODF-229
 Type: Behavior
-Status: planned
+Status: done
+
+Learnings (2026-10-20): The finding updates are delivered; the native
+verification is **not**. ODF-204 and ODF-229 each gained a dated
+(2026-10-20) delivered-response section recording what slices 2–4
+delivered against the finding, the deterministic proof that exists
+(execute-plan guidance tests; fake-Cursor dashboard journeys), and the
+explicit remaining gap; their retained pre-fix evidence and occurrences
+are unchanged, and neither finding is declared resolved or closed —
+resolution awaits native observation. **Native verification was NOT
+performed in this execution:** there was no dashboard-launched native
+Cursor launch/work/Stop/reopen run and no native interrupted-Task
+reproduction. The deterministic companions are not substituted for that
+native proof, and no native promise is marked passed. The remaining
+native actions, named for a later manual/native session, are: launch a
+dashboard Cursor session doing real work and Stop it with a confirmed
+result, then reopen it; run an unconfirmed stop with its explanation,
+replacement-writer block, and Start anyway override; exercise Mark as
+done as the local-only acknowledgement; and exercise the
+delegated-interruption recovery from the checkout. Until such a run is
+observed, whether SIGHUP/hangup terminates a native in-flight Cursor
+turn or its delegated subagents, and whether the guidance changes
+native outcomes, remain unproven (ADR 0005).
 Proof: A native Cursor run through the dashboard — launch, work, Stop
 with confirmed result, reopen; an unconfirmed stop with its explanation,
 block, and override; Mark as done as local acknowledgement with the
