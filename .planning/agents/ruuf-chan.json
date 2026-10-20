@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
+  "mode": "story-branch",
+  "branch": "cursor/show-why-a-scoped-cursor-session-s-terminal-open",
+  "host": "cursor",
+  "model": "auto"
+}
