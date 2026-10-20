@@ -10,16 +10,21 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { startSessionField } from "./launchCardPage.ts";
+import {
+  expectChosenModelScope,
+  expectDefaultLaunchHasNoScope,
+} from "./support/cursorScopeAssertions.ts";
 import { expect, keptRecord, test } from "./support/cursorStart.ts";
 import { cursorModels } from "./support/fakeCursor.ts";
 import { stayedUp } from "./support/keptCursorTurn.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
 
-const savedNote =
+const sessionNote = "The chosen model applies to this session only.";
+const laterSessionsWarning =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";
 
-test("execution on a Cursor-listed model sends it on the prompted run only and discloses Cursor's saved setting", async ({
+test("execution on a Cursor-listed model sends it on the prompted run only, scopes it to this session, and says the choice applies to this session", async ({
   page,
   dashboard,
   origin,
@@ -53,9 +58,12 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
   await expect(dialog).toContainText(
     "Cursor starts with your current Cursor model setting.",
   );
-  await expect(dialog).not.toContainText(savedNote);
+  await expect(dialog).not.toContainText(sessionNote);
+  await expect(dialog).not.toContainText(laterSessionsWarning);
+  const sharedBefore = cursor.sharedConfig();
   await models.selectOption("gpt-5.2");
-  await expect(dialog).toContainText(savedNote);
+  await expect(dialog).toContainText(sessionNote);
+  await expect(dialog).not.toContainText(laterSessionsWarning);
   expect(cursor.calls()).toEqual([]);
   await dialog
     .getByRole("textbox", { name: "Instruction (optional)" })
@@ -100,6 +108,7 @@ test("execution on a Cursor-listed model sends it on the prompted run only and d
       ],
     },
   });
+  expectChosenModelScope(record, dashboard.home, cursor, client, sharedBefore);
   await stayedUp(cursor, client.pid, 500);
   await entry.getByRole("button", { name: "Open terminal" }).click();
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
@@ -192,6 +201,12 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
     cursor.sessionId,
   ]);
   expect(keptRecord(dashboard.home).request).not.toHaveProperty("model");
+  expectDefaultLaunchHasNoScope(
+    keptRecord(dashboard.home),
+    dashboard.home,
+    cursor,
+    client,
+  );
 });
 
 test("a launch naming a model Cursor does not list is refused before create-chat", async ({
@@ -212,4 +227,26 @@ test("a launch naming a model Cursor does not list is refused before create-chat
   });
   expect(cursor.modelReads()).toHaveLength(1);
   expect(cursor.calls()).toEqual([]);
+});
+
+test("a chosen-model launch whose scope cannot be established is refused before create-chat", async ({
+  dashboard,
+  cursor,
+}) => {
+  cursor.breakSharedConfig();
+  const refused = await launch(dashboard, {
+    source: "open-dough",
+    host: "cursor",
+    workflow: "ad-hoc",
+    model: "gpt-5.2",
+    instruction: "Do work",
+  });
+  expect(JSON.parse(refused.body)).toMatchObject({
+    kind: "failed",
+    explanation: expect.stringContaining(
+      "could not be copied into a configuration for this session",
+    ),
+  });
+  expect(cursor.calls()).toEqual([]);
+  expect(cursor.attaches()).toEqual([]);
 });

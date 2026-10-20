@@ -18,11 +18,12 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope ([plan](slice-plans/329-cursor-session-model-scope/PLAN.md))
 - [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done ([plan](slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md))
 
 ## Backlog list
 
+- [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
+- [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths

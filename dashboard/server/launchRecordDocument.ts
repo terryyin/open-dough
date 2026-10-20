@@ -19,9 +19,9 @@ import {
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
 import {
+  leaveMachineJson,
   readMachineJson,
   replaceMachineJson,
-  type leaveMachineJson,
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
@@ -60,21 +60,56 @@ export function readStoredRecords() {
   return readMachineJson(launchStore());
 }
 
+// Session records a retention drop removed, surfaced to the listener the
+// launch boundary installs (`./launchRecordRemoval.ts`), which retires
+// each record's host-local state through the same dispatch an explicit
+// record deletion uses. This store names no host: it only reports which
+// records it dropped, and only once the rewrite that dropped them has
+// actually landed -- a write left as it is or one that fails drops
+// nothing, so no state is retired before its record is gone.
+export type RecordsDroppedByRetention = (
+  records: readonly LaunchRecord[],
+) => Promise<void>;
+
+let recordsDroppedByRetention: RecordsDroppedByRetention | undefined;
+
+export function onRecordsDroppedByRetention(
+  listener: RecordsDroppedByRetention,
+): void {
+  recordsDroppedByRetention = listener;
+}
+
 // Rewrites the kept records with `change` applied to them. Records past
 // retention are dropped first. `change` may return `leaveMachineJson` to
 // leave the file as it is.
 export async function replaceRecords(
   change: (kept: StoredRecords) => StoredRecords | typeof leaveMachineJson,
 ): Promise<void> {
+  const outcome: { dropped: LaunchRecord[]; leftAsIs: boolean } = {
+    dropped: [],
+    leftAsIs: false,
+  };
   await replaceMachineJson(launchStore(), (stored) => {
     const now = Date.now();
+    outcome.dropped = [];
     const kept: StoredRecords = {};
     for (const [id, records] of Object.entries(stored)) {
       const retained = withinRetention(records, now);
+      outcome.dropped.push(
+        ...records.filter(
+          (record): record is LaunchRecord =>
+            "session" in record && !retained.includes(record),
+        ),
+      );
       if (retained.length > 0) {
         kept[id] = retained;
       }
     }
-    return change(kept);
+    const next = change(kept);
+    outcome.leftAsIs = next === leaveMachineJson;
+    return next;
   });
+  if (!outcome.leftAsIs && outcome.dropped.length > 0) {
+    await recordsDroppedByRetention?.(outcome.dropped);
+  }
 }

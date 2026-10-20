@@ -163,6 +163,12 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ): Promise<void>;
+  // Runs only after this session's launch record has actually been
+  // removed, so the host can retire session-local state that record alone
+  // remembered (for Cursor, its configuration scope). Mark as done keeps
+  // the record and never runs this. Absent means the host keeps nothing
+  // of the kind.
+  recordRemoved?(record: LaunchRecord): Promise<void>;
 };
 
 const hostRuntimes: Readonly<Record<HostIdentity, LaunchHost | undefined>> = {

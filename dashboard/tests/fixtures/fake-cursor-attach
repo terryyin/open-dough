@@ -19,6 +19,7 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
       if (error.code !== "ENOENT") throw error;
     }
   }
+  require(path.join(__dirname, "fake-cursor-model-persistence.cjs"))(args);
   const unclassifiedExit =
     "Cursor resume failed for an unclassified reason.\r\n";
   const cannotLoadExit = `${

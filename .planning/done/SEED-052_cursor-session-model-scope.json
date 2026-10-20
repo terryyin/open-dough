@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#cursor-session-model-scope",
+  "title": "Choose a Cursor session model without changing later defaults",
+  "completedAt": "2026-10-20T07:55:18.055Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "cursor",
+  "model": "auto"
+}
