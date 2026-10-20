@@ -174,41 +174,100 @@ automatic closure or execution of a suggested improvement.
 
 **Identity:** SEED-145#continue-execution-into-wrap-up
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/333-continue-execution-into-wrap-up/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"deeb8530304a01981a95d3f8218947ae8b24b95427d14741409f37ffbba9a747","plan":"d4709f21e24f7f1e4efca25c00b5e142f11936ae5e238874d27fc7e6beb2a7d4"}}
 ```
 
 **For / why:** A developer should not have to return just to instruct wrap-up
 after execution and retrospective have already settled every required choice.
 
-**Goal:** Successful plan execution proceeds into Story Wrap Up in the same
-authorized journey when no human judgment remains, including when the final
-retrospective produced findings whose dispositions are already decisive.
+**Goal:** Successful planned execution proceeds into Story Wrap Up in the same
+authorized journey when no human judgment remains, including when retrospective
+findings have dispositions settled by existing rules or explicit human direction.
+The developer need not return merely to request closure.
 
-**Scope:** Replace the mandatory execution-to-wrap-up handoff with continuation
-under the existing project's authority and closure rules. Evaluate improvement
-plans, process findings, and product advice together; their presence alone does
-not require a pause. Apply already authorized dispositions, then continue into
-wrap-up without a routine execution summary or a confirmation question. Final
-quiet completion occurs only after wrap-up's actual integration, CI/shutdown,
-history cleanup, branch/worktree retirement, and reporting duties settle.
+**Scope:** Replace the mandatory planned execution-to-wrap-up handoff with
+conditional continuation for the selected work, including a quick attempt that
+continued into planned execution. After required implementation, proof, delivery,
+selected review and execution-completion duties settle, determine whether closure
+can proceed under the established authority and project rules. When it can,
+invoke Story Wrap Up in the same session and workspace with the retained story,
+plan, proof, review results, execution identity, publication target and dashboard
+context. Do not ask for another wrap-up instruction or emit a routine execution
+summary between the two workflows.
 
-**Evaluation:**
+Evaluate process findings, retrospective correction plans and product advice
+together. A recorded finding or valid correction is not by itself an unresolved
+choice: apply its existing authorized disposition through the owning workflow.
+In particular, wrap-up queues a valid correction first by default, preserves its
+active records and leaves its execution for later. Compatible product changes
+need existing delegated authority or explicit human direction; an evidence-backed
+recommendation alone cannot supply that authority. Do not require queueing before
+invoking the workflow that owns it, duplicate its disposition rules, or infer
+permission to drop a finding.
 
-- No findings and all required execution/review gates passed -> invoke wrap-up
-  automatically and finish quietly after its gates pass.
-- A valid retrospective correction must be queued under the existing rule,
-  process findings must be recorded, and product advice has an evidence-backed
-  disposition within delegated authority -> apply those dispositions and finish
-  wrap-up without asking merely because findings exist. Do not execute the
-  queued correction as part of this continuation.
-- Whether to adopt an improvement or product suggestion is unclear, or a
-  constraint, ownership, permission, or product choice requires human judgment
-  -> stop with the prominent developer-attention message. Preserve the workspace,
-  terminal continuation, proof, and context needed to answer and resume; do not
-  retire resources needed by unfinished work.
-- A required CI, publication, or retirement step fails or remains unconfirmed ->
-  preserve its recovery path, report the real exception, and claim no successful
-  closure. A skipped optional review alone creates no new decision requirement.
+Retain the existing closure responsibilities: assimilation of lasting knowledge,
+follow-up disposition, authorized product decisions, recoverable cleanup,
+publication/integration, applicable CI and shutdown, assignment completion and
+safe resource retirement. Preserve the selected mode and publication authority;
+local-only or no-push instructions stay effective. Final quiet completion occurs
+only after all duties applicable to that closure actually settle, including the
+final supplied dashboard report and matching receipt. Direct use makes no
+dashboard contact. A quiet execution boundary submits no premature completion
+report; execution success alone does not mark the story or session Done.
+
+A human-owned product, constraint, ownership or permission decision; missing
+required context; explicit review/retain/stop instruction; unfinished required
+review; or failed/unconfirmed required operation stops the dependent continuation
+or closure. Use the shared prominent `DEVELOPER ATTENTION REQUIRED` response with
+the specific issue, consequence, expected response or recovery action and relevant
+evidence. Preserve the workspace, resumable session, proof and active records
+needed for resolution. Recovery continues from the first unfinished operation
+without repeating accepted publication, completed review or settled dispositions.
+An explicitly skipped optional review alone creates no new question. Requested
+details remain available and do not by themselves impose a review stop.
+
+**Deferred promises:** Do not execute queued corrections, adopt unapproved product
+suggestions, broaden automatic retrospective selection, or change wholly planless
+execution's separate completion journey. Preserve the explicitly selected
+background-CI handoff while its required completion remains pending. This story
+consumes the earlier quiet/attention behavior; it adds no dashboard session model,
+new publication/CI mechanism or release/rollout. Native behavioral acceptance is
+tracked separately under ADR 0005.
+
+**Key examples:**
+
+1. All planned slices are delivered, the selected retrospective finds no open
+   choice, and applicable execution completion/CI/shutdown gates pass → invoke
+   wrap-up immediately with the same execution context. After its closure gates
+   pass, finish quietly without an intermediate recap or confirmation.
+2. The retrospective produced a valid bounded correction, a recorded process
+   finding and a product reorder already authorized by the developer → continue;
+   wrap-up queues the correction first once, applies the compatible reorder,
+   preserves the finding and active follow-up, and closes only the selected
+   predecessor. Do not execute the correction or pause merely because it exists.
+3. Correction input is incomplete, product advice needs an adoption decision,
+   or cleanup conflicts with a human-owned architectural constraint → identify
+   the missing field or decision and stop before the affected disposition or
+   deletion. Keep the active context available; a later green CI result does not
+   settle the choice.
+4. The developer explicitly skips the automatic retrospective and every other
+   duty passes → record the skip and continue into wrap-up. An explicit request
+   to stop for review or retain the workspace instead keeps that stop effective;
+   no automatic closure overrides it.
+5. A required execution or closure check fails, publication is unconfirmed,
+   shutdown is missing, or retirement is held → report the actual unfinished
+   step and preserve its recovery path. Resume that step once resolved, without
+   treating an accepted earlier publication as failed or repeating it.
+6. A dashboard-started execution has no outstanding attention → submit nothing
+   at the execution handoff, carry the supplied launch/reporting context through
+   wrap-up, and submit quiet completion only as its final operation after
+   required closure and retirement. A direct invocation follows the same closure
+   rules without dashboard contact. A genuine stop uses the existing exact-message
+   reporting and receipt contract and preserves resumability.
+7. Wholly planless execution, an expressly retained review boundary, or the
+   supported explicit background-CI alternative reaches its existing handoff →
+   preserve that journey and its resources. Automatic planned continuation
+   cannot turn a pending receipt or absent permission into successful closure.
 
 **Value / learning:** Remove the remaining manual completion round trip without
 treating agent confidence as human authorization.
