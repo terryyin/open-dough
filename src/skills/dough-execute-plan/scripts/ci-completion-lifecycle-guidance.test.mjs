@@ -99,7 +99,7 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(
     attention,
-    /successful completion[\s\S]+nothing requiring attention[\s\S]+no recap/,
+    /successful completion[\s\S]+nothing requiring attention[\s\S]+no success\s+message[\s\S]+minimum native response/,
   );
   assert.match(
     attention,
