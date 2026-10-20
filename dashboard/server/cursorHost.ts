@@ -3,6 +3,7 @@ import path from "node:path";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { LaunchHost } from "./launchHosts.ts";
 import { launchCursor } from "./hosts/cursor/launch.ts";
+import { recoverUnconfirmedCursor } from "./hosts/cursor/unconfirmedReplacement.ts";
 import { removeCursorSessionScope } from "./hosts/cursor/sessionScope.ts";
 import { cursorOptions } from "./hosts/cursor/options.ts";
 import { observeCursorSessions } from "./hosts/cursor/sessions.ts";
@@ -16,6 +17,7 @@ export const cursorHost: LaunchHost = {
   installedSkillPath: (project, skill, ...segments) =>
     path.join(project.path, ".agents", "skills", skill, ...segments),
   launch: launchCursor,
+  recover: recoverUnconfirmedCursor,
   options: cursorOptions,
   sessions: observeCursorSessions,
   attach: attachCursor,

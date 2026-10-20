@@ -153,12 +153,27 @@ test.describe(`Cursor launch turn`, () => {
       { mode: "boundary" },
       cursor,
       instruction,
-      (server) => {
+      async (server) => {
         const recorded = keptCursor(server.home);
         expect(recorded.firstInput).toMatchObject({ state: "uncertain" });
         const pid = cursor.attaches()[0]?.pid ?? 0;
         expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
         expect(processRunning(pid)).toBe(true);
+        expect(cursor.attaches()).toHaveLength(1);
+
+        const again = await launch(
+          server,
+          instructedCursorRequest(instruction),
+        );
+        expect(JSON.parse(again.body)).toEqual({
+          kind: "uncertain",
+          reason: "unconfirmed",
+          explanation: unconfirmed,
+        });
+        expect(cursor.calls().map((call) => call.args)).toEqual([
+          ["create-chat"],
+        ]);
+        expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
         expect(cursor.attaches()).toHaveLength(1);
       },
     );
@@ -203,8 +218,9 @@ test.describe(`Cursor launch turn`, () => {
     );
   });
 
-  test("the client exiting does not accept the instruction, and a matching launch starts no other conversation", async () => {
+  test("the client exiting does not accept the instruction, and the next launch submits it in a new conversation", async () => {
     const cursor = installFakeCursor({ screen: "trust" });
+    const replacementId = "b1c2d3e4-f5a6-4789-abcd-ef0123456789";
     await withInstructedCursor(
       { mode: "boundary" },
       cursor,
@@ -217,19 +233,33 @@ test.describe(`Cursor launch turn`, () => {
         expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
         expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
 
+        cursor.setAttachMode("follow-up");
+        cursor.queueCreateChatId(replacementId);
         const again = await launch(
           server,
           instructedCursorRequest(instruction),
         );
-        expect(JSON.parse(again.body)).toEqual({
-          kind: "uncertain",
-          reason: "unconfirmed",
-          explanation: unconfirmed,
+        expect(JSON.parse(again.body)).toMatchObject({
+          kind: "launched",
+          record: {
+            session: { sessionId: replacementId },
+            firstInput: { state: "confirmed", instruction },
+          },
         });
         expect(cursor.calls().map((call) => call.args)).toEqual([
           ["create-chat"],
+          ["create-chat"],
         ]);
-        expect(cursor.attaches()).toHaveLength(1);
+        const resumed = cursor.attaches().at(-1);
+        expect(resumed?.sessionId).toBe(replacementId);
+        expect(enteredInstruction(cursor, resumed?.pid ?? 0)).toContain(
+          instruction,
+        );
+        expect(keptCursor(server.home).session.sessionId).toBe(replacementId);
+        expect(keptCursor(server.home).firstInput).toMatchObject({
+          state: "confirmed",
+          instruction,
+        });
       },
     );
   });

@@ -63,17 +63,18 @@ and the existing missing-scope journey in
    Settled by the same test's explanation string, which is the `pending`
    branch in `launchRun` when `host.recover` is absent, and by
    `cursorHost` omitting `recover`.
-3. **A scoped client reaches a screen ready for the instruction.** Open.
-   The only production scoped launch (session `1a53c2fb`, 2026-10-20) exited
-   about a second after resume, and no chat was stored for that id. That log
-   is not an observation of this plan's probe. Slice 1 is the observation;
-   its failure stops slice 2.
+3. **A scoped client reaches a screen ready for the instruction.** Settled
+   in this workspace on 2026-10-20. A scope from `establishCursorSessionScope`,
+   `create-chat`, and `cursor-agent --workspace <scratch> --resume <id>
+   --model auto` with that scope reached `→ Plan, search, build anything`
+   and did not exit. No prompt was submitted. The client was stopped, and
+   the scratch chat and scope were removed.
 
 ## Ordered slices
 
 ### 1. See whether a scoped Cursor client reaches the first prompt
 Type: Behavior
-Status: planned
+Status: done
 Proof: In the execution workspace, establish a scope the way
 `establishCursorSessionScope` does, run `create-chat` and
 `cursor-agent --workspace <scratch> --resume <id> --model auto` with that
@@ -90,7 +91,7 @@ does not claim Continue can deliver the prompt until this is a ready screen.
 
 ### 2. Continue an exited Cursor start into a new conversation
 Type: Behavior
-Status: planned
+Status: done
 Proof: The exiting-client journey in
 `agent-terminal-cursor-launch.spec.ts` next-launches after the client has
 exited, create-chats again, enters the instruction, and records first input
