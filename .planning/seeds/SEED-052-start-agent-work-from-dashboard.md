@@ -324,31 +324,158 @@ and native Cursor termination remains unverified. Plan:
 
 **Identity:** SEED-052#cursor-session-model-scope
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/329-cursor-session-model-scope/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0d39f687dccb6b9893df9990816c689e3d2c78a2d15d2c557d6eed327afc47e","plan":"2e0d2b3f85a05af697b7d3cddc1f3d56265a942ecaef1725098d52e0e02d4ab4"}}
 ```
 
-**Beneficiary and outcome:** A developer choosing a model for one dashboard
-Cursor launch gets that choice for the requested session while later sessions
-retain the developer's default model.
+**Goal:** For a developer choosing a model for one dashboard Cursor launch,
+that session — including its later resumption — runs on the chosen model,
+while the developer's Cursor default and every later Default session remain
+whatever the developer's own Cursor setting says at that time.
 
-**Known behavior and evaluation:** The current launch applies the selected
-model to the first terminal client, and the UI already warns that Cursor also
-saves it as the default. A stored resume omits that model flag. Establish the
-actual native behavior before selecting a remedy. Evaluate default model A,
-one launch explicitly choosing B, resumption of that session, and a subsequent
-default launch: the selected session uses B and the later launch uses A.
-Include overlapping launches and a deliberate intervening default change;
-restoring a saved value must not overwrite a newer developer or session choice.
+**Scope:**
 
-**Open decision and effort:** A supported session-only model mechanism has not
-been demonstrated. If the host requires a persistent global change, bring the
-constraint and product alternatives to the developer during refinement before
-settling the promise; the existing warning alone does not satisfy this outcome.
+- Required: a Cursor launch with an explicitly chosen model runs that session
+  in a **session-scoped Cursor configuration** cloned from the developer's
+  current Cursor configuration at launch. Cursor's own persistence for that
+  session (its chosen model, and any model the developer later picks inside
+  that session) lands in the session's configuration, never in the shared
+  Cursor configuration. The mechanism proved for this is the
+  `CURSOR_CONFIG_DIR` environment hook (see Investigation); chats, MCP
+  configuration, and other shared Cursor state stay in the shared home, so
+  the saved conversation and its resumption remain the ordinary ones.
+- Required: the launch record remembers the session's configuration scope,
+  and every continuation of that session — terminal attach/open,
+  recovery/resume, and any replacement resume — reuses the same scope, so a
+  resumed chosen-model session still runs on its session model and still
+  cannot rewrite the shared default. A continuation that cannot re-establish
+  the recorded scope does not silently fall back to running the session
+  against the shared configuration.
+- Required: the dialog stops warning that a chosen Cursor model becomes the
+  developer's Cursor setting for later sessions; its wording states the
+  choice applies to this session. Default (no explicit choice) launches are
+  unchanged: no session scope is created, no `--model` is sent, and they keep
+  following the developer's current Cursor setting.
+- Required: overlapping chosen-model launches each keep their own model and
+  scope without disturbing each other or the shared default, and a deliberate
+  change the developer makes to their Cursor default between a session's
+  launch and its resumption is preserved: the resumed session keeps its own
+  model in its own scope and does not overwrite the newer default, and a
+  subsequent Default launch uses that newer default.
+- Required: the session scope's lifetime follows the launch record that
+  remembers it: it is retained while that record keeps the session resumable
+  and removed when that record is removed, without touching the shared
+  configuration or the saved conversation.
+- Deferred: isolating Default sessions or changing their existing resume
+  behavior; per-session scope for Claude Code or Codex (each already scopes
+  its model choice to its session); carrying a session's frozen non-model
+  Cursor settings forward after launch; any Cursor mechanism a future native
+  check shows superseding the environment hook.
+- Rejection constraints: a chosen-model session must not write its model
+  into the shared Cursor configuration, on launch or on any resume; restoring
+  or copying back a saved shared value must not overwrite a newer deliberate
+  default or another session's choice (no save-and-restore of the shared
+  file is the mechanism); a Default launch must not gain a session scope or
+  a model flag it did not have.
+
+**Key examples:**
+
+1. Shared Cursor default is A → developer launches a Cursor session choosing
+   model B with an instruction → that session runs on B, the shared Cursor
+   configuration still says A afterwards, and the launch dialog no longer
+   warns that B becomes the setting for later sessions.
+2. That B session is later resumed (terminal attach or recovery, after its
+   client is no longer held) → the resumed session runs on B again, from its
+   recorded scope, and the shared configuration still says A.
+3. After the B launch, the developer deliberately changes their Cursor
+   default to C → the B session is resumed → it still runs on B and the
+   shared configuration still says C; a new Default launch then runs on C.
+4. Two chosen-model launches overlap, one choosing B and one choosing C →
+   each session runs and resumes on its own model, and the shared default
+   remains A throughout.
+5. A Default Cursor launch, and Claude Code and Codex launches with chosen
+   models, behave exactly as today: no Cursor session scope is created for
+   them and their model handling is unchanged.
+6. The launch record for the B session is removed → its session
+   configuration scope is removed with it; the shared configuration and the
+   saved Cursor conversation are untouched.
+7. A blank ad hoc Cursor start with a chosen model remains refused, as
+   today: no Cursor run would apply the choice.
+
+**Architecture:** The Cursor host boundary
+(`dashboard/server/cursorHost.ts` and `dashboard/server/hosts/cursor/`)
+gains one responsibility: establishing and naming a session-scoped Cursor
+configuration for a chosen-model launch and carrying that scope through the
+runner keep/attach/recovery protocol, so every process that runs the
+session — the first kept client in the separate runner process and any
+later resume — inherits it. The launch record's Cursor continuation is the
+durable memory of the scope; older records without it keep today's behavior.
+This follows the same host-boundary pattern as the other hosts' session-only
+model handling (Codex supplies its choice to conversation creation; Claude
+sends `--model` per session) without moving any model logic into shared
+launch code. Per Accepted
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md),
+deterministic fake-runner tests prove the dashboard protocol — scope
+creation, inheritance, and non-interference — not native Cursor behavior;
+the native probe in the Investigation and retained native verification own
+that evidence. Guidance and UI wording follow
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+where skill prose is touched.
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+is Proposed and binds nothing here; no Accepted ADR conflicts with this
+scope.
+
+**Investigation (2026-10-20, this refinement):** Facts, each with its source.
+(1) From this checkout: the current launch sends `--model` only on the first
+terminal client and never in the stored resume command
+(`dashboard/server/hosts/cursor/launch.ts`), and the dialog warns that
+Cursor also saves a chosen model as the developer's setting
+(`dashboard/src/hostDescription.ts`). (2) From the installed
+`cursor-agent` 2026.10.19-6bbf2c4 bundle on this machine: a startup
+`--model` is an initial model whose handler persists it into the CLI
+configuration file (`~/.cursor/cli-config.json`, or
+`$CURSOR_CONFIG_DIR/cli-config.json`) with `hasChangedDefaultModel: true`;
+each turn records a per-chat `lastUsedModel`; and resuming a chat without
+`--model` restores that stored model through a setter that persists it into
+the same CLI configuration again. So neither the first launch nor a resume
+is session-only today, and a resume can overwrite a deliberate intervening
+default change. No session-only model flag appears in `cursor-agent
+--help`. (3) From an unpaid native probe run in this refinement (no prompt
+was submitted, so no model inference ran): with
+`CURSOR_CONFIG_DIR` pointed at a copied `cli-config.json`,
+`cursor-agent --workspace <scratch> --model gpt-5.2` showed GPT-5.2 as the
+session model and persisted `gpt-5.2` as `model`/`selectedModel` only in the
+isolated file; the shared configuration's model fields remained
+`default`/Auto, and `cursor-agent models` read the isolated configuration
+successfully. The same bundle reads user MCP configuration from
+`~/.cursor/mcp.json` by home path, not from the config directory, and chat
+storage resolves under the data directory, so config-only isolation leaves
+MCP and saved conversations shared. Explored alternatives: save-and-restore
+of the shared configuration's model fields (rejected — it needs an unsettled
+restore moment, serialization of overlapping launches, and crash recovery,
+and fights Cursor's resume re-persistence); isolating the whole Cursor data
+directory (rejected — it would also isolate saved chats and break ordinary
+resumption); keeping the warning (rejected — it does not deliver the
+outcome). Borrowed mechanism: a browser's per-session profile cloned from
+the default profile — the session's changes stay in its profile and the
+default profile is untouched. Mapped here: profile directory ↔ session
+`CURSOR_CONFIG_DIR`, default profile ↔ shared Cursor configuration, cloned
+profile contents ↔ the `cli-config.json` copy. The analogy's consequential
+limit: the clone also snapshots non-model CLI settings (display,
+permissions, caches) at launch, so a resumed session sees those as of launch
+rather than the developer's current values; the story defers reconciling
+that. Remaining hypothesis, bounded as an early probe in planning rather
+than settled here: the environment hook is honored by the installed bundle
+and probe, but it is not a documented public flag, so execution must
+re-prove it against the then-installed Cursor before dependent slices rely
+on it. Terry selected the session-scoped configuration direction on
+2026-10-20 over save-and-restore and over dropping the session-only promise.
 Size is unassigned.
 
-**Depends on / safe stopping point:** No blocking story prerequisite is known.
-Model selection is independently evaluable; keep launch, default selection and
-same-session continuation usable while its mechanism is resolved.
+**Depends on / safe stopping point:** No blocking story prerequisite is
+known. Model selection remains independently evaluable; Default launch and
+same-session continuation stay usable while the session-scope mechanism is
+resolved. This story shares no mechanism with the Cursor attention or safe
+stop stories.
 
 ## Ordering and Scope Reduction
 
