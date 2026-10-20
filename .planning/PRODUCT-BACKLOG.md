@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Block commits and delivery after failed local prerequisites](seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery) — SEED-146#gate-local-prerequisites-before-commit-and-delivery ([plan](slice-plans/331-gate-local-delivery-prerequisites/PLAN.md))
 - [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective ([plan](slice-plans/332-quiet-execution-and-retrospective/PLAN.md))
 
 ## Backlog list

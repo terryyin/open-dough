@@ -104,6 +104,16 @@ Former local code: DD-219.
 
 An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
 
+### Occurrences
+
+- Execution: SEED-146#gate-local-prerequisites-before-commit-and-delivery / plan 331, first implementation `4a1fb686b9b30c83403172f017a0271879d5eb71`
+  - Timestamp: unknown (2026-10-20, slice 2 refactor and CI repair)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (installed execution/refactor guidance)
+  - Evidence: the slice-2 refactor reported no executable candidate and shortened `wrap-up.md` and `trunk-publication.md` to 250 lines. Commit `8ea3d654` changed the pre-existing accepted-claim sentence to equivalent wording; CI runs `39423276552/1` and `39423628393/1` rejected the unchanged literal assertion at `workspace-ownership-lifecycle.test.mjs:155`. The focused runner reproduced it and passed after restoring the phrase without weakening assertions; proof remains at `60c164841e0ca9178a80702e595d3c0c6b826038:.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md`.
+  - Observed effect: one owned failure cause across two published revisions required a repair/refactor/publication cycle; runtime publication behavior was unchanged.
+  - Inference: size-only prose cleanup expanded the changed consumer surface, and the neighboring guidance assertion was omitted from focused proof. This is evidence of extra repair work, not a broader file-size policy conclusion or native behavioral failure.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221.
@@ -485,6 +495,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator startup batches returned truncated outputs of 25,079 and 19,040 original tokens; bounded rereads recovered delegation, CI runtime/adapter, delivery and ADR context before dependent work. Later catalog retrieval was also oversized; current coordinator history identifies the observations.
   - Observed effect: omitted authoritative passages had to be retrieved again, adding repeated output and reading. Required context was recovered before its dependent boundary; no lost obligation is established.
   - Inference: same broad-retrieval mechanism and existing targeted-retrieval remedy. Multiple truncated calls remain one occurrence; no measured time/token saving or new implementation response is claimed.
+
+- Execution: SEED-146#gate-local-prerequisites-before-commit-and-delivery / plan 331, first implementation `4a1fb686b9b30c83403172f017a0271879d5eb71`
+  - Timestamp: unknown (2026-10-20, startup retrieval)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
+  - Evidence: coordinator startup batches returned truncated outputs of 20,586 and 17,431 original tokens; bounded rereads recovered delegation, CI/runtime, delivery and ADR context before dependent boundaries. The execution and proof remain recoverable at `60c164841e0ca9178a80702e595d3c0c6b826038:.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md`.
+  - Observed effect: omitted authoritative passages were retrieved again, adding repeated output and reading. Required context was recovered; no lost obligation is established.
+  - Inference: same broad-retrieval mechanism as ODF-264; existing targeted retrieval applies. One execution, no measured time/token saving or new response claim.
 
 ## DD-323 — A delegated native probe ended a pending consent prompt and recorded a refusal
 

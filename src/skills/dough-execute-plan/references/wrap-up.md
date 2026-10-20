@@ -1,7 +1,6 @@
 # Slice wrap-up
 
-The coordinator runs this sequence after implementation, including owned CI repair.
-Use [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair) for validated work.
+The coordinator runs this sequence after implementation, including owned CI repair, using [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair) for validated work.
 
 ## Accept proof
 
@@ -109,12 +108,10 @@ coverage, boundaries, setup and observation locations need no report-only resend
 or formatting retry. Missing terminal results or contradictions remain incomplete.
 Explicit completion markers such as `## REFACTOR COMPLETE` stay verbatim.
 
-Reuse accepted inspection while its promise, boundary, implementation, setup and
-observations remain unchanged. Recover literal commands from the original handoff.
-Rerun only for missing or ambiguous proof, a boundary changed during wrap-up, or
-omitted required integration proof. Do not sample randomly or repeat valid proof
-to manufacture process compliance. Preserve failures under
-[execution decisions](execution-decisions.md#diagnose-failed-proof).
+Reuse accepted inspection only while its promise, boundary, implementation, setup
+and observations match. Recover literal commands from the original handoff; rerun
+only missing, ambiguous, changed-boundary or omitted required integration proof.
+Preserve failures under [execution decisions](execution-decisions.md#diagnose-failed-proof).
 
 Require CI-safe work: no deliberate failing tests or unfinished end-to-end proof
 represented as complete. Mark unfinished proof by this project's convention;
@@ -122,24 +119,28 @@ run full CI before commit only when explicitly required.
 
 ## Deliver the change
 
-Run this sequence in the selected execution location established by
-[execution location](execution-location.md). Pass its checkout to every
-delegated refactor, generator, and host operation; do not let an inherited
-working directory redirect delivery. This slice delivery does not integrate
-or remove a retained execution branch or worktree. After the commit, publish
+Run this sequence in the selected [execution location](execution-location.md).
+Pass its checkout to every delegated refactor, generator and host operation;
+an inherited working directory must not redirect delivery. This sequence does
+not integrate or remove a retained branch or worktree. After the commit, publish
 the owned unpublished increment or repair through
 [increment and repair publication](trunk-publication.md#publish-an-execution-increment-or-repair).
 
-As each obligation finishes, retain the current delivery boundary in the
-execution conversation with the owned unfinished paths, accepted proof and its
-boundary, applicable implementation or refactor return, exact observer
-identity when present, and the unpublished candidate with its final `suffixBase`,
-previously published base, and accepted revision and target after any rewrite. On recovery,
-reconcile this focused record with actual Git, agent, and observer state under
-[execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary).
-Classify the increment or repair with
-[interrupted publication](trunk-publication.md#resume-an-interrupted-publication)
-and continue that unfinished obligation only.
+As each obligation finishes, retain its delivery boundary in the execution conversation:
+owned unfinished paths, accepted proof and boundary, implementation or refactor return,
+exact observer identity when present, unpublished candidate and final `suffixBase`,
+previously published base, and accepted revision and target after any rewrite.
+On recovery, reconcile actual Git, agent and observer state under
+[execution-boundary recovery](../SKILL.md#continue-or-recover-at-an-execution-boundary), classify the increment or repair with
+[interrupted publication](trunk-publication.md#resume-an-interrupted-publication), and continue only that unfinished obligation.
+
+After proof acceptance and the independent refactor below, fresh increments and
+owned repairs use [guarded fresh preparation and delivery](fresh-increment.md)
+for steps 3–8. Resolve its required project operations and publication context
+first. It passes the successful commit SHA to managed delivery; failed preparation
+or commit withholds delivery and observation. Never follow failure with a separate
+commit or older-HEAD delivery. Without publication authority, select local-only
+and retain its receipt. Existing candidates use retained candidate/base recovery.
 
 1. Spawn a fresh agent to run
    [dough-post-change-refactor](../../dough-post-change-refactor/SKILL.md).
@@ -213,19 +214,18 @@ and continue that unfinished obligation only.
    switch branches. Without that authority, commit there and report the
    revision as committed and pending publication. Do not push. Remote refs
    stay unchanged, and the checkout identity stays the recorded path.
-   With that authority, invoke the installed managed delivery entry point from
-   that same checkout, passing its `HEAD` from before this operation's first
-   commit as `--previously-published-base`. Handle an `unpublished-base` stop
+   With that authority, the guarded fresh entry invokes managed delivery from
+   that same checkout, passing the actual commit receipt as `validatedCandidate`
+   and its `HEAD` from before this operation's first commit as
+   `--previously-published-base`. Handle an `unpublished-base` stop
    as [current-branch publication](trunk-publication.md#publish-an-execution-increment-or-repair)
    does.
-   The receipt is the accepted SHA, the authorized target,
-   and the observation result (attached, reused, or an explicit coverage gap).
-   Do not run a separate observer probe, start, or `register-push` for this
-   managed path, and do not copy mailbox directories by hand. A Codex
-   coordinator passes its observer note's coordinator and stream directory as
-   `--coordinator` and `--observer-directory`; that stream, armed at execution
-   start, is the observer this delivery registers on. A pending human edit on that checkout stays out of the
-   published commit.
+   The receipt names the accepted SHA, authorized target and observation result
+   (attached, reused or explicit coverage gap). Supply the owner inputs required
+   by [managed observation](trunk-publication.md#publish-the-candidate); Codex
+   uses its retained coordinator and exact stream directory. Do not probe,
+   start or register separately, or copy mailbox directories. Pending human edits
+   stay out of the published commit.
    When the selected checkout is the default checkout, follow its
    [direct edit](maintain-default-checkout.md#direct-edit) checks before
    mutating it. A local commit or a local merge stays a local

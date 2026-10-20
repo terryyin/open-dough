@@ -134,6 +134,7 @@ managed_files=(
   dough-execute-plan/references/execution-decisions.md
   dough-execute-plan/references/execution-location.md
   dough-execute-plan/references/finish-or-stop.md
+  dough-execute-plan/references/fresh-increment.md
   dough-execute-plan/references/maintain-default-checkout.md
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
@@ -192,10 +193,9 @@ managed_files=(
   dough-execute-plan/scripts/github-request-owner.mjs
   dough-execute-plan/scripts/github-request-rules.mjs
   dough-execute-plan/scripts/github-requests.mjs
-  dough-execute-plan/scripts/execution-increment-delivery.mjs
+  dough-execute-plan/scripts/execution-increment-delivery.mjs dough-execute-plan/scripts/execution-increment-fresh.mjs dough-execute-plan/scripts/execution-increment-request.mjs dough-execute-plan/scripts/execution-increment-preparation.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
-  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs
-  dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
+  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
