@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-010#format-owned-changes",
+  "host": "claude",
+  "model": "fable"
+}
