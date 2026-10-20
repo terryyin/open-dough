@@ -74,7 +74,7 @@ Shared boundaries:
 
 **Identity:** SEED-145#quiet-land-and-wrap-up
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/331-quiet-land-and-wrap-up/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"51e87b7887ad4edfada36950adbc4d0644c1bbbae002ed9756ab8baac2b6b95a","plan":"5b3af24de84052293472f8f55e1ab1147fa44041ec58f5fd63416af871fbb880"}}
 ```
 
 **For / why:** A developer whose landing or wrap-up completed under the rules
@@ -83,20 +83,115 @@ does not need to read a report or manually acknowledge housekeeping.
 **Goal:** Dough Land and Story Wrap Up finish quietly after verified publication,
 applicable CI/shutdown, and required cleanup when no exception or developer
 decision remains. A dashboard-started session reaches its existing successful
-Done disposition without an attention message.
+Done disposition without an attention message. This removes an unnecessary
+completion round trip while leaving real decisions with the developer.
 
-**Scope:** Revisit the shared completion-attention rule, retirement response,
-follow-up disposition, and their final dashboard reporting behavior together.
-Remove routine success and housekeeping reminders, including recorded process
-finding IDs and valid follow-ups already queued under existing authority. Keep
-the distinction between successful closure and held or partial cleanup truthful.
+**Scope — required behavior:**
 
-**Evaluation:** Replay the two supplied completion cases. With all required gates
-passed and findings/follow-ups settled, neither produces a human-facing message
-or acknowledgement task. A failed push, unresolved decision, or unverified or
-partial branch/worktree retirement instead reports the actual problem and next
-action and cannot claim successful wrap-up. Historical workspace metadata alone
-does not turn verified retirement into an attention requirement.
+- Apply one shared attention judgment after the invocation's required operations
+  settle. Report a remaining exception, decision, or action needing the developer;
+  do not turn the existence of an operational record into an action.
+- Remove routine success recaps, mandatory completion banners, post-retirement
+  landing statements, recovery-SHA reminders, and finding-ID lists from quiet
+  closure. Give no success message where the host permits it; where a native
+  response is required, use its minimum response without a product-mandated
+  banner or recap.
+- Keep process findings recorded and published when the selected workflow
+  requires them. A valid follow-up queued under existing authority, or an
+  explicitly authorized drop with recovery preserved, needs no reminder merely
+  because that record exists. Its disposition must actually be settled; an
+  unresolved recommendation or adoption choice still needs attention.
+- Preserve publication, CI coverage and shutdown, recovery, follow-up validation,
+  ownership, refresh, and retirement rules. A held or partial closure reports
+  the unfinished step and usable recovery path. A deferred or stopped refresh
+  remains an attention case under its existing rule; it does not undo accepted
+  publication. An unavailable requested process review or failed findings write
+  remains reportable, without pretending that the already landed work failed.
+- Use the supplied dashboard reporting operation last. Successful closure with
+  no attention submits `completed` without a message and waits for its matching
+  receipt; a genuine reminder uses the exact actionable message with `completed`,
+  and unfinished work uses `unfinished`. Direct use without supplied launch
+  context makes no dashboard contact. Reporting failure retries only reporting.
+- Preserve explicit detail requests and review/retain stops. Quiet completion
+  never starts wrap-up, executes a queued improvement, drops a finding, or
+  supplies missing authorization.
+
+**Key examples:**
+
+| Pre-condition | Trigger | Observable result |
+| --- | --- | --- |
+| Either supplied completion case has accepted publication, required green CI and confirmed shutdown, verified retirement, recorded findings and valid follow-ups already queued | Land or Wrap Up reaches its final response | No recap, finding-ID reminder, completion banner, or acknowledgement task; supplied dashboard receives quiet `completed` and returns its receipt |
+| The same closure is invoked directly without launch context | Final response | The same quiet judgment, no dashboard discovery or invented report destination; command results and maintained records retain the evidence |
+| A retired worktree remains named in historical session metadata, or a rerun verifies resources already absent | Final response | Verified retirement stays successful; the historical path alone adds neither an exception nor a request to restore the checkout |
+| A follow-up lacks required correction input, or product advice needs a human adoption decision | Wrap Up attempts disposition | Identify the missing input or choice and its consequence; retain required active context and report unfinished work, without claiming quiet success |
+| A push fails, required CI/shutdown is unconfirmed, or retirement is held/partial | Closure stops | Report the exact remaining operation and next action; preserve accepted earlier steps and recovery, and do not repeat them on retry |
+| Publication and retirement succeed, but refresh is deferred or a requested process review could not be recorded | Final response | Report that specific exception with its consequence and next action; no unrelated success recap or routine findings list |
+| All closure gates pass but the completion receipt is lost | Reporting retry | Reuse the retained submission, obtain its matching receipt, and repeat neither Git publication nor retirement |
+| The developer explicitly requests closure details or retains work for review | Final disposition | Supply the requested facts or required review action and preserve the stop; silence does not override that instruction |
+
+**Exploration and investigation:**
+
+| Candidate | Developer interaction and system consequence | Judgment |
+| --- | --- | --- |
+| Tighten the existing shared completion-attention rule and align its callers | Completed operations remain in their current evidence homes; only unresolved attention produces a message | Recommended: covers direct and dashboard use without a second completion model |
+| Filter success-looking messages in the dashboard | May hide recaps after they have been generated, but cannot reliably infer whether a finding needs a decision; direct native use stays noisy | Does not meet the selected outcome |
+| Add a typed attention-reason protocol and make the receiver classify closure | Adds sender/receiver state and migration work; a machine category still cannot grant authority for an unresolved human choice | No demonstrated need; the existing outcome/message contract already represents the required result |
+
+The first candidate borrows the event-log/alert distinction from operational
+monitoring: publication, cleanup, and finding records are retained events;
+an unresolved condition needing an operator maps to developer attention.
+The consequential limit is that an absence of alerts proves nothing about
+completion, and the agent cannot treat an unresolved human-owned decision as
+resolved. Existing receipts and authority remain necessary.
+
+Local observation on 2026-10-20 found that
+[completion attention](../../src/skills/dough-land/references/completion-attention.md)
+both says to avoid a recap and requires recorded finding IDs and a statement
+after retirement. The
+[flagged process review](../../src/skills/dough-execution-retrospective/references/process-review-of-a-run.md)
+and [follow-up disposition](../../src/skills/dough-story-wrap-up/references/follow-up-disposition.md)
+also add reminders. The current guidance tests pass while requiring those
+instructions. This supports a guidance correction, not a missing completion API.
+
+The existing dashboard Land journey passed through real local publication,
+retirement, installed reporting, receipt storage, and visible Done without an
+attention message. Temporarily disabling its quiet-completion predicate made
+the same check fail at the absent `doneAt`; the source was restored. Native
+host and CI transports in that check are substitutes, not fresh native-agent
+evidence. The shared closure assessor separately accepted the current banner
+and rejected an empty response with otherwise identical valid closure facts:
+its response contract must change alongside the guidance. The supplied real
+sessions remain the reported examples from this seed, not new native replays.
+
+**Architecture:** Preserve one completion-attention owner and reuse the existing
+reporting protocol and local Done disposition. Completion evidence, attention
+text, and native activity remain different facts; neither a marker nor silence
+becomes a completion signal. This follows
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+on one domain representation and minimal machinery, and
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
+on shared behavioral ownership and the executing agent's perspective.
+[ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md) keeps decisions and exceptions
+human-owned. Author guidance in `src/skills/`, preserving installed copies for a
+released update under
+[ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+Review conventional skill behavior under [maintainer guidance](../../AGENTS.md)
+and [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md); deterministic
+assessor checks do not constitute native proof. No Accepted ADR conflict or new
+architectural decision was found.
+
+**Deferred promises:** Preparation and execution/retrospective reporting,
+the prominent attention convention, and automatic execution-to-wrap-up
+continuation stay with stories 2–4. No dashboard filtering, new attention
+schema, session/workspace presentation redesign, release/client rollout, or
+new host integration is committed here. These exclusions do not forbid a
+necessary caller or assessor change for this story's existing behavior.
+
+**Rejection constraints:** Existing completion, authorization, and ownership
+rules justify refusing quiet success when required work is unfinished. An
+example's finding count or cleanup shape adds no new rejection rule.
+
+**Plan:** [Quiet landing and wrap-up](../slice-plans/331-quiet-land-and-wrap-up/PLAN.md).
 
 **Value / learning:** Establish whether ordinary closure can be trusted to finish
 without attracting attention while genuine closure failures stay visible.
