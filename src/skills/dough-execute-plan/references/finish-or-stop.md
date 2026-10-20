@@ -21,7 +21,9 @@ take precedence. When skipped, publish the
 [execution-complete record](#record-execution-completion) with
 `Product advice: retrospective skipped`, then invoke the completion operation
 for the applicable accepted revision at this execution-completion boundary,
-handle its receipt, report the recorded product advice and the CI verdict or
+handle its receipt, apply
+[report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff),
+and then report the recorded product advice and the CI verdict or
 exact unresolved reason with shutdown evidence, and end with
 `## PLAN EXECUTION COMPLETE`, retaining the completed plan and judged proof for
 any later review and wrap-up.
@@ -35,7 +37,9 @@ implementing findings or changing the backlog. Do not emit
 `## PLAN EXECUTION COMPLETE` first or require that banner as retrospective
 input. When review returns, publish the
 [execution-complete record](#record-execution-completion), invoke the
-completion operation, handle its receipt, then report completion, judged proof,
+completion operation, handle its receipt, apply
+[report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff),
+then report completion, judged proof,
 the recorded product advice, CI verdict or limitation, shutdown evidence, and
 `## PLAN EXECUTION COMPLETE` as the final execution/review handoff. Report an
 `integrated_state` success as [completion mechanics](ci-completion-wait.md)
@@ -82,7 +86,35 @@ source, active plan/next slice or quick-slice state, preserved work, observer st
 and required decision/recovery action. An applicable CI failure that existing
 handling cannot resolve is such an incomplete stop, even when review finished
 and the observer remains available for diagnosis. Emit no completion marker or
-automatic retrospective.
+automatic retrospective. Before giving that stop response, apply
+[report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff)
+as an unfinished report.
+
+## Report attention at the execution-complete handoff
+
+Use this only when the launch supplied a dashboard reporting context for this
+session — its project, host, launch reference, and reporting command. Without
+that context, make no dashboard report at this handoff and change nothing
+above. This applies at the final execution/review handoff, before Dough Land
+or Story Wrap Up. For a completed handoff it is after the
+[execution-complete record](#record-execution-completion) is published and
+the completion operation's receipts are handled (including the background
+alternative's receipts, where that path was chosen).
+
+At that completed handoff, settle the exact final response wording first. If
+it finished with a reminder, write that exact response to a message file,
+append `--outcome completed --message-file <file>` to the supplied reporting
+command, and wait for its matching receipt before giving exactly that
+response. For an incomplete, failed, cancelled, or human-judgment stop above,
+after that stop's own handling, settle the exact stop response, write it to a
+message file, append `--outcome unfinished --message-file <file>` to the
+supplied reporting command, and wait for its matching receipt before giving
+exactly that response.
+
+When nothing at the handoff requires attention, submit nothing there, so a
+plain completed report at Dough Land or Story Wrap Up stays the quiet final
+operation. A handoff report is attention-only: it does not stop the session,
+declare the story complete, or invoke Dough Land or Story Wrap Up.
 
 ## Record execution completion
 

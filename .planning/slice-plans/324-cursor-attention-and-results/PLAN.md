@@ -280,7 +280,7 @@ interactive control, resumes, or marks the session done.
 
 ### 4. Report attention at the execution-complete handoff
 Type: Behavior
-Status: planned
+Status: done
 Proof: Execute-plan guidance tests show the finish path instructing a
 dashboard-launched execution that finishes with attention needed (review
 reminder or unfinished work) before Land/Wrap Up to submit that outcome with
