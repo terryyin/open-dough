@@ -22,6 +22,10 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Finish landing and wrap-up silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up) — SEED-145#quiet-land-and-wrap-up
+- [Finish the chained preparation journey silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-preparation-chain) — SEED-145#quiet-preparation-chain
+- [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective
+- [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
 - [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation
