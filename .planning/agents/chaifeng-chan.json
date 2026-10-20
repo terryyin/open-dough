@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-144#branded-alert-click-automation",
+  "mode": "story-branch",
+  "branch": "codex/name-the-automation-consent-a-branded-alert-clic",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
