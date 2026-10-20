@@ -138,19 +138,20 @@ test("closure selects the ended observer whose record holds a verdict beside end
   await observe(listed[1], attempt(sha, "failure"));
   assert.equal((await select()).directory, listed[1]);
 
-  // A closure whose own paths need no CI run is recorded `not_required` with
-  // the ancestor that carries its verdict, the record `observeRevisionCoverage`
-  // publishes for a revision `classifyRevisionApplicability` returns
-  // `{ result: "not_required", basis: { sha } }` for; the worker's next poll
-  // then records that ancestor's attempt on the basis.
+  // Selection reads the ended observer's stored verdict; it does not poll
+  // again or reclassify applicability. Supply the inherited coverage record
+  // as its starting condition, without asking observation to accept fake Git
+  // ancestry. Real-Git basis refresh is covered by ci-inherited-evidence-refresh.
   await observe(listed[1], attempt(sha, "cancelled"));
-  publishJson(join(listed[2], "coverage"), `${sha}.json`, {
-    sha,
-    state: "not_required",
-    basis: { sha: basis },
-  });
+  const recordedBasis = (state) =>
+    publishJson(join(listed[2], "coverage"), `${sha}.json`, {
+      sha,
+      state: "not_required",
+      basis: { sha: basis, ...(state && { state }) },
+    });
+  recordedBasis();
   assertEndedGap(await select(), listed);
-  await observe(listed[2], attempt(basis, "success"));
+  recordedBasis("success");
   assert.deepEqual(states(listed, sha), [
     "incomplete",
     "incomplete",
@@ -159,6 +160,6 @@ test("closure selects the ended observer whose record holds a verdict beside end
   assert.equal((await select()).directory, listed[2]);
 
   // A cancelled attempt of the basis holds no verdict either.
-  await observe(listed[2], attempt(basis, "cancelled"));
+  recordedBasis("incomplete");
   assertEndedGap(await select(), listed);
 });
