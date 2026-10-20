@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "dbs-chan",
+  "email": "dbs-chan@example.org",
+  "identity": "SEED-145#quiet-land-and-wrap-up",
+  "mode": "story-branch",
+  "branch": "codex/finish-landing-and-wrap-up-silently-when-no-deve",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

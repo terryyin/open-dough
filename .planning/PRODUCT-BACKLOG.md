@@ -19,10 +19,10 @@ cost of the feedback process itself.
 ## Taken
 
 - [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done ([plan](slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md))
+- [Finish landing and wrap-up silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up) — SEED-145#quiet-land-and-wrap-up ([plan](slice-plans/331-quiet-land-and-wrap-up/PLAN.md))
 
 ## Backlog list
 
-- [Finish landing and wrap-up silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up) — SEED-145#quiet-land-and-wrap-up
 - [Finish the chained preparation journey silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-preparation-chain) — SEED-145#quiet-preparation-chain
 - [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective
 - [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up
