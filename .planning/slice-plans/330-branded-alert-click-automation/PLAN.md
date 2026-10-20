@@ -16,7 +16,7 @@ browsers than the supported Safari and Google Chrome.
 
 ## Current findings (evidence)
 
-- Plan 326 G2: both observed clicks navigated Safari with no Automation prompt,
+- Plan 326 G2 (`f248ce357226b7ad2ccea65a926e40676b3d8a2c:.planning/slice-plans/326-recognizable-product-identity/PLAN.md`): both observed clicks navigated Safari with no Automation prompt,
   although `dev.opendough.dashboard-notifier` was never granted Automation.
   Which process macOS credits for the inline `osascript` callback is unknown;
   it may be an older grant (previously documented as
