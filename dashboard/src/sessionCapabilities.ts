@@ -64,11 +64,12 @@ export function marksRecordDone(
     marksLocalDone(operations, record.session.host)
   );
 }
-// Whether Mark as done is offered for this record on its entry or in its
-// terminal: it can be marked (above) and is not already done, except
-// retrying a done mark whose native side left a problem behind. The final
-// report panel offers its mark only before any done mark, so it keeps the
-// plainer gate above.
+// Whether Mark as done is offered for this record on its entry: it can be
+// marked (above) and is not already done, except retrying a done mark whose
+// native side left a problem behind. It does not govern the terminal panel,
+// which offers the mark whenever the record can be marked, including a done
+// record reopened there; the final report panel offers its mark only
+// before any done mark, so it keeps the plainer gate above.
 export function offersMarkDone(
   operations: HostOperations,
   record: LaunchRecord,

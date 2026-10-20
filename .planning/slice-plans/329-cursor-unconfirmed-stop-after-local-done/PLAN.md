@@ -95,10 +95,12 @@ Type: Behavior
 Status: done
 
 Learnings: `marksRecordDone` is an offerability predicate, not a
-not-yet-done one, so entry and terminal panel now share one `offersMarkDone`
-predicate in `sessionCapabilities.ts` (markable and not already done, except
-retrying a done mark that left a problem); the final-report panel keeps its
-plainer gate. Accepted proof: fake-Cursor journey in
+not-yet-done one. The entry now uses `offersMarkDone` in
+`sessionCapabilities.ts` (markable and not already done, except retrying a
+done mark that left a problem), while the terminal panel gates on
+`marksRecordDone` alone — CI (run 39392129352) proved the panel re-offers
+the mark on a done record reopened there (`agent-terminal-codex-page.spec.ts`);
+the final-report panel keeps its plainer gate. Accepted proof: fake-Cursor journey in
 `agent-session-cursor-done.spec.ts` marks an active session done from its open
 terminal panel into Recently done with local-only wording and no SIGHUP;
 existing Claude/Codex terminal-panel Done journeys green;

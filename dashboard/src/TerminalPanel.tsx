@@ -30,7 +30,7 @@ import {
   type RefObject,
 } from "react";
 import { CircleCheck } from "lucide-react";
-import { offersMarkDone } from "./sessionCapabilities.ts";
+import { marksRecordDone } from "./sessionCapabilities.ts";
 import { PanelControls } from "./PanelControls.tsx";
 import "@xterm/xterm/css/xterm.css";
 import { SidePanelEdge } from "./SidePanelEdge.tsx";
@@ -158,9 +158,10 @@ export function TerminalPanel({
           </div>
         </div>
         <div className="side-panel-actions">
-          {/* As the entry offers it (`offersMarkDone`); a done record
-              reopened here reads not done once its terminal attaches. */}
-          {offersMarkDone(hostOperations, current) && (
+          {/* Unlike the entry (`offersMarkDone`), the panel offers the
+              mark whenever the record can be marked, including a done
+              record reopened here. */}
+          {marksRecordDone(hostOperations, current) && (
             <IconButton
               ref={asking.control}
               label="Mark as done"
