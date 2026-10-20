@@ -6,6 +6,7 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { recordsAsked } from "./recentlyDoneProgressivePage.ts";
 import { noConnection } from "./originAnswers.ts";
+import { expectReadingTop } from "./readingPlace.ts";
 import {
   doneEntries,
   donePathsThrough,
@@ -51,6 +52,7 @@ test("a Done reference without sessions reveals exactly through its existing des
     .click();
   await expect(near).toBeFocused();
   await expect(near).toBeInViewport({ ratio: 0.5 });
+  await expectReadingTop(near);
   await expectEntries(
     recent,
     doneEntries.slice(0, 10).map(({ title }) => title),

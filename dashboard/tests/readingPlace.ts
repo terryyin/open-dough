@@ -1,9 +1,27 @@
-// A focused control remains wholly readable below the pinned banner while
-// facts enrich the scrolled page, allowing natural content reflow.
+// Reading places below the pinned banner: a revealed card's beginning, or
+// a focused control retained while facts enrich the scrolled page.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
+
+// A card with enough page after it aligns with the configured reading edge,
+// including the clearance for the sticky stage heading.
+export async function expectReadingTop(card: Locator) {
+  await expect
+    .poll(() =>
+      card.evaluate((element) => {
+        const padding = getComputedStyle(document.documentElement);
+        const margin = getComputedStyle(element);
+        return Math.abs(
+          element.getBoundingClientRect().top -
+            Number.parseFloat(padding.scrollPaddingTop) -
+            Number.parseFloat(margin.scrollMarginTop),
+        );
+      }),
+    )
+    .toBeLessThanOrEqual(1);
+}
 
 export async function expectVisibleReadingFocus(page: Page, control: Locator) {
   await expect(control).toBeFocused();

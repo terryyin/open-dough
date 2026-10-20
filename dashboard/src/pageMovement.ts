@@ -9,8 +9,8 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 // Scrolls a part of the page, such as a work's card, into view, smoothly or,
 // when the developer asks for reduced motion, at once, leaving the keyboard
 // where it is; a dashboard column that hides it shows first. It keeps the
-// part in view while the page changes size around it, as when facts read
-// after the stories lengthen the cards above it, until the developer
+// part's beginning in view while the page changes size around it, as when
+// facts read after the stories lengthen the cards above it, until the developer
 // scrolls, points, or types, or the returned stop is called.
 export function keepInView(element: Element): () => void {
   const show = () => {
@@ -18,7 +18,7 @@ export function keepInView(element: Element): () => void {
     window.addEventListener("scrollend", settled, true);
     showColumnHolding(element);
     element.scrollIntoView({
-      block: "center",
+      block: "start",
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
     progressed();
@@ -37,12 +37,10 @@ export function keepInView(element: Element): () => void {
       ((start + end) / 2 >= low && (start + end) / 2 <= high) ||
       (start <= low && end >= high);
     return (
-      visibleOn(
-        at.top,
-        at.bottom,
-        Number.parseFloat(padding.scrollPaddingTop) || 0,
-        innerHeight - (Number.parseFloat(padding.scrollPaddingBottom) || 0),
-      ) && visibleOn(at.left, at.right, 0, innerWidth)
+      at.top >= (Number.parseFloat(padding.scrollPaddingTop) || 0) &&
+      at.top <=
+        innerHeight - (Number.parseFloat(padding.scrollPaddingBottom) || 0) &&
+      visibleOn(at.left, at.right, 0, innerWidth)
     );
   };
   const stopSettling = () => {

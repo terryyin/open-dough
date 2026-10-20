@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-119_align-story-top.json",
+      "identity": "SEED-119#align-story-top",
+      "completedAt": "2026-10-20T00:57:31.838Z",
+      "blob": "dff37c47be8368277ada1734fb328101b399cde7"
+    },
+    {
       "fileName": "SEED-010_run-combined-project-and-shared-feedback-cycle.json",
       "identity": "SEED-010#run-combined-project-and-shared-feedback-cycle",
       "completedAt": "2026-10-19T22:27:08.171Z",

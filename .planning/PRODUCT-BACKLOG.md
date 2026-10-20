@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Accept slices against the original story promises](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-original-story-promises) — SEED-010#accept-original-story-promises ([plan](slice-plans/322-accept-original-story-promises/PLAN.md))
-- [Align linked stories with the top of the visible view](seeds/SEED-119-story-link-top-alignment.md#align-story-top) — SEED-119#align-story-top
 
 ## Backlog list
 
