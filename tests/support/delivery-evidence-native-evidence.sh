@@ -25,6 +25,7 @@ delivery_evidence_capture_installed_inputs() {
 delivery_evidence_write_evidence_identity() {
   local case_name=$1
   local case_prefix="tests/support/delivery-evidence-${case_name}-native"
+  delivery_evidence_case_known "${case_name}" || return 2
   printf 'helper-identity: tests/support/delivery-evidence-native-run.sh\n'
   native_result_print_adapter_identity
   printf 'fixture-identity: tests/support/delivery-evidence-native-run.sh\n'
@@ -35,6 +36,7 @@ delivery_evidence_write_evidence_identity() {
     tests/git-publication-native.sh \
     tests/support/git-publication-native-host.sh \
     tests/support/delivery-evidence-native-run.sh \
+    tests/support/delivery-evidence-native-cases.sh \
     tests/support/delivery-evidence-native-prompt.sh \
     tests/support/delivery-evidence-native-evidence.sh \
     tests/support/native-observation.sh \
@@ -51,6 +53,17 @@ delivery_evidence_write_evidence_identity() {
   fi
   if [[ ${case_name} == deferred ]]; then
     native_result_input_hash_lines tests/support/delivery-evidence-consumers-native-scenario-content.sh
+  fi
+  if [[ ${case_name} == scheduling ]]; then
+    native_result_input_hash_lines \
+      tests/proof-scheduling-native.sh \
+      "${case_prefix}-checks.sh" \
+      "${case_prefix}-stylesheet-content.sh" \
+      "${case_prefix}-proof-logger.sh" \
+      tests/support/delivery-evidence-promise-status.sh \
+      src/skills/dough-execute-plan/SKILL.md \
+      src/skills/dough-post-change-refactor/SKILL.md \
+      src/skills/dough-story-refinement/references/executable-proof.md
   fi
   if [[ ${case_name} == selection ]]; then
     native_result_input_hash_lines \

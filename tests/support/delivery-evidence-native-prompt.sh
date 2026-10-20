@@ -4,6 +4,12 @@
 delivery_evidence_prompt_for() {
   local request
   case ${1:-} in
+    scheduling)
+      # shellcheck disable=SC2154 # set by the scheduling scenario content
+      printf '%s\n' \
+        "Use this project's installed Open Dough execution guidance (dough-execute-plan) to carry out this request as caller-selected current-branch work in this checkout, one planless quick slice authorized by this instruction: ${delivery_evidence_scheduling_request} Follow the project's instructions in AGENTS.md. Carry the slice through implementation, its independent post-change refactoring, formatting and acceptance, then stop at the delivery boundary: do not stage, commit or publish. Leave a short outcome in .planning/acceptance-outcome.md naming the request as accepted or incomplete with the evidence inspected. Treat installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
+      return
+      ;;
     nostore)
       request="compute the latest source update once per exit-settings computation and reuse it across evaluated holdings, instead of reading it separately for each row. Preserve the endpoint's existing behavior."
       ;;

@@ -110,7 +110,7 @@ base `b1147ba2440a796553a388cea296e134c929db38`, 2026-10-20.
 
 ### 1. Observe proof scheduling through an independent refactor
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded native replay reaches proof selection, actual refactor and final
 acceptance; its command/state trace establishes reproduction or explicit contrary
 evidence against a corrected scheduling control.
@@ -143,6 +143,50 @@ or inability to observe final coverage. Record contrary evidence and revise the
 approach within scope; do not call a baseline that already passes a reproduced
 defect. Credential or owner-held barriers name the missing input and owner.
 This early probe bounds paid uncertainty; preparation grants no launch authority.
+
+Execution record (2026-10-20, coordinator Jane-chan, Claude Code / claude-opus-5-5):
+
+- Authority: Terry authorized all paid native runs for this plan in session
+  (one attempt per launch, diagnose before any retry).
+- Replay: case `delivery-evidence/scheduling`, scenario `stylesheet-extraction`
+  (`tests/proof-scheduling-native.sh`, `tests/support/delivery-evidence-scheduling-native-*.sh`,
+  case registry `tests/support/delivery-evidence-native-cases.sh`). Fixture
+  stylesheet 138/150 lines; requested row adds ~26 lines; product commands log
+  kind, product-state hash, stylesheet count and named tests to the repository's
+  common Git directory; the observer reruns the suite on the final state.
+- Accepted unpaid proof on the final formatted state:
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/proof-scheduling-native.sh tests/native-evidence-identity.sh tests/native-assessor-counterexample-guard.sh tests/native-assessor-counterexamples.sh tests/git-publication-native.sh tests/native-stream-replay.sh`
+  → exit 0. Rejected controls (`run_delivery_evidence_scheduling_assessor_counterexamples`):
+  baseline redundancy; dropped-final, stale-pre-move, invocation-only and
+  partial-suite missing final coverage; broken-consumer accepted with a failing
+  final observation; no-targeted; unaccepted/missing acceptance; no-extraction
+  and upfront-extraction inconclusive; missing fields. Product sequences:
+  `run_delivery_evidence_scheduling_product_checks`.
+- Native run: `bash tests/proof-scheduling-native.sh --native claude --results-dir <job tmp>/native-scheduling`
+  on candidate `c6b37d26` plus the uncommitted harness; host `2.1.304 (Claude Code)`,
+  model not reported by the stream; installed guidance hashed in the attempt's
+  `installed-guidance.sha256`. Command order (`proof-runs.log`): targeted on the
+  pre-change state exit 1 (new test red, 5/1), targeted on the final state exit 0
+  (6/0), size, format, size, suite on the final state exit 0 (7/0). One suite run,
+  none before any move. The coordinator implemented locally and put the new
+  rules in a new `styles/project-actions.css` during implementation, citing the
+  138/150 limit and AGENTS.md's “new stylesheets go in `styles/`… group rules by
+  component”. Its refactor brief said “Do NOT run `bin/suite.sh` — the whole
+  suite costs ~14 minutes… the coordinator runs it once after your pass”; the
+  delegated refactor returned `## REFACTOR COMPLETE` with no edits. Acceptance:
+  accepted, citing the single final-state suite run.
+- Assessment: first reported `fail: no passing focused implementation proof
+  before the refactor`, a misclassification of an implementation-time
+  extraction. Diagnosed and corrected in the observer/assessor
+  (`extraction-in-implementation`); re-assessing the retained observations gives
+  `inconclusive: extraction made during implementation; the refactor move
+  boundary was not reached`. No retry.
+- Result: **non-reproduction / contrary evidence.** With the suite cost stated
+  in project instructions, current guidance scheduled one broad run on the final
+  state and excluded it from the refactor pass. The fixture did not reach the
+  historical boundary (refactor-time move after a pre-refactor suite) because
+  implementation made the extraction itself. Per this slice's stop rule,
+  dependent slice 2 is stopped pending the maintainer's decision.
 
 ### 2. Coordinate required proof around the final changed state
 Type: Behavior
@@ -201,5 +245,45 @@ the remedy. Source-scope changes require the human's decision.
 
 ## Learnings
 
-No execution yet. Preparation found that existing unchanged-proof reuse does
+- Slice 1 did not reproduce ODF-249 on Claude Code with current guidance: a
+  stated fourteen-minute suite cost led the coordinator to run the suite once on
+  the final state, and the foreseeable extraction happened during implementation.
+  Historical differences not replayed: planned execution with a delegated
+  implementer, a suite cost the project did not state (plan 302's brief
+  estimated "a few minutes"), and no layout rule steering new rules into a new
+  stylesheet. Slice 2's remedy premise is unconfirmed; it waits for the
+  maintainer's decision.
+- Preparation found that existing unchanged-proof reuse does
 not by itself coordinate broad proof before the independent refactor phase.
+
+## Story obligations
+
+### G1. Direct suite invocations outside the product commands are unlogged
+Reported: slice 1 — "a run made outside `bin/*.sh`, such as a direct `node --test`, is missing from `proof-runs.log` and would read as missing coverage."
+Story clause: "Run required broad final proof after the changes that would invalidate it"
+Disposition: receiving slice 2
+
+### G2. Codex and Cursor routes are unexercised
+Reported: slice 1 — "only Claude Code is targeted for slice 1. Codex and Cursor are wired but unexercised."
+Story clause: "Coordinate proof scheduling across implementation, independent refactoring, generation when applicable, formatting, and final acceptance."
+Disposition: receiving slice 2
+
+### G3. Extraction attribution
+Reported: slice 1 — "the log does not attribute it to the implementer or the refactor agent."
+Story clause: "independent refactoring performs the extraction"
+Disposition: proved by slice 1: `extraction-in-implementation` in tests/support/delivery-evidence-scheduling-native-observe.sh with the `upfront-extraction` rejection in run_delivery_evidence_scheduling_assessor_counterexamples; retained native run re-assessed inconclusive
+
+### G4. Refactor return retained only in the event stream
+Reported: slice 1 — "it is kept only inside `events.jsonl`, not extracted separately."
+Story clause: "preserving defect detection and the independent refactor judgment"
+Disposition: no user cost "Reduce avoidable elapsed time and resource contention while preserving defect detection and the independent refactor judgment.": the full refactor return is retained verbatim in the attempt's events.jsonl and quoted in this plan's execution record
+
+### G5. Model identity not reported
+Reported: slice 1 — "the record's `native-model` may read `unknown`."
+Story clause: "preserving defect detection and the independent refactor judgment"
+Disposition: no user cost "Reduce avoidable elapsed time and resource contention while preserving defect detection and the independent refactor judgment.": host version is retained; model identity does not affect the scheduling observation
+
+### G6. Separate-worktree hosts read as inconclusive
+Reported: slice 1 — "if the host works in a separate worktree, the final workspace is unchanged and the result is `inconclusive`."
+Story clause: "Run required broad final proof after the changes that would invalidate it"
+Disposition: no user cost "Reduce avoidable elapsed time and resource contention while preserving defect detection and the independent refactor judgment.": an unchanged workspace is classified inconclusive, never as passing or reproduced, so no wrong verdict reaches acceptance
