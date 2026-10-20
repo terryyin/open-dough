@@ -74,7 +74,7 @@ Shared boundaries:
 
 **Identity:** SEED-145#quiet-execution-and-retrospective
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/332-quiet-execution-and-retrospective/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a6f1e6be78e51a07aa5aa4eeb78cb8c3a738647dd078a2a7bb33c3822d54e39a","plan":"2132d485fe27d8695ddbcc17216bda96175c8498b327e6dfce9dccd610e5e156"}}
 ```
 
 **For / why:** A developer should notice a real finding or required response
@@ -84,22 +84,82 @@ immediately instead of searching through successful slice and review summaries.
 no routine success report, while findings, improvements, and other outstanding
 actions needing developer attention are conspicuous and easy to recognize.
 
-**Scope:** Cover standalone and automatically invoked retrospective reporting,
-the end of planned execution, and their combined final handoff. Preserve judged
-proof, execution-complete records, process findings, correction plans, product
-advice, and applicable CI/shutdown receipts. Remove successful slice summaries,
-no-findings reports, routine advice/no-change recaps, and success-only banners.
-Use a consistent, prominent developer-attention marker, building on the existing
-`DEVELOPER ATTENTION REQUIRED` framing. State the issue, consequence, expected
-action or decision, and relevant record links without burying them in successes.
+**Scope:** Cover standalone retrospective reporting for its supported execution
+kinds, automatically invoked retrospectives, the end of planned execution
+(including an explicitly skipped retrospective), and their combined final
+handoff. Apply the existing shared completion-attention judgment: settled success
+needs no visible recap, or only the minimum response required by the native host.
+Remove successful slice summaries, no-findings reports, routine advice/no-change
+recaps, and success-only banners.
 
-**Evaluation:** An execution and final retrospective with no outstanding attention
-need finish without a success summary. An improvement plan or product suggestion
-whose adoption needs judgment, an unresolved finding, a failed required check,
-or missing required evidence produces a loud marked message with an actionable
-response. Merely recording a finding or completing a disposition under existing
-rules does not create a new human task. Multiple reviews do not produce duplicate
-attention reports or conceal an unresolved item behind a later success.
+Outstanding attention uses the consistent, prominent
+`DEVELOPER ATTENTION REQUIRED` framing, placed before the actionable content.
+State the issue, consequence, expected action or decision, responsible owner
+when known, and relevant evidence or record links. Preserve judged proof,
+execution-complete records and product advice, process findings, correction
+stories/plans, applicable CI/shutdown receipts, and recovery context in their
+existing homes. A record's existence does not itself create a human task;
+unresolved adoption, missing evidence, or a pending disposition still does.
+
+An automatic retrospective returns its evidence and unresolved attention to the
+invoking execution, which owns the combined final message after its completion
+operation. A standalone review owns its own response. Repeated or overlapping
+reviews use the current disposition and designated writer: report an unresolved
+item once in the combined handoff, retain it across a later successful check,
+and omit an item already settled under existing authority.
+
+Direct use makes no dashboard contact. Supplied dashboard context keeps its
+existing attention-only handoff reporting and exact-message receipt semantics;
+quiet execution submits no completion at that boundary and does not mark a
+session or story done. Explicit detail requests, review/retain stops, missing
+required context, and human-owned decisions remain effective. An intentionally
+skipped optional review is not itself an exception; a requested review that
+cannot be performed or recorded is.
+
+**Deferred promises:** Automatic continuation into Story Wrap Up remains story
+4. This story grants no authority to execute a correction, adopt product advice,
+alter review preferences, close a story, integrate or retire execution resources,
+or suppress an unfinished required gate. It does not redesign dashboard session
+state, CI mechanics, or the wholly planless Execute Plan completion journey.
+Native acceptance remains separately tracked under ADR 0005; release and rollout
+are not part of this implementation story.
+
+**Key examples:**
+
+1. All planned slices are delivered, the selected retrospective finds no
+   outstanding attention, and required CI/shutdown gates pass → publish the
+   execution-complete record and preserve proof/receipts; give no success
+   summary or banner. Keep the execution workspace available for separately
+   authorized wrap-up.
+2. The developer explicitly skips the automatic retrospective → record
+   `Product advice: retrospective skipped`, complete the applicable observation
+   obligations, and finish quietly when nothing else needs attention. Do not
+   invent an omitted-review warning.
+3. A supported process finding has been recorded, or a follow-up already has a
+   settled disposition under existing authority → retain that evidence without
+   turning its ID, recovery SHA, or existence into a reminder.
+4. A standalone or automatic review produces a bounded correction plan or
+   product suggestion whose adoption still needs judgment → show the prominent
+   attention marker and the concrete choice, consequence, owner and record
+   links. A standalone draft that still needs keep/disposition is actionable;
+   a completed automatic review returns the choice for execution's one handoff.
+5. A required check fails, shutdown remains unconfirmed, requested process
+   history is unavailable, or attribution/proof needed for a review is missing
+   → mark the exact failure or limitation and recovery action. Preserve partial
+   conclusions and needed resources; do not claim complete review or execution
+   beyond the evidence.
+6. Two authorized reviews identify the same unresolved item, then a later CI
+   result succeeds → the final execution handoff contains the item once; the CI
+   success neither erases it nor creates another success report. If an
+   authorized disposition settles it before the handoff, no reminder remains.
+7. A dashboard-started execution reaches a completed handoff with attention →
+   submit the exact marked message as `completed` and await its receipt; an
+   unfinished handoff uses `unfinished`. With no attention, submit nothing
+   there. Land/Wrap Up still owns final quiet completion, and an unresolved
+   session remains resumable.
+8. The developer requests review details or explicitly retains work for review
+   → provide the requested evidence or review material. Quiet-by-default output
+   does not cancel that request or supply the missing decision.
 
 **Value / learning:** Restore a useful signal: visible exceptional completion
 messages mean the developer has something to attend to.
@@ -175,7 +235,8 @@ Refinement can resolve sizing and any actual prerequisite with evidence.
 
 No story-selection or priority decision remains from the supplied instruction.
 Detailed behavior and implementation planning remain for each story's refinement.
-These queued stories are not marked refined, ready, or Taken by their selection.
+Selection alone does not mark a queued story refined, ready, or Taken; each
+story's preparation records carry those separate facts.
 
 ## When to Surface
 
