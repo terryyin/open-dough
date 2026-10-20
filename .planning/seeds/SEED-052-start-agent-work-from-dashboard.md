@@ -330,6 +330,31 @@ this checkout at `7734cafd`, versus what remains a hypothesis:
   that answers with old or missing proof; native Cursor is not
   needed for that check.
 
+## Correction
+
+<a id="remove-orphaned-runner-port-helper"></a>
+
+### Correction: Remove the orphaned start-if-absent runner port helper
+
+**Identity:** SEED-052#remove-orphaned-runner-port-helper
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md"}
+```
+
+**Goal:** A developer reading or reusing the Cursor runner port helpers
+cannot pick a start-if-absent helper for new work and silently bypass
+plan 334's current-build guarantee.
+
+**Scope:** Bounded retrospective correction of
+SEED-052#cursor-runner-restart-resume (plan 334); adds no feature
+promise. Included: remove the caller-less `cursorRunnerPort` helper
+from `runnerProcess.ts` and correct the `recover.ts` header comment
+that still names it. Preserved: start-if-absent `ensureCursorRunner`,
+the accepting-runner port for observation/hangup/handoff, the
+current-runner path for new work, and every behavior plan 334
+delivered. Plan:
+[335-remove-orphaned-runner-port-helper](../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md).
+
 ## Ordering and Scope Reduction
 
 On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued

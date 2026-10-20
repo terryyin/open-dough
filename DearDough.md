@@ -209,6 +209,14 @@ Proof selection follows edited store areas rather than the changed operation’s
   - Observed effect: one owned CI failure and a fresh repair/refactor cycle before completion; the product rule and operational gates needed no change.
   - Inference: qualified recurrence of proof selection missing a consumer outside the named guidance suites. Searching banners and reminder phrases did not find the old quiet-response regex; tracing every reader of the changed guidance would reach it. No elapsed-time or token cost is measured.
 
+- Execution: SEED-052#cursor-runner-restart-resume / plan 334, first implementation `79a1f1ec`
+  - Timestamp: unknown (2026-10-21, CI failure on `79a1f1ec`; repair `614b490e`)
+  - Tool: Cursor
+  - Open Dough release: unknown
+  - Evidence: slice 1 made `exec`/keep require current runner build proof in the address and wire answers. CI on `79a1f1ec` failed through `dashboard/tests/support/cursorRunnerHeldReads.ts`, a stand-in of that same runner contract that presented no build proof: new work rightly treated it as stale, stopped the address pid (the test worker's own pid) and started a bundled runner that leaked. Repair `614b490e` is test-support only: the stand-in presents the proof the serving dashboard expects (bundled versus source identity), and its re-keep posts directly because the current-runner probe is itself a held sessions read.
+  - Observed effect: one owned CI failure and repair cycle on slice 1; slice 2's in-progress work was stashed and restored around the repair. No production defect was found in the repair.
+  - Inference: qualified recurrence of this finding's stand-in clause. Slice 1's proof built its own stand-in (`cursorRunnerProof.ts`) but did not trace every existing stand-in of the changed address/wire contract before publication. No elapsed-time or token cost is measured.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260.

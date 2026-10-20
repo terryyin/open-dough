@@ -202,6 +202,17 @@ Safe stopping point: every restart shape in the story's examples has
 deterministic proof or an explicitly pending native check; the story
 can close on deterministic evidence with the native gap named.
 
+## Execution complete
+
+Product advice: Route the pending native verification (real
+`cursor-agent` resumption after a real runner kill and after a real
+machine reboot, with a scoped session) to story wrap-up as an
+outstanding ADR 0005 acceptance item; deterministic closure must not
+be quoted as native proof at release time. Send the plan-335
+correction (remove the orphaned `cursorRunnerPort` helper) to wrap-up
+for a queueing decision; it is deliberately unqueued. No other
+product change is supported by this execution's learning.
+
 ## Current decisions
 
 - Replacement policy is replace-at-next-new-work, per the refined
