@@ -4,16 +4,21 @@
 import http from "node:http";
 import net from "node:net";
 import type { Duplex } from "node:stream";
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import {
   cursorRunnerAddressFile,
   readCursorRunnerAddress,
 } from "../../server/hosts/cursor/runnerPaths.ts";
+import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import {
   ensureCursorRunner,
-  keepCursorClient,
   type CursorKeepResult,
 } from "../../server/hosts/cursor/runnerClient.ts";
+import { acceptingCursorRunnerPort } from "../../server/hosts/cursor/runnerProcess.ts";
+import { cursorRunnerKeepResult } from "../../server/hosts/cursor/runnerProtocol.ts";
+import { serverBundleVariable } from "./serverBundle.ts";
+import { rawRequest } from "./rawHttp.ts";
 import { cursorTerminalSize } from "../../server/hosts/cursor/terminal.ts";
 import { keptRecord } from "./cursorStart.ts";
 
@@ -36,6 +41,29 @@ export type HeldRunnerReads = {
 // example to have the runner hold a session again before that read is
 // answered — without a sleep: the held read itself is the synchronization.
 // The hold must stay well under the reading client's own answer timeout.
+// The build proof the dashboard serving this journey checks new work
+// against: the bundled runner's identity when this run bundles the server
+// (preview/boundary journeys), the source runner's otherwise. The real
+// runner below is started from source by this worker, so its own proof
+// names the source build; the stand-in forwards for that runner and must
+// present the proof the dashboard expects of a current runner, or new
+// work rightly replaces what it stands in for — by the address pid,
+// which here is this worker.
+function dashboardRunnerBuildId(): string {
+  const bundle = process.env[serverBundleVariable];
+  const bundled = bundle && path.join(bundle, "runnerMain.mjs");
+  return bundled && existsSync(bundled)
+    ? computeRunnerBuildId(bundled)
+    : computeRunnerBuildId();
+}
+
+function isSessionsRead(request: http.IncomingMessage): boolean {
+  return (
+    request.method === "GET" &&
+    (request.url ?? "").split("?")[0] === "/sessions"
+  );
+}
+
 export async function holdRunnerSessionsReads(
   home: string,
 ): Promise<HeldRunnerReads> {
@@ -46,6 +74,7 @@ export async function holdRunnerSessionsReads(
   if (real === undefined) {
     throw new Error("This home has no Cursor runner to stand in for.");
   }
+  const buildId = dashboardRunnerBuildId();
   let holding = false;
   const held: {
     request: http.IncomingMessage;
@@ -64,6 +93,31 @@ export async function holdRunnerSessionsReads(
         headers: request.headers,
       },
       (answer) => {
+        // A sessions answer carries the real (source) runner's proof;
+        // restate it as the current proof above, as the address does.
+        if (isSessionsRead(request)) {
+          const chunks: Buffer[] = [];
+          answer.on("data", (chunk: Buffer) => chunks.push(chunk));
+          answer.on("end", () => {
+            try {
+              const body = JSON.stringify({
+                ...(JSON.parse(
+                  Buffer.concat(chunks).toString("utf8"),
+                ) as Record<string, unknown>),
+                buildId,
+              });
+              response.writeHead(answer.statusCode ?? 502, {
+                ...answer.headers,
+                "content-length": Buffer.byteLength(body),
+              });
+              response.end(body);
+            } catch {
+              response.writeHead(answer.statusCode ?? 502, answer.headers);
+              response.end(Buffer.concat(chunks));
+            }
+          });
+          return;
+        }
         response.writeHead(answer.statusCode ?? 502, answer.headers);
         answer.pipe(response);
       },
@@ -76,8 +130,7 @@ export async function holdRunnerSessionsReads(
     request.pipe(upstream);
   };
   const standIn = http.createServer((request, response) => {
-    const path = (request.url ?? "").split("?")[0];
-    if (holding && request.method === "GET" && path === "/sessions") {
+    if (holding && isSessionsRead(request)) {
       request.pause();
       held.push({ request, response });
       return;
@@ -120,7 +173,7 @@ export async function holdRunnerSessionsReads(
   }
   writeFileSync(
     cursorRunnerAddressFile(home),
-    JSON.stringify({ port: address.port, pid: process.pid }),
+    JSON.stringify({ ...real, port: address.port, pid: process.pid, buildId }),
   );
   return {
     hold() {
@@ -155,16 +208,34 @@ export async function rekeepKeptCursorSession(
     throw new Error("The kept record is not a Cursor session.");
   }
   const [command, ...args] = record.session.continuation.args;
-  return keepCursorClient(
-    {
-      command: command ?? "cursor-agent",
-      args,
-      cwd: record.session.continuation.workspace,
-      cols: cursorTerminalSize.cols,
-      rows: cursorTerminalSize.rows,
-      sourceId: "open-dough",
-      session: record.session,
-    },
-    home,
-  );
+  // This keep must land while sessions reads are held, and new work's
+  // current-runner proof is itself a sessions read, so it would be held
+  // too. Post the keep straight to the accepting runner (the stand-in,
+  // which forwards it) whose current proof the gate already presents.
+  const port = await acceptingCursorRunnerPort(home);
+  if (port === undefined) return { kind: "unreachable" };
+  const payload = JSON.stringify({
+    command: command ?? "cursor-agent",
+    args,
+    cwd: record.session.continuation.workspace,
+    cols: cursorTerminalSize.cols,
+    rows: cursorTerminalSize.rows,
+    sourceId: "open-dough",
+    session: record.session,
+  });
+  try {
+    const { body } = await rawRequest({
+      url: `http://127.0.0.1:${port}/keep`,
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "content-length": String(Buffer.byteLength(payload)),
+      },
+      body: payload,
+    });
+    const parsed = cursorRunnerKeepResult.safeParse(JSON.parse(body));
+    return parsed.success ? parsed.data : { kind: "unreachable" };
+  } catch {
+    return { kind: "unreachable" };
+  }
 }
