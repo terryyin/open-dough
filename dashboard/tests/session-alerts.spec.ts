@@ -8,10 +8,11 @@
 // missed work and changed reasons stay quiet (full recovery journeys:
 // ./boundary/session-alerts-input-continuity.spec.ts). A session marked done never alerts (a report's arrival:
 // ./boundary/session-alerts-unread-report.spec.ts). The text travels as
-// `terminal-notifier` arguments, so quotes and backslashes arrive unchanged. Closing
-// the server ends a `terminal-notifier` it started. The synthetic `claude`
-// (./fixtures/fake-claude) and `terminal-notifier` (./fixtures/fake-terminal-notifier) are all
-// the server reaches; a real notification is never raised. The server reads
+// Open Dough notification sender arguments, so quotes and backslashes arrive
+// unchanged. Closing the server ends a sender it started. The synthetic
+// `claude` (./fixtures/fake-claude) and sender
+// (./fixtures/fake-terminal-notifier) are all the server reaches; a real
+// notification is never raised. The server reads
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 

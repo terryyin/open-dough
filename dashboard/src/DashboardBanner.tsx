@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { Settings } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
+import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
@@ -42,6 +43,7 @@ export function DashboardBanner({
 
   return (
     <header className="banner" ref={banner}>
+      <ProductMark />
       <SessionsButton />
       <ProjectSelect source={source} onSelect={onSelect} />
       <SourceStatus source={source} work={work} />

@@ -1,5 +1,6 @@
-// Stored inline by terminal-notifier: a click survives helper/server exit and
-// checkout retirement. Only the destination argument varies; no page JS runs.
+// Stored inline by the Open Dough notification sender: a click survives
+// sender/server exit and checkout retirement. Only the destination argument
+// varies; no page JS runs.
 export const notificationActivationSource = String.raw`
 function run(argv) {
   try {
@@ -72,7 +73,7 @@ function run(argv) {
   } catch (_) {
     var application = Application.currentApplication();
     application.includeStandardAdditions = true;
-    application.displayAlert('Dashboard story could not be opened', {message:'Open the dashboard manually. For future alerts, use Safari or Google Chrome as your default browser and allow terminal-notifier to control it in System Settings → Privacy & Security → Automation.'});
+    application.displayAlert('Dashboard story could not be opened', {message:'Open the dashboard manually. For future alerts, use Safari or Google Chrome as your default browser and allow the alert sender to control it in System Settings → Privacy & Security → Automation.'});
   }
 }
 `;

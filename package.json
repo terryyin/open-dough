@@ -12,6 +12,7 @@
     "typecheck:dashboard": "tsc --build dashboard/tsconfig.json",
     "build:dashboard": "vite build --config dashboard/vite.config.mts",
     "preview:dashboard": "vite preview --config dashboard/vite.config.mts",
+    "setup-notifier:dashboard": "node dashboard/server/notifierSetup.ts",
     "test:dashboard": "playwright test --config dashboard/playwright.config.ts"
   },
   "devDependencies": {

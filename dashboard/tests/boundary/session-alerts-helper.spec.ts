@@ -52,6 +52,7 @@ const test = base.extend<{
     );
     const environment = {
       PATH: fake.env["PATH"],
+      HOME: fake.env["HOME"],
       FAKE_CLAUDE_DIR: fake.env["FAKE_CLAUDE_DIR"],
       DOUGH_ALERT_CHECK_MS: "20",
     };

@@ -1,12 +1,12 @@
 // The Sessions sidebar says when the server cannot raise its macOS alerts
 // (./session-alerts.spec.ts is the alerts themselves): the open sidebar shows
 // "Alerts unavailable" with a fixed setup explanation while the latest
-// `terminal-notifier` probe or notification did not
-// work, says nothing while it does, and loses the note at the next read of the
+// probe or notification of the Open Dough notification sender did not work,
+// says nothing while it does, and loses the note at the next read of the
 // machine's sessions after a notification worked again. A closed sidebar
 // shows no note and the Sessions button is as before. The synthetic `claude`
-// (./fixtures/fake-claude) and `terminal-notifier` (./fixtures/fake-terminal-notifier) are all
-// the server reaches; a real notification is never raised.
+// (./fixtures/fake-claude) and the sender (./fixtures/fake-terminal-notifier)
+// are all the server reaches; a real notification is never raised.
 
 import type { Page } from "@playwright/test";
 import { expect, test as base } from "./support/pageTest.ts";
@@ -45,9 +45,9 @@ const test = base.extend<{
 });
 
 const notFound =
-  "terminal-notifier was not found. Install it separately with brew install terminal-notifier, then restart the dashboard.";
+  "The Open Dough notification sender is not set up. Run npm run setup-notifier:dashboard -- --test, allow Open Dough when macOS asks, then restart the dashboard.";
 const refused =
-  "terminal-notifier did not accept the notification. Check System Settings → Notifications → terminal-notifier and allow notifications.";
+  "Open Dough did not accept the notification. Turn on Allow notifications in System Settings → Notifications → Open Dough, or run npm run setup-notifier:dashboard -- --test and choose Allow when macOS asks.";
 
 const noteOf = (page: Page) => page.getByText(/Alerts unavailable/);
 
@@ -81,7 +81,7 @@ test.describe("a working notifier", () => {
   });
 });
 
-test.describe("no notifier on the machine", () => {
+test.describe("no Open Dough sender set up, only terminal-notifier on PATH", () => {
   test.use({ notifier: "absent" });
 
   test("the open sidebar says Alerts unavailable and why, and still lists sessions; closed, the note is not on the page", async ({
@@ -92,6 +92,8 @@ test.describe("no notifier on the machine", () => {
     await expect
       .poll(() => alertsAnswered(server))
       .toEqual({ available: false, reason: notFound });
+    // The helper on PATH is not the sender: it was never run.
+    expect(server.notifierProbes()).toEqual([]);
 
     await page.goto(server.baseURL);
     const { sidebar, button } = sidebarParts(page);
@@ -158,7 +160,7 @@ for (const mode of ["older", "unknown-version"] as const) {
       page,
     }) => {
       const reason =
-        "Alerts need terminal-notifier 3.1 or newer. Update it separately, then restart the dashboard.";
+        "Alerts need terminal-notifier 3.1 or newer. Update it separately, run npm run setup-notifier:dashboard again, then restart the dashboard.";
       await expect
         .poll(() => alertsAnswered(server))
         .toEqual({ available: false, reason });
@@ -196,11 +198,11 @@ test.describe("a notification refused after successful diagnostics", () => {
     server.notifierBecomes("working");
     await becomes(server, session, "working");
     server.claudeSessionBecomes(session, "blocked");
+    // The retry's diagnostics answer available before its notification ends.
+    await expect.poll(() => server.notifierCalls().length).toBe(2);
     await expect
       .poll(() => alertsAnswered(server))
       .toEqual({ available: true });
-    await expect.poll(() => server.notifierCalls().length).toBe(2);
-    expect(server.notifierCalls()).toHaveLength(2);
     expect(server.notifierProbes()).toHaveLength(4);
   });
 });

@@ -2,7 +2,8 @@
 // stages' headings and counts, and what the frame
 // says in place of work -- an empty stage, a failed read, no projects -- read
 // clearly, keep their names, and fit a narrow window without sideways
-// scrolling. The cards inside the stages are not this look's to change.
+// scrolling. With no project, Open Dough's mark still leads the banner and
+// System settings. The cards inside the stages are not this look's to change.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,6 +20,7 @@ import {
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { openDirection, parts } from "./dashboardPage.ts";
 import { expectDecorativeIcon } from "./frameIconControl.ts";
+import { expectProductMark } from "./productMark.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import {
   emptyBacklog,
@@ -30,7 +32,7 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
-import { settings } from "./support/systemSettingsPage.ts";
+import { back, settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 test("the row below the banner and the stages read clearly in the frame's look", async ({
@@ -128,9 +130,22 @@ machineTest(
         page.getByText("Open System settings → Projects", { exact: false }),
       );
       await expect(settings(page)).toBeInViewport({ ratio: 1 });
+      await expectProductMark(page.getByRole("banner"));
       await expectNoSidewaysScrollAndWholeText(page);
       await page.setViewportSize(zoomedWindow);
+      await expect(settings(page)).toBeInViewport({ ratio: 1 });
+      await expectProductMark(page.getByRole("banner"));
       await expectNoSidewaysScrollAndWholeText(page);
+
+      await settings(page).click();
+      await expect(
+        page.getByRole("heading", { name: "System settings", exact: true }),
+      ).toBeFocused();
+      await expectProductMark(page.getByRole("main"));
+      await expect(back(page)).toBeVisible();
+      await back(page).click();
+      await expect(heading).toBeVisible();
+      await expectProductMark(page.getByRole("banner"));
     } finally {
       await server.close();
       rmSync(machine, { recursive: true, force: true });

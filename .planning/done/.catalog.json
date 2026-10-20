@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-144_recognize-opendough-by-its-icon.json",
+      "identity": "SEED-144#recognize-opendough-by-its-icon",
+      "completedAt": "2026-10-20T07:23:13.081Z",
+      "blob": "d30b5982ee2ec1b74161db14e555702edc731791"
+    },
+    {
       "fileName": "SEED-052_safe-cursor-session-stop.json",
       "identity": "SEED-052#safe-cursor-session-stop",
       "completedAt": "2026-10-20T06:26:02.357Z",

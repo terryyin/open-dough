@@ -13,13 +13,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
-import {
-  endFakeGh,
-  fakeGhEnv,
-  installFakeGh,
-  readPid,
-} from "../support/fakeGh.ts";
-import { processAlive } from "../support/processGroup.ts";
+import { endFakeGh, fakeGhEnv, installFakeGh } from "../support/fakeGh.ts";
+import { processAlive, readPid } from "../support/processGroup.ts";
 import {
   everyRepository,
   hangs,

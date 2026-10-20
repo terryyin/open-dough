@@ -110,9 +110,9 @@ it to `claude --bg` and `claude attach`; Codex's daemon start and resume and
 Cursor's runner and the `cursor-agent` processes it starts follow the same rule;
 the runner applies it again at its own spawns, so a runner an earlier
 deployment started also starts clean clients.
-The dashboard's own helper processes (`git`, `gh`, `terminal-notifier`) are not
-sessions and keep its environment. The separately installed notification
-helper receives a fixed inline browser callback with a safely quoted URL
+The dashboard's own helper processes (`git`, `gh`, the Open Dough notification
+sender) are not sessions and keep its environment. The notification sender
+receives a fixed inline browser callback with a safely quoted URL
 argument. Safari/Chrome Automation consent lets a click reuse the matching
 dashboard tab and foreground its window. The callback survives sender exit
 without a checkout file or Node process. The server owns and aborts delivery

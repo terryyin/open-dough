@@ -131,16 +131,19 @@ test("review baselines and notifications survive failed, incomplete and omitted 
         "omitted",
       ] as const) {
         if (gap === "failed")
+          // Each gap keeps the completed turn real history retains, so a
+          // swap landing between one read's status and turns calls cannot
+          // fabricate a session that never finished a turn.
           native.observations.set("review", {
             status: { type: "idle" },
-            turns: [],
+            turns: [{ id: "review-turn", status: "completed" }],
             metadataError: {
               code: -32001,
               message: "Server overloaded; retry later.",
             },
           });
         if (gap === "incomplete")
-          observed(native, "review", { type: "active" });
+          observed(native, "review", { type: "active" }, "completed");
         if (gap === "history")
           native.observations.set("review", {
             status: { type: "idle" },
@@ -152,7 +155,9 @@ test("review baselines and notifications survive failed, incomplete and omitted 
         observed(native, "review", { type: "idle" }, "completed");
         save(server, [reviewed, sentinel]);
         await further();
-        expect(reviews()).toHaveLength(expected);
+        expect(reviews(), `gap ${gap}, round ${expected}`).toHaveLength(
+          expected,
+        );
       }
       if (expected === 0) {
         observed(native, "review", { type: "active", activeFlags: [] });

@@ -181,18 +181,24 @@ stay quiet. Alert history is local to the server run and never replaces the
 current observation shown on the page. Unknown never alerts;
 unavailable/unrecognized may. Each server has its own alert baseline.
 
-Native delivery requires separately installed `terminal-notifier` 3.1 or newer
-(tested 3.1.0, Homebrew, macOS 26.6.2) and its ordinary macOS notification
-permission. Install with `brew install terminal-notifier`, open the installed
-app once if needed to expose its permission, and allow **terminal-notifier**
-in **System Settings → Notifications**. `terminal-notifier -diagnose` checks
-that permission. Restart the dashboard after installation/update; it performs
-neither automatically. A harmless version check and permission diagnostic run
-at startup, then again before retrying after a failure. An older or unrecognized
-helper is unavailable even if an executable exists or an unknown option exits
-zero. Absence, unsupported version and refusal use fixed explanations in the
-open Sessions sidebar; raw helper stderr is never exposed. Observation
-continues, and the next successful notification clears a refusal.
+Native delivery uses Open Dough's own notification sender, prepared once by
+`npm run setup-notifier:dashboard` at
+`~/.open-dough/dashboard/notifier/Open Dough.app`, outside every checkout and
+deployment; see [Dashboard commands](COMMANDS.md). Its pop-ups show the Open
+Dough icon and name. The sender is a branded copy of separately installed
+`terminal-notifier` 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2), and
+needs its own macOS notification permission, **System Settings → Notifications
+→ Open Dough**; `npm run setup-notifier:dashboard -- --test` makes macOS ask for
+it. The dashboard never prepares the sender or asks for permission. A harmless
+version check and permission diagnostic of that sender run at startup, then
+again before retrying after a failure; they post nothing and ask for nothing.
+An older or unrecognized copy is unavailable even if an executable exists or an
+unknown option exits zero. A sender that is not set up, an unsupported copy,
+and denied, not-yet-requested or refused notifications use fixed explanations
+naming the setup command and the settings entry in the open Sessions sidebar;
+raw sender stderr is never exposed. Restart the dashboard after setting the
+sender up or refreshing it. Observation continues, and the next successful
+notification clears a refusal.
 
 Title/message are literal argument data with the tested helper's one-leading-
 backslash escape; the sound remains Glass. `-execute` stores a fixed inline
@@ -211,7 +217,7 @@ Receipt/dismissal do not navigate. After the sending process exits, a click
 uses the current default Safari or Google Chrome, reusing a root dashboard tab
 at this origin and selecting/foregrounding its window. Other ports and API or
 asset pages are preserved. With no matching tab it creates one in an existing
-window, or opens a window if needed. Browser scripting needs **terminal-notifier**
+window, or opens a window if needed. Browser scripting needs the alert sender's
 consent under **System Settings → Privacy & Security → Automation**; the first
 click can request it. A refused inspection stops with a recovery dialog rather
 than opening an extra tab. Open the dashboard manually after granting access;

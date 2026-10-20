@@ -5,9 +5,10 @@
 // their own line, with the wider Verdana installed on the banner to reproduce
 // the Linux first-row wrap. One journey per layout opens the source evidence
 // and walks the keyboard back up a long page: the banner stays pinned and
-// short, each choice reads on one line, nothing is cut short, and no focused
-// control is hidden under it. A project switch in the banner is the last
-// test.
+// short, Open Dough's mark leads it whole and uncovered, each choice reads on
+// one line, nothing is cut short, and no focused control is hidden under it.
+// A project switch in the banner is the last test: the mark stays Open
+// Dough's while the name and evidence become the newly selected project's.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -19,6 +20,7 @@ import {
 import { zoomedWindow } from "./accessibleReading.ts";
 import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
+import { expectProductMark } from "./productMark.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   box,
@@ -72,6 +74,7 @@ for (const viewport of layouts) {
     for (const control of [project, settings(page), sourceEvidence]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
+    await expectProductMark(banner);
     // The page keeps itself up to date; the banner offers no read control.
     await expect(
       banner.getByRole("button", { name: /^(Refresh|Retry)$/ }),
@@ -98,9 +101,11 @@ for (const viewport of layouts) {
     await expectNoSidewaysScrollAndWholeText(page);
 
     if (viewport.rows === 1) {
-      await test.step("the wide column lays the banner out in one row, ending with System settings", async () => {
+      await test.step("the wide column lays the banner out in one row, from Open Dough's mark to System settings", async () => {
         const gear = settings(page);
+        const mark = banner.getByRole("img", { name: "Open Dough" });
         const inOrder = [
+          mark,
           sidebarParts(page).button,
           sourceEvidence,
           project,
@@ -116,6 +121,12 @@ for (const viewport of layouts) {
           "button, input, select, textarea, summary, a[href], [tabindex]",
         );
         await expect(controls.last()).toHaveAccessibleName("System settings");
+        // The mark leads the banner but is no keyboard stop: going back
+        // from the first control leaves the banner.
+        await expect(controls.first()).toHaveAccessibleName("Sessions");
+        await controls.first().focus();
+        await page.keyboard.press("Shift+Tab");
+        await expect(banner.locator(":focus")).toHaveCount(0);
         const gearBox = await box(gear);
         for (const right of await controls.evaluateAll((all) =>
           all.map((element) => element.getBoundingClientRect().right),
@@ -135,6 +146,7 @@ for (const viewport of layouts) {
     await expect(warning).toBeInViewport({ ratio: 1 });
     await expect(warning).toContainText("not commit time");
     await expect(sourceEvidence).toBeInViewport({ ratio: 1 });
+    await expectProductMark(banner);
     await expectNoSidewaysScrollAndWholeText(page);
     await sourceEvidence.click();
     expect(origin.requests).toHaveLength(2);
@@ -165,8 +177,9 @@ test("banner project selection reads the selected project's actual published wor
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
   await openUntilRead(page);
-  const { project, source, sourceEvidence } = parts(page);
+  const { banner, project, source, sourceEvidence } = parts(page);
   await expect(source).toContainText(revision);
+  await expectProductMark(banner);
   const openDoughChoice = project.getByRole("radio", {
     name: "Open Dough",
     exact: true,
@@ -185,6 +198,11 @@ test("banner project selection reads the selected project's actual published wor
     backlog: ["Doughnut's next story"],
   });
   await expect(sourceEvidence).toContainText("Doughnut");
+  // Open Dough stays the product; the heading names the selected project.
+  await expectProductMark(banner);
+  await expect(banner.getByRole("heading", { level: 1 })).toHaveText(
+    "Doughnut",
+  );
   await sourceEvidence.click();
   await expect(source).toContainText("nerds-odd-e/doughnut");
   await expect(source).toContainText("main");

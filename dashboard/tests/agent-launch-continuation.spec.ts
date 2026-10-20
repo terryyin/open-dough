@@ -205,12 +205,13 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
   );
   await expect(parts(page).project).toBeVisible();
   expect(readFileSync(file, "utf8")).toBe("{ not json");
-  // The unreadable attempts file stays. The runner's address and log are
-  // not a replacement of it.
+  // The unreadable attempts file stays. The runner's address and log and the
+  // notification sender are not a replacement of it.
   expect(readdirSync(folder).sort()).toEqual([
     "cursor-runner.json",
     "cursor-runner.log",
     "launch-attempts.json",
+    "notifier",
     "projects-production.json",
   ]);
   expect(dashboard.claudeCalls()).toEqual([]);

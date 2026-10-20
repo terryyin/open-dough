@@ -5,6 +5,7 @@ import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { installFakeClaude } from "../support/fakeClaude.ts";
 import { notificationActivation } from "../support/notificationActivation.ts";
+import { repoRoot } from "../support/repositoryRoot.ts";
 import { sendTerminalNotification } from "../../server/terminalNotifier.ts";
 
 test("the durable inline command carries quotes and substitution syntax as literal destination data", async () => {
@@ -16,6 +17,7 @@ test("the durable inline command carries quotes and substitution syntax as liter
   );
   const environment = {
     PATH: native.env["PATH"],
+    HOME: native.env["HOME"],
     FAKE_CLAUDE_DIR: native.env["FAKE_CLAUDE_DIR"],
   };
   const prior = Object.fromEntries(
@@ -37,6 +39,11 @@ test("the durable inline command carries quotes and substitution syntax as liter
     expect(activation.destination).toBe(destination);
     expect(activation.source).toContain("function run(argv)");
     expect(activation.source).not.toContain(directory);
+    // Nothing a click runs names this checkout or the sending process.
+    for (const argument of argv) {
+      expect(argument).not.toContain(repoRoot);
+      expect(argument).not.toContain(process.execPath);
+    }
     expect(activation.source).not.toContain(destination);
     expect(activation.source).not.toContain("require(");
     expect(activation.source).not.toContain("fetch(");

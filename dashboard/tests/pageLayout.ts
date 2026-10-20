@@ -93,7 +93,8 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
       // white-space; browsers give it "overflow: clip" and "white-space: pre"
       // by default regardless of authored CSS. Whether its content actually
       // fits is still checked; the authored-CSS heuristics below are not.
-      if (element.matches("select, input, textarea")) return tooNarrowForItsContent;
+      // An image holds no text, and browsers give it "overflow: clip" too.
+      if (element.matches("select, input, textarea, img")) return tooNarrowForItsContent;
       const style = getComputedStyle(element);
       return (
         tooNarrowForItsContent ||

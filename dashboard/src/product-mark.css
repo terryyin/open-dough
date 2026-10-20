@@ -1,0 +1,10 @@
+/* Open Dough's mark (./ProductMark.tsx): one square size, centred on a
+   frame control's height so it lines up with the controls beside it. */
+.product-mark {
+  --product-mark-size: 2rem;
+  display: block;
+  flex: none;
+  width: var(--product-mark-size);
+  height: var(--product-mark-size);
+  margin-block: calc((var(--control-size) - var(--product-mark-size)) / 2);
+}

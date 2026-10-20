@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+"use strict";
+
+// The executable of a synthetic installed `terminal-notifier.app` for the
+// notification sender setup (../boundary/notifier-setup.spec.ts), which copies
+// the whole app and runs the copy. It shows nothing and requests nothing: it
+// appends its own path and argv to `calls.jsonl` in FAKE_NOTIFIER_DIR and
+// answers by the `mode` file there: `authorized`, `not requested yet` (the
+// default), `denied`, or `older` (an unsupported version).
+
+const fs = require("fs");
+const path = require("path");
+
+const dir = process.env.FAKE_NOTIFIER_DIR;
+if (!dir) {
+  process.stderr.write("fake notifier app: FAKE_NOTIFIER_DIR is not set\n");
+  process.exitCode = 1;
+  return;
+}
+
+const argv = process.argv.slice(2);
+fs.appendFileSync(
+  path.join(dir, "calls.jsonl"),
+  `${JSON.stringify({ executable: process.argv[1], argv })}\n`,
+);
+
+let mode = "not requested yet";
+try {
+  mode = fs.readFileSync(path.join(dir, "mode"), "utf8").trim();
+} catch {
+  // No mode file: the default.
+}
+
+if (argv[0] === "-version") {
+  process.stdout.write(
+    mode === "older" ? "terminal-notifier 2.0.0.\n" : "terminal-notifier 3.1.0.\n",
+  );
+} else if (argv[0] === "-diagnose") {
+  process.stdout.write(`  authorization       ${mode}\n`);
+  if (mode !== "authorized") process.exitCode = 3;
+} else if (mode !== "authorized") {
+  process.stderr.write("Notifications are not allowed for this application\n");
+  process.exitCode = 3;
+}

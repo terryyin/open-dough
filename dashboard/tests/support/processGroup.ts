@@ -19,6 +19,7 @@ import {
   type ChildProcessByStdio,
   type SpawnOptions,
 } from "node:child_process";
+import { readFileSync } from "node:fs";
 import type { Readable } from "node:stream";
 
 export type GroupLeader = ChildProcessByStdio<null, Readable, Readable>;
@@ -82,6 +83,19 @@ export function endAtExit(end: () => void): () => void {
 
 function killGroup(group: number): void {
   signal(-group, "SIGKILL");
+}
+
+// The pid a fake process recorded in its pid file, read back as a number. A
+// pid file the fake has created but not yet written reads empty; that is no
+// pid yet, not pid 0.
+export function readPid(pidPath: string): number | undefined {
+  let pid: number;
+  try {
+    pid = Number(readFileSync(pidPath, "utf8"));
+  } catch {
+    return undefined;
+  }
+  return Number.isInteger(pid) && pid > 0 ? pid : undefined;
 }
 
 export function processAlive(pid: number | undefined): boolean {

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 "use strict";
 
-// A synthetic `terminal-notifier` first on PATH for one isolated
-// dashboard server (see ../support/fakeClaude), so no test ever raises a real
-// notification. It shows nothing: it appends its argv to `notifier-calls.jsonl`
-// in the fake `claude`'s state directory and, by the `notifier-mode` file
+// A synthetic `terminal-notifier` as one isolated dashboard server's Open
+// Dough notification sender under its temporary HOME, and on its PATH (see
+// ../support/fakeClaude), so no test ever raises a real notification. It
+// shows nothing: it appends its argv to `notifier-calls.jsonl` in the fake
+// `claude`'s state directory and, by the `notifier-mode` file
 // there, exits 0 (default), exits 1 (`failing`), or holds its answer
 // (`hang`), recording its pid in `notifier.pid` and, once a signal ends it,
 // that signal in `notifier.pid.exited`, for the controls to observe. The

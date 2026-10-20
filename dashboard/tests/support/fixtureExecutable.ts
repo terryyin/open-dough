@@ -1,5 +1,5 @@
 // Puts one synthetic executable from ../fixtures (the fake `gh`, the fake
-// `claude`, the fake `terminal-notifier`), or a module one loads from beside itself,
+// `claude`, the fake `terminal-notifier` and its app), or a module one loads from beside itself,
 // into a test's own PATH directory under its command or module name.
 
 import { spawnSync } from "node:child_process";
@@ -25,6 +25,7 @@ export function installFixtureExecutable(
     | "fake-claude-attach.cjs"
     | "fake-host-environment.cjs"
     | "fake-terminal-notifier"
+    | "fake-terminal-notifier-app"
     | "fake-codex"
     | "fake-cursor"
     | "fake-cursor-attach",

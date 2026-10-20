@@ -5,6 +5,7 @@ import {
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
 import { SettingsGear } from "./DashboardBanner.tsx";
+import { ProductMark } from "./ProductMark.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
@@ -98,6 +99,7 @@ export function App() {
             {projects.length === 0 ? (
               <>
                 <header className="banner">
+                  <ProductMark />
                   <SettingsGear onOpen={openSettings} />
                 </header>
                 <main className="frame-state">

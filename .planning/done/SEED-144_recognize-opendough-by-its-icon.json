@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-144#recognize-opendough-by-its-icon",
+  "title": "Recognize Open Dough by its icon across product surfaces",
+  "completedAt": "2026-10-20T07:23:13.081Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "claude"
+}

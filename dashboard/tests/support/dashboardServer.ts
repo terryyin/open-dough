@@ -30,7 +30,8 @@ import {
   type FakeClaudeOptions,
 } from "./fakeClaude.ts";
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
-import { fakeGhEnv, installFakeGh, readPid } from "./fakeGh.ts";
+import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
+import { readPid } from "./processGroup.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import {

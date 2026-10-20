@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./frame-controls.css";
+import "./terminal-theme-settings.css";
 import { useSavedTerminalTheme } from "./savedTerminalTheme.ts";
 import {
   ansiColorNames,
