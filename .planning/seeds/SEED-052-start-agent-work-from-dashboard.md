@@ -298,6 +298,8 @@ selection changes or richer result reading. Story 1's attention reading is
 independent: an unconfirmed stop is explained from runner/process evidence
 this story owns, not from story 1's normalized activities.
 
+<a id="cursor-unconfirmed-stop-after-local-done"></a>
+
 ### Correction: An unconfirmed stop still blocks a replacement after local Done
 
 **Identity:** SEED-052#cursor-unconfirmed-stop-after-local-done
