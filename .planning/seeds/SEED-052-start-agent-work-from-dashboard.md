@@ -225,6 +225,58 @@ replacement already surface the explanation and stay unchanged, other
 attach failures keep the generic text, and no continuation falls back to
 the shared configuration. Adds no feature promise.
 
+<a id="cursor-chosen-model-unconfirmed-start"></a>
+
+### 6. Start a chosen-model Cursor session again when its first prompt was never confirmed
+
+**Identity:** SEED-052#cursor-chosen-model-unconfirmed-start
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** For a developer whose chosen-model Cursor execution start exits
+before Cursor confirms the first prompt, the dashboard lets that story be
+started again. The story first confirms that this outcome violates the
+intended launch, then repairs the confirmed violation.
+
+**Scope:**
+
+- Required: a chosen-model Cursor start, including Auto, that establishes a
+  configuration scope, exits before the first prompt is confirmed, and leaves
+  the story protected. After the violation is confirmed, the developer can
+  start that story again and the agent receives the execution prompt.
+- Required: Continue and Recheck on that stuck start do not leave the story
+  protected with no running agent and no way to start.
+- Deferred: the terminal-open explanation when a recorded scope is missing or
+  unreadable (SEED-052#cursor-scope-terminal-refusal-explanation); Claude and
+  Codex launch; a Default Cursor launch that establishes no scope. This story
+  does not change the Taken terminal-refusal story.
+
+**Key examples:**
+
+1. A chosen-model Cursor execution start's client exits before the first
+   prompt is confirmed, and Cursor has no chat for the printed session → the
+   developer can start that story again, and the agent receives the
+   execution prompt.
+2. Continue and Recheck on that start do not leave the card protected
+   forever with the agent not running.
+3. Opening the terminal of a session whose recorded scope is missing still
+   shows the scope refusal explanation, and a Default Cursor launch is
+   unchanged.
+
+**Evidence (2026-10-20):** execution start `598ff2c1` for
+SEED-052#cursor-scope-terminal-refusal-explanation published its assignment
+at `0f1b0dc` and recorded Cursor session `1a53c2fb`. That resume client
+exited about a second after it started. Cursor has no chat for that id, and
+this is the only launch record that carries a configuration scope. The
+attempt settled uncertain because the first prompt was not confirmed. Cursor
+supplies no launch recovery, so Continue starts no other conversation while
+that input is unconfirmed, and Recheck cannot list Cursor sessions. The
+client's exit text was discarded, so the cause of the one-second exit is
+still unknown. Effort is unassigned; the principal uncertainty is that
+unknown exit and whether a session that never confirmed its first prompt may
+be replaced.
+
 ## Ordering and Scope Reduction
 
 On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued

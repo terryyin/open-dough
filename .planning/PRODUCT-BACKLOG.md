@@ -24,6 +24,7 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Start a chosen-model Cursor session again when its first prompt was never confirmed](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-chosen-model-unconfirmed-start) — SEED-052#cursor-chosen-model-unconfirmed-start
 - [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective
 - [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
