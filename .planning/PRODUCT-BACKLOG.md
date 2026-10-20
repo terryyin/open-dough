@@ -20,7 +20,6 @@ cost of the feedback process itself.
 
 - [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 - [Stop and acknowledge Cursor sessions safely](seeds/SEED-052-start-agent-work-from-dashboard.md#safe-cursor-session-stop) — SEED-052#safe-cursor-session-stop ([plan](slice-plans/327-safe-cursor-session-stop/PLAN.md))
-- [Observe whether a retrospective response helped](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-retrospective-response-effectiveness) — SEED-010#observe-retrospective-response-effectiveness ([plan](slice-plans/328-observe-retrospective-response-effectiveness/PLAN.md))
 
 ## Backlog list
 
