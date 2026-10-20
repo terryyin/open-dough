@@ -12,7 +12,7 @@ attach failure. Nothing is spawned and the shared Cursor configuration
 stays untouched, exactly as today.
 
 Correction input: execution retrospective of
-SEED-052#cursor-session-model-scope (plan 329; related commits `230b9018`,
+SEED-052#cursor-session-model-scope (plan 329, recoverable at commit `f3b53133f83d57250ccb99a8c4628c12ec25ccac` under `.planning/slice-plans/329-cursor-session-model-scope/PLAN.md`; related commits `230b9018`,
 `2d74c7cb`, `36411da4`, `d1b52936`, `7d110ef8`, `08fbe909`). Current
 finding: slice 3 of plan 329 promised that a missing or unreadable recorded
 scope "refuses the continuation with an explanation" on every continuation
