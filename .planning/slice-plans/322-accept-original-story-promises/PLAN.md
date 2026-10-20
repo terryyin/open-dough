@@ -172,6 +172,12 @@ no whole-suite local gate is added. Update ODF-139 with actual response revision
 positive/counterevidence and limits; containing release/adoption remain pending
 unless evidenced. No release or cross-project rollout is authorized.
 
+## Execution complete
+
+Product advice: Observe ordinary acceptance outcomes and human/resource cost
+before retiring ODF-139. First containing release, adoption and sustained use
+remain pending; do not infer them from these bounded native fixtures.
+
 ## Learnings and proof
 
 Detailed candidate/input/native observations remain in [PROOF.md](PROOF.md).
@@ -188,7 +194,16 @@ is not claimed. Fresh independent refactor 3 returned `none — already clean`;
 consumer/old-reference trace found no gap and invalidated no accepted proof.
 Coordinator selective formatting succeeded (15 shell files, one unchanged JS);
 installed slice-3 obligation check passed all four entries before this done mark.
-Implementation publication and ODF-139 revision capture follow in delivery.
+Implementation accepted at `9e6caaae590a29912606081b4c82d8c7fe703e1b`, suffix base
+`415759fbc302476cd5d521f0a41405f62292e34b`, on the recorded story branch.
+ODF-139 captures that response, positive/counterevidence and release/use limits.
+Automatic retrospective reviewed attributable increments `02f53118`, `415759fb`,
+`9e6caaae` against the original plan at claim `39256f40`; preparation is provenance,
+and intervening `27a67521` is unrelated CI work. No product correction or new plan.
+Process review enabled by project preference records DD-318 (extra native replay
+before existing child evidence recovery). Full agent internal history unavailable;
+cost claims stay limited to observed repetition. Final CI/shutdown receipt follows
+the records publication; pending CI is not reported as success here.
 
 ## Story obligations
 
