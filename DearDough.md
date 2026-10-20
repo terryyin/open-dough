@@ -15,6 +15,17 @@ Former local code: DD-089.
 
 Native execution can implement the requested outcome without the required checkout preparation and command check, while substitute actors and wording checks pass. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
 
+
+### Occurrences
+
+- Execution: SEED-010#format-owned-changes / plan 325, first implementation `43ff9dde9762edf400703c2925210383057e8522`
+  - Timestamp: unknown (2026-10-20, execution entry and slice 1 proof)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (checkout-bound installed guidance, unchanged)
+  - Evidence: plan 325 Execution context; the coordinator reused the preparation's exact-worktree npm-ci note and a passing dashboard typecheck. The first four-suite fixture run then failed because local `node_modules/@eslint/js` was absent; module resolution from the checkout could fall through to the parent repository. Fresh local `npm ci`, unchanged lockfile, local resolution and typecheck preceded the identical passing retry. The later native setup checker also passed.
+  - Observed effect: implementation began with incomplete local dependencies; one focused proof run failed before checkout preparation was repaired. Accepted proof and publication used the repaired installation.
+  - Inference: qualified recurrence of substitute-green readiness evidence, as in the retained plan-258 occurrence. A historical install note plus an unrelated passing command did not establish the dependencies used by this slice. This does not justify relaxing checkout ownership or inventing a new setup protocol.
+
 ## ODF-059 — Interrupted agent handoffs <a id="odf-059"></a>
 
 Former local code: DD-057.
@@ -393,3 +404,17 @@ before recovering the first run's existing native child lineage and commitments.
   - Evidence: plan 322 PROOF.md in `9e6caaae`; release attempts `20261020T013331-3987` and `20261020T014019-61f1`, their `native-source-review-provenance.json` supplements, and obligation G3. Actual fork-none lineage, source-only reading and returned commitments were recovered for both runs; stored task plaintext is encrypted and remains unaudited.
   - Observed effect: one additional paid release replay plus bounded native-history recovery; the first reviewer already existed. No fabricated review or improved spawning is established.
   - Inference: qualified one-off. Recover owned native child evidence, when available, before attributing absent CLI events to missing execution or paying to repeat that boundary. Monetary/token savings are unmeasured; no general host limitation is inferred.
+
+## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
+
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-264.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-010#format-owned-changes / plan 325, first implementation `43ff9dde9762edf400703c2925210383057e8522`
+  - Timestamp: unknown (2026-10-20, startup retrieval)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (checkout-bound installed guidance, unchanged)
+  - Evidence: coordinator functions.exec startup batches reported truncated outputs of 25,036 and 18,445 original tokens, followed by bounded rereads of CI adapter/runtime, delivery, completion and source context before delegation. Later acceptance retrieval also printed an overlarge pair-comparison object before a scalar-only check.
+  - Observed effect: requested authoritative passages were omitted and had to be retrieved again; repeated reads and duplicated output occurred within this one execution.
+  - Inference: the existing targeted-retrieval instruction already covered this case. Bound independent batches by response budget and print only needed evidence fields. No elapsed-time or aggregate-token saving is measured, and calls within this execution are not additional occurrences.
