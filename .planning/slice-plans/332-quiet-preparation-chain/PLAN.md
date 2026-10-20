@@ -128,7 +128,7 @@ instructions, with maintained checks for affected contracts.
 
 ### 1. Finish preparation quietly while preserving actionable boundaries
 Type: Behavior
-Status: planned
+Status: done
 Proof: The promise table above, representative review under AGENTS.md, and
 focused checks for the affected guidance consumers.
 
@@ -182,6 +182,20 @@ hard limit was supplied.
 Slice-plan refinement is not needed: no independent outcome, fragmented
 boundary, unsupported design or unresolved proof premise remains. No remaining
 slice-specific concern was found in this review.
+
+Accepted proof (2026-10-20): `preparation-journey.md` now ends every
+disposition under "Finish with only what needs a response", which applies
+Dough Land's completion attention to the whole journey; the three skills,
+one-shot refinement, refinement options, disposition and recorder text follow
+it, and the `SLICE PLAN WRITTEN`/`SLICE PLAN REFINED` banners (no consumers)
+are gone. `node --test src/skills/dough-story-refinement/scripts/*guidance.test.mjs src/skills/dough-land/scripts/completion-attention-guidance.test.mjs`
+passed 60 (finish/attention assertions moved to
+`preparation-finish-guidance.test.mjs`); 13 scratch mutations reintroducing
+routine reporting or removing a required response each failed a named test.
+The three mechanical preparation checks passed 6, and `npm test` passed
+before refactoring. The dashboard receipt observation was reused: reporting
+arguments and receiver code are unchanged. Agent compliance with the prose
+remains covered only by the representative walkthrough, not native evidence.
 
 ## Learnings
 
