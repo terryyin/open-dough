@@ -8,7 +8,7 @@ import {
   cursorRunnerKeepRequest,
 } from "./runnerProtocol.ts";
 import { showsCursorComposer } from "./idleScreen.ts";
-import { cursorSessionScopeEnvironment } from "./sessionScope.ts";
+import { recordedCursorSessionScope } from "./sessionScope.ts";
 import { cursorKeptTerminal, spawnCursorPty } from "./terminal.ts";
 
 async function confirmInstruction(
@@ -48,6 +48,11 @@ export async function answerKeep(
     sendJson(400, { kind: "failed" });
     return;
   }
+  const scope = recordedCursorSessionScope(parsed.configScope);
+  if (scope.kind === "unavailable") {
+    sendJson(200, { kind: "failed" });
+    return;
+  }
   let pty;
   try {
     pty = spawnCursorPty(
@@ -58,9 +63,7 @@ export async function answerKeep(
         cols: parsed.cols,
         rows: parsed.rows,
       },
-      parsed.configScope === undefined
-        ? undefined
-        : cursorSessionScopeEnvironment(parsed.configScope),
+      scope.kind === "ready" ? scope.environment : undefined,
     );
   } catch (error) {
     sendJson(200, {

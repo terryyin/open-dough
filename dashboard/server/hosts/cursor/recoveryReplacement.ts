@@ -1,4 +1,7 @@
 // Starts one replacement Cursor chat when resume exits with cannot-load text.
+// The replacement is a brand-new chat with no `--model` flag: a scoped
+// session's scope already carries its model, and the replacement record
+// keeps that same scope.
 import { z } from "zod";
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import type { CursorSession } from "../../../src/hostSession.ts";
@@ -9,6 +12,7 @@ import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { cursorAgent } from "./exec.ts";
 import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
 import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
+import { recordedCursorSessionScope } from "./sessionScope.ts";
 import { cursorTerminalSize } from "./terminal.ts";
 
 function resumeFlags(workspace: string, sessionId: string): readonly string[] {
@@ -42,6 +46,16 @@ export async function replaceCannotLoadChat(
     throw new Error("Only a Cursor session can be replaced.");
   }
   const workspace = record.session.continuation.workspace;
+  const scope = recordedCursorSessionScope(
+    record.session.continuation.configScope,
+  );
+  if (scope.kind === "unavailable") {
+    return {
+      kind: "failed",
+      explanation: scope.explanation,
+      record: await launches.stateOf(source, record),
+    };
+  }
   const created = await execOnRunner(
     ["create-chat"],
     workspace,
@@ -79,6 +93,7 @@ export async function replaceCannotLoadChat(
     continuation: {
       workspace,
       args: [cursorAgent, ...resumeFlags(workspace, printed.data)],
+      ...(scope.kind === "ready" ? { configScope: scope.scope } : {}),
     },
   };
   const instruction = replacementInstruction(record);
@@ -116,6 +131,7 @@ export async function replaceCannotLoadChat(
     rows: cursorTerminalSize.rows,
     sourceId: source.id,
     session,
+    ...(scope.kind === "ready" ? { configScope: scope.scope } : {}),
     instruction,
     idleComposer: true,
   });

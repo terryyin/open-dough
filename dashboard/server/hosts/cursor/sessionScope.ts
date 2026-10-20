@@ -6,6 +6,7 @@
 // follows the config directory, so the scope's `chats` is a symlink to
 // the shared chats instead of a copy: the saved conversation stays shared.
 import { randomUUID } from "node:crypto";
+import { accessSync, constants, statSync } from "node:fs";
 import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -55,4 +56,50 @@ export function cursorSessionScopeEnvironment(
   scope: string,
 ): Readonly<Record<string, string>> {
   return { CURSOR_CONFIG_DIR: scope };
+}
+
+// The one resolution every continuation of a recorded session goes
+// through: no recorded scope keeps today's shared-configuration behavior,
+// a readable recorded scope is ready to inherit, and a recorded scope
+// that is missing or unreadable refuses rather than falling back to the
+// shared configuration.
+export type RecordedCursorSessionScope =
+  | { readonly kind: "none" }
+  | {
+      readonly kind: "ready";
+      readonly scope: string;
+      readonly environment: Readonly<Record<string, string>>;
+    }
+  | {
+      readonly kind: "unavailable";
+      readonly scope: string;
+      readonly explanation: string;
+    };
+
+export function recordedCursorSessionScope(
+  configScope: string | undefined,
+): RecordedCursorSessionScope {
+  if (configScope === undefined) return { kind: "none" };
+  const configPath = path.join(configScope, "cli-config.json");
+  try {
+    if (!statSync(configScope).isDirectory()) {
+      throw new Error("The recorded scope is not a directory.");
+    }
+    if (!statSync(configPath).isFile()) {
+      throw new Error("The recorded scope has no readable configuration.");
+    }
+    accessSync(configPath, constants.R_OK);
+  } catch {
+    return {
+      kind: "unavailable",
+      scope: configScope,
+      explanation:
+        "The Cursor configuration saved for this session is missing or cannot be read, so the session was not continued with your shared Cursor configuration. Nothing was started.",
+    };
+  }
+  return {
+    kind: "ready",
+    scope: configScope,
+    environment: cursorSessionScopeEnvironment(configScope),
+  };
 }

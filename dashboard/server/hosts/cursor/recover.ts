@@ -17,6 +17,7 @@ import { cursorAgent } from "./exec.ts";
 import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
 import { replaceCannotLoadChat } from "./recoveryReplacement.ts";
+import { recordedCursorSessionScope } from "./sessionScope.ts";
 import {
   hangupCursorClient,
   keepCursorClient,
@@ -138,6 +139,16 @@ export async function recoverCursorSession(
       record: await launches.stateOf(source, record),
     };
   }
+  const scope = recordedCursorSessionScope(
+    record.session.continuation.configScope,
+  );
+  if (scope.kind === "unavailable") {
+    return {
+      kind: "failed",
+      explanation: scope.explanation,
+      record: await launches.stateOf(source, record),
+    };
+  }
   const { command, args, cwd } = resumeArgs(record);
   const confirmed = record.firstInput?.state === "confirmed";
   const instruction = confirmed
@@ -151,6 +162,7 @@ export async function recoverCursorSession(
     rows: cursorTerminalSize.rows,
     sourceId: source.id,
     session: record.session,
+    ...(scope.kind === "ready" ? { configScope: scope.scope } : {}),
     ...(instruction === undefined ? {} : { instruction, idleComposer: true }),
   });
   const outcome = await Promise.race([kept, untilLaunchWait()]);

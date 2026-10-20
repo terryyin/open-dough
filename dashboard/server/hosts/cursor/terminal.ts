@@ -14,6 +14,7 @@ import { spawn as spawnPty, type IPty } from "@lydell/node-pty";
 import type { LaunchHost } from "../../launchHosts.ts";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import { showsFollowUpLine } from "./idleScreen.ts";
+import { recordedCursorSessionScope } from "./sessionScope.ts";
 
 export const cursorTerminalSize = { cols: 80, rows: 24 } as const;
 
@@ -56,8 +57,18 @@ export const attachCursor: NonNullable<LaunchHost["attach"]> = (
   if (command === undefined) {
     throw new Error("This Cursor conversation has no saved resume command.");
   }
+  const scope = recordedCursorSessionScope(continuation.configScope);
+  if (scope.kind === "unavailable") {
+    throw new Error(scope.explanation);
+  }
   return {
-    pty: spawnCursorPty(command, args, continuation.workspace, size),
+    pty: spawnCursorPty(
+      command,
+      args,
+      continuation.workspace,
+      size,
+      scope.kind === "ready" ? scope.environment : undefined,
+    ),
     keep: true,
     ...cursorKeptTerminal,
   };

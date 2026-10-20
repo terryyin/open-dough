@@ -21,13 +21,7 @@ export function expectChosenModelScope(
   client: CursorAttach,
   sharedBefore: string,
 ): void {
-  if (record.session.host !== "cursor") {
-    throw new Error("The kept session is not a Cursor session.");
-  }
-  const scope = record.session.continuation.configScope;
-  if (scope === undefined) {
-    throw new Error("The kept Cursor session recorded no config scope.");
-  }
+  const scope = recordedScope(record);
   expect(scope.startsWith(`${cursorSessionScopesHome(home)}${path.sep}`)).toBe(
     true,
   );
@@ -46,6 +40,50 @@ export function expectChosenModelScope(
   expect(
     readFileSync(path.join(scopeChats, "saved-conversation.txt"), "utf8"),
   ).toBe("saved conversation\n");
+}
+
+// The recorded scope on a kept record, failing when there is none.
+export function recordedScope(record: LaunchRecord): string {
+  if (record.session.host !== "cursor") {
+    throw new Error("The kept session is not a Cursor session.");
+  }
+  const scope = record.session.continuation.configScope;
+  if (scope === undefined) {
+    throw new Error("The kept Cursor session recorded no config scope.");
+  }
+  return scope;
+}
+
+// A continuation spawn (attach, recovery resume, or replacement) ran
+// with the recorded scope in its environment and no model flag: the
+// scope already carries the session's model.
+export function expectContinuationThroughScope(
+  attach: CursorAttach | undefined,
+  scope: string,
+): void {
+  if (attach === undefined) {
+    throw new Error("Cursor did not start a continuation client.");
+  }
+  expect(attach.env["CURSOR_CONFIG_DIR"]).toBe(scope);
+  expect(attach.args).not.toContain("--model");
+}
+
+// A Default continuation carries no scope: it keeps the shared config
+// environment the fake Cursor was installed with.
+export function expectContinuationWithoutScope(
+  record: LaunchRecord,
+  cursor: FakeCursor,
+  attach: CursorAttach | undefined,
+): void {
+  if (record.session.host !== "cursor") {
+    throw new Error("The kept session is not a Cursor session.");
+  }
+  expect(record.session.continuation.configScope).toBeUndefined();
+  if (attach === undefined) {
+    throw new Error("Cursor did not start a continuation client.");
+  }
+  expect(attach.env["CURSOR_CONFIG_DIR"]).toBe(cursor.sharedConfigDir);
+  expect(attach.args).not.toContain("--model");
 }
 
 // A Default launch creates no scope and keeps the shared config env.

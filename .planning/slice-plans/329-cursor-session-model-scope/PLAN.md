@@ -176,7 +176,7 @@ explanation, rather than launching against the shared configuration.
 
 ### 3. Continue a scoped session in its scope on every resume path
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor journeys show terminal attach/open, recovery resume,
 and cannot-load replacement for a scoped record each spawning with the
 recorded scope in their environment — the replacement chat needs no model

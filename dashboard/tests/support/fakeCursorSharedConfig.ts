@@ -15,6 +15,9 @@ export type FakeCursorSharedConfig = {
   // Makes the shared cli-config.json unreadable as a file, so a scope
   // clone cannot be established.
   breakSharedConfig(): void;
+  // A deliberate change to the shared configuration's model, as the
+  // developer making it in Cursor between a launch and its resumption.
+  changeSharedModel(model: string): void;
 };
 
 export function installFakeCursorSharedConfig(
@@ -46,6 +49,16 @@ export function installFakeCursorSharedConfig(
     breakSharedConfig() {
       rmSync(sharedConfigPath, { force: true });
       mkdirSync(sharedConfigPath);
+    },
+    changeSharedModel(model: string) {
+      writeFileSync(
+        sharedConfigPath,
+        `${JSON.stringify({
+          model,
+          hasChangedDefaultModel: true,
+          fixtureSetting: "from-shared-config",
+        })}\n`,
+      );
     },
   };
 }

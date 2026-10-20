@@ -81,6 +81,7 @@ export async function startCursorExecution(
   page: Parameters<typeof openTakenCursorSession>[0],
   origin: Parameters<typeof openTakenCursorSession>[1],
   cursor: FakeCursor,
+  model?: string,
 ) {
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
@@ -97,6 +98,9 @@ export async function startCursorExecution(
   await queued.getByRole("button", { name: "Start execution" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  if (model !== undefined) {
+    await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
+  }
   await dialog
     .getByRole("textbox", { name: "Instruction (optional)" })
     .fill("Implement the selected slice.");
@@ -110,6 +114,17 @@ export async function startCursorExecution(
   });
   await expect(entry).toContainText(cursor.sessionId);
   return entry;
+}
+
+// The same execution launch with a model chosen in the dialog, so the
+// session is launched in its own configuration scope (slice 2).
+export async function startScopedCursorExecution(
+  page: Parameters<typeof openTakenCursorSession>[0],
+  origin: Parameters<typeof openTakenCursorSession>[1],
+  cursor: FakeCursor,
+  model = "gpt-5.2",
+) {
+  return startCursorExecution(page, origin, cursor, model);
 }
 
 export function keptRecords(home: string): LaunchRecord[] {
