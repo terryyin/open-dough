@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-052_cursor-chosen-model-unconfirmed-start.json",
+      "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
+      "completedAt": "2026-10-20T10:38:06.856Z",
+      "blob": "4269bbc243d2209267ed749c16cb253d4a123060"
+    },
+    {
       "fileName": "SEED-145_quiet-preparation-chain.json",
       "identity": "SEED-145#quiet-preparation-chain",
       "completedAt": "2026-10-20T09:29:31.689Z",

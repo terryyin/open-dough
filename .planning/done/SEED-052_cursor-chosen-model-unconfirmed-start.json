@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
+  "title": "Start a chosen-model Cursor session again when its first prompt was never confirmed",
+  "completedAt": "2026-10-20T10:38:06.856Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "cursor",
+  "model": "grok-4.7"
+}

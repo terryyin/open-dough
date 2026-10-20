@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation ([plan](slice-plans/330-cursor-scope-terminal-refusal/PLAN.md))
-- [Start a chosen-model Cursor session again when its first prompt was never confirmed](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-chosen-model-unconfirmed-start) — SEED-052#cursor-chosen-model-unconfirmed-start ([plan](slice-plans/333-cursor-chosen-model-unconfirmed-start/PLAN.md))
 
 ## Backlog list
 
