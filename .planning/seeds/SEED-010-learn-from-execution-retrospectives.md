@@ -546,13 +546,92 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 ### 13. Accept slices against the original story promises
 
 **Identity:** SEED-010#accept-original-story-promises
-**Status:** Queued, not refined.
-**Beneficiary:** The developer receiving the story's promised behavior.
-**Outcome:** Acceptance identifies the current slice's applicable original-story promises even when both its plan and return omit or narrow them.
-**Evidence:** [ODF-139](../../docs/maintainer/findings/ODF-139.md) retains three later 0.3.63 executions: Open Dough readiness semantics, Pygardon terminal capacity and release progress. Each shipped an unmet original promise and needed correction. The earlier structured-obligation response and useful positive use remain evidence; they do not erase the later omissions.
-**Scope:** Derive the applicable original goal, Scope, key examples and exclusions independently before comparing the plan, return and observed product proof. Preserve legitimate slice boundaries, human decisions and sufficient existing proof. Address the return-driven omission seam; do not add a second obligation registry, demand unrelated whole-story behavior in an early slice, or merely repeat the existing plan-cannot-narrow-story rule.
-**Key examples:** The historical dependency-review sentence cannot override key example 7; a release result omitting two promised fields stays incomplete despite matching the plan; a genuinely excluded or later-owned promise is not invented as current-slice work.
-**Evaluation:** Demonstrate discrimination on the three retained cases and useful unchanged controls, including representative native agent follow-through. Report unresolved generality rather than converting script structure or a quote into outcome proof. Completion records the actual response and first containing release at ODF-139, with relevant adoption/use or an explicit remaining proof gap.
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/322-accept-original-story-promises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bfc6ad8830fbeb5ff9ba45d00db2a25ff5d92b5a1a2ea39e5a54e3d736f30a8f","plan":"e40f362d6e15e26981105ae3dc64b3b120e485b7207a7fdbd328707caaaa99b6"}}
+```
+**Goal:** The developer receives the story's promised behavior because slice
+acceptance independently identifies the applicable original promises, including
+ones omitted or narrowed by both the plan and implementation return. Catch these
+omissions before delivery rather than requiring a retrospective correction.
+
+**Evidence:** [ODF-139](../../docs/maintainer/findings/ODF-139.md) retains three
+0.3.63 executions: Open Dough readiness semantics, Pygardon terminal capacity,
+and Pygardon release progress. Each delivered an unmet original promise and
+needed correction. The structured-obligation response and useful positive use
+remain evidence; they do not erase these later omissions.
+
+**Scope:**
+
+- Read the selected story's original Goal, Scope, key examples, and exclusions,
+  together with explicit human decisions that amend them, to derive applicable
+  promises independently of the plan and return. Compare those promises with
+  slice ownership and observed product proof before accepting delivery.
+- An omitted promise is still required. Establish whether the current slice owns
+  it, an identified remaining slice legitimately owns it, or a human decision
+  excludes or changes it. A narrower plan sentence or silence in the return is
+  not a scope decision. Resolve a genuine dispute through the existing human
+  decision path, stopping only dependent acceptance.
+- A current-slice unmet promise returns for correction or stays explicitly
+  incomplete when required proof is unavailable. Reuse the existing story
+  obligations and same-slice handling; discovery must feed their existing
+  ownership, delivery, and completion gates.
+- Preserve valid later-slice boundaries, justified exclusions, explicit human
+  changes, and sufficient proof for unchanged behavior. Missing examples do not
+  create rejection rules. Do not demand the whole story in an early slice.
+- Evaluate the three retained cases and unchanged controls, including native
+  agent follow-through with prompts that do not name the omission. Keep reported
+  gaps covered and distinguish detecting an omission from recording its text.
+
+**Deferred promises and boundaries:** No second obligation registry, automatic
+natural-language completeness checker, general proof of agent reliability,
+whole-suite rerun requirement, or changes to retrospective selection and sibling
+improvement stories. This story does not repair the historical products or
+release/update other projects. A first containing release and subsequent use are
+recorded when actually available; until then their absence stays explicit.
+
+**Key examples:**
+
+1. A readiness slice and its return follow a historical plan sentence saying
+   dependency-state changes keep the changed-since-review indicator true. The
+   original key example 7 says supplier resolution alone leaves no indicator.
+   Acceptance identifies the contradiction from the story, requires that
+   behavior and its observation, and does not accept the plan's narrower result.
+2. A terminal-capacity result matches the plan's six labels and its green test.
+   The original Scope also requires current/not-point-in-time classification and
+   no-live-readiness qualification. Acceptance finds both omissions without a
+   reported gap, returns the missing behavior and proof, and retains valid labels.
+3. A release-progress result matches a plan that omits stage timestamps, capacity
+   before the latest stage, status during readiness, and a later read after the
+   coordinator ends. Acceptance checks all four original commitments against
+   their applicable slices and proof; neither plan silence nor an owner-decision
+   label clears a promise already made by the story.
+4. An early slice leaves a promise to an explicitly identified remaining owner;
+   another behavior is genuinely excluded or changed by an explicit human
+   decision. Acceptance preserves those boundaries and records ownership where
+   the existing obligation rules require it, without inventing current work.
+5. Applicable promises already have sufficient current observations, including
+   valid reused evidence. Acceptance proceeds without blanket reruns or layout
+   changes. A reported gap still follows existing correction/ownership rules.
+6. Required proof is unavailable or a human scope decision is genuinely disputed.
+   Acceptance identifies the exact promise and missing proof/decision, keeps
+   dependent delivery unaccepted, and preserves independent valid evidence.
+
+**Evaluation:** Compare the three reconstructed historical cases and unchanged
+controls against explicit source-derived expectations. Observe the accepting
+agent find an unreported promise, inspect its product boundary, and return or
+withhold the dependent acceptance through the existing workflow; a quote,
+structured record, passing helper, or asserted coverage alone does not pass.
+Require a corrected case to proceed and an excluded/later-owned case to stay
+bounded. Record candidate, host, relevant inputs, decisions, and proof limits;
+reuse tool integration evidence only where it applies. No claim of general
+reliability follows from this sample. Completion updates ODF-139 with the actual
+response, first containing release if known, adoption/use evidence, and explicit
+remaining release or proof gaps. Queueing or a guidance edit alone resolves nothing.
+
+**Effort uncertainty:** Whether a bounded native replay reaches acceptance
+without prompting the missing promise, and whether follow-through improves.
+Settle the paid observation first in execution; do not replace a failed result
+with a static wording check. No sibling story is a blocking prerequisite.
 
 <a id="schedule-proof-after-refactoring"></a>
 
