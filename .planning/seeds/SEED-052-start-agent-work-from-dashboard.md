@@ -457,6 +457,62 @@ same-session continuation stay usable while the session-scope mechanism is
 resolved. This story shares no mechanism with the Cursor attention or safe
 stop stories.
 
+<a id="cursor-runner-restart-resume"></a>
+
+### 4. Keep Cursor sessions resumable across runner and machine restarts
+
+**Identity:** SEED-052#cursor-runner-restart-resume
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** For a developer returning after the dashboard's Cursor runner
+process or the machine restarts, every recorded Cursor session that was
+resumable before the restart is resumable again through the dashboard,
+running the dashboard's current Cursor code — not whatever runner
+happens to still be alive.
+
+**Scope:**
+
+- Required: after a runner restart (including a machine restart), the
+  dashboard can resume its recorded Cursor sessions through the ordinary
+  attach/recovery paths; the saved conversation and any recorded session
+  configuration scope survive, because they live in the launch record
+  and the shared Cursor chats, not in the runner process.
+- Required: a runner whose code predates the dashboard serving it is
+  not silently reused for new keeps or resumes. The dashboard detects
+  the stale runner and replaces or works around it in a way that does
+  not strand the sessions it held: those sessions end as resumable
+  records, never as silently lost work.
+- Deferred: resuming sessions the dashboard did not launch; preserving
+  a live in-flight turn across a restart (only resumption of the saved
+  conversation is required); changing Claude or Codex runner behavior.
+
+**Key examples:**
+
+1. Runner process restarts (or the machine reboots) while Cursor
+   sessions are recorded → developer reopens one through the dashboard
+   → it resumes its saved conversation, with its recorded configuration
+   scope when it has one.
+2. A dashboard update changes Cursor runner code while an old runner
+   still holds sessions → the next launch or resume runs the current
+   code, and the previously held sessions remain resumable records.
+3. Claude and Codex session behavior across restarts is unchanged.
+
+**Investigation (2026-10-20, from the model-scope story's native
+verification):** the dashboard reuses one machine Cursor runner by
+design (`runnerProcess.ts` leaves an already-accepting runner as it
+is). During SEED-052#cursor-session-model-scope slice 5, that runner
+predated the delivered scope code, so real clients spawned without the
+scope environment and the record's scope was dropped — native proof
+was skipped by Terry's decision rather than taking the stale runner
+down over unrelated sessions. When the runner was later restarted,
+the production dashboard respawned it from its own deployment. Launch
+records and saved chats already persist outside the runner, and
+deterministic recovery specs exist; what is unestablished is native
+resumption after a real runner or machine restart and any guard
+against silently reusing a stale-code runner.
+
 ## Ordering and Scope Reduction
 
 On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued

@@ -211,7 +211,7 @@ resumable, removed when that record is removed, never before.
 
 ### 5. Verify the scoped model behavior natively
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded native Cursor run from the dashboard on this machine:
 launch with a chosen model different from the current default and observe
 the session on that model with the shared configuration's model fields
@@ -271,6 +271,13 @@ it is not passed on deterministic evidence.
   which ends its 11 held sessions — a developer decision, not taken
   here. Deterministic slices 2–4 proof stands; do not pass this slice
   on it.
+- Slice 5 disposition (2026-10-20): Terry skipped the native
+  confirmation by decision. This slice closes on deterministic
+  slices 2–4 proof plus slice 1's native hook and chats-symlink
+  probes, with native end-to-end verification recorded as the story's
+  explicit limit (per ADR 0005), not as passed. The stale-runner
+  hazard behind the failed attempt is queued at the top of the
+  backlog as SEED-052#cursor-runner-restart-resume.
 - Slice 4 (2026-10-20): scope removal rides one host-neutral
   `recordRemoved` dispatch, fired only after explicit record deletion
   lands and after retention-expiry drops land; the runner process does
