@@ -110,7 +110,7 @@ An absolute changed-file size check conflicts with an approved staged decomposit
   - Timestamp: unknown (2026-10-20, slice 2 refactor and CI repair)
   - Tool: Codex
   - Open Dough release: 0.3.66 (installed execution/refactor guidance)
-  - Evidence: the slice-2 refactor reported no executable candidate and shortened `wrap-up.md` and `trunk-publication.md` to 250 lines. Commit `8ea3d654` changed the pre-existing accepted-claim sentence to equivalent wording; CI runs `39423276552/1` and `39423628393/1` rejected the unchanged literal assertion at `workspace-ownership-lifecycle.test.mjs:155`. The focused runner reproduced it and passed after restoring the phrase without weakening assertions.
+  - Evidence: the slice-2 refactor reported no executable candidate and shortened `wrap-up.md` and `trunk-publication.md` to 250 lines. Commit `8ea3d654` changed the pre-existing accepted-claim sentence to equivalent wording; CI runs `39423276552/1` and `39423628393/1` rejected the unchanged literal assertion at `workspace-ownership-lifecycle.test.mjs:155`. The focused runner reproduced it and passed after restoring the phrase without weakening assertions; proof remains at `60c164841e0ca9178a80702e595d3c0c6b826038:.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md`.
   - Observed effect: one owned failure cause across two published revisions required a repair/refactor/publication cycle; runtime publication behavior was unchanged.
   - Inference: size-only prose cleanup expanded the changed consumer surface, and the neighboring guidance assertion was omitted from focused proof. This is evidence of extra repair work, not a broader file-size policy conclusion or native behavioral failure.
 
@@ -500,7 +500,7 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Timestamp: unknown (2026-10-20, startup retrieval)
   - Tool: Codex
   - Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
-  - Evidence: coordinator startup batches returned truncated outputs of 20,586 and 17,431 original tokens; bounded rereads recovered delegation, CI/runtime, delivery and ADR context before dependent boundaries. Current coordinator history and the accepted plan identify this execution.
+  - Evidence: coordinator startup batches returned truncated outputs of 20,586 and 17,431 original tokens; bounded rereads recovered delegation, CI/runtime, delivery and ADR context before dependent boundaries. The execution and proof remain recoverable at `60c164841e0ca9178a80702e595d3c0c6b826038:.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md`.
   - Observed effect: omitted authoritative passages were retrieved again, adding repeated output and reading. Required context was recovered; no lost obligation is established.
   - Inference: same broad-retrieval mechanism as ODF-264; existing targeted retrieval applies. One execution, no measured time/token saving or new response claim.
 

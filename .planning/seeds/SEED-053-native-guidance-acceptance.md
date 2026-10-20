@@ -80,8 +80,8 @@ acceptance selection retain their own authority boundaries.
 ### Accept guarded local preparation, commit and publication on each host
 
 **Identity:** SEED-053#guarded-local-delivery-prerequisites
-**Implementation:** [SEED-146](SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery)
-and [plan 331](../slice-plans/331-gate-local-delivery-prerequisites/PLAN.md).
+**Implementation:** [SEED-146](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a80702e595d3c0c6b826038/.planning/seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery)
+and [plan 331](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a80702e595d3c0c6b826038/.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md).
 **For / outcome:** Developers using Codex, Cursor, or Claude Code can rely on
 installed execution and owned-repair guidance selecting the guarded fresh path,
 withholding dependent work after local failure, and retaining legitimate

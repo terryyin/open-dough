@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-146#gate-local-prerequisites-before-commit-and-delivery",
+  "title": "Block commits and delivery after failed local prerequisites",
+  "completedAt": "2026-10-20T12:48:19.939Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

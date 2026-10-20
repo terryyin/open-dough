@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-146_gate-local-prerequisites-before-commit-and-delivery.json",
+      "identity": "SEED-146#gate-local-prerequisites-before-commit-and-delivery",
+      "completedAt": "2026-10-20T12:48:19.939Z",
+      "blob": "1d895b22e5e9e5d32050fa9af5d479355b4d42d5"
+    },
+    {
       "fileName": "SEED-052_cursor-scope-terminal-refusal-explanation.json",
       "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
       "completedAt": "2026-10-20T11:29:50.319Z",
