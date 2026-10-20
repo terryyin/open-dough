@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `dbe36711`; the complete pre-compaction source remains at `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 318. Removed numbers are never reused.
+- Highest allocated local number: 320. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -393,3 +393,38 @@ before recovering the first run's existing native child lineage and commitments.
   - Evidence: plan 322 PROOF.md in `9e6caaae`; release attempts `20261020T013331-3987` and `20261020T014019-61f1`, their `native-source-review-provenance.json` supplements, and obligation G3. Actual fork-none lineage, source-only reading and returned commitments were recovered for both runs; stored task plaintext is encrypted and remains unaudited.
   - Observed effect: one additional paid release replay plus bounded native-history recovery; the first reviewer already existed. No fabricated review or improved spawning is established.
   - Inference: qualified one-off. Recover owned native child evidence, when available, before attributing absent CLI events to missing execution or paying to repeat that boundary. Monetary/token savings are unmeasured; no general host limitation is inferred.
+
+## DD-319 — A delegated native probe ended a pending consent prompt and recorded a refusal
+
+An implementation agent probing a new macOS notification identity ended the
+sending process while the system's first-use permission prompt was still
+waiting. macOS recorded Denied for that identity, so a promised first-use
+consent observation became a human recovery round instead.
+
+### Occurrences
+
+- Execution: SEED-144#recognize-opendough-by-its-icon / plan 326, first implementation `80dbc29e94e697a9423c360f6b6398f186256a65`
+  - Timestamp: 2026-10-20T13:20+09:00 (approximate, slice 1 native probe)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance at execution base `1ffb8c69`
+  - Evidence: slice 1 return ("I killed that waiting process … macOS recorded denied"); screenshots `prompt-1-corner.png` then `after-kill-corner.png` in the job scratch directory; plan 326 slice 1 learnings.
+  - Observed effect: the developer had to enable Notifications → Open Dough by hand across three coordinator questions (one accidental dismissal); a per-identity `tccutil` reset failed and a global reset was rightly refused. The natural first-use prompt was not observed again.
+  - Inference: delegation authorized the native probe but named no rule that a one-shot system consent must be left to its human answer. Before a native step that can raise a one-shot consent, tell the agent to leave the requesting process running and hand the prompt to the developer. One occurrence; generality unconfirmed.
+
+## DD-320 — Coordinator screen probes competed with the developer's live desktop
+
+To observe system UI, the coordinator repeatedly brought System Settings and a
+test browser to the front and resized windows on the developer's own desktop,
+while the developer was also working there and answering its questions.
+
+### Occurrences
+
+- Execution: SEED-144#recognize-opendough-by-its-icon / plan 326, first implementation `80dbc29e94e697a9423c360f6b6398f186256a65`
+  - Timestamp: 2026-10-20T14:03+09:00 to 14:08+09:00 (slice 2 click and Automation observation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed guidance at execution base `1ffb8c69`
+  - Evidence: coordinator `open x-apple.systempreferences…Privacy_Automation` and `set bounds of window 1` calls; screenshots `automation*.png` showing the developer's dashboard and terminal in use; the developer's reply "I will stop. you can takeover now".
+  - Observed effect: the developer stopped their own work to yield the screen; the Automation entry name still could not be read (no scrolling without UI scripting), so the recovery wording became name-neutral.
+  - Inference: a desktop observation needing the foreground should be batched and announced once (what will pop up, for how long), or replaced by an off-screen route (a headed test browser with its own profile worked for the tab and bookmark check). Qualified one-off.

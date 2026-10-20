@@ -161,6 +161,28 @@ independently while preserving their behavior.
 product surfaces and the macOS pop-up has direct visual confirmation, without
 requiring a wider interface redesign.
 
+<a id="branded-alert-click-automation"></a>
+
+### Correction: Name the Automation consent a branded alert click actually needs
+
+**Identity:** SEED-144#branded-alert-click-automation
+
+**Goal:** A developer whose branded Open Dough alert cannot open the dashboard
+in their browser is told the exact System Settings Automation entry to allow,
+and that entry is the one macOS actually consults for the click; updating
+terminal-notifier tells them to refresh the Open Dough sender.
+
+**Scope:** Bounded retrospective correction of
+SEED-144#recognize-opendough-by-its-icon (plan 326); adds no feature promise.
+Included: observe on a Mac which app macOS asks about (and records) for the
+branded alert's browser scripting, including a refusal; name that entry in the
+click-recovery dialog and the maintained alert docs; one setup sentence on
+re-running `npm run setup-notifier:dashboard` after updating terminal-notifier.
+Preserved: the inline click callback, destination quoting, tab reuse and the
+dialog-instead-of-extra-tab behavior; the branded sender identity and its
+Notifications permission. Plan:
+[330-branded-alert-click-automation](../slice-plans/330-branded-alert-click-automation/PLAN.md).
+
 ## Priority and Preparation
 
 Terry explicitly requested this story at the top of the product backlog on

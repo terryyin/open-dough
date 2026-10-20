@@ -262,6 +262,20 @@ native setup/current behavior beside slices 1–2 in `dashboard/COMMANDS.md` and
 narrow/zoom rendering under manual testing; completion still requires slices
 1–3's direct external icon observations.
 
+## Execution complete
+
+Product advice: Land, then announce in the next release that machines whose
+alerts used plain terminal-notifier need the one-time
+`npm run setup-notifier:dashboard -- --test` (the sidebar only says "not set
+up" while Sessions is open). Execute the bounded correction
+[SEED-144#branded-alert-click-automation](../330-branded-alert-click-automation/PLAN.md)
+before relying on click recovery on a fresh Mac: the Automation entry macOS
+consults for a branded alert click is unobserved and the recovery wording is
+name-neutral. Separately, `dashboard/tests/boundary/run-processes.spec.ts:110`
+failed twice in full local runs at load average about 25 (its proof fixture's
+3,000 ms `afterEach` timeout) and passed when rerun alone; it is a
+load-sensitive test defect worth a later correction.
+
 ## Sizing, cumulative design, and safe stopping
 
 Four bounded proof loops: native setup/feasibility, real attention delivery and
