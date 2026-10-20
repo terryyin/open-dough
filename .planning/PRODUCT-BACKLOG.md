@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up ([plan](slice-plans/333-continue-execution-into-wrap-up/PLAN.md))
-
 ## Backlog list
 
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume

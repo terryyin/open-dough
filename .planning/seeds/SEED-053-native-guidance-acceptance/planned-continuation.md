@@ -5,8 +5,8 @@ These cases extend the canonical
 acceptance home; they create no separate identity or queue assignment.
 
 **Covered work:**
-[SEED-145#continue-execution-into-wrap-up](../SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up)
-and [plan 333](../../slice-plans/333-continue-execution-into-wrap-up/PLAN.md).
+[SEED-145#continue-execution-into-wrap-up](https://github.com/terryyin/open-dough/blob/2c635d595e09f7829b1e08ad259cae9eec5d644e/.planning/seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up)
+and [plan 333](https://github.com/terryyin/open-dough/blob/2c635d595e09f7829b1e08ad259cae9eec5d644e/.planning/slice-plans/333-continue-execution-into-wrap-up/PLAN.md).
 Observe installed planned execution invoking Story Wrap Up in the same session
 without a separate instruction when no human choice remains, and preserving
 genuine stops. This extension grants no native-run, release or rollout authority.
