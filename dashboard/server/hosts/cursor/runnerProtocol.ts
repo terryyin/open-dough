@@ -63,6 +63,10 @@ export const cursorRunnerHangupRequest = z.object({
 
 // One read of the clients this runner holds. It starts nothing.
 export const cursorRunnerSessionsResult = z.object({
+  // The build this runner is running (./runnerBuild.ts). Older accepting
+  // runners omit it; missing proof is readable and means stale for new
+  // work, following the workspaceTrust/screen precedent below.
+  buildId: z.string().min(1).optional(),
   sessions: z.array(
     z.object({
       session: hostSessionSchema,

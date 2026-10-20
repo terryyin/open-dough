@@ -21,6 +21,13 @@ import {
   cursorRunnerAttachSession,
   cursorRunnerExecRequest,
 } from "./runnerProtocol.ts";
+import { computeRunnerBuildId } from "./runnerBuild.ts";
+
+// The identity of the code this process is running, from the entry it was
+// actually started with (process.argv[1], not import.meta.url, which
+// bundles preserve as the original source location): the bundled file
+// itself, or the source entry and its reached modules.
+const buildId = computeRunnerBuildId(process.argv[1] ?? "");
 
 const attachments = new TerminalAttachments();
 const directory = cursorRunnerDirectory();
@@ -58,7 +65,7 @@ async function publishAddress(port: number): Promise<void> {
   const temporary = `${file}.${String(process.pid)}.tmp`;
   await writeFile(
     temporary,
-    JSON.stringify({ port, pid: process.pid }),
+    JSON.stringify({ port, pid: process.pid, buildId }),
     "utf8",
   );
   await rename(temporary, file);
@@ -91,6 +98,7 @@ async function answer(
   if (req.method === "GET" && url.pathname === "/sessions") {
     const held = await attachments.held();
     sendJson(res, 200, {
+      buildId,
       sessions: held.flatMap((client) => {
         if (client.session.host !== "cursor") return [];
         const label = cursorSessionLabel(client.screen);

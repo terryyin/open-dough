@@ -80,7 +80,7 @@ model-scope failure was precisely a code change nobody stamped.
 
 ### 1. New Cursor work never runs on a stale or unproved runner
 Type: Behavior
-Status: planned
+Status: done
 Proof: Boundary proof with a stand-in runner that answers the wire
 protocol with a wrong or missing build proof, and a journey with a real
 runner whose recorded proof is turned stale while it holds a client:

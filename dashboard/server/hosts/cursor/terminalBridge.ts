@@ -1,11 +1,18 @@
 // Bridges one browser terminal to the Cursor runner that holds its
 // client: output and input pass through, and closing the browser leaves
-// the kept client held by the runner.
+// the kept client held by the runner. Attaching to a client the accepting
+// runner still holds joins that client on that runner, even a stale one;
+// attaching to a session it does not hold is a resume, so it takes the
+// new-work path and a current runner is ensured first.
+import { homedir } from "node:os";
 import { WebSocket, type RawData } from "ws";
 import { terminalAttachFailedCode } from "../../../src/agentTerminal.ts";
+import { sessionKey } from "../../../src/sessionReference.ts";
 import type { TerminalSession } from "../../agentTerminals.ts";
 import { cursorRunnerAttachUrl } from "./runnerAttach.ts";
-import { cursorRunnerPort } from "./runnerProcess.ts";
+import { readCursorRunnerSessions } from "./runnerClient.ts";
+import { currentCursorRunnerPort } from "./runnerCurrent.ts";
+import { acceptingCursorRunnerPort } from "./runnerProcess.ts";
 
 export async function bridgeCursorTerminal(
   browser: WebSocket,
@@ -20,7 +27,17 @@ export async function bridgeCursorTerminal(
       );
     }
   };
-  const port = await cursorRunnerPort(home);
+  // A read that starts nothing decides the split: held clients join the
+  // accepting runner untouched, anything else is resumed as new work.
+  const read = await readCursorRunnerSessions(home ?? homedir());
+  const held =
+    read.kind === "running" &&
+    read.sessions.some(
+      (item) => sessionKey(item.session) === sessionKey(session.session),
+    );
+  const port = held
+    ? await acceptingCursorRunnerPort(home)
+    : await currentCursorRunnerPort(home);
   if (port === undefined || browser.readyState !== WebSocket.OPEN) {
     fail();
     return;

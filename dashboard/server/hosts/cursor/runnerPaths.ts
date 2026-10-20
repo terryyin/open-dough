@@ -10,6 +10,9 @@ import { machineDashboardDirectory } from "../../machineHome.ts";
 const addressSchema = z.object({
   port: z.int().positive(),
   pid: z.int().positive(),
+  // The build the runner is running (./runnerBuild.ts). Runners started
+  // before build proof existed publish no identity; absence means stale.
+  buildId: z.string().min(1).optional(),
 });
 
 export type CursorRunnerAddress = z.infer<typeof addressSchema>;
