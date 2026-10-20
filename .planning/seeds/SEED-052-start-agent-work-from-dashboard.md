@@ -98,6 +98,46 @@ child stories below. On 2026-09-28 the maintainer replaced its backlog
 entry with these children at priorities 4–11, in their listed order. The parent
 is no longer separately queued and is not redefined as the first child.
 
+## Cursor follow-up evidence — 2026-10-20
+
+Terry reported that a Cursor session finishing plan execution or becoming ready
+for review did not send a notification. He selected the three follow-ups below
+for the top of the product backlog and authorized preparation directly on main
+and synchronization with origin. This selects queued work; it starts no execution.
+
+The comparison inspected repository revision `70664aaef34cb9bcf302805b1a7493921c2a378d`.
+It establishes current integration behavior, not a fresh native Cursor
+reproduction or a claim that Cursor itself lacks every underlying capability:
+
+- [Cursor observation](../../dashboard/server/hosts/cursor/sessions.ts) carries
+  runner screen labels as unknown activity. [Presentation](../../dashboard/src/nativeSessionShown.ts)
+  gives these no attention count, and [alert selection](../../dashboard/src/sessionShown.ts)
+  suppresses native activity alerts for unknown observations. This affects input,
+  review, failure and interruption awareness as well as the reported completion.
+- Unread explicit completion reports can alert independently of native activity.
+  [Launch instructions](../../dashboard/server/reportingInstruction.ts) describe
+  reporting for Land/Wrap Up; [plan execution handoff](../../src/skills/dough-execute-plan/references/finish-or-stop.md)
+  does not require sending that report. A completed report with no attention
+  message is deliberately quiet; that is distinct from missing review attention.
+- The [Cursor host boundary](../../dashboard/server/cursorHost.ts) supplies no
+  native stop, rename or final-answer reader. Codex and Claude supply stop and
+  rename; only Codex supplies a native final-answer reader. Cursor and Claude can
+  still display an explicitly submitted report. Cursor's report-backed local
+  Done acknowledges the record without stopping the native session.
+- [Cursor model wording](../../dashboard/src/hostDescription.ts) already warns
+  that a chosen model becomes the default for later sessions. Codex supplies its
+  choice to conversation creation. Session-only Cursor selection has not been
+  established by this comparison.
+- [ODF-154](../../docs/maintainer/findings/ODF-154.md) retains the older lost CI
+  observation problem and its fix released in 0.3.57. Its native identity-to-hook
+  verification remains unestablished. This is a verification gap, not evidence
+  that the released fix failed or that it caused the dashboard notification miss.
+
+The interruption evidence remains owned by
+[ODF-204](../../docs/maintainer/findings/ODF-204.md) and
+[ODF-229](../../docs/maintainer/findings/ODF-229.md), linked from story 2 below.
+Their occurrence histories and uncertainty must survive refinement and delivery.
+
 ## Story Decomposition
 
 The developer using the dashboard evaluates each story through its visible
@@ -106,7 +146,134 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
+<a id="cursor-attention-and-results"></a>
+
+### 1. Receive Cursor attention alerts and read the result
+
+**Identity:** SEED-052#cursor-attention-and-results
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary and outcome:** A developer following Cursor work can notice when
+the session needs an answer or review, finishes with attention, fails or is
+interrupted, and can read the relevant result without continually opening its
+terminal. The dashboard's attention indicators and notifications agree.
+
+**Scope and evaluation:** Cover the reported plan execution/review handoff and
+input, failure and interruption attention. Evaluate a working session that asks
+a question, resumes, and reaches review; an execution-complete handoff before
+Land/Wrap Up; and failure/interruption with a usable explanation. Each actionable
+transition alerts once, and the developer can read the question or final result.
+Preserve explicit reports, intentionally quiet successful closure, notification
+continuity, and correct session/story attribution. Keep unknown or unavailable
+observations honest: an idle composer or process exit alone proves no successful
+outcome. Select the smallest supported native or explicit-report route during
+refinement rather than requiring a speculative Cursor API.
+
+**Retained verification:** Confirm the affected notification/report journey in
+native Cursor. Include the still-unverified released CI identity-to-hook path
+from [ODF-154](../../docs/maintainer/findings/ODF-154.md) when evaluating delivery
+of CI attention to that same coordinator. Keep CI observation and developer
+desktop alerts distinct. After delivery, update that finding with actual native
+evidence or the precise remaining gap; do not rewrite its pre-fix occurrences
+as post-fix failures or infer a watch start from installation alone.
+
+**Open questions and effort:** The available completion/input evidence, how to
+read a result without taking interactive control, and which existing reporting
+channel can close the gap remain for refinement. Size is unassigned.
+
+**Depends on / safe stopping point:** No blocking story prerequisite is known.
+Deliver usable attention and result access independently of the later control
+and model stories; retain existing Codex and Claude behavior.
+
+<a id="safe-cursor-session-stop"></a>
+
+### 2. Stop and acknowledge Cursor sessions safely
+
+**Identity:** SEED-052#safe-cursor-session-stop
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary and outcome:** A developer stopping Cursor work can distinguish
+acknowledging its dashboard record from interrupting execution, know whether
+execution actually stopped, and continue without an unnoticed competing writer.
+
+**Scope and evaluation:** Establish supported interruption and Done behavior
+for an active Cursor session, including whether native naming can reflect Done.
+Preserve report-backed local acknowledgement and recovery. Where interruption
+cannot be confirmed, explain the remaining work/process state and preserve
+recovery rather than claiming termination or starting a replacement writer on
+the assumption that the earlier one stopped. Check stop/reopen and
+report/acknowledgement independently; local Done must not masquerade as native
+termination.
+
+**Retained evidence:** [ODF-204](../../docs/maintainer/findings/ODF-204.md) records
+one interrupted delegated refactor that continued, committed and pushed despite
+its no-publication instructions while other work began in the checkout. Whether
+the interrupt failed or later continuation reached that agent is unknown.
+[ODF-229](../../docs/maintainer/findings/ODF-229.md) separately records an
+interrupted implementation Task leaving edits without its proof return; no
+unauthorized publication was observed there. These do not establish a shared
+cause or a failure on every Cursor interruption.
+
+**Evaluation of interrupted delegation:** Use bounded reproduction to establish
+what remains active, how partial edits and missing proof are recovered, and what
+prevents overlapping writers or unintended publication before work resumes.
+Address both findings without relying on a promised agent return. After
+delivery, update each linked finding with the actual response, release and
+observation evidence or explicit remaining uncertainty; queueing resolves neither.
+
+**Open questions and effort:** Native stop/rename capability, runner-owned
+interruption, delegated-agent control and proof recovery need refinement before
+choosing a mechanism. Size is unassigned. Do not infer that a dashboard stop
+alone also stops every delegated agent.
+
+**Depends on / safe stopping point:** No blocking story prerequisite is known.
+Safe stop or explicit unconfirmed-stop recovery remains useful without model
+selection changes or richer result reading.
+
+<a id="cursor-session-model-scope"></a>
+
+### 3. Choose a Cursor session model without changing later defaults
+
+**Identity:** SEED-052#cursor-session-model-scope
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Beneficiary and outcome:** A developer choosing a model for one dashboard
+Cursor launch gets that choice for the requested session while later sessions
+retain the developer's default model.
+
+**Known behavior and evaluation:** The current launch applies the selected
+model to the first terminal client, and the UI already warns that Cursor also
+saves it as the default. A stored resume omits that model flag. Establish the
+actual native behavior before selecting a remedy. Evaluate default model A,
+one launch explicitly choosing B, resumption of that session, and a subsequent
+default launch: the selected session uses B and the later launch uses A.
+Include overlapping launches and a deliberate intervening default change;
+restoring a saved value must not overwrite a newer developer or session choice.
+
+**Open decision and effort:** A supported session-only model mechanism has not
+been demonstrated. If the host requires a persistent global change, bring the
+constraint and product alternatives to the developer during refinement before
+settling the promise; the existing warning alone does not satisfy this outcome.
+Size is unassigned.
+
+**Depends on / safe stopping point:** No blocking story prerequisite is known.
+Model selection is independently evaluable; keep launch, default selection and
+same-session continuation usable while its mechanism is resolved.
+
 ## Ordering and Scope Reduction
+
+On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued
+items, in that order: attention/results first, safe stopping second, model scope
+third. They preserve the existing near-future direction and unrelated backlog
+order. No technical prerequisite between them has been established. The
+following original ordering notes describe earlier delivery choices, not a
+deferral of these newly selected Cursor stories.
 
 Stories 2 and 3 make return and interaction useful; refinement launch and
 embedded answers are already available. Story 4 now adds attention indicators
@@ -143,6 +310,9 @@ implementation; refinement and executable planning are later selections.
 
 ## Breadcrumbs
 
+- Terry's Cursor completion-notification report, comparison with other sessions,
+  and instruction to preserve the known gaps as top-priority backlog work,
+  2026-10-20. Repository inspection and finding links are retained above.
 - Maintainer interview in this chat, 2026-09-28: Claude Code first, launch before
   setup relocation, default model, optional prompt, manual native terminal
   interaction, slight priority for interaction, independent recent sessions and
