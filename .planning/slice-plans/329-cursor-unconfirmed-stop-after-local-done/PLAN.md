@@ -99,6 +99,6 @@ rule; hosts whose Done is native keep their current panel behavior.
   local done mark neither clears it nor implies the session stopped.
 - Reuse the existing host-fact seam (`sessionCapabilities.ts`) and the
   existing launch pre-acceptance block; add no Cursor-name branch.
-- This correction is planned, not queued or authorized; a separate request
-  executes it. Native verification remains pending under plan 327 slice 5's
+- This correction is queued; this preparation neither Takes it nor
+  authorizes execution. Native verification remains pending under plan 327 slice 5's
   named manual actions and is not part of this correction.
