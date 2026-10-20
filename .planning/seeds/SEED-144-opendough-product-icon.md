@@ -166,6 +166,9 @@ requiring a wider interface redesign.
 ### Correction: Name the Automation consent a branded alert click actually needs
 
 **Identity:** SEED-144#branded-alert-click-automation
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/330-branded-alert-click-automation/PLAN.md"}
+```
 
 **Goal:** A developer whose branded Open Dough alert cannot open the dashboard
 in their browser is told the exact System Settings Automation entry to allow,
