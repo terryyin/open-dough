@@ -199,6 +199,7 @@ test.describe("a notification refused after successful diagnostics", () => {
     await expect
       .poll(() => alertsAnswered(server))
       .toEqual({ available: true });
+    await expect.poll(() => server.notifierCalls().length).toBe(2);
     expect(server.notifierCalls()).toHaveLength(2);
     expect(server.notifierProbes()).toHaveLength(4);
   });
