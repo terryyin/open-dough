@@ -181,6 +181,43 @@ exception that preserves the pending requirements. Paid native sessions are
 explicitly invoked only; add none to default tests or CI. No native session was
 run or accepted while recording this candidate.
 
+<a id="match-historical-replay-inputs"></a>
+
+### Match native replay inputs to historical evidence
+
+**Identity:** SEED-053#match-historical-replay-inputs
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / outcome:** Open Dough maintainers can tell before a paid native replay
+whether the fixture preserves the knowledge and delegation conditions that made
+the historical failure possible, so the resulting run can answer its intended
+question. [DD-320](../../ProjectFindings.md#dd-320) records the extra paid run and
+inconclusive replay that motivate this repository-owned response.
+
+**Bounded scope:** Apply the comparison to the existing proof-scheduling native
+fixture and its retained historical occurrences. Keep assumptions introduced by
+the fixture explicit, distinguish an intentional control from a historical
+replay, and retain an inconclusive reachability judgment when the source lacks
+necessary context. Reuse existing harnesses and evidence homes. Do not change
+published skills, make a generic replay system, or add paid runs to default
+checks or CI.
+
+**Evaluation:** Before launch, compare the fourteen-minute cost and stylesheet
+rule supplied by plan 323's first fixture with plan 302's historical brief, and
+identify why that knowledge changed the decision under observation. Distinguish
+the delegated-implementer condition from the coordinator condition. A fixture
+that supplies the missing answer must not count as a reached historical boundary;
+a faithful or explicitly qualified fixture must state what a later authorized
+run can and cannot establish. Credential-free checks may prove fixture inputs;
+only an explicitly authorized native run can prove agent behavior.
+
+**Completion:** Update DD-320 at its canonical finding location with the actual
+response revision, direct comparison evidence and any remaining native outcome
+gap; queueing and fixture checks alone do not resolve the historical finding.
+
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.

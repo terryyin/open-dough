@@ -15,7 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-10-20):** DD-309's repository-tooling response is implemented and measured: default formatting selects the change set, with the full-tree run available explicitly. Its [response and measured evidence](docs/maintainer/project-test-findings.md#dd-309) retain the observed load and pending containing release. No further response is selected here. Existing repaired responses remain historical; incomplete exposure does not establish retirement of other local findings. DD-312 moves here as a repaired fixture-specific observation, not a shared defect.
+**Maintenance assessment (2026-10-21):** DD-309's measured repository-tooling response first ships in `v0.3.67`; later usage remains unobserved. DD-297's source-directory race was repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`, while its separate loaded child-start observation remains qualified. Select one local response: [match native replay inputs to historical evidence](.planning/seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs), for DD-320's extra paid run and inconclusive replay. This advances useful learning before spending another native run. The strongest alternative is the older browser-restart race (DD-296): its concrete failing callers were repaired, and the remaining related exposure has no new observed failure. Preserve that residual and other open findings without another implementation commitment. Existing repaired responses remain historical; incomplete exposure does not establish retirement. No new occurrence is added by this review.
 
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
@@ -118,7 +118,7 @@ DD-243 remains the same finding; its later occurrences are
   - Observed effect: implementation and refactor proof were green before formatting; only the coordinator's post-format rerun exposed the break.
   - Inference: any unquoted hyphenated key in this repository's Bash harness is exposed; a lint rule or harness convention would prevent recurrence. One occurrence.
 
-## Native replays should reproduce what the historical agent knew (open, unqueued)
+## Native replays should reproduce what the historical agent knew (queued, not resolved)
 
 <a id="dd-320"></a>
 
@@ -133,6 +133,8 @@ DD-243 remains the same finding; its later occurrences are
   - Evidence: plan 323 (`6922dc32:.planning/slice-plans/323-schedule-proof-after-refactoring/PLAN.md`) slice 1 asked for “a fast representative suite with a stated realistic cost”; the fixture's AGENTS.md stated the fourteen-minute cost and a new-stylesheet layout rule; the native coordinator's refactor brief said “Do NOT run `bin/suite.sh` — the whole suite costs ~14 minutes”. Plan 302's brief had estimated the suite at “a few minutes”. Terry then added slice 2 to replay the historical conditions.
   - Observed effect: one extra slice and one extra paid Claude run; the second replay still did not reach the delegated-implementer condition.
   - Inference: qualified. Stating the cost changed what the agent knew, which the historical defect depended on; preparation can compare a replay's inputs with each occurrence's recorded context before the first paid launch.
+
+**Follow-up:** [Match native replay inputs to historical evidence](.planning/seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs), queued, not resolved. Preserve the original knowledge conditions and a pre-launch reachability judgment; no paid run is authorized by this maintenance.
 
 ## Paid native-run permission handoff (low priority, unqueued)
 
@@ -259,7 +261,7 @@ cache growth is prevented in these observations; the source of the historical
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
 
-## Selective formatting during delivery (implemented and measured, release pending)
+## Selective formatting during delivery (implemented and measured, released in v0.3.67)
 
 <a id="dd-309"></a>
 
