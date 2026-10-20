@@ -94,8 +94,8 @@ notifications; choose Allow, and leave the command running until it is
 answered. After Don't Allow, or when the test is not accepted, turn on Allow
 notifications in that settings entry and run the test again. Running setup
 again replaces the app at the same location with the same identity, which keeps
-its permission. Until the dashboard switches to this sender, alerts still come
-from `terminal-notifier`.
+its permission. Dashboard alerts are sent from this app; without it, or without
+its permission, the open Sessions sidebar says **Alerts unavailable** and why.
 
 To dictate startup instructions, open System settings → OpenAI and explicitly
 save an API key. It configures general OpenAI access on this machine; saving

@@ -1,15 +1,21 @@
-// The separately installed helper's native protocol. SessionAlerts owns when
-// to probe/send and supplies the abort signal for every diagnostic/delivery.
+// The native protocol of Open Dough's notification sender, the branded copy
+// of the separately installed helper (notifierApp.ts), run from its one stable
+// machine-local location. SessionAlerts owns when to probe/send and supplies
+// the abort signal for every diagnostic/delivery.
 import { execFile } from "node:child_process";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { notificationActivationSource } from "./notificationActivation.ts";
+import {
+  brandedNotifierExecutable,
+  notifierDisplayName,
+  notifierSetupCommand,
+} from "./notifierApp.ts";
 
-const notFound =
-  "terminal-notifier was not found. Install it separately with brew install terminal-notifier, then restart the dashboard.";
-const unsupported =
-  "Alerts need terminal-notifier 3.1 or newer. Update it separately, then restart the dashboard.";
-const refused =
-  "terminal-notifier did not accept the notification. Check System Settings → Notifications → terminal-notifier and allow notifications.";
+const notFound = `The ${notifierDisplayName} notification sender is not set up. Run ${notifierSetupCommand} -- --test, allow ${notifierDisplayName} when macOS asks, then restart the dashboard.`;
+const unsupported = `Alerts need terminal-notifier 3.1 or newer. Update it separately, run ${notifierSetupCommand} again, then restart the dashboard.`;
+// Denied and not yet requested permission alike; a sent notification refused
+// for any other reason has the same recovery.
+const refused = `${notifierDisplayName} did not accept the notification. Turn on Allow notifications in System Settings → Notifications → ${notifierDisplayName}, or run ${notifierSetupCommand} -- --test and choose Allow when macOS asks.`;
 
 // Raw helper output is only interpreted here; fixed explanations cross into
 // alert availability. An owner-aborted child says nothing about availability.
@@ -18,7 +24,7 @@ function notifier(
   signal: AbortSignal,
 ): Promise<{ readonly output: string; readonly unavailable?: string }> {
   return new Promise((resolve) => {
-    execFile("terminal-notifier", args, { signal }, (error, stdout) => {
+    execFile(brandedNotifierExecutable(), args, { signal }, (error, stdout) => {
       if (error === null || signal.aborted) resolve({ output: stdout });
       else
         resolve({

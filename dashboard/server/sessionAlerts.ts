@@ -12,8 +12,9 @@ import { sessionKey } from "../src/sessionReference.ts";
 // rule through observation gaps; a confirmed change of activity can rearm it.
 // Other readings alert on entry,
 // and reports alert once in their own words when they arrive unread. Delivery is
-// separately installed `terminal-notifier`, opening the serving dashboard's
-// project/story URL on a click. Text uses the helper's leading-character escape;
+// Open Dough's own notification sender (`./terminalNotifier.ts`), opening the
+// serving dashboard's project/story URL on a click. Text uses the helper's
+// leading-character escape;
 // its durable browser callback receives a safely quoted URL argument. A version and
 // permission diagnostic probes availability at start and after a refusal;
 // missing/unsupported/refused helpers leave the loop running. Raw stderr is
@@ -91,7 +92,7 @@ export class SessionAlerts {
   private readonly handledReview = new Set<string>();
   // The latest helper outcome. Checking is not yet established availability.
   private unavailable: string | undefined =
-    "Checking terminal-notifier availability.";
+    "Checking the Open Dough notification sender.";
   private readonly probing: Promise<void>;
 
   constructor(

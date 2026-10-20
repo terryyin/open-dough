@@ -146,22 +146,24 @@ Development and production keep separate project lists and share machine-local
 launch/session records. Records survive production replacements and watcher shutdown.
 Development testing can act on the same projects and records as production.
 
-macOS session alerts require a separately installed `terminal-notifier` 3.1 or
-newer (tested with Homebrew 3.1.0 on macOS 26.6.2): install it with
-`brew install terminal-notifier`, and allow **terminal-notifier** in **System
-Settings → Notifications**. If it is not listed yet, open the installed app
-once through the normal macOS flow. `terminal-notifier -diagnose` checks the
-permission; restart the dashboard after installing or updating the helper.
-The dashboard never installs or updates it. Missing, unsupported or refused
-delivery appears as **Alerts unavailable** in the open Sessions sidebar while
-sessions remain usable; a later successful notification clears the note.
+macOS session alerts come from Open Dough's own notification sender, which
+shows the Open Dough icon and name. Set it up once with
+`npm run setup-notifier:dashboard -- --test` and choose Allow when macOS asks;
+it needs a separately installed `terminal-notifier` 3.1 or newer (tested with
+Homebrew 3.1.0 on macOS 26.6.2, `brew install terminal-notifier`), and
+[Dashboard commands](COMMANDS.md) describes the setup. Its permission is
+**System Settings → Notifications → Open Dough**. Restart the dashboard after
+setting the sender up. The dashboard never sets it up or asks for permission.
+A missing sender, unsupported helper or refused delivery appears as **Alerts
+unavailable** in the open Sessions sidebar while sessions remain usable; a
+later successful notification clears the note.
 
 Clicking a session alert opens this running dashboard in the default browser,
 reusing and foregrounding an existing dashboard tab in Safari or Google Chrome.
 If none matches this address, it opens a tab in an existing window, or opens a
-window when needed. The first click can ask to let **terminal-notifier** control
+window when needed. The first click can ask to let the alert sender control
 the browser; allow it through the normal macOS prompt. You can review this in
-**System Settings → Privacy & Security → Automation → terminal-notifier**.
+**System Settings → Privacy & Security → Automation**.
 If browser access is refused, a dialog explains recovery; open the dashboard
 manually after granting access, and future notifications can reuse its tab.
 The click selects its project and reveals/focuses the story by stable identity,

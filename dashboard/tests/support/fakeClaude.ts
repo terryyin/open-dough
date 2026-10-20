@@ -1,15 +1,23 @@
 // Prepares one dashboard server's side of the local launch boundary: the
 // synthetic `claude` (../fixtures/fake-claude, with its attach module) in its
-// own PATH directory, the synthetic `terminal-notifier` (../fixtures/fake-terminal-notifier)
-// before it, a temporary HOME holding only the project folders a test chooses
-// (inside a machine directory the test owns, if it passes one), and the
-// controls a test uses to choose the fake's scenario and read back what it was
-// asked. Nothing here starts a server (./dashboardServer.ts does), and no test
-// ever reaches the real `claude` or `terminal-notifier`: every server puts these first
-// on PATH, or, to observe a missing one, a PATH holding none, so no test
-// raises a real notification.
+// own PATH directory, a temporary HOME holding only the project folders a test
+// chooses (inside a machine directory the test owns, if it passes one) and,
+// as that HOME's Open Dough notification sender, the synthetic
+// `terminal-notifier` (../fixtures/fake-terminal-notifier), and the controls a
+// test uses to choose the fake's scenario and read back what it was asked.
+// Nothing here starts a server (./dashboardServer.ts does), and no test ever
+// reaches the real `claude` or the real sender: every server puts the fake
+// `claude` first on PATH, or, to observe a missing one, a PATH holding none,
+// and finds its sender only under this temporary HOME, so no test raises a
+// real notification.
 
-import { mkdirSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
@@ -41,9 +49,10 @@ export type FakeClaudeOptions = {
   // `absent`: no `claude` anywhere on the server's PATH, which then holds
   // only the fake `gh` and Node.
   readonly claude?: "fake" | "absent";
-  // How the fake `terminal-notifier` starts: `absent` puts none on the server's PATH;
-  // `failing` refuses every notification; `hang` holds each one open. Working
-  // when unset.
+  // How the fake sender starts: `absent` sets none up in HOME, leaving only a
+  // `terminal-notifier` on PATH, which the server must not use; `failing`
+  // refuses every notification; `hang` holds each one open. Working when
+  // unset.
   readonly notifier?: "absent" | NotifierMode | undefined;
   // How often the server reads the sessions to alert; an hour when unset, so
   // only a test about alerts sees the server read the sessions on its own.
@@ -73,6 +82,19 @@ export const fakeClaudeHost: FakeHostWiring = {
   wiring: "FAKE_CLAUDE_DIR",
 };
 
+// Open Dough's notification sender app under this HOME, where the server runs
+// it from: written out here rather than taken from the server, so the
+// location is checked too.
+function fakeSenderApp(home: string): string {
+  return path.join(
+    home,
+    ".open-dough",
+    "dashboard",
+    "notifier",
+    "Open Dough.app",
+  );
+}
+
 export function installFakeClaude(
   tempRoot: string,
   gh: { readonly binDir: string; readonly path: string },
@@ -98,30 +120,37 @@ export function installFakeClaude(
     binDir,
     "fake-host-environment.cjs",
   );
-  if (options.notifier !== "absent") {
+  // Recorded like the sender, so a server that ran a helper from PATH is seen.
+  installFixtureExecutable(
+    "fake-terminal-notifier",
+    notifierBinDir,
+    "terminal-notifier",
+  );
+  // A machine another server already used may hold it. Removing the whole
+  // app never follows a link inside it out of this HOME.
+  const senderApp = fakeSenderApp(home);
+  const senderDir = path.join(senderApp, "Contents", "MacOS");
+  if (options.notifier === "absent")
+    rmSync(senderApp, { recursive: true, force: true });
+  else if (!existsSync(path.join(senderDir, "terminal-notifier")))
     installFixtureExecutable(
       "fake-terminal-notifier",
-      notifierBinDir,
+      senderDir,
       "terminal-notifier",
     );
-  }
   mkdirSync(stateDir, { recursive: true });
   for (const folder of ["", ...(options.projectFolders ?? [])]) {
     mkdirSync(path.join(home, "git", folder), { recursive: true });
   }
 
   const env: Record<string, string> = {
-    // The real `claude` and `terminal-notifier` are never reached: the fake ones come
-    // first, or none is on PATH at all.
-    // Where either is absent, the system's own PATH is left out, so a real
-    // `terminal-notifier` on a Mac is out of reach too.
+    // The real `claude` is never reached: the fake one comes first, or, where
+    // it is absent, the system's own PATH is left out.
     PATH: [
-      ...(options.notifier === "absent" ? [] : [notifierBinDir]),
+      notifierBinDir,
       ...(options.claude === "absent"
         ? [gh.binDir, nodeOnlyBinDir(tempRoot)]
-        : options.notifier === "absent"
-          ? [binDir, gh.binDir, nodeOnlyBinDir(tempRoot)]
-          : [binDir, gh.path]),
+        : [binDir, gh.path]),
     ].join(path.delimiter),
     HOME: home,
     FAKE_CLAUDE_DIR: stateDir,

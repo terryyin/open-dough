@@ -92,8 +92,8 @@ export function openSessionsOf(
 }
 
 // Whether the boundary can raise its macOS notifications
-// (`../server/sessionAlerts.ts`): the outcome of the latest `terminal-notifier` it
-// ran, with one fixed sentence of why not.
+// (`../server/sessionAlerts.ts`): the outcome of the latest notification
+// sender run, with one fixed sentence of why not.
 export const alertsSchema = z.discriminatedUnion("available", [
   z.object({ available: z.literal(true) }),
   z.object({ available: z.literal(false), reason: z.string().min(1) }),

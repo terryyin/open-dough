@@ -180,7 +180,7 @@ sender until slice 2, while the new setup is explicitly invoked only.
 
 ### 2. Recognize and open real dashboard attention alerts from the branded sender
 Type: Behavior
-Status: planned
+Status: done
 Proof: The real dashboard attention transition posts the accepted sender icon;
 after helper exit, a click reaches the correct project/story using existing
 browser reuse. Repeat across a normal deployment replacement/restart. Focused
@@ -291,17 +291,17 @@ skill discovery matrix is added.
 ### G1. Click after the sender exits
 Reported: slice 1 — "A click callback after the sender exits. The setup test notification deliberately has no `-execute`, so this is left to slice 2."
 Story clause: "After the sending process exits, clicking still reaches the correct dashboard project/story."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: real attention alert from an isolated dashboard built from this checkout (port 4180, fake host, real branded sender); the sender process had exited (no `terminal-notifier` process) when the developer clicked it, and Safari opened `http://127.0.0.1:4180/?project=open-dough&story=SEED-052%23launch-claude-planned-execution` in the existing window. After that server was shut down and replaced on the same port, the developer clicked a second alert and reported no recovery dialog; Safari kept the reused 4180 tab. `boundary/session-alerts-activation-command.spec.ts` asserts the click argv names no checkout path or Node executable.
 
 ### G2. Browser Automation consent
 Reported: slice 1 — "Automation consent."
 Story clause: "Observe browser Automation permission or refusal separately"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: on the developer's Mac, both clicks navigated Safari without any Automation prompt, so consent was already held for the process macOS attributes. Which Automation entry that is was not observable (the Settings list could not be scrolled without UI scripting), so the recovery dialog and docs name the pane and "the alert sender" rather than an entry name.
 
 ### G3. Dashboard alerts still use the old sender
 Reported: slice 1 — "Until the dashboard switches to this sender, alerts still come from `terminal-notifier`."
 Story clause: "The actual sender icon is the accepted mark, with an Open Dough sender identity."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: `terminalNotifier.ts` runs `brandedNotifierExecutable()`; `session-alerts-unavailable.spec.ts` "no Open Dough sender set up, only terminal-notifier on PATH" shows a helper on PATH is never used; the real alert pop-up showed the accepted icon.
 
 ### G4. Linux CI skips the macOS build fixture tests
 Reported: slice 1 — "CI is Linux, so CI runs only the two refusal tests. The three build tests skip there, because they need macOS `sips`/`iconutil`/`plutil`/`codesign`."
@@ -327,6 +327,17 @@ across refresh. A copied bundle must be registered with Launch Services
 before macOS asks for or keeps its permission. Ending the sender while its
 consent prompt is pending records Denied, so setup docs say to leave the
 command running. Slice 2 switches the dashboard to `brandedNotifierExecutable()`.
+
+Slice 2 (execution, 2026-10-20): dashboard alerts run the branded sender from
+the machine dashboard home; not-set-up, unsupported and refused explanations
+name `npm run setup-notifier:dashboard` and the Open Dough Notifications entry.
+Tests find the fake sender only under their isolated HOME
+(`fakeSenderDir` in `tests/support/fakeClaude.ts`); in-process specs must set
+`HOME` themselves. Accepted proof: `env -u NO_COLOR npm run test:dashboard --
+session-alerts boundary/session-alerts notification-story-navigation.spec.ts
+boundary/notifier-setup.spec.ts agent-launch-codex-observation-alerts
+agent-terminal-close agent-terminal-codex-close` plus the three machine-home
+listing specs, and the native alert/click observations recorded in G1–G3.
 
 Preparation found that macOS sender identity, rather than a missing icon flag,
 owns the difficult part of the requested outcome. The current helper is

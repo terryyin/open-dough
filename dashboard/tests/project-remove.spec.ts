@@ -146,12 +146,14 @@ test("removing a configured project retains its checkout and records, hides sess
       ({ id }) => id,
     ),
   ).toEqual(["open-dough", "doughnut", "pygardon", "terry-talks"]);
-  // Removing a project leaves the runner's address and log, and the GitHub
-  // answers retained at commits already read. None is a project record.
+  // Removing a project leaves the runner's address and log, the notification
+  // sender, and the GitHub answers retained at commits already read. None is
+  // a project record.
   expect(readdirSync(path.dirname(file)).sort()).toEqual([
     "agent-launches.json",
     "cursor-runner.json",
     "cursor-runner.log",
+    "notifier",
     "projects-production.json",
     "retained-answers",
   ]);
