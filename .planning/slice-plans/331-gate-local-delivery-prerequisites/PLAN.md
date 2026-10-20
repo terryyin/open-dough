@@ -109,70 +109,38 @@ need for a general task graph, ledger or independent policy redesign.
 
 ### 2. Deliver only the successful candidate and preserve publication recovery
 Type: Behavior
-Status: planned
-Proof: The same fresh-entry CLI reaches real managed publication and observation
-only after successful preparation/commit; local bare-remote acceptance, candidate
-mismatch and retained-candidate recovery distinguish correct downstream effects.
+Status: done
+Proof: Installed fresh CLI reaches real managed publication/observation only
+through successful prerequisite and commit results, with bare-remote acceptance,
+exact candidate, changed-tip mismatch and retained-candidate recovery.
 
-Behavior: Given publish authority, a successful fresh operation passes its commit
-SHA into existing managed delivery. A failure cannot invoke delivery or start
-its observer. Interrupted delivery resumes the retained successful candidate
-through the existing recovery owner, without repeating successful preparation
-or creating another commit merely to retry.
+Carry the successful commit SHA and retained suffix/base into the existing
+publisher before observation. Preserve authorization, local-only/caller checkout,
+Trunk/Story Branch modes, current-branch, one-shot ordinary authorship and owned
+repairs. Existing closure settlement and retained-result landing keep their
+already-committed APIs; do not move unrelated Land/preparation operations here.
+Keep mismatch, rejected-push reconciliation, renewed proof, actual remote
+acceptance and resume with their existing owners. A failed fresh attempt never
+becomes recovery merely because HEAD exists or no new work remains.
 
-- Complete the same operation's publish branch; perform the fresh prerequisites
-  and commit before the call that establishes observation. Carry the actual
-  successful receipt's SHA and existing suffix base, authorized checkout,
-  branch, target, and observation context. Never reread an unrelated later HEAD
-  as a replacement.
-- Preserve the publisher's candidate-mismatch, rejected-push/reconciliation and
-  renewed-proof contract. Recovery of an existing/accepted candidate takes the
-  existing resume path and actual Git evidence; it is not classified by
-  `HEAD exists`, an empty suffix, or a failed fresh commit alone.
-- Align the taught increment/owned-repair journey in `wrap-up.md`,
-  `trunk-publication.md`, commit and recovery references, and actual callers.
-  Trace `deliverManagedExecutionIncrement`, its CLI, `validatedCandidate`,
-  `agentCommit`, and any changed result fields through tests and fixtures.
-  Preserve closure settlement, current-branch/one-shot work, host-supplied
-  observation and local-only authority according to each consumer's purpose.
-  Do not move unrelated Land/preparation operations into an execution workflow.
-- Extend the existing deployed CLI fixtures and real local remote observations;
-  use existing managed delivery, publication/reconciliation and resume suites
-  for preserved behavior. If the payload dependency set changes, run
-  `tests/payload-declaration-links.sh` and `tests/install-public-payload.sh`;
-  inspect their real setup and assertions before claiming installation coverage.
-  Copying source into a fixture alone does not prove a declared release contains it.
-- Walk the runtime instructions under [AGENTS.md](../../../AGENTS.md):
-  invocation context, project-required inputs, and a failed-prerequisite → repair
-  → successful publication example. Record the ODF-097 implemented response and
-  remaining limits after delivery, without declaring later recurrence resolved.
+Align shared increment/repair, commit and recovery guidance and actual consumers.
+Trace result fields, declarations and deployed fixtures. Observe no fetch/push,
+observer or registration after filtered preparation/commit failure, exact SHA on
+success, changed-tip refusal, stopped and already-accepted recovery without a
+new commit or duplicate push, including later remote tips. Run affected complete
+managed/publication/resume/closure consumer suites through `npm test -- <files>`;
+check actual declaration/installer when dependencies change. Disable the new
+gate in scratch, observe intended regression failure, restore and pass.
 
-Focused proof: Run the fresh-entry regression suite and affected complete
-managed-delivery/publication/resume consumer files through `npm test -- <files>`.
-Inspect their actual setups and observations when selecting them. Include
-`dough-story-wrap-up` closure settlement proof if the changed contract reaches
-it, even though that consumer is outside execute-plan. Assert absence of
-downstream work after failures, not only command exit status. Disable a new gate
-in a scratch edit to confirm its regression test fails, then restore and pass.
-
-Native acceptance handoff: The changed guidance's selection/follow-through is
-unproved on Codex, Cursor and Claude Code. Before implementation closure, link
-these requirements to a separate native acceptance story under ADR 0005 (reuse
-an applicable active home, or record an unqueued candidate through the existing
-story/backlog workflow). Require an installed failing prerequisite, refused
-commit, repaired successful publication, and already-published recovery, with
-representative shared cases and explicit per-host integration evidence/reuse.
-Do not run paid native sessions implicitly or claim old publication evidence
-proves the new choice. Functional implementation may finish with that linked
-acceptance pending; an affected release waits for it or a human-owned exception.
-
-Safe stopping point: One complete guarded execution journey with failures and
-recovery proved deterministically, usable runtime guidance and tracked native
-acceptance. No later workflow-engine or telemetry story is needed for its value.
-
-Sizing: One commit-receipt-to-managed-delivery/recovery proof loop. Reuse the
-existing publisher and observation lifecycle rather than rebuilding them.
-No separate Structure slice is justified by current evidence.
+Complete AGENTS authoring walkthrough: invocation, required project context,
+failed prerequisite → repair → successful publication. After delivery record
+ODF-097 implemented response and limits without claiming recurrence resolved.
+Link separate native acceptance before closure: installed failed prerequisite,
+refused commit, repair/publication and already-published recovery, representative
+shared cases plus explicit Codex/Cursor/Claude evidence/reuse. No implicit paid
+runs. Functional closure may finish pending native acceptance; affected release
+waits for it or a human-owned exception. Safe stop: complete deterministic
+guarded journey, current guidance and tracked native acceptance; no new engine.
 
 ## Current decisions
 
@@ -214,12 +182,12 @@ Story Branch Mode; reused owned checkout
 `/Users/terryyin/git/open-dough/.worktrees/block-commits-and-delivery-after-failed-local-pr`,
 branch `codex/block-commits-and-delivery-after-failed-local-pr`.
 Remote `origin`, trunk `main`; increments target `refs/heads/codex/block-commits-and-delivery-after-failed-local-pr`.
-Claim/initial published base/candidate `2e26b32763bf0b3263305bfbd805ead2219c3e98`;
+Claim `2e26b32763bf0b3263305bfbd805ead2219c3e98`; accepted slice 1 and next base
+`4a1fb686b9b30c83403172f017a0271879d5eb71` (suffix base: claim);
 starting revision `44bf5b369c7cee3f5091f454200c075784e72acd`.
 Node v24.21.0; locked `npm ci --ignore-scripts --no-audit --no-fund` and
 `npm run --silent lint -- package.json` passed (lint selected the whole repo).
-No numeric slice budget/limit or explicit replanning override.
-CI: verified GitHub `ci.yml` (`CI`), same-checkout installed runtime;
+No numeric slice limit/replanning override. CI: verified GitHub `ci.yml` (`CI`), same-checkout installed runtime;
 coordinator `seed146-terry-chan`, cell 13, session 63052,
 `/tmp/dough-ci-501/watch-cGbcTb`, PID 97562. Trunk claim remains unobserved.
 Accepted ADRs 0002/3/5/6 reviewed; source-only edits and separate native acceptance.
@@ -229,12 +197,12 @@ Accepted ADRs 0002/3/5/6 reviewed; source-only edits and separate native accepta
 ### G1. Fresh publication and recovery await slice 2
 Reported: slice 1 — "Remaining limits belong to slice 2: fresh publication, exact-receipt downstream delivery, output-filter failure observation, and retained-candidate publication recovery."
 Story clause: "successful commit before delivery"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: installed fresh publication/candidate/recovery suites; exact receipt, withheld operations and retained acceptance observed.
 
 ### G2. Native follow-through remains unproved
 Reported: slice 1 — "Native host follow-through remains unproved."
 Story clause: "Keep native host requirements distinct from deterministic proof"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: SEED-053#guarded-local-delivery-prerequisites tracks pending host behavior and release condition separately; no native pass claimed.
 
 ## Accepted slice 1 proof
 
@@ -247,4 +215,27 @@ Request extraction preserves existing managed/closure/one-shot contracts.
 Refactor proof passed (61778): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-authorship.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-commit.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
 Unchanged commit/obligation proof passed (26342): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/agent-commit.test.mjs src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
 Selective format passed after removing an unused test import; staged/hook gates follow.
-Publication/native gaps remain G1/G2, owned by slice 2.
+Publication/native gaps remain G1/G2, owned by slice 2; slice 1 published/registered.
+
+## Accepted slice 2 proof
+
+Fresh publication/candidate/recovery suites use deployed `localFixture`/`freshApi`,
+real Git/hooks/bare remotes/observers and controlled CI. Assertions inspect
+withheld fetch/push/observer/provider calls behind filtered failures; exact commit,
+receipt, remote and coverage; unrelated bytes; changed candidate, reconciliation
+proof and throws; stopped/accepted recovery with later tips and no extra commits
+or pushes; caller-owned Codex stream. Existing closure/one-shot consumers retain
+already-committed APIs; renewed validation throws retain a proof-required stop.
+Final focused run passed (80380): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-authorship.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-commit.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-publication.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-candidate.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-recovery.test.mjs src/skills/dough-execute-plan/scripts/one-shot-guidance.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
+Preserved consumer run passed (66254): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-ownership.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-authorship.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-commit.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-publication.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-recovery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery-target.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-reconciliation-stops.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-resume.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication-reconciliation.test.mjs src/skills/dough-execute-plan/scripts/publication-resume.test.mjs src/skills/dough-execute-plan/scripts/publication-resume-comparison.test.mjs src/skills/dough-execute-plan/scripts/symlinked-skill-entry.test.mjs src/skills/dough-execute-plan/scripts/one-shot.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure.test.mjs src/skills/dough-story-wrap-up/scripts/trunk-closure-resume.test.mjs tests/payload-declaration-links.sh tests/install-public-payload.sh`.
+Mutation: `PATH="/opt/homebrew/bin:$PATH" npm test -- /tmp/seed146-runner-mutation-jxargkwr/src/skills/dough-execute-plan/scripts/execution-increment-fresh-publication.test.mjs`.
+Scratch disabled `!commit.ok`: exit 1 (35504), both filtered failures published
+older HEAD/attached observation; restored identical full suite exit 0 (70054).
+Scratch removed after judgment. Earlier direct-node experiment was replaced by
+this required runner/environment observation, not counted as final proof.
+AGENTS walkthrough inspected `fresh-increment.md`: invocation after proof/refactor,
+explicit requirements/context, failed formatter/hook → repair → exact publication;
+recovery separate. SEED-053 tracks all hosts and pending affected-release gate.
+Refactor guidance proof passed (cd73ea): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs src/skills/dough-execute-plan/scripts/observer-owner-guidance.test.mjs src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs src/skills/dough-execute-plan/scripts/interrupted-delegation-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs`.
+Only guidance/blank-line edits; all runtime/mutation/installation evidence retained.
+Selective format passed after removing an unused test import; all changed files ≤250 lines.

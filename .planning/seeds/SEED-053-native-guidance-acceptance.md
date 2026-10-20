@@ -75,6 +75,53 @@ and actual quiet Land/Wrap Up skill behavior remain unproved on all three hosts;
 that separate acceptance before affected release. Selected plan execution and subsequent
 acceptance selection retain their own authority boundaries.
 
+<a id="guarded-local-delivery-prerequisites"></a>
+
+### Accept guarded local preparation, commit and publication on each host
+
+**Identity:** SEED-053#guarded-local-delivery-prerequisites
+**Implementation:** [SEED-146](SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery)
+and [plan 331](../slice-plans/331-gate-local-delivery-prerequisites/PLAN.md).
+**For / outcome:** Developers using Codex, Cursor, or Claude Code can rely on
+installed execution and owned-repair guidance selecting the guarded fresh path,
+withholding dependent work after local failure, and retaining legitimate
+already-published recovery. This is an unqueued acceptance candidate; it grants
+no native-run, queue assignment, or implementation authority.
+
+**Scope and evaluation:** Use installed guidance in a disposable repository
+with project-resolved requirements, real Git/hooks and an authorized local bare
+remote. Observe actual chosen commands, required inputs, HEAD/index and retained
+edits, remote refs, and observer/registration evidence. Require:
+
+- An installed required prerequisite fails (include a required plan/status
+  mutation representatively): no dependent commit, publication, or new observer
+  begins; filtering output does not enable downstream effects.
+- A project hook refuses commit: retain the staged work and older HEAD, and
+  withhold publication/observation for that failed attempt.
+- Repair the prerequisite or hook and follow the same guarded journey through
+  one successful commit, exact-receipt publication and authorized observation.
+  Keep local-only/current-branch authority and owned-repair integration in the
+  representative shared cases.
+- Resume an already-published retained candidate, including a lost response and
+  later remote tip representatively, without another commit or duplicate push;
+  preserve candidate/base and the actual observer owner.
+
+**Per-host evidence:** Native selection and follow-through remain pending on
+Codex, Cursor, and Claude Code. Each host must supply integration evidence for
+its installed command and coordinator/observer identity: retained yielded Codex
+stream; Cursor's own tool/session; Claude Code's own Bash/session, including
+explicit agent identity when applicable. Shared deterministic cases and evidence
+from another host do not establish this choice. Record each required case's
+fresh evidence or justify reuse with matching guidance, mechanism, environment,
+and observed boundary; old publication evidence alone proves no new path choice.
+
+**Release condition:** Functional SEED-146 implementation may close while this
+acceptance remains pending. Under [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md),
+an affected release waits for these observations or an explicit human-owned
+exception that preserves the pending requirements. Paid native sessions are
+explicitly invoked only; add none to default tests or CI. No native session was
+run or accepted while recording this candidate.
+
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.

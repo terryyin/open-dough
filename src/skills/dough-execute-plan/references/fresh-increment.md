@@ -1,9 +1,10 @@
-# Guard a fresh local-only execution commit
+# Guard a fresh execution increment or owned repair
 
 Use this after accepting semantic proof and completing the independent refactor
 for a fresh increment or owned repair. Keep the recorded execution checkout,
 branch, ownership, and project hook contract. This operation performs mechanical
-preparation and commit; successful commit does not establish semantic proof.
+preparation, commit, and authorized managed delivery in dependency order;
+successful commit does not establish semantic proof.
 
 Resolve the applicable requirements from this project's execution context. Put
 their inputs in a temporary JSON file outside the commit's owned paths, and put
@@ -13,14 +14,30 @@ directly from the execution checkout:
 ```sh
 node '<installed-execute-plan>/scripts/execution-increment-delivery.mjs' fresh \
   --mode story-branch --workspace '<execution checkout>' --branch '<recorded branch>' \
-  --authority local-only --preparation-file '<requirements.json>' \
-  --message-file '<commit-message.txt>'
+  --authority publish --preparation-file '<requirements.json>' \
+  --message-file '<commit-message.txt>' \
+  --previously-published-base '<retained published base SHA>' \
+  --target-ref 'refs/heads/<recorded branch>' --remote '<authorized remote>' \
+  --repo '<owner/repo>' --host '<host>' \
+  [--session-json '<json>'] [--coordinator '<value>' --observer-directory '<directory>']
 ```
 
 Use `trunk` or `current-branch` when that is the established mode. The command
 does not create a checkout or switch branches. It checks the recorded branch
-before preparation. This local-only entry never fetches, pushes, starts an
-observer, or registers a revision.
+before preparation. Resolve publication authority and all applicable project
+requirements before invocation. A publish request requires the existing managed
+publication context before any preparation or commit: retained published base,
+authorized target, repository, checkout and branch. Story Branch Mode targets
+its execution branch; Trunk Mode targets its authorized trunk. Caller-selected
+current-branch and supported host-owned work retain their checkout and target.
+A one-shot landing declares its existing `--tracking one-shot` contract; the
+retained-result one-shot operation still owns that separate journey.
+
+Without publication authority, use `--authority local-only` and omit publication
+inputs. That path never fetches, pushes, starts an observer, or registers a
+revision. It reports the local commit pending publication. A current-branch
+base is its recorded checkout's HEAD before the operation's first commit; do
+not replace an unpublished-base refusal by choosing another base.
 
 The preparation JSON supplies these fields; missing required context refuses
 the attempt before project commands or staging:
@@ -65,10 +82,40 @@ runs real `git diff --cached --check`, and commits through `agentCommit` or
 ordinary Git as resolved above. Project hooks remain enabled. Refused agent
 identity never falls back to ordinary Git.
 
-A successful result has `ok: true`, `report: committed-pending-publication`,
-and `commit.sha`, the exact committed revision. `publication: pending` and
-`observation: null` mean local-only work, with no remote acceptance receipt.
-Keep that SHA for the later authorized publication boundary.
+After successful preparation and commit, publish authority passes the actual
+`commit.sha` to managed delivery as `validatedCandidate` before that delivery
+establishes or reuses observation. The publisher preserves candidate-mismatch,
+reconciliation, renewed proof, authorized suffix and host ownership rules in
+[trunk publication](trunk-publication.md). A later branch tip cannot replace
+the receipt. Supply the same observer owner inputs that reference describes:
+Codex uses its already-armed coordinator and exact stream directory; Cursor
+and Claude Code use their own host tool identity or explicit session JSON.
+Missing observation authority reports the existing coverage gap beside accepted
+publication; it does not fabricate coverage or authorize a different observer.
+
+A published success has `publication: accepted`, the original `commit.sha`,
+and `receipt.sha`, the exact remote-accepted revision after any proof-governed
+rewrite. Its observation is attached, reused, or an explicit coverage gap. A
+local-only success has `report: committed-pending-publication`, `commit.sha`,
+`publication: pending`, and `observation: null`, with no remote acceptance.
+
+Once a fresh commit succeeds, retain its `commit` and the returned `recovery`
+object even if delivery stops or throws. That object carries `candidateSha`
+and `suffixBase` together with the authorized checkout, remote/target and host
+owner context. Each pre-push rewrite updates the pair before transport. A
+`delivery-interrupted` result preserves that pair and reports publication as
+unknown: inspect actual remote acceptance through existing resume rather than
+assuming the push failed. A candidate-mismatch retains the fresh receipt as
+the recovery candidate, never the unrelated later branch tip. A proof stop
+retains the publisher's rewritten candidate and base; renew the required proof
+then use existing-candidate managed delivery with `validatedCandidate`, or the
+applicable interrupted-publication path. Do not rerun successful preparation
+or manufacture another commit to retry publication.
+
+A thrown renewed-proof operation returns `validation-failed` with publication
+stopped and its retained rewritten candidate/base. It requires renewed proof
+before existing-candidate delivery; do not treat that failure as a transport
+interruption eligible for a push-only resume.
 
 A failure exits nonzero and names its `operation` or commit `status`, error,
 and available terminal exit/signal details. It withholds dependent work and
@@ -78,3 +125,13 @@ fresh preparation. Do not undo owned edits or another writer's bytes merely
 to clear this failure. An already-committed or accepted candidate instead uses
 the existing [interrupted-publication recovery](trunk-publication.md#resume-an-interrupted-publication);
 it does not need another fresh commit just to resume publication.
+
+For example, if this project's required formatter exits nonzero, the fresh
+operation reports `operation: formatting`, preserves any edits it already
+made, and invokes neither commit nor managed delivery. Repair the formatter
+or its mechanical findings and repeat the guarded attempt with still-valid
+proof. When it succeeds, the commit receipt becomes the exact publication
+candidate and the accepted SHA is registered on the authorized observer. A
+refused hook follows the same stop; an already-accepted candidate instead
+resumes without another commit or push. A zero-exit output consumer around the
+fresh CLI cannot enable effects the operation has withheld.

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Resolve runtime and observation, publish an authorized increment, and attach
 // acceptance. Held proof stops before push; local-only authority never pushes.
-import { commitPreparedExecutionIncrement } from "./execution-increment-preparation.mjs";
+import { prepareAndDeliverFreshIncrement } from "./execution-increment-fresh.mjs";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import {
   registerPushedRevision,
@@ -19,33 +19,12 @@ import {
   readIncrementCliRequest,
 } from "./execution-increment-request.mjs";
 
-// A fresh attempt is distinct from delivery/resume of an existing candidate.
-// Until the publication half is available, this entry grants local-only work.
-export async function deliverFreshExecutionIncrement(request) {
-  if (request.authority !== "local-only") {
-    return {
-      ok: false,
-      status: "preparation-refused",
-      operation: "authority",
-      error: "fresh work currently requires explicit local-only authority",
-      publication: "pending",
-      receipt: null,
-      observation: null,
-    };
-  }
-  const commit = await commitPreparedExecutionIncrement(request);
-  return {
-    ...commit,
-    publication: "pending",
-    report: commit.ok ? "committed-pending-publication" : commit.status,
-    commit: commit.ok ? commit : null,
-    receipt: null,
-    observation: null,
-    ...(!commit.ok && {
-      recovery:
-        "Repair the named operation, preserve owned edits and index content, and retry fresh preparation; renew only proof invalidated by the repair. Do not deliver an older HEAD after this failed attempt.",
-    }),
-  };
+// Existing-candidate delivery and recovery intentionally require no fresh commit.
+export function deliverFreshExecutionIncrement(request) {
+  return prepareAndDeliverFreshIncrement(
+    request,
+    deliverManagedExecutionIncrement,
+  );
 }
 
 export async function deliverManagedExecutionIncrement(request) {

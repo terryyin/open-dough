@@ -1,8 +1,9 @@
 // Real deployed fresh-entry fixture. Each test owns its repository, hook,
 // operation log, remote observations, and cleanup.
 import assert from "node:assert/strict";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import {
   exec,
@@ -59,6 +60,9 @@ export async function localFixture(t) {
       mode = "story-branch",
       branch = "exec/story",
       authority = "local-only",
+      args: additionalArgs = [],
+      env = fixture.env,
+      filtered = false,
     } = {},
   ) => {
     const config = join(fixture.fixture, "preparation.json");
@@ -83,16 +87,21 @@ export async function localFixture(t) {
       config,
       "--message-file",
       message,
+      ...additionalArgs,
     ];
-    const result = await exec(process.execPath, args, {
-      cwd: workspace,
-      env: fixture.env,
-    }).catch((error) => error);
+    const result = await (
+      filtered
+        ? exec(
+            "/bin/sh",
+            ["-c", '"$@" | cat', "fresh-filter", process.execPath, ...args],
+            { cwd: workspace, env },
+          )
+        : exec(process.execPath, args, { cwd: workspace, env })
+    ).catch((error) => error);
     assert.equal(result.stderr, "");
-    return {
-      code: result.code ?? 0,
-      result: JSON.parse(result.stdout.trim().split("\n").at(-1)),
-    };
+    const delivered = JSON.parse(result.stdout.trim().split("\n").at(-1));
+    fixture.stopAtTeardown(delivered.observation?.directory);
+    return { code: result.code ?? 0, result: delivered };
   };
   const withheld = async ({ hookCalled = false } = {}) => {
     assert.equal(await revParse(workspace, "HEAD"), before);
@@ -134,4 +143,37 @@ export function planned(
     },
     staging: { ownedPaths: ["work.txt", "PLAN.md"], stagedPaths: [] },
   };
+}
+
+export async function freshApi(f, overrides = {}, deliver) {
+  const request = {
+    ...f.requestBase,
+    workspace: f.workspace,
+    branch: "exec/story",
+    previouslyPublishedBase: f.trunkSha,
+    targetRef: "refs/heads/main",
+    repo: "owner/project",
+    preparation: f.preparation,
+    message: "Fresh owned repair",
+    ...overrides,
+  };
+  const module = await import(
+    pathToFileURL(join(f.skill, "scripts/execution-increment-delivery.mjs"))
+  );
+  const result = deliver
+    ? await (
+        await import(
+          pathToFileURL(join(f.skill, "scripts/execution-increment-fresh.mjs"))
+        )
+      ).prepareAndDeliverFreshIncrement(request, deliver)
+    : await module.deliverFreshExecutionIncrement(request);
+  // Thrown managed callbacks can leave an unregistered live owner; account for
+  // that actual observer as well as an ordinary returned directory at teardown.
+  if (existsSync(f.storage))
+    for (const name of readdirSync(f.storage).filter((name) =>
+      name.startsWith("watch-"),
+    ))
+      if (existsSync(join(f.storage, name, "worker.json")))
+        f.stopAtTeardown(join(f.storage, name));
+  return result;
 }
