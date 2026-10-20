@@ -1,13 +1,14 @@
-/* The pinned banner: one row on a wide page column. Sessions, the project's
-   name opening its source evidence, the project choices, and System settings
-   at the far end. Every control is one control height,
-   and the icon controls share one look (./icon-control.css). */
+/* The pinned banner: one row on a wide page column. Open Dough's mark
+   (./product-mark.css), Sessions, the project's name opening its source
+   evidence, the project choices, and System settings at the far end. Every
+   control is one control height, and the icon controls share one look
+   (./icon-control.css). */
 .banner {
   position: sticky;
   top: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto var(--control-size);
+  grid-template-columns: auto auto minmax(0, 1fr) auto var(--control-size);
   grid-template-rows: minmax(var(--control-size), auto);
   align-items: start;
   gap: var(--space-1) var(--space-2);
@@ -17,26 +18,32 @@
   box-shadow: var(--shadow-1);
 }
 
-.banner .sessions-toggle-group {
+.banner .product-mark {
   grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.banner .sessions-toggle-group {
+  grid-column: 2;
   grid-row: 1;
 }
 
 .banner .source {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   min-width: 0;
 }
 
 .banner .project-select {
-  grid-column: 3;
+  grid-column: 4;
   grid-row: 1;
   justify-self: end;
   margin-right: var(--space-2);
 }
 
 .banner .settings-control {
-  grid-column: 4;
+  grid-column: 5;
   grid-row: 1;
 }
 
@@ -78,17 +85,18 @@ html {
     padding-block: var(--space-2);
   }
 
-  /* The name and System settings share the first row;
-     Sessions starts the second, before the project choices. */
+  /* The mark, the name and System settings share the first row;
+     Sessions starts the second, below the mark, before the project choices. */
   .banner .source {
-    grid-column: 1 / 4;
+    grid-column: 2 / 5;
   }
 
   .banner .source:has(.source-evidence[open]) {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
   }
 
   .banner .sessions-toggle-group {
+    grid-column: 1;
     grid-row: 2;
   }
 

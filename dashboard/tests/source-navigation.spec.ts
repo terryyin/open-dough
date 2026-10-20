@@ -224,6 +224,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
   });
 
   await test.step("recorded text is shown as text and nothing runs", async () => {
+    const injected = "img:not([alt='Open Dough']), script:not([src])";
     await expect(
       stages.getByRole("heading", {
         name: `<img src=x onerror="document.title='title ran'">Run a script from a link`,
@@ -233,14 +234,14 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
     await expect(parts(page).direction).toContainText(
       `<img src=x onerror="document.title='direction ran'">`,
     );
-    await expect(page.locator("img, script:not([src])")).toHaveCount(0);
+    await expect(page.locator(injected)).toHaveCount(0);
     // Every card's links, each read in its detail.
     const schemes: string[] = [];
     await forEachCardsSources(stages, async (sources) => {
       for (const anchor of await sources.locator("a[href]").all()) {
         schemes.push((await destination(anchor)).protocol);
       }
-      await expect(page.locator("img, script:not([src])")).toHaveCount(0);
+      await expect(page.locator(injected)).toHaveCount(0);
     });
     expect(new Set(schemes)).toEqual(new Set(["https:", "http:"]));
     expect(dialogs).toEqual([]);

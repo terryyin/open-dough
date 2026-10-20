@@ -236,7 +236,7 @@ remains an observation to resolve, not success from HTML alone.
 
 ### 4. Recognize Open Dough inside each dashboard shell state
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing frame/header/settings journeys to show the accepted
 passive mark in configured and no-project views and System settings; switch to a
 different project and verify its name/evidence retain their meaning. The mark
@@ -350,6 +350,20 @@ Chromium profile's tab and a pre-seeded bookmark-bar entry showed the mark in
 dark browser chrome; the 16/32-pixel exports rendered on white and #202124 keep
 the cream silhouette recognizable, with the fold visible at 32 pixels and only
 faint at 16. Slice 4 reuses `/icon-<size>.png` for the in-page mark.
+
+Slice 4 (execution, 2026-10-20): `dashboard/src/ProductMark.tsx` renders
+`/icon-64.png` at 32 CSS pixels, named "Open Dough", passive and outside the
+tab order, first in the configured banner, the no-project header and the
+System settings bar. Because no adjacent text names the product, the image
+carries the single accessible name; the project heading keeps the project's
+name. `tests/productMark.ts` checks the delivered bytes, fit, coverage,
+naming and keyboard independence. Accepted proof:
+`env -u NO_COLOR npm run test:dashboard -- dashboard-header.spec.ts
+frame-overview-look.spec.ts system-settings-look.spec.ts
+source-navigation.spec.ts` and the enclosing keyboard/sidebar/settings
+consumers; screenshots of each view at wide, 700, 420 and 320-zoom sizes
+showed the mark unclipped. `dashboard/README.md` records the adopted
+inventory and exclusions.
 
 Preparation found that macOS sender identity, rather than a missing icon flag,
 owns the difficult part of the requested outcome. The current helper is

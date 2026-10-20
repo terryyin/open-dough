@@ -196,6 +196,19 @@ chevron, turned while expanded.
 Text meets 4.5:1 contrast, and controls, icons, and focus outlines meet 3:1.
 `tests/frameIconControl.ts` checks an icon-only control against all of this.
 
+## Open Dough identity
+
+The accepted raw-dough mark (`assets/brand/`) identifies Open Dough, never a
+project: as the browser tab, bookmark and touch icon (`index.html`, served by
+`server/brandAssetPlugin.ts`); on macOS session alerts, through the sender in
+[Commands](#commands); and as `ProductMark` (`src/ProductMark.tsx`, checked by
+`tests/productMark.ts`), a passive image named “Open Dough” leading the
+banner, the no-projects banner, and System settings, whichever project is
+selected. The selected project's name, even Open Dough's, stays that project's
+heading and source evidence. There is no web manifest or installable app.
+Action glyphs, execution-mode symbols, host avatars, and human and agent
+portraits keep their own concepts; prose-only documentation adds no artwork.
+
 ## Tests
 
 `tests/` holds one Playwright suite that replaces only GitHub's answers to

@@ -1,7 +1,7 @@
 // System settings in the frame's look: each setting group is a headed region
 // in one shared column, its text readable and its controls recognisable, and
 // the page and its project dialogs fit a narrow window without sideways
-// scrolling.
+// scrolling. Open Dough's mark leads the page's name at each width.
 
 import type { Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
@@ -20,6 +20,7 @@ import {
   tapWhereShown,
 } from "./pageLayout.ts";
 import { launchTouchViewports } from "./touchLaunchPage.ts";
+import { expectProductMark } from "./productMark.ts";
 import { readSetting } from "./support/settingsTouchPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -52,6 +53,7 @@ test("each setting group is a headed region in one column, with readable text an
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openSettings(page);
+  await expectProductMark(page.getByRole("main"));
   await expectControlContrast(back(page));
   await expectReadableContrast(back(page));
   const regions = settingGroups.map((name) =>
@@ -77,6 +79,8 @@ test("settings and its project dialogs fit a 420 pixel window without sideways s
 }) => {
   await page.setViewportSize({ width: 420, height: 900 });
   await openSettings(page);
+  await expectProductMark(page.getByRole("main"));
+  await expect(back(page)).toBeInViewport({ ratio: 1 });
   await expectNoSidewaysScrollAndWholeText(page);
 
   await page.getByRole("button", { name: "Add project", exact: true }).click();
@@ -119,6 +123,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await expect(
         page.getByRole("heading", { name: "System settings", exact: true }),
       ).toBeFocused();
+      await expectProductMark(page.getByRole("main"));
       const projects = page.getByRole("region", {
         name: "Projects",
         exact: true,
