@@ -20,10 +20,10 @@ cost of the feedback process itself.
 
 - [Recognize Open Dough by its icon across product surfaces](seeds/SEED-144-opendough-product-icon.md#recognize-opendough-by-its-icon) — SEED-144#recognize-opendough-by-its-icon ([plan](slice-plans/326-recognizable-product-identity/PLAN.md))
 - [Choose a Cursor session model without changing later defaults](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-session-model-scope) — SEED-052#cursor-session-model-scope ([plan](slice-plans/329-cursor-session-model-scope/PLAN.md))
+- [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done ([plan](slice-plans/329-cursor-unconfirmed-stop-after-local-done/PLAN.md))
 
 ## Backlog list
 
-- [An unconfirmed stop still blocks a replacement after local Done](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-unconfirmed-stop-after-local-done) — SEED-052#cursor-unconfirmed-stop-after-local-done
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
 - [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences
