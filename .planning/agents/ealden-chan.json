@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-145#quiet-preparation-chain",
+  "mode": "story-branch",
+  "branch": "claude/finish-the-chained-preparation-journey-silently",
+  "host": "claude"
+}

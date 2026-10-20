@@ -20,10 +20,10 @@ cost of the feedback process itself.
 
 - [Finish landing and wrap-up silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up) — SEED-145#quiet-land-and-wrap-up ([plan](slice-plans/331-quiet-land-and-wrap-up/PLAN.md))
 - [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation ([plan](slice-plans/330-cursor-scope-terminal-refusal/PLAN.md))
+- [Finish the chained preparation journey silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-preparation-chain) — SEED-145#quiet-preparation-chain ([plan](slice-plans/332-quiet-preparation-chain/PLAN.md))
 
 ## Backlog list
 
-- [Finish the chained preparation journey silently when no developer action remains](seeds/SEED-145-no-news-is-good-news.md#quiet-preparation-chain) — SEED-145#quiet-preparation-chain
 - [Keep retrospective and execution completion quiet and make required attention unmistakable](seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective) — SEED-145#quiet-execution-and-retrospective
 - [Continue successful execution into wrap-up when no human judgment remains](seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up) — SEED-145#continue-execution-into-wrap-up
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
