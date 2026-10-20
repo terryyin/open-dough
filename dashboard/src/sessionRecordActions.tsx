@@ -4,7 +4,7 @@
 import {
   hostName,
   marksRecordDone,
-  stopsSession,
+  offersSeparateStop,
 } from "./sessionCapabilities.ts";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
@@ -104,9 +104,11 @@ export function DeleteRecord({
 const notStopped = "The session could not be stopped.";
 const stoppedWording = "Session stopped.";
 
-// Stop for an active (not done) session whose host boundary supplies a
-// stop operation, shown by that fact alone and separate from Mark as
-// done: it never writes the done mark. A confirmed stop says so; an
+// Stop for an active (not done) session, offered only where a separate
+// stop is needed (`offersSeparateStop`): its host supplies a stop that
+// Mark as done does not already perform, so hosts whose Mark as done
+// stops the session gain no duplicate control. It never writes the done
+// mark. A confirmed stop says so; an
 // unconfirmed one says why, with the remaining state named, and that
 // explanation is also retained on the record.
 export function StopSession({
@@ -120,7 +122,7 @@ export function StopSession({
   const described = useFrameDescription();
   const [stopping, setStopping] = useState(false);
   if (record.doneAt !== undefined) return null;
-  if (!stopsSession(hostOperations, record.session.host)) return null;
+  if (!offersSeparateStop(hostOperations, record.session.host)) return null;
   return (
     <p className="launch-open">
       <button
