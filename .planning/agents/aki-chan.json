@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-052#cursor-runner-restart-resume",
-  "host": "cursor",
-  "model": "auto"
-}

@@ -152,7 +152,7 @@ or claims of readiness.
 
 **Identity:** SEED-052#cursor-runner-restart-resume
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/334-cursor-runner-restart-resume/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"24b625111ec37e22670bc093ec8f6a9477bdeb5dcf132b84243e904a97e97476","plan":"61292c326d84eec170941040ac76048c02dbba5ae5d590b43220e0d0425882a2"}}
 ```
 
 **Goal:** For a developer returning after the dashboard's Cursor runner
@@ -173,9 +173,39 @@ happens to still be alive.
   the stale runner and replaces or works around it in a way that does
   not strand the sessions it held: those sessions end as resumable
   records, never as silently lost work.
+- Required: the runner proves which build of the runner code it is
+  running, and the dashboard compares that proof with the build it
+  would start now. A runner that cannot prove a current build —
+  including every runner started before this proof existed — counts
+  as stale. Detection lives on the paths that start new work
+  (`exec`/`create-chat`, a new keep, and Recover's resume), never on
+  reads: listing held sessions, attaching to a client the accepting
+  runner still holds, hangup/stop, and handoff release keep using the
+  accepting runner and never replace it, so opening a held session
+  cannot kill the very client being opened.
+- Required: replacement happens before the new work starts, at that
+  new-work boundary. Stopping the stale runner hangs up its held
+  clients; each held session then stands as its launch record again —
+  not running, resumable through Recover — with its saved conversation
+  and recorded configuration scope intact. No held session is deleted,
+  marked done, or silently dropped, and the developer can see it as a
+  resumable record afterwards. Replacement is not announced as a
+  separate ceremony; the new work simply runs on current code.
 - Deferred: resuming sessions the dashboard did not launch; preserving
   a live in-flight turn across a restart (only resumption of the saved
   conversation is required); changing Claude or Codex runner behavior.
+- Deferred: keeping two runner generations alive side by side, and
+  waiting for held sessions to drain before replacing a stale runner.
+  Both were considered (see Exploration) and left out: held idle
+  sessions can wait indefinitely, and a second live generation breaks
+  the one-runner reading, attach, and stop model for a continuity the
+  saved conversation already provides through Recover.
+- Rejection constraint: observation never starts or replaces a runner.
+  A read that finds no runner, an unreachable runner, or a stale
+  runner changes no process state; only an explicit new-work action
+  (launch, keep, Recover) may replace. This preserves the established
+  rule that monitoring must not resume a conversation or take its
+  control.
 
 **Key examples:**
 
@@ -186,7 +216,66 @@ happens to still be alive.
 2. A dashboard update changes Cursor runner code while an old runner
    still holds sessions → the next launch or resume runs the current
    code, and the previously held sessions remain resumable records.
-3. Claude and Codex session behavior across restarts is unchanged.
+3. The dashboard restarts but the runner survives on current code →
+   the same held client is reattached; no new `cursor-agent` process
+   and no replacement occur (preserved behavior).
+4. A stale runner holds an idle and a working session → the developer
+   launches a new session → the stale runner is replaced first, the
+   new launch runs current code, and both previously held sessions
+   appear as not-running resumable records offering Recover; neither
+   record is lost, done, or resumed without the developer asking.
+5. A stale runner holds a session → the developer only lists or opens
+   that held session → the accepting runner serves the list/attach;
+   no replacement and no new process occur until new work is asked for.
+6. A runner started before build proof existed is accepting → the
+   next new launch or Recover treats it as stale and replaces it
+   once; after replacement, further work reuses the current runner.
+7. The recorded workspace or recorded configuration scope is missing
+   at resume time → Recover refuses with its existing explanation and
+   starts nothing (preserved behavior); staleness handling adds no
+   fallback to shared configuration.
+8. Claude and Codex session behavior across restarts is unchanged.
+
+**Exploration (2026-10-20):** three materially different ways to stop
+silently reusing a stale runner were compared against the same goal
+and the one-machine-runner model the dashboard already documents:
+
+- **Build proof + replace at the next new-work boundary (selected).**
+  The runner publishes a build identity the dashboard can compare
+  with its own; a mismatch (or no proof) replaces the runner before
+  new work, and held sessions fall back to their resumable records.
+  This is the only option that guarantees new work always runs
+  current code without blocking it on other sessions.
+- **Drain first.** Refuse or delay new work until the stale runner
+  holds nothing. Rejected as the owning rule: kept idle sessions may
+  sit indefinitely, so a dashboard update could block launches for
+  hours with no developer-visible reason; the saved conversation
+  makes the wait buy nothing Recover does not already restore.
+- **Dual generations.** Start a current runner beside the stale one
+  and route held traffic to the old one until it empties. Rejected
+  for this story: it splits session listing, attach, stop, and the
+  address record across two processes to preserve live PTYs, when
+  the promise is resumability of the saved conversation, not live
+  turn continuity (explicitly deferred above).
+
+A simpler existing alternative — stopping the runner by hand when it
+seems old — is what failed in the model-scope verification below:
+nothing tells the developer it is needed, so it happens late or never.
+
+**Architecture:** the machine-local Cursor runner stays the single
+owner of Cursor terminal processes, as the dashboard's North Star
+topic records; this story adds no database, daemon, or second runner
+generation. Build proof is runner-local operational evidence beside
+the existing runner address, rebuilt whenever a runner starts, never
+a story or project fact — consistent with ADR 0008 (Proposed, cited
+as direction, not binding) keeping machine-local evidence distinct
+from published project state. Accepted
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+governs proof: deterministic behavior is delivered and checked here;
+native resumption with real `cursor-agent` across a real restart
+stays a named pending verification, never claimed passed by this
+story's deterministic evidence. No Accepted ADR conflicts with this
+scope; ADR 0001 and ADR 0002 add no further constraint.
 
 **Investigation (2026-10-20, from the model-scope story's native
 verification):** the dashboard reuses one machine Cursor runner by
@@ -201,6 +290,45 @@ records and saved chats already persist outside the runner, and
 deterministic recovery specs exist; what is unestablished is native
 resumption after a real runner or machine restart and any guard
 against silently reusing a stale-code runner.
+
+**Investigation (2026-10-21, refinement):** facts, each observed in
+this checkout at `7734cafd`, versus what remains a hypothesis:
+
+- Fact: no build identity exists anywhere in the runner path — the
+  runner address records only `{port, pid}`
+  (`dashboard/server/hosts/cursor/runnerPaths.ts`), the wire protocol
+  has no version field (`runnerProtocol.ts`), and
+  `ensureCursorRunner` reuses any accepting runner without asking
+  what code it runs (`runnerProcess.ts`). Stale reuse is therefore
+  silent today by construction, not by oversight of one call site.
+- Fact: held clients live only in the runner process memory
+  (`TerminalAttachments`); its shutdown hangs them all up, while
+  launch records, saved chats, and configuration scopes live under
+  the machine home outside the process (`sessionScope.ts` keeps a
+  scope's chats as a symlink to the shared chats). Ending a runner
+  therefore cannot delete a recorded session's conversation.
+- Fact: Recover already resumes a recorded session when no runner is
+  running, starting a current runner on the click and typing a
+  continuation only on confirmed first input (`recover.ts`). The
+  focused spec “runner not running offers Recover; the click starts
+  the runner and resumes” was run locally in this workspace on
+  2026-10-21 and passed (1 passed, fake Cursor), settling that the
+  post-restart half of example 1 already works deterministically.
+- Fact: dashboard-server restart with a surviving runner reattaches
+  the same held client (`cursorRunnerRestart.ts`), so replacement
+  must key on runner build, not on dashboard process lifetime.
+- Hypothesis (unsettled, named): real `cursor-agent --resume` after
+  a real runner kill or machine reboot resumes the same native
+  conversation. No available local observation settles it — the fake
+  Cursor proves the dashboard's half only. Under ADR 0005 this stays
+  pending native verification; it does not block deterministic
+  delivery, and no slice may claim it passed.
+- Hypothesis (settled cheaply by the design, not by observation):
+  a build proof computed from the runner code the dashboard would
+  start can distinguish current from stale in both source and
+  bundled serving. The plan owns proving this with a stand-in runner
+  that answers with old or missing proof; native Cursor is not
+  needed for that check.
 
 ## Ordering and Scope Reduction
 
