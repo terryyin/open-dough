@@ -54,3 +54,51 @@
   refactor edits/tests. Plan context and baseline observations split into linked
   references to meet the 250-line limit. Selective formatter succeeded; only
   whitespace formatting changed test files, leaving accepted observations intact.
+- Slice 1 publication accepted: `982280e989e07e42179318aeaf6fbc67bbdc062e` on
+  `origin refs/heads/codex/keep-retrospective-and-execution-completion-quie`;
+  suffix base `6f6ffd451e1f6cd40075be49e2a100c6247f923e`; no rewrite.
+  Managed delivery reused the retained observer; maintenance not applicable.
+- Slice 2 removes the remaining execution recap, compatible with the selected
+  source and preserving later Story Wrap Up authority. No later planned slice
+  conflicts with that removal.
+
+### Slice 2
+
+- Shared attention now selects one planned handoff after completion handling for
+  reviewed/skipped execution. Records-only publication, review/partial recovery,
+  CI/shutdown, explicit requests and separate wrap-up ownership remain intact.
+- Passed (exit 0; implementation session 96768): `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-land/scripts/completion-attention-guidance.test.mjs src/skills/dough-execution-retrospective/scripts/completion-guidance.test.mjs src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs src/skills/dough-execute-plan/scripts/planned-completion-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs tests/git-publication-native.sh tests/native-evidence-identity.sh tests/payload-declaration-links.sh`.
+- Setup: candidate guidance reads plus disposable installed publication/observer
+  fixtures. New planned completion suite observes reviewed/skipped quiet output,
+  deduplicated unresolved attention across green CI/no-change advice, requested
+  detail, recovery/background limits, exact dashboard handoff and conditional
+  integrated-state wording. Record suite retains publication-before-completion.
+- `ci-completion-native-counterexamples.sh` reaches real assessor and observer:
+  quiet/minimal response passes only with review/call/CI/shutdown facts; missing
+  review, call, shutdown, capture and CI state reject. Marked failure paraphrases
+  with recovery pass; success-first, unmarked and recovery-free messages reject.
+  Observer controls preserve indented text, resist response-field spoofing and
+  identify absent capture. Closure controls, evidence identity and payload links
+  pass. These are deterministic controls, not native agent behavior.
+- Trace: old banners remain only in negative controls and untouched historical
+  native transcripts. Changed shared response helper reaches closure consumers;
+  their full credential-free controls stay green. New input identities include
+  the helper and attention guidance. Dashboard instruction, installed reporting,
+  admission/delivery and terminal-retention consumers were inspected unchanged;
+  runtime tests do not establish an agent's reporting decision.
+- AGENTS walk: reviewed/skipped success quiet after gates; overlapping advice
+  remains once across green CI; attribution/history/shutdown gaps actionable;
+  explicit detail respected; wholly quick journey retains its original scope.
+- Existing SEED-053 acceptance home now owns changed response requirements on all
+  three hosts, pending native evidence; unchanged integration needs matching reuse.
+  No paid sessions, release, rollout or backlog assignment performed.
+- Refactor consumer trace: closure's shared predicate controls prove quiet/minimal
+  and refresh-action semantics, not marker-first refresh attention; its old
+  unmarked positive fixtures remain bounded. That framing is explicitly assigned
+  to pending SEED-053 native acceptance; no full attention-acceptance claim made.
+- Independent refactor removed a redundant multi-signal rejection and reworded
+  the same negative response fixture after a guard syntax collision. Passed:
+  `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/git-publication-native.sh tests/native-assessor-counterexample-guard.sh`
+  (terminal 60963, exit 0). Individual missing-signal controls and fresh observer
+  comparison retain coverage; other accepted boundaries unchanged. Refactor
+  complete with no functional gap. Selective formatter succeeded (whitespace only).

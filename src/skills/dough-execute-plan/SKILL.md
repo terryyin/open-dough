@@ -246,5 +246,5 @@ Missing/contradictory execution identity requires the recovery decision above.
 ## Finish or stop
 
 Follow [finish or stop](references/finish-or-stop.md) for the execution-complete
-record, the completion operation, reporting and its markers, automatic
+record, the completion operation, attention-only planned reporting, automatic
 retrospective invocation, and incomplete-work reporting.

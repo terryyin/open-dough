@@ -21,29 +21,36 @@ take precedence. When skipped, publish the
 [execution-complete record](#record-execution-completion) with
 `Product advice: retrospective skipped`, then invoke the completion operation
 for the applicable accepted revision at this execution-completion boundary,
-handle its receipt, apply
-[report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff),
-and then report the recorded product advice and the CI verdict or
-exact unresolved reason with shutdown evidence, and end with
-`## PLAN EXECUTION COMPLETE`, retaining the completed plan and judged proof for
-any later review and wrap-up.
+then handle its receipt. Retain the completed plan and judged proof for later
+review and wrap-up; select the planned response below.
 
 Otherwise invoke
 [dough-execution-retrospective](../../dough-execution-retrospective/SKILL.md)
 without another confirmation as soon as delivered implementation is available,
 including while applicable CI is pending. Preserve explicit review instructions
 and project preferences through its review selection; its authority excludes
-implementing findings or changing the backlog. Do not emit
-`## PLAN EXECUTION COMPLETE` first or require that banner as retrospective
-input. When review returns, publish the
+implementing findings or changing the backlog. Delivered implementation starts
+review; require no execution-completion banner as input. When review returns,
+publish the
 [execution-complete record](#record-execution-completion), invoke the
-completion operation, handle its receipt, apply
-[report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff),
-then report completion, judged proof,
-the recorded product advice, CI verdict or limitation, shutdown evidence, and
-`## PLAN EXECUTION COMPLETE` as the final execution/review handoff. Report an
-`integrated_state` success as [completion mechanics](ci-completion-wait.md)
-describe.
+completion operation, handle its receipt, and select the planned response below.
+
+For both reviewed and skipped planned completion, apply the shared
+[completion attention](../../dough-land/references/completion-attention.md)
+judgment after completion handling. Consume the retrospective's current unresolved
+attention together with any delivery, CI or shutdown limitation in one combined
+handoff. Combine overlapping review items once; neither a later successful check
+nor `Product advice: no change` settles an unresolved item. Remove an item only
+after its evidenced, authorized disposition. Keep an explicit review/retain stop
+and provide explicitly requested details. Otherwise, when settled, give no
+success message, or only the minimum native response; add no slice, proof, advice,
+CI or shutdown recap or execution-completion banner. Preserve that evidence in its
+existing records and receipts, including accurate `integrated_state` evidence
+under [completion mechanics](ci-completion-wait.md). When attention remains, begin
+with `DEVELOPER ATTENTION REQUIRED`, followed by the issue, consequence, next action
+or decision, responsible owner when known, and needed evidence or recovery links.
+Apply [report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff)
+before giving the response; a quiet handoff submits nothing.
 
 Continue in the recorded execution project/checkout. Supply available references/context:
 source contract, original plan and approved changes, attributable commits, decisions, proof,
@@ -88,7 +95,9 @@ handling cannot resolve is such an incomplete stop, even when review finished
 and the observer remains available for diagnosis. Emit no completion marker or
 automatic retrospective. Before giving that stop response, apply
 [report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff)
-as an unfinished report.
+as an unfinished report. For planned work, use the shared completion-attention
+judgment: begin with `DEVELOPER ATTENTION REQUIRED` and name the actual gap and
+required recovery; quiet output never substitutes for an unfinished gate.
 
 ## Report attention at the execution-complete handoff
 

@@ -14,3 +14,16 @@ native_response_field_write() {
 native_response_field_read() {
   awk '/^response:$/ { r = 1; next } r && /^  / { print substr($0, 3); next } { r = 0 }' "$1"
 }
+
+# A bounded quiet-response predicate shared by completion assessors. These
+# acknowledgments are assessor examples, not required native wording. Callers
+# still own operational proof and any attention judgment for their workflow.
+native_response_is_minimal() {
+  local details
+  details=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+    -e '/^$/d' <<< "$1")
+  [[ -z ${details} ]] || {
+    [[ ${details} != *$'\n'* ]] \
+      && grep -Eiq '^(done|finished|complete)[.!]?$' <<< "${details}"
+  }
+}

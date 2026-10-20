@@ -5,6 +5,9 @@
 # shellcheck source=tests/support/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+# shellcheck source=tests/support/native-response-field.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
 ci_completion_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/ci-completion-native-assess.sh"
 
 # Signals for rejected cases of ci_completion_assess. A fixture forced stop
@@ -12,14 +15,17 @@ ci_completion_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/c
 # assessor-signal: review-started review-started
 # assessor-signal: control-order control-order
 # assessor-signal: forced-stop forced-stop product-shutdown
-# assessor-signal: completion-marker completion-marker
-# assessor-signal: failure-report failure-reported
+# assessor-signal: review-completed review-completed
+# assessor-signal: completion-calls complete-count stop-count await-count
+# assessor-signal: observer-terminal observer-terminal
+# assessor-signal: coverage coverage-state
+# assessor-signal: response response response-readable
 ci_completion_assess() {
   local scenario=$1
   local observations=$2
   local state terminal complete_count stop_count await_count
   local product_shutdown forced_stop worker_alive
-  local review_started review_completed marker failure_reported
+  local review_started review_completed response
   state=$(native_observation_field "${observations}" coverage-state)
   terminal=$(native_observation_field "${observations}" observer-terminal)
   complete_count=$(native_observation_field "${observations}" complete-count)
@@ -30,8 +36,9 @@ ci_completion_assess() {
   worker_alive=$(native_observation_field "${observations}" worker-alive)
   review_started=$(native_observation_field "${observations}" review-started)
   review_completed=$(native_observation_field "${observations}" review-completed)
-  marker=$(native_observation_field "${observations}" completion-marker)
-  failure_reported=$(native_observation_field "${observations}" failure-reported)
+  [[ $(native_observation_field "${observations}" response-readable) == true ]] \
+    && grep -q '^response:$' "${observations}" || return 1
+  response=$(native_response_field_read "${observations}")
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false ]] || return 1
   case ${scenario} in
@@ -39,33 +46,39 @@ ci_completion_assess() {
       [[ ${complete_count} == 1 && ${stop_count} == 0 && ${await_count} == 0 &&
         ${product_shutdown} == true &&
         (${terminal} == stopped || ${terminal} == finished) ]] || return 1
+      native_response_is_minimal "${response}" || return 1
       ;;
     failure)
-      [[ ${complete_count} == 1 && ${stop_count} == 0 &&
+      [[ ${complete_count} == 1 && ${stop_count} == 0 && ${await_count} == 0 &&
         ${product_shutdown} == false && ${terminal} == missing &&
         ${worker_alive} == true ]] || return 1
+      # Bounded response checks for this controlled failure; a native acceptance
+      # review still judges the action, ownership and evidence links.
+      [[ ${response} =~ ^[[:space:][:punct:]]*DEVELOPER\ ATTENTION\ REQUIRED ]] \
+        && grep -Eiq 'CI.+fail|fail.+CI|unresolved' <<< "${response}" \
+        && grep -Eiq 'repair|inspect|resume|provide|resolve|decision|recover' <<< "${response}" \
+        && ! grep -Fq '## PLAN EXECUTION COMPLETE' <<< "${response}" || return 1
       ;;
     *) return 2 ;;
   esac
   case ${scenario} in
     pending)
       [[ ${state} == success && ${review_started} == true &&
-        ${review_completed} == true && ${marker} == 1 ]] || return 1
+        ${review_completed} == true ]] || return 1
       native_completion_control_order "${observations}" \
         review-start complete-start ci-release
       ;;
     ready)
       [[ ${state} == success && ${review_started} == true &&
-        ${review_completed} == true && ${marker} == 1 ]] || return 1
+        ${review_completed} == true ]] || return 1
       native_completion_control_order "${observations}" \
         review-start ci-release coverage-terminal review-complete
       ;;
     skip-retro)
-      [[ ${state} == success && ${review_started} == false && ${marker} == 1 ]]
+      [[ ${state} == success && ${review_started} == false && ${review_completed} == false ]]
       ;;
     failure)
-      [[ ${state} == failure && ${review_started} == true &&
-        ${marker} == 0 && ${failure_reported} == true ]]
+      [[ ${state} == failure && ${review_started} == true ]]
       ;;
     *) return 2 ;;
   esac

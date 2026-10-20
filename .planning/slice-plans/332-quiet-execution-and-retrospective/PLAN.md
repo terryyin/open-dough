@@ -118,7 +118,7 @@ checks and cleanup. No numeric slice target or hard limit is supplied.
 
 ### 2. Finish planned execution with one attention-only handoff
 Type: Behavior
-Status: planned
+Status: done
 Proof: Updated handoff consumers and credential-free completion assessor controls
 accept quiet success with valid evidence, reject false success, and preserve
 actionable failures and the supplied dashboard handoff contract.
@@ -224,15 +224,21 @@ or a visible banner could stand in for required evidence.
 
 [Execution identity, observer and accepted slice proof](execution-evidence.md)
 remain part of this plan for continuation, retrospective and wrap-up.
+Native behavior remains assigned to [SEED-053 acceptance](../../seeds/SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion).
 
 ## Story obligations
 
 ### G1. Execution recap remains during retrospective-only increment
 Reported: slice 1 — "Execute Plan still mandates its success recap until slice 2."
 Story clause: "Remove successful slice summaries, no-findings reports, routine advice/no-change recaps, and success-only banners."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: [accepted guidance and assessor/observer controls](execution-evidence.md#slice-2); inspected reviewed/skipped completion, partial recovery and dashboard handoff paths preserve operational gates while removing mandatory recap/banner output.
 
 ### G2. Native behavior proof is separately tracked
 Reported: slice 1 — "Native acceptance remains pending under ADR 0005; no native execution or cross-host behavioral proof claimed."
+Story clause: "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."
+Disposition: excluded "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."
+
+### G3. Closure framing remains a native acceptance observation
+Reported: slice 2 — "Closure automated pass cannot be claimed as full current attention-response acceptance."
 Story clause: "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."
 Disposition: excluded "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."

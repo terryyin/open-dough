@@ -6,6 +6,10 @@
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
 
+# shellcheck source=tests/support/native-response-field.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+
 ci_completion_observe() {
   local scenario=$1
   local host=$2
@@ -45,8 +49,8 @@ ci_completion_observe() {
     printf 'worker-alive: %s\n' "${worker_alive}"
     printf 'review-started: %s\n' "${review_started}"
     printf 'review-completed: %s\n' "$([[ -f ${ci_completion_project}/.planning/review-observation/complete ]] && echo true || echo false)"
-    printf 'completion-marker: %s\n' "$(grep -Fc '## PLAN EXECUTION COMPLETE' "${response}" || true)"
-    printf 'failure-reported: %s\n' "$(grep -Eiq 'CI.+fail|fail.+CI|unresolved' "${response}" && echo true || echo false)"
+    printf 'response-readable: %s\n' "$(test -r "${response}" && echo true || echo false)"
+    native_response_field_write "${response}"
     printf 'control-order:\n'
     sed 's/^/  /' "${ci_completion_control_log}"
     printf 'node-completion-calls:\n'

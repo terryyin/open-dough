@@ -29,6 +29,7 @@ trunk_closure_write_evidence_identity() {
     tests/support/trunk-closure-native-run.sh \
     tests/support/trunk-closure-native-assess.sh \
     tests/support/closure-native-response.sh \
+    tests/support/native-response-field.sh \
     tests/support/trunk-closure-native-observe.sh \
     tests/support/trunk-closure-native-counterexamples.sh \
     tests/support/native-completion-observation.sh \

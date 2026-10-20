@@ -2,6 +2,10 @@
 # Shared settled-response and refresh-attention observations for Wrap Up.
 # shellcheck disable=SC2312
 
+# shellcheck source=tests/support/native-response-field.sh
+# shellcheck disable=SC1091,SC2312
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+
 # A settled Wrap Up response is empty or a minimal native acknowledgment, or
 # gives useful attention about a deferred default-checkout refresh when needed.
 # The acknowledgment examples below are assessor cases, not required wording.
@@ -15,8 +19,7 @@ closure_response_settled_result() {
     printf 'false\n'
     return
   fi
-  if [[ -z ${details} ]] || grep -Eiq '^(done|finished|complete)[.!]?$' <<< "${details}" \
-    && [[ ${details} != *$'\n'* ]]; then
+  if native_response_is_minimal "${details}"; then
     [[ ${refresh_attention} == false ]] && printf 'true\n' || printf 'false\n'
   elif [[ ${refresh_attention} == true ]] \
     && ! awk '{ gsub(/[.;!?][[:space:]]/, "\n"); print }' <<< "${details}" \
