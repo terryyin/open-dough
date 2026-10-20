@@ -3,6 +3,7 @@
 // but the next control asking.
 import {
   hostName,
+  marksLocalDone,
   marksRecordDone,
   offersSeparateStop,
 } from "./sessionCapabilities.ts";
@@ -34,7 +35,7 @@ export function MarkDone({
   readonly say: (words: string | undefined) => void;
 }) {
   const { markDone, hostOperations } = usePageSessions();
-  const { asksFirst, marking, mark } = useDoneMark(record);
+  const { asksFirst, marking, mark } = useDoneMark(record, hostOperations);
   if (!marksRecordDone(hostOperations, record)) return null;
   return (
     <AskInPlace
@@ -121,7 +122,13 @@ export function StopSession({
   const { stopSession, hostOperations } = usePageSessions();
   const described = useFrameDescription();
   const [stopping, setStopping] = useState(false);
-  if (record.doneAt !== undefined) return null;
+  // A local-only Done did not stop the native session, so Stop stays
+  // offered on its done entry; other hosts' done entries offer none.
+  if (
+    record.doneAt !== undefined &&
+    !marksLocalDone(hostOperations, record.session.host)
+  )
+    return null;
   if (!offersSeparateStop(hostOperations, record.session.host)) return null;
   return (
     <p className="launch-open">

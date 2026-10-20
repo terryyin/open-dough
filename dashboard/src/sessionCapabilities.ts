@@ -17,6 +17,7 @@ export const hostOperationsSchema = z.partialRecord(
     attach: z.boolean(),
     stop: z.boolean(),
     doneStop: z.boolean(),
+    localDone: z.boolean(),
     launchedSessions: z.boolean(),
   }),
 );
@@ -44,6 +45,14 @@ export function offersSeparateStop(
 ): boolean {
   return operations[host]?.stop === true && !marksDone(operations, host);
 }
+// Whether Mark as done is only a local dashboard acknowledgement for this
+// host: no native stop, rename, or removal follows the mark.
+export function marksLocalDone(
+  operations: HostOperations,
+  host: SessionReference["host"],
+): boolean {
+  return operations[host]?.localDone === true;
+}
 // A reported session is marked done locally where its host has no native stop.
 export function marksRecordDone(
   operations: HostOperations,
@@ -51,7 +60,8 @@ export function marksRecordDone(
 ): boolean {
   return (
     record.completion !== undefined ||
-    marksDone(operations, record.session.host)
+    marksDone(operations, record.session.host) ||
+    marksLocalDone(operations, record.session.host)
   );
 }
 export function shellCommand(args: readonly string[]): string {

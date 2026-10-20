@@ -38,11 +38,12 @@ workingCursorTest(
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
     await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
-    // Mark as done stays a separate action; Stop is not it, and an active
-    // unreported session offers no Mark as done in this slice.
+    // Mark as done stays a separate action; Stop is not it. An active
+    // unreported session now also offers the local Mark as done (slice 3),
+    // independently of Stop.
     await expect(
       entry.getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(0);
+    ).toHaveCount(1);
 
     await entry.getByRole("button", { name: "Stop" }).click();
 

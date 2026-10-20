@@ -140,9 +140,12 @@ export function useMarking() {
 // an unread report alone does not ask. Its mark answers the control that
 // asked it: a session marked done takes the control off the page; otherwise
 // the keyboard returns to the control. `answered`, when given, is told too.
-export function useDoneMark(record: LaunchWithState) {
+export function useDoneMark(
+  record: LaunchWithState,
+  operations?: HostOperations,
+) {
   const { marking, follow } = useMarking();
-  const statement = unfinishedIntention(record);
+  const statement = unfinishedIntention(record, operations);
   const mark = (
     done: Promise<boolean>,
     answered?: (marked: boolean) => void,

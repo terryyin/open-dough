@@ -46,7 +46,7 @@ export function SessionResultPanel({
   const [result, setResult] = useState<SessionResult | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
-  const { asksFirst, marking, mark } = useDoneMark(current);
+  const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
   usePanelCloseShortcut(onClose);
   useEffect(() => {

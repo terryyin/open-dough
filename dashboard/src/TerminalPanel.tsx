@@ -120,7 +120,7 @@ export function TerminalPanel({
   const [attempt, setAttempt] = useState(0);
   const [ending, setEnding] = useState<TerminalEnding | undefined>();
   // While marking, the attachment's ending the mark causes is not shown.
-  const { asksFirst, marking, mark } = useDoneMark(current);
+  const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
   useAttachedTerminal(
     screen,
