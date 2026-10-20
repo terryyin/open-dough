@@ -98,8 +98,7 @@ export const hostDescriptions = {
         "The selected Cursor model is no longer available. Choose another model or use your Cursor setting.",
       unverified:
         "Cursor model choices could not be verified. Retry, or use your Cursor setting.",
-      chosenNote:
-        "Cursor also saves a chosen model as your Cursor setting for later sessions.",
+      chosenNote: "The chosen model applies to this session only.",
     },
     // A recorded session the runner does not hold. A held screen, and a runner
     // that is not running or cannot be reached, supply their own words.

@@ -26,6 +26,9 @@ export const cursorRunnerKeepRequest = z.object({
   rows: z.int().positive(),
   sourceId: z.string().min(1),
   session: hostSessionSchema,
+  // A chosen-model session's configuration scope, kept with the client as
+  // CURSOR_CONFIG_DIR. Absent for Default sessions.
+  configScope: z.string().min(1).optional(),
   // Absent when recovery resumes without typing. An empty string still types
   // a return through LaunchInstruction, as launch already does.
   instruction: z.string().optional(),

@@ -27,7 +27,8 @@ export function installFixtureExecutable(
     | "fake-terminal-notifier"
     | "fake-codex"
     | "fake-cursor"
-    | "fake-cursor-attach",
+    | "fake-cursor-attach"
+    | "fake-cursor-model-persistence.cjs",
   binDir: string,
   command: string,
 ): void {

@@ -12,8 +12,14 @@
 // session with no instruction still keeps the id and starts no client. The
 // stored resume command never carries `--model`, and Default omits it. A
 // blank start with a chosen model is refused before create-chat: no run
-// would apply it. No worktree, trust, or approval flag is passed. When the
-// runner cannot be reached, no `cursor-agent` is started.
+// would apply it. A chosen model first establishes its session
+// configuration scope (./sessionScope.ts), cloned from the developer's
+// current Cursor configuration and recorded on the continuation, and the
+// first client is kept with that scope; when the scope cannot be
+// established the launch is refused before create-chat rather than run
+// against the shared configuration. Default launches create no scope. No
+// worktree, trust, or approval flag is passed. When the runner cannot be
+// reached, no `cursor-agent` is started.
 
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";
@@ -22,112 +28,26 @@ import { shellCommand } from "../../../src/sessionCapabilities.ts";
 import type { LaunchHost } from "../../launchHosts.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { cursorAgent } from "./exec.ts";
-import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
+import {
+  aborted,
+  keptClientTimedOut,
+  noSessionId,
+  notInstalled,
+  runnerUnreachable,
+  timedOut,
+  untilAbort,
+} from "./launchOutcomes.ts";
 import { cursorPrompt } from "./prompt.ts";
 import {
-  execOnRunner,
-  keepCursorClient,
-  readCursorRunnerSessions,
-} from "./runnerClient.ts";
+  establishCursorSessionScope,
+  removeCursorSessionScope,
+} from "./sessionScope.ts";
+import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
 import { terminalHandoffRequested } from "../../terminalHandoff.ts";
 import { cursorTerminalSize } from "./terminal.ts";
-import { cursorWorkspaceTrustExplanation } from "./workspaceTrust.ts";
-import { sessionKey } from "../../../src/sessionReference.ts";
-import { setRecordPendingInputExplanation } from "../../launchRecordStore.ts";
-
-// Abort can arrive during an await. A direct `signal.aborted` check is
-// narrowed for the rest of the function, so read it through this call.
-function aborted(signal: AbortSignal): boolean {
-  return signal.aborted;
-}
 
 function resumeFlags(workspace: string, sessionId: string): readonly string[] {
   return ["--workspace", workspace, "--resume", sessionId];
-}
-
-function notInstalled(): HostLaunch {
-  return {
-    kind: "failed",
-    reason: "not-installed",
-    explanation: `Cursor (\`${cursorAgent}\`) was not found on this machine. Install and authenticate it, then start again.`,
-  };
-}
-
-function runnerUnreachable(): HostLaunch {
-  return {
-    kind: "failed",
-    reason: "unavailable",
-    explanation:
-      "The Cursor runner on this machine could not be reached. No agent was started.",
-  };
-}
-
-function noSessionId(): HostLaunch {
-  return {
-    kind: "uncertain",
-    reason: "unconfirmed",
-    explanation: "Cursor did not print a session id. No prompt was submitted.",
-  };
-}
-
-function timedOut(session: CursorSession | undefined): HostLaunch {
-  if (session === undefined) {
-    return {
-      kind: "uncertain",
-      reason: "timed-out",
-      explanation: "Cursor did not answer in time. No session id was printed.",
-    };
-  }
-  return {
-    kind: "uncertain",
-    reason: "timed-out",
-    explanation: instructionDeliveryTimedOutExplanation(session),
-  };
-}
-
-async function keptClientTimedOut(
-  sourceId: string,
-  session: CursorSession,
-): Promise<HostLaunch> {
-  const held = await readCursorRunnerSessions();
-  const trust =
-    held.kind === "running" &&
-    held.sessions.some(
-      (client) =>
-        sessionKey(client.session) === sessionKey(session) &&
-        client.workspaceTrust === true,
-    );
-  if (trust) {
-    const recorded = await setRecordPendingInputExplanation(
-      sourceId,
-      session,
-      cursorWorkspaceTrustExplanation,
-    );
-    if (recorded?.firstInput?.state === "uncertain") {
-      return {
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: cursorWorkspaceTrustExplanation,
-      };
-    }
-  }
-  return timedOut(session);
-}
-
-function untilAbort(signal: AbortSignal): Promise<void> {
-  return new Promise((resolve) => {
-    if (signal.aborted) {
-      resolve();
-      return;
-    }
-    signal.addEventListener(
-      "abort",
-      () => {
-        resolve();
-      },
-      { once: true },
-    );
-  });
 }
 
 export const launchCursor: LaunchHost["launch"] = async (
@@ -160,12 +80,46 @@ export const launchCursor: LaunchHost["launch"] = async (
     };
   }
   const workspace = established?.workspace.path ?? folder.path;
+  // A chosen model establishes its scope before create-chat, so Cursor's
+  // persistence lands in the scope from the first turn. Failure refuses
+  // here rather than launching against the shared configuration.
+  const configScope =
+    request.model === undefined
+      ? undefined
+      : await establishCursorSessionScope();
+  if (request.model !== undefined && configScope === undefined) {
+    return {
+      kind: "failed",
+      reason: "unavailable",
+      explanation:
+        "Cursor's current configuration could not be copied into a configuration for this session, so the chosen model was not started. Check your Cursor configuration, then start again. Nothing was launched.",
+    };
+  }
   const created = await execOnRunner(["create-chat"], workspace, signal);
-  if (aborted(signal)) return timedOut(undefined);
-  if (created === undefined) return runnerUnreachable();
-  if (created.errorCode === "ENOENT") return notInstalled();
+  // No session was recorded on these paths, so no record remembers the
+  // scope; remove it instead of stranding it.
+  const abandonScope = async (): Promise<void> => {
+    if (configScope !== undefined) {
+      await removeCursorSessionScope(configScope).catch(() => undefined);
+    }
+  };
+  if (aborted(signal)) {
+    await abandonScope();
+    return timedOut(undefined);
+  }
+  if (created === undefined) {
+    await abandonScope();
+    return runnerUnreachable();
+  }
+  if (created.errorCode === "ENOENT") {
+    await abandonScope();
+    return notInstalled();
+  }
   const printed = z.uuid().safeParse(created.stdout.trim());
-  if (created.failed || !printed.success) return noSessionId();
+  if (created.failed || !printed.success) {
+    await abandonScope();
+    return noSessionId();
+  }
   const session: CursorSession = {
     host: "cursor",
     sessionId: printed.data,
@@ -173,6 +127,7 @@ export const launchCursor: LaunchHost["launch"] = async (
     continuation: {
       workspace,
       args: [cursorAgent, ...resumeFlags(workspace, printed.data)],
+      ...(configScope === undefined ? {} : { configScope }),
     },
   };
   // Blank keeps the id and starts no client. A prompt stays uncertain until
@@ -189,6 +144,7 @@ export const launchCursor: LaunchHost["launch"] = async (
   try {
     await record.session(session, first);
   } catch {
+    await abandonScope();
     return {
       kind: "uncertain",
       reason: "unconfirmed",
@@ -213,6 +169,7 @@ export const launchCursor: LaunchHost["launch"] = async (
     rows: cursorTerminalSize.rows,
     sourceId: source.id,
     session,
+    ...(configScope === undefined ? {} : { configScope }),
     instruction: prompt,
     ...(attachTerminal ? { handoff: true } : {}),
   });

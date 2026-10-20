@@ -19,6 +19,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { cursorCannotLoadChat } from "../../src/cursorCannotLoad.ts";
 import { appendedRecords } from "./appendedRecords.ts";
+import {
+  installFakeCursorSharedConfig,
+  type FakeCursorSharedConfig,
+} from "./fakeCursorSharedConfig.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
 
@@ -57,7 +61,7 @@ export type CursorAttach = {
   readonly env: Readonly<Record<string, string>>;
 };
 
-export type FakeCursor = {
+export type FakeCursor = FakeCursorSharedConfig & {
   readonly binDir: string;
   readonly env: Readonly<Record<string, string>>;
   readonly sessionId: string;
@@ -124,6 +128,8 @@ export function installFakeCursor(options?: {
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, fakeCursorHost.binDir);
+  const sharedConfig = installFakeCursorSharedConfig(root);
+  const { sharedConfigDir } = sharedConfig;
   const logPath = path.join(root, "argv.jsonl");
   const modelsPath = path.join(root, "models.txt");
   const modelsLogPath = path.join(root, "models.jsonl");
@@ -133,6 +139,11 @@ export function installFakeCursor(options?: {
   const nextSessionPath = path.join(root, "next-session-id");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
   installFixtureExecutable("fake-cursor-attach", binDir, "fake-cursor-attach");
+  installFixtureExecutable(
+    "fake-cursor-model-persistence.cjs",
+    binDir,
+    "fake-cursor-model-persistence.cjs",
+  );
   installFixtureExecutable(
     "fake-host-environment.cjs",
     binDir,
@@ -163,7 +174,9 @@ export function installFakeCursor(options?: {
   return {
     binDir,
     sessionId: cursorSessionId,
+    ...sharedConfig,
     env: {
+      CURSOR_CONFIG_DIR: sharedConfigDir,
       FAKE_CURSOR_LOG: logPath,
       FAKE_CURSOR_SESSION_ID: cursorSessionId,
       FAKE_CURSOR_ATTACH_DIR: attachDir,

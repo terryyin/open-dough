@@ -8,6 +8,7 @@ import {
   cursorRunnerKeepRequest,
 } from "./runnerProtocol.ts";
 import { showsCursorComposer } from "./idleScreen.ts";
+import { cursorSessionScopeEnvironment } from "./sessionScope.ts";
 import { cursorKeptTerminal, spawnCursorPty } from "./terminal.ts";
 
 async function confirmInstruction(
@@ -49,10 +50,18 @@ export async function answerKeep(
   }
   let pty;
   try {
-    pty = spawnCursorPty(parsed.command, parsed.args, parsed.cwd, {
-      cols: parsed.cols,
-      rows: parsed.rows,
-    });
+    pty = spawnCursorPty(
+      parsed.command,
+      parsed.args,
+      parsed.cwd,
+      {
+        cols: parsed.cols,
+        rows: parsed.rows,
+      },
+      parsed.configScope === undefined
+        ? undefined
+        : cursorSessionScopeEnvironment(parsed.configScope),
+    );
   } catch (error) {
     sendJson(200, {
       kind:

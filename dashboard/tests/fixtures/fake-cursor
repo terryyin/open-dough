@@ -31,6 +31,7 @@ const log = process.env.FAKE_CURSOR_LOG;
 const env = require(path.join(__dirname, "fake-host-environment.cjs"))([
   "FAKE_CURSOR_LOG",
   "FAKE_CURSOR_ATTACH_DIR",
+  "CURSOR_CONFIG_DIR",
 ]);
 const home = process.env.HOME;
 let stored = null;

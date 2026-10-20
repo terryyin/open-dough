@@ -34,11 +34,12 @@ export function spawnCursorPty(
   args: readonly string[],
   cwd: string,
   size: { readonly cols: number; readonly rows: number },
+  environment?: Readonly<Record<string, string>>,
 ): IPty {
   return spawnPty(command, [...args], {
     name: "xterm-256color",
     cwd,
-    env: developerShellEnvironment(process.env),
+    env: { ...developerShellEnvironment(process.env), ...environment },
     cols: size.cols,
     rows: size.rows,
   });

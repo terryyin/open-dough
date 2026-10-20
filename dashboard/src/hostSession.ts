@@ -32,6 +32,10 @@ const cursorSessionSchema = z.object({
   continuation: z.object({
     workspace: z.string().min(1),
     args: z.array(z.string()),
+    // A chosen-model launch's session-scoped Cursor configuration
+    // (server/hosts/cursor/sessionScope.ts). Absent on Default launches
+    // and on records kept before scopes existed.
+    configScope: z.string().min(1).optional(),
   }),
 });
 

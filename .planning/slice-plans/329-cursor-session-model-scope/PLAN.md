@@ -154,7 +154,7 @@ nothing is built on the unproved hook.
 
 ### 2. Launch a chosen-model Cursor session in its own configuration scope
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor journeys in `agent-launch-cursor-model.spec.ts` show:
 choosing a model clones the current fake Cursor configuration into a new
 session scope under the dashboard machine home (with the scope's `chats`
