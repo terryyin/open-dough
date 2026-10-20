@@ -68,7 +68,7 @@ justified.
 
 ### 1. Make retrospective results quiet or explicitly actionable
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the selected retrospective through quiet, unresolved, limited and
 requested-detail outcomes; focused guidance checks protect shared attention,
 review ownership and evidence boundaries.
@@ -192,8 +192,9 @@ framework or host adapter is implied.
 
 ## Current decisions
 
-- Preparation only: no Take, execution, release or rollout. Both slices remain
-  planned. No human-owned scope or ADR decision remains for this approach.
+- Execution authorized by the 2026-10-20 `dough-execute-plan` invocation with
+  the established start below. No release or rollout is authorized; no
+  human-owned scope or ADR decision remains for this approach.
 - Edit client guidance in `src/skills/`, not installed managed copies.
   Keep any newly required runtime dependency in the declared payload and verify
   its links; installation/update/coexistence add their own checks only if changed.
@@ -206,52 +207,11 @@ framework or host adapter is implied.
   review remains required and distinct from deterministic checks and native
   acceptance.
 
-## Decisive premises and observations
+## Preparation observations
 
-Observed on 2026-10-20 in
-`/Users/terryyin/git/open-dough/.worktrees/keep-retrospective-and-execution-completion-quie`
-at `32ec068d98a43e1308d7578e97ef18475f423f18`. These are preparation observations,
-not proof that the new response behavior is implemented.
-
-1. **Mandatory success output is an instruction contract with active consumers.**
-   Read `finish-or-stop.md`, retrospective `## Report`, shared completion
-   attention and `ci-completion-wait.md` through their final response branches.
-   The reviewed and skipped execution paths require `PLAN EXECUTION COMPLETE`,
-   retrospective requires `EXECUTION RETROSPECTIVE COMPLETE`, and integrated
-   success requires a revision recap. The focused command below passed:
-
-   ```sh
-   PATH="/opt/homebrew/bin:$PATH" npm test -- .seed145-observe.sh \
-     src/skills/dough-land/scripts/completion-attention-guidance.test.mjs \
-     src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs \
-     src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs
-   ```
-
-   Its guidance suites assert those old output requirements and preserve the
-   real plan-reader completion record. They locate contracts to change; they
-   do not prove agent follow-through or the desired quiet behavior.
-2. **Removing the success banner reaches and fails the existing native assessor.**
-   The scratch `.seed145-observe.sh` sourced
-   `tests/support/ci-completion-native-assess.sh` and
-   `tests/support/ci-completion-native-counterexamples.sh`. For each of
-   `pending`, `ready`, and `skip-retro`, it ran
-   `ci_completion_write_observation "$scenario" "$dir/reported"` then
-   `ci_completion_assess "$scenario" "$dir/reported"` (accepted). It applied
-   `sed 's/^completion-marker: 1$/completion-marker: 0/'` to that observation
-   and called the same assessor (rejected in all three cases).
-   Every other observation stayed identical. This reaches the consuming
-   operation and proves the obsolete marker dependency; the generated review/CI
-   facts are fixture inputs, not observations of a live execution. The scratch
-   file and temporary data were removed before seed/plan writes.
-3. **Native agent behavior is not settled by static or substitute evidence.**
-   The actual native route is
-   `PATH="/opt/homebrew/bin:$PATH" bash tests/git-publication-native.sh --native
-   <host> --case execution-review/<pending|ready|failure|skip-retro>`.
-   Its fixture, observer and assessor were inspected; the existing assessor
-   cannot judge quiet success until slice 2. Credentialed host execution is
-   not a claimed preparation observation. The separately linked acceptance
-   owns fresh behavior proof; implementation readiness depends on the observed
-   instruction/consumer change, not a claim that old native proof already covers it.
+See [the retained preparation observations](preparation-observations.md) for
+the baseline guidance tests, marker-dependent assessor counterexample and
+native-evidence limits. These observations predate implementation.
 
 ## Learnings
 
@@ -259,3 +219,20 @@ Removing a success banner changes a test consumer outside the skill's own
 guidance. Keep operational completion observations authoritative while changing
 response expectations. Otherwise a correct quiet handoff would appear to fail,
 or a visible banner could stand in for required evidence.
+
+## Execution context and proof
+
+[Execution identity, observer and accepted slice proof](execution-evidence.md)
+remain part of this plan for continuation, retrospective and wrap-up.
+
+## Story obligations
+
+### G1. Execution recap remains during retrospective-only increment
+Reported: slice 1 — "Execute Plan still mandates its success recap until slice 2."
+Story clause: "Remove successful slice summaries, no-findings reports, routine advice/no-change recaps, and success-only banners."
+Disposition: interim until slices 2
+
+### G2. Native behavior proof is separately tracked
+Reported: slice 1 — "Native acceptance remains pending under ADR 0005; no native execution or cross-host behavioral proof claimed."
+Story clause: "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."
+Disposition: excluded "Native acceptance remains separately tracked under ADR 0005; release and rollout are not part of this implementation story."

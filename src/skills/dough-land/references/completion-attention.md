@@ -1,6 +1,9 @@
 # Completion attention
 
-Dough Land and Story Wrap Up use this rule after their operations settle:
+Apply this response judgment after the invoking workflow's applicable operations
+settle. That workflow keeps ownership of its publication, review, CI/shutdown,
+recovery, retirement, and dashboard reporting duties; sharing this judgment does
+not acquire another workflow's operations or gates.
 
 - On successful completion with nothing requiring attention, give no success
   message where the host permits it; otherwise use the minimum native response.
@@ -14,14 +17,22 @@ Dough Land and Story Wrap Up use this rule after their operations settle:
 - Recorded process findings, a valid follow-up queued under existing authority,
   and an explicitly authorized drop with recovery preserved require no reminder
   merely because those records exist. Their dispositions must be settled; an
-  unresolved recommendation, adoption choice, missing correction input, or other
-  human-owned decision still requires attention. Quiet completion grants no
+  unresolved recommendation, adoption choice, missing correction input, draft
+  awaiting keep/disposition, or other human-owned decision still requires attention.
+  Settle a choice only with evidence and existing delegated authority; confidence
+  that the choice is obvious cannot replace its human owner. Quiet completion grants no
   authority to start wrap-up, execute a follow-up, or drop a finding.
+- Use current dispositions: combine overlapping unresolved items once, retain them
+  across unrelated successful checks, and omit an item only after an evidenced,
+  authorized disposition settles it. A later green CI result does not dispose of
+  an unresolved finding.
 - Report a material concern, decision, action, failure, unfinished step, lost or uncertain
   CI coverage required by this invocation, deferred or stopped refresh, or blocked,
   partial, or unverified retirement. A requested process review that was
   unavailable or could not record or publish its findings also requires attention.
-  Give the useful facts, their consequence, and the next action, naming its
+  An intentionally skipped optional review is not itself an exception. Begin an
+  attention response with the prominent `DEVELOPER ATTENTION REQUIRED` phrase,
+  before its actionable content. Give the useful facts, their consequence, and the next action, naming its
   responsible owner when known. Distinguish accepted publication from an
   unfinished later step so recovery repeats only unfinished work. Include a
   recovery location or revision when needed for that action; do not recap settled work.
@@ -43,5 +54,7 @@ Dough Land and Story Wrap Up use this rule after their operations settle:
 Without supplied dashboard launch context, direct use makes no dashboard contact;
 do not discover or invent a session to report to.
 
-With supplied dashboard launch context, apply the shared
-[dashboard completion operation](dashboard-completion.md) after final wording settles.
+For Dough Land and Story Wrap Up with supplied dashboard launch context, apply
+the shared [dashboard completion operation](dashboard-completion.md) after final
+wording settles. Other callers retain their own reporting boundary; do not run
+that closure operation for a retrospective or execution-complete handoff.

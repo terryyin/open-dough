@@ -64,11 +64,11 @@ test("review overlaps pending CI and one completion operation owns final handoff
   );
   assert.match(
     retrospective,
-    /marker completes review, not the[\s\S]+final CI handoff/,
+    /return completes review, not the[\s\S]+final CI\s+handoff/,
   );
   assert.match(
     retrospective,
-    /do not end the turn at this marker[\s\S]+completion operation/,
+    /return\s+immediately[\s\S]+completion operation[\s\S]+without a separate visible\s+final report or confirmation/,
   );
 });
 
