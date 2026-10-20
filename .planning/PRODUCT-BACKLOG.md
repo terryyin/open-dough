@@ -25,6 +25,7 @@ cost of the feedback process itself.
 ## Backlog list
 
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume
+- [Show why a scoped Cursor session's terminal open was refused](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-scope-terminal-refusal-explanation) — SEED-052#cursor-scope-terminal-refusal-explanation
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
 - [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences

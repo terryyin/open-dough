@@ -85,8 +85,13 @@ Launch admission rechecks a chosen id against that list and refuses a stale
 one before `create-chat`. A chosen id is sent as `--model <id>` on that
 first terminal client only; the stored resume command never carries it, and
 opening again does not send it.
-Cursor also saves it as its model setting for later sessions, and the dialog
-says so; the dashboard does not restore that setting. A blank ad hoc start
+A chosen model runs in a session-scoped Cursor configuration cloned from
+the developer's current configuration (under the dashboard machine home,
+its `chats` linked to the shared Cursor chats) and recorded on the launch
+record; every process that runs the session inherits that scope, so
+Cursor's model persistence lands in the scope and never in the shared
+configuration, and deleting the launch record removes the scope. The
+dialog says the choice applies to this session only. A blank ad hoc start
 with a chosen model is refused before `create-chat`, because no Cursor run
 would apply it. Default omits `--model`. Skills are read from
 `.agents/skills`, and the prompt sigil is `/`.
