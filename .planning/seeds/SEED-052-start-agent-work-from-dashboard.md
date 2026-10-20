@@ -231,51 +231,44 @@ the shared configuration. Adds no feature promise.
 
 **Identity:** SEED-052#cursor-chosen-model-unconfirmed-start
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/333-cursor-chosen-model-unconfirmed-start/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cbe88500f0ad9581ebffafbb76bf52ea153e84c2f9fcfca684fb89e8875d203a","plan":"e8c1273c4a4d6bb992d2eba0bba67e664524133efac9ff961e375a494706c0e4"}}
 ```
 
-**Goal:** For a developer whose chosen-model Cursor execution start exits
-before Cursor confirms the first prompt, the dashboard lets that story be
-started again. The story first confirms that this outcome violates the
-intended launch, then repairs the confirmed violation.
+**Goal:** For a developer whose chosen-model Cursor execution start's client
+exits before the first prompt is confirmed, Continue submits that prompt in
+a new conversation and the story's actions return.
 
 **Scope:**
 
-- Required: a chosen-model Cursor start, including Auto, that establishes a
-  configuration scope, exits before the first prompt is confirmed, and leaves
-  the story protected. After the violation is confirmed, the developer can
-  start that story again and the agent receives the execution prompt.
-- Required: Continue and Recheck on that stuck start do not leave the story
-  protected with no running agent and no way to start.
-- Deferred: the terminal-open explanation when a recorded scope is missing or
-  unreadable (SEED-052#cursor-scope-terminal-refusal-explanation); Claude and
-  Codex launch; a Default Cursor launch that establishes no scope. This story
-  does not change the Taken terminal-refusal story.
+- Required: a chosen-model Cursor start, including Auto. When its kept client
+  has exited and the runner no longer holds it, Continue creates a new
+  conversation, submits the same first prompt, and the attempt settles as
+  launched.
+- Rejection: while that client is still held, Continue starts no other
+  conversation. An unconfirmed prompt is not submitted twice while the client
+  may still accept it (`dashboard/tests/boundary/agent-terminal-cursor-launch.spec.ts`,
+  the exiting-client journey, observed passing in this preparation on
+  2026-10-20).
+- Rejection: a recorded scope that is missing or unreadable still refuses
+  continuation with the scope explanation and starts nothing
+  (SEED-052#cursor-scope-terminal-refusal-explanation).
+- Deferred: Claude and Codex. Why the one native scoped client exited about a
+  second after start on 2026-10-20 is an early probe, not a separate promise:
+  if a scoped client established the way launch does never reaches a screen
+  ready for the prompt, the restart slice stops and the plan changes. A
+  Default Cursor start that exits the same way follows this rule when it is
+  the same path; this story adds no separate Default promise.
 
 **Key examples:**
 
-1. A chosen-model Cursor execution start's client exits before the first
-   prompt is confirmed, and Cursor has no chat for the printed session → the
-   developer can start that story again, and the agent receives the
-   execution prompt.
-2. Continue and Recheck on that start do not leave the card protected
-   forever with the agent not running.
-3. Opening the terminal of a session whose recorded scope is missing still
-   shows the scope refusal explanation, and a Default Cursor launch is
-   unchanged.
-
-**Evidence (2026-10-20):** execution start `598ff2c1` for
-SEED-052#cursor-scope-terminal-refusal-explanation published its assignment
-at `0f1b0dc` and recorded Cursor session `1a53c2fb`. That resume client
-exited about a second after it started. Cursor has no chat for that id, and
-this is the only launch record that carries a configuration scope. The
-attempt settled uncertain because the first prompt was not confirmed. Cursor
-supplies no launch recovery, so Continue starts no other conversation while
-that input is unconfirmed, and Recheck cannot list Cursor sessions. The
-client's exit text was discarded, so the cause of the one-second exit is
-still unknown. Effort is unassigned; the principal uncertainty is that
-unknown exit and whether a session that never confirmed its first prompt may
-be replaced.
+1. A chosen-model Cursor execution client exits before the prompt is
+   confirmed and the runner no longer holds it → Continue creates a new
+   conversation, the recorded first input becomes confirmed with that prompt,
+   and the story's actions return.
+2. That client is still held and the prompt is unconfirmed → Continue starts
+   no other conversation.
+3. The developer opens the terminal of a session whose recorded scope is
+   missing → the panel shows the scope refusal and nothing starts.
 
 ## Ordering and Scope Reduction
 
