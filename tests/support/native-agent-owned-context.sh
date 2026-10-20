@@ -44,7 +44,7 @@ native_owned_context_substitute() {
       ;;
     trunk-closure-owned-context)
       native_owned_context_close_trunk "${skills}"
-      response='## STORY WRAP-UP COMPLETE'
+      response=
       ;;
     *) return 1 ;;
   esac

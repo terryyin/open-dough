@@ -173,7 +173,7 @@ for (const closure of [
                 type: "agentMessage",
                 id: "native-reply",
                 phase: "final_answer",
-                text: "## STORY WRAP-UP COMPLETE",
+                text: "Done.",
                 memoryCitation: null,
                 delivery: null,
                 questions: null,
@@ -187,7 +187,7 @@ for (const closure of [
           page
             .getByRole("region", { name: "Final report" })
             .locator(".session-final-report"),
-        ).toHaveText("## STORY WRAP-UP COMPLETE");
+        ).toHaveText("Done.");
         expect(
           native.calls
             .slice(beforeRead)

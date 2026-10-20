@@ -34,7 +34,7 @@ run_story_closure_assessor_counterexamples() {
   valid="${work}/valid"
   # shellcheck disable=SC2064
   trap "rm -rf -- '${work}'" RETURN
-  printf '%s\n' '## STORY WRAP-UP COMPLETE' > "${work}/response"
+  : > "${work}/response"
   story_closure_write_assessor_observation "${valid}" "${work}/response"
   native_assessor_counterexamples "${story_closure_assess_file}" "${valid}" \
     -- story_closure_assess
@@ -48,6 +48,21 @@ run_story_closure_assessor_counterexamples() {
     's/harness-inspected: false/harness-inspected: true/'
   native_assessor_rejects_edit forced forced-stop \
     's/forced-stop: false/forced-stop: true/'
+  # These operational failures reject the same empty response that passes
+  # above. Silence supplies no CI, shutdown or retirement evidence.
+  native_assessor_rejects_field_rows << 'EOF'
+failed-ci ci trunk-coverage-state: failed
+unconfirmed-branch-shutdown shutdown branch-product-shutdown: false
+unconfirmed-trunk-shutdown shutdown trunk-product-shutdown: false
+partial-retirement retirement cleanup-complete: false
+EOF
+  native_assessor_rejects_missing_fields << 'EOF'
+ci trunk-coverage-state
+shutdown branch-product-shutdown
+shutdown trunk-product-shutdown
+retirement cleanup-complete
+worktree worktree-present
+EOF
   native_assessor_rejects_edit unregistered trunk-registration \
     's/trunk-registered: true/trunk-registered: false/'
   native_assessor_rejects_edit raw-git-cleanup retire-command \
@@ -69,6 +84,8 @@ run_story_closure_assessor_counterexamples() {
     's/refresh-attention: false/refresh-attention: true/'
   native_assessor_rejects_edit missing-refresh-observation refresh-attention \
     '/^refresh-attention:/d'
+  native_assessor_rejects_edit missing-response-observation response \
+    '/^response:$/d'
   story_closure_response_counterexamples "${work}"
   story_closure_refresh_attention_counterexamples "${work}"
   story_closure_retire_counterexamples "${work}"
@@ -182,7 +199,7 @@ run_story_closure_observer_counterexamples() {
   [[ -z ${failure} ]]
 }
 
-# Actual checkout states decide whether marker-only is sufficient. These
+# Actual checkout states decide whether quiet completion is sufficient. These
 # temporary repositories are starting conditions, not product publication.
 story_closure_refresh_attention_counterexamples() {
   local work=$1 checkout="$1/default" sha required
@@ -197,15 +214,14 @@ story_closure_refresh_attention_counterexamples() {
   printf 'human edit\n' >> "${checkout}/product.txt"
   required=$(closure_refresh_attention "${checkout}" "${sha}")
   [[ ${required} == true ]]
-  printf '%s\n' '## STORY WRAP-UP COMPLETE' > "${work}/response"
+  : > "${work}/response"
   story_closure_write_assessor_observation "${work}/quiet" "${work}/response"
   native_assessor_counterexamples "${story_closure_assess_file}" "${work}/quiet" \
     -- story_closure_assess
   story_closure_write_assessor_observation "${work}/silent" "${work}/response" "${required}"
   native_assessor_rejects silent-material-refresh refresh-attention "${work}/silent"
   printf '%s\n' \
-    'Default checkout /project/main has uncommitted human edits; refresh is deferred. Refresh it once the owner commits those edits.' \
-    '## STORY WRAP-UP COMPLETE' > "${work}/response"
+    'Default checkout /project/main has uncommitted human edits; refresh is deferred. Refresh it once the owner commits those edits.' > "${work}/response"
   story_closure_write_assessor_observation "${work}/attention" "${work}/response" "${required}"
   story_closure_assess "${work}/attention"
 }

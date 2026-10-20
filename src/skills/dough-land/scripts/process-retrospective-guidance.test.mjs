@@ -34,7 +34,7 @@ test("the shared rule reuses the retrospective's review and recording, selected 
   assert.match(shared, /\(\.\.\/SKILL\.md#write-only-in-an-owned-checkout\)/);
 });
 
-test("the shared rule never undoes or blocks the run and stays quiet without findings", () => {
+test("the shared rule publishes findings without making their IDs a reminder", () => {
   assert.match(shared, /never undo or block the run/);
   assert.match(
     shared,
@@ -48,7 +48,11 @@ test("the shared rule never undoes or blocks the run and stays quiet without fin
     shared,
     /With no supported findings, change no log and add no commit, publication, or\s+wording/,
   );
-  assert.match(shared, /final response names the recorded finding IDs/);
+  assert.match(
+    shared,
+    /With supported findings, record and publish them as required/,
+  );
+  assert.match(shared, /their recorded IDs alone require no message/);
 });
 
 test("Dough Land reviews after accepted publication and publishes findings before refresh", () => {
@@ -107,7 +111,7 @@ test("completion attention and the retrospective's write location cover the flag
 
   assert.match(
     attention,
-    /Recorded process-finding IDs, and a process\s+review that was unavailable or could not record its findings, are reminders/,
+    /requested process review that was\s+unavailable or could not record or publish its findings also requires attention/,
   );
   assert.match(
     retrospective,

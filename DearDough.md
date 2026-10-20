@@ -188,6 +188,17 @@ Former local code: DD-259.
 
 Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. [Evidence and current response](docs/maintainer/findings/ODF-150.md).
 
+
+### Occurrences
+
+- Execution: SEED-145#quiet-land-and-wrap-up / plan 331, first implementation `94c6c3767a9f9048ad8e05c8b5ec6306f6b53dc5`
+  - Timestamp: unknown (2026-10-20, CI run 39396964033/1)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
+  - Evidence: plan 331 accepted the two Land guidance suites, closure substitutes and five dashboard journeys; independent refactoring also missed `src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs:102`, which reads the changed shared Markdown and still required literal `no recap`. [CI 39396964033/1](https://github.com/terryyin/open-dough/actions/runs/39396964033) failed `test (2/3)` on that assertion; repair `e939292dd144bf21a6c11dea1efbe7cc06ffcf2a` aligned it with quiet success/minimum native response after a reproducing baseline and 12 passing related checks.
+  - Observed effect: one owned CI failure and a fresh repair/refactor cycle before completion; the product rule and operational gates needed no change.
+  - Inference: qualified recurrence of proof selection missing a consumer outside the named guidance suites. Searching banners and reminder phrases did not find the old quiet-response regex; tracing every reader of the changed guidance would reach it. No elapsed-time or token cost is measured.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260.
@@ -466,6 +477,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator startup batches returned truncated outputs of 28,741 and 17,440 original tokens; subsequent targeted reads recovered delegation, delivery/publication and ADR/refactor context before implementation and delivery. Current coordinator conversation and the plan's execution context identify this run.
   - Observed effect: passages were omitted and retrieved again, adding repeated tool output and reading within this execution. All required context was recovered before its dependent boundary; no dropped obligation is established.
   - Inference: same broad-retrieval mechanism as the retained occurrence. Apply the existing targeted-retrieval instruction at each batch; no new guidance or measured time/token saving is established. Multiple truncated calls remain one occurrence.
+
+- Execution: SEED-145#quiet-land-and-wrap-up / plan 331, first implementation `94c6c3767a9f9048ad8e05c8b5ec6306f6b53dc5`
+  - Timestamp: unknown (2026-10-20, startup retrieval)
+  - Tool: Codex
+  - Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
+  - Evidence: coordinator startup batches returned truncated outputs of 25,079 and 19,040 original tokens; bounded rereads recovered delegation, CI runtime/adapter, delivery and ADR context before dependent work. Later catalog retrieval was also oversized; current coordinator history identifies the observations.
+  - Observed effect: omitted authoritative passages had to be retrieved again, adding repeated output and reading. Required context was recovered before its dependent boundary; no lost obligation is established.
+  - Inference: same broad-retrieval mechanism and existing targeted-retrieval remedy. Multiple truncated calls remain one occurrence; no measured time/token saving or new implementation response is claimed.
 
 ## DD-323 — A delegated native probe ended a pending consent prompt and recorded a refusal
 
