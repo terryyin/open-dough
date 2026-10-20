@@ -2,10 +2,15 @@
 # Evidence identity and retained review artifacts for delivery-evidence journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# Profile lookup is read-only here; dispatch must not replace an active profile.
+delivery_evidence_case_known() (
+  delivery_evidence_case_profile "$1"
+)
+
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
   case $1 in
-    aggregate | nostore | deferred) return 0 ;;
+    aggregate | nostore | deferred | original) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -61,9 +66,15 @@ delivery_evidence_write_evidence_identity() {
     native_result_input_hash_lines \
       src/skills/dough-story-refinement/references/executable-proof.md
   fi
+  if [[ ${case_name} == original ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/readiness-original-story.md \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
 }
 
 delivery_evidence_retain_review_artifacts() {
+  local retain="delivery_evidence_${1}_retain_review_artifacts"
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/status-proof.md" status-proof.md
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/producer-proof.md" producer-proof.md
   native_result_copy_if_present "${delivery_evidence_workspace}/.planning/implementation-return.md" implementation-return.md
@@ -72,6 +83,10 @@ delivery_evidence_retain_review_artifacts() {
   native_result_copy_if_present "${delivery_evidence_root}/command-results.jsonl" command-results.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/file-reads.jsonl" file-reads.jsonl
   native_result_copy_if_present "${delivery_evidence_root}/final-product.diff" final-product.diff
+  if declare -F "${retain}" > /dev/null; then
+    "${retain}"
+    return
+  fi
   mkdir -p -- "${native_result_attempt_dir}/final-product"
   cp -R -- "${delivery_evidence_workspace}/lib" "${delivery_evidence_workspace}/tests" "${delivery_evidence_workspace}/e2e" "${native_result_attempt_dir}/final-product/"
 }

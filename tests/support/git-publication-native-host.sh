@@ -63,8 +63,8 @@ run_native_host() {
         story-branch-closure/*)
           story_closure_run_journey "${source_dir}" "${host}" "${results_dir}"
           ;;
-        delivery-evidence/selection | delivery-evidence/claims | \
-          delivery-evidence/consumers | delivery-evidence/gaps | delivery-evidence/aggregate | delivery-evidence/nostore | delivery-evidence/deferred)
+        delivery-evidence/*)
+          delivery_evidence_case_known "${journey#delivery-evidence/}" || return 2
           delivery_evidence_run_journey "${journey#delivery-evidence/}" \
             "${source_dir}" "${host}" "${results_dir}"
           ;;
@@ -157,9 +157,8 @@ native_case_known() {
     story-branch-closure/source-conflict)
       return 0
       ;;
-    delivery-evidence/selection | delivery-evidence/claims | \
-      delivery-evidence/consumers | delivery-evidence/gaps | delivery-evidence/aggregate | delivery-evidence/nostore | delivery-evidence/deferred)
-      return 0
+    delivery-evidence/*)
+      delivery_evidence_case_known "${1#delivery-evidence/}"
       ;;
     *) return 1 ;;
   esac

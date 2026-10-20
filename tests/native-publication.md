@@ -96,6 +96,17 @@ Codex runs without `--ephemeral`, because spawning a subagent thread needs the
 parent's persisted rollout. Those rollouts are kept in the developer's Codex
 home with their other sessions, which also keeps the developer's sign-in in place.
 
+`--case delivery-evidence/original` replays original-story acceptance with the
+full selected readiness story from `2f56bd2a`, a narrowed plan and return, and
+an inspectable reader. The prompt names the inputs without naming an omitted
+promise. `tests/delivery-evidence-original.sh` first proves that the narrowed
+product contradicts the source while its tests pass, and that a corrected
+control satisfies the source. Native observations retain the original and final
+product, proof commands, acceptance outcome and planning state for explicit
+review; the wrapper's nonzero review-required result is not a semantic verdict.
+Inspect detection, actual product behavior and withheld delivery or correction
+ownership together. No prose recognizer certifies these facts.
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

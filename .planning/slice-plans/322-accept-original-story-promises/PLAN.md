@@ -85,31 +85,44 @@ Named checkout for these observations:
 `/Users/terryyin/git/open-dough/.worktrees/accept-slices-against-the-original-story-promise`,
 base `a42e5a51b3063ace98f56c40f8055d57ac64f391`, 2026-10-20.
 
-- Historical failures are the retained observations at ODF-139, with original
-  story, plan, product, revision and later correction references. They establish
-  the reported seam; they do not establish deterministic reproduction on today's
-  hosts. Slice 1 owns that paid question before a remedy is selected.
-- Read `wrap-up.md` Accept proof, `story-obligations.md`, planning's
-  `executable-proof.md`, and `delivery-evidence-{native-prompt,gaps-native-scenario-content,gaps-native-assess}.sh`.
-  The existing native gap inputs disclose the missing observation in the return;
-  their current pass is not proof of silent-omission detection. No existing
-  test is claimed to discriminate the new behavior.
+- Historical failures and source/product revisions remain at ODF-139;
+  they establish the seam, not deterministic reproduction on today's hosts.
+- Inspected acceptance, story obligations, executable-proof and native gap
+  helpers. Existing fixtures disclose the missing observation in their returns;
+  their passes do not prove discovery of a silent omission.
 - Ran the existing obligation and assessor control operations with:
   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-cross-slice.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs tests/native-assessor-counterexamples.sh`.
   The selected checks completed without failure output. This establishes the
   current mechanical control route only, not native semantic acceptance.
-- The default shell resolves Bash 3.2; `/opt/homebrew/bin/bash` supplies the
-  required test-runner version. Native host version commands completed:
+- The default shell is Bash 3.2; `/opt/homebrew/bin/bash` supplies Bash 5.
+  Version commands completed:
   `codex --version` → `codex-cli 0.163.0`; `claude --version` →
   `2.1.304 (Claude Code)`; `agent --version` → `2026.10.18-ea085cb`.
-  These are the unpaid prefix, not proof of authenticated native follow-through.
-  Actual host launch consumes credentials/paid work and is bounded by slice 1.
+  Version commands do not prove authenticated native follow-through.
+
+## Execution context
+
+- Established start (2026-10-20): publisher `dashboard-territory.local-open-dough`,
+  agent `viktor-chan`, Story Branch Mode in the named checkout above, reused branch
+  `codex/accept-slices-against-the-original-story-promise`. Claim
+  `39256f40f54cbdccf1fc963fbffbcb06f56d4aea` accepted on `origin/main`, starting
+  revision `27a67521159eec5dbb63d6af63a0205596c3b0f8`; no second start/claim.
+  Increments publish that branch to `origin` (`terryyin/open-dough`).
+- Setup: Node `24.21.0` matches `.node-version`; `PATH="/opt/homebrew/bin:$PATH"
+  node scripts/setup-native.mjs npm`, `browser`, and `check` passed against this
+  lockfile. Chromium `153.0.8010.12` launched/closed. Tests use Bash 5 and the
+  runner. In-scope refinement is authorized; no numeric slice limit is supplied.
+- CI `ci.yml` / `CI` verified by `node .agents/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs workflow terryyin/open-dough`.
+  Branch observer: coordinator `viktor-chan-accept-promises`, directory
+  `/tmp/dough-ci-501/watch-q1pFUs`, PID `29073`, session `77728`, cell `12`.
+  The trunk claim's CI is unobserved. Slice 1 had zero obligations on entry;
+  coordinator owns acceptance, refactoring, formatting, commits and publication.
 
 ## Ordered slices
 
 ### 1. Establish a native acceptance replay that can expose an unreported promise
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded native run reaches acceptance with original story, narrowed
 plan and return, and inspectable product proof; its observed disposition is
 compared with a corrected control without supplying the answer in the prompt.
@@ -195,5 +208,44 @@ path for its human decision rather than expanding the plan.
 
 ## Learnings
 
-None from execution yet. Preparation observed that existing named-gap fixtures
-cannot by themselves demonstrate discovery of a promise absent from the return.
+### Readiness replay: current guidance withheld delivery (2026-10-20)
+
+Recovered the full readiness story and narrowed plan at `2f56bd2a`; this
+`delivery-evidence/original` replay is not the historical dashboard:
+current-format resolution is correct, legacy resolution renders `Changed since
+readiness review`, and all four narrowed tests pass. The corrected control removes
+that label while preserving eligibility and goal/agreement-change indications.
+
+Accepted: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/native-evidence-identity.sh`
+and `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/git-publication-native.sh`
+both exited 0. The test observes `readinessView` for both products; setup supplies
+dependency facts, not the indicator. Assessor controls reject unreviewed,
+quote-only, fabricated-workflow and unchanged-accepted claims: mechanical proof
+only. Preparation's four obligation/helper checks passed on unchanged boundaries.
+Independent refactoring consolidated supported-case routing and family retention;
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-original.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh tests/git-publication-native.sh`
+passed after those edits. Inspected routing assertions observe actual original
+and aggregate artifact copies plus old/new/unknown dispatch. Native semantic
+boundaries stayed unchanged. `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/native-stream-replay.sh`
+passed for the reviewed corpus entry; it proves stream reading, not acceptance.
+
+Native: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/original --results-dir /tmp/open-dough-accept-original-promises-baseline-20261020`.
+One attempt, no retry: native command succeeded; wrapper exit 1 requires review.
+Candidate `39256f40f54cbdccf1fc963fbffbcb06f56d4aea`, Node `24.21.0`, Claude Code
+`2.1.304`, raw model `claude-opus-5-5` (generic record unknown). The prompt named
+story/plan/return without the contradiction.
+
+Evidence: `/tmp/open-dough-accept-original-promises-baseline-20261020/claude/delivery-evidence/original/narrowed/20261020T003057-479a`.
+Reviewed `acceptance-outcome.md`, command/reads, original/final planning, product
+diff, `product-observation.json`, `final-proof.txt`. The trace reads installed
+guidance and full source/reader/tests/setup, preserves three valid observations,
+and returns the legacy contradiction to slice 3: delivery withheld pending a
+plan/story decision. Product remains contradictory, tests 4/4 green. No obligation
+was created or gated; correction and further follow-through remain unproved.
+Unquoted zsh glob expansion broke a consumer search; `git ls-files` and complete
+reads still establish this fixture's narrow callers, not general search reliability.
+
+**Decision:** readiness failure did not reproduce; stop the remedy. This test
+explicitly exercises an inverse expectation, leaving wholly absent terminal/
+release promises unsettled. Preserve the contrary evidence and refine the remaining
+proof toward the authorized terminal-label omission before selecting any remedy.
