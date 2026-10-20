@@ -1,6 +1,6 @@
 # Near-term watch list
 
-Reviewed 2026-10-20 (Asia/Tokyo): Open Dough, Pygardon and Doughnut post-local logs reviewed; Terry Talks and Lizard have no supplied or configured findings records. Coverage is incomplete; no watch is retired. ODF-139 returned to its [active owner](findings/ODF-139.md) after supported later counterevidence. Original watch starts remain unchanged.
+Reviewed 2026-10-21 (Asia/Tokyo): Open Dough, Pygardon and Doughnut post-local logs reviewed; Terry Talks and Lizard have no supplied or configured findings records. Coverage is incomplete; no watch is retired. ODF-139 remains with its [active owner](findings/ODF-139.md) after supported later counterevidence. Original watch starts remain unchanged.
 
 Earlier assessment: 2026-10-12 against Open Dough, Pygardon and Doughnut. Only verified relevant use starts a seven-day watch. Released
 responses and successful use are not guarantees against recurrence. Occurrences
@@ -20,7 +20,8 @@ A required later-slice check recorded as a plan learning is omitted from that sl
 
 - **Watch start:** 2026-10-11 (date-only, Asia/Tokyo), release 0.3.58. Pygardon plan 327: `3194119c1:.planning/slice-plans/327-retry-ci/PLAN.md` records G1–G3 as receiving slice 3; `7cbf44c49` carries them into slice 3 and records all three proved with named retry and storage-readiness regressions.
 - **Review after:** 2026-10-18.
-- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. One real receiving-obligation exercise, not all hosts or arbitrary judgment. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
+- **Last assessed:** 2026-10-21; Open Dough, Pygardon and Doughnut post-local logs reviewed. Terry Talks and Lizard findings records remain unavailable, so full coverage and retirement are unsupported. No supported same-mechanism recurrence was established from reviewed sources; unknown provenance remains qualified.
+- **Earlier assessment:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. One real receiving-obligation exercise, not all hosts or arbitrary judgment. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
 
 ### Retained source evidence — open-dough (2026-10-09)
 
@@ -215,7 +216,8 @@ Recurrence of former DD-172 (`99fa1b9835e3dff2473837ba2a1f8b11967d5938:DearDough
 - **Review after:** 2026-10-14.
 
 
-- **Last assessed:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
+- **Last assessed:** 2026-10-21; Open Dough, Pygardon and Doughnut post-local logs reviewed. Terry Talks and Lizard findings records remain unavailable, so full coverage and retirement are unsupported. No supported same-mechanism recurrence was established from reviewed sources; unknown provenance remains qualified.
+- **Earlier assessment:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
 
 <a id="odf-201"></a>
 
@@ -230,7 +232,8 @@ The Codex stream binding notifies CI failures without advancing the durable deli
 
 - **Watch start:** 2026-10-10 (date-only, Asia/Tokyo), release 0.3.57. Open Dough plan 281, first implementation `652036be`; `88fed85b:.planning/slice-plans/281-review-merged-one-shot-change/CI-REPAIR.md` records the matching Codex observer `watch-lAm58a` with `delivery.json` acknowledged through sequence 7, including owned failure records 1–6.
 - **Review after:** 2026-10-17.
-- **Last assessed:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. Durable acknowledgment evidenced; raw original notify history/timing unavailable; later terminal transport loss belongs to ODF-121. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
+- **Last assessed:** 2026-10-21; Open Dough, Pygardon and Doughnut post-local logs reviewed. Terry Talks and Lizard findings records remain unavailable, so full coverage and retirement are unsupported. No supported same-mechanism recurrence was established from reviewed sources; unknown provenance remains qualified.
+- **Earlier assessment:** 2026-10-12; Open Dough, Pygardon and Doughnut current logs and the named execution records checked. Durable acknowledgment evidenced; raw original notify history/timing unavailable; later terminal transport loss belongs to ODF-121. No supported same-mechanism recurrence established; this is not proof the issue cannot recur.
 
 ### Retained source evidence — open-dough (2026-10-09)
 
@@ -528,7 +531,8 @@ The managed delivery CLI can declare the Codex bridge ready, while the documente
 - **Watch start:** 2026-10-08 (date-only, Asia/Tokyo; the locator dates the use, not its exact observation time); Open Dough plan 277 / `18a159ee`, Codex / 0.3.57: retained yielded cell 8, session 81005, `watch-XlowzV`; published increments reuse that exact observer (`9d4034ce^:.../277-review-selected-commits/PLAN.md` and CONTEXT.md). Matching route exercised; failure acknowledgment and replacement after loss are not established by this evidence.
 - **Review after:** 2026-10-15.
 
-- **Last assessed:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
+- **Last assessed:** 2026-10-21; Open Dough, Pygardon and Doughnut post-local logs reviewed. Terry Talks and Lizard findings records remain unavailable, so full coverage and retirement are unsupported. No supported same-mechanism recurrence was established from reviewed sources; unknown provenance remains qualified.
+- **Earlier assessment:** 2026-10-12; all three current logs checked. No supported recurrence of this exact mechanism. Later terminal transport loss is retained under ODF-121; unknown execution releases do not establish a failed response. The original watch dates remain; seven days have not elapsed.
 
 
 **Current whole-set assessment (2026-10-20):** Production inventory rechecked: five repositories, three readable shared logs and two explicit missing-record gaps. ODF-156/200/201/202 remain under observation; their elapsed dates and adoption do not satisfy complete-source coverage. No watch clock is restarted and no unobserved source is counted as success.

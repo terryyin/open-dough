@@ -489,9 +489,85 @@ response can be used; autonomous triage is not a hard prerequisite.
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 
+<a id="check-shared-host-proof-headroom"></a>
+
+### 12. Choose expensive proof with shared-host headroom in view
+
+**Identity:** SEED-010#check-shared-host-proof-headroom
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / outcome:** Developers sharing a machine can select and coordinate long
+proof before starting it, using attributable headroom and workload evidence,
+instead of spending hours on attempts that cannot provide the promised result.
+[ODF-228](../../docs/maintainer/findings/ODF-228.md) and
+[ODF-209](../../docs/maintainer/findings/ODF-209.md) retain the distinct executions,
+failed runs, positive controls and causal limits.
+
+**Bounded scope:** Carry the target host, planned proof cost/concurrency and
+available load/memory evidence through execution delegation and asynchronous
+repair when they share a host. Use a project-supplied policy or an explicit
+bounded choice to run, reduce concurrency, sequence owned heavy work, or defer
+that proof while independent work continues. Preserve required coverage,
+strict verdicts and accepted unchanged proof. Add no machine-wide scheduler,
+universal load threshold, automatic timeout relaxation, unrelated process kill,
+or routine human approval for ordinary proof.
+
+**Evaluation:** Replay plan 310's four broad attempts and plan 305's overlapping
+proof from their retained facts: establish the host/workload decision before a
+long launch, explain which evidence can still be obtained, and stop repeating
+an unchanged overloaded attempt without a new basis. A genuine fixture defect
+must still be diagnosed and repaired; an isolated green run does not erase failed
+required proof. A healthy-host control proceeds with proportionate inspection.
+Missing remote-host evidence stays unknown. Assess decision usefulness and added
+coordination cost; historical elapsed hours are not a promised saving.
+
+**Completion:** Record the actual response, containing release and evaluation
+limits at both finding owners. Native agent compliance, ordinary adoption and
+measured savings require their own attributable evidence; queueing resolves none.
+
+<a id="correct-completed-supplier-agreement"></a>
+
+### 13. Correct a consumer agreement after its supplier completes
+
+**Identity:** SEED-010#correct-completed-supplier-agreement
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / outcome:** A developer maintaining a consumer can correct its dependency
+agreement against verified completed supplier work after the supplier's active
+section has been cleaned up, without recreating or repeating completed work.
+[ODF-297](../../docs/maintainer/findings/ODF-297.md) retains the refused correction
+and the resulting stale structured wait.
+
+**Bounded scope:** Reuse canonical dependency agreements, historical completion
+and accepted outcome evidence. Permit an explicitly reviewed agreement correction
+with a stale-basis check and preserved supplier identity/history. Distinguish the
+supplier's available result from the consumer's future consumption. Correcting an
+agreement must not claim that the consumer is implemented or silently satisfy
+an unproved supplier condition. Add no second dependency store or automatic
+agreement rewrite.
+
+**Evaluation:** The Pygardon production-qualification example can replace the
+mixed condition after supplier-section cleanup using its verified historical
+outcome. Stale agreement input, mismatched supplier identity, unavailable outcome
+or an unproved revised condition refuses without writing. A repeated accepted
+correction is stable and preserves the original completion evidence. Live-home
+agreement updates keep their existing behavior.
+
+**Completion:** Update ODF-297 with the actual response, containing release,
+verified examples and remaining adoption/outcome gap. No Pygardon project change
+or release is authorized by selecting this Open Dough response.
+
 ## Ordering and Scope Reduction
 
-Queue the next four outcomes in this order: Story 6 (preparation evidence),
+The 2026-10-21 shared feedback cycle selects Stories 12 and 13 first, for
+observed proof loss and the blocked dependency correction. Preserve the next
+four outcomes in their existing order: Story 6 (preparation evidence),
 Story 7 (unreviewed execution/completion paths),
 Story 8 (later product consequences), and Story 9
 (automatic due maintenance). Story numbers and recorded identities remain stable;

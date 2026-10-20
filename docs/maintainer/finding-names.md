@@ -1,11 +1,11 @@
 # Finding names and current follow-up
 
-Reviewed 2026-10-20 under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
-priority decision, not a claim that discarded problems were fixed or cannot recur.
+Reviewed 2026-10-21 under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
+priority decision, not a claim that discarded problems were fixed or cannot recur. This cycle retained new supplied evidence and qualified identities through ODF-321. Selected shared responses: ODF-228/209 proof headroom first, ODF-297 completed-supplier agreement correction second; implementation has not started.
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-302. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-321. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -279,3 +279,41 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-301 — [Shared transaction extraction omitted a post-commit failure consumer](findings/ODF-301.md) <a id="odf-301"></a>
 
 ## ODF-302 — [Consuming proof selected the live engine before checking its role](findings/ODF-302.md) <a id="odf-302"></a>
+
+## ODF-303 — [Native JSON hides an existing source-only reviewer](findings/ODF-303.md) <a id="odf-303"></a>
+
+## ODF-304 — [Observation-driven behavior repair bypasses the independent return](findings/ODF-304.md) <a id="odf-304"></a>
+
+## ODF-305 — [A cross-host action misses the unchanged hosts' consumer](findings/ODF-305.md) <a id="odf-305"></a>
+
+## ODF-306 — [A native probe ends a pending one-time consent](findings/ODF-306.md) <a id="odf-306"></a>
+
+## ODF-307 — [Foreground probes interrupt the developer's desktop](findings/ODF-307.md) <a id="odf-307"></a>
+
+## ODF-308 — [A removal slice precedes replacement of the only sign-in control](findings/ODF-308.md) <a id="odf-308"></a>
+
+## ODF-309 — [Required build proof checks formatting before coordinator-owned formatting](findings/ODF-309.md) <a id="odf-309"></a>
+
+## ODF-310 — [Helper-name tracing misses direct selectors of newly hidden controls](findings/ODF-310.md) <a id="odf-310"></a>
+
+## ODF-311 — [Acceptance loses the purpose of an explicit component-placement decision](findings/ODF-311.md) <a id="odf-311"></a>
+
+## ODF-312 — [Named promise review catches behavior previously supplied by incidental structure](findings/ODF-312.md) <a id="odf-312"></a>
+
+## ODF-313 — [A planned empty removal sweep already matches retained code](findings/ODF-313.md) <a id="odf-313"></a>
+
+## ODF-314 — [An implementation return omits delegated proof rows and needs a second round](findings/ODF-314.md) <a id="odf-314"></a>
+
+## ODF-315 — [A time-boundary rule omits the offered activity and prompts an owner-rejected extension](findings/ODF-315.md) <a id="odf-315"></a>
+
+## ODF-316 — [Consumer discovery treats execution evidence as canonical work](findings/ODF-316.md) <a id="odf-316"></a>
+
+## ODF-317 — [Unmeasured elapsed estimates treated as hard-limit evidence](findings/ODF-317.md) <a id="odf-317"></a>
+
+## ODF-318 — [Broad process diagnostics exposed unrelated credential arguments](findings/ODF-318.md) <a id="odf-318"></a>
+
+## ODF-319 — [A healthy observer received a stop no session command explains](findings/ODF-319.md) <a id="odf-319"></a>
+
+## ODF-320 — [A commit the CI service will never run stays undiscovered](findings/ODF-320.md) <a id="odf-320"></a>
+
+## ODF-321 — [An owner-held stop closes observation right after a repair push](findings/ODF-321.md) <a id="odf-321"></a>

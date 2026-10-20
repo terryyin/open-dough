@@ -23,6 +23,8 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Choose expensive proof with shared-host headroom in view](seeds/SEED-010-learn-from-execution-retrospectives.md#check-shared-host-proof-headroom) — SEED-010#check-shared-host-proof-headroom
+- [Correct a consumer agreement after its supplier completes](seeds/SEED-010-learn-from-execution-retrospectives.md#correct-completed-supplier-agreement) — SEED-010#correct-completed-supplier-agreement
 - [Match native replay inputs to historical evidence](seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs) — SEED-053#match-historical-replay-inputs
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
