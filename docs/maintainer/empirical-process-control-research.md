@@ -896,7 +896,8 @@ improvement, the CI evidence reuse first released in `v0.3.62`
 (`09247d6c`, registered CI history coverage) and `v0.3.63` (`500802fb`,
 exact-commit reuse; `d429430a`, integrated-state completion; `1d9239c2`, the
 plan 308 correction), for
-[`SEED-010#evaluate-later-product-consequences`](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences).
+`SEED-010#evaluate-later-product-consequences` (recoverable with
+`git show 138ef278:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`).
 First releases come from `git tag --contains <sha> | sort -V | head -1`. The
 claim under test: reusing existing CI evidence avoids executions and waiting
 while completion stays truthful (no manufactured pass, known failures stay

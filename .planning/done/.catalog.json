@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_evaluate-later-product-consequences.json",
+      "identity": "SEED-010#evaluate-later-product-consequences",
+      "completedAt": "2026-10-21T12:26:03.650Z",
+      "blob": "1e99bfe8dae148f222e4f202db8196d90a28b34f"
+    },
+    {
       "fileName": "SEED-010_learn-from-unreviewed-execution-paths.json",
       "identity": "SEED-010#learn-from-unreviewed-execution-paths",
       "completedAt": "2026-10-21T10:35:26.139Z",
