@@ -21,10 +21,10 @@ cost of the feedback process itself.
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume ([plan](slice-plans/334-cursor-runner-restart-resume/PLAN.md))
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation ([plan](slice-plans/330-branded-alert-click-automation/PLAN.md))
 - [A running Cursor session reads Working](seeds/SEED-147-running-cursor-session-reads-working.md#running-cursor-session-reads-working) — SEED-147#running-cursor-session-reads-working
+- [Choose expensive proof with shared-host headroom in view](seeds/SEED-010-learn-from-execution-retrospectives.md#check-shared-host-proof-headroom) — SEED-010#check-shared-host-proof-headroom ([plan](slice-plans/335-shared-host-proof-headroom/PLAN.md))
 
 ## Backlog list
 
-- [Choose expensive proof with shared-host headroom in view](seeds/SEED-010-learn-from-execution-retrospectives.md#check-shared-host-proof-headroom) — SEED-010#check-shared-host-proof-headroom
 - [Correct a consumer agreement after its supplier completes](seeds/SEED-010-learn-from-execution-retrospectives.md#correct-completed-supplier-agreement) — SEED-010#correct-completed-supplier-agreement
 - [Match native replay inputs to historical evidence](seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs) — SEED-053#match-historical-replay-inputs
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
