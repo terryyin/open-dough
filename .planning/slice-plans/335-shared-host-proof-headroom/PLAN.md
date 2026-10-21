@@ -404,3 +404,48 @@ retained `/tmp/dough-ci-501/watch-CwEwhy`. No reconciliation or lost coverage.
 Product advice: no change. Preserve pending native/lifecycle acceptance before
 a future affected release; retain present backlog priority and the findings'
 explicit unreleased, adoption and savings limits.
+
+## CI repair and affected retrospective re-review
+
+Registered failures `37eed762` / run `39555788657`, attempt 1, test (3/3),
+and `fdea7f42` / run `39555975066`, attempt 1, test (3/3), were individually
+diagnosed with installed `ci-github-diagnostic.mjs failure` commands. Both
+reported only the same `shared-checkout-writers-guidance.test.mjs:154` assertion:
+the shortened pause wording no longer explicitly identified human/other-session
+unowned work. The completion operation for `fdea7f42` returned exact failure
+with shutdown retained. Neither failure is dismissed as load or infrastructure.
+
+All writers were finished. Installed repair stash `save` returned `clean`,
+OID null, record
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-EdWl7C/record.json`.
+Fresh `/root/ci_repair` reproduced red, restored only the explicit protection in
+source ci-monitor line 250, and passed all eight directly consuming test files.
+The source-only review2 commitments remain unchanged; the pause-with-human-edit
+journey again explicitly preserves those edits and the retained proof decision.
+
+Red, terminal exit 1 for the reported assertion:
+`PATH=/opt/homebrew/bin:$PATH npm test -- src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs`.
+
+Green, terminal exit 0, eight test files, 5.0 seconds, sequential:
+`PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 npm test -- src/skills/dough-execute-plan/scripts/shared-checkout-writers-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-not-required-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs src/skills/dough-execute-plan/scripts/ci-supported-host-contract.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-custom-guidance.test.mjs`.
+
+Observation/setup: the ownership test reads the actual source Pause and resume
+writers section and matches explicit preservation of unowned human/other-session
+work; no fixture supplies the text. GNU Bash 5.3.20 is first on PATH through the
+project runner, which loads tests' required environment. Consumer trace
+`rg -l 'ci-monitor\.md' src tests --glob '*.test.*' --glob '*.sh' --glob '!**/fixtures/**'`
+found the eight direct suites and three native evidence support scripts, which
+do not assert this sentence or change their host workflow from this edit.
+`git diff --check -- src/skills/dough-execute-plan/references/ci-monitor.md` passed;
+source remains 250 lines. No test or native fixture was weakened.
+
+Affected review conclusion corrected: earlier old-phrase searching limited to
+`tests/` missed consumers under `src/`; manual prose review was insufficient for
+that existing deterministic contract. DearDough ODF-150 retains this one
+execution's failure and repaired tracing. Current process-log candidate is
+468 lines; no retention removal or 500-line warning. No new product scope or
+correction plan follows. Other shared-rule/ownership/finding observations remain
+unchanged, native compliance/adoption/savings remain unproved, and applicable
+hosted CI must still complete on the repaired accepted revision.
+
+Independent `/root/refactor_repair` returned `## REFACTOR COMPLETE`: none, already clean. No refactor edits or test reruns; accepted red/green, source ownership and shared-headroom observations remain unchanged.

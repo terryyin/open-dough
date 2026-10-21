@@ -167,6 +167,16 @@ Former local code: DD-259.
 
 Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. [Evidence and current response](docs/maintainer/findings/ODF-150.md).
 
+### Occurrence — shared-host proof guidance execution
+
+- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
+  - Evidence: CI `39555788657/1` at `37eed762` and `39555975066/1` at `fdea7f42`; `shared-checkout-writers-guidance.test.mjs:154` rejected a shortened pause clause. Initial consumer searching in `tests/` missed guidance-test consumers under `src/`.
+  - Observed effect: the existing human/other-session ownership assertion failed in both published revisions. Focused red reproduced it; restoring explicit source wording passed all eight direct ci-monitor consumer test files through the project runner.
+  - Inference: prose walkthroughs did not replace existing deterministic consumer contracts. The repair broadened the search across `src tests`; no test assertion was weakened and no native-compliance claim follows.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260.

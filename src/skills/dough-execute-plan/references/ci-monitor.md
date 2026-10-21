@@ -247,4 +247,4 @@ incomplete commands, next action and retained expensive-proof decision. Stay idl
 until explicitly resumed; the coordinator waits for commands to permit safe handoff.
 On resume, reread repair/conflict-affected files and rerun only invalidated proof.
 Before heavy verification, confirm or reconsider the retained decision. Resume the
-same slice, excluding repair pause from its elapsed budget; preserve unowned checkout work.
+same slice, excluding repair pause from its elapsed budget; unowned work from humans or other sessions is preserved.
