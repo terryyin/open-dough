@@ -4,6 +4,31 @@
 **Source:** [Selected story](../../seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs)
 **Finding:** [DD-320](../../../ProjectFindings.md#dd-320)
 
+## Execution context
+
+Established Story Branch execution: publisher `dashboard-territory.local-open-dough`,
+agent `ivan-chan`, workspace and originating checkout
+`/Users/terryyin/git/open-dough/.worktrees/match-native-replay-inputs-to-historical-evidenc`,
+branch `codex/match-native-replay-inputs-to-historical-evidenc`.
+Integration/default checkout: `/Users/terryyin/git/open-dough`; remote `origin`,
+trunk `main`. Starting revision `a397b76146efd51267efb25df91e2b07002ede91`;
+accepted claim and first increment base `4164a53619c47939d47911ddfbc4df96201efe71`
+(confirmed on the remote execution branch). Established-start ownership is reused;
+no second Take. Existing planning authority permits in-scope replanning; no
+numeric slice limit or exception applies beyond the plan's bounded outcome.
+
+Prepared this exact checkout with locked Node `24.21.0` and successful
+`node scripts/setup-native.mjs npm`, `browser`, and `check` stages. The check
+launched Chromium `153.0.8010.12`. The selective formatter is `npm run format`;
+the tracked pre-commit hook checks staged lint and typechecks staged scripts.
+There is no generation trigger for this documentation/fixture-check change.
+
+CI: GitHub Actions `terryyin/open-dough`, verified active `ci.yml` (`CI`),
+observing the execution branch. Codex coordinator `ivan-chan-337`, yielded cell
+`11`, session `70856`, directory `/tmp/dough-ci-501/watch-n1O1fz`, PID `7458`,
+bound to this checkout. The earlier trunk claim remains unobserved by this
+story-branch observer. Increment publication retains this observer identity.
+
 ## Goal and scope
 
 Before spending another native run, maintainers can compare the existing
@@ -167,3 +192,46 @@ base `7d7353169a846b52c7ecc148a0e6f5be9e19cb5e`.
 - Slice-plan refinement was not needed: one cohesive behavior owns the comparison,
   input proof and finding-response update, with no speculative structure.
 - No remaining slice-specific concern was identified in this preparation review.
+
+
+## Accepted implementation proof
+
+Source-only review: fresh non-inheriting `/root/original_source_review`; its
+launch contains the verbatim selected story at claim `4164a536`, and its full
+returned commitments remain in this execution conversation. Acceptance used
+that return, not the earlier paraphrased review or the narrower slice text.
+
+| Original trigger and expected result | Actual observation and disposition |
+| --- | --- |
+| Before selecting another paid replay, compare both scenarios with plan 302 and plan 310 beside launch instructions | `tests/proof-scheduling-native.sh --help` leads to the maintained comparison in `tests/native-publication.md`; both historical rows name sources, their limits, knowledge, actors and consequence. |
+| Inspect prompt, AGENTS.md, seed/plan and installed-guidance conditions together; neutrality alone is insufficient | Comparison tables name each input/recipient, current-branch authorization, quick/no-plan versus selected slice, required suite, cost/layout distinction and installed-payload identities; inspected current prompt, writer, installer and retained input revisions. |
+| Quick control exposes fourteen-minute/layout knowledge against plan 302's mistaken estimate and first paid result | Tables and retained plan-323 observations distinguish the few-minute estimate, introduced cost/layout, no-suite refactor brief and implementation-time extraction. Recovered `6922dc32` plan 323 and `dd2e25b5` plan 302; brief/timing evidence remains attributed to ODF-249's summary. |
+| Planned coordinator scenario preserves local-implementation possibility and distinguishes both historical implementer briefs | Comparison states that one selected slice permits local work, a refactor call proves no implementer delegation, missing cost differs from mistaken cost, and plan 310's whole-suite delegation is absent. |
+| Summary-only or unknown guidance context stays unknown/inconclusive; labelled controls remain usable | Missing full transcripts and unknown plan-302 installed provenance remain explicit; useful questions and later-run limits require actual role/command/state evidence, with no machine historical-equivalence verdict. |
+| Preserve controls and actual inputs without supplying the answer, forced delegation or a new harness/evidence home | Existing check owner observes generated quick cost/layout, prompt/no-plan shape and planned hint absence. No prompt/generated project bytes, scenario IDs, assessor field/rejection contracts, host adapters or distributed guidance changed. The comparison stays outside generated agent workspaces. |
+| Fixture proof establishes inputs/control behavior, with no native behavior, historical replay or savings claim | Focused command below passes through real product commands, counterexamples and both substitute-host journeys/retention. Native claims remain limited to retained Claude conditions; no paid run, release, rollout or remedy occurred, and ODF-249 remains settled. |
+| DD-320 preserves the qualified occurrence, links comparison and separates response from native outcome | Original occurrence is unchanged and direct comparison/native-gap text added. Actual response SHA is recorded after this implementation's accepted publication, before slice completion. |
+
+Literal focused command: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/proof-scheduling-native.sh`;
+terminal exit 0 before mutations and after both restorations. Same command
+with only quick cost removed exited 1 (`quick project text omits the declared
+fourteen-minute suite cost`); with only quick layout removed exited 1 (`quick
+project text omits the new-stylesheet layout steer`). Original source restored.
+Inspected setup/assertions: `run_delivery_evidence_scheduling_text_checks`,
+`run_delivery_evidence_scheduling_product_checks`, entry-point controlled trace
+assertions, assessor counterexamples and selected planned substitute journey.
+Consumer trace includes prompt/writer → fixture install → observer/assessor →
+retained artifacts; documentation entry points/legacy anchors remain reachable.
+This accepts fixture behavior and semantic comparison, not native equivalence.
+
+## Story obligations
+
+### G1. Native outcome remains unobserved
+Reported: slice 1 — "no new native session ran; historical implementer delegation and refactor-time extraction remain unobserved in these scenarios."
+Story clause: "The response can be implemented with the native outcome still unobserved"
+Disposition: excluded "Paid runs, release and rollout are outside this delivery"
+
+### G2. Full historical transcripts and plan-302 installed provenance are unavailable
+Reported: slice 1 — "retained summaries/accepted proof do not recover a full delegation transcript or establish plan-302 installed-guidance provenance."
+Story clause: "the comparison labels that context unknown and historical reachability inconclusive"
+Disposition: proved by slice 1: `tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch`, historical source-limit rows and retained-output interpretation explicitly label the unknowns and limit reconstructed reachability; inspected against ODF-249 and recovered plans 302/323.
