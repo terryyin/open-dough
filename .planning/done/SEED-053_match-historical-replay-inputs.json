@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-053#match-historical-replay-inputs",
+  "title": "Match native replay inputs to historical evidence",
+  "completedAt": "2026-10-21T08:08:31.640Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
