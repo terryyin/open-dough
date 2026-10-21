@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-052#remove-orphaned-runner-port-helper",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
