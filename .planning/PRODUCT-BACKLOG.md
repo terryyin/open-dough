@@ -19,10 +19,10 @@ cost of the feedback process itself.
 ## Taken
 
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation ([plan](slice-plans/330-branded-alert-click-automation/PLAN.md))
+- [Correction: Remove the orphaned start-if-absent runner port helper](seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper) — SEED-052#remove-orphaned-runner-port-helper ([plan](slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md))
 
 ## Backlog list
 
-- [Correction: Remove the orphaned start-if-absent runner port helper](seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper) — SEED-052#remove-orphaned-runner-port-helper
 - [Match native replay inputs to historical evidence](seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs) — SEED-053#match-historical-replay-inputs
 - [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history
 - [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
