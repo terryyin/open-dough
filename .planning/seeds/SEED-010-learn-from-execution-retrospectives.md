@@ -489,93 +489,6 @@ response can be used; autonomous triage is not a hard prerequisite.
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 
-<a id="check-shared-host-proof-headroom"></a>
-
-### 12. Choose expensive proof with shared-host headroom in view
-
-**Identity:** SEED-010#check-shared-host-proof-headroom
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/335-shared-host-proof-headroom/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d1e2fea1efbf89f076e617b859afac3b07e053aa622120617148c0874766d763","plan":"8d5830ab50599f5b216afd1fb27259804345de1e21c998dee2638634aaf12665"}}
-```
-
-**Goal:** Developers sharing a machine can choose and coordinate expensive proof
-before launching it, using attributable host headroom and workload evidence, so
-required proof has a credible path to completion without repeated unchanged
-attempts on an overloaded host. This supports useful feedback at lower cost
-without weakening correctness. [ODF-228](../../docs/maintainer/findings/ODF-228.md)
-and [ODF-209](../../docs/maintainer/findings/ODF-209.md) retain distinct executions,
-failed runs, positive controls and causal limits.
-
-**Scope:** Extend the existing execution/proof guidance with a proportionate
-pre-launch decision for long, repeated, or resource-intensive verification.
-Identify the machine that will actually run the command, planned scope and
-available cost/concurrency evidence, current load/memory evidence and known
-competing owned work. Missing or stale evidence stays qualified; the coordinator's
-machine does not establish a remote runner's condition. Use a project-supplied
-policy or make an explicit bounded choice within existing authority: run, reduce
-concurrency, sequence owned heavy work, or defer the expensive proof while useful
-independent work continues. No universal duration or load cutoff is required.
-
-Carry that decision, its evidence, command ownership and reconsideration condition
-through implementation/refactor delegation and asynchronous CI repair when work
-shares a host, including separate worktrees. Reconsider before another long
-attempt when contention, failures, changed workloads or stale observations remove
-the previous basis; do not repeat an unchanged overloaded attempt without a new
-basis. Coordinate only owned work through existing handoffs and pause/resume
-rules. A deferral retains the required proof as outstanding with its owner and
-next condition; it never turns into success or silently reduces coverage.
-
-Preserve strict verdicts, required coverage, accepted unchanged proof, and genuine
-fixture/behavior diagnosis. A focused green run is diagnostic evidence for its
-own boundary; it cannot erase a failed required broad verdict. Ordinary proof
-choices within authority need no routine human approval. Human-owned changes to
-scope, coverage or authority retain their existing decision boundary.
-
-**Key examples:**
-
-1. Plan 310's four whole-suite attempts used eight workers while observed load
-   ranged from 25–257. Before a comparable long launch or repeat, use the
-   attributable observations available at that point to choose a bounded run,
-   lower concurrency, sequencing or deferral and name the proof still obtainable.
-   Evidence recorded only after failure prompts a new decision then; do not
-   pretend it was known earlier. The same overloaded attempt is not repeated
-   without changed conditions or another supported basis.
-2. Plan 305's whole-dashboard proof overlaps shell proof on the same machine
-   (16 logical CPUs, load 31.48/42.20/26.84, about 0.2 GiB free memory in the
-   retained snapshot). Separate checkouts do not create separate headroom.
-   Carry the shared-host decision between the coordinator and proof owners and
-   sequence or otherwise bound owned heavy work. Its focused 10.1-second pass
-   does not waive the failed whole run; the controlled four-worker whole result
-   remains a distinct verdict. Apply the same coordination rule when the other
-   owner is a delegated CI repair or a refactor pass.
-3. Plan 315 contains both contention evidence and a reporter-fixture race.
-   Host pressure prompts a proof decision, while the fixture defect still needs
-   diagnosis and repair. Plan 314's accepted unchanged proof remains reusable
-   when supplementary work encounters contention. Neither case justifies
-   automatic timeout relaxation or retries until green.
-4. A healthy target host with a credible bounded workload proceeds after a
-   brief relevant inspection. An inaccessible remote runner remains unknown;
-   use available runner evidence and a bounded choice or defer only its proof,
-   without substituting local host measurements or interrupting independent work.
-
-**Evaluation and completion:** Review the changed guidance against these retained
-cases, including the delegation and repair entry points. Record the selected
-choices, required evidence left outstanding, decision usefulness and additional
-coordination burden. Historical elapsed hours are context, not promised savings.
-At both finding owners record the actual response, containing release (or
-explicitly unreleased state until known), evidence and evaluation limits. Native
-agent compliance, ordinary adoption and measured savings remain unproved without
-their own attributable evidence; implementation or queueing resolves none.
-
-**Deferred promises and constraints:** Add no machine-wide scheduler, persistent
-host registry, universal load threshold, automatic timeout relaxation, unrelated
-process termination, or routine approval gate. Do not rerun historical multi-hour
-loads merely to reproduce the finding. This is guidance authoring and bounded
-behavior review; fresh paid native acceptance, release/rollout, cross-project
-changes and measured performance improvement require their own selected work and
-authority. Existing native/lifecycle obligations in this seed remain pending.
-
 <a id="correct-completed-supplier-agreement"></a>
 
 ### 13. Correct a consumer agreement after its supplier completes
@@ -613,8 +526,7 @@ or release is authorized by selecting this Open Dough response.
 
 ## Ordering and Scope Reduction
 
-The 2026-10-21 shared feedback cycle selects Stories 12 and 13 first, for
-observed proof loss and the blocked dependency correction. Preserve the next
+Story 13 remains first for the blocked dependency correction. Preserve the next
 four outcomes in their existing order: Story 6 (preparation evidence),
 Story 7 (unreviewed execution/completion paths),
 Story 8 (later product consequences), and Story 9
