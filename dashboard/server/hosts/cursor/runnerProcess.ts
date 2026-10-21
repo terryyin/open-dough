@@ -18,6 +18,7 @@ import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
+  cursorRunnerDirectoryVariable,
   cursorRunnerLockFile,
   readCursorRunnerAddress,
 } from "./runnerPaths.ts";
@@ -93,6 +94,20 @@ async function releaseStartLock(home: string): Promise<void> {
   await rm(cursorRunnerLockFile(home), { force: true });
 }
 
+// The child binds the home the starter asked for, not whatever HOME this
+// process inherited. `cursorRunnerDirectoryVariable` names the directory
+// `spawnRunner` creates first; the runner exits when that path is already gone.
+export function cursorRunnerChildEnvironment(
+  base: NodeJS.ProcessEnv,
+  home: string,
+): NodeJS.ProcessEnv {
+  return {
+    ...developerShellEnvironment(base),
+    HOME: home,
+    [cursorRunnerDirectoryVariable]: cursorRunnerDirectory(home),
+  };
+}
+
 function runnerEntry(): string {
   // Resolve beside the emitted entry; bundles preserve import.meta.url as
   // the original source location for source-relative reads.
@@ -119,7 +134,7 @@ async function spawnRunner(home: string): Promise<boolean> {
     {
       detached: true,
       stdio: ["ignore", log, log],
-      env: developerShellEnvironment(process.env),
+      env: cursorRunnerChildEnvironment(process.env, home),
       cwd: process.cwd(),
     },
   );

@@ -7,6 +7,8 @@
 // whatever its value. Everything else passes through unchanged, and applying
 // this twice changes nothing.
 
+import { cursorRunnerDirectoryVariable } from "./hosts/cursor/runnerPaths.ts";
+
 const npmBinSuffixes = [
   "/node_modules/.bin",
   "/@npmcli/run-script/lib/node-gyp-bin",
@@ -21,7 +23,14 @@ function addedByNpm(entry: string): boolean {
 }
 
 function startUpAddition(key: string): boolean {
-  return key === "NODE_ENV" || key === "INIT_CWD" || key.startsWith("npm_");
+  return (
+    key === "NODE_ENV" ||
+    key === "INIT_CWD" ||
+    // The runner's starter directory is how that process finds a home that
+    // was removed while it loaded. A host process it starts does not use it.
+    key === cursorRunnerDirectoryVariable ||
+    key.startsWith("npm_")
+  );
 }
 
 export function developerShellEnvironment(

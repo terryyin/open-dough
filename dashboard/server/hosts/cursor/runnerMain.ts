@@ -15,6 +15,7 @@ import { showsCursorWorkspaceTrust } from "./workspaceTrust.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
+  cursorRunnerDirectoryVariable,
   readCursorRunnerAddress,
 } from "./runnerPaths.ts";
 import {
@@ -23,8 +24,25 @@ import {
 } from "./runnerProtocol.ts";
 
 const attachments = new TerminalAttachments();
-const directory = cursorRunnerDirectory();
+// The starter passes the directory it created. This process's own HOME can
+// be a different directory than that home, and the starter's directory can
+// be removed while this process is still loading. Creating it again would
+// leave the runner up after the home's owner has finished. An empty value
+// is the same as an absent one: this process then uses its own home.
+const suppliedStarterDirectory = process.env[cursorRunnerDirectoryVariable];
+const starterDirectory =
+  suppliedStarterDirectory !== undefined && suppliedStarterDirectory !== ""
+    ? suppliedStarterDirectory
+    : undefined;
+const directory = starterDirectory ?? cursorRunnerDirectory();
 let stopping = false;
+
+async function prepareRunnerDirectory(): Promise<void> {
+  if (starterDirectory !== undefined && !existsSync(starterDirectory)) {
+    process.exit(0);
+  }
+  if (!existsSync(directory)) await mkdir(directory, { recursive: true });
+}
 
 async function readJson(req: http.IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
@@ -53,7 +71,7 @@ function sendJson(
 }
 
 async function publishAddress(port: number): Promise<void> {
-  await mkdir(directory, { recursive: true });
+  await prepareRunnerDirectory();
   const file = cursorRunnerAddressFile();
   const temporary = `${file}.${String(process.pid)}.tmp`;
   await writeFile(
@@ -188,7 +206,7 @@ process.on("SIGINT", () => {
   void shutdown();
 });
 
-await mkdir(directory, { recursive: true });
+await prepareRunnerDirectory();
 await new Promise<void>((resolve, reject) => {
   server.once("error", reject);
   server.listen(0, "127.0.0.1", () => {
