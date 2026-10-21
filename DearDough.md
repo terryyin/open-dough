@@ -83,6 +83,16 @@ Former local code: DD-219.
 
 An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
 
+### Occurrence — direct preparation-history assessment
+
+- Execution: `SEED-010#learn-from-preparation-history` / plan 338, first implementation `153d0136c3f7c0127fd8b09ff81843ba07e1b658`
+  - Timestamp: unknown (2026-10-21, independent refactor pass)
+  - Tool: Cursor
+  - Open Dough release: unknown
+  - Evidence: coordinator record — the refactor agent first returned `REFACTOR JIDOKA STOP` on the refactor checks' 250-line file-size check for the pre-existing 616-line `docs/maintainer/empirical-process-control-research.md` (769 lines after the plan-assigned append); the coordinator resolved it via the plan's existing-report ownership plus the ODF-152 precedent as a narrow exception, and the refactor then returned COMPLETE with no edits.
+  - Observed effect: one extra coordinator decision and refactor follow-up; no refactor edits.
+  - Inference: qualified — the same concrete conflict as this heading (absolute size check versus a plan-assigned single-owner existing report); the broader file-size policy was not assessed.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221.

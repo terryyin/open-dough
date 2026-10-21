@@ -181,3 +181,7 @@ added value over artifact inspection remains to be evaluated; a finding is not
 presupposed by the plan.
 
 Execution (2026-10-21): direct history qualified/confirmed the artifact-only account; reasoned no-change, DearDough.md unchanged. See the preparation-history follow-up in the research report.
+
+## Execution complete
+
+Product advice: reasoned no-change. Forego routine direct-history review for preparations whose final artifacts already retain the decisive learning; retain a bounded direct review when an artifact-only account is ambiguous about a consequential decision, when a dropped option or stop is suspected, or when misattribution would change the response. Next discriminating observation: write an artifact-only prediction before opening history on a contrasting preparation, then record whether direct evidence overturns it and what retrieval/reading effort it took. Retrospective recorded one ODF-152 occurrence in DearDough.md (500-line threshold warning applies); no correction planned.
