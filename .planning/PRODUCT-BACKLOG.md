@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume ([plan](slice-plans/334-cursor-runner-restart-resume/PLAN.md))
-- [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation ([plan](slice-plans/330-branded-alert-click-automation/PLAN.md))
 
 ## Backlog list
 
