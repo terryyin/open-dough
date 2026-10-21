@@ -1,3 +1,17 @@
+## 0.3.68 - 2026-10-22
+
+- Decide before long, repeated or resource-intensive proof using attributable evidence about the machine that will run it, including competing owned work in other worktrees, and carry that decision through delegation, CI pauses, CI repair and wrap-up.
+- Preserve explicit human work ownership during CI pauses, and retain deferred required observation with its owner and next condition.
+- Correct a consumer's supplier agreement after supplier cleanup only through an explicit, evidenced `--correct-agreement` judgment on the same supplier home, retaining prior resolution evidence and leaving consumer readiness, scope and execution authority unchanged.
+- Let the production dashboard start one combined feedback maintenance cycle on its published due date under a machine-local standing authorization turned on in System settings, and show when that maintenance is still due in every serving mode.
+- Keep new Cursor work off stale or unproved runners, keep sessions held by a replaced runner resumable across restarts, stop a runner that outlives the home that started it, read a running Cursor session as working when its stop hint shares the composer line, and remove the orphaned start-if-absent runner port helper. Name the observed Open Dough browser Automation entry for branded alert clicks.
+
+The Promoted installation payload updates existing execution, refactoring, backlog-dependency and executable-proof guidance and the backlog dependency-resolution scripts; no payload paths are added or removed. Proposed guidance outside the installer declaration remains outside the released payload. Dashboard, Cursor runner, feedback-maintenance scheduling and internal maintainer skills remain source functionality.
+
+Validation: release self-installation, lint and dashboard typecheck passed locally on source revision 0f500a5f3927f6efef8e0c16e82cc5fdda83fc01. The full credential-free deterministic suite passed on predecessor 7a17013d in its story worktree; the only later change is a watch-list planning record. Hosted CI passed earlier source revision c10c27f0; hosted CI for 0f500a5f was still in progress at release. This is earlier hosted CI, not fresh native acceptance.
+
+Terry explicitly approved an ADR 0005 exception on 2026-10-22 to publish and roll out 0.3.68 with native acceptance pending. No fresh native acceptance is claimed. Outstanding acceptance remains pending on Codex, Cursor and Claude Code for the Promoted payload changes since 0.3.67: expensive-proof decisions across execution, delegation, CI pause/repair and wrap-up; human work ownership during CI pauses; and explicit consumer agreement correction after supplier cleanup. Earlier outstanding native requirements remain with their owning work. This release does not close those requirements.
+
 ## 0.3.67 - 2026-10-21
 
 - Finish settled preparation, retrospective, landing and story closure quietly, while preserving actionable attention, requested details, durable records and dashboard receipts. Continue successfully completed planned execution into Story Wrap Up in the same session when existing authority settles the remaining choices.
