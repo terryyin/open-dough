@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-010#run-due-feedback-maintenance",
+  "mode": "story-branch",
+  "branch": "claude/receive-due-feedback-assessments-without-manual",
+  "host": "claude"
+}
