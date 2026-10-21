@@ -1,6 +1,6 @@
 # Remove the orphaned start-if-absent runner port helper
 
-**Source:** [Correction story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper), a bounded retrospective correction of SEED-052#cursor-runner-restart-resume (plan 334; attributable commits `79a1f1ec`, `614b490e`, `1581e5e6`, `72c7fa06` on published claim `3702de21`).
+**Source:** [Correction story](../../seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper), a bounded retrospective correction of SEED-052#cursor-runner-restart-resume (plan 334, recoverable at before-cleanup commit `51891b53624b86030183da07fb7318c9512e7f78`, path `.planning/slice-plans/334-cursor-runner-restart-resume/PLAN.md`; attributable commits `79a1f1ec`, `614b490e`, `1581e5e6`, `72c7fa06` on published claim `3702de21`).
 **Identity:** SEED-052#remove-orphaned-runner-port-helper
 
 ## Goal and scope
@@ -77,5 +77,6 @@ and plan 334's proof still passes unchanged.
 - Removal, not deprecation: the helper has no caller in this
   repository, is not a published API, and its only plausible future
   use is the bypass this correction exists to prevent.
-- This correction is planned, not queued or Taken; a separate request
-  executes it. It grants no execution authority.
+- This correction is planned and queued first at its predecessor's
+  wrap-up; a separate request executes it. It grants no execution
+  authority.

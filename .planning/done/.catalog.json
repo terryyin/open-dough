@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-052_cursor-runner-restart-resume.json",
+      "identity": "SEED-052#cursor-runner-restart-resume",
+      "completedAt": "2026-10-21T06:41:00.524Z",
+      "blob": "fa9ddd832d5f6ea10488cd248e284e8f6131b37f"
+    },
+    {
       "fileName": "SEED-145_continue-execution-into-wrap-up.json",
       "identity": "SEED-145#continue-execution-into-wrap-up",
       "completedAt": "2026-10-20T13:39:37.550Z",

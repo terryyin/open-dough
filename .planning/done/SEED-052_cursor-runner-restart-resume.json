@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#cursor-runner-restart-resume",
+  "title": "Keep Cursor sessions resumable across runner and machine restarts",
+  "completedAt": "2026-10-21T06:41:00.524Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "cursor"
+}

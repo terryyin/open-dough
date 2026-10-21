@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Keep Cursor sessions resumable across runner and machine restarts](seeds/SEED-052-start-agent-work-from-dashboard.md#cursor-runner-restart-resume) — SEED-052#cursor-runner-restart-resume ([plan](slice-plans/334-cursor-runner-restart-resume/PLAN.md))
-
 ## Backlog list
 
 - [Correction: Remove the orphaned start-if-absent runner port helper](seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper) — SEED-052#remove-orphaned-runner-port-helper
