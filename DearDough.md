@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `341293c09f1115b8ad3412fc6da63679ce563457`; the complete pre-compaction source remains at `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`. Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 324. Removed numbers are never reused.
+- Highest allocated local number: 325. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -409,6 +409,14 @@ Slice 2 offered a separate Stop from the host `stop` fact alone, which also gave
 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
+### Occurrence — completed supplier agreement correction
+
+- Execution: SEED-010#correct-completed-supplier-agreement; first implementation `c56944f8b3829980a1fe948baad855bf2780fbe0`.
+  - Timestamp: unknown (2026-10-21 startup/review); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
+  - Evidence: launch `0da07e97-1cef-4d97-b2c2-5c9cfe190a32`; opening reference batches reported 11,514 and 18,023 original tokens with truncation, followed by bounded reads recovering delegation, delivery and CI passages. The retrospective also over-batched catalog evidence.
+  - Observed effect: required passages needed repeated retrieval; dependent context was recovered before use. Multiple calls remain one occurrence.
+  - Inference: existing targeted-retrieval guidance applies; no new process response or measured saving is established.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323.
@@ -429,3 +437,14 @@ test browser to the front and resized windows on the developer's own desktop,
 while the developer was also working there and answering its questions.
 
 [Retained evidence and current assessment](docs/maintainer/findings/ODF-307.md).
+
+## DD-325 — Guarded delivery withheld publication after a plan-updater error
+
+The coordinator generated a temporary Python updater with a malformed string. The guarded fresh operation stopped at plan/status mutation before staging, committing or publishing; fixing and syntax-checking that updater allowed the same delivery to complete. This is a successful containment observation, not a product defect or evidence that the error recurs.
+
+### Occurrences
+- Execution: SEED-010#correct-completed-supplier-agreement; first implementation `c56944f8b3829980a1fe948baad855bf2780fbe0`.
+  - Timestamp: unknown (2026-10-21, before first implementation publication); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
+  - Evidence: launch `0da07e97-1cef-4d97-b2c2-5c9cfe190a32`, first `execution-increment-delivery.mjs fresh` returned `preparation-failed`, operation `plan/status mutation`, Python `SyntaxError`, `commit: null`, `publication: pending`; repaired retry accepted `c56944f8`.
+  - Observed effect: the erroneous operation published nothing. Formatting completed before refusal and ran again on the guarded retry; accepted semantic proof was reused because product behavior did not change.
+  - Inference: preserve the current fail-closed gate; syntax-checking generated temporary scripts before invoking it avoids this one observed retry. No general time saving is measured.
