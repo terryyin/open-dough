@@ -108,7 +108,7 @@ conflict was identified.
 ### 1. Remove the orphaned helper and stale comment
 
 Type: Structure
-Status: planned
+Status: done
 Proof: The exact-symbol search above returns no matches; then
 `env -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/cursor-runner-build-proof.spec.ts dashboard/tests/boundary/cursor-runner-restart-shapes.spec.ts dashboard/tests/cursor-runner-replacement.spec.ts`
 and `npm run typecheck:dashboard` pass.

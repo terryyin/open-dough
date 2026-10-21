@@ -1,11 +1,13 @@
 // Developer-requested recovery of one unfinished Cursor launch the runner
 // does not hold. Observation never starts the runner; this action uses
-// cursorRunnerPort, which may. It resumes the recorded command, types one
-// continuation only when first input is already confirmed (LaunchInstruction
-// writes that only on the idle composer), and starts one replacement when
-// resume exits with the cannot-load sentence. When keep has not settled by
-// the shared launch wait, Recover answers failed for unconfirmed delivery
-// and does not kill the client.
+// keepCursorClient, which reaches the runner through the current-runner
+// new-work path and may start a current-build runner. It resumes the
+// recorded command, types one continuation only when first input is
+// already confirmed (LaunchInstruction writes that only on the idle
+// composer), and starts one replacement when resume exits with the
+// cannot-load sentence. When keep has not settled by the shared launch
+// wait, Recover answers failed for unconfirmed delivery and does not
+// kill the client.
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import { showsCursorCannotLoad } from "../../../src/cursorCannotLoad.ts";
 import type { RecoverSessionAnswer } from "../../../src/sessionRecovery.ts";
