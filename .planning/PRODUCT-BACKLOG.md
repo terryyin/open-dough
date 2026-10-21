@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation ([plan](slice-plans/330-branded-alert-click-automation/PLAN.md))
-- [Correction: Remove the orphaned start-if-absent runner port helper](seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper) — SEED-052#remove-orphaned-runner-port-helper ([plan](slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md))
 
 ## Backlog list
 
