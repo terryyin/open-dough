@@ -126,7 +126,7 @@ All promises belong to slice 1 and its one evidence-to-decision review loop:
 
 ### 1. Judge the reuse improvement from its later consequences
 Type: Behavior
-Status: planned
+Status: done
 Proof: A maintainer can trace every claim in the follow-up to a named plan
 revision, finding, commit, release tag, run row or session line, reproduce
 the exposure and session observations above, and read a retain, adapt,
@@ -151,6 +151,19 @@ Markdown links and `git diff --check`; no application test suite is required
 for an analysis-only edit. If execution finds that a runtime change is
 necessary to fulfil this outcome, stop and revisit scope instead of adding
 implementation.
+
+Accepted proof (2026-10-21): the research report gained
+[the follow-up](../../../docs/maintainer/empirical-process-control-research.md#later-product-consequences-follow-up)
+recording continue observing with low confidence. A fresh source-only review
+of the story section returned its commitments; each was compared with the
+follow-up, and the coordinator rechecked plan 309's burst rows at
+`1e1dbc55^`, the 37 `src` files of `f6037523^..7740842a` with `d170afb1`,
+the DD-302 anchor and ODF-254's extra round. Proof commands: a relative
+Markdown link check over the section (0 bad links), `git diff --check`, and
+`npm run lint`. Execution reproduced the preparation observations except
+that `grep -rl "refresh inherited evidence" ~/.codex/sessions` now matches
+five 2026-10-20 records, not four; the selected session and its line 15 are
+unchanged and the sample was not enlarged.
 
 ## Current decisions
 

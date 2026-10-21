@@ -886,3 +886,176 @@ This is advice, not adopted or queued work. The current
 [launch direction](../../.planning/NORTH-STAR.md#agent-launch-as-a-requested-assignment)
 also distinguishes session completion from published story state; the matched
 completion receipt here does not complete or re-execute the queued story.
+
+<a id="later-product-consequences-follow-up"></a>
+
+## Follow-up: CI evidence reuse judged by its later consequences
+
+**21 October 2026.** This follow-up judges one delivered efficiency
+improvement, the CI evidence reuse first released in `v0.3.62`
+(`09247d6c`, registered CI history coverage) and `v0.3.63` (`500802fb`,
+exact-commit reuse; `d429430a`, integrated-state completion; `1d9239c2`, the
+plan 308 correction), for
+[`SEED-010#evaluate-later-product-consequences`](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences).
+First releases come from `git tag --contains <sha> | sort -V | head -1`. The
+claim under test: reusing existing CI evidence avoids executions and waiting
+while completion stays truthful (no manufactured pass, known failures stay
+actionable, exact-revision obligations keep their own evidence; plan 307's
+Goal at `5145f435^` and plan 306's at `09e7b429^`). The sample is the one the
+story names; newer events do not enlarge it. **Decision: continue observing.
+No efficiency improvement is declared**, and the corrected shared behavior is
+kept as it is.
+
+### Observed benefit and its limit
+
+*Observation.* Plan 309's burst tables (`1e1dbc55^:.planning/slice-plans/309-donut-coalesced-ci-adoption/PLAN.md`,
+Current decisions, slices 2 and 4) list ten Donut proof runs. GitHub replaced
+three of them with 0 jobs: B 38820918222, D 38821650774 and B′ 38824030475.
+Every full run started 12 jobs, so the burst avoided **3 runs and 36 job
+executions**. The record gives wall-clock times, not job-seconds, so avoided
+job-seconds are unknown. The same burst shows the limit: C 38820973729 failed
+on Donut's external OpenAI E2E flake, B's first wait timed out at the
+ten-minute bound, and B completed only at E (38821682878). This is one
+deliberately constructed burst on an unpushed branch, not a production rate.
+
+Beside that count:
+
+- **Plan 308** (`b4cae932^:.planning/slice-plans/308-integrated-state-correction/PLAN.md`,
+  Current findings). Before release, the story's own promise failed for
+  GitHub's replaced runs (finding 1). Finding 3 records CI shares of 547/349/604
+  job-seconds against the 710 ceiling, with about 80 job-seconds of
+  spawned-observer journeys added for the rule.
+- **Post-release corrections.** `75958eca` and `27a67521` (`v0.3.66`) and
+  [ODF-320](findings/ODF-320.md) are classified below.
+- **Process costs on plans 307–309.** [ODF-254](findings/ODF-254.md)
+  records one extra slice 5 round (about 34 minutes of agent time).
+  [ODF-256](findings/ODF-256.md) records one unobserved publication.
+  [ODF-169](findings/ODF-169.md) records one conflicting replay.
+  [ODF-074](findings/ODF-074.md) records three mid-execution adaptations.
+  Plan 309 used the 7 full paid Donut runs that Terry authorized.
+
+The 36 avoided job executions therefore cannot declare the improvement alone.
+
+### Later consequences against the original promises
+
+| Consequence | Provenance | Class | How it surfaced |
+| --- | --- | --- | --- |
+| Replaced-basis revision never completes under GitHub concurrency | Plan 308 finding 1 at `c98d2d22`; fixed in `1d9239c2` (`v0.3.63`) | Conservative: B stayed `incomplete`, no false success | Found by retrospective review before release; no use exposure existed |
+| Candidate fetch delayed a stop by up to 3 × 120 s | Plan 308 finding 2; fixed in `8d1c35db` | Conservative: unconfirmed shutdown kept a worktree | Found by review and probes 2–3 |
+| A delivered Pygardon commit stayed `undiscovered` and kept raising `CI_DISCOVERY_DELAYED` | [ODF-320](findings/ODF-320.md) (Pygardon DD-308, 2026-10-20, release unknown) | Conservative: listed as unproved and repeated advisories, no false success | Observed in use during Pygardon's SEED-120 execution |
+| A nearer retained failure did not replace an inherited success; removed evidence kept a success; a running ancestor outranked nearer failure | `75958eca` cases in `ci-inherited-evidence-refresh.test.mjs`; Codex session `01a15685-3237-7941-989b-f9e586a786e2`, line 15 (`2026-10-19T23:35:39Z`) | **Unsafe**: `recordedCompletion` returned `success` that the retained evidence contradicted, against 0.3.62's "preserving real failure" and the no-manufactured-pass promise | Reproduced by a recheck of Pygardon's readiness against 0.3.65 in an isolated A → B → C metadata-only history. It blocked a Pygardon story. **Use occurrence unknown**: the record reports no wrong verdict in live use |
+
+*Execution-time guidance.* ODF-320's occurrence has no recorded release.
+Pygardon's `main` still lacks `integratedStateCompletion`: its
+`.planning/open-dough.json` names only `ciAdapter`, and the declaration sits
+only in unpushed `a3f05b8c0`. The occurrence therefore ran the exact-only
+behavior, not the opt-in path. *Causal hypothesis:* plan 308 decided that "a
+replaced custom A has no attempt, so B is already judged as `undiscovered`".
+Adopting the candidate may therefore resolve ODF-320's case, but nothing here
+shows it did. This review did not establish whether the stale-success defect
+was introduced by the 0.3.62–0.3.63 changes or predates them. It contradicts
+their promise either way.
+
+### Test effectiveness by detection and cost
+
+| Case | What retained proof did | Stated cost |
+| --- | --- | --- |
+| Plan 308 finding 3 | The journeys proved the rerun contradiction at least three times, but none detected finding 1's replaced-basis gap; review found it. Slice 1 moved the rule to unit tests, and per-rule mutations then failed them. | About 80 job-seconds of journeys; the changed jobs fell from about 27 to about 11 job-seconds in paired local runs (slice 1 proof) |
+| [DD-302](project-test-findings.md#dd-302) | A journey wait accepted a stale judgement. It reported a false failure in CI only, not a wrong product verdict. | One failed CI run (38567064129) and one repair cycle; job-seconds not stated |
+| 0.3.64 CI-observer races (`CHANGELOG.md`, 0.3.64) | Two test races: a read of an in-flight journal, and observation started before registration. A focused rerun and a diagnostic showed correct product behavior. Unresolved test limitations. | Not stated |
+| Plan 308 `ci-background-lifecycle` flake | A flaky test exposed a real product race: an empty waiter claim made `cancel` exit 1 with empty stdout. `d170afb1` fixed it, and its new case fails 3 out of 3 when the fix is reverted. | Not stated |
+| 0.3.66 inherited-coverage cases | The retained Open Dough proof **missed** the unsafe stale success. Pygardon's isolated recheck through its real adapter detected it. `75958eca` added five unit cases (138 lines). `27a67521` replaced a closure-selection test that had modelled inherited verdicts through fake ancestry. | Not stated; `CHANGELOG.md` 0.3.66 records 33 focused CI test files passing locally and hosted CI on `27a67521` |
+
+The one unsafe verdict in the sample escaped the retained suite and was
+caught by a consumer's recheck. Journey and case counts are not used as
+confidence.
+
+### Changeability as a diagnostic
+
+*Observation.* Plan 308 was the first change to the concept: five slices from
+`f6037523` to `7740842a` plus the claim repair `d170afb1`. It touched 37 files
+under `src`: 14 runtime modules across `dough-execute-plan` and
+`dough-story-wrap-up`, including `ci-integrated-state*.mjs`,
+`ci-mailbox-{await,store,revision-records,revision-coverage}.mjs`,
+`publication-git.mjs` and `trunk-closure-{observer,settlement}.mjs`. It also
+touched 15 test files, 7 fixture or case helpers and
+`references/ci-completion-wait.md`. Slice 5 repointed about fifteen importers.
+[ODF-255](findings/ODF-255.md) records the coverage/records seam: a slice 2
+refactor placed two names behind a re-export that slice 5 then had to repoint.
+`75958eca` touched three shared modules: `ci-revision-applicability-classification.mjs`,
+`ci-mailbox-revision-coverage.mjs` and `ci-runs.mjs`. It also added one test,
+and `27a67521` changed one wrap-up test.
+
+**Is the adaptation to a provider that coalesces differently local to its
+adapter or shared?** In this sample it was shared.
+
+- GitHub reports a replaced run as `cancelled`, while a custom provider gives
+  it no attempt. Plan 308 had to make the two agree in the shared judge, await
+  and records.
+- Pygardon's native coalescing (ODF-320) points at shared
+  `classifyUndiscoveredRevision`.
+- ODF-320's follow-up states that adapter-versus-shared ownership of
+  supersession "remains unestablished".
+
+*Causal hypothesis:* until a provider's adapter can report supersession, each
+new coalescing behavior lands as a coordinated shared edit. This is a
+diagnostic, not a score.
+
+### Exposure per project
+
+| Project | Observation (21 October 2026, read-only) | Exposure |
+| --- | --- | --- |
+| Open Dough | `gh run list --branch main --created 2026-10-08..2026-10-21`: 153 `CI` runs, 135 success and 18 failure, **0 cancelled**. `.github/workflows/ci.yml` has `paths-ignore` only: no concurrency group or reuse gate. | Coalescing and exact reuse: **pending**. Inherited coverage of ignored-only revisions needs no opt-in (0.3.62), but its use frequency here is not measured. |
+| Donut | `origin/main` (`23c64de1fd`) `ci.yml` has no `concurrency`. `dough/coalesced-ci-candidate` `7e443633f0` exists locally, and `ls-remote` is empty. | **Pending**; plan 309's proof burst only |
+| Pygardon | Its CI runs only the newest head (DD-308). `dough/coalesced-ci-candidate` `a3f05b8c0` exists locally, `ls-remote` is empty, and `main` has no `integratedStateCompletion`. `DearDough.md` names DD-308 twice. | Native coalescing **observed** (ODF-320); integrated-state completion **pending** |
+
+Absent exposure is not evidence that the benefit or a harm did not occur.
+
+### Decision, cost and next observation
+
+**Continue observing; confidence low.**
+
+- *Observation.* The benefit is 36 avoided job executions in one proof burst,
+  with no project exposure. The sample also shows two pre-release
+  conservative gaps, one in-use conservative consequence (ODF-320), and one
+  unsafe stale success in the shared inherited coverage. That unsafe success
+  was missed by retained proof and corrected in `v0.3.66`; its use
+  occurrence is unknown. The first correction touched 14 runtime modules.
+- *Counterevidence against rejecting.* No unsafe verdict is recorded in use.
+  Without opt-in, exact behavior is unchanged (plan 308 decisions). Donut's
+  release admission still blocks a cancelled run (plan 309 slice 5), and each
+  run keeps its own artifacts.
+- *Counterevidence against retaining it as an improvement.* The initial
+  metric comes from a proof burst. Correctness held only after a consumer's
+  recheck. The added test cost recurs on every Open Dough run, where coalescing
+  has no exposure.
+
+Under [include later effects](#include-later-effects-and-whole-system-costs),
+the avoided-execution count does not survive as an improvement claim.
+
+*Recommendation, current guidance (0.3.67).* This is advice only. ODF-320's
+ownership decision stays with that finding's follow-up. Donut's and
+Pygardon's rollouts stay with their owners. Nothing is queued, and no finding
+row changes.
+
+**Next observation.** Owner: the Open Dough maintainer, through ODF-320's
+follow-up. The trigger is the first Pygardon execution after an authorized
+rollout of its integrated-state declaration in which CI replaces a delivered
+commit before an attempt. Record whether that commit completes as
+`integrated_state` at its passing descendant or recurs as ODF-320, with the
+run and job counts of that execution.
+
+*This evaluation's effort.*
+
+- Preparation spans `8d8c2ded` (20:14:13 +0900) to `367cb42f` (20:26:21
+  +0900).
+- Execution began after the Take commit `b6fa533c` (21:05:11 +0900).
+- It read the four plan revisions, seven finding records, `CHANGELOG.md`,
+  one `gh run list`, one native session line and two client checkouts, all
+  read-only.
+- It ran no CI, paid test or native host.
+- Human time, money and tokens are unknown.
+
+Re-reading the same records yields the same classification. It adds no
+occurrence, finding row, story, release or rollout, and reopens no completed
+story.
