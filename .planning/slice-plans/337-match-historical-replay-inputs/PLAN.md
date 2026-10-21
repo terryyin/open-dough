@@ -1,0 +1,169 @@
+# Match native replay inputs to historical evidence
+
+**Identity:** SEED-053#match-historical-replay-inputs
+**Source:** [Selected story](../../seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs)
+**Finding:** [DD-320](../../../ProjectFindings.md#dd-320)
+
+## Goal and scope
+
+Before spending another native run, maintainers can compare the existing
+proof-scheduling scenarios with the retained historical occurrences and tell
+which question each scenario can answer. Make introduced knowledge, actor and
+delegation differences, missing context and historical reachability explicit.
+Deliver a maintained, evidence-linked comparison beside the existing launch
+instructions, consistent scenario descriptions and credential-free input checks.
+
+The comparison covers plan 302 and plan 310 as retained at
+[ODF-249](../../../docs/maintainer/findings/ODF-249.md), and both plan-323
+scenarios. Preserve their useful controlled scheduling checks. No published
+skill change, generic replay engine, new host integration, forced delegation,
+proof-scheduling remedy, paid run, release or rollout is included. No native
+behavior or cost saving is promised by this preparation or by fixture checks.
+Update DD-320 with the actual response revision and remaining native outcome gap
+when implementing; do not resolve it from a queue entry or green checks alone.
+
+## Existing solutions and architectural direction
+
+PFE: use [native publication documentation](../../../tests/native-publication.md)
+as the maintained pre-launch comparison home. A small manual comparison meets
+this story; a new historical-equivalence schema, classifier, launch gate or
+framework has no demonstrated need. Keep the comparison outside the generated
+agent workspace so it does not supply the answer under observation.
+
+Reuse `tests/proof-scheduling-native.sh` and the existing delivery-evidence
+family: `delivery-evidence-native-prompt.sh` constructs the task;
+`delivery-evidence-scheduling-native-scenario-content.sh` writes project inputs;
+`delivery-evidence-scheduling-native-checks.sh` exercises generated text and
+product commands; the existing observer/assessor owns scheduling verdicts.
+The runner and evidence helpers already retain the prompt, input hashes,
+installed guidance identity, event stream, proof logs and final product.
+Changing host launch, stream parsing or retention is unnecessary for this outcome.
+Do not create another evidence home or conflate a scheduling pass with a
+historical-equivalence verdict.
+
+Follow [AGENTS.md](../../../AGENTS.md) and Accepted
+[ADR 0005 — Cross-tool validation](../../../docs/adrs/0005-cross-tool-validation-accepted.md):
+no answer-supplying prompt, no substitute-process/native-proof equivalence,
+no transfer of host evidence and no paid run in default checks. This story changes
+repository-owned fixture interpretation, not distributed runtime guidance.
+The current [North Star](../../NORTH-STAR.md) concerns dashboard and execution
+infrastructure; this local comparison introduces no consequential architecture
+choice and requires no new topic or ADR exception.
+
+## Outside-in proof ownership
+
+All promises belong to slice 1; the maintained comparison is the user-facing
+boundary. Its semantic review and the executable input checks serve different
+purposes.
+
+| Promise | Observable proof |
+| --- | --- |
+| Explain introduced knowledge before selecting a run | Walk from existing launch instructions to the comparison. Recover plan 323's first fixture/result and plan 302's retained brief. The comparison names the fourteen-minute cost, stylesheet rule, actor receiving them and observed consequence, with source revision/path and retained-summary limits. |
+| Distinguish coordinator and delegated implementer | Compare both current generated prompts/project files with both retained occurrences. The table states that one selected slice permits local implementation; a refactor call proves no implementer delegation. Plan 302's mistaken estimate and plan 310's whole-suite briefs stay distinct. |
+| Keep unknown context and reachability honest | Review a source with unknown installed-guidance provenance and a missing full delegation transcript. The comparison leaves those unknown, qualifies reconstructed conditions, and never reports a reached historical boundary from input inspection or an ordinary scheduling pass. |
+| Preserve useful controls and actual inputs | Extend the existing scheduling text checks to inspect the generated quick fixture's cost/layout instructions as well as the planned fixture's absence of them, and their prompt/plan shape. Run the existing product, counterexample and substitute-host journey via the focused command below. |
+| State what a later authorized run could establish | Each scenario has a useful question, material mismatches and explicit limits. Known-cost control and qualified coordinator scenario are distinguished from a faithful historical replay; supplied answers cannot count as reaching the historical boundary. Native implementation delegation and refactor-time extraction require actual role/command evidence from a separately authorized run. |
+| Retain finding evidence and response limits | Inspect DD-320 after implementation: original occurrence preserved, actual containing response revision and direct comparison linked, native behavior still unobserved where applicable. Do not rewrite ODF-249's settled remedy disposition. |
+
+The generated instructions and prompt are consumed by native agents and by
+`run_delivery_evidence_scheduling_text_checks`; comments/help and the native-test
+documentation are consumed by maintainers selecting a run. Keep the comparison
+out of those agent-visible instructions. Preserve scenario identifiers, prompt
+behavior, observation field contracts and existing scheduling rejection semantics.
+These constraints avoid unnecessary changes to shared runner/stream consumers.
+If implementation changes any of those contracts, trace its real consumers and
+extend proof before delivery; the current plan does not assume such a change.
+
+Focused execution proof, per [tests/README.md](../../../tests/README.md):
+
+```sh
+PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/proof-scheduling-native.sh
+```
+
+The added input checks must discriminate: temporarily remove the declared cost
+or layout steer from the quick fixture and observe the appropriate check fail,
+then restore and pass. Existing planned-text rejection checks cover the opposite
+condition. Use semantic review for historical equivalence and source uncertainty;
+do not encode a prose keyword checklist as evidence of historical fidelity.
+Use broader native-evidence checks only if their shared contract changes.
+
+## Ordered slices
+
+### 1. Make the historical limits of each scheduling scenario visible before launch
+
+Type: Behavior
+Status: planned
+Proof: The comparison walk and generated-input checks above, with all existing
+credential-free scheduling controls passing on the final changed state.
+
+Behavior: Given a maintainer considering either scheduling scenario, when they
+follow its launch documentation and inspect its generated inputs against the
+retained occurrences, they see its historical sources, introduced assumptions,
+actor/delegation differences, known gaps and allowable conclusions before paying
+for a run. A control remains useful without masquerading as a faithful replay;
+unknown source conditions remain inconclusive.
+
+Add the compact comparison to the existing native-test documentation and link
+it from the scheduling entry point's usage/comment guidance as appropriate.
+Align misleading scenario descriptions (including the suggestion that the
+planned fixture itself recreates delegated occurrences). Keep historical
+quotations attributed to their actual retained source rather than asserting a
+complete transcript was recovered. Explain the scheduling assessor's narrower
+meaning without replacing its state/coverage checks with a historical verdict.
+Extend generated-input proof in the existing check owner; do not add a parallel
+runner or feed the comparison to the native agent. Update DD-320's response and
+native-outcome gap once a real response revision exists, through normal execution
+publication. Keep implementation, proof and local cleanup in this slice.
+
+Sizing and safe stop: one comparison outcome and one existing fixture proof loop;
+no numeric slice target or hard limit is supplied. A missing historical detail
+is an explicit unknown, not a reason to fabricate a reconstruction. If the desired
+outcome changes to a faithful delegated native replay or a guidance remedy,
+stop that expansion for a separate human scope/paid-run instruction.
+
+During authorized execution, apply installed Execute Plan's independent
+post-change refactoring, focused proof, delivery and review gates. The project
+sets `skipProcessRetrospective: false`. Apply changed-file formatting and the
+repository commit hook; hosted CI alone does not mandate every local suite.
+These future execution duties grant no implementation authority to preparation.
+
+## Preparation observations and decisive premises
+
+Observed on 2026-10-21 in
+`/Users/terryyin/git/open-dough/.worktrees/match-native-replay-inputs-to-historical-evidenc`,
+base `7d7353169a846b52c7ecc148a0e6f5be9e19cb5e`.
+
+- `git show 6922dc32:.planning/slice-plans/323-schedule-proof-after-refactoring/PLAN.md`
+  recovered the actual planned conditions and accepted execution records for
+  both replays. The first explicitly prescribed stated realistic suite cost;
+  its result records the no-suite refactor brief and early extraction. The second
+  records local implementation, a baseline suite and an unreached move boundary.
+- `git show dd2e25b59563d02bdbe4f484d98ccd4c113b6339:.planning/slice-plans/302-keep-direction-readable-after-phone-session-start/PLAN.md`
+  recovered accepted proof of the stylesheet move and final-suite qualification.
+  It is not the full delegation conversation. The “few minutes” brief, 13.6/14.4
+  minute observations and plan-310 whole-suite briefs are retained summaries at
+  ODF-249; DD-320 records the input mismatch. Missing full conversation and
+  unknown plan-302 installed provenance limit historical claims, not this
+  comparison's deliverability.
+- Ran the exact focused command above in this checkout: exit 0. It generated
+  both scenarios, checked planned text and neutral prompts, ran real product
+  proof and broken-consumer controls, assessed controlled sequences, and exercised
+  the existing substitute-host runner/retention. This establishes the reusable
+  unpaid proof route. It proves neither agent behavior nor historical equivalence.
+- Inspected those checks and the prompt, scenario writer and assessor. The current
+  check asserts the planned fixture has no cost/layout steer but does not directly
+  assert the quick fixture's declared cost/layout distinction; slice 1 adds that
+  missing discriminating proof. No product source or native session was changed
+  during preparation.
+
+## Current decisions and concern assessment
+
+- Preserve existing scenarios and identify their limits; no automated claim of
+  historical fidelity and no forced reproduction. Existing input evidence and
+  source locators are sufficient for the bounded manual comparison.
+- No supplier dependency or pre-Take human decision is needed. Fresh native
+  outcomes are deferred evidence, not a premise on which this implementation
+  depends. Historical unknowns remain part of the promised result.
+- Slice-plan refinement was not needed: one cohesive behavior owns the comparison,
+  input proof and finding-response update, with no speculative structure.
+- No remaining slice-specific concern was identified in this preparation review.
