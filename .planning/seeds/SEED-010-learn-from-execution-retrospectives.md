@@ -237,42 +237,88 @@ obligations passed.
 
 **Identity:** SEED-010#learn-from-unreviewed-execution-paths
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/339-learn-from-unreviewed-execution-paths/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b84e28e16ad8ab8a9f385bbae6879a25fb5c0416a0bedbb4bab7e0cc7be08820","plan":"55cd28a5719fe083f328a618b91c4ed4a32e96046cb7b928939748d69a4d7270"}}
 ```
 
-**Goal:** A developer can learn from one selected execution or completion path
-that currently escapes review, without treating the absence of a retrospective
-finding as success.
+**Goal:** A developer can learn from a completion journey that escaped the
+normal retrospective, using its final applicable outcomes rather than treating
+an absent finding or an earlier review as success.
 
-**Scope:** Extend the use of current process review beyond the automatic
-successful-plan path. Select one consequential missing path first: for example,
-an execution stopping before normal retrospective, a planless completion, or a
-completion journey through wrap-up or landing. Observe that path's final
-applicable outcome, including failures after an optional own-run review when
-that is the selected gap. Reuse existing review flags and history where sufficient.
-Distinguish no finding, no review, missing history, and no relevant exposure.
-This story concerns the work record and supported learning; preparation's
-internal decisions belong to Story 6.
+**Scope:** Assess the landing of the response-effectiveness preparation in Open
+Dough, coordinator session `01a157a5-1cdf-7611-94b3-8c1236961e4f`, from its
+readiness/landing handoff at `2026-10-20T04:54:42.797Z` (line 218) through the
+final response at `2026-10-20T04:56:26.160Z` (line 315), including all intervening
+attempts and the dashboard receipt at line 312. This is the completion interval
+explicitly excluded by the [preparation-history assessment](../../docs/maintainer/empirical-process-control-research.md#preparation-history-follow-up);
+that assessment's internal preparation decisions remain outside this story.
+Read surrounding records only for attribution and selection context.
 
-**Evaluation:** The developer obtains a supported improvement decision or
-reasoned no-change result for the selected path. Within that sample, a failed
-or cancelled attempt cannot disappear from the assessed population, and a
-review before final publication cannot claim to have observed the subsequent
-result. Re-review does not double-count occurrences or resurrect completed work.
-Other missing paths remain explicit later selection candidates; completing this
-story does not establish full lifecycle coverage.
+Reuse current process-review reasoning, available native history, Git evidence,
+and finding identities. Record a compact assessment in the existing research
+report: selected population and limits, attempt outcomes, review coverage,
+supported learning, and a justified improvement recommendation or no-change
+result. Account separately for publication, refresh, retirement, and reporting;
+a prior review cannot establish a later outcome. Keep failed or cancelled
+attempts within the selected interval even when a later retry succeeds. No
+cancelled attempt is currently evidenced; do not manufacture one for coverage.
 
-**Value / learning:** Reduce success-only selection and expose costs or defects
-that occur at the boundaries of execution and closure.
+Distinguish reviewed-with-no-finding, not reviewed, unavailable history, and no
+relevant exposure. Record supported process findings only under the existing
+selection and recording rules; this project's process review is enabled.
+Deduplicate against existing findings and the earlier assessment. Re-reading
+this journey adds evidence, never another occurrence of the same event or a
+new execution of the completed work. Bound cost claims to observed operations,
+elapsed intervals and available usage facts, separating waiting from work and
+unknown human/token costs from measured costs.
 
-**Effort uncertainty:** Recoverable history at early exits and the cost of
-proportionate coverage; do not solve it by mandatory full reviews at every event.
+**Key examples:**
 
-**Prerequisites:** Selected actual histories and their final outcome when known.
-Existing skills can supply them independently of Story 6 or an automated collector.
+- Given the earlier assessment ends before landing, reviewing the selected tail
+  distinguishes its accepted publication receipt from its initially deferred
+  refresh, later successful refresh, retirement result, and completion receipt.
+  None is inferred from the plan's readiness or an empty process log.
+- Given a failed lookup or a failed/cancelled delivery attempt within the sample,
+  a later success retains that attempt and its observed cost in the assessment.
+  A counterfactual cancellation may test the reasoning but is labelled a control,
+  never a historical occurrence or a failure-rate denominator.
+- Given only the prefix through accepted publication, the reviewer cannot claim
+  refresh, retirement or final reporting were observed. Missing tail history is
+  unavailable coverage; an uninvoked own-run review is no review; an unexercised
+  post-review failure path is no relevant exposure. With the complete tail,
+  supported no-finding is a possible result, not a presupposition.
+- Given the same interval is assessed again, its stable session/interval and
+  accepted revision identify the same occurrence; no duplicate finding count,
+  reopened story, repeated landing or new claim is produced.
 
-**Safe stopping point:** A truthful assessment of the selected path remains useful even
-when other lifecycle phases and projects have no additional instrumentation.
+**Evaluation:** A traceable assessment supports one improvement decision or a
+reasoned no-change result for this landing journey. It explicitly preserves
+unknowns and distinguishes historical evidence from illustrative controls.
+Success is useful bounded learning, not a required defect or runtime change.
+
+**Deferred promises:** Other early-stop, cancellation, planless and wrap-up
+journeys remain later selection candidates. This sample does not establish
+full lifecycle or cross-host coverage, or prove behavior after an own-run review
+that this run did not invoke. No mandatory review at every event, collection
+service, dashboard change, transcript archive, automatic scheduling, release,
+or implementation of an identified response is promised. Necessary conclusions
+and recommendations stay supported by this sample; a broader response needs its
+own selected work.
+
+**Value / learning:** Test whether reviewing a previously omitted completion
+interval adds actionable learning at proportionate cost, without success-only
+selection within that interval.
+
+**Effort uncertainty:** Fair attribution of a short historical tail and its
+partially truncated tool outputs. The native session and decisive outcome
+receipts were recovered during preparation; recheck availability at execution.
+
+**Prerequisites:** The selected native session and Git revision
+`ce6355980971225a1b9bf26ee7a935fc432f5636`; no sibling implementation is required.
+If required history becomes unavailable, stop dependent conclusions and name
+that gap rather than substituting a successful sample.
+
+**Safe stopping point:** The bounded assessment remains useful even if no
+other lifecycle path receives additional instrumentation.
 
 <a id="evaluate-later-product-consequences"></a>
 
