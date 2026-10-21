@@ -123,7 +123,7 @@ source events and story, not by counting headings, keywords or findings.
 ### 1. Judge what direct history adds to one preparation review
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Evidence review of the assessment and any finding edits against every
 row above, verification of cited historical sources/links, and `git diff --check`.
 
@@ -179,3 +179,5 @@ finding and version-selection decision were encountered. The final plan also
 retains the stale-summary learning. Therefore direct access is feasible, but
 added value over artifact inspection remains to be evaluated; a finding is not
 presupposed by the plan.
+
+Execution (2026-10-21): direct history qualified/confirmed the artifact-only account; reasoned no-change, DearDough.md unchanged. See the preparation-history follow-up in the research report.

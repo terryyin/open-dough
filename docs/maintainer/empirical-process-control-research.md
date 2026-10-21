@@ -614,3 +614,156 @@ should reuse the maintained procedures and current layout, add reliable
 compaction and delivery, and leave broader empirical-control improvements to
 later stories. The combined skill supplies the two phases' explicit invocation
 authority and ordering; unattended initiation remains separate work.
+
+<a id="preparation-history-follow-up"></a>
+
+## Follow-up: what direct preparation history adds
+
+**21 October 2026.** This follow-up assesses one bounded preparation: the
+20 October 2026 refinement and slice planning of
+`SEED-010#observe-retrospective-response-effectiveness`, coordinator session
+`01a157a5-1cdf-7611-94b3-8c1236961e4f` (Codex, CLI `0.163.0`), from the
+refinement instruction at `2026-10-20T04:50:03.769Z` (record line 10) through
+the readiness/landing handoff at `2026-10-20T04:54:42.797Z` (line 218). The
+landed artifacts at `ce6355980971225a1b9bf26ee7a935fc432f5636` corroborate the
+preparation result. Subsequent landing, execution, and closure are outside the
+interval and are not reviewed journeys here. The session record has 318 lines;
+218 were read. Some tool outputs were already truncated at capture (for
+example lines 27 and 71), and their missing contents are not reconstructed.
+
+### What the final artifacts alone support
+
+`git show ce635598:.planning/slice-plans/328-observe-retrospective-response-effectiveness/PLAN.md`
+and the refined seed section at the same commit support this account without
+any history: freeze the evaluation to the structured-obligation response first
+released in 0.3.58, treat `9e6caaae` only as successor context, use the named
+bounded sample (Pygardon plan 327, Open Dough plan 311, the DD-263 cases, and
+plan 303 as historical comparison), fix benefit/cost and guardrail rules before
+scoring, allow an explicitly inconclusive result, and record in the plan's
+Learnings that "the research report's earlier ODF-139 watch snapshot is stale."
+An artifact-only reader can therefore recover *what* was decided and even the
+stated stale-snapshot learning. What artifacts alone cannot establish is the
+order in which the planner met the stale and current records, whether the
+version freeze was a deliberate contemporaneous decision or later
+rationalization, and what remained uncertain when each choice was made.
+
+### What the direct record adds
+
+The event sequence is decisive and short. The planner announced checking
+ODF-139 and the watch workflow (line 48, `04:50:31.012Z`). The tool outputs
+then placed the older research description (record lines 62 and 71: the
+research report's snapshot at its lines 309–311, "under observation, not
+resolved," last assessed 12 October) alongside the current finding evidence
+(lines 70–71 and 81: the current finding and watch record showing the failed
+watch). At line 78 (`04:50:54.222Z`) the planner stated the decision before any
+drafting: "ODF-139's current record has changed since the research report: the
+0.3.58 response failed its watch, and a newer response is implemented but
+unreleased. I'll keep the evaluation tied to a specific response version so
+evidence from different fixes cannot be combined into a success claim." The
+refined seed was then patched (line 113), the plan written (line 177), and the
+handoff given at line 218.
+
+The actual increment over artifact reading is therefore **qualification and
+confirmation, not a changed conclusion**:
+
+- It confirms the plan's stale-snapshot learning was a contemporaneous,
+  evidence-driven decision made roughly fifty seconds into the interval,
+  before drafting — not boilerplate added when the plan was written.
+- It qualifies "evaluation rules fixed before scoring": the rules were fixed
+  after inspecting the current finding (lines 48–78) and the PFE/ADR context
+  (line 112, `04:51:43.249Z`), but before any scoring, which belongs to the
+  later execution. Preparation itself performed no scoring.
+- It adds no new defect and no dropped-option story. No consequential option
+  appears in the record as considered and silently abandoned; claiming one
+  would require reconstructing truncated outputs or sub-agent internals.
+
+### Fair attribution for the judged decisions
+
+| Decision | Known at the time | Unresolved then | Later discovery | Inferred effect |
+| --- | --- | --- | --- | --- |
+| Freeze the evaluation to the 0.3.58 response; keep `9e6caaae` as successor context only (line 78) | The research snapshot was stale; the current record showed a failed watch and an implemented-but-unreleased successor (lines 62, 70–71, 81) | Successor effectiveness, complete exposure denominator, and comparable costs | None within the interval; later execution is outside this review | Prevents combining evidence across response versions into a success claim; embodied verbatim in the landed plan's evaluation rules |
+| Bound the sample and allow an inconclusive result (seed patch line 113; plan lines at `ce635598`) | The seed already defined a bounded outcome with inconclusive allowed (line 54); retained cases were locally recoverable | Whether retained cases are comparable enough for a net-benefit judgment | None within the interval | Keeps missing exposure/cost as explicit limits rather than failure or success by assumption |
+| One Behavior slice; no slice-plan refinement (lines 194, 214, 218) | Coordinator-visible review message at line 214 reported no blockers and one appropriate slice | Sub-agent internals behind that summary (see coverage gaps) | None within the interval | Preparation stopped at a ready, queued story; no execution was started by this interval |
+
+No avoidable-work claim is supported. The one check that could have been
+missed — reading the current finding instead of trusting the research
+snapshot — was available, decision-relevant, and actually performed before
+the decision (lines 48–78). Judging it a missed check from the final plan's
+existence would invert the evidence.
+
+### Coverage: missing, omitted, outside-interval, and stopped are distinct
+
+- **Missing/unavailable:** tool outputs truncated at capture (lines 27, 71)
+  cannot be reconstructed; the `response_evidence` sub-agent thread
+  (`01a157a5-6dff-7443-a472-2221d2fe6bec`, started line 32) is visible only
+  through coordinator-side activity events and its returned messages (lines
+  145 and 214). Its internals were not recovered and were not needed for the
+  version-freeze conclusion, which rests on coordinator lines 62–78; any
+  claim about *why* the reviewer found no blockers would be limited to its
+  returned summary. The `session_meta` line carries no model field; the
+  record's turn context (line 8) names `gpt-6-astra`. No evidence ties this
+  preparation to a released Open Dough guidance version, so its release is
+  unknown; the workspace base `b7017a5d8247ceb9d3a2e38114f93c108a4e86e3` is not
+  a release.
+- **Explicitly omitted:** the landed plan's own scope exclusions (no separate
+  report, registry, runtime skill, or measurement service) are instructed
+  omissions attributable to that plan's scope text, not silent failures.
+- **Outside the interval:** record lines 219–318, the landing that followed
+  line 218, and the sample story's later execution and closure. None is used
+  as evidence for a preparation decision.
+- **Stopped work (reasoning control, not a historical occurrence):** no stop
+  occurred in this interval. As a labelled illustrative control, had the
+  record stopped immediately after line 78, the version-freeze decision would
+  still be reviewable as a decision-in-progress without any plan or execution
+  completion; and a deliberately restricted view using only the artifact and
+  line 62 would support only the limited claim "the snapshot said under
+  observation" and could not assess the freeze rationale at all. Unavailable
+  evidence limits the claim; it does not convert silence into omission or
+  success.
+
+### Finding identity and recording
+
+The candidate practice — check the current finding record before relying on a
+research snapshot, and freeze the response version when records conflict — was
+compared against `DearDough.md`: no entry references
+`observe-retrospective-response-effectiveness`, `01a157a5`, or preparation
+history (verified by search; the log's highest allocated local number is 328
+across 546 physical lines). Rereading the same interval produces no second
+occurrence. However, this practice is already prescribed by the sample story
+itself ("verify its current evidence before selection") and is already
+embodied in the landed plan's rules and Learnings, and no defect, avoidable
+work, or new general practice beyond that existing ownership is supported.
+Recording a new row would duplicate an owned representation rather than add
+learning. **Conclusion: reasoned no-change; `DearDough.md` is unchanged.**
+Stable reference for this assessment, with no implementation commit for the
+preparation: coordinator session `01a157a5-1cdf-7611-94b3-8c1236961e4f` +
+`SEED-010#observe-retrospective-response-effectiveness` + the interval above.
+
+### Useful outcome, effort, and recommendation
+
+Outcome: no supported finding and no new practice to record; the useful result
+is confirmation that this preparation's key decision was evidence-driven at
+the time, plus the qualification of "fixed before scoring" above. Effort
+facts: the original preparation interval spans about 4 minutes 39 seconds of
+record timestamps; the coordinator record's cumulative token counter at line
+212 reports 2,017,617 total tokens (2,008,176 input, 1,876,352 cached input,
+9,441 output), which is cumulative context reuse for the whole session to that
+point, not a marginal preparation cost, a saving, or an effectiveness measure.
+This review read 218 of 318 record lines plus the landed artifacts; its own
+time and token cost are not recorded in the source and stay unknown. No token
+savings or general effectiveness are inferred from one sample.
+
+**Recommendation: adjust, do not routinize.** Forego routine direct-history
+review for preparations whose final artifacts already retain the decisive
+learning, as this one did; the added insight here was real but small
+(attribution and one qualification). Retain a bounded direct review when an
+artifact-only account is ambiguous about a consequential decision, when a
+dropped option or stop is suspected, or when misattribution would change the
+response. Next discriminating observation: select a preparation where the
+final artifacts suggest one rationale, write the artifact-only prediction
+before opening the history, then record whether direct evidence overturns it
+and what the retrieval/reading effort was. If that increment is again only
+confirmation, forego the approach for well-articulated plans; if it overturns
+a consequential attribution, retain it for that class. Any runtime change or
+further sample is advice only; the sample's completed story stays closed, raw
+history stays in its existing store, and this report owns the assessment.
