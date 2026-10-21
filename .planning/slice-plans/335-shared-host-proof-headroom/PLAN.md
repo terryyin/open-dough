@@ -105,7 +105,7 @@ not a native host run.
 
 ### 1. Choose a credible expensive proof before launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk plan 310's four attempts, the healthy-host and unknown-remote controls,
 and the plan 315/314 diagnosis/reuse boundaries through the edited proof entry
 point; record concrete decisions and outstanding evidence, using the table above.
@@ -179,6 +179,31 @@ rule; slice 2 propagates it rather than introducing scenario-specific policies.
 
 ## Current decisions
 
+### Execution context
+
+- Established start: Story Branch Mode, identity
+  `SEED-010#check-shared-host-proof-headroom`, publisher
+  `dashboard-territory.local-open-dough`, assigned agent `mrsn-chan`.
+- Owned execution worktree:
+  `/Users/terryyin/git/open-dough/.worktrees/choose-expensive-proof-with-shared-host-headroom`,
+  branch `codex/choose-expensive-proof-with-shared-host-headroom`.
+  Default checkout: `/Users/terryyin/git/open-dough`; remote `origin`, trunk
+  `main`. Established claim `9064e7ea0628405f6d951176ac6d5e386146d818`
+  is the first increment's previously published base; starting revision
+  `cc8a8097cc55cf34e213a2ffdec06239fc8273bd`. No second Take.
+- Setup: `npm ci` completed in this worktree without a lockfile change;
+  `npm run format` succeeded with a clean scope. A direct Prettier check of
+  existing `executable-proof.md` reported formatting warnings; it was not the
+  repository's selective formatter and changed nothing. Delivery uses
+  `npm run format` and the unchanged check-only pre-commit hook.
+- CI: GitHub Actions `terryyin/open-dough`, verified selector `ci.yml`, name
+  `CI`. Story-branch observer coordinator `proof-headroom-mrsn-chan`,
+  directory `/tmp/dough-ci-501/watch-CwEwhy`, PID `96826`, yielded cell `11`,
+  session `8823`, bound to this checkout and the execution branch.
+  The startup claim's trunk CI is unobserved by this branch observer.
+- Replanning retains existing in-scope authority; no numeric slice budget or
+  exception is supplied. The plan's bounded prose review governs focused proof.
+
 - Existing source guidance owns the behavior; no machine-level control service.
 - Historical facts are review inputs with causal and timing limits, not a live
   capacity policy or measured improvement baseline.
@@ -198,3 +223,70 @@ have mapped proof, a safe intermediate boundary and no independent hidden build.
 No remaining slice-specific concern was identified in this review. No human
 pre-Take decision or unresolved decisive premise is required for this guidance
 implementation; subsequent release/native evidence keeps its existing authority.
+
+## Accepted slice 1 proof
+
+Source-only reviewer `/root/source_review1` was launched with `fork_turns: none`,
+only the original selected story text, and instructions to read no files and
+change nothing. Its launch and full returned individual commitments are retained
+in this execution's conversation. Compared that return to the source before the
+plan, product and implementation return: all direct-launch promises below apply
+now; ownership propagation and finding evaluation legitimately remain in slice 2.
+No human amendment narrowed the source.
+
+Boundary: the runtime instruction reached from Execute Plan step 3 to
+`executable-proof.md#choose-expensive-proof-before-launch`. Setup is the retained
+historical case or explicit control input, not an agent supplied with the desired
+answer. Observation is the action required by reading the resulting instructions;
+this is AGENTS.md's instruction walkthrough, not native compliance.
+
+| Original trigger/input | Source-expected result | Actual instruction observation | Owner/disposition |
+| --- | --- | --- | --- |
+| Long/repeated/resource-intensive launch | Actual target machine, scope, available cost/concurrency/load/memory and competition before choosing | New shared section requires all these inputs, attribution and missing/stale qualifications | Slice 1 accepted |
+| Plan 310 attempt 1: eight-worker whole proof; exact start load/memory absent | Use only available-at-decision evidence; bounded choice without invented history | Identify local host and inspect current facts; review chooses deferral until a credible basis, with whole proof and owner outstanding | Slice 1 accepted; no causal/savings claim |
+| Attempt 2: prior whole failure, no per-attempt load chronology | Reconsider before unchanged repeat | Defer unchanged eight-worker repetition pending attributable evidence or supported changed basis; focused diagnosis cannot fulfill whole proof | Slice 1 accepted |
+| Attempt 3: unsuccessful repeats and series-level contention | Changed supported basis or defer, continuing independent work | Sequence owned heavy work or defer; no fixed four-worker policy inferred from history | Slice 1 accepted |
+| Attempt 4/coordinator: final formatted run 1,485/1,516 at load 40 | Owner change creates no capacity; preserve failed broad verdict | Reconsider again; later four-worker decision and twelve-shard CI stay distinct observations, never backdated | Slice 1 accepted |
+| Healthy identified host, current healthy load/memory, credible workload | Brief inspection then proceed proportionately | Run in ordinary authority and retain terminal command ownership, with no routine approval or universal threshold | Slice 1 accepted |
+| Inaccessible remote runner; local readings available | Runner remains unknown; bounded choice or defer only its proof | Qualify remote evidence, choose deferral in this control until runner evidence or supported bounded basis; independent work continues | Slice 1 accepted; bounded run alternative remains valid |
+| Plan 315 failure plus reporter-fixture race; load measured afterward | Separate defect diagnosis/repair from host choice | Diagnose/repair fixture, preserve assertions/deadlines and broad failure; later load informs next choice; isolated 24.24-second pass is diagnostic only | Slice 1 accepted |
+| Plan 314 sufficient accepted proof unchanged; supplemental contention | Reuse matching accepted proof | Reuse it; no blind repeated supplementary load, unrelated processes stay with their owners | Slice 1 accepted |
+| Plan 305 focused 10.1-second green after whole failure | Focused boundary cannot waive broad verdict | Shared rule retains the failed whole verdict; controlled four-worker whole pass remains distinct | Slice 1 accepted; coordination in slice 2 |
+| Deferral or repeat | Exact observation stays owned; next condition; no silent success or reduced coverage | Rule retains host/workload/evidence/unknowns/choice/owner/reconsideration in existing context; failures/contention/stale or changed workload invalidate basis | Slice 1 accepted |
+| Ordinary proof choice versus scope/coverage/authority change | Use existing authority and human decision boundary | Rule allows bounded ordinary decisions; withholds timeout/coverage/scope changes and leaves human-owned changes with that owner | Slice 1 accepted |
+
+Inspected historical observation commands:
+
+- `git show 4e791c593caeba7d208181b66c6b65e57c2e936f:.planning/slice-plans/310-unify-dashboard-e2e-strategy/PLAN.md | sed -n '175,204p;552,574p;1188,1207p'`
+- `git show d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md | rg -n -C 2 '920|27.53|24.24|headroom|3.88|1,066'`
+- `git show 1317f9fc:.planning/slice-plans/314-land-unfinished-stories-without-retirement/PLAN.md | rg -n -C 2 '29.53|84|baseline|unchanged required|supplemental'`
+
+Consumer trace: `rg -n 'executable-proof.md' src scripts tests` and inspected
+planning.md's proof ownership entry, slice-planning, refactor tracing,
+story-obligations, and native capture/record fixtures. These reach the shared
+instruction; no callable/test harness contract or historical fixture was changed.
+`install.sh` already declares both existing source files; no payload addition or
+generator trigger. `git diff --check` passed. Implementation additionally passed
+`python3 /Users/terryyin/.codex/skills/.system/skill-creator/scripts/quick_validate.py src/skills/dough-execute-plan`
+and the same command for `src/skills/dough-story-refinement`; these establish
+structure only. No full suite, stress recreation, paid native run, release or
+cross-project operation was performed.
+
+Independent refactor `/root/refactor1` shortened only the direct Execute Plan entry to the shared rule, preserving its long/repeated/resource-intensive trigger at the destination. Its affected entry walkthrough and `git diff --check` passed; shared-rule scenario observations remain unchanged. Return marker: `## REFACTOR COMPLETE`.
+
+## Story obligations
+
+### G1. Propagate the shared decision to fresh proof owners
+Reported: slice 1 — "Slice 2 still owns delegation/refactor/repair propagation, overlap walkthroughs and finding updates."
+Story clause: "Carry that decision, its evidence, command ownership and reconsideration condition through implementation/refactor delegation and asynchronous CI repair when work shares a host, including separate worktrees."
+Disposition: receiving slice 2
+
+### G2. Exact historical pre-launch facts are unavailable
+Reported: slice 1 — "Exact start-state evidence for all four plan 310 attempts is unavailable; the walkthrough deliberately does not invent it."
+Story clause: "Evidence recorded only after failure prompts a new decision then; do not pretend it was known earlier."
+Disposition: proved by slice 1: Accepted slice 1 proof qualifies the missing per-attempt facts, chooses bounded deferral and retains broad proof; inspected rule and historical observations never backdate later readings.
+
+### G3. Native adoption and measured outcomes remain unproved
+Reported: slice 1 — "Native compliance, adoption, release and measured savings remain unproved."
+Story clause: "Native agent compliance, ordinary adoption and measured savings remain unproved without their own attributable evidence; implementation or queueing resolves none."
+Disposition: excluded "This is guidance authoring and bounded behavior review; fresh paid native acceptance, release/rollout, cross-project changes and measured performance improvement require their own selected work and authority."
