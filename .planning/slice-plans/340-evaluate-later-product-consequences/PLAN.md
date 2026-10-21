@@ -165,6 +165,14 @@ that `grep -rl "refresh inherited evidence" ~/.codex/sessions` now matches
 five 2026-10-20 records, not four; the selected session and its line 15 are
 unchanged and the sample was not enlarged.
 
+## Execution complete
+
+Product advice: no change to the backlog. The follow-up's decision is
+continue observing; its next observation (the first Pygardon execution after
+an authorized integrated-state rollout in which CI replaces a delivered
+commit) belongs to [ODF-320](../../../docs/maintainer/findings/ODF-320.md)'s
+existing follow-up and Pygardon's own rollout, so it needs no new story.
+
 ## Current decisions
 
 - One Behavior slice: evidence reading, classification, diagnostics and the
