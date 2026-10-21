@@ -237,41 +237,152 @@ obligations passed.
 
 **Identity:** SEED-010#evaluate-later-product-consequences
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/340-evaluate-later-product-consequences/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4a108390aaf4e718a81da948a0b36ffb4d97ee515d28d8ed648716037ec1f6f","plan":"3e74570c800d0ac4ff70ec73eba41eedeef7d78cf958e75e114bcea85b3babcc"}}
 ```
 
-**Goal:** A developer can judge a selected improvement by useful product behavior
-and later changeability, including whether an apparent efficiency gain creates
-unacceptable defects, test weakness, or maintenance effort.
+**Goal:** The developer and maintainer can decide whether to retain, adapt, or
+reject one selected efficiency improvement from its useful product behavior
+and later changeability, including whether the apparent gain created
+unacceptable defects, test weakness, or maintenance effort, instead of from its
+initial cost metric alone.
 
-**Scope:** Choose one evidenced quality or changeability claim and a relevant
-later use or modification. Compare the intended benefit with actual acceptance,
-correction work, human effort, and resource use available from the record.
-Use architecture scenarios and test effectiveness as diagnostics where they
-matter to that claim. Existing test-efficiency work may supply evidence; this
-story does not duplicate its optimization or invent a complexity/functionality
-ratio, global architecture score, or mandatory token counter.
+**Scope:** Evaluate the CI evidence reuse delivered on 2026-10-14 to 16 and
+first released in 0.3.62 and 0.3.63: retained CI history coverage for
+registered revisions (`SEED-008#registered-ci-history-coverage`), exact-commit
+validation reuse at integration (`SEED-008#reuse-ci-validation-at-integration`,
+plan 306), and coalesced CI validation with opt-in integrated-state completion
+(`SEED-008#coalesced-ci-validation`, plan 307) with its pre-release correction
+(`SEED-008#integrated-state-correction`, plan 308) and Donut's isolated
+adoption proof (`SEED-008#donut-coalesced-ci-adoption`, plan 309). Their
+shared claim is that reusing existing CI evidence instead of re-running or
+re-waiting reduces expensive CI executions and waiting for revisions the
+provider will never check, while completion stays truthful: no manufactured
+pass, known failures stay actionable, and exact-revision obligations keep
+their own evidence. The question is whether that benefit was obtained without
+materially worse correctness, test confidence, or next-change cost.
 
-**Evaluation:** The developer can retain, adapt, or reject the selected approach
-using an independent outcome check and the relevant later consequence. A faster
-or cheaper initial run with materially worse correctness or next-change cost
-cannot be declared an improvement merely from its initial metric. Missing or
-not-yet-observable consequences remain pending, not successful.
+Before judging, fix the evaluated revisions and release identities, the
+original promises from the stories' own sections and plans (recoverable in
+Git), the eligible exposure per project, the quality guardrails, and the
+bounded sample. Use these later consequences already in the record, with
+their own provenance, and do not enlarge the sample from newer events:
+
+- plan 308's current findings and execution record: the replaced-run
+  story-promise gap, the uncancellable candidate fetch, the spawned-journey
+  test cost beside `tests/time-budget`, and the import residue;
+- plan 309's Donut burst table (two pushes replaced with zero jobs, one
+  external-service flake deferring validation to the next snapshot) and its
+  product advice;
+- Pygardon's DD-308, retained as [ODF-320](../../docs/maintainer/findings/ODF-320.md):
+  a delivered commit the provider will never run stayed undiscovered and kept
+  raising advisories on 2026-10-20 under an unknown release;
+- the 0.3.66 corrections `75958eca` and `27a67521`, committed under the
+  developer's Git identity on 2026-10-20 with Codex session records in the
+  local store, which refresh inherited evidence on every observation, let a nearer retained
+  failure replace an inherited success, and withdraw inherited completion when
+  its evidence disappears, with their new unit cases as the scenario record;
+- test-weakness records: [DD-302](../../ProjectFindings.md#dd-302) and the
+  two CI-observer test races the 0.3.64 release notes left unresolved;
+- process occurrences on plans 307 to 309 in
+  [ODF-254](../../docs/maintainer/findings/ODF-254.md),
+  [ODF-255](../../docs/maintainer/findings/ODF-255.md),
+  [ODF-256](../../docs/maintainer/findings/ODF-256.md),
+  [ODF-169](../../docs/maintainer/findings/ODF-169.md) and
+  [ODF-074](../../docs/maintainer/findings/ODF-074.md);
+- the 0.3.62 to 0.3.67 `CHANGELOG.md` entries, this repository's `main` CI run
+  outcomes for 2026-10-08 to 21 read through `gh`, and the read-only adoption
+  state of the local Pygardon and Donut checkouts.
+
+Compare the intended benefit with actual acceptance, correction work, human
+effort, and resource use available from those records. Count avoided CI job
+executions and added test job-seconds where the record states them; mark
+unmeasured human time, money, and tokens unknown rather than estimated. Use
+two diagnostics only where they bear on the claim: the architecture scenario
+"when a provider coalesces differently, is the adaptation local to its
+adapter or shared?", answered from ODF-320's open ownership question and the
+files each later correction touched; and test effectiveness, judged by
+whether the retained proof detected or missed each wrong or stuck verdict at
+its cost, not by coverage or journey counts. Separate conservative
+consequences (a stuck or delayed completion, repeated advisories) from unsafe
+ones (a success the evidence did not support), and record for each later
+correction whether the record shows it was observed in use or found by
+review; unknown stays unknown.
+
+Write one compact follow-up in the
+[research report](../../docs/maintainer/empirical-process-control-research.md),
+linking evidence instead of copying it. The result supports retain, adapt,
+reject, or continue observing, with confidence, counterevidence, the cost of
+this evaluation itself, and the next relevant observation. A supported
+adaptation is advice to the maintainer and owning stories; it is not queued,
+implemented, released, or rolled out by this story.
+
+**Deferred promises:** No quality dashboard, general scoring system,
+complexity/functionality ratio, global architecture score, mandatory token
+counter, new measurement service, fresh paid CI burst, native host run, or
+change to another repository. The historical test-efficiency work supplies
+evidence only where it already exists. Donut's and Pygardon's normal rollout,
+ODF-320's ownership decision, and any revision of the reuse rules remain with
+their owners. Full evaluation of every 0.3.63 to 0.3.67 execution is a
+separate outcome; this story judges the named sample.
+
+**Key examples:**
+
+1. The Donut burst table shows two source pushes replaced with zero jobs and
+   the later snapshot validating the accepted work → evaluate the efficiency
+   claim → count the avoided job executions as the observed initial benefit
+   with its one-burst limit, placed beside the pre-release correction (plan
+   308) and the post-release corrections, so the burst alone cannot declare
+   the improvement.
+2. ODF-320 shows a delivered Pygardon commit stuck undiscovered under the
+   provider's native coalescing, and `75958eca` changes which retained
+   evidence an observation may inherit → compare each with the original
+   promises of truthful completion → classify ODF-320 as a conservative
+   consequence, classify the 0.3.66 scenario by what its tests and record
+   support, and keep whether either was observed in use unknown when the
+   record does not say.
+3. Plan 308 finding 3 proved the rerun contradiction three times through
+   spawned-observer journeys at about 80 job-seconds, DD-302's wait accepted
+   a stale judgement and failed only in CI, and 0.3.66 added unit cases →
+   assess test effectiveness → report which later wrong or stuck verdicts the
+   retained proof detected or missed and at what cost; count neither journey
+   numbers nor coverage as confidence.
+4. Plan 308 and the 0.3.66 corrections are the next changes to the affected
+   concept → assess changeability → report the modules, tests, and plan slices
+   each change touched and the seam ODF-255 records, as a diagnostic of
+   coordinated-edit cost, not a score.
+5. This repository's `main` runs show no cancelled run in the window, Donut's
+   workflow has no concurrency group, both candidate adoption branches remain
+   unpushed, and Pygardon's own CI already runs only the newest head → judge
+   exposure → label the eligible exposure per project; absent exposure is
+   pending, not evidence that the benefit or its harm did not occur.
+6. The sample shows the observed benefit, its corrections, and unmeasured
+   costs → decide → retain, adapt, reject, or continue observing with
+   confidence, counterevidence, and the next observation; a faster or cheaper
+   initial run with materially worse correctness or next-change cost is not
+   declared an improvement from its initial metric.
+
+**Evaluation:** The maintainer can trace the decision to the fixed revisions,
+original promises, per-project exposure, each later consequence and its
+provenance, and the stated costs, including this evaluation's own. Missing or
+not-yet-observable consequences remain pending, not successful. A bounded
+inconclusive decision completes the story.
 
 **Value / learning:** Establish a concrete way to include future product burden
-in improvement decisions. Story 4 owns response-effectiveness closure, including
-all quality and later-effect checks its own decision needs. This story addresses
-a distinct product-quality/changeability claim or a further later-use assessment;
-it is not deferred acceptance for Story 4.
+in improvement decisions. Story 4 owns response-effectiveness closure for
+process responses; this story judges a product-quality and changeability
+claim about a delivered efficiency improvement.
 
-**Effort uncertainty:** Obtaining a comparable later change and a useful
-independent assessment of the specific quality claim.
+**Effort uncertainty:** Whether the retained later changes are comparable
+enough for a changeability judgment, and whether the record says how the
+0.3.66 corrections originated.
 
-**Prerequisites:** A selected improvement and a relevant product use/change.
-Existing delivered work is sufficient; no sibling implementation must finish first.
+**Prerequisites:** The named records, recoverable in this repository's Git
+history and findings. Existing delivered work is sufficient; no sibling
+implementation must finish first.
 
-**Safe stopping point:** One consequential product decision is supported without
-a quality dashboard, general scoring system, or autonomous feedback workflow.
+**Safe stopping point:** One consequential product decision is supported
+without a quality dashboard, general scoring system, or autonomous feedback
+workflow.
 
 <a id="run-due-feedback-maintenance"></a>
 
