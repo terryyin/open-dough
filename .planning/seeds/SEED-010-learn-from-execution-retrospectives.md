@@ -647,6 +647,92 @@ response can be used; autonomous triage is not a hard prerequisite.
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 
+<a id="trace-changed-behavior-to-existing-consumers"></a>
+
+### 12. Reach every existing consumer of a changed behavior before publication
+
+**Identity:** SEED-010#trace-changed-behavior-to-existing-consumers
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** An executing agent finds the existing tests, stand-ins and journeys
+that consume a slice's changed behavior before it accepts and publishes the
+slice, so developers stop receiving owned CI failures from consumers the slice
+never ran.
+
+**Selection (2026-10-22 feedback cycle):** Selected first for
+[ODF-150](../../docs/maintainer/findings/ODF-150.md). Three more distinct
+executions reached CI with an untraced consumer after the 0.3.57 and 0.3.61
+responses: Open Dough plan 334 (an existing runner stand-in), the shared-host
+proof execution on 0.3.67 (a guidance test under `src/` missed by a `tests/`
+search; two failed published revisions) and Doughnut SEED-081#story-2 (seven E2E
+journeys whose preconditions the changed UI path altered). Each cost a CI failure
+and a repair cycle. Two guidance-only responses have not stopped the mechanism,
+so wording alone is not the expected response.
+
+**Scope:** Find why the existing effect-to-consumer trace missed these three
+consumers and change how the trace is performed or evidenced, starting from the
+changed behavior rather than edited files or named identifiers. Cover consumers
+outside the slice's named suites: readers of changed shared text, existing
+stand-ins of a changed contract and journeys whose preconditions change while
+the transport API stays the same. Keep proof proportionate to the five-minute
+slice target; do not require whole-suite runs in place of a trace.
+
+**Evaluation:** Replay the three recorded slices' inputs. The changed procedure
+names the missed consumer before acceptance in each, or records why a trace
+from the changed behavior could not reach it. Ordinary later executions show
+whether owned consumer-miss CI failures decline; record the finding's next
+eligible uses rather than treating delivery as resolution. Completion records
+the actual response and its containing release at ODF-150.
+
+**Value / learning:** Removes the most frequent demonstrated cause of owned CI
+repair cycles across the maintained projects, and tests whether a non-wording
+response changes behavior where two wording responses did not.
+
+**Effort uncertainty:** The cause may differ between the three cases; refinement
+may narrow to the shared part or split the E2E-precondition case.
+
+<a id="bound-startup-guidance-retrieval"></a>
+
+### 13. Retrieve startup guidance within the response budget
+
+**Identity:** SEED-010#bound-startup-guidance-retrieval
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** An executing agent obtains the guidance passages it needs at startup
+without truncated tool results, so it stops re-reading references before its
+first delegation.
+
+**Selection (2026-10-22 feedback cycle):** Selected second for
+[ODF-264](../../docs/maintainer/findings/ODF-264.md). Six more distinct
+executions on 2026-10-21 alone (three Open Dough, one Doughnut, two Pygardon,
+all Codex) batched whole references or plans, received outputs of 10,000 to
+30,000 tokens with truncation and repeated retrieval, although targeted-retrieval
+guidance already applies. No product failure is attributed; the cost is
+repeated reading on almost every Codex startup and is not yet measured.
+
+**Scope:** Establish which startup reads each execution actually needs and why
+agents batch them, then change what the guidance asks for or provides at startup
+so required passages arrive within one bounded response. Measure the repeated
+retrieval it removes. Preserve required context; do not hide passages an
+execution needs or move the cost into later failures.
+
+**Evaluation:** Compare truncation warnings and repeated startup reads in
+ordinary executions before and after the response, per host, against the
+retained occurrences. A response that leaves a required passage unread is a
+failure even when truncation disappears. Completion records the actual response
+and its containing release at ODF-264.
+
+**Value / learning:** Reduces a recurring resource cost of every execution and
+tests whether guidance shape, rather than another instruction, changes agent
+reading behavior.
+
+**Effort uncertainty:** Host differences may dominate; refinement may limit the
+first response to Codex, where every retained occurrence on 2026-10-21 ran.
+
 ## Ordering and Scope Reduction
 
 Keep Story 9 (automatic due maintenance) in progress and queue Story 10's
