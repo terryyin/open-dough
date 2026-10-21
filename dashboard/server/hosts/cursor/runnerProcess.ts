@@ -1,20 +1,22 @@
 // Starts the one Cursor runner for this machine when it is not already
 // accepting connections, and stops it. The runner is its own process group,
-// so closing the dashboard server does not signal it. A runner that is
-// already accepting is left as it is, including one this process did not
-// start. Each home has its own runner. It runs in the developer's shell
+// so closing the dashboard server does not signal it. Start-if-absent
+// (ensureCursorRunner) leaves an accepting runner as it is, including one
+// this process did not start; new work (./runnerCurrent.ts) reuses
+// an accepting runner only when it proves the current build and replaces
+// a stale-but-answering one first. Each home has its own runner. It runs in the developer's shell
 // environment (`../../developerShellEnvironment.ts`), as do the
 // `cursor-agent` processes it starts (./exec.ts, ./terminal.ts), which apply
 // that rule again so a runner an earlier deployment started still starts
 // them clean.
 import { spawn } from "node:child_process";
-import { closeSync, existsSync, openSync } from "node:fs";
+import { closeSync, openSync } from "node:fs";
 import { link, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { homedir } from "node:os";
-import { fileURLToPath } from "node:url";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
+import { runnerEntryPath } from "./runnerBuild.ts";
 import {
   cursorRunnerAddressFile,
   cursorRunnerDirectory,
@@ -22,9 +24,27 @@ import {
   readCursorRunnerAddress,
 } from "./runnerPaths.ts";
 
-const startWaitMs = 20_000;
+export const startWaitMs = 20_000;
 
 const pendingStarts = new Map<string, Promise<boolean>>();
+
+// One in-flight start per home in this process: concurrent callers share
+// it, and a settled start is forgotten so the next caller re-checks.
+export function startOncePerHome(
+  pending: Map<string, Promise<boolean>>,
+  home: string,
+  start: (home: string) => Promise<boolean>,
+): Promise<boolean> {
+  const existing = pending.get(home);
+  if (existing !== undefined) return existing;
+  const started = start(home)
+    .catch(() => false)
+    .finally(() => {
+      pending.delete(home);
+    });
+  pending.set(home, started);
+  return started;
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -60,7 +80,7 @@ function portAccepting(port: number): Promise<boolean> {
   });
 }
 
-async function cursorRunnerAccepting(home: string): Promise<boolean> {
+export async function cursorRunnerAccepting(home: string): Promise<boolean> {
   const address = readCursorRunnerAddress(home);
   if (address === undefined || !processAlive(address.pid)) return false;
   return portAccepting(address.port);
@@ -69,7 +89,7 @@ async function cursorRunnerAccepting(home: string): Promise<boolean> {
 // One starter wins the lock. A lock whose writer is gone is not a live start.
 // The lock appears already naming its holder, so another starter never reads
 // it empty and takes a live start for a gone one.
-async function takeStartLock(home: string): Promise<boolean> {
+export async function takeStartLock(home: string): Promise<boolean> {
   const lock = cursorRunnerLockFile(home);
   await mkdir(path.dirname(lock), { recursive: true });
   const claim = `${lock}.${String(process.pid)}.tmp`;
@@ -89,28 +109,15 @@ async function takeStartLock(home: string): Promise<boolean> {
   }
 }
 
-async function releaseStartLock(home: string): Promise<void> {
+export async function releaseStartLock(home: string): Promise<void> {
   await rm(cursorRunnerLockFile(home), { force: true });
 }
 
-function runnerEntry(): string {
-  // Resolve beside the emitted entry; bundles preserve import.meta.url as
-  // the original source location for source-relative reads.
-  const compiled = fileURLToPath(import.meta.resolve("./runnerMain.mjs"));
-  if (existsSync(compiled)) return compiled;
-  const fromRoot = path.join(
-    process.cwd(),
-    "dashboard/server/hosts/cursor/runnerMain.ts",
-  );
-  if (existsSync(fromRoot)) return fromRoot;
-  return fileURLToPath(new URL("./runnerMain.ts", import.meta.url));
-}
-
-async function spawnRunner(home: string): Promise<boolean> {
+export async function spawnRunner(home: string): Promise<boolean> {
   const directory = cursorRunnerDirectory(home);
   await mkdir(directory, { recursive: true });
   const log = openSync(path.join(directory, "cursor-runner.log"), "a");
-  const entry = runnerEntry();
+  const entry = runnerEntryPath();
   const child = spawn(
     process.execPath,
     entry.endsWith(".mjs")
@@ -161,15 +168,7 @@ async function startIfAbsent(home: string): Promise<boolean> {
 // caller for the same home, in this process or another, waits for that one
 // runner.
 export function ensureCursorRunner(home = homedir()): Promise<boolean> {
-  const pending = pendingStarts.get(home);
-  if (pending !== undefined) return pending;
-  const started = startIfAbsent(home)
-    .catch(() => false)
-    .finally(() => {
-      pendingStarts.delete(home);
-    });
-  pendingStarts.set(home, started);
-  return started;
+  return startOncePerHome(pendingStarts, home, startIfAbsent);
 }
 
 // The port of a runner that is already accepting connections. Undefined when

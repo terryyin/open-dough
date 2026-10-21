@@ -49,8 +49,16 @@ server sends SIGHUP to Claude Code and Codex attachment clients. It does not
 send SIGHUP to a Cursor client: one machine-local Cursor runner owns that
 client, in its own process group, outside the dashboard server. The
 development server starts the runner when it is not already accepting
-connections and does not restart a runner that is; two overlapping starts
-still leave one runner. The dashboard attaches through the runner and does
+connections. At startup and on any read it leaves an accepting runner
+alone; two overlapping starts still leave one runner. New Cursor work
+(a launch, a keep, Recover, or resuming a session the runner does not
+hold) instead reuses an accepting runner only when it proves it runs
+the current runner build, and stops and replaces a runner whose proof
+is missing or stale first; the sessions that runner held then stand as
+their launch records, not running and resumable through Recover.
+Listing sessions, reading their state, and joining a client the runner
+still holds are observation: they never start or replace a runner.
+The dashboard attaches through the runner and does
 not spawn `cursor-agent` itself. The runner applies that keep, including
 while the dashboard server is down. Stopping the runner
 hangs up the processes it holds and leaves none behind. When the runner

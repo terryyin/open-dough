@@ -14,9 +14,9 @@ import {
   type CursorRunnerKeepResult,
   type CursorRunnerSessionsResult,
 } from "./runnerProtocol.ts";
+import { currentCursorRunnerPort } from "./runnerCurrent.ts";
 import {
   acceptingCursorRunnerPort,
-  cursorRunnerPort,
   ensureCursorRunner,
   stopCursorRunner,
 } from "./runnerProcess.ts";
@@ -79,15 +79,17 @@ function postJson(
   });
 }
 
-// One finished `cursor-agent` run inside the runner. Undefined when the
-// runner cannot be reached, so the caller starts no local agent.
+// One finished `cursor-agent` run inside the runner. This is new work, so
+// it runs only on a current runner: a stale-but-answering runner is
+// replaced first. Undefined when the runner cannot be reached, so the
+// caller starts no local agent.
 export async function execOnRunner(
   args: readonly string[],
   cwd: string | undefined,
   signal: AbortSignal,
   home = homedir(),
 ): Promise<CursorRunnerExec | undefined> {
-  const port = await cursorRunnerPort(home);
+  const port = await currentCursorRunnerPort(home);
   if (port === undefined) return undefined;
   try {
     const parsed = cursorRunnerExecResult.safeParse(
@@ -153,11 +155,13 @@ export async function readCursorRunnerSessions(
   }
 }
 
+// Keeping a client is new work, so it too runs only on a current runner:
+// a stale-but-answering runner is replaced first.
 export async function keepCursorClient(
   request: CursorKeepRequest,
   home = homedir(),
 ): Promise<CursorKeepResult> {
-  const port = await cursorRunnerPort(home);
+  const port = await currentCursorRunnerPort(home);
   if (port === undefined) return { kind: "unreachable" };
   try {
     const parsed = cursorRunnerKeepResult.safeParse(
