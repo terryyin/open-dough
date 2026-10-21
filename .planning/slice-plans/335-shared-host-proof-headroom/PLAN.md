@@ -352,3 +352,55 @@ resume and only-invalidated-proof rules remain. Shared rule, other entrypoints,
 findings and their accepted proof remained unchanged; `git diff --check` passed.
 Coordinator searched old changed phrases in tests' shell/module files with no
 matches; no current callable/test consumer was lost. No costly proof outstanding.
+
+## Execution retrospective
+
+Reviewed the original ready source/plan at `af10572f` (published in claim
+`9064e7ea`) against attributable implementation commits `97e2c938` and
+`37eed762`. Claim/preparation commits are provenance; sibling admission
+`cc8a8097` and other trunk work are excluded. The uncontaminated net product
+change consists of the shared rule, its six execution/verification entrypoints
+and both maintained finding responses. No plan or source promise was changed.
+
+Original four journeys and all qualifications were compared through the accepted
+slice matrices and independent source-only returns. Shared rule ownership,
+changed-owner continuation and strict verdicts are cohesive; no scheduler,
+registry, threshold, timeout relaxation, unrelated process mutation or approval
+mechanism was added. ADR 0002/0003/0005/0006 remain satisfied. North Star topics
+are dashboard observation/assignment/start decisions; none is altered or retired
+by this shared proof-guidance change.
+
+AGENTS.md prose behavior review, not a new E2E test, drove this conventional
+instruction change. Inspected actual entry/return/continuation locations and
+old-phrase test consumers; no callable or deterministic runner contract changed,
+no fixture supplies the promised behavior, no test coverage was removed, and no
+new duplicate suite or obsolete compatibility branch needs correction. Full
+suite execution belongs to applicable hosted CI, still pending on the owned
+branch at review time. Review conclusions remain conditional on that verdict.
+Native behavior is separately pending; this review is not native compliance.
+
+Process review is enabled by `.planning/open-dough.json` and uses this actual
+coordinator record plus implementation/refactor returns. Updated ODF-264 with
+one execution occurrence for oversized startup retrieval; recorded DD-325 for
+losing a running delivery handle, its exact-candidate recovery and later correct
+terminal ownership. `DearDough.md` candidate measured 458 physical lines (431
+before), accepted without retention removal or 500-line warning. No process
+proposal changes product scope or calls for implementation here.
+
+Planning disposition: unchanged, no bounded correction. Product learning:
+usefulness/coordination burden and evidence limits are recorded at both finding
+owners. Existing pending lifecycle/native acceptance remains the prerequisite
+for a future affected release; this execution authorizes no release, adoption
+claim or measured-savings conclusion. Current product priorities remain valid;
+no new backlog item or reorder is supported. No unresolved attention from review.
+
+Accepted slice 2 publication: `37eed7627322822974e0f9ca1ef5c92e68679dae`,
+remote execution branch, suffix base `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`;
+normal fresh commit receipt names agent `mrsn-chan`, observation reused the
+retained `/tmp/dough-ci-501/watch-CwEwhy`. No reconciliation or lost coverage.
+
+## Execution complete
+
+Product advice: no change. Preserve pending native/lifecycle acceptance before
+a future affected release; retain present backlog priority and the findings'
+explicit unreleased, adoption and savings limits.
