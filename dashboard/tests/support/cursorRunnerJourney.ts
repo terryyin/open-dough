@@ -1,7 +1,7 @@
 // Observations of the machine-local Cursor runner: its process group, how
 // many runners a home has, the environment it was started with, and a
 // stand-in that occupies the runner's address.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -120,11 +120,20 @@ export async function occupyRunner(home: string): Promise<() => Promise<void>> {
     cursorRunnerAddressFile(home),
     JSON.stringify({ port: address.port, pid: process.pid }),
   );
-  return () =>
-    new Promise((resolve) => {
+  return () => {
+    // Remove the address this stand-in wrote, so nothing later mistakes
+    // its closed port and this test process's pid for a runner's. An
+    // address a real runner published in the meantime is not this one's
+    // to remove.
+    const standing = readCursorRunnerAddress(home);
+    if (standing?.port === address.port && standing.pid === process.pid) {
+      rmSync(cursorRunnerAddressFile(home), { force: true });
+    }
+    return new Promise((resolve) => {
       for (const socket of open) socket.destroy();
       dummy.close(() => {
         resolve();
       });
     });
+  };
 }
