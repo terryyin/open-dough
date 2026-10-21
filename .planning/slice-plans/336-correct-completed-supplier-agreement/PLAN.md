@@ -114,7 +114,7 @@ belong to execution and are not permission to execute during preparation.
 ### 1. Correct an evidenced historical supplier agreement without completing its consumer
 
 **Type:** Behavior
-**Status:** planned
+**Status:** done
 **Proof:** All rows above, through one CLI correction journey and its safety cases,
 plus representative review of the corresponding runtime procedure.
 
@@ -172,26 +172,8 @@ source revision `53fef56382e1b7c149662c3d09348342a79dd476`.
    baseline evidence only; the new correction and discriminating proof remain
    slice 1 work. No paid/native host route is needed for this CLI responsibility.
 
-The scratch observation ran `node --input-type=module` with the following
-operation sequence on standard input (imports, cleanup registration and
-exit-code/byte-equality assertions are omitted here):
-
-```js
-const f = await fixture(t); // t.after registers fixture cleanup
-writeFileSync(join(f.integration, supplierPlan), plan("done"));
-const evidence = await publish(f, "completed supplier evidence");
-await run(f.project, ["complete", "--identity", supplier.identity]);
-rmSync(join(f.integration, ".planning/seeds/B.md"));
-rmSync(join(f.integration, supplierPlan));
-const accepted = await publish(f, "clean completed supplier");
-const facts = await readDependencies(f.project, consumer);
-const held = facts.dependencies.find(d => d.supplier.identity === supplier.identity);
-const condition = "The selected endpoint contract is available; future consumer implementation belongs to the consumer.";
-await updateDependency(f.project, consumer, { ...held, condition });
-await resolveConsumer(f, consumer, evidence, accepted, { condition });
-await resolveConsumer(f, consumer, evidence, accepted);
-await readDependencies(f.project, consumer);
-```
+The complete preparation script remains recoverable at `0d43a173` in this plan;
+its decisive observations and original baseline are retained above.
 
 No current-state premise requires a credentialed probe or a pre-Take decision.
 The implementation is still required to establish the promised corrected result.
@@ -211,3 +193,37 @@ The implementation is still required to establish the promised corrected result.
 - Slice-plan refinement was not needed: one cohesive behavior owns all proof and
   safety boundaries, with existing reusable fixtures and no speculative structure.
 - No remaining slice-specific concern was identified in this preparation review.
+
+## Execution context
+
+- Established story-branch execution in `/Users/terryyin/git/open-dough/.worktrees/correct-a-consumer-agreement-after-its-supplier`, branch `codex/correct-a-consumer-agreement-after-its-supplier`; reused established workspace. Default checkout `/Users/terryyin/git/open-dough` is maintenance only; management context `/Users/terryyin/git/open-dough/.git`. Git's `refs/worktree/dough/created-for/SEED-010#correct-completed-supplier-agreement` confirms creation for this work and retirement ownership.
+- Identity `SEED-010#correct-completed-supplier-agreement`; publisher `dashboard-territory.local-open-dough`; agent `steven-chan`. Accepted claim on `origin/main`: `01d9eefbcf4ecd7c42fa70dbdddef013d51d0c59`; starting revision `0d43a173d9e209ab1163c24bbd409c2207a91f9f`. First increment published base/candidate is the claim SHA. Ordinary destination is the recorded remote execution branch; integration is `origin/main`.
+- Node 24.21.0; `node scripts/setup-native.mjs npm`, `node scripts/setup-native.mjs browser`, `node scripts/setup-native.mjs check`, and installed backlog CLI `--help` passed here on 2026-10-21, lock unchanged. Hook checks staged lint and script-triggered dashboard typecheck; selective formatter `npm run format`. No numeric slice budget/hard limit or live action; existing planned replanning authority retained without scope expansion. Slice-1 obligations listing was empty.
+- CI GitHub Actions `terryyin/open-dough`, push workflow `ci.yml` (ID 351271804, verified name CI), execution branch target. Coordinator `steven-chan-336`; directory `/tmp/dough-ci-501/watch-3oJ7kk`, PID 65001, session 39507, cell 9. Claim on trunk is unobserved and not registered on this stream.
+- Source-only reviewer `/root/source_promises` launched without inherited history, received complete original Goal/Scope/examples/exclusions/completion and no files, plan, product or proof. Actual input and individual commitments G1–G6, S1–S40, X1–X10, C1–C4 are retained in this session's delegation history.
+
+## Accepted source comparison
+
+The independent clauses were compared against source, actual resolver/readers, guidance and observing assertions; no human amendment or changed scope was needed. All applicable promises belong to slice 1. Names below identify tests in `tests/support/`; concrete assertion locations are retained by test name through refactoring.
+
+| Original trigger → expected result | Actual observation and disposition |
+| --- | --- |
+| Goal / G1–G5: completed supplier cleaned up → reuse outcome, end stale wait without recreating/repeating supplier work | `explicit historical correction removes only the proved supplier wait and retains consumer work`: real historical CLI correction after cleanup; supplier home remains absent, revised condition satisfied. Accepted. |
+| S1–S6: existing relationship, explicit review, observed basis, same recoverable identity, completion and accepted history | Flag defaults false; `resolveDependency` calls unchanged `supplierCompletion` then rechecks basis/relationship under lock; positive and refusal matrix observe outcome, accepted SHA and missing/stale/invalid refusal. Accepted. |
+| G6 / S7–S11: existing consumer intent OR explicit human decision settles boundary → retain consumption, implement/complete nothing | Shared procedure preserves both alternative grounds, requires removed-clause explanation; first positive keeps pending scope/example, exact plan and queue bytes. Command only mutates the dependency fence. Accepted. |
+| S12–S13, S18–S19: correction → preserve readiness judgment, grant no execution, flag changed agreement | Positive preserves assessment basis/status and sets changedSinceReview; historical readiness case preserves entire Not ready judgment/reason, refinement/approach, plus THIRD blocker. Eligible sibling observation invokes no start. Accepted. |
+| S14–S17: correction → preserve identity, historical evidence, other suppliers and siblings | Positive tests assert same supplier, primary locator, old summary plus new validated evidence, second dependency and sibling bytes. Existing updateStoryDependency replaces one canonical record. Accepted. |
+| S20 / example 4: replay current basis → byte-stable agreement and evidence; another supplier still blocks, plan/readiness unchanged | Both positive tests assert exact home bytes on replay; first real execution-start names only THIRD and creates no workspace. Accepted. |
+| S21–S25 / example 2: stale review, different/unverified supplier or unavailable/unaccepted completion → no write | Refusal matrix asserts error and exact consumer bytes for incomplete, unpublished, wrong historical identity, missing home, wrong path, stale basis, absent/retargeted relationship and missing resolution. Accepted. |
+| S26–S34 / example 3: unproved condition OR human-owned product/architecture choice → retain agreement, name evidence/decision; command cannot judge prose | Shared procedure explicitly stops both paths, requires reread/rejudgment after stale intent; CLI refuses unresolved correction judgment. Walkthrough below supplies contextual agent observation, not a semantic verifier. Accepted. |
+| S35–S40 / example 5: ordinary live authoring and unchanged historical resolution continue; no automatic rewrite/new store/recreated story/queue-completion inference | Focused baseline and installed payload journey pass, ordinary changed-agreement resolver still refuses, historical validator requires completed plan/proof and accepted ancestry. No schema/store/export/payload declaration added. Accepted. |
+| Example 1: Pygardon-shaped mixed agreement, recovered full SHAs → corrected satisfied prerequisite, future consumption pending | Isolated local-bare-origin positive journeys exercise this shape with full generated revisions; real Pygardon references identify retained report only. No project-specific recognizer. Accepted; external write excluded. |
+| S27, X1–X10: examples are not rejection counts/project filters; no external edit/migration/release/automatic semantic verifier/dashboard editor | Resolver uses general canonical identity/path machinery; diff is shared CLI/guidance/tests/finding only. No live action or release. Accepted exclusions. |
+| C1–C4: finding records implemented response, verified examples, known release or unreleased, adoption gap | ODF-297 updated with local proof and semantic walkthrough, explicitly unreleased and Pygardon adoption/outcome unobserved. Accepted, not external completion. |
+
+- Implementation proof: `node --test tests/support/story-dependencies.test.mjs tests/support/story-dependencies-review-and-eligibility.test.mjs tests/support/supplier-dependency-completion.test.mjs tests/support/supplier-dependency-refusal.test.mjs tests/support/supplier-dependency-correction.test.mjs tests/support/supplier-reconciliation.test.mjs tests/support/supplier-reconciliation-refusal.test.mjs` passed 24/24 in 7.66s. New positives first failed the original unchanged-agreement guard after flag registration, establishing discriminating red proof.
+- `bash tests/product-backlog-payload-update.sh` passed, including real installed update/resolve with release source unavailable. CLI help assertion passed. Setup supplies starting supplier/consumer records only; real CLI writes establish tested outcomes.
+- Walkthrough actual `node --input-type=module` script/output retained in `/root/implement_correction` follow-up: whole-second/strict endpoint at `9979dfc83c8b2231462f59c904e9e70117ff96ea`, accepted `208cf9e5459095093a4155f4ecbbd2983313e287`; fractional consumer lacks delivered precision, unspecified legacy compatibility needs human scope choice. Both stayed waiting/byte-identical, no correction invoked. Coordinator inspected complete inputs/output and judged both refusals against procedure.
+- Consumer trace: request → resolver → completion validator → canonical update → dependency reader/agreement digest → read-state/start eligibility/real start guard; installed observer and reconciliation callers inspected. No uncovered affected consumer, unresolved return or interim behavior was identified. Independent refactor accepted; delivery follows through the guarded fresh operation.
+
+- Independent refactor `/root/refactor_correction` returned `## REFACTOR COMPLETE`; coordinator inspected moved assertions/builders and shortened shared-procedure links. No production code changed, applicable boundaries preserved. Replacement focused proof: `node --test tests/support/story-dependencies.test.mjs tests/support/story-dependencies-review-and-eligibility.test.mjs tests/support/supplier-dependency-completion.test.mjs tests/support/supplier-dependency-refusal.test.mjs tests/support/supplier-dependency-correction.test.mjs tests/support/supplier-dependency-correction-satisfied.test.mjs tests/support/supplier-dependency-correction-refusal.test.mjs tests/support/supplier-dependency-correction-readiness.test.mjs tests/support/supplier-reconciliation.test.mjs tests/support/supplier-reconciliation-refusal.test.mjs` passed 24/24 in 7.02s. Installed-payload proof reused; no covered installation/runtime contract changed. `git diff --check` passed.
