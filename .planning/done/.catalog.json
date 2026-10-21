@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_learn-from-unreviewed-execution-paths.json",
+      "identity": "SEED-010#learn-from-unreviewed-execution-paths",
+      "completedAt": "2026-10-21T10:35:26.139Z",
+      "blob": "01820b6ee328ab3fe689a2193176e1152fba9d2d"
+    },
+    {
       "fileName": "SEED-010_learn-from-preparation-history.json",
       "identity": "SEED-010#learn-from-preparation-history",
       "completedAt": "2026-10-21T08:13:38.535Z",

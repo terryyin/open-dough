@@ -231,95 +231,6 @@ Assess applicable evidence from 0.3.11 and ordinary released use before fresh
 runs. Missing proof remains pending. Release exceptions do not mark these
 obligations passed.
 
-<a id="learn-from-unreviewed-execution-paths"></a>
-
-### 7. Learn from an execution or completion path that escapes review
-
-**Identity:** SEED-010#learn-from-unreviewed-execution-paths
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/339-learn-from-unreviewed-execution-paths/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b84e28e16ad8ab8a9f385bbae6879a25fb5c0416a0bedbb4bab7e0cc7be08820","plan":"55cd28a5719fe083f328a618b91c4ed4a32e96046cb7b928939748d69a4d7270"}}
-```
-
-**Goal:** A developer can learn from a completion journey that escaped the
-normal retrospective, using its final applicable outcomes rather than treating
-an absent finding or an earlier review as success.
-
-**Scope:** Assess the landing of the response-effectiveness preparation in Open
-Dough, coordinator session `01a157a5-1cdf-7611-94b3-8c1236961e4f`, from its
-readiness/landing handoff at `2026-10-20T04:54:42.797Z` (line 218) through the
-final response at `2026-10-20T04:56:26.160Z` (line 315), including all intervening
-attempts and the dashboard receipt at line 312. This is the completion interval
-explicitly excluded by the [preparation-history assessment](../../docs/maintainer/empirical-process-control-research.md#preparation-history-follow-up);
-that assessment's internal preparation decisions remain outside this story.
-Read surrounding records only for attribution and selection context.
-
-Reuse current process-review reasoning, available native history, Git evidence,
-and finding identities. Record a compact assessment in the existing research
-report: selected population and limits, attempt outcomes, review coverage,
-supported learning, and a justified improvement recommendation or no-change
-result. Account separately for publication, refresh, retirement, and reporting;
-a prior review cannot establish a later outcome. Keep failed or cancelled
-attempts within the selected interval even when a later retry succeeds. No
-cancelled attempt is currently evidenced; do not manufacture one for coverage.
-
-Distinguish reviewed-with-no-finding, not reviewed, unavailable history, and no
-relevant exposure. Record supported process findings only under the existing
-selection and recording rules; this project's process review is enabled.
-Deduplicate against existing findings and the earlier assessment. Re-reading
-this journey adds evidence, never another occurrence of the same event or a
-new execution of the completed work. Bound cost claims to observed operations,
-elapsed intervals and available usage facts, separating waiting from work and
-unknown human/token costs from measured costs.
-
-**Key examples:**
-
-- Given the earlier assessment ends before landing, reviewing the selected tail
-  distinguishes its accepted publication receipt from its initially deferred
-  refresh, later successful refresh, retirement result, and completion receipt.
-  None is inferred from the plan's readiness or an empty process log.
-- Given a failed lookup or a failed/cancelled delivery attempt within the sample,
-  a later success retains that attempt and its observed cost in the assessment.
-  A counterfactual cancellation may test the reasoning but is labelled a control,
-  never a historical occurrence or a failure-rate denominator.
-- Given only the prefix through accepted publication, the reviewer cannot claim
-  refresh, retirement or final reporting were observed. Missing tail history is
-  unavailable coverage; an uninvoked own-run review is no review; an unexercised
-  post-review failure path is no relevant exposure. With the complete tail,
-  supported no-finding is a possible result, not a presupposition.
-- Given the same interval is assessed again, its stable session/interval and
-  accepted revision identify the same occurrence; no duplicate finding count,
-  reopened story, repeated landing or new claim is produced.
-
-**Evaluation:** A traceable assessment supports one improvement decision or a
-reasoned no-change result for this landing journey. It explicitly preserves
-unknowns and distinguishes historical evidence from illustrative controls.
-Success is useful bounded learning, not a required defect or runtime change.
-
-**Deferred promises:** Other early-stop, cancellation, planless and wrap-up
-journeys remain later selection candidates. This sample does not establish
-full lifecycle or cross-host coverage, or prove behavior after an own-run review
-that this run did not invoke. No mandatory review at every event, collection
-service, dashboard change, transcript archive, automatic scheduling, release,
-or implementation of an identified response is promised. Necessary conclusions
-and recommendations stay supported by this sample; a broader response needs its
-own selected work.
-
-**Value / learning:** Test whether reviewing a previously omitted completion
-interval adds actionable learning at proportionate cost, without success-only
-selection within that interval.
-
-**Effort uncertainty:** Fair attribution of a short historical tail and its
-partially truncated tool outputs. The native session and decisive outcome
-receipts were recovered during preparation; recheck availability at execution.
-
-**Prerequisites:** The selected native session and Git revision
-`ce6355980971225a1b9bf26ee7a935fc432f5636`; no sibling implementation is required.
-If required history becomes unavailable, stop dependent conclusions and name
-that gap rather than substituting a successful sample.
-
-**Safe stopping point:** The bounded assessment remains useful even if no
-other lifecycle path receives additional instrumentation.
-
 <a id="evaluate-later-product-consequences"></a>
 
 ### 8. Evaluate an improvement against its later product consequences
@@ -499,16 +410,16 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 ## Ordering and Scope Reduction
 
-Preserve the following four outcomes in their existing order: Story 6 (preparation evidence),
-Story 7 (unreviewed execution/completion paths),
-Story 8 (later product consequences), and Story 9
-(automatic due maintenance). Story numbers and recorded identities remain stable;
-the product backlog is the authority for current queue order and membership.
+Preserve the remaining queued outcomes in their existing order: Story 8
+(later product consequences), then Story 9 (automatic due maintenance).
+Story numbers and recorded identities remain stable; the product backlog is
+the authority for current queue order and membership.
 
-The remaining stories evaluate broader response effectiveness and tradeoffs. The two
-observation stories address direct evidence gaps without requiring a new
-telemetry system. Product consequences prevent cost reduction from becoming the sole
-objective. Later unattended initiation builds on these explicit workflows.
+The maintained research report retains the preparation and
+[completion-tail assessments](../../docs/maintainer/empirical-process-control-research.md#landing-history-follow-up).
+The remaining stories evaluate broader response effectiveness and tradeoffs.
+Product consequences prevent cost reduction from becoming the sole objective.
+Later unattended initiation builds on the existing explicit workflows.
 Manual mechanisms remain usable throughout; no story is blocked merely because
 an earlier priority has not completed.
 
