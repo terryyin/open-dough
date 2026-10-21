@@ -5,7 +5,11 @@
 // it in `~/.open-dough/dashboard/feedback-maintenance.json`; only these local
 // endpoints write it, never a session.
 import { z } from "zod";
-import { launchHosts } from "./hostDescription.ts";
+import {
+  launchHosts,
+  skillInvocation,
+  type HostIdentity,
+} from "./hostDescription.ts";
 import { launchSettingSchema } from "./launchHostOptions.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 
@@ -16,6 +20,15 @@ export const feedbackMaintenanceRemoveEndpoint = `${feedbackMaintenanceEndpoint}
 // The project the cycle runs in: its configured local folder is where the
 // session starts, and its host model choices are the ones offered here.
 export const feedbackMaintenanceRepository = "terryyin/open-dough";
+
+// The cycle's skill, invoked as each host spells a skill as its first input,
+// and the label its automatically started session is listed with.
+export const feedbackMaintenanceSkill = "maintain-feedback-cycle";
+export const feedbackMaintenanceLabel = "Feedback maintenance";
+
+export function feedbackMaintenanceInstruction(host: HostIdentity): string {
+  return skillInvocation(host, feedbackMaintenanceSkill);
+}
 
 // What an On setting records, and what a save request carries.
 export const feedbackMaintenanceChoiceSchema = z

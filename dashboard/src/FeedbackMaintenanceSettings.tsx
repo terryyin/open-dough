@@ -24,11 +24,6 @@ import { useLocalSetting } from "./useLocalSetting.ts";
 import "./frame-controls.css";
 import "./launch-dialog.css";
 
-// What the dashboard does with an On setting today. The due check that
-// starts the session replaces this line.
-const automaticStartNote =
-  "Nothing starts automatically yet: this dashboard does not check when feedback maintenance is due.";
-
 const updateFailure =
   "The feedback maintenance setting could not be updated. Retry the operation.";
 
@@ -117,9 +112,12 @@ export function FeedbackMaintenanceSettings() {
         {setting === undefined ? "Status unavailable" : describe(setting)}
       </p>
       <p className="settings-note">
-        When on, this dashboard may start the feedback maintenance cycle in Open
-        Dough's local folder on this machine when the cycle is due, on the host
-        and model chosen here. {automaticStartNote}
+        When on, this dashboard starts the feedback maintenance cycle in Open
+        Dough's local folder on this machine once the due date the cycle
+        publishes in its watch list is reached, on the host and model chosen
+        here: one session per due date, listed in Sessions as Feedback
+        maintenance. A quiet completion marks it done without a notification; a
+        report that needs you notifies once and keeps it listed.
       </p>
       <form
         className="openai-settings-form"

@@ -22,6 +22,7 @@
 // page. This matches ./auto-refresh.spec.ts's own held-response races, which
 // also assert immediately after release.
 
+import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
@@ -63,7 +64,7 @@ function openDoughBacklogWith(title: string): string {
 }
 
 async function openBothOrigins(
-  page: Parameters<typeof publishMovingOrigin>[0],
+  page: Page,
 ): Promise<{ openDough: MovingOrigin; doughnut: MovingOrigin }> {
   const openDough = await publishMovingOrigin(page);
   const doughnut = await publishMovingOrigin(page, doughnutRepository);

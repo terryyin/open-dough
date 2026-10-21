@@ -78,27 +78,36 @@ async function reportedLaunch(
   );
   if (answer.kind !== "launched") throw new Error("The launch did not launch.");
   const input = dashboard.claudeLaunchCalls()[before]?.argv.at(-1) ?? "";
-  const command = /^- reporting command: (.+)$/m.exec(input)?.[1];
-  if (command === undefined) throw new Error("No reporting command");
   return {
     sessionId: answer.record.session.sessionId,
-    async report({ outcome = "completed", message = reportedMessage } = {}) {
-      const file = path.join(origin.machine, `report-${randomUUID()}.txt`);
-      writeFileSync(file, message);
-      const messageFile = message === "" ? "" : ` --message-file '${file}'`;
-      const reported = await exec(
-        "bash",
-        ["-c", `${command} --outcome ${outcome}${messageFile}`],
-        { cwd: origin.machine },
-      );
-      expect(
-        (
-          JSON.parse(reported.stdout) as Awaited<
-            ReturnType<typeof submitCompletion>
-          >
-        ).state,
-      ).toBe("recorded");
-    },
+    report: reportingThrough(origin, input),
+  };
+}
+
+// Reports, as often as asked, through the installed reporting command a
+// launch's first input names.
+export function reportingThrough(
+  origin: StartOrigin,
+  input: string,
+): ReportedLaunch["report"] {
+  const command = /^- reporting command: (.+)$/m.exec(input)?.[1];
+  if (command === undefined) throw new Error("No reporting command");
+  return async ({ outcome = "completed", message = reportedMessage } = {}) => {
+    const file = path.join(origin.machine, `report-${randomUUID()}.txt`);
+    writeFileSync(file, message);
+    const messageFile = message === "" ? "" : ` --message-file '${file}'`;
+    const reported = await exec(
+      "bash",
+      ["-c", `${command} --outcome ${outcome}${messageFile}`],
+      { cwd: origin.machine },
+    );
+    expect(
+      (
+        JSON.parse(reported.stdout) as Awaited<
+          ReturnType<typeof submitCompletion>
+        >
+      ).state,
+    ).toBe("recorded");
   };
 }
 

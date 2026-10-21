@@ -5,7 +5,7 @@ import {
   launchWorkflows,
   type RecordedLaunchRequest,
 } from "../../../src/agentLaunch.ts";
-import { hostDescriptions } from "../../../src/hostDescription.ts";
+import { skillInvocation } from "../../../src/hostDescription.ts";
 import type { EstablishedHandoff } from "../../hostLaunch.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 
@@ -18,7 +18,7 @@ export function cursorPrompt(
   }
   const own = request.instruction?.trim();
   const skill = [
-    `${hostDescriptions.cursor.skillSigil}${launchWorkflows[request.workflow].skill}`,
+    skillInvocation("cursor", launchWorkflows[request.workflow].skill),
     ...launchArguments(request),
   ].join(" ");
   return [skill, handoff?.formatted, reportingInstruction(request), own]

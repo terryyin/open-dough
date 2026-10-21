@@ -113,6 +113,12 @@ export function hostDescription(host: HostIdentity): HostDescription {
   return hostDescriptions[host];
 }
 
+// A skill as `host` spells its invocation at the start of a first input, such
+// as `/dough-execute-plan` or `$dough-execute-plan`.
+export function skillInvocation(host: HostIdentity, skill: string): string {
+  return `${hostDescription(host).skillSigil ?? ""}${skill}`;
+}
+
 // Offered launch hosts have a skill invocation. The server still checks
 // runtime availability.
 export const launchHosts = agentHosts.filter(

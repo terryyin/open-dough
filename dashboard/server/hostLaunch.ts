@@ -10,8 +10,10 @@ import {
   type SessionPolicy,
   type SessionState,
 } from "../src/agentLaunch.ts";
+import { feedbackMaintenanceLabel } from "../src/feedbackMaintenanceSetting.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { Established } from "./startLaunch.ts";
+import type { UnattachedRequest } from "./unattachedStartScript.ts";
 
 // A host's bounded diagnostic safe to retain beside local operation intent.
 export class HostOperationFailure extends Error {
@@ -70,20 +72,25 @@ function launchTime(at: Date): string {
   return `${String(at.getDate())} ${months[at.getMonth()] ?? ""}, ${clock}`;
 }
 
-// The text an ad hoc session is labeled with: the developer's, with
+// The text an ad hoc session is labeled with: "Feedback maintenance" for the
+// one the feedback maintenance check started; else the developer's, with
 // whitespace runs collapsed; none when it is blank or holds a control
 // character, so the label is a time.
 export function adHocLabelText(
-  instruction: string | undefined,
+  request: Pick<UnattachedRequest, "instruction" | "maintenance">,
 ): string | undefined {
-  const text = (instruction ?? "").replace(/\s+/g, " ").trim();
+  if (request.maintenance !== undefined) return feedbackMaintenanceLabel;
+  const text = (request.instruction ?? "").replace(/\s+/g, " ").trim();
   return text === "" || /\p{Cc}/u.test(text) ? undefined : text;
 }
 
 // An ad hoc session's label: its text, cut at `labelLimit` characters with
 // an ellipsis; the time the launch began when it has none.
-function adHocLabel(instruction: string | undefined, began: Date): string {
-  const text = adHocLabelText(instruction);
+function adHocLabel(
+  request: Pick<UnattachedRequest, "instruction" | "maintenance">,
+  began: Date,
+): string {
+  const text = adHocLabelText(request);
   if (text === undefined) return launchTime(began);
   const characters = Array.from(
     new Intl.Segmenter().segment(text),
@@ -103,7 +110,7 @@ export function recordedRequest(
 ): RecordedLaunchRequest {
   const recorded = withoutConfirmation(request);
   return recorded.workflow === "ad-hoc"
-    ? { ...recorded, title: adHocLabel(recorded.instruction, began) }
+    ? { ...recorded, title: adHocLabel(recorded, began) }
     : recorded;
 }
 

@@ -1,7 +1,16 @@
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
+import path from "node:path";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { test as startTest } from "../support/codexStart.ts";
 import { launch } from "../agentLaunchBoundary.ts";
+import { emptyBacklog, publishMovingOrigin } from "../publishedOrigin.ts";
+import { feedbackWatchListPath } from "../../src/feedbackReview.ts";
+import {
+  authorizeFeedbackMaintenance,
+  dayFromToday,
+  dueWatchList,
+} from "../support/feedbackMaintenanceDue.ts";
+import type { FakeGitHub } from "../support/fakeGitHub.ts";
 import { dirty, status } from "../support/defaultCheckoutChanges.ts";
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
 import {
@@ -109,3 +118,64 @@ startTest(
     expect(status(origin.project)).toBe(changes);
   },
 );
+
+// The feedback maintenance check (../../server/feedbackMaintenanceCheck.ts)
+// starting its session on Codex: the cycle's invocation as text, with the
+// reporting context, and the cycle's skill as the structured item a story
+// launch's first input carries. Ordinary ad hoc input has none (above).
+const dueOnCodex = "a due feedback maintenance cycle authorized on Codex";
+
+// Publishes Open Dough's watch list due on `due`, and turns the standing
+// authorization on for Codex in this server's home.
+async function dueAndOn(github: FakeGitHub, home: string, due: string) {
+  const moving = await publishMovingOrigin(github);
+  moving.push("f".repeat(40), emptyBacklog, {
+    [feedbackWatchListPath]: dueWatchList(due),
+  });
+  authorizeFeedbackMaintenance(home, { host: "codex" });
+}
+
+type InputPart = { type: string; text?: string; name?: string; path?: string };
+
+startTest.describe(dueOnCodex, () => {
+  startTest.use({ extraEnv: { DOUGH_MAINTENANCE_CHECK_MS: "100" } });
+
+  startTest(
+    "starts with $maintain-feedback-cycle and its skill item",
+    async ({ dashboard, codexProtocol, github }) => {
+      const native = codexProtocol;
+      if (native === undefined) throw new Error("Missing native fixture.");
+      const due = dayFromToday(-1);
+      await dueAndOn(github, dashboard.home, due);
+
+      const turns = () =>
+        native.calls.filter((call) => call.method === "turn/start");
+      await expect.poll(() => turns().length).toBe(1);
+      const [record] = stored(dashboard.home);
+      expect(record?.request).toMatchObject({
+        workflow: "ad-hoc",
+        host: "codex",
+        title: "Feedback maintenance",
+        maintenance: { due },
+      });
+      const started = native.calls.find(
+        (call) => call.method === "thread/start",
+      );
+      const { cwd } = started?.params as { cwd: string };
+      const { input } = turns()[0]?.params as { input: InputPart[] };
+      expect(input.map(({ type }) => type)).toEqual(["text", "skill"]);
+      const [invocation, reporting, ...extra] = (input[0]?.text ?? "").split(
+        "\n\n",
+      );
+      expect(invocation).toBe("$maintain-feedback-cycle");
+      expect(extra).toEqual([]);
+      expectReportingBlock(reporting, record?.request, dashboard);
+      const skill = "maintain-feedback-cycle";
+      expect(input[1]).toEqual({
+        type: "skill",
+        name: skill,
+        path: path.join(cwd, ".agents", "skills", skill, "SKILL.md"),
+      });
+    },
+  );
+});

@@ -127,13 +127,16 @@ const storyLaunchRequestSchema = z.object({
 // title or identity, since the server derives the label
 // (`../server/hostLaunch.ts`), and one naming an identity is refused. Its
 // policy is the unattached one, and it confirms existing changes as a story's
-// does.
+// does. One the dashboard's feedback maintenance check starts
+// (`../server/feedbackMaintenanceCheck.ts`) carries the due date it serves as
+// its marker, which only that check sets, never a page.
 const adHocLaunchRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   workflow: z.literal("ad-hoc"),
   host: z.enum(agentHosts),
   ...launchOptions,
   policy: unattachedSessionPolicySchema.optional(),
+  maintenance: z.strictObject({ due: z.iso.date() }).optional(),
   existingChanges: existingChangesSchema.optional(),
   overrideStopUnconfirmed: z.boolean().optional(),
 });
@@ -160,7 +163,8 @@ export function withoutConfirmation(
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
 // An unattached launch's subject is its instruction with its Workspace and
-// After checks choices, so one with other choices is another launch.
+// After checks choices and the due date a feedback maintenance launch serves,
+// so one with other choices or for another due date is another launch.
 export function sameLaunch(
   a: AgentLaunchRequest | RecordedLaunchRequest,
   b: AgentLaunchRequest | RecordedLaunchRequest,
@@ -175,6 +179,7 @@ export function sameLaunch(
     );
   return (
     a.instruction === b.instruction &&
+    a.maintenance?.due === b.maintenance?.due &&
     sameUnattachedPolicy(unattachedPolicyOf(a), unattachedPolicyOf(b))
   );
 }

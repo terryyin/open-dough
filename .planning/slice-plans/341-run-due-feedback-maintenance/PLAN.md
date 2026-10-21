@@ -148,7 +148,7 @@ Behavior: the maintainer opens System settings → chooses On, a host, and optio
 
 ### 3. A due cycle starts one feedback-maintenance session and nothing more
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright spec with `DOUGH_MAINTENANCE_CHECK_MS` short: a published Open Dough watch list due yesterday and the setting on yield exactly one ad hoc launch in Open Dough's folder on the fake Claude host whose first input holds the host-spelled maintain-feedback-cycle invocation and the reporting context, listed in the Sessions sidebar as "Feedback maintenance", with no notifier call; restarting the server or waiting further checks adds none; the installed completion command without a message marks it done and a pushed revision with `reviewAfter` tomorrow ends the due state; with a message, the notifier is called once and the record stays open; the session ended without the date advancing is not relaunched; due tomorrow, setting off, no block, and a failed ref read each launch nothing. Unit test of the due decision function.
 
 Behavior: the setting is on, the local date reaches the published `reviewAfter`, no record on this machine serves that due date → the check (at boundary start and each period) → one `accept` of an ad hoc request `{source: open-dough, host, model, instruction, maintenance: {due}}` with the reporting origin, recorded with the marker, on the default checkout with the default unattached policy. The marker is an optional field of the recorded ad hoc request, labels the record in `adHocLabelText`'s place, and is what later checks and the row read; a record serving a date, open or ended however, blocks another automatic launch for it. The check reads the ref and the memoized file through the existing `gh` path; `dashboard/GITHUB-REQUESTS.md` states the added requests per period. A read failure or unparsable block is "not due" and is shown through the existing read diagnostics.
@@ -203,13 +203,46 @@ Behavior: a reached due date on this machine → one automatic session → the c
   `dashboard/FEEDBACK-MAINTENANCE.md` (G1). Proof:
   `dashboard/tests/system-settings-feedback-maintenance.spec.ts` and
   `dashboard/tests/boundary/feedback-maintenance-boundary.spec.ts`.
+- Slice 3: `FeedbackMaintenanceCheck` (`dashboard/server/feedbackMaintenanceCheck.ts`)
+  runs only in a production project environment, so a development server
+  sharing the setting file starts nothing. `dueDecision` in
+  `dashboard/src/feedbackMaintenanceDue.ts` waits with `off`, `open`,
+  `unread`, `absent`, `invalid`, `not-due`, `served`, or `stale` (a due date
+  older than `launchRetentionDays`, still due but never started
+  automatically). A served date is remembered through the launch attempt,
+  which outlives a deleted record. An open ad hoc session in Open Dough whose
+  instruction is the cycle's invocation also counts as an open
+  feedback-maintenance session without serving a date. The HTTP launch path
+  refuses a request carrying `maintenance`. `skillInvocation(host, skill)` in
+  `dashboard/src/hostDescription.ts` is the one host spelling; Codex
+  maintenance launches also send the skill item. The check keeps no last
+  decision; slice 4 retains it for the sessions answer rather than reading
+  GitHub again. Restart tests restart on the same port. Proof:
+  `dashboard/tests/feedback-maintenance-launch.spec.ts`,
+  `dashboard/tests/boundary/agent-launch-ad-hoc-codex-input.spec.ts`, and
+  `tests/support/feedback-maintenance-due.test.mjs`.
 
 ## Story obligations
 
 ### G1. Settings section says nothing starts automatically yet
 Reported: slice 2 — "The section shows: \"Nothing starts automatically yet: this dashboard does not check when feedback maintenance is due.\" The text is in one constant, `automaticStartNote`, in `dashboard/src/FeedbackMaintenanceSettings.tsx`. `dashboard/FEEDBACK-MAINTENANCE.md` also has one paragraph starting **Nothing starts automatically yet.** Slice 3 must replace both."
 Story clause: "When the cycle is due, the authorization is on, no feedback-maintenance session is open on this machine, and no automatic launch has served that due date, the dashboard starts one unattached session"
-Disposition: interim until slices 3
+Disposition: proved by slice 3: dashboard/tests/feedback-maintenance-launch.spec.ts starts one session on a reached due date; dashboard/tests/system-settings-feedback-maintenance.spec.ts asserts the replaced section text; dashboard/FEEDBACK-MAINTENANCE.md "When it starts" replaces the interim paragraph
+
+### G2. Codex maintenance launch sends the invocation as text only
+Reported: slice 3 — "For Codex, the ad hoc text `$maintain-feedback-cycle` is sent without the structured skill item that story launches add."
+Story clause: "the dashboard starts one unattached session in Open Dough's configured local folder on the authorized host, with the maintain-feedback-cycle invocation as its first input"
+Disposition: proved by slice 3: dashboard/tests/boundary/agent-launch-ad-hoc-codex-input.spec.ts "a due feedback maintenance cycle authorized on Codex › starts with $maintain-feedback-cycle and its skill item" asserts text plus the skill item; plain ad hoc input stays text only in the same file
+
+### G3. A served due date can relaunch after its attempt ages out
+Reported: slice 3 — "if the due date never advances, the date can be launched again once both attempt and record have aged out (30 or more days later)."
+Story clause: "A served due date is not launched again on this machine"
+Disposition: proved by slice 3: tests/support/feedback-maintenance-due.test.mjs "a due date the retention window has passed is never launched: still due, as stale" (launchRetentionDays days launches, one more is stale), so no served date outlives its retained attempt
+
+### G4. Uncommitted changes in Open Dough's checkout silently hold the launch
+Reported: slice 3 — "If Open Dough's default checkout has uncommitted changes, `accept` answers with the existing-changes confirmation, nothing launches, and the check retries every period without launching. This is unobserved, untested and undocumented."
+Story clause: "states when feedback maintenance is due and not served"
+Disposition: receiving slice 4
 
 ## Concern evidence
 

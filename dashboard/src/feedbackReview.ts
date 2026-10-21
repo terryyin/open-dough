@@ -8,6 +8,7 @@
 // directly below the heading is the writer's rule; the reader accepts the one
 // block wherever it sits.
 
+export const feedbackWatchListPath = "docs/maintainer/near-term-watch-list.md";
 export const feedbackReviewFence = "json dough-feedback-review";
 
 const openFenceLine = `\`\`\`${feedbackReviewFence}`;

@@ -20,6 +20,7 @@ import {
 import {
   hostDescriptions,
   launchModelName,
+  skillInvocation,
 } from "../../../src/hostDescription.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { claudeSessions, startClaudeInBackground } from "./runtime.ts";
@@ -45,7 +46,7 @@ function claudeInstruction(
   }
   const own = request.instruction?.trim();
   const skill = [
-    `/${launchWorkflows[request.workflow].skill}`,
+    skillInvocation("claude", launchWorkflows[request.workflow].skill),
     ...launchArguments(request),
   ].join(" ");
   return [skill, established?.formatted, reportingInstruction(request), own]

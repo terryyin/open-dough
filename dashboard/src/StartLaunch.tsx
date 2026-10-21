@@ -20,7 +20,7 @@
 // or disabled alike; its words still name it.
 
 import { hostName } from "./sessionCapabilities.ts";
-import { hostDescription } from "./hostDescription.ts";
+import { skillInvocation } from "./hostDescription.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import { useCallback, useId, useRef, useState } from "react";
 import {
@@ -206,7 +206,7 @@ export function StartLaunch({
           }
           fieldLabel="Instruction (optional)"
           command={[
-            `${hostDescription(host).skillSigil}${skill}`,
+            skillInvocation(host, skill),
             ...launchArguments({ identity: work.identity, policy }),
           ].join(" ")}
           session={storySession({

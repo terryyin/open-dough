@@ -70,6 +70,11 @@ export function initializeProjectConfiguration(next: ProjectEnvironment): void {
   }
 }
 
+// The project environment this server keeps its list in, once initialized.
+export function projectEnvironment(): ProjectEnvironment | undefined {
+  return environment;
+}
+
 export function configuredProjects(): readonly ConfiguredProject[] {
   return projects;
 }

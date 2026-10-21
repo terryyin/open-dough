@@ -95,7 +95,7 @@ async function sessionWorkspace(
   const nameless = "session";
   return launchWorkspace(
     project,
-    adHocLabelText(request.instruction) ?? nameless,
+    adHocLabelText(request) ?? nameless,
     await takenSlugs(project),
     request.host,
     nameless,

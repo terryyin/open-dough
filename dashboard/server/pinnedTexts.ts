@@ -37,6 +37,22 @@ export class PinnedTexts extends PinnedMemo {
     };
   }
 
+  // One file at the revision the source's ref just named to this process,
+  // remembered at that revision and never compared with another: the
+  // feedback maintenance check (`./feedbackMaintenanceCheck.ts`) asks GitHub
+  // for it once per revision.
+  namedRevisionText(
+    source: PublishedSource,
+    revision: string,
+    path: string,
+    signal: AbortSignal,
+  ): Promise<string> {
+    this.heardNamed(source, revision);
+    return this.recalled(source, revision, path, () =>
+      readRepositoryFileViaGh(source.repository, path, revision, signal),
+    );
+  }
+
   // A directory's listed files, each with its blob sha, at a commit,
   // remembered the same way. A listing is kept under its directory with a
   // trailing `/`, which no file path ever has, and is unchanged only when no

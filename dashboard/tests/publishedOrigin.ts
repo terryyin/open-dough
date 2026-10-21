@@ -30,7 +30,7 @@ import {
 } from "./originAnswers.ts";
 import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
-import type { GhCall } from "./support/fakeGitHub.ts";
+import type { FakeGitHub, GhCall } from "./support/fakeGitHub.ts";
 
 export {
   commitAnswer,
@@ -159,8 +159,10 @@ export type MovingOrigin = {
   answerWith(what: string, answer: OriginAnswer): () => void;
 };
 
+// Published to the page's dashboard, or to a fake GitHub a pageless test
+// gives its servers.
 export function publishMovingOrigin(
-  page: Page,
+  page: Page | FakeGitHub,
   repository: string = defaultRepository,
 ): Promise<MovingOrigin> {
   const requests: ObservedRequest[] = [];
@@ -170,7 +172,8 @@ export function publishMovingOrigin(
   const instead = new Map<string, OriginAnswer>();
   let main: string | undefined;
 
-  githubFor(page).serve(repository, async (call) => {
+  const github = "serve" in page ? page : githubFor(page);
+  github.serve(repository, async (call) => {
     const target = publishedTarget(call);
     const { request } = call;
     if (target === undefined && request.kind === "content") {

@@ -38,8 +38,10 @@
 // admitted is decided in `./agentLaunchAdmission.ts`. While it runs it also
 // watches the machine's sessions and raises a macOS notification when one
 // starts needing the developer (`./sessionAlerts.ts`), and the sessions answer
-// says whether it can; it also names the starts kept without a session and
-// the starts running with their phases. Everything else
+// says whether it can. It also starts the feedback maintenance cycle when it
+// is due under this machine's standing authorization
+// (`./feedbackMaintenanceCheck.ts`). The sessions answer also names the
+// starts kept without a session and the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
 // is refused before any host process starts, and a session its host confirms
@@ -60,6 +62,7 @@ import { installRecordRemovalDispatch } from "./launchRecordRemoval.ts";
 import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
+import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 
 export function installAgentLaunchMiddleware(
   middlewares: BoundaryMiddlewares,
@@ -75,6 +78,9 @@ export function installAgentLaunchMiddleware(
   const doneMarks = new NativeDoneMarks(terminals);
   const launches: AgentLaunches = new AgentLaunches(doneMarks);
   const alerts = new SessionAlerts(launches, () => dashboardOrigin(httpServer));
+  const maintenance = new FeedbackMaintenanceCheck(launches, () =>
+    dashboardOrigin(httpServer),
+  );
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {
@@ -92,6 +98,7 @@ export function installAgentLaunchMiddleware(
     close: () => {
       void releaseCursorHandoffs();
       alerts.close();
+      maintenance.close();
       const doneSettled = doneMarks.close();
       terminals.close();
       launches.close();

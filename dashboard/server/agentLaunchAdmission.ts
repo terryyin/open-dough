@@ -156,6 +156,10 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
   const request = parsed.data;
+  // Only the server's own feedback maintenance check marks a launch as one.
+  if (request.workflow === "ad-hoc" && request.maintenance !== undefined) {
+    throw new RefusedRequest(400, "The launch request is malformed.");
+  }
   const source = knownSource(request.source);
   const host = launchHost(request.host);
   if (host === undefined) {

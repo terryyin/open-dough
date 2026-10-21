@@ -41,7 +41,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
   await page.goto(`${server.baseURL}/?view=settings`);
   await expect(status(page)).toHaveText("Feedback maintenance: Off");
   await expect(section(page)).toContainText(
-    "Nothing starts automatically yet: this dashboard does not check when feedback maintenance is due.",
+    "one session per due date, listed in Sessions as Feedback maintenance. A quiet completion marks it done without a notification; a report that needs you notifies once and keeps it listed.",
   );
   await expect(button(page, "Turn off")).toHaveCount(0);
   expect(existsSync(file)).toBe(false);

@@ -20,7 +20,6 @@ import { sessionKey } from "../src/sessionReference.ts";
 // missing/unsupported/refused helpers leave the loop running. Raw stderr is
 // never forwarded. The server owns every child, including diagnostics.
 
-import { setTimeout as delay } from "node:timers/promises";
 import {
   launchSubject,
   type Alerts,
@@ -33,21 +32,18 @@ import {
   sessionShown,
 } from "../src/sessionShown.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
+import { configuredLimit } from "./configuredLimit.ts";
+import { repeatUntilStopped } from "./repeatingCheck.ts";
 import { dashboardDestinationPath } from "../src/dashboardDestination.ts";
 import {
   probeTerminalNotifier,
   sendTerminalNotification,
 } from "./terminalNotifier.ts";
 
-const defaultCheckMs = 15_000;
-
 // How often the sessions are read. A test may shorten it through the
 // environment.
 function checkMs(): number {
-  const configured = Number(process.env["DOUGH_ALERT_CHECK_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : defaultCheckMs;
+  return configuredLimit("DOUGH_ALERT_CHECK_MS", 15_000);
 }
 
 const noDestination =
@@ -151,18 +147,10 @@ export class SessionAlerts {
 
   private async run(): Promise<void> {
     const { signal } = this.stopped;
-    while (!signal.aborted) {
-      try {
-        await this.poll(signal);
-      } catch {
-        // A read that fails is tried again at the next check.
-      }
-      try {
-        await delay(checkMs(), undefined, { signal });
-      } catch {
-        return;
-      }
-    }
+    await repeatUntilStopped(signal, checkMs, async () => {
+      await this.poll(signal);
+      return undefined;
+    });
   }
 
   private async poll(signal: AbortSignal): Promise<void> {

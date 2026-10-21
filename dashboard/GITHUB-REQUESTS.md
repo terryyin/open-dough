@@ -198,6 +198,16 @@ one comparison of the two commits per newly shown revision (a page that opens
 asks one for each such story); an answered comparison is not asked again by
 that page, and a failed one is asked again only with the next read.
 
+With [feedback maintenance](FEEDBACK-MAINTENANCE.md) On, the production
+dashboard server checks once it listens and then every 15 minutes, whether or
+not a page is open: each check with no feedback maintenance session open on
+this machine costs one request resolving Open Dough's configured ref, plus one
+read of `docs/maintainer/near-term-watch-list.md` at a revision no dashboard
+process of this user on this machine has read it at -- so at most four ref
+requests an hour, and one watch list read per published revision. A check
+while the setting is Off, or while a feedback maintenance session is open,
+asks GitHub nothing. A failed check is asked again at the next one.
+
 Inspecting recent failed upstream reads through
 `GET /__authenticated-read-diagnostics?source=<configured-id>` costs no GitHub
 request: the response is answered from this process's in-memory history under
