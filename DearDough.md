@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `dbe36711`; the complete pre-compaction source remains at `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 324. Removed numbers are never reused.
+- Highest allocated local number: 326. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -546,3 +546,37 @@ while the developer was also working there and answering its questions.
   - Evidence: coordinator `open x-apple.systempreferences…Privacy_Automation` and `set bounds of window 1` calls; screenshots `automation*.png` showing the developer's dashboard and terminal in use; the developer's reply "I will stop. you can takeover now".
   - Observed effect: the developer stopped their own work to yield the screen; the Automation entry name still could not be read (no scrolling without UI scripting), so the recovery wording became name-neutral.
   - Inference: a desktop observation needing the foreground should be batched and announced once (what will pop up, for how long), or replaced by an off-screen route (a headed test browser with its own profile worked for the tab and bookmark check). Qualified one-off.
+
+## DD-325 — Repeated native checks exhausted the developer after attribution was established
+
+Native alert acceptance required many Notification Center clicks and local
+Settings authentication rounds. After real Safari/Chrome refusal/retry established
+the consulted row, the message-only correction still requested a four-click
+native replay. The developer ended further participation; unchanged mechanics
+then reused the baseline while the emitted-source regression proved new text.
+
+### Occurrences
+- Execution: SEED-144#branded-alert-click-automation / plan 330, first implementation `ac342c94ebc96fd452d3680b960c9e7c31f806ad`
+  - Timestamp: unknown (2026-10-21, native baseline and final-check handoffs)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `2e3ff9411d1fe94bab224b7903f8c64f1b936d15`
+  - Evidence: `ac342c94ebc96fd452d3680b960c9e7c31f806ad:.planning/slice-plans/330-branded-alert-click-automation/native-baseline-history.md` and `slice-2-evidence.md`; user: “I had enough of this. Please complete this without me.” CUA blocked the recovery-dialog app; replying dismissed Notification Center; local authorization needed human input.
+  - Observed effect: repeated interrupted handoffs; explicit developer instruction omitted final native repetition. Safari default was restored, but the temporary Chrome grant remained on behind macOS authentication.
+  - Inference: qualified. Plan interactive checkpoints around the consequential unknown, account for the tool's focus/authentication limits early, and reuse sufficient native proof when only message text changes. No time/token saving is measured; initial attribution still required real clicks.
+
+## DD-326 — A retried plan updater marked the next slice done
+
+A temporary coordinator updater replaced the first planned status after slice
+1's heading without bounding the section. After a whitespace preparation failure,
+the retry found slice 1 already done and advanced slice 2 instead. The coordinator
+caught and corrected it before delegating implementation; no slice-2 acceptance
+or completion was based on that premature status.
+
+### Occurrences
+- Execution: SEED-144#branded-alert-click-automation / plan 330, first implementation `ac342c94ebc96fd452d3680b960c9e7c31f806ad`
+  - Timestamp: unknown (2026-10-21, slice-1 delivery retry)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `2e3ff9411d1fe94bab224b7903f8c64f1b936d15`
+  - Evidence: `9c8e8c504cb4863b1015d0b041268acdd685bb69:.planning/slice-plans/330-branded-alert-click-automation/PLAN.md` marks slice 2 done while that commit contains only planning records; the coordinator's correction and subsequent implementation are retained in `ac342c94ebc96fd452d3680b960c9e7c31f806ad:.planning/slice-plans/330-branded-alert-click-automation/slice-2-evidence.md`.
+  - Observed effect: one published premature status and a local repair before the next delegation. Product implementation and proof were still required and obtained.
+  - Inference: bound one-shot status mutations to the selected section and make retries idempotent; a prior status mutation can survive a later mechanical preparation failure. This is an authored-updater mistake, not evidence that the installed delivery helper changed another slice itself.

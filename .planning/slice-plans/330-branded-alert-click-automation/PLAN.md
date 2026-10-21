@@ -239,3 +239,7 @@ Disposition: proved by slice 1: native-baseline-evidence.md, Slice 1 acceptance 
 Reported: slice 2 — "Corrected native dialog rendering, final refusal/no-new-tab and allowed retry/reuse/foreground/exact-story journeys for Safari and Chrome, and final sender/icon/Notifications preservation remain coordinator-owned and unobserved."
 Story clause: "it does not waive refusal/recovery, tab preservation, successful retry, or support for either Safari or Google Chrome"
 Disposition: owner changed "Please complete this without me"
+
+## Execution complete
+
+Product advice: no change. Retrospective found no product correction or architectural drift; source, emitted-message proof and preserved browser/sender boundaries agree. Related revisions: claim `2e3ff941`, native records `9c8e8c50`, implementation `ac342c94`. Process findings DD-325/DD-326 recorded in DearDough.md (582 physical lines; existing 500-line advisory applies). Chrome temporary Automation grant remains enabled behind macOS authentication; final native repetition was omitted by explicit developer instruction.
