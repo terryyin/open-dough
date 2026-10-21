@@ -166,11 +166,11 @@ run_delivery_evidence_scheduling_product_checks() {
     'the stylesheet consumer did not log its failing observation'
 }
 
-# Neutral-text checks: each scenario's task names the request or plan and the
-# project, never a proof schedule, and the planned scenario's committed project
-# text names its required checks without a cost, schedule or layout steer.
+# Input checks: neutral tasks select quick work or a plan, quick project text
+# supplies cost/layout knowledge, and planned project text omits those hints.
+# These inspect supplied inputs; they do not judge historical equivalence.
 run_delivery_evidence_scheduling_text_checks() {
-  local work=$1 scenario prompt leak required planned planned_text
+  local work=$1 scenario prompt leak required quick quick_text planned planned_text
   local delivery_evidence_scenarios delivery_evidence_pass_basis
   delivery_evidence_case_profile scheduling
   for scenario in ${delivery_evidence_scenarios}; do
@@ -184,14 +184,33 @@ run_delivery_evidence_scheduling_text_checks() {
     done
   done
   prompt=$(delivery_evidence_prompt_for scheduling stylesheet-extraction)
-  if [[ ${prompt} != *"${delivery_evidence_scheduling_request}"* ]]; then
-    echo 'FAIL: scheduling prompt omits the request' >&2
+  if [[ ${prompt} != *"${delivery_evidence_scheduling_request}"* ||
+    ${prompt} != *'one planless quick slice authorized by this instruction'* ]]; then
+    echo 'FAIL: scheduling prompt omits the authorized quick request' >&2
     return 1
   fi
   prompt=$(delivery_evidence_prompt_for scheduling planned-extraction)
   if [[ ${prompt} != *"slice 1 of the executable plan ${delivery_evidence_scheduling_plan_path}"* ||
     ${prompt} == *"${delivery_evidence_scheduling_request}"* ]]; then
     echo 'FAIL: planned prompt does not hand over slice 1 of the plan alone' >&2
+    return 1
+  fi
+  quick=$(delivery_evidence_scheduling_fresh_workspace "${work}" quick)
+  quick_text=$(cat -- "${quick}/AGENTS.md")
+  if [[ ${quick_text} != *'takes about fourteen minutes'* ||
+    ${quick_text} != *'each run here as that cost.'* ]]; then
+    echo 'FAIL: quick project text omits the declared fourteen-minute suite cost' >&2
+    return 1
+  fi
+  # shellcheck disable=SC2016 # Literal Markdown code spans.
+  if [[ ${quick_text} != *'New stylesheets go in `styles/` and are linked from `index.html`; group'* ||
+    ${quick_text} != *'rules by component.'* ]]; then
+    echo 'FAIL: quick project text omits the new-stylesheet layout steer' >&2
+    return 1
+  fi
+  if [[ -e ${quick}/${delivery_evidence_scheduling_plan_path} ||
+    -e ${quick}/.planning/seeds/SEED-001-project-cards.md ]]; then
+    echo 'FAIL: quick project contains the planned scenario source' >&2
     return 1
   fi
   planned=$(delivery_evidence_scheduling_fresh_workspace "${work}" planned \

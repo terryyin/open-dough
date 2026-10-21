@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Native replay of proof scheduling around an independent refactor
+# Native scenarios for proof scheduling around an independent refactor
 # (delivery-evidence/scheduling): a stylesheet change that foreseeably needs a
 # file-size extraction, focused tests, and a whole dashboard suite that runs
 # here in seconds. Scenario stylesheet-extraction is planless work under a
 # stated fourteen-minute suite cost; planned-extraction is slice 1 of an
-# executable plan with a required suite and no stated cost.
+# executable plan with a required suite and no stated cost. Both address a
+# coordinator who may implement locally; neither guarantees a historical
+# delegated-implementer replay. Compare their inputs and retained outcomes in
+# tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch.
 #
 # Usage:
 #   tests/proof-scheduling-native.sh
@@ -36,6 +39,8 @@ usage: tests/proof-scheduling-native.sh
 Credential-free by default. --native launches one paid host session per
 delivery-evidence/scheduling scenario, or only --scenario NAME's
 (stylesheet-extraction or planned-extraction; default deadline 2700 seconds).
+Before selecting a paid run, compare inputs and historical limits in
+tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch.
 EOF
 }
 
@@ -135,7 +140,7 @@ grep -Fqx 'trace: targeted:s1:exit0:6/0 format:s2*:exit0 suite:s2*:exit0:7/0' \
   "${work}/corrected.txt"
 run_delivery_evidence_scheduling_assessor_counterexamples "${work}"
 
-# Neutral tasks and the planned scenario's project text state no proof schedule.
+# Check neutral tasks and the scenarios' actual cost, layout and plan inputs.
 run_delivery_evidence_scheduling_text_checks "${work}"
 
 # Substitute hosts through the shared runner, observer and retention.

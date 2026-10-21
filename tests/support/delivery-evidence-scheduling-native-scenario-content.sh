@@ -12,7 +12,8 @@
 #     suite's cost and steer new rules into new stylesheets.
 #   planned-extraction     slice 1 of an executable plan; the instructions
 #     require the suite before delivery without a cost and carry no layout
-#     rule for new stylesheets (the retained planned, delegated occurrences).
+#     rule for new stylesheets. This selects coordinator work, not an
+#     implementation delegation; historical limits are in tests/native-publication.md.
 # shellcheck disable=SC2034,SC2154,SC2312
 
 for delivery_evidence_scheduling_part in stylesheet library; do

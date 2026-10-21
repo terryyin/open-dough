@@ -466,6 +466,14 @@ Broad reference/metadata batches omit required passages and force repeated retri
   - Observed effect: required passages needed repeated retrieval; dependent context was recovered before use. Multiple calls remain one occurrence.
   - Inference: existing targeted-retrieval guidance applies; no new process response or measured saving is established.
 
+### Occurrence — historical replay input comparison
+
+- Execution: `SEED-053#match-historical-replay-inputs`, first implementation `fba97e9fbb90c4f97909a5e2ab899a0031c58308`.
+  - Timestamp: unknown (2026-10-21 startup); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
+  - Evidence: launch `30802283-b022-439d-90ce-dd47c14c819b`; opening tool batches reported 26,177 and 26,155 original tokens with truncation, followed by a 12,059-token truncated read and bounded retrieval of omitted execution/CI/delivery passages before use.
+  - Observed effect: required context needed repeated retrieval before implementation. Multiple oversized reads are one execution, not separate occurrences.
+  - Inference: coordinator batching exceeded the output budget despite targeted-retrieval guidance; repeated retrieval is observed, but its elapsed/token cost was not isolated and no guidance remedy was evaluated.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323.
