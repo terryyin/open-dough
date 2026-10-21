@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Match native replay inputs to historical evidence](seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs) — SEED-053#match-historical-replay-inputs ([plan](slice-plans/337-match-historical-replay-inputs/PLAN.md))
-- [Learn directly from preparation history](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-preparation-history) — SEED-010#learn-from-preparation-history ([plan](slice-plans/338-learn-from-preparation-history/PLAN.md))
 
 ## Backlog list
 

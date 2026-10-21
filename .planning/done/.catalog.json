@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_learn-from-preparation-history.json",
+      "identity": "SEED-010#learn-from-preparation-history",
+      "completedAt": "2026-10-21T08:13:38.535Z",
+      "blob": "69041a66fd45c0d43be2d6d57f59039de51bf9be"
+    },
+    {
       "fileName": "SEED-052_remove-orphaned-runner-port-helper.json",
       "identity": "SEED-052#remove-orphaned-runner-port-helper",
       "completedAt": "2026-10-21T07:36:26.033Z",
