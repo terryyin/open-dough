@@ -171,11 +171,12 @@ The internal [shared-feedback skill](../../.agents/skills/collect-client-feedbac
 
 ## A useful definition of improvement
 
-For Open Dough, a proposed operational definition is:
-
-> An improvement increases the ability to deliver valuable, correct outcomes or to change direction, under comparable relevant conditions, without an unacceptable increase in total effort, risk, or future maintenance burden.
-
-This preserves ADR 0002's direction while recognizing tradeoffs. It does not collapse all concerns into one score. Product value and the acceptable tradeoff between cost, quality, and future flexibility remain human-owned judgments.
+The proposed definition and decision policy now live in
+[Proposed ADR 0010 — Definition of improvement](../adrs/0010-definition-of-improvement.md),
+which develops ADR 0002's direction while recognizing costs and tradeoffs.
+[Story 10](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority)
+will trial the proposal and inform its human acceptance decision. The measures
+and examples below support that evaluation; they do not form a universal score.
 
 ### A small set of decision-oriented measures
 
@@ -190,10 +191,42 @@ Choose a subset for each intervention. The table is a menu, not a requirement to
 | Where is work waiting? | End-to-end elapsed time, active time, queue time, blocked time, work in progress | Agent speed does not establish delivery speed |
 | Do tests give useful confidence efficiently? | Time to decisive feedback; known regression detection; sampled mutation testing; flakes; diagnostic and maintenance effort | Coverage percentage alone cannot establish fault detection or assertion quality |
 | Does a process response work in use? | Occurrences per eligible exposure, burden introduced, relevant downstream outcomes | Calendar time or fewer reports alone does not show effectiveness |
-| Is autonomy helping? | Successful completion within authority; avoidable interruptions; missed necessary stops; recovery cost | Maximizing unassisted completion can suppress useful Jidoka stops |
+| Is autonomy helping? | Successful completion within authority; valuable-intervention and missed-intervention rates under Proposed ADR 0010; human effort and recovery cost | Review stopped and non-stopped events; counts and uncertainty matter, and required human decisions remain mandatory |
 | Does the controller earn its cost? | Findings that changed a decision; duplicate/noise rate; time to disposition and observation; review and collection cost | Finding volume is not a success target |
 
 An appropriate initial set might be outcome acceptance, attributable rework, end-to-end time, human effort, and model usage where directly available. Add a measure when a concrete decision needs it. Qualitative evidence remains necessary for usefulness, domain coherence, and disputed tradeoffs.
+
+### Assess human intervention quality
+
+[Proposed ADR 0010](../adrs/0010-definition-of-improvement.md#human-intervention-quality)
+defines valuable human intervention and the two rates. Its targets are Terry's
+2026-10-22 proposal, to be tried in Story 10, rather than research benchmarks.
+They describe event selection and realized human contribution, not the share of
+a person's working time spent adding value.
+
+Bound the reviewed project, run and decision population. Review both requests
+for intervention and decisions handled without a request. For each distinct
+event, separately judge whether human involvement was required or would add
+value, whether the process stopped in time for that involvement, and what value
+the actual intervention supplied. Expected value justifies a request; actual
+contribution establishes success. A missed opportunity's unrealized benefit is
+an inference, supported by authority and context, with uncertainty retained.
+An agent's request or a human's response alone is not proof of value. Resolve
+consequential disputed classifications with the human.
+An appropriate request whose intervention has not yet occurred is pending, not
+a demonstrated success. A later unsolicited human rescue does not erase a
+missed opportunity to stop in time.
+
+Count one decision event once in each applicable denominator. Repeated reminders
+for that decision do not create new successes; record their interruption cost.
+For each rate, report numerator and denominator, and separately list pending,
+unclassifiable or unreviewed events. Describe any sampling or missing history;
+classified-event rates do not establish the rate for unknown events. Withhold a
+target-met claim if unresolved events could change it. With no applicable
+classified events, report the rate as not assessable. Retain the
+severity of misses and human effort alongside the rates; aggregate targets do
+not excuse a missed mandatory decision. Story 10 can test whether these measures
+are useful while leaving sustained target attainment unproven.
 
 ### How to use tokens responsibly
 

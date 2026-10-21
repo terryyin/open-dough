@@ -416,6 +416,16 @@ authority and evaluation questions before judging its result. Prefer the next
 ordinary cycle; Story 9's first real automatic cycle can supply the same evidence
 when available, without repeating maintenance solely for this evaluation.
 
+- **Definition of improvement.** Trial
+  [Proposed ADR 0010](../../docs/adrs/0010-definition-of-improvement.md) as this
+  evaluation's decision basis. Before judging the cycle, state the beneficiary,
+  intended gain, baseline and comparison limits, result worth keeping, quality
+  and authority constraints, costs that could outweigh the benefit, and any
+  later exposure needed. Set criteria before a future run where possible;
+  assessment of existing results remains exploratory. Use existing decisions
+  and ask the maintainer to settle consequential unresolved tradeoffs. Record
+  later criteria changes openly. This bounded trial does not accept the ADR or
+  make it binding guidance elsewhere.
 - **Product and process value.** Check whether the cycle considers worthwhile
   project-owned product improvements as well as tooling and shared process
   responses. Trace selected and consequential declined or missed candidates to
@@ -441,10 +451,17 @@ when available, without repeating maintenance solely for this evaluation.
   exists, not as a matched control or a basis for invented savings.
 - **Human intervention.** For actual requests, retries and corrective prompts,
   identify the decision, why a person was needed, whether existing authority
-  already covered it, and whether it changed the outcome. Also inspect for
-  consequential decisions that should have stopped but did not. Distinguish a
-  necessary ownership or product choice from avoidable routine handoffs. A
-  missing example remains unexercised; do not manufacture a conflict to fill it.
+  already covered it, and what value the intervention added. Trial ADR 0010's
+  valuable-intervention and missed-intervention rates, with proposed targets
+  above 80% and below 5% respectively, using the
+  [assessment method](../../docs/maintainer/empirical-process-control-research.md#assess-human-intervention-quality).
+  Review both stopped and autonomously handled decisions; count a valuable
+  opportunity missed by the process even if a person later noticed and rescued
+  it. Reserved human ownership can add value without changing the AI's proposed
+  outcome. Report distinct event counts, evidence, severity, review coverage,
+  pending or uncertain classifications, and repeated interruption costs. A small
+  or unexercised cycle cannot establish sustained target attainment; do not
+  manufacture events or prolong the cycle to obtain favorable rates.
 - **Coverage and delivery.** Retain each project's assessed, unavailable or
   unfinished status and the final publication/reporting evidence. In particular,
   resolve the disposition of the recurring Terry Talks and Lizard source gaps
@@ -452,7 +469,7 @@ when available, without repeating maintenance solely for this evaluation.
   findings do not prove a healthy project or a passed watch. Repeated reports,
   aliases and rereviews do not become new findings or new backlog items.
 
-**Evaluation:** Produce one evidence-linked retain, adjust, simplify or
+**Evaluation:** Produce one evidence-linked retain, adjust, simplify, revert or
 inconclusive judgment about this cycle, explaining its useful decisions,
 missed opportunities, quality consequences, observed cost and human burden.
 Judge selections against the original evidence and product direction rather than
@@ -461,6 +478,13 @@ correction only where the evidence supports it. Keep the assessment in the
 maintained research report and link existing finding owners; use current cycle
 records and Git history rather than a new permanent ledger. One cycle establishes
 a bounded judgment, not sustained effectiveness or a general productivity rate.
+
+Separately assess whether ADR 0010's definition helped make a useful decision at
+proportionate cost. At this story's conclusion, recommend acceptance, revision
+and further trial, or rejection through the existing human advice process.
+Acceptance remains a human decision; story completion does not accept the ADR.
+Review need not wait for every delayed response outcome, provided pending
+evidence and the limits of any improvement claim remain explicit.
 
 **Value / learning:** Identify which part of the delivered loop is worth keeping
 or simplifying before delegating a complete correction. Product quality and
