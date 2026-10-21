@@ -18,8 +18,9 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths ([plan](slice-plans/339-learn-from-unreviewed-execution-paths/PLAN.md))
+
 ## Backlog list
 
-- [Learn from an execution or completion path that escapes review](seeds/SEED-010-learn-from-execution-retrospectives.md#learn-from-unreviewed-execution-paths) — SEED-010#learn-from-unreviewed-execution-paths
 - [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences
 - [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance
