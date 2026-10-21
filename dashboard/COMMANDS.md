@@ -85,13 +85,15 @@ manifest. `server/brandAssetPlugin.ts` serves every supplied export in
 answers from the files, and each build, production deployments included, writes
 the same unrenamed bytes beside `index.html`.
 
-`npm run setup-notifier:dashboard` is an explicit, one-time macOS setup for
+`npm run setup-notifier:dashboard` is an explicit macOS setup for
 alerts sent as **Open Dough**. It needs separately installed `terminal-notifier`
 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and the system's own
 `sips`, `iconutil`, `plutil`, `codesign` and `lsregister`; it downloads
 nothing. It copies the installed helper's app, which it only reads, to
 `~/.open-dough/dashboard/notifier/Open Dough.app`, outside every checkout and
-deployment. The copy keeps the `terminal-notifier` executable and protocol,
+deployment. After updating terminal-notifier, re-run
+`npm run setup-notifier:dashboard` to refresh the copied Open Dough sender.
+The copy keeps the `terminal-notifier` executable and protocol,
 takes its icon from `assets/brand/opendough-icon.png`, is named **Open Dough**
 with bundle identifier `dev.opendough.dashboard-notifier`, is signed ad hoc and
 registered with Launch Services. The command prints the app path and the

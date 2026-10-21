@@ -147,7 +147,7 @@ launch/session records. Records survive production replacements and watcher shut
 Development testing can act on the same projects and records as production.
 
 macOS session alerts come from Open Dough's own notification sender, which
-shows the Open Dough icon and name. Set it up once with
+shows the Open Dough icon and name. Set it up with
 `npm run setup-notifier:dashboard -- --test` and choose Allow when macOS asks;
 it needs a separately installed `terminal-notifier` 3.1 or newer (tested with
 Homebrew 3.1.0 on macOS 26.6.2, `brew install terminal-notifier`), and
@@ -161,11 +161,11 @@ later successful notification clears the note.
 Clicking a session alert opens this running dashboard in the default browser,
 reusing and foregrounding an existing dashboard tab in Safari or Google Chrome.
 If none matches this address, it opens a tab in an existing window, or opens a
-window when needed. The first click can ask to let the alert sender control
-the browser; allow it through the normal macOS prompt. You can review this in
-**System Settings → Privacy & Security → Automation**.
-If browser access is refused, a dialog explains recovery; open the dashboard
-manually after granting access, and future notifications can reuse its tab.
+window when needed. Allow browser control through the first click's macOS
+prompt, or enable your default Safari or Google Chrome browser under
+**System Settings → Privacy & Security → Automation → Open Dough**.
+If access is refused, a dialog explains recovery. Open the dashboard manually;
+after granting access, future notifications can reuse its tab.
 The click selects its project and reveals/focuses the story by stable identity,
 including after a cold open or reload. Receipt and dismissal do not navigate. The click
 starts no agent work and opens no terminal. Ad hoc alerts open their project

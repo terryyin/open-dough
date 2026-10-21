@@ -29,7 +29,7 @@ export function browserActivation(
   let nextId = 1;
   let running = options.running ?? true;
   let frontmost = false;
-  const alerts: string[] = [];
+  const alerts: { title: string; options: { message: string } }[] = [];
   const opened: string[] = [];
   let ticks = 0;
   let pending: string | undefined;
@@ -147,8 +147,8 @@ export function browserActivation(
     },
     {
       currentApplication: () => ({
-        displayAlert: (title: string) => {
-          alerts.push(title);
+        displayAlert: (title: string, options: { message: string }) => {
+          alerts.push({ title, options });
         },
       }),
     },
