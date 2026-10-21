@@ -1,16 +1,18 @@
 // The feedback maintenance check, for the local launch boundary
 // (`./launchBoundary.ts`), which starts it with the boundary and stops it with
-// the same cleanup, as it does the session alerts (`./sessionAlerts.ts`). One
-// loop (`./repeatingCheck.ts`) observes once the server listens and then every
-// few minutes whether the feedback maintenance cycle is due
+// the same cleanup, as it does the session alerts (`./sessionAlerts.ts`). It
+// observes the authorization when it starts, and one loop
+// (`./repeatingCheck.ts`) checks once the server listens and then every few
+// minutes whether the feedback maintenance cycle is due
 // (`../src/feedbackMaintenanceDue.ts`), and when it is, accepts one
 // unattached launch through the one launch entry (`./agentLaunches.ts`): an
 // ad hoc request in the default checkout of the configured project whose
 // repository is Open Dough's, on the authorized host and model, with the
 // cycle's invocation as its instruction and the due date it serves as its
 // marker, reporting to this dashboard. Only a production project environment
-// checks, so development servers sharing this machine's setting start
-// nothing.
+// reads the watch list and launches, so development servers sharing this
+// machine's setting start nothing; every server observes the authorization,
+// so the sessions answer is the same whichever serves it.
 //
 // The authorization (`./feedbackMaintenance.ts`) and this machine's launch
 // records and attempts are read first and cost no GitHub request. Only when
@@ -186,8 +188,8 @@ export class FeedbackMaintenanceCheck {
   private readonly pinned = new PinnedTexts(
     new RevisionMemo(new RetainedAnswers()),
   );
-  // The last observation, for the project it was taken in; none while this
-  // server checks nothing.
+  // The last observation, for the project it was taken in; none while no
+  // configured project is Open Dough's.
   private observation:
     (MaintenanceObservation & { readonly source: string }) | undefined;
 
@@ -195,6 +197,13 @@ export class FeedbackMaintenanceCheck {
     private readonly launches: Launches,
     private readonly origin: () => string | undefined,
   ) {
+    // The sessions answer says where maintenance stands from the server's
+    // first answer, before the first check once it listens.
+    try {
+      this.observe();
+    } catch {
+      // Observed again at the first check.
+    }
     void this.run();
   }
 
@@ -240,16 +249,16 @@ export class FeedbackMaintenanceCheck {
     }
   }
 
-  private async check(signal: AbortSignal): Promise<void> {
-    const source =
-      projectEnvironment() === "production"
-        ? publishedProjects().find(
-            (each) => each.repository === feedbackMaintenanceRepository,
-          )
-        : undefined;
+  // Observes the authorization in the project the cycle runs in, keeping the
+  // review last read and the launch last held there, without asking GitHub;
+  // undefined, observing nothing, when no configured project is Open Dough's.
+  private observe() {
+    const source = publishedProjects().find(
+      (each) => each.repository === feedbackMaintenanceRepository,
+    );
     if (source === undefined) {
       this.observation = undefined;
-      return;
+      return undefined;
     }
     let setting;
     try {
@@ -265,7 +274,14 @@ export class FeedbackMaintenanceCheck {
       review: last?.review,
     };
     this.observation = { ...observed, held: last?.held };
-    if (setting === undefined) {
+    return { source, setting, observed, last };
+  }
+
+  private async check(signal: AbortSignal): Promise<void> {
+    const observing = this.observe();
+    if (observing === undefined) return;
+    const { source, setting, observed, last } = observing;
+    if (setting === undefined || projectEnvironment() !== "production") {
       this.release();
       return;
     }
@@ -319,7 +335,7 @@ export class FeedbackMaintenanceCheck {
 
   // What the machine's sessions answer says of feedback maintenance: the
   // last observation with the sessions as they stand in that answer, or
-  // nothing while this server checks nothing.
+  // nothing while no configured project is Open Dough's.
   state(
     records: readonly LaunchWithState[],
     attempts: readonly AttemptObservation[],

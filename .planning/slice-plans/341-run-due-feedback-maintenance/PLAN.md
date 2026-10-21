@@ -232,6 +232,13 @@ Behavior: a reached due date on this machine → one automatic session → the c
   period and named on the row (G4). Proof:
   `dashboard/tests/feedback-maintenance-due-row.spec.ts` and
   `tests/support/feedback-maintenance-state.test.mjs`.
+- CI repair after slice 4 (run 39622654934, `boundary/serving-modes.spec.ts`):
+  the sessions answer must match across serving modes, so the check's local
+  observation (`observe()`) runs in every environment from construction,
+  while the GitHub read and launch stay production-only. Proof: that spec
+  `--repeat-each=4`, the feedback-maintenance specs, the whole dashboard suite
+  (1659/1660; `agent-launch-start-session-touch.spec.ts` timed out under load
+  average about 14 and passed alone), and full `npm test`.
 
 ## Story obligations
 

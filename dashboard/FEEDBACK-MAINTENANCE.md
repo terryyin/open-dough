@@ -84,7 +84,9 @@ advances the date and the check reads it. The due date last read and a held
 launch are kept in the server's memory: after a restart the row says only
 whether feedback maintenance is running, and the section names no due date,
 until the check reads the watch list again, which it does at its first check
-unless a feedback maintenance session is running.
+unless a feedback maintenance session is running. A development server, which
+never reads the watch list, says only whether feedback maintenance is running
+and the last automatic launch's outcome.
 
 ## The saved setting
 
