@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#correct-completed-supplier-agreement",
+  "title": "Correct a consumer agreement after its supplier completes",
+  "completedAt": "2026-10-21T06:58:22.408Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

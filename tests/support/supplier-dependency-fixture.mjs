@@ -1,6 +1,6 @@
 // Bare-origin starting input; all dependency writes/resolutions use real CLI.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { run } from "./product-backlog-fixture.mjs";
 import {
@@ -61,6 +61,17 @@ export async function publish(fixture, message = "supplier fixture change") {
   await git(fixture.integration, "commit", "-m", message);
   await git(fixture.integration, "push", "origin", "main");
   return revParse(fixture.integration, "HEAD");
+}
+export async function cleanupSupplier(fixture) {
+  const completed = await run(fixture.project, [
+    "complete",
+    "--identity",
+    supplier.identity,
+  ]);
+  assert.equal(completed.code, 0, completed.stderr);
+  rmSync(join(fixture.integration, ".planning/seeds/B.md"));
+  rmSync(join(fixture.integration, supplierPlan));
+  return publish(fixture, "clean completed supplier source and plan");
 }
 export async function resolveConsumer(
   fixture,
