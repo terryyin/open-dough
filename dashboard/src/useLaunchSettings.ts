@@ -2,6 +2,7 @@
 // changes reset both; catalog replies constrain choices without replacing them.
 import { useEffect, useState } from "react";
 import type { AgentLaunchRequest, LaunchModel } from "./agentLaunch.ts";
+import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
 import { effortBlocked } from "./launchEffort.ts";
 import { hostDescription } from "./hostDescription.ts";
@@ -18,10 +19,27 @@ export function useLaunchSettings(
     setEffort("");
   }, [sourceId, host]);
   const catalog = useLaunchHostOptions(sourceId, host, projectContext);
-  const settingsBlocked =
+  const settingsBlocked = launchSettingsBlocked(
+    host,
+    model,
+    effort,
+    catalog.options,
+  );
+  return { model, setModel, effort, setEffort, catalog, settingsBlocked };
+}
+
+// A chosen model the host's catalog does not offer, or a Codex effort the
+// chosen model does not take, cannot be started.
+export function launchSettingsBlocked(
+  host: AgentLaunchRequest["host"],
+  model: LaunchModel,
+  effort: string,
+  options: LaunchHostOptions | undefined,
+): boolean {
+  return (
     (hostDescription(host).modelCatalog !== undefined &&
       model !== "" &&
-      !catalog.options?.models.some((item) => item.model === model)) ||
-    (host === "codex" && effortBlocked(catalog.options, model, effort));
-  return { model, setModel, effort, setEffort, catalog, settingsBlocked };
+      !options?.models.some((item) => item.model === model)) ||
+    (host === "codex" && effortBlocked(options, model, effort))
+  );
 }

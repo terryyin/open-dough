@@ -168,6 +168,16 @@
   width: min(100%, 32rem);
 }
 
+/* Feedback maintenance's Host and Model, the launch dialog's row
+   (./launch-dialog.css) at the width of the OpenAI key field. */
+.feedback-maintenance-choices {
+  width: min(100%, 32rem);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .openai-settings-actions {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { FeedbackMaintenanceSettings } from "./FeedbackMaintenanceSettings.tsx";
 import { Icon } from "./Icon.tsx";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
@@ -124,6 +125,7 @@ export function SystemSettings({
       </section>
       <OpenAISettings />
       <TerminalThemeSettings />
+      <FeedbackMaintenanceSettings />
     </main>
   );
 }

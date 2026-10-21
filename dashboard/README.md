@@ -91,6 +91,10 @@ development/production credentials and configured-versus-verified status.
 in `~/.open-dough/dashboard/terminal-theme.json`, which development and
 production share on this machine. A failed save keeps the saved theme and offers
 Retry; other open dashboard windows use a new choice after a reload.
+**System settings → Feedback maintenance** turns on or off this machine's
+standing authorization for the feedback maintenance cycle and chooses its host
+and model. [Feedback maintenance](FEEDBACK-MAINTENANCE.md) explains its storage,
+endpoints and what it does today.
 
 On phone and tablet touch views, **Back to dashboard** remains reachable while
 you scroll through the settings groups. Project dialogs keep their actions in

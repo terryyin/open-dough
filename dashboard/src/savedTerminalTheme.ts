@@ -19,31 +19,18 @@ import {
   terminalThemeSaveEndpoint,
 } from "./terminalThemeSetting.ts";
 import { isTerminalThemeId, type TerminalThemeId } from "./terminalThemes.ts";
-import { refusalMessage } from "./refusalMessage.ts";
+import { localSettingRequest } from "./localSettingRequest.ts";
 
 async function terminalThemeRequest(
   theme?: TerminalThemeId,
 ): Promise<TerminalThemeId> {
-  const response = await fetch(
+  const answer = await localSettingRequest(
     theme === undefined ? terminalThemeEndpoint : terminalThemeSaveEndpoint,
+    theme === undefined ? undefined : { theme },
     theme === undefined
-      ? {}
-      : {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ theme }),
-        },
+      ? "The saved terminal theme could not be read. Retry the operation."
+      : "The terminal theme could not be saved. Retry the operation; the previous theme was kept.",
   );
-  const answer: unknown = await response.json().catch(() => undefined);
-  if (!response.ok)
-    throw new Error(
-      refusalMessage(
-        answer,
-        theme === undefined
-          ? "The saved terminal theme could not be read. Retry the operation."
-          : "The terminal theme could not be saved. Retry the operation; the previous theme was kept.",
-      ),
-    );
   if (
     typeof answer !== "object" ||
     answer === null ||

@@ -1,8 +1,8 @@
 // The request handling shared by this dashboard's local JSON settings
-// endpoints (projects, OpenAI access, terminal theme): only the listed paths
-// are taken, every request must come from this dashboard's own page, the
-// answer is JSON that is never cached, and closing the server aborts what is
-// still pending. A `RefusedRequest` answers its own status and message; any
+// endpoints (projects, OpenAI access, terminal theme, feedback maintenance):
+// only the listed paths are taken, every request must come from this
+// dashboard's own page, the answer is JSON that is never cached, and closing
+// the server aborts what is still pending. A `RefusedRequest` answers its own status and message; any
 // other failure is answered as `failure` describes it. The result is a
 // boundary install (`./localBoundary.ts`) for whichever server mounts it.
 import type { IncomingMessage } from "node:http";

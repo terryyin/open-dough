@@ -141,7 +141,7 @@ Behavior: the shared-feedback cycle finishes its review → it writes or replace
 
 ### 2. The maintainer turns feedback maintenance on in System settings
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright spec: System settings shows a Feedback maintenance section off by default; turning it on with Claude Code and a model, reloading, and reading `~/.open-dough/dashboard/feedback-maintenance.json` shows the saved choice; Off removes it; a malformed file reports a problem and is left untouched. Interim: the section states that nothing starts until the due check of slice 3 exists, replaced there.
 
 Behavior: the maintainer opens System settings → chooses On, a host, and optionally a model → the setting is saved machine-locally through local JSON endpoints like the OpenAI setting, the section shows the saved choice, and no session, record, or configuration write results. New document `dashboard/FEEDBACK-MAINTENANCE.md`, indexed from `dashboard/README.md`.
@@ -192,6 +192,24 @@ Behavior: a reached due date on this machine → one automatic session → the c
   `node --test tests/support/feedback-review.test.mjs` (in `npm test`), whose
   real-watch-list case asserts the writer's 1–7 day rule, not today's dates,
   because the cycle rewrites the block.
+- Slice 2: `readFeedbackMaintenance()` in `dashboard/server/feedbackMaintenance.ts`
+  returns `{enabled:false}` for no file and throws `FeedbackMaintenanceProblem`
+  for a malformed one; slice 3 treats both as not authorized. The setting
+  holds `host`, optional `model`, and Codex's optional `effort` for the ad hoc
+  request; `feedbackMaintenanceRepository` in
+  `dashboard/src/feedbackMaintenanceSetting.ts` names the project whose
+  folder the session starts in. The interim text is `automaticStartNote` in
+  `dashboard/src/FeedbackMaintenanceSettings.tsx` and one paragraph of
+  `dashboard/FEEDBACK-MAINTENANCE.md` (G1). Proof:
+  `dashboard/tests/system-settings-feedback-maintenance.spec.ts` and
+  `dashboard/tests/boundary/feedback-maintenance-boundary.spec.ts`.
+
+## Story obligations
+
+### G1. Settings section says nothing starts automatically yet
+Reported: slice 2 — "The section shows: \"Nothing starts automatically yet: this dashboard does not check when feedback maintenance is due.\" The text is in one constant, `automaticStartNote`, in `dashboard/src/FeedbackMaintenanceSettings.tsx`. `dashboard/FEEDBACK-MAINTENANCE.md` also has one paragraph starting **Nothing starts automatically yet.** Slice 3 must replace both."
+Story clause: "When the cycle is due, the authorization is on, no feedback-maintenance session is open on this machine, and no automatic launch has served that due date, the dashboard starts one unattached session"
+Disposition: interim until slices 3
 
 ## Concern evidence
 

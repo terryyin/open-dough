@@ -6,30 +6,17 @@ import {
   type OpenAIConfigurationStatus,
 } from "./openAIConfiguration.ts";
 import "./frame-controls.css";
-import { refusalMessage } from "./refusalMessage.ts";
+import { localSettingRequest } from "./localSettingRequest.ts";
+import { useLocalSetting } from "./useLocalSetting.ts";
+
+const updateFailure =
+  "OpenAI configuration could not be updated. Retry the operation.";
 
 async function configurationRequest(
   endpoint: string,
-  apiKey?: string,
+  body?: { readonly apiKey?: string },
 ): Promise<OpenAIConfigurationStatus> {
-  const response = await fetch(
-    endpoint,
-    endpoint === openAIConfigurationEndpoint
-      ? {}
-      : {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(apiKey === undefined ? {} : { apiKey }),
-        },
-  );
-  const answer: unknown = await response.json();
-  if (!response.ok)
-    throw new Error(
-      refusalMessage(
-        answer,
-        "OpenAI configuration could not be updated. Retry the operation.",
-      ),
-    );
+  const answer = await localSettingRequest(endpoint, body, updateFailure);
   if (
     typeof answer !== "object" ||
     answer === null ||
@@ -42,72 +29,49 @@ async function configurationRequest(
   return { configured: answer.configured };
 }
 
+function readConfiguration(): Promise<OpenAIConfigurationStatus> {
+  return configurationRequest(openAIConfigurationEndpoint);
+}
+
 export function OpenAISettings() {
-  const [status, setStatus] = useState<OpenAIConfigurationStatus>();
+  const {
+    value: status,
+    problem,
+    reportProblem,
+    busy,
+    retryRead,
+    change,
+  } = useLocalSetting(
+    readConfiguration,
+    "OpenAI configuration could not be read.",
+    updateFailure,
+  );
   const [apiKey, setAPIKey] = useState("");
-  const [problem, setProblem] = useState<string>();
-  const [busy, setBusy] = useState(false);
-  const [retry, setRetry] = useState(0);
   const input = useRef<HTMLInputElement>(null);
   const focusAfterSave = useRef(false);
-  const statusReadRevision = useRef(0);
   useEffect(() => {
     if (!busy && focusAfterSave.current) {
       focusAfterSave.current = false;
       input.current?.focus();
     }
   }, [busy]);
-  useEffect(() => {
-    let current = true;
-    const revision = ++statusReadRevision.current;
-    setProblem(undefined);
-    void configurationRequest(openAIConfigurationEndpoint).then(
-      (answer) => {
-        if (current && revision === statusReadRevision.current)
-          setStatus(answer);
-      },
-      (error: unknown) => {
-        if (current && revision === statusReadRevision.current)
-          setProblem(
-            error instanceof Error
-              ? error.message
-              : "OpenAI configuration could not be read.",
-          );
-      },
-    );
-    return () => {
-      current = false;
-    };
-  }, [retry]);
   async function update(remove: boolean) {
     if (busy) return;
     if (!remove && !apiKey.trim()) {
-      setProblem("Enter an API key before saving. The previous key was kept.");
+      reportProblem(
+        "Enter an API key before saving. The previous key was kept.",
+      );
       input.current?.focus();
       return;
     }
-    // The mutation owns subsequent feedback; an older read is only a snapshot.
-    statusReadRevision.current += 1;
-    setBusy(true);
-    setProblem(undefined);
-    try {
-      setStatus(
-        await configurationRequest(
-          remove ? openAIRemoveEndpoint : openAISaveEndpoint,
-          remove ? undefined : apiKey,
-        ),
-      );
+    await change(async () => {
+      const answer = await (remove
+        ? configurationRequest(openAIRemoveEndpoint, {})
+        : configurationRequest(openAISaveEndpoint, { apiKey }));
       setAPIKey("");
       focusAfterSave.current = true;
-    } catch (error) {
-      setProblem(
-        error instanceof Error
-          ? error.message
-          : "OpenAI configuration could not be updated. Retry the operation.",
-      );
-    } finally {
-      setBusy(false);
-    }
+      return answer;
+    });
   }
   return (
     <section
@@ -183,9 +147,7 @@ export function OpenAISettings() {
             type="button"
             className="frame-button"
             disabled={busy}
-            onClick={() => {
-              setRetry(retry + 1);
-            }}
+            onClick={retryRead}
           >
             Retry status
           </button>
