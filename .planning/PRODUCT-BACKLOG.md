@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Evaluate an improvement against its later product consequences](seeds/SEED-010-learn-from-execution-retrospectives.md#evaluate-later-product-consequences) — SEED-010#evaluate-later-product-consequences ([plan](slice-plans/340-evaluate-later-product-consequences/PLAN.md))
-
 ## Backlog list
 
 - [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance
