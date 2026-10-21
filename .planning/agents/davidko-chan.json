@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "identity": "SEED-147#running-cursor-session-reads-working",
+  "mode": "story-branch",
+  "branch": "cursor/running-cursor-session-reads-working",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
