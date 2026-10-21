@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-147_running-cursor-session-reads-working.json",
+      "identity": "SEED-147#running-cursor-session-reads-working",
+      "completedAt": "2026-10-21T06:33:23.594Z",
+      "blob": "1d4df194e28e928737d21ab2254d010c77e72bb9"
+    },
+    {
       "fileName": "SEED-145_continue-execution-into-wrap-up.json",
       "identity": "SEED-145#continue-execution-into-wrap-up",
       "completedAt": "2026-10-20T13:39:37.550Z",
