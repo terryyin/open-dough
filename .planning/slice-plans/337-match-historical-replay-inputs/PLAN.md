@@ -117,7 +117,7 @@ Use broader native-evidence checks only if their shared contract changes.
 ### 1. Make the historical limits of each scheduling scenario visible before launch
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The comparison walk and generated-input checks above, with all existing
 credential-free scheduling controls passing on the final changed state.
 
@@ -235,3 +235,5 @@ Disposition: excluded "Paid runs, release and rollout are outside this delivery"
 Reported: slice 1 — "retained summaries/accepted proof do not recover a full delegation transcript or establish plan-302 installed-guidance provenance."
 Story clause: "the comparison labels that context unknown and historical reachability inconclusive"
 Disposition: proved by slice 1: `tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch`, historical source-limit rows and retained-output interpretation explicitly label the unknowns and limit reconstructed reachability; inspected against ODF-249 and recovered plans 302/323.
+
+Response revision: `fba97e9fbb90c4f97909a5e2ab899a0031c58308`, accepted on the remote execution branch.
