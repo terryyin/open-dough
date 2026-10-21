@@ -396,7 +396,7 @@ rollout remain human-directed.
 
 **Identity:** SEED-010#prioritize-responses-with-delegated-authority
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bf90dae578e459c2d59ee9c9ae1ab0d3324841bfec40657fb8474f19944c6ad9","plan":"f891ea0b80a8d12212db2d0ee36b65e2bb9b62f6e438ea5f213065fd21241580"}}
 ```
 
 **Goal:** The maintainer can decide whether the delivered feedback cycle makes
@@ -416,6 +416,18 @@ authority and evaluation questions before judging its result. Prefer the next
 ordinary cycle; Story 9's first real automatic cycle can supply the same evidence
 when available, without repeating maintenance solely for this evaluation.
 
+- **Observed run.** The observed run is the first combined cycle after the
+  2026-10-21 review: the one the watch list's due block makes due on
+  2026-10-22, whether the dashboard starts it under Story 9's standing
+  authorization or the maintainer starts it by hand. That run is also Story
+  9's own developer-run observation; this story reads its records and runs no
+  cycle of its own. Its evidence is the launch record and completion receipt
+  on this machine, the native session record, the cycle's commits in each
+  maintained project, and the maintainer's prompts. When the run's result
+  already exists before this story's execution begins, the decision basis is
+  recorded as set afterwards and the judgment is labelled exploratory; when
+  it does not, the basis is recorded first and the judgment waits for the
+  run. Once the basis names that run, a later run is not substituted.
 - **Definition of improvement.** Trial
   [Proposed ADR 0010](../../docs/adrs/0010-definition-of-improvement.md) as this
   evaluation's decision basis. Before judging the cycle, state the beneficiary,
@@ -468,6 +480,86 @@ when available, without repeating maintenance solely for this evaluation.
   within existing authority, or leave the exact owner decision needed. Missing
   findings do not prove a healthy project or a passed watch. Repeated reports,
   aliases and rereviews do not become new findings or new backlog items.
+
+**Deferred promises:** This delivery does not run, repeat or schedule a
+maintenance cycle; implement, release or roll out any response the cycle
+selects; accept, revise or reject ADR 0010, which stays with the advice
+process; add a ledger, measurement platform, token counter, scoring rule or
+dashboard view; change the maintenance skills, their selection limits or
+their authority; write to any client repository; or retire, reopen or re-rank
+a finding beyond the dispositions existing authority already allows. Sustained
+target attainment, a general productivity rate and a matched comparison with
+the manual cycles are not claimed from one run.
+
+**Key examples:**
+
+1. The due block on trunk reads `reviewAfter` 2026-10-22 and no cycle has
+   completed since the 2026-10-21 review → this story's execution writes the
+   decision basis in the research report → the basis names the observed run,
+   its beneficiary (the maintainer and the maintained projects' developers),
+   the intended gain (worthwhile product and process decisions at acceptable
+   cost with useful intervention), the comparison (the October 20 cycle at
+   `327b6fa2`–`a2be7e50` and the October 21 cycle at `77f9c3f6`–`c361dbb8`
+   as qualified context, not a control), the result worth keeping, the
+   quality and authority constraints, the costs that could outweigh the
+   benefit, and the later exposure needed, dated before any result of that
+   run is read.
+2. The observed run completed and published before this story's execution
+   began → the same write → the basis records the date it was set and that
+   the result preceded it, the judgment is labelled exploratory, and nothing
+   else about the method changes.
+3. The observed run's report selected two shared responses and one
+   project-owned Pygardon story, declined one candidate, and recorded one
+   no-change → the evaluation traces the selections → each selected, declined
+   and no-change candidate links to its finding evidence, distinct-execution
+   frequency, current relevance, product direction and any existing covering
+   story; the trace states whether a project-owned product improvement was
+   considered without a further human request, which the October 21 cycle
+   needed; the justified no-change counts as a valid decision; the evaluation
+   creates no story or finding of its own.
+4. The observed run reviewed the Open Dough, Pygardon and Doughnut logs and
+   found no ordinary named-gap acceptance since the 0.3.67 successor was
+   adopted → the evaluation follows ODF-139 → the finding's record gains that
+   exposure limit and the next discriminating observation; no effectiveness is
+   claimed and its watch does not pass. Where such an acceptance exists, the
+   record gains the original story, actual disposition, correction rounds,
+   intervention and available burden instead.
+5. The launch record, completion receipt, Claude Code session record and the
+   cycle's commits exist for the observed run → the evaluation records cost →
+   one table gives input, cache-creation, cache-read and output tokens where
+   the host record states them, wall-clock time from launch to the last
+   accepted publication, active human effort from the prompts the maintainer
+   wrote, and the publication and correction work; every unmeasured quantity
+   reads unknown; this evaluation's own preparation and execution burden is
+   listed beside it.
+6. The observed run stopped twice for the maintainer, both with an assessable
+   outcome, one of which exercised reserved authority and one of which was
+   routine approval already delegated; it handled four consequential
+   decisions without stopping, one of which needed the maintainer; a third
+   prompt repeated the first stop's reminder → the intervention assessment →
+   six distinct events, each with the decision, why a person was or was not
+   needed, whether existing authority covered it and the value the actual
+   intervention added; valuable-intervention rate 1/2 and missed-intervention
+   rate 1/2, each with its named events; the repeated prompt adds no event
+   and is recorded as interruption cost; no target-met claim. A run with no
+   assessable stops reports the valuable-intervention rate as not assessable,
+   never as 100%.
+7. Terry Talks and Lizard have no `DearDough.md` and no Open Dough
+   configuration file, and the observed run reports them unavailable → the
+   evaluation resolves coverage → either a disposition within existing
+   authority, such as recording them as not yet maintained with the reason
+   and the owner who can change it, or the exact owner decision needed; no
+   watch passes on their silence, and repeated reports, aliases and rereviews
+   add no finding or backlog item.
+8. The basis, traces, follow-through, cost, intervention and coverage records
+   are all written → the maintainer reads the follow-up → one evidence-linked
+   judgment (retain, adjust, simplify, revert or inconclusive) with the run's
+   useful decisions, missed opportunities, quality consequences, cost and
+   human burden; a bounded next observation only where the evidence supports
+   it; and a separate recommendation on ADR 0010 (accept, revise and trial
+   further, or reject) that leaves acceptance to Terry. A second review of
+   the same run yields the same follow-up and adds no occurrence, story or
+   finding.
 
 **Evaluation:** Produce one evidence-linked retain, adjust, simplify, revert or
 inconclusive judgment about this cycle, explaining its useful decisions,
