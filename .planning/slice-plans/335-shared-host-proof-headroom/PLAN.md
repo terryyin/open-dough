@@ -129,7 +129,7 @@ do not claim coordinated execution at this point.
 
 ### 2. Preserve the proof decision across delegated and repair ownership
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the plan 305 overlap and ODF-209 repair scenario from coordinator
 brief to delegated launch/return and repair pause/resume; include the refactor
 entry and verify one consistent rule. Recheck the source's final example matrix
@@ -279,7 +279,7 @@ Independent refactor `/root/refactor1` shortened only the direct Execute Plan en
 ### G1. Propagate the shared decision to fresh proof owners
 Reported: slice 1 — "Slice 2 still owns delegation/refactor/repair propagation, overlap walkthroughs and finding updates."
 Story clause: "Carry that decision, its evidence, command ownership and reconsideration condition through implementation/refactor delegation and asynchronous CI repair when work shares a host, including separate worktrees."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: accepted source-only review and instruction walkthrough in this execution's /root/slice2 and /root/refactor2 returns; inspected delegation/return, acceptance/refactor and CI repair/pause/resume plus both finding updates against the unchanged shared rule.
 
 ### G2. Exact historical pre-launch facts are unavailable
 Reported: slice 1 — "Exact start-state evidence for all four plan 310 attempts is unavailable; the walkthrough deliberately does not invent it."
@@ -290,3 +290,65 @@ Disposition: proved by slice 1: Accepted slice 1 proof qualifies the missing per
 Reported: slice 1 — "Native compliance, adoption, release and measured savings remain unproved."
 Story clause: "Native agent compliance, ordinary adoption and measured savings remain unproved without their own attributable evidence; implementation or queueing resolves none."
 Disposition: excluded "This is guidance authoring and bounded behavior review; fresh paid native acceptance, release/rollout, cross-project changes and measured performance improvement require their own selected work and authority."
+
+## Accepted slice 2 proof
+
+Fresh source-only reviewer `/root/source_review2` (`fork_turns: none`) received
+only the original story text and no plan, product, return, suspected omission or
+slice scope. Its actual launch and returned individual commitments are in the
+execution conversation. Comparison with source, plan, actual six-file diff and
+walkthrough confirms the propagation, evaluation and all source qualifications;
+no human amendment or source promise was dropped.
+
+Slice 1 delivery: `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`, accepted on
+`refs/heads/codex/choose-expensive-proof-with-shared-host-headroom`, suffix base
+`9064e7ea0628405f6d951176ac6d5e386146d818`. The fresh command's shell handle
+was not exposed by the coordinator's output wrapper. After verifying no writer
+remained and the committed clean checkout, installed resume with those full
+IDs returned `already-published`, `pushCount: 0`, `publication: accepted`,
+`completedObligation: record-published-identity`, and recovered the same observer
+`/tmp/dough-ci-501/watch-CwEwhy`. The first abbreviated-SHA resume refused before
+mutation; full-ID recovery neither recommitted nor pushed again.
+
+Boundary: actual coordinator brief, receiving launch/return, acceptance,
+independent refactor handoff/verification, repair step 4 and pause/resume. Setup
+is the retained evidence at ODF-209/228; the observation is the action required
+by those edited instructions, not a native agent run.
+
+| Original trigger/input | Source-expected result | Actual observation | Disposition |
+| --- | --- | --- | --- |
+| New implementation proof owner on shared host | Carry host/workload/evidence or unknowns/choice/owner/reconsideration | Delegation's Give the agent transfers them; receiving owner confirms or reconsiders before launch/repeat; return retains decision and deferred observation | G1 proved |
+| Plan 305 whole-dashboard proof plus shell proof on one host, possibly separate worktrees | Shared capacity; sequence or bound owned heavy work, retain broad proof | Brief chooses sequencing; qualified historical snapshot is not backdated; command owner retains whole observation until competing work ends and current conditions support launch; independent work continues | G1 proved |
+| Failed plan 305 whole run and focused 10.1-second pass | Focused signal remains diagnostic, controlled whole result distinct | Acceptance leaves failed whole verdict intact; controlled four-worker all-1,625 result remains separate broad evidence | Accepted |
+| Independent refactor receives accepted proof and remaining expensive observation | Preserve unchanged proof; carry decision for affected checks | wrap-up delivery step 1 carries decision/competition; Verify edits reuses sufficient unchanged proof first, then reaches the same pre-launch rule; return owns deferred observation | G1 proved |
+| Plan 230/ODF-209 costly 6–12-worker reproduction plus slice/refactor proof | Machine coordination across owners without replacing writer safety | Existing pause, PAUSED marker, quiescence-before-stash, repair, restore and same-agent resume remain. Repair step 4 passes decision/known competitors, requires renewed basis before launch/repeat and retains missing proof | G1 proved |
+| Resume after repair, changed files or stale workload | Reread affected files, rerun only invalidated proof; reconsider heavy launch basis | Pause/resume carries retained decision, then reconfirms it before heavy verification; command-terminal ownership unchanged | G1 proved |
+| Healthy host, inaccessible remote, plan 315 fixture and plan 314 reuse | Same discriminating rule, no case-specific policy or relaxed verdict | Entry links reach unchanged shared rule; healthy bounded run proceeds, remote facts remain unknown, fixture repair remains necessary, sufficient unchanged proof reused | Slice 1 proof preserved and reached from new owners |
+| Finding response and evaluation | At both owners: actual response/revision, release state, case decisions, usefulness/burden and limits | ODF-228/209 Source response sections cite shared-rule commit 97e2c938, actual entrypoints and reviewed cases; explicitly unreleased, native/adoption/savings unproved, no new occurrence or finding resolution | Accepted |
+| Exclusions and human boundaries | No scheduler/registry/fixed threshold/timeout loosening/unrelated kill/routine approval or new scope authority | Single shared rule, concise handoffs, existing failure and human decision policies; no runtime machinery or live action | Accepted |
+
+Literal review commands: `cat src/skills/dough-story-refinement/references/executable-proof.md`;
+`git diff -- src/skills/dough-execute-plan/references/delegation.md src/skills/dough-execute-plan/references/wrap-up.md src/skills/dough-execute-plan/references/ci-monitor.md src/skills/dough-post-change-refactor/SKILL.md`;
+`git diff -- docs/maintainer/findings/ODF-228.md docs/maintainer/findings/ODF-209.md`;
+`git diff --check`. All completed; whitespace pass. Implementation's
+`python3 /Users/terryyin/.codex/skills/.system/skill-creator/scripts/quick_validate.py src/skills/dough-post-change-refactor`
+passed structure only. Inspected consumers are the named entry and continuation
+sections above; no renamed symbol, callable contract, adapter or test fixture
+changed. Existing install.sh declares all affected runtime files; no generation
+or payload change. No costly/native/full suite was needed or launched.
+
+Usefulness: an actionable bounded choice now survives a new proof owner and
+separates checkout safety from machine capacity. Burden: carry a concise existing
+decision and reconsider when its basis changes. The review demonstrates
+expressibility and consistency only; adoption, native compliance and savings
+need attributable later evidence. Pending seed lifecycle obligations remain
+active and this work performs no release or rollout.
+
+Independent refactor `/root/refactor2` returned `## REFACTOR COMPLETE`, shortened
+only ci-monitor and wrap-up handoffs to 250 lines, and rewalked affected repair,
+pause/resume, acceptance and refactor passages. Existing quiescence-before-stash,
+minimal defect proof, uncommitted return, publication/observer, restore/same-agent
+resume and only-invalidated-proof rules remain. Shared rule, other entrypoints,
+findings and their accepted proof remained unchanged; `git diff --check` passed.
+Coordinator searched old changed phrases in tests' shell/module files with no
+matches; no current callable/test consumer was lost. No costly proof outstanding.
