@@ -154,12 +154,13 @@ or claims of readiness.
 
 **Identity:** SEED-052#remove-orphaned-runner-port-helper
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"36ccfd64186277b504166fbd2f8f71aa44f0681836b55d5a3faf2b7504133721","plan":"f5198e536043ccf498985f895daf17719f0ac3b18012d1d51dc80120548027df"}}
 ```
 
-**Goal:** A developer reading or reusing the Cursor runner port helpers
-cannot pick a start-if-absent helper for new work and silently bypass
-plan 334's current-build guarantee.
+**Goal:** A developer maintaining the Cursor integration sees only the
+accepting-runner and current-build port choices, with no unused
+start-if-absent port helper that could silently bypass plan 334's
+current-build guarantee for new work.
 
 **Scope:** Bounded retrospective correction of the completed
 SEED-052#cursor-runner-restart-resume (plan 334, recoverable at
