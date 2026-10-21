@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-010#evaluate-later-product-consequences",
+  "mode": "story-branch",
+  "branch": "claude/evaluate-an-improvement-against-its-later-produc",
+  "host": "claude"
+}
