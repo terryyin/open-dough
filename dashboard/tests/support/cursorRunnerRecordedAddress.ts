@@ -2,6 +2,7 @@
 // an address outright, turning its recorded build proof stale, and
 // leaving it stale while the runner it names is killed.
 import { mkdirSync, writeFileSync } from "node:fs";
+import type net from "node:net";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
 import {
@@ -35,6 +36,34 @@ export async function killCursorRunnerLeavingAddress(
   await expect.poll(() => processRunning(stale.pid)).toBe(false);
   expect(readCursorRunnerAddress(home)).toEqual(stale);
   return stale;
+}
+
+// Process death does not reserve its old port for this test: another socket
+// may occupy it before the unrelated listener can bind. Observe acquisition
+// of that exact port, with the normal bounded poll, before exercising ensure.
+export async function listenOnReleasedRunnerPort(
+  server: net.Server,
+  port: number,
+): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        new Promise<boolean>((resolve, reject) => {
+          const failed = (error: NodeJS.ErrnoException) => {
+            server.off("listening", listening);
+            if (error.code === "EADDRINUSE") resolve(false);
+            else reject(error);
+          };
+          const listening = () => {
+            server.off("error", failed);
+            resolve(true);
+          };
+          server.once("error", failed);
+          server.once("listening", listening);
+          server.listen(port, "127.0.0.1");
+        }),
+    )
+    .toBe(true);
 }
 
 export function makeRecordedRunnerProofStale(home: string): void {

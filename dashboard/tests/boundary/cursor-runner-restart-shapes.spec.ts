@@ -25,6 +25,7 @@ import {
 } from "../support/cursorRunnerProof.ts";
 import {
   killCursorRunnerLeavingAddress,
+  listenOnReleasedRunnerPort,
   tamperRecordedProof,
   writeRunnerAddress,
 } from "../support/cursorRunnerRecordedAddress.ts";
@@ -74,12 +75,7 @@ test("a port reused after the runner died does not revive its stale address", as
     // and the stale address is left naming that port with a pid that is
     // gone for good (a short-lived process this test reaped itself, so
     // no zombie can answer the alive check on the dead runner's behalf).
-    await new Promise<void>((resolve, reject) => {
-      squatter.once("error", reject);
-      squatter.listen(stale.port, "127.0.0.1", () => {
-        resolve();
-      });
-    });
+    await listenOnReleasedRunnerPort(squatter, stale.port);
     const gone = spawn(process.execPath, ["-e", ""]);
     await new Promise<void>((resolve) => {
       gone.once("exit", () => {
