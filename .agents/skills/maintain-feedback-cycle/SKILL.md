@@ -22,7 +22,9 @@ set, including Open Dough. Pass that originating instruction to each phase;
 no repeated maintenance or publication prompt is needed. Carry narrower current
 instructions. Reading or editing this skill grants no maintenance authority.
 Do not implement responses, change direction, release/install guidance, schedule
-future cycles or change dashboard configuration.
+future cycles or change dashboard configuration. The shared phase still records
+the watch list's next review date as its [due block](../collect-client-feedback/references/retention-and-watch.md);
+the dashboard reads that record.
 
 ## Establish the cycle and project set
 

@@ -31,6 +31,24 @@ adoption/execution locator, **Review after** seven calendar days later, and
 file age or release date. Unknown start stays unknown; elapsed time without
 relevant use is unexercised. Preserve supplied timestamp/timezone precision.
 
+When the review finishes, update the watch list's opening review line
+(`Reviewed <date> (<timezone>): coverage and limits`) and, directly below the
+list's heading, write or replace its one due block:
+
+````markdown
+```json dough-feedback-review
+{"schemaVersion":1,"reviewed":"2026-10-21","reviewAfter":"2026-10-28"}
+```
+````
+
+`reviewed` is the review's local date. `reviewAfter` is seven calendar days
+later, or the earliest pending **Review after** date when that is sooner; a
+pending date is one later than `reviewed`, since dates on or before it were due
+in this review. The dashboard reads this block to start the next due review, so
+keep exactly one, with both dates as `YYYY-MM-DD` and `reviewAfter` not before
+`reviewed`. A partial review still records its date; an interrupted one that
+leaves the watch list unwritten leaves the block unchanged.
+
 Retire only after seven calendar days, verified relevant use of corrected guidance,
 review of the whole selected maintained source set, and no supported recurrence
 or unresolved consequential contrary report. Missing sources cannot satisfy that

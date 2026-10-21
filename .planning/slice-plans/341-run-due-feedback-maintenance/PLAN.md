@@ -134,7 +134,7 @@ review walk AGENTS.md requires. The native run is developer-run.
 
 ### 1. The maintenance cycle records when its next review is due
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test` of the new reader `dashboard/src/feedbackReview.ts` parsing a fenced `json dough-feedback-review` block `{"schemaVersion":1,"reviewed":"YYYY-MM-DD","reviewAfter":"YYYY-MM-DD"}` from the real `docs/maintainer/near-term-watch-list.md` and from texts with no block, two blocks, a malformed date, and a block after other text; a behavior review walk of the revised skill text with one representative review.
 
 Behavior: the shared-feedback cycle finishes its review → it writes or replaces the due block directly below the watch list's heading, with `reviewed` as the review's local date and `reviewAfter` seven calendar days later or the earliest pending **Review after** date when that is sooner → the block parses to those two dates; the current watch list carries `reviewed` 2026-10-21 and `reviewAfter` 2026-10-28. The instruction lives in [retention and watch](../../../.agents/skills/collect-client-feedback/references/retention-and-watch.md) beside the review line it already describes, and the runbook names the dashboard as a reader.
@@ -184,7 +184,14 @@ Behavior: a reached due date on this machine → one automatic session → the c
 
 ## Learnings
 
-None yet.
+- Slice 1: a pending **Review after** date is one later than `reviewed`;
+  earlier dates were due in that review. `readFeedbackReview` in
+  `dashboard/src/feedbackReview.ts` returns `scheduled`, `absent`, or
+  `invalid` with a reason, accepts the one block wherever it sits, and has no
+  Node import, so slice 3's server check consumes it directly. Proof:
+  `node --test tests/support/feedback-review.test.mjs` (in `npm test`), whose
+  real-watch-list case asserts the writer's 1–7 day rule, not today's dates,
+  because the cycle rewrites the block.
 
 ## Concern evidence
 

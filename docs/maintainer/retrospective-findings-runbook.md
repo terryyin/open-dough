@@ -12,6 +12,14 @@ workflow for discovering maintained projects, retaining and adopting evidence,
 cleanup/watch decisions, challenged top-two selection, and committing and
 synchronizing all changed repositories including Open Dough.
 
+Each shared review ends by recording its date and the next review's due date in
+the `json dough-feedback-review` block below the
+[near-term watch list](near-term-watch-list.md)'s heading, as
+[retention and watch](../../.agents/skills/collect-client-feedback/references/retention-and-watch.md)
+describes. The dashboard reads that block
+([reader](../../dashboard/src/feedbackReview.ts)) to learn when the next cycle is
+due.
+
 An explicit request to run this former runbook invokes the shared-only skill with the same
 complete maintenance authority, subject to narrower current instructions. Reading
 or editing this pointer starts no maintenance. See the skill for required inputs,
