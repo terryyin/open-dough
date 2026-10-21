@@ -50,3 +50,12 @@ Preserved: the inline click callback, destination quoting, tab reuse and the
 dialog-instead-of-extra-tab behavior; the branded sender identity and its
 Notifications permission. Plan:
 [330-branded-alert-click-automation](../slice-plans/330-branded-alert-click-automation/PLAN.md).
+
+**Developer-approved proof amendment (2026-10-21):** Establish the granting
+identity from the observed System Settings Automation app/browser entries and
+controlled refusal/retry tests through real branded alert clicks. The developer
+selected this evidence instead of reproducing the first permission prompt,
+whose wording was not retained. This supersedes the prompt-evidence requirement
+above; it does not waive refusal/recovery, tab preservation, successful retry,
+or support for either Safari or Google Chrome. No consent reset is needed to
+recapture the first prompt.

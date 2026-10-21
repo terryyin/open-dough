@@ -122,7 +122,7 @@ these observations do not establish consent attribution.
 
 | Promise | Owner | Observable result |
 | --- | --- | --- |
-| Known entry for real branded clicks | 1 | Prompt app name, System Settings Automation row and browser child control recorded from a real click, with actual sender/browser versions and launch context |
+| Known entry for real branded clicks | 1 | System Settings Automation row/browser child and controlled refusal/retry through real clicks, with actual sender/browser versions and launch context; first-prompt wording waived by the developer's proof amendment |
 | Refusal preserves tabs; allowing restores navigation | 1 baseline, 2 final | Deny the attributed consent, observe recovery with no new tab; enable the identified browser control and click again to reuse/foreground the dashboard tab and reach the story |
 | Dialog and maintained recovery docs name that entry | 2 | Real refusal dialog matches the observed row; emitted-source regression asserts its message; README and AGENT-LAUNCH-HISTORY match that evidence |
 | Safe, durable inline callback and destination quoting | 2 | Full activation-command and activation specs pass, including literal quote/substitution destinations and both browser models |
@@ -133,13 +133,15 @@ these observations do not establish consent attribution.
 
 ### 1. Establish the consent attribution of a real branded alert click
 Type: Behavior
-Status: planned
+Status: done
 Proof: Native baseline through the existing sender and inline callback, under
 `dough-manual-testing`; no product change is required for this early probe.
 
 Given the developer's agreed, narrowly scoped consent reset or toggle for the
-candidate app, when a real branded alert is clicked, record the prompt's app
-name, its browser target, and the resulting System Settings Automation row.
+candidate app, when a real branded alert is clicked, record the resulting
+System Settings Automation app row and browser child control. Establish that
+this entry is consulted through its controlled refusal/retry behavior, under
+the developer's approved proof amendment; do not recreate the first prompt.
 Refuse and observe the existing recovery dialog and unchanged tab count; then
 allow that control and verify a later click reuses/foregrounds the dashboard
 and reaches its story. Exercise Safari and Google Chrome as default browsers
@@ -147,7 +149,7 @@ in turn, keeping their observations separate if attribution differs.
 
 Record the execution checkout/revision, actual posting command or application
 trigger and destination, sender bundle/path/version, browser versions, exact
-prompt and row wording, refusal and successful retry results. Use the production
+row wording, refusal and successful retry results. Use the production
 `sendTerminalNotification` path from that checkout with a controlled dashboard
 story destination; do not replace it with standalone osascript, which can have
 different attribution. Announce desktop takeover under the manual-testing
@@ -165,7 +167,7 @@ the permitted early-probe exception; no cheap unresolved premise is deferred.
 
 ### 2. Recover using the observed Automation entry
 Type: Behavior
-Status: planned
+Status: done
 Proof: Native final refusal/allow journey, message regression through the actual
 emitted callback, and maintained-document review as mapped above.
 
@@ -199,20 +201,39 @@ normal execution skill's post-change refactor and delivery gates after edits.
 
 ## Current decisions
 
-- Retain this correction's identity and existing plan; no new plan or feature
-  promise. No Take, implementation, or native consent mutation during preparation.
+- The seed's developer-approved proof amendment replaces first-prompt recapture
+  with observed app/browser rows plus controlled real-click refusal/retry. Both
+  browser journeys remain required; no repeated prompt question/reset is needed.
+- Retain this identity and plan; no new plan/promise or preparation Take, implementation or consent mutation.
 - The observed Automation name is not assumed to equal Open Dough or
   terminal-notifier. Notifications consent and Automation consent are distinct.
-- Both slices are bounded by one native recovery journey: the first isolates
-  its consequential uncertainty; the second delivers the evidenced correction.
-  No Structure slice, abstraction, permission detector, automatic refresh,
-  additional browser support, or sender redesign is needed.
+- One native recovery journey bounds both slices: first isolate attribution,
+  then deliver the evidenced correction. No Structure slice, abstraction,
+  permission detector, automatic refresh, additional browser or sender redesign is needed.
 - Native user interaction may dominate elapsed time. No numeric slice limit is
   supplied; stop on the probe's failure criteria rather than guess attribution.
 
 ## Learnings
 
-Preparation located the previously omitted activation proof and its missing
-message observation. The native attribution remains explicitly owned by the
-first slice. No remaining slice-specific design or proof-ownership concern was
-identified after that correction; a separate slice-plan refinement is unnecessary.
+Preparation located omitted activation proof and its missing message observation.
+Slice 1 owns native attribution. No remaining slice-specific design/proof ownership
+concern was identified; separate slice-plan refinement is unnecessary.
+
+## Execution context
+
+- Story Branch identity `SEED-144#branded-alert-click-automation`; publisher `dashboard-territory.local-open-dough`; agent `chaifeng-chan`.
+- Owned worktree `/Users/terryyin/git/open-dough/.worktrees/name-the-automation-consent-a-branded-alert-clic`,
+  branch `codex/name-the-automation-consent-a-branded-alert-clic`; integration checkout `/Users/terryyin/git/open-dough`.
+- Starting revision `cdcc2633a88b795563c4246bb1470562e45f44f2`; published claim/base `2e3ff9411d1fe94bab224b7903f8c64f1b936d15`; no increment published yet.
+- Targets: execution `origin/codex/name-the-automation-consent-a-branded-alert-clic`, closure `origin/main`.
+  Established checkout setup/check-only hook contract retained; selective formatting: `npm run format`.
+- Last branch CI stream stopped normally: coordinator `codex-seed144-alert`, cell `37`, session `53263`, `/tmp/dough-ci-501/watch-edrnlE`, PID `73485`.
+  Verified `ci.yml` (CI); no unread events; CI unobserved. Earlier streams stopped; trunk claim CI unobserved.
+- [Baseline evidence](native-baseline-evidence.md): acceptance/amended source review; [history](native-baseline-history.md): posting commands, settings, observations/prior stops.
+
+## Story obligations
+
+### G1. Native attribution and refusal remain unobserved
+Reported: slice 1 — "Production posting returned delivered, but the desktop tool exposed only Notification Center's calendar widget; no real alert click, Automation prompt, or refusal/allow journey has been observed."
+Story clause: "observe on a Mac which app macOS asks about (and records) for the branded alert's browser scripting, including a refusal"
+Disposition: proved by slice 1: native-baseline-evidence.md, Slice 1 acceptance — controlled Safari refusal/recovery and probe 3 retry; Chrome refusal probe 7 and probe 9 same-tab exact-story retry with focused container; developer-approved row/refusal/retry proof amendment.
