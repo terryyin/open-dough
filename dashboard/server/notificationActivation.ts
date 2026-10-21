@@ -73,7 +73,7 @@ function run(argv) {
   } catch (_) {
     var application = Application.currentApplication();
     application.includeStandardAdditions = true;
-    application.displayAlert('Dashboard story could not be opened', {message:'Open the dashboard manually. For future alerts, use Safari or Google Chrome as your default browser and allow the alert sender to control it in System Settings → Privacy & Security → Automation.'});
+    application.displayAlert('Dashboard story could not be opened', {message:'Open the dashboard manually. For future alerts, use Safari or Google Chrome as your default browser and enable that browser under System Settings → Privacy & Security → Automation → Open Dough.'});
   }
 }
 `;

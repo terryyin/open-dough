@@ -35,7 +35,8 @@ settings describe those stages; current acceptance is recorded here.
   on; removing the temporary Chrome grant requires the developer's local
   authentication, requested asynchronously. No sender setup or Notifications
   permission mutation was performed. Product code remains unchanged.
-- All prior CI observers are stopped. No increment has been committed/published.
+- At this pre-delivery observation, all CI observers were stopped and no increment
+  had been committed/published; slice 1 was subsequently delivered as `9c8e8c50`.
 
 ## Slice 1 acceptance
 

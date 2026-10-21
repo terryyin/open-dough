@@ -90,7 +90,15 @@ for (const bundle of ["com.apple.Safari", "com.google.Chrome"] as const) {
         options,
       );
       denied.click(activation.destination);
-      expect(denied.alerts).toEqual(["Dashboard story could not be opened"]);
+      expect(denied.alerts).toEqual([
+        {
+          title: "Dashboard story could not be opened",
+          options: {
+            message:
+              "Open the dashboard manually. For future alerts, use Safari or Google Chrome as your default browser and enable that browser under System Settings → Privacy & Security → Automation → Open Dough.",
+          },
+        },
+      ]);
       expect(denied.opened).toEqual([]);
       expect(denied.windows).toHaveLength(1);
       expect(denied.windows[0]?.tabs.map((tab) => tab.url)).toEqual([

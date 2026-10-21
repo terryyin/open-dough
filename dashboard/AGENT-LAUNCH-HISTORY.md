@@ -181,33 +181,28 @@ stay quiet. Alert history is local to the server run and never replaces the
 current observation shown on the page. Unknown never alerts;
 unavailable/unrecognized may. Each server has its own alert baseline.
 
-Native delivery uses Open Dough's own notification sender, prepared once by
-`npm run setup-notifier:dashboard` at
-`~/.open-dough/dashboard/notifier/Open Dough.app`, outside every checkout and
-deployment; see [Dashboard commands](COMMANDS.md). Its pop-ups show the Open
-Dough icon and name. The sender is a branded copy of separately installed
-`terminal-notifier` 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2), and
-needs its own macOS notification permission, **System Settings → Notifications
-→ Open Dough**; `npm run setup-notifier:dashboard -- --test` makes macOS ask for
-it. The dashboard never prepares the sender or asks for permission. A harmless
-version check and permission diagnostic of that sender run at startup, then
-again before retrying after a failure; they post nothing and ask for nothing.
-An older or unrecognized copy is unavailable even if an executable exists or an
-unknown option exits zero. A sender that is not set up, an unsupported copy,
-and denied, not-yet-requested or refused notifications use fixed explanations
-naming the setup command and the settings entry in the open Sessions sidebar;
-raw sender stderr is never exposed. Restart the dashboard after setting the
-sender up or refreshing it. Observation continues, and the next successful
-notification clears a refusal.
+Open Dough's notification sender shows its icon and name. Explicitly prepare it
+with `npm run setup-notifier:dashboard` at
+`~/.open-dough/dashboard/notifier/Open Dough.app`, outside checkouts/deployments;
+see [Dashboard commands](COMMANDS.md). It copies separately installed
+`terminal-notifier` 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and needs
+its own permission: **System Settings → Notifications → Open Dough**.
+`npm run setup-notifier:dashboard -- --test` makes macOS ask; the dashboard never
+prepares the sender or asks for permission. At startup and before retrying after
+failure, harmless sender version/permission diagnostics post and request nothing.
+Old or unrecognized copies are unavailable even if an executable exists or an
+unknown option exits zero. Missing setup, unsupported copies, and denied,
+not-yet-requested or refused notifications produce fixed explanations naming the
+setup command/settings entry in the open Sessions sidebar; raw stderr is hidden.
+Restart after setup/refresh. Observation continues; a successful notification clears a refusal.
 
 Title/message are literal argument data with the tested helper's one-leading-
 backslash escape; the sound remains Glass. `-execute` stores a fixed inline
 browser callback using `/usr/bin/osascript` and a safely quoted HTTP URL argument.
-It needs no checkout file, Node process or dashboard response to run after a
-click. Its URL origin comes from this server's
-actual listening loopback address and bound port, including a dynamically
-allocated port; before listening or with no usable local address, it sends no
-notification with an invented destination. The shared URL contract is
+Clicks need no checkout file, Node process or dashboard response. The URL origin
+uses the server's actual listening loopback address and bound port, including a
+dynamic port; before listening or without a usable local address, no invented
+destination is sent. The shared URL contract is
 `/?project=<encoded-project-id>&story=<encoded-complete-identity>`; the complete
 identity includes its `#` fragment as query data. A changed title does not
 change the target. Ad hoc sessions keep their notifications with only the
@@ -217,20 +212,19 @@ Receipt/dismissal do not navigate. After the sending process exits, a click
 uses the current default Safari or Google Chrome, reusing a root dashboard tab
 at this origin and selecting/foregrounding its window. Other ports and API or
 asset pages are preserved. With no matching tab it creates one in an existing
-window, or opens a window if needed. Browser scripting needs the alert sender's
-consent under **System Settings → Privacy & Security → Automation**; the first
-click can request it. A refused inspection stops with a recovery dialog rather
-than opening an extra tab. Open the dashboard manually after granting access;
-future notifications can reuse it. This click permission is separate from the
-notification-delivery availability diagnostic above. The page selects the named project and stories view,
-waits for that project's published membership, then reveals and focuses the
-identified card. It neither starts/resumes work nor attaches a terminal.
+window, or opens a window if needed. Allow browser control through the first
+click's macOS prompt, or enable your default Safari or Google Chrome browser
+under **System Settings → Privacy & Security → Automation → Open Dough**.
+A refused inspection shows recovery instead of opening an extra tab. Open the
+dashboard manually; after granting access, future notifications can reuse it.
+This click permission is separate from notification-delivery availability above.
+The page selects the project and stories view, waits for published membership,
+then reveals/focuses the card without starting/resuming work or attaching a terminal.
 Unknown projects, missing stories and failed reads have distinct destination
 explanations; a later user navigation supersedes a pending reveal. A stopped
 dashboard produces the browser's connection failure, not successful navigation.
-Closing the server aborts every owned helper operation, including startup
-diagnostics and in-flight delivery, without recording that shutdown as a
-notification refusal.
+Closing the server aborts every owned helper operation (startup diagnostics and
+in-flight delivery); shutdown is not recorded as a notification refusal.
 
 Sessions sidebar lists unclosed records across projects: attention first oldest
 first, others newest first. Sessions button badge counts attention only. Rows

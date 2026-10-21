@@ -59,3 +59,10 @@ whose wording was not retained. This supersedes the prompt-evidence requirement
 above; it does not waive refusal/recovery, tab preservation, successful retry,
 or support for either Safari or Google Chrome. No consent reset is needed to
 recapture the first prompt.
+
+**Developer instruction (2026-10-21):** “I had enough of this. Please complete
+this without me.” Finish without further developer-operated native checks.
+Reuse the completed real-click attribution/refusal/retry baseline for unchanged
+browser mechanics, and the emitted-callback regression for corrected message
+content. Do not claim the unperformed final clicks were observed. macOS-required
+local authentication may remain as an explicit settings-cleanup reminder.
