@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Correction: Remove the orphaned start-if-absent runner port helper](seeds/SEED-052-start-agent-work-from-dashboard.md#remove-orphaned-runner-port-helper) — SEED-052#remove-orphaned-runner-port-helper ([plan](slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md))
-
 ## Backlog list
 
 - [Match native replay inputs to historical evidence](seeds/SEED-053-native-guidance-acceptance.md#match-historical-replay-inputs) — SEED-053#match-historical-replay-inputs

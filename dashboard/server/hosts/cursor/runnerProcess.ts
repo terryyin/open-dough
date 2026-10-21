@@ -182,15 +182,6 @@ export async function acceptingCursorRunnerPort(
   return (await portAccepting(address.port)) ? address.port : undefined;
 }
 
-// The port of this home's runner, after starting it when none is accepting.
-// Undefined when that runner cannot be reached.
-export async function cursorRunnerPort(
-  home = homedir(),
-): Promise<number | undefined> {
-  if (!(await ensureCursorRunner(home))) return undefined;
-  return acceptingCursorRunnerPort(home);
-}
-
 // Ends the runner and the processes it holds. A missing runner is already
 // stopped. The address file is removed so a later process on the same port
 // is not read as this home's runner.

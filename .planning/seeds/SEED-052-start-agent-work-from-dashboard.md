@@ -146,35 +146,6 @@ definitions. Each story records its principal sizing uncertainty instead of
 inventing a scale. These are candidates for refinement, not executable plans
 or claims of readiness.
 
-## Correction
-
-<a id="remove-orphaned-runner-port-helper"></a>
-
-### Correction: Remove the orphaned start-if-absent runner port helper
-
-**Identity:** SEED-052#remove-orphaned-runner-port-helper
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"36ccfd64186277b504166fbd2f8f71aa44f0681836b55d5a3faf2b7504133721","plan":"f5198e536043ccf498985f895daf17719f0ac3b18012d1d51dc80120548027df"}}
-```
-
-**Goal:** A developer maintaining the Cursor integration sees only the
-accepting-runner and current-build port choices, with no unused
-start-if-absent port helper that could silently bypass plan 334's
-current-build guarantee for new work.
-
-**Scope:** Bounded retrospective correction of the completed
-SEED-052#cursor-runner-restart-resume (plan 334, recoverable at
-before-cleanup commit `51891b53624b86030183da07fb7318c9512e7f78`,
-path `.planning/slice-plans/334-cursor-runner-restart-resume/PLAN.md`);
-adds no feature
-promise. Included: remove the caller-less `cursorRunnerPort` helper
-from `runnerProcess.ts` and correct the `recover.ts` header comment
-that still names it. Preserved: start-if-absent `ensureCursorRunner`,
-the accepting-runner port for observation/hangup/handoff, the
-current-runner path for new work, and every behavior plan 334
-delivered. Plan:
-[335-remove-orphaned-runner-port-helper](../slice-plans/335-remove-orphaned-runner-port-helper/PLAN.md).
-
 ## Ordering and Scope Reduction
 
 On 2026-10-20 Terry selected the Cursor follow-ups above as the top three queued
