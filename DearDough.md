@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `341293c09f1115b8ad3412fc6da63679ce563457`; the complete pre-compaction source remains at `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`. Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 324. Removed numbers are never reused.
+- Highest allocated local number: 325. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -185,6 +185,16 @@ Proof selection follows edited store areas rather than the changed operation’s
   - Evidence: slice 1 made `exec`/keep require current runner build proof in the address and wire answers. CI on `79a1f1ec` failed through `dashboard/tests/support/cursorRunnerHeldReads.ts`, a stand-in of that same runner contract that presented no build proof: new work rightly treated it as stale, stopped the address pid (the test worker's own pid) and started a bundled runner that leaked. Repair `614b490e` is test-support only: the stand-in presents the proof the serving dashboard expects (bundled versus source identity), and its re-keep posts directly because the current-runner probe is itself a held sessions read.
   - Observed effect: one owned CI failure and repair cycle on slice 1; slice 2's in-progress work was stashed and restored around the repair. No production defect was found in the repair.
   - Inference: qualified recurrence of this finding's stand-in clause. Slice 1's proof built its own stand-in (`cursorRunnerProof.ts`) but did not trace every existing stand-in of the changed address/wire contract before publication. No elapsed-time or token cost is measured.
+
+### Occurrence — shared-host proof guidance execution
+
+- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
+  - Evidence: CI `39555788657/1` at `37eed762` and `39555975066/1` at `fdea7f42`; `shared-checkout-writers-guidance.test.mjs:154` rejected a shortened pause clause. Initial consumer searching in `tests/` missed guidance-test consumers under `src/`.
+  - Observed effect: the existing human/other-session ownership assertion failed in both published revisions. Focused red reproduced it; restoring explicit source wording passed all eight direct ci-monitor consumer test files through the project runner.
+  - Inference: prose walkthroughs did not replace existing deterministic consumer contracts. The repair broadened the search across `src tests`; no test assertion was weakened and no native-compliance claim follows.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -428,6 +438,16 @@ Slice 2 offered a separate Stop from the host `stop` fact alone, which also gave
 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
+### Occurrence — shared-host proof guidance execution
+
+- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.67 (checkout-bound installed `dough-update/VERSION` at claim `9064e7ea`; managed copies unchanged).
+  - Evidence: launch `53b250ea-626e-4fb3-9e00-dfa082d25c58`; opening reference batches reported 10,205 and 13,394 original tokens with truncation, followed by targeted rereads before first delegation on 2026-10-21.
+  - Observed effect: requested passages were omitted and had to be retrieved again. Multiple oversized calls are one execution, not separate occurrences.
+  - Inference: the coordinator exceeded response budgets despite targeted-retrieval guidance; extra retrieval is observed, but its cost was not measured separately.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323.
@@ -448,3 +468,20 @@ test browser to the front and resized windows on the developer's own desktop,
 while the developer was also working there and answering its questions.
 
 [Retained evidence and current assessment](docs/maintainer/findings/ODF-307.md).
+
+## DD-325 — A delivery output wrapper drops the running-command handle
+
+The coordinator projected a guarded delivery tool result to its output text,
+omitting the live command's session ID. The command finished, but its final
+receipt was not retained. Checkout inspection and exact-candidate resume were
+needed to recover accepted publication without repeating the commit or push.
+
+### Occurrences
+
+- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
+  - Evidence: launch `53b250ea-626e-4fb3-9e00-dfa082d25c58`, slice 1 `fresh` returned through `text(result.output)`; subsequent exact full-ID resume returned `already-published`, `pushCount: 0`, accepted `97e2c938` and recovered observer `/tmp/dough-ci-501/watch-CwEwhy`.
+  - Observed effect: one delivery receipt required recovery; later delivery retained the full result/session ID and reached its terminal receipt normally.
+  - Inference: this was coordinator output handling, not a demonstrated stalled publisher or failed transport. Retain the full running-command result and follow its session to terminal evidence.

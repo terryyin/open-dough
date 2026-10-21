@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#check-shared-host-proof-headroom",
+  "title": "Choose expensive proof with shared-host headroom in view",
+  "completedAt": "2026-10-21T06:44:16.904Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

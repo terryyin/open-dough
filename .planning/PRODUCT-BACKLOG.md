@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Name the Automation consent a branded alert click actually needs](seeds/SEED-144-opendough-product-icon.md#branded-alert-click-automation) — SEED-144#branded-alert-click-automation ([plan](slice-plans/330-branded-alert-click-automation/PLAN.md))
-- [Choose expensive proof with shared-host headroom in view](seeds/SEED-010-learn-from-execution-retrospectives.md#check-shared-host-proof-headroom) — SEED-010#check-shared-host-proof-headroom ([plan](slice-plans/335-shared-host-proof-headroom/PLAN.md))
 - [Correct a consumer agreement after its supplier completes](seeds/SEED-010-learn-from-execution-retrospectives.md#correct-completed-supplier-agreement) — SEED-010#correct-completed-supplier-agreement ([plan](slice-plans/336-correct-completed-supplier-agreement/PLAN.md))
 
 ## Backlog list
