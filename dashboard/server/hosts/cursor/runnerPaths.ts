@@ -17,6 +17,12 @@ const addressSchema = z.object({
 
 export type CursorRunnerAddress = z.infer<typeof addressSchema>;
 
+// Set by the starter (`runnerProcess.ts`) to the directory it created. The
+// runner exits when that directory is already gone, instead of creating it
+// again and outliving the home that was removed while it was still loading.
+export const cursorRunnerDirectoryVariable =
+  "OPEN_DOUGH_CURSOR_RUNNER_DIRECTORY";
+
 export function cursorRunnerDirectory(home = homedir()): string {
   return machineDashboardDirectory(home);
 }
