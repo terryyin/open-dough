@@ -576,91 +576,10 @@ behavior review; fresh paid native acceptance, release/rollout, cross-project
 changes and measured performance improvement require their own selected work and
 authority. Existing native/lifecycle obligations in this seed remain pending.
 
-<a id="correct-completed-supplier-agreement"></a>
-
-### 13. Correct a consumer agreement after its supplier completes
-
-**Identity:** SEED-010#correct-completed-supplier-agreement
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/336-correct-completed-supplier-agreement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"47c9f6f5c8a74013a28f382c8e78c351a1105c96176f3e09cff88008005586a2","plan":"b3f950138690bfc77b03687ec344a9e4d63365200084e759d6f7f862ecb82972"}}
-```
-
-**Goal:** A developer maintaining a consumer can correct its dependency
-agreement against verified completed supplier work after the supplier's active
-section has been cleaned up, removing a stale supplier wait without recreating
-or repeating completed work. This makes existing outcomes usable while keeping
-future consumer implementation visible as that consumer's responsibility.
-[ODF-297](../../docs/maintainer/findings/ODF-297.md) retains the refused correction
-and resulting stale structured wait.
-
-**Scope:**
-
-- Correct an existing consumer agreement through an explicit, evidenced review,
-  using its observed dependency basis and the same supplier's recoverable
-  canonical identity, completed outcome and accepted integration history.
-- Separate a supplier's available result from the consumer's future consumption
-  when the consumer's existing goal, scope and examples settle that boundary, or
-  the developer has explicitly decided it. Keep the consumption obligation in
-  the consumer's scope/examples; correcting its prerequisite neither implements
-  nor completes the consumer, renews readiness, nor authorizes execution.
-- Preserve supplier identity and historical completion evidence, other
-  dependencies, sibling stories and preparation judgments. The changed agreement
-  participates in the existing changed-since-readiness-review calculation.
-  Repeating an accepted correction against the current basis is stable.
-- Refuse stale input, a different or unverified supplier, unavailable or
-  unaccepted completion evidence, and an unproved revised condition without
-  writing. These are the evidenced-correction and stale-basis constraints from
-  ODF-297, not restrictions inferred from example counts. Condition fulfillment
-  remains the reviewing agent's evidence-backed judgment under the existing
-  [supplier procedure](../../src/skills/dough-product-backlog/references/supplier-dependencies.md);
-  a command checks identities, history, completion and write preconditions, not
-  the truth of arbitrary prose. An unresolved product/architecture choice stays
-  with its human owner.
-- Preserve ordinary live-home agreement updates and unchanged historical
-  resolutions. Add no second dependency store, automatic agreement rewrite,
-  recreated supplier story, or inference from queue completion alone.
-
-**Key examples:**
-
-1. The retained Pygardon production-qualification review has a completed supplier
-   (`SEED-137#story-production-qualification`), recoverable outcome `b31d8a916`
-   and accepted integration `34d61f91c`; the consumer
-   `story-both-installations-prepared` still mixes completed eligibility with
-   its own future consumption. After supplier-section cleanup, an explicit
-   review separates those responsibilities and proves the revised supplier
-   condition. The guarded correction records that condition as satisfied using
-   full recovered revisions; future consumption remains consumer work. These
-   abbreviated source references identify the example, not executable SHA input.
-2. Another writer changes the consumer agreement after review, or the supplied
-   history names another supplier, lacks completed work, or is not accepted on
-   the authorized target → the attempted correction writes nothing. Rereading
-   requires a fresh judgment, not a blind retry with a new basis.
-3. A proposed revised condition requires an outcome the supplier did not deliver,
-   or separating responsibilities needs an unspecified product choice → the
-   workflow retains the current agreement and names the missing evidence or
-   human decision; completion by itself never satisfies that condition.
-4. A correction already accepted against the same supplier is submitted again
-   with the current basis → the agreement and evidence remain unchanged. Another
-   unsatisfied supplier continues blocking execution; neither the retry nor the
-   corrected prerequisite changes the consumer's slices or readiness judgment.
-5. A supplier still has a live canonical home → ordinary agreement authoring
-   keeps its current endpoint and stale-basis behavior. An unchanged agreement
-   still resolves from historical completion after cleanup without correction.
-
-**Deferred promises:** No Pygardon repository edit, production migration,
-release, automatic semantic verifier, or dashboard editing feature. Naturally
-supported canonical homes remain supported; the example is not a project filter.
-
-**Completion:** Update ODF-297 with the implemented response and verified
-examples, the containing release when known (otherwise explicitly unreleased),
-and the remaining adoption/outcome gap. Selecting or implementing this Open
-Dough response does not authorize a Pygardon change or release.
-
 ## Ordering and Scope Reduction
 
-The 2026-10-21 shared feedback cycle selects Stories 12 and 13 first, for
-observed proof loss and the blocked dependency correction. Preserve the next
+The 2026-10-21 shared feedback cycle selects Story 12 first, for
+observed proof loss. Preserve the next
 four outcomes in their existing order: Story 6 (preparation evidence),
 Story 7 (unreviewed execution/completion paths),
 Story 8 (later product consequences), and Story 9
