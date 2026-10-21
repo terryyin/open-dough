@@ -65,6 +65,17 @@ Former local code: DD-192.
 
 Every small slice launches a fresh full refactor agent even when the accepted diff needs no further changes, creating substantial repeated cost. [Evidence and current response](docs/maintainer/findings/ODF-141.md).
 
+
+### Occurrence — omitted landing assessment
+
+- Execution: `SEED-010#learn-from-unreviewed-execution-paths` / plan 339, first implementation `06c08a77047eb7851a9f22ff8ad4d74ed3cc3a64`
+  - Timestamp: unknown (2026-10-21, independent refactor before the first implementation commit)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: coordinator conversation, `refactor_assessment` return: the required fresh pass reviewed a 119-line research follow-up and plan context, reported `none — already clean`, no edits or test reruns, and approximately five active minutes; source-only review and coordinator evidence acceptance had already completed.
+  - Observed effect: another independent handoff with no product or proof change. It inspected actual reader/link consumers and confirmed accepted evidence remained applicable.
+  - Inference: qualified recurrence of fixed review cost; the time is the agent's estimate, not independent timing or measured savings, and no-edit output does not establish that the review lacked value. This is the current assessment execution, separate from the historical landing it reviewed.
+
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
 Former local code: DD-215.
