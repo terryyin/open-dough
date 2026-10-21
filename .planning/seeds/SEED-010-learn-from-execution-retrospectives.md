@@ -392,54 +392,93 @@ rollout remain human-directed.
 
 <a id="prioritize-responses-with-delegated-authority"></a>
 
-### 10. Prioritize feedback responses within delegated authority
+### 10. Evaluate one real feedback cycle
 
 **Identity:** SEED-010#prioritize-responses-with-delegated-authority
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal:** A maintainer can delegate recurring triage and queue decisions within
-an explicit policy, receiving prepared Jidoka decisions only when that policy
-cannot resolve a consequential choice.
+**Goal:** The maintainer can decide whether the delivered feedback cycle makes
+worthwhile product and process decisions at an acceptable cost, with useful
+Jidoka-style human intervention, from one observed cycle in ordinary use.
 
-**Scope:** Start with one class of findings and a bounded maintenance cycle.
-Use severity, distinct relevant occurrences, confidence, direction, existing
-work, expected benefit, and introduced burden to select or decline a response.
-Reuse canonical stories and existing triage/backlog operations. Count successful
-no-change, defer, and evidence-request decisions as valid outcomes. This story
-ends at a supported disposition or queued evaluable story; it does not execute it.
+**Selection:** On 2026-10-22, Terry narrowed this existing candidate to evaluating
+one real cycle and selected it as the next queued story. Its identity stays
+unchanged; broader autonomous correction remains Story 11's later candidate,
+now queued behind the selected ODF-142 correction subject to reassessment.
 
-**Evaluation:** Routine cases get one consistent disposition without manual
-skill-by-skill triggering. Existing queued or Taken responses are reused.
-Consequential ambiguity that the policy cannot resolve, conflicting goals or
-priorities, and choices outside authority produce a concise evidence-backed
-human decision while independent work can continue. Other uncertainty can remain
-explicit, be deferred, or lead to a bounded evidence request under the policy.
-The loop cannot flood the backlog, silently cancel active work, or prefer finding
-count over demonstrated benefit.
+**Scope:** Observe one authorized run of the existing
+[combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md),
+from its actual project inputs through local and shared decisions, publication
+and final reporting. Establish the selected run, project set, guidance revisions,
+authority and evaluation questions before judging its result. Prefer the next
+ordinary cycle; Story 9's first real automatic cycle can supply the same evidence
+when available, without repeating maintenance solely for this evaluation.
 
-**Value / learning:** Remove manual response generation where delegation improves
-the decision, while testing which tradeoffs still benefit from human judgment.
+- **Product and process value.** Check whether the cycle considers worthwhile
+  project-owned product improvements as well as tooling and shared process
+  responses. Trace selected and consequential declined or missed candidates to
+  their evidence, importance, distinct frequency, product direction and existing
+  work. The October 21 cycle needed a further human request before selecting
+  Doughnut recall recovery and Pygardon stopped-refresh detection; use that as a
+  question to test, not a requirement to generate more stories. Source-backed
+  risks remain distinct from observed incidents. Preserve the existing selection
+  limits and count justified no-change, defer and evidence requests as valid.
+- **Previous responses.** Follow at least one relevant earlier response through
+  adoption and available eligible use. Prefer the
+  [ODF-139 successor's next observation](../../docs/maintainer/findings/ODF-139.md)
+  when that opportunity occurs; a delivered project-product response is another
+  useful candidate. Assess actual outcomes and counterevidence, not completion
+  or silence alone. If no eligible exposure exists, record that limit and the
+  next discriminating observation rather than manufacture a success or prolong
+  this story indefinitely. This cycle does not implement its new selections.
+- **Cost.** Record available agent usage, elapsed time, active human effort,
+  repeated reading/review, correction and publication work across the cycle.
+  Include this evaluation's own burden. Distinguish cached input, elapsed wait
+  and active work; missing measurements remain unknown. Use the October 20–21
+  manually initiated cycles as qualified context where comparable evidence
+  exists, not as a matched control or a basis for invented savings.
+- **Human intervention.** For actual requests, retries and corrective prompts,
+  identify the decision, why a person was needed, whether existing authority
+  already covered it, and whether it changed the outcome. Also inspect for
+  consequential decisions that should have stopped but did not. Distinguish a
+  necessary ownership or product choice from avoidable routine handoffs. A
+  missing example remains unexercised; do not manufacture a conflict to fill it.
+- **Coverage and delivery.** Retain each project's assessed, unavailable or
+  unfinished status and the final publication/reporting evidence. In particular,
+  resolve the disposition of the recurring Terry Talks and Lizard source gaps
+  within existing authority, or leave the exact owner decision needed. Missing
+  findings do not prove a healthy project or a passed watch. Repeated reports,
+  aliases and rereviews do not become new findings or new backlog items.
 
-**Effort uncertainty:** Defining and validating one useful delegation envelope;
-a universal numerical priority formula is not required.
+**Evaluation:** Produce one evidence-linked retain, adjust, simplify or
+inconclusive judgment about this cycle, explaining its useful decisions,
+missed opportunities, quality consequences, observed cost and human burden.
+Judge selections against the original evidence and product direction rather than
+the cycle's own completion claims. Record a bounded next observation or proposed
+correction only where the evidence supports it. Keep the assessment in the
+maintained research report and link existing finding owners; use current cycle
+records and Git history rather than a new permanent ledger. One cycle establishes
+a bounded judgment, not sustained effectiveness or a general productivity rate.
 
-**Prerequisites:** A human-supplied decision policy, bounded findings, and current
-product direction. Manual intake can supply these; automatic collection is not
-a hard prerequisite.
+**Value / learning:** Identify which part of the delivered loop is worth keeping
+or simplifying before delegating a complete correction. Product quality and
+changeability balance time, token and human-effort costs.
 
-**Safe stopping point:** One delegated triage cycle is useful without autonomous
-implementation, release, or client updates. Retain as a later candidate until
-the evidence and authority for a trial are supplied.
+**Effort uncertainty:** Recovering attributable decisions and marginal costs
+from one ordinary run; observation should stay proportionate to the decision.
 
-The maintained [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md)
-and [combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md)
-own explicit maintenance-cycle selection. Reassess this candidate
-against those behaviors: only a remaining need for recurring
-selection under a standing policy, with evaluated decision quality and human
-intervention, warrants further work. Do not build another ranking engine or
-duplicate their supported dispositions.
+**Prerequisites:** The delivered maintenance skills, current product direction,
+the selected project's evidence and existing authority for the chosen cycle.
+An explicitly initiated cycle is sufficient; automatic initiation and Story 9's
+completion are not blocking dependencies. Narrowing and queueing this story does
+not invoke maintenance or grant implementation, release or rollout authority.
+
+**Safe stopping point:** One real cycle has a defensible judgment and any
+unresolved exposure or owner decisions are explicit. No new ranking engine,
+telemetry platform, standing decision authority or autonomous implementation is
+part of this story. The existing phase owners retain maintenance and selection.
 
 <a id="complete-delegated-feedback-correction"></a>
 
@@ -453,6 +492,15 @@ duplicate their supported dispositions.
 **Goal:** The maintainer can delegate one low-risk class of feedback correction
 through implementation, validation, authorized delivery/adoption, and subsequent
 assessment without manually connecting every skill or approving routine steps.
+
+**Refinement reminder / selection (2026-10-22):** Terry queued this as a later
+candidate after Story 10 and the ODF-142 correction. Reevaluate whether the story
+is necessary during refinement, using Story 10's findings, current delivered
+capabilities and any remaining manual burden. Queuing it is not a commitment to
+build another automation layer. If existing workflows suffice or benefit does
+not justify cost, recommend no implementation, deferral or a smaller response and
+obtain the resulting backlog decision before execution. If it remains worthwhile,
+identify one concrete correction and the bounded authority and evaluation needed.
 
 **Scope:** Start with one selected correction, one project/release path, and a
 human-supplied authority envelope with explicit outcome and quality constraints.
@@ -472,7 +520,7 @@ quality alongside completion. No granted authority means no autonomous action.
 selective, informed human intervention before widening its scope.
 
 **Effort uncertainty:** Cross-boundary authority and evidence continuity make this
-the broadest candidate. Narrow the correction class and refine it before queueing;
+the broadest candidate. Reassess necessity and narrow the correction class during refinement;
 if it still spans independent outcomes, resplit instead of treating it as one plan.
 
 **Prerequisites:** A selected correction, valid existing delivery capabilities,
@@ -485,9 +533,12 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 ## Ordering and Scope Reduction
 
-Preserve the remaining queued outcome, Story 9 (automatic due maintenance).
-Story numbers and recorded identities remain stable; the product backlog is
-the authority for current queue order and membership.
+Keep Story 9 (automatic due maintenance) in progress and queue Story 10's
+one-cycle evaluation next, followed by the
+[ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
+and Story 11 as a later candidate requiring necessity reassessment at refinement.
+Story numbers and recorded identities remain stable;
+the product backlog is the authority for current queue order and membership.
 
 The maintained research report retains the preparation,
 [completion-tail](../../docs/maintainer/empirical-process-control-research.md#landing-history-follow-up)
@@ -497,11 +548,11 @@ Later unattended initiation builds on the existing explicit workflows.
 Manual mechanisms remain usable throughout; no story is blocked merely because
 an earlier priority has not completed.
 
-Stories 10 and 11 remain later candidates. They keep delegated response selection
-and a complete autonomous correction loop visible without turning the current
-queue into a commitment to every possible capability. Their first trial needs a
-concrete delegated policy and bounded scope, not an assumption of unrestricted
-self-improvement.
+Story 11 is queued later for a complete autonomous correction loop, with its
+necessity explicitly open for refinement. Use Story 10's evidence to decide
+whether the trial is still worthwhile; its correction class and authority still
+need explicit bounds. Evaluating the current cycle creates no commitment to
+unrestricted self-improvement.
 
 If scope shrinks, defer autonomous selection and correction first, then unattended
 maintenance, then wider project participation. Preserve the selected local

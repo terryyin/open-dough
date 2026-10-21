@@ -89,6 +89,101 @@ was never queued. Its outcome was absorbed into the managed execution delivery
 of plan 083, avoiding two stories that each wire the same publication boundary.
 This is a retired navigation reference, not another candidate.
 
+<a id="normalize-delivery-commit-identities"></a>
+
+### 1. Normalize commit identities before delivery comparisons
+
+**Identity:** SEED-008#normalize-delivery-commit-identities
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / outcome:** Developers and agents using managed delivery can supply a
+full or uniquely abbreviated published-base commit ID and get the same correct
+publication decision, without misleading reconciliation refusals or an
+unobserved fallback push. Terry selected this bounded
+[ODF-142](../../docs/maintainer/findings/ODF-142.md) response on 2026-10-22,
+immediately after SEED-010's one-cycle evaluation.
+
+**Evidence and limits:** ODF-142 retains two distinct ordinary executions on
+0.3.56: Pygardon's `SEED-094#story-production-observations-without-round-trips`
+and Doughnut's `SEED-066#prompt-dictation-results`. The former records a plain
+push without observation after refusal; the latter records a failed call and
+three source reads before a successful full-ID retry. Preserve their qualified
+historical diagnoses and occurrence identities.
+
+The 2026-10-20 Codex chat **Analyze Lights on Software Factory**
+(`01a158e8-bfbc-7822-ba5e-a165605db3cd`) reports a controlled probe using the actual
+publication function and temporary local Git repositories: a unique ten-character
+base on an existing target produced the misleading rebase error with no push;
+the same full ID succeeded without reconciliation; already-published recovery
+made no extra push; and an abbreviated base on a new target already succeeded.
+The temporary probe artifacts were removed. This is reported controlled evidence,
+not another production occurrence or a new run by this story. The 2026-10-22
+source review still found the raw/full string comparison; recheck it during
+refinement against the then-current implementation.
+
+**Existing owner and gap:** [Remote containment](../../src/skills/dough-execute-plan/scripts/publication-git.mjs)
+lets Git resolve the base, but [publication](../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs)
+compares `remoteTip !== previouslyPublishedBase` without canonicalizing that
+argument. The resulting unnecessary replay can reach the legitimate
+[unchanged-candidate refusal](../../src/skills/dough-execute-plan/scripts/execution-increment-reconciliation.mjs).
+[Request parsing](../../src/skills/dough-execute-plan/scripts/execution-increment-request.mjs)
+currently checks presence and passes the argument onward. Reuse the existing Git
+resolution utilities and the resolution-before-comparison pattern in
+[history-preserving candidates](../../src/skills/dough-execute-plan/scripts/history-preserving-candidate.mjs).
+
+**Scope:** Resolve the supplied published-base identity unambiguously to a commit
+at the existing live delivery boundary, then use that canonical identity
+consistently in comparisons and result/recovery facts. Inspect reached callers so
+the same boundary behaves consistently. Invalid, ambiguous or noncommit input
+gets an actionable refusal naming the input problem and a permitted next step,
+before rewrite or publication. The resolution must identify the supplied commit,
+never substitute current HEAD or today's remote tip. Existing ownership,
+containment, candidate, reconciliation and proof checks retain their meaning.
+
+**Acceptance criteria:**
+
+- On the existing-target case, a full base and its unique abbreviation produce
+  equivalent accepted candidates and canonical full-ID receipts/comparisons,
+  without unnecessary reconciliation or the misleading no-op-rebase error.
+- Creating a new execution target with the same valid abbreviation still works;
+  existing full-ID calls remain valid. A blanket full-ID-only refusal is not the
+  selected response.
+- Invalid, ambiguous and noncommit inputs receive specific, truthful refusals
+  with no rewrite or push. A valid but unpublished base still fails containment;
+  a genuinely different validated candidate still fails candidate matching.
+- A real remote advance still requires the applicable reconciliation and proof.
+  Preserve the legitimate unchanged-candidate guard and existing refusal tests;
+  do not obtain a passing case by removing safety checks.
+- An already-published retry, including a lost acceptance response and a later
+  remote tip, recovers the original candidate/base without another commit or
+  duplicate push. The separate [retained-comparison contract](../../src/skills/dough-execute-plan/scripts/publication-comparison.mjs)
+  continues to require full immutable commit IDs; do not relax resume validation
+  merely to accept abbreviated live input.
+- Add discriminating regressions through the maintained delivery path, reusing
+  the existing local Git fixtures and [reconciliation tests](../../src/skills/dough-execute-plan/scripts/execution-increment-publication-reconciliation.test.mjs).
+  Demonstrate the representation mismatch on the prior behavior and its corrected
+  result, alongside the safety and recovery cases above.
+
+**Evaluation and follow-up:** After delivery, update ODF-142's supplied finding
+record with the response revision, proof, release/adoption state when known and
+remaining limits under [finding status](../../docs/maintainer/finding-names.md#retained-evidence).
+Keep it unresolved until supported evidence permits a stronger disposition.
+The next ordinary eligible use should record input form, decision, failed calls,
+recovery effort and any false refusal; controlled acceptance alone does not
+establish field effectiveness or a measured saving.
+
+**Effort uncertainty:** Consistent canonical identity across live input,
+publication and retained recovery while preserving the existing contracts.
+No calibrated effort band is assigned.
+
+**Prerequisites / safe stopping point:** Reuse the delivered publication
+machinery. Queue order does not create a dependency on Story 10. The correction
+is independently useful without another workflow engine, new observer, generic
+lint framework or autonomous feedback implementation. This is queued planning
+input, not authorization to implement or release it.
+
 ### Priority rationale and scope reduction
 
 The [product backlog](../PRODUCT-BACKLOG.md) is the sole ordered queue.
