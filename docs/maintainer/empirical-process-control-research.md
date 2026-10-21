@@ -767,3 +767,122 @@ confirmation, forego the approach for well-articulated plans; if it overturns
 a consequential attribution, retain it for that class. Any runtime change or
 further sample is advice only; the sample's completed story stays closed, raw
 history stays in its existing store, and this report owns the assessment.
+
+<a id="landing-history-follow-up"></a>
+
+## Follow-up: the omitted landing through its final receipt
+
+**21 October 2026.** The previously excluded tail supports a bounded **no new
+process finding** assessment. Accepted publication alone would have left three
+later outcomes unassessed; the complete tail establishes refresh, retirement,
+and reporting separately. Preserve this distinction using the existing
+[real-record review](../../src/skills/dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record)
+and operation receipts; this case supports no additional runtime mechanism.
+
+The selected population is coordinator session
+`01a157a5-1cdf-7611-94b3-8c1236961e4f`, lines 218–315 inclusive:
+`2026-10-20T04:54:42.797Z` to `04:56:26.160Z`, for the preparation of
+`SEED-010#observe-retrospective-response-effectiveness`. All 98 selected records
+were read from the 318-line native JSONL at
+`/Users/terryyin/.codex/sessions/2026/10/20/rollout-2026-10-20T13-50-01-01a157a5-1cdf-7611-94b3-8c1236961e4f.jsonl`.
+Nested result blocks were decoded, including the nonzero result in line 229;
+command-event duplicates and result polls were not counted as new attempts.
+The [earlier assessment](#preparation-history-follow-up) owns preparation
+through the shared handoff line 218. Earlier records are used here only for
+invocation, attribution and selection; later execution remains outside this
+population. This deliberately chosen case supplies no lifecycle failure rate.
+
+### Attempts and final applicable outcomes
+
+| Selected attempt(s) | Observed disposition and evidence |
+| --- | --- |
+| Readiness recording (219–222) | `record-state` exited 0 and recorded ready; it did not Take or execute the story. |
+| Three parallel checks (224–229) | Git/ownership/whitespace inspection and local-link checking exited 0. The lookup using `refresh*.mjs` exited 1: zsh reported `no matches found`, so its chained source reads never ran. This failed lookup remains in the sample despite recovery. |
+| Two recovery/context reads (233–237) | Repository search found `maintain-default-checkout.mjs`; both commands exited 0, recovering the source inspection and confirming the recorded ready state and hook contract. No failed publication is implied by the lookup failure. |
+| Assignment release (241–250), commit (252–255), final source/status read (259–262) | Release returned `release-staged`; the commit returned `ce6355980971225a1b9bf26ee7a935fc432f5636`; the last read exited 0 with clean status. All completed. |
+| Publication (266–281) | One publication operation, followed through two polls, returned `ok: true`, `publication: accepted`, the same SHA on `refs/heads/main`, `reconciliations: 0`, and `maintenance: deferred`. The queued-closure check was clear with `closes: []`. Landing capture was separately `recorded`, receipt `75a29f26-5102-44fd-a06c-3c15184aa6fd`, received `04:55:39.488Z`. The receipt supplies no reason for deferred maintenance. |
+| Refresh (283–294) | A separate refresh returned `result: advanced`, clean status, and both `head` and `remoteSha` equal to `ce635598…`. Deferred refresh was resolved by this later operation, not inferred from publication. |
+| Retirement (296–305) | The installed retirement command returned `ok: true`, `partial: false`, `worktree: removed`, `branch: removed`. Its `--contained` argument named the accepted SHA; there is no unverified removal in this result. |
+| Completion reporting (309–312), final response (315) | Receipt `b2811303-fda8-494a-9882-56aee79f79da` matched launch `59b327aa-67e1-44dc-ade6-e52dcbdf375c` and this native session, with `outcome: completed`, empty message, `state: recorded`, received `04:56:23.110Z`. The response then said preparation landed and the plan was ready. Reporting was the last operation; prose is corroboration, not a replacement receipt. |
+
+These are all 13 shell-command starts, including the failed lookup, and five
+polls of four running commands. No cancellation, failed push, repeated commit,
+or reporting retry appears in the selected interval. Read-only Git
+corroboration now gives exit 0 for
+`git merge-base --is-ancestor ce6355980971225a1b9bf26ee7a935fc432f5636 HEAD`;
+this establishes retained ancestry, not every historical side effect.
+
+### Selection, coverage and reasoning controls
+
+Historical invocation context matters. The refinement instruction (line 10)
+authorized preparation; its supplied skill (12) and preparation-journey text
+(20) continued completed preparation into Land. Land's captured guidance (84)
+selected its own process review **only with `--process-retrospective`**. The
+complete user and call-input records show no such selection. Thus this landing
+was **not reviewed then**, rather than reviewed with no finding or a missed
+mandatory review. The project's enabled execution-process review does not
+establish a Land invocation. Historical completion guidance (98) allowed the
+calling skill's marker and asked a retired session to state where work landed;
+planning text (54) required `SLICE PLAN WRITTEN`. Today's quieter completion
+rule cannot retrospectively establish a wording violation. These captured
+passages support those limited judgments; the executing guidance release
+remains unknown, not a certified historical compliance audit.
+
+| Evidence available to the reviewer | Permitted assessment |
+| --- | --- |
+| Complete selected tail, reviewed here | Reviewed with no new finding; publication, refresh, retirement and reporting have distinct terminal evidence. This does not establish later execution or all future consequences. |
+| **Restricted-prefix control:** only lines 218–281 | Publication and landing capture accepted; maintenance deferred. Refresh resolution, retirement and final reporting remain unassessed. The later successful tail must not leak into this judgment. |
+| **Missing-tail control:** later records unavailable | Those later outcomes have unavailable coverage, not success or a no-finding review. Actual decisive tail results were available in this assessment. |
+| **Cancellation control:** suppose an attempt were cancelled before a receipt, then a retry succeeded | Retain the cancelled attempt as unresolved at cancellation and the later receipt as the retry's result. This is an illustrative control, not a historical event or denominator. |
+| Failure after an own-run review | No relevant exposure: this landing invoked no own-run review. Neither its success nor this later assessment tests a post-review failure path. |
+| **Repeat-review control:** the same session, interval and accepted `ce635598…` | The same occurrence and conclusions; no extra row, work item, claim, landing or reopened story. A new review date creates no execution identity. |
+
+### Learning, present relevance and cost limits
+
+The observed benefit of extending the boundary is concrete: line 281 left
+maintenance unresolved, while 294, 305 and 312 supply later resolution and
+completion evidence. A causal hypothesis is that reviewing only a successful
+publication prefix would overstate completion coverage; the prefix control
+shows the inference error, not an observed historical false claim. The small
+lookup failure caused one failed command and a replacement search. Its human
+cost and isolated delay are unknown; the record supports neither a publisher
+defect nor a new reusable process issue from that recovery alone.
+
+Reconciliation used `DearDough.md` and its linked owners. No row identifies
+this session/landing interval or accepted preparation revision.
+[ODF-216](findings/ODF-216.md) concerns retirement with unfinished execution;
+here the completed preparation stayed distinct from its queued execution.
+[ODF-264](findings/ODF-264.md) already records the same story's **later execution**
+startup at first implementation `1219b548…`; that is neither this preparation
+landing nor a new occurrence caused by rereading it. The existing separate
+operation-result rules already own the useful practice. Under
+[process-finding recording](../../src/skills/dough-execution-retrospective/references/process-finding-recording.md),
+no new finding or occurrence is allocated; **`DearDough.md` is unchanged**.
+The stable assessment reference is this session + selected interval + accepted
+preparation revision. The old completed work remains completed.
+
+The interval spans **103.363 seconds of wall time**, including model turns,
+command execution and yielded waiting; it is not active human effort.
+Publication call-to-consumed-terminal-result spans 20.787 seconds, refresh
+4.978, retirement 4.295 and reporting 0.173; these are elapsed boundaries, not
+CPU work or isolated network wait. Cumulative session counters rise from
+2,017,617 total tokens at line 212 to 3,963,997 at line 310 (the latter includes
+3,951,065 input, 3,804,160 cached input and 12,932 output). Reused context and
+accounting boundaries prevent treating those totals as marginal landing or
+review cost; final-response accounting is beyond the selected interval.
+Human effort, money, this review's isolated token cost and general savings
+remain unknown. Earlier captured outputs are partially truncated (27, 71),
+child-review internals remain unavailable, and encrypted reasoning is unreadable;
+none is reconstructed to certify the whole preparation. The decisive selected
+results are readable. This Codex case (CLI `0.163.0`, turn context
+`gpt-6-astra`) proves no other host's behavior or fresh native acceptance.
+
+**Recommendation: retain the existing result boundaries and use bounded tail
+review selectively.** It added outcome coverage here without demonstrating a
+new defect. Before adopting routine review, use a separately selected unresolved
+or stopped completion journey to test whether its final receipts change a
+consequential decision, recording retrieval effort as well as the outcome.
+This is advice, not adopted or queued work. The current
+[launch direction](../../.planning/NORTH-STAR.md#agent-launch-as-a-requested-assignment)
+also distinguishes session completion from published story state; the matched
+completion receipt here does not complete or re-execute the queued story.

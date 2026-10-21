@@ -121,7 +121,7 @@ claim against the inputs the reviewer could actually see.
 
 ### 1. Assess the omitted landing interval through its final outcome
 Type: Behavior
-Status: planned
+Status: done
 Proof: A developer can trace each assessment claim to the selected native event
 or Git evidence, reproduce the prefix-only and repeat-review controls above,
 and understand a supported recommendation or no-change result without mistaking
@@ -173,3 +173,59 @@ Slice-plan refinement was not needed: one bounded outcome has one proof loop,
 no cross-slice dependency and no separate structure. This review identified no
 remaining slice-specific concerns. The source read reached the final consuming
 results; loss of that input at execution is handled as an explicit evidence gap.
+
+## Execution context
+
+- Established start: publisher `dashboard-territory.local-open-dough`; agent
+  `pyo-chan`; identity `SEED-010#learn-from-unreviewed-execution-paths`.
+- Mode: story-branch. Originating, execution and owned workspace:
+  `/Users/terryyin/git/open-dough/.worktrees/learn-from-an-execution-or-completion-path-that`;
+  branch `codex/learn-from-an-execution-or-completion-path-that`.
+  Existing linked workspace reused; no second claim or workspace was created.
+  Default integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+- Authorized remote: `origin` (`terryyin/open-dough`); final target `main`.
+  Slice delivery targets the recorded execution branch.
+- Starting revision `0ac88cd7d11cc541aeaf2fb7f72933281e9fbe52`;
+  accepted claim and initial delivery base
+  `ae74a184a439b14368828a82ee77d28c7bc67af0`, verified on remote trunk and
+  execution branch. Claim trunk CI was unobserved by this coordinator.
+- Checkout setup: Node 24.21.0 matches `.node-version`; locked npm acquisition,
+  browser setup and native prerequisite check passed in this exact checkout
+  with `node scripts/setup-native.mjs npm`, `browser`, and `check`.
+- No new replanning restriction; retain ordinary in-scope planning authority.
+  No numeric slice budget was supplied. Scope and proof remain as prepared.
+- CI: GitHub Actions `ci.yml` (verified active workflow `CI`), execution-branch
+  target. Coordinator `pyo-chan-164f2f36`; observer
+  `/tmp/dough-ci-501/watch-ula7kK`; PID 10163; exec cell 12; PTY session 41675.
+  Runtime is the same-checkout `.agents/skills/dough-execute-plan`.
+
+## Accepted slice evidence
+
+Source-only review: `/root/source_commitments`, fresh context with only the
+original selected story text and no project access. Its actual launch/input and
+individual commitments are retained in the execution conversation. Coordinator
+compared that return with the source, plan, product and observations:
+
+| Original trigger / expected result | Actual observation / disposition |
+| --- | --- |
+| Omitted completion, exact session and lines 218–315, every intervening attempt | Report `#landing-history-follow-up` identifies all 98 records, 13 command starts and five polls; line 229's failed lookup and recovery remain. Selected population is complete; other journeys remain excluded. |
+| Final outcomes, with publication separate from refresh/retirement/reporting | Actual native results 281, 294, 305, 312 and final prose 315 inspected. Report separates accepted publication/deferred refresh, advanced refresh, verified removal and matched receipt; Git ancestry corroborates acceptance only. |
+| Review/no-finding/unavailable/no-exposure must differ; prefix cannot prove tail | Captured invocation/guidance 10, 12, 20, 54, 84, 98 supports unselected historical own-review. Report's prefix-through-281, missing-tail and cancellation controls retain unknown later outcomes and label counterfactuals; post-own-review failure is unexercised. |
+| Reuse recording rules and findings, preserve occurrence identity and completed work | ODF-216/264 comparisons and earlier assessment distinguish different events; repeat-review control keeps the same session/interval/revision. No finding allocation, log change, old claim, reopening or publication. |
+| Useful bounded learning with measured costs separated from work/wait and unknowns | Report records 103.363s wall interval, separate operation elapsed spans and qualified cumulative counters 212/310; unknown guidance release, human/review marginal cost, capture gaps and host limits remain explicit. |
+| Supported recommendation or no-change, no mandatory mechanism/implementation | Existing boundaries suffice; selective further observation is advice only. No runtime edit, scheduler, new store, release, cross-project action or queue adoption. |
+
+Accepted proof: implementation return `/root/assess_landing` retains literal
+commands and terminal results. `git merge-base --is-ancestor
+ce6355980971225a1b9bf26ee7a935fc432f5636 HEAD`, `git diff --check`, and
+`git diff --quiet -- DearDough.md` all exit 0. Its Python link/anchor check
+selected the added follow-up: six local targets/anchors, none missing.
+Coordinator independently inspected the entire addition, decisive native
+payloads, historical selection guidance and counters. No app behavior changed;
+no app test suite is required. Original evidence limitations are preserved,
+not uncovered promises. No story obligation remains.
+
+Independent refactor `/root/refactor_assessment`: no edits, already clean;
+accepted evidence boundaries unchanged. The selected existing-report destination
+and exact same-file ODF-152 precedent justify retaining that maintained report
+above the generic file-size threshold without unrelated restructuring.
