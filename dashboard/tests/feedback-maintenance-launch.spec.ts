@@ -12,7 +12,6 @@
 // asserted only after the server has asked GitHub, or listed the sessions,
 // again, never after a sleep.
 
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import {
   attempts,
@@ -20,118 +19,30 @@ import {
   launch,
   openDoughFolder,
   markDone,
-  recordsOf,
 } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
-import {
-  emptyBacklog,
-  noConnection,
-  publishMovingOrigin,
-  type MovingOrigin,
-} from "./publishedOrigin.ts";
+import { noConnection, publishMovingOrigin } from "./publishedOrigin.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import {
-  builtDashboardDir,
-  startDashboardServer,
-  type DashboardServer,
-} from "./support/dashboardServer.ts";
-import type { FakeGitHub } from "./support/fakeGitHub.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { diagnosticsUrl } from "./support/readDiagnostics.ts";
 import { reportingThrough } from "./support/reportedLaunch.ts";
 import { afterFurtherListings, messages } from "./support/sessionAlerts.ts";
-import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
-import { feedbackWatchListPath as watchList } from "../src/feedbackReview.ts";
+import { startOrigin } from "./support/startOrigin.ts";
+import { dayFromToday } from "./support/feedbackMaintenanceDue.ts";
 import {
-  authorizeFeedbackMaintenance,
-  dayFromToday,
-  dueWatchList,
-  withdrawFeedbackMaintenance,
-} from "./support/feedbackMaintenanceDue.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-
-const invocation = "/maintain-feedback-cycle";
-
-const watchListDue = (reviewAfter: string) =>
-  dueWatchList(reviewAfter, dayFromToday(-7));
-
-let revisions = 0;
-// Pushes Open Dough's main with this watch list, or none.
-function pushWatchList(moving: MovingOrigin, text?: string): string {
-  revisions += 1;
-  const revision = revisions.toString(16).padStart(40, "a");
-  moving.push(
-    revision,
-    emptyBacklog,
-    text === undefined ? {} : { [watchList]: text },
-  );
-  return revision;
-}
-
-const machineHome = (origin: StartOrigin) => path.join(origin.machine, "home");
-
-function turnOn(origin: StartOrigin): void {
-  authorizeFeedbackMaintenance(machineHome(origin), {
-    host: "claude",
-    model: "opus",
-  });
-}
-
-function turnOff(origin: StartOrigin): void {
-  withdrawFeedbackMaintenance(machineHome(origin));
-}
-
-function serverOn(
-  origin: StartOrigin,
-  github: FakeGitHub,
-  mode: "boundary" | "preview" = "boundary",
-  port?: number,
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    mode,
-    port,
-    ...(mode === "preview" ? { prebuilt: builtDashboardDir } : {}),
-    machine: origin.machine,
-    github,
-    projectFolders: ["open-dough"],
-    launchTimeoutMs: 30_000,
-    alertCheckMs: 100,
-    maintenanceCheckMs: 100,
-  });
-}
-
-// How often the server has resolved Open Dough's main.
-const refReads = (moving: MovingOrigin) =>
-  moving.requests.filter(({ request }) => request.kind === "ref").length;
-
-// Waits until the server has checked GitHub twice more.
-async function afterFurtherChecks(moving: MovingOrigin): Promise<void> {
-  const before = refReads(moving);
-  await expect.poll(() => refReads(moving)).toBeGreaterThanOrEqual(before + 2);
-}
-
-// The watch list reads the server asked for, by revision.
-const watchListReads = (moving: MovingOrigin) =>
-  moving.requests.flatMap(({ request }) =>
-    request.kind === "content" && request.path === watchList
-      ? [request.revision]
-      : [],
-  );
-
-async function maintenanceRecords(
-  server: DashboardServer,
-): Promise<LaunchRecord[]> {
-  return (await recordsOf(server, "open-dough")) as LaunchRecord[];
-}
-
-// The one automatic launch's first input, once it is made.
-async function launchedInput(server: DashboardServer): Promise<string> {
-  await expect.poll(() => server.claudeLaunchCalls().length).toBe(1);
-  await expect
-    .poll(async () => (await maintenanceRecords(server)).length)
-    .toBe(1);
-  return server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
-}
+  afterFurtherChecks,
+  invocation,
+  launchedInput,
+  maintenanceRecords,
+  pushWatchList,
+  refReads,
+  serverOn,
+  turnOff,
+  turnOn,
+  watchListDue,
+  watchListReads,
+} from "./support/feedbackMaintenanceServer.ts";
 
 async function sessionsSidebar(page: Page, server: DashboardServer) {
   await page.goto(server.baseURL);

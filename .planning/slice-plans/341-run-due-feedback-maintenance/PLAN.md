@@ -155,7 +155,7 @@ Behavior: the setting is on, the local date reaches the published `reviewAfter`,
 
 ### 4. The dashboard says when feedback maintenance is still due
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright spec: with a served due date whose session ended without the date advancing, Open Dough's project row states "Feedback maintenance due since 2026-10-28; its automatic session did not complete", the settings section's status line names the due date and that outcome, and the developer's Start session with the invocation runs through the ordinary dialog; while the automatic session is open the row says it is running; once a pushed revision advances the date both lines clear.
 
 Behavior: the sessions answer carries the machine's maintenance state (recorded due date, serving record and its state, next due date read) → the project row beside Start session and the settings status line render it → the developer sees whether the cycle is running, done, or still due and acts through existing controls. `dashboard/FEEDBACK-MAINTENANCE.md` and `dashboard/AGENT-LAUNCH-HISTORY.md` describe the label and the row.
@@ -221,6 +221,17 @@ Behavior: a reached due date on this machine → one automatic session → the c
   `dashboard/tests/feedback-maintenance-launch.spec.ts`,
   `dashboard/tests/boundary/agent-launch-ad-hoc-codex-input.spec.ts`, and
   `tests/support/feedback-maintenance-due.test.mjs`.
+- Slice 4: the sessions answer carries an optional `feedbackMaintenance`
+  state composed from the check's retained observation (authorization, last
+  review read, a launch the gates held with its reason) and this machine's
+  sessions, so no answer reads GitHub. `observedSessions` in the check is the
+  one definition of running, done, and ended; only a running session blocks
+  the check's read, so a failed automatic session still shows as due and
+  incomplete after a restart (G5). The row's reasons come from `dueDecision`
+  alone. A launch held by Open Dough's existing changes is retried each
+  period and named on the row (G4). Proof:
+  `dashboard/tests/feedback-maintenance-due-row.spec.ts` and
+  `tests/support/feedback-maintenance-state.test.mjs`.
 
 ## Story obligations
 
@@ -242,7 +253,12 @@ Disposition: proved by slice 3: tests/support/feedback-maintenance-due.test.mjs 
 ### G4. Uncommitted changes in Open Dough's checkout silently hold the launch
 Reported: slice 3 — "If Open Dough's default checkout has uncommitted changes, `accept` answers with the existing-changes confirmation, nothing launches, and the check retries every period without launching. This is unobserved, untested and undocumented."
 Story clause: "states when feedback maintenance is due and not served"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: dashboard/tests/feedback-maintenance-due-row.spec.ts "a launch held because Open Dough's default main has existing changes says so on the row and in settings, and starts once they are gone"
+
+### G5. A failed automatic session hides the due state after a restart
+Reported: slice 4 — "The last-read due date and the held reason live only in server memory. After a restart, the row can only say \"running\", and the settings line names no due date, until the check reads again. The check does not read while a feedback-maintenance session is open, including an unavailable but not-done one."
+Story clause: "The automatically started session ends failed, is stopped, or ends without the due date advancing → the next observation → no second automatic launch for that due date; Open Dough's project row shows that feedback maintenance is due since 2026-10-28 and its automatic session did not complete"
+Disposition: proved by slice 4: dashboard/tests/feedback-maintenance-due-row.spec.ts "an automatic session that ended unavailable without a done mark is, after a restart, due and incomplete on the row and in settings, and is not launched again"
 
 ## Concern evidence
 

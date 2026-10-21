@@ -15,6 +15,7 @@ import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
 import { sessionPolicySchema } from "./launchRequest.ts";
 import { attemptObservationSchema } from "./launchOutcome.ts";
+import { feedbackMaintenanceStateSchema } from "./feedbackMaintenanceState.ts";
 import { sessionShown } from "./sessionShown.ts";
 import { localWorkspaceSchema } from "./localWorkspace.ts";
 import {
@@ -173,7 +174,8 @@ export type OfferedDefinition = z.infer<typeof offeredDefinitionSchema>;
 // options each project offers, the launch attempts this machine accepted,
 // with whether its kept attempts could be read (when not, an earlier startup
 // may be unresolved and nothing tells which), and the worktrees local Git
-// found holding a story's claim (`./localWorkspace.ts`).
+// found holding a story's claim (`./localWorkspace.ts`), and where feedback
+// maintenance stands.
 export const launchRecordsSchema = z.object({
   // Missing or unread capabilities never borrow an operation from another host.
   hostOperations: hostOperationsSchema.default({}),
@@ -209,6 +211,10 @@ export const launchRecordsSchema = z.object({
     )
     .default([]),
   workspaces: z.array(localWorkspaceSchema).default([]),
+  // Where feedback maintenance stands on this machine
+  // (`./feedbackMaintenanceState.ts`); absent while this dashboard checks
+  // nothing.
+  feedbackMaintenance: feedbackMaintenanceStateSchema.optional(),
 });
 
 export type MachineAnswer = z.infer<typeof launchRecordsSchema>;

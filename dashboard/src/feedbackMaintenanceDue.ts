@@ -16,12 +16,19 @@
 import type { FeedbackReview } from "./feedbackReview.ts";
 import { launchRetentionDays } from "./launchRecord.ts";
 
+// How a feedback-maintenance session this machine keeps stands
+// (`../server/feedbackMaintenanceCheck.ts`): starting, or open and not found
+// unavailable (`running`), marked done (`done`), or ended otherwise:
+// unavailable while open, its record deleted, or no session launched
+// (`ended`). Only a running session is open.
+export type MaintenanceProgress = "running" | "done" | "ended";
+
 // A feedback-maintenance session this machine keeps: the due date its
-// automatic launch serves, none for one a developer started by hand, and
-// whether it is still open (not marked done, or still starting).
+// automatic launch serves, none for one a developer started by hand, and how
+// it stands.
 export type MaintenanceSession = {
   readonly due?: string | undefined;
-  readonly open: boolean;
+  readonly progress: MaintenanceProgress;
 };
 
 export type DueInputs = {
@@ -36,20 +43,19 @@ export type DueInputs = {
   readonly review?: FeedbackReview | { readonly kind: "unread" } | undefined;
 };
 
+// A reached due date is launched, or waits because it is served or stale.
 export type DueDecision =
   | { readonly kind: "launch"; readonly due: string }
   | { readonly kind: "read" }
   | {
       readonly kind: "wait";
+      readonly reason: "served" | "stale";
+      readonly due: string;
+    }
+  | {
+      readonly kind: "wait";
       readonly reason:
-        | "off"
-        | "open"
-        | "unread"
-        | "absent"
-        | "invalid"
-        | "not-due"
-        | "served"
-        | "stale";
+        "off" | "open" | "unread" | "absent" | "invalid" | "not-due";
     };
 
 export function dueDecision({
@@ -59,16 +65,16 @@ export function dueDecision({
   review,
 }: DueInputs): DueDecision {
   if (!authorized) return { kind: "wait", reason: "off" };
-  if (sessions.some((session) => session.open))
+  if (sessions.some((session) => session.progress === "running"))
     return { kind: "wait", reason: "open" };
   if (review === undefined) return { kind: "read" };
   if (review.kind !== "scheduled") return { kind: "wait", reason: review.kind };
   const due = review.reviewAfter;
   if (today < due) return { kind: "wait", reason: "not-due" };
   if (sessions.some((session) => session.due === due))
-    return { kind: "wait", reason: "served" };
+    return { kind: "wait", reason: "served", due };
   if (daysBetween(due, today) > launchRetentionDays)
-    return { kind: "wait", reason: "stale" };
+    return { kind: "wait", reason: "stale", due };
   return { kind: "launch", due };
 }
 

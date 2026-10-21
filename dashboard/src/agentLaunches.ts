@@ -42,6 +42,9 @@ type ReadSessions = {
   readonly sessionsSettled: boolean;
   // Alert capability at the latest read; unread until supplied.
   readonly alerts: Alerts | undefined;
+  // Where feedback maintenance stood at the latest read, if this dashboard
+  // checks it.
+  readonly feedbackMaintenance: MachineAnswer["feedbackMaintenance"];
   // A kept start without a session, if present at the latest read.
   keptStartOf(
     sourceId: string,
@@ -217,6 +220,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     creations,
     hostOperations: sessions.hostOperations,
     alerts,
+    feedbackMaintenance: sessions.feedbackMaintenance,
     ...launchOffers(sessions, readAnswered && !offersReading),
     keptStartOf: (sourceId, identity, workflow) =>
       keptStarts.find(

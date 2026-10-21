@@ -20,17 +20,33 @@
 // not due. A launch attempt keeps its request with the marker before any side
 // effect, so a restart, a later check, or a deleted record never launches the
 // same due date again while the attempt is retained.
+//
+// The check keeps its last observation: whether the authorization was on, the
+// review it last read, and a due date whose launch the launch gates held, with
+// why. The machine's sessions answer composes it with the sessions as they
+// stand then (`state`, `../src/feedbackMaintenanceState.ts`), asking GitHub
+// nothing more.
 
 import {
   isOpen,
   type RecordedLaunchRequest,
   type AgentLaunchRequest,
+  type AttemptObservation,
+  type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import {
   dueDecision,
   localDate,
   type MaintenanceSession,
 } from "../src/feedbackMaintenanceDue.ts";
+import {
+  feedbackMaintenanceState,
+  heldReason,
+  type FeedbackMaintenanceState,
+  type MaintenanceObservation,
+  type ObservedMaintenanceSession,
+} from "../src/feedbackMaintenanceState.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import {
   feedbackWatchListPath,
   readFeedbackReview,
@@ -47,6 +63,8 @@ import { readFeedbackMaintenance } from "./feedbackMaintenance.ts";
 import { isNotFound } from "./ghFailure.ts";
 import { resolveRevisionViaGh } from "./ghRevision.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
+import { withStates } from "./launchStates.ts";
+import { machineFolder } from "./projectFolders.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import {
   projectEnvironment,
@@ -68,24 +86,78 @@ function checkMs(): number {
 
 type Launches = Pick<AgentLaunches, "accept" | "attempts">;
 
-// A feedback-maintenance session: one the check started, which serves its
-// due date, or one a developer started by hand with the same invocation.
-function maintenanceOf(
+// Whether a request is a feedback-maintenance session's, with the due date it
+// serves: one the check started, which serves its due date, or one a
+// developer started by hand with the same invocation, which serves none.
+function maintenanceDue(
   request: AgentLaunchRequest | RecordedLaunchRequest,
-  open: boolean,
-): MaintenanceSession[] {
-  if (request.workflow !== "ad-hoc") return [];
+): { readonly due?: string } | undefined {
+  if (request.workflow !== "ad-hoc") return undefined;
   if (request.maintenance !== undefined)
-    return [{ due: request.maintenance.due, open }];
+    return { due: request.maintenance.due };
   return request.instruction?.trim() ===
     feedbackMaintenanceInstruction(request.host)
-    ? [{ open }]
-    : [];
+    ? {}
+    : undefined;
+}
+
+// The project's feedback-maintenance sessions, from records joined with their
+// session's state and the attempts whose session has no record (still
+// starting, deleted, or never launched). This is the one reading of whether
+// such a session is running (starting, or open and not found unavailable),
+// done, or ended: the due check takes only a running one as open, and the
+// machine's sessions answer says the same (`state`).
+function observedSessions(
+  source: string,
+  records: readonly LaunchWithState[],
+  attempts: readonly AttemptObservation[],
+): ObservedMaintenanceSession[] {
+  const kept = records.filter((record) => record.request.source === source);
+  const recorded = new Set(kept.map((record) => sessionKey(record.session)));
+  return [
+    ...kept.flatMap((record) => {
+      const serving = maintenanceDue(record.request);
+      if (serving === undefined) return [];
+      return [
+        {
+          ...serving,
+          at: record.launchedAt,
+          progress:
+            record.doneAt !== undefined
+              ? ("done" as const)
+              : record.sessionState.kind === "unavailable"
+                ? ("ended" as const)
+                : ("running" as const),
+        },
+      ];
+    }),
+    ...attempts.flatMap((attempt) => {
+      const serving = maintenanceDue(attempt.request);
+      const { outcome } = attempt;
+      if (
+        serving === undefined ||
+        attempt.request.source !== source ||
+        (outcome?.kind === "launched" &&
+          recorded.has(sessionKey(outcome.session)))
+      )
+        return [];
+      return [
+        {
+          ...serving,
+          at: attempt.acceptedAt,
+          progress:
+            outcome === undefined ? ("running" as const) : ("ended" as const),
+        },
+      ];
+    }),
+  ];
 }
 
 // This machine's feedback-maintenance sessions in the project, from its kept
-// records and attempts, or undefined when either cannot be read. An attempt
-// still starting is open; a deleted record's attempt still serves its date.
+// records, their sessions' states and its attempts, or undefined when records
+// or attempts cannot be read. Only a running session is open: one that ended
+// unavailable without a done mark no longer holds the check from reading, and
+// still serves its due date, as a deleted record's attempt does.
 async function maintenanceSessions(
   source: PublishedSource,
   launches: Launches,
@@ -95,16 +167,18 @@ async function maintenanceSessions(
     launches.attempts(),
   ]);
   if (records === undefined || !readable) return undefined;
-  return [
-    ...(records.get(source.id) ?? []).flatMap((record) =>
-      maintenanceOf(record.request, isOpen(record)),
-    ),
-    ...attempts
-      .filter((attempt) => attempt.request.source === source.id)
-      .flatMap((attempt) =>
-        maintenanceOf(attempt.request, attempt.outcome === undefined),
-      ),
-  ];
+  const kept = (records.get(source.id) ?? []).filter(
+    (record) => maintenanceDue(record.request) !== undefined,
+  );
+  // Only open records need their host's observation.
+  const open = await withStates(machineFolder(), kept.filter(isOpen));
+  const done = kept
+    .filter((record) => !isOpen(record))
+    .map((record) => ({
+      ...record,
+      sessionState: { kind: "unknown" as const },
+    }));
+  return observedSessions(source.id, [...open, ...done], attempts);
 }
 
 export class FeedbackMaintenanceCheck {
@@ -112,6 +186,10 @@ export class FeedbackMaintenanceCheck {
   private readonly pinned = new PinnedTexts(
     new RevisionMemo(new RetainedAnswers()),
   );
+  // The last observation, for the project it was taken in; none while this
+  // server checks nothing.
+  private observation:
+    (MaintenanceObservation & { readonly source: string }) | undefined;
 
   constructor(
     private readonly launches: Launches,
@@ -163,31 +241,54 @@ export class FeedbackMaintenanceCheck {
   }
 
   private async check(signal: AbortSignal): Promise<void> {
-    if (projectEnvironment() !== "production") return;
-    const source = publishedProjects().find(
-      (each) => each.repository === feedbackMaintenanceRepository,
-    );
-    if (source === undefined) return;
+    const source =
+      projectEnvironment() === "production"
+        ? publishedProjects().find(
+            (each) => each.repository === feedbackMaintenanceRepository,
+          )
+        : undefined;
+    if (source === undefined) {
+      this.observation = undefined;
+      return;
+    }
     let setting;
     try {
       setting = readFeedbackMaintenance();
     } catch {
       // A setting that cannot be read authorizes nothing.
+    }
+    const last =
+      this.observation?.source === source.id ? this.observation : undefined;
+    const observed = {
+      source: source.id,
+      authorized: setting?.enabled === true,
+      review: last?.review,
+    };
+    this.observation = { ...observed, held: last?.held };
+    if (setting === undefined) {
+      this.release();
       return;
     }
     const sessions = await maintenanceSessions(source, this.launches);
     if (sessions === undefined) return;
     const today = localDate(new Date());
     const inputs = { authorized: setting.enabled, sessions, today };
-    if (dueDecision(inputs).kind !== "read") return;
+    if (dueDecision(inputs).kind !== "read") {
+      this.release();
+      return;
+    }
     const review = await this.review(source, signal);
     if (signal.aborted) return;
+    this.observation = { ...observed, review, held: last?.held };
     const decision = dueDecision({ ...inputs, review });
     // The setting may have been turned off while GitHub was asked.
     const now = readFeedbackMaintenance();
-    if (decision.kind !== "launch" || !now.enabled) return;
+    if (decision.kind !== "launch" || !now.enabled) {
+      this.release();
+      return;
+    }
     const { host, model, effort } = now.choice;
-    await this.launches.accept(
+    const acceptance = await this.launches.accept(
       source,
       {
         source: source.id,
@@ -199,6 +300,37 @@ export class FeedbackMaintenanceCheck {
         maintenance: { due: decision.due },
       },
       this.origin(),
+    );
+    this.observation = {
+      ...observed,
+      review,
+      held:
+        acceptance.kind === "accepted"
+          ? undefined
+          : { due: decision.due, reason: heldReason(acceptance) },
+    };
+  }
+
+  // Forgets a held launch once a check does not try to launch.
+  private release(): void {
+    if (this.observation !== undefined)
+      this.observation = { ...this.observation, held: undefined };
+  }
+
+  // What the machine's sessions answer says of feedback maintenance: the
+  // last observation with the sessions as they stand in that answer, or
+  // nothing while this server checks nothing.
+  state(
+    records: readonly LaunchWithState[],
+    attempts: readonly AttemptObservation[],
+  ): FeedbackMaintenanceState | undefined {
+    const observation = this.observation;
+    if (observation === undefined) return undefined;
+    return feedbackMaintenanceState(
+      observation.source,
+      observation,
+      observedSessions(observation.source, records, attempts),
+      localDate(new Date()),
     );
   }
 

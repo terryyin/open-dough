@@ -30,8 +30,11 @@ test("the published review is read only when on and no maintenance session is op
     kind: "wait",
     reason: "off",
   });
-  for (const open of [{ due: "2026-10-21", open: true }, { open: true }]) {
-    assert.deepEqual(dueDecision({ ...due, sessions: [open] }), {
+  for (const running of [
+    { due: "2026-10-21", progress: "running" },
+    { progress: "running" },
+  ]) {
+    assert.deepEqual(dueDecision({ ...due, sessions: [running] }), {
       kind: "wait",
       reason: "open",
     });
@@ -57,13 +60,14 @@ test("a date before the due date, an unread, absent or invalid review is not due
 
 test("a due date an ended launch served is not launched again; a later one is", () => {
   const sessions = [
-    { due: "2026-10-21", open: false },
-    { due: "2026-10-28", open: false },
-    { open: false },
+    { due: "2026-10-21", progress: "ended" },
+    { due: "2026-10-28", progress: "ended" },
+    { progress: "ended" },
   ];
   assert.deepEqual(dueDecision({ ...due, sessions, review: scheduled }), {
     kind: "wait",
     reason: "served",
+    due: "2026-10-28",
   });
   assert.deepEqual(
     dueDecision({
@@ -95,7 +99,7 @@ test("a due date the retention window has passed is never launched: still due, a
       today: daysAfterDue(launchRetentionDays + 1),
       review: scheduled,
     }),
-    { kind: "wait", reason: "stale" },
+    { kind: "wait", reason: "stale", due: "2026-10-28" },
   );
 });
 

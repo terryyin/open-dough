@@ -96,7 +96,10 @@ records or done details leave counts explicitly incomplete and never establish
 an empty combined column. Unresolved creation evidence stays reachable in its
 recovery surface but is not a confirmed session count. Ad hoc labels collapse
 whitespace, truncate at 40 characters with ellipsis, or use local launch time for
-blank/control-character text. Only dashboard-recorded sessions appear and the
+blank/control-character text. A session the feedback maintenance check started
+reads **Feedback maintenance** instead of its instruction, and Open Dough's
+project row says beside Start session while feedback maintenance runs or stays
+due ([Feedback maintenance](FEEDBACK-MAINTENANCE.md#where-it-stands)). Only dashboard-recorded sessions appear and the
 selected project's records alone determine its column entries.
 
 An assigned session shows its original agent and human credit at the saved

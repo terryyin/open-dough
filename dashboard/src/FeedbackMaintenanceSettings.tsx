@@ -1,9 +1,17 @@
 // System settings → Feedback maintenance: the standing authorization for the
 // dashboard to start the maintain-feedback-cycle session when it is due, off
 // by default, with the host and model choices of the launch dialog
-// (`./LaunchHostModel.tsx`). The setting itself is described in
+// (`./LaunchHostModel.tsx`), and a line naming the next due date read and the
+// last automatic launch's outcome from the machine's sessions answer
+// (`./feedbackMaintenanceState.ts`). The setting itself is described in
 // `../FEEDBACK-MAINTENANCE.md`.
 import { useEffect, useState } from "react";
+import { readMachineSessions } from "./agentLaunchClient.ts";
+import {
+  maintenanceStatusText,
+  type FeedbackMaintenanceState,
+} from "./feedbackMaintenanceState.ts";
+import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { LaunchHostModel } from "./LaunchHostModel.tsx";
 import {
   feedbackMaintenanceEndpoint,
@@ -57,6 +65,31 @@ function describe(setting: FeedbackMaintenanceSetting): string {
   ].join(", ");
 }
 
+// Where feedback maintenance stands, read with the machine's sessions now,
+// after each change of the setting, and then at the page's steady pace;
+// undefined while unread or while this dashboard checks nothing.
+function useMaintenanceState(
+  setting: FeedbackMaintenanceSetting | undefined,
+): FeedbackMaintenanceState | undefined {
+  const [state, setState] = useState<FeedbackMaintenanceState>();
+  useEffect(() => {
+    let current = true;
+    const read = () => {
+      void readMachineSessions().then((answer) => {
+        if (current && answer !== undefined)
+          setState(answer.feedbackMaintenance);
+      });
+    };
+    read();
+    const reading = setInterval(read, checkIntervalMs);
+    return () => {
+      current = false;
+      clearInterval(reading);
+    };
+  }, [setting]);
+  return state;
+}
+
 export function FeedbackMaintenanceSettings() {
   const projects = useProjects();
   const {
@@ -70,6 +103,7 @@ export function FeedbackMaintenanceSettings() {
     "The feedback maintenance setting could not be read.",
     updateFailure,
   );
+  const maintenance = useMaintenanceState(setting);
   const [host, setHost] = useState<HostIdentity>("claude");
   const [model, setModel] = useState("");
   const [effort, setEffort] = useState("");
@@ -111,6 +145,11 @@ export function FeedbackMaintenanceSettings() {
         Feedback maintenance:{" "}
         {setting === undefined ? "Status unavailable" : describe(setting)}
       </p>
+      {maintenance !== undefined && (
+        <p role="status" className="settings-note">
+          {maintenanceStatusText(maintenance)}
+        </p>
+      )}
       <p className="settings-note">
         When on, this dashboard starts the feedback maintenance cycle in Open
         Dough's local folder on this machine once the due date the cycle

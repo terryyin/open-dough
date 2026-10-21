@@ -1,6 +1,7 @@
 /* The project actions row beneath the banner: the near-future direction's
    disclosure (./NearFutureDirection.tsx) opposite Start session, its answer
-   (./StartSession.tsx), and the badge legend help. */
+   (./StartSession.tsx), where feedback maintenance stands
+   (./ProjectActions.tsx), and the badge legend help. */
 
 /* While the agent roster is shown, the stories and their direction stay in
    place behind it, keeping what was open. */
@@ -45,8 +46,10 @@
   flex-shrink: 0;
 }
 
-/* A launch problem beside Start session reads on the row, not across it. */
-.project-actions-end .start-session-answer {
+/* A launch problem, or where feedback maintenance stands, beside Start
+   session reads on the row, not across it. */
+.project-actions-end .start-session-answer,
+.project-actions-end .feedback-maintenance-due {
   max-width: 28rem;
   margin: 0;
 }

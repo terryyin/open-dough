@@ -40,7 +40,8 @@
 // starts needing the developer (`./sessionAlerts.ts`), and the sessions answer
 // says whether it can. It also starts the feedback maintenance cycle when it
 // is due under this machine's standing authorization
-// (`./feedbackMaintenanceCheck.ts`). The sessions answer also names the
+// (`./feedbackMaintenanceCheck.ts`), and the sessions answer says where
+// feedback maintenance stands from its last observation. It also names the
 // starts kept without a session and the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
@@ -87,9 +88,12 @@ export function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, res, launches, doneMarks, alerts).then((outcome) => {
-      respondToLaunch(res, outcome);
-    }, next);
+    void answer(req, url, res, launches, doneMarks, alerts, maintenance).then(
+      (outcome) => {
+        respondToLaunch(res, outcome);
+      },
+      next,
+    );
   });
   return {
     // The runner outlives this server. `ready` settles before Vite listens,

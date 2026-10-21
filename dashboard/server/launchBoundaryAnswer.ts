@@ -22,6 +22,7 @@ import { localWorkspaces } from "./localWorkspaces.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
+import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { sessionResultResponse } from "./sessionResultResponse.ts";
 import { stopRecordedSession } from "./sessionStop.ts";
 import {
@@ -111,6 +112,7 @@ export async function answer(
   launches: AgentLaunches,
   doneMarks: NativeDoneMarks,
   alerts: SessionAlerts,
+  maintenance: Pick<FeedbackMaintenanceCheck, "state">,
 ): Promise<AgentLaunchAnswer> {
   try {
     if (url.pathname === landingPrepareEndpoint)
@@ -159,10 +161,13 @@ export async function answer(
         return { status: 200, body: await heldCursorSessions() };
       case "sessions": {
         const { attempts, readable } = await launches.attempts();
+        const records = await launches.machineSessions();
+        const feedbackMaintenance = maintenance.state(records, attempts);
         return {
           status: 200,
           body: {
-            records: await launches.machineSessions(),
+            records,
+            ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),
             attempts,
             attemptsReadable: readable,
             hostOperations: hostOperations(),
