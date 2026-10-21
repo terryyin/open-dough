@@ -1,7 +1,7 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-10-21","reviewAfter":"2026-10-28"}
+{"schemaVersion":1,"reviewed":"2026-10-21","reviewAfter":"2026-10-22"}
 ```
 
 Reviewed 2026-10-21 (Asia/Tokyo): Open Dough, Pygardon and Doughnut post-local logs reviewed; Terry Talks and Lizard have no supplied or configured findings records. Coverage is incomplete; no watch is retired. ODF-139 remains with its [active owner](findings/ODF-139.md) after supported later counterevidence. Original watch starts remain unchanged.
