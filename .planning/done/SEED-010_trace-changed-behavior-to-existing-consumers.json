@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#trace-changed-behavior-to-existing-consumers",
+  "title": "Reach every existing consumer of a changed behavior before publication",
+  "completedAt": "2026-10-22T02:43:24.515Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "claude"
+}

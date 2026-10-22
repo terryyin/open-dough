@@ -48,7 +48,7 @@ counts alone do not establish coverage. Include retired literals and values
 (message text, status code, label, output form), callers relying on a changed
 default by not overriding it, and every fixture, stand-in, or harness helper that
 invokes or imitates a changed contract, including untouched ones. Account for the trace
-and the observing proof in the existing proof location or implementation return.
+and the observing proof in the [consumer-trace record](#record-the-consumer-trace).
 Derive obligations from each consumer's actual purpose, not its method name or
 dominant use. Exclude a consumer only when the effect does not reach its boundary;
 retain sufficient current proof for unchanged boundaries. A prior
@@ -101,6 +101,25 @@ asynchronous ownership changes, prove that the named lifecycle owner observes
 background failure in time and performs applicable cleanup after failure or
 shutdown; an awaited exception alone proves neither. Derive timing from the
 selected lifecycle contract rather than an arbitrary timeout.
+
+## Record the consumer trace
+
+The consumer-trace record is the evidence of the trace above, and the installed
+[consumer-trace script](../../dough-execute-plan/scripts/consumer-trace.mjs)
+produces it:
+`node '<installed-execute-plan>/scripts/consumer-trace.mjs' --checkout '<checkout>' --base <revision> [--term '<text>']…`,
+with `--base HEAD` for an uncommitted change. It searches the whole checkout
+for the changed files' paths and basenames, identifiers declared in changed
+hunks, changed modules' import paths, and removed literals, and lists the
+located consumers by kind, naming kinds with no match. Supply as `--term` the
+effect the diff cannot carry: retired behavior and altered preconditions, in
+the words their observers use. A derived term marked too broad lists no
+consumers; when it names the changed contract, resupply it as `--term`. When
+the record lists a step definition, page object, helper, or stand-in, add its
+step phrases or exported names that reach the effect as `--term` and rerun
+until the journeys and callers using it are listed. Give every listed consumer
+a disposition: `run`, `reused`, or `excluded: <reason the effect does not reach
+its boundary>`. A record with every kind empty keeps the slice's focused proof.
 
 ## Choose expensive proof before launch
 

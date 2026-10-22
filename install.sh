@@ -178,6 +178,9 @@ managed_files=(
   dough-execute-plan/scripts/ci-repair-stash.mjs
   dough-execute-plan/scripts/ci-revisions.mjs dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
+  dough-execute-plan/scripts/consumer-trace-record.mjs
+  dough-execute-plan/scripts/consumer-trace-terms.mjs
+  dough-execute-plan/scripts/consumer-trace.mjs
   dough-execute-plan/scripts/github-request-admission.mjs
   dough-execute-plan/scripts/github-request-answer.mjs
   dough-execute-plan/scripts/github-request-calls.mjs
