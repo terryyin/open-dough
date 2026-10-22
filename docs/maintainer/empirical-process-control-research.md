@@ -1383,7 +1383,7 @@ them; and whether evidence the cycle retains for an execution named by an
 open next-observation request is reported to that finding's owner.
 
 **Selected follow-up (22 October 2026):** Terry queued
-[Connect collected evidence to earlier improvement responses](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#connect-collected-evidence-to-response-observations)
+[Connect collected evidence to earlier improvement responses](https://github.com/terryyin/open-dough/blob/f377b6a2fa8dca305ee00eeb9ac16031d75bb9b8/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#connect-collected-evidence-to-response-observations)
 after the ODF-323 retry correction. It addresses the missed evidence connection
 within existing feedback maintenance; it does not repeat this evaluation, claim
 another occurrence or include a separate redesign of human intervention.

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_connect-collected-evidence-to-response-observations.json",
+      "identity": "SEED-010#connect-collected-evidence-to-response-observations",
+      "completedAt": "2026-10-22T23:04:43.970Z",
+      "blob": "62549d7722320de941d730a9dcecc86a4858a681"
+    },
+    {
       "fileName": "SEED-008_normalize-delivery-commit-identities.json",
       "identity": "SEED-008#normalize-delivery-commit-identities",
       "completedAt": "2026-10-22T08:57:47.449Z",
