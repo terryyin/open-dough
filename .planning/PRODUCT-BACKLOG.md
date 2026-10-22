@@ -22,8 +22,10 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Skip feedback collection from projects with process retrospective off](seeds/SEED-010-learn-from-execution-retrospectives.md#skip-feedback-from-projects-without-process-retrospective) — SEED-010#skip-feedback-from-projects-without-process-retrospective
 - [Reach every existing consumer of a changed behavior before publication](seeds/SEED-010-learn-from-execution-retrospectives.md#trace-changed-behavior-to-existing-consumers) — SEED-010#trace-changed-behavior-to-existing-consumers
 - [Retrieve startup guidance within the response budget](seeds/SEED-010-learn-from-execution-retrospectives.md#bound-startup-guidance-retrieval) — SEED-010#bound-startup-guidance-retrieval
+- [Stop asking for native checks once their question is answered](seeds/SEED-010-learn-from-execution-retrospectives.md#reuse-native-proof-after-attribution) — SEED-010#reuse-native-proof-after-attribution
 - [Evaluate one real feedback cycle](seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority) — SEED-010#prioritize-responses-with-delegated-authority
 - [Normalize commit identities before delivery comparisons](seeds/SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities) — SEED-008#normalize-delivery-commit-identities
 - [Complete a bounded feedback correction with Jidoka intervention](seeds/SEED-010-learn-from-execution-retrospectives.md#complete-delegated-feedback-correction) — SEED-010#complete-delegated-feedback-correction
