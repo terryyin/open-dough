@@ -6,9 +6,10 @@
 ## Correction input
 
 **Provenance.** This is a retrospective correction of
-SEED-010#bound-startup-guidance-retrieval (plan 345). Its commits are
+SEED-010#bound-startup-guidance-retrieval (plan 345, recoverable at
+`09eb0767:.planning/slice-plans/345-bound-startup-guidance-retrieval/PLAN.md`). Its commits are
 `5039fb70` (Take) and `fc62c171` (slice 1, the boundary-reads table and
-`read-budget-guidance.test.mjs`). Story 13 promises that each boundary's
+`read-budget-guidance.test.mjs`). That story promises that each boundary's
 needed reference is named there and read then, within the budget (key
 example 3). It also promises that a check keeps every boundary's named read
 set within the budget, and that what managed delivery owns needs no read.
@@ -46,11 +47,11 @@ Measured with the check's own section rule, these row sets fit:
 | First delegation: the current row plus story-obligations `#use-the-record-at-execution-boundaries` | 22,642 |
 
 **Preserved promises and constraints.**
-- Story 13's promises stay as they are: one row per tool result; rows in
+- The predecessor story's promises stay as they are: one row per tool result; rows in
   execution order; every row at most 30,000 bytes; every reference the former
   paragraph named stays reachable from some row.
 - No digest, retrieval script or rewritten reference prose. Those exclusions
-  carry over from Story 13.
+  carry over from the predecessor story.
 - Passages needed only under a condition stay with targeted retrieval. These
   are `agent-commits.md`, a missing gap's `story-obligations.md` sections,
   trunk-publication's recovery and precondition sections, and

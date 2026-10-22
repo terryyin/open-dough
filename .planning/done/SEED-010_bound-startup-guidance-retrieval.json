@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#bound-startup-guidance-retrieval",
+  "title": "Retrieve startup guidance within the response budget",
+  "completedAt": "2026-10-22T02:56:52.530Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "claude"
+}

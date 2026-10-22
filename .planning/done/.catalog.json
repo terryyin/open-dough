@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_bound-startup-guidance-retrieval.json",
+      "identity": "SEED-010#bound-startup-guidance-retrieval",
+      "completedAt": "2026-10-22T02:56:52.530Z",
+      "blob": "862a905d77c0eb0e0c7bd5ac746f0f73e42c8bb6"
+    },
+    {
       "fileName": "SEED-010_correct-feedback-maintenance-session-status.json",
       "identity": "SEED-010#correct-feedback-maintenance-session-status",
       "completedAt": "2026-10-22T01:58:35.175Z",

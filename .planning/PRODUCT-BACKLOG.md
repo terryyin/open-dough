@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Reach every existing consumer of a changed behavior before publication](seeds/SEED-010-learn-from-execution-retrospectives.md#trace-changed-behavior-to-existing-consumers) — SEED-010#trace-changed-behavior-to-existing-consumers ([plan](slice-plans/343-trace-changed-behavior-to-consumers/PLAN.md))
-- [Retrieve startup guidance within the response budget](seeds/SEED-010-learn-from-execution-retrospectives.md#bound-startup-guidance-retrieval) — SEED-010#bound-startup-guidance-retrieval ([plan](slice-plans/345-bound-startup-guidance-retrieval/PLAN.md))
 
 ## Backlog list
 

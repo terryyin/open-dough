@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "identity": "SEED-010#bound-startup-guidance-retrieval",
-  "mode": "story-branch",
-  "branch": "claude/retrieve-startup-guidance-within-the-response-bu",
-  "host": "claude"
-}
