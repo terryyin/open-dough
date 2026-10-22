@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Skip feedback collection from projects with process retrospective off](seeds/SEED-010-learn-from-execution-retrospectives.md#skip-feedback-from-projects-without-process-retrospective) — SEED-010#skip-feedback-from-projects-without-process-retrospective
-- [Show feedback maintenance's real outcome after quiet and interrupted runs](seeds/SEED-010-learn-from-execution-retrospectives.md#correct-feedback-maintenance-session-status) — SEED-010#correct-feedback-maintenance-session-status ([plan](slice-plans/344-correct-feedback-maintenance-session-status/PLAN.md))
 
 ## Backlog list
 
