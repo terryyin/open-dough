@@ -52,12 +52,18 @@ dashboard-started cycle, preparation, execution and wrap-up already connect the
 loop with no missed or repeated stop, and the one remaining manual step, release
 and client rollout, is reserved under ADR 0005 while native acceptance is pending.
 
+Later on 2026-10-22, Terry selected two narrow follow-ups: ODF-323's retry-safe
+selected-slice status update first, then connecting evidence collected during
+feedback maintenance to earlier responses' open observation requests. This
+selection queues the stories; it does not start implementation or revive the
+dropped autonomous-correction candidate.
+
 The shared [project-findings maintenance contract](../../src/skills/dough-triage-project-findings/SKILL.md)
 provides explicitly invoked local maintenance, repair observation, priority selection,
 and commit/sync. Later stories compose or evaluate that capability.
 
-The ordering and cuts below record the completed evaluation and the dropped
-autonomous-correction candidate.
+The ordering and cuts below record the selected follow-ups, completed evaluation
+and dropped autonomous-correction candidate.
 They extend the initial retrospective-focused delivery scope. The following
 initial delivery decisions remain context for the capabilities already present.
 
@@ -204,6 +210,124 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="retry-selected-slice-status"></a>
+
+### 17. Retry delivery without advancing another slice's status
+
+**Identity:** SEED-010#retry-selected-slice-status
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** An executing agent can retry a refused fresh delivery without changing
+another slice's status or asking the developer to repair the plan.
+
+**Evidence / selection:** Terry selected this first on 2026-10-22 from
+[ODF-323](../../docs/maintainer/findings/ODF-323.md). Two executions exposed a
+caller-authored status update surviving a later preparation refusal. One
+published a premature next-slice status, corrected before that slice's
+delegation; the other required a hand-edited updater before retry. This does
+not establish that the delivery helper itself selected the wrong slice or that
+the existing fail-closed publication gate failed.
+
+**Scope:** Make the selected-slice status operation used by guarded fresh
+delivery safe to repeat after a later preparation check refuses. Bind the
+operation to the intended slice and intended update, including recognition
+that this update already applied. Reuse existing plan, obligation, proof and
+publication owners; leave the implementation choice to refinement.
+
+**Evaluation:**
+
+- A status update applies, a later preparation check refuses, and the corrected
+  retry preserves that same slice's intended status without advancing the next
+  planned slice or changing unrelated plan content and proof.
+- Repeating the same intended update has no additional effect. A missing,
+  ambiguous or conflicting target/update is reported without guessing another
+  slice or publishing a falsely completed state.
+- An updater failure or later preparation refusal still commits and publishes
+  nothing. Existing obligation and proof checks remain effective; unrelated
+  local work remains recoverable. No rollback of arbitrary caller actions is
+  required by this story.
+- Completion records the actual response, proof, first containing release or
+  explicit unreleased status, and the next ordinary eligible-use observation at
+  ODF-323. Delivery alone does not resolve the finding.
+
+**Value / learning:** Prevent false progress records and avoid repairing an
+ad-hoc updater on retry. Compare the retained failure examples with the new
+behavior, and record any added preparation burden under
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Effort uncertainty:** Fitting retry safety into the current preparation and
+plan-status ownership without introducing a second plan representation.
+
+**Prerequisites:** Existing fresh-delivery and plan/proof contracts. Queue order
+creates no dependency on Story 18.
+
+**Safe stopping point:** The selected status operation can be retried safely;
+the scope does not expand into general transaction rollback, a new execution
+framework, release or client rollout.
+
+<a id="connect-collected-evidence-to-response-observations"></a>
+
+### 18. Connect collected evidence to earlier improvement responses
+
+**Identity:** SEED-010#connect-collected-evidence-to-response-observations
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** The maintainer receives attributable evidence about an earlier
+response during normal feedback maintenance, without commissioning a separate
+evaluation to connect evidence the cycle already encountered.
+
+**Evidence / selection:** Terry selected this second on 2026-10-22 from
+[Story 10's evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up).
+The cycle retained plan 335 under other findings but missed its relevance to
+[ODF-139's open observation request](../../docs/maintainer/findings/ODF-139.md).
+The evaluation subsequently recorded that observation. It is a historical
+example for this workflow, not a new occurrence or another implementation fix
+for ODF-139.
+
+**Scope:** During authorized shared feedback maintenance, connect evidence being
+collected to explicit open response-observation requests in existing finding
+records. Verify project, execution identity, response/adoption applicability and
+the request's conditions using available evidence and necessary targeted checks.
+Record the supported outcome, counterevidence or precise remaining gap at the
+existing finding owner. Reuse collection, response assessment, watch judgment
+and publication; add no separate observation store.
+
+**Evaluation:**
+
+- An eligible execution already encountered for another finding answers an open
+  request: its owner receives one evidence-linked observation and a bounded
+  assessment under the request's criteria. Plan 335 can supply a representative
+  replay; its existing ODF-139 observation must not be duplicated.
+- Wrong-release or otherwise ineligible evidence cannot demonstrate the
+  response's effect. Unknown provenance or ambiguous matches remain qualified
+  with the missing fact named. Contrary evidence is retained; no match or no
+  eligible exposure cannot become a successful outcome or a passed watch.
+- Repeated collection of the same execution adds no occurrence, duplicate
+  observation, story or empty publication. Existing pending observations,
+  including ODF-139's other projects, retain their actual disposition.
+- Establish the comparison before evaluation and report evidence connected,
+  decisions changed, remaining uncertainty and added review effort using
+  ADR 0010. At completion update the linked evaluation and ODF-139 maintenance
+  follow-up with the delivered mechanism and its limits, without claiming the
+  underlying response effective merely because matching works.
+
+**Value / learning:** Turn already-collected experience into feedback on earlier
+changes, with proportionate review cost and no inference of benefit from silence.
+
+**Effort uncertainty:** Recognizing a supported match across existing records
+while keeping checks bounded to the evidence and question at hand.
+
+**Prerequisites:** Existing maintenance and finding-owned observation criteria;
+no blocking dependency on Story 17.
+
+**Safe stopping point:** Relevant collected evidence reaches its existing owner.
+No routine whole-history scan, telemetry platform, new scheduler, release/install
+automation, human-handoff redesign or autonomous implementation is included.
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations
@@ -242,6 +366,10 @@ obligations passed.
 
 Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) and the
 [ODF-142 correction](../../docs/maintainer/findings/ODF-142.md) are complete.
+The next selected work is Story 17 (ODF-323 retry safety), then Story 18
+(connecting collected evidence to open response observations). This order
+addresses demonstrated false progress before the observed feedback connection
+gap; the stories can deliver independently.
 Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.
 

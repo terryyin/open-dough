@@ -20,3 +20,5 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Retry delivery without advancing another slice's status](seeds/SEED-010-learn-from-execution-retrospectives.md#retry-selected-slice-status) — SEED-010#retry-selected-slice-status
+- [Connect collected evidence to earlier improvement responses](seeds/SEED-010-learn-from-execution-retrospectives.md#connect-collected-evidence-to-response-observations) — SEED-010#connect-collected-evidence-to-response-observations
