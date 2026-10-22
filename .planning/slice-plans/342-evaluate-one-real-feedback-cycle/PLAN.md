@@ -117,7 +117,7 @@ approach.
 
 ### 1. The decision basis is fixed before the observed run's result is read
 Type: Behavior
-Status: planned
+Status: done
 Proof: The research report gains a dated section for this story that names
 the observed run (the cycle due 2026-10-22 under the trunk due block) and
 states its beneficiary, intended gain, comparison with the October 20 and 21
@@ -187,7 +187,33 @@ fulfil this outcome, stop and revisit scope instead of adding implementation.
 
 ## Learnings
 
-None yet.
+- The observed run already existed when execution began: the dashboard's
+  feedback-maintenance launch at 2026-10-21T23:46:55Z, done
+  2026-10-22T00:09:14Z, after preparation's 08:37 +0900 observation and before
+  the Take `a00e6a77` (17:21:29 +0900). Slice 1 therefore recorded the basis as
+  set afterwards and labelled the judgment exploratory (story example 2). Only
+  that launch record's timestamps were read before the basis was written; the
+  watch list's changed due block was seen during slice 1's link check, after
+  the basis text existed.
+
+## Acceptance evidence
+
+Slice 1 — source-only review: a fresh general-purpose agent received only the
+selected story's Goal, Scope, deferred promises, key examples and Evaluation
+text, read no files, and returned 56 commitments and 18 exclusions (this
+session's subagent hand-back, 2026-10-22). Comparison for slice 1's promises:
+
+| Source commitment | Expected | Actual (research report, `#feedback-cycle-evaluation-follow-up`) | Disposition |
+| --- | --- | --- | --- |
+| Run, project set, guidance revisions, authority, evaluation questions before judging | All five stated | First return lacked project set, guidance revisions and explicit questions; added from `projects-production.json`, each project's last `.agents/skills` commit before launch and trunk `2443059d` | proved after correction |
+| Result first → basis set afterwards, judgment exploratory (example 2) | Date set and ordering stated | "Set 22 October 2026, after the observed run had completed; the judgment below is exploratory", with launch/done times and Take time | proved |
+| Basis names the run; no later substitution | Named and fixed | Launch named; "No later run replaces it." | proved |
+| Eight ADR fields (example 1 values) | Each stated | Beneficiary, intended gain, comparison with `327b6fa2`–`a2be7e50` and `77f9c3f6`–`c361dbb8` as qualified context, result worth keeping, quality and authority constraints, outweighing costs, later exposure | proved |
+| Later criteria changes recorded openly; consequential tradeoffs to the maintainer | Stated | Closing paragraph added after review | proved after correction |
+| Bounded trial; ADR not accepted | Stated | Section preamble | proved |
+
+Slice 2's commitments (traces, follow-through, cost, intervention, coverage,
+judgment, ADR recommendation, idempotence) remain with slice 2.
 
 ## Plan concern review
 

@@ -1093,3 +1093,90 @@ run and job counts of that execution.
 Re-reading the same records yields the same classification. It adds no
 occurrence, finding row, story, release or rollout, and reopens no completed
 story.
+
+<a id="feedback-cycle-evaluation-follow-up"></a>
+
+## Follow-up: one real feedback cycle judged under Proposed ADR 0010
+
+**22 October 2026.** This follow-up evaluates one ordinary run of the
+[combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md)
+for
+[Story 10](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority),
+using [Proposed ADR 0010](../adrs/0010-definition-of-improvement.md) as a
+trial decision basis only. It accepts nothing on the ADR's behalf.
+
+### Decision basis
+
+**Set 22 October 2026, after the observed run had completed; the judgment
+below is exploratory.** The dashboard's launch record on this machine shows
+the run launched at 2026-10-21T23:46:55Z (08:46:55 +0900) and done at
+2026-10-22T00:09:14Z (09:09:14 +0900). This execution began after the Take
+commit `a00e6a77` (17:21:29 +0900). The basis was written before the run's
+report, session record, commits or completion receipt were read, but its
+result already existed, so it cannot count as a criterion set in advance.
+
+- **Observed run.** The first combined cycle after the 2026-10-21 review,
+  made due on 2026-10-22 by the
+  [watch list's](near-term-watch-list.md) due block
+  (`{"reviewed":"2026-10-21","reviewAfter":"2026-10-22"}` before the run): the dashboard's
+  feedback-maintenance launch named above. No later run replaces it.
+- **Project set.** The five projects in this machine's production dashboard
+  configuration (`~/.open-dough/dashboard/projects-production.json`): Open
+  Dough, Doughnut and Pygardon on `main`, and Terry Talks and Lizard on
+  `master`.
+- **Guidance revisions.** At launch, every project's installed guidance was
+  0.3.68 (Open Dough `0341c9ac`, Doughnut `51789e1054`, Pygardon `b0197613b`,
+  Terry Talks `8aa2688`, Lizard `b42212e`, all 2026-10-22 07:47 +0900).
+  Open Dough's internal maintenance skills were those on trunk at `2443059d`
+  (08:46:16 +0900), last changed at `ca410794`. The run is judged against that
+  guidance; recommendations use current guidance.
+- **Authority.** The dashboard's standing feedback-maintenance authorization
+  for Claude Code (Story 9), within the maintenance skills' existing
+  selection limits.
+- **Evaluation questions.** Were the cycle's selected, declined and no-change
+  decisions worthwhile against their evidence and product direction? Was a
+  project-owned product improvement considered without a further human
+  request? Did ODF-139's successor meet eligible use? What did the run cost?
+  Did its human interventions add value, and were any missed? What happened to
+  Terry Talks' and Lizard's coverage?
+- **Beneficiary.** The Open Dough maintainer, and the developers of the
+  maintained projects whose findings and backlogs the cycle changes.
+- **Intended gain.** Worthwhile product and process decisions from the
+  projects' recorded evidence, at an acceptable cost, with human intervention
+  only where it adds value.
+- **Comparison and limits.** The manually initiated cycles of 20 October
+  (`327b6fa2`–`a2be7e50`, 08:36:50–08:45:09 +0900) and 21 October
+  (`77f9c3f6`–`c361dbb8`, 07:59:47–08:11:07 +0900) are qualified context, not
+  a control. Their prompts and usage are not in the repository, the guidance
+  and project evidence differ between runs, and one run supports no rate.
+- **Result worth keeping.** *Retain* when every selected, declined and
+  no-change candidate traces to its evidence, distinct frequency, relevance,
+  direction and existing work; when a project-owned product improvement is
+  at least considered without a further human request; when coverage and
+  completion are reported truthfully; and when no required human decision is
+  missed. *Adjust* when the decisions are useful but one named gap recurs,
+  such as unconsidered product work, unreported coverage or a missed stop.
+  *Simplify* when the decisions are useful but most of the cost lies in steps
+  that changed no decision. *Revert* when the run exceeds its authority,
+  reports completion untruthfully, or selects work its evidence does not
+  support. *Inconclusive* when too little was exercised to judge.
+- **Quality and authority constraints.** The cycle keeps its existing
+  selection limits and delegated authority: it records findings and queues
+  stories but implements, releases and rolls out nothing, and writes to a
+  project only as its maintenance skills allow. Justified no-change, defer
+  and evidence requests count as valid decisions. Silence or missing findings
+  never pass a watch.
+- **Costs that could outweigh the benefit.** Host usage and wall-clock time
+  out of proportion to the decisions changed; human rescue or corrective
+  prompts; later correction commits for the cycle's own output; repeated
+  reading across projects that changes no decision; and this evaluation's own
+  burden.
+- **Later exposure needed.** ODF-139's 0.3.67 successor needs an ordinary
+  named-gap acceptance in eligible use; the run's selected responses need
+  delivery, adoption and use before any observed improvement can be claimed.
+  Where that exposure is absent, the follow-up records the limit and the next
+  discriminating observation.
+
+Any later change to these criteria is recorded here, with its date and reason,
+rather than rewritten. A consequential tradeoff the existing decisions do not
+settle goes to the maintainer.
