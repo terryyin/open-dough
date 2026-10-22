@@ -3,7 +3,7 @@
 Reviewed 2026-10-21 (Asia/Tokyo). Active shared-process findings only; released
 responses under observation live in the [watch list](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/near-term-watch-list.md).
 Detailed observations, original releases and qualified inferences are retained
-in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `341293c09f1115b8ad3412fc6da63679ce563457`; the complete pre-compaction source remains at `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`. Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
+in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
 - Highest allocated local number: 328. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -65,17 +65,6 @@ Former local code: DD-192.
 
 Every small slice launches a fresh full refactor agent even when the accepted diff needs no further changes, creating substantial repeated cost. [Evidence and current response](docs/maintainer/findings/ODF-141.md).
 
-
-### Occurrence — omitted landing assessment
-
-- Execution: `SEED-010#learn-from-unreviewed-execution-paths` / plan 339, first implementation `06c08a77047eb7851a9f22ff8ad4d74ed3cc3a64`
-  - Timestamp: unknown (2026-10-21, independent refactor before the first implementation commit)
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: coordinator conversation, `refactor_assessment` return: the required fresh pass reviewed a 119-line research follow-up and plan context, reported `none — already clean`, no edits or test reruns, and approximately five active minutes; source-only review and coordinator evidence acceptance had already completed.
-  - Observed effect: another independent handoff with no product or proof change. It inspected actual reader/link consumers and confirmed accepted evidence remained applicable.
-  - Inference: qualified recurrence of fixed review cost; the time is the agent's estimate, not independent timing or measured savings, and no-edit output does not establish that the review lacked value. This is the current assessment execution, separate from the historical landing it reviewed.
-
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
 Former local code: DD-215.
@@ -93,16 +82,6 @@ Startup does not report that the target trunk is already failing CI, so each bra
 Former local code: DD-219.
 
 An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
-
-### Occurrence — direct preparation-history assessment
-
-- Execution: `SEED-010#learn-from-preparation-history` / plan 338, first implementation `153d0136c3f7c0127fd8b09ff81843ba07e1b658`
-  - Timestamp: unknown (2026-10-21, independent refactor pass)
-  - Tool: Cursor
-  - Open Dough release: unknown
-  - Evidence: coordinator record — the refactor agent first returned `REFACTOR JIDOKA STOP` on the refactor checks' 250-line file-size check for the pre-existing 616-line `docs/maintainer/empirical-process-control-research.md` (769 lines after the plan-assigned append); the coordinator resolved it via the plan's existing-report ownership plus the ODF-152 precedent as a narrow exception, and the refactor then returned COMPLETE with no edits.
-  - Observed effect: one extra coordinator decision and refactor follow-up; no refactor edits.
-  - Inference: qualified — the same concrete conflict as this heading (absolute size check versus a plan-assigned single-owner existing report); the broader file-size policy was not assessed.
 
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
@@ -187,35 +166,6 @@ A native acceptance replay constructs a fresh current-slice checkpoint instead o
 Former local code: DD-259.
 
 Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. [Evidence and current response](docs/maintainer/findings/ODF-150.md).
-
-
-### Occurrences
-
-- Execution: SEED-145#quiet-land-and-wrap-up / plan 331, first implementation `94c6c3767a9f9048ad8e05c8b5ec6306f6b53dc5`
-  - Timestamp: unknown (2026-10-20, CI run 39396964033/1)
-  - Tool: Codex
-  - Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
-  - Evidence: plan 331 accepted the two Land guidance suites, closure substitutes and five dashboard journeys; independent refactoring also missed `src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs:102`, which reads the changed shared Markdown and still required literal `no recap`. [CI 39396964033/1](https://github.com/terryyin/open-dough/actions/runs/39396964033) failed `test (2/3)` on that assertion; repair `e939292dd144bf21a6c11dea1efbe7cc06ffcf2a` aligned it with quiet success/minimum native response after a reproducing baseline and 12 passing related checks.
-  - Observed effect: one owned CI failure and a fresh repair/refactor cycle before completion; the product rule and operational gates needed no change.
-  - Inference: qualified recurrence of proof selection missing a consumer outside the named guidance suites. Searching banners and reminder phrases did not find the old quiet-response regex; tracing every reader of the changed guidance would reach it. No elapsed-time or token cost is measured.
-
-- Execution: SEED-052#cursor-runner-restart-resume / plan 334, first implementation `79a1f1ec`
-  - Timestamp: unknown (2026-10-21, CI failure on `79a1f1ec`; repair `614b490e`)
-  - Tool: Cursor
-  - Open Dough release: unknown
-  - Evidence: slice 1 made `exec`/keep require current runner build proof in the address and wire answers. CI on `79a1f1ec` failed through `dashboard/tests/support/cursorRunnerHeldReads.ts`, a stand-in of that same runner contract that presented no build proof: new work rightly treated it as stale, stopped the address pid (the test worker's own pid) and started a bundled runner that leaked. Repair `614b490e` is test-support only: the stand-in presents the proof the serving dashboard expects (bundled versus source identity), and its re-keep posts directly because the current-runner probe is itself a held sessions read.
-  - Observed effect: one owned CI failure and repair cycle on slice 1; slice 2's in-progress work was stashed and restored around the repair. No production defect was found in the repair.
-  - Inference: qualified recurrence of this finding's stand-in clause. Slice 1's proof built its own stand-in (`cursorRunnerProof.ts`) but did not trace every existing stand-in of the changed address/wire contract before publication. No elapsed-time or token cost is measured.
-
-### Occurrence — shared-host proof guidance execution
-
-- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
-  - Evidence: CI `39555788657/1` at `37eed762` and `39555975066/1` at `fdea7f42`; `shared-checkout-writers-guidance.test.mjs:154` rejected a shortened pause clause. Initial consumer searching in `tests/` missed guidance-test consumers under `src/`.
-  - Observed effect: the existing human/other-session ownership assertion failed in both published revisions. Focused red reproduced it; restoring explicit source wording passed all eight direct ci-monitor consumer test files through the project runner.
-  - Inference: prose walkthroughs did not replace existing deterministic consumer contracts. The repair broadened the search across `src tests`; no test assertion was weakened and no native-compliance claim follows.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -459,32 +409,6 @@ Slice 2 offered a separate Stop from the host `stop` fact alone, which also gave
 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
-### Occurrence — shared-host proof guidance execution
-
-- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: 0.3.67 (checkout-bound installed `dough-update/VERSION` at claim `9064e7ea`; managed copies unchanged).
-  - Evidence: launch `53b250ea-626e-4fb3-9e00-dfa082d25c58`; opening reference batches reported 10,205 and 13,394 original tokens with truncation, followed by targeted rereads before first delegation on 2026-10-21.
-  - Observed effect: requested passages were omitted and had to be retrieved again. Multiple oversized calls are one execution, not separate occurrences.
-  - Inference: the coordinator exceeded response budgets despite targeted-retrieval guidance; extra retrieval is observed, but its cost was not measured separately.
-
-### Occurrence — completed supplier agreement correction
-
-- Execution: SEED-010#correct-completed-supplier-agreement; first implementation `c56944f8b3829980a1fe948baad855bf2780fbe0`.
-  - Timestamp: unknown (2026-10-21 startup/review); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
-  - Evidence: launch `0da07e97-1cef-4d97-b2c2-5c9cfe190a32`; opening reference batches reported 11,514 and 18,023 original tokens with truncation, followed by bounded reads recovering delegation, delivery and CI passages. The retrospective also over-batched catalog evidence.
-  - Observed effect: required passages needed repeated retrieval; dependent context was recovered before use. Multiple calls remain one occurrence.
-  - Inference: existing targeted-retrieval guidance applies; no new process response or measured saving is established.
-
-### Occurrence — historical replay input comparison
-
-- Execution: `SEED-053#match-historical-replay-inputs`, first implementation `fba97e9fbb90c4f97909a5e2ab899a0031c58308`.
-  - Timestamp: unknown (2026-10-21 startup); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
-  - Evidence: launch `30802283-b022-439d-90ce-dd47c14c819b`; opening tool batches reported 26,177 and 26,155 original tokens with truncation, followed by a 12,059-token truncated read and bounded retrieval of omitted execution/CI/delivery passages before use.
-  - Observed effect: required context needed repeated retrieval before implementation. Multiple oversized reads are one execution, not separate occurrences.
-  - Inference: coordinator batching exceeded the output budget despite targeted-retrieval guidance; repeated retrieval is observed, but its elapsed/token cost was not isolated and no guidance remedy was evaluated.
-
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323.
@@ -506,70 +430,20 @@ while the developer was also working there and answering its questions.
 
 [Retained evidence and current assessment](docs/maintainer/findings/ODF-307.md).
 
-## DD-325 — A delivery output wrapper drops the running-command handle
+## ODF-322 — A projected delivery result drops the running command's handle <a id="odf-322"></a>
 
-The coordinator projected a guarded delivery tool result to its output text,
-omitting the live command's session ID. The command finished, but its final
-receipt was not retained. Checkout inspection and exact-candidate resume were
-needed to recover accepted publication without repeating the commit or push.
+Former local code: DD-325.
 
-### Occurrences
+The coordinator reduced a guarded delivery call to its output text, dropping the live command's session handle; the terminal receipt was recovered through checkout inspection and an exact-candidate resume. [Evidence and current response](docs/maintainer/findings/ODF-322.md).
 
-- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
-  - Evidence: launch `53b250ea-626e-4fb3-9e00-dfa082d25c58`, slice 1 `fresh` returned through `text(result.output)`; subsequent exact full-ID resume returned `already-published`, `pushCount: 0`, accepted `97e2c938` and recovered observer `/tmp/dough-ci-501/watch-CwEwhy`.
-  - Observed effect: one delivery receipt required recovery; later delivery retained the full result/session ID and reached its terminal receipt normally.
-  - Inference: this was coordinator output handling, not a demonstrated stalled publisher or failed transport. Retain the full running-command result and follow its session to terminal evidence.
+## ODF-324 — Native checks keep asking the developer after attribution is established <a id="odf-324"></a>
 
-## DD-326 — Guarded delivery withheld publication after a plan-updater error
+Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded-alert-click-automation only.
 
-Former branch-local code: DD-325 for this execution only; concurrent trunk DD-325 names a separate finding.
+Native acceptance kept requesting interactive developer rounds after attribution was established, including a full replay for a message-only change, until the developer withdrew. [Evidence and current response](docs/maintainer/findings/ODF-324.md).
 
-The coordinator generated a temporary Python updater with a malformed string. The guarded fresh operation stopped at plan/status mutation before staging, committing or publishing; fixing and syntax-checking that updater allowed the same delivery to complete. This is a successful containment observation, not a product defect or evidence that the error recurs.
+## ODF-323 — A caller-written plan-status mutation survives a later delivery refusal <a id="odf-323"></a>
 
-### Occurrences
-- Execution: SEED-010#correct-completed-supplier-agreement; first implementation `c56944f8b3829980a1fe948baad855bf2780fbe0`.
-  - Timestamp: unknown (2026-10-21, before first implementation publication); Tool: Codex; Open Dough release: unknown (checkout-bound installed guidance).
-  - Evidence: launch `0da07e97-1cef-4d97-b2c2-5c9cfe190a32`, first `execution-increment-delivery.mjs fresh` returned `preparation-failed`, operation `plan/status mutation`, Python `SyntaxError`, `commit: null`, `publication: pending`; repaired retry accepted `c56944f8`.
-  - Observed effect: the erroneous operation published nothing. Formatting completed before refusal and ran again on the guarded retry; accepted semantic proof was reused because product behavior did not change.
-  - Inference: preserve the current fail-closed gate; syntax-checking generated temporary scripts before invoking it avoids this one observed retry. No general time saving is measured.
+Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded-alert-click-automation only.
 
-## DD-327 — Repeated native checks exhausted the developer after attribution was established
-
-Former branch-local code: DD-325 for SEED-144#branded-alert-click-automation only; concurrent trunk DD-325 names a separate finding.
-
-Native alert acceptance required many Notification Center clicks and local
-Settings authentication rounds. After real Safari/Chrome refusal/retry established
-the consulted row, the message-only correction still requested a four-click
-native replay. The developer ended further participation; unchanged mechanics
-then reused the baseline while the emitted-source regression proved new text.
-
-### Occurrences
-- Execution: SEED-144#branded-alert-click-automation / plan 330, first implementation `ac342c94ebc96fd452d3680b960c9e7c31f806ad`
-  - Timestamp: unknown (2026-10-21, native baseline and final-check handoffs)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance at claim `2e3ff9411d1fe94bab224b7903f8c64f1b936d15`
-  - Evidence: `ac342c94ebc96fd452d3680b960c9e7c31f806ad:.planning/slice-plans/330-branded-alert-click-automation/native-baseline-history.md` and `slice-2-evidence.md`; user: “I had enough of this. Please complete this without me.” CUA blocked the recovery-dialog app; replying dismissed Notification Center; local authorization needed human input.
-  - Observed effect: repeated interrupted handoffs; explicit developer instruction omitted final native repetition. Safari default was restored, but the temporary Chrome grant remained on behind macOS authentication.
-  - Inference: qualified. Plan interactive checkpoints around the consequential unknown, account for the tool's focus/authentication limits early, and reuse sufficient native proof when only message text changes. No time/token saving is measured; initial attribution still required real clicks.
-
-## DD-328 — A retried plan updater marked the next slice done
-
-Former branch-local code: DD-326 for SEED-144#branded-alert-click-automation only; concurrent trunk DD-326 names a separate finding.
-
-A temporary coordinator updater replaced the first planned status after slice
-1's heading without bounding the section. After a whitespace preparation failure,
-the retry found slice 1 already done and advanced slice 2 instead. The coordinator
-caught and corrected it before delegating implementation; no slice-2 acceptance
-or completion was based on that premature status.
-
-### Occurrences
-- Execution: SEED-144#branded-alert-click-automation / plan 330, first implementation `ac342c94ebc96fd452d3680b960c9e7c31f806ad`
-  - Timestamp: unknown (2026-10-21, slice-1 delivery retry)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance at claim `2e3ff9411d1fe94bab224b7903f8c64f1b936d15`
-  - Evidence: `9c8e8c504cb4863b1015d0b041268acdd685bb69:.planning/slice-plans/330-branded-alert-click-automation/PLAN.md` marks slice 2 done while that commit contains only planning records; the coordinator's correction and subsequent implementation are retained in `ac342c94ebc96fd452d3680b960c9e7c31f806ad:.planning/slice-plans/330-branded-alert-click-automation/slice-2-evidence.md`.
-  - Observed effect: one published premature status and a local repair before the next delegation. Product implementation and proof were still required and obtained.
-  - Inference: bound one-shot status mutations to the selected section and make retries idempotent; a prior status mutation can survive a later mechanical preparation failure. This is an authored-updater mistake, not evidence that the installed delivery helper changed another slice itself.
+A guarded delivery's caller-written status update stayed applied after a later preparation refusal; its unbounded retry advanced the next slice. Related DD-326 (a failed updater contained before publication) is retained there as counterevidence. [Evidence and current response](docs/maintainer/findings/ODF-323.md).

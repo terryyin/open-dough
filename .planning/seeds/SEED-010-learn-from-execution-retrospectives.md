@@ -392,54 +392,209 @@ rollout remain human-directed.
 
 <a id="prioritize-responses-with-delegated-authority"></a>
 
-### 10. Prioritize feedback responses within delegated authority
+### 10. Evaluate one real feedback cycle
 
 **Identity:** SEED-010#prioritize-responses-with-delegated-authority
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bf90dae578e459c2d59ee9c9ae1ab0d3324841bfec40657fb8474f19944c6ad9","plan":"f891ea0b80a8d12212db2d0ee36b65e2bb9b62f6e438ea5f213065fd21241580"}}
 ```
 
-**Goal:** A maintainer can delegate recurring triage and queue decisions within
-an explicit policy, receiving prepared Jidoka decisions only when that policy
-cannot resolve a consequential choice.
+**Goal:** The maintainer can decide whether the delivered feedback cycle makes
+worthwhile product and process decisions at an acceptable cost, with useful
+Jidoka-style human intervention, from one observed cycle in ordinary use.
 
-**Scope:** Start with one class of findings and a bounded maintenance cycle.
-Use severity, distinct relevant occurrences, confidence, direction, existing
-work, expected benefit, and introduced burden to select or decline a response.
-Reuse canonical stories and existing triage/backlog operations. Count successful
-no-change, defer, and evidence-request decisions as valid outcomes. This story
-ends at a supported disposition or queued evaluable story; it does not execute it.
+**Selection:** On 2026-10-22, Terry narrowed this existing candidate to evaluating
+one real cycle and selected it as the next queued story. Its identity stays
+unchanged; broader autonomous correction remains Story 11's later candidate,
+now queued behind the selected ODF-142 correction subject to reassessment.
 
-**Evaluation:** Routine cases get one consistent disposition without manual
-skill-by-skill triggering. Existing queued or Taken responses are reused.
-Consequential ambiguity that the policy cannot resolve, conflicting goals or
-priorities, and choices outside authority produce a concise evidence-backed
-human decision while independent work can continue. Other uncertainty can remain
-explicit, be deferred, or lead to a bounded evidence request under the policy.
-The loop cannot flood the backlog, silently cancel active work, or prefer finding
-count over demonstrated benefit.
+**Scope:** Observe one authorized run of the existing
+[combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md),
+from its actual project inputs through local and shared decisions, publication
+and final reporting. Establish the selected run, project set, guidance revisions,
+authority and evaluation questions before judging its result. Prefer the next
+ordinary cycle; Story 9's first real automatic cycle can supply the same evidence
+when available, without repeating maintenance solely for this evaluation.
 
-**Value / learning:** Remove manual response generation where delegation improves
-the decision, while testing which tradeoffs still benefit from human judgment.
+- **Observed run.** The observed run is the first combined cycle after the
+  2026-10-21 review: the one the watch list's due block makes due on
+  2026-10-22, whether the dashboard starts it under Story 9's standing
+  authorization or the maintainer starts it by hand. That run is also Story
+  9's own developer-run observation; this story reads its records and runs no
+  cycle of its own. Its evidence is the launch record and completion receipt
+  on this machine, the native session record, the cycle's commits in each
+  maintained project, and the maintainer's prompts. When the run's result
+  already exists before this story's execution begins, the decision basis is
+  recorded as set afterwards and the judgment is labelled exploratory; when
+  it does not, the basis is recorded first and the judgment waits for the
+  run. Once the basis names that run, a later run is not substituted.
+- **Definition of improvement.** Trial
+  [Proposed ADR 0010](../../docs/adrs/0010-definition-of-improvement.md) as this
+  evaluation's decision basis. Before judging the cycle, state the beneficiary,
+  intended gain, baseline and comparison limits, result worth keeping, quality
+  and authority constraints, costs that could outweigh the benefit, and any
+  later exposure needed. Set criteria before a future run where possible;
+  assessment of existing results remains exploratory. Use existing decisions
+  and ask the maintainer to settle consequential unresolved tradeoffs. Record
+  later criteria changes openly. This bounded trial does not accept the ADR or
+  make it binding guidance elsewhere.
+- **Product and process value.** Check whether the cycle considers worthwhile
+  project-owned product improvements as well as tooling and shared process
+  responses. Trace selected and consequential declined or missed candidates to
+  their evidence, importance, distinct frequency, product direction and existing
+  work. The October 21 cycle needed a further human request before selecting
+  Doughnut recall recovery and Pygardon stopped-refresh detection; use that as a
+  question to test, not a requirement to generate more stories. Source-backed
+  risks remain distinct from observed incidents. Preserve the existing selection
+  limits and count justified no-change, defer and evidence requests as valid.
+- **Previous responses.** Follow at least one relevant earlier response through
+  adoption and available eligible use. Prefer the
+  [ODF-139 successor's next observation](../../docs/maintainer/findings/ODF-139.md)
+  when that opportunity occurs; a delivered project-product response is another
+  useful candidate. Assess actual outcomes and counterevidence, not completion
+  or silence alone. If no eligible exposure exists, record that limit and the
+  next discriminating observation rather than manufacture a success or prolong
+  this story indefinitely. This cycle does not implement its new selections.
+- **Cost.** Record available agent usage, elapsed time, active human effort,
+  repeated reading/review, correction and publication work across the cycle.
+  Include this evaluation's own burden. Distinguish cached input, elapsed wait
+  and active work; missing measurements remain unknown. Use the October 20–21
+  manually initiated cycles as qualified context where comparable evidence
+  exists, not as a matched control or a basis for invented savings.
+- **Human intervention.** For actual requests, retries and corrective prompts,
+  identify the decision, why a person was needed, whether existing authority
+  already covered it, and what value the intervention added. Trial ADR 0010's
+  valuable-intervention and missed-intervention rates, with proposed targets
+  above 80% and below 5% respectively, using the
+  [assessment method](../../docs/maintainer/empirical-process-control-research.md#assess-human-intervention-quality).
+  Review both stopped and autonomously handled decisions; count a valuable
+  opportunity missed by the process even if a person later noticed and rescued
+  it. Reserved human ownership can add value without changing the AI's proposed
+  outcome. Report distinct event counts, evidence, severity, review coverage,
+  pending or uncertain classifications, and repeated interruption costs. A small
+  or unexercised cycle cannot establish sustained target attainment; do not
+  manufacture events or prolong the cycle to obtain favorable rates.
+- **Coverage and delivery.** Retain each project's assessed, unavailable or
+  unfinished status and the final publication/reporting evidence. In particular,
+  resolve the disposition of the recurring Terry Talks and Lizard source gaps
+  within existing authority, or leave the exact owner decision needed. Missing
+  findings do not prove a healthy project or a passed watch. Repeated reports,
+  aliases and rereviews do not become new findings or new backlog items.
 
-**Effort uncertainty:** Defining and validating one useful delegation envelope;
-a universal numerical priority formula is not required.
+**Deferred promises:** This delivery does not run, repeat or schedule a
+maintenance cycle; implement, release or roll out any response the cycle
+selects; accept, revise or reject ADR 0010, which stays with the advice
+process; add a ledger, measurement platform, token counter, scoring rule or
+dashboard view; change the maintenance skills, their selection limits or
+their authority; write to any client repository; or retire, reopen or re-rank
+a finding beyond the dispositions existing authority already allows. Sustained
+target attainment, a general productivity rate and a matched comparison with
+the manual cycles are not claimed from one run.
 
-**Prerequisites:** A human-supplied decision policy, bounded findings, and current
-product direction. Manual intake can supply these; automatic collection is not
-a hard prerequisite.
+**Key examples:**
 
-**Safe stopping point:** One delegated triage cycle is useful without autonomous
-implementation, release, or client updates. Retain as a later candidate until
-the evidence and authority for a trial are supplied.
+1. The due block on trunk reads `reviewAfter` 2026-10-22 and no cycle has
+   completed since the 2026-10-21 review → this story's execution writes the
+   decision basis in the research report → the basis names the observed run,
+   its beneficiary (the maintainer and the maintained projects' developers),
+   the intended gain (worthwhile product and process decisions at acceptable
+   cost with useful intervention), the comparison (the October 20 cycle at
+   `327b6fa2`–`a2be7e50` and the October 21 cycle at `77f9c3f6`–`c361dbb8`
+   as qualified context, not a control), the result worth keeping, the
+   quality and authority constraints, the costs that could outweigh the
+   benefit, and the later exposure needed, dated before any result of that
+   run is read.
+2. The observed run completed and published before this story's execution
+   began → the same write → the basis records the date it was set and that
+   the result preceded it, the judgment is labelled exploratory, and nothing
+   else about the method changes.
+3. The observed run's report selected two shared responses and one
+   project-owned Pygardon story, declined one candidate, and recorded one
+   no-change → the evaluation traces the selections → each selected, declined
+   and no-change candidate links to its finding evidence, distinct-execution
+   frequency, current relevance, product direction and any existing covering
+   story; the trace states whether a project-owned product improvement was
+   considered without a further human request, which the October 21 cycle
+   needed; the justified no-change counts as a valid decision; the evaluation
+   creates no story or finding of its own.
+4. The observed run reviewed the Open Dough, Pygardon and Doughnut logs and
+   found no ordinary named-gap acceptance since the 0.3.67 successor was
+   adopted → the evaluation follows ODF-139 → the finding's record gains that
+   exposure limit and the next discriminating observation; no effectiveness is
+   claimed and its watch does not pass. Where such an acceptance exists, the
+   record gains the original story, actual disposition, correction rounds,
+   intervention and available burden instead.
+5. The launch record, completion receipt, Claude Code session record and the
+   cycle's commits exist for the observed run → the evaluation records cost →
+   one table gives input, cache-creation, cache-read and output tokens where
+   the host record states them, wall-clock time from launch to the last
+   accepted publication, active human effort from the prompts the maintainer
+   wrote, and the publication and correction work; every unmeasured quantity
+   reads unknown; this evaluation's own preparation and execution burden is
+   listed beside it.
+6. The observed run stopped twice for the maintainer, both with an assessable
+   outcome, one of which exercised reserved authority and one of which was
+   routine approval already delegated; it handled four consequential
+   decisions without stopping, one of which needed the maintainer; a third
+   prompt repeated the first stop's reminder → the intervention assessment →
+   six distinct events, each with the decision, why a person was or was not
+   needed, whether existing authority covered it and the value the actual
+   intervention added; valuable-intervention rate 1/2 and missed-intervention
+   rate 1/2, each with its named events; the repeated prompt adds no event
+   and is recorded as interruption cost; no target-met claim. A run with no
+   assessable stops reports the valuable-intervention rate as not assessable,
+   never as 100%.
+7. Terry Talks and Lizard have no `DearDough.md` and no Open Dough
+   configuration file, and the observed run reports them unavailable → the
+   evaluation resolves coverage → either a disposition within existing
+   authority, such as recording them as not yet maintained with the reason
+   and the owner who can change it, or the exact owner decision needed; no
+   watch passes on their silence, and repeated reports, aliases and rereviews
+   add no finding or backlog item.
+8. The basis, traces, follow-through, cost, intervention and coverage records
+   are all written → the maintainer reads the follow-up → one evidence-linked
+   judgment (retain, adjust, simplify, revert or inconclusive) with the run's
+   useful decisions, missed opportunities, quality consequences, cost and
+   human burden; a bounded next observation only where the evidence supports
+   it; and a separate recommendation on ADR 0010 (accept, revise and trial
+   further, or reject) that leaves acceptance to Terry. A second review of
+   the same run yields the same follow-up and adds no occurrence, story or
+   finding.
 
-The maintained [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md)
-and [combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md)
-own explicit maintenance-cycle selection. Reassess this candidate
-against those behaviors: only a remaining need for recurring
-selection under a standing policy, with evaluated decision quality and human
-intervention, warrants further work. Do not build another ranking engine or
-duplicate their supported dispositions.
+**Evaluation:** Produce one evidence-linked retain, adjust, simplify, revert or
+inconclusive judgment about this cycle, explaining its useful decisions,
+missed opportunities, quality consequences, observed cost and human burden.
+Judge selections against the original evidence and product direction rather than
+the cycle's own completion claims. Record a bounded next observation or proposed
+correction only where the evidence supports it. Keep the assessment in the
+maintained research report and link existing finding owners; use current cycle
+records and Git history rather than a new permanent ledger. One cycle establishes
+a bounded judgment, not sustained effectiveness or a general productivity rate.
+
+Separately assess whether ADR 0010's definition helped make a useful decision at
+proportionate cost. At this story's conclusion, recommend acceptance, revision
+and further trial, or rejection through the existing human advice process.
+Acceptance remains a human decision; story completion does not accept the ADR.
+Review need not wait for every delayed response outcome, provided pending
+evidence and the limits of any improvement claim remain explicit.
+
+**Value / learning:** Identify which part of the delivered loop is worth keeping
+or simplifying before delegating a complete correction. Product quality and
+changeability balance time, token and human-effort costs.
+
+**Effort uncertainty:** Recovering attributable decisions and marginal costs
+from one ordinary run; observation should stay proportionate to the decision.
+
+**Prerequisites:** The delivered maintenance skills, current product direction,
+the selected project's evidence and existing authority for the chosen cycle.
+An explicitly initiated cycle is sufficient; automatic initiation and Story 9's
+completion are not blocking dependencies. Narrowing and queueing this story does
+not invoke maintenance or grant implementation, release or rollout authority.
+
+**Safe stopping point:** One real cycle has a defensible judgment and any
+unresolved exposure or owner decisions are explicit. No new ranking engine,
+telemetry platform, standing decision authority or autonomous implementation is
+part of this story. The existing phase owners retain maintenance and selection.
 
 <a id="complete-delegated-feedback-correction"></a>
 
@@ -453,6 +608,15 @@ duplicate their supported dispositions.
 **Goal:** The maintainer can delegate one low-risk class of feedback correction
 through implementation, validation, authorized delivery/adoption, and subsequent
 assessment without manually connecting every skill or approving routine steps.
+
+**Refinement reminder / selection (2026-10-22):** Terry queued this as a later
+candidate after Story 10 and the ODF-142 correction. Reevaluate whether the story
+is necessary during refinement, using Story 10's findings, current delivered
+capabilities and any remaining manual burden. Queuing it is not a commitment to
+build another automation layer. If existing workflows suffice or benefit does
+not justify cost, recommend no implementation, deferral or a smaller response and
+obtain the resulting backlog decision before execution. If it remains worthwhile,
+identify one concrete correction and the bounded authority and evaluation needed.
 
 **Scope:** Start with one selected correction, one project/release path, and a
 human-supplied authority envelope with explicit outcome and quality constraints.
@@ -472,7 +636,7 @@ quality alongside completion. No granted authority means no autonomous action.
 selective, informed human intervention before widening its scope.
 
 **Effort uncertainty:** Cross-boundary authority and evidence continuity make this
-the broadest candidate. Narrow the correction class and refine it before queueing;
+the broadest candidate. Reassess necessity and narrow the correction class during refinement;
 if it still spans independent outcomes, resplit instead of treating it as one plan.
 
 **Prerequisites:** A selected correction, valid existing delivery capabilities,
@@ -483,11 +647,257 @@ response can be used; autonomous triage is not a hard prerequisite.
 self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 
+<a id="trace-changed-behavior-to-existing-consumers"></a>
+
+### 12. Reach every existing consumer of a changed behavior before publication
+
+**Identity:** SEED-010#trace-changed-behavior-to-existing-consumers
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/343-trace-changed-behavior-to-consumers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1173c41ceed97e869d1fb00e4c39a993da0f8ab857ed7ae799414fe7a9fa32e","plan":"2a96bda44af7322db19155dde5fae0bf15f6656de459819da7467947c5a17e32"}}
+```
+
+**Goal:** An executing agent finds the existing tests, stand-ins and journeys
+that consume a slice's changed behavior before it accepts and publishes the
+slice, so developers stop receiving owned CI failures from consumers the slice
+never ran.
+
+**Selection (2026-10-22 feedback cycle):** Selected first for
+[ODF-150](../../docs/maintainer/findings/ODF-150.md). Three more distinct
+executions reached CI with an untraced consumer after the 0.3.57 and 0.3.61
+responses: Open Dough plan 334 (an existing runner stand-in), the shared-host
+proof execution on 0.3.67 (a guidance test under `src/` missed by a `tests/`
+search; two failed published revisions) and Doughnut SEED-081#story-2 (seven E2E
+journeys whose preconditions the changed UI path altered). Each cost a CI failure
+and a repair cycle. Two guidance-only responses have not stopped the mechanism,
+so wording alone is not the expected response.
+
+**Scope:** The three misses share one cause, observed on 2026-10-22 by
+replaying each slice at its recorded parent commit: the trace was performed
+from something the agent already held and reported only in prose, so
+acceptance could not tell a bounded search from a whole-checkout trace. Plan
+334 traced from its own new stand-in; the shared-host execution searched the
+`tests/` directory; the Doughnut slice traced the unchanged transport API. In
+each replay one deterministic search from the changed behavior reaches the
+missed consumer: the changed file's basename across the whole checkout lists
+the eight guidance tests under `src/skills/dough-execute-plan/scripts/` that
+read `ci-monitor.md`; the changed runner modules' exported identifiers across
+test support list eleven files importing them, including
+`cursorRunnerHeldReads.ts`; the recall card's retired observation (“I should
+see ordinary recall” and the page-object methods that observe the card) leads
+through step definitions to the features whose journeys reach the changed
+no-question state.
+
+This story delivers a consumer-trace record and the script that produces its
+search. For every slice whose change alters an operation, contract, message,
+value, default, rendered output or shared text, the implementation return
+carries the record: each changed effect; the search terms and whole-checkout
+scope actually searched; each located consumer by kind (production caller,
+test, test support or stand-in, journey or feature, guidance reader) with its
+disposition (proof run, proof reused, or excluded with the reason the effect
+does not reach it); and kinds with no match named as such. The coordinator
+accepts and publishes only with that record and after the record's unexcluded
+consumers have proof; a return without it for such a change goes back for the
+trace. The installed script performs the mechanical search so its scope cannot
+be narrowed by hand: given the checkout, the change (diff base or changed
+files) and the agent's effect terms, it searches every tracked and untracked
+non-ignored file for the changed files' paths and basenames, identifiers
+declared or exported in changed hunks together with the changed modules'
+import paths, retired literals from removed lines, and the supplied terms for
+retired behavior and altered preconditions; it prints the record skeleton
+grouped by kind with explicit empty kinds. Delegation and acceptance guidance
+name the record and the script; the shared trace text in
+[own executable proof](../../src/skills/dough-story-refinement/references/executable-proof.md)
+keeps its effect-first rule and gains the record as its evidence form.
+
+Proof replays the three recorded slices: plan 334 at `79a1f1ec~1` and the
+shared-host slice at `37eed762~1` in this repository, and Doughnut
+SEED-081#story-2 at `07606012~1` in the maintainer's local Doughnut checkout;
+each replay's record names the missed consumer. Proof stays proportionate to
+the five-minute slice target: the record evidences a trace, and running the
+listed consumers' proof keeps the existing focused-check rules; the story
+requires no whole-suite run in place of a trace. Boundary assumption: a
+script-backed record is the non-wording response the selection asks for.
+
+Deferred: a mechanical gate in the publication path that refuses an increment
+without a record file; term derivation beyond paths, identifiers, removed
+literals and supplied terms, such as route or render analysis; paid native host
+runs, which stay manual; and the decline measurement, which accrues at ODF-150
+through ordinary later executions.
+
+**Key examples:**
+
+1. A slice shortens the pause clause of `ci-monitor.md` in
+   `src/skills/dough-execute-plan/references/` → the agent runs the trace
+   script for the change with no extra terms → the record lists, under
+   guidance readers, the eight test files under
+   `src/skills/dough-execute-plan/scripts/` that read `ci-monitor.md`,
+   including `shared-checkout-writers-guidance.test.mjs`, with a disposition
+   for each; a return whose record was built from a `tests/`-only search does
+   not exist, because the script searched the whole checkout.
+2. A slice makes the Cursor runner address and wire answers require current
+   build proof and adds its own stand-in `cursorRunnerProof.ts` → the trace
+   script runs from the changed modules `runnerPaths.ts`, `runnerClient.ts`
+   and `runnerProtocol.ts` → the record lists eleven test-support files that
+   import them under stand-ins, including `cursorRunnerHeldReads.ts`; the
+   agent runs or reuses proof for each or excludes it with the reason; the
+   coordinator refuses to accept a record that lists them with no disposition.
+3. A Doughnut slice makes the recall card wait for an explicit Self-review
+   choice instead of showing ordinary recall when no question loads, and the
+   recall API is unchanged → the agent supplies the retired observation
+   “ordinary recall” and the altered precondition “no question loads” as
+   effect terms → the record lists the step definitions and page-object
+   methods that observe the recall card and, through them, the recall features
+   whose journeys reach that state (`daily_probe`, `spaced_repetition`,
+   `browse_answer_and_notes_while_recalling`), each run or excluded before
+   publication; a record that names only the API consumer is incomplete.
+4. A slice renames a helper used only inside one file, with no shared
+   contract, text, value, default or rendered output → the trace script finds
+   no consumer outside the changed file → the record says so and the slice
+   keeps its focused proof.
+5. A delegated agent returns an effect-changing slice with proof commands but
+   no consumer-trace record → the coordinator returns the slice for the trace
+   → nothing is accepted or published until the record and the proof of its
+   unexcluded consumers arrive.
+
+**Evaluation:** Replay the three recorded slices' inputs. The changed procedure
+names the missed consumer before acceptance in each, or records why a trace
+from the changed behavior could not reach it. Ordinary later executions show
+whether owned consumer-miss CI failures decline; record the finding's next
+eligible uses rather than treating delivery as resolution. Completion records
+the actual response and its containing release at ODF-150.
+
+**Value / learning:** Removes the most frequent demonstrated cause of owned CI
+repair cycles across the maintained projects, and tests whether a non-wording
+response changes behavior where two wording responses did not.
+
+<a id="bound-startup-guidance-retrieval"></a>
+
+### 13. Retrieve startup guidance within the response budget
+
+**Identity:** SEED-010#bound-startup-guidance-retrieval
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** An executing agent obtains the guidance passages it needs at startup
+without truncated tool results, so it stops re-reading references before its
+first delegation.
+
+**Selection (2026-10-22 feedback cycle):** Selected second for
+[ODF-264](../../docs/maintainer/findings/ODF-264.md). Six more distinct
+executions on 2026-10-21 alone (three Open Dough, one Doughnut, two Pygardon,
+all Codex) batched whole references or plans, received outputs of 10,000 to
+30,000 tokens with truncation and repeated retrieval, although targeted-retrieval
+guidance already applies. No product failure is attributed; the cost is
+repeated reading on almost every Codex startup and is not yet measured.
+
+**Scope:** Establish which startup reads each execution actually needs and why
+agents batch them, then change what the guidance asks for or provides at startup
+so required passages arrive within one bounded response. Measure the repeated
+retrieval it removes. Preserve required context; do not hide passages an
+execution needs or move the cost into later failures.
+
+**Evaluation:** Compare truncation warnings and repeated startup reads in
+ordinary executions before and after the response, per host, against the
+retained occurrences. A response that leaves a required passage unread is a
+failure even when truncation disappears. Completion records the actual response
+and its containing release at ODF-264.
+
+**Value / learning:** Reduces a recurring resource cost of every execution and
+tests whether guidance shape, rather than another instruction, changes agent
+reading behavior.
+
+**Effort uncertainty:** Host differences may dominate; refinement may limit the
+first response to Codex, where every retained occurrence on 2026-10-21 ran.
+
+<a id="skip-feedback-from-projects-without-process-retrospective"></a>
+
+### 14. Skip feedback collection from projects with process retrospective off
+
+**Identity:** SEED-010#skip-feedback-from-projects-without-process-retrospective
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"82e4ed1c960893924adeda82549633ef10889bb217033b85022d5b20df2e9c89"}}
+```
+
+**Goal:** The maintainer gets complete feedback coverage, and watched responses
+can retire, when some maintained projects never record process findings because
+their process retrospective is off.
+
+**Selection (2026-10-22):** Terry selected this first after the 2026-10-22 cycle
+reported incomplete coverage again. Terry Talks and Lizard have no
+`.planning/open-dough.json`, so their process retrospective is off and they will
+never produce a `DearDough.md`. Every cycle has counted them as missing logs,
+which blocked retirement of ODF-156, ODF-200, ODF-201 and ODF-202.
+
+**Scope:** In [collect-client-feedback](../../.agents/skills/collect-client-feedback/SKILL.md),
+its [retention and watch](../../.agents/skills/collect-client-feedback/references/retention-and-watch.md)
+rules and [maintain-feedback-cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md),
+resolve each discovered project's process-retrospective setting the way
+[dough-execution-retrospective](../../src/skills/dough-execution-retrospective/SKILL.md#select-reviews)
+does: `<project-root>/.planning/open-dough.json` with `skipProcessRetrospective:
+false` enables it; a missing file or key, or `true`, means off. A project with
+it off is out of scope for shared collection and for the watch's source-set
+coverage, and the report names it as skipped with that reason, not as a missing
+log. The project-local phase still runs for it when it has a project findings
+record. A project with it on and no readable `DearDough.md` remains a coverage
+gap. An unreadable or malformed configuration stays a gap rather than a skip.
+Do not create or edit a project's configuration, and keep the production
+inventory unchanged.
+
+**Evaluation:** Walk the 2026-10-22 production set: Terry Talks and Lizard are
+reported as skipped because process retrospective is off, Open Dough, Doughnut
+and Pygardon remain collected, and coverage counts as complete for watch
+retirement. A project with the setting on but no log, and one with malformed
+JSON, still report a coverage gap. Existing `tests/support/feedback-review.test.mjs`
+keeps passing.
+
+**Approach:** Planless; changes are limited to the three internal maintainer
+guidance files above and need no product code.
+
+<a id="reuse-native-proof-after-attribution"></a>
+
+### 15. Stop asking for native checks once their question is answered
+
+**Identity:** SEED-010#reuse-native-proof-after-attribution
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** The developer is asked for interactive native checks only while they
+still answer an open question, so native acceptance does not exhaust them.
+
+**Selection (2026-10-22 feedback cycle):** The strongest unselected alternative
+for [ODF-324](../../docs/maintainer/findings/ODF-324.md), queued at Terry's
+request. In SEED-144#branded-alert-click-automation (plan 330) the developer
+stopped participating ("I had enough of this. Please complete this without
+me.") after many Notification Center clicks and authentication rounds, and the
+coordinator still asked for a four-click replay for a message-only change.
+Related ODF-262 and ODF-307 also record human rounds spent on native proof; a
+shared cause is not established.
+
+**Scope:** Change how native acceptance plans and reuses interactive developer
+checks: plan them around the consequential unknown, account early for the tools'
+focus and authentication limits, and reuse native proof already sufficient when
+only text or another unaffected detail changes. Keep real native checks where
+the behavior they observe changes.
+
+**Evaluation:** Replaying plan 330's inputs, the message-only correction reuses
+the earlier native baseline with a regression check for the new text instead of
+asking for another replay. Count developer rounds in later native executions
+against the retained occurrence. Completion records the actual response and its
+containing release at ODF-324.
+
+**Value / learning:** Protects the developer's attention, the scarcest resource
+in native acceptance.
+
 ## Ordering and Scope Reduction
 
-Preserve the remaining queued outcome, Story 9 (automatic due maintenance).
-Story numbers and recorded identities remain stable; the product backlog is
-the authority for current queue order and membership.
+Keep Story 9 (automatic due maintenance) in progress and queue Story 10's
+one-cycle evaluation next, followed by the
+[ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
+and Story 11 as a later candidate requiring necessity reassessment at refinement.
+Story numbers and recorded identities remain stable;
+the product backlog is the authority for current queue order and membership.
 
 The maintained research report retains the preparation,
 [completion-tail](../../docs/maintainer/empirical-process-control-research.md#landing-history-follow-up)
@@ -497,11 +907,11 @@ Later unattended initiation builds on the existing explicit workflows.
 Manual mechanisms remain usable throughout; no story is blocked merely because
 an earlier priority has not completed.
 
-Stories 10 and 11 remain later candidates. They keep delegated response selection
-and a complete autonomous correction loop visible without turning the current
-queue into a commitment to every possible capability. Their first trial needs a
-concrete delegated policy and bounded scope, not an assumption of unrestricted
-self-improvement.
+Story 11 is queued later for a complete autonomous correction loop, with its
+necessity explicitly open for refinement. Use Story 10's evidence to decide
+whether the trial is still worthwhile; its correction class and authority still
+need explicit bounds. Evaluating the current cycle creates no commitment to
+unrestricted self-improvement.
 
 If scope shrinks, defer autonomous selection and correction first, then unattended
 maintenance, then wider project participation. Preserve the selected local

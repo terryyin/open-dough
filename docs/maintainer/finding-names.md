@@ -1,11 +1,11 @@
 # Finding names and current follow-up
 
-Reviewed 2026-10-21 under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
-priority decision, not a claim that discarded problems were fixed or cannot recur. This cycle retained new supplied evidence and qualified identities through ODF-321. Selected shared responses: ODF-228/209 proof headroom first, ODF-297 completed-supplier agreement correction second; implementation has not started.
+Reviewed 2026-10-22 (Asia/Tokyo) under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
+priority decision, not a claim that discarded problems were fixed or cannot recur. This cycle retained new supplied evidence under ODF-074, ODF-141, ODF-150, ODF-152, ODF-264 and ODF-302 and allocated ODF-322 to ODF-324. Selected shared responses: ODF-150 consumer tracing first (three more executions with owned CI failures after two released responses), ODF-264 bounded startup retrieval second (six more executions in one day across all three projects). The strongest alternative, ODF-324's developer withdrawal from repeated native checks, is a single execution; Terry then queued it after the two selections, and placed first a ready planless story to skip collection from projects whose process retrospective is off. Earlier selections ODF-228/209 and ODF-297 are completed; implementation of the new selections has not started.
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-321. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-324. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -317,3 +317,9 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-320 — [A commit the CI service will never run stays undiscovered](findings/ODF-320.md) <a id="odf-320"></a>
 
 ## ODF-321 — [An owner-held stop closes observation right after a repair push](findings/ODF-321.md) <a id="odf-321"></a>
+
+## ODF-322 — [A projected delivery result drops the running command's handle](findings/ODF-322.md) <a id="odf-322"></a>
+
+## ODF-323 — [A caller-written plan-status mutation survives a later delivery refusal](findings/ODF-323.md) <a id="odf-323"></a>
+
+## ODF-324 — [Native checks keep asking the developer after attribution is established](findings/ODF-324.md) <a id="odf-324"></a>
