@@ -177,9 +177,10 @@ and retain its receipt. Existing candidates use retained candidate/base recovery
    staging. Repair mechanical failures and repeat only when the repair
    invalidates preparation. Stop for semantic or design judgment.
 5. For planned execution, update the active plan and any project-required
-   summary with learnings, slice status, accepted proof needed for reuse, and
-   revised remaining slices under
-   [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan).
+   summary with learnings, accepted proof needed for reuse, and revised
+   remaining slices under
+   [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan);
+   guarded fresh delivery marks the selected slice `done` itself.
    Before marking the slice done or committing, run the installed
    [story-obligations script](../scripts/story-obligations.mjs):
    `node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --slice N`.
@@ -195,7 +196,8 @@ and retain its receipt. Existing candidates use retained candidate/base recovery
    a plan-homed correction's plan holds both. Stop at the safe delivery boundary
    without changing other stories or the correction outcome. This plan update
    alone does not trigger another formatting pass. Record a CI repair result
-   with the interrupted slice's existing status. For quick execution, do not
+   with the interrupted slice's existing status; its guarded delivery names
+   the already `done` slice it repairs. For quick execution, do not
    create or update a plan, completion note, project summary, or substitute
    execution record; retain learnings, decisions, delivery progress, and proof
    in the conversation. An admitted story keeps only its scope.

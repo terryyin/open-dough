@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#retry-selected-slice-status",
+  "title": "Retry delivery without advancing another slice's status",
+  "completedAt": "2026-10-22T23:03:51.733Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "claude"
+}
