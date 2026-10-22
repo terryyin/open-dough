@@ -34,6 +34,24 @@ const BOUNDARIES = [
   /finish/i,
 ];
 
+// Passages a row's named passages send the coordinator to at that boundary
+// every time, listed by judgment rather than inferred from reference prose.
+const OBLIGATION_INPUTS =
+  "references/story-obligations.md#use-the-record-at-execution-boundaries";
+const REQUIRED_LINKS = [
+  [/first implementation delegation/i, [OBLIGATION_INPUTS]],
+  [
+    /delivery/i,
+    [
+      "references/fresh-increment.md",
+      "references/trunk-publication.md#publish-an-execution-increment-or-repair",
+      "references/trunk-publication.md#publish-the-candidate",
+      OBLIGATION_INPUTS,
+    ],
+  ],
+  [/finish/i, ["references/ci-completion-wait.md", OBLIGATION_INPUTS]],
+];
+
 // References an execution reads at first delegation, return, delivery, arming,
 // workspace creation, publication, and retrieval; each stays reachable from a
 // row.
@@ -90,6 +108,8 @@ function tableRows() {
     });
 }
 
+const linkKey = ({ path, anchor }) => (anchor ? `${path}#${anchor}` : path);
+
 function linkText({ path, anchor }) {
   const file = join(skill, path);
   assert.ok(existsSync(file), `${path} exists under the skill`);
@@ -104,7 +124,7 @@ function rowBytes(row) {
   const seen = new Set();
   let bytes = 0;
   for (const link of row.links) {
-    const key = `${link.path}#${link.anchor ?? ""}`;
+    const key = linkKey(link);
     if (seen.has(key)) continue;
     seen.add(key);
     bytes += Buffer.byteLength(linkText(link), "utf8");
@@ -151,4 +171,36 @@ test("every boundary reference appears in a row", () => {
   for (const path of BOUNDARY_REFERENCES) {
     assert.ok(linked.has(normalize(path)), `${path} appears in a row`);
   }
+});
+
+// The table row whose boundary cell matches `boundary`.
+function rowAt(rows, boundary) {
+  const row = rows.find((candidate) => boundary.test(candidate.boundary));
+  assert.ok(row, `a row matches ${boundary}`);
+  return row;
+}
+
+test("each row names the passages its other reads require at that boundary", () => {
+  const rows = tableRows();
+  for (const [boundary, required] of REQUIRED_LINKS) {
+    const row = rowAt(rows, boundary);
+    const linked = new Set(row.links.map(linkKey));
+    for (const link of required) {
+      assert.ok(linked.has(normalize(link)), `${row.boundary} links ${link}`);
+    }
+  }
+});
+
+test("the delivery row reads only increment publication from trunk publication", () => {
+  const trunkPublication = normalize("references/trunk-publication.md");
+  const isTrunkPublication = (link) => link.startsWith(`${trunkPublication}#`);
+  const [, required] = REQUIRED_LINKS.find(([boundary]) =>
+    boundary.test("delivery"),
+  );
+  assert.deepEqual(
+    rowAt(tableRows(), /delivery/i)
+      .links.filter((link) => link.path === trunkPublication)
+      .map(linkKey),
+    required.map(normalize).filter(isTrunkPublication),
+  );
 });

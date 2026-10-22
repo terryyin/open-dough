@@ -70,7 +70,7 @@ Measured with the check's own section rule, these row sets fit:
 
 ### 1. Boundary rows name the passages their passages require
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above. The new assertions fail first against `fc62c171`'s table.
 
 Behavior: a coordinator reaches the first delegation, delivery, or finish →
@@ -88,7 +88,17 @@ table rows in `src/skills/dough-execute-plan/SKILL.md` and extend
 
 ## Learnings
 
-(Execution records the after sizes here.)
+- Slice 1 row sizes after the edit, from the check's own section rule:
+  skill body 19,612; established start 2,922; execution workspace 18,790;
+  Codex arming 21,071; first delegation 22,843; accepting a return 9,082;
+  delivery 28,129; other-host arming 27,463; CI notification 26,892;
+  finish 22,950. All fit the 30,000 budget.
+- The delivery row label dropped "a claim": the start command publishes the
+  claim, and the row no longer reads trunk publication's claim section.
+  Interrupted claim recovery stays with targeted retrieval.
+- Proof: the two new assertions failed first against the old table;
+  `node --test src/skills/dough-execute-plan/scripts/*.test.mjs` 939/939,
+  `tests/payload-declaration-links.sh` and `npm run lint` passed.
 
 ## Concern evidence
 
