@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-010#name-required-passages-in-boundary-rows",
+  "mode": "story-branch",
+  "branch": "claude/name-every-passage-a-boundary-row-s-own-passages",
+  "host": "claude"
+}
