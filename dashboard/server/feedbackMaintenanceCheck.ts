@@ -24,10 +24,10 @@
 // same due date again while the attempt is retained.
 //
 // The check keeps its last observation: whether the authorization was on, the
-// review it last read, and a due date whose launch the launch gates held, with
-// why. The machine's sessions answer composes it with the sessions as they
-// stand then (`state`, `../src/feedbackMaintenanceState.ts`), asking GitHub
-// nothing more.
+// review it last read and when, and a due date whose launch the launch gates
+// held, with why. The machine's sessions answer composes it with the sessions
+// as they stand then (`state`, `../src/feedbackMaintenanceState.ts`), asking
+// GitHub nothing more.
 
 import {
   isOpen,
@@ -250,8 +250,9 @@ export class FeedbackMaintenanceCheck {
   }
 
   // Observes the authorization in the project the cycle runs in, keeping the
-  // review last read and the launch last held there, without asking GitHub;
-  // undefined, observing nothing, when no configured project is Open Dough's.
+  // review last read, when it was read, and the launch last held there,
+  // without asking GitHub; undefined, observing nothing, when no configured
+  // project is Open Dough's.
   private observe() {
     const source = publishedProjects().find(
       (each) => each.repository === feedbackMaintenanceRepository,
@@ -272,6 +273,7 @@ export class FeedbackMaintenanceCheck {
       source: source.id,
       authorized: setting?.enabled === true,
       review: last?.review,
+      readAt: last?.readAt,
     };
     this.observation = { ...observed, held: last?.held };
     return { source, setting, observed, last };
@@ -295,7 +297,8 @@ export class FeedbackMaintenanceCheck {
     }
     const review = await this.review(source, signal);
     if (signal.aborted) return;
-    this.observation = { ...observed, review, held: last?.held };
+    const readAt = new Date().toISOString();
+    this.observation = { ...observed, review, readAt, held: last?.held };
     const decision = dueDecision({ ...inputs, review });
     // The setting may have been turned off while GitHub was asked.
     const now = readFeedbackMaintenance();
@@ -320,6 +323,7 @@ export class FeedbackMaintenanceCheck {
     this.observation = {
       ...observed,
       review,
+      readAt,
       held:
         acceptance.kind === "accepted"
           ? undefined
