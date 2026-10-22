@@ -80,6 +80,12 @@ budget, so the coordinator makes no extra unbudgeted read for them. Edit the
 table rows in `src/skills/dough-execute-plan/SKILL.md` and extend
 `read-budget-guidance.test.mjs`.
 
+## Execution complete
+
+Product advice: no change. The boundary rows now name every passage their
+passages require at that boundary, completing
+SEED-010#bound-startup-guidance-retrieval's read-budget promise.
+
 ## Current decisions
 
 - The test lists the required nested links explicitly. It does not infer
