@@ -494,32 +494,98 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 **Identity:** SEED-010#reuse-native-proof-after-attribution
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/347-reuse-native-proof-after-attribution/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d3c8cf885b15fa90e55011cc31eeeb59096cdefb58764088af41890a9688c204","plan":"d4452280c29a26649b397baee74eeeb224499f7fc5f8a65b55f94236cfad0c2c"}}
 ```
 
-**Goal:** The developer is asked for interactive native checks only while they
-still answer an open question, so native acceptance does not exhaust them.
+**Goal:** A developer whose own hands a native check needs (clicking a system
+notification, authenticating a Settings toggle, reading a native dialog the
+agent's tools cannot reach) is asked for an interactive round only while that
+round answers a question the plan or acceptance still holds open. Once the
+question is answered, a change that the observed native path renders
+unchanged reuses that proof instead of asking for a replay, so native
+acceptance does not exhaust the developer's attention, the scarcest resource
+it consumes.
 
 **Selection (2026-10-22 feedback cycle):** The strongest unselected alternative
 for [ODF-324](../../docs/maintainer/findings/ODF-324.md), queued at Terry's
-request. In SEED-144#branded-alert-click-automation (plan 330) the developer
-stopped participating ("I had enough of this. Please complete this without
-me.") after many Notification Center clicks and authentication rounds, and the
-coordinator still asked for a four-click replay for a message-only change.
-Related ODF-262 and ODF-307 also record human rounds spent on native proof; a
-shared cause is not established.
+request. In SEED-144#branded-alert-click-automation (plan 330, evidence at
+`ac342c94:.planning/slice-plans/330-branded-alert-click-automation/`) the
+developer stopped participating ("I had enough of this. Please complete this
+without me.") after many Notification Center clicks and authentication
+rounds, and the coordinator still asked for a four-click replay for a
+message-only change. Related ODF-262 and ODF-307 also record human rounds
+spent on native proof; a shared cause is not established.
 
-**Scope:** Change how native acceptance plans and reuses interactive developer
-checks: plan them around the consequential unknown, account early for the tools'
-focus and authentication limits, and reuse native proof already sufficient when
-only text or another unaffected detail changes. Keep real native checks where
-the behavior they observe changes.
+**Scope:** Change the shared proof guidance that slice planning and
+execution's proof acceptance read, in the Open Dough release source
+(`src/skills/`), so that developer-operated observation is planned and reused
+as follows:
 
-**Evaluation:** Replaying plan 330's inputs, the message-only correction reuses
-the earlier native baseline with a regression check for the new text instead of
-asking for another replay. Count developer rounds in later native executions
-against the retained occurrence. Completion records the actual response and its
-containing release at ODF-324.
+- **Plan rounds around the question.** When a plan's proof needs an
+  observation only the developer can perform, the owning slice names the
+  question each developer round answers, the rounds that answer it (for
+  example one refusal and one retry per supported browser), and what the
+  developer must do themselves because the agent's tools cannot: local
+  authentication, opening a system panel that a chat reply dismisses, reading
+  a native dialog the tool refuses. Those limits are requested with the first
+  round, not discovered round by round.
+- **Reuse answered native proof.** During acceptance, a developer round is
+  requested only for a question still open. When a change alters only text
+  or another detail that the already-observed native path renders unchanged
+  (the consulted permission row, the click mechanism, the sender identity,
+  and the navigation path are untouched), the retained native baseline keeps
+  covering that path and the changed detail is proved at the emitted source
+  with a regression. The acceptance record names the reused baseline and the
+  regression, and the developer is not asked for a replay.
+- **Keep real native checks where observed behavior changes.** A change to
+  what the native path consults or does (a new permission row, a different
+  posting process or sender identity, a changed click mechanism) reopens the
+  question for that path, and the plan asks for a fresh native observation
+  bounded to it.
+- **Retained baselines stay reusable.** A retained native baseline records
+  what it observed and the revision and settings it observed under, so a later
+  slice can judge reuse from the plan rather than from memory. This uses the
+  plan's existing retained-proof fields; no new evidence format.
+- **Close the finding loop.** Completion records the actual response and its
+  containing release at [ODF-324](../../docs/maintainer/findings/ODF-324.md),
+  keeping it unresolved until later native executions show fewer developer
+  rounds for answered questions.
+
+Deferred, not committed here: how a native probe is staged (combining
+permission consent with a consuming operation, ODF-262; batching or moving
+foreground desktop observation off-screen, ODF-307); tooling that counts
+developer rounds or detects a text-only change automatically; changes to the
+standalone manual-testing mission beyond its existing rule not to replay
+proven checks.
+
+**Key examples:**
+
+1. Plan 330's inputs replayed: the native baseline established, through real
+   clicks, the consulted Automation row and refusal/retry for Safari and
+   Chrome → slice 2 changes only the recovery dialog's message literal → the
+   coordinator reuses the baseline for the unchanged refusal/retry path,
+   proves the complete new message through the emitted-callback regression,
+   records both in the acceptance evidence, and requests no developer round.
+2. A plan needs the developer to click a branded alert and toggle an
+   Automation control → slice planning writes the probe slice → it names the
+   question (which row macOS consults; whether refusal shows recovery and
+   allowing restores navigation), the rounds that answer it per browser, and
+   the steps the developer performs themselves (authenticate the toggle,
+   open Notification Center without replying), so the first request to the
+   developer carries all of them.
+3. After the baseline, a later slice replaces the process that posts the
+   alert → acceptance → the attribution question is open again for that
+   path; the plan asks for one fresh refusal/retry observation of the new
+   posting path and reuses the baseline for everything it still covers.
+4. The baseline never observed Chrome's recovery dialog, and a slice changes
+   only the dialog's text → acceptance → the text is proved at the emitted
+   source, the baseline is reused for what it covered, and the dialog's
+   unobserved presence stays reported as the same unproved promise it was
+   before the text change, without a replay request for the text.
+
+**Evaluation:** Example 1 is the acceptance replay. Count developer rounds in
+later native executions against the retained occurrence; completion records
+the actual response and its containing release at ODF-324.
 
 **Value / learning:** Protects the developer's attention, the scarcest resource
 in native acceptance.
