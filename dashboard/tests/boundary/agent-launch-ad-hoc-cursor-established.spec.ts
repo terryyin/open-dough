@@ -8,9 +8,16 @@
 // Cursor session that establishes none, and of the blank start with a chosen
 // model that is refused.
 
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync, rmSync } from "node:fs";
+import path from "node:path";
+import type { LaunchResult } from "../../src/agentLaunch.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { launch, recordsOf } from "../agentLaunchBoundary.ts";
+import {
+  attempts,
+  continued,
+  launch,
+  recordsOf,
+} from "../agentLaunchBoundary.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { dirty, status } from "../support/defaultCheckoutChanges.ts";
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
@@ -166,4 +173,43 @@ test("an isolated session starts Cursor with the new worktree as its workspace a
   expect(client.args.slice(0, 2)).toEqual(["--workspace", session.workspace]);
   await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
   expect(cursor.input(client.pid).split("\n\n")[0]).toBe(sessionBlock(session));
+});
+
+test("a missing Cursor workspace is reported with its path instead of cursor-agent missing", async ({
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  test.setTimeout(120_000);
+  // The real start establishes its workspace, but invalid external output
+  // keeps the native launch unconfirmed without opening a client.
+  cursor.queueCreateChatId("not-a-session-id");
+  expect(
+    JSON.parse(
+      (
+        await launch(dashboard, {
+          source: "open-dough",
+          workflow: "ad-hoc",
+          host: "cursor",
+          policy: { workspace: "isolated", landing: "review" },
+        })
+      ).body,
+    ),
+  ).toMatchObject({ kind: "uncertain", reason: "unconfirmed" });
+  const [attempt] = await attempts(dashboard);
+  const workspace = path.join(origin.project, ".worktrees/session");
+  expect(existsSync(workspace)).toBe(true);
+  rmSync(workspace, { recursive: true });
+  const answer = JSON.parse(
+    (await continued(dashboard, attempt?.id ?? "")).body,
+  ) as Extract<LaunchResult, { kind: "failed" }>;
+  expect(answer).toMatchObject({
+    kind: "failed",
+    reason: "folder-not-found",
+    sessionStartKept: true,
+  });
+  expect(answer.explanation).toContain(workspace);
+  expect(answer.explanation).not.toContain("Install and authenticate");
+  expect(existsSync(workspace)).toBe(false);
+  expect(cursor.calls()).toHaveLength(1);
 });

@@ -5,6 +5,7 @@ import type { CursorSession } from "../../../src/launchRecord.ts";
 import { sessionKey } from "../../../src/sessionReference.ts";
 import type { HostLaunch } from "../../hostLaunch.ts";
 import { setRecordPendingInputExplanation } from "../../launchRecordStore.ts";
+import { directoryState } from "../../sessionWorkspace.ts";
 import { cursorAgent } from "./exec.ts";
 import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { readCursorRunnerSessions } from "./runnerClient.ts";
@@ -22,6 +23,18 @@ export function notInstalled(): HostLaunch {
     reason: "not-installed",
     explanation: `Cursor (\`${cursorAgent}\`) was not found on this machine. Install and authenticate it, then start again.`,
   };
+}
+
+// ENOENT can name the process working directory as well as its executable.
+export function missingLaunchPath(workspace: string): HostLaunch {
+  if (directoryState(workspace).kind === "missing") {
+    return {
+      kind: "failed",
+      reason: "folder-not-found",
+      explanation: `The Cursor workspace ${workspace} was not found on this machine. No agent was started.`,
+    };
+  }
+  return notInstalled();
 }
 
 export function runnerUnreachable(): HostLaunch {

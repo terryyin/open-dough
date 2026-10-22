@@ -32,7 +32,7 @@ import {
   aborted,
   keptClientTimedOut,
   noSessionId,
-  notInstalled,
+  missingLaunchPath,
   runnerUnreachable,
   timedOut,
   untilAbort,
@@ -113,7 +113,7 @@ export const launchCursor: LaunchHost["launch"] = async (
   }
   if (created.errorCode === "ENOENT") {
     await abandonScope();
-    return notInstalled();
+    return missingLaunchPath(workspace);
   }
   const printed = z.uuid().safeParse(created.stdout.trim());
   if (created.failed || !printed.success) {
@@ -185,7 +185,7 @@ export const launchCursor: LaunchHost["launch"] = async (
       return runnerUnreachable();
     }
     if (outcome.kind === "missing") {
-      return notInstalled();
+      return missingLaunchPath(workspace);
     }
     return {
       kind: "uncertain",

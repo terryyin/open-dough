@@ -29,8 +29,10 @@ export const sessionStartRetained = (
 // Whether an accepted attempt needs reconciliation: unsettled while no
 // server runs it, uncertain session or publication, a required receipt that
 // failed, or a definite failure with an established session start kept.
-// Elapsed time never settles it; recheck or continuation does.
+// Elapsed time never settles it; recheck, continuation, or completed session
+// evidence does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
+  if (attempt.completion?.outcome === "completed") return false;
   return attempt.outcome === undefined
     ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
@@ -52,7 +54,11 @@ export const laterAttempt = (
 export function unresolvedAttempt(
   ofStory: readonly AttemptObservation[],
 ): AttemptObservation | undefined {
-  const unsettled = ofStory.filter((attempt) => attempt.outcome === undefined);
+  const unsettled = ofStory.filter(
+    (attempt) =>
+      attempt.outcome === undefined &&
+      attempt.completion?.outcome !== "completed",
+  );
   const latest = ofStory.reduce<AttemptObservation | undefined>(
     laterAttempt,
     undefined,

@@ -11,7 +11,7 @@ import { cursorAgent } from "./exec.ts";
 import {
   aborted,
   noSessionId,
-  notInstalled,
+  missingLaunchPath,
   runnerUnreachable,
   timedOut,
 } from "./launchOutcomes.ts";
@@ -87,7 +87,7 @@ export const recoverUnconfirmedCursor: NonNullable<
   const created = await execOnRunner(["create-chat"], workspace, signal);
   if (aborted(signal)) return timedOut(record.session);
   if (created === undefined) return runnerUnreachable();
-  if (created.errorCode === "ENOENT") return notInstalled();
+  if (created.errorCode === "ENOENT") return missingLaunchPath(workspace);
   const printed = z.uuid().safeParse(created.stdout.trim());
   if (created.failed || !printed.success) return noSessionId();
   const previous = record.session;
@@ -119,7 +119,7 @@ export const recoverUnconfirmedCursor: NonNullable<
     instruction,
   });
   if (kept.kind === "unreachable") return runnerUnreachable();
-  if (kept.kind === "missing") return notInstalled();
+  if (kept.kind === "missing") return missingLaunchPath(workspace);
   const confirmed = await keptSession(record.request.source, session);
   const entered = confirmed?.firstInput;
   if (

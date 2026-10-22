@@ -6,8 +6,12 @@
 // existing blank-intent recovery: the recorded conversation is confirmed
 // without any input submitted.
 
-import { attempts, launch } from "./agentLaunchBoundary.ts";
-import { parts } from "./dashboardPage.ts";
+import { randomUUID } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
+import { attempts, continueAttempt, launch } from "./agentLaunchBoundary.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchCardPage.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { expect, stored, test } from "./support/codexLaunch.ts";
@@ -103,4 +107,62 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   expect(native.calls.filter((call) => call.method === "turn/start")).toEqual(
     [],
   );
+
+  // Old machine state can retain an established start after completion,
+  // including a later failed retry that overwrote the launch outcome.
+  const attemptsFile = path.join(
+    dashboard.home,
+    ".open-dough/dashboard/launch-attempts.json",
+  );
+  const saved = JSON.parse(readFileSync(attemptsFile, "utf8")) as Record<
+    string,
+    LaunchAttemptRecord[]
+  >;
+  const attempt = saved["open-dough"]?.[0];
+  if (attempt === undefined)
+    throw new Error("Missing retained launch attempt.");
+  attempt.outcome = {
+    kind: "failed",
+    reason: "not-installed",
+    sessionStartKept: true,
+    explanation: "Old failed continuation.",
+  };
+  attempt.completion = {
+    receipt: randomUUID(),
+    reference: randomUUID(),
+    outcome: "unfinished",
+    message: "",
+    receivedAt: new Date().toISOString(),
+  };
+  const staleWorkspace = path.join(
+    dashboard.home,
+    "git/open-dough/.worktrees/retired-session",
+  );
+  writeFileSync(
+    path.join(dashboard.home, ".open-dough/dashboard/session-starts.json"),
+    JSON.stringify({
+      "open-dough": {
+        [attempt.id]: {
+          host: "codex",
+          workspace: staleWorkspace,
+          branch: "codex/retired-session",
+          startedAt: attempt.acceptedAt,
+        },
+      },
+    }),
+  );
+  writeFileSync(attemptsFile, JSON.stringify(saved));
+  await page.reload();
+  await expect(recoveryOf(page)).toContainText("Old failed continuation.");
+  attempt.completion.outcome = "completed";
+  writeFileSync(attemptsFile, JSON.stringify(saved));
+  await page.reload();
+  await expectSettledPage(page);
+  await expect(recoveryOf(page)).toHaveCount(0);
+  expect(
+    JSON.parse((await continueAttempt(dashboard, attempt.id)).body),
+  ).toMatchObject({ kind: "failed", reason: "refused" });
+  expect(
+    native.calls.filter((call) => call.method === "thread/start"),
+  ).toHaveLength(1);
 });
