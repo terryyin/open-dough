@@ -74,9 +74,22 @@ replay's token use and wall-clock from the agent's result.
 
 ### 1. A feedback cycle connects encountered executions to open observation requests
 Type: Behavior
-Status: planned
+Status: done
 Proof: Baseline replay A on the unchanged skill, then replays A and B on the
 changed skill as mapped above; behavior review walks for examples 4–5.
+
+Accepted proof (2026-10-23): baseline replay on the unchanged skill made no
+plan 335 → ODF-139 connection (skill text never checks collected executions
+against open requests). Changed-skill Replay A2 connected plan 335 with
+locators matching the evaluation (source-only reviewers, G1–G3, no correction
+rounds, human intervention/usage not recovered), one positive observation,
+no watch started or passed, ineligible pre-0.3.67 executions excluded,
+ODF-154/ODF-120 not met; first Replay A started a watch and was returned —
+the rule now makes watch effect request-governed. Replay B recognized the
+already-recorded observation with an empty scratch catalog diff. Behavior
+review walked examples 4–5. Replays: baseline ~3–4 min, A ~4 min, A2 ~3 min,
+B ~1 min wall-clock; token use unmeasured (reported unknown). Refactor: none
+— already clean (`## REFACTOR COMPLETE`).
 
 Behavior: the catalog holds an open response-observation request and the
 cycle collects an execution meeting or failing its conditions → shared

@@ -121,6 +121,42 @@ needed from release, adoption or outcome proof still needed. An implemented
 correction does not warrant another implementation story. Record its actual
 response and remaining release/adoption/proof gap at the finding owner.
 
+Then connect each distinct execution reconciliation identified this run —
+collected or cited, with no scan of executions the cycle did not encounter —
+to the catalog's open response-observation requests. An open request is a
+finding or watch entry naming pending later observation of a delivered or
+released response and checkable conditions: project, release or adoption, and
+the event to observe, including an unknown watch start whose entry names the
+qualifying use. For each execution, select only requests whose stated project
+and release/adoption conditions it can meet, then verify the request's event
+conditions from the collected evidence and targeted reads of that execution's
+recoverable records. Verify project, execution identity, and the execution's
+guidance release or adoption relative to the response: evidence from a release
+or adoption not containing the response cannot demonstrate its effect, and a
+prior report on older guidance is not post-fix recurrence.
+
+Write the supported outcome at the existing finding owner (or its watch entry)
+with the existing occurrence and observation conventions and step 3's project
+plus execution identity, following [retention and watch](references/retention-and-watch.md)
+for watch outcomes: a qualifying observation with its locators and a bounded
+assessment under the request's criteria, counterevidence, or the precise
+remaining gap. Recording that outcome at a finding owner changes no watch
+state by itself — it starts, passes, or retires no watch — unless the open
+request or watch entry itself, under those watch rules, calls for that watch
+outcome; the request's own criteria and disposition govern any watch effect.
+Counterevidence does not pass a watch and enters the response
+assessment and triage below as actionable evidence. If provenance, release or
+adoption, or a needed recoverable record is unknown or ambiguous, record only
+a qualified candidate naming the missing fact and leave the request open. If
+that execution's outcome is already recorded, add no occurrence or observation
+and report it as already recorded. No match, no eligible exposure, or
+unexamined projects never become success or a passed watch; when nothing is
+eligible, write no observation, leave pending requests' dispositions unchanged,
+and state that no request met eligible use. A request naming no checkable
+conditions is reported as such, not matched by guess, and is not rewritten
+here. Report the connections made, the requests not met, and the added review
+effort this checking took.
+
 Supply the authoritative evidence paths and current direction/backlog to
 [triage-retrospective-findings](../triage-retrospective-findings/SKILL.md). Rank
 remaining actionable problems by demonstrated impact, distinct executions,
@@ -186,7 +222,8 @@ stories and accepted commits, and resumes the first unfinished boundary; unchang
 inputs create no edits, duplicate stories, empty commits or repeated publication.
 
 Report initial/final coverage and changes or missing inputs, projects skipped with their reason, qualified mappings, compaction/pruning reasons,
-watch and response gaps, selected priorities and rationale, ongoing Taken work,
+watch and response gaps, response-observation connections, unmet requests and
+their added review effort, selected priorities and rationale, ongoing Taken work,
 and per-repository changed paths, accepted SHA/target or unfinished boundary.
 Client-only publication with Open Dough unpublished is an incomplete cycle.
 Keep remote acceptance and deferred checkout refresh distinct. Never call the
