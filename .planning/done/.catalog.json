@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_reuse-native-proof-after-attribution.json",
+      "identity": "SEED-010#reuse-native-proof-after-attribution",
+      "completedAt": "2026-10-22T07:44:27.371Z",
+      "blob": "07ff12a611ea580c7223a158badf46eb6f2a643c"
+    },
+    {
       "fileName": "SEED-010_name-required-passages-in-boundary-rows.json",
       "identity": "SEED-010#name-required-passages-in-boundary-rows",
       "completedAt": "2026-10-22T07:04:09.391Z",

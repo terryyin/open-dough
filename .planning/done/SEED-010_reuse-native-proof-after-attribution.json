@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#reuse-native-proof-after-attribution",
+  "title": "Stop asking for native checks once their question is answered",
+  "completedAt": "2026-10-22T07:44:27.371Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "claude"
+}
