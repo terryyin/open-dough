@@ -1180,3 +1180,217 @@ result already existed, so it cannot count as a criterion set in advance.
 Any later change to these criteria is recorded here, with its date and reason,
 rather than rewritten. A consequential tradeoff the existing decisions do not
 settle goes to the maintainer.
+
+### Evidence read
+
+Read in this order, all read-only on this machine on 22 October 2026:
+
+1. The launch record in `~/.open-dough/dashboard/agent-launches.json`
+   (`open-dough`, request `maintenance.due` `2026-10-22`, instruction
+   `/maintain-feedback-cycle`, model `opus`), reporting reference
+   `9b9effcf-7555-4eae-9f28-26dfe0957ecf`.
+2. The Claude Code session record `de44a53b-4739-4b3d-a074-00d79eef39d4`
+   under `~/.claude/projects/-Users-terryyin-git-open-dough/`: two user
+   prompts, 98 assistant messages and 98 Bash calls, no subagents.
+3. The cycle's commits on each trunk, from 08:51:10 to 09:08:45 +0900:
+   Open Dough `e2e7bfcd`, `eeefa158`, `f6c77f5c`, `70f45fc1` and `552b2134`;
+   Doughnut `0c25e73cfa` and `75a9b17467`; Pygardon `ca031afaf` and
+   `fbe6d7b45`. The finding records and stories they changed.
+4. Last, the two completion receipts beside the reporting executable: delivery
+   `f34d751b-fc9e-4724-aac9-72af40f2adca` (`completed`, with a developer
+   attention message) and `80af4721-57f0-4bc8-85ba-c25bb97809da` (quiet
+   `completed`, received 00:09:14Z).
+
+Observations below cite those locators. Causal readings are marked
+*inference*; recommendations are advice for the named owner.
+
+### Decisions traced to their evidence
+
+**Local phase.** No local story was queued in any project. Three existing
+project findings changed state:
+
+| Decision | Evidence and direction | Assessment |
+| --- | --- | --- |
+| Open Dough DD-320 kept open, no longer "queued" (`e2e7bfcd`) | SEED-053's replay-input comparison was complete (`3d0b2ad1`). The finding's observation criterion is a paid replay reaching delegation without a corrective slice. | Valid no-change. Delivery is not treated as benefit. |
+| Doughnut DD-318 retired (`0c25e73cfa`) | The recall question-load recovery that the 21 October cycle queued at Terry's request was delivered and closed (`1348cea71a`). The session checked the retry in current source and its spec. | A project-owned product response followed through to current code and tests. The finding was a source-backed risk, not a record of live incidents, so no observed incident rate could fall. *Inference:* the retirement rests on verified repair, not on observed use after release. |
+| Pygardon DD-322 retired (`ca031afaf`) | The stopped-refresh wake-health story, also queued on 21 October at Terry's request, was closed (`db3da7b40`). The session checked the source and tests. | Same as DD-318. |
+
+**Was a project-owned product improvement considered without a further
+request?** Yes, but the question was not exercised. The local phase assessed
+each project's own record and reported "no new project-owned problem was
+found". Every new source entry since the 21 October cycle mapped to a shared
+finding (Doughnut DD-319 to ODF-150, DD-320 to ODF-323). With no
+project-owned candidate available, this run cannot show whether the cycle
+would now select one unprompted. The cycle's inputs are process findings
+logs. It reads no product backlog or usage signal of its own, so product
+improvements reach it only through retrospectives.
+
+**Shared phase** (`eeefa158`; up to two selections allowed):
+
+| Candidate | Distinct executions added this cycle | Direction and existing work | Disposition |
+| --- | --- | --- | --- |
+| [ODF-150](findings/ODF-150.md) indirect consumers missed | 3: Open Dough plan 334 (`79a1f1ec`), plan 335 (`97e2c938`), Doughnut SEED-081#story-2 (`07606012`) | Two earlier responses released (0.3.57, 0.3.61), still recurring with owned CI failures | **Selected first**: SEED-010#trace-changed-behavior-to-existing-consumers |
+| [ODF-264](findings/ODF-264.md) truncated startup reads | 6 across all three projects, all on 2026-10-21 | No queued response | **Selected second**: SEED-010#bound-startup-guidance-retrieval |
+| [ODF-323](findings/ODF-323.md) plan-status mutation unsafe to retry | 2 (Open Dough DD-328, Doughnut DD-320); one premature status published | New code; DD-326 kept as counterevidence that the gate failed closed | Recorded, not queued: below the two-selection limit, not named in the report |
+| [ODF-324](findings/ODF-324.md) native checks keep asking the developer | 1 (Open Dough DD-327) | New code; the developer withdrew | Declined for frequency; named in the report as next-strongest. Queued afterwards at Terry's request (`552b2134`) |
+| [ODF-322](findings/ODF-322.md) projected result drops the command handle | 1 (Open Dough DD-325); resume recovered with `pushCount: 0` | New code | Recorded, not queued |
+| ODF-074, ODF-141, ODF-152, ODF-302 | 2, 2, 1, 1 | Existing records | Evidence retained; no new response |
+| ODF-156, ODF-200, ODF-201, ODF-202 watches | No same-mechanism recurrence in reviewed sources | Past review dates | Not retired: Terry Talks and Lizard coverage incomplete |
+
+The two selections follow the evidence: the highest added frequency (ODF-264)
+and a recurring correctness cost after two released responses (ODF-150). The
+justified no-change, retention and watch decisions count as valid decisions.
+*Inference:* ODF-323's published premature status is a correctness
+consequence comparable to ODF-324's interruption cost. The report did not say
+why it ranked ODF-324 ahead of ODF-323.
+
+**Later delivery, not improvement.** All four stories that came out of the
+run were executed and closed the same day: skip-feedback `9848f274`
+(closed `d67a0b4e`), consumer tracing (closed `97c79cb2`), startup retrieval
+(closed `c10a7e00`), and ODF-324's response (closed `a9b96887`). The skip
+change is in internal maintainer skills, which the next cycle uses from trunk.
+None of the other three is in a release yet (`git tag --contains` is empty;
+latest `v0.3.68`). Their predicted benefits have no eligible exposure yet.
+
+### Previous response followed through
+
+The run did not look for [ODF-139](findings/ODF-139.md)'s requested next
+observation; the session record mentions ODF-139 only in watch-list text.
+This evaluation did, read-only. The first ordinary named-gap acceptance in
+Open Dough after it adopted 0.3.67 is plan 335 (slice 1 `97e2c938`): fresh
+source-only reviewers, three gaps each proved or excluded with a story quote,
+and no correction plan or finding citing it as of this reading. ODF-139's
+record holds the observation and its locators. It is one positive
+observation. It does not show effectiveness, and the watch status is
+unchanged. The first eligible acceptances in Pygardon and Doughnut were not
+reviewed.
+
+### Cost
+
+| Item | Observed run | Source |
+| --- | --- | --- |
+| Input tokens (uncached) | 196 | session record, summed per unique message |
+| Cache-creation input tokens | 233,660 | same |
+| Cache-read input tokens | 16,914,230 | same |
+| Output tokens | 63,420 | same |
+| Money | unknown | not recorded by the host |
+| Wall-clock, launch to the cycle's last publication | 12 min 14 s (23:46:55Z → `fbe6d7b45` 23:59:09Z) | launch record, commits |
+| Wall-clock, launch to the follow-up's publication | 21 min 50 s (→ `552b2134` 00:08:45Z) | same |
+| Elapsed wait for the developer | 7 min 5 s (attention text 00:00:38Z → prompt 00:07:43Z) | session record |
+| Active human effort | one prompt of 61 words; reading and decision time unknown | session record |
+| Repeated reading | five project inventories, the maintenance skills and references, the watch list in two consecutive parts; no repeated read of the same reference observed | session record |
+| Correction work | two in-session script repairs (retention and compaction boundaries); one corrective commit `70f45fc1` after publication rebased the retention commit | session record, commits |
+| Publication work | 9 commits in 3 repositories; three owned worktrees created and retired; 2 completion submissions | commits, receipts |
+
+*Qualified context.* The 20 October and 21 October manual cycles published
+over 8 min 19 s and 11 min 20 s. This run's own cycle publications spanned
+7 min 59 s (08:51:10–08:59:09 +0900). Their prompts, usage and run lengths are
+not recorded, so no saving is claimed.
+
+*This evaluation's burden.* Preparation session `2d64936e` (23:37–23:51Z):
+1,122 / 196,294 / 5,286,317 / 42,805 tokens (input / cache creation / cache
+read / output). Execution session `52710a3c` from the Take at 17:21 +0900:
+at least 102 / 167,558 / 6,548,874 / 32,847 tokens when last measured. Two
+subagents (source-only review and refactor) are not included in that count.
+The preparation and evaluation together already cost more host usage than the
+run itself.
+
+### Human intervention
+
+Population: every decision in the session record, both those that stopped
+and those handled without stopping. Two decisions reached the human, through
+one attention stop (receipt `f34d751b`).
+
+| Event | Decision and why a person was or was not needed | Authority | Stop | Value of the actual intervention |
+| --- | --- | --- | --- | --- |
+| H1 | Whether configured projects without a findings record count as reviewed. This is reserved: it changes the maintained set and watch rule. | Not delegated | Yes, at completion, with independent work already published | **Valuable.** Terry supplied the cause (process retrospective off) and chose the remedy (a skip story, `552b2134`). *Inference:* the session had already read that neither project had `.planning/open-dough.json` (23:47:33Z). So it could have named the cause and recommended a remedy. It asked an open question with no recommendation. |
+| H2 | Whether to queue ODF-324 beyond the two-selection limit. A human priority judgment. | Selection limit is two; a third needs the human | Same stop | **Valuable.** Terry queued it; it was delivered the same day (`a9b96887`). |
+| A1–A2 | Select ODF-150 and ODF-264 | Delegated | No; none needed | — |
+| A3 | Retire DD-318 and DD-322; keep DD-320 open | Delegated local lifecycle | No; none needed | — |
+| A4 | Allocate ODF-322 to ODF-324; leave ODF-322 and ODF-323 unqueued | Delegated | No; none needed | — |
+| A5 | Correct the retention SHA references after the rebase | Delegated | No; none needed | — |
+| A6 | Retire no watch while coverage is incomplete | Delegated rule | No; none needed | — |
+
+- **Valuable-intervention rate:** 1/1 stops (H1 and H2 in one stop),
+  or 2/2 counting decision events.
+- **Missed-intervention rate:** 0/2. H1 and H2 were the only opportunities
+  that needed a human, and both were raised before any dependent action.
+- Severity: H1 was moderate. While it stayed open, every cycle reported
+  incomplete coverage and could retire no watch, including four overdue ones.
+  H2 was low: an interruption cost with no correctness consequence. No miss
+  occurred, so no miss severity applies.
+- Review coverage: every decision in the session record; the 20 October and
+  21 October cycles were not reviewed.
+- Nothing is pending or unclassified. Repeated interruptions: none.
+- The 21 October cycle's separate request for product selections did not
+  recur, but no product candidate existed to test it (see above).
+- These counts are too small to meet or miss the proposed targets, and none
+  is claimed.
+
+### Coverage
+
+| Project | Status in the run |
+| --- | --- |
+| Open Dough, Doughnut, Pygardon | Assessed (local and shared phases); published |
+| Terry Talks, Lizard | Unavailable: no findings record, reported as incomplete coverage |
+
+Disposition: the owner decision was taken during the run. Terry Talks and
+Lizard keep their process retrospective off, so they write no findings record.
+The shared collection now reports such projects as skipped and leaves them
+out of the source set (`9848f274`, internal skills, effective from trunk for
+the next cycle). No watch passed on their silence. This evaluation adds no
+finding, backlog item or watch-list change for them.
+
+### Judgment
+
+**Retain, exploratory; confidence low.**
+
+- *Useful decisions.* Two evidence-backed shared selections, three justified
+  local state changes, and new evidence retained under existing identities.
+  One reserved decision was surfaced in time and acted on.
+- *Missed opportunities.*
+  - The stop asked an open question when its own reads supported a cause and
+    a recommendation.
+  - The run did not check open next-observation requests, such as ODF-139's,
+    against evidence it was already retaining. Plan 335 was retained under
+    ODF-150 and ODF-264 in this same run.
+  - ODF-323's ranking against ODF-324 went unexplained.
+- *Quality consequences.* One corrective commit after a rebase changed a
+  cited SHA. Retirements rest on verified repair rather than eligible use.
+- *Cost and human burden.* About 22 minutes and one 61-word prompt. Host
+  usage was mostly cache reads. Money and active human time are unknown.
+
+Counterevidence: the selections' benefits are predicted, not observed.
+Only one stop occurred. The product-improvement question was not exercised.
+Under the basis, no named gap recurred and no authority was exceeded, so
+*adjust* is not supported by one run.
+
+**Next observation** (owner: the Open Dough maintainer, at the next
+combined cycle after 2026-10-29). Record two things: whether a developer
+stop carries the cause and a recommendation when the session's reads support
+them; and whether evidence the cycle retains for an execution named by an
+open next-observation request is reported to that finding's owner.
+
+### Recommendation on Proposed ADR 0010
+
+**Revise and trial further.** This is advice; acceptance stays with Terry
+through the [advice process](../adrs/README.md#advice-process).
+
+- *Helped.* Stating the result worth keeping before reading kept delivery
+  separate from benefit. Four delivered stories would otherwise read as
+  success. Reviewing non-stopped decisions found the two missed
+  opportunities above, which the stop log alone would not show.
+- *Revise.*
+  - Say whether the rates count stops or decision events. Here one stop
+    carried two decisions (1/1 versus 2/2).
+  - For a recurring process, set the basis before the next run. Here the
+    automatic start came before the basis, and the judgment became
+    exploratory.
+  - Report counts rather than percentages when the denominators are this
+    small.
+- *Proportionate cost.* Preparing and running this evaluation used more host
+  usage than the run itself. A lighter basis kept with the recurring process
+  could carry most of the value.
+
+Re-reading the same records yields the same follow-up. It adds no occurrence,
+finding, story or backlog item.

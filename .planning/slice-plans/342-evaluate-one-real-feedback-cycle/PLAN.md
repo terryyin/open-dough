@@ -138,7 +138,7 @@ started for this story.
 
 ### 2. The observed run is judged from its records
 Type: Behavior
-Status: planned
+Status: done
 Proof: A maintainer can trace every claim in the follow-up to a named launch
 record, completion receipt, session record locator, commit, finding record,
 release tag or prompt, reproduce the read-only observations, and read the
@@ -212,8 +212,22 @@ session's subagent hand-back, 2026-10-22). Comparison for slice 1's promises:
 | Later criteria changes recorded openly; consequential tradeoffs to the maintainer | Stated | Closing paragraph added after review | proved after correction |
 | Bounded trial; ADR not accepted | Stated | Section preamble | proved |
 
-Slice 2's commitments (traces, follow-through, cost, intervention, coverage,
-judgment, ADR recommendation, idempotence) remain with slice 2.
+Slice 2 — the same source-only return, compared with the follow-up's sections
+after `### Decision basis`, ODF-139's new section and the actual records:
+
+| Source commitment | Expected | Actual | Disposition |
+| --- | --- | --- | --- |
+| Evidence: launch record, completion receipt, session record, commits per project, prompts | All read, original before report | `### Evidence read` lists all five, receipts read last | proved |
+| Product and process value; trace selected, declined, missed to evidence, importance, frequency, direction, existing work (example 3) | Table per candidate | Local and shared tables; ODF-323 named as unexplained ranking; no story or finding created | proved |
+| Further-request question tested, not forced | Answer with evidence | "Yes, but the question was not exercised", with reason | proved |
+| Source-backed risks distinct from incidents | Stated | First return omitted it; DD-318 row now says source-backed risk | proved after correction |
+| Justified no-change, defer, evidence requests valid | Counted | DD-320 and watch decisions counted valid | proved |
+| Follow at least one earlier response; ODF-139 preferred (example 4) | Acceptance fields or exposure limit | Plan 335 first eligible acceptance with story review, dispositions, correction rounds; intervention and usage unknown; Pygardon and Doughnut not reviewed; watch unchanged | proved |
+| Cost table with four token columns, wall-clock, human effort, publication and correction, unknowns, own burden (example 5) | One table plus burden | `### Cost` table; money and active time unknown; preparation and execution usage listed | proved |
+| Intervention events: decision, why, authority, value; both rates; stopped and non-stopped; severity; coverage; pending; interruption cost (example 6) | Event table and named counts | H1, H2, A1–A6; 1/1 stops (2/2 events) and 0/2; severity and coverage added after review; no target claim | proved after correction |
+| Coverage per project; Terry Talks and Lizard disposition (example 7) | Status and disposition or owner decision | Status table; owner decision `552b2134` and change `9848f274`; no watch passes; nothing added | proved |
+| One judgment with decisions, misses, quality, cost, burden; bounded next observation; separate ADR recommendation leaving acceptance to Terry; rerun adds nothing (example 8) | All present | Retain, exploratory; next observation with owner; Revise and trial further; idempotence sentence | proved |
+| Exclusions: no cycle run, no implementation, no ADR decision, no ledger, no skill or client change, no finding change beyond allowed dispositions | Respected | Only the research report, ODF-139's observation (story example 4) and this plan changed | proved |
 
 ## Plan concern review
 
