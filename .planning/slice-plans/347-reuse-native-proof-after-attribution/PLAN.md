@@ -154,6 +154,12 @@ link sentence in the early-probe paragraph of
 ODF-324 Follow-up line as mapped above. Record the plan 330 slice 1
 desk-check (example 2) in Learnings.
 
+## Execution complete
+
+Product advice: no change. The response is in the shared proof guidance;
+its evaluation (fewer developer rounds for answered native questions)
+awaits later native executions, recorded at ODF-324 once released.
+
 ## Current decisions
 
 - One shared section in `executable-proof.md` holds both halves so planning

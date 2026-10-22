@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 330. Removed numbers are never reused.
+- Highest allocated local number: 331. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -485,3 +485,19 @@ instead of ending its turn and waiting for the completion notifications.
   - Evidence: coordinator conversation, agent "Placeholder wait check" (36,526 subagent tokens, 1 tool use) launched after the slice 1 and source-review agents
   - Observed effect: the agent returned "OK" and advanced nothing; the coordinator then waited for the real notifications anyway.
   - Inference: delegation.md "Await delegated results without empty calls" already forbids no-op calls made only to keep the turn alive; this was non-compliance with existing guidance rather than missing guidance, so no wording response is indicated from one occurrence.
+
+## DD-331 — A second source-only review repeated unchanged inputs
+
+Accept proof requires a fresh source-only review for each slice. In a
+two-slice plan with one unchanged story source and no amendment, the second
+review received the same inputs and returned the same commitments.
+
+### Occurrences
+- Execution: SEED-010#reuse-native-proof-after-attribution (plan 347; first implementation commit 25af6749)
+  - Timestamp: unknown (2026-10-22, slice 2 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: coordinator conversation, agents "Source-only commitment review" (40,333 subagent tokens) and "Source-only review slice 2" (39,894 subagent tokens) with identical story text; returned commitments matched (G1–G2, A–E, X1–X4)
+  - Observed effect: the slice 2 review added no commitment; the slice 1 review had already caught the one omission (observed revision and settings) that slice 1 acceptance corrected.
+  - Inference: about 40,000 tokens per extra slice; wrap-up.md "Accept proof" names no reuse of an earlier review whose source and human amendments are unchanged. One occurrence; whether reuse would weaken independence is open.
