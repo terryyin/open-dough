@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 334. Removed numbers are never reused.
+- Highest allocated local number: 335. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -570,3 +570,27 @@ passed first time.
   - Evidence: fresh result `preparation-failed`, `operation: "formatting"`, two ESLint errors in execution-increment-publication.mjs and execution-increment-publication-base-identity.test.mjs; coordinator repaired them and reran focused proof before the accepted retry at 1443f1f2
   - Observed effect: one refused attempt and a coordinator repair after the refactor pass.
   - Inference: delegation.md forbids an independent hook-owned lint command so the coordinator owns it; whether a read-only lint check of the agent's own files is that command is unclear. Two slices are not enough to call it a general practice.
+- Execution: SEED-010#retry-selected-slice-status (plan 348-retry-selected-slice-status; first implementation commit 2541671c)
+  - Timestamp: unknown (2026-10-23, shortly before commit 2541671c at 2026-10-23T07:52:30+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.68
+  - Evidence: fresh result `preparation-failed`, `operation: "formatting"`, `no-unused-vars` on a destructured `statusLine` in product-backlog-plan-reader.mjs that the refactor pass introduced; the refactor agent ran read-only `prettier --check` but no ESLint; the coordinator repaired it, reran 71 test files and the dashboard typecheck, and the same request then succeeded
+  - Observed effect: one refused attempt, a coordinator code edit after the refactor pass, and a re-proof run.
+  - Inference: second execution with the same pattern; the brief again forbade hook-owned lint and allowed no read-only ESLint check, which supports the slice-2 practice in the first occurrence.
+
+## DD-335 — Hand-built preparation input dropped the plan from ownedPaths
+
+The coordinator derived `staging.ownedPaths` for the fresh preparation file
+from `git status --porcelain` with a whole-output trim, which removed the
+first entry's leading status space, so the plan path lost its leading `.`.
+
+### Occurrences
+- Execution: SEED-010#retry-selected-slice-status (plan 348-retry-selected-slice-status; first implementation commit 2541671c)
+  - Timestamp: unknown (2026-10-23, first fresh attempt before commit 2541671c at 2026-10-23T07:52:30+09:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.68
+  - Evidence: fresh result `preparation-refused`, `operation: "context"`, "the required plan mutation must be included in ownedPaths"; owned paths rebuilt per line and the retry passed context
+  - Observed effect: one refused attempt before any project command ran; nothing changed.
+  - Inference: the input refusal contained the mistake as designed. The preparation JSON is assembled by hand each delivery, so a mechanical path-listing step has no shared helper; one occurrence.

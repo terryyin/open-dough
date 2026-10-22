@@ -160,3 +160,11 @@ At completion, record the actual response, proof, first containing release or
 explicit unreleased status, and the next ordinary eligible-use observation at
 [ODF-323](../../../docs/maintainer/findings/ODF-323.md), per the story's
 Evaluation.
+
+## Execution complete
+
+Product advice: no new product work. The response matches the near-future
+direction of closing improvement loops with existing evidence. ODF-323 stays
+open until a release carries the self-marking delivery and an ordinary
+eligible retry is observed; until then installed copies still take a
+caller-written `plan.update`. Story 18 remains the next queued item.
