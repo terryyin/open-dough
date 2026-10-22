@@ -6,7 +6,7 @@
 ## Source and provenance
 
 A bounded retrospective correction from the execution retrospective of
-[SEED-010#run-due-feedback-maintenance](../../seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance)
+[SEED-010#run-due-feedback-maintenance](https://github.com/terryyin/open-dough/blob/1a70db5cbd98b0a052f8f3e0f11785014d944db5/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance)
 (Story 9, plan 341, completed). Reviewed commits: `ca410794`, `5a2b1bdc`,
 `247da19b`, `755d8920`, `7a17013d`, `0f500a5f`, `b812a2bf`. Findings were
 verified at the branch tip `9ac8912c` of

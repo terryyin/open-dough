@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#run-due-feedback-maintenance",
+  "title": "Receive due feedback assessments without manual triggering",
+  "completedAt": "2026-10-22T00:34:43.781Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude"
+}

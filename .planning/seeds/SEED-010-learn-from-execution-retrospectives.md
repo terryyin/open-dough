@@ -231,165 +231,6 @@ Assess applicable evidence from 0.3.11 and ordinary released use before fresh
 runs. Missing proof remains pending. Release exceptions do not mark these
 obligations passed.
 
-<a id="run-due-feedback-maintenance"></a>
-
-### 9. Receive due feedback assessments without manual triggering
-
-**Identity:** SEED-010#run-due-feedback-maintenance
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/341-run-due-feedback-maintenance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e11ebc799bf4894a288c3a0a8baa748d383eb482bdc92476f8ac0490fffbde91","plan":"a4c62ef0f8bfe3a6fa0cbcb414d4ee4dc62381f425e5f6f284477d215599527d"}}
-```
-
-**Goal:** The maintainer receives each due feedback assessment, the result of
-the existing combined project and shared feedback maintenance cycle, from
-this machine's dashboard without remembering to start it, so collection,
-reconciliation, and response-watch checks keep happening on time and only
-the decisions that need a person reach one.
-
-**Scope:** Give the dashboard a standing authorization for feedback
-maintenance and let it start the cycle when the cycle is due.
-
-- *Standing authorization.* The dashboard's system settings on this machine
-  carry one feedback-maintenance setting: off by default, and when on, the
-  host the session runs on with an optional model, from the hosts and models
-  the launch dialog already offers. Only this setting lets the dashboard start
-  a session no developer asked for. It is machine-local, like the project list
-  and launch records, and is never written by a session.
-- *Due condition.* The maintenance cycle records, in the near-term watch list
-  on Open Dough's trunk, when its last review completed and when the next
-  review is due, in a machine-readable block beside the list's existing review
-  line. The cycle sets the due date from the existing seven-calendar-day watch
-  policy, or sooner when a retained finding's review date falls earlier. The
-  dashboard reads that block through its existing authenticated published read
-  of Open Dough and treats the cycle as due once the local date reaches the
-  recorded due date. An unreadable or absent block is not due; the read problem
-  shows as published reads already do.
-- *Automatic launch.* When the cycle is due, the authorization is on, no
-  feedback-maintenance session is open on this machine, and no automatic launch
-  has served that due date, the dashboard starts one unattached session in Open
-  Dough's configured local folder on the authorized host, with the
-  maintain-feedback-cycle invocation as its first input and the ordinary
-  dashboard reporting context. The launch is a launch record like any other,
-  labeled as feedback maintenance and recording the due date it serves: it is
-  listed under Open Dough in Sessions, can be attached to, stopped, marked
-  done, or deleted, and shares every launch gate and host boundary with
-  developer-started sessions.
-- *Result.* The cycle's own completion report is the assessment. A report with
-  nothing requiring attention marks the session done quietly, and the advanced
-  due date on trunk ends the due state. A report with an attention message, a
-  prepared decision, an explicit coverage gap, or unfinished delivery, raises
-  the existing unread-report notification once and keeps the session listed
-  until the developer marks it done.
-- *One automatic launch per due date.* A served due date is not launched
-  again on this machine, whether the session is still open, ended quietly, or
-  ended failed, stopped, uncertain, or without advancing the due date. In that
-  last case the cycle is still due: the dashboard shows that beside Open
-  Dough's Start session, and the developer starts the cycle by hand, marks the
-  record done, or attaches to the session. The cycle's own rerun rule means
-  such a manual rerun reuses accepted work and creates no duplicate findings,
-  stories, or publications.
-- *Unchanged workflow.* The maintenance cycle keeps its phases, inventory
-  discovery, selection limit of two supported responses, delivery, and
-  reporting. Triage selection and implementation authority stay as they are;
-  Stories 10 and 11 address those later outcomes. The cycle's existing
-  behavior when a project is inaccessible or a decision is needed is the
-  Jidoka stop; this story only delivers it.
-
-**Deferred promises:** No general scheduler, cron, or launch daemon; no
-automatic launch of any other workflow or story; no automatic retry or
-relaunch for a served due date; no cross-machine coordination (a second
-machine running a production dashboard with the setting on could launch its
-own cycle, and the cycle's idempotence bounds the harm); no per-project due
-dates, since one cycle covers the maintained set; no launch while the
-dashboard is not running, so a missed day launches when the dashboard next
-observes the due date; and no paid native run in automated tests, so the
-automatic launch and quiet completion are proved with the dashboard's fake
-hosts, and one manual native run observes the real cycle. The host setting
-follows the shared launch path for every registered host; this story verifies
-it natively on Claude Code only. The evaluation of human effort, missed
-assessments, false alerts, and operating cost against the manual workflow
-accrues over the following weeks of use and is recorded in the watch list and
-finding records, not delivered here.
-
-**Key examples:**
-
-1. The setting is on for Claude Code, the watch list on Open Dough's trunk
-   records the next review due on 2026-10-28, the local date is 2026-10-29,
-   and no feedback-maintenance session is open → the dashboard's next
-   observation of Open Dough → one session starts in Open Dough's local folder
-   with the maintain-feedback-cycle invocation and reporting context; the
-   Sessions sidebar lists it under Open Dough as feedback maintenance; no
-   notification is sent for the start.
-2. That cycle completes, advances the watch list's due date to 2026-11-05 on
-   trunk, and reports completed with no message → the dashboard receives the
-   report → the session is marked done quietly, no notification is sent, and
-   the next observation reads the new due date and is not due.
-3. The cycle finds Terry Talks has no findings record and selects one shared
-   response that needs the maintainer's decision, and reports completed with
-   that message → the dashboard receives the report → one notification carries
-   the message, the session stays listed until marked done, and no second
-   session starts while it is open.
-4. The dashboard restarts, or polls again, while the automatically started
-   session is still open, or the setting is turned off meanwhile → the next
-   observation → nothing new starts; the running session continues as the
-   machine's session.
-5. The automatically started session ends failed, is stopped, or ends without
-   the due date advancing → the next observation → no second automatic launch
-   for that due date; Open Dough's project row shows that feedback
-   maintenance is due since 2026-10-28 and its automatic session did not
-   complete; the developer's ordinary Start session with the invocation runs
-   the cycle, which reuses accepted work and republishes nothing already
-   accepted.
-6. The setting is off, or on but the local date is before the recorded due
-   date, or Open Dough's published read fails or its watch list has no due
-   block → the observation → nothing starts, nothing is notified, and the
-   read failure, when there is one, shows where published read failures
-   already show.
-
-**UI:** System settings gains a Feedback maintenance section beside OpenAI and
-terminal theme: an on/off switch, the host, and the optional model, with a
-line stating the recorded next due date and the last automatic launch's
-outcome. Open Dough's project row, where Start session lives, states when
-feedback maintenance is due and not served, or served by a session that did
-not complete. Nothing is added to backlog cards.
-
-**Architecture:** Model the automatic launch in the existing launch
-vocabulary: an unattached launch whose requester is the machine's standing
-authorization and which records the due date it serves, under the same host
-boundary, launch gates, launch records, and completion reporting. The due date
-is durable project state published on Open Dough's trunk and read like other
-records; the authorization and launch records stay machine-local
-([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)).
-The local server observing one published date selects no scheduler or daemon
-and needs no ADR exception.
-
-**Evaluation:** A due cycle starts on this machine without the maintainer and
-yields the cycle's supported result, explicit uncertainty, or the decision it
-needs. Repeated observations, restarts, partial failure, and manual reruns
-create no duplicate sessions, findings, or dispositions. Inaccessible projects
-remain explicit gaps in the cycle's report. Unchanged and quiet results raise
-no notification. The later comparison of human effort, missed assessments,
-false alerts, and operating cost with the manual workflow uses the watch
-list's review dates and launch records.
-
-**Value / learning:** Remove the initiation and handoff burden of the weekly
-cycle while learning whether an unattended cycle gives reliable, useful
-feedback and how often it needs the maintainer.
-
-**Effort uncertainty:** Reading one published date and starting an unattached
-launch without a developer request inside the dashboard's existing polling,
-admission, and record discipline, and bounding spend to one launch per due
-date; not a general scheduling platform.
-
-**Prerequisites:** The combined maintenance cycle and its dashboard completion
-reporting, both delivered; the production project list naming Open Dough with
-a local folder; and the maintainer turning the setting on. Queue order does
-not create a blocking dependency on Story 8.
-
-**Safe stopping point:** Feedback assessments arrive on this machine within
-the standing authorization while response selection, execution, and broader
-rollout remain human-directed.
-
 <a id="prioritize-responses-with-delegated-authority"></a>
 
 ### 10. Evaluate one real feedback cycle
@@ -908,7 +749,7 @@ one-launch-per-due-date rule, so only the decisions that need a person reach
 one.
 
 **Scope:** A bounded retrospective correction of
-[Story 9](#run-due-feedback-maintenance), from its execution retrospective.
+[Story 9](https://github.com/terryyin/open-dough/blob/1a70db5cbd98b0a052f8f3e0f11785014d944db5/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance), from its execution retrospective.
 A quiet done session is not shown as incomplete on the strength of a watch-list
 read taken before it started; an unsettled automatic attempt that no process
 on this machine runs counts as ended, serves its due date, and leaves later
@@ -918,7 +759,7 @@ Findings, proof, and decisions are in the
 
 ## Ordering and Scope Reduction
 
-Keep Story 9 (automatic due maintenance) in progress and queue Story 10's
+Queue Story 16's correction of automatic due maintenance first and Story 10's
 one-cycle evaluation next, followed by the
 [ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
 and Story 11 as a later candidate requiring necessity reassessment at refinement.
