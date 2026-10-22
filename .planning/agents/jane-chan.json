@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Jane-chan",
-  "email": "jane-chan@example.org",
-  "identity": "SEED-010#prioritize-responses-with-delegated-authority",
-  "mode": "story-branch",
-  "branch": "claude/evaluate-one-real-feedback-cycle",
-  "host": "claude"
-}

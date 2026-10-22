@@ -231,212 +231,6 @@ Assess applicable evidence from 0.3.11 and ordinary released use before fresh
 runs. Missing proof remains pending. Release exceptions do not mark these
 obligations passed.
 
-<a id="prioritize-responses-with-delegated-authority"></a>
-
-### 10. Evaluate one real feedback cycle
-
-**Identity:** SEED-010#prioritize-responses-with-delegated-authority
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bf90dae578e459c2d59ee9c9ae1ab0d3324841bfec40657fb8474f19944c6ad9","plan":"f891ea0b80a8d12212db2d0ee36b65e2bb9b62f6e438ea5f213065fd21241580"}}
-```
-
-**Goal:** The maintainer can decide whether the delivered feedback cycle makes
-worthwhile product and process decisions at an acceptable cost, with useful
-Jidoka-style human intervention, from one observed cycle in ordinary use.
-
-**Selection:** On 2026-10-22, Terry narrowed this existing candidate to evaluating
-one real cycle and selected it as the next queued story. Its identity stays
-unchanged; broader autonomous correction remains Story 11's later candidate,
-now queued behind the selected ODF-142 correction subject to reassessment.
-
-**Scope:** Observe one authorized run of the existing
-[combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md),
-from its actual project inputs through local and shared decisions, publication
-and final reporting. Establish the selected run, project set, guidance revisions,
-authority and evaluation questions before judging its result. Prefer the next
-ordinary cycle; Story 9's first real automatic cycle can supply the same evidence
-when available, without repeating maintenance solely for this evaluation.
-
-- **Observed run.** The observed run is the first combined cycle after the
-  2026-10-21 review: the one the watch list's due block makes due on
-  2026-10-22, whether the dashboard starts it under Story 9's standing
-  authorization or the maintainer starts it by hand. That run is also Story
-  9's own developer-run observation; this story reads its records and runs no
-  cycle of its own. Its evidence is the launch record and completion receipt
-  on this machine, the native session record, the cycle's commits in each
-  maintained project, and the maintainer's prompts. When the run's result
-  already exists before this story's execution begins, the decision basis is
-  recorded as set afterwards and the judgment is labelled exploratory; when
-  it does not, the basis is recorded first and the judgment waits for the
-  run. Once the basis names that run, a later run is not substituted.
-- **Definition of improvement.** Trial
-  [Proposed ADR 0010](../../docs/adrs/0010-definition-of-improvement.md) as this
-  evaluation's decision basis. Before judging the cycle, state the beneficiary,
-  intended gain, baseline and comparison limits, result worth keeping, quality
-  and authority constraints, costs that could outweigh the benefit, and any
-  later exposure needed. Set criteria before a future run where possible;
-  assessment of existing results remains exploratory. Use existing decisions
-  and ask the maintainer to settle consequential unresolved tradeoffs. Record
-  later criteria changes openly. This bounded trial does not accept the ADR or
-  make it binding guidance elsewhere.
-- **Product and process value.** Check whether the cycle considers worthwhile
-  project-owned product improvements as well as tooling and shared process
-  responses. Trace selected and consequential declined or missed candidates to
-  their evidence, importance, distinct frequency, product direction and existing
-  work. The October 21 cycle needed a further human request before selecting
-  Doughnut recall recovery and Pygardon stopped-refresh detection; use that as a
-  question to test, not a requirement to generate more stories. Source-backed
-  risks remain distinct from observed incidents. Preserve the existing selection
-  limits and count justified no-change, defer and evidence requests as valid.
-- **Previous responses.** Follow at least one relevant earlier response through
-  adoption and available eligible use. Prefer the
-  [ODF-139 successor's next observation](../../docs/maintainer/findings/ODF-139.md)
-  when that opportunity occurs; a delivered project-product response is another
-  useful candidate. Assess actual outcomes and counterevidence, not completion
-  or silence alone. If no eligible exposure exists, record that limit and the
-  next discriminating observation rather than manufacture a success or prolong
-  this story indefinitely. This cycle does not implement its new selections.
-- **Cost.** Record available agent usage, elapsed time, active human effort,
-  repeated reading/review, correction and publication work across the cycle.
-  Include this evaluation's own burden. Distinguish cached input, elapsed wait
-  and active work; missing measurements remain unknown. Use the October 20–21
-  manually initiated cycles as qualified context where comparable evidence
-  exists, not as a matched control or a basis for invented savings.
-- **Human intervention.** For actual requests, retries and corrective prompts,
-  identify the decision, why a person was needed, whether existing authority
-  already covered it, and what value the intervention added. Trial ADR 0010's
-  valuable-intervention and missed-intervention rates, with proposed targets
-  above 80% and below 5% respectively, using the
-  [assessment method](../../docs/maintainer/empirical-process-control-research.md#assess-human-intervention-quality).
-  Review both stopped and autonomously handled decisions; count a valuable
-  opportunity missed by the process even if a person later noticed and rescued
-  it. Reserved human ownership can add value without changing the AI's proposed
-  outcome. Report distinct event counts, evidence, severity, review coverage,
-  pending or uncertain classifications, and repeated interruption costs. A small
-  or unexercised cycle cannot establish sustained target attainment; do not
-  manufacture events or prolong the cycle to obtain favorable rates.
-- **Coverage and delivery.** Retain each project's assessed, unavailable or
-  unfinished status and the final publication/reporting evidence. In particular,
-  resolve the disposition of the recurring Terry Talks and Lizard source gaps
-  within existing authority, or leave the exact owner decision needed. Missing
-  findings do not prove a healthy project or a passed watch. Repeated reports,
-  aliases and rereviews do not become new findings or new backlog items.
-
-**Deferred promises:** This delivery does not run, repeat or schedule a
-maintenance cycle; implement, release or roll out any response the cycle
-selects; accept, revise or reject ADR 0010, which stays with the advice
-process; add a ledger, measurement platform, token counter, scoring rule or
-dashboard view; change the maintenance skills, their selection limits or
-their authority; write to any client repository; or retire, reopen or re-rank
-a finding beyond the dispositions existing authority already allows. Sustained
-target attainment, a general productivity rate and a matched comparison with
-the manual cycles are not claimed from one run.
-
-**Key examples:**
-
-1. The due block on trunk reads `reviewAfter` 2026-10-22 and no cycle has
-   completed since the 2026-10-21 review → this story's execution writes the
-   decision basis in the research report → the basis names the observed run,
-   its beneficiary (the maintainer and the maintained projects' developers),
-   the intended gain (worthwhile product and process decisions at acceptable
-   cost with useful intervention), the comparison (the October 20 cycle at
-   `327b6fa2`–`a2be7e50` and the October 21 cycle at `77f9c3f6`–`c361dbb8`
-   as qualified context, not a control), the result worth keeping, the
-   quality and authority constraints, the costs that could outweigh the
-   benefit, and the later exposure needed, dated before any result of that
-   run is read.
-2. The observed run completed and published before this story's execution
-   began → the same write → the basis records the date it was set and that
-   the result preceded it, the judgment is labelled exploratory, and nothing
-   else about the method changes.
-3. The observed run's report selected two shared responses and one
-   project-owned Pygardon story, declined one candidate, and recorded one
-   no-change → the evaluation traces the selections → each selected, declined
-   and no-change candidate links to its finding evidence, distinct-execution
-   frequency, current relevance, product direction and any existing covering
-   story; the trace states whether a project-owned product improvement was
-   considered without a further human request, which the October 21 cycle
-   needed; the justified no-change counts as a valid decision; the evaluation
-   creates no story or finding of its own.
-4. The observed run reviewed the Open Dough, Pygardon and Doughnut logs and
-   found no ordinary named-gap acceptance since the 0.3.67 successor was
-   adopted → the evaluation follows ODF-139 → the finding's record gains that
-   exposure limit and the next discriminating observation; no effectiveness is
-   claimed and its watch does not pass. Where such an acceptance exists, the
-   record gains the original story, actual disposition, correction rounds,
-   intervention and available burden instead.
-5. The launch record, completion receipt, Claude Code session record and the
-   cycle's commits exist for the observed run → the evaluation records cost →
-   one table gives input, cache-creation, cache-read and output tokens where
-   the host record states them, wall-clock time from launch to the last
-   accepted publication, active human effort from the prompts the maintainer
-   wrote, and the publication and correction work; every unmeasured quantity
-   reads unknown; this evaluation's own preparation and execution burden is
-   listed beside it.
-6. The observed run stopped twice for the maintainer, both with an assessable
-   outcome, one of which exercised reserved authority and one of which was
-   routine approval already delegated; it handled four consequential
-   decisions without stopping, one of which needed the maintainer; a third
-   prompt repeated the first stop's reminder → the intervention assessment →
-   six distinct events, each with the decision, why a person was or was not
-   needed, whether existing authority covered it and the value the actual
-   intervention added; valuable-intervention rate 1/2 and missed-intervention
-   rate 1/2, each with its named events; the repeated prompt adds no event
-   and is recorded as interruption cost; no target-met claim. A run with no
-   assessable stops reports the valuable-intervention rate as not assessable,
-   never as 100%.
-7. Terry Talks and Lizard have no `DearDough.md` and no Open Dough
-   configuration file, and the observed run reports them unavailable → the
-   evaluation resolves coverage → either a disposition within existing
-   authority, such as recording them as not yet maintained with the reason
-   and the owner who can change it, or the exact owner decision needed; no
-   watch passes on their silence, and repeated reports, aliases and rereviews
-   add no finding or backlog item.
-8. The basis, traces, follow-through, cost, intervention and coverage records
-   are all written → the maintainer reads the follow-up → one evidence-linked
-   judgment (retain, adjust, simplify, revert or inconclusive) with the run's
-   useful decisions, missed opportunities, quality consequences, cost and
-   human burden; a bounded next observation only where the evidence supports
-   it; and a separate recommendation on ADR 0010 (accept, revise and trial
-   further, or reject) that leaves acceptance to Terry. A second review of
-   the same run yields the same follow-up and adds no occurrence, story or
-   finding.
-
-**Evaluation:** Produce one evidence-linked retain, adjust, simplify, revert or
-inconclusive judgment about this cycle, explaining its useful decisions,
-missed opportunities, quality consequences, observed cost and human burden.
-Judge selections against the original evidence and product direction rather than
-the cycle's own completion claims. Record a bounded next observation or proposed
-correction only where the evidence supports it. Keep the assessment in the
-maintained research report and link existing finding owners; use current cycle
-records and Git history rather than a new permanent ledger. One cycle establishes
-a bounded judgment, not sustained effectiveness or a general productivity rate.
-
-Separately assess whether ADR 0010's definition helped make a useful decision at
-proportionate cost. At this story's conclusion, recommend acceptance, revision
-and further trial, or rejection through the existing human advice process.
-Acceptance remains a human decision; story completion does not accept the ADR.
-Review need not wait for every delayed response outcome, provided pending
-evidence and the limits of any improvement claim remain explicit.
-
-**Value / learning:** Identify which part of the delivered loop is worth keeping
-or simplifying before delegating a complete correction. Product quality and
-changeability balance time, token and human-effort costs.
-
-**Effort uncertainty:** Recovering attributable decisions and marginal costs
-from one ordinary run; observation should stay proportionate to the decision.
-
-**Prerequisites:** The delivered maintenance skills, current product direction,
-the selected project's evidence and existing authority for the chosen cycle.
-An explicitly initiated cycle is sufficient; automatic initiation and Story 9's
-completion are not blocking dependencies. Narrowing and queueing this story does
-not invoke maintenance or grant implementation, release or rollout authority.
-
-**Safe stopping point:** One real cycle has a defensible judgment and any
-unresolved exposure or owner decisions are explicit. No new ranking engine,
-telemetry platform, standing decision authority or autonomous implementation is
-part of this story. The existing phase owners retain maintenance and selection.
-
 <a id="complete-delegated-feedback-correction"></a>
 
 ### 11. Complete a bounded feedback correction with Jidoka intervention
@@ -452,7 +246,8 @@ assessment without manually connecting every skill or approving routine steps.
 
 **Refinement reminder / selection (2026-10-22):** Terry queued this as a later
 candidate after Story 10 and the ODF-142 correction. Reevaluate whether the story
-is necessary during refinement, using Story 10's findings, current delivered
+is necessary during refinement, using the
+[one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up), current delivered
 capabilities and any remaining manual burden. Queuing it is not a commitment to
 build another automation layer. If existing workflows suffice or benefit does
 not justify cost, recommend no implementation, deferral or a smaller response and
@@ -489,7 +284,7 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 ## Ordering and Scope Reduction
 
-Queue Story 10's one-cycle evaluation first, followed by the
+Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) is complete. Queue the
 [ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
 and Story 11 as a later candidate requiring necessity reassessment at refinement.
 Story numbers and recorded identities remain stable;
@@ -504,7 +299,7 @@ Manual mechanisms remain usable throughout; no story is blocked merely because
 an earlier priority has not completed.
 
 Story 11 is queued later for a complete autonomous correction loop, with its
-necessity explicitly open for refinement. Use Story 10's evidence to decide
+necessity explicitly open for refinement. Use that evaluation's evidence to decide
 whether the trial is still worthwhile; its correction class and authority still
 need explicit bounds. Evaluating the current cycle creates no commitment to
 unrestricted self-improvement.

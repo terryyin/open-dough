@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 331. Removed numbers are never reused.
+- Highest allocated local number: 332. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -501,3 +501,28 @@ review received the same inputs and returned the same commitments.
   - Evidence: coordinator conversation, agents "Source-only commitment review" (40,333 subagent tokens) and "Source-only review slice 2" (39,894 subagent tokens) with identical story text; returned commitments matched (G1–G2, A–E, X1–X4)
   - Observed effect: the slice 2 review added no commitment; the slice 1 review had already caught the one omission (observed revision and settings) that slice 1 acceptance corrected.
   - Inference: about 40,000 tokens per extra slice; wrap-up.md "Accept proof" names no reuse of an earlier review whose source and human amendments are unchanged. One occurrence; whether reuse would weaken independence is open.
+
+- Execution: SEED-010#prioritize-responses-with-delegated-authority (plan 342; first implementation commit 6ea5187e)
+  - Timestamp: unknown (2026-10-22, slice 2 acceptance before the refactor launch at 2026-10-22T08:32:18Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.68
+  - Evidence: coordinator conversation; one agent "Source-only story promise review" (48,156 subagent tokens) served both slices, with the story unchanged and no amendment; plan 342 Acceptance evidence at `de993009`
+  - Observed effect: the opposite choice to plan 347. Reusing the slice 1 return, slice 2 acceptance still found two omitted commitments (severity and review coverage; source-backed risks versus incidents) and corrected them before delivery. No second review was launched.
+  - Inference: deviates from the literal per-slice rule in wrap-up.md "Accept proof". With plan 347, this gives one reuse and one repeat: the repeated review added nothing, and the reused one lost no detected commitment. Two occurrences cannot settle independence.
+
+## DD-332 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
+
+The plan made "write the decision basis" its first execution slice. The
+automatic run it evaluated started 39 seconds after preparation landed, so the
+basis followed the result and the judgment became exploratory.
+
+### Occurrences
+- Execution: SEED-010#prioritize-responses-with-delegated-authority (plan 342; first implementation commit 6ea5187e)
+  - Timestamp: 2026-10-21T23:46:55Z (feedback-maintenance launch; preparation commit `2443059d` at 2026-10-21T23:46:16Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.68
+  - Evidence: plan 342 premise table at `3d01d28f:.planning/slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md` ("Slice 1 can therefore precede the result if execution starts before the run completes"); dashboard launch record (maintenance `due` 2026-10-22, done 00:09:14Z); Take `a00e6a77` at 2026-10-22T08:21:29Z
+  - Observed effect: preparation knew the run was due that day and could start without the maintainer. The basis waited for a separate execution about eight hours after the run finished. Story 10's own key example 2 anticipated this.
+  - Inference: preparation authorizes no execution, so a criterion written as a slice cannot precede an imminent automatic event. Writing such criteria into the story or plan during preparation would have kept the judgment confirmatory. One occurrence; the research report's ADR 0010 recommendation carries the general point.
