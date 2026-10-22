@@ -53,11 +53,17 @@ another sufficient check) before accepting them, or return them as uncovered.
 Reuse a trustworthy recorded selection and result when they still match the
 claimed command, filter, and candidate; do not rerun solely for process.
 
-When the change has consumers, as
+When the change alters an operation or contract, a message or value, a
+default, rendered output, or shared text, return a slice without its
+[consumer-trace record](../../dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+for the trace. When the change has consumers, as
 [own executable proof](../../dough-story-refinement/references/planning.md#own-executable-proof)
-defines them, verify the handoff's applicable old-reference search terms and
-scope against the diff's removals, renames, or relocations of symbols or modules,
-and changes to callable contracts. Inspect discovered consumers, including
+defines them, compare the record's terms with the diff's removals, renames, or
+relocations of symbols or modules, changes to callable contracts, and the changed
+behavior, including retired behavior, altered preconditions, and a too-broad
+derived term naming the changed contract that was not resupplied. Do not accept
+a record with a listed consumer lacking a disposition, or with an exclusion the
+effect reaches. Inspect discovered consumers, including
 unchanged tests and fixtures, then follow the changed effect through the reported
 surface or entry points and compare the reached consumers with the return's
 selection and proof.
@@ -66,8 +72,9 @@ incomplete: inspect the enclosing observations or caller scenarios and their
 setup before accepting it. Confirm sufficient current observations for the
 affected purposes, including newly reached consumers. Do not accept on a prior
 unaffected-suite or unused-consumer exclusion when the change reaches that
-boundary. Do not accept or publish while proof for a known affected consumer is
-missing, including one left unrun for CI: obtain the missing observation or
+boundary. Do not accept or publish until proof for the record's unexcluded
+consumers and any other known affected consumer ran or was reused, including
+one left unrun for CI: obtain the missing observation or
 return the slice for it. Preserve sufficient reused or equivalent-purpose proof
 and accepted evidence for unrelated consumers and unchanged boundaries. Require
 the changed surface's suite when it runs within the slice's focused-check time,

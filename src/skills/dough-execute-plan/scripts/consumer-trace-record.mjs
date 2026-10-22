@@ -62,7 +62,7 @@ export function renderConsumerTrace(record) {
   );
   out.push("", "## Located consumers", "");
   out.push(
-    "Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the changed effect does not reach this consumer>`.",
+    "Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`.",
   );
   for (const { kind, heading } of CONSUMER_KINDS) {
     out.push("", `### ${heading}`, "");

@@ -120,7 +120,7 @@ Behavior: the agent supplies `--base <revision>` (default: the working tree agai
 
 ### 3. The record is the required trace evidence at delegation, acceptance and refactoring
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-execute-plan/scripts/consumer-trace-guidance.test.mjs` asserting that `delegation.md`'s return contract, `wrap-up.md`'s acceptance, `dough-post-change-refactor/SKILL.md`'s return and `executable-proof.md`'s trace paragraph each name the consumer-trace record and the installed script, and that acceptance names the two refusals (no record; a listed consumer without a disposition); a behavior review walk with example 1 and with example 5 recorded in the plan; the story's own record for these guidance edits produced by `consumer-trace.mjs --base <slice 2 commit>`, listing the guidance tests, the native delivery-evidence identity inputs and the installed-copy readers, with dispositions; `bash tests/payload-declaration-links.sh`.
 
 Behavior: a coordinator delegates a slice whose change alters an operation, contract, message, value, default, rendered output or shared text → the delegation names the installed script and requires the consumer-trace record in the return, every listed consumer with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`, and the supplied effect terms for retired behavior and altered preconditions the diff cannot derive → the implementation return carries the record → acceptance compares the record's terms with the diff and the changed behavior, returns a slice without the record for the trace, does not accept a record with a listed consumer lacking a disposition or with an exclusion the effect reaches, and publishes only after the unexcluded consumers' proof ran or was reused; a record with every kind empty keeps the slice's focused proof. The post-change-refactor return carries the same record for its own edits. The shared trace text names the record as the evidence of the trace and the script as its producer, keeping the effect-first rule and the existing proof-selection rules unchanged.
@@ -175,18 +175,45 @@ Behavior: a coordinator delegates a slice whose change alters an operation, cont
   term found in more than max(20, 1% of searched files) is kept with its count
   and listed consumers are left to a supplied `--term` (G2). Changed paths,
   basenames and supplied terms are never suppressed.
+- Slice 3 behavior review walk. Example 1: delegation.md "Give the agent"
+  names `consumer-trace.mjs --checkout '<checkout>' --base <revision>`;
+  executable-proof.md "Record the consumer trace" runs it with `--base HEAD`
+  over the whole checkout, so replay B's eight `scripts/*.test.mjs` readers of
+  `ci-monitor.md` are listed and a `tests/`-only record cannot arise; each gets
+  `run`/`reused`/`excluded: <reason>`; the delegation return carries the record;
+  wrap-up.md acceptance compares its terms with the diff and refuses a listed
+  consumer without a disposition or an exclusion the effect reaches. Example 5:
+  wrap-up.md "When the change alters … or shared text, return a slice without
+  its consumer-trace record for the trace", and "Do not accept or publish until
+  proof for the record's unexcluded consumers … ran or was reused". The
+  acceptance trigger moved from "has consumers" to the effect-changing kinds,
+  because without a record the coordinator cannot know whether consumers exist.
+- Slice 3's own record (`--base 1f5178c7` plus retired-wording terms; 3689
+  files, 297 consumers, saved outside the repository during execution): run —
+  five guidance node tests, `tests/execution-payload-update.sh`,
+  `payload-declaration-links.sh`, `native-stream-replay.sh`; excluded —
+  installed copies (release only), `delivery-evidence-native-evidence.sh` and
+  native-stream fixtures (paid manual native runs), unchanged-anchor links,
+  planning records, `SKILL.md`-basename-only readers. Applying the G1 hop to
+  the native-evidence support file reached `delivery-evidence-native-routing.sh`
+  and `native-evidence-identity.sh`, which the first record did not list; both
+  ran and passed. Most of a `SKILL.md` change's record is installed copies and
+  other skills' `SKILL.md` readers.
+- `tests/delivery-evidence-native-routing.sh`, `delivery-evidence-release.sh`
+  and `native-stream-replay.sh` fail when PATH's `bash` is macOS 3.2, also at
+  unchanged `1f5178c7`; with `/opt/homebrew/bin` first they pass.
 
 ## Story obligations
 
 ### G1. Step-definition hop to journeys is agent-supplied
 Reported: slice 1 — "Replay C reaches `daily_probe` and `spaced_repetition` (the latter only indirectly, see below), but not `browse_answer_and_notes_while_recalling`."
 Story clause: "the record lists the step definitions and page-object methods that observe the recall card and, through them, the recall features whose journeys reach that state"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `executable-proof.md` "Record the consumer trace" requires adding a located step definition's or page object's step phrases as `--term` until journeys are listed (`consumer-trace-guidance.test.mjs` G1 test); replay C with those phrases lists `daily_probe`, `spaced_repetition` and `browse_answer_and_notes_while_recalling` (Learnings)
 
 ### G2. Too-broad derived terms list no consumers by themselves
 Reported: slice 2 — "A derived term found in more than max(20, 1% of searched files) files is kept in the terms table with a note"
 Story clause: "identifiers declared or exported in changed hunks together with the changed modules' import paths"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: the record keeps every too-broad derived term with its count (`consumer-trace-terms.test.mjs` too-broad test), `executable-proof.md` requires resupplying one that names the changed contract and `wrap-up.md` acceptance checks it (`consumer-trace-guidance.test.mjs` G2 and acceptance tests)
 
 ## Concern evidence
 
