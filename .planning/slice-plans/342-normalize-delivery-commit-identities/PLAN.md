@@ -132,17 +132,30 @@ base and deep-compares the result, registered receipts and `beforePush`
 comparisons with commit IDs labelled; all five tests failed before the change.
 `execution-increment-fresh-candidate.test.mjs` "a refused changed candidate
 retains the full base ID its abbreviation names" covers fresh recovery's
-`suffixBase` on a stop without one. Resolution is `fullCommitId` in
+`suffixBase` on a stop without one. Resolution is `resolveCommitId` in
 `publication-git.mjs`. Consumer proof: every `execution-increment-*`,
 `publication-*` and `trunk-closure*` test and the importers of the changed
 modules and publication fixtures (118 files) through `bash scripts/test.sh`.
 
 ### 2. An unknown, ambiguous, non-commit, or ref-name base is refused with its problem and next step
 Type: Behavior
-Status: planned
+Status: done
 Proof: tests with the same fixture: an unknown string, a four-character prefix made ambiguous by 1,500 blobs written with one `git hash-object -w` call, the increment file's blob ID, and `HEAD` each stop with the new status, a `problem` naming not-an-object-id, unknown, ambiguous, or not-a-commit, the supplied input, and an `error` that tells the agent to supply the full ID from the delivery receipt; the branch, origin, and remote-tracking refs are unchanged and no push was issued (fail today with `unpublished-base`); the existing `unpublished-base` consumers stay green and report the full ID; one managed-delivery case shows the status and error in the delivery result. Guidance: the `deliver` usage line in `execution-increment-request.mjs` and the trunk-publication passage that explains `unpublished-base` name the argument as a full or unique abbreviated commit ID and the new stop beside it.
 
 Behavior: the supplied base is not a hex object ID, or Git answers unknown, ambiguous, or non-commit for it → the publication stops after the fetch and before containment, rewrite, push, or observation registration with the refusal → the agent reruns with the full ID from the receipt. `unpublished-base` is then reached only by a resolved commit that no fetched remote ref holds.
+
+Accepted proof: `execution-increment-publication-unresolvable-base.test.mjs`
+covers `not-a-commit` and `HEAD` (`not-an-object-id`), an unknown hex ID,
+a four-character prefix shared by blobs (`ambiguous`), a blob and a tree ID
+(`not-a-commit`): each stops as `unresolvable-base` naming the supplied
+input with no `register`, `validate`, `beforePush` or `onFetchedTarget`
+call and unchanged branch, remote and remote-tracking refs; one case through
+`deliverManagedExecutionIncrement` shows status, problem, input and error in
+the delivery result. All seven failed before the change. `fullCommitId`
+lists matches with `rev-parse --disambiguate` and accepts one commit, so a
+prefix that a commit shares with any other object is `ambiguous`. The
+existing `unpublished-base` tests stay green with full IDs. Final delivery ran
+full `npm test`.
 
 ## Current decisions
 
@@ -164,12 +177,17 @@ Behavior: the supplied base is not a hex object ID, or Git answers unknown, ambi
 ### G1. Unresolvable input still stops as unpublished-base
 Reported: slice 1 — "input that is not hex or names no single commit is left as supplied. It reaches today's `unpublished-base` stop"
 Story clause: "Input that names no object, more than one object, or a non-commit object is refused before any rewrite, push, or observation"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `execution-increment-publication-unresolvable-base.test.mjs` refusal cases and the managed-delivery case
 
 ### G2. A delivery that throws before resolution keeps the supplied base in recovery
 Reported: slice 1 — "If delivery throws before the first fetch settles, recovery keeps the base as the caller supplied it, because nothing has been resolved yet."
 Story clause: "resolve the supplied published-base input to exactly one commit in the owned workspace after the fetch"
 Disposition: no user cost "never produces a misleading reconciliation refusal, an unobserved plain push, or a source-reading detour": a throw before the fetch settles rewrites and pushes nothing, so rerunning the same delivery resolves the input after its fetch; resume's `validateRetainedComparison` refuses a non-full `--suffix-base` rather than comparing it.
+
+### G3. A live coordinator's observer is still established before an unresolvable-base refusal
+Reported: slice 2 — "With a live session, observation is still established before publication, as it already is for `unpublished-base`; only `registerPushedRevision` is skipped."
+Story clause: "is refused before any rewrite, push, or observation"
+Disposition: no user cost "never produces a misleading reconciliation refusal, an unobserved plain push, or a source-reading detour": managed delivery establishes or reuses the coordinator's one observer of the target before any publication, and the refusal registers no revision on it, so no revision is observed; the next delivery reuses that observer.
 
 ## Concern evidence
 
