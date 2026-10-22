@@ -20,4 +20,3 @@ cost of the feedback process itself.
 
 ## Backlog list
 
-- [Complete a bounded feedback correction with Jidoka intervention](seeds/SEED-010-learn-from-execution-retrospectives.md#complete-delegated-feedback-correction) — SEED-010#complete-delegated-feedback-correction

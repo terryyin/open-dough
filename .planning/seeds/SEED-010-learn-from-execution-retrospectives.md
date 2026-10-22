@@ -46,11 +46,18 @@ autonomous feedback loop with Jidoka-style human intervention. This request
 selects preparation and backlog changes for review; it does not start the stories
 or grant a standing authority to act in other projects.
 
+On 2026-10-22, Terry dropped the later candidate for delegating a complete
+bounded correction. Story 10's one-cycle evaluation showed the existing
+dashboard-started cycle, preparation, execution and wrap-up already connect the
+loop with no missed or repeated stop, and the one remaining manual step, release
+and client rollout, is reserved under ADR 0005 while native acceptance is pending.
+
 The shared [project-findings maintenance contract](../../src/skills/dough-triage-project-findings/SKILL.md)
 provides explicitly invoked local maintenance, repair observation, priority selection,
-and commit/sync. The remaining stories compose or evaluate that capability.
+and commit/sync. Later stories compose or evaluate that capability.
 
-The ordering and cuts below preserve the remaining evaluation and autonomous-feedback selections.
+The ordering and cuts below record the completed evaluation and the dropped
+autonomous-correction candidate.
 They extend the initial retrospective-focused delivery scope. The following
 initial delivery decisions remain context for the capabilities already present.
 
@@ -231,62 +238,10 @@ Assess applicable evidence from 0.3.11 and ordinary released use before fresh
 runs. Missing proof remains pending. Release exceptions do not mark these
 obligations passed.
 
-<a id="complete-delegated-feedback-correction"></a>
-
-### 11. Complete a bounded feedback correction with Jidoka intervention
-
-**Identity:** SEED-010#complete-delegated-feedback-correction
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-**Goal:** The maintainer can delegate one low-risk class of feedback correction
-through implementation, validation, authorized delivery/adoption, and subsequent
-assessment without manually connecting every skill or approving routine steps.
-
-**Refinement reminder / selection (2026-10-22):** Terry queued this as a later
-candidate after Story 10 and the ODF-142 correction. Reevaluate whether the story
-is necessary during refinement, using the
-[one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up), current delivered
-capabilities and any remaining manual burden. Queuing it is not a commitment to
-build another automation layer. If existing workflows suffice or benefit does
-not justify cost, recommend no implementation, deferral or a smaller response and
-obtain the resulting backlog decision before execution. If it remains worthwhile,
-identify one concrete correction and the bounded authority and evaluation needed.
-
-**Scope:** Start with one selected correction, one project/release path, and a
-human-supplied authority envelope with explicit outcome and quality constraints.
-Reuse existing execution, delivery, release/update, and observation workflows.
-Retain a way to withdraw the change within that authority. The system must not
-weaken its own evaluator or assume that delivery proves benefit. A later result
-can support retention, revision, withdrawal, or continued observation.
-
-**Evaluation:** A routine case reaches an attributable later response assessment.
-A case with conflicting intent, an Accepted ADR conflict, exceeded scope, or
-unacceptable quality consequences stops the affected action with evidence,
-options, and the exact human decision needed. Safe independent work continues.
-Measure missed necessary stops, avoidable interruptions, total cost, and later
-quality alongside completion. No granted authority means no autonomous action.
-
-**Value / learning:** Demonstrate a complete autonomous correction loop with
-selective, informed human intervention before widening its scope.
-
-**Effort uncertainty:** Cross-boundary authority and evidence continuity make this
-the broadest candidate. Reassess necessity and narrow the correction class during refinement;
-if it still spans independent outcomes, resplit instead of treating it as one plan.
-
-**Prerequisites:** A selected correction, valid existing delivery capabilities,
-and explicit authority for each consequential action. A manually selected
-response can be used; autonomous triage is not a hard prerequisite.
-
-**Safe stopping point:** One bounded autonomous correction works without generic
-self-modification, automatic changes to goals/ADRs, or rollout to every project.
-
 ## Ordering and Scope Reduction
 
-Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) is complete. Queue the
-[ODF-142 correction](../../docs/maintainer/findings/ODF-142.md)
-and Story 11 as a later candidate requiring necessity reassessment at refinement.
+Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) and the
+[ODF-142 correction](../../docs/maintainer/findings/ODF-142.md) are complete.
 Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.
 
@@ -298,11 +253,10 @@ Later unattended initiation builds on the existing explicit workflows.
 Manual mechanisms remain usable throughout; no story is blocked merely because
 an earlier priority has not completed.
 
-Story 11 is queued later for a complete autonomous correction loop, with its
-necessity explicitly open for refinement. Use that evaluation's evidence to decide
-whether the trial is still worthwhile; its correction class and authority still
-need explicit bounds. Evaluating the current cycle creates no commitment to
-unrestricted self-improvement.
+No story for a complete autonomous correction loop is queued. A later
+candidate needs an observed manual connection worth removing, an explicit
+correction class and authority bounds. Evaluating the current cycle creates no
+commitment to unrestricted self-improvement.
 
 If scope shrinks, defer autonomous selection and correction first, then unattended
 maintenance, then wider project participation. Preserve the selected local
