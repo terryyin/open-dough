@@ -167,6 +167,17 @@ Former local code: DD-259.
 
 Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. [Evidence and current response](docs/maintainer/findings/ODF-150.md).
 
+### Occurrences
+
+- Execution: `SEED-010#run-due-feedback-maintenance` / plan 341, first related implementation commit `ca410794`
+  - Timestamp: 2026-10-22T00:06:21+09:00 (CI run 39622654934 failed job "dashboard (9/12)")
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.67
+  - Evidence: slice 4 (`755d8920`) added an optional `feedbackMaintenance` field to the machine sessions answer; its consumer batch named the sessions-answer routes and parsers but not `dashboard/tests/boundary/serving-modes.spec.ts`, whose `expect(listed.preview).toEqual(listed.dev)` pins that answer across serving modes. CI caught it; repair `7a17013d`.
+  - Observed effect: one failed hosted CI run and one repair increment; the coordinator accepted the implementer's chosen consumer subset without the whole dashboard suite, which then ran only in the repair.
+  - Inference: tracing "who parses this answer" missed a spec that compares the whole answer between servers; a whole-suite run before publishing a shared answer contract would have caught it locally.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260.
@@ -270,6 +281,17 @@ Planning promises landing context for an unattached launch without observing tha
 Former local code: DD-288.
 
 A story’s final paid native observation requires installed skills available only in a release after that story lands, so its starting state cannot exist within the planned execution. [Evidence and current response](docs/maintainer/findings/ODF-238.md).
+
+### Occurrences
+
+- Execution: `SEED-010#run-due-feedback-maintenance` / plan 341, first related implementation commit `ca410794`
+  - Timestamp: 2026-10-21T23:56:00+09:00 (approximate; execution-complete handoff after slice 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.67
+  - Evidence: plan 341 slice 5 proof "Terry turns the setting on in the production dashboard with the delivered release installed"; the execution stopped after slice 4 with an unfinished handoff; on 2026-10-22 the developer chose landing (`0f500a5f`, `--keep-worktree`), a release (0.3.68, ADR 0005 exception), a production watcher restart, and moving the due date to make the observation possible.
+  - Observed effect: the planned final slice could not run inside the execution; four developer decisions and a production restart were needed mid-execution.
+  - Inference: the actual prerequisite was the production dashboard deploying published `main` through its watcher, not a release; the plan named the wrong delivery path, which prompted an avoidable release question. Planning should name the deployment path a native observation needs and whether it exists before landing.
 
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 

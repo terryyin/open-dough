@@ -191,6 +191,29 @@ setting was saved as `{"host":"claude"}` through the production endpoint at
 - 09:15:23 check: the state read next due 2026-10-29, not reached, and last
   automatic launch done (due 2026-10-22); nothing started.
 
+## Execution complete
+
+Product advice:
+- Correction planned, not queued:
+  [SEED-010#correct-feedback-maintenance-session-status](../../seeds/SEED-010-learn-from-execution-retrospectives.md#correct-feedback-maintenance-session-status)
+  ([plan 344](../344-correct-feedback-maintenance-session-status/PLAN.md)).
+  A quiet successful cycle reads "did not complete" until the next check
+  (about 6 minutes in the production run), and an interrupted start with no
+  live worker counts as running forever and blocks later due dates.
+- Default-checkout existing-changes hold: no change now. It held the first
+  production launch for about 14 minutes, named the reason on the row, and
+  started at the next check once the edits were committed. Story 10 records
+  the hold as intervention or cost evidence; revisit only if holds recur.
+- Story 10 already consumes this run (record `9b9effcf…`, session
+  `de44a53b`, publication through `552b2134`, due 2026-10-22 → 2026-10-29).
+  It should also assess whether the quiet report correctly covered the
+  cycle's queueing of a new story (`552b2134`), and count the false
+  "did not complete" window as a possible false-alert source until the
+  correction lands. Story 11: no change.
+- The automatic test-suite overlap between
+  `feedback-maintenance-launch.spec.ts` and `feedback-maintenance-due-row.spec.ts`
+  is a dough-test-optimization candidate, not a correction.
+
 ## Current decisions
 
 - The trigger is the dashboard server, not a cron job or launchd: it already
