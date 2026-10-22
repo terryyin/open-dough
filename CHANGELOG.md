@@ -1,3 +1,18 @@
+## 0.3.69 - 2026-10-23
+
+- Trace changed behavior across the whole checkout with a generated consumer record, including retired literals, changed identifiers and import paths; require a proof disposition for every located consumer before accepting execution or refactoring work.
+- Read execution guidance at its applicable boundary in bounded tool results, including the passages that each boundary requires.
+- Make guarded fresh delivery mark only its selected slice done, refuse missing or ambiguous slice status and unrelated newly completed slices, and allow the same request to resume after a failed attempt.
+- Resolve full and unique abbreviated publication-base commit IDs consistently, and refuse unknown, ambiguous, non-commit or ref-name inputs before publication.
+- Plan developer-operated native observations with their question, rounds and required human steps together; reuse answered observations while their path remains applicable and reopen only changed questions.
+- Correct dashboard feedback-maintenance completion and interruption status. Skip shared feedback collection for projects with process retrospective disabled, and connect relevant collected evidence to open response-observation requests without claiming effectiveness from replay evidence alone.
+
+The Promoted installation payload adds five runtime modules: consumer-trace.mjs, consumer-trace-record.mjs, consumer-trace-terms.mjs, selected-slice-status.mjs and product-backlog-plan-completion.mjs. It updates existing execution, refactoring, manual-testing, planning and executable-proof guidance and delivery/backlog helpers. No payload paths are removed. Proposed guidance outside the installer declaration remains outside the released payload. Dashboard and internal feedback-maintenance changes remain source functionality.
+
+Validation: representative source behavior review and release self-installation check passed. Hosted CI passed source revision e3ad3ed35c226b78ea7ccf7df5b32da289dee89b (run 39869857920). All 22 focused deterministic check files, local lint and dashboard typecheck passed. This is source and deterministic validation; no fresh native acceptance is claimed.
+
+Terry explicitly approved an ADR 0005 exception on 2026-10-23 to publish and roll out 0.3.69 with native acceptance pending. No fresh native acceptance is claimed. Outstanding acceptance remains pending on Codex, Cursor and Claude Code for consumer-trace handoff and acceptance, bounded execution-boundary reads, retry-safe guarded delivery, publication-base handling, and developer-operated observation planning/reuse. Earlier outstanding native requirements retain their existing owners and remain open. This release does not close those requirements.
+
 ## 0.3.68 - 2026-10-22
 
 - Decide before long, repeated or resource-intensive proof using attributable evidence about the machine that will run it, including competing owned work in other worktrees, and carry that decision through delegation, CI pauses, CI repair and wrap-up.
