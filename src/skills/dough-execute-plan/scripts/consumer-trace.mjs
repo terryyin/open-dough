@@ -3,7 +3,7 @@
 // effect term, so the proof a change owes its existing consumers is chosen
 // from the whole checkout rather than from the directories already in view.
 import { execFileSync } from "node:child_process";
-import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, lstatSync, realpathSync } from "node:fs";
 import {
   basename,
   dirname,
@@ -15,9 +15,14 @@ import {
 import { parseArgs } from "node:util";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { consumerKind, renderConsumerTrace } from "./consumer-trace-record.mjs";
+import {
+  changedAgainst,
+  derivedTerms,
+  readText,
+} from "./consumer-trace-terms.mjs";
 
 const USAGE =
-  "usage: consumer-trace.mjs --checkout <path> [--path <changed file>]... [--term <text>]... (at least one --path or --term)";
+  "usage: consumer-trace.mjs --checkout <path> [--base <revision>] [--path <changed file>]... [--term <text>]... (at least one --base, --path or --term; --base HEAD traces the uncommitted and untracked change)";
 
 class ConsumerTraceInputError extends Error {}
 
@@ -65,19 +70,38 @@ function revisionOf(root) {
   }
 }
 
-// Terms carry an origin so derived terms can sit beside the supplied ones.
-function effectTerms(paths, terms) {
+// Terms carry an origin so derived terms can sit beside the supplied ones;
+// the first origin of a term is the one recorded.
+function effectTerms(paths, terms, derived) {
   const result = [];
-  const add = (term, origin) => {
+  const add = ({ term, origin, derived = false }) => {
     if (term && !result.some((item) => item.term === term))
-      result.push({ term, origin });
+      result.push({ term, origin, derived });
   };
   for (const path of paths) {
-    add(path, "changed path");
-    add(basename(path), `basename of \`${path}\``);
+    add({ term: path, origin: "changed path" });
+    add({ term: basename(path), origin: `basename of \`${path}\`` });
   }
-  for (const term of terms) add(term, "supplied");
+  for (const term of terms) add({ term, origin: "supplied" });
+  for (const term of derived) add(term);
   return result;
+}
+
+function changeAgainstBase(root, base) {
+  try {
+    git(root, ["rev-parse", "--verify", "--quiet", `${base}^{commit}`]);
+  } catch {
+    throw new ConsumerTraceInputError(`base revision not found: ${base}`);
+  }
+  return changedAgainst(git, root, base);
+}
+
+// A derived term found in more than 1% of the files (at least 20) names the
+// change too loosely to point at its consumers (a `pid` key, a `types`
+// module, a removed `node:url` import); the record keeps it with its count
+// for the agent to supply as a `--term`, and it lists no file on its own.
+function broadLimit(fileCount) {
+  return Math.max(20, Math.ceil(fileCount / 100));
 }
 
 function searchedFiles(root, changed) {
@@ -113,28 +137,48 @@ function firstMatch(content, needles) {
   return { terms, line: index + 1, text: lines[index].trim() };
 }
 
-function traceConsumers({ checkout, paths = [], terms = [] }) {
-  if (!paths.length && !terms.length)
-    throw new ConsumerTraceInputError("supply at least one --path or --term");
+function traceConsumers({ checkout, base, paths = [], terms = [] }) {
+  if (!base && !paths.length && !terms.length)
+    throw new ConsumerTraceInputError(
+      "supply at least one --base, --path or --term",
+    );
   const root = checkoutRoot(checkout);
-  const changed = paths.map((path) => repositoryPath(root, path));
-  const searched = effectTerms(changed, terms);
-  const needles = searched.map(({ term }) => ({
-    term,
-    needle: term.toLowerCase(),
+  const changes = base ? changeAgainstBase(root, base) : [];
+  const changed = [
+    ...new Set([
+      ...changes.map(({ path }) => path),
+      ...paths.map((path) => repositoryPath(root, path)),
+    ]),
+  ].sort();
+  const searched = effectTerms(changed, terms, derivedTerms(changes));
+  const needles = searched.map((item) => ({
+    item,
+    term: item.term,
+    needle: item.term.toLowerCase(),
   }));
   const files = searchedFiles(root, new Set(changed));
-  const consumers = [];
+  const located = [];
   for (const path of files) {
-    let content;
-    try {
-      content = readFileSync(resolve(root, path));
-    } catch {
-      continue;
-    }
-    if (content.subarray(0, 8000).includes(0)) continue;
-    const match = firstMatch(content.toString("utf8"), needles);
-    if (match) consumers.push({ path, kind: consumerKind(path), ...match });
+    const text = readText(root, path);
+    const match = text === undefined ? undefined : firstMatch(text, needles);
+    if (match) located.push({ path, text, match });
+  }
+  const limit = broadLimit(files.length);
+  for (const item of searched) {
+    const count = located.filter(({ match }) =>
+      match.terms.includes(item.term),
+    ).length;
+    if (item.derived && count > limit) item.broad = count;
+  }
+  const listed = needles.filter(({ item }) => !item.broad);
+  const consumers = [];
+  for (const { path, text, match } of located) {
+    const broad = match.terms.some((term) =>
+      searched.some((item) => item.broad && item.term === term),
+    );
+    const narrowed = broad ? firstMatch(text, listed) : match;
+    if (narrowed)
+      consumers.push({ path, kind: consumerKind(path), ...narrowed });
   }
   consumers.sort((left, right) => left.path.localeCompare(right.path));
   return {
@@ -148,6 +192,7 @@ function traceConsumers({ checkout, paths = [], terms = [] }) {
 
 const OPTIONS = {
   checkout: { type: "string" },
+  base: { type: "string" },
   path: { type: "string", multiple: true },
   term: { type: "string", multiple: true },
 };
@@ -159,11 +204,11 @@ function readConsumerTraceArgs(argv) {
   } catch (error) {
     throw new ConsumerTraceInputError(error.message);
   }
-  const { checkout, path = [], term = [] } = parsed.values;
+  const { checkout, base, path = [], term = [] } = parsed.values;
   if (!checkout) throw new ConsumerTraceInputError("--checkout is required");
-  if ([...path, ...term].some((value) => !value.trim()))
-    throw new ConsumerTraceInputError("--path and --term need a value");
-  return { checkout, paths: path, terms: term };
+  if ([base ?? "x", ...path, ...term].some((value) => !value.trim()))
+    throw new ConsumerTraceInputError("--base, --path and --term need a value");
+  return { checkout, base, paths: path, terms: term };
 }
 
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {

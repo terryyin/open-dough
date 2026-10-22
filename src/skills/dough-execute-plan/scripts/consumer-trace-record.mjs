@@ -44,8 +44,12 @@ function shorten(text, limit = 160) {
 export function renderConsumerTrace(record) {
   const out = ["# Consumer trace", "", "## Effect terms searched", ""];
   out.push("| Term | Origin |", "| --- | --- |");
-  for (const { term, origin } of record.terms)
-    out.push(`| ${code(term)} | ${cell(origin)} |`);
+  for (const { term, origin, broad } of record.terms) {
+    const note = broad
+      ? `; in ${broad} files, too broad to list consumers by itself; supply it as a \`--term\` to list them`
+      : "";
+    out.push(`| ${code(term)} | ${cell(origin)}${cell(note)} |`);
+  }
   out.push("", "## Scope", "");
   out.push(
     `Whole checkout at \`${record.revision}\`, including uncommitted and untracked files: ${record.fileCount} tracked and untracked non-ignored files searched with fixed-string, case-insensitive matching.`,

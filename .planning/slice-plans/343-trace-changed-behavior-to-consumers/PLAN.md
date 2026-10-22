@@ -113,7 +113,7 @@ Behavior: an agent in a checkout runs `node '<installed-execute-plan>/scripts/co
 
 ### 2. The trace script derives terms from the change itself: hunk identifiers, module import paths and removed literals
 Type: Behavior
-Status: planned
+Status: done
 Proof: the same node test file on the fixture, with a committed base and a working-tree change that adds a field to a shared contract module while an untouched stand-in imports that module and a test asserts a removed message literal; replay A as a literal run in a temporary worktree at `79a1f1ec~1` with the changes of `79a1f1ec` applied (`git diff 79a1f1ec~1 79a1f1ec -- dashboard | git apply`), `--base HEAD`, no supplied terms.
 
 Behavior: the agent supplies `--base <revision>` (default: the working tree against `HEAD`, including untracked files) instead of, or in addition to, `--path` → the script reads the diff, takes every changed file as a `--path`, and adds derived terms: identifiers declared or exported in changed hunks (function, class, const, let, var, export, type and interface names and object keys on changed lines), each changed module's import path forms (the repository path without extension and its basename without extension, so `runnerPaths` finds `../../server/hosts/cursor/runnerPaths.ts`), and string literals of three or more characters on removed lines → the record lists each derived term under the effect terms with its origin (`declared in <file>`, `import path of <file>`, `removed from <file>:<line>`), and the located consumers follow slice 1's shape; a consumer found only through a derived term shows that term. Replay A's record names `cursorRunnerHeldReads.ts` under stand-ins through the import path or an identifier of `runnerPaths.ts`, `runnerClient.ts` or `runnerProtocol.ts`.
@@ -164,12 +164,28 @@ Behavior: a coordinator delegates a slice whose change alters an operation, cont
   owns it (G1).
 - Matching is case-insensitive fixed-string; kind precedence is journey, test
   file name, stand-in, test directory, `.md`, production (`consumerKind`).
+- Slice 2 replay A (worktree at `79a1f1ec~1` with `git diff 79a1f1ec~1 79a1f1ec -- dashboard`
+  applied, `--base HEAD`, no supplied terms; 3599 files, 115 terms, 35 too
+  broad): `dashboard/tests/support/cursorRunnerHeldReads.ts` is listed under
+  stand-ins through `runnerPaths`/`runnerClient` (import forms) and their `.ts`
+  basenames, first line `11: } from "../../server/hosts/cursor/runnerPaths.ts";`;
+  26 stand-ins, 18 in `dashboard/tests/support/`. Taking every declaration first
+  gave about 2,300 listed files; derived declarations are therefore module-scope
+  (unindented or `export`) plus object keys on any changed line, and a derived
+  term found in more than max(20, 1% of searched files) is kept with its count
+  and listed consumers are left to a supplied `--term` (G2). Changed paths,
+  basenames and supplied terms are never suppressed.
 
 ## Story obligations
 
 ### G1. Step-definition hop to journeys is agent-supplied
 Reported: slice 1 — "Replay C reaches `daily_probe` and `spaced_repetition` (the latter only indirectly, see below), but not `browse_answer_and_notes_while_recalling`."
 Story clause: "the record lists the step definitions and page-object methods that observe the recall card and, through them, the recall features whose journeys reach that state"
+Disposition: receiving slice 3
+
+### G2. Too-broad derived terms list no consumers by themselves
+Reported: slice 2 — "A derived term found in more than max(20, 1% of searched files) files is kept in the terms table with a note"
+Story clause: "identifiers declared or exported in changed hunks together with the changed modules' import paths"
 Disposition: receiving slice 3
 
 ## Concern evidence
