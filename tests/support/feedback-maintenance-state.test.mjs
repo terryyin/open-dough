@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { observedSessions } from "../../dashboard/src/feedbackMaintenanceDue.ts";
 import {
   feedbackMaintenanceState,
   heldReason,
@@ -75,6 +76,25 @@ test("a session marked done after the review of its date was read is done, with 
   const ended = state(readBefore, [launched("ended")]);
   assert.deepEqual(ended.row, { kind: "incomplete", due: "2026-10-28" });
   assert.deepEqual(ended.lastLaunch, { kind: "incomplete", due: "2026-10-28" });
+});
+
+test("an automatic start no process runs, still unsettled, did not complete", () => {
+  const interrupted = {
+    request: {
+      source: "open-dough",
+      workflow: "ad-hoc",
+      host: "codex",
+      maintenance: { due: "2026-10-28" },
+    },
+    acceptedAt: "2026-10-28T09:00:00Z",
+    running: false,
+  };
+  const answer = state(on, observedSessions("open-dough", [], [interrupted]));
+  assert.deepEqual(answer.row, { kind: "incomplete", due: "2026-10-28" });
+  assert.deepEqual(answer.lastLaunch, {
+    kind: "incomplete",
+    due: "2026-10-28",
+  });
 });
 
 test("any running feedback-maintenance session, automatic or the developer's, is running", () => {

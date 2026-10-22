@@ -48,9 +48,13 @@ Run the cycle again yourself from Open Dough's **Start session**; the cycle's
 rerun rule reuses accepted work. An open session you started yourself with the cycle's
 invocation is also this machine's feedback maintenance session, so nothing
 starts automatically while it runs. A session that ended unavailable without
-being marked done no longer counts as running, but still serves its due date. A watch list that cannot be read, or
-that has no valid due block, is not due; a failed read is kept with the
-published read failures at `/__authenticated-read-diagnostics?source=<id>`.
+being marked done no longer counts as running, but still serves its due date.
+An automatic start interrupted before its session launched, with no process
+on this machine still running it, likewise no longer counts as running: it did
+not complete, it still serves its due date, and a later due date starts as
+usual. A watch list that cannot be read, or that has no valid due block, is
+not due; a failed read is kept with the published read failures at
+`/__authenticated-read-diagnostics?source=<id>`.
 Each check while On with no feedback maintenance session running costs the
 requests described in [Dashboard GitHub requests](GITHUB-REQUESTS.md).
 
@@ -66,8 +70,8 @@ showing it asks GitHub nothing. Open Dough's project row says, beside
   it or you started it with the cycle's invocation.
 - **Feedback maintenance due since 2026-10-28; its automatic session did not
   complete** when a launch served the due date last read and its session
-  ended or was deleted, or was marked done and a read taken after the session
-  started still found that date.
+  ended, was deleted, or was interrupted while starting, or was marked done
+  and a read taken after the session started still found that date.
 - **Feedback maintenance due since 2026-10-28; not started:** and why, when
   that date is reached and nothing served it: the launch gates held the
   launch (for example **default main has existing changes (1 changed path)**,

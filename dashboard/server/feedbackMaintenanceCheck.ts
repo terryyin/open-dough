@@ -31,14 +31,14 @@
 
 import {
   isOpen,
-  type RecordedLaunchRequest,
-  type AgentLaunchRequest,
   type AttemptObservation,
   type LaunchWithState,
 } from "../src/agentLaunch.ts";
 import {
   dueDecision,
   localDate,
+  maintenanceDue,
+  observedSessions,
   type MaintenanceSession,
 } from "../src/feedbackMaintenanceDue.ts";
 import {
@@ -46,9 +46,7 @@ import {
   heldReason,
   type FeedbackMaintenanceState,
   type MaintenanceObservation,
-  type ObservedMaintenanceSession,
 } from "../src/feedbackMaintenanceState.ts";
-import { sessionKey } from "../src/sessionReference.ts";
 import {
   feedbackWatchListPath,
   readFeedbackReview,
@@ -87,73 +85,6 @@ function checkMs(): number {
 }
 
 type Launches = Pick<AgentLaunches, "accept" | "attempts">;
-
-// Whether a request is a feedback-maintenance session's, with the due date it
-// serves: one the check started, which serves its due date, or one a
-// developer started by hand with the same invocation, which serves none.
-function maintenanceDue(
-  request: AgentLaunchRequest | RecordedLaunchRequest,
-): { readonly due?: string } | undefined {
-  if (request.workflow !== "ad-hoc") return undefined;
-  if (request.maintenance !== undefined)
-    return { due: request.maintenance.due };
-  return request.instruction?.trim() ===
-    feedbackMaintenanceInstruction(request.host)
-    ? {}
-    : undefined;
-}
-
-// The project's feedback-maintenance sessions, from records joined with their
-// session's state and the attempts whose session has no record (still
-// starting, deleted, or never launched). This is the one reading of whether
-// such a session is running (starting, or open and not found unavailable),
-// done, or ended: the due check takes only a running one as open, and the
-// machine's sessions answer says the same (`state`).
-function observedSessions(
-  source: string,
-  records: readonly LaunchWithState[],
-  attempts: readonly AttemptObservation[],
-): ObservedMaintenanceSession[] {
-  const kept = records.filter((record) => record.request.source === source);
-  const recorded = new Set(kept.map((record) => sessionKey(record.session)));
-  return [
-    ...kept.flatMap((record) => {
-      const serving = maintenanceDue(record.request);
-      if (serving === undefined) return [];
-      return [
-        {
-          ...serving,
-          at: record.launchedAt,
-          progress:
-            record.doneAt !== undefined
-              ? ("done" as const)
-              : record.sessionState.kind === "unavailable"
-                ? ("ended" as const)
-                : ("running" as const),
-        },
-      ];
-    }),
-    ...attempts.flatMap((attempt) => {
-      const serving = maintenanceDue(attempt.request);
-      const { outcome } = attempt;
-      if (
-        serving === undefined ||
-        attempt.request.source !== source ||
-        (outcome?.kind === "launched" &&
-          recorded.has(sessionKey(outcome.session)))
-      )
-        return [];
-      return [
-        {
-          ...serving,
-          at: attempt.acceptedAt,
-          progress:
-            outcome === undefined ? ("running" as const) : ("ended" as const),
-        },
-      ];
-    }),
-  ];
-}
 
 // This machine's feedback-maintenance sessions in the project, from its kept
 // records, their sessions' states and its attempts, or undefined when records

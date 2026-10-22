@@ -12,8 +12,9 @@
 // (an automatic one, or a developer's with the cycle's invocation); otherwise,
 // once the last read due date is reached, that it is due since then and either
 // that its automatic session did not complete (a launch served the date and
-// ended or was deleted, or was marked done and a read after it started still
-// found that date) or why it was not started. Otherwise the row says nothing:
+// ended, was deleted, or was interrupted while starting, or was marked done
+// and a read after it started still found that date) or why it was not
+// started. Otherwise the row says nothing:
 // a session marked done counts as done until a read after it started shows
 // otherwise. The settings line names the next due date read and the last
 // automatic launch's outcome.
@@ -22,15 +23,9 @@ import type { Acceptance } from "./launchOutcome.ts";
 import type { FeedbackReview } from "./feedbackReview.ts";
 import {
   dueDecision,
-  type MaintenanceSession,
+  type ObservedMaintenanceSession,
 } from "./feedbackMaintenanceDue.ts";
 import { launchRetentionDays } from "./launchRecord.ts";
-
-// One feedback-maintenance session this machine keeps
-// (`./feedbackMaintenanceDue.ts`), with when it was launched or accepted.
-export type ObservedMaintenanceSession = MaintenanceSession & {
-  readonly at: string;
-};
 
 // What the due check last observed: whether the standing authorization was
 // on, the watch list's review it last read and when (kept while later checks
