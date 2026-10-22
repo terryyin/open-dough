@@ -174,8 +174,8 @@ The internal [shared-feedback skill](../../.agents/skills/collect-client-feedbac
 The proposed definition and decision policy now live in
 [Proposed ADR 0010 — Definition of improvement](../adrs/0010-definition-of-improvement.md),
 which develops ADR 0002's direction while recognizing costs and tradeoffs.
-[Story 10](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority)
-will trial the proposal and inform its human acceptance decision. The measures
+[One real feedback cycle](#feedback-cycle-evaluation-follow-up) trialled the
+proposal to inform its human acceptance decision. The measures
 and examples below support that evaluation; they do not form a universal score.
 
 ### A small set of decision-oriented measures
@@ -200,7 +200,7 @@ An appropriate initial set might be outcome acceptance, attributable rework, end
 
 [Proposed ADR 0010](../adrs/0010-definition-of-improvement.md#human-intervention-quality)
 defines valuable human intervention and the two rates. Its targets are Terry's
-2026-10-22 proposal, to be tried in Story 10, rather than research benchmarks.
+2026-10-22 proposal, first tried [on one cycle](#feedback-cycle-evaluation-follow-up), rather than research benchmarks.
 They describe event selection and realized human contribution, not the share of
 a person's working time spent adding value.
 
@@ -225,7 +225,7 @@ classified-event rates do not establish the rate for unknown events. Withhold a
 target-met claim if unresolved events could change it. With no applicable
 classified events, report the rate as not assessable. Retain the
 severity of misses and human effort alongside the rates; aggregate targets do
-not excuse a missed mandatory decision. Story 10 can test whether these measures
+not excuse a missed mandatory decision. A trial can test whether these measures
 are useful while leaving sustained target attainment unproven.
 
 ### How to use tokens responsibly
@@ -1101,7 +1101,8 @@ story.
 **22 October 2026.** This follow-up evaluates one ordinary run of the
 [combined feedback cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md)
 for
-[Story 10](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority),
+`SEED-010#prioritize-responses-with-delegated-authority` (recoverable with
+`git show 3d01d28f:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`),
 using [Proposed ADR 0010](../adrs/0010-definition-of-improvement.md) as a
 trial decision basis only. It accepts nothing on the ADR's behalf.
 

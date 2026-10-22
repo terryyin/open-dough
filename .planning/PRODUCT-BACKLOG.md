@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Evaluate one real feedback cycle](seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority) — SEED-010#prioritize-responses-with-delegated-authority ([plan](slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md))
-
 ## Backlog list
 
 - [Normalize commit identities before delivery comparisons](seeds/SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities) — SEED-008#normalize-delivery-commit-identities

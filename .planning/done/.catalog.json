@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_prioritize-responses-with-delegated-authority.json",
+      "identity": "SEED-010#prioritize-responses-with-delegated-authority",
+      "completedAt": "2026-10-22T08:41:10.044Z",
+      "blob": "58061d8737eff9cf53c6a5aa909ef62ff630528c"
+    },
+    {
       "fileName": "SEED-010_reuse-native-proof-after-attribution.json",
       "identity": "SEED-010#reuse-native-proof-after-attribution",
       "completedAt": "2026-10-22T07:44:27.371Z",

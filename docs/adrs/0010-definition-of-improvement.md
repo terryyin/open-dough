@@ -85,5 +85,5 @@ ADR 0002 without superseding it.
 ## Related
 
 - [Research and candidate evidence](../maintainer/empirical-process-control-research.md#a-useful-definition-of-improvement)
-- [Story 10: trial and acceptance review](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority)
+- [First trial on one feedback cycle](../maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up)
 - [Human advice and acceptance process](./README.md#advice-process)

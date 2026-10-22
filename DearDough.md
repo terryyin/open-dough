@@ -523,6 +523,6 @@ basis followed the result and the judgment became exploratory.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.68
-  - Evidence: plan 342 premise table ("Slice 1 can therefore precede the result if execution starts before the run completes"); dashboard launch record (maintenance `due` 2026-10-22, done 00:09:14Z); Take `a00e6a77` at 2026-10-22T08:21:29Z
+  - Evidence: plan 342 premise table at `3d01d28f:.planning/slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md` ("Slice 1 can therefore precede the result if execution starts before the run completes"); dashboard launch record (maintenance `due` 2026-10-22, done 00:09:14Z); Take `a00e6a77` at 2026-10-22T08:21:29Z
   - Observed effect: preparation knew the run was due that day and could start without the maintainer. The basis waited for a separate execution about eight hours after the run finished. Story 10's own key example 2 anticipated this.
   - Inference: preparation authorizes no execution, so a criterion written as a slice cannot precede an imminent automatic event. Writing such criteria into the story or plan during preparation would have kept the judgment confirmatory. One occurrence; the research report's ADR 0010 recommendation carries the general point.
