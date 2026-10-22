@@ -1,6 +1,8 @@
 // Git mechanics for a validated execution increment or owned repair, with its
 // owned workspace/suffix, authorized target and acceptance registration.
-// A previously published base that no fetched remote ref holds stops at once.
+// After the fetch, a hexadecimal previously published base resolves to its
+// full commit ID, which every later comparison, stop, and receipt carries. A
+// base that no fetched remote ref holds stops at once.
 // `onFetchedTarget` may stop on each fetched target tip before anything is
 // rewritten. A candidate the fetched target already contains, as after a push
 // whose answer was lost, is accepted without reconciliation or push. When
@@ -23,6 +25,7 @@ import {
 import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import {
   fetchedTarget,
+  fullCommitId,
   git,
   inspectDefaultCheckoutMaintenance,
   lsRemoteSha,
@@ -35,7 +38,7 @@ import { isAncestor } from "./workspace-publication-ownership.mjs";
 export async function publishExecutionIncrement({
   workspace,
   branch,
-  previouslyPublishedBase,
+  previouslyPublishedBase: suppliedBase,
   targetRef,
   register,
   remote = "origin",
@@ -50,6 +53,8 @@ export async function publishExecutionIncrement({
 }) {
   const preRebaseSha = await revParse(workspace, branch);
   let candidate = preRebaseSha;
+  // The supplied base until the fetch settles, then its full commit ID.
+  let previouslyPublishedBase = suppliedBase;
   let suffixBase = previouslyPublishedBase;
   let reconciliations = 0;
   let remoteTip = null;
@@ -131,6 +136,13 @@ export async function publishExecutionIncrement({
 
   const fetched = await fetchTarget("fetch");
   if (fetched.stop) return fetched.stop;
+  // A full ID and its unique abbreviation must give one decision. Input that
+  // names no single commit stays as supplied and stops as unpublished below.
+  const resolvedBase = await fullCommitId(workspace, previouslyPublishedBase);
+  if (resolvedBase) {
+    previouslyPublishedBase = resolvedBase;
+    suffixBase = resolvedBase;
+  }
   // Commits under a base the remote does not hold are not this suffix: pushing
   // would publish them and reconciling would rebase them off the branch.
   if (!(await remoteHolds(workspace, previouslyPublishedBase, remote))) {

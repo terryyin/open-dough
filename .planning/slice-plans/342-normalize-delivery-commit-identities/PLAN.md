@@ -121,10 +121,21 @@ practice for shared-path changes.
 
 ### 1. A full or uniquely abbreviated published base gives one canonical delivery decision
 Type: Behavior
-Status: planned
+Status: done
 Proof: new tests through `publishExecutionIncrement` with the clean-trunk fixture: (a) existing target unchanged, ten-character base: accepted, `reconciliations` 0, receipt, `suffixBase`, and the `beforePush` comparison carry the full base ID, and the publication facts equal a full-ID run on an identical fixture (fails today with the rebase rejection); (b) target advanced by another writer, abbreviated base: `needs-validation` with `previouslyPublishedBase` full and the candidate rewritten onto the fetched tip; (c) new target without a remote tip, abbreviated base: accepted with full-ID `suffixBase` (fails today); (d) candidate already on the remote, abbreviated base, and base equal to the candidate abbreviated: same classification and facts as the full ID with no commit or push (empty suffix fails today); (e) the existing no-op-rebase and reconciliation tests stay green.
 
 Behavior: the fetch has settled and the caller supplied a hex object ID → the publication resolves it in the owned workspace to its full commit ID (`rev-parse --verify <input>^{commit}`) before containment → every later containment check, comparison, classification, reconciliation argument, retained landing comparison, `beforePush` comparison, stop field, and receipt uses that ID, so the full ID and its unique abbreviation give identical results. The first fetch's `transport-timeout` stop precedes resolution and still names the supplied input. Interim: input that does not resolve keeps today's `unpublished-base` stop until slice 2 replaces it.
+
+Accepted proof: `execution-increment-publication-base-identity.test.mjs`
+runs each scenario on identical fixtures with the full and the ten-character
+base and deep-compares the result, registered receipts and `beforePush`
+comparisons with commit IDs labelled; all five tests failed before the change.
+`execution-increment-fresh-candidate.test.mjs` "a refused changed candidate
+retains the full base ID its abbreviation names" covers fresh recovery's
+`suffixBase` on a stop without one. Resolution is `fullCommitId` in
+`publication-git.mjs`. Consumer proof: every `execution-increment-*`,
+`publication-*` and `trunk-closure*` test and the importers of the changed
+modules and publication fixtures (118 files) through `bash scripts/test.sh`.
 
 ### 2. An unknown, ambiguous, non-commit, or ref-name base is refused with its problem and next step
 Type: Behavior
@@ -147,6 +158,18 @@ Behavior: the supplied base is not a hex object ID, or Git answers unknown, ambi
   pick its spelling to match the existing stop vocabulary, keeping the four
   problems distinguishable.
 - Resume contracts and `validateRetainedComparison` stay unchanged.
+
+## Story obligations
+
+### G1. Unresolvable input still stops as unpublished-base
+Reported: slice 1 — "input that is not hex or names no single commit is left as supplied. It reaches today's `unpublished-base` stop"
+Story clause: "Input that names no object, more than one object, or a non-commit object is refused before any rewrite, push, or observation"
+Disposition: receiving slice 2
+
+### G2. A delivery that throws before resolution keeps the supplied base in recovery
+Reported: slice 1 — "If delivery throws before the first fetch settles, recovery keeps the base as the caller supplied it, because nothing has been resolved yet."
+Story clause: "resolve the supplied published-base input to exactly one commit in the owned workspace after the fetch"
+Disposition: no user cost "never produces a misleading reconciliation refusal, an unobserved plain push, or a source-reading detour": a throw before the fetch settles rewrites and pushes nothing, so rerunning the same delivery resolves the input after its fetch; resume's `validateRetainedComparison` refuses a non-full `--suffix-base` rather than comparing it.
 
 ## Concern evidence
 

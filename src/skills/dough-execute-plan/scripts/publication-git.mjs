@@ -107,6 +107,19 @@ export async function revParse(cwd, ref) {
   return (await git(cwd, "rev-parse", ref)).stdout.trim();
 }
 
+// The full commit ID a hexadecimal object ID, full or uniquely abbreviated,
+// names in `cwd`; null for other input or when Git names no single commit.
+export async function fullCommitId(cwd, objectId) {
+  if (!/^[0-9a-f]{4,64}$/i.test(objectId ?? "")) return null;
+  try {
+    const args = ["rev-parse", "--verify", "--quiet", `${objectId}^{commit}`];
+    return (await git(cwd, ...args)).stdout.trim();
+  } catch (error) {
+    if (error.code === 1) return null;
+    throw error;
+  }
+}
+
 // The SHA `remote` holds at `ref`, read live; a remote name resolves in `cwd`.
 export async function lsRemoteSha(remote, ref, cwd) {
   const { stdout } = await git(cwd, "ls-remote", remote, ref);

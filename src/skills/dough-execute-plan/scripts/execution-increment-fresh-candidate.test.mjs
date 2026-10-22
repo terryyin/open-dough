@@ -35,6 +35,24 @@ test("a branch advance before managed delivery refuses the changed candidate whi
   assert.deepEqual(readRevisionCoverage(d.observation.directory), []);
 });
 
+test("a refused changed candidate retains the full base ID its abbreviation names", async (t) => {
+  const f = await localFixture(t);
+  const d = await freshApi(
+    f,
+    { previouslyPublishedBase: f.trunkSha.slice(0, 10) },
+    async (request) => {
+      writeFileSync(join(f.workspace, "later.txt"), "later branch tip\n");
+      await git(f.workspace, "add", "later.txt");
+      await git(f.workspace, "commit", "-m", "later local commit");
+      return f.deliverManagedExecutionIncrement(request);
+    },
+  );
+  assert.equal(d.status, "candidate-mismatch");
+  assert.equal(d.previouslyPublishedBase, f.trunkSha);
+  assert.equal(d.recovery.suffixBase, f.trunkSha);
+  assert.equal(await lsRemoteSha(f.origin, targetRef), f.trunkSha);
+});
+
 test("advancing the branch at the existing beforePush boundary still publishes only the committed receipt", async (t) => {
   const f = await localFixture(t);
   const d = await freshApi(f, {
