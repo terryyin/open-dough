@@ -653,7 +653,7 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 
 **Identity:** SEED-010#trace-changed-behavior-to-existing-consumers
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/343-trace-changed-behavior-to-consumers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1173c41ceed97e869d1fb00e4c39a993da0f8ab857ed7ae799414fe7a9fa32e","plan":"2a96bda44af7322db19155dde5fae0bf15f6656de459819da7467947c5a17e32"}}
 ```
 
 **Goal:** An executing agent finds the existing tests, stand-ins and journeys
@@ -671,13 +671,93 @@ journeys whose preconditions the changed UI path altered). Each cost a CI failur
 and a repair cycle. Two guidance-only responses have not stopped the mechanism,
 so wording alone is not the expected response.
 
-**Scope:** Find why the existing effect-to-consumer trace missed these three
-consumers and change how the trace is performed or evidenced, starting from the
-changed behavior rather than edited files or named identifiers. Cover consumers
-outside the slice's named suites: readers of changed shared text, existing
-stand-ins of a changed contract and journeys whose preconditions change while
-the transport API stays the same. Keep proof proportionate to the five-minute
-slice target; do not require whole-suite runs in place of a trace.
+**Scope:** The three misses share one cause, observed on 2026-10-22 by
+replaying each slice at its recorded parent commit: the trace was performed
+from something the agent already held and reported only in prose, so
+acceptance could not tell a bounded search from a whole-checkout trace. Plan
+334 traced from its own new stand-in; the shared-host execution searched the
+`tests/` directory; the Doughnut slice traced the unchanged transport API. In
+each replay one deterministic search from the changed behavior reaches the
+missed consumer: the changed file's basename across the whole checkout lists
+the eight guidance tests under `src/skills/dough-execute-plan/scripts/` that
+read `ci-monitor.md`; the changed runner modules' exported identifiers across
+test support list eleven files importing them, including
+`cursorRunnerHeldReads.ts`; the recall card's retired observation (“I should
+see ordinary recall” and the page-object methods that observe the card) leads
+through step definitions to the features whose journeys reach the changed
+no-question state.
+
+This story delivers a consumer-trace record and the script that produces its
+search. For every slice whose change alters an operation, contract, message,
+value, default, rendered output or shared text, the implementation return
+carries the record: each changed effect; the search terms and whole-checkout
+scope actually searched; each located consumer by kind (production caller,
+test, test support or stand-in, journey or feature, guidance reader) with its
+disposition (proof run, proof reused, or excluded with the reason the effect
+does not reach it); and kinds with no match named as such. The coordinator
+accepts and publishes only with that record and after the record's unexcluded
+consumers have proof; a return without it for such a change goes back for the
+trace. The installed script performs the mechanical search so its scope cannot
+be narrowed by hand: given the checkout, the change (diff base or changed
+files) and the agent's effect terms, it searches every tracked and untracked
+non-ignored file for the changed files' paths and basenames, identifiers
+declared or exported in changed hunks together with the changed modules'
+import paths, retired literals from removed lines, and the supplied terms for
+retired behavior and altered preconditions; it prints the record skeleton
+grouped by kind with explicit empty kinds. Delegation and acceptance guidance
+name the record and the script; the shared trace text in
+[own executable proof](../../src/skills/dough-story-refinement/references/executable-proof.md)
+keeps its effect-first rule and gains the record as its evidence form.
+
+Proof replays the three recorded slices: plan 334 at `79a1f1ec~1` and the
+shared-host slice at `37eed762~1` in this repository, and Doughnut
+SEED-081#story-2 at `07606012~1` in the maintainer's local Doughnut checkout;
+each replay's record names the missed consumer. Proof stays proportionate to
+the five-minute slice target: the record evidences a trace, and running the
+listed consumers' proof keeps the existing focused-check rules; the story
+requires no whole-suite run in place of a trace. Boundary assumption: a
+script-backed record is the non-wording response the selection asks for.
+
+Deferred: a mechanical gate in the publication path that refuses an increment
+without a record file; term derivation beyond paths, identifiers, removed
+literals and supplied terms, such as route or render analysis; paid native host
+runs, which stay manual; and the decline measurement, which accrues at ODF-150
+through ordinary later executions.
+
+**Key examples:**
+
+1. A slice shortens the pause clause of `ci-monitor.md` in
+   `src/skills/dough-execute-plan/references/` → the agent runs the trace
+   script for the change with no extra terms → the record lists, under
+   guidance readers, the eight test files under
+   `src/skills/dough-execute-plan/scripts/` that read `ci-monitor.md`,
+   including `shared-checkout-writers-guidance.test.mjs`, with a disposition
+   for each; a return whose record was built from a `tests/`-only search does
+   not exist, because the script searched the whole checkout.
+2. A slice makes the Cursor runner address and wire answers require current
+   build proof and adds its own stand-in `cursorRunnerProof.ts` → the trace
+   script runs from the changed modules `runnerPaths.ts`, `runnerClient.ts`
+   and `runnerProtocol.ts` → the record lists eleven test-support files that
+   import them under stand-ins, including `cursorRunnerHeldReads.ts`; the
+   agent runs or reuses proof for each or excludes it with the reason; the
+   coordinator refuses to accept a record that lists them with no disposition.
+3. A Doughnut slice makes the recall card wait for an explicit Self-review
+   choice instead of showing ordinary recall when no question loads, and the
+   recall API is unchanged → the agent supplies the retired observation
+   “ordinary recall” and the altered precondition “no question loads” as
+   effect terms → the record lists the step definitions and page-object
+   methods that observe the recall card and, through them, the recall features
+   whose journeys reach that state (`daily_probe`, `spaced_repetition`,
+   `browse_answer_and_notes_while_recalling`), each run or excluded before
+   publication; a record that names only the API consumer is incomplete.
+4. A slice renames a helper used only inside one file, with no shared
+   contract, text, value, default or rendered output → the trace script finds
+   no consumer outside the changed file → the record says so and the slice
+   keeps its focused proof.
+5. A delegated agent returns an effect-changing slice with proof commands but
+   no consumer-trace record → the coordinator returns the slice for the trace
+   → nothing is accepted or published until the record and the proof of its
+   unexcluded consumers arrive.
 
 **Evaluation:** Replay the three recorded slices' inputs. The changed procedure
 names the missed consumer before acceptance in each, or records why a trace
@@ -689,9 +769,6 @@ the actual response and its containing release at ODF-150.
 **Value / learning:** Removes the most frequent demonstrated cause of owned CI
 repair cycles across the maintained projects, and tests whether a non-wording
 response changes behavior where two wording responses did not.
-
-**Effort uncertainty:** The cause may differ between the three cases; refinement
-may narrow to the shared part or split the E2E-precondition case.
 
 <a id="bound-startup-guidance-retrieval"></a>
 
