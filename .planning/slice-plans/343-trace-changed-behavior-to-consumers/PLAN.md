@@ -106,7 +106,7 @@ own consumer-trace record for those edits, produced by the new script.
 
 ### 1. The trace script lists every reader of changed files and supplied terms across the whole checkout
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node --test src/skills/dough-execute-plan/scripts/consumer-trace.test.mjs` on a temporary repository with a production module, a test, a test-support file, a `.feature` with a step definition and page object, a Markdown file read by a test outside `tests/`, an ignored file and an untracked file; replay B as a literal run in a temporary worktree at `37eed762~1` with `--path src/skills/dough-execute-plan/references/ci-monitor.md`; replay C in `/Users/terryyin/git/doughnut` at `07606012~1` with `--term "ordinary recall" --term recallNotes --term expectRecalling`; `bash tests/payload-declaration-links.sh` and `bash tests/install-public-payload.sh` for the declaration.
 
 Behavior: an agent in a checkout runs `node '<installed-execute-plan>/scripts/consumer-trace.mjs' --checkout <path> [--path <changed file>…] [--term <text>…]` → the script searches every tracked and untracked non-ignored file except the named changed files for each changed file's repository path and basename and for each supplied term, with fixed-string matching → it prints a Markdown record: the effect terms searched; the scope (`whole checkout at <revision>`, with the count of files searched); then, grouped by kind — production, test, test support or stand-in, journey or feature, guidance reader — each matching file with its first matching line, and `none found` for each empty kind; a disposition column left for the agent (`run`, `reused`, `excluded: <reason>`). Kind follows path and extension conventions (`.feature`, `step_definitions`, `pageObjects`, `e2e` → journey; `support`, `fixtures`, `helpers`, `stubs`, `fakes`, `mocks` → stand-in; `.test.`, `.spec.`, `_test`, `/tests?/` → test; `.md` → guidance reader; otherwise production); the kind is a hint for inspection, and every file appears exactly once. Exit 0 with matches, exit 0 with an all-empty record, exit 2 on a missing checkout, no `--path`/`--term`, or a `--path` outside the checkout. The script is declared in `install.sh`.
@@ -142,7 +142,35 @@ Behavior: a coordinator delegates a slice whose change alters an operation, cont
 
 ## Learnings
 
-(Execution records the replay results and consequential discoveries here.)
+- Slice 1 replay B (worktree at `37eed762~1` = `97e2c938`;
+  `consumer-trace.mjs --checkout <dir> --path src/skills/dough-execute-plan/references/ci-monitor.md`,
+  3636 files): under Test, the eight `src/skills/dough-execute-plan/scripts/`
+  tests that read `ci-monitor.md`, including
+  `shared-checkout-writers-guidance.test.mjs:112`; nine native fixtures and
+  support scripts under stand-ins; 44 guidance readers, most of them installed
+  `.agents/`/`.claude/` copies and planning or findings Markdown. A whole-checkout
+  record is long; agents will mostly exclude installed copies and records.
+- Slice 1 replay C (Doughnut worktree at `07606012~1` = `c10f6c2c`): with
+  `--term "ordinary recall" --term recallNotes --term expectRecalling` the record
+  reaches `daily_probe.feature` and `step_definitions/daily_probe.ts` directly,
+  plus `pageObjects/recallPage.ts` and `step_definitions/recall.ts`, but not
+  `spaced_repetition` or `browse_answer_and_notes_while_recalling`;
+  `--term "no question loads"` matched nothing at that revision. A second run
+  that adds the step phrases defined beside the matched methods in `recall.ts`
+  (`I repeat more old`, `I should be recalling`, `I visit recall`,
+  `I ask to do more recall`) lists all three features under journeys. The hop
+  from a located step definition or page object to its step phrases stays an
+  agent-supplied term (lexical derivation, story deferral); slice 3's guidance
+  owns it (G1).
+- Matching is case-insensitive fixed-string; kind precedence is journey, test
+  file name, stand-in, test directory, `.md`, production (`consumerKind`).
+
+## Story obligations
+
+### G1. Step-definition hop to journeys is agent-supplied
+Reported: slice 1 — "Replay C reaches `daily_probe` and `spaced_repetition` (the latter only indirectly, see below), but not `browse_answer_and_notes_while_recalling`."
+Story clause: "the record lists the step definitions and page-object methods that observe the recall card and, through them, the recall features whose journeys reach that state"
+Disposition: receiving slice 3
 
 ## Concern evidence
 
