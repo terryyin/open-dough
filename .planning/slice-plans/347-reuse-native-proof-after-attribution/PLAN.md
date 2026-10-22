@@ -230,6 +230,13 @@ steps; local Settings authentication, clicking in Notification Center
 discovered round by round. Under the new text the probe slice lists those
 steps with the question and rounds, and manual testing asks once for the set.
 
+CI repair (slice 2's run 39739201927, `test (3/3)` at `ca8e1ab0`): the
+closure integrated-state case asserted N's `no_candidate` receipt before the
+observer published its judgement, so a starved `complete-revision` could
+return a pre-judgement read (`actual: undefined`). It now awaits that
+coverage record first, as sibling cases do; a starvation preload reproduced
+the failure before and passes after.
+
 ## Concern evidence
 
 Refinement was not needed: two Behavior slices with independent proof loops,

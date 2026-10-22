@@ -83,11 +83,14 @@ test("Story closure completes only its accepted merge N, with no external fetch:
   // is no evidence for it.
   const directory = await journey.observe(n);
   assert.deepEqual(listRegisteredRevisions(directory), [n]);
-  await assertStillUnresolved(journey, directory, n, {
-    state: "unresolved",
-    policy,
-    reason: "no_candidate",
-  });
+  const noCandidate = { state: "unresolved", policy, reason: "no_candidate" };
+  await journey.awaitCoverage(
+    directory,
+    n,
+    judged(noCandidate),
+    "N's integrated judgement",
+  );
+  await assertStillUnresolved(journey, directory, n, noCandidate);
 
   // Another writer's C, which this checkout never fetched, fails. The
   // observer fetches only C's objects to prove its ancestry: no ref changes.
