@@ -114,4 +114,16 @@ status as unavailable, and stays exactly as it is: reading, including
 **Turn off** removes it. A failed save or removal keeps the previous file;
 correct the folder permissions and retry.
 
+## Why the dashboard starts it
+
+The dashboard server is the trigger, not cron or launchd: it already holds
+the project list, the hosts, the launch records, the reporting channel and
+the notifications, so the automatic start is an ordinary unattached launch
+whose requester is this machine's standing authorization. The due date is
+published by the cycle on trunk rather than inferred from this machine's last
+launch, so a cycle run by hand is respected and every reader agrees on it.
+Limiting each due date to one automatic launch bounds spend; after a session
+that did not complete, starting the cycle by hand is safe because the cycle
+reuses work it already accepted.
+
 [Dashboard overview](README.md) describes the System settings entry.
