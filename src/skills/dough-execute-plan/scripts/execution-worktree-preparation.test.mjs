@@ -32,7 +32,7 @@ test("execution-location owns project-command readiness before delegation", () =
 
   assert.match(
     skillBody,
-    /Before creating the execution workspace, read[\s\S]*execution-location/,
+    /\| Before creating the execution workspace \| \[execution location\]\(references\/execution-location\.md\)/,
   );
   assert.match(skillBody, /project-command readiness/);
   assert.match(

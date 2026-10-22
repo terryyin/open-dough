@@ -101,7 +101,7 @@ skill's `node --test` files, `bash tests/payload-declaration-links.sh`, and
 
 ### 1. Each execute-plan boundary names reads that fit one tool result
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `src/skills/dough-execute-plan/scripts/read-budget-guidance.test.mjs`: (a) `SKILL.md` has one boundary-reads table under a heading the test names, whose rows are in execution order and whose first row is the skill body for hosts that read it; (b) every link in the table resolves to a file under the skill or a heading in it; (c) each row's bytes, summed over whole files and anchored sections, is at most 30,000, with the constant's two sources (Codex `TruncationPolicy::Tokens(10_000)` at 3.5 bytes per token; Claude Code Bash 30,000 characters) in a comment, and a failure message naming the row and its overflow; (d) every reference the former startup paragraph named appears in some row; (e) the test prints each row's size so the after measurement is in the run's output. Before the change, (a) fails for want of the table; a scratch row holding today's paragraph as one row fails (c) at 107,381 bytes, the before figure. Then the skill's `node --test` files, `bash tests/payload-declaration-links.sh`, and `npm run lint`.
 
 Behavior: a coordinator reaches a boundary of planned or quick execution under the installed skill → it reads that boundary's row from the table, one row per tool result, at that boundary and not before → the result arrives complete within the smallest supported host budget, and no passage the former wording named is unreachable. `SKILL.md` replaces the startup paragraph (lines 86–99) with the table and its reading shape: one row per tool result; read a row when its boundary is reached, never earlier or combined with another row; on a host that reads the skill body as a tool result, the body is its own read; a truncated or absent passage follows targeted retrieval of that passage alone. Rows name sections by anchor where a file's later sections belong to a later row (execution-decisions, wrap-up, ci-monitor); a reference that needs a heading for that gets one, with its links updated. The rows the measurement above lists are the starting content; the executor adjusts a row only to keep its boundary complete or within budget. Learnings record the after figures.
@@ -123,8 +123,32 @@ Behavior: a coordinator reaches a boundary of planned or quick execution under t
 
 ## Learnings
 
-(Execution records consequential discoveries here, including the after
-measurement per row.)
+- After measurement (slice 1, `read-budget-guidance.test.mjs` diagnostics,
+  bytes per row against the 30,000 budget): skill body 19,090; established
+  start 2,922; execution workspace 18,790; Codex arming at start 21,071; first
+  delegation 20,711; accepting a return 8,543; delivery 24,517; arming on other
+  hosts 27,463; CI notification 26,892 (both adapters summed as the upper
+  bound, though only the current host's is read); finish 16,141. Before: the
+  former paragraph's set as one row measures 106,894 bytes with the check's
+  section rule (exceeds by 76,894), against the preparation's 107,381 by `awk`.
+  The skill body grew 1,340 bytes with the table.
+- Estimated tokens (bytes ÷ 4, the story's estimate; the check's 3.5 bytes
+  per token is stricter): before, about 8,400 tokens named before the first
+  delegation and about 26,800 across the former paragraph (31,300 with the
+  skill body on Codex). After, per row: skill body 4,800; established start
+  700; execution workspace 4,700; Codex arming 5,300; first delegation 5,200;
+  accepting a return 2,100; delivery 6,100; arming on other hosts 6,900; CI
+  notification 6,700; finish 4,000. No row reaches 7,500 tokens.
+- Reads that left startup (for ODF-158): before the first delegation the
+  skill now names only established start, execution location (with runtime
+  setup when CI setup applies), on Codex the observer arming row, and the
+  first-delegation row. Proof acceptance, delivery, trunk publication, CI
+  observation beyond "Own one observer", the Cursor and Claude Code adapter,
+  notification handling, and finish or stop move to their own boundaries.
+- One consumer the preparation grep missed:
+  `execution-worktree-preparation.test.mjs` asserted the former "Before
+  creating the execution workspace, read … execution-location" wording; it now
+  asserts the table row.
 
 ## Concern evidence
 
