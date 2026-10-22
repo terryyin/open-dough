@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Connect collected evidence to earlier improvement responses](seeds/SEED-010-learn-from-execution-retrospectives.md#connect-collected-evidence-to-response-observations) — SEED-010#connect-collected-evidence-to-response-observations ([plan](slice-plans/349-connect-collected-evidence-to-response-observations/PLAN.md))
-
 ## Backlog list
 

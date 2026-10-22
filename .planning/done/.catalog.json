@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_connect-collected-evidence-to-response-observations.json",
+      "identity": "SEED-010#connect-collected-evidence-to-response-observations",
+      "completedAt": "2026-10-22T23:04:43.970Z",
+      "blob": "62549d7722320de941d730a9dcecc86a4858a681"
+    },
+    {
       "fileName": "SEED-010_retry-selected-slice-status.json",
       "identity": "SEED-010#retry-selected-slice-status",
       "completedAt": "2026-10-22T23:03:51.733Z",
