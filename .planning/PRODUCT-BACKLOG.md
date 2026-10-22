@@ -18,5 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Keep completed sessions out of startup recovery](seeds/SEED-052-start-agent-work-from-dashboard.md#completed-startup-recovery) — SEED-052#completed-startup-recovery
+
 ## Backlog list
 

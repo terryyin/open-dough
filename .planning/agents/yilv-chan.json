@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-052#completed-startup-recovery",
+  "mode": "story-branch",
+  "branch": "codex/completed-startup-recovery",
+  "host": "codex"
+}
