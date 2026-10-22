@@ -99,12 +99,19 @@ case) and the report lists connections, unmet requests and added review effort.
 
 ### 2. The maintainer receives the ADR 0010 judgment of the delivered connection
 Type: Behavior
-Status: planned
+Status: done
 Proof: Diff of the [feedback-cycle evaluation](../../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up)
 and [ODF-139](../../../docs/maintainer/findings/ODF-139.md)'s maintenance
 follow-up shows the delivered mechanism, its limits (unencountered executions
 stay unconnected; no effectiveness claim for ODF-139's response), the
 baseline-versus-changed replay comparison and the measured replay cost.
+
+Accepted proof (2026-10-23): diff of both records shows the delivered
+mechanism, limits, baseline-versus-changed comparison, measured replay
+cost (token use unknown) and **Keep** judgment; ODF-139 carries delivered
+state and links the judgment, adds no occurrence and no effectiveness
+claim. Refactor condensed ODF-139 to that cross-reference
+(`## REFACTOR COMPLETE`).
 
 Behavior: slice 1's replays are complete → the evaluation and ODF-139 record
 are updated → the maintainer reads which evidence was connected, which

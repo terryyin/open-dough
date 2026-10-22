@@ -1388,6 +1388,61 @@ after the ODF-323 retry correction. It addresses the missed evidence connection
 within existing feedback maintenance; it does not repeat this evaluation, claim
 another occurrence or include a separate redesign of human intervention.
 
+### Delivered connection judged under ADR 0010 (2026-10-23)
+
+**Delivered mechanism.** Slice 1 (`e2a30d41`, on this story's execution
+branch) added one connection rule to `collect-client-feedback`'s “Assess the
+response still needed” step. It is internal maintainer guidance, used from
+trunk by the next cycle; no release is needed. Each distinct execution the
+cycle collects or cites is checked against the catalog's open
+response-observation requests: requests whose stated project and
+release/adoption conditions it can meet are selected first, then the event is
+verified from the collected evidence and targeted reads of that execution's
+recoverable records. The outcome — a qualifying observation, counterevidence
+or a precise gap — is written at the existing finding owner with project plus
+execution identity. Watch effect is governed by the request itself: a
+finding-owner observation starts, passes or retires no watch by itself. An
+already-recorded outcome adds nothing; ineligible, unknown or no-match cases
+are never success. The cycle report lists connections made, requests not met
+and the added review effort.
+
+**Limits.** Executions the cycle did not encounter stay unconnected; there is
+no whole-history scan. A request without checkable conditions is reported as
+such, not guessed. Matching working is not a benefit claim: this record makes
+no claim that ODF-139's response is effective, and ODF-139's observation and
+unresolved effectiveness assessment are unchanged. The first eligible
+acceptances in Pygardon and Doughnut remain unreviewed and pending.
+
+**Baseline versus changed comparison.** The real 2026-10-22 cycle above
+missed plan 335 → ODF-139. A fresh baseline replay on the unchanged skill
+also made no connection. Changed Replay A2 connected plan 335 with locators
+matching this evaluation's recorded observation — source-only reviewers, the
+G1–G3 dispositions and no correction rounds, with human intervention not
+recovered — as one positive observation, with no watch started or passed.
+The first changed Replay A did start a watch; it was returned and the rule
+corrected so watch effect is request-governed, and A2 confirmed no watch
+effect. Replay B, on the current catalog where the observation is already
+recorded, recognized it as already recorded, left an empty scratch catalog
+diff and added no duplicate.
+
+**Measured replay cost.** Wall-clock: baseline about 3–4 minutes, Replay A
+about 4 minutes, A2 about 3 minutes (07:44:55–07:47:54), Replay B about
+1 minute. Token use was unmeasured and reported unknown by every replay; no
+token figures are claimed. Judgment: a few minutes of one fresh-agent replay
+per replay is proportionate to the proof sought. The added review effort in a
+real cycle is not yet observed; the next cycle is the next observation.
+
+**ADR 0010 judgment.** Against plan 349's basis, the result-worth-keeping
+criteria are met by the replays: A connects and matches the recorded
+observation, B adds nothing, and no ineligible or absent evidence was reported
+as success. **Keep** the mechanism. *Adjust* and *Revert* are not triggered.
+Inconclusive element: replays do not establish real-cycle variance or any
+benefit of ODF-139's response. Decisions changed: none to ODF-139's
+disposition or effectiveness; the connection mechanism itself is adopted in
+the internal skill. Remaining uncertainty: added review effort and behaviour
+in a real cycle, requests lacking checkable conditions in the wild, and the
+still-pending Pygardon and Doughnut acceptances.
+
 ### Recommendation on Proposed ADR 0010
 
 **Original trial recommendation: revise and trial further.** This was advice
