@@ -23,6 +23,7 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Name every passage a boundary row's own passages require](seeds/SEED-010-learn-from-execution-retrospectives.md#name-required-passages-in-boundary-rows) — SEED-010#name-required-passages-in-boundary-rows
 - [Stop asking for native checks once their question is answered](seeds/SEED-010-learn-from-execution-retrospectives.md#reuse-native-proof-after-attribution) — SEED-010#reuse-native-proof-after-attribution
 - [Evaluate one real feedback cycle](seeds/SEED-010-learn-from-execution-retrospectives.md#prioritize-responses-with-delegated-authority) — SEED-010#prioritize-responses-with-delegated-authority
 - [Normalize commit identities before delivery comparisons](seeds/SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities) — SEED-008#normalize-delivery-commit-identities
