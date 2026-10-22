@@ -164,3 +164,15 @@ one new test. No remaining slice-specific concern was identified. The
 arming-on-other-hosts row's 27,463 bytes is the closest to the bound; the
 check's failure message makes any later overflow visible, which is an
 accepted trade-off, not a concern.
+
+## Execution complete
+
+Product advice: Execute the correction
+[SEED-010#name-required-passages-in-boundary-rows](../../seeds/SEED-010-learn-from-execution-retrospectives.md#name-required-passages-in-boundary-rows)
+(plan 346, ready) before this story's release Evaluation. The delivery,
+finish and first-delegation rows leave out passages that their own passages
+always require (`fresh-increment.md`, `ci-completion-wait.md`, and the
+story-obligations inputs). With `fresh-increment.md` added, the delivery row
+measures 33,829 bytes as now written, over the 30,000-byte budget.
+Evaluation's "no repeated reads" depends on that fix. No other change to
+backlog priorities.
