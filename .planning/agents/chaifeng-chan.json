@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "chaifeng-chan",
-  "email": "chaifeng-chan@example.org",
-  "identity": "SEED-008#normalize-delivery-commit-identities",
-  "mode": "story-branch",
-  "branch": "claude/normalize-commit-identities-before-delivery-comp",
-  "host": "claude"
-}
