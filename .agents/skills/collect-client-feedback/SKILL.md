@@ -49,13 +49,21 @@ origin against the configured identity. Confirm the configured trunk, including
 `master` when applicable; do not guess `main`, rename a branch or alter dashboard
 configuration. A missing configuration prevents claiming complete coverage.
 
+Resolve each project's process-retrospective setting from its `open-dough.json`
+by the stored-setting rule in
+[dough-execution-retrospective](../../../src/skills/dough-execution-retrospective/SKILL.md#select-reviews);
+do not create or edit that file. A project with it off records no process
+findings, so it leaves this cycle's collection and source set; report it as
+skipped because process retrospective is off, not as a missing log. An unresolved
+setting keeps that project in the source set as a coverage gap.
+
 Resolve Open Dough's catalog index, linked finding records, watch list, direction,
 canonical seed directory and backlog from its repository guidance or explicit
 supplied paths. An isolated catalog and its supplied destinations replace the
 maintained records for that invocation. Follow relative links from their document.
 Read each project's applicable instructions, setup, delivery conventions and
 hooks. Record initial branch, HEAD, status/index and relevant file checksums;
-inspect existing edits and local-only commits. A missing or unreadable log is a
+inspect existing edits and local-only commits. In the source set, a missing or unreadable log is a
 coverage gap, never an empty successful review; continue independent supported
 projects. Do not manufacture a log or claim a missing project passed a watch.
 Check a cited evidence locator at its resolved project/document path before
@@ -177,7 +185,7 @@ reads retained evidence and real Git/remote facts, reuses existing occurrences,
 stories and accepted commits, and resumes the first unfinished boundary; unchanged
 inputs create no edits, duplicate stories, empty commits or repeated publication.
 
-Report initial/final coverage and changes or missing inputs, qualified mappings, compaction/pruning reasons,
+Report initial/final coverage and changes or missing inputs, projects skipped with their reason, qualified mappings, compaction/pruning reasons,
 watch and response gaps, selected priorities and rationale, ongoing Taken work,
 and per-repository changed paths, accepted SHA/target or unfinished boundary.
 Client-only publication with Open Dough unpublished is an incomplete cycle.

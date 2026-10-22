@@ -52,7 +52,7 @@ leaves the watch list unwritten leaves the block unchanged.
 Retire only after seven calendar days, verified relevant use of corrected guidance,
 review of the whole selected maintained source set, and no supported recurrence
 or unresolved consequential contrary report. Missing sources cannot satisfy that
-coverage. Retirement removes the eligible identity's active/watch/source entries
+coverage; projects skipped because process retrospective is off are outside it. Retirement removes the eligible identity's active/watch/source entries
 and obsolete finding-only references, while preserving unrelated evidence, product
 knowledge and Git recovery. This retention decision never proves impossibility
 of recurrence. Retain uncertain candidates rather than treating a partial initial
