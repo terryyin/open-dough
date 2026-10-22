@@ -216,7 +216,7 @@ No architectural exception or new ADR is proposed here.
 
 **Identity:** SEED-010#retry-selected-slice-status
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/348-retry-selected-slice-status/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0bcce5a4f38978d3ace1eb8ef76cebb1e4c765e1f5ebe2a11649fb23ec1519a8","plan":"e29a44c62ef40156350fa14b46f3cc6e8fb228be28e4925c69463a1e38a8d13a"}}
 ```
 
 **Goal:** An executing agent can retry a refused fresh delivery without changing
@@ -230,27 +230,46 @@ delegation; the other required a hand-edited updater before retry. This does
 not establish that the delivery helper itself selected the wrong slice or that
 the existing fail-closed publication gate failed.
 
-**Scope:** Make the selected-slice status operation used by guarded fresh
-delivery safe to repeat after a later preparation check refuses. Bind the
-operation to the intended slice and intended update, including recognition
-that this update already applied. Reuse existing plan, obligation, proof and
-publication owners; leave the implementation choice to refinement.
+**Scope:**
 
-**Evaluation:**
+- Guarded fresh delivery of planned work marks the selected slice `done`
+  itself, inside that slice's own section as the existing plan slice reader
+  bounds it. The preparation input names the plan path and slice; it no longer
+  carries a caller-authored status command. A slice already `done` is left as
+  it is, so the same request repeats without further effect.
+- Other plan evidence the delivery publishes — accepted proof, learnings,
+  revised remaining slices — stays the coordinator's ordinary owned edit to the
+  plan before invocation, staged with the plan as today.
+- Delivery refuses, before staging or committing, when the selected slice is
+  missing, ambiguous or unreadable, or when any other slice is `done` in the
+  working plan but not in the checkout's committed plan. The refusal names the
+  slice and changes nothing further.
+- Update the fresh-increment guidance and its example accordingly. Reuse the
+  existing plan slice reader, obligation checks, staging, commit and
+  publication; add no second plan representation.
+- **Deferred:** rollback of arbitrary caller actions; retry safety for
+  generation, formatting or summary commands; quick work, which has no plan.
 
-- A status update applies, a later preparation check refuses, and the corrected
-  retry preserves that same slice's intended status without advancing the next
-  planned slice or changing unrelated plan content and proof.
-- Repeating the same intended update has no additional effect. A missing,
-  ambiguous or conflicting target/update is reported without guessing another
-  slice or publishing a falsely completed state.
-- An updater failure or later preparation refusal still commits and publishes
-  nothing. Existing obligation and proof checks remain effective; unrelated
-  local work remains recoverable. No rollback of arbitrary caller actions is
-  required by this story.
-- Completion records the actual response, proof, first containing release or
-  explicit unreleased status, and the next ordinary eligible-use observation at
-  ODF-323. Delivery alone does not resolve the finding.
+**Key examples:**
+
+- Slice 1 is `planned`. Fresh delivery marks it `done`, then `staged
+  whitespace` refuses. After the whitespace repair, the same request runs
+  again: slice 1 stays `done`, slice 2 stays `planned`, and the commit
+  contains the plan with only that status change plus the coordinator's own
+  plan edits.
+- The plan's slice 3 section has a `Status:` line in a fenced example and its
+  real `Status: planned` below. Only the real line changes.
+- The request names slice 7 in a plan with slices 1–5, or the plan's slice
+  layout cannot be read: delivery reports `plan/status mutation` with the
+  reason, commits nothing and publishes nothing.
+- A coordinator's manual plan edit also turned slice 2 `done` while delivering
+  slice 1: delivery refuses, naming slice 2, before staging.
+- An existing open obligation on the selected slice still refuses as today,
+  whether or not the status already reads `done`.
+
+**Evaluation:** Completion records the actual response, proof, first containing
+release or explicit unreleased status, and the next ordinary eligible-use
+observation at ODF-323. Delivery alone does not resolve the finding.
 
 **Value / learning:** Prevent false progress records and avoid repairing an
 ad-hoc updater on retry. Compare the retained failure examples with the new
