@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { observedSessions } from "../../dashboard/src/feedbackMaintenanceDue.ts";
 import {
   feedbackMaintenanceState,
   heldReason,
@@ -16,7 +17,12 @@ const review = (reviewAfter) => ({
   reviewed: "2026-10-21",
   reviewAfter,
 });
-const on = { authorized: true, review: review("2026-10-28") };
+// The review read after every session below started.
+const on = {
+  authorized: true,
+  review: review("2026-10-28"),
+  readAt: "2026-10-29T08:30:00Z",
+};
 const launched = (
   progress,
   due = "2026-10-28",
@@ -29,7 +35,7 @@ const launched = (
 const state = (observation, sessions = []) =>
   feedbackMaintenanceState("open-dough", observation, sessions, today);
 
-test("a served date whose automatic session ended, was marked done, or was deleted without advancing is due and did not complete", () => {
+test("a served date whose automatic session ended or was deleted, or was marked done and read unchanged after it started, is due and did not complete", () => {
   for (const progress of ["done", "ended"]) {
     const answer = state(on, [launched(progress)]);
     assert.deepEqual(answer.row, { kind: "incomplete", due: "2026-10-28" });
@@ -47,6 +53,48 @@ test("a served date whose automatic session ended, was marked done, or was delet
     state({ ...on, authorized: false }, [launched("ended")]).row?.kind,
     "incomplete",
   );
+});
+
+test("a session marked done after the review of its date was read is done, with nothing on the row, until a read after it started finds that date", () => {
+  const readBefore = { ...on, readAt: "2026-10-28T08:59:00Z" };
+  const quiet = state(readBefore, [launched("done")]);
+  assert.equal(quiet.row, undefined);
+  assert.deepEqual(quiet.lastLaunch, { kind: "done", due: "2026-10-28" });
+  assert.equal(
+    maintenanceStatusText(quiet),
+    "Due since 2026-10-28. Last automatic launch: done (due 2026-10-28).",
+  );
+  const readAfter = state({ ...on, readAt: "2026-10-28T09:01:00Z" }, [
+    launched("done"),
+  ]);
+  assert.deepEqual(readAfter.row, { kind: "incomplete", due: "2026-10-28" });
+  assert.deepEqual(readAfter.lastLaunch, {
+    kind: "incomplete",
+    due: "2026-10-28",
+  });
+  // An ended session did not report completion, whenever the date was read.
+  const ended = state(readBefore, [launched("ended")]);
+  assert.deepEqual(ended.row, { kind: "incomplete", due: "2026-10-28" });
+  assert.deepEqual(ended.lastLaunch, { kind: "incomplete", due: "2026-10-28" });
+});
+
+test("an automatic start no process runs, still unsettled, did not complete", () => {
+  const interrupted = {
+    request: {
+      source: "open-dough",
+      workflow: "ad-hoc",
+      host: "codex",
+      maintenance: { due: "2026-10-28" },
+    },
+    acceptedAt: "2026-10-28T09:00:00Z",
+    running: false,
+  };
+  const answer = state(on, observedSessions("open-dough", [], [interrupted]));
+  assert.deepEqual(answer.row, { kind: "incomplete", due: "2026-10-28" });
+  assert.deepEqual(answer.lastLaunch, {
+    kind: "incomplete",
+    due: "2026-10-28",
+  });
 });
 
 test("any running feedback-maintenance session, automatic or the developer's, is running", () => {
@@ -106,7 +154,7 @@ test("a reached date nothing served says why it did not start", () => {
 });
 
 test("a date not yet reached, not read, or unreadable says nothing on the row", () => {
-  const ahead = state({ authorized: true, review: review("2026-11-05") }, [
+  const ahead = state({ ...on, review: review("2026-11-05") }, [
     launched("done"),
   ]);
   assert.equal(ahead.row, undefined);
@@ -129,7 +177,7 @@ test("a date not yet reached, not read, or unreadable says nothing on the row", 
 });
 
 test("the last automatic launch is the latest one", () => {
-  const answer = state({ authorized: true, review: review("2026-11-05") }, [
+  const answer = state({ ...on, review: review("2026-11-05") }, [
     launched("done", "2026-10-21", "2026-10-21T09:00:00Z"),
     launched("ended", "2026-10-28", "2026-10-28T09:00:00Z"),
   ]);

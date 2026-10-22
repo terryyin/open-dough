@@ -1,7 +1,7 @@
-// A production dashboard server checking feedback maintenance every 100 ms
-// over Open Dough's moving fake origin, with the standing authorization
-// switched in its machine home and the GitHub reads it made counted, for the
-// feedback maintenance specs.
+// A production dashboard server checking feedback maintenance every 100 ms,
+// unless a test asks for a longer period, over Open Dough's moving fake
+// origin, with the standing authorization switched in its machine home and the
+// GitHub reads it made counted, for the feedback maintenance specs.
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
@@ -59,6 +59,7 @@ export function serverOn(
   github: FakeGitHub,
   mode: "boundary" | "preview" = "boundary",
   port?: number,
+  maintenanceCheckMs = 100,
 ): Promise<DashboardServer> {
   return startDashboardServer({
     mode,
@@ -69,7 +70,7 @@ export function serverOn(
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30_000,
     alertCheckMs: 100,
-    maintenanceCheckMs: 100,
+    maintenanceCheckMs,
   });
 }
 

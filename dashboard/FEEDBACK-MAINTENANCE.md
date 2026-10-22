@@ -48,9 +48,13 @@ Run the cycle again yourself from Open Dough's **Start session**; the cycle's
 rerun rule reuses accepted work. An open session you started yourself with the cycle's
 invocation is also this machine's feedback maintenance session, so nothing
 starts automatically while it runs. A session that ended unavailable without
-being marked done no longer counts as running, but still serves its due date. A watch list that cannot be read, or
-that has no valid due block, is not due; a failed read is kept with the
-published read failures at `/__authenticated-read-diagnostics?source=<id>`.
+being marked done no longer counts as running, but still serves its due date.
+An automatic start interrupted before its session launched, with no process
+on this machine still running it, likewise no longer counts as running: it did
+not complete, it still serves its due date, and a later due date starts as
+usual. A watch list that cannot be read, or that has no valid due block, is
+not due; a failed read is kept with the published read failures at
+`/__authenticated-read-diagnostics?source=<id>`.
 Each check while On with no feedback maintenance session running costs the
 requests described in [Dashboard GitHub requests](GITHUB-REQUESTS.md).
 
@@ -65,8 +69,9 @@ showing it asks GitHub nothing. Open Dough's project row says, beside
   open and its conversation not found unavailable, whether the check started
   it or you started it with the cycle's invocation.
 - **Feedback maintenance due since 2026-10-28; its automatic session did not
-  complete** when a launch served the due date last read and its session was
-  marked done, ended, or deleted without the published date advancing.
+  complete** when a launch served the due date last read and its session
+  ended, was deleted, or was interrupted while starting, or was marked done
+  and a read taken after the session started still found that date.
 - **Feedback maintenance due since 2026-10-28; not started:** and why, when
   that date is reached and nothing served it: the launch gates held the
   launch (for example **default main has existing changes (1 changed path)**,
@@ -78,9 +83,12 @@ Otherwise the row says nothing; nothing is added to backlog cards. The
 section's second status line names the next due date last read (**Due since
 …** once reached, **Next due …** before) and the last automatic launch's
 outcome: none yet, running, done, did not complete, or not started with why,
-each with the due date it served. A **done** launch counts as done once a later
-due date is read. Both lines clear of the due state once a pushed revision
-advances the date and the check reads it. The due date last read and a held
+each with the due date it served. A launch marked **done** counts as done, and
+the row says nothing of it, until a read taken after the session started finds
+the date it served unchanged; the cycle publishes its next date before it
+reports, so a quiet completion stays quiet until the check reads that date.
+Both lines clear of the due state once a pushed revision advances the date and
+the check reads it. The due date last read, when it was read, and a held
 launch are kept in the server's memory: after a restart the row says only
 whether feedback maintenance is running, and the section names no due date,
 until the check reads the watch list again, which it does at its first check

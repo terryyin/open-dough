@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Show feedback maintenance's real outcome after quiet and interrupted runs](seeds/SEED-010-learn-from-execution-retrospectives.md#correct-feedback-maintenance-session-status) — SEED-010#correct-feedback-maintenance-session-status ([plan](slice-plans/344-correct-feedback-maintenance-session-status/PLAN.md))
 - [Reach every existing consumer of a changed behavior before publication](seeds/SEED-010-learn-from-execution-retrospectives.md#trace-changed-behavior-to-existing-consumers) — SEED-010#trace-changed-behavior-to-existing-consumers ([plan](slice-plans/343-trace-changed-behavior-to-consumers/PLAN.md))
 
 ## Backlog list

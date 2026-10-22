@@ -12,30 +12,29 @@
 // (an automatic one, or a developer's with the cycle's invocation); otherwise,
 // once the last read due date is reached, that it is due since then and either
 // that its automatic session did not complete (a launch served the date and
-// ended, was marked done, or was deleted without the date advancing) or why
-// it was not started. Otherwise the row says nothing. The settings line names
-// the next due date read and the last automatic launch's outcome.
+// ended, was deleted, or was interrupted while starting, or was marked done
+// and a read after it started still found that date) or why it was not
+// started. Otherwise the row says nothing:
+// a session marked done counts as done until a read after it started shows
+// otherwise. The settings line names the next due date read and the last
+// automatic launch's outcome.
 import { z } from "zod";
 import type { Acceptance } from "./launchOutcome.ts";
 import type { FeedbackReview } from "./feedbackReview.ts";
 import {
   dueDecision,
-  type MaintenanceSession,
+  type ObservedMaintenanceSession,
 } from "./feedbackMaintenanceDue.ts";
 import { launchRetentionDays } from "./launchRecord.ts";
 
-// One feedback-maintenance session this machine keeps
-// (`./feedbackMaintenanceDue.ts`), with when it was launched or accepted.
-export type ObservedMaintenanceSession = MaintenanceSession & {
-  readonly at: string;
-};
-
 // What the due check last observed: whether the standing authorization was
-// on, the watch list's review it last read (kept while later checks do not
-// read it), and the due date whose launch the launch gates held, with why.
+// on, the watch list's review it last read and when (kept while later checks
+// do not read it), and the due date whose launch the launch gates held, with
+// why.
 export type MaintenanceObservation = {
   readonly authorized: boolean;
   readonly review?: FeedbackReview | { readonly kind: "unread" } | undefined;
+  readonly readAt?: string | undefined;
   readonly held?: { readonly due: string; readonly reason: string } | undefined;
 };
 
@@ -81,7 +80,7 @@ export const nextCheckReason = "it starts at the dashboard's next check";
 
 export function feedbackMaintenanceState(
   source: string,
-  { authorized, review, held }: MaintenanceObservation,
+  { authorized, review, readAt, held }: MaintenanceObservation,
   sessions: readonly ObservedMaintenanceSession[],
   today: string,
 ): FeedbackMaintenanceState {
@@ -112,7 +111,11 @@ export function feedbackMaintenanceState(
       case "open":
         return { row: { kind: "running" } };
       case "served":
-        return { row: { kind: "incomplete", due: decision.due } };
+        return automatic.some(
+          (session) => session.due === decision.due && countsAsDone(session),
+        )
+          ? {}
+          : { row: { kind: "incomplete", due: decision.due } };
       case "stale":
         return notStarted(decision.due, true);
       default:
@@ -138,10 +141,25 @@ export function feedbackMaintenanceState(
     if (last === undefined) return { kind: "none" };
     const { due, progress } = last;
     if (progress === "running") return { kind: "running", due };
-    // Done counts as done unless the date read since has not advanced.
-    return progress === "done" && (scheduled === undefined || scheduled > due)
+    return countsAsDone(last)
       ? { kind: "done", due }
       : { kind: "incomplete", due };
+  }
+
+  // Done counts as done unless a read taken after the session started still
+  // found the date it served.
+  function countsAsDone({
+    due,
+    at,
+    progress,
+  }: ObservedMaintenanceSession & { due: string }): boolean {
+    if (progress !== "done") return false;
+    if (scheduled === undefined || scheduled > due) return true;
+    return (
+      scheduled === due &&
+      readAt !== undefined &&
+      Date.parse(at) > Date.parse(readAt)
+    );
   }
 }
 

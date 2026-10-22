@@ -687,36 +687,9 @@ containing release at ODF-324.
 **Value / learning:** Protects the developer's attention, the scarcest resource
 in native acceptance.
 
-<a id="correct-feedback-maintenance-session-status"></a>
-
-### 16. Show feedback maintenance's real outcome after quiet and interrupted runs
-
-**Identity:** SEED-010#correct-feedback-maintenance-session-status
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/344-correct-feedback-maintenance-session-status/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f572aed7b567cf25876149a9c9d49547ec4cef980d3955eb19f78524ce1e1843","plan":"d910e52bcce5274c1c5632a275a945a0bcdb15b9715762468d6c6ca2b759a544"}}
-```
-
-**Goal:** The maintainer sees the actual outcome of each automatic feedback
-maintenance session on this machine's dashboard: a cycle that completed
-quietly does not read as "did not complete", and an automatic start the
-dashboard stopped running before it settled does not read as running forever
-or block later due dates. This restores Story 9's quiet completion and its
-one-launch-per-due-date rule, so only the decisions that need a person reach
-one.
-
-**Scope:** A bounded retrospective correction of
-[Story 9](https://github.com/terryyin/open-dough/blob/1a70db5cbd98b0a052f8f3e0f11785014d944db5/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance), from its execution retrospective.
-A quiet done session is not shown as incomplete on the strength of a watch-list
-read taken before it started; an unsettled automatic attempt that no process
-on this machine runs counts as ended, serves its due date, and leaves later
-due dates free to launch. Adds no feature promise and no GitHub request.
-Findings, proof, and decisions are in the
-[plan](../slice-plans/344-correct-feedback-maintenance-session-status/PLAN.md).
-
 ## Ordering and Scope Reduction
 
-Queue Story 16's correction of automatic due maintenance first and Story 10's
-one-cycle evaluation next, followed by the
+Queue Story 10's one-cycle evaluation first, followed by the
 [ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
 and Story 11 as a later candidate requiring necessity reassessment at refinement.
 Story numbers and recorded identities remain stable;

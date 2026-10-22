@@ -8,7 +8,8 @@
 // Start session with the cycle's invocation runs through the ordinary dialog
 // on a served date, and a pushed revision that advances the date clears both.
 // Real start, launch, installed reporting command, store and gh path; Claude,
-// GitHub and the notification sender are fakes. Checks run every 100 ms.
+// GitHub and the notification sender are fakes. Checks run every 100 ms,
+// except where a quiet report must be shown before the next check.
 
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -137,6 +138,56 @@ test("the row says running while the automatic session is open and, once it ends
     );
     expect(server.claudeLaunchCalls()).toHaveLength(2);
     expect(server.notifierCalls()).toEqual([]);
+  } finally {
+    await server.close();
+    origin.cleanup();
+  }
+});
+
+test("a cycle that publishes its advanced date and reports quietly is done on the row and in settings before the next check reads the date", async ({
+  page,
+  github,
+}) => {
+  test.setTimeout(120_000);
+  const origin = await startOrigin();
+  const moving = await publishMovingOrigin(github);
+  const due = dayFromToday(-1);
+  const served = pushWatchList(moving, watchListDue(due));
+  // Authorized before the server starts, so its first check launches; the
+  // next check comes after the test.
+  turnOn(origin);
+  const server = await serverOn(
+    origin,
+    github,
+    "preview",
+    undefined,
+    3_600_000,
+  );
+  try {
+    server.claudeScenario("launched");
+    const input = await launchedInput(server);
+
+    pushWatchList(moving, watchListDue(dayFromToday(6)));
+    await reportingThrough(origin, input)({ message: "" });
+    await expect
+      .poll(async () => (await maintenanceRecords(server))[0]?.doneAt)
+      .toEqual(expect.any(String));
+
+    await openSettings(page, server);
+    await expect(settingsLine(page)).toHaveText(
+      `Due since ${due}. Last automatic launch: done (due ${due}).`,
+    );
+    // The done session's card in Recently done comes from the same sessions
+    // answer as the row.
+    await openDashboard(page, server);
+    await expect(
+      page.getByRole("article", {
+        name: "Ad hoc session for Feedback maintenance",
+      }),
+    ).toBeVisible();
+    await expect(row(page)).toHaveCount(0);
+    expect(watchListReads(moving)).toEqual([served]);
+    expect(server.claudeLaunchCalls()).toHaveLength(1);
   } finally {
     await server.close();
     origin.cleanup();
