@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-052#completed-startup-recovery",
+  "title": "Keep completed sessions out of startup recovery",
+  "completedAt": "2026-10-22T23:51:44.794Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "codex"
+}
