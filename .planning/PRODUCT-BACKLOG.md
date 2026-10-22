@@ -19,10 +19,10 @@ cost of the feedback process itself.
 ## Taken
 
 - [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance ([plan](slice-plans/341-run-due-feedback-maintenance/PLAN.md))
+- [Skip feedback collection from projects with process retrospective off](seeds/SEED-010-learn-from-execution-retrospectives.md#skip-feedback-from-projects-without-process-retrospective) — SEED-010#skip-feedback-from-projects-without-process-retrospective
 
 ## Backlog list
 
-- [Skip feedback collection from projects with process retrospective off](seeds/SEED-010-learn-from-execution-retrospectives.md#skip-feedback-from-projects-without-process-retrospective) — SEED-010#skip-feedback-from-projects-without-process-retrospective
 - [Reach every existing consumer of a changed behavior before publication](seeds/SEED-010-learn-from-execution-retrospectives.md#trace-changed-behavior-to-existing-consumers) — SEED-010#trace-changed-behavior-to-existing-consumers
 - [Retrieve startup guidance within the response budget](seeds/SEED-010-learn-from-execution-retrospectives.md#bound-startup-guidance-retrieval) — SEED-010#bound-startup-guidance-retrieval
 - [Stop asking for native checks once their question is answered](seeds/SEED-010-learn-from-execution-retrospectives.md#reuse-native-proof-after-attribution) — SEED-010#reuse-native-proof-after-attribution
