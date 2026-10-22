@@ -32,7 +32,7 @@ Read shared feedback's [maintained-set and destination discovery](../collect-cli
 without starting collection. Use its production discovery convention or the
 explicitly supplied isolated inventory, include Open Dough once, and resolve its
 canonical catalog, finding owners, watch list, direction, seeds and backlog.
-Keep its inventory recheck boundaries. Resolve each project's actual root,
+Keep its inventory recheck boundaries and process-retrospective skips. Resolve each project's actual root,
 canonical local findings and shared log, authorized origin target, instructions,
 delivery conventions and initial Git state through the phase owners.
 
@@ -65,7 +65,8 @@ with:
 - deferred combined reporting, when reporting context was supplied.
 
 That owner decides responsibility, lifecycle, local selection and delivery using
-its own rules. Return a local result or explicit gap for each project before
+its own rules. A project whose process retrospective is off still takes this
+phase when it has a project findings record. Return a local result or explicit gap for each project before
 entering shared collection. Preserve local stories and reciprocal links. A failed
 or unavailable local pass does not establish that its remaining log is entirely
 shared, and cannot supply successful coverage or a passed watch. Retain uncertain

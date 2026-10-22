@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yusuke-chan",
-  "email": "yusuke-chan@example.org",
-  "identity": "SEED-010#skip-feedback-from-projects-without-process-retrospective",
-  "mode": "story-branch",
-  "branch": "claude/skip-feedback-collection-from-projects-with-proc",
-  "host": "claude"
-}
