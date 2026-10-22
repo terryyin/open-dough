@@ -1,13 +1,17 @@
 # 0010 — Definition of improvement
 
-**Status:** Proposed
+**Status:** Accepted
+
+**Accepted:** 2026-10-22, by Terry Yin, after reviewing Story 10's evaluation
+and the clarifications below.
 
 **Date:** 2026-10-22
 
 **Decision makers:** Terry Yin
 
-**Consulted:** Terry Yin requested this proposal; draft review and further
-advice pending.
+**Consulted:** Terry Yin supplied the definition and intervention targets,
+reviewed Story 10's evaluation and the clarification advice, and directed
+acceptance.
 
 ## Context
 
@@ -15,12 +19,10 @@ advice pending.
 improvement its direction: deliver the highest user value first and change
 direction at very low cost. Empirical control also needs a shared meaning of
 improvement so delivery, automation and cheaper execution do not become success
-criteria by themselves. This proposal applies to Open Dough's product and
+criteria by themselves. This decision applies to Open Dough's product and
 process decisions; it is not imposed on projects using its guidance.
 
 ## Decision
-
-The following is proposed decision policy, not binding guidance.
 
 > An improvement is an evidenced, worthwhile gain in useful product outcomes,
 > our ability to deliver them, or our ability to change direction, compared with
@@ -31,9 +33,11 @@ Achieving an equivalent useful outcome with less total effort can qualify.
 Every dimension need not improve; the permissible tradeoffs must be explicit.
 
 - Establish the beneficiary, intended gain, comparison and result worth keeping
-  before judging the evidence. Use concrete qualitative or quantitative criteria
-  appropriate to the decision. Disclose comparison limits and later changes to
-  those criteria.
+  before judging the evidence. For prospective evaluation, set this basis before
+  the observed run; keep a short, reusable basis for recurring processes before
+  their next run. Label retrospective evaluation exploratory. Use concrete
+  qualitative or quantitative criteria appropriate to the decision, and disclose
+  comparison limits and later changes to those criteria.
 - Consider human effort and interruptions, agent and tool use, implementation,
   rework, evaluation itself, and future complexity and maintenance. Token use,
   speed, coverage, output volume and unattended completion are evidence only
@@ -56,18 +60,21 @@ judgment alone. Exercising reserved authority can add value even when the human
 confirms the AI's recommendation. Routine approval already covered by delegation
 does not qualify merely because a human supplied it.
 
-Assess distinct decision events with two complementary rates:
+Assess distinct decision events with two complementary rates. Several decisions
+in one stop count separately; repeated prompts about one decision do not create
+new events. Count interruptions and human effort separately as costs.
 
 | Measure | Definition | Initial target |
 | --- | --- | --- |
-| Valuable-intervention rate | Stops with an actual, evidenced valuable human intervention / intervention stops with an assessable outcome | > 80% |
-| Missed-intervention rate | Opportunities requiring or benefiting from human intervention without a timely stop / all assessed opportunities requiring or benefiting from human intervention | < 5% |
+| Valuable-intervention rate | Stopped decision events with an actual, evidenced valuable human intervention / all stopped decision events with an assessable outcome | > 80% |
+| Missed-intervention rate | Assessed decision events requiring or benefiting from human intervention without a timely stop / all assessed decision events requiring or benefiting from human intervention | < 5% |
 
 Review events with and without stops; the stop log alone cannot reveal misses.
-Keep repeated prompts and human effort visible as costs. Report counts,
-unassessed or pending events and coverage; a zero denominator is not assessable,
-not success. Do not infer a sustained rate from one small cycle. These are
-Terry's proposed targets for trial, not established benchmarks or permission to
+Report numerator and denominator, unassessed or pending events and coverage;
+use counts rather than percentages for small samples. A zero denominator is not
+assessable, not success. Small samples cannot establish sustained target
+attainment, but an observed miss still matters. These are Terry's initial
+targets for continued evaluation, not established benchmarks or permission to
 skip required human decisions. Detailed assessment belongs with
 [the research measures](../maintainer/empirical-process-control-research.md#assess-human-intervention-quality).
 
@@ -81,6 +88,10 @@ Keep the decision basis and evidence in existing work records, proportionate to
 the decision. This defines no universal score, mandatory metric set, new
 measurement platform or approval step for routine decisions. It supplements
 ADR 0002 without superseding it.
+
+Acceptance establishes this decision policy; it does not establish that any
+process achieves the targets or produces sustained benefits. Continue ordinary
+observation and revise the policy when evidence warrants it.
 
 ## Related
 

@@ -171,11 +171,11 @@ The internal [shared-feedback skill](../../.agents/skills/collect-client-feedbac
 
 ## A useful definition of improvement
 
-The proposed definition and decision policy now live in
-[Proposed ADR 0010 — Definition of improvement](../adrs/0010-definition-of-improvement.md),
+The definition and decision policy now live in
+[ADR 0010 — Definition of improvement](../adrs/0010-definition-of-improvement-accepted.md),
 which develops ADR 0002's direction while recognizing costs and tradeoffs.
 [One real feedback cycle](#feedback-cycle-evaluation-follow-up) trialled the
-proposal to inform its human acceptance decision. The measures
+proposal before Terry accepted the clarified policy on 22 October 2026. The measures
 and examples below support that evaluation; they do not form a universal score.
 
 ### A small set of decision-oriented measures
@@ -191,16 +191,17 @@ Choose a subset for each intervention. The table is a menu, not a requirement to
 | Where is work waiting? | End-to-end elapsed time, active time, queue time, blocked time, work in progress | Agent speed does not establish delivery speed |
 | Do tests give useful confidence efficiently? | Time to decisive feedback; known regression detection; sampled mutation testing; flakes; diagnostic and maintenance effort | Coverage percentage alone cannot establish fault detection or assertion quality |
 | Does a process response work in use? | Occurrences per eligible exposure, burden introduced, relevant downstream outcomes | Calendar time or fewer reports alone does not show effectiveness |
-| Is autonomy helping? | Successful completion within authority; valuable-intervention and missed-intervention rates under Proposed ADR 0010; human effort and recovery cost | Review stopped and non-stopped events; counts and uncertainty matter, and required human decisions remain mandatory |
+| Is autonomy helping? | Successful completion within authority; valuable-intervention and missed-intervention rates under ADR 0010; human effort and recovery cost | Review stopped and non-stopped events; counts and uncertainty matter, and required human decisions remain mandatory |
 | Does the controller earn its cost? | Findings that changed a decision; duplicate/noise rate; time to disposition and observation; review and collection cost | Finding volume is not a success target |
 
 An appropriate initial set might be outcome acceptance, attributable rework, end-to-end time, human effort, and model usage where directly available. Add a measure when a concrete decision needs it. Qualitative evidence remains necessary for usefulness, domain coherence, and disputed tradeoffs.
 
 ### Assess human intervention quality
 
-[Proposed ADR 0010](../adrs/0010-definition-of-improvement.md#human-intervention-quality)
-defines valuable human intervention and the two rates. Its targets are Terry's
-2026-10-22 proposal, first tried [on one cycle](#feedback-cycle-evaluation-follow-up), rather than research benchmarks.
+[ADR 0010](../adrs/0010-definition-of-improvement-accepted.md#human-intervention-quality)
+defines valuable human intervention and the two rates. Its initial targets were
+supplied by Terry and first tried [on one cycle](#feedback-cycle-evaluation-follow-up)
+on 2026-10-22; they are not research benchmarks.
 They describe event selection and realized human contribution, not the share of
 a person's working time spent adding value.
 
@@ -217,9 +218,11 @@ An appropriate request whose intervention has not yet occurred is pending, not
 a demonstrated success. A later unsolicited human rescue does not erase a
 missed opportunity to stop in time.
 
-Count one decision event once in each applicable denominator. Repeated reminders
-for that decision do not create new successes; record their interruption cost.
-For each rate, report numerator and denominator, and separately list pending,
+Count one decision event once in each applicable denominator, even when one
+stop carries several decisions. Repeated reminders for that decision do not
+create new successes; record their interruption cost. For small samples, report
+counts rather than percentages. For each rate, report numerator and denominator,
+and separately list pending,
 unclassifiable or unreviewed events. Describe any sampling or missing history;
 classified-event rates do not establish the rate for unknown events. Withhold a
 target-met claim if unresolved events could change it. With no applicable
@@ -1103,8 +1106,9 @@ story.
 for
 `SEED-010#prioritize-responses-with-delegated-authority` (recoverable with
 `git show 3d01d28f:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`),
-using [Proposed ADR 0010](../adrs/0010-definition-of-improvement.md) as a
-trial decision basis only. It accepts nothing on the ADR's behalf.
+using the then-[Proposed ADR 0010](../adrs/0010-definition-of-improvement-accepted.md)
+as a trial decision basis only. The evaluation did not accept the ADR;
+the later human disposition is recorded below.
 
 ### Decision basis
 
@@ -1293,8 +1297,12 @@ not recorded, so no saving is claimed.
 read / output). Execution session `52710a3c` from the Take at 17:21 +0900:
 at least 102 / 167,558 / 6,548,874 / 32,847 tokens when last measured. Two
 subagents (source-only review and refactor) are not included in that count.
-The preparation and evaluation together already cost more host usage than the
-run itself.
+**Correction after review (22 October 2026):** The recorded preparation and
+evaluation together used more uncached input, cache-creation input and output
+tokens than the cycle, but fewer cache-read tokens and fewer total recorded
+tokens. Different token categories are not equivalent costs. Subagent usage,
+later evaluation usage and monetary cost are unknown, so these records do not
+establish that the evaluation cost more or less overall than the cycle.
 
 ### Human intervention
 
@@ -1312,8 +1320,9 @@ one attention stop (receipt `f34d751b`).
 | A5 | Correct the retention SHA references after the rebase | Delegated | No; none needed | — |
 | A6 | Retire no watch while coverage is incomplete | Delegated rule | No; none needed | — |
 
-- **Valuable-intervention rate:** 1/1 stops (H1 and H2 in one stop),
-  or 2/2 counting decision events.
+- **Valuable-intervention rate:** 2/2 stopped decision events (H1 and H2),
+  using the event unit clarified on 22 October 2026. They arrived in one
+  interruption, recorded separately from the value count.
 - **Missed-intervention rate:** 0/2. H1 and H2 were the only opportunities
   that needed a human, and both were raised before any dependent action.
 - Severity: H1 was moderate. While it stayed open, every cycle reported
@@ -1325,8 +1334,9 @@ one attention stop (receipt `f34d751b`).
 - Nothing is pending or unclassified. Repeated interruptions: none.
 - The 21 October cycle's separate request for product selections did not
   recur, but no product candidate existed to test it (see above).
-- These counts are too small to meet or miss the proposed targets, and none
-  is claimed.
+- These counts cannot establish sustained target attainment. Any observed
+  mandatory-authority miss would still require attention, regardless of sample
+  size; none was observed here.
 
 ### Coverage
 
@@ -1374,8 +1384,9 @@ open next-observation request is reported to that finding's owner.
 
 ### Recommendation on Proposed ADR 0010
 
-**Revise and trial further.** This is advice; acceptance stays with Terry
-through the [advice process](../adrs/README.md#advice-process).
+**Original trial recommendation: revise and trial further.** This was advice
+for Terry through the [advice process](../adrs/README.md#advice-process).
+The subsequent human disposition is recorded below.
 
 - *Helped.* Stating the result worth keeping before reading kept delivery
   separate from benefit. Four delivered stories would otherwise read as
@@ -1389,9 +1400,25 @@ through the [advice process](../adrs/README.md#advice-process).
     exploratory.
   - Report counts rather than percentages when the denominators are this
     small.
-- *Proportionate cost.* Preparing and running this evaluation used more host
-  usage than the run itself. A lighter basis kept with the recurring process
-  could carry most of the value.
+- *Proportionate cost.* The evaluation's recorded burden is substantial, but
+  the corrected comparison above does not establish greater overall cost than
+  the cycle. A lighter, reusable basis kept with the recurring process is a
+  candidate for reducing recurring assessment effort; its benefit is unproven.
+
+### Human disposition after clarification review
+
+**22 October 2026 — accept the clarified policy, continue ordinary observation.**
+Terry directed acceptance of ADR 0010 after reviewing this evaluation and the
+clarification advice. Both intervention rates now count distinct decision
+events, while interruptions remain a separate cost. Prospective evaluation sets
+its basis before the run; retrospective evaluation remains exploratory. Small
+samples are reported as counts without a claim of sustained target attainment.
+The usage comparison above is corrected rather than treated as a cost verdict.
+
+Acceptance establishes the decision policy, not proof of the cycle's sustained
+benefit or target performance. A further full trial is not an acceptance
+prerequisite. The bounded cycle judgment and its next observation remain
+unchanged; the two operational gaps are not missed human-intervention events.
 
 Re-reading the same records yields the same follow-up. It adds no occurrence,
 finding, story or backlog item.
