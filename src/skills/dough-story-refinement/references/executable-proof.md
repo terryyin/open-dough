@@ -121,6 +121,35 @@ until the journeys and callers using it are listed. Give every listed consumer
 a disposition: `run`, `reused`, or `excluded: <reason the effect does not reach
 its boundary>`. A record with every kind empty keeps the slice's focused proof.
 
+## Plan and reuse developer-operated observation
+
+Some proof needs an observation only the developer can perform, such as a
+native dialog, notification, or click your tools cannot reach or operate.
+Request a developer round only for a question the plan or acceptance still
+holds open; an answered question is reused, not asked again.
+
+Whether a retained native baseline still covers the changed candidate follows
+the correspondence rule in
+[require current regression proof before a live action](../../dough-execute-plan/references/execution-decisions.md#require-current-regression-proof-before-a-live-action).
+A change to text or another detail the observed path renders unchanged keeps
+it: reuse the baseline and prove the changed detail with a regression at the
+emitted source. The acceptance record names the reused baseline and that
+regression, and no developer round is requested.
+
+A change to what the observed path consults or does, such as a permission row,
+the posting process or sender identity, or the click mechanism, reopens only
+that path's question: request one fresh observation bounded to it. The
+baseline stays reused for what it still covers. A promise the baseline never
+observed stays reported as the same unproved promise, not a reason to replay
+the baseline.
+
+Retain a native baseline in the plan's
+[retained-proof fields](planning.md#write-an-executable-plan): promise, covered
+boundary, inspected setup with the revision and settings it observed under,
+observation locations, literal command or the steps the developer performed,
+and result, so later reuse is judged from the plan. Use no other evidence
+format.
+
 ## Choose expensive proof before launch
 
 Before long, repeated, or resource-intensive verification, make a proportionate

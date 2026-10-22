@@ -111,7 +111,7 @@ Observed 2026-10-22 in this checkout at `67d354be`:
 
 ### 1. Acceptance reuses native proof whose question is answered
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above; the new assertions fail first against `67d354be`'s text.
 
 Behavior: a slice's proof includes a developer-operated observation, and the
@@ -167,7 +167,42 @@ desk-check (example 2) in Learnings.
 
 ## Learnings
 
-(Execution records the plan 330 desk-checks and the after sizes here.)
+Slice 1 accepted proof (promise: open-question rule, correspondence by the
+live-action decision, emitted-source regression, record names both, changed
+consulted path reopens only its question, unobserved promise unchanged,
+retained-proof fields with observed revision and settings; boundary:
+`executable-proof.md#plan-and-reuse-developer-operated-observation` and its
+link from `wrap-up.md#accept-proof`):
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-execute-plan/scripts/read-budget-guidance.test.mjs src/skills/dough-execute-plan/scripts/consumer-trace-guidance.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs src/skills/dough-story-refinement/scripts/developer-observation-guidance.test.mjs`
+and `tests/payload-declaration-links.sh` pass; the guidance test's seven
+tests failed first against the unchanged text (the revision/settings
+assertion failed before its sentence was added at acceptance). Consumer trace:
+story-obligations, execution-increment-delivery, shared-checkout-writers,
+ci-supported-host-contract and interrupted-delegation guidance tests pass;
+the retained native delivery-evidence records that hash both files are a paid
+manual re-record, excluded. "Before accepting a return" row: 9,082 → 9,303
+of 30,000 bytes.
+
+Plan 330 desk-check under the slice 1 text (inputs at
+`ac342c94:.planning/slice-plans/330-branded-alert-click-automation/`):
+
+- Example 1: `native-baseline-evidence.md` "Slice 1 acceptance" answered
+  the attribution question (Safari probes 2/4 refusal, 3 retry; Chrome 5/7
+  refusal, 9 retry; Open Dough → browser row). Slice 2's only product-source
+  edit was the message literal (`slice-2-evidence.md`); row, click
+  mechanism, sender and navigation were unchanged, so the baseline
+  corresponds, the message is proved by the emitted-callback regression at
+  `session-alerts-activation.spec.ts:93` (red, then green), and the record
+  names both. The question is not open, so no round is requested; plan 330
+  instead posted four final cards for developer clicks.
+- Example 3: replacing the posting process changes what the observed path
+  does (posting process and sender identity), which reopens only that
+  path's question: one fresh refusal/retry observation of the new path,
+  baseline reused for the rest.
+- Example 4: a promise the baseline never observed (Chrome's recovery
+  dialog, in the story's variant) stays reported as the same unproved
+  promise; a text change is proved at the emitted source and requests no
+  replay.
 
 ## Concern evidence
 

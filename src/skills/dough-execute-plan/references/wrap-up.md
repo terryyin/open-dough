@@ -30,6 +30,8 @@ Include each qualification and journey example; a heading, count or plan list
 cannot stand for a compound promise. Return a concrete expected/actual mismatch
 unless a real human amendment changes it. Broad accuracy or compatibility claims
 cannot replace an explicit journey's expected result. Check source completeness before reuse.
+When a slice's proof includes a developer-operated observation, accept it under
+[developer-operated observation](../../dough-story-refinement/references/executable-proof.md#plan-and-reuse-developer-operated-observation).
 Establish applicability at the current trigger or output before allowing later
 ownership: a later slice cannot qualify an output that already owes the promise.
 The source and human amendments outrank plan/return; correct a contrary mapping,
