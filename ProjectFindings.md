@@ -69,6 +69,14 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279).
 
+## Focused proof bypasses the project test runner (open, unqueued)
+
+<a id="dd-330"></a>
+
+### DD-330 — Delegated focused proof ran `node --test` directly, so it missed both the runner's Git environment and its quiet-pass rule
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-330).
+
 ## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
 <a id="dd-216"></a>

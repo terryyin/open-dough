@@ -98,6 +98,25 @@ that had asked for nothing.
 
 **Current assessment (2026-10-21):** The source-directory race is repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`: the landing test passes its own `landing-retained-*` directory, and `reportLanding` writes there instead of the shared source scripts directory. This establishes adoption of the concrete repair, without a new exposure claim. The separate child-start poll remains in `dashboard/tests/boundary/project-add-boundary.spec.ts`; no later loaded-run outcome was supplied. Retain that qualified remainder rather than claiming both failures remain unrepaired.
 
+## Focused proof bypasses the project test runner (open, unqueued)
+
+<a id="dd-330"></a>
+
+### DD-330 — Delegated focused proof ran `node --test` directly, so it missed both the runner's Git environment and its quiet-pass rule
+
+`scripts/test.sh` accepts file paths, sources `scripts/test-environment.bash`, and fails a passing job that prints anything. A focused command that calls `node --test` directly gets neither of those, so it can produce a false failure and also miss a real one.
+
+#### Occurrences
+
+- Execution: `SEED-010#bound-startup-guidance-retrieval` / plan 345, first related implementation commit `fc62c171`
+  - Timestamp: 2026-10-22T02:38:45Z (CI run 39712519878 created; the local runs were earlier the same day)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout VERSION 0.3.68)
+  - Evidence: The coordinator's delegation named `node --test src/skills/dough-execute-plan/scripts/*.test.mjs` without the runner. Run that way, `publication-clean-trunk-fixtures.test.mjs` failed: commits in fixture checkouts started `git maintenance run --auto` because the runner's `maintenance.auto=false` was absent. The implementer reported this as an unrelated failure. Rerun under `scripts/test-environment.bash`, all 923 tests passed. The new `read-budget-guidance.test.mjs` printed `t.diagnostic` sizes, and CI job "test (2/3)" failed it as "passed but printed output". Repair `144b436f`. `bash scripts/test.sh <files>` reproduces that failure locally.
+  - Observed effect: about six coordinator tool calls went to diagnosing the false failure, and one hosted CI failure needed one repair increment.
+  - Inference: qualified. Delegation already asks for "literal focused commands with the runtime wrapper". The coordinator did not resolve that this project's wrapper is `bash scripts/test.sh <paths>`. A literal runner-based focused command would have prevented both effects.
+
 ## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
 **Follow-up:** [Opt-in selection records](../../dashboard/tests/README.md)
