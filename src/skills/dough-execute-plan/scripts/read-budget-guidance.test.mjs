@@ -134,10 +134,9 @@ test("every link in the table resolves to a file or heading under the skill", ()
   }
 });
 
-test("each row fits one tool result on the smallest supported host", (t) => {
+test("each row fits one tool result on the smallest supported host", () => {
   for (const row of tableRows()) {
     const bytes = rowBytes(row);
-    t.diagnostic(`${row.boundary}: ${bytes} bytes`);
     assert.ok(
       bytes <= BUDGET_BYTES,
       `${row.boundary}: ${bytes} bytes exceeds ${BUDGET_BYTES} by ${bytes - BUDGET_BYTES}`,

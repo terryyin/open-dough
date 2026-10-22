@@ -149,6 +149,11 @@ Behavior: a coordinator reaches a boundary of planned or quick execution under t
   `execution-worktree-preparation.test.mjs` asserted the former "Before
   creating the execution workspace, read … execution-location" wording; it now
   asserts the table row.
+- The runner's quiet-pass rule (`scripts/test.sh`, `tests/README.md`: a
+  passing job must write nothing) replaced proof item (e)'s printed sizes:
+  CI run 39712519878 failed the test for its `t.diagnostic` lines, so the test
+  now reports sizes only in an overflow's failure message; the after figures
+  above stay the record.
 
 ## Concern evidence
 
