@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_retry-selected-slice-status.json",
+      "identity": "SEED-010#retry-selected-slice-status",
+      "completedAt": "2026-10-22T23:03:51.733Z",
+      "blob": "053d325ad2c32fb9fc557c9907729ed8c08e672d"
+    },
+    {
       "fileName": "SEED-008_normalize-delivery-commit-identities.json",
       "identity": "SEED-008#normalize-delivery-commit-identities",
       "completedAt": "2026-10-22T08:57:47.449Z",
