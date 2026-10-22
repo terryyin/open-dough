@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-010#reuse-native-proof-after-attribution",
+  "mode": "story-branch",
+  "branch": "claude/stop-asking-for-native-checks-once-their-questio",
+  "host": "claude"
+}
