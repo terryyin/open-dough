@@ -135,7 +135,7 @@ desk-check for examples 1, 3 and 4 in Learnings.
 
 ### 2. Planning names the question, rounds and developer steps of a native probe
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above; the new assertions fail first.
 
 Behavior: a plan's proof needs an observation only the developer can perform
@@ -203,6 +203,26 @@ Plan 330 desk-check under the slice 1 text (inputs at
   dialog, in the story's variant) stays reported as the same unproved
   promise; a text change is proved at the emitted source and requests no
   replay.
+
+Slice 2 accepted proof (promise: a probe slice names question, rounds and
+developer-performed steps in the first request; the early-probe paragraph
+and manual testing's Plan section link the section and ask once; boundary:
+the same section, `settle-decisive-premises.md` early-probe paragraph,
+`dough-manual-testing/SKILL.md` "## Plan"): the same four-file
+`scripts/test.sh` command and `tests/payload-declaration-links.sh` pass;
+the three new guidance tests failed first. Consumer trace: dough-land,
+ci-completion-lifecycle, interrupted-delegation, completion-attention and
+feedback-review tests pass; no boundary row names a changed file (largest
+row "Before delivery" 28,129 of 30,000). ODF-324's Follow-up records the
+response at `25af6749` and this slice, release pending.
+
+Plan 330 slice 1 desk-check (example 2): it named the question (which
+Automation row and browser control a real click consults) and the rounds
+(refusal and retry in Safari and Chrome), but not the developer's own
+steps; local Settings authentication, clicking in Notification Center
+(which a chat reply dismisses) and the CUA-blocked recovery dialog were
+discovered round by round. Under the new text the probe slice lists those
+steps with the question and rounds, and manual testing asks once for the set.
 
 ## Concern evidence
 

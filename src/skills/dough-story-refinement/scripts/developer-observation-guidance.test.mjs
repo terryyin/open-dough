@@ -84,3 +84,35 @@ test("acceptance sends a return with developer-operated proof to the section", (
     /proof includes a developer-operated observation[^.]*\(\.\.\/\.\.\/dough-story-refinement\/references\/executable-proof\.md#plan-and-reuse-developer-operated-observation\)/i,
   );
 });
+
+test("a probe slice names the question, its rounds and the developer's own steps before the first round", () => {
+  assert.match(section(), /names the question each round answers/i);
+  assert.match(section(), /rounds that answer it/i);
+  assert.match(section(), /steps the developer performs themselves/i);
+  assert.match(section(), /first request[^.]*carries all of them/i);
+});
+
+test("the early probe paragraph links the section when the developer's hands are the instrument", () => {
+  const premises = flat(
+    read("dough-slice-planning/references/settle-decisive-premises.md"),
+  );
+  assert.match(
+    premises,
+    /early probe slice whose failure stops dependent slices[^]*?developer's hands[^.]*\(\.\.\/\.\.\/dough-story-refinement\/references\/executable-proof\.md#plan-and-reuse-developer-operated-observation\)/i,
+  );
+});
+
+test("manual testing takes question, rounds and developer steps from the slice and asks once", () => {
+  const plan = flat(
+    markdownSection(read("dough-manual-testing/SKILL.md"), "## Plan"),
+  );
+  assert.match(
+    plan,
+    /slice requires[^.]*question, rounds,? and developer-performed steps from the slice/i,
+  );
+  assert.match(plan, /ask once for the set/i);
+  assert.match(
+    plan,
+    /\(\.\.\/dough-story-refinement\/references\/executable-proof\.md#plan-and-reuse-developer-operated-observation\)/,
+  );
+});

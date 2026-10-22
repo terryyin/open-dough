@@ -128,6 +128,13 @@ native dialog, notification, or click your tools cannot reach or operate.
 Request a developer round only for a question the plan or acceptance still
 holds open; an answered question is reused, not asked again.
 
+A probe slice for such an observation names the question each round answers,
+the rounds that answer it (for example, one refusal and one retry per supported
+browser), and the steps the developer performs themselves because your tools
+cannot, such as local authentication, opening a system panel a chat reply
+dismisses, or reading a native dialog the tool refuses. The first request to
+the developer carries all of them, rather than discovering them round by round.
+
 Whether a retained native baseline still covers the changed candidate follows
 the correspondence rule in
 [require current regression proof before a live action](../../dough-execute-plan/references/execution-decisions.md#require-current-regression-proof-before-a-live-action).
