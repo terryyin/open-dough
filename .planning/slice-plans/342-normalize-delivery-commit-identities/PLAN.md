@@ -157,6 +157,15 @@ prefix that a commit shares with any other object is `ambiguous`. The
 existing `unpublished-base` tests stay green with full IDs. Final delivery ran
 full `npm test`.
 
+## Execution complete
+
+Product advice: no change. The story's Evaluation remains: update ODF-142's
+finding record with the response revisions (1443f1f2, bbce29a4), the proof
+above, release state once released, and the remaining limits (story
+obligations G2 and G3; resume's `--suffix-base` still requires full IDs), and
+keep it unresolved until the next ordinary eligible use records input form,
+decision, failed calls, recovery effort, and any false refusal.
+
 ## Current decisions
 
 - Resolve at `publishExecutionIncrement` after the fetch and before
