@@ -162,10 +162,34 @@ Behavior: the sessions answer carries the machine's maintenance state (recorded 
 
 ### 5. One real due cycle starts and completes on this machine (developer-run)
 Type: Behavior
-Status: planned
+Status: done
 Proof: Terry turns the setting on in the production dashboard with the delivered release installed, with the watch list's `reviewAfter` reached; the dashboard starts the session; the cycle completes and its report arrives; the advanced block is on trunk. Record the launch record id, the report outcome, the notifier result, and the due dates before and after here. Paid, native, owner-held; not run by automated tests.
 
 Behavior: a reached due date on this machine → one automatic session → the cycle's completion report and advanced due date, or an attention message the maintainer answers; whichever happens is recorded as the first real observation for the story's evaluation.
+
+Observation (2026-10-22, run by the coordinator under Terry's in-session
+authorization): release 0.3.68 rolled out; production deployed `0b51b511`
+from published `main` through the watcher, which Terry restarted. Before the
+run, Terry authorized moving the due date to 2026-10-22 (`0f500a5f`). The
+setting was saved as `{"host":"claude"}` through the production endpoint at
+08:17 JST.
+- 08:32 check: due 2026-10-22 reached; the launch was held, and the row read
+  "Feedback maintenance due since 2026-10-22; not started: default main has
+  existing changes (4 changed paths)" while the default checkout held another
+  session's uncommitted edits (G4 in production).
+- 08:46:55 check after those edits were committed: one launch, reference
+  `9b9effcf-7555-4eae-9f28-26dfe0957ecf`, Claude session `de44a53b`, titled
+  "Feedback maintenance", first input `/maintain-feedback-cycle` with the
+  reporting context, `maintenance.due` 2026-10-22. The recorded request names
+  model `opus`, the host's resolved default. The row read "Feedback
+  maintenance is running", including across a production redeploy the cycle's
+  own publication caused at 08:52.
+- 09:09:14 report: outcome `completed` with no message; the record was
+  marked done and its report read on receipt, so no attention alert was due.
+  The cycle published through `552b2134` and advanced the due block from
+  `reviewAfter` 2026-10-22 to `{"reviewed":"2026-10-22","reviewAfter":"2026-10-29"}`.
+- 09:15:23 check: the state read next due 2026-10-29, not reached, and last
+  automatic launch done (due 2026-10-22); nothing started.
 
 ## Current decisions
 
