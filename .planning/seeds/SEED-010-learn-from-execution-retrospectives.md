@@ -617,12 +617,14 @@ response changes behavior where two wording responses did not.
 
 **Identity:** SEED-010#bound-startup-guidance-retrieval
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/345-bound-startup-guidance-retrieval/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"301e6296254a73f4ee2bc5f8d6548280784b7e599d2c3a41c826d637e5ac1069","plan":"517976637a453de1091efc69fbb13a53ebe4f8c04ae9e9deec039cb5b70bd20d"}}
 ```
 
 **Goal:** An executing agent obtains the guidance passages it needs at startup
 without truncated tool results, so it stops re-reading references before its
-first delegation.
+first delegation. The developer and the maintainer pay for every execution's
+startup; removing this repeated reading lowers the cost of the process itself,
+which this seed counts alongside product outcomes.
 
 **Selection (2026-10-22 feedback cycle):** Selected second for
 [ODF-264](../../docs/maintainer/findings/ODF-264.md). Six more distinct
@@ -632,24 +634,111 @@ all Codex) batched whole references or plans, received outputs of 10,000 to
 guidance already applies. No product failure is attributed; the cost is
 repeated reading on almost every Codex startup and is not yet measured.
 
-**Scope:** Establish which startup reads each execution actually needs and why
-agents batch them, then change what the guidance asks for or provides at startup
-so required passages arrive within one bounded response. Measure the repeated
-retrieval it removes. Preserve required context; do not hide passages an
-execution needs or move the cost into later failures.
+**Scope:** Refinement on 2026-10-22 established the startup reads and the
+batching cause from the installed
+[execute-plan skill](../../src/skills/dough-execute-plan/SKILL.md) and the
+retained occurrences, so the delivery starts from these facts:
+
+- Before or at the first delegation the skill names, beyond the plan and seed
+  section: delegation, the named execution-decisions sections,
+  established-start, execution-location, wrap-up's proof-acceptance and
+  delivery sections, CI observation plus the host's notification adapter,
+  trunk publication, and targeted retrieval. On Codex the skill body is itself
+  a tool result. Together these are about 110KB, roughly 27,000 tokens.
+- Agents batch them because the skill names several reads at the same or
+  adjacent boundaries with no reading shape, hosts instruct agents to issue
+  independent calls together, and the host budget bounds the whole tool
+  result rather than each command in it. Codex truncates a tool result near
+  10,000 tokens (the smallest truncated startup result reported 10,205
+  original tokens); Claude Code's Bash tool replaces output above about 30KB
+  with a 2KB preview. Any two of the larger references overflow both.
+- The managed start, increment publication, and CI observer commands own most
+  of the mechanics the later-boundary references describe, so much of the
+  startup set is not used before the first delegation
+  ([ODF-158](../../docs/maintainer/findings/ODF-158.md) evidence).
+
+Required behavior:
+
+1. The execute-plan skill states an explicit startup reading set, the passages
+   a coordinator needs before its first delegation, and the reading shape:
+   what to read, and what belongs in one tool result. Read as instructed,
+   including when a host batches the named reads into one tool result, every
+   named passage arrives complete within the smallest supported host budget,
+   with no truncation warning and no repeated retrieval before delegation.
+2. Every passage an execution needs stays reachable. A reference moved out of
+   the startup set is named at the boundary that needs it, or the managed
+   command that reaches that boundary already owns its contract. Each later
+   boundary's named reads fit the same budget, so the cost does not move into
+   later truncated reads or later failures.
+3. The delivery measures what it removes: the size of each boundary's named
+   read set before and after, in bytes and estimated tokens, retained with
+   the plan and at ODF-264. A repository check keeps every boundary's named
+   read set within the smallest supported host budget, so later growth of a
+   reference fails the check naming the boundary and the overflow.
+
+Rejection constraints: a startup digest that restates reference guidance is
+refused, because the
+[maintainer guidance](../../AGENTS.md#layout) keeps one shared behavioral
+source per skill and forbids a second behavior copy. The response may
+restructure, split, relocate, or shorten references, and may add a bounded
+retrieval aid that prints passages from their single source, but adds no
+parallel text. Host output settings, such as Codex's per-call output pragma
+or a raised output limit, are not the response: installed guidance must work
+unchanged in Codex, Cursor, and Claude Code and cannot set a developer's host
+configuration.
+
+Deferred promises: startup reads of other skills (story refinement, wrap-up,
+the retrospective, Dough Land), although the retained occurrences also show
+retrospective over-batching; a reading shape that generalizes may be applied
+where it naturally does, without verification here. Measured savings in
+ordinary executions per host follow under Evaluation after release. ODF-158's
+full concern is not claimed; the delivery records which startup reads it
+removed so that finding can be reassessed. Reads of project content (plan,
+seed, backlog) are the project's own size and are not bounded by this story.
+
+Boundary assumptions: the plan's first slice settles the exact per-host
+budgets from host documentation or source, since the retained evidence bounds
+them only from above; the smallest settled budget is the contract. Cursor's
+budget is unknown and is treated as no larger than the smallest settled one
+until observed. Token estimates use bytes divided by four; tool output counts
+are not billed tokens. The first response is not limited to Codex: two
+retained occurrences are Claude Code, and the budget contract covers both
+without host-specific text.
+
+**Key examples:**
+
+1. A Codex coordinator starts a planned story under installed guidance →
+   reads the skill's named startup set, batching as the host encourages →
+   every passage arrives complete with no truncated-output warning, and the
+   first delegation follows without a reread. The retained occurrence
+   SEED-010#check-shared-host-proof-headroom reported 10,205 and 13,394
+   original tokens truncated at the same step.
+2. A Claude Code coordinator concatenates the named startup set in one Bash
+   call → the result is under the Bash budget, with no "Output too large"
+   preview and no second read. The retained occurrence SEED-073#story-4 read
+   49.5KB and 52KB batches twice at the same step.
+3. The first slice is delivered and a publication, CI, or proof-acceptance
+   boundary is reached → the reference that boundary needs is named there and
+   read then, within the same budget; what the managed delivery command owns
+   needs no read.
+4. A later guidance change grows a reference so that one boundary's named set
+   exceeds the smallest supported host budget → the repository's test run →
+   the check fails naming that boundary and the overflow; shrinking or
+   deferring a read restores it.
+5. A coordinator needs a passage outside the startup set, for example
+   oversized-slice handling after an incomplete return → the skill names it
+   at that boundary → the coordinator retrieves that smallest complete passage
+   under the existing targeted retrieval, not by rereading the startup set.
 
 **Evaluation:** Compare truncation warnings and repeated startup reads in
 ordinary executions before and after the response, per host, against the
 retained occurrences. A response that leaves a required passage unread is a
-failure even when truncation disappears. Completion records the actual response
-and its containing release at ODF-264.
+failure even when truncation disappears. Completion records the actual response,
+the before-and-after read-set sizes, and its containing release at ODF-264.
 
 **Value / learning:** Reduces a recurring resource cost of every execution and
 tests whether guidance shape, rather than another instruction, changes agent
 reading behavior.
-
-**Effort uncertainty:** Host differences may dominate; refinement may limit the
-first response to Codex, where every retained occurrence on 2026-10-21 ran.
 
 <a id="reuse-native-proof-after-attribution"></a>
 
