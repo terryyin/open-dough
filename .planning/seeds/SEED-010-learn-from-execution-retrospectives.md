@@ -733,50 +733,6 @@ reading behavior.
 **Effort uncertainty:** Host differences may dominate; refinement may limit the
 first response to Codex, where every retained occurrence on 2026-10-21 ran.
 
-<a id="skip-feedback-from-projects-without-process-retrospective"></a>
-
-### 14. Skip feedback collection from projects with process retrospective off
-
-**Identity:** SEED-010#skip-feedback-from-projects-without-process-retrospective
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"82e4ed1c960893924adeda82549633ef10889bb217033b85022d5b20df2e9c89"}}
-```
-
-**Goal:** The maintainer gets complete feedback coverage, and watched responses
-can retire, when some maintained projects never record process findings because
-their process retrospective is off.
-
-**Selection (2026-10-22):** Terry selected this first after the 2026-10-22 cycle
-reported incomplete coverage again. Terry Talks and Lizard have no
-`.planning/open-dough.json`, so their process retrospective is off and they will
-never produce a `DearDough.md`. Every cycle has counted them as missing logs,
-which blocked retirement of ODF-156, ODF-200, ODF-201 and ODF-202.
-
-**Scope:** In [collect-client-feedback](../../.agents/skills/collect-client-feedback/SKILL.md),
-its [retention and watch](../../.agents/skills/collect-client-feedback/references/retention-and-watch.md)
-rules and [maintain-feedback-cycle](../../.agents/skills/maintain-feedback-cycle/SKILL.md),
-resolve each discovered project's process-retrospective setting the way
-[dough-execution-retrospective](../../src/skills/dough-execution-retrospective/SKILL.md#select-reviews)
-does: `<project-root>/.planning/open-dough.json` with `skipProcessRetrospective:
-false` enables it; a missing file or key, or `true`, means off. A project with
-it off is out of scope for shared collection and for the watch's source-set
-coverage, and the report names it as skipped with that reason, not as a missing
-log. The project-local phase still runs for it when it has a project findings
-record. A project with it on and no readable `DearDough.md` remains a coverage
-gap. An unreadable or malformed configuration stays a gap rather than a skip.
-Do not create or edit a project's configuration, and keep the production
-inventory unchanged.
-
-**Evaluation:** Walk the 2026-10-22 production set: Terry Talks and Lizard are
-reported as skipped because process retrospective is off, Open Dough, Doughnut
-and Pygardon remain collected, and coverage counts as complete for watch
-retirement. A project with the setting on but no log, and one with malformed
-JSON, still report a coverage gap. Existing `tests/support/feedback-review.test.mjs`
-keeps passing.
-
-**Approach:** Planless; changes are limited to the three internal maintainer
-guidance files above and need no product code.
-
 <a id="reuse-native-proof-after-attribution"></a>
 
 ### 15. Stop asking for native checks once their question is answered

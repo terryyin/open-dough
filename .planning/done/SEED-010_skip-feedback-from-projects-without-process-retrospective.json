@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#skip-feedback-from-projects-without-process-retrospective",
+  "title": "Skip feedback collection from projects with process retrospective off",
+  "completedAt": "2026-10-22T01:37:52.365Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "claude"
+}

@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Receive due feedback assessments without manual triggering](seeds/SEED-010-learn-from-execution-retrospectives.md#run-due-feedback-maintenance) — SEED-010#run-due-feedback-maintenance ([plan](slice-plans/341-run-due-feedback-maintenance/PLAN.md))
-- [Skip feedback collection from projects with process retrospective off](seeds/SEED-010-learn-from-execution-retrospectives.md#skip-feedback-from-projects-without-process-retrospective) — SEED-010#skip-feedback-from-projects-without-process-retrospective
 
 ## Backlog list
 
