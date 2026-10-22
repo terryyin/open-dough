@@ -140,6 +140,17 @@ Behavior: a coordinator delegates a slice whose change alters an operation, cont
 - The record is required by delegation and checked at acceptance; no script
   gate refuses publication (deferred by the story).
 
+## Execution complete
+
+Product advice: no priority change. The delivered response is the record and
+script; whether owned consumer-miss CI failures decline is measured at ODF-150
+through ordinary later executions, so wrap-up records ODF-150's next eligible
+uses rather than resolving it. Watch record length: slice 3's own record listed
+297 consumers, mostly installed `.agents/`/`.claude/` copies and readers matched
+only through the `SKILL.md` basename, and needed scripted classification. If
+later records stay that long, a follow-up story can group installed copies and
+generic-basename-only matches so agents don't stop dispositioning rows.
+
 ## Learnings
 
 - Slice 1 replay B (worktree at `37eed762~1` = `97e2c938`;
