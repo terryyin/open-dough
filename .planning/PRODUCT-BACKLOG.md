@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Name every passage a boundary row's own passages require](seeds/SEED-010-learn-from-execution-retrospectives.md#name-required-passages-in-boundary-rows) — SEED-010#name-required-passages-in-boundary-rows ([plan](slice-plans/346-name-required-passages-in-boundary-rows/PLAN.md))
-
 ## Backlog list
 
 - [Stop asking for native checks once their question is answered](seeds/SEED-010-learn-from-execution-retrospectives.md#reuse-native-proof-after-attribution) — SEED-010#reuse-native-proof-after-attribution

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#name-required-passages-in-boundary-rows",
+  "title": "Name every passage a boundary row's own passages require",
+  "completedAt": "2026-10-22T07:04:09.391Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude"
+}

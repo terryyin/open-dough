@@ -524,29 +524,6 @@ containing release at ODF-324.
 **Value / learning:** Protects the developer's attention, the scarcest resource
 in native acceptance.
 
-<a id="name-required-passages-in-boundary-rows"></a>
-
-### 16. Name every passage a boundary row's own passages require
-
-**Identity:** SEED-010#name-required-passages-in-boundary-rows
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/346-name-required-passages-in-boundary-rows/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"659b8a8ae71acbb3726d1825165ca375c61db7143880dfb00040975c1d7c1310","plan":"fed68831a58e4a0debc937daf6345f81b8c31d115e48a163ad15f04c368b48bf"}}
-```
-
-**Goal:** A coordinator executing a plan finds in each execute-plan boundary
-row every passage that boundary always needs. The row's size check then
-covers what the coordinator actually reads, so a needed read does not exceed
-the budget unnoticed. This corrects the delivery of SEED-010#bound-startup-guidance-retrieval
-(story recoverable at `09eb0767:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`).
-
-**Scope:** The boundary-reads table in `src/skills/dough-execute-plan/SKILL.md`
-and its `read-budget-guidance.test.mjs`. Each row adds the passages that its
-named passages say to follow every time at that boundary, and stays within
-the 30,000-byte budget. The delivery row names the trunk-publication sections
-that increment delivery uses, not the whole file. Conditional and recovery
-passages stay with targeted retrieval. Plan:
-[346](../slice-plans/346-name-required-passages-in-boundary-rows/PLAN.md).
-
 ## Ordering and Scope Reduction
 
 Queue Story 10's one-cycle evaluation first, followed by the
