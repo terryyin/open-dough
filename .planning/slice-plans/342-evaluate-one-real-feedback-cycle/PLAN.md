@@ -168,6 +168,16 @@ naming its owner. Perform the execution workflow's post-change refactoring
 and delivery gates. If execution finds that a runtime change is necessary to
 fulfil this outcome, stop and revisit scope instead of adding implementation.
 
+## Execution complete
+
+Product advice: no backlog change. The evaluation judges the 2026-10-22 cycle
+retain (exploratory, low confidence) and recommends revising and further
+trialling Proposed ADR 0010; that decision stays with Terry through the advice
+process. The bounded next observation (stop recommendations and open
+next-observation requests) belongs to the maintainer at the next combined
+cycle after 2026-10-29. Story 11 keeps its queue position: one run supplies
+no evidence to advance or drop it.
+
 ## Current decisions
 
 - Two Behavior slices: ADR 0010 asks for the basis before the evidence is
