@@ -178,6 +178,10 @@ Behavior: an automatic feedback-maintenance attempt was accepted for due date X,
 
 Accepted proof (2026-10-22): `node --test tests/support/feedback-maintenance-due.test.mjs tests/support/feedback-maintenance-state.test.mjs` 17 pass. The new due cases cover (a)–(d) on the moved `observedSessions` and `dueDecision`. Case (a), "an automatic start no process runs, still unsettled, has ended: it serves its date and frees a later one", failed with `running` against the old mapping. The new state case "an automatic start no process runs, still unsettled, did not complete" runs the real reading and failed under the old mapping. `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/feedback-maintenance-due-row.spec.ts dashboard/tests/feedback-maintenance-launch.spec.ts dashboard/tests/boundary/agent-launch-ad-hoc-codex-input.spec.ts --reporter=list` gave 11 passed. `npm run typecheck:dashboard` and `npm run lint` pass. The interrupted start is proved at unit level on the real reading, as planned. No browser test simulates a dead worker.
 
+## Execution complete
+
+Product advice: no change. The correction restores Story 9 as promised, and no new product work follows from it. The excluded overlap between `feedback-maintenance-launch.spec.ts` and `feedback-maintenance-due-row.spec.ts` is recorded only in this plan. Slice 1 added one more test to the due-row spec. Wrap-up decides whether to carry that overlap forward as a test-optimization candidate.
+
 ## Current decisions
 
 - Finding 1 is corrected in the composition by keeping the review's read time,
@@ -196,7 +200,8 @@ Accepted proof (2026-10-22): `node --test tests/support/feedback-maintenance-due
 
 ## Learnings
 
-(Execution records consequential discoveries here.)
+- The sidebar entry was not a usable anchor for the quiet-done browser test because a done session leaves the sidebar. The Recently done card comes from the same sessions answer.
+- Moving `observedSessions` into `feedbackMaintenanceDue.ts` also moved `ObservedMaintenanceSession` there, so the state module now depends on the due module in one direction only.
 
 ## Concern evidence
 
