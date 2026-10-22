@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-008#normalize-delivery-commit-identities",
+  "title": "Normalize commit identities before delivery comparisons",
+  "completedAt": "2026-10-22T08:57:47.449Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "claude"
+}

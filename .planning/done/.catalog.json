@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-008_normalize-delivery-commit-identities.json",
+      "identity": "SEED-008#normalize-delivery-commit-identities",
+      "completedAt": "2026-10-22T08:57:47.449Z",
+      "blob": "ed0b0319b3bd6d04796beabb7c1e867ce766983c"
+    },
+    {
       "fileName": "SEED-010_prioritize-responses-with-delegated-authority.json",
       "identity": "SEED-010#prioritize-responses-with-delegated-authority",
       "completedAt": "2026-10-22T08:41:10.044Z",

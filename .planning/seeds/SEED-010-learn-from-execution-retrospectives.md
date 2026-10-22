@@ -285,7 +285,7 @@ self-modification, automatic changes to goals/ADRs, or rollout to every project.
 ## Ordering and Scope Reduction
 
 Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) is complete. Queue the
-[ODF-142 correction](SEED-008-worktree-branch-trunk-sync.md#normalize-delivery-commit-identities)
+[ODF-142 correction](../../docs/maintainer/findings/ODF-142.md)
 and Story 11 as a later candidate requiring necessity reassessment at refinement.
 Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.

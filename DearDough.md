@@ -5,7 +5,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 332. Removed numbers are never reused.
+- Highest allocated local number: 334. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -511,6 +511,15 @@ review received the same inputs and returned the same commitments.
   - Observed effect: the opposite choice to plan 347. Reusing the slice 1 return, slice 2 acceptance still found two omitted commitments (severity and review coverage; source-backed risks versus incidents) and corrected them before delivery. No second review was launched.
   - Inference: deviates from the literal per-slice rule in wrap-up.md "Accept proof". With plan 347, this gives one reuse and one repeat: the repeated review added nothing, and the reused one lost no detected commitment. Two occurrences cannot settle independence.
 
+- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
+  - Timestamp: unknown (2026-10-22, slice 2 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: coordinator conversation; one "Source-only story review" (46,054 subagent tokens) before slice 1 acceptance, reused for slice 2 with the story unchanged and no amendment
+  - Observed effect: the coordinator compared slice 2 against the retained commitments (C16–C26, C35–C36) without a second review, contrary to "for each slice" in wrap-up.md "Accept proof"; no slice 2 commitment was observed missing at acceptance or in the retrospective's outcome review.
+  - Inference: a non-compliant reuse rather than a tested alternative; it saved roughly one review's tokens and is evidence for, not proof of, the open reuse question.
+
 ## DD-332 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
 
 The plan made "write the decision basis" its first execution slice. The
@@ -526,3 +535,38 @@ basis followed the result and the judgment became exploratory.
   - Evidence: plan 342 premise table at `3d01d28f:.planning/slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md` ("Slice 1 can therefore precede the result if execution starts before the run completes"); dashboard launch record (maintenance `due` 2026-10-22, done 00:09:14Z); Take `a00e6a77` at 2026-10-22T08:21:29Z
   - Observed effect: preparation knew the run was due that day and could start without the maintainer. The basis waited for a separate execution about eight hours after the run finished. Story 10's own key example 2 anticipated this.
   - Inference: preparation authorizes no execution, so a criterion written as a slice cannot precede an imminent automatic event. Writing such criteria into the story or plan during preparation would have kept the judgment confirmatory. One occurrence; the research report's ADR 0010 recommendation carries the general point.
+
+## DD-333 — A fresh delivery refused the obligation its own plan update would close
+
+The guarded fresh delivery checks the slice's story obligations before running
+the plan update. A plan-update command that also changes a receiving
+obligation to `proved` therefore meets that obligation still open.
+
+### Occurrences
+- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
+  - Timestamp: unknown (2026-10-22, slice 2 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: fresh result `preparation-failed`, `operation: "story obligations"`, `G1 open-obligation slice 2`; retry succeeded at bbce29a4 after the disposition was written into the plan first
+  - Observed effect: one refused attempt, after its selective formatter had already run.
+  - Inference: fresh-increment.md says obligations are checked before the plan mutation and wrap-up.md step 5 runs the check before marking done, so the order is documented; the coordinator misread the plan `update` as the place for dispositions. One occurrence.
+
+## DD-334 — Implementation returns failed the delivery formatter's lint
+
+The slice 1 implementation and refactor agents were told not to run
+hook-owned lint. Their return reassigned a function parameter and left an
+unused callback argument, so the guarded fresh delivery's `npm run format`
+step failed on `no-param-reassign` and `no-unused-vars`. For slice 2 the
+brief allowed a direct `npx eslint` on the agent's own files, and delivery
+passed first time.
+
+### Occurrences
+- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
+  - Timestamp: unknown (2026-10-22, slice 1 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: fresh result `preparation-failed`, `operation: "formatting"`, two ESLint errors in execution-increment-publication.mjs and execution-increment-publication-base-identity.test.mjs; coordinator repaired them and reran focused proof before the accepted retry at 1443f1f2
+  - Observed effect: one refused attempt and a coordinator repair after the refactor pass.
+  - Inference: delegation.md forbids an independent hook-owned lint command so the coordinator owns it; whether a read-only lint check of the agent's own files is that command is unclear. Two slices are not enough to call it a general practice.
