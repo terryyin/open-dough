@@ -100,9 +100,35 @@ the same runner before delivery.
 
 ### 1. Fresh delivery marks the selected slice done and repeats safely
 Type: Behavior
-Status: planned
+Status: done
 Proof: outside-in examples 1–6 above through the fresh fixture; focused route
 plus the plan-reader consumers' tests; the two discrimination observations.
+Accepted: source-only review (fresh agent, story text only) returned C1–C27
+and exclusions E1–E7; every commitment maps to product and observation.
+`execution-increment-fresh-slice-status.test.mjs` covers examples 1–5 (retry
+after `staged whitespace` commits only slice 4 done plus the coordinator's
+accepted-proof edit; fenced `Status:` untouched; slice 7, unreadable layout,
+duplicated `### 4.` refuse as `plan/status mutation` with plan bytes,
+index and HEAD unchanged; newly done slice 2 refuses naming it; `plan.update`
+refuses as `context`). `execution-increment-fresh.test.mjs` "planned
+obligations refuse before the status step, also when already done, and after
+it before commit" covers example 6; authorship test's order log is
+`generation\nformatting\nsummary\n`. Setup: `planned()` commits the plan at
+HEAD (`--no-verify`) then writes the accepted-proof edit. Discrimination:
+throwing on an already-done slice failed example 1's retry (code 1 vs 0);
+disabling the other-slice check let example 4 commit (code 0 vs 1). Status
+step lives in `selected-slice-status.mjs`; reader exposes
+`locatePlanSliceStatuses`, `readPlanSlices` output unchanged. Commands, all
+exit 0 on the final tree: `env PATH="/opt/homebrew/bin:$PATH" bash
+scripts/test.sh` over execute-plan `story-obligations*`,
+`execution-increment-fresh*`, `execution-completion-record-guidance`,
+`read-budget-guidance` tests and `tests/support/product-backlog-*`,
+`story-state*` (71 files); payload/install shell tests
+(`install-public-payload`, `product-backlog-payload-update`,
+`payload-declaration-links`, `install-omits-internal`, `update-*`,
+`retrospective-reference-payload`, `pin-and-inspect`,
+`install-preserves-open-dough-json`, `dough-update-guidance-payload`);
+`npx tsc --build dashboard/tsconfig.json`; `npm run build:dashboard`.
 
 Behavior: a planned fresh delivery request naming plan path and slice →
 the helper sets only that slice's real `Status:` line to `done` (no change when
@@ -111,6 +137,18 @@ already `done`), refuses missing/ambiguous/unreadable targets and other newly
 today; `fresh-increment.md` documents the `plan` field without `update`, states
 that other plan evidence is the coordinator's prior owned edit, and keeps its
 order description and repair example accurate within the delivery-row budget.
+
+## Story obligations
+
+### G1. A CI repair must name an already done slice
+Reported: slice 1 — "A planned owned repair must therefore name the already-done slice it repairs, not the interrupted in-progress slice."
+Story clause: "An executing agent can retry a refused fresh delivery without changing another slice's status or asking the developer to repair the plan."
+Disposition: no user cost "An executing agent can retry a refused fresh delivery without changing another slice's status": an owned CI failure is on a revision this execution registered after publication; every increment publication carries its slice's done status, so a repair names that done slice and changes no status (`wrap-up.md` step 5). The only earlier registered revision, a Trunk Mode claim, is the start operation's backlog Take, not slice work delivered through fresh preparation.
+
+### G2. Status rewrite normalizes mixed line endings
+Reported: slice 1 — "a plan with mixed CRLF/LF line endings would be normalised to the dominant style when its status changes. This is not tested."
+Story clause: "Reuse the existing plan slice reader, obligation checks, staging, commit and publication; add no second plan representation."
+Disposition: no user cost "An executing agent can retry a refused fresh delivery without changing another slice's status": the rewrite uses the backlog's existing `splitSource`/`joinSource` line handling that other plan and backlog writers already apply; slice statuses and content are unchanged, only an inconsistent line ending style is unified.
 
 ## Concerns
 

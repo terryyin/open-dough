@@ -40,7 +40,7 @@ export async function localFixture(t) {
     mode: 0o755,
   });
   writeFileSync(join(workspace, "work.txt"), "owned work\n");
-  const before = await revParse(workspace, "HEAD");
+  const state = { before: await revParse(workspace, "HEAD") };
   const refs = await remoteHeads(fixture.origin);
   const preparation = {
     kind: "quick",
@@ -104,7 +104,7 @@ export async function localFixture(t) {
     return { code: result.code ?? 0, result: delivered };
   };
   const withheld = async ({ hookCalled = false } = {}) => {
-    assert.equal(await revParse(workspace, "HEAD"), before);
+    assert.equal(await revParse(workspace, "HEAD"), state.before);
     assert.equal(existsSync(hookLog), hookCalled);
     assert.equal(await remoteHeads(fixture.origin), refs);
     assert.equal(
@@ -116,7 +116,17 @@ export async function localFixture(t) {
   return {
     ...fixture,
     workspace,
-    before,
+    get before() {
+      return state.before;
+    },
+    // Commits the checkout's own plan as preparation landing does before
+    // Take, without the delivery hook, so it becomes the unchanged base.
+    async commitPlan(text) {
+      writeFileSync(join(workspace, "PLAN.md"), text);
+      await git(workspace, "add", "PLAN.md");
+      await git(workspace, "commit", "--quiet", "--no-verify", "-m", "Plan");
+      state.before = await revParse(workspace, "HEAD");
+    },
     refs,
     hook,
     hookLog,
@@ -128,19 +138,16 @@ export async function localFixture(t) {
   };
 }
 
-export function planned(
-  f,
-  source = "const text = fs.readFileSync('PLAN.md', 'utf8'); fs.writeFileSync('PLAN.md', text.replace('### 4. Work 4\\nType: Behavior\\nStatus: planned', '### 4. Work 4\\nType: Behavior\\nStatus: done') + '\\n## Accepted proof\\n\\naccepted proof\\n');",
-) {
-  writeFileSync(join(f.workspace, "PLAN.md"), slicePlan(""));
+// Planned work whose committed plan has slices 1–4 planned; the coordinator's
+// own accepted-proof edit is already in the working plan before invocation.
+export const acceptedProof = "\n## Accepted proof\n\naccepted proof\n";
+export async function planned(f, plan = slicePlan("")) {
+  await f.commitPlan(plan);
+  writeFileSync(join(f.workspace, "PLAN.md"), `${plan}${acceptedProof}`);
   return {
     ...f.preparation,
     kind: "planned",
-    plan: {
-      path: "PLAN.md",
-      slice: 4,
-      update: f.logged("plan update", source),
-    },
+    plan: { path: "PLAN.md", slice: 4 },
     staging: { ownedPaths: ["work.txt", "PLAN.md"], stagedPaths: [] },
   };
 }

@@ -109,34 +109,12 @@ test("missing resolved requirements, planned inputs and ambiguous staging refuse
   assert.equal((await git(f.workspace, "diff", "--cached")).stdout, "");
 });
 
-test("failed required plan mutation with otherwise valid work retains edits and cannot commit", async (t) => {
-  const f = await localFixture(t);
-  const p = planned(
-    f,
-    "fs.appendFileSync('PLAN.md', '\\npartial update\\n'); process.exit(9);",
-  );
-  const { code, result } = await f.fresh(p);
-  assert.equal(code, 1);
-  assert.equal(result.operation, "plan/status mutation");
-  assert.equal(result.code, 9);
-  assert.match(
-    readFileSync(join(f.workspace, "PLAN.md"), "utf8"),
-    /partial update/,
-  );
-  assert.equal((await git(f.workspace, "diff", "--cached")).stdout, "");
-  await f.withheld();
-});
-
 test("missing plan input and failed staging each stop before commit without discarding the index", async (t) => {
   const f = await localFixture(t);
   const p = {
     ...f.preparation,
     kind: "planned",
-    plan: {
-      path: "missing-PLAN.md",
-      slice: 1,
-      update: f.logged("forbidden update"),
-    },
+    plan: { path: "missing-PLAN.md", slice: 1 },
     staging: { ownedPaths: ["work.txt", "missing-PLAN.md"], stagedPaths: [] },
   };
   const missing = await f.fresh(p);
@@ -153,37 +131,41 @@ test("missing plan input and failed staging each stop before commit without disc
   await f.withheld();
 });
 
-test("planned obligations refuse before done mutation, and after mutation before commit", async (t) => {
+test("planned obligations refuse before the status step, also when already done, and after it before commit", async (t) => {
   const f = await localFixture(t);
-  const p = planned(f);
+  const p = await planned(f);
   writeFileSync(
     join(f.workspace, "story.md"),
     `# Story\n\n<a id="selected"></a>\n\n### Selected\n${holdings.story}\n`,
   );
   const open = slicePlan(obligation(holdings));
-  writeFileSync(join(f.workspace, "PLAN.md"), open);
-  let attempt = await f.fresh(p);
-  assert.equal(attempt.result.operation, "story obligations");
-  assert.equal(
-    attempt.result.details.problems.some(
-      ({ reason }) => reason === "open-obligation",
-    ),
-    true,
-  );
-  assert.equal(
-    existsSync(f.operations),
-    false,
-    "no done mutation when obligations already refuse",
-  );
-  await f.withheld();
+  for (const done of [[], [4]]) {
+    const plan = slicePlan(obligation(holdings), { done });
+    writeFileSync(join(f.workspace, "PLAN.md"), plan);
+    const attempt = await f.fresh(p);
+    assert.equal(attempt.result.operation, "story obligations");
+    assert.equal(
+      attempt.result.details.problems.some(
+        ({ reason }) => reason === "open-obligation",
+      ),
+      true,
+    );
+    assert.equal(
+      readFileSync(join(f.workspace, "PLAN.md"), "utf8"),
+      plan,
+      "no status step when obligations already refuse",
+    );
+    assert.equal(existsSync(f.operations), false);
+    await f.withheld();
+  }
   writeFileSync(join(f.workspace, "PLAN.md"), slicePlan(""));
-  p.plan.update = f.logged(
-    "plan update",
+  p.summary = f.logged(
+    "summary",
     `fs.writeFileSync('PLAN.md', ${JSON.stringify(open)});`,
   );
-  attempt = await f.fresh(p);
+  const attempt = await f.fresh(p);
   assert.equal(attempt.result.operation, "story obligations");
-  assert.equal(readFileSync(f.operations, "utf8"), "plan update\n");
+  assert.equal(readFileSync(f.operations, "utf8"), "summary\n");
   assert.equal((await git(f.workspace, "diff", "--cached")).stdout, "");
   await f.withheld();
 });

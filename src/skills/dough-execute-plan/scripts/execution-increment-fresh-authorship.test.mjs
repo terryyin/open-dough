@@ -48,7 +48,7 @@ test("successful planned preparation runs in order and delegates assigned-worksp
     agent: "Yui-chan",
     email: "yui-chan@example.org",
   });
-  const p = planned(f);
+  const p = await planned(f);
   p.commit = "agent";
   p.generation = f.logged(
     "generation",
@@ -66,7 +66,7 @@ test("successful planned preparation runs in order and delegates assigned-worksp
   assert.equal(result.commit.agent, "Yui-chan");
   assert.equal(
     readFileSync(f.operations, "utf8"),
-    "generation\nformatting\nplan update\nsummary\n",
+    "generation\nformatting\nsummary\n",
   );
   assert.equal(readFileSync(f.hookLog, "utf8"), "commit\n");
   assert.equal(
