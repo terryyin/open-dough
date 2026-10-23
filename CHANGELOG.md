@@ -1,3 +1,16 @@
+## 0.3.70 - 2026-10-23
+
+- Select the native GitHub Actions workflow with `ciWorkflow` in `.planning/open-dough.json`, including outside a development shell. Keep the environment override and `ci.yml` default; use the same startup selection for observation, diagnostics and completion evidence.
+- Allocate new story identities from active work, completed records and published history, and refuse new claims on completed identities.
+- Keep completed sessions out of startup recovery and distinguish a missing Cursor workspace from a missing executable.
+- Keep dashboard session fixtures within real server retention while preserving their relative clocks.
+
+The Promoted installation payload adds the shared CI configuration reader and three story-identity evidence modules, and updates existing CI, backlog and story-creation guidance. No payload paths are removed. Dashboard changes remain source functionality.
+
+Validation includes representative behavior review, focused configuration/observation/diagnostic/installer checks, the six-test dashboard retention repair proof, hook-owned lint and dashboard typecheck, and the release self-installation check. Shared Codex, Cursor and Claude Code discovery, launch and notification mechanisms are unchanged; their integration evidence is reused under ADR 0005. The identity-allocation guidance received its owning story's representative fresh-agent exercise. No fresh native-host acceptance or new exception is claimed. Earlier outstanding native requirements retain their existing owners and remain pending.
+
+Hosted CI passed source revision `9d46b663b855d22ff6ca1b6ecf4985aac2462dbe` (run `39952742922`), including all dashboard browser shards. The preceding source repair also passed run `39951864467`.
+
 ## 0.3.69 - 2026-10-23
 
 - Trace changed behavior across the whole checkout with a generated consumer record, including retired literals, changed identifiers and import paths; require a proof disposition for every located consumer before accepting execution or refactoring work.
