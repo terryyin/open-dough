@@ -58,6 +58,12 @@ feedback maintenance to earlier responses' open observation requests. This
 selection queues the stories; it does not start implementation or revive the
 dropped autonomous-correction candidate.
 
+On 2026-10-24, Terry requested one delivered client product improvement with
+enough actual-use evidence for a narrow assessment, first in the backlog.
+The selected case is Doughnut's note-details disclosure and the owner's
+post-deployment request to restore visible properties and footer timestamps.
+This queues an assessment in Open Dough; it does not reopen that product decision.
+
 The shared [project-findings maintenance contract](../../src/skills/dough-triage-project-findings/SKILL.md)
 provides explicitly invoked local maintenance, repair observation, priority selection,
 and commit/sync. Later stories compose or evaluate that capability.
@@ -210,6 +216,72 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="assess-client-product-improvement-in-use"></a>
+
+### Assess Doughnut's note-details disclosure against deployed use
+
+**Identity:** SEED-010#assess-client-product-improvement-in-use
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why:** For the Open Dough maintainer and Doughnut's note reader/author,
+assess whether one delivered product change justified its cost in the context
+of actual beneficiary feedback. Doughnut's `SEED-078#story-5` promised quieter
+reading by initially collapsing properties and dates. After deployment, Terry
+requested their restoration while preserving useful display improvements.
+This gives us a bounded case of implementation acceptance followed by a
+different product judgment in use.
+
+**Evidence already available:**
+
+| Part of the case | Recoverable evidence |
+| --- | --- |
+| Baseline and intended gain | [Original story](https://github.com/nerds-odd-e/doughnut/blob/b6f36e9c6eac008fe7c626b445b28c3fb2c80855/.planning/seeds/SEED-078-cohesive-note-workspace.md#story-5): replace visible properties and footer dates with a compact disclosure, keeping reading and editing useful. At the same revision, `.planning/slice-plans/009-note-details-disclosure/{PLAN,PREPARATION,PROOF}.md` retain the accepted behavior, costs and explicit limit that headless geometry does not establish real-device comfort. |
+| Delivery and exposure | Closed at `2e5649274697c85b26a50a8b3672c62406de6c1f`, merged at `21d19fc9b08b4ad486769c427e51c6cf8dd3b0a4`, released as v1.3.47; [deployment run 39400614643](https://github.com/nerds-odd-e/doughnut/actions/runs/39400614643) succeeded on 20 October. |
+| Actual beneficiary feedback | Codex chat [Review Donut Note iPhone UX](thread://01a15660-d40d-7ef3-8c86-81d728d87bf5?hostId=local): turn `01a15937-b164-7582-ad10-5cc1e9f64df3` (20 October, 21:09 JST) says the stories are deployed and supplies screenshots; turn `01a15df9-b79a-7632-bb88-3b7dda85d33f` (21 October, 19:20 JST) requests always-visible properties, footer dates and removal of disclosure, preserving useful property-display changes. These are one beneficiary's post-deployment observations, not a usage-rate sample. |
+| Bounded response | [Restoration story SEED-082#story-1](https://github.com/nerds-odd-e/doughnut/blob/f7f5015773a0b5d0daee6c5e6cdf7cffe728271a/.planning/seeds/SEED-082-visible-note-properties.md), with `.planning/slice-plans/003-visible-note-properties/PLAN.md` at the same revision; closed at `23c64de1fd3beed5b7cedb65efacb46bb566808f`, released as v1.3.49; [deployment run 39687212956](https://github.com/nerds-odd-e/doughnut/actions/runs/39687212956). |
+
+**Outcome and scope:** Add one concise assessment to the existing
+[empirical-process-control research record](../../docs/maintainer/empirical-process-control-research.md),
+under [Accepted ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+Use the evidence above to distinguish the original value hypothesis, accepted
+implementation, observed owner judgment, retained improvements and reversal
+cost. Label this retrospective assessment exploratory. The result is a bounded
+product-benefit judgment and useful learning, not another UI implementation or
+a general evaluation framework.
+
+**Acceptance criteria:**
+
+- Trace the original promise through release, the two identified feedback turns
+  and the restoration. Separate direct observation from inferred usability
+  consequences; distinguish the disclosure decision from the wider UI redesign.
+  Attribute retained reading-column/typography work (`522f3f9f72`) to Story 5;
+  the retained property-row improvements belong to sibling Story 4
+  (`e1b1aaf93f`), so neither their benefits nor their costs belong to this case.
+- State the comparison and result worth keeping before making the assessment.
+  Explain what the evidence supports retaining, adjusting or rejecting, and what
+  remains inconclusive, respecting the owner's already-settled restoration.
+  Passing tests demonstrate the implemented behavior, not its usefulness.
+- Bound implementation, repair and reversal costs to this case. Original owned
+  changes are `8d30de7ea3`, `89a2bb85d1`, `4b9d3792f7`, `f6ba658ab7`,
+  `522f3f9f72` and CI repair `df295a0d86`; restoration changes are
+  `d5b50a822c` and `b6ee50ea64`. Use their retained records for attributable
+  rework and complexity; do not charge sibling UI work to this response or
+  equate elapsed time with active effort. Report unavailable human time, tokens
+  and monetary cost as unknown, and record this assessment's own effort.
+- Describe the human value contributed by the owner's product judgment and
+  ensuing correction. Do not infer a missed Jidoka stop or intervention rates
+  from this feedback thread alone; identify the coverage limit.
+- Explicitly retain the limit that post-restoration usability in ordinary use
+  has not been established. Deployment and source proof cannot fill that gap.
+  End with one bounded next observation only if a remaining decision needs it;
+  no additional story is required to make this assessment useful.
+
+**Boundary / safe stopping point:** Read existing Doughnut evidence; write only
+the Open Dough assessment. No fresh user trial, production operation, client
+change, general UI review or reversal of the owner's decision is included.
+The assessment remains useful if no later implementation follows.
 
 <a id="pending-lifecycle-validation-obligations"></a>
 
@@ -249,10 +321,10 @@ obligations passed.
 
 Story 10's [one-cycle evaluation](../../docs/maintainer/empirical-process-control-research.md#feedback-cycle-evaluation-follow-up) and the
 [ODF-142 correction](../../docs/maintainer/findings/ODF-142.md) are complete.
-The next selected work is Story 17 (ODF-323 retry safety), then Story 18
-(connecting collected evidence to open response observations). This order
-addresses demonstrated false progress before the observed feedback connection
-gap; the stories can deliver independently.
+Story 17 (ODF-323 retry safety) and Story 18 (connecting collected evidence to
+open response observations) are complete. The next selected work is the
+Doughnut note-details assessment above: one delivered product change with
+actual beneficiary feedback and an attributable correction.
 Story numbers and recorded identities remain stable;
 the product backlog is the authority for current queue order and membership.
 

@@ -20,3 +20,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Assess Doughnut's note-details disclosure against deployed use](seeds/SEED-010-learn-from-execution-retrospectives.md#assess-client-product-improvement-in-use) — SEED-010#assess-client-product-improvement-in-use
