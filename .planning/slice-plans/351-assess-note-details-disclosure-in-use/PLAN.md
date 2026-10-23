@@ -130,6 +130,15 @@ post-change refactoring and delivery gates. If execution finds that a runtime
 change, a client change or a new mechanism is necessary to fulfil this
 outcome, stop and revisit scope instead of adding implementation.
 
+## Execution complete
+
+Product advice: no change. The assessment closes one response loop with
+existing evidence, as the near-future direction asks, and leaves the backlog
+unchanged. A hypothesis from this single case, to consider when choosing the
+next empirical-loop story: when a client plan records that its proof cannot
+establish comfort in real use, as plan 009 did, that limit is the natural
+post-deployment observation to name and route to the client owner.
+
 ## Current decisions
 
 - One Behavior slice: the assessment is one evidence-to-decision proof loop
