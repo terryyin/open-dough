@@ -16,7 +16,11 @@ import {
 import type { StoryStagesJourney } from "./launchJourney.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  untilPageRequestsAnswered,
+  untilPublishedWorkRead,
+} from "./pageRequestNotes.ts";
 
 export type Workflow = "Execution" | "Refinement";
 
@@ -54,9 +58,10 @@ export async function openStoryStagesJourney(
       await settled();
     },
     // Launches the workflow from the story's card, confirming its dialog, and
-    // waits until the start reconciles: the fresh read its settling asks
-    // makes every card read its preparation again, which takes their Start
-    // actions away meanwhile, so a later launch begins on settled cards.
+    // waits for startup's answers before checking that it reconciled. The
+    // fresh published-work read after settlement reads every card's
+    // preparation again, temporarily taking their Start actions away, so a
+    // later launch begins on settled cards.
     launch: async (title: string, workflow: Workflow) => {
       await expect(action(title, workflow)).toBeEnabled();
       await action(title, workflow).click();
@@ -64,6 +69,7 @@ export async function openStoryStagesJourney(
         .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })
         .getByRole("button", { name: "Start" })
         .click();
+      await untilPageRequestsAnswered(page);
       await expect(page.getByText(/this story's actions/)).toHaveCount(0);
     },
   };
