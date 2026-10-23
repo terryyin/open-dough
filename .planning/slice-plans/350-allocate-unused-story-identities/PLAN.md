@@ -274,6 +274,17 @@ found none. Guidance, link, payload, install tests and lint passed; full
 Playwright `.last-run.json` under load 31; passes alone; no dashboard path
 changed). Commitments C5–C9, C15, C23–C25, C32 observed.
 
+## Execution complete
+
+Product advice: no change to the queue. The story's outcome is delivered
+without correction; Donut and other projects receive it through an ordinary
+release. Retrospective findings for this repository: DD-279 gains a Node-suite
+occurrence (a `longest-first` refresh holds only until the file set drifts;
+dealing known-time jobs to the least-loaded share is the unselected remedy),
+and DD-336 records an unexplained `dashboard-concurrent-runs.sh` failure in a
+loaded whole-suite run. Both stay open and unqueued in `ProjectFindings.md`
+for findings triage.
+
 ## Current decisions
 
 - Evidence is read, never reserved: no lock, registry, or next-number file.

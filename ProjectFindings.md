@@ -34,7 +34,8 @@ execution. A repaired individual race does not resolve every suite failure.
 3. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
    records two shard deadlines in one execution; a refreshed duration list and
    twelve shares repair those runs, while duration ordering still ages without
-   a refresh step. [DD-275](#dd-275) records one separate execution whose
+   a refresh step. Plan 350 met the same mechanism in the Node suite's share
+   budget (one added test file, repaired by refreshing `tests/longest-first`). [DD-275](#dd-275) records one separate execution whose
    within-run load was unobserved. These are related diagnostic/margin concerns,
    not one demonstrated cause. The repaired individual timeout DD-280 and
    shell budget breach DD-283 are removed below.
@@ -68,6 +69,14 @@ new or residual causes above are not evidence that every earlier fix failed.
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279).
+
+## Concurrent dashboard runs lost a run's result file (open, unqueued)
+
+<a id="dd-336"></a>
+
+### DD-336 — `dashboard-concurrent-runs.sh` failed once in a loaded whole-suite run on a missing `.last-run.json`
+
+[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-336).
 
 ## Focused proof bypasses the project test runner (open, unqueued)
 

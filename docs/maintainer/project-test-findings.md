@@ -50,6 +50,29 @@ that had asked for nothing.
   - Observed effect: a records-and-tests repair commit failed CI on time alone, costing a third diagnosis during one wrap-up.
   - Inference: qualified. The story added six spec files and the repair one more; the stale order, not any single spec, put two shares within 10 s of the deadline. The list has no refresh step, so the margin erodes again as specs are added.
   - Later evidence: the refreshed order's first run (38091885152, `main` at `3b2b446a`) ended share 6/9 at the deadline with all 147 tests passed; its 49 specs summed to 1,019 test-seconds against 719 in the reference run, about 1.4 times slower across unrelated specs, while other shares took 176 s to 285 s. Nine shares left no room for that runner variance, so the matrix now deals twelve (predicted 463 to 605 test-seconds a share).
+- Execution: `SEED-148#allocate-unused-story-identities` / plan 350, first implementation `3fba18f99c50843b0901ecc226db982ccaadfe1e`
+  - Timestamp: 2026-10-23 (CI run 39883782226 on `3fba18f9`; exact failure time not retained)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `3fba18f9`; base 0.3.69
+  - Evidence: Node suite job "test (3/3)" failed only with `OVER BUDGET: all jobs took 711.1 job-seconds; the total ceiling is 710`. The slice added one 1.0 s test file; `tests/longest-first` listed 81 labels, so the bytewise round-robin moved about 31 jobs between shares and share 3 went from 683.3 (main run 39875064344) to 711.1 while common jobs ran at the same speed (1788.0 vs 1794.3 s). `bash scripts/ci-test-times.sh` already showed share 3 at 706.6 of 710 on main (headroom 3.4, "thin"). Plan 350 named no time-budget baseline although `tests/time-budget.md` asks a slice adding test time to. Repair `9b762292` refreshed the list by its documented procedure (165 labels; projected 612.9 / 588.6 / 593.8).
+  - Observed effect: one CI failure on sound code, costing a parked-work stash, a repair agent, a refactor agent, and a repair publication.
+  - Inference: qualified. Same mechanism in the Node suite's budget rather than the dashboard deadline: a partly stale `longest-first` leaves the bytewise remainder to decide shares, so any added or renamed test file reshuffles them; the refresh holds only until the file set drifts. Dealing known-time jobs to the least-loaded share would remove the dependence on order; not selected.
+
+<a id="dd-336"></a>
+
+### DD-336 — `dashboard-concurrent-runs.sh` failed once in a loaded whole-suite run on a missing `.last-run.json`
+
+#### Occurrences
+
+- Execution: `SEED-148#allocate-unused-story-identities` / plan 350, first implementation `3fba18f99c50843b0901ecc226db982ccaadfe1e`
+  - Timestamp: 2026-10-23T11:1x+09:00 (whole `bash scripts/test.sh` before slice 4 commit `549675ab`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `0d1fbf2c` plus slice 4 guidance edits; base 0.3.69
+  - Evidence: the only failure was `FAIL: the first concurrent dashboard run printed: ERROR outside a test: Error: ENOENT: no such file or directory, open '<checkout>/dashboard/test-results/2026-10-23T02-11-20.956Z/.last-run.json'`; load average 31; the change touched no dashboard path; `bash scripts/test.sh tests/dashboard-concurrent-runs.sh` alone then passed.
+  - Observed effect: one whole-suite failure outside the change, classified without repair.
+  - Inference: unestablished cause. Each run writes `dashboard/test-results/<millisecond stamp>`; something removed or never created the first run's directory while it ran. A passing rerun is not a repair.
 
 <a id="dd-295"></a>
 
