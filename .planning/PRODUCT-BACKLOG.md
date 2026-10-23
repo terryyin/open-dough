@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Check completed work before allocating a new story identity](seeds/SEED-148-unused-story-identities.md#allocate-unused-story-identities) — SEED-148#allocate-unused-story-identities ([plan](slice-plans/350-allocate-unused-story-identities/PLAN.md))
-
 ## Backlog list
 

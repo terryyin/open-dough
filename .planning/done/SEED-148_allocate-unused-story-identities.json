@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-148#allocate-unused-story-identities",
+  "title": "Check completed work before allocating a new story identity",
+  "completedAt": "2026-10-23T02:22:58.848Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "claude"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-148_allocate-unused-story-identities.json",
+      "identity": "SEED-148#allocate-unused-story-identities",
+      "completedAt": "2026-10-23T02:22:58.848Z",
+      "blob": "ae1753b7d09624144e17e42dc73eb6132732df53"
+    },
+    {
       "fileName": "SEED-052_completed-startup-recovery.json",
       "identity": "SEED-052#completed-startup-recovery",
       "completedAt": "2026-10-22T23:51:44.794Z",
