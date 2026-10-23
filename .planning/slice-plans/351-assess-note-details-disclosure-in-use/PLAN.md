@@ -104,7 +104,7 @@ restoration is complete and deployed, so no external wait gates the slice.
 
 ### 1. The research record holds the exploratory assessment of the note-details disclosure
 Type: Behavior
-Status: planned
+Status: done
 Proof: A maintainer reading the new follow-up can trace every claim to a named
 Doughnut revision, commit, plan record, release tag, deployment run or
 feedback turn, reproduce the read-only observations, and read the basis,
@@ -145,9 +145,60 @@ outcome, stop and revisit scope instead of adding implementation.
 - Preparation authorizes no execution. The eventual execution instruction
   owns the assessment and its ordinary delivery.
 
+## Accepted proof
+
+Slice 1, accepted 2026-10-24 on the uncommitted change to
+`docs/maintainer/empirical-process-control-research.md` (section
+`#note-details-disclosure-follow-up`).
+
+- Source-only review: a fresh general-purpose reviewer received only the
+  selected story's text, from **Goal** to **Boundary / safe stopping point**,
+  extracted to the execution job's `tmp/source.md`. It returned 56 commitments,
+  grouped A–N by clause. Key examples 3 and 5 add three commitments the Scope
+  bullets do not: a cost table, one disposition per element, and stability on
+  re-reading.
+- Comparison, from the source's expected result to the actual section:
+  - Example 1: `### Decision basis` comes first, dated, and says the result
+    was known, so the judgment is exploratory. Its bullets cover beneficiary,
+    intended gain, comparison, result worth keeping, quality and authority
+    constraints, and costs.
+  - Example 2 and scope bullet 2: a trace table runs from promise to restored
+    deployment, with every row labelled observation or inference. The
+    20 October turn sits outside the case. The 21 October turn names the
+    version it reacts to: v1.3.47, unchanged in v1.3.48. This wording was
+    added at acceptance. The coordinator checked its quotes against rollout
+    lines 677 and 1142.
+  - Example 3 and scope bullets 3–4: one attribution and cost table, with
+    `522f3f9f72` as the retained benefit and `e1b1aaf93f` neither credited nor
+    charged. `d5b50a822c` and `b6ee50ea64` are the reversal. The coordinator
+    re-derived the numstat totals: +686 / −225 over 40 file changes for the
+    disclosure, and +333 / −509 over 31 for the reversal. Elapsed time is
+    never treated as effort. Unknowns are marked, and the assessment's own
+    effort is recorded.
+  - Scope bullet 5 and example 5: one disposition per element. Passing tests
+    are not counted as usefulness, and the restoration is not reopened.
+  - Example 4: the owner's judgment is credited, with coverage limited to one
+    beneficiary in one thread. No rate and no missed stop are claimed.
+  - Scope bullet 7 and example 5: the retained limit is stated. Zero next
+    observations are requested, with the reason given. The advice names its
+    owner. Re-reading the records yields the same result.
+  - Rejection constraints and deferrals: no Doughnut write, no story, no
+    finding, no watch-list entry.
+- Proof commands, all passing:
+  - `python3 -I <job tmp>/linkcheck.py docs/maintainer/empirical-process-control-research.md '<a id="note-details-disclosure-follow-up">'`
+    reports 5 relative links, 0 bad. A negative control with a broken anchor
+    reported 1 bad.
+  - `git diff --check` passes.
+  - Doughnut blob targets and the `story-5` / `story-1` anchors exist at the
+    pinned revisions (`git cat-file -e`, `git show … | grep 'id="story-'`).
+  - The v1.3.48 run, 39557385777, succeeded at 2026-10-21T06:52:32Z.
+- Consumer trace (`consumer-trace.mjs --base 78532b0e`): no code consumers.
+  SEED-010, plan 351, ADR 0010, ODF-139 and ODF-152 are excluded, because the
+  append renames or removes no heading or anchor.
+
 ## Learnings
 
-None yet.
+None that affect remaining work.
 
 ## Plan concern review
 

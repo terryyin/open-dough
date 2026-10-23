@@ -1483,3 +1483,152 @@ unchanged; the two operational gaps are not missed human-intervention events.
 
 Re-reading the same records yields the same follow-up. It adds no occurrence,
 finding, story or backlog item.
+
+<a id="note-details-disclosure-follow-up"></a>
+
+## Follow-up: Doughnut's note-details disclosure judged against deployed use
+
+**24 October 2026.** This follow-up judges one delivered client product
+change, Doughnut's note-details disclosure (`SEED-078#story-5`, released as
+v1.3.47), against its owner's feedback after deployment, under
+[ADR 0010](../adrs/0010-definition-of-improvement-accepted.md), for
+`SEED-010#assess-client-product-improvement-in-use` (recoverable with
+`git show 78532b0e:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`).
+It applies the [decision-oriented measures](#a-small-set-of-decision-oriented-measures)
+and the [intervention assessment](#assess-human-intervention-quality) in their
+qualitative, coverage-limited form. Doughnut revisions, commits and runs are in
+`nerds-odd-e/doughnut`. **Decision: the disclosure was a delivered change, not
+an observed improvement, for this beneficiary.** The owner's restoration
+stands as the owner's decision and is not re-judged here.
+
+### Decision basis
+
+**Set 24 October 2026, after the restoration had been requested, delivered
+and deployed; the judgment below is exploratory.** The result was known
+before this basis was written, so it cannot count as a criterion set in
+advance.
+
+- **Beneficiary.** Doughnut's note reader and author: the owner, reading and
+  editing notes on their own device.
+- **Intended gain.** The story's promise: on opening a note, reach the authored
+  title and body first and reveal properties and dates when needed; quieter
+  everyday reading, without changing what the note records, how properties
+  are edited or who may edit them.
+- **Comparison.** Properties visible above the body and Created / Last updated
+  in the footer before v1.3.47 (recoverable at `8d30de7ea3^`), against the
+  compact disclosure in v1.3.47 to v1.3.48, judged by the owner's reading and
+  editing on their own device. There is no control, no usage data and no
+  surviving screenshot; the owner's words are the observation.
+- **Result worth keeping.** Per element. *Retain* when the owner keeps using
+  it without asking for its removal and reading and editing stay useful.
+  *Adjust* when the owner keeps the element but asks for a changed detail.
+  *Reject* when the owner asks for the earlier presentation back.
+  *Inconclusive* when the owner's feedback and the records are silent on it.
+- **Quality and authority constraints.** The product decision belongs to the
+  owner; this assessment does not reopen, re-judge or advise reversing the
+  restoration. Passing tests demonstrate implemented behavior, not
+  usefulness. One thread supports no intervention rate and no missed-stop
+  claim.
+- **Costs that could outweigh the benefit.** Implementation, repair and
+  reversal work; complexity added and then removed; the owner's correction
+  effort; and this assessment's own burden.
+
+### Trace from promise to restored deployment
+
+*Observation* is what the records and the owner's words show; *inference*
+is marked.
+
+| Step | Evidence | What it shows |
+| --- | --- | --- |
+| Promise | [SEED-078#story-5](https://github.com/nerds-odd-e/doughnut/blob/b6f36e9c6eac008fe7c626b445b28c3fb2c80855/.planning/seeds/SEED-078-cohesive-note-workspace.md#story-5) | *Observation.* Properties and dates behind one disclosure between title and body, compact on every opening; revealing shows the existing section and both dates; the footer dates block is deleted; a bounded reading column and body typography. Remembering the disclosure is deferred. |
+| Accepted implementation and its limit | Plan 009 [PLAN](https://github.com/nerds-odd-e/doughnut/blob/b6f36e9c6eac008fe7c626b445b28c3fb2c80855/.planning/slice-plans/009-note-details-disclosure/PLAN.md), [PREPARATION](https://github.com/nerds-odd-e/doughnut/blob/b6f36e9c6eac008fe7c626b445b28c3fb2c80855/.planning/slice-plans/009-note-details-disclosure/PREPARATION.md) and [PROOF](https://github.com/nerds-odd-e/doughnut/blob/b6f36e9c6eac008fe7c626b445b28c3fb2c80855/.planning/slice-plans/009-note-details-disclosure/PROOF.md) | *Observation.* Five slices accepted on 20 October through mounted browser proof (last focused run 106 files / 605 tests), local Cypress journeys and both typechecks. PROOF's aggregate review states that headless geometry does not establish real-device comfort, and its verification section says manual testing was not requested. The product advice kept remembered disclosure and relative dates deferred "without user evidence". |
+| Release and exposure | Close `2e56492746`, merge `21d19fc9b0`, tag v1.3.47; [run 39400614643](https://github.com/nerds-odd-e/doughnut/actions/runs/39400614643) | *Observation.* `Application Release` on v1.3.47 completed with success at 2026-10-20T09:32:02Z. v1.3.48 ([run 39557385777](https://github.com/nerds-odd-e/doughnut/actions/runs/39557385777), success 2026-10-21T06:52:32Z) left the disclosure unchanged: `git diff --stat v1.3.47 v1.3.48 -- frontend/src/components/notes` touches only sidebar and toolbar files. |
+| 20 October turn | Codex session `01a15660-d40d-7ef3-8c86-81d728d87bf5`, turn `01a15937-b164-7582-ad10-5cc1e9f64df3`, 2026-10-20T12:09:45Z (21:09 JST), rollout line 677 | *Observation.* The owner says the stories are done and deployed, attaches two screenshots, and asks for corrections to the main-menu button, sidebar toolbar alignment, breadcrumb, toolbar alignment, separator lines, logo spacing and the menu's search field. It does not mention properties, dates or the disclosure, so it lies outside this case. *Inference withheld:* silence about the disclosure on the first day is not acceptance. |
+| 21 October turn | Same session, turn `01a15df9-b79a-7632-bb88-3b7dda85d33f`, 2026-10-21T10:20:09Z (19:20 JST), rollout line 1142 | *Observation.* After about 25 hours of exposure to the deployed disclosure (v1.3.47, unchanged in v1.3.48), the owner asks to restore the collapsed properties: they "shouldn't be hidden", "there shouldn't be any option of being collapsed", and the created and updated time "should be at the bottom as before"; any "improvement in the property display" is to be kept; no navigation is to be added; the disclosure's tests are removed with no absence test; the item goes first in the backlog and is done on main. The words give no reason. *Inference:* the extra interaction cost the author more than the quieter screen gained, for a reader who treats properties as part of the note's content. SEED-082 states that framing, but it was written by the agent from this request, not by the owner. |
+| Restoration story and plan | [SEED-082#story-1](https://github.com/nerds-odd-e/doughnut/blob/f7f5015773a0b5d0daee6c5e6cdf7cffe728271a/.planning/seeds/SEED-082-visible-note-properties.md#story-1) and plan 003 [PLAN](https://github.com/nerds-odd-e/doughnut/blob/f7f5015773a0b5d0daee6c5e6cdf7cffe728271a/.planning/slice-plans/003-visible-note-properties/PLAN.md) | *Observation.* Queued at `650b46509e` (19:23 JST) within the turn, prepared at `8f8365f3ac`. It deletes the whole-section disclosure rather than defaulting it to expanded, restores the footer dates, and keeps Story 4's property-row improvements and Story 5's reading column. Slices `d5b50a822c` and `b6ee50ea64` were accepted with full `pnpm frontend:test` (387 files / 2404 tests after slice 2), both typechecks and, in slice 2, 41 of 41 affected E2E scenarios. |
+| Restored deployment | Close `23c64de1`, tag v1.3.49; [run 39687212956](https://github.com/nerds-odd-e/doughnut/actions/runs/39687212956) | *Observation.* `Application Release` on v1.3.49 completed with success at 2026-10-21T22:38:38Z (22 October, 07:38 JST). The disclosure was in production for about 37 hours (09:32:02Z on 20 October to 22:38:38Z on 21 October). |
+
+### Attribution and bounded cost
+
+Line counts come from `git show --numstat` per commit and exclude
+`.planning/` records; file counts are file changes per commit, not distinct
+files. They are diagnostic proxies, not quality verdicts.
+
+| Item | Attribution | Bounded record | Source |
+| --- | --- | --- | --- |
+| Disclosure, compact line, dates in the disclosure, unfinished-edit cue | Story 5, owned: `8d30de7ea3`, `89a2bb85d1`, `4b9d3792f7`, `f6ba658ab7` | +686 / −225 over 40 file changes (product 20, unit tests 12, E2E page objects 7, generated 1); the bottom dates block and `NoteRecentUpdateIndicator` were deleted | commits |
+| Reading column and body typography | Story 5, owned: `522f3f9f72`; **retained benefit** | +201 / −3 (`NoteTextContent.vue`, `NoteTextContent.readingLayout.spec.ts`, `docs/note-content-saving.md`); also carries the compact line's styles | commit |
+| CI repair | Story 5, owned: `df295a0d86` | +6 / −3 in one page object, after CI run 39388493180 found the relationship edit helper reaching a hidden property control (plan 009 obligation G1) | commit, PROOF |
+| Story 5 elapsed | — | Take `cb6eb20ba6` (16:24:23 JST) to close `2e56492746` (17:29:29 JST): 65 min, against the plan's 45–60 minute hypothesis; first to last implementation commit 47 min. Elapsed, not active effort. | commits |
+| Property-row improvements | Sibling Story 4, `e1b1aaf93f` | **Neither credited nor charged.** The owner's "improvement in the property display" and the rows SEED-082 preserves belong to Story 4. | SEED-082, commit |
+| Reversal | Restoration: `d5b50a822c`, `b6ee50ea64` | +333 / −509 over 31 file changes (product 12, unit tests 10, E2E page objects 7, docs 1, generated 1); the reading column moved into a shared `note-reading-column` utility so the footer shares it | commits |
+| Added then removed | Story 5 → restoration | `noteDetailsDisclosure.ts` (25 lines over four commits, all removed), the touch spec (17/17), the dates spec (110/110), `revealNoteDetails` in `notePageContentRegion.ts` (19 added, 14 removed); the footer came back as `NoteTimestamps.vue` (+45) with `NoteShow.timestamps.spec.ts` (+159) in place of the deleted block (−19) and RGB cases (−35) | commits |
+| Reversal elapsed | — | Request 19:20:09 JST to close `23c64de1` 20:41:52 JST: 82 min, against SEED-082's 45–60 minute hypothesis; deployment followed at 07:38 JST the next day. Elapsed, not active effort. | session, commits, run |
+| Owner effort | — | One 149-word request on 21 October; reading, trial and decision time unknown. The 20 October turn (699 words) is outside the case. | session |
+| Agent tokens | — | The 21 October turn, which wrote and queued SEED-082, recorded 3,117,027 input tokens (2,932,480 cached) and 6,125 output tokens (`turn_token_usage`, model `gpt-6.1-sol`). Story 5's execution and the restoration's preparation and execution ran in sessions outside the cited records: unknown. | session |
+| Money | — | Unknown; not recorded | — |
+
+*This assessment's effort.* Preparation spans `d27bd3d7` (08:18:43 +0900)
+to `2008cf37` (08:26:28 +0900); its host usage is not in this record.
+Execution followed the Take `78532b0e` (08:39:02 +0900) in Claude Code
+session `e2d18c81-8e5f-4063-98ce-935129b9f6b5`, started 2026-10-23T23:39:23Z;
+writing finished at about 23:47Z, about 8 minutes later (elapsed, not
+active effort). The session record and its two subagent records, summed per
+unique message when last measured at 23:47:07Z, show at least 116 / 225,543 /
+5,247,492 / 39,192 tokens (input / cache creation / cache read / output);
+later delivery steps are not included. Human time and money are unknown.
+It read the pinned Doughnut records and commits, two session turns and three
+release runs, all read-only, and ran no CI, paid test, native host run or
+production operation.
+
+### Judgment
+
+**The disclosure is not an observed improvement for this beneficiary;
+confidence moderate for the disclosure, low for the rest.** Confidence rests
+on the owner's explicit words, from one beneficiary.
+
+| Element | Disposition | Basis |
+| --- | --- | --- |
+| Collapsed-by-default disclosure and its compact property-key line | **Rejected** | The owner asked for properties not hidden and no collapse option. That also rules out the deferred variants, a remembered or expanded-by-default disclosure, as SEED-082 records. |
+| Dates inside the disclosure | **Rejected** (placement) | The owner asked for created and updated time at the bottom as before. |
+| Spelled-month dates and theme-aware freshness | **Inconclusive** | They survive in the footer (`NoteTimestamps.vue` at `23c64de1`); the owner's words address only placement. |
+| Unfinished-edit cue on the compact line | **Rejected** with the disclosure | It existed only for the collapsed state; drafts and validation remain with their existing owners. |
+| Reading column and body typography (`522f3f9f72`) | **Retained in the product; usefulness inconclusive** | The restoration kept them, adjusted into a shared utility, as its own reading of the request to keep property-display improvements; the owner did not comment on them. |
+| Plan 009's recorded limit | **Retained** | Its statement that headless geometry does not establish real-device comfort was accurate; ordinary exposure answered the question it left open. |
+
+The 605 accepted tests, the 41 restoration E2E scenarios and both successful
+release runs show that each version's behavior was implemented and deployed;
+none of them shows usefulness. Under
+[include later effects](#include-later-effects-and-whole-system-costs), the
+case's cost is the disclosure's implementation and repair plus a reversal of
+comparable size, while Story 5's only retained benefit is the reading
+column, whose usefulness is unobserved.
+
+### Human intervention
+
+The owner's 21 October request was a valuable human decision after exposure
+in ADR 0010's [intervention-quality](../adrs/0010-definition-of-improvement-accepted.md#human-intervention-quality)
+sense. It exercised reserved product authority over a consequential tradeoff
+and supplied input that only the beneficiary could provide: reading and
+editing on their own device, the observation plan 009 explicitly could not
+make. The correction was bounded: it restored two named behaviors, kept the
+property-display improvement, excluded new navigation and absence tests, and
+reached production within about 12 hours of the request. Coverage is one
+beneficiary in one thread and one decision. No valuable- or
+missed-intervention rate is stated, and no missed Jidoka stop is claimed:
+the thread gives no distinct assessed decision events or known coverage.
+
+### Retained limit and next observation
+
+Post-restoration usability in ordinary use is not established. The v1.3.49
+deployment and plan 003's source proof show that the restored properties and
+footer dates are implemented and deployed, which cannot fill that gap. No
+next observation is requested: the restoration is the owner's settled
+decision, and no remaining decision depends on the reading column's or the
+date format's usefulness. *Advice for Doughnut's owner (Terry):* a later
+change that hides note information by default could state its basis before
+release and name the owner's real-device reading as its acceptance
+observation. This creates no story, finding or watch-list entry.
+
+Re-reading the same records yields the same follow-up. It adds no occurrence,
+finding, story or backlog item, and changes nothing in Doughnut.
