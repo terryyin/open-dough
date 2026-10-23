@@ -107,6 +107,7 @@ export async function changedPaths(trunk, sha) {
 }
 
 // A clone that publishes trunk changes the originating checkout never fetched.
+// `edit` receives the file's trunk text, or null when trunk lacks it.
 export async function pushFromElsewhere(trunk, path, edit) {
   const other = join(trunk.fixture, "elsewhere");
   if (!existsSync(other)) {
@@ -115,11 +116,12 @@ export async function pushFromElsewhere(trunk, path, edit) {
     await git(other, "config", "user.email", "elsewhere@example.test");
   }
   await git(other, "pull", "-q", "origin", "main");
-  writeFileSync(
-    join(other, path),
-    edit(readFileSync(join(other, path), "utf8")),
-  );
-  await git(other, "commit", "-qam", `elsewhere edits ${path}`);
+  const file = join(other, path);
+  const text = existsSync(file) ? readFileSync(file, "utf8") : null;
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, edit(text));
+  await git(other, "add", path);
+  await git(other, "commit", "-qm", `elsewhere edits ${path}`);
   await git(other, "push", "-q", "origin", "HEAD:main");
   return revParse(other, "HEAD");
 }

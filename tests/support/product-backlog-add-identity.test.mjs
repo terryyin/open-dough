@@ -3,9 +3,13 @@
 // opened and read before the entry is written, so a mistyped or wrong
 // identity is refused rather than silently written and permanently kept.
 // Relocation — a home whose own path spells none of the identity but whose
-// explicit record still matches — is not a refusal; only a mismatch is.
+// explicit record still matches — is not a refusal; only a mismatch is. An
+// identity a done record beside the backlog names belongs to completed work
+// and is refused even when a recreated seed carries it again.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { recordText } from "./product-backlog-done-fixture.mjs";
 import {
   backlog,
   backlogOf,
@@ -105,4 +109,79 @@ Some body text.
       ],
     ),
   );
+});
+
+test("add refuses an identity a done record names", async (t) => {
+  const project = scratchProject(t);
+  const identity = "SEED-075#story-1";
+  // A recreated seed carries the identity again after cleanup removed the
+  // completed story's own seed; only the done record remembers it.
+  projectFile(
+    project,
+    "seeds/SEED-075-recreated.md",
+    `---
+id: SEED-075
+---
+
+# Recreated story home
+
+<a id="story-1"></a>
+
+### Story 1
+
+Some body text.
+`,
+  );
+  const record = recordText(
+    identity,
+    "Earlier story 1",
+    "2026-10-20T08:30:00.000Z",
+  );
+  const recordPath = projectFile(project, "done/SEED-075_story-1.json", record);
+
+  const result = await run(project, [
+    "add",
+    "--identity",
+    identity,
+    "--title",
+    "New story 1",
+    "--link",
+    "seeds/SEED-075-recreated.md#story-1",
+    "--position",
+    "first",
+  ]);
+
+  assert.equal(result.code, 1, result.stderr);
+  assert.match(
+    result.stderr,
+    /Identity "SEED-075#story-1" names completed work: done record done\/SEED-075_story-1\.json records "Earlier story 1", completed at 2026-10-20T08:30:00\.000Z\./,
+  );
+  assert.match(result.stderr, /allocate a different identity/);
+  assert.match(result.stderr, /The backlog was not changed\./);
+  assert.equal(project.read(), backlog);
+  assert.equal(readFileSync(recordPath, "utf8"), record);
+});
+
+test("add refuses an identity whose done record cannot be read", async (t) => {
+  const project = scratchProject(t);
+  projectFile(project, "done/SEED-075_story-1.json", "{ not a record");
+
+  const result = await run(project, [
+    "add",
+    "--identity",
+    "SEED-075#story-1",
+    "--title",
+    "New story 1",
+    "--link",
+    "seeds/SEED-075-recreated.md#story-1",
+    "--position",
+    "first",
+  ]);
+
+  assert.equal(result.code, 1, result.stderr);
+  assert.match(
+    result.stderr,
+    /Done record done\/SEED-075_story-1\.json for identity "SEED-075#story-1" cannot be read \(done record is not JSON\)/,
+  );
+  assert.equal(project.read(), backlog);
 });

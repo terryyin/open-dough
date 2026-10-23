@@ -21,6 +21,7 @@ import {
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
 import { startExecution } from "./execution-start.mjs";
+import { renderDoneRecord } from "../../dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test("refused admissions write nothing and keep every draft", async (t) => {
   const trunk = await createQueuedTrunk();
@@ -33,6 +34,13 @@ test("refused admissions write nothing and keep every draft", async (t) => {
   const local = readFileSync(join(trunk.integration, seedPath), "utf8");
   const drafted = (approach, plan) =>
     withFacts(`${local}\n${section}`, link, identity, approach, plan);
+  const completed = "SEED-A#d";
+  const completedPath = ".planning/done/SEED-A_d.json";
+  const completedRecord = renderDoneRecord({
+    identity: completed,
+    title: "Story D before",
+    completedAt: "2026-10-20T08:30:00.000Z",
+  });
   // Each row drafts `drafts` (path to text) after an optional trunk `setup`,
   // then starts admission of `id` at `href` with `extra` arguments.
   const cases = [
@@ -144,6 +152,27 @@ test("refused admissions write nothing and keep every draft", async (t) => {
       status: "source-refused",
       error: /"slice-plans\/B\/PLAN\.md" is already the plan of "SEED-B#b"/,
     },
+    {
+      // The story's done record is published to trunk only; the originating
+      // checkout never fetched it, so only trunk shows the identity used.
+      name: "identity a trunk done record names",
+      setup: () =>
+        pushFromElsewhere(trunk, completedPath, () => completedRecord),
+      drafts: {
+        [seedPath]: withFacts(
+          `${local}\n${storySection("d", completed, "Story D", "Deliver D.")}`,
+          "seeds/A.md#d",
+          completed,
+          "unselected",
+        ),
+      },
+      id: completed,
+      href: "seeds/A.md#d",
+      status: "source-refused",
+      error:
+        /Identity "SEED-A#d" names completed work: done record done\/SEED-A_d\.json records "Story D before", completed at 2026-10-20T08:30:00\.000Z\. .*allocate a different identity/,
+      absent: completedPath,
+    },
   ];
   for (const row of cases) {
     const { name, drafts, id = identity, href = link, extra = [] } = row;
@@ -164,6 +193,8 @@ test("refused admissions write nothing and keep every draft", async (t) => {
     assert.match(receipt.error, row.error, name);
     if (row.path) assert.equal(receipt.path, row.path, name);
     assert.equal(existsSync(workspace), false, name);
+    if (row.absent)
+      assert.equal(existsSync(join(trunk.integration, row.absent)), false);
     assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip, name);
     for (const [path, text] of Object.entries(drafts))
       assert.equal(

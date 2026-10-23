@@ -56,7 +56,9 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
                              [--file <path>]
 
 add adds one already identified entry to "## ${queueHeading}" at the requested
-relative position. Identities are supplied, never allocated there.
+relative position. Identities are supplied, never allocated there. An
+identity a done record under ${doneRecordDirectory}/ names, or whose record there
+cannot be read, is refused: allocate a different identity for new work.
 
 place moves one listed entry to a requested position in "## ${queueHeading}",
 using the same relative destinations as add, and carries its line across

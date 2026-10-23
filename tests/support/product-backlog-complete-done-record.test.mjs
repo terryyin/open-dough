@@ -2,7 +2,7 @@
 // observing the done record written beside the backlog: what it says and the
 // file it takes.
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -10,7 +10,6 @@ import {
   renderAgentProfile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
-  addArguments,
   backlog,
   backlogOf,
   projectFile,
@@ -28,7 +27,6 @@ import {
   doneDirectory,
   doneFiles,
   gitWorkspace,
-  isolatedGit,
 } from "./product-backlog-done-fixture.mjs";
 
 const readRecord = (project, fileName) =>
@@ -134,19 +132,9 @@ test("an identity holding # and . keeps one readable file name, replaced when co
   assert.equal(first.code, 0, first.stderr);
   assert.deepEqual(doneFiles(project), [catalogFile, fileName]);
 
-  const added = await run(
-    project,
-    addArguments(
-      {
-        identity,
-        title: "Release notes for v1.2",
-        link: "seeds/SEED-200-release.md#v1.2-release.notes",
-      },
-      ["--position", "last"],
-    ),
-    isolatedGit,
-  );
-  assert.equal(added.code, 0, added.stderr);
+  // `add` refuses an identity a done record names, so the entry is listed
+  // again by hand: completing it again must still replace its one record.
+  writeFileSync(project.file, backlogOf([takenEntry], [...queued, line]));
   const later = "2026-10-07T09:30:00.000Z";
   const again = await run(
     project,

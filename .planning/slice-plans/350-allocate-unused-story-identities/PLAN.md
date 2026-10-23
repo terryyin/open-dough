@@ -202,7 +202,7 @@ names what was read) and deepens a shallow clone before trusting it.
 
 ### 3. `add` and startup admission refuse an identity a done record names
 Type: Behavior
-Status: planned
+Status: done
 Proof: new case in `tests/support/product-backlog-add-identity.test.mjs`
 (refusal text names identity, title, completion time; backlog bytes
 unchanged) and new case in
@@ -221,6 +221,25 @@ the done-record readers, where `doneSource` lists and reads record files from
 a directory (`add`) or from a trunk revision (admission, via `show`). Both
 gates call it before any write; no check is added to `take`, `refresh`,
 `record-state`, or the preparation start.
+
+Accepted (2026-10-23): `requireUncompletedIdentity(identity, recordText)` in
+`product-backlog-done-record.mjs` takes the text each caller finds at
+`doneRecordPath(identity)` (working tree for `add`; `show` at the fetched
+trunk ref for admission), refusing with `Identity "<id>" names completed
+work: done record done/<file>.json records "<title>", completed at <time>. …
+allocate a different identity for this work.`; an unreadable record at that
+name also refuses. Any present record refuses, regardless of age. Proof:
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/support/product-backlog-add-identity.test.mjs
+src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs`
+(add: exit 1, message, backlog and record bytes unchanged; admission row
+"identity a trunk done record names": `source-refused`, remote tip unchanged,
+draft kept, record absent from the originating checkout); discrimination
+check reproduced `published` without the gate. Backlog suites, 31
+admission/startup/resume files, full `npm test`, lint, and dashboard
+typecheck passed; take/refresh/resume unchanged (example 5). The `complete`
+replace-on-repeat test now relists by writing the backlog directly. Commitments
+C16–C19, C26, C30 observed.
 
 ### 4. Guidance routes new identities through the rule and the evidence operation
 Type: Behavior
