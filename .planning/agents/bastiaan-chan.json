@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-148#allocate-unused-story-identities",
+  "mode": "story-branch",
+  "branch": "claude/check-completed-work-before-allocating-a-new-sto",
+  "host": "claude"
+}
