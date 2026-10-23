@@ -21,6 +21,7 @@ write_skip_true_unknown() {
 {
   "skipProcessRetrospective": true,
   "ciAdapter": ["python3", "scripts/project-ci.py"],
+  "ciWorkflow": "checks.yaml",
   "unrelatedFutureSetting": "leave-me",
   "nested": { "also": true }
 }

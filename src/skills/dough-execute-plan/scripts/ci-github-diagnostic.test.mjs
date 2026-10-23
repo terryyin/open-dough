@@ -4,7 +4,8 @@
 // it, each through the one request source.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { chmodSync } from "node:fs";
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -22,6 +23,45 @@ import {
 } from "./ci-github-test-fixtures.mjs";
 
 const exec = promisify(execFile);
+
+test("the diagnostic CLI reads the native selector from the project's settings", async (t) => {
+  const workflow = {
+    id: 912,
+    name: "Project tests",
+    path: ".github/workflows/checks.yaml",
+    state: "active",
+  };
+  const github = instrumentedGithubFixture(t, {
+    answers: {
+      "workflows/checks.yaml": {
+        head: "HTTP/2.0 200 OK",
+        body: JSON.stringify(workflow),
+      },
+    },
+  });
+  const root = github.env.CI_GH_FIXTURE;
+  mkdirSync(join(root, ".planning"));
+  writeFileSync(
+    join(root, ".planning/open-dough.json"),
+    '{"ciWorkflow":"checks.yaml"}',
+  );
+  delete github.env.DOUGH_CI_WORKFLOW;
+  const entry = fileURLToPath(
+    new URL("./ci-github-diagnostic.mjs", import.meta.url),
+  );
+  const { stdout } = await exec(
+    process.execPath,
+    [entry, "workflow", "owner/repo"],
+    { cwd: root, env: github.env },
+  );
+  assert.deepEqual(JSON.parse(stdout), {
+    type: "CI_WORKFLOW",
+    repo: "owner/repo",
+    selector: "checks.yaml",
+    ...workflow,
+  });
+  assert.deepEqual(github.asked(), [apiCall("workflows/checks.yaml")]);
+});
 
 for (const [fault, message] of [
   ["privacy", "endpoint is open to other users"],

@@ -38,9 +38,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-guard-hook.mjs
   dough-product-backlog/scripts/product-backlog-home-reader.mjs
   dough-product-backlog/scripts/product-backlog-home.mjs
-  dough-product-backlog/scripts/product-backlog-identity-evidence.mjs
-  dough-product-backlog/scripts/product-backlog-identity-history.mjs
-  dough-product-backlog/scripts/product-backlog-identity-sources.mjs
+  dough-product-backlog/scripts/product-backlog-identity-evidence.mjs dough-product-backlog/scripts/product-backlog-identity-history.mjs dough-product-backlog/scripts/product-backlog-identity-sources.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
   dough-product-backlog/scripts/product-backlog-order.mjs
@@ -66,9 +64,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
   dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
   dough-product-backlog/references/supplier-dependencies.md
-  dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs
-  dough-product-backlog/scripts/product-backlog-dependency-completion.mjs
-  dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
+  dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs dough-product-backlog/scripts/product-backlog-dependency-completion.mjs dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
   dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
   dough-product-backlog/scripts/product-backlog-take.mjs
   dough-product-backlog/scripts/product-backlog-usage.mjs
@@ -152,10 +148,8 @@ managed_files=(
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-background-handoff.mjs dough-execute-plan/scripts/ci-background-hook.mjs
-  dough-execute-plan/scripts/ci-background-session.mjs dough-execute-plan/scripts/ci-background-state.mjs
-  dough-execute-plan/scripts/ci-background-waiter.mjs
-  dough-execute-plan/scripts/ci-command-adapter.mjs
-  dough-execute-plan/scripts/ci-command-attempts.mjs
+  dough-execute-plan/scripts/ci-background-session.mjs dough-execute-plan/scripts/ci-background-state.mjs dough-execute-plan/scripts/ci-background-waiter.mjs
+  dough-execute-plan/scripts/ci-command-adapter.mjs dough-execute-plan/scripts/ci-project-configuration.mjs dough-execute-plan/scripts/ci-command-attempts.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs
   dough-execute-plan/scripts/story-obligations.mjs
@@ -219,9 +213,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-receipt.mjs
   dough-execute-plan/scripts/execution-start-request.mjs
   dough-execute-plan/scripts/session-policy.mjs
-  dough-execute-plan/scripts/execution-start-source.mjs
-  dough-execute-plan/scripts/execution-source.mjs
-  dough-execute-plan/scripts/execution-admission-source.mjs
+  dough-execute-plan/scripts/execution-start-source.mjs dough-execute-plan/scripts/execution-source.mjs dough-execute-plan/scripts/execution-admission-source.mjs
   dough-execute-plan/scripts/execution-admission-reconcile.mjs
   dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs

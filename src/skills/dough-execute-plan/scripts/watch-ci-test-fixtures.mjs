@@ -163,15 +163,14 @@ export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
   const gh = async (args) => {
     const request = githubRequest(args);
     if (request.kind === "workflow") {
-      if (!Object.hasOwn(workflows, request.workflow))
+      const file = Object.hasOwn(workflows, request.workflow)
+        ? request.workflow
+        : files[Number(request.workflow) - 1];
+      if (!file)
         throw new Error(
           `GitHub request ${args[1]} failed: HTTP 404 (no workflow ${request.workflow})`,
         );
-      return apiWorkflow(
-        request.workflow,
-        workflows[request.workflow],
-        files.indexOf(request.workflow) + 1,
-      );
+      return apiWorkflow(file, workflows[file], files.indexOf(file) + 1);
     }
     if (request.kind === "runs") {
       listed.push(request);
@@ -197,7 +196,10 @@ export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
     if (request.kind === "run") {
       const found = runs.find(({ databaseId }) => databaseId === request.runId);
       if (!found) throw new Error(`run ${request.runId} not found`);
-      return apiAnswer(request, run(found));
+      return {
+        ...apiAnswer(request, run(found)),
+        workflow_id: files.indexOf(found.workflow) + 1,
+      };
     }
     throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
   };

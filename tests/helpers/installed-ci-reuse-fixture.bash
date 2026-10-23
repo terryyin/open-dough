@@ -77,9 +77,11 @@ try {
   const adapter = [process.execPath, script, 'adapter', state];
   mkdirSync(join(temporary, '.planning'));
   writeFileSync(join(temporary, '.planning/open-dough.json'), JSON.stringify({ ciAdapter: adapter }));
-  const { readCiAdapter, createCommandAcquisition } = await import(
+  const { createCommandAcquisition } = await import(
     pathToFileURL(join(skill, 'scripts/ci-command-adapter.mjs')).href);
-  const acquisition = createCommandAcquisition({ command: readCiAdapter(temporary),
+  const { readCiConfiguration } = await import(
+    pathToFileURL(join(skill, 'scripts/ci-project-configuration.mjs')).href);
+  const acquisition = createCommandAcquisition({ command: readCiConfiguration(temporary).adapter,
     repo: policy.repo, branch: 'main', root: temporary });
   const attempts = await acquisition.acquireRuns();
   assert.equal(attempts.length, 1);

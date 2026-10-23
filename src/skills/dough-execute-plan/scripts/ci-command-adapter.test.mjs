@@ -54,6 +54,7 @@ async function observeUntilCalls(root, path, count) {
 test("observer selects one configured command and stays quiet through pending then success", async (t) => {
   const fixture = projectFixture(t, (adapter) => ({
     ciAdapter: [process.execPath, adapter],
+    ciWorkflow: { unusedNativeSetting: true },
   }));
   const events = await observeUntilCalls(fixture.root, fixture.calls, 2);
   const requests = readFileSync(fixture.requests, "utf8")
