@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-149_native-ci-workflow.json",
+      "identity": "SEED-149#native-ci-workflow",
+      "completedAt": "2026-10-23T12:20:36.369Z",
+      "blob": "e8a825c697046409df279ead8d52faa7407c9da9"
+    },
+    {
       "fileName": "SEED-148_allocate-unused-story-identities.json",
       "identity": "SEED-148#allocate-unused-story-identities",
       "completedAt": "2026-10-23T02:22:58.848Z",

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-149#native-ci-workflow",
+  "title": "Select the native GitHub workflow from project settings",
+  "completedAt": "2026-10-23T12:20:36.369Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "GPT-6"
+}

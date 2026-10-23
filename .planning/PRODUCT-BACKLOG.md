@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Select the native GitHub workflow from project settings](seeds/SEED-149-native-ci-workflow.md#native-ci-workflow) — SEED-149#native-ci-workflow
-
 ## Backlog list
 
