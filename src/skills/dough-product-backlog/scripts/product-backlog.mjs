@@ -13,6 +13,7 @@ import {
   rebuildDoneCatalog,
 } from "./product-backlog-complete.mjs";
 import { setDirection } from "./product-backlog-direction.mjs";
+import { readIdentityEvidence } from "./product-backlog-identity-evidence.mjs";
 import { mergeBacklogs } from "./product-backlog-merge.mjs";
 import { placeEntry } from "./product-backlog-place.mjs";
 import { refreshEntry } from "./product-backlog-refresh.mjs";
@@ -188,6 +189,16 @@ async function merge(file, values) {
   console.log(reportMerge(outcome, values.file));
 }
 
+// Prints what the project shows about identities already used, writing
+// nothing and taking no lock: a reader never needs to wait for a writer.
+async function identityEvidence(file, values) {
+  const evidence = readIdentityEvidence(file, {
+    seedDirectory: resolvePath(values.seeds),
+    identity: values.identity,
+  });
+  console.log(JSON.stringify(evidence, null, 2));
+}
+
 const operations = {
   add,
   place,
@@ -200,6 +211,7 @@ const operations = {
   merge,
   "record-state": recordState,
   "read-state": readState,
+  "identity-evidence": identityEvidence,
   "discover-consumers": readConsumers,
   "resolve-dependency": resolveDependency,
   "read-dependencies": readDependencies,

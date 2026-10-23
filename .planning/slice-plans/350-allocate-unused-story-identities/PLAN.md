@@ -125,7 +125,7 @@ fixtures and the startup CLI are loaded by distributed consumers.
 
 ### 1. The backlog script reports allocation evidence from active seeds and done records
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/support/product-backlog-identity-evidence.test.mjs` (new),
 examples 1 and 4; usage text lists the operation.
 
@@ -143,6 +143,22 @@ seed-directory listing, `parseDoneRecordFile`/`catalogDoneRecords`, and the
 backlog document; `read`-style operation registered in `product-backlog.mjs`
 beside `read-state`. Name the operation during execution (`identity-evidence`
 is the working name); keep it a reader.
+
+Accepted (2026-10-23): operation `identity-evidence [--identity <id>]
+[--seeds <path>] [--file <path>]` in
+`product-backlog-identity-evidence.mjs` prints JSON `{highest, next, sources[],
+gaps[], candidate?}`; sources `seed-directory` (front-matter `id:`, default
+`seeds/` beside the backlog, absent → gap), `backlog`, `done-records`,
+`done-catalog` (absent with records, unreadable, or mismatched → gap). Done
+files come from `readDoneRecordFiles` extracted from `rebuildDoneCatalog`;
+`install.sh` declares the new module. Proof: `PATH=/opt/homebrew/bin:$PATH
+bash scripts/test.sh tests/support/product-backlog-identity-evidence.test.mjs`
+(example 1: highest `SEED-084` record, next `SEED-085`, tree unchanged;
+example 4: catalog `absent` and unreadable record as gaps, records still read;
+candidate completed/active/unlisted) plus all `product-backlog-*.test.mjs`,
+payload/install shell tests, and lint. Source-review commitments C10–C13,
+C21–C22, C27, C29 observed; history (C20, C12 history status) stays with
+slice 2. Slice 4 guidance must mention `--seeds` for other seed layouts.
 
 ### 2. The evidence report covers allocations published history no longer shows
 Type: Behavior

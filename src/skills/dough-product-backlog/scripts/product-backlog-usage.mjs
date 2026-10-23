@@ -40,6 +40,8 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
                               [--reason <text>...]]
                              [--file <path>]
        product-backlog.mjs read-state --link <href> [--file <path>]
+       product-backlog.mjs identity-evidence [--identity <id>] [--seeds <path>]
+                             [--file <path>]
        product-backlog.mjs read-dependencies --link <href> [--file <path>]
        product-backlog.mjs update-dependency --identity <id> --link <href>
                              --dependency-file <json-path>
@@ -150,6 +152,20 @@ derived from the assessment and the dependency record: "eligible", or
 "blocked" with each unsatisfied dependency, then the assessment or an
 unreadable fact as a gap. A malformed dependency record reads as a gap, not a
 failure. Eligibility grants no permission and starts nothing.
+
+identity-evidence prints, as JSON, what the project shows about the
+identities it has already used, so a new one can be chosen above all of it.
+Each source — the seed directory (--seeds, by default seeds/ beside the
+backlog), the backlog's two lists, the done records under
+${doneRecordDirectory}/, and ${doneCatalogPath} — reports its highest seed number
+with the file or record behind it; highest and next name the highest number
+any source shows and the number after it. gaps names each source or file that
+could not be read, such as an absent seed directory, an unreadable record, or
+a catalog that is absent or does not match the records (rebuild it with
+catalog-done); a source with a gap is not complete evidence. --identity also
+reports that candidate as "active" with its list, "completed" with its done
+record's title and completion time, or "unlisted". It reserves, registers, and
+writes nothing; the caller still chooses the identity.
 
 read-dependencies prints the consumer's separate, versioned dependency record,
 blocking entries, and dependency agreement basis. Absence means no blockers;
