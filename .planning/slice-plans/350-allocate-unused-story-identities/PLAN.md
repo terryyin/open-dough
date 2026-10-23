@@ -160,6 +160,12 @@ payload/install shell tests, and lint. Source-review commitments C10–C13,
 C21–C22, C27, C29 observed; history (C20, C12 history status) stays with
 slice 2. Slice 4 guidance must mention `--seeds` for other seed layouts.
 
+CI repair (run 39883782226): the new test file shifted the bytewise
+round-robin split and put share 3 at 711.1 of 710 job-seconds with unchanged
+per-job speed; `tests/longest-first` was refreshed by its documented
+procedure (projected 612.9 / 588.6 / 593.8). Proof: runner split/budget
+tests and lint; the pushed revision's CI is the verdict.
+
 ### 2. The evidence report covers allocations published history no longer shows
 Type: Behavior
 Status: planned
