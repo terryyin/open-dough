@@ -11,7 +11,9 @@ export const repository = "terryyin/open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-091-clock.md";
 export const revision = "c3".repeat(20);
-export const opened = new Date("2026-09-23T09:00:00.000Z");
+// The page pauses at this run's time: journeys also keep machine sessions,
+// whose retention is measured by the server's real clock.
+export const opened = new Date();
 
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
