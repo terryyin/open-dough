@@ -31,58 +31,110 @@ installed `.agents/skills/` and `.claude/skills/` copies are updated from releas
 
 **Identity:** SEED-148#allocate-unused-story-identities
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/350-allocate-unused-story-identities/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bcf881b4aa9a3767f6e8d090caaa56b278845ef73e8ca40cde8cedfdf06e4a47","plan":"2faf89e97279892e47f35c46946cbc16112072be3b5ac877640e95fb58a1baf3"}}
 ```
 
-**Goal:** A developer or agent creating a story chooses an unused identity after
-checking active work and completed-work evidence, so cleanup of a completed
-story cannot make its identity appear available for unrelated work.
+**Goal:** A developer or agent creating a story chooses an identity that no
+active or completed work has used, by consulting evidence that outlives the
+cleanup of completed seeds and story sections, so completing and cleaning up a
+story never makes its identity look available again. The backlog operations
+that publish a new claim refuse an identity completed work already recorded,
+so a missed check cannot mix two stories' ownership and recovery evidence.
 
 **Scope:**
 
-- Consult the done catalog beside the project's product backlog before choosing
-  a new seed number or story identity, alongside active canonical homes and
-  backlog entries. A removed seed file does not make its identity available.
-- Put the allocation rule in the existing shared work-item identity contract
-  and connect the workflows that allocate new identities to that rule. Preserve
-  project-specific naming and numbering conventions and existing identities.
-- Use the catalog's existing record references and currency/rebuild conventions
-  where needed. An unreadable or missing catalog is not evidence that there is
-  no completed work. Resolve the evidence needed to allocate safely before
-  publishing a new canonical home or claim.
-- Preserve ordinary resume and canonical-home relocation: those retain their
-  recorded identity. This story concerns allocating identities to new work.
-- Keep completed records intact. This work does not authorize automatically
-  renumbering an existing story or replacing the human decision required when
-  conflicting recorded identities have already been published.
+- *One allocation rule in the shared identity contract.* Extend the existing
+  work-item identity contract with how a new identity is chosen: a new seed
+  number exceeds every seed number observed in the active seed directory, the
+  done catalog and records beside the backlog, and the published trunk history
+  of those paths; a new story anchor within an existing seed yields a full
+  identity that none of those sources records. A removed seed file or story
+  section never frees its identity. The workflows that allocate new identities,
+  seed creation under the shared seed format and the minimal story drafted for
+  admitted or correction work, follow that rule by reference; none restates a
+  competing allocation procedure.
+- *A read-only evidence operation in the installed backlog script.* One
+  `product-backlog.mjs` operation reports the allocation evidence for a
+  project: the highest seed number each source shows, with the done-record or
+  history reference behind it, and whether a supplied candidate identity is
+  listed as active, recorded as completed, or present in published history.
+  It reads existing evidence and reserves, registers, and writes nothing; the
+  agent still chooses the identity and the canonical home records it. The
+  guidance tells agents to run it rather than to read filenames by hand.
+- *Completed-identity refusals at the publication gates.* `product-backlog.mjs
+  add` and the startup admission (`--admit`) refuse an identity that a done
+  record names, reporting the record's identity, title, and completion time,
+  and change nothing, consistent with the contract's rule that ambiguity stops
+  for a person. The agent allocates a different identity for the new work.
+  Take, resume, Preparing assignment, and canonical-home relocation keep the
+  identity they already recorded and gain no check.
+- *Evidence beyond the retention window.* Done records are pruned after 30
+  days, so published trunk Git history of the seed and done directories is the
+  durable source for older allocations. The evidence operation names each
+  source it could not read, such as a missing catalog or unavailable history,
+  instead of reporting the remaining sources as complete. An unreadable or
+  missing catalog is not evidence of no completed work: the agent resolves the
+  gap, rebuilding the catalog with the existing `catalog-done` operation when
+  records exist, before publishing a new home or claim.
+- *Preserve existing records and conventions.* Project naming, numeric padding,
+  anchor conventions, and existing identities stay as they are. Completed
+  records are never edited or overwritten by this work. Renumbering an
+  existing story, or deciding between two already published conflicting
+  identities, remains a human decision outside this story.
+
+**Deferred:** The `complete` operation's current behaviour of replacing a done
+record when the same identity is completed again is unchanged; the refusals
+above keep a colliding identity from reaching completion. A hosted or
+cross-project identity registry is not built.
 
 **Key examples:**
 
-1. Active seed files end at `SEED-074`, while the done catalog contains
-   `SEED-075#story-1` through later seed numbers up to `SEED-084`. Creating a new
-   seed must consult that completed evidence and avoid reusing the completed
-   namespace; in the observed Donut state, `SEED-085` was unused.
-2. The candidate full identity already appears in the done catalog even though
-   its seed has been deleted. Allocate a different identity for the new work;
-   leave the earlier completion and its recorded identity unchanged.
-3. An existing story is resumed, moved, or relinked. Retain its recorded
-   identity instead of allocating another one.
+1. *Seed numbers hidden by cleanup.* Active seed files end at `SEED-074`; the
+   done catalog lists completed identities from `SEED-075#story-1` up to
+   `SEED-084#...`. Running the evidence operation reports 84 as the highest
+   observed seed number and names the done records behind it, so the agent
+   creates `SEED-085` for the new story.
+2. *Completed identity in a deleted seed.* An agent drafts a new story as
+   `SEED-075#story-1`, whose seed file no longer exists, and runs `add` or the
+   startup admission for it. The operation refuses, naming the existing
+   `SEED-075#story-1` done record, its title, and its completion time, and
+   publishes nothing. The agent allocates `SEED-085#story-1`, and the earlier
+   completion record stays unchanged.
+3. *Allocation older than the retention window.* The done catalog holds only
+   records from the last 30 days, but trunk history shows `SEED-090` was added
+   and later removed four months ago. The evidence operation reports 90 from
+   history with its commit, so the next seed is numbered above it; the agent
+   does not reuse `SEED-090`.
+4. *Missing catalog.* Done record files exist beside the backlog but
+   `done/.catalog.json` is absent. The evidence operation reports the catalog
+   as unreadable, still reads the record files it can, and names the gap. The
+   agent rebuilds the catalog with `catalog-done` before allocating.
+5. *Resume and relocation retain identity.* A queued story's seed is renamed,
+   or a Taken story resumes in a new session. No allocation happens: the
+   recorded identity carries across, and `add`, Take, and resume behave as
+   before.
 
-**Boundaries and decisions for refinement:**
+**Architecture:** The done-record and done-catalog readers in the
+product-backlog scripts already own completed-work evidence, and the admission
+path already imports them (history-preserving candidate). The refusals and the
+evidence operation reuse those readers rather than adding a second reading of
+`done/`. Trunk history reading joins the existing product-backlog Git modules.
+No new state file, lock, or registry is introduced; the catalog remains derived
+from record files.
 
-- The smallest candidate is a shared allocation procedure reached by existing
-  creation workflows. Decide whether any existing creation/admission operation
-  also needs a bounded guard; do not assume a new allocator or parallel registry.
-- Done records are currently retained for 30 days, and `complete` prunes older
-  ones. The catalog is therefore not a permanent history of every allocated
-  identity. Resolve how project numbering conventions and recoverable published
-  history cover older allocations; do not promise permanent uniqueness from
-  the current catalog alone.
-- Preserve the existing single identity contract and human conflict handling.
-  Instruction wording alone needs a representative allocation exercise with
-  active and completed evidence, rather than only a test matching new prose.
-- This request queues the story first on `main` and synchronizes it with
-  `origin`. It authorizes no implementation, release, or installed-client update.
+**Boundaries and decisions resolved in refinement:**
+
+- The bounded guard is placed at the two operations that publish a new claim
+  (`add` and admission); they are the only paths by which an unchecked
+  allocation reached trunk in the observed incident.
+- The 30-day catalog is not the permanent allocation history; published Git
+  history of the seed and done paths is, and the evidence operation reads it
+  so that the agent does not reconstruct it by hand.
+- Instruction wording is proved by a representative allocation exercise with
+  active seeds, done records, and history present, in addition to the script's
+  focused tests; a test that only matches new prose is insufficient.
+- This story authorizes no release or installed-client update; Donut and other
+  projects receive the behaviour through an ordinary Open Dough release.
 
 ## Observed Incident and Recovery
 
