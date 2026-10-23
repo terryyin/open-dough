@@ -164,11 +164,13 @@ CI repair (run 39883782226): the new test file shifted the bytewise
 round-robin split and put share 3 at 711.1 of 710 job-seconds with unchanged
 per-job speed; `tests/longest-first` was refreshed by its documented
 procedure (projected 612.9 / 588.6 / 593.8). Proof: runner split/budget
-tests and lint; the pushed revision's CI is the verdict.
+tests and lint; the pushed revision's CI is the verdict. Add no new test
+file without checking the split; shared setup lives in
+`tests/support/product-backlog-identity-evidence-fixture.mjs`.
 
 ### 2. The evidence report covers allocations published history no longer shows
 Type: Behavior
-Status: planned
+Status: done
 Proof: same test file, example 3: Git scratch project (`gitWorkspace`) where
 `SEED-090-x.md` and `done/SEED-090_x.json` were committed and later removed →
 report names 90 from history with the adding commit; a non-Git scratch
@@ -179,6 +181,24 @@ history → the operation runs → history appears as a source with its highest
 number and commit, read through `product-backlog-git-repository.mjs`
 (`git log --diff-filter=A --name-only --format= -- <seed dir> <done dir>`),
 and an unavailable repository or shallow history is named as unread.
+
+Accepted (2026-10-23): a fifth `history` source
+(`product-backlog-identity-history.mjs`; file sources moved to
+`product-backlog-identity-sources.mjs`, both declared in `install.sh`) reads
+files added under the seed and done directories reachable from the checkout's
+HEAD, reporting `revision` and each evidence's adding `commit`; done-file
+identities come from the new `doneRecordIdentity` beside
+`doneRecordFileName`. Not a Git work tree, shallow clone, or another Git
+failure → history gap. Candidate statuses `active` > `completed` >
+`in-history` > `unlisted`, with optional `history: {record?, seed?}`.
+Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+tests/support/product-backlog-identity-evidence.test.mjs` (example 3: highest
+`SEED-090` from history with its adding commit, next `SEED-091`; candidate
+history facts; shallow clone gap; non-Git history gap) plus all
+`product-backlog-*.test.mjs`, payload/install shell tests, lint. Commitments
+C11, C12, C20–C22, C28 observed. History is read from HEAD, so slice 4's
+guidance runs the operation in a checkout current with trunk (the `revision`
+names what was read) and deepens a shallow clone before trusting it.
 
 ### 3. `add` and startup admission refuse an identity a done record names
 Type: Behavior

@@ -1,160 +1,56 @@
 // The identity-evidence operation: what the project already shows about the
 // identities it has used, so whoever allocates a new one can choose above all
 // of it. It reads the active seed directory, the backlog's two lists, and the
-// done records and catalog beside the backlog, and reports each source's
-// highest seed number with the file or record behind it, the next number
+// done records and catalog beside the backlog, and the Git history reachable
+// from HEAD of the seed and done directories (which still shows seeds and
+// records cleanup has since removed), and reports each source's highest seed
+// number with the file, record, or adding commit behind it, the next number
 // above every source read, and each source or file it could not read. A
-// supplied candidate identity is reported as listed, completed, or unlisted.
+// supplied candidate identity is reported as active, completed, in history,
+// or unlisted.
 //
 // It only reads. It reserves, registers, and writes nothing: the caller still
 // chooses the identity, and the canonical home records it.
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
-import { parseBacklog } from "./product-backlog-document.mjs";
+import { dirname, join } from "node:path";
 import {
-  doneCatalogMismatch,
-  doneCatalogPath,
-  parseDoneCatalog,
-} from "./product-backlog-done-catalog.mjs";
+  backlogSource,
+  doneCatalogSource,
+  doneRecordsSource,
+  seedDirectorySource,
+  seedNumberOf,
+} from "./product-backlog-identity-sources.mjs";
 import {
-  doneRecordDirectory,
-  parseDoneRecordFile,
-} from "./product-backlog-done-record.mjs";
+  historyFact,
+  historySource,
+} from "./product-backlog-identity-history.mjs";
 import { readDoneRecordFiles } from "./product-backlog-complete.mjs";
-import { documentIdIn } from "./product-backlog-home-reader.mjs";
-import { BacklogError } from "./product-backlog-refusal.mjs";
+import { resolvePath } from "./product-backlog-request.mjs";
 
 // The seed directory a project keeps beside its backlog unless it names
 // another with --seeds.
 export const defaultSeedDirectory = "seeds";
 
-// A seed ID's number is the digits it ends with ("SEED-084" is 84, written
-// three digits wide). An identity is read by its seed ID, before any anchor;
-// a plan-path identity ends in no digits and names no seed number.
-const seedIdPattern = /^(?<prefix>.*\D)(?<digits>\d+)$/;
-
-function seedNumberOf(identity) {
-  const seed = identity.split("#")[0];
-  const match = seedIdPattern.exec(seed);
-  if (!match) return undefined;
-  const { prefix, digits } = match.groups;
-  return { seed, prefix, width: digits.length, number: Number(digits) };
-}
-
-// The highest seed number among `named`, each { identity, evidence } and,
-// across sources, the source naming it; the first named wins a tie.
+// The highest seed number among `named`, each { identity, evidence } (and,
+// from history, the adding `commit`) and, across sources, the source naming
+// it; the first named wins a tie.
 function highestOf(named) {
   let highest;
-  for (const { identity, evidence, source } of named) {
+  for (const { identity, evidence, commit, source } of named) {
     const seed = seedNumberOf(identity);
     if (seed === undefined) continue;
     if (highest === undefined || seed.number > highest.number)
-      highest = { ...seed, identity, evidence, source };
+      highest = { ...seed, identity, evidence, commit, source };
   }
   return highest;
 }
 
-const posixPath = (path) => path.split(sep).join("/");
-
-// A source that could not be read at all names nothing and one gap.
-const unread = (source, path, reason) => ({
-  source,
-  path,
-  read: false,
-  named: [],
-  gaps: [{ path, reason }],
-});
-
-function seedDirectorySource(backlogDirectory, directory) {
-  const path = posixPath(relative(backlogDirectory, directory)) || ".";
-  if (!existsSync(directory)) return unread("seed-directory", path, "absent");
-  const named = [];
-  const gaps = [];
-  for (const fileName of readdirSync(directory).sort()) {
-    if (!fileName.endsWith(".md")) continue;
-    const evidence = `${path}/${fileName}`;
-    const id = documentIdIn(readFileSync(join(directory, fileName), "utf8"));
-    if (id === "") {
-      gaps.push({ path: evidence, reason: "front matter names no seed ID" });
-    } else {
-      named.push({ identity: id, evidence });
-    }
-  }
-  return { source: "seed-directory", path, read: true, named, gaps };
-}
-
-function backlogSource(backlogDirectory, file) {
-  const path = posixPath(relative(backlogDirectory, file));
-  if (!existsSync(file)) return unread("backlog", path, "absent");
-  let document;
-  try {
-    document = parseBacklog(readFileSync(file, "utf8"));
-  } catch (error) {
-    if (!(error instanceof BacklogError)) throw error;
-    return unread("backlog", path, error.message);
-  }
-  return {
-    source: "backlog",
-    path,
-    read: true,
-    named: document.entries.map(({ identity, list }) => ({
-      identity,
-      evidence: `${path} "## ${list}"`,
-      list,
-    })),
-    gaps: [],
-  };
-}
-
-function doneRecordsSource(files) {
-  const named = [];
-  const gaps = [];
-  for (const { fileName, text } of files) {
-    const path = `${doneRecordDirectory}/${fileName}`;
-    const read = parseDoneRecordFile(fileName, text);
-    if (read.ok) {
-      named.push({ ...read.record, evidence: path });
-    } else {
-      gaps.push({ path, reason: read.error });
-    }
-  }
-  return {
-    source: "done-records",
-    path: doneRecordDirectory,
-    read: true,
-    named,
-    gaps,
-  };
-}
-
-// The catalog is an index of the record files, so one that is absent while
-// records exist, unreadable, or describing other files than those present is
-// a gap rather than evidence that nothing else was completed.
-function doneCatalogSource(backlogDirectory, files) {
-  const path = doneCatalogPath;
-  const catalogFile = join(backlogDirectory, doneCatalogPath);
-  if (!existsSync(catalogFile)) {
-    if (files.length === 0)
-      return { source: "done-catalog", path, read: true, named: [], gaps: [] };
-    return unread("done-catalog", path, "absent");
-  }
-  const read = parseDoneCatalog(readFileSync(catalogFile, "utf8"));
-  if (!read.ok) return unread("done-catalog", path, read.error);
-  const mismatch = doneCatalogMismatch(read.catalog, files);
-  return {
-    source: "done-catalog",
-    path,
-    read: true,
-    named: read.catalog.records.map(({ identity, fileName }) => ({
-      identity,
-      evidence: `${doneRecordDirectory}/${fileName}`,
-    })),
-    gaps: mismatch === undefined ? [] : [{ path, reason: mismatch }],
-  };
-}
-
-function candidateStatus(identity, backlog, records) {
+// A candidate is "active" while the backlog lists it, else "completed" while
+// a done record names it, else "in-history" when history shows its own done
+// record or its seed ID while no active seed carries that ID, else
+// "unlisted". Whatever history shows of it is reported under `history` with
+// every status.
+function candidateStatus(identity, { seeds, backlog, records, history }) {
   const listed = backlog.named.find((entry) => entry.identity === identity);
   const record = records.named.find((each) => each.identity === identity);
   const completed =
@@ -167,37 +63,62 @@ function candidateStatus(identity, backlog, records) {
             completedAt: record.completedAt,
           },
         };
+  const traced = historyFact(identity, history);
+  const inHistory = traced === undefined ? {} : { history: traced };
   if (listed !== undefined)
-    return { identity, status: "active", list: listed.list, ...completed };
+    return {
+      identity,
+      status: "active",
+      list: listed.list,
+      ...completed,
+      ...inHistory,
+    };
   if (record !== undefined)
-    return { identity, status: "completed", ...completed };
-  return { identity, status: "unlisted" };
+    return { identity, status: "completed", ...completed, ...inHistory };
+  const seed = seedNumberOf(identity)?.seed;
+  const activeSeed = seeds.named.some((entry) => entry.identity === seed);
+  if (
+    traced?.record !== undefined ||
+    (traced?.seed !== undefined && !activeSeed)
+  )
+    return { identity, status: "in-history", ...inHistory };
+  return { identity, status: "unlisted", ...inHistory };
 }
 
 function reportedHighest(highest) {
   if (highest === undefined) return null;
-  const { seed, number, identity, evidence } = highest;
-  return { seed, number, identity, evidence };
+  const { seed, number, identity, evidence, commit } = highest;
+  return {
+    seed,
+    number,
+    identity,
+    evidence,
+    ...(commit === undefined ? {} : { commit }),
+  };
 }
 
 /**
  * The allocation evidence beside the backlog at `file`, with the seed
- * directory at `seedDirectory` (default: "seeds" beside the backlog) and the
+ * directory at `seedDirectory` (default: "seeds" beside the backlog), the
+ * history of both reachable from HEAD in the backlog's repository, and the
  * status of `identity` when one is supplied.
  */
-export function readIdentityEvidence(file, { seedDirectory, identity }) {
+export async function readIdentityEvidence(
+  file,
+  { seedDirectory = join(dirname(file), defaultSeedDirectory), identity },
+) {
   const backlogDirectory = dirname(file);
   const doneFiles = readDoneRecordFiles(backlogDirectory);
+  const seeds = seedDirectorySource(backlogDirectory, seedDirectory);
   const backlog = backlogSource(backlogDirectory, file);
   const records = doneRecordsSource(doneFiles);
+  const history = await historySource(backlogDirectory, seedDirectory);
   const sources = [
-    seedDirectorySource(
-      backlogDirectory,
-      seedDirectory ?? join(backlogDirectory, defaultSeedDirectory),
-    ),
+    seeds,
     backlog,
     records,
     doneCatalogSource(backlogDirectory, doneFiles),
+    history,
   ];
   const overall = highestOf(
     sources.flatMap(({ source, named }) =>
@@ -213,9 +134,10 @@ export function readIdentityEvidence(file, { seedDirectory, identity }) {
       overall === undefined
         ? null
         : `${overall.prefix}${String(overall.number + 1).padStart(overall.width, "0")}`,
-    sources: sources.map(({ source, path, read, named }) => ({
+    sources: sources.map(({ source, path, revision, read, named }) => ({
       source,
       path,
+      ...(revision === undefined ? {} : { revision }),
       read,
       highest: reportedHighest(highestOf(named)),
     })),
@@ -224,6 +146,23 @@ export function readIdentityEvidence(file, { seedDirectory, identity }) {
     ),
     ...(identity === undefined
       ? {}
-      : { candidate: candidateStatus(identity, backlog, records) }),
+      : {
+          candidate: candidateStatus(identity, {
+            seeds,
+            backlog,
+            records,
+            history,
+          }),
+        }),
   };
+}
+
+// The identity-evidence command: prints the report as JSON, writing nothing
+// and taking no lock, since a reader never needs to wait for a writer.
+export async function printIdentityEvidence(file, values) {
+  const evidence = await readIdentityEvidence(file, {
+    seedDirectory: resolvePath(values.seeds),
+    identity: values.identity,
+  });
+  console.log(JSON.stringify(evidence, null, 2));
 }

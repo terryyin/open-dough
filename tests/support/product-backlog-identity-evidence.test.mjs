@@ -2,9 +2,12 @@
 // whose seed directory, backlog, and done records each show identities
 // already used: cleanup removes completed seeds, so the report must name the
 // highest number every source shows, the record behind it, and each source it
-// could not read, and it must write nothing.
+// could not read, and it must write nothing. Published Git history still
+// shows seeds and records cleanup removed, so a Git project's history is a
+// source too, and a project without readable history names it as a gap.
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -14,55 +17,15 @@ import {
   scratchProject,
   takenStory,
 } from "./product-backlog-fixture.mjs";
+import { at, doneDirectory } from "./product-backlog-done-fixture.mjs";
 import {
-  at,
-  doneDirectory,
-  recordText,
-} from "./product-backlog-done-fixture.mjs";
-
-const seed = (number) => `---\nid: SEED-${number}\n---\n\n# Seed ${number}\n`;
-
-const doneTimes = (index) =>
-  `2026-10-${String(index + 1).padStart(2, "0")}T10:00:00.000Z`;
-
-// Active seeds end at SEED-074; cleanup has removed SEED-075 … SEED-084,
-// whose done records remain.
-function cleanedUpProject(t) {
-  const project = scratchProject(t);
-  projectFile(project, "seeds/SEED-073-earlier.md", seed("073"));
-  projectFile(project, "seeds/SEED-074-latest-active.md", seed("074"));
-  for (let number = 75; number <= 84; number += 1) {
-    const identity = `SEED-0${number}#story-1`;
-    projectFile(
-      project,
-      `done/SEED-0${number}_story-1.json`,
-      recordText(identity, `Story ${number}`, doneTimes(number - 75)),
-    );
-  }
-  return project;
-}
-
-const evidence = async (project, ...arguments_) => {
-  const result = await run(
-    project,
-    ["identity-evidence", ...arguments_],
-    at("2026-10-23T00:00:00.000Z"),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  return JSON.parse(result.stdout);
-};
-
-const snapshot = (project) =>
-  readdirSync(join(project.directory, ".planning"), { recursive: true })
-    .sort()
-    .map((path) => {
-      const full = join(project.directory, ".planning", path);
-      try {
-        return [path, readFileSync(full, "utf8")];
-      } catch {
-        return [path, "(directory)"];
-      }
-    });
+  cleanedUpProject,
+  evidence,
+  git,
+  historyUnread,
+  projectWithRemovedAllocation,
+  snapshot,
+} from "./product-backlog-identity-evidence-fixture.mjs";
 
 test("identity-evidence names the done record above the active seeds and the next number", async (t) => {
   const project = cleanedUpProject(t);
@@ -89,7 +52,7 @@ test("identity-evidence names the done record above the active seeds and the nex
   );
   assert.equal(bySource["done-catalog"].highest.seed, "SEED-084");
   assert.equal(bySource["done-catalog"].read, true);
-  assert.deepEqual(report.gaps, []);
+  assert.deepEqual(report.gaps, [historyUnread]);
   assert.deepEqual(snapshot(project), before);
 });
 
@@ -113,6 +76,7 @@ test("identity-evidence reads the records it can and names an absent catalog and
       reason: "done record is not JSON",
     },
     { source: "done-catalog", path: "done/.catalog.json", reason: "absent" },
+    historyUnread,
   ]);
   assert.deepEqual(snapshot(project), before);
   assert.equal(
@@ -128,6 +92,7 @@ test("identity-evidence names an absent seed directory as a gap", async (t) => {
 
   assert.deepEqual(report.gaps, [
     { source: "seed-directory", path: "seeds", reason: "absent" },
+    historyUnread,
   ]);
   assert.equal(
     report.sources.find((source) => source.source === "seed-directory").read,
@@ -160,4 +125,97 @@ test("identity-evidence reports a candidate as completed, active, or unlisted", 
     status: "unlisted",
   });
   assert.equal(project.read(), backlog);
+});
+test("identity-evidence names a seed history still shows above the active seeds and done records", async (t) => {
+  const { project, added, head } = projectWithRemovedAllocation(t);
+  const before = snapshot(project);
+
+  const report = await evidence(project);
+
+  assert.deepEqual(report.highest, {
+    source: "history",
+    seed: "SEED-090",
+    number: 90,
+    identity: "SEED-090",
+    evidence: "seeds/SEED-090-x.md",
+    commit: added,
+  });
+  assert.equal(report.next, "SEED-091");
+  const history = report.sources.find((source) => source.source === "history");
+  assert.equal(history.read, true);
+  assert.equal(history.path, "..");
+  assert.equal(history.revision, head);
+  const bySource = Object.fromEntries(
+    report.sources.map((source) => [source.source, source]),
+  );
+  assert.equal(bySource["seed-directory"].highest.seed, "SEED-074");
+  assert.equal(bySource["done-records"].highest.seed, "SEED-084");
+  assert.deepEqual(
+    report.gaps.map(({ source }) => source),
+    ["done-catalog"],
+  );
+  assert.deepEqual(snapshot(project), before);
+  assert.equal(git(project.directory, "rev-parse", "HEAD"), head);
+});
+
+test("identity-evidence reports a candidate history alone still shows", async (t) => {
+  const { project, added } = projectWithRemovedAllocation(t);
+
+  const recorded = await evidence(project, "--identity", "SEED-090#x_y");
+  const sameSeed = await evidence(project, "--identity", "SEED-090#other");
+  const activeSeed = await evidence(project, "--identity", "SEED-074#new");
+
+  assert.deepEqual(recorded.candidate, {
+    identity: "SEED-090#x_y",
+    status: "in-history",
+    history: {
+      record: { evidence: "done/SEED-090_x~5Fy.json", commit: added },
+      seed: {
+        seed: "SEED-090",
+        evidence: "seeds/SEED-090-x.md",
+        commit: added,
+      },
+    },
+  });
+  assert.deepEqual(sameSeed.candidate, {
+    identity: "SEED-090#other",
+    status: "in-history",
+    history: {
+      seed: {
+        seed: "SEED-090",
+        evidence: "seeds/SEED-090-x.md",
+        commit: added,
+      },
+    },
+  });
+  assert.equal(activeSeed.candidate.status, "unlisted");
+  assert.equal(
+    activeSeed.candidate.history.seed.evidence,
+    "seeds/SEED-074-latest-active.md",
+  );
+});
+
+test("identity-evidence names shallow history as unread while the other sources stand", async (t) => {
+  const { project } = projectWithRemovedAllocation(t);
+  const clone = mkdtempSync(join(tmpdir(), "dough-backlog-shallow-"));
+  t.after(() => rmSync(clone, { recursive: true, force: true }));
+  git(
+    tmpdir(),
+    "clone",
+    "-q",
+    "--depth",
+    "1",
+    `file://${project.directory}`,
+    clone,
+  );
+
+  const report = await evidence({ directory: clone });
+
+  assert.equal(report.highest.evidence, "done/SEED-084_story-1.json");
+  assert.equal(report.next, "SEED-085");
+  assert.deepEqual(report.gaps.at(-1), {
+    source: "history",
+    path: "..",
+    reason: "shallow history: commits beyond its boundary are unread",
+  });
 });

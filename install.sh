@@ -39,6 +39,8 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-home-reader.mjs
   dough-product-backlog/scripts/product-backlog-home.mjs
   dough-product-backlog/scripts/product-backlog-identity-evidence.mjs
+  dough-product-backlog/scripts/product-backlog-identity-history.mjs
+  dough-product-backlog/scripts/product-backlog-identity-sources.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
   dough-product-backlog/scripts/product-backlog-order.mjs

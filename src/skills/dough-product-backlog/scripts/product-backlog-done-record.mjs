@@ -44,6 +44,35 @@ export function doneRecordFileName(identity) {
   return `${spelled}.json`;
 }
 
+// The identity whose record takes `fileName`, read from the name alone (for
+// a record whose text is no longer at hand), or undefined when no identity
+// takes that name.
+export function doneRecordIdentity(fileName) {
+  if (!isDoneRecordFileName(fileName)) return undefined;
+  const bytes = [];
+  const spelled = fileName.slice(0, -".json".length);
+  for (let index = 0; index < spelled.length; index += 1) {
+    const character = spelled[index];
+    if (character === "~") {
+      const byte = Number.parseInt(spelled.slice(index + 1, index + 3), 16);
+      if (Number.isNaN(byte)) return undefined;
+      bytes.push(byte);
+      index += 2;
+    } else {
+      bytes.push(...encoder.encode(character === "_" ? "#" : character));
+    }
+  }
+  let identity;
+  try {
+    identity = new TextDecoder("utf-8", { fatal: true }).decode(
+      new Uint8Array(bytes),
+    );
+  } catch {
+    return undefined;
+  }
+  return doneRecordFileName(identity) === fileName ? identity : undefined;
+}
+
 // The record's path relative to the backlog's directory.
 export function doneRecordPath(identity) {
   return `${doneRecordDirectory}/${doneRecordFileName(identity)}`;

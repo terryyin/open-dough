@@ -157,15 +157,21 @@ identity-evidence prints, as JSON, what the project shows about the
 identities it has already used, so a new one can be chosen above all of it.
 Each source — the seed directory (--seeds, by default seeds/ beside the
 backlog), the backlog's two lists, the done records under
-${doneRecordDirectory}/, and ${doneCatalogPath} — reports its highest seed number
-with the file or record behind it; highest and next name the highest number
-any source shows and the number after it. gaps names each source or file that
-could not be read, such as an absent seed directory, an unreadable record, or
-a catalog that is absent or does not match the records (rebuild it with
-catalog-done); a source with a gap is not complete evidence. --identity also
-reports that candidate as "active" with its list, "completed" with its done
-record's title and completion time, or "unlisted". It reserves, registers, and
-writes nothing; the caller still chooses the identity.
+${doneRecordDirectory}/, ${doneCatalogPath}, and history (the seed and
+${doneRecordDirectory}/ files Git history reachable from HEAD shows added, at the
+revision it names, including those cleanup has since removed) — reports its
+highest seed number with the file or record behind it, and from history the
+commit that added it; highest and next name the highest number any source
+shows and the number after it. gaps names each source or file that could not
+be read, such as an absent seed directory, an unreadable record, a catalog
+that is absent or does not match the records (rebuild it with catalog-done),
+or history outside a Git work tree or in a shallow clone; a source with a gap
+is not complete evidence. --identity also reports that candidate as "active"
+with its list, "completed" with its done record's title and completion time,
+"in-history" when history alone shows its done record or its seed ID while no
+active seed carries that ID, or "unlisted", with what history shows of it
+under history. It reserves, registers, and writes nothing; the caller still
+chooses the identity.
 
 read-dependencies prints the consumer's separate, versioned dependency record,
 blocking entries, and dependency agreement basis. Absence means no blockers;
