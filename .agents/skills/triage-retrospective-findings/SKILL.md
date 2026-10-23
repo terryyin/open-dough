@@ -169,9 +169,10 @@ Validate all destinations and the selected story before creating or changing any
 - Reuse a supplied/found seed only when its parent problem can host this follow-up.
   If none fits, require a supplied readable canonical directory and resolvable conventions
   from its existing files or invocation: ID and filename patterns, required frontmatter,
-  title `# SEED-NNN: ...`, and the stable anchor above. Next ID is one greater than the
-  highest `SEED-NNN` in that directory. Empty directory without supplied conventions,
-  unknown next ID, or missing metadata conventions stops the write; invent no scheme/path.
+  title `# SEED-NNN: ...`, and the stable anchor above. Choose the new seed ID under
+  [allocate a new identity](../../../src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity).
+  Empty directory without supplied conventions, an allocation evidence gap you cannot
+  resolve, or missing metadata conventions stops the write; invent no scheme/path.
 - The supplied backlog's title, Near-future direction when present, retained **Taken**,
   and **Backlog list** conventions are identifiable.
 - Evidence identifies the selected `ODF-NNN`; otherwise route to reconciliation.
@@ -183,7 +184,8 @@ Validate all destinations and the selected story before creating or changing any
 
 Only after all validation, when no suitable seed exists, create one in the supplied directory:
 
-1. Allocate the next `SEED-NNN` and match its filename pattern (`SEED-NNN-<kebab>.md`).
+1. Use the `SEED-NNN` chosen during validation and match its filename pattern
+   (`SEED-NNN-<kebab>.md`).
 2. Use established metadata field names (typically `id`, `status`, `planted`,
    `planted_during`, `trigger_when`, `scope`), mapped from seed-format to identity,
    project status vocabulary, creation date, invocation context, resurfacing trigger,
@@ -199,8 +201,10 @@ preserve unrelated seeds and avoid full decomposition/refinement of this minimal
 After validation and any seed creation, write all three in one invocation:
 
 1. **Story:** add one under the seed's story-section heading, matching the directory
-   pattern and creating that heading on a new seed. Use next unused local number (1 on
-   a new seed), stable anchor, beneficiary, and evaluable outcome. Cite the finding code
+   pattern and creating that heading on a new seed. Give it the next local number (1 on
+   a new seed), a stable anchor whose full identity is unused under
+   [allocate a new identity](../../../src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity),
+   a beneficiary, and an evaluable outcome. Cite the finding code
    and supplied finding location without copying occurrences. Include a completion criterion
    to update every addressed finding at its supplied writable location after delivery under
    [finding status](../../../docs/maintainer/finding-names.md#retained-evidence).

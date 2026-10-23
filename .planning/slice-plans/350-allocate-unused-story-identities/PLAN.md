@@ -243,7 +243,7 @@ C16–C19, C26, C30 observed.
 
 ### 4. Guidance routes new identities through the rule and the evidence operation
 Type: Behavior
-Status: planned
+Status: done
 Proof: representative allocation exercise and behavior review as mapped
 above; `grep` shows no second allocation rule outside `identity.md`.
 
@@ -256,6 +256,23 @@ observed source and an anchor whose full identity no source records, treats
 an unreadable source as unresolved (rebuilding a missing catalog with
 `catalog-done`), and learns from the product-backlog skill and usage text
 what the refusals mean and that resume and relocation allocate nothing.
+
+Accepted (2026-10-23): `identity.md` "Allocate a new identity" holds the one
+rule; product-backlog `SKILL.md` "Choose a new identity" describes the
+operation, flags, and refusals and links the rule; `seed-format.md`,
+`admit-accepted-work.md` (also its `source-refused` list), `planning.md`
+(correction story identity), `dough-triage-project-findings/SKILL.md`, and
+the internal triage skill (its "one greater than the highest" rule removed)
+link it. Representative exercise: a fresh agent given only the changed
+skills in a scratch Git project (active 073–074, done 075–084 with catalog,
+`SEED-090` added and removed in history) ran `identity-evidence`, allocated
+`SEED-091`, and after `add` refused `SEED-075#story-1` reallocated the draft;
+its question about "renumbering an existing story" led to clarifying that
+line as a published identity. Grep for allocation rules outside `identity.md`
+found none. Guidance, link, payload, install tests and lint passed; full
+`npm test` passed except `tests/dashboard-concurrent-runs.sh` (missing
+Playwright `.last-run.json` under load 31; passes alone; no dashboard path
+changed). Commitments C5–C9, C15, C23–C25, C32 observed.
 
 ## Current decisions
 
