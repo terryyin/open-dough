@@ -1,3 +1,15 @@
+## 0.3.71 - 2026-10-25
+
+- Accept authoritative custom CI queue facts separately from attempts and verdicts. Match target, check, context and locally proved ancestry for coalesced work, withdraw failed or empty observations, and expire stale progress after two minutes.
+- Return a durable pending receipt and exact recovery command when legitimate queued, running or retrying work outlasts the ten-minute foreground wait. Preserve the original sixty-minute completion deadline across resumes, concurrent callers, interruptions and coalescing.
+- Keep pending and expired completion from authorizing wrap-up continuation or worktree retirement. Preserve exact failures, unread actionable events and worker-loss explanations; a later green result cannot reopen an expired handoff.
+
+The Promoted installation payload adds three runtime modules and the custom CI queue manual, and updates the shared completion guidance and its lifecycle consumers. No payload paths are removed. Dashboard test synchronization and maintained assessment research remain source-only changes; Proposed guidance outside the installer declaration remains outside the released payload.
+
+Validation: representative behavior review and the owning story's real adapter, Git, worker, interruption, recovery and retirement-gate tests passed. Both native roots passed installation, byte comparison and runtime import-closure checks. Local release self-installation, lint and dashboard typecheck passed. Hosted CI passed the complete source revision `42c2593eedb840189ef536c775c187f1f7d1415f` (run `40138824776`), and the queue-completion implementation passed branch run `40110814372`.
+
+Shared Codex, Cursor and Claude Code discovery, hook activation and host ownership mechanisms are unchanged; their existing integration evidence is reused under ADR 0005. Queue interpretation and completion receipts use the same shared runtime on every host, with the affected host and background callers covered by the owning story's deterministic tests. No fresh native-host acceptance or new exception is claimed. Earlier outstanding native requirements retain their existing owners and remain pending.
+
 ## 0.3.70 - 2026-10-23
 
 - Select the native GitHub Actions workflow with `ciWorkflow` in `.planning/open-dough.json`, including outside a development shell. Keep the environment override and `ci.yml` default; use the same startup selection for observation, diagnostics and completion evidence.
