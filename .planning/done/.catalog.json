@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-150_story-queue-aware-completion.json",
+      "identity": "SEED-150#story-queue-aware-completion",
+      "completedAt": "2026-10-24T22:28:32.056Z",
+      "blob": "866fc8664943264264f3fb5b8790551643314c63"
+    },
+    {
       "fileName": "SEED-010_assess-client-product-improvement-in-use.json",
       "identity": "SEED-010#assess-client-product-improvement-in-use",
       "completedAt": "2026-10-24T00:01:59.400Z",

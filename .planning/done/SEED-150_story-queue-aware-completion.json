@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-150#story-queue-aware-completion",
+  "title": "Complete queued revisions with a recoverable pending handoff",
+  "completedAt": "2026-10-24T22:28:32.056Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "codex"
+}
