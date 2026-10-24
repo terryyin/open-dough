@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#assess-client-product-improvement-in-use",
+  "title": "Assess Doughnut's note-details disclosure against deployed use",
+  "completedAt": "2026-10-24T00:01:59.400Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "claude",
+  "model": "opus"
+}

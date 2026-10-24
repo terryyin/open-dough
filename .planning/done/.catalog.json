@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_assess-client-product-improvement-in-use.json",
+      "identity": "SEED-010#assess-client-product-improvement-in-use",
+      "completedAt": "2026-10-24T00:01:59.400Z",
+      "blob": "7af96d159f16f067db24c7ff29e4ba1dffb2bb9d"
+    },
+    {
       "fileName": "SEED-149_native-ci-workflow.json",
       "identity": "SEED-149#native-ci-workflow",
       "completedAt": "2026-10-23T12:20:36.369Z",
