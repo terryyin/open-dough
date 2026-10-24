@@ -9,7 +9,7 @@ id: SEED-150
 
 **Identity:** SEED-150#story-queue-aware-completion
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/352-queue-aware-completion/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9bc2ebb9ee61c7eeabdc11a2b36ba89b26c89d7b584f82d50a4bf9c7a9f6b02b","plan":"35d5b965bab087fb6761debe2e1bdad9ca7463f4ee57f86e4cc3ba6c3e9b1ecc"}}
 ```
 
 **Goal:** A coordinator can distinguish authoritative queue progress from missing
