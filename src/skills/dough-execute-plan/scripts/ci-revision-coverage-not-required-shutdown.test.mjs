@@ -183,7 +183,9 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
     state: "not_required",
     basis: { sha: shaA1, state: "pending" },
     registeredAt: coverageOf(shaB1).registeredAt,
+    observedAt: coverageOf(shaB1).observedAt,
   });
+  assert.ok(Number.isFinite(coverageOf(shaB1).observedAt));
   assert.deepEqual(coverageOf(shaB2), {
     sha: shaB2,
     state: "not_required",

@@ -53,9 +53,15 @@ No infrastructure, image, dependency or paid observation is needed.
 
 ## Ordered slices
 
+Observer: coordinator `codex-queue-completion-20261025`, target
+`terryyin/open-dough codex/queue-aware-completion`, directory
+`/tmp/dough-ci-501/watch-iijDA8`, PID 12475, PTY 29057, yielded cell 184.
+Canonical runtime and enabled push workflow verified. Plan publication accepted
+`458daed3354efcc73f23a0ecea39a72b79825839` on main; no implementation yet.
+
 ### 1. Authoritative queue progress remains distinct from attempts
 Type: Behavior
-Status: planned
+Status: done
 Proof: real custom-adapter/observer/Git coverage integration tests for queued A, coalesced descendant B, retrying evidence and empty/failed/stale/foreign/context/unknown-ancestry counterexamples; affected command-adapter, revision coverage and integrated-state suites via node --test.
 
 Behavior: discovery returns a truthful queue snapshot → accepted coverage carries
@@ -63,6 +69,28 @@ fresh separate pending explanation, retaining its own actual attempt state.
 Exact failures and reruns retain precedence. Shared projection can distinguish
 fresh pending work without changing real successful evidence rules. Extend the
 protocol documentation and payload declaration for any runtime module added.
+
+Accepted: `/root/source_promises` and `/root/source_promises_recovery` were fresh
+source-only reviews; their original inputs and individual commitments are
+retained in conversation. Parent inspected the real adapter/worker/Git setup and
+assertions in queue coverage tests, pending projection and coverage acquisition:
+queued/running/retrying never creates verdict/checkedBy; matching coalesced
+descendant explains pending only with local proven ancestry; missing objects
+are not fetched; empty/unsupported/failed/foreign/context-invalid snapshots
+withdraw progress; fake-clock freshness and newer real retries preserve failure
+and current-attempt precedence. Pending inherited bases are observed freshly.
+Implementation proof `/tmp/open-dough-queue-proof.md` retains exact terminal
+commands: 30 affected suites (one expected new-field assertion corrected and
+rerun), 6 new queue integration tests, 11 direct consumers, 3 guidance/install
+checks and 4 further projection suites all passed after the noted assertion
+repair. Source control and assertion boundaries were inspected, not inferred
+from exit status. Consumer dispositions are in
+`/tmp/open-dough-queue-consumer-trace.md`.
+Independent refactor extracts queue projection and queue protocol manual,
+splits integrated queue/await tests without reducing assertions, and declares
+both new runtime/manual files in install.sh. Existing externally supplied
+withdrawIntegratedState callback contract is preserved. Its renewed affected
+coverage/install proof and final marker are retained in conversation.
 
 ### 2. Completion yields and resumes a bounded durable pending handoff
 Type: Behavior
@@ -98,5 +126,7 @@ Pygardon's parallel scheduler is independent; adapter adoption waits for release
 
 ## Story obligations
 
-None identified during preparation. Record discovered source gaps and their
-receiving ownership before accepting dependent work.
+### G1. Durable completion remains owned by the next behavior
+Reported: slice 1 — "Slice 2’s durable handoff and completion budgets remain intentionally unimplemented."
+Story clause: "Keep the ten-minute foreground wait. For fresh legitimate queued, running or retrying evidence, return a durable pending receipt with retained observer and exact recovery command. Persist a sixty-minute overall completion cap once per accepted revision before waiting; resuming and coalescing cannot renew it."
+Disposition: receiving slice 2

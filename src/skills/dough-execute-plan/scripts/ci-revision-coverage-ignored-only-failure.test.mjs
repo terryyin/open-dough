@@ -12,6 +12,7 @@ import {
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
+import { freshPendingRevision } from "./ci-mailbox-revision-records.mjs";
 import { lateFailureWithIgnoredOnlyDescendantsGithub } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
@@ -43,16 +44,12 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   writeFileSync(join(repo, ".planning", "note.md"), "note\n");
   const shaB = await commitAll(repo, "ignored-only change B");
 
-  // C: a further ignored-only descendant (of B), also registered up front;
-  // its nearest attempt-bearing ancestor is still A, since B never gets a
-  // CI run of its own.
+  // C: another ignored-only descendant, also covered by A's real attempt.
   await exec("mkdir", ["-p", join(repo, "docs")]);
   writeFileSync(join(repo, "docs", "readme.md"), "docs\n");
   const shaC = await commitAll(repo, "ignored-only change C");
 
-  // D: another ignored-only descendant, registered only after A has already
-  // failed and been delivered once — proving late registration neither
-  // duplicates nor newly acknowledges the already-delivered failure.
+  // D is registered after A fails, proving late registration adds no failure.
   writeFileSync(join(repo, ".planning", "note2.md"), "note2\n");
   const shaD = await commitAll(repo, "ignored-only change D");
 
@@ -148,13 +145,25 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     state: "not_required",
     basis: { sha: shaA, state: "pending" },
     registeredAt: coverageOf(shaB).registeredAt,
+    observedAt: coverageOf(shaB).observedAt,
   });
   assert.deepEqual(coverageOf(shaC), {
     sha: shaC,
     state: "not_required",
     basis: { sha: shaA, state: "pending" },
     registeredAt: coverageOf(shaC).registeredAt,
+    observedAt: coverageOf(shaC).observedAt,
   });
+  assert.ok(Number.isFinite(coverageOf(shaB).observedAt));
+  assert.deepEqual(
+    freshPendingRevision(coverageOf(shaB), coverageOf(shaB).observedAt),
+    {
+      source: "attempt",
+      sha: shaB,
+      observedAt: coverageOf(shaB).observedAt,
+      basis: { sha: shaA, state: "pending" },
+    },
+  );
   assert.deepEqual(readMailboxEvents(directory), []);
 
   await advancePoll();
@@ -181,6 +190,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   assert.deepEqual(coverageOf(shaB).basis, { sha: shaA, state: "failure" });
   assert.equal(coverageOf(shaC).state, "not_required");
   assert.deepEqual(coverageOf(shaC).basis, { sha: shaA, state: "failure" });
+  assert.equal(freshPendingRevision(coverageOf(shaB)), undefined);
 
   // Further polling never redelivers the same failure.
   await advancePoll();
@@ -205,14 +215,9 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     "other coordinator's real failure",
   );
 
-  // Unrelated-owner evidence stays isolated in both directions: this
-  // mailbox's own event log names only A's failure, and the other
-  // coordinator's mailbox names only its own unrelated revision. (Delivery
-  // through the host hook CLI is exercised by
-  // ci-revision-coverage-late-github-failure.test.mjs; it cannot be reused
-  // unmodified here because that CLI always reads mailboxes against this real
-  // checkout's root, while this test's git-based classification requires a
-  // disposable temporary repository as `root`.)
+  // Owners see only their own failures. Host-hook delivery is proved by
+  // ci-revision-coverage-late-github-failure.test.mjs against the real checkout;
+  // this Git applicability test needs a disposable repository instead.
   const otherFailureEvents = readMailboxEvents(otherDirectory)
     .map(({ event }) => event)
     .filter(({ type }) => type === "CI_FAILURE");

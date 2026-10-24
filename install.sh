@@ -118,7 +118,7 @@ managed_files=(
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
-  dough-execute-plan/manuals/custom-ci.md dough-execute-plan/manuals/custom-reuse-ci.md dough-execute-plan/manuals/reuse-ci.md
+  dough-execute-plan/manuals/custom-ci.md dough-execute-plan/manuals/custom-reuse-ci.md dough-execute-plan/manuals/reuse-ci.md dough-execute-plan/manuals/custom-ci-queue.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
@@ -167,7 +167,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs dough-execute-plan/scripts/ci-mailbox-match.mjs
   dough-execute-plan/scripts/ci-observer-owner.mjs dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
-  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs
+  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs

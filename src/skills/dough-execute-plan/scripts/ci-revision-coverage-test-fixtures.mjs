@@ -22,6 +22,26 @@ import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
 
+export const customCiBranch = "feature/custom";
+export const queuePolicy = { check: "project-checks", context: "push" };
+export const queueEntry = (sha, state = "queued", extra = {}) => ({
+  sha,
+  branch: customCiBranch,
+  state,
+  ...extra,
+});
+export const commandAttempt = (sha, outcome, extra = {}) => ({
+  sha,
+  branch: customCiBranch,
+  runId: "real-run",
+  attemptId: "first",
+  outcome,
+  time: "2026-10-25T00:00:00Z",
+  ...extra,
+});
+export const revisionCoverage = (h, sha) =>
+  h.mailbox.readRevisionCoverage(h.directory).find((r) => r.sha === sha);
+
 export async function git(root, ...args) {
   return exec("git", args, { cwd: root });
 }
@@ -41,7 +61,7 @@ export function coverageStates(mailbox, directory) {
 // not fire when the test advances wall time past the discovery bound.
 export async function createRevisionCoverageFixture(
   t,
-  { now, maxDurationMs = 60_000 } = {},
+  { now, maxDurationMs = 60_000, integratedPolicy } = {},
 ) {
   const fixture = realpathSync(
     mkdtempSync(join(tmpdir(), "ci-revision-coverage-")),
@@ -61,17 +81,22 @@ export async function createRevisionCoverageFixture(
   const adapter = join(fixture, "adapter.mjs");
   writeFileSync(
     adapter,
-    `#!${process.execPath}\nimport { readFileSync, writeFileSync } from 'node:fs';\nconst calls = Number(readFileSync(${JSON.stringify(adapterCalls)}, 'utf8')) + 1;\nwriteFileSync(${JSON.stringify(adapterCalls)}, String(calls));\nprocess.stdout.write(readFileSync(${JSON.stringify(adapterState)}, 'utf8'));\n`,
+    `#!${process.execPath}\nimport { readFileSync, writeFileSync } from 'node:fs';\nlet input = ''; for await (const chunk of process.stdin) input += chunk;\nif (JSON.parse(input).operation === 'diagnose') { process.stdout.write(JSON.stringify({ excerpt: 'real attempt failed' })); process.exit(0); }\nconst calls = Number(readFileSync(${JSON.stringify(adapterCalls)}, 'utf8')) + 1;\nwriteFileSync(${JSON.stringify(adapterCalls)}, String(calls));\nprocess.stdout.write(readFileSync(${JSON.stringify(adapterState)}, 'utf8'));\n`,
   );
   chmodSync(adapter, 0o700);
   writeFileSync(adapterCalls, "0");
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify({
+      ciAdapter: [process.execPath, adapter],
+      ...(integratedPolicy
+        ? { integratedStateCompletion: integratedPolicy }
+        : {}),
+    }),
   );
 
   await exec("git", ["init", "--bare", remote]);
-  await git(project, "init", "-b", "feature/custom");
+  await git(project, "init", "-b", customCiBranch);
   await git(project, "config", "user.name", "Coverage Fixture");
   await git(project, "config", "user.email", "coverage@example.test");
   await git(project, "remote", "add", "origin", remote);
@@ -88,7 +113,7 @@ export async function createRevisionCoverageFixture(
     {
       mode: "execution",
       repo: "owner/project",
-      branch: "feature/custom",
+      branch: customCiBranch,
       maxDurationMs,
     },
     { root: project, storage },
@@ -135,14 +160,14 @@ export async function createRevisionCoverageFixture(
 
   const deliver = async () => {
     const sha = (await git(project, "rev-parse", "HEAD")).stdout.trim();
-    await git(project, "push", "origin", "HEAD:feature/custom");
+    await git(project, "push", "origin", `HEAD:${customCiBranch}`);
     assert.equal(
       (
         await exec("git", [
           "--git-dir",
           remote,
           "rev-parse",
-          "refs/heads/feature/custom",
+          `refs/heads/${customCiBranch}`,
         ])
       ).stdout.trim(),
       sha,
@@ -177,5 +202,12 @@ export async function createRevisionCoverageFixture(
     deliver,
     advancePoll,
     setAttempts,
+    setSnapshot: (snapshot) =>
+      writeFileSync(
+        adapterState,
+        typeof snapshot === "string" ? snapshot : JSON.stringify(snapshot),
+      ),
+    remote,
+    fixture,
   };
 }
