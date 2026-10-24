@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-150#story-queue-aware-completion",
+  "mode": "story-branch",
+  "branch": "codex/queue-aware-completion",
+  "host": "codex"
+}

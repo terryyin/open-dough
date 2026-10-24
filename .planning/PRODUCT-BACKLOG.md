@@ -18,5 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Complete queued revisions with a recoverable pending handoff](seeds/SEED-150-queue-aware-completion.md#story-queue-aware-completion) — SEED-150#story-queue-aware-completion
+
 ## Backlog list
 
