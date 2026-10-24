@@ -60,6 +60,13 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
   assert_payload_bytes_match "${source_dir}/src/skills" "${target}/${skill_root}"
+  # Load the actual installed completion entry points and their relative imports.
+  node --input-type=module - "${target}/${skill_root}" << 'NODE'
+import { pathToFileURL } from "node:url";
+import { join } from "node:path";
+for (const path of ["dough-execute-plan/scripts/ci-mailbox.mjs", "dough-story-wrap-up/scripts/trunk-closure.mjs"])
+  await import(pathToFileURL(join(process.argv[2], path)));
+NODE
   # Load the installed shared attention rule through Wrap Up's actual relative
   # link. The byte assertion above proves this is the candidate guidance, not
   # a maintained local copy. This is installed-use structure, not native proof.

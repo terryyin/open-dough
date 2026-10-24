@@ -94,7 +94,7 @@ coverage/install proof and final marker are retained in conversation.
 
 ### 2. Completion yields and resumes a bounded durable pending handoff
 Type: Behavior
-Status: planned
+Status: done
 Proof: complete-revision integration with real mailbox files and fake clock for queued/running/retrying work, caller cancellation and resume, no cap renewal under coalescing/repeated calls, exhaustion/late green, stale/unavailable evidence, exact and unread failures; trunk closure and host completion callers remain safe; affected completion/await/closure suites.
 
 Behavior: legitimate pending progress outlasts foreground wait → persist pending
@@ -103,6 +103,41 @@ continues with the original cap → real applicable evidence completes or expiry
 ends unresolved. Update affected lifecycle recovery and guidance, including
 completion wait, finish/stop, wrap-up and Codex behavior. Preserve existing
 low-level read-only await and host-specific async handoff restrictions.
+
+Accepted: fresh source-only review commitments were compared with the source,
+code and assertions, including all three alternative pending states and each
+negative evidence category. Parent inspected `completeRevision`, exclusive
+completion state, all new completion suites and the real installed finish gate.
+`/tmp/open-dough-s2-proof.md` retains literal commands, setup and assertion
+locations: 32 distinct focused suites passed, covering 24 new tests. Real adapter/
+Git/worker journeys prove queued, running, retrying and current attempt handoff,
+first record before wait, exact emitted recovery command executed by child,
+immutable 60-minute cap, coalesced A retaining its own state through descendant
+success, and newer pending rerun superseding older green. Real concurrent CLI
+and SIGINT/SIGTERM/SIGKILL cases retain the same first record; stale, withdrawn,
+foreign, unsupported, unreadable and unavailable evidence cannot yield pending
+or success. Exact failures and unread actionable events retain ownership at cap.
+The actual installed finish command proves pending/expiry keep branch/worktree;
+its imported completion collaborator is substituted at that gate only, with real
+composition independently proved. Both installed runtime roots import their
+completion and closure entry points, proving the declared module closure.
+Consumer record `/tmp/open-dough-s2-consumer-trace.md` dispositions all listed
+consumers. Native activation, host owner/enrollment and low-level read-only await
+remain unchanged; affected shared behavior and existing Codex/host/background
+consumer suites passed. No new live vendor run is claimed or needed. Guidance
+keeps one canonical completion procedure and preserves CI applicability scope.
+Two initially wrong test setups (provider start synchronization and exact-own
+pending versus an ignored-only pending basis) were corrected before their final
+passing observations; stopped commands and a nonexistent suite selected nothing
+and were never counted as proof. No release or real adoption has happened.
+Fresh independent refactor regrouped only related installer declarations to keep
+install.sh at 250 lines, preserving payload tokens/order. It renewed actual
+dual-root installation/byte equality/import closure and the historical
+single-entry acquisition scanner suite; both terminal commands passed. All
+mailbox behavior, setup and assertion locations stayed unchanged, so accepted
+behavioral proof is reused. Its 82-consumer trace at
+`/tmp/open-dough-s2-refactor-consumer-trace.md` has no undisposed gaps; parent
+inspected the sole regroup, and the REFACTOR COMPLETE receipt is retained.
 
 ## Native mechanism and release
 
@@ -129,4 +164,14 @@ Pygardon's parallel scheduler is independent; adapter adoption waits for release
 ### G1. Durable completion remains owned by the next behavior
 Reported: slice 1 — "Slice 2’s durable handoff and completion budgets remain intentionally unimplemented."
 Story clause: "Keep the ten-minute foreground wait. For fresh legitimate queued, running or retrying evidence, return a durable pending receipt with retained observer and exact recovery command. Persist a sixty-minute overall completion cap once per accepted revision before waiting; resuming and coalescing cannot renew it."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: real adapter queued/running/retrying and current-pending journeys assert durable first record before wait, original cap, saved no-verdict receipt with retained observer and exact emitted recovery command, then execute recovery to real success; coalesced progress, repeated/concurrent calls and signals preserve the original deadline.
+
+### G2. Overall expiry must retain the worker-loss explanation
+Reported: slice 2 — "At-cap composition overwrites the primary unavailable detail with the overall deadline, leaving only indirect terminal evidence."
+Story clause: "Worker loss remains explicitly unavailable."
+Disposition: proved by slice 2: actual killed worker/provider are observed exited; at original cap complete returns completion_expired with explicit observation_unavailable/worker_exited, unchanged handoff, no verdict or pending replacement, and terminal lost coverage.
+
+### G3. Observation freshness must not change successful evidence identity
+Reported: slice 2 — "Another poll can renew accepted observation timestamps without changing the validated run identity, making the whole-evidence fingerprint differ."
+Story clause: "without inventing success or renewing the original overall budget."
+Disposition: proved by slice 2: real ignored-only pending-basis and successful descendant journey retains via unread failure, renews accepted progress timestamps/queue, preserves known same successful run at original cap, then rejects a different late successful attempt without renewing the cap.

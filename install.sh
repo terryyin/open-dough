@@ -164,7 +164,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
   dough-execute-plan/scripts/ci-host-bridge.mjs dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
-  dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
+  dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-completion-state.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs dough-execute-plan/scripts/ci-mailbox-match.mjs
   dough-execute-plan/scripts/ci-observer-owner.mjs dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
@@ -245,6 +245,6 @@ managed_files=(
   dough-story-wrap-up/references/story-branch-integration.md
   dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
-  dough-story-wrap-up/scripts/trunk-closure.mjs
+  dough-story-wrap-up/scripts/trunk-closure.mjs dough-story-wrap-up/scripts/trunk-closure-completion.mjs
 )
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"

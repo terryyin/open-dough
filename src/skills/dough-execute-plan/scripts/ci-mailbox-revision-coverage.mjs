@@ -16,6 +16,7 @@ import {
 import { queueProgressReader } from "./ci-mailbox-queue-progress.mjs";
 import {
   effectiveRevisionState,
+  freshPendingRevision,
   publishRevisionRecord,
   readRevisionCoverage,
 } from "./ci-mailbox-revision-records.mjs";
@@ -201,7 +202,9 @@ export async function observeRevisionCoverage(
 
   if (!discoveryAdvisoryEmitted(directory)) {
     const undiscovered = readRevisionCoverage(directory).filter(
-      ({ state }) => state === "undiscovered",
+      (revision) =>
+        revision.state === "undiscovered" &&
+        !freshPendingRevision(revision, observedAt),
     );
     const overdue = undiscovered.some(
       ({ registeredAt }) =>

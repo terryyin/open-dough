@@ -110,3 +110,31 @@ test("a registration discovered before the bound produces no advisory", async (t
   mailbox.requestMailboxStop(directory, { root: project, storage });
   await worker;
 });
+
+test("fresh known queue suppresses missing-discovery advice until authoritative withdrawal", async (t) => {
+  let clock = 1000;
+  const h = await createRevisionCoverageFixture(t, {
+    now: () => clock,
+    maxDurationMs: 1e9,
+  });
+  h.setSnapshot({ attempts: [] });
+  const sha = await h.deliver();
+  clock += discoveryDelayBoundMs + 1;
+  h.setSnapshot({
+    attempts: [],
+    queue: [{ sha, branch: "feature/custom", state: "queued" }],
+  });
+  await h.advancePoll();
+  assert.equal(
+    h.mailbox.readRevisionCoverage(h.directory)[0].state,
+    "undiscovered",
+  );
+  assert.deepEqual(h.mailbox.readMailboxEvents(h.directory), []);
+  assert.equal(discoveryAdvisoryEmitted(h.directory), false);
+  h.setSnapshot({ attempts: [], queue: [] });
+  await h.advancePoll();
+  assert.equal(
+    h.mailbox.readMailboxEvents(h.directory)[0].event.type,
+    "CI_DISCOVERY_DELAYED",
+  );
+});
