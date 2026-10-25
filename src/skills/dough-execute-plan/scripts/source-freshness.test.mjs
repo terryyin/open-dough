@@ -341,19 +341,18 @@ test("a done-slice conflict whose decision reverts trunk's change on trunk is un
 });
 
 test("a quick story's Taken entry without a plan link compares its story section alone", async (t) => {
-  const untouched = await takenStoryBranch(t, takenEntries.quick);
-  const settled = await run(untouched, "check", 0);
+  const fixture = await takenStoryBranch(t, takenEntries.quick);
+  const settled = await run(fixture, "check", 0);
   assert.equal(settled.result, "unchanged");
   assert.deepEqual(settled.records, [
     {
       record: "story",
       path: seedPath,
-      from: untouched.take,
+      from: fixture.take,
       state: "unchanged",
     },
   ]);
 
-  const fixture = await takenStoryBranch(t, takenEntries.quick);
   const amendedSeed = seedOf({
     story: storySection("\n\nPromise two from the owner."),
   });

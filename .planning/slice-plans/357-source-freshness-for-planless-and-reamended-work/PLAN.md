@@ -218,6 +218,14 @@ record's base and the route after a conflict decision";
 second-amendment tests and passed the after-decision ones apart from `from`:
 the after-decision route already reached `unchanged`, so its change is the
 guidance and its regression proof.
+CI repair: run 40207119302 failed share 3 of `f3e0985c` at 710.7 of 710
+job-seconds; the deal assumed the 1.8 s median for this execution's new jobs
+(`source-freshness.test.mjs` 8.8-10.1 s, `tests/delivery-evidence-amended.sh`
+9.8-11.4 s) on a runner slower across 138 of 144 jobs. The repair refreshed
+`tests/longest-first` from passing run 40207326709 (0 unrecorded, 531.0
+predicted per share) and builds one fixture in the quick-story test; proof
+through `scripts/test.sh` on the share-deal and runner tests and both
+source-freshness test files.
 
 ## Execution complete
 
