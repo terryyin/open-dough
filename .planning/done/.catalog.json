@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_source-review-record-lifecycle.json",
+      "identity": "SEED-010#source-review-record-lifecycle",
+      "completedAt": "2026-10-25T15:29:47.574Z",
+      "blob": "c3e528056daf43855cdb5297f48f4616437c7767"
+    },
+    {
       "fileName": "SEED-010_refresh-human-amendments-before-completion.json",
       "identity": "SEED-010#refresh-human-amendments-before-completion",
       "completedAt": "2026-10-25T14:30:15.342Z",
