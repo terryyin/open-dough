@@ -39,6 +39,8 @@ that had asked for nothing.
 
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
+**Follow-up (2026-10-25):** [Keep test-file changes from unexpectedly exhausting CI share budgets](../../.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares, queued, not resolved. The second distinct execution (plan 350) demonstrates the same stale-allocation mechanism after a refresh. No deadline or coverage reduction is selected.
+
 #### Occurrences
 
 - Execution: `SEED-088#review-merged-story-branch-changes` / plan 292, first related implementation commit `3354d72b`

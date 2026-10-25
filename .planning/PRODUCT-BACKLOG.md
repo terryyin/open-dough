@@ -20,3 +20,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Keep test-file changes from unexpectedly exhausting CI share budgets](seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares
