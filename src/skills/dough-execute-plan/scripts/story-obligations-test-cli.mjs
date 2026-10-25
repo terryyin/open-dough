@@ -50,3 +50,10 @@ export function refusesCommitment(result, reason, commitment, fields = {}) {
 export function problemCommitments(result, reason) {
   return result.problems.find((item) => item.reason === reason).commitments;
 }
+// The commitment ids refused with this reason, sorted.
+export function refusedCommitmentIds(result, reason) {
+  return (result.problems ?? [])
+    .filter((item) => item.reason === reason)
+    .map((item) => item.commitment)
+    .sort();
+}

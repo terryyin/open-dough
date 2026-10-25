@@ -14,8 +14,10 @@ A refusal blocks delegation until resolved. Carry the full listing as slice
 promises with their required observations, including returns, receiving
 obligations, and open interims. When the plan links a source review, the
 listing also carries the commitment ids allocated to this slice; pass each id
-with its source text as a slice promise to observe. Do not substitute a
-learning summary.
+with its source text as a slice promise to observe. A review retained or
+replaced since the last check is linked and allocated under
+[the source review](story-obligations.md#record-the-source-review) before
+this listing. Do not substitute a learning summary.
 
 Give the agent:
 

@@ -106,12 +106,13 @@ the new plan's entries.
 
 ## Record the source review
 
-Keep the source-only reviewer's numbered return beside the plan as
-`source-review.md`. Link it from the plan's header with one line under
-`**Source:**` that starts with `**Source review:**` followed by a Markdown link
-to that file. Keep the launch and input description above one `## Commitments`
-table with one row per returned id: the id, the source text as returned, the
-allocated slice, and the observation or the obligation id that disposes it.
+In planned execution, keep the source-only reviewer's numbered return beside
+the plan as `source-review.md`. When you retain it, link it from the plan's
+header with one line under `**Source:**` that starts with `**Source review:**`
+followed by a Markdown link to that file. Keep the launch and input
+description above one `## Commitments` table with one row per returned id: the
+id, the source text as returned, the allocated slice, and the observation or
+the obligation id that disposes it.
 Escape a `|` inside a cell as `\|`.
 
 ```markdown
@@ -124,10 +125,13 @@ Escape a `|` inside a cell as `\|`.
 | 7 | Each decision has an identity | slice 7 | |
 ```
 
-- **Allocate** at the first acceptance that has the return: the slice whose
-  output owes the commitment, or an obligation id when an obligation disposes
-  it instead (receiving a later slice, excluded with a story quote, or owner
-  changed). Correct a wrong allocation at any later acceptance.
+- **Allocate** every id when you retain the return or replace it after a story
+  amendment, before the next `list` or `check`: each check refuses an
+  unallocated row. Give it the slice whose output owes the commitment, or an
+  obligation id when an obligation disposes it instead (receiving a later
+  slice, excluded with a story quote, or owner changed). A whole-story
+  commitment, such as the goal, belongs to the slice that completes it,
+  usually the last. Correct a wrong allocation at any later acceptance.
 - **Observe** at each acceptance: for every id allocated to this slice, write
   `observed: <product or proof location>` once inspected, or the id of the
   obligation that owns the gap. The location must show the commitment's own
@@ -136,13 +140,19 @@ Escape a `|` inside a cell as `\|`.
   where the commitment lists it, is a mismatch to record as an obligation,
   not an observation. An observation recorded at an earlier slice
   stays valid while its boundary is unchanged; do not rerun it for process.
-- **Link** an obligation back with `Commitment: 4a.5, 4a.6` after its
-  `Disposition:`. Every id it names must be a returned id.
+  An id allocated to a slice already done when you allocate it cites that
+  slice's earlier recorded proof as `observed:` when that proof shows the
+  result; otherwise record its obligation.
+- **Link** an obligation back, optionally, with `Commitment: 4a.5, 4a.6` after
+  its `Disposition:`. When present, it must name exactly the rows whose last
+  cell is that obligation's id, or the check refuses `mismatched-commitment`;
+  refusals name those rows either way.
 
 A record that is no disposition is no observation or allocation reason either;
-resolve the mismatch under [accept proof](wrap-up.md#accept-proof). After a
-story amendment, allocate the replacement review again. Plans without the link
-keep obligation-only checks.
+resolve the mismatch under [accept proof](wrap-up.md#accept-proof). Every
+check refuses `unlinked-source-review` for a `source-review.md` beside the plan
+without the exact `**Source review:**` link, or a `Source review` label in any
+other form. A plan with neither keeps obligation-only checks.
 
 ## Use the record at execution boundaries
 
@@ -164,12 +174,13 @@ behavior before the blocked delegation, slice commit/done transition, or
 completion record. `check --slice N` treats that slice as about to finish even while its
 status is `planned`. `check --completion` refuses every open return, receiving,
 or interim entry. With a linked source review, every check also refuses
-`unallocated-commitment` (a row with no existing slice and no obligation),
-`unobserved-commitment` (a row allocated to that slice, or to a done one,
-without an observation or an existing obligation, and at completion any such
-row), and `unknown-commitment` (a `Commitment:` id the return lacks). Plans
-without this section have zero obligations; do not migrate them merely to use
-the script.
+`unallocated-commitment` (a row with neither a slice nor an obligation, or
+naming a missing slice even with an obligation), `unobserved-commitment` (a
+row allocated to that slice, or to a done one, without an observation or an
+existing obligation, and at completion any such row), `unknown-commitment` (a
+`Commitment:` id the return lacks), and the
+[record's](#record-the-source-review) link refusals. Plans without this section have zero obligations; do
+not migrate them merely to use the script.
 
 For a caller that already resolved a planned execution, `check --planned-completion`
 also requires a readable, non-empty ordered slice list with every slice done,

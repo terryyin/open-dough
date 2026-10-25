@@ -1,13 +1,10 @@
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import test from "node:test";
 import {
-  fixture,
   holdings,
   obligation,
+  reviewed,
   slicePlan,
-  sourceReview,
 } from "./story-obligations-test-fixtures.mjs";
 import {
   check,
@@ -16,15 +13,6 @@ import {
   refuses,
   refusesCommitment,
 } from "./story-obligations-test-cli.mjs";
-
-function reviewed(t, rows, { entries = "", done = [] } = {}) {
-  const { plan, writePlan } = fixture(t);
-  const writeReview = (next) =>
-    writeFileSync(join(dirname(plan), "source-review.md"), sourceReview(next));
-  writePlan(slicePlan(entries, { done, review: true }));
-  writeReview(rows);
-  return { plan, writePlan, writeReview };
-}
 
 test("every returned commitment needs an allocated slice or a disposing obligation", (t) => {
   const { plan, writeReview } = reviewed(t, [
@@ -83,30 +71,6 @@ test("a done allocated slice without an observation stays refused", (t) => {
   });
 });
 
-test("an obligation disposes the commitments it names and keeps its own gate", (t) => {
-  const fromSliceOne = { ...holdings, reportedSlice: 1 };
-  const entry = `${obligation(fromSliceOne, "receiving slice 4")}\nCommitment: 1, 2`;
-  const { plan, writePlan } = reviewed(
-    t,
-    [
-      ["1", "Each signal row names that source", "", "G1"],
-      ["2", "Each exit row names that source", "slice 4", "G1"],
-    ],
-    { entries: entry, done: [1, 2, 3] },
-  );
-  assert.equal(check(plan, "--slice", "3").ok, true);
-  const atFour = check(plan, "--slice", "4");
-  refuses(atFour, "open-obligation");
-  assert.deepEqual(problemCommitments(atFour, "open-obligation"), ["1", "2"]);
-  writePlan(
-    slicePlan(
-      `${obligation(fromSliceOne, "proved by slice 4: holdings.test.mjs")}\nCommitment: 1, 2`,
-      { done: [1, 2, 3, 4], review: true },
-    ),
-  );
-  assert.equal(check(plan, "--completion").ok, true);
-});
-
 test("a row naming a missing obligation is not observed", (t) => {
   const { plan } = reviewed(t, [["1", "Each row names its source", "", "G7"]]);
   refusesCommitment(check(plan), "unobserved-commitment", "1", {
@@ -118,7 +82,7 @@ test("a Commitment reference must name a returned id", (t) => {
   const entry = `${obligation(holdings, "receiving slice 4")}\nCommitment: 1, 9`;
   const { plan } = reviewed(
     t,
-    [["1", "Each row names its source", "slice 4", ""]],
+    [["1", "Each row names its source", "slice 4", "G1"]],
     { entries: entry },
   );
   const result = check(plan);
@@ -128,16 +92,6 @@ test("a Commitment reference must name a returned id", (t) => {
       (item) => item.reason === "unknown-commitment" && item.commitment === "1",
     ),
   );
-});
-
-test("a disposition quoting the plan is refused and names its commitment", (t) => {
-  const entry = `${obligation(holdings, 'excluded "The plan asks only for the Auto Trading section."')}\nCommitment: 1`;
-  const { plan } = reviewed(t, [["1", "Each row names its source", "", "G1"]], {
-    entries: entry,
-  });
-  const result = check(plan, "--slice", "4");
-  refuses(result, "quote-not-in-story", "G1", "Disposition");
-  assert.deepEqual(problemCommitments(result, "quote-not-in-story"), ["1"]);
 });
 
 test("the listing carries the slice's allocated commitments", (t) => {
@@ -165,61 +119,106 @@ test("the listing carries the slice's allocated commitments", (t) => {
   ]);
 });
 
-function unreadable(result) {
-  assert.equal(result.ok, false);
-  assert.ok(
-    result.problems.some((item) => item.reason === "unreadable-source-review"),
-    JSON.stringify(result),
+test("a malformed Commitment field is refused", (t) => {
+  const entry = `${obligation(holdings, "receiving slice 4")}\nCommitment: 1; 2`;
+  const { plan } = reviewed(
+    t,
+    [["1", "Each row names its source", "slice 4", "G1"]],
+    { entries: entry },
   );
-}
-
-test("an unreadable or malformed return refuses instead of passing empty", (t) => {
-  const { plan, writePlan, writeReview } = reviewed(t, [
-    ["1", "Each row names its source", "slice two", ""],
-  ]);
-  refusesCommitment(check(plan), "malformed-commitment", "1");
-  writeReview([]);
-  unreadable(check(plan));
-  writePlan(
-    slicePlan("", { review: true }).replace(
-      "source-review.md",
-      "missing-review.md",
-    ),
-  );
-  unreadable(check(plan));
-  writeReview([["1", "Each row names its source", "slice 2", ""]]);
-  writePlan(
-    slicePlan("", { review: true }).replace(
-      "**Source review:**",
-      "**Source review:** [again](source-review.md)\n**Source review:**",
-    ),
-  );
-  unreadable(check(plan));
+  refuses(check(plan), "malformed-commitment", "G1", "Commitment");
 });
 
-test("plans without a linked return keep obligation-only results", (t) => {
-  const { plan, writePlan } = fixture(t);
-  writeFileSync(
-    join(dirname(plan), "source-review.md"),
-    sourceReview([["1", "Unlinked", "", ""]]),
+test("refusals name the rows that point to the entry, and a present Commitment field must match them", (t) => {
+  const rows = [
+    ["1", "Each signal row names that source", "", "G1"],
+    ["2", "Each exit row names that source", "slice 4", "G1"],
+    ["3", "Signals name it", "slice 4", ""],
+  ];
+  const fromSliceOne = { ...holdings, reportedSlice: 1 };
+  const open = obligation(fromSliceOne, "receiving slice 4");
+  const { plan, writePlan } = reviewed(t, rows, {
+    entries: open,
+    done: [1, 2, 3],
+  });
+  // Without the optional field the rows still name the commitments.
+  const atFour = check(plan, "--slice", "4");
+  refuses(atFour, "open-obligation");
+  assert.deepEqual(problemCommitments(atFour, "open-obligation"), ["1", "2"]);
+  const withField = (field) =>
+    writePlan(
+      slicePlan(`${open}\nCommitment: ${field}`, {
+        done: [1, 2, 3],
+        review: true,
+      }),
+    );
+  withField("2, 1");
+  assert.equal(check(plan, "--slice", "3").ok, true);
+  withField("1, 3");
+  const disagreeing = check(plan, "--slice", "3");
+  refusesCommitment(disagreeing, "mismatched-commitment", "3", {
+    entry: "G1",
+  });
+  refusesCommitment(disagreeing, "mismatched-commitment", "2", {
+    entry: "G1",
+  });
+  assert.deepEqual(problemCommitments(disagreeing, "mismatched-commitment"), [
+    "1",
+    "2",
+  ]);
+  assert.equal(disagreeing.problems.length, 2, JSON.stringify(disagreeing));
+});
+
+test("a row naming a slice the plan lacks is unallocated even beside a valid obligation", (t) => {
+  const fromSliceOne = { ...holdings, reportedSlice: 1 };
+  const entry = `${obligation(fromSliceOne, "receiving slice 4")}\nCommitment: 1`;
+  const { plan } = reviewed(
+    t,
+    [["1", "Each row names its source", "slice 9", "G1"]],
+    { entries: entry },
   );
-  writePlan(slicePlan(""));
-  assert.deepEqual(check(plan, "--slice", "4"), { ok: true, entryCount: 0 });
-  assert.deepEqual(check(plan, "--completion"), { ok: true, entryCount: 0 });
-  assert.deepEqual(list(plan, "--slice", "4"), {
-    ok: true,
+  const result = check(plan, "--slice", "1");
+  refusesCommitment(result, "unallocated-commitment", "1", { slice: 9 });
+  assert.equal(result.problems.length, 1, JSON.stringify(result));
+});
+
+test("a whole-story commitment belongs to its completing slice; a done slice's row cites its earlier proof", (t) => {
+  const { plan, writeReview } = reviewed(
+    t,
+    [
+      ["G", "The owner sees one source on every row", "slice 4", ""],
+      [
+        "1",
+        "Each row names its source",
+        "slice 1",
+        "observed: slice 1 accepted proof, rows.test.mjs",
+      ],
+    ],
+    { done: [1] },
+  );
+  for (const slice of ["2", "3"])
+    assert.deepEqual(check(plan, "--slice", slice), {
+      ok: true,
+      entryCount: 0,
+      commitmentCount: 2,
+    });
+  refusesCommitment(check(plan, "--slice", "4"), "unobserved-commitment", "G", {
     slice: 4,
-    entries: [],
   });
-  writePlan(slicePlan(obligation(holdings), { done: [1, 2, 3] }));
-  const result = check(plan, "--slice", "4");
-  assert.deepEqual(result, {
-    ok: false,
-    entryCount: 1,
-    problems: [{ entry: "G1", reason: "open-obligation", slice: 4 }],
-  });
-  writePlan(
-    slicePlan(`${obligation(holdings, "receiving slice 4")}\nCommitment: 1`),
-  );
-  refuses(check(plan), "unknown-commitment");
+  writeReview([
+    [
+      "G",
+      "The owner sees one source on every row",
+      "slice 4",
+      "observed: journey.test.mjs",
+    ],
+    [
+      "1",
+      "Each row names its source",
+      "slice 1",
+      "observed: slice 1 accepted proof, rows.test.mjs",
+    ],
+  ]);
+  assert.equal(check(plan, "--slice", "4").ok, true);
+  assert.equal(check(plan, "--completion").ok, true);
 });

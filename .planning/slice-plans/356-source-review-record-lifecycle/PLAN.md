@@ -84,7 +84,7 @@ Each slice runs `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/
 
 ### 1. The source-review record has one lifecycle rule and the gate refuses its omission
 Type: Behavior
-Status: planned
+Status: done
 Proof: focused `story-obligations*.test.mjs` cases for findings 1, 2, 3, 5, 6 and 7 through the CLI; guidance tests keep their pinned navigation; `tests/payload-declaration-links.sh` green.
 
 Behavior: Given a planned execution's plan, when the coordinator retains,
@@ -94,6 +94,36 @@ states one timing rule and owner rule, and `story-obligations.mjs` refuses an
 unlinked sibling `source-review.md` or near-miss label, names commitments from
 the rows that point to a refused entry, and refuses a `Commitment:` field that
 disagrees with them. Edit `src/skills/` only.
+
+Accepted proof: source-only review return retained in
+[review-return.md](review-return.md) (C1–C34). Compared per commitment:
+C4/C5/C9/C10/C32 → `story-obligations-source-review-record.test.mjs` "an
+unlinked source review beside the plan or a near-miss label is refused" and
+"plans with neither … keep obligation-only results" (other named tests stay in
+`story-obligations-source-review.test.mjs`, except record-form cases also in
+the `-record` file); C1/C11 → `planning.md` element 7 and
+`wrap-up.md` both require the link once acceptance retains it; C2/C7/C12–C14 →
+`story-obligations.md` Allocate bullet, `wrap-up.md`, `delegation.md` (allocate
+at retention or replacement before the next `list`/`check`; gate unchanged so
+C31 holds); C20 → documented `unallocated-commitment` text and "a row naming a
+slice the plan lacks is unallocated even beside a valid obligation"; C3/C15–C17
+→ guidance owner rules and "a whole-story commitment belongs to its completing
+slice; a done slice's row cites its earlier proof"; C21–C23 → new
+`mismatched-commitment` refusal, "refusals name the rows that point to the
+entry, and a present Commitment field must match them", optional `Link` wording;
+C24–C27 → "each returned id has one row, one table header and one Commitments
+section" and "a malformed Commitment field is refused"; C28/C33a → the two
+generic source-review tests folded into the drift-replay traceability test,
+which now also checks `proved by slice 7` at slice 7 and completion. C18/C19
+remain with slice 2. Commands: the slice proof command above plus consumers
+`bash scripts/test.sh` over `execution-increment-fresh*.test.mjs`,
+`dough-land{,-guidance,-completion}.test.mjs`,
+`tests/delivery-evidence-{amended,terminal}.sh`, all exit 0. Consumer trace
+terms `unlinked-source-review`, `unallocated-commitment`,
+`mismatched-commitment`, `readLinkedSourceReview`, `Source review`,
+`commitmentProblems`; replayed native-stream fixtures and installed copies
+excluded. Learning: plain `Source review: [..](..)` was previously accepted as
+a link and is now a near-miss refusal; no source, test or fixture used it.
 
 ### 2. Drift evidence identity covers the gate it exercises
 Type: Behavior

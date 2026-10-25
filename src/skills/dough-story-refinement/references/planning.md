@@ -141,10 +141,11 @@ Keep execution, proof, review, and resume information:
    limitation, or interim behavior uses the `## Story obligations` section and
    [entry format and dispositions](../../dough-execute-plan/references/story-obligations.md#record-format).
    Its `**Source:**` link names the selected story section. Plans without the
-   section have no obligations; no migration is required. Acceptance may add a
-   `**Source review:**` link under `**Source:**` to the retained
-   [source review](../../dough-execute-plan/references/story-obligations.md#record-the-source-review);
-   planning does not write or allocate it.
+   section have no obligations; no migration is required. Planned execution
+   requires a `**Source review:**` link under `**Source:**` to the
+   [source review](../../dough-execute-plan/references/story-obligations.md#record-the-source-review)
+   once acceptance retains it; acceptance adds and allocates it, and planning
+   does not write it.
 
 At execution completion, the executing agent adds one more element after the
 ordered slices: the

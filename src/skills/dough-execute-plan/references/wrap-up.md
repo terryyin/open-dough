@@ -25,10 +25,11 @@ and returned commitments, or their inspectable locations, in existing acceptance
 evidence; a coordinator's assertion is insufficient. For planned execution,
 retain them beside the plan as `source-review.md` in its
 [record form](story-obligations.md#record-the-source-review), linked from the
-plan by `**Source review:**`. Reuse that return for later slices while the
-source text is unchanged; after a story amendment, obtain a fresh review and
-replace it. If isolation or that evidence is unavailable, name the missing
-review and stop dependent acceptance.
+plan by `**Source review:**`, and allocate every id before the next obligations
+listing or check. Reuse that return for later slices while the source text is
+unchanged; after a story amendment, obtain a fresh review, replace it and
+allocate it again the same way. If isolation or that evidence is unavailable,
+name the missing review and stop dependent acceptance.
 
 Compare that independent return with the source, then the plan, implementation
 return, actual product and proof. In existing plan or acceptance evidence compare,

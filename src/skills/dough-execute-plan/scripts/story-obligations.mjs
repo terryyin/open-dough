@@ -11,6 +11,7 @@ import {
 } from "./story-obligation-reader.mjs";
 import {
   commitmentProblems,
+  obligationCommitments,
   readLinkedSourceReview,
 } from "./story-obligation-source-review.mjs";
 
@@ -91,19 +92,16 @@ async function inspectStoryObligations(
         message: error.message,
       });
     });
-  const commitmentIds = new Set(commitments.map((item) => item.id));
   for (const entry of record.entries) {
+    const linked = obligationCommitments(entry, commitments);
     const problem = (reason, fields = {}) =>
       problems.push({
         entry: entry.id,
-        ...(entry.commitments && { commitments: entry.commitments }),
+        ...(linked.disposed.length && { commitments: linked.disposed }),
         reason,
         ...fields,
       });
-    for (const id of entry.commitments ?? []) {
-      if (!commitmentIds.has(id))
-        problem("unknown-commitment", { commitment: id });
-    }
+    for (const [reason, fields] of linked.problems) problem(reason, fields);
     if (story !== undefined) {
       for (const [field, quote] of [
         ["Story clause", entry.storyClause],

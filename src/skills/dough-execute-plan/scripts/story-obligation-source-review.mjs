@@ -1,9 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { splitHref } from "../../dough-product-backlog/scripts/product-backlog-identity.mjs";
 import {
   commitmentId,
-  planLinks,
   readSection,
   unfencedLines,
 } from "./story-obligation-reader.mjs";
@@ -99,21 +98,92 @@ export function readSourceReview(source) {
 }
 
 // The plan's `**Source review:**` link names the retained reviewer return.
-// Plans without it keep obligation-only checks.
+// Only that exact label links it: another `Source review` label, or an
+// unlinked `source-review.md` beside the plan, is refused rather than read as
+// a plan without a review. Plans with neither keep obligation-only checks.
+const exactLink = /^\*\*Source review:\*\* +\[[^\]]+\]\(([^)]+)\)/;
+const anyLabel = /^\s*[*_]*\s*source review\s*[*_]*\s*:/i;
+
+async function hasSiblingReview(planPath) {
+  const names = await readdir(dirname(planPath)).catch(() => []);
+  return names.includes("source-review.md");
+}
+
 export async function readLinkedSourceReview(planPath, planSource) {
-  const links = planLinks(unfencedLines(planSource), "Source review");
-  if (!links.length) return { linked: false, commitments: [], problems: [] };
+  const lines = unfencedLines(planSource);
+  const links = lines.flatMap((line) => {
+    const href = exactLink.exec(line)?.[1];
+    return href ? [href] : [];
+  });
+  const problems = lines
+    .filter((line) => anyLabel.test(line) && !exactLink.test(line))
+    .map((line) => ({
+      reason: "unlinked-source-review",
+      line,
+      message:
+        "Link the source review with one “**Source review:** [text](source-review.md)” line.",
+    }));
+  if (!links.length) {
+    if (!problems.length && (await hasSiblingReview(planPath)))
+      problems.push({
+        reason: "unlinked-source-review",
+        message:
+          "source-review.md beside the plan is not linked by “**Source review:**”.",
+      });
+    return { linked: false, commitments: [], problems };
+  }
   if (links.length > 1)
     return {
       linked: true,
       ...unreadable("The plan links more than one source review."),
     };
+  let review;
   try {
     const path = resolve(dirname(planPath), splitHref(links[0]).path);
-    return { linked: true, ...readSourceReview(await readFile(path, "utf8")) };
+    review = readSourceReview(await readFile(path, "utf8"));
   } catch (error) {
-    return { linked: true, ...unreadable(error.message) };
+    review = unreadable(error.message);
   }
+  return {
+    linked: true,
+    commitments: review.commitments,
+    problems: [...problems, ...review.problems],
+  };
+}
+
+// The rows whose last cell names an obligation are the commitments it
+// disposes; its optional `Commitment:` field must name exactly those rows.
+export function obligationCommitments(entry, commitments) {
+  const disposed = commitments
+    .filter((item) => item.obligation === entry.id)
+    .map((item) => item.id);
+  const named = entry.commitments;
+  if (!named) return { disposed, problems: [] };
+  const returned = new Set(commitments.map((item) => item.id));
+  const mismatch = (commitment, message) => [
+    "mismatched-commitment",
+    { commitment, message },
+  ];
+  const problems = [
+    ...named.flatMap((id) => {
+      if (!returned.has(id))
+        return [["unknown-commitment", { commitment: id }]];
+      if (!disposed.includes(id))
+        return [
+          mismatch(id, "The source review row does not name this obligation."),
+        ];
+      return [];
+    }),
+    ...disposed
+      .filter((id) => !named.includes(id))
+      .map((id) =>
+        mismatch(
+          id,
+          "The Commitment field omits a row naming this obligation.",
+        ),
+      ),
+  ];
+  return { disposed, problems };
 }
 
 // Every row needs an existing slice or obligation; a row allocated to a
