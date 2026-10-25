@@ -73,7 +73,7 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
-[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals both suites' shares by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within 0.2 test-seconds of each other where the positional deal measured 462.5 to 686.4; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
+[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals both suites' shares by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within one spec file of each other where the positional deal measured 462.5 to 686.4, and the landed revision's run 40189712361 measured 458.0 to 694.2 with per-shard runner speed ratios 0.74 to 1.18; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 

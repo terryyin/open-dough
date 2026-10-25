@@ -190,12 +190,15 @@ and `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 npx playwright test --list --reporter=list`
 (43 files, identical to the allocator's share 1); `npm run typecheck:dashboard`;
 `npm run lint`; all exit 0. The preview over the refreshed dashboard list
 predicted 582.4 / 582.3 ×10 / 582.2 test-seconds where run 40187124945's
-positional shards measured 462.5 to 686.4. Still owed after this slice's
-commit, as DD-279 states: the landed revision's CI run measured from its
-`test-times-*` and `dashboard-times-*` artifacts recorded at DD-279, and
-`dashboard/tests/longest-first` refreshed from that run (its reporter
-attributes imported case-module tests to the spec file; run 40187124945's
-artifacts did not).
+positional shards measured 462.5 to 686.4. The slice 3 commit's run
+40189712361 (`065d6655`) passed; its measured allocation is recorded at
+DD-279 (Node 655.8 / 612.1 / 401.3 against 498.5 predicted each, median
+job ratios 1.26 / 1.13 / 0.81; dashboard 458.0 to 694.2 against 582.3
+predicted each, ratios 0.74 to 1.18; shard jobs 159 to 240 s). The
+completing commit refreshes both lists from that run's artifacts: 427 Node
+jobs and 549 spec files recorded, predicting 556.4 ×3 and 572.5 ×12, proved
+by `bash scripts/test.sh tests/support/dashboard-test-files.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/support/test-shares.test.mjs tests/test-runner-split.sh`
+and `npm run lint`.
 
 ## Current decisions
 
