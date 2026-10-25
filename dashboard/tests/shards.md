@@ -14,23 +14,18 @@ spec files. `longest-first` records each spec file's seconds from one CI run,
 one `<seconds><TAB><file>` line per file, longest first, `<file>` being the
 path relative to this directory; `#` lines are its header.
 `support/testFiles.mjs` hands the discovered spec files, that list and the
-split to `scripts/share-deal.mjs`, the allocator the Node suite's shares use
-([tests/test-shares.md](../../tests/test-shares.md)). Recorded files go,
-longest first, to the shard with the smallest predicted total (ties to the
-lower shard). A file the list does not name, so a new or renamed one, is
-unrecorded: unrecorded files follow in bytewise order, each assumed at the
-median of the recorded seconds, so a file-set change moves predicted time by
-at most that file's duration instead of a block of its sorted neighbours, and
-the shards' predictions lie within one spec file's duration of each other.
-Listed names that match no spec file are ignored. A list line that is not
-`<seconds><TAB><file>` fails the configuration naming the file, line and
-content before any test is selected, as a malformed split does. CI uses
-twelve shards and runs the dashboard type-check once, in the last shard,
-whose predicted browser load the deal keeps within one spec file of the
-others. With the variable unset, `npm run test:dashboard` keeps running the
-whole suite. Independent proof subprocesses choose their own selection; their
-harness (`support/proofRecordRun.ts`) removes the inherited split before
-launching them.
+split to `scripts/share-deal.mjs`, which deals them by the rule the Node
+suite's shares follow
+([tests/test-shares.md](../../tests/test-shares.md#the-deal)), a spec file
+being a job. A list line that is not `<seconds><TAB><file>` fails the
+configuration naming the file, line and content before any test is selected,
+as a malformed split does. CI uses twelve shards and runs the dashboard
+type-check once, in the last shard, whose predicted browser load the deal
+keeps within one spec file of the others. With the variable unset,
+`npm run test:dashboard` keeps running the whole suite. Independent proof
+subprocesses choose their own selection; their harness
+(`support/proofRecordRun.ts`) removes the inherited split before launching
+them.
 
 ### Preview before pushing
 

@@ -1,25 +1,20 @@
 // scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
-// recorded durations: the duration list form, the deal, and its preview.
-// scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
-// for the Node runner's share and by a contributor for the preview and the
-// refresh (tests/test-shares.md).
+// recorded durations: it reads the duration list and the time budget, deals
+// the jobs, selects one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`,
+// `OPEN_DOUGH_DASHBOARD_SPLIT`, the `share` command's `--split`), and writes
+// the preview and the times form a refresh merges. scripts/test-shares.mjs is
+// its command surface, run by scripts/test-jobs.sh for the Node runner's share
+// and by a contributor for the preview and the refresh;
+// dashboard/tests/support/testFiles.mjs deals the dashboard's spec files
+// through it.
 //
 // A duration list (`tests/longest-first` for the Node suite) holds one
 // `<seconds><TAB><label>` line per recorded job, the form the runner's
 // `test-times` artifact prints; `#` lines and blank lines are ignored, and any
 // other line fails naming the file, line number and content before any job
-// runs. Listed labels that match no job are ignored.
+// runs.
 //
-// The deal: recorded jobs, longest first (ties bytewise), each go to the share
-// with the smallest predicted total, ties to the lower share index. Unrecorded
-// jobs follow in bytewise order, each assumed at the median of the recorded
-// seconds (the mean of the two middle values for an even count; with no
-// recorded jobs, or a median of 0, each is assumed at 1 s so they still spread
-// across the shares). The deal is deterministic across input order, and the
-// predicted totals differ by at most one job's duration. Within a share the
-// jobs start in that same order: recorded longest first, then unrecorded. A
-// run selects one share as `<i>/<n>`, share i of n (`OPEN_DOUGH_TEST_SPLIT`,
-// `OPEN_DOUGH_DASHBOARD_SPLIT`, the `share` command's `--split`).
+// The deal itself is stated in tests/test-shares.md ("The deal").
 
 import { readFileSync } from "node:fs";
 
@@ -172,6 +167,9 @@ export function dealShares(labels, seconds, shareCount) {
     .filter((label) => seconds.has(label))
     .map((label) => ({ label, seconds: seconds.get(label), recorded: true }))
     .sort((left, right) => right.seconds - left.seconds);
+  // The median of an even count is the mean of the two middle values; with
+  // no recorded jobs, or a median of 0, an unrecorded job is assumed at 1 s so
+  // unrecorded jobs still spread across the shares.
   const recordedMedian = median(recorded.map((job) => job.seconds));
   const assumedSeconds =
     recordedMedian === undefined || recordedMedian === 0 ? 1 : recordedMedian;

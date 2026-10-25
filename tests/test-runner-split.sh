@@ -15,9 +15,9 @@ mkdir -p -- "${checks}"
 # the runner, so a check that runs the runner itself gets every one of its own
 # checks. They are created in an order other than sorted, and `longest-first`
 # records one of them, mu, at 2.0 s, so the expected shares follow only from
-# the runner's duration deal: mu first, then the unrecorded checks in bytewise
-# order (alpha, beta, delta, zeta), each assumed at the recorded median, 2.0 s,
-# to the share with the smallest predicted total, ties to the lower share.
+# the runner's duration deal (tests/test-shares.md): mu first, then the
+# unrecorded checks in bytewise order (alpha, beta, delta, zeta), each assumed
+# at the recorded median, 2.0 s.
 write_checks() {
   local name
   for name in "$@"; do

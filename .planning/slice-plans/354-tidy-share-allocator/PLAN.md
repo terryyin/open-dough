@@ -129,7 +129,7 @@ command list only where a message changed.
 
 ### 2. One full statement of the deal, and the CI pointer
 Type: Structure
-Status: planned
+Status: done
 Proof: `grep -rln 'ties to the lower' scripts tests dashboard .github` names
 only `tests/test-shares.md`;
 `bash scripts/test.sh tests/ci-lint-setup.sh tests/native-setup.sh tests/ci-container.sh tests/test-runner-github-requests.sh`;
@@ -224,6 +224,13 @@ removed with plan 353 (recoverable at
   pre-change baselines (at f1a3e06d `--split-count 3` needs Bash 5 first on
   PATH on this machine; `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 --list` selects 44
   files at f1a3e06d, the baseline for example 5).
+- Slice 2: a test comment (`tests/test-runner-split.sh`) also restated the
+  tie rule; it now points at `tests/test-shares.md`. The old module header
+  carried details the document lacked (equal-seconds recorded jobs bytewise,
+  order independence, the one-job bound); they joined "The deal", and the
+  even-count median and 1 s fallback sit beside `dealShares`'s code.
+  Proof: the rule grep names only `tests/test-shares.md`; the four `ci.yml`
+  readers and `tests/test-runner-split.sh` pass; lint passes.
 
 ## Plan concern review
 

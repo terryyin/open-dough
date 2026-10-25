@@ -12,16 +12,20 @@ previews that deal before a push.
 `<seconds><TAB><label>` line per job, longest first, the form the runner's
 times file prints; `#` lines are its header. `scripts/test-jobs.sh` hands the
 discovered jobs, that list and the split to `scripts/test-shares.mjs`
-(`scripts/share-deal.mjs` holds the deal). Recorded jobs go, longest first, to
-the share with the smallest predicted total (ties to the lower share). A job
-the list does not name, so a new or renamed one, is unrecorded: unrecorded
-jobs follow in bytewise order, each assumed at the median of the recorded
-seconds, so a file-set change moves predicted time by at most that job's
-duration instead of a block of its sorted neighbours. Each share starts its
-recorded jobs longest first, then the unrecorded ones, so the longest job does
-not start last. Listed names that match no job are ignored. A list line that
-is not `<seconds><TAB><label>` fails the run naming the file, line and content
-before any job starts.
+(`scripts/share-deal.mjs` holds the deal). Recorded jobs go, longest first
+(equal seconds bytewise), to the share with the smallest predicted total
+(ties to the lower share). A job the list does not name, so a new or renamed
+one, is unrecorded: unrecorded jobs follow in bytewise order, each assumed at
+the median of the recorded seconds, so a file-set change moves predicted time
+by at most that job's duration instead of a block of its sorted neighbours.
+The deal is the same whatever order the jobs are discovered in, and the
+shares' predicted totals lie within one job's duration of each other. Each
+share starts its recorded jobs longest first, then the unrecorded ones, so the
+longest job does not start last. Listed names that match no job are ignored.
+A list line that is not `<seconds><TAB><label>` fails the run naming the
+file, line and content before any job starts. The dashboard's spec files are
+dealt into its shards by the same rule
+([dashboard/tests/shards.md](../dashboard/tests/shards.md)).
 
 `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, so
 every job lands in exactly one share whatever order the file system lists the
