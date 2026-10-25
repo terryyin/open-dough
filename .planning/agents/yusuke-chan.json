@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-010#source-freshness-for-planless-and-reamended-work",
+  "mode": "story-branch",
+  "branch": "claude/check-every-story-branch-source-for-freshness-wi",
+  "host": "claude",
+  "model": "opus"
+}

@@ -18,7 +18,8 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Check every Story Branch source for freshness without false stops](seeds/SEED-010-learn-from-execution-retrospectives.md#source-freshness-for-planless-and-reamended-work) — SEED-010#source-freshness-for-planless-and-reamended-work ([plan](slice-plans/357-source-freshness-for-planless-and-reamended-work/PLAN.md))
+
 ## Backlog list
 
-- [Check every Story Branch source for freshness without false stops](seeds/SEED-010-learn-from-execution-retrospectives.md#source-freshness-for-planless-and-reamended-work) — SEED-010#source-freshness-for-planless-and-reamended-work
 - [Keep the source-review record consistent through its lifecycle](seeds/SEED-010-learn-from-execution-retrospectives.md#source-review-record-lifecycle) — SEED-010#source-review-record-lifecycle
