@@ -20,7 +20,6 @@ cost of the feedback process itself.
 
 - [Keep test-file changes from unexpectedly exhausting CI share budgets](seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares ([plan](slice-plans/353-balance-test-shares/PLAN.md))
 - [Accept original source promises when a plan narrows them](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-source-promises-after-plan-drift) — SEED-010#accept-source-promises-after-plan-drift ([plan](slice-plans/354-accept-source-promises-after-plan-drift/PLAN.md))
-- [Keep human amendments visible before Story Branch completion](seeds/SEED-010-learn-from-execution-retrospectives.md#refresh-human-amendments-before-completion) — SEED-010#refresh-human-amendments-before-completion ([plan](slice-plans/355-refresh-human-amendments-before-completion/PLAN.md))
 
 ## Backlog list
 

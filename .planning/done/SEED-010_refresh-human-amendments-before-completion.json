@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#refresh-human-amendments-before-completion",
+  "title": "Keep human amendments visible before Story Branch completion",
+  "completedAt": "2026-10-25T14:30:15.342Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "claude",
+  "model": "opus"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_refresh-human-amendments-before-completion.json",
+      "identity": "SEED-010#refresh-human-amendments-before-completion",
+      "completedAt": "2026-10-25T14:30:15.342Z",
+      "blob": "f45250e01325fea4ef2903c14c7d2b4f96ecb498"
+    },
+    {
       "fileName": "SEED-152_retry-aware-integrated-completion.json",
       "identity": "SEED-152#retry-aware-integrated-completion",
       "completedAt": "2026-10-25T10:10:39.595Z",

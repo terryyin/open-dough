@@ -3,7 +3,9 @@
 **Identity:** SEED-010#source-freshness-for-planless-and-reamended-work
 **Source:** [Correction story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#source-freshness-for-planless-and-reamended-work)
 **Provenance:** retrospective of SEED-010#refresh-human-amendments-before-completion
-([plan 355](../355-refresh-human-amendments-before-completion/PLAN.md)),
+(plan 355, recoverable at
+`a7a31a704c67bb36c9b77f1919ac63b77fcc445e:.planning/slice-plans/355-refresh-human-amendments-before-completion/PLAN.md`
+with its story at `a7a31a704c67bb36c9b77f1919ac63b77fcc445e:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#refresh-human-amendments-before-completion`),
 reviewed commits `7be59004..ea8fa390` on
 `claude/keep-human-amendments-visible-before-story-branc`: attributable
 `7fb2bf98`, `8582e559`, `d92d301d`, `2b46202c`, `ea8fa390`; CI repairs
