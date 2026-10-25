@@ -143,7 +143,8 @@ plan, `plan-amended` tightens a planned slice's proof, `unrelated-advance`
 edits a sibling story and adds a release and a trunk-only file, and `conflict`
 rewrites done slice 2. The request, execution state and commit messages name
 none of it; the request stops before staging. The assessor reads the
-agent's own `source-freshness.mjs` results from the stream, each record's
+agent's own `source-freshness.mjs` results from the stream, the result
+named in the final response ("amendment" names `amended`), each record's
 branch copy against origin's Take and trunk texts, the candidate's check of
 the final workspace, plan statuses and obligations, trunk content on the
 branch, origin trunk before and after, and an `awaiting story review` stop

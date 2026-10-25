@@ -1,0 +1,20 @@
+scenario: story-amended
+payload: 7fb2bf982dd135a974b5de9eaf63cea8e0e98545
+check-ran: false
+absorb-ran: false
+check-results: none
+response-names: none
+story-copy: base
+final-story: amended
+final-plan: amended
+plan-statuses: 1:done 2:done 3:planned 4:planned
+done-statuses-kept: true
+obligations: none
+amendment-disposition: false
+awaiting-story-review: false
+conflict-named: false
+trunk-tip-merged: false
+trunk-only-file-on-branch: false
+origin-trunk-before: e64ee33f5e5b06105a4b243137574386301978fe
+origin-trunk-after: e64ee33f5e5b06105a4b243137574386301978fe
+harness-inspected: false

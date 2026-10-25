@@ -1,0 +1,78 @@
+host: claude
+case: delivery-evidence/amended/conflict
+origin: fresh
+execution-status: completed
+execution-reason: native command exited 0
+assessment-status: pass
+assessment-reason: amended acceptance honored for conflict
+native-executable: /Users/terryyin/.local/bin/claude
+native-version-command: claude --version
+native-version: 2.1.310 (Claude Code)
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: d92d301dc65f73e6f19238d38bd5d9bc19ea3dcc
+fixture-tag: publication-native
+fixture-commit: d92d301dc65f73e6f19238d38bd5d9bc19ea3dcc
+prompt-identity: b4422d59b1eaf03fb6e5afc59c9ee759551223dddcdbd9c3d386bccb1ede022c
+helper-identity: tests/support/delivery-evidence-native-run.sh
+adapter-identity: claude-stream-json
+fixture-identity: tests/support/delivery-evidence-native-run.sh
+scenario-content-identity: tests/support/delivery-evidence-amended-native-scenario-content.sh
+observe-identity: tests/support/delivery-evidence-amended-native-observe.sh
+assessor-identity: tests/support/delivery-evidence-amended-native-assess.sh
+input-hash: 68ae2faa141099a2e8b941cee819ca3328b6cac70f1dff6a7d01720db69f2076 tests/git-publication-native.sh
+input-hash: b4741d6764adb6178fd64b267c66ab03e06c677844f1b680628f60548c6fd926 tests/support/git-publication-native-host.sh
+input-hash: 392a54be6773475298fa9f50c7a0d5b8fceda93d4a6d285d1f516134187e8963 tests/support/delivery-evidence-native-run.sh
+input-hash: 99dd5ffaf53c435f062a8a2c0adf684c92c1bdd1c8e556aa029e680c09f363f4 tests/support/delivery-evidence-native-cases.sh
+input-hash: ae1cffeec956ac3cb355d8f09f16a43e5cf7f35809b6725bbde7718db82e3f0f tests/support/delivery-evidence-native-prompt.sh
+input-hash: 178fa4389fc0df3f3bb8879fa3bda508183607b0744bffa314155f485538c47a tests/support/delivery-evidence-native-evidence.sh
+input-hash: 5c53ed2196dc137203eeb8be785ea73b8c3916a94d3221d06ae1f070cc017640 tests/support/delivery-evidence-native-payload.sh
+input-hash: a409397ac125ae2475c26723df491c33b205e0b31c18c3a80c744a0caac3c146 tests/support/native-observation.sh
+input-hash: 3c0e19f84a6ba357eae119e9010fe04de96cf8aca49e619cda8d8cd74d4328da tests/support/delivery-evidence-amended-native-assess.sh
+input-hash: 58c8a1bd0c438f8144ee3c3b72cc3881ab058989e41ca28830897f4718bc5b86 tests/support/delivery-evidence-amended-native-observe.sh
+input-hash: 487f7b7837b6bcdb89abceaa493bd3b6bc7de6185e26acfb5709daa96507a5d3 tests/support/delivery-evidence-amended-native-scenario-content.sh
+input-hash: e7506a57fab20bfd7c1b2103a87f70d06212a121df0547c44e58636440d94f08 tests/support/git-publication-native-run.sh
+input-hash: 3d4f39bb5e1674dbbaabc559e859569ec0a9e66b7e0cbf4878d8fb29141490a1 tests/support/native-run-supervise.sh
+input-hash: df4be8a8b26fab523c3fcaf26c2886babfb8d1cace20cccc0c0d66ac2aaf480d tests/support/native-run-stream.sh
+input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+input-hash: 67fb420e6972d1b836a34c749ade72e4a5266419a60395597a3aff31cdb8bd00 tests/support/native-host-stream.mjs
+input-hash: e55493238d2ecef27fa82cf544feb5a4e6206c414effa7a419388166506a0353 tests/support/native-host-stream-adapters.mjs
+input-hash: 93ff8294ef14b954a9562f05fd997f36b369202688bdb1b4bdad6a2902ecae20 tests/support/native-run-watchdog.sh
+input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+input-hash: 37caa20fba6406f1efe9116dc4279028fa9836aa746344a3588eab7dfa814f72 src/skills/dough-execute-plan/references/wrap-up.md
+input-hash: 1a0da4586ee108c4bd34a60b4271680756594c3c7e2c1e3ec1dc9817e7ba4efc src/skills/dough-execute-plan/references/delegation.md
+input-hash: 1c94cb10b8c948558d4682b7d426d52fbe5a43a083f2ac84d06a3962ae32b64a tests/fixtures/delivery-evidence/amended-backlog.md
+input-hash: 3887ab6203129f6f4f1e094f572cdfde3f569a98b122d3aa7cfbd87e0a930633 tests/fixtures/delivery-evidence/amended-seed.md
+input-hash: bd4fd3eddf1795cc478fb422801300a43525fcff5f9fdbb81116aaccd9597e7c tests/fixtures/delivery-evidence/amended-plan.md
+input-hash: 49e84197d5b681077f1874e297c6b2b6e6c04678162a5750d5dcf0b9032b2748 tests/support/delivery-evidence-amended-native-product-content.sh
+input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+input-hash: d2f2f5ac2654ee738755b78303a763002a2deb9a0bd4ec8a376a7808e5ee0bc0 src/skills/dough-execute-plan/references/source-freshness.md
+input-hash: 79f93db8fd8bfce1b488e3c422cefbe63e4bd35d3ff37d414e40e14e5b0f5f04 src/skills/dough-execute-plan/references/story-obligations.md
+input-hash: f8026735138caefe7d0900634aa5c18f41a4bc57d0cc6fa06ff4814ca3ef3d1f src/skills/dough-execute-plan/references/finish-or-stop.md
+input-hash: 8ef8cacc55b147507ef8d51e8c0ae9ebd17e35fb12fce8806057cf076d216bcb src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs
+input-hash: 0498e1a9380b94af84962a33685af267095323df4d8e526e4c6fec7d9b56d405 src/skills/dough-execute-plan/scripts/execution-source.mjs
+input-hash: 4bd52dbcdcdf3109e3dc4ae1939bf5b4f370e9c74b2db8cf8d2463a7608b9e06 src/skills/dough-execute-plan/scripts/publication-git.mjs
+input-hash: d3d540f317c34800489b724939ef3a5d8b431b7500ad8c2d8de9836161304ad5 src/skills/dough-execute-plan/scripts/source-freshness-comparison.mjs
+input-hash: 19732de87b94f2dfc4037705aebe550460ec5a43742f795ced4b095ce17c0ec1 src/skills/dough-execute-plan/scripts/source-freshness.mjs
+input-hash: 6e2ba5f7c8f629ebf15719df06e4088c5a8427ab377118c3a6b8bcafbddb60e2 src/skills/dough-execute-plan/scripts/story-obligation-reader.mjs
+input-hash: 2229102f8869b960b1a62ea68b15aa71a02933a351e650da0fc6c639738035f4 src/skills/dough-execute-plan/scripts/story-obligations.mjs
+input-hash: f48b26cd1a92e7badd57dfe291d55312e7ce30e10010315feca31d0dbcb8b6ae src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs
+input-hash: cc1be838c5c8a94da985c353ca18861fc8b561bd584dfe1571feb2fd572d52b7 src/skills/dough-product-backlog/scripts/product-backlog-document.mjs
+input-hash: dffc8c202d8a12663ffb3ccf7a5abc07a3aff90db385dcf883ab2ff90fcae6c6 src/skills/dough-product-backlog/scripts/product-backlog-home-reader.mjs
+input-hash: 84a494e2ab1064da37f542516f2fa343e168eea56770993c717652207dfcffee src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs
+input-hash: a8a50ac556334361b82b876e897685afb54fae264ed1adf647c70977308c6b42 src/skills/dough-product-backlog/scripts/product-backlog-plan-completion.mjs
+input-hash: 825849e31de308050ba95ed5951f257b48f4e49eac0258a9212977ec0e9b334f src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs
+input-hash: c16998c15f466e471bb1c665772937d240abb56c60ec00d5ef243f249cd66b64 src/skills/dough-product-backlog/scripts/product-backlog-plan.mjs
+input-hash: c156627f92a164f61cbdd9d784ca03982f57e2417d76f1f723c07760ef2558bf src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs
+input-hash: f119424bb835bfa9be4d8c1e639943a6e25f2697882970fd81c3d49f87b1ada1 src/skills/dough-product-backlog/scripts/product-backlog-source.mjs
+input-hash: 4372610e3e768bfbb8f8281869ea0b8160951439bc58cec3ca391489079f7638 src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
+input-hash: 87e16c8cbf394881970dc6625fe561ee1244717e6489245aa9034494c0554634 src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
+input-hash: 3c33edce470175860b204c908378db4c3117607d4462e701d2062c4ef177bc30 src/skills/dough-product-backlog/scripts/product-backlog-story-state-assessment.mjs
+input-hash: 0c089a449e9c323a28388250ec5af72a85d1af311a480a5a28642053be0ab6bc src/skills/dough-product-backlog/scripts/product-backlog-story-state-basis.mjs
+input-hash: 514fc4e9fc86ff291a10218c0cdfed2a6739307bd711735879b17bf31a6a777f src/skills/dough-product-backlog/scripts/product-backlog-story-state-block.mjs
+input-hash: 388ed80b46965274269411ee36b4e35515fdcc5f82cd572a663414963fdafd69 src/skills/dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
+input-hash: 0143a128c40247fc9288d020c5d04c1c3cb1e16016bc8bc71ee9efef9e03c841 src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs
+artifact-events: events.jsonl
+artifact-response: response.md
+artifact-stderr: stderr.log
+artifact-observations: observations.txt

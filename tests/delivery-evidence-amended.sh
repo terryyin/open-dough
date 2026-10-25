@@ -130,6 +130,20 @@ PY
       native_assessor_rejects_observed overwritten-statuses statuses-preserved \
         "${root}/overwritten.txt" observe "${scenario}"
       cp "${root}/guided-plan" "${workspace}/${plan}"
+      # Harness correction found by the paid rounds: Codex named the result
+      # as "the absorbed trunk amendment" without the word `amended`, which
+      # names it; naming only `unchanged`, or nothing, still does not.
+      printf 'Delivered slice 3, including the absorbed trunk amendment for one-decimal moisture.\n' > "${response}"
+      observe "${scenario}" > "${root}/amendment-named.txt"
+      grep -Fqx 'response-names: amended' "${root}/amendment-named.txt"
+      native_assessor_counterexamples "${assessor}" "${root}/amendment-named.txt" \
+        -- delivery_evidence_amended_assess
+      printf 'The source freshness check reported `unchanged`; slice 3 delivered.\n' > "${response}"
+      native_assessor_rejects_observed false-unchanged-response surfaced \
+        "${root}/unchanged-named.txt" observe "${scenario}" -- fail
+      printf 'Slice 3 delivered; stopped before staging.\n' > "${response}"
+      native_assessor_rejects_observed result-unnamed surfaced \
+        "${root}/nothing-named.txt" observe "${scenario}" -- fail
       ;;
     unrelated-advance)
       delivery_evidence_git "${workspace}" merge --quiet --no-edit origin/main

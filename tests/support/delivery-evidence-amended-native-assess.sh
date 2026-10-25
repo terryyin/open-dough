@@ -45,7 +45,8 @@ delivery_evidence_amended_assess() {
   done
 
   # surfaced: the agent's own check printed the true result before it acted,
-  # and a changed source is named in the response.
+  # and a changed source is named in the response (the observer's
+  # response-names).
   [[ ${obs[check_ran]} == true && ${first} == "${expected}" ]] \
     || delivery_evidence_amended_unmet "freshness check did not report ${expected} (${obs[check_results]})" || return
   [[ ${expected} == unchanged || " ${obs[response_names]} " == *" ${expected} "* ]] \

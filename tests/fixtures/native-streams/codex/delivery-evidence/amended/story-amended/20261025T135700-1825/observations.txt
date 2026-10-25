@@ -1,0 +1,20 @@
+scenario: story-amended
+payload: candidate
+check-ran: true
+absorb-ran: true
+check-results: amended unchanged
+response-names: none
+story-copy: trunk
+final-story: unchanged
+final-plan: unchanged
+plan-statuses: 1:done 2:done 3:planned 4:planned 5:planned
+done-statuses-kept: true
+obligations: G1=proved G2=proved
+amendment-disposition: true
+awaiting-story-review: false
+conflict-named: false
+trunk-tip-merged: false
+trunk-only-file-on-branch: false
+origin-trunk-before: c0fd4b9fb509ed045b456293f0066656cdc4fddc
+origin-trunk-after: c0fd4b9fb509ed045b456293f0066656cdc4fddc
+harness-inspected: false

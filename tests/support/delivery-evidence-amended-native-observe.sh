@@ -78,8 +78,12 @@ field("absorb-ran", ran("absorb").length > 0);
 field("check-results", results.join(" ") || "none");
 
 const response = read(responsePath);
-const names = ["unchanged", "amended", "conflict"].filter((word) =>
-  new RegExp(`\\b${word}\\b`, "i").test(response));
+// Harness correction found by the paid rounds: "surfaced" means the result is
+// named in the stream, and a Codex response saying "the absorbed trunk
+// amendment" names it without the literal word. "amended" therefore matches
+// its word stem (amended, amendment); the other results stay whole words.
+const patterns = { unchanged: /\bunchanged\b/i, amended: /\bamend\w*/i, conflict: /\bconflict\b/i };
+const names = Object.keys(patterns).filter((word) => patterns[word].test(response));
 field("response-names", names.join(" ") || "none");
 
 const baseSection = section(show(origin, take, seedPath));

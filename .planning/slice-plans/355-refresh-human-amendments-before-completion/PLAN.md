@@ -277,7 +277,7 @@ baseline round.
 
 ### 4. Native rounds judge the response against the ODF-354 baseline, recorded at ODF-354
 Type: Behavior
-Status: planned
+Status: done
 Proof: retained attempts show the baseline round (slice 1 payload, Claude `story-amended`) accepting the slice without reading trunk, or record non-reproduction; the candidate rounds show Claude `story-amended` surfacing and absorbing with a disposition, Claude `conflict` stopping with `awaiting story review`, Codex and Cursor `story-amended` recorded per host; stream replay green; ODF-354 updated.
 
 Behavior: Given the slice 3 family installed with the slice 2 candidate, when
@@ -345,7 +345,7 @@ rollout is authorized.
 Reported: slice 4 — "In the candidate Codex `story-amended` round, `source-freshness.mjs check` was refused twice with `EPERM` on `mkdtemp` under the system temp directory and under `/tmp`; the coordinator reached the result only after pointing `TMPDIR` into the workspace's `.git`."
 Story clause: "has the amended text in front of the execution
 coordinator at the next slice delivery"
-Disposition: return
+Disposition: proved by slice 4: `source-freshness.test.mjs` "with the system temporary directory unwritable, check and absorb compare inside the repository and leave only the records changed" (failed before the fix with the same `mkdtemp` refusal), and the Codex retry at `2b46202c` ran `check` without refusal (`tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T135700-1825`).
 
 ## Learnings
 
@@ -440,6 +440,24 @@ Disposition: return
   `agent-commit.test.mjs` failed on the old files and pass now; proof
   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/execution-increment*.test.mjs src/skills/dough-execute-plan/scripts/agent-commit.test.mjs`
   quiet pass.
+
+- Slice 4: the source-only review's R18 and R19a–g were compared with the
+  retained rounds and ODF-354. Baseline Claude `story-amended` at the slice 1
+  payload left the amendment unnoticed (check never ran, story copy at the
+  Take); candidate Claude `story-amended`, Claude `conflict` and Cursor
+  `story-amended` passed; Codex `story-amended` was refused by its sandbox
+  (G1) and, after the fix, retried once with that stated explanation: correct
+  behavior, failing only on the assessor's literal `amended` wording, a
+  harness fault corrected to the plan's declared signal (`amend` word stem;
+  unchanged-only and unnamed responses still rejected) and recorded openly in
+  ODF-354. Six attempts joined the replay corpus. ODF-354 records the
+  assessment, response revisions, pending release, per-host outcomes and
+  limits, burden per boundary, first ordinary-use criterion and the avoided
+  late repair, with no effectiveness claim. Proof:
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-amended.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh tests/native-stream-replay.sh tests/native-assessor-counterexample-guard.sh src/skills/dough-execute-plan/scripts/source-freshness.test.mjs`,
+  the wider native subset and `tests/payload-declaration-links.sh`, quiet
+  passes. Limits: one attempt each; plan-amended, unrelated-advance and
+  Codex/Cursor conflict not run natively.
 
 ## Plan concerns and readiness
 
