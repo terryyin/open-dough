@@ -46,6 +46,13 @@ export async function git(root, ...args) {
   return exec("git", args, { cwd: root });
 }
 
+// A real local descendant; observers must establish its coverage themselves.
+export async function descendantRevision(h) {
+  writeFileSync(join(h.project, "application.txt"), "B\n");
+  await git(h.project, "commit", "-am", "revision B");
+  return (await git(h.project, "rev-parse", "HEAD")).stdout.trim();
+}
+
 export function coverageStates(mailbox, directory) {
   return new Map(
     mailbox

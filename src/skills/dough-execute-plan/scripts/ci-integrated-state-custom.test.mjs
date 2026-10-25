@@ -149,7 +149,7 @@ test("C's newer rerun, pending and then failed, contradicts its older green in a
     [{ sha: c, reason: "not_current_success" }],
     customPolicy,
   );
-  await assertStillUnresolved(journey, directory, b, contradicted);
+  await assertStillUnresolved(journey, directory, b, contradicted, c);
 
   assert.equal((await rerun.release()).outcome, "failure");
   assert.equal(journey.commands.count(c), 2);

@@ -36,7 +36,7 @@ test("C's later rerun, pending and then failed, contradicts its older green for 
     ...waitingTips(published),
     { sha: c, reason: "not_current_success" },
   ]);
-  await assertStillUnresolved(journey, directory, b, contradicted);
+  await assertStillUnresolved(journey, directory, b, contradicted, published.e);
 
   journey.recordRun(c, {
     id: cRun,
@@ -45,9 +45,9 @@ test("C's later rerun, pending and then failed, contradicts its older green for 
     executed: await journey.runCovered(c, true),
   });
   assert.equal(journey.commands.count(c), 2);
-  assert.deepEqual(
-    (await journey.afterTwoPolls(directory, b)).integrated,
-    contradicted,
-  );
-  await assertStillUnresolved(journey, directory, b, contradicted);
+  const { progress, ...judgement } = (await journey.afterTwoPolls(directory, b))
+    .integrated;
+  assert.deepEqual(judgement, contradicted);
+  assert.equal(progress.sha, published.e);
+  await assertStillUnresolved(journey, directory, b, contradicted, published.e);
 });
