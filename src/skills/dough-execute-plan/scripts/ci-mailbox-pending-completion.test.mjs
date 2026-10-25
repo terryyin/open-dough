@@ -8,44 +8,16 @@ import { completionBudgetMs } from "./ci-mailbox-completion-state.mjs";
 import { revisionWaitDeadlineMs } from "./ci-mailbox-await.mjs";
 import {
   commandAttempt as attempt,
-  createRevisionCoverageFixture,
-  git,
+  descendantRevision,
   queueEntry,
   queuePolicy,
   revisionCoverage,
 } from "./ci-revision-coverage-test-fixtures.mjs";
 
+import { pendingFixture } from "./ci-mailbox-pending-completion-test-fixtures.mjs";
+
 const exec = promisify(execFile);
 const read = (path) => JSON.parse(readFileSync(path, "utf8"));
-
-async function pendingFixture(t, integratedPolicy) {
-  let clock = 1000;
-  const h = await createRevisionCoverageFixture(t, {
-    now: () => clock,
-    maxDurationMs: 1e9,
-    integratedPolicy,
-  });
-  h.setSnapshot({ attempts: [] });
-  const sha = await h.deliver();
-  const options = {
-    root: h.project,
-    storage: h.storage,
-    now: () => clock,
-    workerLiveness: () => "alive",
-  };
-  const complete = (extra = {}) =>
-    h.mailbox.completeRevision(h.directory, sha, { ...options, ...extra });
-  return {
-    ...h,
-    sha,
-    options,
-    complete,
-    time: () => clock,
-    advance: (ms) => {
-      clock += ms;
-    },
-  };
-}
 
 for (const progress of ["queued", "running", "retrying", "attempt"]) {
   test(`real adapter ${progress} yields a durable handoff and resumes to a real pass`, async (t) => {
@@ -105,25 +77,25 @@ for (const progress of ["queued", "running", "retrying", "attempt"]) {
 test("coalesced progress preserves A's state and cannot renew its completion cap", async (t) => {
   const h = await pendingFixture(t, queuePolicy);
   const first = await h.complete({ cancellation: AbortSignal.abort() });
-  writeFileSync(join(h.project, "application.txt"), "B\n");
-  await git(h.project, "commit", "-am", "descendant B");
-  const b = (await git(h.project, "rev-parse", "HEAD")).stdout.trim();
+  const b = await descendantRevision(h);
   h.setSnapshot({
     attempts: [],
     queue: [queueEntry(b, "queued", queuePolicy)],
   });
   await h.advancePoll();
   const pending = await h.complete({
-    sleep: async () => {
-      h.advance(revisionWaitDeadlineMs);
-      await h.advancePoll();
-    },
+    sleep: h.waitForPoll,
   });
   assert.equal(pending.unresolvedReason, "pending");
   assert.deepEqual(pending.handoff, first.handoff);
   assert.equal(pending.pending.sha, b);
   assert.equal(pending.effectiveEvidence.revision.state, "undiscovered");
   assert.equal(revisionCoverage(h, h.sha).checkedBy, undefined);
+  h.setSnapshot({ attempts: [attempt(b, "pending", queuePolicy)] });
+  await h.advancePoll();
+  const retry = await h.complete({ sleep: h.waitForPoll });
+  assert.equal(retry.unresolvedReason, "pending");
+  assert.deepEqual(retry.handoff, first.handoff);
   h.advance(completionBudgetMs);
   const expired = await h.complete({
     sleep: async () => assert.fail("expired completion must not wait"),
@@ -158,10 +130,7 @@ test("a new pending rerun overrides old green before pending handoff", async (t)
   });
   await h.advancePoll();
   const pending = await h.complete({
-    sleep: async () => {
-      h.advance(revisionWaitDeadlineMs);
-      await h.advancePoll();
-    },
+    sleep: h.waitForPoll,
   });
   assert.equal(pending.unresolvedReason, "pending");
   assert.equal(pending.verdict, undefined);
@@ -170,19 +139,14 @@ test("a new pending rerun overrides old green before pending handoff", async (t)
 
 test("coalesced pending recovery completes A from a real successful descendant without giving A its own pass", async (t) => {
   const h = await pendingFixture(t, queuePolicy);
-  writeFileSync(join(h.project, "application.txt"), "B\n");
-  await git(h.project, "commit", "-am", "descendant B");
-  const b = (await git(h.project, "rev-parse", "HEAD")).stdout.trim();
+  const b = await descendantRevision(h);
   h.setSnapshot({
     attempts: [],
     queue: [queueEntry(b, "running", queuePolicy)],
   });
   await h.advancePoll();
   const pending = await h.complete({
-    sleep: async () => {
-      h.advance(revisionWaitDeadlineMs);
-      await h.advancePoll();
-    },
+    sleep: h.waitForPoll,
   });
   assert.equal(pending.unresolvedReason, "pending");
   h.setSnapshot({ attempts: [attempt(b, "success", queuePolicy)], queue: [] });
@@ -195,4 +159,62 @@ test("coalesced pending recovery completes A from a real successful descendant w
   assert.equal(completed.effectiveEvidence.validated.sha, b);
   assert.equal(completed.shutdown.status, "confirmed");
   assert.deepEqual(read(pending.handoff.record), pending.handoff);
+});
+
+test("a containing revision's automatic retry preserves the original handoff after queue facts disappear", async (t) => {
+  const h = await pendingFixture(t, queuePolicy);
+  const b = await descendantRevision(h);
+  h.setSnapshot({
+    attempts: [],
+    queue: [queueEntry(b, "retrying", queuePolicy)],
+  });
+  await h.advancePoll();
+  const first = await h.complete({ cancellation: AbortSignal.abort() });
+  const retryAttempts = [
+    attempt(b, "pending", { ...queuePolicy, attemptId: "automatic-retry" }),
+    attempt(b, "incomplete", {
+      ...queuePolicy,
+      attemptId: "previous",
+      time: "2026-10-24T23:00:00Z",
+    }),
+    attempt(b, "incomplete", {
+      ...queuePolicy,
+      attemptId: "original",
+      time: "2026-10-24T22:00:00Z",
+    }),
+  ];
+  h.setSnapshot({ attempts: retryAttempts });
+  await h.advancePoll();
+  const pending = await h.complete({
+    sleep: h.waitForPoll,
+  });
+  assert.equal(pending.unresolvedReason, "pending");
+  assert.equal(pending.verdict, undefined);
+  assert.equal(pending.shutdown.status, "retained");
+  assert.deepEqual(pending.handoff, first.handoff);
+  assert.equal(pending.pending.sha, b);
+  assert.equal(revisionCoverage(h, h.sha).state, "undiscovered");
+  assert.equal(revisionCoverage(h, h.sha).checkedBy, undefined);
+  assert.equal(revisionCoverage(h, h.sha).queue, undefined);
+  h.setSnapshot({
+    attempts: retryAttempts,
+    queue: [queueEntry(b, "running", queuePolicy)],
+  });
+  await h.advancePoll();
+  const running = await h.complete({ sleep: h.waitForPoll });
+  assert.equal(running.unresolvedReason, "pending");
+  assert.equal(running.verdict, undefined);
+  assert.deepEqual(running.handoff, first.handoff);
+  h.setSnapshot({
+    attempts: [
+      attempt(b, "success", { ...queuePolicy, attemptId: "automatic-retry" }),
+    ],
+  });
+  await h.advancePoll();
+  const completed = await h.complete();
+  assert.equal(completed.verdict, "success");
+  assert.equal(completed.effectiveEvidence.source, "integrated_state");
+  assert.equal(completed.effectiveEvidence.validated.sha, b);
+  assert.equal(completed.shutdown.status, "confirmed");
+  assert.deepEqual(read(pending.handoff.record), first.handoff);
 });

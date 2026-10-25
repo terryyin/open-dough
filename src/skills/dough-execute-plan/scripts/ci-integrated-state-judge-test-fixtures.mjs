@@ -3,6 +3,7 @@
 // and an `observer` checkout cloned when the target held only accepted B.
 // Candidate runs and their current attempts are the only stubbed facts: the
 // provider boundary the observer reads through.
+import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -186,3 +187,21 @@ export const validated = (b, sha, run, declared = policy) => ({
     basis: "git merge-base --is-ancestor",
   },
 });
+
+// Progress identifies a locally proved same-target descendant under its policy.
+export function assertPendingProgress(
+  progress,
+  acceptedSha,
+  pendingSha,
+  declared,
+) {
+  assert.equal(progress.sha, pendingSha);
+  assert.equal(progress.branch, "main");
+  assert.equal(progress.check, declared.check);
+  assert.equal(progress.context, declared.context);
+  assert.deepEqual(progress.ancestry, {
+    ancestor: acceptedSha,
+    descendant: pendingSha,
+    basis: "git merge-base --is-ancestor",
+  });
+}

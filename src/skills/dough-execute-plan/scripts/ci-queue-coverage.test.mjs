@@ -7,6 +7,7 @@ import {
 import {
   commandAttempt as attempt,
   createRevisionCoverageFixture,
+  descendantRevision,
   queueEntry,
   queuePolicy as policy,
   revisionCoverage as coverage,
@@ -18,12 +19,6 @@ import {
   customCiBranch as branch,
   git,
 } from "./ci-revision-coverage-test-fixtures.mjs";
-
-async function descendant(h) {
-  writeFileSync(join(h.project, "application.txt"), "B\n");
-  await git(h.project, "commit", "-am", "revision B");
-  return (await git(h.project, "rev-parse", "HEAD")).stdout.trim();
-}
 
 test("authoritative exact queue progresses queued → running → real attempt without inventing a verdict", async (t) => {
   let clock = 1000;
@@ -73,7 +68,7 @@ test("a coalesced descendant queue needs matching declared target and locally pr
   });
   h.setSnapshot({ attempts: [] });
   const a = await h.deliver();
-  const b = await descendant(h);
+  const b = await descendantRevision(h);
   const valid = queueEntry(b, "queued", policy);
   for (const bad of [
     { ...valid, branch: "foreign" },
@@ -159,7 +154,7 @@ test("empty, unsupported and failed discovery withdraw pending queue facts witho
     assert.equal(freshPendingRevision(coverage(h, a), clock), undefined);
     clock += 100;
   }
-  const b = await descendant(h);
+  const b = await descendantRevision(h);
   h.setSnapshot({ attempts: [], queue: [queueEntry(b, "queued", policy)] });
   await h.advancePoll();
   assert.equal(
@@ -167,4 +162,86 @@ test("empty, unsupported and failed discovery withdraw pending queue facts witho
     undefined,
     "descendant queue has no authority without policy",
   );
+});
+
+test("containing pending attempts need fresh current policy-compatible facts and withdraw on the next poll", async (t) => {
+  let clock = 1000;
+  const h = await createRevisionCoverageFixture(t, {
+    now: () => clock,
+    maxDurationMs: 1e9,
+    integratedPolicy: policy,
+  });
+  h.setSnapshot({ attempts: [] });
+  const a = await h.deliver();
+  const b = await descendantRevision(h);
+  const valid = attempt(b, "pending", policy);
+  const other = (
+    await git(h.project, "commit-tree", "HEAD^{tree}", "-m", "unrelated")
+  ).stdout.trim();
+  for (const replacement of [
+    { attempts: [] },
+    "not JSON",
+    { attempts: [{ ...valid, branch: "foreign" }] },
+    { attempts: [{ ...valid, branch: undefined }] },
+    { attempts: [{ ...valid, check: "other" }] },
+    { attempts: [{ ...valid, context: "pull_request" }] },
+    { attempts: [{ ...valid, sha: other }] },
+    { attempts: [{ ...valid, sha: "e".repeat(40) }] },
+    {
+      attempts: [
+        {
+          ...valid,
+          outcome: "failure",
+          attemptId: "new",
+          time: "2026-10-25T01:00:00Z",
+        },
+        valid,
+      ],
+    },
+    { attempts: [valid, { ...valid, attemptId: "ambiguous" }] },
+    {
+      attempts: [
+        { ...valid, time: undefined },
+        { ...valid, time: undefined, attemptId: "ambiguous" },
+      ],
+    },
+  ]) {
+    h.setSnapshot({ attempts: [valid] });
+    await h.advancePoll();
+    const pending = coverage(h, a);
+    assert.equal(pending.state, "undiscovered");
+    assert.equal(pending.integrated.state, "unresolved");
+    assert.equal(freshPendingRevision(pending, clock).sha, b);
+    assert.ok(freshPendingRevision(pending, clock + pendingFreshnessMs));
+    assert.equal(
+      freshPendingRevision(pending, clock + pendingFreshnessMs + 1),
+      undefined,
+    );
+    assert.equal(freshPendingRevision(pending, clock - 1), undefined);
+    assert.equal(recordedVerdict(h.directory, a), undefined);
+    h.setSnapshot(replacement);
+    await h.advancePoll();
+    assert.equal(
+      freshPendingRevision(coverage(h, a), clock),
+      undefined,
+      JSON.stringify(replacement),
+    );
+    assert.equal(recordedVerdict(h.directory, a), undefined);
+    clock += 100;
+  }
+  h.setSnapshot({ attempts: [attempt(a, "failure"), valid] });
+  await h.advancePoll();
+  assert.equal(recordedVerdict(h.directory, a), "failure");
+  assert.equal(freshPendingRevision(coverage(h, a), clock), undefined);
+});
+
+test("a containing pending attempt has no progress authority without an integrated policy", async (t) => {
+  const h = await createRevisionCoverageFixture(t, { now: () => 1000 });
+  h.setSnapshot({ attempts: [] });
+  const a = await h.deliver();
+  const b = await descendantRevision(h);
+  h.setSnapshot({ attempts: [attempt(b, "pending", policy)] });
+  await h.advancePoll();
+  assert.equal(freshPendingRevision(coverage(h, a), 1000), undefined);
+  assert.equal(recordedVerdict(h.directory, a), undefined);
 });

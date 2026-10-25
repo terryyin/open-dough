@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-152_retry-aware-integrated-completion.json",
+      "identity": "SEED-152#retry-aware-integrated-completion",
+      "completedAt": "2026-10-25T10:10:39.595Z",
+      "blob": "db90611165ad8ef1d08819cdd2bf9e83d646b0e3"
+    },
+    {
       "fileName": "SEED-150_story-queue-aware-completion.json",
       "identity": "SEED-150#story-queue-aware-completion",
       "completedAt": "2026-10-24T22:28:32.056Z",

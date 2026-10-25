@@ -26,12 +26,13 @@ import {
   launchComplete,
   parseReceipt,
 } from "./ci-mailbox-await-test-fixtures.mjs";
-import { policy } from "./ci-integrated-state-judge-test-fixtures.mjs";
-
-export {
+import {
+  assertPendingProgress,
   policy,
   unresolved,
 } from "./ci-integrated-state-judge-test-fixtures.mjs";
+
+export { policy, unresolved };
 
 const story = "exec/story";
 
@@ -214,14 +215,26 @@ export async function publishReplacedBAndValidatedC(journey) {
 
 // The installed completion, cancelled after it kept waiting across polls,
 // reports B's own exact state and why no integrated evidence applies.
-export async function assertStillUnresolved(journey, directory, b, integrated) {
+export async function assertStillUnresolved(
+  journey,
+  directory,
+  b,
+  integrated,
+  pendingSha,
+) {
   const receipt = await journey.completeWhilePending(directory, b);
   assert.equal(receipt.verdict, undefined);
   assert.equal(receipt.unresolvedReason, "wait_cancelled");
   assert.equal(receipt.shutdown.status, "retained");
-  assert.equal(receipt.effectiveEvidence.source, "exact");
-  assert.equal(receipt.effectiveEvidence.revision.sha, b);
-  assert.deepEqual(receipt.effectiveEvidence.integrated, integrated);
+  const { source, revision, integrated: observed } = receipt.effectiveEvidence;
+  assert.equal(source, "exact");
+  assert.equal(revision.sha, b);
+  const { progress, ...judgement } = observed ?? {};
+  assert.deepEqual(pendingSha ? judgement : observed, integrated);
+  if (pendingSha) {
+    assertPendingProgress(progress, b, pendingSha, integrated.policy);
+    assert.ok(Number.isFinite(progress.observedAt));
+  }
   const { recordedVerdict } = await journey.installedModule(
     "ci-mailbox-await.mjs",
   );

@@ -122,6 +122,26 @@ test("at most three candidates are read per poll; the next is verification_bound
   );
 });
 
+test("pending descendants cannot consume a successful candidate's verification opportunity", async (t) => {
+  const { writer, b, descendants } = judgeHistory(t, { siblings: 4 });
+  const pending = descendants
+    .slice(0, 3)
+    .map((sha) => listedRun(sha, { status: "in_progress", conclusion: null }));
+  const green = listedRun(descendants[3]);
+  const { judge, reads } = judgePoll({
+    repoDir: writer,
+    runs: [...pending, green],
+  });
+  assert.deepEqual(
+    (await judge(accepted(b))).integrated,
+    validated(b, descendants[3], green),
+  );
+  assert.deepEqual(
+    reads.map(({ runId }) => runId),
+    [green.databaseId],
+  );
+});
+
 test("each run is read once per poll for every revision it is judged for, and afresh the next poll", async (t) => {
   const { writer, b, c } = judgeHistory(t);
   const base = execFileSync("git", ["-C", writer, "rev-parse", `${b}^`], {

@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Keep test-file changes from unexpectedly exhausting CI share budgets](seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares ([plan](slice-plans/353-balance-test-shares/PLAN.md))
-- [Keep completion pending for a containing revision current retry](seeds/SEED-152-retry-aware-integrated-completion.md#retry-aware-integrated-completion) — SEED-152#retry-aware-integrated-completion
 
 ## Backlog list
 
