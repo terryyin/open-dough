@@ -195,7 +195,8 @@ export async function inspectSourceFreshness({
     records.push(plan);
   };
   // Without a plan link, a home that reads as a plan is a plan-homed
-  // correction: the whole document is its only record.
+  // correction: the whole document is its only record. Reading the document,
+  // not the link's anchor, also detects a plan home without a story state.
   if (
     !planPath &&
     homes.base !== null &&
