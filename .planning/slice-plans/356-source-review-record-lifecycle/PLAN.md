@@ -169,3 +169,12 @@ paid evidence was regenerated.
 Slice-plan refinement was not needed: slice 1 owns one record contract across
 its script and guidance, and slice 2 is an independent harness postcondition.
 This review identified no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The correction closes plan 354's source-review
+lifecycle gaps within SEED-010 without a new product promise; no active plan
+holds a `Source review` label or sibling `source-review.md` the new refusal
+reaches. Retained native-stream delivery-evidence identities are now stale for
+every family because the shared harness files are hashed; a later paid round
+refreshes them when its evidence is next needed.
