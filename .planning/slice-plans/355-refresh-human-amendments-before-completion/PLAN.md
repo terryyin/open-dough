@@ -248,7 +248,7 @@ record it in acceptance.
 
 ### 3. A controlled replay family discriminates surfaced from unnoticed amendments
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/delivery-evidence-amended.sh` runs every scenario's controls through the observer and assessor without a host and proves each declared counter-signal is rejected; `tests/delivery-evidence-native-routing.sh` and `tests/native-evidence-identity.sh` green; `tests/git-publication-native.sh --native claude --case delivery-evidence/amended` refuses nothing at dispatch (dry route).
 
 Behavior: Given the `amended` case registered in
@@ -349,6 +349,16 @@ rollout is authorized.
 - Slice 2: the boundary table's "Before delivery" row has about 600 bytes
   of read-budget headroom; a future delivery-time reference goes inline in
   step 5 or behind a link.
+- Slice 3: slice 4's rounds run from this checkout's harness. Baseline:
+  `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 delivery_evidence_only_scenario=story-amended delivery_evidence_payload_revision=7fb2bf98 bash tests/git-publication-native.sh --native claude --case delivery-evidence/amended --results-dir <ROOT>`;
+  candidate rounds omit `delivery_evidence_payload_revision` and set
+  `delivery_evidence_only_scenario` to `story-amended` or `conflict` and
+  `--native` to `claude`, `codex` or `cursor`. The observation's `payload:`
+  line names the installed payload; a baseline round's evidence identity
+  still hashes the candidate's `src/skills` inputs, so the `payload:` line is
+  the baseline's identity. 7fb2bf98 must stay reachable (Story Branch
+  integration preserves history). The fixture directory is now `de.XXXXXX`
+  for every family so the agent's path names no case.
 
 ## Acceptance evidence
 
@@ -394,6 +404,23 @@ rollout is authorized.
   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/*/scripts/*guidance*.test.mjs tests/payload-declaration-links.sh`
   and the install payload tests, quiet passes after the refactor. Agent
   behavior under the guidance is slices 3–4's.
+
+- Slice 3: the slice 1 source-only review's commitments R17a–d (four
+  replay shapes) and the counterexample constraints C1–C2 were compared with
+  `tests/delivery-evidence-amended.sh`: each scenario's premise is confirmed
+  by the installed check (story-amended amended/amended, plan-amended plan
+  only, unrelated-advance unchanged, conflict done-slice); controlled streams
+  pass the assessor; silent whole-trunk merge, overwritten statuses,
+  absorption without disposition, auto-resolved conflict and false
+  `unchanged` are rejected as field rows and, except false `unchanged` and
+  push-to-trunk, as observed real states; the unnoticed baseline is observed
+  as `check-ran: false`. A stub-host dry dispatch of
+  `tests/git-publication-native.sh --native claude --case delivery-evidence/amended`
+  refused nothing and retained the 7fb2bf98 payload attempt. Proof:
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-amended.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh`
+  and `... tests/native-*.sh tests/git-publication-native*.sh tests/delivery-evidence-*.sh tests/proof-scheduling-native.sh tests/payload-declaration-links.sh`,
+  quiet passes after the refactor. Native agent behavior and Codex/Cursor
+  stream shapes are slice 4's.
 
 ## Plan concerns and readiness
 
