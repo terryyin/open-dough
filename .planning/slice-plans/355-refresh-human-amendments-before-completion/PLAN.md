@@ -467,3 +467,12 @@ command and the rounds on the family, and no slice combines independent
 outcomes. Remaining slice-specific concerns: none identified. The only
 unsettled premise is paid and bounded by slice 4's developer-run rounds,
 whose non-reproduction changes the benefit judgment, not the mechanism.
+
+## Execution complete
+
+Product advice: Execute the queued correction
+[SEED-010#source-freshness-for-planless-and-reamended-work](../../seeds/SEED-010-learn-from-execution-retrospectives.md#source-freshness-for-planless-and-reamended-work)
+(plan 357) before the next release: the Story Branch freshness gates refuse
+quick stories and plan-homed corrections (`no-plan-link`) and read a second
+amendment over absorbed text as a false conflict. Otherwise no product change;
+the first ordinary-use criterion at ODF-354 stays the next observation.
