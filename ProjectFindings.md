@@ -276,6 +276,7 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Evidence: `src/skills/dough-execute-plan/scripts/read-budget-guidance.test.mjs` "each row fits one tool result on the smallest supported host" counts all of `references/source-freshness.md` toward the 30000-byte row; slice 1's first wording reached 30159 bytes and was rewritten; slice 2 added the base and after-decision route by tightening unrelated sentences in the same reference (4819 bytes before and after, `f3e0985c`), leaving about 7 bytes
   - Observed effect: wording churn in sentences the slices did not otherwise change, and an agent-reported constraint carried into the next delegation.
   - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
+  - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
 
 ## Review and recovery
 

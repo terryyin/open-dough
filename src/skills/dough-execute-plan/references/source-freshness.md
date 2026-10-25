@@ -2,9 +2,9 @@
 
 In Story Branch Mode, the execution branch carries its own copy of the selected
 source from the Take, while the developer may amend it on remote trunk. Before
-a slice is marked done, before the execution-complete record, and before
-wrap-up's deletion, compare that copy with trunk so no work is accepted against
-a stale source. Trunk Mode does not use this check.
+each slice's done mark, the execution-complete record, and wrap-up's deletion,
+compare that copy with trunk so no work is accepted against a stale source.
+Trunk Mode does not use this check.
 
 ## Run the check
 
