@@ -374,3 +374,11 @@ command and the rounds on the family, and no slice combines independent
 outcomes. Remaining slice-specific concerns: none identified. The only
 unsettled premise is paid and bounded by slice 4's developer-run rounds,
 whose non-reproduction changes the benefit judgment, not the mechanism.
+- CI repair after slice 1 (run 40193361689, `test (2/3)`): the quiet-pass
+  rule failed `tests/support/product-backlog-git-merge.test.mjs` because a
+  fixture commit SHA began with the hex-only branch name `acbd` and Git
+  warned the refname was ambiguous; the branches became `order-acbd` and
+  `order-acdb`, and `commitBranch` documents the rule. Proof: a scratch repro
+  warning for a hex-only name and not for an `order-` name, and
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/support/product-backlog-git-merge.test.mjs`
+  quiet pass.
