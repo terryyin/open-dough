@@ -8,7 +8,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 336. Removed numbers are never reused.
+- Highest allocated local number: 339. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -274,6 +274,16 @@ Former local code: DD-288.
 
 A final native observation depends on a deployment or release path unavailable before landing; planning must distinguish the actual delivery prerequisite. [Retained occurrences and response](docs/maintainer/findings/ODF-238.md). All distinct execution evidence is retained in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-238.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
+### Occurrences
+- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
+  - Timestamp: 2026-10-25T20:38:14+09:00 (slice 3 commit `065d6655`; its CI run completed before `2a537b21` at 20:45+09:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
+  - Evidence: the story's completion clause asks DD-279 to record "the measured allocation of the landed revision's CI run"; plan 353 slice 3 owed that record, but the run that measures a commit exists only after it. The record in `065d6655` names the prior run, and a fourth increment `2a537b21` added run 40189712361's totals and refreshed both lists from it after waiting for CI.
+  - Observed effect: one extra CI wait and increment to satisfy a clause whose evidence postdates the commit that records it.
+  - Inference: qualified. Not native or release-bound this time, but the same shape: a promised final observation whose prerequisite is the landing itself. Refinement should name the run the record can actually cite (the last branch run) or leave the landed-run measurement to wrap-up.
+
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 
 Former local code: DD-292.
@@ -498,3 +508,45 @@ Former local code: DD-335.
 A hand-built owned-path list trims significant porcelain status spacing and corrupts a path; the input guard contains the mistake before project commands.
 
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+
+## DD-337 — Preparation recorded measured allocations without their full sort key
+
+Plan 353's story and plan quoted after-run totals from a scratch reconstruction (599.2 / 599.5 / 596.6 and a rename's 621.7 / 591.8 / 581.8) whose order among jobs of equal recorded seconds was never written down; no implementation could reproduce them.
+
+### Occurrences
+- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
+  - Timestamp: 2026-10-25T19:32:11+09:00 (slice 1 return, before commit `61d16b66`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
+  - Evidence: PLAN.md "Preparation observations" row 1 and story example 1 quote the figures; the implementation agent tried 1,728 ordering variants (file orders, tie-breaks, share-tie rules, unrecorded assumptions) and matched the sum (1795.3) but never the split; obligation G1 in `.planning/slice-plans/353-balance-test-shares/PLAN.md`.
+  - Observed effect: the story's key example states measured figures and "more than 110 job-seconds of headroom" that the delivered deal does not produce (108.0 on share 1); a `no user cost` disposition and a developer decision on the example text.
+  - Inference: qualified. A measured allocation is only an evaluable promise when the full sort key, or the reconstruction script, is retained with it; the predicted totals, which depend on no tie order, reproduced exactly.
+
+## DD-338 — A direct formatter command in fresh delivery lacked the package's binaries
+
+The guarded fresh delivery runs each preparation operation directly without a shell, so `node scripts/lint.mjs --fix` found neither `eslint` nor `prettier` on PATH and the first delivery attempt of slice 1 failed; the same operation as `npm run format` succeeded.
+
+### Occurrences
+- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
+  - Timestamp: 2026-10-25T19:3x+09:00 (between the slice 1 refactor return and commit `61d16b66` at 19:32:11+09:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
+  - Evidence: `execution-increment-delivery.mjs fresh` returned `preparation-failed`, `operation: formatting`, with `eslint: not found on PATH ... prettier: not found on PATH`; the retry with `["npm","run","format"]` was accepted (`61d16b66`).
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+  - Inference: qualified. `fresh-increment.md` says commands run "without an implicit shell" but gives no example of a formatter that depends on `node_modules/.bin`; naming the package script as the resolved operation would avoid the first failure.
+
+## DD-339 — Nested-fixture proof missed a real-suite shape, so the artifact misattributed 124 s
+
+Slice 2 proved the dashboard per-spec times on quiet-reporter fixtures where every test is declared in its own spec file; the real suite registers tests from imported case modules, which Playwright locates at the module, so the first CI artifacts credited six module files with 124.3 s that belong to three specs.
+
+### Occurrences
+- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
+  - Timestamp: 2026-10-25T20:38:14+09:00 (found during slice 3, fixed in commit `065d6655`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
+  - Evidence: run 40187124945's `dashboard-times-*` list `support/productionUpdatePolicies.ts` 62.8 s and five Codex case modules; obligation G2 in `.planning/slice-plans/353-balance-test-shares/PLAN.md`; the fix walks `test.parent` to the file suite (`dashboard/tests/support/specTimes.ts`) with a new fixture pair `nested/cases.ts` and `nested/importing.proof.ts`.
+  - Observed effect: a return obligation on the last slice, a reporter fix with its fixture, a dashboard list committed with misattributed seconds, and a further increment to refresh it from the corrected run.
+  - Inference: qualified. The preparation observation checked `location.file` on one plain spec; a proof built only from synthetic fixtures does not sample the real suite's shapes. Reading one real artifact, or listing the real suite's distinct test-file origins, before accepting slice 2 would have shown it.

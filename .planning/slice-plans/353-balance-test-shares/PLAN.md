@@ -200,6 +200,22 @@ jobs and 549 spec files recorded, predicting 556.4 ×3 and 572.5 ×12, proved
 by `bash scripts/test.sh tests/support/dashboard-test-files.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/support/test-shares.test.mjs tests/test-runner-split.sh`
 and `npm run lint`.
 
+## Execution complete
+
+Product advice: no product change beyond the planned correction. The review
+found no correctness regression; its residue (raw stack traces on missing
+paths in the preview and refresh commands, the deal rule restated in four
+prose sites, times-form and Bash-floor knowledge duplicated, tests pinned to
+the real 710 ceiling, a plan-numbered fixture name, a stale CI pointer) is
+planned as the bounded correction
+[SEED-151#tidy-share-allocator](../../seeds/SEED-151-test-share-reliability.md#tidy-share-allocator)
+with [plan 354](../354-tidy-share-allocator/PLAN.md), recorded ready, not
+taken. Observe DD-279's ten-run criterion before judging the response; the
+measured spread that remains (per-share runner speed 0.74 to 1.26) is the
+story's deferred item and the next lever if a shard approaches its deadline
+again. Process findings DD-337 to DD-339 and an ODF-238 occurrence are in
+`DearDough.md` (552 lines, past the 500-line warning).
+
 ## Current decisions
 
 - Every recorded job is listed; the former 3 s cutoff goes. Observed: with the
