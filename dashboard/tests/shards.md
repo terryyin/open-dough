@@ -54,9 +54,9 @@ node scripts/test-shares.mjs refresh --list dashboard/tests/longest-first \
 
 The refresh keeps the header and records the source in its `# Source:` line.
 `tests/support/dashboard-test-files.test.mjs` proves the configuration's
-deal: every spec file in exactly one of the twelve shards, their predictions
-within one recorded file of each other, a new spec unrecorded in the lightest
-shard, and a malformed list line failing the configuration.
+deal: every spec file in exactly one of the twelve shards, the preview
+listing a new spec as unrecorded in the shard the deal gives it, and a
+malformed list line failing the configuration.
 
 ## Each shard's times
 

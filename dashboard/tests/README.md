@@ -172,7 +172,7 @@ after the recorded files at their median duration until that list is next
 refreshed from a hosted run, and the preview in [dashboard shards](shards.md)
 shows where it lands before a push.
 `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
-and their assignment to exactly one balanced shard.
+and their assignment to exactly one shard.
 
 ## Running the suite
 

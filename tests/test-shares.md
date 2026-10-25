@@ -66,9 +66,10 @@ directly, and without a budget the preview prints no headroom.
 ## Proof
 
 `tests/support/share-deal-recorded-runs.test.mjs` proves the deal on retained
-CI runs (`tests/support/fixtures/plan-350/`), `tests/support/share-deal.test.mjs`
-its rules on small inputs, `tests/support/test-shares.test.mjs` the commands,
-and `tests/test-runner-split.sh` that the runner's shares follow it. The
+CI runs (`tests/support/fixtures/node-suite-ci-runs/`),
+`tests/support/share-deal.test.mjs` its rules on small inputs,
+`tests/support/test-shares.test.mjs` the commands, and
+`tests/test-runner-split.sh` that the runner's shares follow it. The
 dashboard's spec-file shards use the same allocator through
 `dashboard/tests/support/testFiles.mjs`
 ([dashboard/tests/shards.md](../dashboard/tests/shards.md)).

@@ -155,7 +155,7 @@ pointer. Both list headers and both READMEs stay, as story 1 requires.
 
 ### 3. Tests pin behavior, not the ceiling, and the fixture is named by what it holds
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/support/test-shares.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/support/dashboard-test-files.test.mjs tests/support/share-deal.test.mjs tests/test-runner-split.sh`;
 with `total-job-seconds=720` temporarily in `tests/time-budget`, the first two
 files again, then revert; `grep -rn plan-350 tests scripts dashboard` empty;
@@ -231,6 +231,16 @@ removed with plan 353 (recoverable at
   even-count median and 1 s fallback sit beside `dealShares`'s code.
   Proof: the rule grep names only `tests/test-shares.md`; the four `ci.yml`
   readers and `tests/test-runner-split.sh` pass; lint passes.
+- Slice 3: the optional spec-times merge was not taken. Two dashboard
+  documents (`shards.md` proof paragraph, `README.md`) described the dropped
+  balance and lightest-shard tests and now describe what the remaining test
+  proves; the lightest shard at the median stays proved by recorded-runs
+  example 2. Proof: the plan's focused command passes; with
+  `total-job-seconds=720` the test-shares and recorded-runs tests pass, then
+  the budget is restored; `grep -rn plan-350 tests scripts dashboard` and
+  `grep -rn 710 tests/support/*.test.mjs` are empty; lint passes. After all
+  slices both previews still match the f1a3e06d baselines and
+  `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 --list` still selects 44 files.
 
 ## Plan concern review
 

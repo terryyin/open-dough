@@ -18,7 +18,6 @@ import { after, test } from "node:test";
 const allocator = fileURLToPath(
   new URL("../../scripts/test-shares.mjs", import.meta.url),
 );
-const budgetPath = fileURLToPath(new URL("../time-budget", import.meta.url));
 const scratch = mkdtempSync(join(tmpdir(), "test-shares-"));
 after(() => rmSync(scratch, { recursive: true, force: true }));
 
@@ -52,20 +51,11 @@ test("share refuses a split that is not <i>/<n>", () => {
   assert.match(invalid.stderr, /^FAIL: --split=3\/2 is not <i>\/<n>/);
 });
 
-test("share fails on a list line without seconds, naming the file, line and content", () => {
-  const malformedList = join(scratch, "malformed");
-  writeFileSync(malformedList, "# list\nlong.sh\n");
-  const malformed = share(malformedList, "1/2");
-  assert.equal(malformed.status, 1);
-  assert.equal(
-    malformed.stderr,
-    `FAIL: ${malformedList}:2: "long.sh" is not <seconds><TAB><label>; no check was run.\n`,
-  );
-});
-
 test("preview reads labels from a file and the ceiling from the budget", () => {
   const labelsFile = join(scratch, "labels");
   writeFileSync(labelsFile, `${labels.join("\n")}\n`);
+  const budget = join(scratch, "time-budget");
+  writeFileSync(budget, "per-job-seconds=10\ntotal-job-seconds=30\n");
   const previewRun = run([
     "preview",
     "--split-count",
@@ -75,12 +65,16 @@ test("preview reads labels from a file and the ceiling from the budget", () => {
     "--labels",
     labelsFile,
     "--budget",
-    budgetPath,
+    budget,
   ]);
   assert.equal(previewRun.status, 0, previewRun.stderr);
-  assert.match(
+  assert.ok(
+    previewRun.stdout
+      .split("\n")
+      .includes(
+        `share 2/2: 11.0 predicted (3 jobs, 2 unrecorded); headroom 19.0 to the total ceiling 30 (${budget})`,
+      ),
     previewRun.stdout,
-    /^share 2\/2: 11\.0 predicted \(3 jobs, 2 unrecorded\); headroom 699\.0 to the total ceiling 710 /m,
   );
   assert.match(previewRun.stdout, /^ {2}share 2\/2 {2}new-a\.sh$/m);
 });

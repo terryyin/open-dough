@@ -1,8 +1,9 @@
 // The duration deal of scripts/share-deal.mjs on retained CI runs under
-// tests/support/fixtures/plan-350/: the Node suite's per-job seconds from CI
-// runs 39875064344 (before) and 39883782226 (after one 1.0 s test file was
-// added), and the 84-label positional list at 3fba18f9 that let that addition
-// move 47 jobs and push share 3 over its budget.
+// tests/support/fixtures/node-suite-ci-runs/: the Node suite's per-job seconds
+// from CI runs 39875064344 (before) and 39883782226 (after one 1.0 s test file
+// was added), and stale-longest-first, the 84-label positional list at
+// 3fba18f9 that let that addition move 47 jobs and push share 3 over its
+// budget.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -16,8 +17,10 @@ import {
   shareLabels,
 } from "../../scripts/share-deal.mjs";
 
-const fixtures = new URL("fixtures/plan-350/", import.meta.url);
+const fixtures = new URL("fixtures/node-suite-ci-runs/", import.meta.url);
 const budgetPath = fileURLToPath(new URL("../time-budget", import.meta.url));
+// The ceiling the assertions measure against, as tests/time-budget sets it.
+const { totalJobSeconds: ceiling } = readTimeBudget(budgetPath);
 
 // Every job's seconds from one run's three share artifacts.
 function runSeconds(run) {
@@ -52,12 +55,14 @@ const shareOf = (deal) =>
       share.jobs.map((job) => [job.label, share.index]),
     ),
   );
-const preview = (deal, ceiling) =>
+const preview = (deal, listName = "before") =>
   formatPreview(deal, {
-    listName: "before",
+    listName,
     ceiling,
     budgetName: "tests/time-budget",
   });
+const headroom = (seconds) => formatSeconds(ceiling - seconds);
+const escaped = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 test("example 1: the before run's recorded jobs deal into three equal shares", () => {
   assert.equal(before.size, 416);
@@ -96,8 +101,8 @@ test("example 1: the added 1.0 s file alone changes share membership", () => {
   // The after run's seconds summed per predicted share (the plan's
   // reconstruction, with another order among equal-second jobs, measured
   // 599.2 / 599.5 / 596.6 for the same sum). Every share keeps over 100
-  // job-seconds of headroom under the 710 ceiling, where the positional deal
-  // measured 711.1 on share 3.
+  // job-seconds of headroom under the budget's ceiling, where the positional
+  // deal measured 711.1 on share 3.
   const totals = measured(afterDeal, after);
   assert.deepEqual(totals, ["602.0", "597.1", "596.2"]);
   assert.equal(
@@ -105,7 +110,7 @@ test("example 1: the added 1.0 s file alone changes share membership", () => {
     "1795.3",
   );
   for (const total of totals) {
-    assert.ok(Number(total) <= 710 - 100, total);
+    assert.ok(Number(total) <= ceiling - 100, total);
   }
 });
 
@@ -115,7 +120,7 @@ test("example 2: the preview lists an added unrecorded file at the median on the
   const deal = dealShares([added, ...before.keys()], before, 3);
   assert.equal(deal.unrecordedCount, 1);
   assert.equal(deal.assumedSeconds, 2);
-  const text = preview(deal, 710);
+  const text = preview(deal);
   assert.match(
     text,
     /^Predicted job-seconds per share from before: 417 jobs, 416 recorded, 1 unrecorded at 2\.0 s each \(the recorded median\)\.$/m,
@@ -156,14 +161,14 @@ test("example 3: a renamed 54.4 s job raises the heaviest share by at most its s
   assert.ok(heaviest <= heaviestBefore + 54.4, `${heaviest}`);
   assert.ok(heaviest > heaviestBefore);
   assert.match(
-    preview(deal, 710),
+    preview(deal),
     /^unrecorded jobs \(1\), each assumed at 2\.0 s;.*\n {2}share 3\/3 {2}tests\/git-publication-native-renamed\.sh$/m,
   );
 });
 
 test("example 4: the preview on the stale 84-label list counts 333 unrecorded of 417 against the budget's ceiling", () => {
   const staleLabels = readFileSync(
-    new URL("longest-first-at-3fba18f9", fixtures),
+    new URL("stale-longest-first", fixtures),
     "utf8",
   )
     .split("\n")
@@ -172,22 +177,23 @@ test("example 4: the preview on the stale 84-label list counts 333 unrecorded of
   // The positional list carried no seconds; the before run supplies them.
   const stale = new Map(staleLabels.map((label) => [label, before.get(label)]));
   const deal = dealShares([...after.keys()], stale, 3);
-  const { totalJobSeconds } = readTimeBudget(budgetPath);
-  assert.equal(totalJobSeconds, 710);
-  const text = formatPreview(deal, {
-    listName: "longest-first-at-3fba18f9",
-    ceiling: totalJobSeconds,
-    budgetName: "tests/time-budget",
-  });
+  const text = preview(deal, "stale-longest-first");
   assert.match(
     text,
-    /^Predicted job-seconds per share from longest-first-at-3fba18f9: 417 jobs, 84 recorded, 333 unrecorded at 6\.3 s each \(the recorded median\)\.$/m,
+    /^Predicted job-seconds per share from stale-longest-first: 417 jobs, 84 recorded, 333 unrecorded at 6\.3 s each \(the recorded median\)\.$/m,
   );
   assert.match(
     text,
-    /^share 1\/3: 997\.5 predicted \(\d+ jobs, \d+ unrecorded\); headroom -287\.5 to the total ceiling 710 \(tests\/time-budget\)$/m,
+    new RegExp(
+      `^share 1/3: 997\\.5 predicted \\(\\d+ jobs, \\d+ unrecorded\\); headroom ${escaped(headroom(997.5))} to the total ceiling ${ceiling} \\(tests/time-budget\\)$`,
+      "m",
+    ),
   );
-  assert.equal(text.match(/^share \d\/3: .*headroom .* 710 /gm).length, 3);
+  assert.equal(
+    text.match(new RegExp(`^share \\d/3: .*headroom .* ${ceiling} `, "gm"))
+      .length,
+    3,
+  );
   assert.match(text, /^unrecorded jobs \(333\), each assumed at 6\.3 s;/m);
   assert.equal(text.match(/^ {2}share \d\/3 {2}/gm).length, 333);
 });

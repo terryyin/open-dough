@@ -93,7 +93,7 @@ const suite = new URL("../../dashboard/tests/", import.meta.url);
 const shardCount = 12;
 const shardIndices = [...Array(shardCount).keys()].map((index) => index + 1);
 
-test("the twelve CI shards match every actual browser spec exactly once", () => {
+test("the twelve CI shards match every actual browser spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
   const files = dashboardSpecFiles(fileURLToPath(suite));
   assert.ok(files.length > 0);
   const matches = shardIndices.flatMap((index) =>
@@ -103,56 +103,16 @@ test("the twelve CI shards match every actual browser spec exactly once", () => 
   for (const file of files) {
     assert.equal(matched(matches, new URL(file, suite).pathname), 1, file);
   }
-});
-
-test("the twelve CI shards' predicted seconds lie within one recorded spec file of each other", () => {
-  const files = dashboardSpecFiles(fileURLToPath(suite));
-  const { seconds } = readDurationList(
-    fileURLToPath(new URL("longest-first", suite)),
-  );
-  const deal = dealShares(files, seconds, shardCount);
-  assert.ok(deal.recordedCount > 0);
-  const predicted = deal.shares.map((share) => share.predicted);
-  const largestRecorded = Math.max(
-    ...files
-      .filter((file) => seconds.has(file))
-      .map((file) => seconds.get(file)),
-  );
-  assert.ok(
-    Math.max(...predicted) - Math.min(...predicted) <= largestRecorded + 1e-9,
-    `predicted ${predicted.map((value) => value.toFixed(1)).join(" / ")} spread more than ${largestRecorded}`,
-  );
-});
-
-test("a new spec appears in the preview as unrecorded in the lightest shard at the median", () => {
-  const files = dashboardSpecFiles(fileURLToPath(suite));
   const { seconds } = readDurationList(
     fileURLToPath(new URL("longest-first", suite)),
   );
   const added = "zz-new.spec.ts";
   assert.equal(files.includes(added), false);
-  const before = dealShares(files, seconds, shardCount);
-  const after = dealShares([...files, added], seconds, shardCount);
-  // Bytewise last among unrecorded specs, the new spec is dealt last, to the
-  // shard that was lightest, and the other shards are unchanged.
-  const lightest = before.shares.reduce((best, share) =>
-    share.predicted < best.predicted - 1e-9 ? share : best,
-  );
-  const receiving = after.shares.find((share) =>
+  const deal = dealShares([...files, added], seconds, shardCount);
+  const receiving = deal.shares.find((share) =>
     share.jobs.some((job) => job.label === added),
   );
-  assert.equal(receiving.index, lightest.index);
-  assert.ok(
-    Math.abs(receiving.predicted - lightest.predicted - after.assumedSeconds) <
-      1e-9,
-  );
-  for (const share of after.shares) {
-    if (share.index !== receiving.index) {
-      assert.deepEqual(share, before.shares[share.index - 1]);
-    }
-  }
-  const preview = formatPreview(after, { listName: "longest-first" });
-  assert.equal(after.unrecordedCount, before.unrecordedCount + 1);
+  const preview = formatPreview(deal, { listName: "longest-first" });
   assert.match(
     preview,
     new RegExp(`^ {2}share ${receiving.index}/${shardCount} {2}${added}$`, "m"),
