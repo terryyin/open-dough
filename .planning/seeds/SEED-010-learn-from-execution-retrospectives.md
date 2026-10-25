@@ -216,28 +216,6 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
-<a id="source-freshness-for-planless-and-reamended-work"></a>
-
-### Check every Story Branch source for freshness without false stops
-
-**Identity:** SEED-010#source-freshness-for-planless-and-reamended-work
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/357-source-freshness-for-planless-and-reamended-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86c7df5f2baa4044122270bb4069e0b7e92bb8520eceee24f34b5cc98ddd61fc","plan":"0534c14a75bcff4d7e13b94af3e88e4c612e6ee47f89b7c0a1bc8d36e1578385"}}
-```
-
-**Goal:** A Story Branch coordinator executing a quick story, a plan-homed
-correction or context-only work passes the source-freshness gates with the
-right comparison instead of stopping on an uncorrectable refusal, and a later
-trunk amendment to text already absorbed reads as an amendment rather than a
-conflict, with a route back to `unchanged` after the developer decides a
-genuine conflict.
-
-**Scope:** Retrospective correction of
-SEED-010#refresh-human-amendments-before-completion (plan 355, recoverable at
-`a7a31a704c67bb36c9b77f1919ac63b77fcc445e:.planning/slice-plans/355-refresh-human-amendments-before-completion/PLAN.md`); the
-[correction plan](../slice-plans/357-source-freshness-for-planless-and-reamended-work/PLAN.md)
-holds the findings, preserved promises and proof. No new feature promise.
-
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

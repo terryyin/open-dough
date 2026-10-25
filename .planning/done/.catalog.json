@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_source-freshness-for-planless-and-reamended-work.json",
+      "identity": "SEED-010#source-freshness-for-planless-and-reamended-work",
+      "completedAt": "2026-10-25T15:56:07.637Z",
+      "blob": "d46426eb2a6f3035489628200816866bdb4ce67e"
+    },
+    {
       "fileName": "SEED-010_source-review-record-lifecycle.json",
       "identity": "SEED-010#source-review-record-lifecycle",
       "completedAt": "2026-10-25T15:29:47.574Z",

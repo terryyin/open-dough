@@ -148,12 +148,13 @@ and before `finish` can retire the workspace.
 After completion and Git recovery are established — including any required Trunk
 Mode before-cleanup publication — delete the selected work's spent history under
 [wrap-up cleanup](../dough-product-backlog/references/record-preparation.md#wrap-up-cleanup).
-In Story Branch Mode, first run
+In Story Branch Mode, for selected work with a **Taken** entry, first run
 `node '<installed-execute-plan>/scripts/source-freshness.mjs' check` with the
 inputs in [source freshness](../dough-execute-plan/references/source-freshness.md#run-the-check);
 on `amended` or `conflict` delete nothing and follow
 [its wrap-up handling](../dough-execute-plan/references/source-freshness.md#at-wrap-ups-deletion).
-On `unchanged`, delete:
+Work without a Taken entry has no story section or plan to compare. On
+`unchanged`, or for work without a Taken entry, delete:
 
 - its executable plan and owned proof, evidence, and assessment records, even
   when the plan was retained or carries its execution-complete record;

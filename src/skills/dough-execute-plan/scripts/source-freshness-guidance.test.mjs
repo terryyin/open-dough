@@ -63,6 +63,25 @@ test("wrap-up checks freshness before deleting spent history", () => {
     "- its executable plan",
     /\]\(\.\.\/dough-execute-plan\/references\/source-freshness\.md(?:#[^)]+)?\)/,
   );
+  assert.match(
+    deletion,
+    /In Story Branch Mode, for selected work with a \*\*Taken\*\* entry, first run/,
+  );
+  assert.match(deletion, /or for work without a Taken entry, delete:/);
+});
+
+test("the reference names the records each source compares", () => {
+  const run = section(
+    read("dough-execute-plan/references/source-freshness.md"),
+    "## Run the check",
+  );
+  for (const term of [
+    "with a plan link, the story section and the linked plan",
+    "for a plan-homed correction, its plan",
+    "otherwise the story section alone, as for a quick story or a plan linked only on the branch",
+  ])
+    assert.ok(run.replace(/\s+/g, " ").includes(term), `names ${term}`);
+  assert.doesNotMatch(run, /missing plan link/);
 });
 
 test("the reference names the results, absorb, and the conflict stop", () => {
@@ -79,4 +98,23 @@ test("the reference names the results, absorb, and the conflict stop", () => {
     reference,
     /node '<installed-execute-plan>\/scripts\/source-freshness\.mjs' check/,
   );
+});
+
+test("the reference names each record's base and the route after a conflict decision", () => {
+  const reference = read("dough-execute-plan/references/source-freshness.md");
+  const flat = (text) => text.replace(/\s+/g, " ");
+  assert.ok(
+    flat(section(reference, "## Run the check")).includes(
+      "from its `from` base: the newest trunk revision since the Take whose text the branch copy contains, or the Take",
+    ),
+    "names the base each record is compared from",
+  );
+  const stop = flat(section(reference, "## Stop on a conflict"));
+  for (const term of [
+    "Resolve nothing without the developer's decision and write nothing to trunk",
+    "When the decision keeps trunk's text, write it into the branch copy in the increment, reopening a done slice under plan refinement when the decision reopens it",
+    "when it keeps the branch's text, the developer changes trunk",
+    "Then rerun `check` at the stopped boundary and continue only on `unchanged`",
+  ])
+    assert.ok(stop.includes(term), `names ${term}`);
 });

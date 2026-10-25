@@ -261,6 +261,22 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Observed effect: `tests/native-stream-replay.sh` failed until the value was corrected to 1050 by inspection.
   - Inference: the in-turn search for each started command can match an earlier identical line; review catches it only through the replay failure.
 
+## A guidance reference sits at its read-budget row limit (open, unqueued)
+
+<a id="dd-347"></a>
+
+### DD-347 — `source-freshness.md` has under 10 bytes left in the "Before finishing or stopping" read-budget row
+
+### Occurrences
+- Execution: SEED-010#source-freshness-for-planless-and-reamended-work (plan 357, first implementation commit cc6d397915db451e64772b3ee70f9cf46d8cbd63)
+  - Timestamp: unknown (2026-10-26, slices 1 and 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision 9492019d; base 0.3.72
+  - Evidence: `src/skills/dough-execute-plan/scripts/read-budget-guidance.test.mjs` "each row fits one tool result on the smallest supported host" counts all of `references/source-freshness.md` toward the 30000-byte row; slice 1's first wording reached 30159 bytes and was rewritten; slice 2 added the base and after-decision route by tightening unrelated sentences in the same reference (4819 bytes before and after, `f3e0985c`), leaving about 7 bytes
+  - Observed effect: wording churn in sentences the slices did not otherwise change, and an agent-reported constraint carried into the next delegation.
+  - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
