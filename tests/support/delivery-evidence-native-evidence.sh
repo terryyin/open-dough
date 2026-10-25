@@ -5,7 +5,7 @@
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
   case $1 in
-    aggregate | nostore | deferred | original | terminal | release) return 0 ;;
+    aggregate | nostore | deferred | original | terminal | release | drift) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -98,6 +98,14 @@ delivery_evidence_write_evidence_identity() {
       tests/fixtures/delivery-evidence/release-status-projection.py \
       tests/fixtures/delivery-evidence/release-corrected-status-projection.py \
       tests/support/delivery-evidence-original-native-assess.sh \
+      src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+  if [[ ${case_name} == drift ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/drift-original-story.md \
+      tests/fixtures/delivery-evidence/drift-narrowed-plan.md \
+      tests/fixtures/delivery-evidence/drift-implementation-return.md \
+      tests/fixtures/delivery-evidence/drift-human-amendment.md \
       src/skills/dough-execute-plan/references/story-obligations.md
   fi
 }

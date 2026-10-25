@@ -4,7 +4,7 @@
 # identity recognize a delivery-evidence case only through this file.
 # shellcheck disable=SC2034
 
-delivery_evidence_cases='selection claims consumers gaps aggregate nostore deferred original terminal release scheduling'
+delivery_evidence_cases='selection claims consumers gaps aggregate nostore deferred original terminal release drift scheduling'
 delivery_evidence_scenarios=
 delivery_evidence_pass_basis=
 
@@ -45,6 +45,10 @@ delivery_evidence_case_profile() {
       ;;
     original | terminal | release)
       delivery_evidence_scenarios='narrowed'
+      delivery_evidence_pass_basis='explicit review of original-story acceptance'
+      ;;
+    drift)
+      delivery_evidence_scenarios='narrowed amended-corrected'
       delivery_evidence_pass_basis='explicit review of original-story acceptance'
       ;;
     scheduling)

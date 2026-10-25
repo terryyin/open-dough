@@ -38,6 +38,7 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity original'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity terminal'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity release'
+  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity drift'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity scheduling'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'

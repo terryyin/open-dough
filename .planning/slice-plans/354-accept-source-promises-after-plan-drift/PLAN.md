@@ -142,7 +142,7 @@ observed above; the round itself is developer-run.
 
 | Promise (story) | Owner | Observable result |
 | --- | --- | --- |
-| Example 6: baseline reproduces (or records non-reproduction) | 1 | One Claude `drift/narrowed` attempt under candidate `HEAD` before slice 2; retained stream, product observation and acceptance outcome inspected; a non-reproduction stops slice 2 and reassesses this plan |
+| Example 6: baseline reproduces (or records non-reproduction) | 2 (pre-change prerequisite) | One Claude `drift/narrowed` attempt at the slice 1 candidate before slice 2's delegation; retained stream, product observation and acceptance outcome inspected; a non-reproduction stops slice 2 and reassesses this plan |
 | Controlled discriminator: narrowed product contradicts the source while its tests pass; corrected and amended controls satisfy it; assessor rejects quote-only, plan-decision and unchanged-accepted outcomes | 1 | `tests/delivery-evidence-drift.sh`, `tests/delivery-evidence-native-routing.sh`, `tests/native-evidence-identity.sh` green through `scripts/test.sh` |
 | Example 1 (gate): 4a's held and ordered items lack a disposition → delivery refused | 2 | `story-obligations.mjs check --slice 4` on the reconstructed plan 412 record exits 1 naming the commitment ids; after `return` or `receiving slice N` it passes |
 | Example 4: a plan statement is no disposition | 2 | `excluded "<Current decisions text>"` is refused `quote-not-in-story`; the refusal names the commitment |
@@ -158,8 +158,8 @@ Each slice runs its focused checks through `PATH="/opt/homebrew/bin:$PATH" bash 
 
 ### 1. A controlled replay of the plan 412 drift discriminates narrowed from amended acceptance
 Type: Behavior
-Status: planned
-Proof: `tests/delivery-evidence-drift.sh` proves the narrowed product's excluded list lacks `already_held` and `already_ordered` while its narrowed tests pass, the corrected and amended-corrected controls list them or quote the amendment, and the assessor rejects each declared counter-signal; routing and evidence-identity tests stay green; one developer-run Claude `narrowed` round is retained and inspected.
+Status: done
+Proof: `tests/delivery-evidence-drift.sh` proves the narrowed product's excluded list lacks `already_held` and `already_ordered` while its narrowed tests pass, the corrected and amended-corrected controls list them or quote the amendment, and the assessor rejects each declared counter-signal; routing and evidence-identity tests stay green.
 
 Behavior: Given the recovered SEED-145 story section, a plan excerpt carrying
 slice 4 and the Current decision "held and ordered symbols stay in history",
@@ -183,21 +183,10 @@ and the retained per-commitment comparison, with counterexamples for
 quote-only, plan-decision-as-exclusion, unchanged-accepted and fabricated
 amendment. Neither prompt nor fixture names what is missing.
 
-Developer-operated observation (question: does the current guidance reproduce
-the plan-scoped acceptance on this fixture?). One round, Claude Code, the
-observed host: `PATH="/opt/homebrew/bin:$PATH" native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/drift --results-dir <ROOT>`
-on the `narrowed` scenario at the slice 1 candidate. The developer runs it
-because it is paid; retain host, command, attempt id, raw stream, product
-observation and acceptance outcome in this plan. Reproduction (accepted
-plan-scoped result, or detection without a retained comparison or gate) keeps
-slice 2 as planned; detection with a retained per-commitment comparison is
-non-reproduction: stop slice 2 and reassess this plan. An unavailable route
-or credential stays stopped with its owner.
-
 ### 2. Acceptance disposes each returned commitment through the obligations gate
 Type: Behavior
 Status: planned
-Proof: focused `story-obligations*.test.mjs` cases cover the addressable return, allocation, observation, `Commitment:` reference, refusals (unallocated id, plan quote, open receiving at its slice, unobserved id at completion) and the listing; a reconstructed plan 412 record refuses slice 4 until the two reasons are returned or received and accepts the amended control; `tests/payload-declaration-links.sh` and the guidance test stay green; the `drift` fixture installs the candidate guidance.
+Proof: focused `story-obligations*.test.mjs` cases cover the addressable return, allocation, observation, `Commitment:` reference, refusals (unallocated id, plan quote, open receiving at its slice, unobserved id at completion) and the listing; a reconstructed plan 412 record refuses slice 4 until the two reasons are returned or received and accepts the amended control; `tests/payload-declaration-links.sh` and the guidance test stay green; the `drift` fixture installs the candidate guidance; the pre-change baseline round below is retained and inspected before delegation.
 
 Behavior: Given a retained reviewer return in which every commitment and list
 item has an id, when the coordinator runs the obligations check before a
@@ -205,6 +194,20 @@ slice's delivery, every id allocated to that slice has a recorded observation
 location or an obligation entry with a valid disposition, every id has an
 allocation, and a disposition quoting the plan is refused; delivery proceeds
 only then.
+
+Pre-change prerequisite, before this slice's delegation (developer-operated
+observation; question: does the current guidance reproduce the plan-scoped
+acceptance on the slice 1 fixture?). One round, Claude Code, the observed
+host, at the slice 1 candidate:
+`PATH="/opt/homebrew/bin:$PATH" delivery_evidence_only_scenario=narrowed native_case_deadline=300 native_case_grace=15 bash tests/git-publication-native.sh --native claude --case delivery-evidence/drift --results-dir <ROOT>`
+(without the `delivery_evidence_only_scenario` prefix the dispatcher also runs
+a paid `amended-corrected` attempt). The developer runs it because it is
+paid; retain host, command, attempt id, raw stream, product observation and
+acceptance outcome in this plan. Reproduction (accepted plan-scoped result, or
+detection without a retained comparison or gate) keeps this slice as planned;
+detection with a retained per-commitment comparison is non-reproduction: stop
+this slice and reassess this plan. An unavailable route or credential stays
+stopped with its owner.
 
 Edit `src/skills/` only. In `wrap-up.md` Accept proof: instruct the reviewer
 to number every commitment and each item of a listed compound commitment;
@@ -285,6 +288,23 @@ rollout is authorized.
 
 - Preparation: the plan reader folds any line after `Proof:` into the proof
   text, so slice entries are not the place for a commitments line.
+- Slice 1: guarded delivery marks the delivered slice `done`, so the paid
+  baseline round moved from slice 1's proof to slice 2's pre-change
+  prerequisite (it is the baseline slice 2's change invalidates); its
+  question, command and stop rule are unchanged.
+- Slice 1: `tests/git-publication-native.sh` has no scenario flag; the
+  `delivery_evidence_only_scenario=narrowed` environment prefix selects one
+  scenario (route confirmed by inspection, not executed).
+  `delivery_evidence_source_acceptance_prompt` now takes the slice number
+  (default 3, other families' prompts byte-identical); `drift` passes 4.
+- Slice 1 accepted proof (reusable while the harness files are unchanged):
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/delivery-evidence-drift.sh tests/delivery-evidence-native-routing.sh tests/native-evidence-identity.sh tests/delivery-evidence-terminal.sh tests/delivery-evidence-original.sh tests/delivery-evidence-release.sh tests/native-stream-replay.sh tests/proof-scheduling-native.sh tests/payload-declaration-links.sh`
+  passed quietly; observations are the assertions in
+  `tests/delivery-evidence-drift.sh` and
+  `run_delivery_evidence_drift_assessor_counterexamples`.
+- Execution start: the fresh source-only reviewer's return is retained at
+  [source-review.md](source-review.md) (ids S1–S26, X1–X6, A1–A5, K1–K7);
+  slice 2 gives it its linked record form.
 
 ## Plan concern review
 
