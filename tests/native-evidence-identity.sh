@@ -182,6 +182,40 @@ for index in "${!identity_writers[@]}"; do
   done
 done
 
+# The drift and amended families' rounds run the story-obligation gate; their
+# identities list the gate's scripts so a gate change marks the evidence stale,
+# and drift also lists the gate guidance it exercises. Families that do not run
+# the gate keep its scripts out of their identity.
+gate_scripts=(
+  src/skills/dough-execute-plan/scripts/story-obligations.mjs
+  src/skills/dough-execute-plan/scripts/story-obligation-reader.mjs
+  src/skills/dough-execute-plan/scripts/story-obligation-source-review.mjs
+)
+gate_guidance=src/skills/dough-execute-plan/references/story-obligations.md
+for index in "${!identity_writers[@]}"; do
+  case ${identity_writers[index]#* } in
+    'delivery_evidence_write_evidence_identity drift' | \
+      'delivery_evidence_write_evidence_identity amended') expected=true ;;
+    'delivery_evidence_write_evidence_identity '*) expected=false ;;
+    *) continue ;;
+  esac
+  for input in "${gate_scripts[@]}"; do
+    listed=false
+    ! lists_input "${identity_out}/baseline/${index}" "${input}" || listed=true
+    if [[ ${listed} != "${expected}" ]]; then
+      printf 'FAIL: evidence identity %s lists %s: %s, expected %s.\n' \
+        "${identity_writers[index]}" "${input}" "${listed}" "${expected}" >&2
+      identity_failures=1
+    fi
+  done
+  [[ ${identity_writers[index]#* } == *' drift' ]] || continue
+  if ! lists_input "${identity_out}/baseline/${index}" "${gate_guidance}"; then
+    printf 'FAIL: evidence identity %s omits %s, which its rounds exercise.\n' \
+      "${identity_writers[index]}" "${gate_guidance}" >&2
+    identity_failures=1
+  fi
+done
+
 # Every module a listed command imports or spawns, directly or transitively,
 # is listed too, so the per-input change check below covers what the command
 # runs.

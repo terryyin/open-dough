@@ -127,7 +127,7 @@ a link and is now a near-miss refusal; no source, test or fixture used it.
 
 ### 2. Drift evidence identity covers the gate it exercises
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/native-evidence-identity.sh`, `tests/delivery-evidence-native-routing.sh`, `tests/delivery-evidence-drift.sh` green with the added identity lines and captured inputs; existing families' identities unchanged.
 
 Behavior: Given the `drift` delivery-evidence case, when a native round is
@@ -135,6 +135,22 @@ retained, its evidence identity and `installed-inputs.sha256` include
 `story-obligations.mjs`, `story-obligation-reader.mjs`,
 `story-obligation-source-review.mjs` and `story-obligations.md`, so a later
 change to the gate marks the retained drift evidence stale. Tests only.
+
+Accepted proof: C18/C19 → `tests/support/delivery-evidence-native-evidence.sh`
+drift identity adds the `story-obligations.mjs` import closure (the three gate
+scripts and their imports; `story-obligations.md` was already listed), and
+`delivery_evidence_capture_installed_inputs host drift` adds the three scripts
+and `story-obligations.md`. Observed by `tests/native-evidence-identity.sh`
+`drift_gate_inputs` (drift lists them, other families except `amended`'s
+existing closure list none, each input change moves the drift hash) and
+`tests/delivery-evidence-native-routing.sh` (captured path diff for
+claude/codex × original/drift, then `shasum -c`); a reverted scratch copy fails
+both. Commands: the slice proof plus `tests/delivery-evidence-{amended,original,release,terminal}.sh`
+and `tests/proof-scheduling-native.sh` through `scripts/test.sh`, exit 0.
+Learning: every family's identity hash value changes because the edited
+harness files are themselves hashed, so recorded native-stream replay
+identities are stale for all families; replay does not check freshness, and no
+paid evidence was regenerated.
 
 ## Current decisions
 

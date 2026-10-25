@@ -67,6 +67,35 @@ for case_name in original terminal release drift aggregate; do
   fi
 done
 
+# Review families capture the installed guidance their round reads; drift
+# also captures the story-obligation gate it exercises, for either host root.
+for host in claude codex; do
+  installed_root='.claude/skills'
+  [[ ${host} == claude ]] || installed_root='.agents/skills'
+  for case_name in original drift; do
+    delivery_evidence_create_fixture "${case_name}" "${source_dir}" "${host}" \
+      narrowed "${root}" > "${root}/fixture.txt" 2>&1
+    delivery_evidence_capture_installed_inputs "${host}" "${case_name}"
+    expected_inputs=(
+      dough-execute-plan/references/delegation.md
+      dough-execute-plan/references/wrap-up.md
+      dough-story-refinement/references/executable-proof.md
+    )
+    [[ ${case_name} != drift ]] || expected_inputs+=(
+      dough-execute-plan/scripts/story-obligations.mjs
+      dough-execute-plan/scripts/story-obligation-reader.mjs
+      dough-execute-plan/scripts/story-obligation-source-review.mjs
+      dough-execute-plan/references/story-obligations.md
+    )
+    awk '{ print $2 }' "${delivery_evidence_root}/installed-inputs.sha256" \
+      > "${root}/captured-inputs"
+    printf '%s\n' "${expected_inputs[@]/#/${installed_root}/}" > "${root}/expected-inputs"
+    diff "${root}/expected-inputs" "${root}/captured-inputs"
+    (cd -- "${delivery_evidence_workspace}" \
+      && shasum -a 256 -c "${delivery_evidence_root}/installed-inputs.sha256") > /dev/null
+  done
+done
+
 # The amended family retains its fixture facts, final freshness and planning.
 delivery_evidence_create_fixture amended "${source_dir}" claude story-amended \
   "${root}" > "${root}/fixture.txt" 2>&1

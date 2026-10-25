@@ -14,15 +14,28 @@ delivery_evidence_requires_review() {
   esac
 }
 
+# Hashes the installed guidance HOST's round reads; the drift family also
+# exercises the story-obligation gate, so its scripts and guidance are captured.
 delivery_evidence_capture_installed_inputs() {
+  local host=$1 case_name=$2
   local installed_root='.agents/skills'
-  [[ $1 != claude ]] || installed_root='.claude/skills'
+  [[ ${host} != claude ]] || installed_root='.claude/skills'
+  local -a inputs=(
+    "${installed_root}/dough-execute-plan/references/delegation.md"
+    "${installed_root}/dough-execute-plan/references/wrap-up.md"
+    "${installed_root}/dough-story-refinement/references/executable-proof.md"
+  )
+  if [[ ${case_name} == drift ]]; then
+    inputs+=(
+      "${installed_root}/dough-execute-plan/scripts/story-obligations.mjs"
+      "${installed_root}/dough-execute-plan/scripts/story-obligation-reader.mjs"
+      "${installed_root}/dough-execute-plan/scripts/story-obligation-source-review.mjs"
+      "${installed_root}/dough-execute-plan/references/story-obligations.md"
+    )
+  fi
   (
     cd -- "${delivery_evidence_workspace}" || exit
-    shasum -a 256 \
-      "${installed_root}/dough-execute-plan/references/delegation.md" \
-      "${installed_root}/dough-execute-plan/references/wrap-up.md" \
-      "${installed_root}/dough-story-refinement/references/executable-proof.md"
+    shasum -a 256 "${inputs[@]}"
   ) > "${delivery_evidence_root}/installed-inputs.sha256"
 }
 
@@ -126,6 +139,8 @@ delivery_evidence_write_evidence_identity() {
       tests/fixtures/delivery-evidence/drift-implementation-return.md \
       tests/fixtures/delivery-evidence/drift-human-amendment.md \
       src/skills/dough-execute-plan/references/story-obligations.md
+    native_import_closure_input_hash_lines \
+      src/skills/dough-execute-plan/scripts/story-obligations.mjs
   fi
 }
 

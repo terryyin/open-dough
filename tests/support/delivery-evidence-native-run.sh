@@ -102,7 +102,7 @@ delivery_evidence_run_scenario() {
   delivery_evidence_create_fixture \
     "${case_name}" "${source_dir}" "${host}" "${scenario}" "${parent}"
   if delivery_evidence_requires_review "${case_name}"; then
-    delivery_evidence_capture_installed_inputs "${host}"
+    delivery_evidence_capture_installed_inputs "${host}" "${case_name}"
   fi
   prompt=$(
     set -e
