@@ -1,6 +1,6 @@
 # DearDough Process Findings
 
-Source maintenance on 2026-10-25 retained all newly collected evidence before shortening at Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/`. The complete pre-edit source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`; distinct executions, former codes and qualified provenance remain recoverable.
+Source maintenance on 2026-10-25 retained all newly collected evidence before shortening at Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/`. The complete pre-edit source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`; distinct executions, former codes and qualified provenance remain recoverable.
 
 
 Reviewed 2026-10-25 (Asia/Tokyo). Active shared-process findings only; released
@@ -168,7 +168,7 @@ A native acceptance replay constructs a fresh current-slice checkpoint instead o
 
 Former local code: DD-259.
 
-Focused consumer selection misses indirect callers, contract comparisons or prose consumers, so named proof can pass while owned CI or a wider suite finds the omitted effect. [Retained occurrences and response](docs/maintainer/findings/ODF-150.md). All distinct execution evidence is retained in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-150.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
+Focused consumer selection misses indirect callers, contract comparisons or prose consumers, so named proof can pass while owned CI or a wider suite finds the omitted effect. [Retained occurrences and response](docs/maintainer/findings/ODF-150.md). All distinct execution evidence is retained in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-150.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -272,7 +272,7 @@ Planning promises landing context for an unattached launch without observing tha
 
 Former local code: DD-288.
 
-A final native observation depends on a deployment or release path unavailable before landing; planning must distinguish the actual delivery prerequisite. [Retained occurrences and response](docs/maintainer/findings/ODF-238.md). All distinct execution evidence is retained in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-238.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
+A final native observation depends on a deployment or release path unavailable before landing; planning must distinguish the actual delivery prerequisite. [Retained occurrences and response](docs/maintainer/findings/ODF-238.md). All distinct execution evidence is retained in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-238.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 
@@ -457,7 +457,7 @@ Former local code: DD-329.
 
 A coordinator starts a no-op agent solely to stay active while real delegated work is pending, despite an existing waiting rule.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-325.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-325.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-325.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-325.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ## ODF-326 — A second source-only review repeated unchanged inputs
 
@@ -465,7 +465,7 @@ Former local code: DD-331.
 
 The mandatory per-slice source-only review repeats unchanged inputs; available repeat and reuse observations do not settle its marginal benefit or independence.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-326.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-326.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-326.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-326.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
 
@@ -473,7 +473,7 @@ Former local code: DD-332.
 
 Preparation schedules evaluation criteria as later execution while the observed event can start first, making the resulting assessment exploratory.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-327.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-327.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-327.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-327.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ## ODF-328 — A fresh delivery refused the obligation its own plan update would close
 
@@ -481,7 +481,7 @@ Former local code: DD-333.
 
 A coordinator leaves an obligation disposition for a plan update that guarded delivery runs only after its obligation check; the existing gate correctly refuses.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-328.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-328.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-328.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-328.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 
@@ -489,7 +489,7 @@ Former local code: DD-334.
 
 Delegation forbids the hook-owned lint command without settling a read-only check of authored files, so coordinator formatting first exposes lint defects after refactoring.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-329.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-329.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-329.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-329.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -497,4 +497,4 @@ Former local code: DD-335.
 
 A hand-built owned-path list trims significant porcelain status spacing and corrupts a path; the input guard contains the mistake before project commands.
 
-[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
