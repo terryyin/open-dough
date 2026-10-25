@@ -149,6 +149,35 @@ unchanged-accepted, fabricated-amendment and comparison-free reviews. The
 request names source, plan and return only; inspect the retained product
 observation, per-commitment comparison and acceptance/obligation state yourself.
 
+`--case delivery-evidence/amended` replays [ODF-354](../docs/maintainer/findings/ODF-354.md):
+a coordinator delivering slice 3 of a Taken Story Branch execution after
+trunk moved past the Take. The workspace is the owned execution checkout on
+`exec/export-readings`, published with its trunk to a bare origin; another
+writer's clone pushes the scenario's trunk commits. `story-amended` adds a
+Decision-binding promise and example to the story section and a slice to the
+plan, `plan-amended` tightens a planned slice's proof, `unrelated-advance`
+edits a sibling story and adds a release and a trunk-only file, and `conflict`
+rewrites done slice 2. The request, execution state and commit messages name
+none of it; the request stops before staging. The assessor reads the
+agent's own `source-freshness.mjs` results from the stream, the result
+named in the final response ("amendment" names `amended`), each record's
+branch copy against origin's Take and trunk texts, the candidate's check of
+the final workspace, plan statuses and obligations, trunk content on the
+branch, origin trunk before and after, and an `awaiting story review` stop
+naming the plan and trunk revision. `tests/delivery-evidence-amended.sh`
+proves each fixture's premise through the installed check, observes
+controlled sequences and an unnoticed baseline, and rejects a silent
+whole-trunk merge, overwritten statuses, absorption without a disposition, an
+auto-resolved conflict and a false `unchanged`. Select one scenario with
+`delivery_evidence_only_scenario=<scenario>`; a baseline round installs a
+named revision's payload with `delivery_evidence_payload_revision=<revision>`,
+which the observations record as `payload`, for example:
+
+```sh
+delivery_evidence_only_scenario=story-amended delivery_evidence_payload_revision=7fb2bf98 \
+  tests/git-publication-native.sh --native claude --case delivery-evidence/amended --results-dir DIR
+```
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

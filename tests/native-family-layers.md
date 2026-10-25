@@ -40,11 +40,13 @@ Current families, each `<family>-native-<layer>` in `tests/support`:
 - story-branch-closure and trunk-closure: `-fixture`, `-observe`, `-assess`,
   `-counterexamples`, `-run`; trunk-closure's fixture also sources `-arming`.
 - ci-completion: `-fixture`, `-observe`, `-assess`, `-counterexamples`, `-run`.
-- delivery-evidence (selection, claims, consumers, gaps, aggregate, nostore, deferred, original,
-  terminal, release, drift, scheduling): shared `delivery-evidence-native-run.sh`, with the cases and
-  their scenarios registered once in `delivery-evidence-native-cases.sh`; each
-  case has `-scenario-content`, `-observe` and `-assess`, with counterexamples
-  inside the assessor file, and an optional `-checks`. Scheduling exercises a
+- delivery-evidence (selection, claims, consumers, gaps, aggregate, nostore,
+  deferred, original, terminal, release, drift, scheduling, amended): shared
+  `delivery-evidence-native-run.sh`, with the cases and their scenarios
+  registered once in `delivery-evidence-native-cases.sh`; each case has
+  `-scenario-content`, `-observe` and `-assess`, with counterexamples inside
+  the assessor file, and an optional `-checks`. Amended's scenario content
+  sources each delivered stage's product from `-product-content`. Scheduling exercises a
   stylesheet change (`-stylesheet-content`, with the rendering modules and
   tests in `-library-content`) whose extraction invalidates a whole-suite run,
   as planless work and as slice 1 of an executable plan: its product commands

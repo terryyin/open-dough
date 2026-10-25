@@ -35,13 +35,22 @@ export {
 export const trunkTarget = "refs/heads/main";
 export const executionBranch = "exec/story";
 
+// A script's exit code and what it printed, run in `env`.
+export const runScriptIn = (env, script, ...args) =>
+  new Promise((resolve) => {
+    execFile(
+      process.execPath,
+      [script, ...args],
+      { env },
+      (error, stdout, stderr) => {
+        resolve({ code: error?.code ?? 0, stdout, stderr });
+      },
+    );
+  });
+
 // A script's exit code and what it printed.
 export const runScript = (script, ...args) =>
-  new Promise((resolve) => {
-    execFile(process.execPath, [script, ...args], (error, stdout, stderr) => {
-      resolve({ code: error?.code ?? 0, stdout, stderr });
-    });
-  });
+  runScriptIn(process.env, script, ...args);
 
 const integrationCli = fileURLToPath(
   new URL(

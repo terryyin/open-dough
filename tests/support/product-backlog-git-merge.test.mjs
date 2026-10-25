@@ -122,10 +122,10 @@ test("merge stops the historical clean-duplicate case a plain text merge lets th
   const repo = scratchRepo(t, ancestor);
   const acbd = backlogOf([], [itemA, itemC, itemB, itemD]);
   const acdb = backlogOf([], [itemA, itemC, itemD, itemB]);
-  commitBranch(repo, "acbd", acbd);
-  commitBranch(repo, "acdb", acdb);
+  commitBranch(repo, "order-acbd", acbd);
+  commitBranch(repo, "order-acdb", acdb);
 
-  const text = await textMerge(repo, "main", "acbd", "acdb");
+  const text = await textMerge(repo, "main", "order-acbd", "order-acdb");
   assert.equal(
     text.conflicts,
     0,
@@ -137,8 +137,8 @@ test("merge stops the historical clean-duplicate case a plain text merge lets th
     "a text merge silently duplicated the moved entry",
   );
 
-  checkout(repo, "acbd");
-  const merged = await run(repo, ["merge", "--ref", "acdb"]);
+  checkout(repo, "order-acbd");
+  const merged = await run(repo, ["merge", "--ref", "order-acdb"]);
 
   assert.equal(merged.code, 1);
   assert.equal(isMidMerge(repo), true);

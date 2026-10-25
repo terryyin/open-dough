@@ -1,0 +1,11 @@
+Slice 3's delivery is prepared right up to the commit. Nothing is staged, committed or pushed, slice 3 is still `planned`, and slice 4 is untouched.
+
+**What happened**
+- **Trunk changed the story and plan after the Take.** The freshness check returned `amended`. At `3cda906`, the developer added a decision: moisture is written with exactly one decimal place, and a missing value exports an empty cell. They also added key example 4 and a new slice 5 to deliver it. I pulled that change word for word into the working tree (the seed and `PLAN.md`). A re-check now reports `unchanged`.
+- **I checked slice 3's proof against the new decision.** Slice 3's own promise (example 3 and the unfiltered output) still holds. But the command currently prints `0.31` and would print `undefined` for a missing value, and `tests/cli.test.mjs` asserts `0.31`. That contradicts the new decision. Slice 5 already owns that behavior and its proof runs through `bin/export.mjs`, so I logged the gap in the plan's `## Story obligations` as **G1, assigned to slice 5**. I also added a learning that slice 5 must change the cli test's expectations to `0.3`.
+- **Plan evidence:** I recorded slice 3's accepted proof in the plan. The story-obligations check for slice 3 passes (`ok`, 1 entry). The full suite passes, 4 of 4. There's no generator or formatter, so formatting was a no-op.
+- **Commit inputs are ready but not used:** the delivery settings file and commit message are in `/tmp/slice3-delivery.itIl/`. They name these files to stage: `bin/export.mjs`, `tests/cli.test.mjs`, `PLAN.md` and the seed. `.planning/slice-3-proof.md` stays out of the commit because its proof now lives in the plan. I also updated the git-ignored `.planning/execution-state.txt` to match.
+
+**Where I stopped and why:** I stopped just before the guarded fresh delivery command (`execution-increment-delivery.mjs fresh`). That command stages the files, marks slice 3 `done`, commits and pushes, and you asked me not to do any of those.
+
+Before you commit, decide whether you're fine with slice 3 shipping a test that pins `0.31` until slice 5 fixes it. The alternative is to move the moisture formatting into slice 3 now, which would change your plan's slice order.

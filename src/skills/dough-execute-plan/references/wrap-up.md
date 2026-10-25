@@ -196,6 +196,10 @@ and retain its receipt. Existing candidates use retained candidate/base recovery
    remaining slices under
    [plan refinement](../../dough-story-refinement/references/planning.md#refine-the-active-plan);
    guarded fresh delivery marks the selected slice `done` itself.
+   In Story Branch Mode, before the obligations check below, run
+   `node '<installed-execute-plan>/scripts/source-freshness.mjs' check --workspace '<execution checkout>' --identity '<identity>' --remote '<authorized remote>' --target-ref 'refs/heads/<trunk>'`;
+   continue on `unchanged`, and handle any other result under
+   [source freshness](source-freshness.md).
    Before marking the slice done or committing, run the installed
    [story-obligations script](../scripts/story-obligations.mjs):
    `node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --slice N`.

@@ -235,193 +235,27 @@ or blocked before its first acceptance.
 [correction plan](../slice-plans/356-source-review-record-lifecycle/PLAN.md)
 holds the findings, preserved promises and proof. No new feature promise.
 
-<a id="refresh-human-amendments-before-completion"></a>
+<a id="source-freshness-for-planless-and-reamended-work"></a>
 
-### Keep human amendments visible before Story Branch completion
+### Check every Story Branch source for freshness without false stops
 
-**Identity:** SEED-010#refresh-human-amendments-before-completion
+**Identity:** SEED-010#source-freshness-for-planless-and-reamended-work
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/355-refresh-human-amendments-before-completion/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"959458c1ff27279e69f3f1970333d1bae78a7c4516bbf30a78d6f3558338919d","plan":"f4844b9aa047685cd32706ef605b3c476bd4ec488fe5974c16ba564db452e8df"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/357-source-freshness-for-planless-and-reamended-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86c7df5f2baa4044122270bb4069e0b7e92bb8520eceee24f34b5cc98ddd61fc","plan":"0534c14a75bcff4d7e13b94af3e88e4c612e6ee47f89b7c0a1bc8d36e1578385"}}
 ```
 
-Refined 2026-10-25 from [ODF-354](../../docs/maintainer/findings/ODF-354.md)
-(Pygardon plan 411: the owner amended the Taken story and its plan on `main`
-at `4e5551fb6` while execution ran on its story branch; nothing compared the
-branch's copy with trunk until closure integration conflicted, after which a
-closure commit was reverted and a semantic merge and three more slices
-followed) and the current Story Branch contract: the Take publishes the claim
-on trunk and an execution branch at that Take
-([Take or admit work](../../src/skills/dough-execute-plan/SKILL.md#take-or-admit-work));
-every increment pushes only to the remote execution branch
-([publish an execution increment](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair));
-slice acceptance, the story-obligations checks and the execution-complete
-record read the branch's copy of the story section and plan; wrap-up deletes
-that copy; and trunk is read again only at
-[Story Branch integration](../../src/skills/dough-story-wrap-up/references/story-branch-integration.md).
-A fresh source-only review of the stale branch copy cannot see the amendment.
+**Goal:** A Story Branch coordinator executing a quick story, a plan-homed
+correction or context-only work passes the source-freshness gates with the
+right comparison instead of stopping on an uncorrectable refusal, and a later
+trunk amendment to text already absorbed reads as an amendment rather than a
+conflict, with a route back to `unchanged` after the developer decides a
+genuine conflict.
 
-**Goal:** A developer who amends a Taken story section or its plan on trunk
-during Story Branch execution has the amended text in front of the execution
-coordinator at the next slice delivery, before the execution-complete record
-and before wrap-up deletes the copy, while it is still cheap to absorb. A clean
-amendment becomes the source the remaining work is accepted against; a
-conflicting one is named and left with the human while independent delivered
-work stays. The human's amendment is a Jidoka-style intervention that
-execution notices in time, not a merge surprise at closure.
-
-**Scope:**
-
-Required behavior:
-
-- One freshness check of two records, the selected story section and the
-  active plan: it fetches the authorized remote trunk and compares trunk's
-  current text of those records with the execution branch's copy, using the
-  Take's published revision as the common base. Existing Git (fetch and a
-  three-way comparison) and the existing canonical records (the seed section
-  by its anchor, the plan by the Taken entry's link) are its only inputs.
-- Three results: `unchanged` (trunk's two records equal the base),
-  `amended` (trunk changed them and the change applies cleanly over the
-  branch's own plan edits) and `conflict` (trunk's change and the branch's
-  edits touch the same text, or the amendment removes or rewrites a slice the
-  branch already marked done). Every result names the records compared and
-  the trunk revision read; a changed result carries the changed text.
-- In Story Branch Mode the check gates three existing boundaries: the slice's
-  plan update and story-obligations check in
-  [Deliver the change](../../src/skills/dough-execute-plan/references/wrap-up.md#deliver-the-change)
-  step 5, the
-  [execution-complete record](../../src/skills/dough-execute-plan/references/finish-or-stop.md#record-execution-completion),
-  and wrap-up's
-  [deletion of spent history](../../src/skills/dough-story-wrap-up/SKILL.md#delete-spent-history-including-shared-records).
-  Each slice boundary is included because ODF-354's cost came from
-  discovering the amendment after the slices it affected were accepted.
-- On `amended`, the coordinator reads the changed text, absorbs it into the
-  branch's copy of the same two records as part of that increment's commit,
-  preserving the author's text word for word, and applies the amended source
-  through the existing acceptance rules: a new or changed promise is a
-  returned commitment or receives a named remaining slice, an amended
-  exclusion settles an obligation with its quote, and an added slice becomes
-  remaining work under
-  [plan refinement](../../src/skills/dough-story-refinement/references/planning.md#refine-the-active-plan).
-  The gate accepts the boundary only once the branch copy matches trunk's
-  text for those records.
-- On `conflict`, the coordinator names the conflict with both texts and the
-  trunk revision, delivers nothing that depends on it, and stops at the safe
-  delivery boundary under
-  [human judgment](../../src/skills/dough-execute-plan/references/execution-decisions.md#stop-for-human-judgment)
-  with `awaiting story review`; independently delivered slices and their
-  accepted proof stay, and nothing is written to trunk.
-- A controlled replay of the ODF-354 shape (story and plan amended on trunk
-  after the Take), a plan-only amendment, an unchanged source under unrelated
-  trunk advance, and a conflicting amendment, credential-free first and then
-  representative native rounds, developer-run, under ADR 0005.
-- Completion records at ODF-354 the response revision, the containing release
-  (pending unless evidenced), the replay outcomes per host with their limits,
-  the added burden per boundary (one fetch and one comparison), the first
-  ordinary-use criterion (the first Story Branch execution after adoption
-  whose selected story section or plan is amended on remote trunk after its
-  Take), and the avoided late repair it is judged against under ADR 0010,
-  with no effectiveness or saving claim.
-
-Rejection constraints:
-
-- The check never overwrites. The branch copy changes only by a clean
-  application of trunk's text, the check writes nothing to trunk, and a
-  conflict is resolved by a person.
-  [Accept proof](../../src/skills/dough-execute-plan/references/wrap-up.md#accept-proof)
-  records that the source and human amendments outrank plan and return, and
-  [planning](../../src/skills/dough-story-refinement/references/planning.md)
-  that a plan does not decide story scope; an automatic resolution would
-  decide scope.
-- The check compares the selected story section and the active plan only and
-  merges no other trunk content into the execution branch. Story Branch Mode
-  publishes increments to the execution branch and integrates once at closure
-  ([publish an execution increment](../../src/skills/dough-execute-plan/references/trunk-publication.md#publish-an-execution-increment-or-repair)),
-  so a whole-trunk merge would change the mode.
-- No second authority store. Trunk's canonical home stays the authority; the
-  branch copy and the plan's existing obligation records hold the absorbed
-  amendment.
-  [Record preparation facts](../../src/skills/dough-product-backlog/references/record-preparation.md)
-  forbids a parallel state file and
-  [story obligations](../../src/skills/dough-execute-plan/references/story-obligations.md)
-  a second promise registry.
-- The developer's default checkout, its branch and working tree, is not
-  touched: the check reads fetched remote refs, as
-  [preserve pending local work](../../src/skills/dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work)
-  requires.
-
-Deferred promises, not built or verified here: Trunk Mode, whose increment
-publication rebases the owned suffix onto fetched trunk so an amendment
-arrives at the next increment, and whose own gap, if any, is a separate
-observation; amendments the developer has not published to remote trunk
-(uncommitted edits or commits on a local branch); amendments to other records
-(sibling stories, ADRs, `DearDough.md`, product code); notifying the developer
-when they amend; a semantic drift detector beyond the textual comparison and
-the existing acceptance rules; rerunning the source-only review for process
-alone; release or cross-project rollout; any compliance or rate claim.
-
-Boundary assumptions: the executing coordinator reads and judges the result;
-the Take's published revision is the base; amendments are commits on the
-remote trunk; the story section is addressable by its anchor and the plan by
-the Taken entry's link; one fetch and comparison per boundary is a
-proportionate burden under ADR 0010; native rounds are paid and developer-run.
-
-**Key examples:**
-
-1. *Story and plan amended after the Take (ODF-354 replay).* A Taken Story
-   Branch is delivering slice 3; the developer commits on trunk a new
-   Decision-binding promise and example 11 in the story section and a new
-   slice 9 in the plan → slice 3's delivery reaches the freshness gate →
-   `amended` with the changed text; the coordinator absorbs it into the
-   branch copy, dispositions the new promise as receiving slice 9, or as a
-   return when slice 3's output already owes it, and continues; the
-   execution-complete record later requires slice 9 done.
-2. *Plan-only amendment.* The developer tightens slice 6's proof wording on
-   trunk while slice 4 is in progress and the branch has marked slices 1–3
-   done → the gate at slice 4 → `amended`; the base-to-trunk change applies
-   over the branch's status edits; slice 6 carries the new proof; no story
-   text changed and no obligation is created.
-3. *Unchanged source under unrelated trunk advance.* Trunk gained two other
-   stories' closures, a release and an edit to a sibling story in the same
-   seed → the gate → `unchanged` for the selected section and plan; nothing
-   is merged; delivery continues with only the fetch and comparison added.
-4. *Conflict.* The developer rewrote slice 2's behavior on trunk after the
-   branch marked slice 2 done and recorded its proof → the gate → `conflict`
-   naming slice 2, both texts and the trunk revision; the coordinator stops
-   at the delivery boundary with `awaiting story review`; delivered slices
-   stay; the developer decides whether to keep the delivered behavior, reopen
-   slice 2 or amend again; after the decision the gate reruns and passes.
-5. *Late amendment before the execution-complete record.* Every slice is
-   done; the developer amended the story on trunk during the last slice's
-   CI wait → the execution-complete gate → `amended`; the record is not
-   written until the amendment is absorbed and its promise has a disposition,
-   which may reopen remaining work; wrap-up then finds `unchanged` and
-   deletes.
-6. *Amendment between completion and deletion.* The developer amends the
-   plan on trunk after the execution-complete record is published → wrap-up's
-   deletion gate → `amended`; wrap-up deletes nothing, the coordinator
-   absorbs the amendment and settles its promises under execution's rules,
-   including moving the execution-complete record when work reopens, then
-   re-enters wrap-up, which finds `unchanged`; closure neither reverts nor
-   merges by hand.
-7. *Baseline comparison.* Under the current guidance the ODF-354 replay is
-   run once on the observed host: it reproduces integration conflicts in the
-   seed and plan at closure, or records non-reproduction, which stops the
-   dependent remedy and reassesses the plan.
-8. *Completion record.* ODF-354 gains the assessment, the response revision,
-   the replay outcomes per host with limits, the burden per boundary, the
-   release state and the first-use criterion; it claims no effectiveness.
-
-**Architecture:** No new concept. The start already reads the selected
-published source from fetched trunk and refuses a resumed claim whose source
-changed since its retained basis
-([execution-start-source](../../src/skills/dough-execute-plan/scripts/execution-start-source.mjs));
-the change gives that comparison a boundary command with the base above and
-extends the existing delivery, completion and deletion gates to its result.
-Published guidance and script edits live in `src/skills/dough-execute-plan/`
-and `src/skills/dough-story-wrap-up/` under [AGENTS.md](../../AGENTS.md); ADR
-0003 (release lifecycle), ADR 0005 (native proof per tool), ADR 0006
-(executing-agent audience) and ADR 0010 (improvement judged against a stated
-baseline) apply; no ADR exception or North Star topic is needed.
+**Scope:** Retrospective correction of
+SEED-010#refresh-human-amendments-before-completion (plan 355, recoverable at
+`a7a31a704c67bb36c9b77f1919ac63b77fcc445e:.planning/slice-plans/355-refresh-human-amendments-before-completion/PLAN.md`); the
+[correction plan](../slice-plans/357-source-freshness-for-planless-and-reamended-work/PLAN.md)
+holds the findings, preserved promises and proof. No new feature promise.
 
 <a id="pending-lifecycle-validation-obligations"></a>
 

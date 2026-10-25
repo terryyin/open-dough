@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 343. Removed numbers are never reused.
+- Highest allocated local number: 346. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -28,6 +28,15 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Concrete only-caller and host-state premises enter a plan without inspection, forcing a changed decision or stopped implementation when checked. [Evidence and current response](docs/maintainer/findings/ODF-074.md).
 
 Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-074.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
+  - Timestamp: unknown (planned and executed 2026-10-25)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72 (installed); response under execution unreleased
+  - Evidence: plan 355 boundary assumption "the plan by the Taken entry's link"; gates added unconditionally "In Story Branch Mode" in `wrap-up.md` step 5, `finish-or-stop.md` and `dough-story-wrap-up/SKILL.md` (`8582e559`); `source-freshness.mjs` refuses `no-plan-link`, while `product-backlog-take.mjs` gives quick stories and plan-homed corrections no plan link; found by the execution retrospective's outcome review
+  - Observed effect: The only-caller premise that every Story Branch source links a plan went uninspected through planning, slice 2's behavior review and four slices; the gates would stop plan-homed corrections and quick Story Branch wrap-ups, and a follow-up correction was planned.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -459,3 +468,44 @@ Plan 354 put its paid baseline round in slice 1's proof and made slice 2 depend 
   - Evidence: plan 354 Learnings ("guarded delivery marks the delivered slice `done`"); `fresh-increment.md` `plan` field; commit d9b6b835
   - Observed effect: one plan edit at delivery and an extra handoff to the developer; no proof was lost.
   - Inference: slice planning could place a developer-operated baseline as the dependent slice's pre-change prerequisite from the start.
+
+## DD-344 — A new installed command assumed a writable system temp directory that host sandboxes refuse
+
+A command added for coordinators to run (`source-freshness.mjs`) made its scratch directory with `mkdtemp(os.tmpdir())`. Every credential-free proof ran unsandboxed, so the first paid Codex round found that its workspace-only sandbox refuses the system temp directory and `/tmp`; the round failed and a fix plus a retry followed.
+
+### Occurrences
+- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
+  - Timestamp: 2026-10-25T13:39:53Z
+  - Tool: Claude Code (coordinator); Codex (failing native round)
+  - Model: claude-opus-5-5 (coordinator)
+  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
+  - Evidence: `tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T133952-0d3e` (two `EPERM` mkdtemp refusals, then a `TMPDIR` workaround); plan 355 story obligation G1; fix `2b46202c` with the unwritable-`TMPDIR` test in `source-freshness.test.mjs`
+  - Observed effect: One paid round failed, one retry was spent, and the command needed a fix after its slice was accepted.
+  - Inference: An unwritable-`TMPDIR` case in the slice's focused proof, or keeping scratch inside the repository by default, would have caught this before paid rounds.
+
+## DD-345 — A native assessor required a literal result word where the plan declared a named signal
+
+The new `delivery-evidence/amended` assessor required the literal word `amended` in the final response, while the plan declared `surfaced` as the result named in the stream. Codex wrote "the absorbed trunk amendment" and failed on wording alone after correct behavior; the observer was corrected afterwards to a word-stem rule with paraphrase and unnamed-response controls.
+
+### Occurrences
+- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
+  - Timestamp: 2026-10-25T13:57:00Z
+  - Tool: Claude Code (coordinator); Codex (native round)
+  - Model: claude-opus-5-5 (coordinator)
+  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
+  - Evidence: `tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T135700-1825` (`corrected: response-names amended`); `ea8fa390` observer change and controls in `tests/delivery-evidence-amended.sh`; ODF-354 "Delivered response"
+  - Observed effect: A behaviorally correct round was recorded as failed and the assessor was changed after seeing results, which then needed open disclosure in the finding.
+  - Inference: Paraphrase controls derived from the declared signal, written before paid rounds, would have avoided the post-hoc correction.
+
+## DD-346 — A CI repair was diagnosed in a scratch worktree while paid rounds read the execution checkout
+
+Practice. A CI failure arrived just after paid native rounds started installing the candidate payload from the execution checkout's working tree. The repair was diagnosed and proved in a detached scratch worktree, and its patch was applied and published only after the rounds finished, so the rounds' payload matched the published candidate.
+
+### Occurrences
+- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
+  - Timestamp: 2026-10-25T13:31:00Z
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
+  - Evidence: CI run 40196634857; repair `8d98af81`; rounds under the plan 355 slice 4 acceptance evidence
+  - Observed effect: No paid round ran on an unpublished mixed payload, and the repair still went through the ordinary pause-free delivery.

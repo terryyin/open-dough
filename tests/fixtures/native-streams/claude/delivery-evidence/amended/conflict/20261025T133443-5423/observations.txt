@@ -1,0 +1,20 @@
+scenario: conflict
+payload: candidate
+check-ran: true
+absorb-ran: false
+check-results: conflict
+response-names: unchanged conflict
+story-copy: trunk
+final-story: unchanged
+final-plan: conflict
+plan-statuses: 1:done 2:done 3:planned 4:planned
+done-statuses-kept: true
+obligations: none
+amendment-disposition: false
+awaiting-story-review: true
+conflict-named: true
+trunk-tip-merged: false
+trunk-only-file-on-branch: false
+origin-trunk-before: 761a91af73c1acc65f71e9abf359019d5e237ce9
+origin-trunk-after: 761a91af73c1acc65f71e9abf359019d5e237ce9
+harness-inspected: false

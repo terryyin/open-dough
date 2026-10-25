@@ -9,7 +9,7 @@
 # shellcheck disable=SC2034,SC2154,SC2312
 
 delivery_evidence_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-for delivery_evidence_part in native-cases promise-status native-evidence native-prompt; do
+for delivery_evidence_part in native-cases promise-status native-evidence native-prompt native-payload; do
   # shellcheck disable=SC1090,SC1091
   source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_part}.sh"
 done
@@ -62,7 +62,8 @@ delivery_evidence_create_fixture() {
   local scenario=$4
   local parent=$5
   local root workspace
-  root=$(mktemp -d "${parent}/de${case_name}.XXXXXX")
+  # A neutral name: the agent sees this path, which must not name the case.
+  root=$(mktemp -d "${parent}/de.XXXXXX")
   workspace="${root}/workspace"
   mkdir -p -- "${workspace}"
   delivery_evidence_root=${root}
@@ -70,8 +71,7 @@ delivery_evidence_create_fixture() {
 
   git init -b main "${workspace}" > /dev/null
   "delivery_evidence_${case_name}_populate_fixture" "${workspace}" "${scenario}"
-  bash "${source_dir}/install.sh" --target "${workspace}" \
-    --source "${source_dir}" --platform "${host}" > /dev/null
+  delivery_evidence_install_payload "${source_dir}" "${workspace}" "${host}"
 }
 
 delivery_evidence_cleanup() {
@@ -186,7 +186,8 @@ delivery_evidence_run_scenario() {
   [[ ${git_publication_assess_status} == pass ]]
 }
 
-# delivery_evidence_only_scenario, when set, runs only that scenario of the case.
+# delivery_evidence_only_scenario, when set, runs only that scenario of the case;
+# delivery_evidence_payload_revision, when set, installs that revision's payload.
 delivery_evidence_run_journey() {
   local case_name=$1 source_dir=$2 host=$3 results_dir=$4
   local root outstanding=0 scenario
@@ -199,6 +200,12 @@ delivery_evidence_run_journey() {
       return 2
     fi
     delivery_evidence_scenarios=${delivery_evidence_only_scenario}
+  fi
+  # shellcheck disable=SC2310
+  if ! delivery_evidence_installed_payload "${source_dir}" > /dev/null; then
+    printf 'error: delivery_evidence_payload_revision %s is not a commit of %s\n' \
+      "${delivery_evidence_payload_revision}" "${source_dir}" >&2
+    return 2
   fi
   root=$(mktemp -d)
   # shellcheck disable=SC2064

@@ -62,6 +62,22 @@ test("rejecting project hook and Git refusal retain HEAD and staged recovery wit
   assert.equal(readFileSync(f.hookLog, "utf8"), "commit\ncommit\n");
 });
 
+test("a project hook that rejects before Git reads the message reports commit-failed instead of crashing", async (t) => {
+  const f = await localFixture(t);
+  writeFileSync(
+    f.hook,
+    `#!/bin/sh\nprintf 'commit\\n' >> '${f.hookLog}'\nexit 1\n`,
+    { mode: 0o755 },
+  );
+  // Larger than a pipe buffer, so Git exits before the whole message is sent.
+  const attempt = await f.fresh(f.preparation, {
+    commitMessage: `Guarded work\n\n${"unread message body\n".repeat(1 << 14)}`,
+  });
+  assert.equal(attempt.result.status, "commit-failed");
+  assert.equal(attempt.result.operation, "commit");
+  await f.withheld({ hookCalled: true });
+});
+
 test("failed preparation repair reruns the required operation and never needs a fabricated plan", async (t) => {
   const f = await localFixture(t);
   f.preparation.formatting = f.logged(

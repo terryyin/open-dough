@@ -3,7 +3,8 @@
 // developer is credited once beside existing co-authors, and the checkout's
 // own Git hooks still run.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 import {
   agentCommit,
@@ -100,6 +101,30 @@ test("guided work commit is refused and commits nothing when the committer is th
     "developer-identity-refused",
   );
   assert.match(result.receipt.error, /agent's own/);
+});
+
+test("guided work commit reports commit-failed when a hook rejects before Git reads the message", async (t) => {
+  const { workspace } = await takenWorkspace(t);
+  await stageWork(workspace, "slice.txt");
+  const common = (
+    await git(
+      workspace,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-common-dir",
+    )
+  ).stdout.trim();
+  writeFileSync(join(common, "hooks", "pre-commit"), "#!/bin/sh\nexit 1\n", {
+    mode: 0o755,
+  });
+  const before = await head(workspace);
+  // Larger than a pipe buffer, so Git exits before the whole message is sent.
+  const result = await agentCommit(
+    workspace,
+    ["-F", "-"],
+    `Slice work\n\n${"unread message body\n".repeat(1 << 14)}`,
+  );
+  await assertNothingCommitted(workspace, before, result, "commit-failed");
 });
 
 test("guided work commit is refused and commits nothing in a checkout that names no agent", async (t) => {

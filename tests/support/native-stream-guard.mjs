@@ -46,6 +46,10 @@ const shapeWriters = new Map([
     "builds Claude prose, started command and result shapes for reader checks",
   ],
   [
+    "tests/delivery-evidence-amended.sh",
+    "writes Claude started commands and their results for controlled sequences",
+  ],
+  [
     "tests/support/native-agent-admission.sh",
     "substitute agent writing admission streams per host",
   ],

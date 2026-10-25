@@ -1,0 +1,11 @@
+# reviewed: candidate d92d301d; stream ends with its result event; the 6 commands match command-results.jsonl, 3 source-freshness calls with check-results amended unchanged.
+source: /Users/terryyin/.claude/jobs/df81de0a/tmp/slice4-results/candidate-cursor-story-amended/cursor/delivery-evidence/amended/story-amended/20261025T134351-6093/events.jsonl
+stream-status: complete
+response: present
+last-start-line: 547
+command: "git status && git diff --stat && git log -5 --oneline && ls -la bin/ tests/ 2>/dev/null; head -n 5 AGENTS.md"
+command: "node '.claude/skills/dough-execute-plan/scripts/source-freshness.mjs' check --workspace '/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.BPuIcROARr/de.8uWAcv/workspace' --identity 'SEED-042#export-readings' --remote 'origin' --target-ref 'refs/heads/main'"
+command: "node '.claude/skills/dough-execute-plan/scripts/source-freshness.mjs' absorb --workspace '/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.BPuIcROARr/de.8uWAcv/workspace' --identity 'SEED-042#export-readings' --remote 'origin' --target-ref 'refs/heads/main'"
+command: "node '.claude/skills/dough-execute-plan/scripts/source-freshness.mjs' check --workspace '/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.BPuIcROARr/de.8uWAcv/workspace' --identity 'SEED-042#export-readings' --remote 'origin' --target-ref 'refs/heads/main' && node '.claude/skills/dough-execute-plan/scripts/story-obligations.mjs' check --plan '.planning/slice-plans/007-export-readings/PLAN.md' --slice 3 && node '.claude/skills/dough-execute-plan/scripts/story-obligations.mjs' list --plan '.planning/slice-plans/007-export-readings/PLAN.md' --slice 3"
+command: "node '.claude/skills/dough-execute-plan/scripts/story-obligations.mjs' check --plan '.planning/slice-plans/007-export-readings/PLAN.md' --slice 3; echo exit:$?; node '.claude/skills/dough-execute-plan/scripts/story-obligations.mjs' list --plan '.planning/slice-plans/007-export-readings/PLAN.md' --slice 3"
+command: "git status && git diff --stat HEAD && git diff --stat -- .planning/"

@@ -2,6 +2,10 @@
 # Evidence identity and retained review artifacts for delivery-evidence journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
+# shellcheck source=tests/support/native-import-closure.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-import-closure.sh"
+
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
   case $1 in
@@ -39,6 +43,7 @@ delivery_evidence_write_evidence_identity() {
     tests/support/delivery-evidence-native-cases.sh \
     tests/support/delivery-evidence-native-prompt.sh \
     tests/support/delivery-evidence-native-evidence.sh \
+    tests/support/delivery-evidence-native-payload.sh \
     tests/support/native-observation.sh \
     "${case_prefix}-assess.sh" \
     "${case_prefix}-observe.sh" \
@@ -89,6 +94,20 @@ delivery_evidence_write_evidence_identity() {
       tests/fixtures/delivery-evidence/terminal-human-amendment.md \
       tests/support/delivery-evidence-original-native-assess.sh \
       src/skills/dough-execute-plan/references/story-obligations.md
+  fi
+  if [[ ${case_name} == amended ]]; then
+    native_result_input_hash_lines \
+      tests/fixtures/delivery-evidence/amended-backlog.md \
+      tests/fixtures/delivery-evidence/amended-seed.md \
+      tests/fixtures/delivery-evidence/amended-plan.md \
+      "${case_prefix}-product-content.sh" \
+      tests/support/native-host-stream.sh \
+      src/skills/dough-execute-plan/references/source-freshness.md \
+      src/skills/dough-execute-plan/references/story-obligations.md \
+      src/skills/dough-execute-plan/references/finish-or-stop.md
+    native_import_closure_input_hash_lines \
+      src/skills/dough-execute-plan/scripts/source-freshness.mjs \
+      src/skills/dough-execute-plan/scripts/story-obligations.mjs
   fi
   if [[ ${case_name} == release ]]; then
     native_result_input_hash_lines \

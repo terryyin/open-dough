@@ -11,7 +11,7 @@ trap 'rm -rf -- "${root}"' EXIT
 native_case_host=codex
 delivery_evidence_scenarios='active scenarios'
 delivery_evidence_pass_basis='active basis'
-for case_name in selection claims consumers gaps aggregate nostore deferred original terminal release drift; do
+for case_name in selection claims consumers gaps aggregate nostore deferred original terminal release drift amended; do
   native_case_known "delivery-evidence/${case_name}"
 done
 [[ ${delivery_evidence_scenarios} == 'active scenarios' ]]
@@ -67,6 +67,18 @@ for case_name in original terminal release drift aggregate; do
   fi
 done
 
+# The amended family retains its fixture facts, final freshness and planning.
+delivery_evidence_create_fixture amended "${source_dir}" claude story-amended \
+  "${root}" > "${root}/fixture.txt" 2>&1
+native_result_attempt_dir="${root}/artifacts-amended"
+mkdir -p -- "${native_result_attempt_dir}"
+printf 'final freshness sentinel\n' > "${delivery_evidence_root}/final-freshness.json"
+delivery_evidence_amended_retain
+for file in amended-fixture.txt final-freshness.json; do
+  cmp "${delivery_evidence_root}/${file}" "${native_result_attempt_dir}/${file}"
+done
+diff -r "${delivery_evidence_workspace}/.planning" "${native_result_attempt_dir}/final-product/.planning"
+
 # Replace the paid journey, preserving the public host dispatch around it.
 mkdir -p -- "${root}/host-tmp"
 export TMPDIR="${root}/host-tmp"
@@ -74,7 +86,7 @@ codex() { :; }
 delivery_evidence_run_journey() {
   printf '%s\n' "$1" > "${root}/dispatched"
 }
-for case_name in gaps original terminal release drift; do
+for case_name in gaps original terminal release drift amended; do
   run_native_host codex "delivery-evidence/${case_name}" "${root}/retained" \
     > "${root}/host.txt"
   [[ $(cat "${root}/dispatched") == "${case_name}" ]]

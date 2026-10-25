@@ -49,6 +49,12 @@ delivery_evidence_prompt_for() {
         "Use this project's installed Open Dough execution guidance (dough-execute-plan) to ${task} as caller-selected current-branch work in this checkout${selection} Follow the project's instructions in AGENTS.md. Carry ${slice} through implementation, its independent post-change refactoring, formatting and acceptance, then stop at the delivery boundary: do not stage, commit or publish${boundary}. Leave a short outcome in .planning/acceptance-outcome.md naming ${subject} as accepted or incomplete with the evidence inspected. Treat installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
       return
       ;;
+    amended)
+      # Every scenario gets the same request; none names what trunk changed.
+      printf '%s\n' \
+        "Use this project's installed Open Dough execution guidance (dough-execute-plan) to continue the Story Branch execution described in .planning/execution-state.txt: deliver slice 3 from where its acceptance left off. Carry its delivery up to the commit, then stop: do not stage, commit, push or publish, and do not start slice 4. End your response with where you stopped and why. Treat installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
+      return
+      ;;
     nostore)
       request="compute the latest source update once per exit-settings computation and reuse it across evaluated holdings, instead of reading it separately for each row. Preserve the endpoint's existing behavior."
       ;;

@@ -86,7 +86,9 @@ export function linkedWorktree(t, repo, branch) {
 // branch version by running a real operation rather than assuming its
 // result. Here what is under test is Git's own merge machinery and this
 // tool's gate on it, so the branch commit is simply the backlog bytes a real
-// side of history would hold.
+// side of history would hold. Give `name` a non-hex character: a hex-only
+// name such as `acbd` can match a commit SHA prefix, and Git then warns that
+// the refname is ambiguous, which breaks the quiet-pass rule.
 export function commitBranch(repo, name, backlog, message = name) {
   repo.git(["checkout", "-q", "-b", name]);
   repo.write(backlog);
