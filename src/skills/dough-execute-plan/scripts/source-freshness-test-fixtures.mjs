@@ -11,7 +11,7 @@ import {
   git,
   lsRemoteSha,
   revParse,
-  runScript,
+  runScriptIn,
   trunkTarget,
 } from "../../dough-story-wrap-up/scripts/closure-git-fixtures.mjs";
 
@@ -147,8 +147,9 @@ export async function amendTrunk(
   return revParse(integration, "HEAD");
 }
 
-const freshness = (command, { execution }, id = identity) =>
-  runScript(
+const freshness = (command, { execution }, id = identity, env = process.env) =>
+  runScriptIn(
+    env,
     cli,
     command,
     "--workspace",
@@ -161,10 +162,11 @@ const freshness = (command, { execution }, id = identity) =>
     trunkTarget,
   );
 
-// Runs `command`, checks its exit code, and that origin trunk did not move.
-export async function run(fixture, command, code, id) {
+// Runs `command` (in `env` when given), checks its exit code, and that origin
+// trunk did not move.
+export async function run(fixture, command, code, id, env) {
   const before = await lsRemoteSha(fixture.origin, trunkTarget);
-  const outcome = await freshness(command, fixture, id);
+  const outcome = await freshness(command, fixture, id, env);
   assert.equal(outcome.stderr, "");
   assert.equal(outcome.code, code, outcome.stdout);
   assert.equal(await lsRemoteSha(fixture.origin, trunkTarget), before);

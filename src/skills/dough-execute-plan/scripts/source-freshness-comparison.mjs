@@ -1,12 +1,13 @@
 // The three-way comparison behind the source freshness command: one record's
 // base (take), trunk, and branch-copy texts, merged with `git merge-file` in
-// scratch files. Trunk text equal to the base, or a clean application equal to
-// the branch copy, is `unchanged`; an overlapping edit, or an application that
+// scratch files under the repository's own Git directory, so a host that only
+// lets the agent write inside the workspace can run it. Trunk text equal to
+// the base, or a clean application equal to the branch copy, is `unchanged`; an overlapping edit, or an application that
 // changes or removes a slice the branch plan marks done, is a `conflict`; any
 // other change is `amended`, carrying the merged text as its `application`.
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { gitPath } from "../../dough-product-backlog/scripts/product-backlog-git-repository.mjs";
 import {
   readPlanSlices,
   unfencedPlanLines,
@@ -14,10 +15,17 @@ import {
 import { splitSource } from "../../dough-product-backlog/scripts/product-backlog-source.mjs";
 import { git } from "./publication-git.mjs";
 
+// A fresh scratch directory in `repository`'s (per-worktree) Git directory,
+// which `git fetch` already writes and `git status` never shows.
+function scratchDirectory(repository) {
+  return mkdtemp(gitPath(repository, "source-freshness-"));
+}
+
 // `git merge-file` of branch (ours), take (base) and trunk (theirs) texts,
-// and the take-to-trunk change as a unified diff, computed in scratch files.
-async function compareThreeWay(branch, base, trunk) {
-  const dir = await mkdtemp(join(tmpdir(), "source-freshness-"));
+// and the take-to-trunk change as a unified diff, computed in scratch files
+// removed afterwards.
+async function compareThreeWay(repository, branch, base, trunk) {
+  const dir = await scratchDirectory(repository);
   try {
     await writeFile(join(dir, "branch"), branch);
     await writeFile(join(dir, "take"), base);
@@ -102,9 +110,11 @@ function doneSlicesChanged(branchPlan, application) {
     });
 }
 
-// One record's comparison: its state, and for `amended` the merged record
-// text `application` (the whole plan, or the story section's text).
+// One record's comparison in `repository`: its state, and for `amended` the
+// merged record text `application` (the whole plan, or the story section's
+// text).
 export async function compareRecord({
+  repository,
   record,
   path,
   base,
@@ -113,7 +123,12 @@ export async function compareRecord({
   doneRule,
 }) {
   if (trunk === base) return { record, path, state: "unchanged" };
-  const { clean, merged, change } = await compareThreeWay(branch, base, trunk);
+  const { clean, merged, change } = await compareThreeWay(
+    repository,
+    branch,
+    base,
+    trunk,
+  );
   if (clean && merged === branch) return { record, path, state: "unchanged" };
   const conflict = (reason, fields = {}) => ({
     record,

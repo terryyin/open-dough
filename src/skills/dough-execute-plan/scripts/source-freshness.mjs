@@ -14,7 +14,8 @@
 // changes or removes a slice the branch marks done, is a `conflict`, and any
 // other change is `amended`. `absorb` writes the clean application of the
 // amended records into the working tree and refuses a conflict, writing
-// nothing. Neither commits, pushes, or writes anywhere else.
+// nothing. Neither commits, pushes, or writes anywhere else; comparison scratch
+// lives briefly in the repository's own Git directory.
 //
 // Exit codes: 0 unchanged (or absorbed), 1 amended (check only), 2 conflict,
 // 3 refused. Every run prints one JSON line.
@@ -156,6 +157,7 @@ export async function inspectSourceFreshness({
   absent("plan", planPath, plans);
 
   const story = await compareSection({
+    repository,
     record: "story",
     path: homePath,
     base: sections.base.text,
@@ -163,6 +165,7 @@ export async function inspectSourceFreshness({
     branch: sections.branch.text,
   });
   const plan = await compareRecord({
+    repository,
     record: "plan",
     path: planPath,
     ...plans,

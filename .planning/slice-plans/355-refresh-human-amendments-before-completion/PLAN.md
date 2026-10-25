@@ -339,6 +339,14 @@ rollout is authorized.
   comparison is gate-absent versus gate-present on the same fixture, as
   ADR 0010 asks.
 
+## Story obligations
+
+### G1. The freshness command is refused inside the Codex sandbox (discovered at slice 4 acceptance)
+Reported: slice 4 — "In the candidate Codex `story-amended` round, `source-freshness.mjs check` was refused twice with `EPERM` on `mkdtemp` under the system temp directory and under `/tmp`; the coordinator reached the result only after pointing `TMPDIR` into the workspace's `.git`."
+Story clause: "has the amended text in front of the execution
+coordinator at the next slice delivery"
+Disposition: return
+
 ## Learnings
 
 - Slice 1: with the base fixed at the Take, `unchanged` defined only as

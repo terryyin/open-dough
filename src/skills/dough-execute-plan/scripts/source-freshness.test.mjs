@@ -1,7 +1,14 @@
 // The freshness command on a bare origin whose trunk holds a Take and an
 // execution branch forked at it, with trunk amended (or not) by a human.
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -77,6 +84,38 @@ test("a story promise and a plan slice added on trunk are amended, and absorb wr
   assert.deepEqual(
     settled.records.map((item) => item.state),
     ["unchanged", "unchanged"],
+  );
+});
+
+test("with the system temporary directory unwritable, check and absorb compare inside the repository and leave only the records changed", async (t) => {
+  const fixture = await takenStoryBranch(t);
+  const unwritable = mkdtempSync(join(tmpdir(), "source-freshness-tmp-"));
+  chmodSync(unwritable, 0o500);
+  t.after(() => {
+    chmodSync(unwritable, 0o700);
+    rmSync(unwritable, { recursive: true, force: true });
+  });
+  const env = { ...process.env, TMPDIR: unwritable, TMP: unwritable };
+  const amendedPlan = planOf(slice(1, "A"), slice(2, "B"), slice(3, "C"));
+  await amendTrunk(fixture, { [planPath]: amendedPlan });
+
+  const report = await run(fixture, "check", 1, undefined, env);
+  assert.equal(report.result, "amended");
+  assert.equal(
+    recordOf(report, "plan").application,
+    planOf(slice(1, "A", { status: "done" }), slice(2, "B"), slice(3, "C")),
+  );
+  assert.equal(await porcelainStatus(fixture.execution), "");
+
+  const absorbed = await run(fixture, "absorb", 0, undefined, env);
+  assert.deepEqual(absorbed.written, [planPath]);
+  assert.equal(await porcelainStatus(fixture.execution), ` M ${planPath}\n`);
+  const gitDir = (
+    await git(fixture.execution, "rev-parse", "--absolute-git-dir")
+  ).stdout.trim();
+  assert.deepEqual(
+    readdirSync(gitDir).filter((name) => name.startsWith("source-freshness")),
+    [],
   );
 });
 
