@@ -422,6 +422,17 @@ rollout is authorized.
   quiet passes after the refactor. Native agent behavior and Codex/Cursor
   stream shapes are slice 4's.
 
+- CI repair after slice 3 (run 40196634857, `test (3/3)`): an unhandled
+  `EPIPE` crashed `execution-increment-fresh-publication.test.mjs` when a
+  rejecting pre-commit hook made `git commit -F -` exit before reading its
+  message. `publication-git.mjs` `execWithInput` now writes child input and
+  ignores stdin `EPIPE`, used by `execution-increment-preparation.mjs`,
+  `agent-commit.mjs` and `workspace-agent-authorship.mjs`. New ~320 KB-message
+  hook-rejects tests in `execution-increment-fresh-commit.test.mjs` and
+  `agent-commit.test.mjs` failed on the old files and pass now; proof
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/execution-increment*.test.mjs src/skills/dough-execute-plan/scripts/agent-commit.test.mjs`
+  quiet pass.
+
 ## Plan concerns and readiness
 
 Refinement was not needed: each slice owns one proof loop (command,

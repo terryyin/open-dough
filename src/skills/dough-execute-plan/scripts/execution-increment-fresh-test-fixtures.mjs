@@ -63,15 +63,13 @@ export async function localFixture(t) {
       args: additionalArgs = [],
       env = fixture.env,
       filtered = false,
+      commitMessage = "Guarded work\n\nCo-Authored-By: Model <model@example.test>\n",
     } = {},
   ) => {
     const config = join(fixture.fixture, "preparation.json");
     const message = join(fixture.fixture, "message.txt");
     writeFileSync(config, JSON.stringify(p));
-    writeFileSync(
-      message,
-      "Guarded work\n\nCo-Authored-By: Model <model@example.test>\n",
-    );
+    writeFileSync(message, commitMessage);
     const args = [
       join(fixture.skill, "scripts/execution-increment-delivery.mjs"),
       "fresh",
