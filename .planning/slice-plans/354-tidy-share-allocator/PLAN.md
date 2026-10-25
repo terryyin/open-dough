@@ -96,7 +96,7 @@ waits on an external event.
 
 ### 1. Share commands fail readably and the allocator owns the times form and the floor
 Type: Behavior and Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh tests/support/test-shares.test.mjs tests/support/share-deal.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/support/dashboard-test-files.test.mjs tests/test-runner-bash.sh tests/test-runner-split.sh tests/test-runner-interrupt.sh tests/test-runner-failure-report.sh`
 (the new missing-path tests; the floor test's exact text; the runner tests
 because `copy-runner.bash`'s copied set changes); from `dashboard/`,
@@ -208,7 +208,22 @@ removed with plan 353 (recoverable at
 
 ## Learnings
 
-None yet.
+- Slice 1: the two Bash floor messages differed in more than the remedy
+  (runner "resolved <path>", preview "resolved bash on PATH"); the shared
+  `scripts/bash-floor.bash` uses the runner's form, so the preview's refusal
+  now names the resolved bash path. The old preview stub never ran
+  `test-jobs.sh`; the test's stub now reports 3.2 for `-c` and runs scripts
+  under the real bash, so the listing's own floor check refuses it.
+- Slice 1: `formatTimes` sorts by printed seconds (the dashboard's former
+  rule); `mergeTimes` sorted by raw seconds. The runner prints times to a
+  tenth (`scripts/test.sh` `%.1f`), so refresh output is unchanged.
+- Slice 1 accepted proof (base f1a3e06d): the plan's focused `scripts/test.sh`
+  command plus `tests/test-runner-selection.sh`, spec-times and quiet-reporter
+  specs (10 passed), typecheck, lint, the floor grep (only
+  `scripts/bash-floor.bash`), and both preview outputs diff-empty against
+  pre-change baselines (at f1a3e06d `--split-count 3` needs Bash 5 first on
+  PATH on this machine; `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 --list` selects 44
+  files at f1a3e06d, the baseline for example 5).
 
 ## Plan concern review
 

@@ -3,18 +3,10 @@
 # CI's uncolored output.
 # Sourced by scripts/test.sh before any check starts; sets test_bash.
 
-# Tests run in child shells, so check the bash they will actually use. Bash 5
-# is the floor: this runner, normally that same PATH bash, reads EPOCHREALTIME.
-test_bash=$(command -v bash)
-# Expand BASH_VERSION in the child shell, not this runner.
-# shellcheck disable=SC2016
-test_bash_version=$("${test_bash}" -c 'printf "%s" "${BASH_VERSION}"')
-if [[ ${test_bash_version%%.*} -lt 5 ]]; then
-  printf 'FAIL: shell tests require Bash 5 or newer; resolved %s (version %s).\n' \
-    "${test_bash}" "${test_bash_version}" >&2
-  printf 'Install Bash 5 or newer and put its bin directory first on PATH, then rerun the tests.\n' >&2
-  exit 1
-fi
+# shellcheck disable=SC1091
+# shellcheck source=scripts/bash-floor.bash
+source "$(dirname -- "${BASH_SOURCE[0]}")/bash-floor.bash"
+require_bash_floor 'rerun the tests'
 
 # Every check sees CI's Git state, whatever the caller's configuration: no
 # global, XDG, system, or inherited `git -c` settings or identity variables;

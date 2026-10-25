@@ -1,8 +1,8 @@
 // One run's seconds per spec file, the dashboard's counterpart of the Node
 // runner's times file: one `<seconds><TAB><file>` line per spec file that
-// ran, longest first (equal seconds bytewise by file), the form a duration
-// list such as `dashboard/tests/longest-first` is refreshed from. A file's
-// seconds are the sum of its test attempts' own durations, to a tenth,
+// ran, in the times form of scripts/share-deal.mjs (`formatTimes`), from which
+// a duration list such as `dashboard/tests/longest-first` is refreshed. A
+// file's seconds are the sum of its test attempts' own durations,
 // including the tests it registers through a module it imports (a case
 // module), which Playwright places under the spec file's suite while their
 // own `location.file` is the module; `<file>` is the spec's path relative to
@@ -18,10 +18,7 @@ import type {
 } from "@playwright/test/reporter";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-
-function bytewise(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
+import { formatTimes } from "../../../scripts/share-deal.mjs";
 
 export class SpecTimes {
   private readonly milliseconds = new Map<string, number>();
@@ -51,16 +48,17 @@ export class SpecTimes {
 
   write(): void {
     if (this.config.argv.includes("--list")) return;
-    const lines = [...this.milliseconds]
-      .map(([file, total]) => ({ file, seconds: (total / 1000).toFixed(1) }))
-      .sort(
-        (left, right) =>
-          Number(right.seconds) - Number(left.seconds) ||
-          bytewise(left.file, right.file),
-      )
-      .map(({ file, seconds }) => `${seconds}\t${file}\n`);
+    const lines = formatTimes(
+      [...this.milliseconds].map(([file, total]): [string, number] => [
+        file,
+        total / 1000,
+      ]),
+    );
     try {
-      writeFileSync(this.destination, lines.join(""));
+      writeFileSync(
+        this.destination,
+        lines.map((line) => `${line}\n`).join(""),
+      );
     } catch (error) {
       this.diagnostic(
         `Spec times unavailable at ${this.destination}: ${error instanceof Error ? error.message : String(error)}\n`,

@@ -89,9 +89,14 @@ test("preview names the Bash 5 floor when the bash on PATH is older", () => {
   const bin = join(scratch, "bin");
   mkdirSync(bin);
   const stub = join(bin, "bash");
+  // The stub reports Bash 3.2 and runs scripts under the real bash, so the
+  // listing's own floor check, not Bash 5 syntax, is what refuses it.
+  const realBash = spawnSync("bash", ["-c", 'printf "%s" "${BASH}"'], {
+    encoding: "utf8",
+  }).stdout;
   writeFileSync(
     stub,
-    '#!/bin/sh\nif [ "$1" = -c ]; then printf "%s" "3.2.57(1)-release"; exit 0; fi\necho "declare: -A: invalid option" >&2\nexit 2\n',
+    `#!/bin/sh\nif [ "$1" = -c ]; then printf "%s" "3.2.57(1)-release"; exit 0; fi\nexec '${realBash}' "$@"\n`,
   );
   chmodSync(stub, 0o755);
   const previewRun = run(["preview", "--split-count", "3"], {
@@ -100,8 +105,33 @@ test("preview names the Bash 5 floor when the bash on PATH is older", () => {
   assert.equal(previewRun.status, 1);
   assert.equal(
     previewRun.stderr,
-    "FAIL: shell tests require Bash 5 or newer; resolved bash on PATH (version 3.2.57(1)-release).\nInstall Bash 5 or newer and put its bin directory first on PATH, then rerun the preview.\n",
+    `FAIL: shell tests require Bash 5 or newer; resolved ${stub} (version 3.2.57(1)-release).\nInstall Bash 5 or newer and put its bin directory first on PATH, then rerun the preview.\n`,
   );
+});
+
+test("a file a command cannot read fails naming it, without a stack trace", () => {
+  const missing = join(scratch, "missing");
+  const emptyDir = join(scratch, "no-list");
+  mkdirSync(emptyDir);
+  const names = join(scratch, "readable-labels");
+  writeFileSync(names, "long.sh\n");
+  const preview = (...args) => run(["preview", "--split-count", "2", ...args]);
+  const refreshed = join(scratch, "refreshed");
+  const refresh = (times) =>
+    run(["refresh", "--list", refreshed, "--source", "run", times]);
+  const cases = [
+    [share(missing, "1/2"), missing],
+    [preview("--list", list, "--labels", missing), missing],
+    [preview("--labels", names, "--list", list, "--budget", missing), missing],
+    [refresh(missing), missing],
+    [preview("--test-dir", emptyDir), `${emptyDir}/longest-first`],
+    [preview("--spec-dir", emptyDir), `${emptyDir}/longest-first`],
+  ];
+  for (const [result, path] of cases) {
+    assert.equal(result.status, 1, result.stderr);
+    assert.equal(result.stderr, `FAIL: ${path} cannot be read (ENOENT).\n`);
+    assert.equal(result.stdout, "");
+  }
 });
 
 test("preview lists a dashboard spec directory as its configuration discovers it, without a ceiling", () => {

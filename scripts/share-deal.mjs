@@ -36,6 +36,18 @@ export function formatSeconds(value) {
   return value.toFixed(1);
 }
 
+// A file's text; a file that cannot be read fails naming it, as a malformed
+// one does.
+export function readInput(path) {
+  try {
+    return readFileSync(path, "utf8");
+  } catch (error) {
+    throw new TestSharesError(
+      `FAIL: ${path} cannot be read (${error.code ?? error.message}).`,
+    );
+  }
+}
+
 // Parses `<i>/<n>` with i from 1 to n into the share and the share count,
 // failing with the setting that carried it (as scripts/test-jobs.sh fails on
 // its own `OPEN_DOUGH_TEST_SPLIT`).
@@ -94,12 +106,31 @@ export function parseDurationList(text, name) {
 }
 
 export function readDurationList(path) {
-  return parseDurationList(readFileSync(path, "utf8"), path);
+  return parseDurationList(readInput(path), path);
+}
+
+// The times form, which the runner's `test-times` and the dashboard's
+// `dashboard-times-<shard>` artifacts print and a list's job lines keep: one
+// `<seconds><TAB><label>` line per entry, seconds to a tenth, longest first,
+// equal seconds bytewise by label.
+/**
+ * @param {Iterable<[string, number]>} entries label and seconds
+ * @returns {string[]}
+ */
+export function formatTimes(entries) {
+  return [...entries]
+    .map(([label, seconds]) => ({ label, printed: formatSeconds(seconds) }))
+    .sort(
+      (left, right) =>
+        Number(right.printed) - Number(left.printed) ||
+        bytewise(left.label, right.label),
+    )
+    .map(({ label, printed }) => `${printed}\t${label}`);
 }
 
 // The refreshed list text: the header lines (without any former `# Source:`
-// line) followed by `# Source: <source>`, then every job of the times files,
-// longest first, ties bytewise, with its seconds as printed by the runner.
+// line) followed by `# Source: <source>`, then every job of the times files
+// in the times form.
 export function mergeTimes(times, { header, source }) {
   const merged = new Map();
   for (const { name, text } of times) {
@@ -107,13 +138,10 @@ export function mergeTimes(times, { header, source }) {
       recordLongest(merged, label, seconds);
     }
   }
-  const jobs = [...merged]
-    .sort(([leftLabel], [rightLabel]) => bytewise(leftLabel, rightLabel))
-    .sort(([, left], [, right]) => right - left);
   const lines = [
     ...header.filter((line) => !line.startsWith("# Source:")),
     `# Source: ${source}`,
-    ...jobs.map(([label, seconds]) => `${formatSeconds(seconds)}\t${label}`),
+    ...formatTimes(merged),
   ];
   return `${lines.join("\n")}\n`;
 }
@@ -218,7 +246,7 @@ export function formatPreview(allocation, { listName, ceiling, budgetName }) {
 // scripts/time-budget.bash, the runner's reader of the same file, does: any
 // other non-comment line, or a missing number, fails.
 export function readTimeBudget(path) {
-  const settings = readFileSync(path, "utf8")
+  const settings = readInput(path)
     .split(/\r?\n/)
     .filter((line) => line !== "" && !line.startsWith("#"))
     .map((line) =>

@@ -6,6 +6,13 @@
 # resolved from DIR (default the current directory), are exactly the jobs;
 # with none, every check in the test directory is.
 set -euo pipefail
+# Before any Bash 5 syntax below, so an older bash meets the floor instead.
+# scripts/test.sh has already checked the same PATH bash, so the floor stops
+# here only for a direct run, such as the preview's listing.
+# shellcheck disable=SC1091
+# shellcheck source=scripts/bash-floor.bash
+source "$(dirname -- "${BASH_SOURCE[0]}")/bash-floor.bash"
+require_bash_floor 'rerun the preview'
 
 from=${PWD}
 if [[ ${1:-} == --from ]]; then

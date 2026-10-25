@@ -35,6 +35,7 @@ import {
   mergeTimes,
   parseSplit,
   readDurationList,
+  readInput,
   readTimeBudget,
   shareLabels,
   TestSharesError,
@@ -98,18 +99,9 @@ function shareCommand(argv) {
 }
 
 // The Node suite's jobs, as scripts/test-jobs.sh lists them over testDir
-// through the Bash on PATH. Bash 5 is the runner's floor
-// (scripts/test-environment.bash), so the preview names the same remedy.
+// through the Bash on PATH. A refusal it reports as `FAIL:`, such as an older
+// bash than the runner's floor (scripts/bash-floor.bash), is relayed as it is.
 function listNodeSuiteJobs(testDir) {
-  const version = spawnSync("bash", ["-c", 'printf "%s" "${BASH_VERSION}"'], {
-    encoding: "utf8",
-  });
-  const major = Number(version.stdout?.split(".")[0]);
-  if (version.status !== 0 || !(major >= 5)) {
-    throw new TestSharesError(
-      `FAIL: shell tests require Bash 5 or newer; resolved bash on PATH (version ${version.stdout || "unknown"}).\nInstall Bash 5 or newer and put its bin directory first on PATH, then rerun the preview.`,
-    );
-  }
   const listing = spawnSync("bash", ["scripts/test-jobs.sh"], {
     cwd: repositoryRoot,
     env: { ...process.env, OPEN_DOUGH_TEST_DIR: testDir },
@@ -118,7 +110,9 @@ function listNodeSuiteJobs(testDir) {
   });
   if (listing.status !== 0) {
     throw new TestSharesError(
-      `FAIL: scripts/test-jobs.sh over ${testDir} exited ${listing.status ?? listing.signal}:\n${listing.stderr}`,
+      listing.stderr.startsWith("FAIL:")
+        ? listing.stderr.replace(/\n$/, "")
+        : `FAIL: scripts/test-jobs.sh over ${testDir} exited ${listing.status ?? listing.signal}:\n${listing.stderr}`,
     );
   }
   return listing.stdout
@@ -169,7 +163,7 @@ async function previewCommand(argv) {
       : undefined);
   const labels =
     options.labels !== undefined
-      ? parseLabels(readFileSync(options.labels, "utf8"))
+      ? parseLabels(readInput(options.labels))
       : specDir !== undefined
         ? await listDashboardSpecFiles(specDir)
         : listNodeSuiteJobs(testDir);
@@ -209,7 +203,7 @@ function refreshCommand(argv) {
       ];
   const times = positional.map((name) => ({
     name,
-    text: readFileSync(name, "utf8"),
+    text: readInput(name),
   }));
   writeFileSync(
     options.list,
