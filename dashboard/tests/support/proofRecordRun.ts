@@ -44,7 +44,8 @@ export function startProofCommand(
         !name.startsWith("TEST_") &&
         !name.startsWith("PW_") &&
         name !== "OPEN_DOUGH_DASHBOARD_SPLIT" &&
-        name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD",
+        name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD" &&
+        name !== "OPEN_DOUGH_DASHBOARD_TIMES",
     ),
   );
   const child = spawnGroupLeader(command, args, {
@@ -78,6 +79,8 @@ export function startProofRun(options: {
   spec: string | string[];
   directory?: string;
   recordPath?: string | false;
+  // The per-spec-file times file (support/specTimes.ts); none unless named.
+  timesPath?: string;
   config?: Readonly<Record<string, unknown>>;
   args?: string[];
   env?: Readonly<Record<string, string>>;
@@ -99,7 +102,8 @@ export function startProofRun(options: {
     reporter: [
       [
         quietReporter,
-        recordPath === undefined ? {} : { proofRecord: recordPath },
+        // JSON.stringify leaves out an option that is undefined.
+        { proofRecord: recordPath, times: options.timesPath },
       ],
     ],
     ...options.config,

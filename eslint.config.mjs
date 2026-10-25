@@ -68,7 +68,7 @@ export default defineConfig(
     ignores: [
       "dashboard/tests/support/pageTest.ts",
       // Run by the quiet-reporter proof under their own configuration.
-      "dashboard/tests/fixtures/quiet-reporter/*.proof.ts",
+      "dashboard/tests/fixtures/quiet-reporter/**/*.proof.ts",
     ],
     rules: {
       "no-restricted-imports": [

@@ -129,7 +129,7 @@ header. Interim, named: the dashboard keeps its positional copy until slice 3.
 
 ### 2. Dashboard shards retain per-spec durations
 Type: Behavior
-Status: planned
+Status: done
 Proof: a dashboard spec through `proofRecordRun.ts` runs a nested small run
 with `OPEN_DOUGH_DASHBOARD_TIMES` set and asserts one `<seconds><TAB><file>`
 line per spec file, longest first, seconds as the sum of the file's test
@@ -142,6 +142,19 @@ the run ends → that file lists each spec file's seconds, longest first; CI
 sets it per shard and keeps it as `dashboard-times-<shard>` with the same
 `!cancelled()` and seven-day retention as `test-times-<share>`, and
 `dashboard/tests/README.md` names it as the refresh source.
+
+Accepted: from `dashboard/`, `npx playwright test tests/boundary/spec-times.spec.ts tests/boundary/proof-record.spec.ts tests/boundary/proof-record-storage.spec.ts tests/boundary/proof-record-verdict.spec.ts tests/boundary/proof-record-interruption.spec.ts tests/boundary/proof-record-entry.spec.ts tests/boundary/run-processes.spec.ts tests/quiet-reporter.spec.ts`
+(`spec-times.spec.ts` runs nested quiet-reporter fixture runs through
+`support/proofRecordRun.ts` with `timesPath` and asserts one
+`<seconds><TAB><file>` line per spec file, longest first, equal to the
+proof record's per-file attempt sums, written on a failed run and not on
+`--list`); from the root
+`bash scripts/test.sh tests/ci-lint-setup.sh tests/native-setup.sh tests/ci-container.sh tests/test-runner-github-requests.sh tests/support/dashboard-test-files.test.mjs tests/support/lint-file-set.test.mjs tests/support/pre-commit-lint-hook.test.mjs tests/support/format-changed-files.test.mjs`,
+`npm run typecheck:dashboard`, `npm run lint`, all exit 0 and silent. The
+reporter's times live in `dashboard/tests/support/specTimes.ts`; the shard
+documentation moved to `dashboard/tests/shards.md`. The twelve
+`dashboard-times-<shard>` artifacts are checked on this slice's branch CI run
+before slice 3 starts.
 
 ### 3. Dashboard shards are dealt by recorded duration
 Type: Behavior
@@ -201,6 +214,15 @@ waits.
   zero other jobs changing share, the added file alone on the lightest share,
   333 unrecorded of 417 and the ≤ 54.4 rise all reproduce. A plan quoting a
   measured allocation must state the full sort key.
+- Slice 1's branch CI run 40185201080 (`61d16b66`) measured 643.6 / 399.1 /
+  536.0 job-seconds against 498.5 predicted for each share; the per-share
+  median job ratio to the list was 1.24 / 0.76 / 1.13 over the jobs of 3 s or
+  more, so the spread is runner speed (the story's deferred promise), not
+  allocation. Slice 3 records the final run the same way at DD-279.
+- Slice 2: `dashboard/tests/shards.md` is the dashboard counterpart of
+  `tests/test-shares.md`; slice 3's dashboard deal, preview and refresh text
+  belongs there, and the sentence at the end of `tests/test-shares.md` about
+  the dashboard's positional deal then goes.
 - Slice 1: `tests/helpers/copy-runner.bash` lists the runner's files; a new
   file the runner executes, and every module it imports, must be added there
   (found by the consumer trace, not by the focused runner tests).

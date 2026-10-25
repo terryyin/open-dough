@@ -25,6 +25,7 @@ import type {
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ProofRecord } from "./proofRecord.ts";
+import { SpecTimes } from "./specTimes.ts";
 
 type Write = typeof process.stdout.write;
 
@@ -43,6 +44,13 @@ function indent(block: string): string {
   return block.replace(/^(?=.)/gm, "    ");
 }
 
+// `proofRecord` names the run's proof record (proofRecord.ts) and `times` its
+// per-spec-file seconds (specTimes.ts); each is written only when named.
+export type QuietReporterOptions = {
+  proofRecord?: string | undefined;
+  times?: string | undefined;
+};
+
 export default class QuietReporter implements Reporter {
   private readonly writeOut: Write;
   private readonly writeErr: Write;
@@ -52,8 +60,9 @@ export default class QuietReporter implements Reporter {
   private failed = false;
   private watching = true;
   private proof: ProofRecord | undefined;
+  private times: SpecTimes | undefined;
 
-  constructor(private readonly options: { proofRecord?: string } = {}) {
+  constructor(private readonly options: QuietReporterOptions = {}) {
     this.writeOut = process.stdout.write.bind(process.stdout);
     this.writeErr = process.stderr.write.bind(process.stderr);
     process.stdout.write = this.watch(this.writeOut);
@@ -75,6 +84,11 @@ export default class QuietReporter implements Reporter {
         (message) => this.writeErr(message),
       );
     }
+    if (this.options.times !== undefined) {
+      this.times = new SpecTimes(this.options.times, config, (message) =>
+        this.writeErr(message),
+      );
+    }
   }
 
   onTestBegin(test: TestCase, result: TestResult): void {
@@ -94,6 +108,7 @@ export default class QuietReporter implements Reporter {
 
   onTestEnd(test: TestCase, result: TestResult): void {
     this.proof?.end(test, result);
+    this.times?.add(test, result);
     const outcome = test.outcome();
     const output = [...result.stdout, ...result.stderr].map(text).join("");
     if (outcome === "skipped" || (outcome === "expected" && output === "")) {
@@ -141,6 +156,7 @@ export default class QuietReporter implements Reporter {
     const strictStatus =
       nothingShown && result.status === "passed" ? "passed" : "failed";
     this.proof?.finish(result, strictStatus);
+    this.times?.write();
     if (strictStatus === "passed") {
       return Promise.resolve(undefined);
     }

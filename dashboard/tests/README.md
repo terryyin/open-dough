@@ -6,7 +6,9 @@ in between. This page is the strategy and the index; the guides beside it
 hold the detail: [writing a journey](writing-journeys.md) (waits, clocks,
 commands, the fake GitHub's own answers), the [native-host
 fixtures](native-host-fixtures.md) (the synthetic `claude`, `codex` and
-`cursor`), and the [proof record](proof-record.md) of a run.
+`cursor`), the [proof record](proof-record.md) of a run, and the [dashboard
+shards](shards.md) CI runs (the split, each shard's recorded times and its
+deadline).
 
 ## Two tiers: browser journeys and boundary tests
 
@@ -163,11 +165,12 @@ worker-scoped fixture, or a `launchOptions` value, is declared once, in
 workers.
 
 Discovery and sharding follow the file: `support/testFiles.mjs` finds every
-`*.spec.ts` under `tests/` recursively and CI's split (below) deals whole
-files, so a new file needs no registration; unlisted in `longest-first`, it
-follows the listed files in sorted order until that list is next recorded
-from a hosted run. `tests/support/dashboard-test-files.test.mjs` protects
-discovery of new specs and assignment without duplicates or omissions.
+`*.spec.ts` under `tests/` recursively and CI's split ([dashboard
+shards](shards.md)) deals whole files, so a new file needs no registration;
+unlisted in `longest-first`, it follows the listed files in sorted order
+until that list is next recorded from a hosted run.
+`tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
+and assignment without duplicates or omissions.
 
 ## Running the suite
 
@@ -177,27 +180,14 @@ test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs use Playwright's
 default worker count, CI runs every core.
 
-CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select share `i` of `n` whole
-spec files. `longest-first` orders known files by recorded hosted duration;
-unlisted specs follow sorted, and that order is dealt round-robin across
-shares. CI currently uses twelve shares and runs the dashboard type-check
-once in the last share, whose recorded browser load is smallest. Stale and
-repeated list entries are ignored. With the variable unset,
-`npm run test:dashboard` keeps running the whole suite. Independent proof
-subprocesses choose their own selection; their harness
-(`support/proofRecordRun.ts`) removes the inherited split before launching
-them.
-
-CI also records `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`, the epoch 320 seconds
-after the shard job starts, and the config turns what remains of it into
-Playwright's `globalTimeout` (`support/suiteDeadline.mjs`); the build counts
-against it, and local runs without the variable are unbounded. A shard that
-cannot finish by then fails naming the deadline (`Timed out waiting`), still
-within the job's 6 minutes, and its kept report holds the completed
-failures' traces and error context and lists unfinished tests as skipped.
-Like the shell suite's `tests/time-budget`, the 320 seconds and the job's
-`timeout-minutes` are a reviewed ceiling: a shard that reaches the deadline
-is made faster or rebalanced, not given more time.
+CI runs the suite as shard jobs, each selecting whole spec files with
+`OPEN_DOUGH_DASHBOARD_SPLIT=i/n`, keeping its spec files' seconds through
+`OPEN_DOUGH_DASHBOARD_TIMES` as artifact `dashboard-times-<shard>`, the source
+`longest-first` is refreshed from, and running under
+`OPEN_DOUGH_DASHBOARD_DEADLINE_MS`; [dashboard shards](shards.md) holds the
+split, the times file and the deadline. With the variables unset,
+`npm run test:dashboard` runs the whole suite, unbounded, and writes no times
+file.
 
 A passing run prints nothing (`support/quietReporter.ts`) and leaves no
 output directory. A failing spec is shown with its error, output, and
