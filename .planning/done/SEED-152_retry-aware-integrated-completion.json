@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-152#retry-aware-integrated-completion",
+  "title": "Keep completion pending for a containing revision current retry",
+  "completedAt": "2026-10-25T10:10:39.595Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "codex"
+}

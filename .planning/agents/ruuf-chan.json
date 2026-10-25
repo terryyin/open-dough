@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ruuf-chan",
-  "email": "ruuf-chan@example.org",
-  "identity": "SEED-152#retry-aware-integrated-completion",
-  "mode": "story-branch",
-  "branch": "codex/retry-aware-completion",
-  "host": "codex"
-}
