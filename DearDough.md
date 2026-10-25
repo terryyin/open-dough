@@ -1,9 +1,12 @@
 # DearDough Process Findings
 
-Reviewed 2026-10-21 (Asia/Tokyo). Active shared-process findings only; released
+Source maintenance on 2026-10-25 retained all newly collected evidence before shortening at Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/`. The complete pre-edit source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`; distinct executions, former codes and qualified provenance remain recoverable.
+
+
+Reviewed 2026-10-25 (Asia/Tokyo). Active shared-process findings only; released
 responses under observation live in the [watch list](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/near-term-watch-list.md).
 Detailed observations, original releases and qualified inferences are retained
-in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Missing Terry Talks and Lizard records prevent whole-set watch retirement. Unknown execution provenance remains unknown.
+in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
 - Highest allocated local number: 336. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -165,18 +168,7 @@ A native acceptance replay constructs a fresh current-slice checkpoint instead o
 
 Former local code: DD-259.
 
-Proof selection follows edited store areas rather than the changed operation’s whole caller flow, missing a consumer’s failure scenario. [Evidence and current response](docs/maintainer/findings/ODF-150.md).
-
-### Occurrences
-
-- Execution: `SEED-010#run-due-feedback-maintenance` / plan 341, first related implementation commit `ca410794`
-  - Timestamp: 2026-10-22T00:06:21+09:00 (CI run 39622654934 failed job "dashboard (9/12)")
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.67
-  - Evidence: slice 4 (`755d8920`) added an optional `feedbackMaintenance` field to the machine sessions answer; its consumer batch named the sessions-answer routes and parsers but not `dashboard/tests/boundary/serving-modes.spec.ts`, whose `expect(listed.preview).toEqual(listed.dev)` pins that answer across serving modes. CI caught it; repair `7a17013d`.
-  - Observed effect: one failed hosted CI run and one repair increment; the coordinator accepted the implementer's chosen consumer subset without the whole dashboard suite, which then ran only in the repair.
-  - Inference: tracing "who parses this answer" missed a spec that compares the whole answer between servers; a whole-suite run before publishing a shared answer contract would have caught it locally.
+Focused consumer selection misses indirect callers, contract comparisons or prose consumers, so named proof can pass while owned CI or a wider suite finds the omitted effect. [Retained occurrences and response](docs/maintainer/findings/ODF-150.md). All distinct execution evidence is retained in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-150.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -280,18 +272,7 @@ Planning promises landing context for an unattached launch without observing tha
 
 Former local code: DD-288.
 
-A story’s final paid native observation requires installed skills available only in a release after that story lands, so its starting state cannot exist within the planned execution. [Evidence and current response](docs/maintainer/findings/ODF-238.md).
-
-### Occurrences
-
-- Execution: `SEED-010#run-due-feedback-maintenance` / plan 341, first related implementation commit `ca410794`
-  - Timestamp: 2026-10-21T23:56:00+09:00 (approximate; execution-complete handoff after slice 4)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.67
-  - Evidence: plan 341 slice 5 proof "Terry turns the setting on in the production dashboard with the delivered release installed"; the execution stopped after slice 4 with an unfinished handoff; on 2026-10-22 the developer chose landing (`0f500a5f`, `--keep-worktree`), a release (0.3.68, ADR 0005 exception), a production watcher restart, and moving the due date to make the observation possible.
-  - Observed effect: the planned final slice could not run inside the execution; four developer decisions and a production restart were needed mid-execution.
-  - Inference: the actual prerequisite was the production dashboard deploying published `main` through its watcher, not a release; the plan named the wrong delivery path, which prompted an avoidable release question. Planning should name the deployment path a native observation needs and whether it exists before landing.
+A final native observation depends on a deployment or release path unavailable before landing; planning must distinguish the actual delivery prerequisite. [Retained occurrences and response](docs/maintainer/findings/ODF-238.md). All distinct execution evidence is retained in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-238.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 
@@ -470,127 +451,50 @@ Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded
 
 A guarded delivery's caller-written status update stayed applied after a later preparation refusal; its unbounded retry advanced the next slice. Related DD-326 (a failed updater contained before publication) is retained there as counterevidence. [Evidence and current response](docs/maintainer/findings/ODF-323.md).
 
-## DD-329 — Coordinator launched an empty agent while waiting on delegated work
+## ODF-325 — Coordinator launched an empty agent while waiting on delegated work
 
-While a slice implementation and the source-only reviewer were pending, the
-coordinator launched a third agent whose only instruction was to reply "OK",
-instead of ending its turn and waiting for the completion notifications.
+Former local code: DD-329.
 
-### Occurrences
-- Execution: SEED-010#trace-changed-behavior-to-existing-consumers (plan 343; first implementation commit 291995f1)
-  - Timestamp: unknown (2026-10-22, during slice 1 delegation)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: coordinator conversation, agent "Placeholder wait check" (36,526 subagent tokens, 1 tool use) launched after the slice 1 and source-review agents
-  - Observed effect: the agent returned "OK" and advanced nothing; the coordinator then waited for the real notifications anyway.
-  - Inference: delegation.md "Await delegated results without empty calls" already forbids no-op calls made only to keep the turn alive; this was non-compliance with existing guidance rather than missing guidance, so no wording response is indicated from one occurrence.
+A coordinator starts a no-op agent solely to stay active while real delegated work is pending, despite an existing waiting rule.
 
-## DD-331 — A second source-only review repeated unchanged inputs
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-325.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-325.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
-Accept proof requires a fresh source-only review for each slice. In a
-two-slice plan with one unchanged story source and no amendment, the second
-review received the same inputs and returned the same commitments.
+## ODF-326 — A second source-only review repeated unchanged inputs
 
-### Occurrences
-- Execution: SEED-010#reuse-native-proof-after-attribution (plan 347; first implementation commit 25af6749)
-  - Timestamp: unknown (2026-10-22, slice 2 acceptance)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: coordinator conversation, agents "Source-only commitment review" (40,333 subagent tokens) and "Source-only review slice 2" (39,894 subagent tokens) with identical story text; returned commitments matched (G1–G2, A–E, X1–X4)
-  - Observed effect: the slice 2 review added no commitment; the slice 1 review had already caught the one omission (observed revision and settings) that slice 1 acceptance corrected.
-  - Inference: about 40,000 tokens per extra slice; wrap-up.md "Accept proof" names no reuse of an earlier review whose source and human amendments are unchanged. One occurrence; whether reuse would weaken independence is open.
+Former local code: DD-331.
 
-- Execution: SEED-010#prioritize-responses-with-delegated-authority (plan 342; first implementation commit 6ea5187e)
-  - Timestamp: unknown (2026-10-22, slice 2 acceptance before the refactor launch at 2026-10-22T08:32:18Z)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.68
-  - Evidence: coordinator conversation; one agent "Source-only story promise review" (48,156 subagent tokens) served both slices, with the story unchanged and no amendment; plan 342 Acceptance evidence at `de993009`
-  - Observed effect: the opposite choice to plan 347. Reusing the slice 1 return, slice 2 acceptance still found two omitted commitments (severity and review coverage; source-backed risks versus incidents) and corrected them before delivery. No second review was launched.
-  - Inference: deviates from the literal per-slice rule in wrap-up.md "Accept proof". With plan 347, this gives one reuse and one repeat: the repeated review added nothing, and the reused one lost no detected commitment. Two occurrences cannot settle independence.
+The mandatory per-slice source-only review repeats unchanged inputs; available repeat and reuse observations do not settle its marginal benefit or independence.
 
-- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
-  - Timestamp: unknown (2026-10-22, slice 2 acceptance)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: coordinator conversation; one "Source-only story review" (46,054 subagent tokens) before slice 1 acceptance, reused for slice 2 with the story unchanged and no amendment
-  - Observed effect: the coordinator compared slice 2 against the retained commitments (C16–C26, C35–C36) without a second review, contrary to "for each slice" in wrap-up.md "Accept proof"; no slice 2 commitment was observed missing at acceptance or in the retrospective's outcome review.
-  - Inference: a non-compliant reuse rather than a tested alternative; it saved roughly one review's tokens and is evidence for, not proof of, the open reuse question.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-326.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-326.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
-## DD-332 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
+## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
 
-The plan made "write the decision basis" its first execution slice. The
-automatic run it evaluated started 39 seconds after preparation landed, so the
-basis followed the result and the judgment became exploratory.
+Former local code: DD-332.
 
-### Occurrences
-- Execution: SEED-010#prioritize-responses-with-delegated-authority (plan 342; first implementation commit 6ea5187e)
-  - Timestamp: 2026-10-21T23:46:55Z (feedback-maintenance launch; preparation commit `2443059d` at 2026-10-21T23:46:16Z)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.68
-  - Evidence: plan 342 premise table at `3d01d28f:.planning/slice-plans/342-evaluate-one-real-feedback-cycle/PLAN.md` ("Slice 1 can therefore precede the result if execution starts before the run completes"); dashboard launch record (maintenance `due` 2026-10-22, done 00:09:14Z); Take `a00e6a77` at 2026-10-22T08:21:29Z
-  - Observed effect: preparation knew the run was due that day and could start without the maintainer. The basis waited for a separate execution about eight hours after the run finished. Story 10's own key example 2 anticipated this.
-  - Inference: preparation authorizes no execution, so a criterion written as a slice cannot precede an imminent automatic event. Writing such criteria into the story or plan during preparation would have kept the judgment confirmatory. One occurrence; the research report's ADR 0010 recommendation carries the general point.
+Preparation schedules evaluation criteria as later execution while the observed event can start first, making the resulting assessment exploratory.
 
-## DD-333 — A fresh delivery refused the obligation its own plan update would close
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-327.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-327.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
-The guarded fresh delivery checks the slice's story obligations before running
-the plan update. A plan-update command that also changes a receiving
-obligation to `proved` therefore meets that obligation still open.
+## ODF-328 — A fresh delivery refused the obligation its own plan update would close
 
-### Occurrences
-- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
-  - Timestamp: unknown (2026-10-22, slice 2 delivery)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: fresh result `preparation-failed`, `operation: "story obligations"`, `G1 open-obligation slice 2`; retry succeeded at bbce29a4 after the disposition was written into the plan first
-  - Observed effect: one refused attempt, after its selective formatter had already run.
-  - Inference: fresh-increment.md says obligations are checked before the plan mutation and wrap-up.md step 5 runs the check before marking done, so the order is documented; the coordinator misread the plan `update` as the place for dispositions. One occurrence.
+Former local code: DD-333.
 
-## DD-334 — Implementation returns failed the delivery formatter's lint
+A coordinator leaves an obligation disposition for a plan update that guarded delivery runs only after its obligation check; the existing gate correctly refuses.
 
-The slice 1 implementation and refactor agents were told not to run
-hook-owned lint. Their return reassigned a function parameter and left an
-unused callback argument, so the guarded fresh delivery's `npm run format`
-step failed on `no-param-reassign` and `no-unused-vars`. For slice 2 the
-brief allowed a direct `npx eslint` on the agent's own files, and delivery
-passed first time.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-328.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-328.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
-### Occurrences
-- Execution: SEED-008#normalize-delivery-commit-identities (plan 342-normalize-delivery-commit-identities; first implementation commit 1443f1f2)
-  - Timestamp: unknown (2026-10-22, slice 1 delivery)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown
-  - Evidence: fresh result `preparation-failed`, `operation: "formatting"`, two ESLint errors in execution-increment-publication.mjs and execution-increment-publication-base-identity.test.mjs; coordinator repaired them and reran focused proof before the accepted retry at 1443f1f2
-  - Observed effect: one refused attempt and a coordinator repair after the refactor pass.
-  - Inference: delegation.md forbids an independent hook-owned lint command so the coordinator owns it; whether a read-only lint check of the agent's own files is that command is unclear. Two slices are not enough to call it a general practice.
-- Execution: SEED-010#retry-selected-slice-status (plan 348-retry-selected-slice-status; first implementation commit 2541671c)
-  - Timestamp: unknown (2026-10-23, shortly before commit 2541671c at 2026-10-23T07:52:30+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.68
-  - Evidence: fresh result `preparation-failed`, `operation: "formatting"`, `no-unused-vars` on a destructured `statusLine` in product-backlog-plan-reader.mjs that the refactor pass introduced; the refactor agent ran read-only `prettier --check` but no ESLint; the coordinator repaired it, reran 71 test files and the dashboard typecheck, and the same request then succeeded
-  - Observed effect: one refused attempt, a coordinator code edit after the refactor pass, and a re-proof run.
-  - Inference: second execution with the same pattern; the brief again forbade hook-owned lint and allowed no read-only ESLint check, which supports the slice-2 practice in the first occurrence.
+## ODF-329 — Implementation returns failed the delivery formatter's lint
 
-## DD-335 — Hand-built preparation input dropped the plan from ownedPaths
+Former local code: DD-334.
 
-The coordinator derived `staging.ownedPaths` for the fresh preparation file
-from `git status --porcelain` with a whole-output trim, which removed the
-first entry's leading status space, so the plan path lost its leading `.`.
+Delegation forbids the hook-owned lint command without settling a read-only check of authored files, so coordinator formatting first exposes lint defects after refactoring.
 
-### Occurrences
-- Execution: SEED-010#retry-selected-slice-status (plan 348-retry-selected-slice-status; first implementation commit 2541671c)
-  - Timestamp: unknown (2026-10-23, first fresh attempt before commit 2541671c at 2026-10-23T07:52:30+09:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.68
-  - Evidence: fresh result `preparation-refused`, `operation: "context"`, "the required plan mutation must be included in ownedPaths"; owned paths rebuilt per line and the retry passed context
-  - Observed effect: one refused attempt before any project command ran; nothing changed.
-  - Inference: the input refusal contained the mistake as designed. The preparation JSON is assembled by hand each delivery, so a mechanical path-listing step has no shared helper; one occurrence.
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-329.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-329.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+
+## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
+
+Former local code: DD-335.
+
+A hand-built owned-path list trims significant porcelain status spacing and corrupts a path; the input guard contains the mistake before project commands.
+
+[Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `1ff70666ee557fd9a3bb564fb9e7a6d94aba6b3d:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
