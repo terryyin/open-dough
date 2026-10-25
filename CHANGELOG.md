@@ -1,3 +1,15 @@
+## 0.3.72 - 2026-10-25
+
+- Preserve a recoverable pending completion when a containing revision has a current automatic retry or running attempt, even when queue metadata is absent. Keep the accepted revision's own state and the original completion deadline.
+- Require fresh, current attempt identity, matching target/check/context and locally proved ancestry for pending progress. Withdraw unavailable, stale, ambiguous or superseded evidence; pending never supplies a success verdict.
+- Preserve successful descendants' verification priority and all required-job checks while bounding pending-attempt reads.
+
+The Promoted payload updates the shared observer runtime and its custom CI queue manual. Payload membership and host-specific launch, discovery, notification and ownership mechanisms are unchanged; no payload paths are added or removed. Source-only planning and findings maintenance is not an additional runtime change.
+
+Validation: the reported retry-history journey failed before repair and passed afterward. Focused observer, completion, recovery, original-cap, rejection, verification-bound and downstream closure tests passed, followed by independent refactoring and affected-proof reruns. Hosted CI passed the exact source revision abc9d650f8e016ef7d7fe224910b52fa8c667784 (run 40183901327), and the implementation branch passed run 40183411425. The release self-installation and native prerequisite checks passed.
+
+Codex, Cursor and Claude Code retain the shared integration mechanisms validated for 0.3.71; that evidence is reused under ADR 0005. This shared runtime correction is covered by the real command-adapter/worker/Git completion and existing host-consumer tests. No fresh native-host acceptance or new exception is claimed. Earlier outstanding native requirements keep their existing owners and remain pending.
+
 ## 0.3.71 - 2026-10-25
 
 - Accept authoritative custom CI queue facts separately from attempts and verdicts. Match target, check, context and locally proved ancestry for coalesced work, withdraw failed or empty observations, and expire stale progress after two minutes.
