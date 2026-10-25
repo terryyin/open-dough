@@ -24,3 +24,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Check every Story Branch source for freshness without false stops](seeds/SEED-010-learn-from-execution-retrospectives.md#source-freshness-for-planless-and-reamended-work) — SEED-010#source-freshness-for-planless-and-reamended-work
