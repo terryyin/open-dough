@@ -240,6 +240,38 @@ historical 134 GB remains unknown.
 
 [DD-312 evidence and same-execution repair](docs/maintainer/project-test-findings.md#dd-312) retain the hosted and local observations. No new implementation story is selected.
 
+## Corpus drafts mis-place the cut after repeated commands (open, unqueued)
+
+<a id="dd-339"></a>
+
+### DD-339 — `native-stream-corpus-add.mjs` drafted `last-start-line` at an earlier identical command
+
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 3)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: `tests/fixtures/native-streams/cursor/delivery-evidence/drift/narrowed/20261025T125143-579f/expected` drafted `last-start-line: 635` while the last started command is stream line 1050; its last three commands are the same `story-obligations.mjs check`; replay failed "started command 7 of 8 is null"
+  - Observed effect: `tests/native-stream-replay.sh` failed until the value was corrected to 1050 by inspection.
+  - Inference: the in-turn search for each started command can match an earlier identical line; review catches it only through the replay failure.
+
+## Delivery formatting needs the checkout's npm bin on PATH (open, unqueued)
+
+<a id="dd-340"></a>
+
+### DD-340 — `scripts/lint.mjs --fix` found no eslint or prettier when `node_modules/.bin` was not on PATH
+
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 2 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: guarded fresh delivery `operation: formatting`, "eslint: not found on PATH. Run npm ci …" in a checkout whose `node_modules/.bin/eslint` existed; the slice 1 delivery (shell and Markdown only) had passed with the same PATH
+  - Observed effect: one refused delivery attempt; the retry with `node_modules/.bin` first on PATH succeeded.
+  - Inference: `npm run format` supplies that PATH, the direct `node scripts/lint.mjs --fix` operation does not; the preparation file could name `npm run --silent format` or the lint script could resolve local bins.
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)

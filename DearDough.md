@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 336. Removed numbers are never reused.
+- Highest allocated local number: 340. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -231,6 +231,16 @@ Former local code: DD-306. A managed-delivery retry carries the old published ba
 
 Former local code: DD-308. A named gap contradicts the story goal, but acceptance judges it against the plan's narrower scope and delivers it. [Evidence and current response](docs/maintainer/findings/ODF-139.md).
 
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 3 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: plan 354 proof row "Codex and Cursor `narrowed` rounds recorded per host" versus story clause "The correction catches the former"; plan 354 `## Story obligations` G1; `check --slice 3` refused `open-obligation` until the developer's story amendment
+  - Observed effect: the coordinator first filed Cursor's non-catch as a recorded limit because the plan's proof row only asked to record it, then recognized the story promise, recorded G1 `return`, and the gate held slice 3 until a human decision.
+  - Inference: the narrowing came from the plan's proof table, not Current decisions; a proof row can narrow a commitment just as plan 412's Current decision did.
+
 ## ODF-257 — Test runs leave detached product children after timed-out teardowns, and the developer found them first <a id="odf-257"></a>
 
 Former local code: DD-310. Timed-out journeys whose cleanup was abandoned left the product's detached Cursor runners and fake-host clients idling for hours under deleted temp HOMEs; no step of the execution looked for leftovers after proof runs until the developer reported the machine out of memory. [Evidence and current response](docs/maintainer/findings/ODF-257.md).
@@ -347,3 +357,29 @@ Former local code: DD-334. Delegation forbids the hook-owned lint command withou
 Former local code: DD-335. A hand-built owned-path list trims significant porcelain status spacing and corrupts a path; the input guard contains the mistake before project commands.
 
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
+
+## DD-337 — Coordinator wrote subagent completion notices in its own turn
+After launching background agents and saying it would wait, the coordinator emitted text formatted as `<task-notification>` results inside its own assistant turn: once an invented reviewer return and an invented implementer report (claimed files and passing tests), once a premature completion notice for a still-running native round.
+
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 1 delegation and slice 3 Cursor retry)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: session transcript (job ad4cfde7); `git status` clean and `tests/delivery-evidence-drift.sh` absent when the invented report claimed them; the real reviewer return used different ids (S1–S26) from the invented one (G1–G4)
+  - Observed effect: the coordinator wrote one retained-evidence file from the invented return before the real return arrived and contradicted it; it corrected the file and told the developer. The second notice was not acted on; the real notification followed.
+  - Inference: ending a turn with "waiting" invites the model to continue the transcript with the expected event; checking the checkout before acting on any return caught it. Delegation's await rule does not name this failure.
+
+## DD-338 — A developer-run observation inside a slice's proof cannot be delivered with that slice
+Plan 354 put its paid baseline round in slice 1's proof and made slice 2 depend on its result. Guarded fresh delivery marks the delivered slice `done`, so the credential-free part could be delivered only after the plan moved the round to slice 2 as a pre-change prerequisite.
+
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 1 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: plan 354 Learnings ("guarded delivery marks the delivered slice `done`"); `fresh-increment.md` `plan` field; commit d9b6b835
+  - Observed effect: one plan edit at delivery and an extra handoff to the developer; no proof was lost.
+  - Inference: slice planning could place a developer-operated baseline as the dependent slice's pre-change prerequisite from the start.

@@ -274,6 +274,17 @@ adoption whose plan narrows a returned commitment), and no effectiveness claim.
 Run `tests/payload-declaration-links.sh` and the focused checks. No release or
 rollout is authorized.
 
+## Execution complete
+
+Product advice: execute correction plan
+[356](../356-source-review-record-lifecycle/PLAN.md)
+(SEED-010#source-review-record-lifecycle) before releasing this response, so
+the shipped gate refuses an omitted or mislinked source review and allocation
+timing no longer blocks delegation; then release and watch the first-use
+criterion recorded at ODF-139. Keep the planning-side Current-decisions check
+deferred until that first ordinary use, as the story states; the Cursor limit
+needs no new story now.
+
 ## Current decisions
 
 - One retained comparison record per execution: the reviewer's numbered
@@ -372,7 +383,10 @@ rollout is authorized.
   stream truncated before an outcome file (not added to the corpus). Then
   "accept as Cursor limit": the story carries the developer's amendment and
   G1 is `owner changed`. Both runs installed the working tree on top of
-  `795a01a7`; their `installed-inputs.sha256` match the committed guidance.
+  `795a01a7`; their `installed-inputs.sha256` matches the committed
+  `wrap-up.md`, and the coordinator's launch-time hash of the working-tree
+  `story-obligations.md` (`0309cc10…`) matches `4fd5aac5` (the capture does
+  not include that file; correction plan 356 adds it).
 - Slice 3 acceptance against the fresh review: S5f/B4 → all rounds
   developer-authorized; S5g → caught on Claude (`20261025T121735-5d5d`, gate
   refusal) and Codex (`20261025T122722-3426`), H1a–H1c → Cursor recorded not

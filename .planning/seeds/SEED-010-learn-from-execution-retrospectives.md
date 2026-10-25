@@ -386,6 +386,25 @@ proof per tool), ADR 0006 (executing-agent audience) and ADR 0010 (improvement
 judged against a stated baseline) apply; no ADR exception or North Star topic
 is needed.
 
+<a id="source-review-record-lifecycle"></a>
+
+### Keep the source-review record consistent through its lifecycle
+
+**Identity:** SEED-010#source-review-record-lifecycle
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/356-source-review-record-lifecycle/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2ea326d0d15692156a0b718859b2680f6a911c9653de10d8aa0e43d68f9ed29e","plan":"a41401a80ca592e80dbb7942b65857bf2c334ebbf4c6cb5b6e5c71de40c853bb"}}
+```
+
+**Goal:** A coordinator using the linked source-review record gets one
+consistent rule for when to link, allocate and observe commitments, and a gate
+that refuses a skipped or mislinked record, so the comparison delivered by
+SEED-010#accept-source-promises-after-plan-drift cannot be bypassed by omission
+or blocked before its first acceptance.
+
+**Scope:** Retrospective correction of plan 354; the
+[correction plan](../slice-plans/356-source-review-record-lifecycle/PLAN.md)
+holds the findings, preserved promises and proof. No new feature promise.
+
 <a id="refresh-human-amendments-before-completion"></a>
 
 ### Keep human amendments visible before Story Branch completion
