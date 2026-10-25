@@ -37,9 +37,10 @@ result → actual observation → current or legitimate remaining owner/disposit
 For planned execution, record that comparison per returned id in
 `source-review.md`, allocating and observing each id under its
 [record rules](story-obligations.md#record-the-source-review). A commitment the
-plan narrowed or omitted is a mismatch, not a disposition. Return it to the
-slice when this slice's output already owes it; when the plan claims a reason
-the story does not record, stop for human judgment.
+plan narrowed or omitted is a mismatch, not a disposition, and so is an
+observed location that shows a different result than the commitment states.
+Return it to the slice when this slice's output already owes it; when the plan
+claims a reason the story does not record, stop for human judgment.
 Include each qualification and journey example; a heading, count or plan list
 cannot stand for a compound promise. Return a concrete expected/actual mismatch
 unless a real human amendment changes it. Broad accuracy or compatibility claims

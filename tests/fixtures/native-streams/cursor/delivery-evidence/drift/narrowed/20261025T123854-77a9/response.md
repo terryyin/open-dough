@@ -1,0 +1,7 @@
+I'll apply the project's Open Dough acceptance workflow to the slice 4 return. First I'm reading the installed guidance and the return/story/plan inputs.Next I'll read the proof-acceptance guidance at the acceptance boundary.Checking for an existing source review and reading the record-form guidance next.No source review yet — I'll pull the story source for an isolated reviewer and check for prior acceptance artifacts.Spawning an isolated source-only reviewer, then inspecting product and proof against its commitments.Inspecting the product, tests, and diff against the source commitments and slice 4 plan.Running the claimed proof and consumer-trace, then comparing against slice 4 commitments.Recording the source review, linking it from the plan, and writing the acceptance outcome from the inspected evidence.Fixing the source-review and obligation records so the obligations check passes.**Slice 4 accepted.** Decision-boundary exclusion promises hold; nothing committed.
+
+Accepted against source review + plan: CCC/DDD filter rows in `excluded_candidates`, not ranked; existing label/instrument reasons and order; held/ordered in `history`; no-setup omitted. Inspected `entry/decision.py`, `entry/inputs.json`, `tests/test_decision.py`, JSON stdout, and the unittest run (5 pass).
+
+UI Record labels (and the rest of the Auto Trading UI in this replay) are disposed as **G1** `no user cost` under the Execution boundary stand-in. Incomplete coverage / risk-off stay with slice 5.
+
+Outcome: `.planning/acceptance-outcome.md`. Source review linked from the plan.

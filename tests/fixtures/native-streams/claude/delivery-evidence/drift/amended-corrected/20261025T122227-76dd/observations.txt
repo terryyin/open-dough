@@ -1,0 +1,6 @@
+scenario: amended-corrected
+judgment: review-required
+product-observation-status: 0
+focused-proof-status: 0
+review-complete: false
+harness-inspected: false

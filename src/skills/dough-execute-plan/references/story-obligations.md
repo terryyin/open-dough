@@ -130,7 +130,11 @@ Escape a `|` inside a cell as `\|`.
   changed). Correct a wrong allocation at any later acceptance.
 - **Observe** at each acceptance: for every id allocated to this slice, write
   `observed: <product or proof location>` once inspected, or the id of the
-  obligation that owns the gap. An observation recorded at an earlier slice
+  obligation that owns the gap. The location must show the commitment's own
+  expected result, as the source text states it: a location showing a
+  different or narrower result, such as an item kept somewhere other than
+  where the commitment lists it, is a mismatch to record as an obligation,
+  not an observation. An observation recorded at an earlier slice
   stays valid while its boundary is unchanged; do not rerun it for process.
 - **Link** an obligation back with `Commitment: 4a.5, 4a.6` after its
   `Disposition:`. Every id it names must be a returned id.

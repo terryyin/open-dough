@@ -336,6 +336,11 @@ comparison; the coordinator still judges applicability and observation; a
 controlled replay establishes the seam under the current host CLIs, not a
 rate; native rounds are paid and developer-run.
 
+Human amendment (2026-10-25, developer decision during execution): Cursor
+follow-through is a known limit of this structural response. On Cursor the
+narrowed replay is recorded with its outcome, and the correction is not
+required to catch it there; ODF-139 records the limit.
+
 **Key examples:**
 
 1. *Recorded mismatch (plan 412 replay).* Story Scope lists six exclusion

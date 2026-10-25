@@ -69,3 +69,18 @@ not slice ownership or acceptance. No plan, return, product or proof supplied.
 - K7 completion record: K7a assessment; K7b response revision; K7c replay outcomes per host with limits; K7d measured added records and rounds; K7e release state; K7f first-use criterion; K7g no effectiveness claim.
 
 Reviewer note: K6 appears only as a key example, with no separate Scope clause.
+
+## Fresh review after the 2026-10-25 human amendment
+
+Launch: fresh general-purpose reviewer, no inheritance; input = the amended
+story section's Goal, Scope (with the Cursor amendment) and Key examples from
+`.planning/seeds/SEED-010-learn-from-execution-retrospectives.md`; same
+instructions as above. The return renumbers the same commitments (G1–G3,
+S1a–S6g, P1–P5, R1, D1–D5, B1–B4, K1–K7) and adds:
+
+- H1a — "Cursor follow-through is a known limit of this structural response"
+- H1b — "On Cursor the narrowed replay is recorded with its outcome"
+- H1c — "the correction is not required to catch it there" (qualifies S5g, "The correction catches the former")
+- H1d — "ODF-139 records the limit"
+
+No other commitment changed, so earlier slices' accepted comparisons stand.

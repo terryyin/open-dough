@@ -249,7 +249,7 @@ acceptance text.
 
 ### 3. Native replay proves the correction catches the drift and preserves the amendment, recorded at ODF-139
 Type: Behavior
-Status: planned
+Status: done
 Proof: retained attempts show Claude `drift/narrowed` withholding or returning the two reasons with a retained per-commitment comparison and actual gate refusal while the product stays unchanged; Claude `drift/amended-corrected` proceeding with the quoted amendment and no invented work; Codex and Cursor `narrowed` rounds recorded per host; stream replay green; ODF-139 updated.
 
 Behavior: Given the slice 2 candidate installed into the `drift` fixtures,
@@ -350,9 +350,50 @@ rollout is authorized.
   change nothing until release. Published-guidance example links to
   non-payload files must be prose (`tests/payload-declaration-links.sh`
   reads fenced links too).
+- Slice 3 (developer-authorized in session, run by the coordinator at
+  `795a01a7`, `--results-dir ~/.claude/jobs/ad4cfde7/tmp/slice3`): Claude
+  `narrowed` caught the drift (gate `open-obligation` naming 3.1.5/3.1.6,
+  human-judgment stop); Claude `amended-corrected` disposed the two items
+  `owner changed` with the quoted amendment; Codex `narrowed` caught it
+  (returned to slice 4, gate refused); Cursor `narrowed` timed out at 300 s
+  (stream truncated, no outcome), was retried once at 900 s on the stated
+  workload explanation, and did not catch it: `observed: … in history` cells
+  passed the structural gate. Each attempt's outcome, source review, plan,
+  gate checks and product observation are retained in
+  [slice3-attempts/](slice3-attempts/); streams joined the replay corpus.
+  ODF-139 records outcomes, limits, burden and the first-use criterion. The
+  Cursor result is a recorded limit of the story's no-semantic-checker
+  boundary; changing guidance in response is a new decision, not this plan's.
+- Slice 3 G1 (developer decisions in session): first "strengthen and rerun":
+  `story-obligations.md` Observe and `wrap-up.md` now say an observed location
+  must show the commitment's own expected result; Cursor (`20261025T125143-579f`,
+  900 s) read it and still recorded `observed: … (history per plan Current
+  decisions)`; Claude (`20261025T125133-5458`, 300 s) still caught it but its
+  stream truncated before an outcome file (not added to the corpus). Then
+  "accept as Cursor limit": the story carries the developer's amendment and
+  G1 is `owner changed`. Both runs installed the working tree on top of
+  `795a01a7`; their `installed-inputs.sha256` match the committed guidance.
+- Slice 3 acceptance against the fresh review: S5f/B4 → all rounds
+  developer-authorized; S5g → caught on Claude (`20261025T121735-5d5d`, gate
+  refusal) and Codex (`20261025T122722-3426`), H1a–H1c → Cursor recorded not
+  caught (`20261025T123854-77a9`, `20261025T125143-579f`), G1 `owner changed`;
+  S5h, K2 → Claude amended-corrected `owner changed` with the quoted
+  amendment; S6a–S6g, K7, H1d → ODF-139 section "Bounded response — numbered
+  commitments through the obligations gate"; D5, S6g → no rate or
+  effectiveness claim. `native-stream-corpus-add.mjs` drafted
+  `last-start-line: 635` for the Cursor `125143-579f` entry because its
+  repeated identical gate commands matched an earlier line; corrected to 1050
+  by inspection (replay green).
 - Execution start: the fresh source-only reviewer's return is retained at
   [source-review.md](source-review.md) (ids S1–S26, X1–X6, A1–A5, K1–K7);
   slice 2 gives it its linked record form.
+
+## Story obligations
+
+### G1. Cursor accepted the narrowed replay through a contradicting observation
+Reported: slice 3 — "Discovered in acceptance of Cursor attempt 20261025T123854-77a9: source-review rows 13.5/13.6 (already held/ordered) were recorded observed in history, the gate passed and slice 4 was accepted with the plan-scoped product."
+Story clause: "The correction catches the former and proceeds on the latter."
+Disposition: owner changed "Cursor follow-through is a known limit of this structural response."
 
 ## Plan concern review
 
