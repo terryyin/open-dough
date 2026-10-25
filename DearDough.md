@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 346. Removed numbers are never reused.
+- Highest allocated local number: 347. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -412,6 +412,14 @@ The guarded fresh delivery runs each preparation operation directly without a sh
   - Former local code: ProjectFindings DD-340 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
   - Evidence: guarded fresh delivery `operation: formatting`, "eslint: not found on PATH" with `["node","scripts/lint.mjs","--fix"]` while `node_modules/.bin/eslint` existed; the retry with `node_modules/.bin` first on PATH was accepted (`795a01a7`); slice 1's shell/Markdown-only delivery had passed with the same operation
   - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+- Execution: SEED-010#source-freshness-for-planless-and-reamended-work (plan 357, first implementation commit cc6d397915db451e64772b3ee70f9cf46d8cbd63)
+  - Timestamp: unknown (2026-10-26, slice 1 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision 9492019d; base 0.3.72
+  - Evidence: guarded fresh delivery returned `preparation-failed`, `operation: formatting`, "eslint: not found on PATH ... prettier: not found on PATH" with `["node","scripts/lint.mjs","--fix"]` while `node_modules/.bin/eslint` existed; the retry with `["npm","run","--silent","format"]` was accepted (`cc6d3979`)
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+  - Inference: the coordinator had read this finding's two earlier rows only after the failure; the installed `fresh-increment.md` still names no package-script formatter, so the third occurrence followed the same path.
 
 ## DD-339 — Nested-fixture proof missed a real-suite shape, so the artifact misattributed 124 s
 

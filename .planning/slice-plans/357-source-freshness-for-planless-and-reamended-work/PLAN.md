@@ -219,6 +219,15 @@ second-amendment tests and passed the after-decision ones apart from `from`:
 the after-decision route already reached `unchanged`, so its change is the
 guidance and its regression proof.
 
+## Execution complete
+
+Product advice: no change. Both findings are corrected within the story's
+scope and no correction follows. At wrap-up, the source-freshness description in
+`docs/maintainer/findings/ODF-354.md` Assessment ("three-way from the Take's
+merge base") predates the per-record `from` base and may be assimilated.
+Process: DD-338 recurred (formatter run without the package's binaries) and
+DD-347 records the read-budget row at its limit.
+
 ## Current decisions
 
 - The rule for a source without a plan link is decided here, within the
