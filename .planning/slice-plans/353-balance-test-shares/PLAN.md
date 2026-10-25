@@ -93,13 +93,22 @@ dashboard's first recorded durations; it is named in that slice.
 
 ### 1. Node shares are dealt by recorded duration and previewed locally
 Type: Behavior
-Status: planned
+Status: done
 Proof: new allocator test under `tests/support/*.test.mjs` with the
 `plan-350-inputs/` fixture (examples 1 to 4, determinism across input order,
 ties by share index, median for unrecorded jobs, malformed line);
 `bash scripts/test.sh tests/test-runner-split.sh tests/test-runner-interrupt.sh tests/test-runner-failure-report.sh`
 with their substitute lists in the new form; `npm run lint`; one whole
 `npm test`, because every job passes through the changed listing.
+Accepted: `bash scripts/test.sh tests/support/share-deal-recorded-runs.test.mjs tests/support/share-deal.test.mjs tests/support/test-shares.test.mjs tests/test-runner-split.sh tests/test-runner-interrupt.sh tests/test-runner-failure-report.sh tests/test-runner-bash.sh tests/test-runner-selection.sh tests/test-runner-budget.sh`
+(examples 1 to 4 and determinism in `share-deal-recorded-runs.test.mjs` on
+the committed fixture `tests/support/fixtures/plan-350/`; ties, median,
+malformed line and refresh in `share-deal.test.mjs`; the `share` and
+`preview` commands, the Bash 5 floor and a substitute directory through
+`scripts/test-jobs.sh` in `test-shares.test.mjs`; example 6 in
+`tests/test-runner-split.sh`), `npm run lint`, `npm run typecheck:dashboard`
+and one whole `npm test`, all exit 0 and silent. The preview over the real
+suite predicted 498.5 ×3 from the refreshed list.
 
 Behavior: given the Node job set and `tests/longest-first` in
 `<seconds><TAB><label>` form, when CI runs share `i/n` or a contributor runs
@@ -183,7 +192,25 @@ waits.
 
 ## Learnings
 
-None yet.
+- Slice 1: the plan's measured after-run totals (599.2 / 599.5 / 596.6) and
+  the rename figures (621.7 / 591.8 / 581.8) came from the preparation's
+  scratch reconstruction, whose order among recorded jobs of equal seconds
+  was not recorded; 1,728 ordering variants failed to reproduce them, so they
+  are not recoverable. The implemented order (ties bytewise) measures
+  602.0 / 597.1 / 596.2 and 577.9 / 577.9 / 632.2; the predicted 596.0 ×3,
+  zero other jobs changing share, the added file alone on the lightest share,
+  333 unrecorded of 417 and the ≤ 54.4 rise all reproduce. A plan quoting a
+  measured allocation must state the full sort key.
+- Slice 1: `tests/helpers/copy-runner.bash` lists the runner's files; a new
+  file the runner executes, and every module it imports, must be added there
+  (found by the consumer trace, not by the focused runner tests).
+
+## Story obligations
+
+### G1. Example figures depend on an unrecorded tie order
+Reported: slice 1 — "The after-run measured totals do not: mine are 602.0 / 597.1 / 596.2 against the plan's 599.2 / 599.5 / 596.6 (same sum 1795.3, so the same job set and runs). The per-share split depends on the order among recorded jobs with equal seconds, which the plan's decisions do not fix."
+Story clause: "every share keeps more than 110 job-seconds of headroom instead of share 3 ending 1.1 over"
+Disposition: no user cost "gets CI shares whose predicted load stays balanced and visible before pushing": the story fixes ties only "by share index and stable orders", and bytewise order among equal-second recorded jobs is one stable order; the contributor-visible promises of examples 1, 3 and 4 hold in `tests/support/share-deal-recorded-runs.test.mjs` (predicted 596.0 ×3, zero other jobs changing share, the added file alone on the lightest share, each share over 100 job-seconds of headroom where the positional deal measured 711.1, the heaviest share rising 36.2 ≤ 54.4 on the rename, 333 unrecorded of 417), and the measured allocation the story records is the landed run's (example 7, slice 3), not the reconstruction's. The quoted 599.2 / 599.5 / 596.6, 621.7 / 591.8 / 581.8 and "more than 110" are illustrative reconstruction figures; the developer may update them to the implemented order at wrap-up.
 
 ## Plan concern review
 

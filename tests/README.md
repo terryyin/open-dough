@@ -108,21 +108,15 @@ substitute checks. Chosen paths replace that discovery.
 
 The runner runs one job per online CPU at a time; each job keeps its own
 temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
-Jobs named in `tests/longest-first` start first, in that order, so the longest
-job does not start last; the rest follow, sorted bytewise.
-`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n`: the runner deals
-that order round-robin across `n` shares, so every job lands in exactly one
-share whatever order the file system lists the tests in, and a failure or time
-is reported only for the share's own jobs. A malformed value, or `i` outside
-`1..n`, fails the run naming the value before any job starts. Unset, every job
-runs. `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
-longest first, which is how that list is refreshed (see its header). Every
-`OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a check
-that runs the runner itself gives it only the settings it chooses, runs all of
-its own checks, and keeps its own times. CI runs the suite as split jobs, each with
-`OPEN_DOUGH_TEST_SPLIT` set to its share; each fails on its own share's
-failures or budget breach and keeps its times for seven days as workflow
-artifact `test-times-<i>`.
+Jobs start in the order `scripts/test-shares.mjs` deals them from the CI
+seconds recorded in `tests/longest-first`, longest recorded first;
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, and
+`OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
+longest first. Every `OPEN_DOUGH_TEST_*` setting stays with the runner that
+was given it, so a check that runs the runner itself gives it only the
+settings it chooses, runs all of its own checks, and keeps its own times. CI's
+shares, the deal and the preview to run before a push that adds, removes or
+renames a test file are in [test-shares.md](test-shares.md).
 
 The suite's time budget, `tests/time-budget`, and how a slice checks a change
 against recent trunk CI timings are in [time-budget.md](time-budget.md).

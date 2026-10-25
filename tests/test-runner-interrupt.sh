@@ -41,9 +41,16 @@ write_check pass-b.sh 'true'
 write_blocking_check never-ending.sh
 
 # One slot and this order make every earlier check end before the next starts,
-# so the passing checks have finished when the never-ending check is ready.
+# so the passing checks have finished when the never-ending check is ready:
+# the named checks are listed with falling seconds, so they start in the
+# given order, and an unlisted check starts after them.
 order() {
-  printf '%s\n' "$@" | sed "s|^|${checks}/|" > "${checks}/longest-first"
+  local name seconds=$#
+  : > "${checks}/longest-first"
+  for name in "$@"; do
+    printf '%s.0\t%s/%s\n' "${seconds}" "${checks}" "${name}" >> "${checks}/longest-first"
+    seconds=$((seconds - 1))
+  done
 }
 
 # Job control starts the runner in its own process group with INT not ignored;

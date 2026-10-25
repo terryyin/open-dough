@@ -1,0 +1,224 @@
+// scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
+// recorded durations: the duration list form, the deal, and its preview.
+// scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
+// for the Node runner's share and by a contributor for the preview and the
+// refresh (tests/test-shares.md).
+//
+// A duration list (`tests/longest-first` for the Node suite) holds one
+// `<seconds><TAB><label>` line per recorded job, the form the runner's
+// `test-times` artifact prints; `#` lines and blank lines are ignored, and any
+// other line fails naming the file, line number and content before any job
+// runs. Listed labels that match no job are ignored.
+//
+// The deal: recorded jobs, longest first (ties bytewise), each go to the share
+// with the smallest predicted total, ties to the lower share index. Unrecorded
+// jobs follow in bytewise order, each assumed at the median of the recorded
+// seconds (the mean of the two middle values for an even count; with no
+// recorded jobs, or a median of 0, each is assumed at 1 s so they still spread
+// across the shares). The deal is deterministic across input order, and the
+// predicted totals differ by at most one job's duration. Within a share the
+// jobs start in that same order: recorded longest first, then unrecorded.
+
+import { readFileSync } from "node:fs";
+
+// A failure to report as it is and exit 1 on.
+export class TestSharesError extends Error {}
+
+const secondsPattern = /^[0-9]+(\.[0-9]+)?$/;
+// Below this, two predicted totals are equal; sums of tenths differ from
+// their exact value by far less, and durations are never this close apart.
+const equalTotals = 1e-9;
+const bytewise = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
+
+export function formatSeconds(value) {
+  return value.toFixed(1);
+}
+
+// Records a label's seconds, keeping the largest when the label repeats.
+function recordLongest(seconds, label, value) {
+  if (!seconds.has(label) || seconds.get(label) < value) {
+    seconds.set(label, value);
+  }
+}
+
+// Parses a duration list or a times file into its leading header lines and
+// a map from label to seconds. Any non-comment, non-blank line must be
+// `<seconds><TAB><label>`.
+export function parseDurationList(text, name) {
+  const header = [];
+  const seconds = new Map();
+  let inHeader = true;
+  text.split(/\r?\n/).forEach((line, index) => {
+    if (line.startsWith("#")) {
+      if (inHeader) {
+        header.push(line);
+      }
+      return;
+    }
+    if (line.trim() === "") {
+      return;
+    }
+    inHeader = false;
+    const tab = line.indexOf("\t");
+    const value = tab === -1 ? "" : line.slice(0, tab);
+    const label = tab === -1 ? "" : line.slice(tab + 1);
+    if (!secondsPattern.test(value) || label === "") {
+      throw new TestSharesError(
+        `FAIL: ${name}:${index + 1}: ${JSON.stringify(line)} is not <seconds><TAB><label>; no check was run.`,
+      );
+    }
+    recordLongest(seconds, label, Number(value));
+  });
+  return { header, seconds };
+}
+
+export function readDurationList(path) {
+  return parseDurationList(readFileSync(path, "utf8"), path);
+}
+
+// The refreshed list text: the header lines (without any former `# Source:`
+// line) followed by `# Source: <source>`, then every job of the times files,
+// longest first, ties bytewise, with its seconds as printed by the runner.
+export function mergeTimes(times, { header, source }) {
+  const merged = new Map();
+  for (const { name, text } of times) {
+    for (const [label, seconds] of parseDurationList(text, name).seconds) {
+      recordLongest(merged, label, seconds);
+    }
+  }
+  const jobs = [...merged]
+    .sort(([leftLabel], [rightLabel]) => bytewise(leftLabel, rightLabel))
+    .sort(([, left], [, right]) => right - left);
+  const lines = [
+    ...header.filter((line) => !line.startsWith("# Source:")),
+    `# Source: ${source}`,
+    ...jobs.map(([label, seconds]) => `${formatSeconds(seconds)}\t${label}`),
+  ];
+  return `${lines.join("\n")}\n`;
+}
+
+function median(values) {
+  const sorted = [...values].sort((left, right) => left - right);
+  if (sorted.length === 0) {
+    return undefined;
+  }
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+// Deals the labels into shareCount shares by the recorded seconds. Returns
+// the shares in index order, each with its jobs in start order and its
+// predicted total, beside the recorded and unrecorded counts and the
+// assumed seconds of an unrecorded job.
+export function dealShares(labels, seconds, shareCount) {
+  if (!Number.isInteger(shareCount) || shareCount < 1) {
+    throw new TestSharesError(
+      `FAIL: the share count must be a whole number of 1 or more, not ${shareCount}.`,
+    );
+  }
+  const unique = [...new Set(labels)].sort(bytewise);
+  const recorded = unique
+    .filter((label) => seconds.has(label))
+    .map((label) => ({ label, seconds: seconds.get(label), recorded: true }))
+    .sort((left, right) => right.seconds - left.seconds);
+  const recordedMedian = median(recorded.map((job) => job.seconds));
+  const assumedSeconds =
+    recordedMedian === undefined || recordedMedian === 0 ? 1 : recordedMedian;
+  const unrecorded = unique
+    .filter((label) => !seconds.has(label))
+    .map((label) => ({ label, seconds: assumedSeconds, recorded: false }));
+  const shares = [...Array(shareCount).keys()].map((index) => ({
+    index: index + 1,
+    jobs: [],
+    predicted: 0,
+  }));
+  for (const job of [...recorded, ...unrecorded]) {
+    const lightest = shares.reduce((best, share) =>
+      share.predicted < best.predicted - equalTotals ? share : best,
+    );
+    lightest.jobs.push(job);
+    lightest.predicted += job.seconds;
+  }
+  return {
+    shareCount,
+    shares,
+    recordedCount: recorded.length,
+    unrecordedCount: unrecorded.length,
+    recordedMedian,
+    assumedSeconds,
+  };
+}
+
+// The labels of share `index` (1-based) in start order.
+export function shareLabels(allocation, index) {
+  return allocation.shares[index - 1].jobs.map((job) => job.label);
+}
+
+// The preview text: the list and job counts, each share's predicted total
+// with its headroom to `ceiling` (the budget's total-job-seconds, when
+// given), then each unrecorded job with its share and assumed seconds.
+export function formatPreview(allocation, { listName, ceiling, budgetName }) {
+  const jobCount = allocation.recordedCount + allocation.unrecordedCount;
+  const assumption =
+    allocation.recordedMedian === allocation.assumedSeconds
+      ? "the recorded median"
+      : "no usable recorded median";
+  const lines = [
+    `Predicted job-seconds per share from ${listName}: ${jobCount} jobs, ${allocation.recordedCount} recorded, ${allocation.unrecordedCount} unrecorded at ${formatSeconds(allocation.assumedSeconds)} s each (${assumption}).`,
+  ];
+  for (const share of allocation.shares) {
+    const unrecorded = share.jobs.filter((job) => !job.recorded).length;
+    let line = `share ${share.index}/${allocation.shareCount}: ${formatSeconds(share.predicted)} predicted (${share.jobs.length} jobs, ${unrecorded} unrecorded)`;
+    if (ceiling !== undefined) {
+      line += `; headroom ${formatSeconds(ceiling - share.predicted)} to the total ceiling ${ceiling} (${budgetName})`;
+    }
+    lines.push(line);
+  }
+  if (allocation.unrecordedCount > 0) {
+    lines.push(
+      `unrecorded jobs (${allocation.unrecordedCount}), each assumed at ${formatSeconds(allocation.assumedSeconds)} s; a refresh of ${listName} records them:`,
+    );
+    for (const share of allocation.shares) {
+      for (const job of share.jobs) {
+        if (!job.recorded) {
+          lines.push(
+            `  share ${share.index}/${allocation.shareCount}  ${job.label}`,
+          );
+        }
+      }
+    }
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+// Reads `per-job-seconds=<n>` and `total-job-seconds=<n>` as
+// scripts/time-budget.bash, the runner's reader of the same file, does: any
+// other non-comment line, or a missing number, fails.
+export function readTimeBudget(path) {
+  const settings = readFileSync(path, "utf8")
+    .split(/\r?\n/)
+    .filter((line) => line !== "" && !line.startsWith("#"))
+    .map((line) =>
+      /^(per-job-seconds|total-job-seconds)=([0-9]+(\.[0-9]+)?)$/.exec(line),
+    );
+  const values = Object.fromEntries(
+    settings
+      .filter((match) => match !== null)
+      .map((match) => [match[1], Number(match[2])]),
+  );
+  if (
+    settings.includes(null) ||
+    values["per-job-seconds"] === undefined ||
+    values["total-job-seconds"] === undefined
+  ) {
+    throw new TestSharesError(
+      `FAIL: ${path} must set only per-job-seconds=<n> and total-job-seconds=<n>.`,
+    );
+  }
+  return {
+    perJobSeconds: values["per-job-seconds"],
+    totalJobSeconds: values["total-job-seconds"],
+  };
+}

@@ -153,14 +153,15 @@ if grep -E -- 'node-quiet|FAIL: .*(first|second)' "${temporary_dir}/node.log"; t
 fi
 rm -- "${checks}/node/node-failing.test.mjs" "${checks}/node/node-noisy.test.mjs"
 
-# Jobs named in `longest-first` start first, in that order, then the rest;
-# OPEN_DOUGH_TEST_TIMES receives every job's seconds and label, longest first.
+# Jobs recorded in `longest-first` start first, longest recorded first, then
+# the rest; OPEN_DOUGH_TEST_TIMES receives every job's seconds and label,
+# longest first.
 order="${temporary_dir}/order"
 for name in alpha beta gamma; do
   write_check "${name}.sh" "printf '%s\\n' ${name} >> '${order}'"
 done
 write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
-printf '# longest first\n%s\n%s\n%s\n' "${checks}/gamma.sh" 'tests/not-a-job.sh' \
+printf '# longest first\n3.0\t%s\n2.0\t%s\n1.0\t%s\n' "${checks}/gamma.sh" 'tests/not-a-job.sh' \
   "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
 times="${temporary_dir}/times"
 OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" run_suite ordered
