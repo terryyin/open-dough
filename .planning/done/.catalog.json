@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-151_tidy-share-allocator.json",
+      "identity": "SEED-151#tidy-share-allocator",
+      "completedAt": "2026-10-25T13:17:18.673Z",
+      "blob": "decf230961acab383bf7f7ce663caa6d14f3cf49"
+    },
+    {
       "fileName": "SEED-151_balance-test-shares.json",
       "identity": "SEED-151#balance-test-shares",
       "completedAt": "2026-10-25T12:16:59.774Z",

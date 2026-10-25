@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-151#tidy-share-allocator",
+  "title": "Tidy the share allocator's surfaces and tests",
+  "completedAt": "2026-10-25T13:17:18.673Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "claude",
+  "model": "opus"
+}
