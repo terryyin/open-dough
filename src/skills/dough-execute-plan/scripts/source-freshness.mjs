@@ -8,12 +8,15 @@
 // The records are the story section and the linked plan; without a plan link,
 // the home alone: the whole document when it reads as a plan (a plan-homed
 // correction), otherwise the story section (a quick story).
-// Each record is compared at base, on trunk, and in the workspace's working
-// tree (the branch copy: committed increments plus any uncommitted edit of the
-// slice being delivered, so absorbing never drops an edit in progress). Trunk
-// text equal to the base, or already contained in the branch copy, is
-// `unchanged`. Otherwise trunk's change is applied three-way over the branch
-// copy with `git merge-file`; an overlapping edit, or an application that
+// Each record is compared on trunk and in the workspace's working tree (the
+// branch copy: committed increments plus any uncommitted edit of the slice
+// being delivered, so absorbing never drops an edit in progress) from its own
+// base, named as `from`: the newest trunk revision since the Take whose record
+// text the branch copy already contains, or the Take, so an absorbed
+// amendment is not mistaken for the branch's own edit. Trunk text equal to
+// that base, or already contained in the branch copy, is `unchanged`.
+// Otherwise trunk's change is applied three-way over the branch copy with
+// `git merge-file`; an overlapping edit, or an application that
 // changes or removes a slice the branch marks done, is a `conflict`, and any
 // other change is `amended`. `absorb` writes the clean application of the
 // amended records into the working tree and refuses a conflict, writing
@@ -144,15 +147,48 @@ export async function inspectSourceFreshness({
         { record, path, absentAt: where },
       );
   };
+  // `compare` of one record from its base, named as `from`: the newest trunk
+  // revision of `path` since the Take whose record text (`textAt`) the branch
+  // copy contains, meaning its application from the Take leaves the branch
+  // copy as it is; otherwise the Take.
+  const fromContainedBase = async (compare, { textAt, ...fields }) => {
+    const request = { repository, ...fields };
+    const since = (
+      await git(
+        repository,
+        "rev-list",
+        `${base}..${trunkRevision}`,
+        "--",
+        fields.path,
+      )
+    ).stdout
+      .split("\n")
+      .filter(Boolean);
+    let from = { revision: base, text: fields.base };
+    for (const revision of since) {
+      const text = await textAt(revision);
+      if (text === undefined || text === null) continue;
+      const { state } = await compare({ ...request, trunk: text });
+      if (state === "unchanged") {
+        from = { revision, text };
+        break;
+      }
+    }
+    const { record, path, ...compared } = await compare({
+      ...request,
+      base: from.text,
+    });
+    return { record, path, from: from.revision, ...compared };
+  };
   const homes = await read(homePath);
   const writes = new Map();
   const records = [];
   const comparePlan = async (path, texts) => {
-    const plan = await compareRecord({
-      repository,
+    const plan = await fromContainedBase(compareRecord, {
       record: "plan",
       path,
       ...texts,
+      textAt: (revision) => show(repository, revision, path),
       doneRule: true,
     });
     if (plan.state === "amended") writes.set(path, plan.application);
@@ -177,13 +213,14 @@ export async function inspectSourceFreshness({
     absent("story", homePath, sections);
     const plans = planPath && (await read(planPath));
     if (plans) absent("plan", planPath, plans);
-    const story = await compareSection({
-      repository,
+    const story = await fromContainedBase(compareSection, {
       record: "story",
       path: homePath,
       base: sections.base.text,
       trunk: sections.trunk.text,
       branch: sections.branch.text,
+      textAt: async (revision) =>
+        sectionOf(await show(repository, revision, homePath), entry.href)?.text,
     });
     if (story.state === "amended")
       writes.set(homePath, withSection(sections.branch, story.application));

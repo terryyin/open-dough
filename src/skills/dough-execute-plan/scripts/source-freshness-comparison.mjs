@@ -1,5 +1,6 @@
 // The three-way comparison behind the source freshness command: one record's
-// base (take), trunk, and branch-copy texts, merged with `git merge-file` in
+// base (the Take, or a later trunk revision the branch copy contains), trunk,
+// and branch-copy texts, merged with `git merge-file` in
 // scratch files under the repository's own Git directory, so a host that only
 // lets the agent write inside the workspace can run it. Trunk text equal to
 // the base, or a clean application equal to the branch copy, is `unchanged`; an overlapping edit, or an application that
@@ -21,8 +22,8 @@ function scratchDirectory(repository) {
   return mkdtemp(gitPath(repository, "source-freshness-"));
 }
 
-// `git merge-file` of branch (ours), take (base) and trunk (theirs) texts,
-// and the take-to-trunk change as a unified diff, computed in scratch files
+// `git merge-file` of branch (ours), base and trunk (theirs) texts, and the
+// base-to-trunk change as a unified diff, computed in scratch files
 // removed afterwards.
 async function compareThreeWay(repository, branch, base, trunk) {
   const dir = await scratchDirectory(repository);

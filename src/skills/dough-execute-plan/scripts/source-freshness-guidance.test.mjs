@@ -99,3 +99,22 @@ test("the reference names the results, absorb, and the conflict stop", () => {
     /node '<installed-execute-plan>\/scripts\/source-freshness\.mjs' check/,
   );
 });
+
+test("the reference names each record's base and the route after a conflict decision", () => {
+  const reference = read("dough-execute-plan/references/source-freshness.md");
+  const flat = (text) => text.replace(/\s+/g, " ");
+  assert.ok(
+    flat(section(reference, "## Run the check")).includes(
+      "from its `from` base: the newest trunk revision since the Take whose text the branch copy contains, or the Take",
+    ),
+    "names the base each record is compared from",
+  );
+  const stop = flat(section(reference, "## Stop on a conflict"));
+  for (const term of [
+    "Resolve nothing without the developer's decision and write nothing to trunk",
+    "When the decision keeps trunk's text, write it into the branch copy in the increment, reopening a done slice under plan refinement when the decision reopens it",
+    "when it keeps the branch's text, the developer changes trunk",
+    "Then rerun `check` at the stopped boundary and continue only on `unchanged`",
+  ])
+    assert.ok(stop.includes(term), `names ${term}`);
+});
