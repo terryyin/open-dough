@@ -22,5 +22,6 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Tidy the share allocator's surfaces and tests](seeds/SEED-151-test-share-reliability.md#tidy-share-allocator) — SEED-151#tidy-share-allocator
 - [Accept original source promises when a plan narrows them](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-source-promises-after-plan-drift) — SEED-010#accept-source-promises-after-plan-drift
 - [Keep human amendments visible before Story Branch completion](seeds/SEED-010-learn-from-execution-retrospectives.md#refresh-human-amendments-before-completion) — SEED-010#refresh-human-amendments-before-completion

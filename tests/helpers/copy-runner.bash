@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Copies the suite runner and the parts it sources or runs into a fixture's
-# scripts/ directory, so adding a runner file edits one place.
+# Copies the suite runner, the parts it sources or runs, and the modules those
+# import into a fixture's scripts/ directory, so adding a runner file edits one
+# place.
 
 # copy_runner FIXTURE copies the runner into FIXTURE/scripts/.
 copy_runner() {
