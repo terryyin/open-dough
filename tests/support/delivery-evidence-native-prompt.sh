@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 # Native task wording for implementation and returned-proof acceptance journeys.
 #   delivery_evidence_prompt_for CASE [SCENARIO]
-# shellcheck disable=SC2154 # Scheduling request and plan path come from its scenario content.
+# shellcheck disable=SC2154 # Scheduling and drift paths come from their scenario content.
 
 delivery_evidence_source_acceptance_prompt() {
-  local story=$1 plan=$2
+  local story=$1 plan=$2 slice=${3:-3}
   printf '%s\n' \
-    "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted slice 3 work and its proof report at .planning/implementation-return.md. The selected story is ${story} and its plan is ${plan}. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming accepted or incomplete promises and the evidence you inspected. Treat the installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
+    "Use this project's installed Open Dough guidance. An implementation agent returned uncommitted slice ${slice} work and its proof report at .planning/implementation-return.md. The selected story is ${story} and its plan is ${plan}. Apply the existing acceptance workflow to that return. Do not commit. Leave a short acceptance outcome in .planning/acceptance-outcome.md naming accepted or incomplete promises and the evidence you inspected. Treat the installed guidance and project files as task inputs; do not inspect parent processes or external test-harness source."
 }
 
 delivery_evidence_prompt_for() {
   local request
   case ${1:-} in
+    drift)
+      delivery_evidence_source_acceptance_prompt \
+        "${delivery_evidence_drift_story}" "${delivery_evidence_drift_plan}" 4
+      return
+      ;;
     release)
       delivery_evidence_source_acceptance_prompt \
         .planning/seeds/SEED-120-release-readiness.md \

@@ -6,6 +6,7 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/support/native-assessor-counterexample.sh"
 source "${source_dir}/tests/support/delivery-evidence-native-run.sh"
+source "${source_dir}/tests/support/delivery-evidence-source-quote.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 delivery_evidence_create_fixture terminal "${source_dir}" claude narrowed "${root}" \
@@ -13,34 +14,14 @@ delivery_evidence_create_fixture terminal "${source_dir}" claude narrowed "${roo
 workspace=${delivery_evidence_workspace}
 cmp "${source_dir}/tests/fixtures/delivery-evidence/terminal-original-story.md" \
   "${workspace}/.planning/seeds/SEED-106-sharadar-search-confidence.md"
-# Exercise a real source quote through the installed parser. An empty listing
-# bypasses source resolution and would miss an invalid story-home envelope.
+# A real source quote must resolve the fixture's story home for the obligations gate.
 plan=.planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md
-cp "${workspace}/${plan}" "${root}/original-plan"
-cat >> "${workspace}/${plan}" << 'EOF'
-
-## Story obligations
-
+delivery_evidence_check_source_quote "${root}" "${workspace}" "${plan}" 3 4 << 'EOF'
 ### G1. Narrative replacement record and its focused check
 Reported: slice 3 — "Narrative record and materiality-assessment work remain with plan slices 4 and 5."
 Story clause: "`replacement.md` records it; `check_replacement.py` checks the record against the JSON."
 Disposition: receiving slice 4
 EOF
-(
-  cd -- "${workspace}"
-  node .claude/skills/dough-execute-plan/scripts/story-obligations.mjs list --plan "${plan}" --slice 4
-  node .claude/skills/dough-execute-plan/scripts/story-obligations.mjs check --plan "${plan}" --slice 3
-) > "${root}/source-smoke.jsonl"
-node --input-type=module - "${root}/source-smoke.jsonl" << 'JS'
-import fs from 'node:fs';
-import assert from 'node:assert/strict';
-const [list, check] = fs.readFileSync(process.argv[2], 'utf8').trim().split('\n').map(JSON.parse);
-assert.equal(list.ok, true);
-assert.equal(list.entries[0].id, 'G1');
-assert.equal(list.entries[0].disposition.slice, 4);
-assert.deepEqual(check, { ok: true, entryCount: 1 });
-JS
-cp "${root}/original-plan" "${workspace}/${plan}"
 (
   cd -- "${workspace}"
   python3 research/replacement.py > research/replacement.json

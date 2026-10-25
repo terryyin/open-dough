@@ -243,6 +243,24 @@ historical 134 GB remains unknown.
 
 [DD-312 evidence and same-execution repair](docs/maintainer/project-test-findings.md#dd-312) retain the hosted and local observations. No new implementation story is selected.
 
+## Corpus drafts mis-place the cut after repeated commands (open, unqueued)
+
+<a id="dd-343"></a>
+
+### DD-343 — `native-stream-corpus-add.mjs` drafted `last-start-line` at an earlier identical command
+
+Former local code: DD-339 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
+
+### Occurrences
+- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
+  - Timestamp: unknown (2026-10-25, slice 3)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision e099f7db; base 0.3.72
+  - Evidence: `tests/fixtures/native-streams/cursor/delivery-evidence/drift/narrowed/20261025T125143-579f/expected` drafted `last-start-line: 635` while the last started command is stream line 1050; its last three commands are the same `story-obligations.mjs check`; replay failed "started command 7 of 8 is null"
+  - Observed effect: `tests/native-stream-replay.sh` failed until the value was corrected to 1050 by inspection.
+  - Inference: the in-turn search for each started command can match an earlier identical line; review catches it only through the replay failure.
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)

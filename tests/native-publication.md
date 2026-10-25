@@ -133,6 +133,22 @@ Terminal also has `corrected` and `amended-corrected` scenarios through the shar
 scenario entry point. The latter's synthetic human amendment changes only the
 verdict qualifier's display owner; cheap controls do not establish native acceptance.
 
+`--case delivery-evidence/drift` replays plan 412's slice 4 acceptance with the
+verbatim selected story from Pygardon `c50b14d6d^`
+(`SEED-145#story-reviewable-entry-decision`), a plan excerpt carrying slice 4
+and its historical Current decisions, and the slice 4 return, over a controlled
+reconstruction of the decision's excluded list whose narrowed tests pass. Its
+scenarios are `narrowed` and `amended-corrected`; the latter appends a synthetic
+human amendment to the story and keeps the returned product. Set
+`delivery_evidence_only_scenario=narrowed` (or `amended-corrected`) in the
+environment to run one scenario. `tests/delivery-evidence-drift.sh` first proves
+that the narrowed product contradicts the source while its tests pass, that a
+corrected control satisfies it and the amended control carries the amendment,
+and that the drift assessor rejects quote-only, plan-decision-as-exclusion,
+unchanged-accepted, fabricated-amendment and comparison-free reviews. The
+request names source, plan and return only; inspect the retained product
+observation, per-commitment comparison and acceptance/obligation state yourself.
+
 ## Unrun observer-ownership acceptance
 
 No paid native run has yet observed how a coordinator keeps its own CI

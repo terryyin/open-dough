@@ -50,7 +50,9 @@ when neither the return nor acceptance identifies a gap.
 ## Record format
 
 The plan's `**Source:**` link must name its selected story section. Use one
-`###` entry with a stable id per obligation and exactly these three fields:
+`###` entry with a stable id per obligation and exactly these three fields,
+plus the optional `Commitment:` field described under
+[the source review](#record-the-source-review):
 
 ```markdown
 ## Story obligations
@@ -93,12 +95,54 @@ Choose exactly one disposition:
   sufficient current proof accepting it. Once supplied, continue without
   another approval or blanket rerun.
 
-A learning or an out-of-scope remark is no disposition. Keep learnings only
-for discoveries changing remaining work. Single-slice quick execution creates
+A learning or an out-of-scope remark is no disposition. Neither is a plan
+Current decision, slice text, proof row, implementer statement or owner-decision
+label: quoting one fails `quote-not-in-story`. Keep learnings only for
+discoveries changing remaining work. Single-slice quick execution creates
 no plan: return goal-contradicting gaps to the same slice, obtain required
 observations before accepting dependent promises, and retain independently
 valid proof. If it continues as planned work, carry every reported or discovered gap into
 the new plan's entries.
+
+## Record the source review
+
+Keep the source-only reviewer's numbered return beside the plan as
+`source-review.md`. Link it from the plan's header with one line under
+`**Source:**` that starts with `**Source review:**` followed by a Markdown link
+to that file. Keep the launch and input description above one `## Commitments`
+table with one row per returned id: the id, the source text as returned, the
+allocated slice, and the observation or the obligation id that disposes it.
+Escape a `|` inside a cell as `\|`.
+
+```markdown
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 4a.1 | Listed with its filter: outside the Area | slice 4 | observed: decision.test.py excluded list |
+| 4a.5 | Listed with its filter: already held | slice 4 | G2 |
+| 7 | Each decision has an identity | slice 7 | |
+```
+
+- **Allocate** at the first acceptance that has the return: the slice whose
+  output owes the commitment, or an obligation id when an obligation disposes
+  it instead (receiving a later slice, excluded with a story quote, or owner
+  changed). Correct a wrong allocation at any later acceptance.
+- **Observe** at each acceptance: for every id allocated to this slice, write
+  `observed: <product or proof location>` once inspected, or the id of the
+  obligation that owns the gap. The location must show the commitment's own
+  expected result, as the source text states it: a location showing a
+  different or narrower result, such as an item kept somewhere other than
+  where the commitment lists it, is a mismatch to record as an obligation,
+  not an observation. An observation recorded at an earlier slice
+  stays valid while its boundary is unchanged; do not rerun it for process.
+- **Link** an obligation back with `Commitment: 4a.5, 4a.6` after its
+  `Disposition:`. Every id it names must be a returned id.
+
+A record that is no disposition is no observation or allocation reason either;
+resolve the mismatch under [accept proof](wrap-up.md#accept-proof). After a
+story amendment, allocate the replacement review again. Plans without the link
+keep obligation-only checks.
 
 ## Use the record at execution boundaries
 
@@ -112,14 +156,20 @@ node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLA
 ```
 
 The listing returns full entries for the slice's returns, receiving
-obligations, and open interims naming it. Carry them as promises with the
-required observations before delegation. A refusal names the entry and reason
-in one JSON result and exits non-zero: correct the record or required behavior
-before the blocked delegation, slice commit/done transition, or completion
-record. `check --slice N` treats that slice as about to finish even while its
+obligations, and open interims naming it, and, when the plan links a source
+review, `commitments`: the rows allocated to the slice. Carry them as promises
+with the required observations before delegation. A refusal names the entry and
+reason in one JSON result and exits non-zero: correct the record or required
+behavior before the blocked delegation, slice commit/done transition, or
+completion record. `check --slice N` treats that slice as about to finish even while its
 status is `planned`. `check --completion` refuses every open return, receiving,
-or interim entry. Plans without this section have zero obligations; do not
-migrate them merely to use the script.
+or interim entry. With a linked source review, every check also refuses
+`unallocated-commitment` (a row with no existing slice and no obligation),
+`unobserved-commitment` (a row allocated to that slice, or to a done one,
+without an observation or an existing obligation, and at completion any such
+row), and `unknown-commitment` (a `Commitment:` id the return lacks). Plans
+without this section have zero obligations; do not migrate them merely to use
+the script.
 
 For a caller that already resolved a planned execution, `check --planned-completion`
 also requires a readable, non-empty ordered slice list with every slice done,

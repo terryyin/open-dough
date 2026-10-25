@@ -41,7 +41,7 @@ Current families, each `<family>-native-<layer>` in `tests/support`:
   `-counterexamples`, `-run`; trunk-closure's fixture also sources `-arming`.
 - ci-completion: `-fixture`, `-observe`, `-assess`, `-counterexamples`, `-run`.
 - delivery-evidence (selection, claims, consumers, gaps, aggregate, nostore, deferred, original,
-  terminal, release, scheduling): shared `delivery-evidence-native-run.sh`, with the cases and
+  terminal, release, drift, scheduling): shared `delivery-evidence-native-run.sh`, with the cases and
   their scenarios registered once in `delivery-evidence-native-cases.sh`; each
   case has `-scenario-content`, `-observe` and `-assess`, with counterexamples
   inside the assessor file, and an optional `-checks`. Scheduling exercises a

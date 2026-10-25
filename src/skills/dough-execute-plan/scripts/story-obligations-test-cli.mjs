@@ -34,3 +34,19 @@ export function refuses(result, reason, entry = "G1", field) {
     JSON.stringify(result),
   );
 }
+export function refusesCommitment(result, reason, commitment, fields = {}) {
+  assert.equal(result.ok, false);
+  assert.ok(
+    result.problems.some(
+      (item) =>
+        item.reason === reason &&
+        item.commitment === commitment &&
+        Object.entries(fields).every(([key, value]) => item[key] === value),
+    ),
+    JSON.stringify(result),
+  );
+}
+// The source-review ids an obligation's first problem with this reason names.
+export function problemCommitments(result, reason) {
+  return result.problems.find((item) => item.reason === reason).commitments;
+}

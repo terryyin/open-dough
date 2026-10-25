@@ -45,11 +45,14 @@ Story clause: "${example.clause}"
 Disposition: ${disposition}`;
 }
 
-export function slicePlan(entries, { done = [], indices = [1, 2, 3, 4] } = {}) {
+export function slicePlan(
+  entries,
+  { done = [], indices = [1, 2, 3, 4], review = false } = {},
+) {
   return `# Replay plan
 
 **Source:** [selected story](story.md#selected).
-
+${review ? "**Source review:** [source review](source-review.md)\n" : ""}
 ## Ordered slices
 ${indices.map((index) => `### ${index}. Work ${index}\nType: Behavior\nStatus: ${done.includes(index) ? "done" : "planned"}`).join("\n\n")}
 
@@ -75,4 +78,19 @@ export function fixture(
   const writePlan = (text) => writeFileSync(plan, text);
   writePlan(slicePlan(obligation(example, disposition), options));
   return { plan, story, writePlan };
+}
+
+// A retained reviewer return in its record form: rows are
+// [id, source text, allocation, observation or obligation id].
+export function sourceReview(rows) {
+  return `# Source review
+
+Launch: fresh reviewer, source text only.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+${rows.map((row) => `| ${row.join(" | ")} |`).join("\n")}
+`;
 }
