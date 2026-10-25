@@ -186,6 +186,17 @@ Optional, only if every assertion survives: run `spec-times.spec.ts` tests
 removed with plan 353 (recoverable at
 `8dd20d66:.planning/slice-plans/353-balance-test-shares/plan-350-inputs/`).
 
+## Execution complete
+
+Product advice: no change. The retrospective found every source commitment
+met at 61ab5950 with no correction needed: missing inputs fail with one
+`FAIL:` line, the deal is stated once in `tests/test-shares.md`, the times
+form and the Bash floor each have one home, the tests read the ceiling and
+the fixture is named by its content, and both previews and the dashboard
+shard listing are unchanged from the pre-change baseline. Story example 5's
+"43 files" is 44 at 2a537b21 itself (recorded as DD-340), so nothing changed
+there. The optional spec-times merge was not taken.
+
 ## Current decisions
 
 - Behavior preserved: every allocation and every command's stdout for readable

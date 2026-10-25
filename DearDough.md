@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 339. Removed numbers are never reused.
+- Highest allocated local number: 340. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -399,3 +399,17 @@ Slice 2 proved the dashboard per-spec times on quiet-reporter fixtures where eve
   - Evidence: run 40187124945's `dashboard-times-*` list `support/productionUpdatePolicies.ts` 62.8 s and five Codex case modules; obligation G2 in `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`; the fix walks `test.parent` to the file suite (`dashboard/tests/support/specTimes.ts`) with a new fixture pair `nested/cases.ts` and `nested/importing.proof.ts`.
   - Observed effect: a return obligation on the last slice, a reporter fix with its fixture, a dashboard list committed with misattributed seconds, and a further increment to refresh it from the corrected run.
   - Inference: qualified. The preparation observation checked `location.file` on one plain spec; a proof built only from synthetic fixtures does not sample the real suite's shapes. Reading one real artifact, or listing the real suite's distinct test-file origins, before accepting slice 2 would have shown it.
+
+## DD-340 — Preparation observations recorded results their own commands contradict
+
+Plan 354's "Preparation observations" quoted command results that the same commands, rerun at the same revision, do not give: a premise grep's file list, a "differs only in" comparison, and a key example's file count.
+
+### Occurrences
+- Execution: SEED-151#tidy-share-allocator / plan 354, first implementation commit `07a28e88`
+  - Timestamp: 2026-10-25T21:10:00+09:00 to 2026-10-25T22:05:00+09:00 (slices 1–3 and the retrospective; times approximate from the session)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72
+  - Evidence: plan 354 row "The deal is restated in prose" omits `tests/test-runner-split.sh`, which `grep -rln 'ties to the lower' scripts tests dashboard .github` names at f1a3e06d; row "Where the Bash floor lives" says the two messages differ "only in the remedy clause", but the runner said "resolved <path>" and the preview "resolved bash on PATH" (slice 1 return, plan Learnings); story example 5 and the proof table say `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 npx playwright test --list` selects 43 files at 2a537b21, and a detached checkout of 2a537b21 lists 44.
+  - Observed effect: an extra test-comment edit and a changed asserted refusal text inside slices 1–2, and an example figure that execution measured against its own pre-change baseline instead; no rework or failed delivery.
+  - Inference: qualified. The table records the conclusion drawn from each observation rather than its literal output, so a misread survives into the plan; keeping the literal output (file list, both texts, the count line) in the row would let execution check it without repeating the command.
