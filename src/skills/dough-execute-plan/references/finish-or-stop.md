@@ -190,8 +190,11 @@ declare the story complete, or invoke Dough Land or Story Wrap Up.
 
 ## Record execution completion
 
-After the retrospective returns, or is skipped, run the installed
-[story-obligations script](../scripts/story-obligations.mjs):
+After the retrospective returns, or is skipped, in Story Branch Mode first run
+`node '<installed-execute-plan>/scripts/source-freshness.mjs' check` with the
+inputs in [source freshness](source-freshness.md#run-the-check) and handle its
+result there. Then run the
+installed [story-obligations script](../scripts/story-obligations.mjs):
 `node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --completion`.
 Use the [resolved inputs](story-obligations.md#use-the-record-at-execution-boundaries).
 A refusal blocks the execution-complete record; resolve every open return,

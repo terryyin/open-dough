@@ -143,6 +143,7 @@ managed_files=(
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
   dough-execute-plan/references/runtime-setup.md
+  dough-execute-plan/references/source-freshness.md
   dough-execute-plan/references/story-obligations.md
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up-closure-publication.md

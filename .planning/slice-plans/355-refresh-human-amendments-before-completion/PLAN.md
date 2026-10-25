@@ -212,7 +212,7 @@ both paths.
 
 ### 2. Delivery, completion and deletion gates surface the amendment before accepting or deleting the copy
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-execute-plan/scripts/source-freshness-guidance.test.mjs` pins that step 5 of Deliver the change runs `source-freshness.mjs' check` before `story-obligations.mjs' check --plan '<PLAN.md>' --slice N`, that Record execution completion runs it before `check --completion`, that wrap-up's deletion section runs it before deleting, and that each links the new reference; `story-obligations-guidance.test.mjs`, `execution-completion-record-guidance.test.mjs`, `planned-completion-guidance.test.mjs` and `tests/payload-declaration-links.sh` stay green.
 
 Behavior: Given installed guidance and a Story Branch execution whose trunk
@@ -346,6 +346,9 @@ rollout is authorized.
   reference describes `unchanged` as in Current decisions. A second trunk
   amendment overlapping an absorbed first one reads as `overlapping-edit`
   conflict and stops for the human.
+- Slice 2: the boundary table's "Before delivery" row has about 600 bytes
+  of read-budget headroom; a future delivery-time reference goes inline in
+  step 5 or behind a link.
 
 ## Acceptance evidence
 
@@ -366,14 +369,6 @@ rollout is authorized.
   `tests/payload-declaration-links.sh` and the install payload tests, all
   quiet passes after the refactor split.
 
-## Plan concerns and readiness
-
-Refinement was not needed: each slice owns one proof loop (command,
-gates, discriminators, paid rounds and record), the gates depend on the
-command and the rounds on the family, and no slice combines independent
-outcomes. Remaining slice-specific concerns: none identified. The only
-unsettled premise is paid and bounded by slice 4's developer-run rounds,
-whose non-reproduction changes the benefit judgment, not the mechanism.
 - CI repair after slice 1 (run 40193361689, `test (2/3)`): the quiet-pass
   rule failed `tests/support/product-backlog-git-merge.test.mjs` because a
   fixture commit SHA began with the hex-only branch name `acbd` and Git
@@ -382,3 +377,29 @@ whose non-reproduction changes the benefit judgment, not the mechanism.
   warning for a hex-only name and not for an `order-` name, and
   `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/support/product-backlog-git-merge.test.mjs`
   quiet pass.
+- Slice 2: the slice 1 source-only review's commitments were reused (story
+  section unchanged; rerunning it for process alone is a deferred promise of
+  this story) and compared with the gates: R10a step 5 runs `check` before
+  the obligations check; R10b Record execution completion runs it before
+  `check --completion`; R10c wrap-up's deletion runs it before deleting and,
+  on `amended`/`conflict`, deletes nothing and returns to execution (example
+  6); R11–R15 the reference's Absorb an amendment (read change, `absorb`,
+  owned paths, dispositions, moved completion record, rerun to `unchanged`,
+  examples 1, 2, 5); R16a–f Stop on a conflict (example 4). The reference is
+  linked from the "Before finishing or stopping" table row; the "Before
+  delivery" row stays under the read budget by carrying the command inline in
+  step 5. AGENTS.md behavior review walked example 1 (amended at slice 3),
+  example 4 (done-slice conflict stop) and example 6 (wrap-up returns to
+  execution); missing inputs refuse with exit 3 and stop the boundary. Proof:
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/*/scripts/*guidance*.test.mjs tests/payload-declaration-links.sh`
+  and the install payload tests, quiet passes after the refactor. Agent
+  behavior under the guidance is slices 3–4's.
+
+## Plan concerns and readiness
+
+Refinement was not needed: each slice owns one proof loop (command,
+gates, discriminators, paid rounds and record), the gates depend on the
+command and the rounds on the family, and no slice combines independent
+outcomes. Remaining slice-specific concerns: none identified. The only
+unsettled premise is paid and bounded by slice 4's developer-run rounds,
+whose non-reproduction changes the benefit judgment, not the mechanism.

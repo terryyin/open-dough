@@ -38,6 +38,7 @@ const BOUNDARIES = [
 // every time, listed by judgment rather than inferred from reference prose.
 const OBLIGATION_INPUTS =
   "references/story-obligations.md#use-the-record-at-execution-boundaries";
+const SOURCE_FRESHNESS = "references/source-freshness.md";
 const REQUIRED_LINKS = [
   [/first implementation delegation/i, [OBLIGATION_INPUTS]],
   [
@@ -49,7 +50,10 @@ const REQUIRED_LINKS = [
       OBLIGATION_INPUTS,
     ],
   ],
-  [/finish/i, ["references/ci-completion-wait.md", OBLIGATION_INPUTS]],
+  [
+    /finish/i,
+    ["references/ci-completion-wait.md", OBLIGATION_INPUTS, SOURCE_FRESHNESS],
+  ],
 ];
 
 // References an execution reads at first delegation, return, delivery, arming,
