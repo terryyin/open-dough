@@ -23,4 +23,5 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Keep the source-review record consistent through its lifecycle](seeds/SEED-010-learn-from-execution-retrospectives.md#source-review-record-lifecycle) — SEED-010#source-review-record-lifecycle
 - [Keep human amendments visible before Story Branch completion](seeds/SEED-010-learn-from-execution-retrospectives.md#refresh-human-amendments-before-completion) — SEED-010#refresh-human-amendments-before-completion
