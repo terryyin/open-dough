@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Keep test-file changes from unexpectedly exhausting CI share budgets](seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares ([plan](slice-plans/353-balance-test-shares/PLAN.md))
-- [Accept original source promises when a plan narrows them](seeds/SEED-010-learn-from-execution-retrospectives.md#accept-source-promises-after-plan-drift) — SEED-010#accept-source-promises-after-plan-drift ([plan](slice-plans/354-accept-source-promises-after-plan-drift/PLAN.md))
 
 ## Backlog list
 

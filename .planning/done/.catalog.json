@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_accept-source-promises-after-plan-drift.json",
+      "identity": "SEED-010#accept-source-promises-after-plan-drift",
+      "completedAt": "2026-10-25T13:39:41.387Z",
+      "blob": "81546abd2413a0a16539cd7278e0d215f6f1e69f"
+    },
+    {
       "fileName": "SEED-152_retry-aware-integrated-completion.json",
       "identity": "SEED-152#retry-aware-integrated-completion",
       "completedAt": "2026-10-25T10:10:39.595Z",

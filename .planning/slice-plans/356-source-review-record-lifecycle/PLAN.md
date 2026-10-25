@@ -5,7 +5,9 @@
 **Provenance:** retrospective of SEED-010#accept-source-promises-after-plan-drift
 (plan 354), reviewed commits `d9b6b835`, `795a01a7`, `4fd5aac5` on
 `claude/accept-original-source-promises-when-a-plan-narr`;
-[original story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#accept-source-promises-after-plan-drift).
+original story and plan 354 recoverable at before-cleanup commit `cc9a69c4bb87b12df67f90cdc82a3f888dc90fc8`
+(`.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#accept-source-promises-after-plan-drift`,
+`.planning/slice-plans/354-accept-source-promises-after-plan-drift/PLAN.md`).
 
 ## Goal and scope
 
