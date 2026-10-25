@@ -152,6 +152,7 @@ managed_files=(
   dough-execute-plan/scripts/ci-command-adapter.mjs dough-execute-plan/scripts/ci-project-configuration.mjs dough-execute-plan/scripts/ci-command-attempts.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs
+  dough-execute-plan/scripts/story-obligation-source-review.mjs
   dough-execute-plan/scripts/story-obligations.mjs
   dough-execute-plan/scripts/publication-comparison.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs

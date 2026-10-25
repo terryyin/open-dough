@@ -95,7 +95,8 @@ node <installed>/dough-execute-plan/scripts/story-obligations.mjs check --plan <
 
 Use this project's selected plan, not a plan found by guessing from this skill's
 location. The command reuses the existing plan and obligation readers: it names
-pending slices, open obligations, and unreadable or missing slice evidence. A
+pending slices, open obligations, source-review commitments without an owner
+or observation, and unreadable or missing slice evidence. A
 clear result checks those records only; judge the promised outcome and accepted
 proof too. For planless execution, judge its instruction, changes and execution
 results; absence of a plan is not completion evidence.

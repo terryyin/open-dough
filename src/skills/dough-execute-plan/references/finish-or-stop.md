@@ -195,7 +195,8 @@ After the retrospective returns, or is skipped, run the installed
 `node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --completion`.
 Use the [resolved inputs](story-obligations.md#use-the-record-at-execution-boundaries).
 A refusal blocks the execution-complete record; resolve every open return,
-receiving, or interim obligation before continuing. Then add this record to
+receiving, or interim obligation, and every unobserved commitment of a linked
+source review, before continuing. Then add this record to
 the plan after its ordered slices:
 
 ```markdown

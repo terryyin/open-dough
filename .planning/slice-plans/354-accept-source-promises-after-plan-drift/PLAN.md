@@ -185,7 +185,7 @@ amendment. Neither prompt nor fixture names what is missing.
 
 ### 2. Acceptance disposes each returned commitment through the obligations gate
 Type: Behavior
-Status: planned
+Status: done
 Proof: focused `story-obligations*.test.mjs` cases cover the addressable return, allocation, observation, `Commitment:` reference, refusals (unallocated id, plan quote, open receiving at its slice, unobserved id at completion) and the listing; a reconstructed plan 412 record refuses slice 4 until the two reasons are returned or received and accepts the amended control; `tests/payload-declaration-links.sh` and the guidance test stay green; the `drift` fixture installs the candidate guidance; the pre-change baseline round below is retained and inspected before delegation.
 
 Behavior: Given a retained reviewer return in which every commitment and list
@@ -208,6 +208,24 @@ detection without a retained comparison or gate) keeps this slice as planned;
 detection with a retained per-commitment comparison is non-reproduction: stop
 this slice and reassess this plan. An unavailable route or credential stays
 stopped with its owner.
+
+Baseline observed 2026-10-25 (developer-authorized in session, run by the
+coordinator): Claude Code, the command above with
+`--results-dir ~/.claude/jobs/ad4cfde7/tmp/drift-baseline`, candidate
+`d9b6b835`, attempt `20261025T110320-4c3b`, one round, harness judgment
+`review-required` (exit 1, as the family requires). Retained beside this plan
+at [baseline-claude-narrowed-20261025T110320-4c3b/](baseline-claude-narrowed-20261025T110320-4c3b/)
+(`events.jsonl` raw stream, `product-observation.json`, `acceptance-outcome.md`,
+`final-product/.planning/acceptance-evidence/slice-4-source-review.md`,
+`final-product.diff`). Coordinator inspection: the host's own source review
+returned item 21 naming "already held, or already ordered" among the listed
+filters, yet `acceptance-outcome.md` accepts "Already held and already ordered
+… stay in `history` … matching the plan's Current decision"; the product's
+excluded list still lacks both and no obligation or gate names them. The
+outcome is `incomplete` only for an unrelated discovered gap (G1: the
+excerpt's slice 4 frontend `Record` labels have no product surface).
+Result: **reproduction** (plan-scoped acceptance of the narrowed commitment
+without a per-commitment comparison or gate); this slice proceeds as planned.
 
 Edit `src/skills/` only. In `wrap-up.md` Accept proof: instruct the reviewer
 to number every commitment and each item of a listed compound commitment;
@@ -302,6 +320,36 @@ rollout is authorized.
   passed quietly; observations are the assertions in
   `tests/delivery-evidence-drift.sh` and
   `run_delivery_evidence_drift_assessor_counterexamples`.
+- Baseline: the `narrowed` fixture's plan excerpt keeps slice 4's frontend
+  `Record` label behavior, which the reconstructed product has no surface for,
+  so a native acceptance can withhold slice 4 for that unrelated reason. Slice
+  3's review must judge the disposition basis per commitment (held/ordered),
+  not the overall withheld outcome; the fixture stays unchanged for baseline
+  comparability.
+- Slice 2 acceptance (source review reused, story unchanged), per returned
+  id → observation: S4a–S4c, S5, S6 → `wrap-up.md` Accept proof (numbering,
+  `source-review.md` beside the plan, reuse, fresh review after amendment);
+  S7, S7a–S7c, S8a–S8e, S9a–S9b → `wrap-up.md` comparison paragraph and
+  `story-obligations.md` "Record the source review";
+  S10a, S11 → `unallocated-commitment` / `unobserved-commitment` in
+  `story-obligations-source-review.test.mjs`; S10b, X1, K4 →
+  "the plan's Current decision is no exclusion for the returned items"
+  (`quote-not-in-story` naming 21.5, 21.6); S12a–S12b → unchanged
+  existing tests; S13a–S13b → no new store or checker (record is the
+  return file); S14a, K3 → "a named later receiver …" and "the traceability
+  commitment is received at slice 1 …"; S14b, K2 → "the amended control …";
+  S14c, K5 → "a commitment observed at slice 2 needs nothing at slice 4";
+  K1a–K1e → "slice 4 is refused for the held and ordered items …" (all in
+  `story-obligations-drift-replay.test.mjs`, built from the slice 1
+  fixtures). S20a–S20b native follow-through is slice 3's. Limits accepted
+  under S13b: `observed:` text is not quote-checked; a stale return after an
+  amendment is caught by guidance only; row/`Commitment:` consistency is not
+  enforced.
+- Slice 2: plan 354 does not link its own `source-review.md`; this
+  execution's gates run the installed (released) script, so the link would
+  change nothing until release. Published-guidance example links to
+  non-payload files must be prose (`tests/payload-declaration-links.sh`
+  reads fenced links too).
 - Execution start: the fresh source-only reviewer's return is retained at
   [source-review.md](source-review.md) (ids S1–S26, X1–X6, A1–A5, K1–K7);
   slice 2 gives it its linked record form.
