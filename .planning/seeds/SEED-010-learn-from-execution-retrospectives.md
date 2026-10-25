@@ -216,6 +216,70 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+
+<a id="accept-source-promises-after-plan-drift"></a>
+
+### Accept original source promises when a plan narrows them
+
+**Identity:** SEED-010#accept-source-promises-after-plan-drift
+
+**Beneficiary and outcome:** An Open Dough developer receives the promised
+behavior and proof even when a plan's Current decisions narrow an original
+commitment and an independent source reviewer has already returned that
+commitment. Acceptance detects or explicitly resolves that discrepancy before
+delivery rather than requiring a retrospective correction.
+
+**Evidence and hypothesis:** [ODF-139](../../docs/maintainer/findings/ODF-139.md)
+has a verified 0.3.69 counterexample after the 0.3.67 source-only review response:
+Pygardon plan 412 accepted the plan's narrowed held/ordered treatment despite
+review commitment 4a. The hypothesis is that preserving the actual comparison
+between each applicable original commitment and the accepted product/proof will
+prevent this observed drift; another reviewer launch alone has not done so.
+
+**Scope and evaluation:** Recover the recorded story, reviewer commitments,
+plan decision and acceptance inputs; find why the released comparison failed to
+control the result. Select a bounded response only after that assessment, reusing
+the existing source review and acceptance evidence. Replay this recorded mismatch
+and a legitimate human amendment/exclusion with matching actor knowledge; prove
+the correction catches the former and preserves the latter. Preserve legitimate
+later ownership. Do not expand product scope, create another promise registry,
+or claim general model compliance from one replay.
+
+**Completion and later use:** Record the actual response, containing release,
+accepted replay and its limits at ODF-139, together with a proportionate first
+ordinary-use criterion and the additional acceptance/human cost. A finding that
+the current rule is sound must remain an explicit evidence-based disposition,
+not an invented wording fix. Queued, not resolved; maintenance starts no execution.
+
+<a id="refresh-human-amendments-before-completion"></a>
+
+### Keep human amendments visible before Story Branch completion
+
+**Identity:** SEED-010#refresh-human-amendments-before-completion
+
+**Beneficiary and outcome:** A developer amending a Taken story or plan on trunk
+has that amendment surfaced to its Story Branch coordinator before completion
+and spent-record deletion; conflicting scope stays a human decision while
+independent work can continue.
+
+**Evidence:** [ODF-354](../../docs/maintainer/findings/ODF-354.md) records
+Pygardon plan 411's trunk amendment `4e5551fb6`, missed until closure conflicts,
+then a reverted closure, semantic merge and three more slices. Reading a fresh
+review of a stale branch copy did not locate the amendment.
+
+**Scope and key examples:** Inspect the current selected-source, plan, branch
+and completion boundaries, then add the smallest coherent freshness check using
+existing Git and canonical records. Exercise an actual human change after Take,
+a plan-only amendment, an unchanged source, and unrelated trunk changes. Surface
+the changed selected text before accepting completion or deleting it; preserve
+the author's text and active checkout, and name a real scope conflict without
+automatic overwrites, whole-trunk scope expansion or a second authority store.
+
+**Completion:** Record the actual response, containing release, representative
+branch/trunk proof and remaining first-use observation at ODF-354. Judge benefit
+against the avoided late merge/closure repair and the added fetch/review burden
+under ADR 0010, without claiming an unmeasured saving. Queued, not resolved.
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

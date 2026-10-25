@@ -1,11 +1,52 @@
 # Finding names and current follow-up
 
+Reviewed 2026-10-25 (Asia/Tokyo) under the combined feedback-maintenance invocation.
+Local maintenance completed for all five maintained projects. Shared-source
+coverage is complete for Open Dough, Doughnut and Pygardon; Terry Talks and
+Lizard are skipped because process retrospective is off. Thirty new identities
+ODF-325–354 retain the supplied mechanisms and provenance, alongside missing
+occurrences for existing identities. Repeated effects of one project/execution
+count once. Unknown releases remain unknown.
+
+Selected shared responses: ODF-139's source-versus-plan acceptance recurrence
+first, then ODF-354's late discovery of human amendments. The former is a verified
+failure after the source-only response and led to a correction story; the latter
+caused a reverted closure, a semantic merge and three further slices. The
+strongest alternatives are ODF-150/287's consumer/proof gaps and ODF-340's
+compound-proof omission: consumer tracing already has a delivered response whose
+application and separate noise mechanisms need observation, the broad fake-boundary
+problem lacks an equally bounded new response, and ODF-340's expensive missing
+alternative was caught before delivery. ODF-326's roughly 40k-token repeated
+source review is retained with mixed benefit/independence evidence; token cost
+alone does not outrank demonstrated behavioral drift. ODF-351's modeling result
+has an adopted local owner decision and adverse sensitivity; it is not a second
+local policy implementation. Existing Taken work, unselected order and direction
+are preserved. No improvement story is implemented by this review.
+
+Verified containing releases supersede eight stale release assessments.
+Eligible ordinary-use counterevidence is connected at ODF-139 and ODF-150;
+conditional candidates and precise unmet requests remain at their finding owners.
+The extra work was one targeted pass over open requests, seven encountered
+execution/response candidates, tagged implementation containment and targeted
+recovered source/plan reads; no new native runs or suites. Marginal time/tokens
+were not isolated, so no net-saving claim is made. Other encountered executions
+meet no additional checkable observation request; generic "effectiveness
+unverified" labels without an event condition are not invented requests.
+
+Three watches retire after verified use, more than seven calendar days and
+complete selected-source review; reasons and exact recovery are in the
+maintenance commit. ODF-201 remains for its consequential provenance-limited
+contrary report. The next review is due 2026-11-01; no automation was changed.
+
+### Previous review — 2026-10-22
+
 Reviewed 2026-10-22 (Asia/Tokyo) under the combined feedback-maintenance invocation. Open Dough, Doughnut and Pygardon post-local records were reviewed; Terry Talks and Lizard have no findings records, so maintained-set source coverage is incomplete and no watch was retired. Retention is a
 priority decision, not a claim that discarded problems were fixed or cannot recur. This cycle retained new supplied evidence under ODF-074, ODF-141, ODF-150, ODF-152, ODF-264 and ODF-302 and allocated ODF-322 to ODF-324. Selected shared responses: ODF-150 consumer tracing first (three more executions with owned CI failures after two released responses), ODF-264 bounded startup retrieval second (six more executions in one day across all three projects). The strongest alternative, ODF-324's developer withdrawal from repeated native checks, is a single execution; Terry then queued it after the two selections, and placed first a ready planless story to skip collection from projects whose process retrospective is off. Earlier selections ODF-228/209 and ODF-297 are completed; implementation of the new selections has not started.
+
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-324. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-354. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -323,3 +364,64 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-323 — [A caller-written plan-status mutation survives a later delivery refusal](findings/ODF-323.md) <a id="odf-323"></a>
 
 ## ODF-324 — [Native checks keep asking the developer after attribution is established](findings/ODF-324.md) <a id="odf-324"></a>
+
+
+## ODF-325 — [Empty delegation while waiting](findings/ODF-325.md) <a id="odf-325"></a>
+
+## ODF-326 — [Unchanged source-only reviews repeat per slice](findings/ODF-326.md) <a id="odf-326"></a>
+
+## ODF-327 — [Evaluation criteria follow the event being judged](findings/ODF-327.md) <a id="odf-327"></a>
+
+## ODF-328 — [Obligation disposition waits for a later plan update](findings/ODF-328.md) <a id="odf-328"></a>
+
+## ODF-329 — [Delegation omits read-only lint before coordinator formatting](findings/ODF-329.md) <a id="odf-329"></a>
+
+## ODF-330 — [Hand-built delivery paths corrupt porcelain status spacing](findings/ODF-330.md) <a id="odf-330"></a>
+
+## ODF-331 — [Fail-before proof swaps files in the shared checkout](findings/ODF-331.md) <a id="odf-331"></a>
+
+## ODF-334 — [Exact-SHA polling bypasses the completion operation](findings/ODF-334.md) <a id="odf-334"></a>
+
+## ODF-353 — [Phase-composition proof omits the queue-to-running boundary](findings/ODF-353.md) <a id="odf-353"></a>
+
+## ODF-332 — [Committed-input proof needs a safe snapshot boundary](findings/ODF-332.md) <a id="odf-332"></a>
+
+## ODF-340 — [Plan proof omits alternatives of a compound promise](findings/ODF-340.md) <a id="odf-340"></a>
+
+## ODF-341 — [A redefined state omits a default producer](findings/ODF-341.md) <a id="odf-341"></a>
+
+## ODF-346 — [Passing tests do not observe the stage the promise names](findings/ODF-346.md) <a id="odf-346"></a>
+
+## ODF-348 — [Network-denied delegation substitutes remembered external rates](findings/ODF-348.md) <a id="odf-348"></a>
+
+## ODF-350 — [Broad supplied terms overwhelm a consumer trace](findings/ODF-350.md) <a id="odf-350"></a>
+
+## ODF-352 — [Data-derived search terms overwhelm a consumer trace](findings/ODF-352.md) <a id="odf-352"></a>
+
+## ODF-335 — [Lifecycle admission begins before canonical inputs resolve](findings/ODF-335.md) <a id="odf-335"></a>
+
+## ODF-339 — [Line-range extraction truncates source-only review input](findings/ODF-339.md) <a id="odf-339"></a>
+
+## ODF-342 — [Slice proof omits observations assigned by its proof table](findings/ODF-342.md) <a id="odf-342"></a>
+
+## ODF-344 — [Rare-crash capture covers only the debugger-attached child](findings/ODF-344.md) <a id="odf-344"></a>
+
+## ODF-345 — [No-fault comparisons ignore the baseline event rate](findings/ODF-345.md) <a id="odf-345"></a>
+
+## ODF-354 — [Human amendments reach a Story Branch only at wrap-up](findings/ODF-354.md) <a id="odf-354"></a>
+
+## ODF-338 — [Concurrent slices invalidate proof in one checkout](findings/ODF-338.md) <a id="odf-338"></a>
+
+## ODF-347 — [Parallel acceptance leaves later edits outside refactor review](findings/ODF-347.md) <a id="odf-347"></a>
+
+## ODF-349 — [A refactor brief omits the source clause behind behavior](findings/ODF-349.md) <a id="odf-349"></a>
+
+## ODF-351 — [An agent chooses a verdict-sensitive modeling rule](findings/ODF-351.md) <a id="odf-351"></a>
+
+## ODF-333 — [Story Branch proof requires trunk before closure](findings/ODF-333.md) <a id="odf-333"></a>
+
+## ODF-336 — [A territory publisher identity mistakes another session for its owner](findings/ODF-336.md) <a id="odf-336"></a>
+
+## ODF-337 — [Owned deletion staging has unresolved contradictory observations](findings/ODF-337.md) <a id="odf-337"></a>
+
+## ODF-343 — [A mutating delivery is repeated to recover diagnostics](findings/ODF-343.md) <a id="odf-343"></a>
