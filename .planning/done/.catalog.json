@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-151_balance-test-shares.json",
+      "identity": "SEED-151#balance-test-shares",
+      "completedAt": "2026-10-25T12:16:59.774Z",
+      "blob": "0d94eef59fd51cd8e5216ff13e4c56f7627e8d86"
+    },
+    {
       "fileName": "SEED-152_retry-aware-integrated-completion.json",
       "identity": "SEED-152#retry-aware-integrated-completion",
       "completedAt": "2026-10-25T10:10:39.595Z",

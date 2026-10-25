@@ -67,8 +67,10 @@ export default defineConfig(
     files: ["dashboard/tests/**/*.{ts,mts,tsx}"],
     ignores: [
       "dashboard/tests/support/pageTest.ts",
-      // Run by the quiet-reporter proof under their own configuration.
-      "dashboard/tests/fixtures/quiet-reporter/*.proof.ts",
+      // Run by the quiet-reporter proof under their own configuration; the
+      // case module registers tests for the proof spec that imports it.
+      "dashboard/tests/fixtures/quiet-reporter/**/*.proof.ts",
+      "dashboard/tests/fixtures/quiet-reporter/nested/cases.ts",
     ],
     rules: {
       "no-restricted-imports": [

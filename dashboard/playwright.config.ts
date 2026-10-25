@@ -2,6 +2,7 @@ import { availableParallelism } from "node:os";
 import { defineConfig, devices } from "@playwright/test";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
 import { dashboardTestMatch } from "./tests/support/testFiles.mjs";
+import type { QuietReporterOptions } from "./tests/support/quietReporter.ts";
 
 // Vite and other descendants may explicitly enable Node's compile cache.
 // Disable writes before global setup and workers start, including when a
@@ -24,12 +25,16 @@ const runStamp = process.env[runStampVariable] ?? "";
 const suiteTime = remainingSuiteTime(
   process.env["OPEN_DOUGH_DASHBOARD_DEADLINE_MS"],
 );
-// Only this configuration grants the requested path to its own reporter.
-// Custom nested configurations do not acquire an outer run's evidence path.
+// Only this configuration grants the requested paths to its own reporter.
+// Custom nested configurations do not acquire an outer run's evidence or
+// times path. CI names the times file per shard and keeps it as artifact
+// `dashboard-times-<shard>`, the source `tests/longest-first` is refreshed
+// from (tests/shards.md).
 const proofRecord = process.env["OPEN_DOUGH_DASHBOARD_PROOF_RECORD"];
-const quietReporter: [string, { proofRecord: string | undefined }] = [
+const times = process.env["OPEN_DOUGH_DASHBOARD_TIMES"];
+const quietReporter: [string, QuietReporterOptions] = [
   "./tests/support/quietReporter.ts",
-  { proofRecord },
+  { proofRecord, times },
 ];
 
 export default defineConfig({

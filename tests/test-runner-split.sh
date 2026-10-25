@@ -14,8 +14,10 @@ mkdir -p -- "${checks}"
 # every OPEN_DOUGH_TEST_* variable it inherited: the runner's settings stay with
 # the runner, so a check that runs the runner itself gets every one of its own
 # checks. They are created in an order other than sorted, and `longest-first`
-# names one of them, so the expected shares follow only from the runner's
-# partition order: mu, then alpha, beta, delta, zeta.
+# records one of them, mu, at 2.0 s, so the expected shares follow only from
+# the runner's duration deal: mu first, then the unrecorded checks in bytewise
+# order (alpha, beta, delta, zeta), each assumed at the recorded median, 2.0 s,
+# to the share with the smallest predicted total, ties to the lower share.
 write_checks() {
   local name
   for name in "$@"; do
@@ -25,7 +27,7 @@ write_checks() {
   done
 }
 write_checks zeta delta mu alpha beta
-printf '# longest first\n%s\n' "${checks}/mu.sh" > "${checks}/longest-first"
+printf '# longest first\n2.0\t%s\n' "${checks}/mu.sh" > "${checks}/longest-first"
 
 # Runs the runner over the checks with OPEN_DOUGH_TEST_SPLIT set to the second
 # argument, or unset when it is empty, logging to <name>.log, recording the
@@ -74,9 +76,10 @@ expect_share() {
 # Unset, every check runs once.
 expect_share all '' alpha.sh beta.sh delta.sh mu.sh zeta.sh
 
-# Dealt round-robin from mu, alpha, beta, delta, zeta: each split runs a
-# non-empty share of its own checks, and together they run every check exactly
-# once.
+# Dealt by predicted total from mu (2.0), then alpha, beta, delta, zeta (2.0
+# each, assumed): mu and alpha make the shares equal, so beta joins share 1,
+# delta share 2 and zeta share 1. Each split runs a non-empty share of its own
+# checks, and together they run every check exactly once.
 expect_share first 1/2 mu.sh beta.sh zeta.sh
 expect_share second 2/2 alpha.sh delta.sh
 cat -- "${temporary_dir}/first.record" "${temporary_dir}/second.record" \
@@ -90,7 +93,8 @@ write_checks beta alpha mu delta zeta
 expect_share again 1/2 mu.sh beta.sh zeta.sh
 
 # A failing check fails its own split, naming it, and not the other split.
-# Dealt from mu, alpha, beta, delta, epsilon, zeta, it lands in share 1.
+# Dealt from mu, alpha, beta, delta, epsilon, zeta, epsilon lands in share 1
+# (the shares are equal again after delta).
 printf '#!/usr/bin/env bash\necho epsilon-failed\nexit 1\n' > "${checks}/epsilon.sh"
 run_split failing-second 2/2
 if ((suite_status != 0)); then
@@ -118,3 +122,14 @@ for invalid in 3/2 0/2 x; do
   fi
   expect_in_log "${temporary_dir}/invalid.log" -F -- "OPEN_DOUGH_TEST_SPLIT=${invalid} "
 done
+
+# A list line without seconds fails the run naming the file, line and content
+# before any check runs; the runner refuses a guessed partition.
+printf '# longest first\n2.0\t%s\n%s\n' "${checks}/mu.sh" "${checks}/alpha.sh" > "${checks}/longest-first"
+run_split malformed 1/2
+if ((suite_status != 1)) || [[ -e ${temporary_dir}/malformed.record ]]; then
+  printf 'FAIL: a longest-first line without seconds exited %s or ran checks.\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/malformed.log" >&2
+  exit 1
+fi
+expect_in_log "${temporary_dir}/malformed.log" -F -- "FAIL: ${checks}/longest-first:3: \"${checks}/alpha.sh\" is not <seconds><TAB><label>"

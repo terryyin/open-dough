@@ -15,7 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-10-25):** Select one new project response: [SEED-151#balance-test-shares](.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares), queued, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
+**Maintenance assessment (2026-10-25):** Select one new project response: SEED-151#balance-test-shares (since implemented and closed; story recoverable at `8dd20d66:.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares`), queued at the time, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
 
 **Maintenance assessment (2026-10-21):** DD-309's measured repository-tooling response first ships in `v0.3.67`; later usage remains unobserved. DD-297's source-directory race was repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`, while its separate loaded child-start observation remains qualified. The selected response to DD-320's extra paid run and inconclusive replay is implemented at `fba97e9fbb90c4f97909a5e2ab899a0031c58308`: the [maintained pre-launch comparison](tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) advances useful learning before spending another native run; its native outcome remains unobserved. The strongest alternative is the older browser-restart race (DD-296): its concrete failing callers were repaired, and the remaining related exposure has no new observed failure. Preserve that residual and other open findings without another implementation commitment. Existing repaired responses remain historical; incomplete exposure does not establish retirement. No new occurrence is added by this review.
 
@@ -33,11 +33,14 @@ execution. A repaired individual race does not resolve every suite failure.
    recurrence after the fix. Shared interaction helpers still allow a click
    before all page reads settle. Retain that qualified residual, not a claim
    that the repaired specs still fail.
-3. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
+3. **Suite timing and diagnosis — DD-279 response implemented, hosted outcome unobserved; DD-275 open, unqueued.** [DD-279](#dd-279)
    records two shard deadlines in one execution; a refreshed duration list and
    twelve shares repair those runs, while duration ordering still ages without
    a refresh step. Plan 350 met the same mechanism in the Node suite's share
-   budget (one added test file, repaired by refreshing `tests/longest-first`). [DD-275](#dd-275) records one separate execution whose
+   budget (one added test file, repaired by refreshing `tests/longest-first`).
+   SEED-151#balance-test-shares answers both with one allocator that deals by
+   recorded duration and previews the deal before a push; its hosted outcome
+   is unobserved. [DD-275](#dd-275) records one separate execution whose
    within-run load was unobserved. These are related diagnostic/margin concerns,
    not one demonstrated cause. The repaired individual timeout DD-280 and
    shell budget breach DD-283 are removed below.
@@ -64,13 +67,13 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-278).
 
-## Dashboard shards run at their time ceiling (open, unqueued)
+## Dashboard shards run at their time ceiling (response implemented, hosted outcome unobserved)
 
 <a id="dd-279"></a>
 
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279).
+[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals both suites' shares by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within one spec file of each other where the positional deal measured 462.5 to 686.4, and the landed revision's run 40189712361 measured 458.0 to 694.2 with per-shard runner speed ratios 0.74 to 1.18; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 

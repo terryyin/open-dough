@@ -13,8 +13,8 @@ if [[ ${1:-} == --from ]]; then
   shift 2
 fi
 
-# OPEN_DOUGH_TEST_SPLIT=<i>/<n> lists only share i of n (see the partition
-# below), so separate runs, such as CI jobs, can divide the checks between them.
+# OPEN_DOUGH_TEST_SPLIT=<i>/<n> lists only share i of n (see the deal below),
+# so separate runs, such as CI jobs, can divide the checks between them.
 # Unset, every check is listed.
 split=${OPEN_DOUGH_TEST_SPLIT:-}
 if [[ -n ${split} ]]; then
@@ -23,7 +23,6 @@ if [[ -n ${split} ]]; then
     printf 'FAIL: OPEN_DOUGH_TEST_SPLIT=%s is not <i>/<n> with i from 1 to n.\n' "${split}" >&2
     exit 1
   fi
-  split_share=${BASH_REMATCH[1]} split_count=${BASH_REMATCH[2]}
 fi
 
 # scripts/test.sh resolves the test directory once (OPEN_DOUGH_TEST_DIR,
@@ -104,34 +103,21 @@ else
   fi
 fi
 
-# `longest-first` names known long jobs, longest first. They start before the
-# rest so the longest job does not begin last; unknown names are ignored. The
-# rest follow sorted bytewise, not in discovery order, which differs between
-# file systems, so every run of the same checks gets the same order.
+# `longest-first` records each job's seconds from a CI run (see its header).
+# scripts/test-shares.mjs owns the order and the split: it deals the jobs by
+# those seconds (scripts/share-deal.mjs, tests/test-shares.md), so every run
+# of the same checks gets the same order whatever order the file system lists
+# them in, and a split puts every check in exactly one share. A list line that
+# is not `<seconds><TAB><label>` fails the listing naming it, before any job
+# starts.
+allocator=(node "$(dirname -- "${BASH_SOURCE[0]}")/test-shares.mjs" share)
+[[ ! -f ${test_dir}/longest-first ]] || allocator+=(--list "${test_dir}/longest-first")
+[[ -z ${split} ]] || allocator+=(--split "${split}")
 labels=()
-declare -A scheduled=()
-if [[ -f ${test_dir}/longest-first ]]; then
-  while read -r label; do
-    [[ -z ${label} || ${label} == '#'* ]] && continue
-    if [[ -n ${job_kinds[${label}]+set} && -z ${scheduled[${label}]+set} ]]; then
-      labels+=("${label}")
-      scheduled[${label}]=1
-    fi
-  done < "${test_dir}/longest-first"
+if ((${#discovered[@]} > 0)); then
+  printf '%s\0' "${discovered[@]}" | "${allocator[@]}" > "${work_dir}/share"
+  mapfile -d '' -t labels < "${work_dir}/share"
 fi
-others=()
-for label in "${discovered[@]}"; do
-  [[ -n ${scheduled[${label}]+set} ]] || others+=("${label}")
-done
-if ((${#others[@]} > 0)); then
-  printf '%s\0' "${others[@]}" | LC_ALL=C sort -z > "${work_dir}/others"
-  mapfile -d '' -t others < "${work_dir}/others"
-  labels+=("${others[@]}")
-fi
-
-# A split deals that order round-robin across its shares and keeps share i,
-# so every check lands in exactly one share and known long jobs stay apart.
-for index in "${!labels[@]}"; do
-  [[ -z ${split} ]] || ((index % split_count == split_share - 1)) || continue
-  printf '%s\t%s\0' "${job_kinds[${labels[index]}]}" "${labels[index]}"
+for label in "${labels[@]}"; do
+  printf '%s\t%s\0' "${job_kinds[${label}]}" "${label}"
 done

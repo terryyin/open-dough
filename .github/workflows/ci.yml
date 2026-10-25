@@ -133,10 +133,11 @@ jobs:
   # discovers it. It runs here as its own check, against controlled GitHub
   # responses: no credentials and no live project contents. One Playwright
   # shard job per shard in the matrix each runs one share of the browser
-  # spec files (longest-first, dealt round-robin; the count derives from
-  # the matrix) and fails on its own failing test. The
-  # type-check does not depend on the shard, so it runs once, in the last
-  # share, whose recorded browser load is smallest.
+  # spec files (dealt by the recorded seconds in dashboard/tests/longest-first,
+  # dashboard/tests/shards.md; the count derives from the matrix) and fails
+  # on its own failing test. The type-check does not depend on the shard, so
+  # it runs once, in the last share, whose predicted browser load the deal
+  # keeps within one spec file of the others.
   # The suite's globalSetup runs `npm run build:dashboard` itself and fails
   # the shard when the build fails, so no separate build step is needed.
   dashboard:
@@ -197,7 +198,19 @@ jobs:
       - name: Run the dashboard browser suite
         env:
           OPEN_DOUGH_DASHBOARD_SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
+          OPEN_DOUGH_DASHBOARD_TIMES: ${{ runner.temp }}/dashboard-times.txt
         run: npm run test:dashboard
+      # The browser suite's per-spec-file seconds for this shard on this
+      # runner, written when the run ends however it ended, for refreshing
+      # dashboard/tests/longest-first (dashboard/tests/README.md).
+      - name: Keep per-spec dashboard times
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dashboard-times-${{ matrix.shard }}
+          path: ${{ runner.temp }}/dashboard-times.txt
+          if-no-files-found: ignore
+          retention-days: 7
       # The HTML report records how many browser tests each shard executed,
       # and on failure, including the suite's own deadline, it and
       # test-results/ keep the completed tests' diagnostics and name the
