@@ -5,6 +5,9 @@
 // `check` fetches the authorized remote, takes merge-base(<fetched trunk>,
 // HEAD) as the base (the Take: Story Branch increments never reach trunk), and
 // reads the Taken entry on fetched trunk for the story's link and plan link.
+// The records are the story section and the linked plan; without a plan link,
+// the home alone: the whole document when it reads as a plan (a plan-homed
+// correction), otherwise the story section (a quick story).
 // Each record is compared at base, on trunk, and in the workspace's working
 // tree (the branch copy: committed increments plus any uncommitted edit of the
 // slice being delivered, so absorbing never drops an edit in progress). Trunk
@@ -25,6 +28,7 @@ import {
   parseBacklog,
   takenHeading,
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
+import { readPlanSlices } from "../../dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 import { joinSource } from "../../dough-product-backlog/scripts/product-backlog-source.mjs";
 import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
 import {
@@ -110,11 +114,6 @@ export async function inspectSourceFreshness({
       "not-taken",
       `${identity} is not Taken in the backlog on fetched ${trackingRef}`,
     );
-  if (!entry.plan)
-    throw new FreshnessRefusal(
-      "no-plan-link",
-      `the Taken entry for ${identity} on fetched ${trackingRef} links no plan`,
-    );
   if (!(await takenEntry(repository, base, identity)))
     throw new FreshnessRefusal(
       "not-taken-at-base",
@@ -125,7 +124,7 @@ export async function inspectSourceFreshness({
   try {
     const selection = selectedPreparation(repository, entry.href);
     homePath = selection.homePath;
-    planPath = selection.linkedPlanPath(entry.plan.target);
+    if (entry.plan) planPath = selection.linkedPlanPath(entry.plan.target);
   } catch (error) {
     throw new FreshnessRefusal("invalid-source-link", error.message);
   }
@@ -146,36 +145,51 @@ export async function inspectSourceFreshness({
       );
   };
   const homes = await read(homePath);
-  const sections = Object.fromEntries(
-    Object.entries(homes).map(([at, home]) => [
-      at,
-      sectionOf(home, entry.href),
-    ]),
-  );
-  absent("story", homePath, sections);
-  const plans = await read(planPath);
-  absent("plan", planPath, plans);
-
-  const story = await compareSection({
-    repository,
-    record: "story",
-    path: homePath,
-    base: sections.base.text,
-    trunk: sections.trunk.text,
-    branch: sections.branch.text,
-  });
-  const plan = await compareRecord({
-    repository,
-    record: "plan",
-    path: planPath,
-    ...plans,
-    doneRule: true,
-  });
   const writes = new Map();
-  if (story.state === "amended")
-    writes.set(homePath, withSection(sections.branch, story.application));
-  if (plan.state === "amended") writes.set(planPath, plan.application);
-  const records = [story, plan];
+  const records = [];
+  const comparePlan = async (path, texts) => {
+    const plan = await compareRecord({
+      repository,
+      record: "plan",
+      path,
+      ...texts,
+      doneRule: true,
+    });
+    if (plan.state === "amended") writes.set(path, plan.application);
+    records.push(plan);
+  };
+  // Without a plan link, a home that reads as a plan is a plan-homed
+  // correction: the whole document is its only record.
+  if (
+    !planPath &&
+    homes.base !== null &&
+    readPlanSlices(homes.base).status === "interpreted"
+  ) {
+    absent("plan", homePath, homes);
+    await comparePlan(homePath, homes);
+  } else {
+    const sections = Object.fromEntries(
+      Object.entries(homes).map(([at, home]) => [
+        at,
+        sectionOf(home, entry.href),
+      ]),
+    );
+    absent("story", homePath, sections);
+    const plans = planPath && (await read(planPath));
+    if (plans) absent("plan", planPath, plans);
+    const story = await compareSection({
+      repository,
+      record: "story",
+      path: homePath,
+      base: sections.base.text,
+      trunk: sections.trunk.text,
+      branch: sections.branch.text,
+    });
+    if (story.state === "amended")
+      writes.set(homePath, withSection(sections.branch, story.application));
+    records.push(story);
+    if (plans) await comparePlan(planPath, plans);
+  }
   const result = records.some((item) => item.state === "conflict")
     ? "conflict"
     : records.some((item) => item.state === "amended")

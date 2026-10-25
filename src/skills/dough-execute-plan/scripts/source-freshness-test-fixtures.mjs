@@ -22,12 +22,13 @@ const identity = "SEED-900#story";
 export const seedPath = ".planning/seeds/SEED-900-freshness.md";
 export const planPath = ".planning/slice-plans/001-story/PLAN.md";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const backlog = backlogOf(
-  [
-    `- [The story](seeds/SEED-900-freshness.md#story) — ${identity} ([plan](slice-plans/001-story/PLAN.md))`,
-  ],
-  [],
-);
+// Taken entries: a story with its linked plan, a quick story without one, and
+// a plan-homed correction whose home is the plan.
+export const takenEntries = {
+  linked: `- [The story](seeds/SEED-900-freshness.md#story) — ${identity} ([plan](slice-plans/001-story/PLAN.md))`,
+  quick: `- [The story](seeds/SEED-900-freshness.md#story) — ${identity}`,
+  planHomed: `- [Correction](slice-plans/001-story/PLAN.md) — ${identity}`,
+};
 
 export const storySection = (extra = "") => `<a id="story"></a>
 
@@ -112,15 +113,20 @@ export async function commitTree(checkout, files, message) {
   return revParse(checkout, "HEAD");
 }
 
-// A Take published on trunk and the execution branch, then a branch increment
-// marking slice 1 done, published only to the execution branch.
-export async function takenStoryBranch(t) {
+// A Take of `entry` published on trunk and the execution branch, then a
+// branch increment marking slice 1 done, published only to the execution
+// branch.
+export async function takenStoryBranch(t, entry = takenEntries.linked) {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
   const { execution } = fixture;
   const take = await commitTree(
     execution,
-    { [backlogPath]: backlog, [seedPath]: seedOf(), [planPath]: takenPlan },
+    {
+      [backlogPath]: backlogOf([entry], []),
+      [seedPath]: seedOf(),
+      [planPath]: takenPlan,
+    },
     "Take",
   );
   await git(execution, "push", "-q", "origin", `HEAD:${trunkTarget}`);

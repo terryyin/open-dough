@@ -33,6 +33,7 @@ import {
   seedPath,
   slice,
   storySection,
+  takenEntries,
   takenStoryBranch,
   writeTree,
 } from "./source-freshness-test-fixtures.mjs";
@@ -208,6 +209,90 @@ for (const [name, amendedPlan, reason] of [
     assert.equal(await porcelainStatus(fixture.execution), "");
   });
 }
+
+test("a quick story's Taken entry without a plan link compares its story section alone", async (t) => {
+  const untouched = await takenStoryBranch(t, takenEntries.quick);
+  const settled = await run(untouched, "check", 0);
+  assert.equal(settled.result, "unchanged");
+  assert.deepEqual(settled.records, [
+    { record: "story", path: seedPath, state: "unchanged" },
+  ]);
+
+  const fixture = await takenStoryBranch(t, takenEntries.quick);
+  const amendedSeed = seedOf({
+    story: storySection("\n\nPromise two from the owner."),
+  });
+  await amendTrunk(fixture, { [seedPath]: amendedSeed });
+  const report = await run(fixture, "check", 1);
+  assert.equal(report.result, "amended");
+  assert.deepEqual(
+    report.records.map(({ record, path, state }) => ({ record, path, state })),
+    [{ record: "story", path: seedPath, state: "amended" }],
+  );
+
+  const absorbed = await run(fixture, "absorb", 0);
+  assert.deepEqual(absorbed.written, [seedPath]);
+  assert.equal(await porcelainStatus(fixture.execution), ` M ${seedPath}\n`);
+  assert.equal(read(fixture, seedPath), amendedSeed);
+  assert.equal((await run(fixture, "check", 0)).result, "unchanged");
+});
+
+test("a plan-homed correction compares its home as the plan, absorbing an added slice", async (t) => {
+  const fixture = await takenStoryBranch(t, takenEntries.planHomed);
+  await amendTrunk(fixture, {
+    [planPath]: planOf(slice(1, "A"), slice(2, "B"), slice(3, "C")),
+  });
+
+  const report = await run(fixture, "check", 1);
+  assert.equal(report.result, "amended");
+  assert.equal(report.records.length, 1);
+  const plan = recordOf(report, "plan");
+  assert.equal(plan.path, planPath);
+  assert.equal(plan.state, "amended");
+  const merged = planOf(
+    slice(1, "A", { status: "done" }),
+    slice(2, "B"),
+    slice(3, "C"),
+  );
+  assert.equal(plan.application, merged);
+
+  const absorbed = await run(fixture, "absorb", 0);
+  assert.deepEqual(absorbed.written, [planPath]);
+  assert.equal(await porcelainStatus(fixture.execution), ` M ${planPath}\n`);
+  assert.equal(read(fixture, planPath), merged);
+  assert.equal((await run(fixture, "check", 0)).result, "unchanged");
+});
+
+test("a plan-homed correction's done slice rewritten on trunk is a conflict", async (t) => {
+  const fixture = await takenStoryBranch(t, takenEntries.planHomed);
+  const amendedPlan = planOf(
+    slice(1, "A", { behavior: "does A another way." }),
+    slice(2, "B"),
+  );
+  await amendTrunk(fixture, { [planPath]: amendedPlan });
+
+  const report = await run(fixture, "check", 2);
+  assert.equal(report.result, "conflict");
+  assert.equal(report.records.length, 1);
+  const plan = recordOf(report, "plan");
+  assert.equal(plan.path, planPath);
+  assert.equal(plan.reason, "done-slice");
+  assert.deepEqual(plan.slices, [{ index: 1, name: "A", change: "changed" }]);
+  const absorbed = await run(fixture, "absorb", 2);
+  assert.deepEqual(absorbed.written, []);
+  assert.equal(await porcelainStatus(fixture.execution), "");
+});
+
+test("a linked plan present at the Take and removed on trunk is refused", async (t) => {
+  const fixture = await takenStoryBranch(t);
+  await amendTrunk(fixture, { [planPath]: null });
+
+  const refused = await run(fixture, "check", 3);
+  assert.equal(refused.reason, "record-absent");
+  assert.equal(refused.record, "plan");
+  assert.equal(refused.path, planPath);
+  assert.deepEqual(refused.absentAt, ["trunk"]);
+});
 
 test("work not Taken on fetched trunk or at the branch's base is refused", async (t) => {
   const fixture = await takenStoryBranch(t);

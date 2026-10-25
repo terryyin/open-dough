@@ -63,6 +63,25 @@ test("wrap-up checks freshness before deleting spent history", () => {
     "- its executable plan",
     /\]\(\.\.\/dough-execute-plan\/references\/source-freshness\.md(?:#[^)]+)?\)/,
   );
+  assert.match(
+    deletion,
+    /In Story Branch Mode, for selected work with a \*\*Taken\*\* entry, first run/,
+  );
+  assert.match(deletion, /or for work without a Taken entry, delete:/);
+});
+
+test("the reference names the records each source compares", () => {
+  const run = section(
+    read("dough-execute-plan/references/source-freshness.md"),
+    "## Run the check",
+  );
+  for (const term of [
+    "with a plan link, the story section and the linked plan",
+    "for a plan-homed correction, its plan",
+    "otherwise the story section alone, as for a quick story or a plan linked only on the branch",
+  ])
+    assert.ok(run.replace(/\s+/g, " ").includes(term), `names ${term}`);
+  assert.doesNotMatch(run, /missing plan link/);
 });
 
 test("the reference names the results, absorb, and the conflict stop", () => {

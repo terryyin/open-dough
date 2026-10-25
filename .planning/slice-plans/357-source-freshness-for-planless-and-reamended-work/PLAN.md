@@ -146,7 +146,7 @@ No whole-suite local gate is added; CI runs after publication.
 
 ### 1. The freshness gates check quick, plan-homed and context-only work instead of refusing it
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-execute-plan/scripts/source-freshness.test.mjs` quick-story and plan-homed cases and the kept `record-absent` refusal through `scripts/test.sh`; `source-freshness-guidance.test.mjs` with the deletion-gate scope and reference terms; `story-obligations-guidance.test.mjs`, `execution-completion-record-guidance.test.mjs`, `planned-completion-guidance.test.mjs` and `tests/payload-declaration-links.sh` green.
 
 Behavior: Given a Story Branch workspace whose fetched trunk lists the
@@ -165,6 +165,21 @@ for selected work with a Taken entry (context-only work, having none, has
 no story section or plan to compare). The delivery and completion gates keep
 their text, since plan-homed corrections now pass them. Edit `src/skills/`
 only; declare any new script in `install.sh`.
+
+Accepted: `source-freshness.test.mjs` "a quick story's Taken entry without a
+plan link compares its story section alone", "a plan-homed correction compares
+its home as the plan, absorbing an added slice", "a plan-homed correction's done
+slice rewritten on trunk is a conflict" and "a linked plan present at the Take
+and removed on trunk is refused"; `source-freshness-guidance.test.mjs` "wrap-up
+checks freshness before deleting spent history" and "the reference names the
+records each source compares"; the gate-order guidance tests,
+`read-budget-guidance.test.mjs`, `tests/payload-declaration-links.sh` and
+`tests/delivery-evidence-amended.sh` green through `scripts/test.sh`.
+Learning for slice 2: `read-budget-guidance.test.mjs` counts all of
+`source-freshness.md` toward the "Before finishing or stopping" row (30000
+bytes), now within about 10 bytes of the limit, so slice 2's guidance must free
+bytes in that row or tighten the reference as it adds the base and the
+after-decision route.
 
 ### 2. A later amendment over an absorbed one applies, and a decided conflict returns to unchanged
 Type: Behavior
@@ -221,3 +236,25 @@ Slice-plan refinement was not needed: slice 1 owns the record set per source
 base and the after-decision route; each is one proof loop on the same test
 file and neither depends on the other's result. This review identified no
 remaining slice-specific concern.
+
+## Story obligations
+
+### G1. A plan linked only on the branch is not exercised directly
+Reported: slice 1 — "A quick attempt continued into planned work, with its plan linked only on the branch, is not exercised directly."
+Story clause: "passes the source-freshness gates with the right comparison instead of stopping on an uncorrectable refusal"
+Disposition: proved by slice 1: `source-freshness.mjs` reads the Taken entry only on fetched trunk (`takenEntry(repository, trunkRevision, …)`), where a branch-only plan link is absent, so the command takes the same no-plan-link path that `source-freshness.test.mjs` "a quick story's Taken entry without a plan link compares its story section alone" observes (`unchanged`, then `amended` writing only the seed, rerun `unchanged`)
+
+### G2. A plan-homed home absent at the Take is untested
+Reported: slice 1 — "Plan-homed detection reads only the Take's home text, and there is no test where that text is absent at the Take."
+Story clause: "passes the source-freshness gates with the right comparison instead of stopping on an uncorrectable refusal"
+Disposition: no user cost "passes the source-freshness gates with the right comparison": the Take commit is the published claim whose start checks the published selected source, so the linked home exists at the Take; were it absent, the section path's `absent("story", …)` refuses `record-absent`, which is a true absent record rather than a false stop
+
+### G3. Work without a Taken entry is scoped by guidance only
+Reported: slice 1 — "Context-only scoping is guidance only; the existing `not-taken` refusal test stands unchanged."
+Story clause: "A Story Branch coordinator executing a quick story, a plan-homed correction or context-only work passes the source-freshness gates"
+Disposition: proved by slice 1: in Story Branch Mode context-only work is admitted with a Taken entry (`references/admit-accepted-work.md`) and takes the quick-story path observed in `source-freshness.test.mjs`; work without one is outside the Story Branch delivery and completion gates' claim and is excluded from the deletion gate, pinned in `source-freshness-guidance.test.mjs` "wrap-up checks freshness before deleting spent history" (`for selected work with a **Taken** entry`, `or for work without a Taken entry, delete:`)
+
+### G4. No native agent run
+Reported: slice 1 — "No native agent run, consistent with the plan's Current decisions."
+Story clause: "passes the source-freshness gates with the right comparison"
+Disposition: no user cost "passes the source-freshness gates with the right comparison": gate positions, prompts and result shapes are unchanged; the refusal becomes an existing `unchanged`/`amended`/`conflict` result, observed at the command's CLI boundary in `source-freshness.test.mjs`, and `tests/delivery-evidence-amended.sh` stays green

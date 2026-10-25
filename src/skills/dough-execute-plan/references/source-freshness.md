@@ -19,11 +19,14 @@ node '<installed-execute-plan>/scripts/source-freshness.mjs' check --workspace '
 ```
 
 It fetches the remote, takes the branch's fork from fetched trunk as the Take
-base, reads the Taken entry on fetched trunk for the story and plan links, and
-compares each record at that base, on trunk, and in the working tree, so an
-uncommitted plan edit for the current slice counts as the branch copy. It
-prints one JSON line with the overall `result`, the `trunkRevision` read, and
-each compared record with its `state`; the result is the most severe state:
+base, and reads the Taken entry on fetched trunk for the records: with a plan
+link, the story section and the linked plan; for a plan-homed correction, its
+plan; otherwise the story section alone, as for a quick story or a plan linked
+only on the branch. It compares each record at that base, on trunk, and in the
+working tree, so an uncommitted plan edit for the current slice counts as the
+branch copy. It prints one JSON line with the overall `result`, the
+`trunkRevision` read, and each compared record with its `state`; the result is
+the most severe state:
 
 - `unchanged` (exit 0) — trunk has not changed either record since the Take,
   or the branch copy already contains trunk's change. Continue the boundary.
@@ -37,7 +40,7 @@ each compared record with its `state`; the result is the most severe state:
   [Stop on a conflict](#stop-on-a-conflict).
 
 A refusal exits 3 with a `reason` and message, such as a failed fetch, an
-identity not Taken on trunk or at the base, or a missing plan link. It accepts
+identity not Taken on trunk or at the base, or an absent record. It accepts
 no boundary: correct the input or publication context and rerun, or stop under
 [human judgment](execution-decisions.md#stop-for-human-judgment) when it
 cannot be corrected. Neither command commits, pushes, or writes to trunk.
