@@ -33,11 +33,14 @@ execution. A repaired individual race does not resolve every suite failure.
    recurrence after the fix. Shared interaction helpers still allow a click
    before all page reads settle. Retain that qualified residual, not a claim
    that the repaired specs still fail.
-3. **Suite timing and diagnosis — open, unqueued.** [DD-279](#dd-279)
+3. **Suite timing and diagnosis — DD-279 response implemented, hosted outcome unobserved; DD-275 open, unqueued.** [DD-279](#dd-279)
    records two shard deadlines in one execution; a refreshed duration list and
    twelve shares repair those runs, while duration ordering still ages without
    a refresh step. Plan 350 met the same mechanism in the Node suite's share
-   budget (one added test file, repaired by refreshing `tests/longest-first`). [DD-275](#dd-275) records one separate execution whose
+   budget (one added test file, repaired by refreshing `tests/longest-first`).
+   SEED-151#balance-test-shares answers both with one allocator that deals by
+   recorded duration and previews the deal before a push; its hosted outcome
+   is unobserved. [DD-275](#dd-275) records one separate execution whose
    within-run load was unobserved. These are related diagnostic/margin concerns,
    not one demonstrated cause. The repaired individual timeout DD-280 and
    shell budget breach DD-283 are removed below.
@@ -64,13 +67,13 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-278).
 
-## Dashboard shards run at their time ceiling (open, unqueued)
+## Dashboard shards run at their time ceiling (response implemented, hosted outcome unobserved)
 
 <a id="dd-279"></a>
 
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279).
+[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals both suites' shares by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within 0.2 test-seconds of each other where the positional deal measured 462.5 to 686.4; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 

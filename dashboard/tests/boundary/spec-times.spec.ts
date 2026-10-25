@@ -6,7 +6,6 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   proofDirectory,
-  proofFixtures,
   readProof,
   removeProofDirectories,
   startProofRun,
@@ -38,10 +37,14 @@ function timesLines(timesPath: string): Line[] {
 
 // What the proof record says each spec file should show: the sum of its
 // attempts' durations, to a tenth, under its path relative to the testDir.
+// The spec file is the file suite's title (titlePath[2], after the root and
+// project titles), not the test's own location, which a case module owns for
+// the tests it registers.
 function recordedSeconds(record: DashboardProofRecord): Map<string, string> {
   const totals = new Map<string, number>();
   for (const selected of record.tests) {
-    const file = path.relative(proofFixtures, selected.location.file);
+    const file = selected.titlePath[2];
+    if (file === undefined) throw new Error("a test without a file suite");
     const attempts = selected.attempts.reduce(
       (sum, attempt) => sum + (attempt.durationMs ?? 0),
       0,
@@ -90,6 +93,33 @@ test("a run lists each spec file's summed seconds, longest first, by its path un
     ),
   );
   expectTimesToMatchRecord(lines, readProof(run.recordPath));
+});
+
+test("tests registered from an imported case module count under the spec file that ran them", async () => {
+  const directory = proofDirectory();
+  const timesPath = path.join(directory, "times.txt");
+  const run = startProofRun({
+    directory,
+    timesPath,
+    spec: ["nested/importing.proof.ts", "passing.proof.ts"],
+  });
+  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
+  const lines = timesLines(timesPath);
+  expect(lines.map((line) => line.file).sort(bytewise)).toEqual([
+    "nested/importing.proof.ts",
+    "passing.proof.ts",
+  ]);
+  // The imported cases' waits (300 and 200 ms) are in the importing spec's
+  // sum, and the case module itself has no line.
+  expect(lines[0]?.file).toBe("nested/importing.proof.ts");
+  expect(Number(lines[0]?.seconds)).toBeGreaterThanOrEqual(0.5);
+  const record = readProof(run.recordPath);
+  expect(
+    record.tests.filter((selected) =>
+      selected.location.file.endsWith("nested/cases.ts"),
+    ),
+  ).toHaveLength(2);
+  expectTimesToMatchRecord(lines, record);
 });
 
 test("a failed run still writes the times of what completed", async () => {

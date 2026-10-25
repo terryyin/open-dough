@@ -1,5 +1,6 @@
 // The command surface of scripts/test-shares.mjs: `share` as
-// scripts/test-jobs.sh runs it, and `preview` as a contributor runs it.
+// scripts/test-jobs.sh runs it, and `preview` as a contributor runs it for
+// the Node suite and for the dashboard's spec files.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
@@ -100,6 +101,56 @@ test("preview names the Bash 5 floor when the bash on PATH is older", () => {
   assert.equal(
     previewRun.stderr,
     "FAIL: shell tests require Bash 5 or newer; resolved bash on PATH (version 3.2.57(1)-release).\nInstall Bash 5 or newer and put its bin directory first on PATH, then rerun the preview.\n",
+  );
+});
+
+test("preview lists a dashboard spec directory as its configuration discovers it, without a ceiling", () => {
+  const specs = join(scratch, "specs");
+  mkdirSync(join(specs, "boundary"), { recursive: true });
+  for (const name of [
+    "a.spec.ts",
+    "boundary/b.spec.ts",
+    "c.spec.ts",
+    "support/helper.ts",
+  ]) {
+    mkdirSync(join(specs, name, ".."), { recursive: true });
+    writeFileSync(join(specs, name), "");
+  }
+  writeFileSync(
+    join(specs, "longest-first"),
+    "# list\n4.0\tboundary/b.spec.ts\n2.0\ta.spec.ts\n",
+  );
+  const previewRun = run([
+    "preview",
+    "--split-count",
+    "2",
+    "--spec-dir",
+    specs,
+  ]);
+  assert.equal(previewRun.status, 0, previewRun.stderr);
+  // b (4.0) to share 1, a (2.0) to share 2, c unrecorded at the median 3.0
+  // to share 2; support/helper.ts is no spec file.
+  assert.equal(
+    previewRun.stdout,
+    `Predicted job-seconds per share from ${specs}/longest-first: 3 jobs, 2 recorded, 1 unrecorded at 3.0 s each (the recorded median).\n` +
+      "share 1/2: 4.0 predicted (1 jobs, 0 unrecorded)\n" +
+      "share 2/2: 5.0 predicted (2 jobs, 1 unrecorded)\n" +
+      `unrecorded jobs (1), each assumed at 3.0 s; a refresh of ${specs}/longest-first records them:\n` +
+      "  share 2/2  c.spec.ts\n",
+  );
+  const both = run([
+    "preview",
+    "--split-count",
+    "2",
+    "--spec-dir",
+    specs,
+    "--test-dir",
+    specs,
+  ]);
+  assert.equal(both.status, 1);
+  assert.equal(
+    both.stderr,
+    "FAIL: preview takes --test-dir or --spec-dir, not both.\n",
   );
 });
 

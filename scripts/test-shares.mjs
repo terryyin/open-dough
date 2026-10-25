@@ -9,14 +9,17 @@
 //                                            share's labels NUL-separated,
 //                                            in start order
 //   preview --split-count N [--list FILE] [--budget FILE] [--labels FILE]
-//           [--test-dir DIR]                 each share's predicted total,
+//           [--test-dir DIR | --spec-dir DIR]
+//                                            each share's predicted total,
 //                                            the unrecorded jobs with the
 //                                            assumed seconds and share, and
 //                                            headroom to the budget's
-//                                            total-job-seconds; labels from
-//                                            FILE, or from
-//                                            scripts/test-jobs.sh over DIR
-//                                            (default tests)
+//                                            total-job-seconds when there is
+//                                            one; labels from FILE, from the
+//                                            dashboard spec files under DIR
+//                                            (--spec-dir, no budget), or
+//                                            from scripts/test-jobs.sh over
+//                                            DIR (default tests)
 //   refresh --list FILE --source TEXT TIMES...
 //                                            merges the times files into
 //                                            FILE, longest first, keeping
@@ -30,6 +33,7 @@ import {
   dealShares,
   formatPreview,
   mergeTimes,
+  parseSplit,
   readDurationList,
   readTimeBudget,
   shareLabels,
@@ -37,19 +41,6 @@ import {
 } from "./share-deal.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
-
-// `--split i/n` with i from 1 to n.
-function parseSplit(value) {
-  const match = /^([1-9][0-9]*)\/([1-9][0-9]*)$/.exec(value);
-  const share = match ? Number(match[1]) : 0;
-  const count = match ? Number(match[2]) : 0;
-  if (!match || share > count || !Number.isSafeInteger(count)) {
-    throw new TestSharesError(
-      `FAIL: --split=${value} is not <i>/<n> with i from 1 to n.`,
-    );
-  }
-  return { share, count };
-}
 
 // Labels NUL-separated, or one per line when the text holds no NUL; empty
 // entries are dropped.
@@ -93,7 +84,7 @@ function shareCommand(argv) {
   const split =
     options.split === undefined
       ? { share: 1, count: 1 }
-      : parseSplit(options.split);
+      : parseSplit(options.split, "--split");
   const seconds =
     options.list === undefined
       ? new Map()
@@ -136,31 +127,52 @@ function listNodeSuiteJobs(testDir) {
     .map((record) => record.slice(record.indexOf("\t") + 1));
 }
 
-function previewCommand(argv) {
+// The dashboard suite's spec files under specDir, as its configuration
+// discovers them (dashboard/tests/support/testFiles.mjs). Imported only when
+// the option is used: the runner's tests copy this module and share-deal.mjs
+// into fixtures without the dashboard tree (tests/helpers/copy-runner.bash).
+async function listDashboardSpecFiles(specDir) {
+  const { dashboardSpecFiles } = await import(
+    new URL("../dashboard/tests/support/testFiles.mjs", import.meta.url)
+  );
+  return dashboardSpecFiles(specDir);
+}
+
+async function previewCommand(argv) {
   const { options, positional } = parseArguments(argv, [
     "split-count",
     "list",
     "budget",
     "labels",
     "test-dir",
+    "spec-dir",
   ]);
   if (positional.length > 0 || options["split-count"] === undefined) {
     throw new TestSharesError(
       "FAIL: preview needs --split-count <n>; it takes no positional argument.",
     );
   }
+  if (options["test-dir"] !== undefined && options["spec-dir"] !== undefined) {
+    throw new TestSharesError(
+      "FAIL: preview takes --test-dir or --spec-dir, not both.",
+    );
+  }
   const shareCount = Number(options["split-count"]);
+  const specDir = options["spec-dir"];
   const testDir = options["test-dir"] ?? "tests";
-  const listPath = options.list ?? `${testDir}/longest-first`;
+  const suiteDir = specDir ?? testDir;
+  const listPath = options.list ?? `${suiteDir}/longest-first`;
   const budgetPath =
     options.budget ??
-    (existsSync(`${testDir}/time-budget`)
+    (specDir === undefined && existsSync(`${testDir}/time-budget`)
       ? `${testDir}/time-budget`
       : undefined);
   const labels =
-    options.labels === undefined
-      ? listNodeSuiteJobs(testDir)
-      : parseLabels(readFileSync(options.labels, "utf8"));
+    options.labels !== undefined
+      ? parseLabels(readFileSync(options.labels, "utf8"))
+      : specDir !== undefined
+        ? await listDashboardSpecFiles(specDir)
+        : listNodeSuiteJobs(testDir);
   const allocation = dealShares(
     labels,
     readDurationList(listPath).seconds,
@@ -211,14 +223,14 @@ const commands = {
   refresh: refreshCommand,
 };
 
-function main(argv) {
+async function main(argv) {
   const [command, ...rest] = argv;
   if (!Object.hasOwn(commands, command ?? "")) {
     throw new TestSharesError(
       `FAIL: the command must be one of ${Object.keys(commands).join(", ")}, not ${command ?? "(none)"}.`,
     );
   }
-  commands[command](rest);
+  await commands[command](rest);
 }
 
 if (
@@ -226,7 +238,7 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   try {
-    main(process.argv.slice(2));
+    await main(process.argv.slice(2));
   } catch (error) {
     if (error instanceof TestSharesError) {
       process.stderr.write(`${error.message}\n`);

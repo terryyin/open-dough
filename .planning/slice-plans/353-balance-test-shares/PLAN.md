@@ -158,7 +158,7 @@ before slice 3 starts.
 
 ### 3. Dashboard shards are dealt by recorded duration
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/support/dashboard-test-files.test.mjs` (example 5 and the
 malformed line; the twelve-shard exact-once assertion kept);
 `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 npx playwright test --list` from
@@ -179,6 +179,23 @@ refresh command from the branch CI run of slice 2 (all twelve
 the list header. External wait, stated: this slice starts after slice 2's
 branch CI run has retained its artifacts, about one CI round; nothing else
 waits.
+
+Accepted: `bash scripts/test.sh tests/support/dashboard-test-files.test.mjs tests/support/test-shares.test.mjs tests/support/share-deal.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/test-runner-split.sh tests/test-runner-selection.sh tests/test-runner-interrupt.sh tests/test-runner-failure-report.sh tests/ci-lint-setup.sh tests/native-setup.sh tests/ci-container.sh tests/test-runner-github-requests.sh tests/support/format-changed-files.test.mjs tests/support/lint-file-set.test.mjs tests/support/pre-commit-lint-hook.test.mjs tests/support/pre-commit-typecheck-hook.test.mjs`
+(example 5 in `dashboard-test-files.test.mjs`: the twelve shards' predictions
+within one recorded spec file of each other, every spec file in exactly one
+shard, a new spec unrecorded in the lightest shard at the median; example 6:
+`dashboardTestMatch` throws naming the malformed line); from `dashboard/`,
+`npx playwright test tests/boundary/spec-times.spec.ts tests/quiet-reporter.spec.ts tests/boundary/proof-record.spec.ts tests/boundary/proof-record-entry.spec.ts`
+and `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 npx playwright test --list --reporter=list`
+(43 files, identical to the allocator's share 1); `npm run typecheck:dashboard`;
+`npm run lint`; all exit 0. The preview over the refreshed dashboard list
+predicted 582.4 / 582.3 ×10 / 582.2 test-seconds where run 40187124945's
+positional shards measured 462.5 to 686.4. Still owed after this slice's
+commit, as DD-279 states: the landed revision's CI run measured from its
+`test-times-*` and `dashboard-times-*` artifacts recorded at DD-279, and
+`dashboard/tests/longest-first` refreshed from that run (its reporter
+attributes imported case-module tests to the spec file; run 40187124945's
+artifacts did not).
 
 ## Current decisions
 
@@ -234,6 +251,11 @@ Reported: slice 1 — "The after-run measured totals do not: mine are 602.0 / 59
 Story clause: "every share keeps more than 110 job-seconds of headroom instead of share 3 ending 1.1 over"
 Disposition: no user cost "gets CI shares whose predicted load stays balanced and visible before pushing": the story fixes ties only "by share index and stable orders", and bytewise order among equal-second recorded jobs is one stable order; the contributor-visible promises of examples 1, 3 and 4 hold in `tests/support/share-deal-recorded-runs.test.mjs` (predicted 596.0 ×3, zero other jobs changing share, the added file alone on the lightest share, each share over 100 job-seconds of headroom where the positional deal measured 711.1, the heaviest share rising 36.2 ≤ 54.4 on the rename, 333 unrecorded of 417), and the measured allocation the story records is the landed run's (example 7, slice 3), not the reconstruction's. The quoted 599.2 / 599.5 / 596.6, 621.7 / 591.8 / 581.8 and "more than 110" are illustrative reconstruction figures; the developer may update them to the implemented order at wrap-up.
 
+
+### G2. Times attribute imported case-module tests to the module, not the spec file
+Reported: slice 3 — "124.3 s of recorded time sits under six case-module labels rather than their three importing specs (slice 2's `location.file` attribution). The deal still balances by what is recorded, and the preview counts those specs as recorded"
+Story clause: "The dashboard CI shards retain per-spec durations in the same `<seconds><TAB><file>` form as an artifact"
+Disposition: proved by slice 3: `dashboard/tests/support/specTimes.ts` attributes each test to the file suite Playwright ran; `dashboard/tests/boundary/spec-times.spec.ts` "tests registered from an imported case module count under the spec file that ran them" runs `nested/importing.proof.ts` (which registers tests from `nested/cases.ts`) and asserts the times list the importing spec alone with the summed seconds and no case-module line. The list refreshed from run 40187124945 still carries that run's attribution; the refresh from the landed revision's run, recorded with DD-279's final measured allocation, replaces it.
 ## Plan concern review
 
 Slice-plan refinement was not needed: three slices with one outcome and one

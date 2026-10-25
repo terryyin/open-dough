@@ -166,11 +166,13 @@ workers.
 
 Discovery and sharding follow the file: `support/testFiles.mjs` finds every
 `*.spec.ts` under `tests/` recursively and CI's split ([dashboard
-shards](shards.md)) deals whole files, so a new file needs no registration;
-unlisted in `longest-first`, it follows the listed files in sorted order
-until that list is next recorded from a hosted run.
+shards](shards.md)) deals whole files by the seconds `longest-first` records
+for them, so a new file needs no registration; unrecorded there, it is dealt
+after the recorded files at their median duration until that list is next
+refreshed from a hosted run, and the preview in [dashboard shards](shards.md)
+shows where it lands before a push.
 `tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
-and assignment without duplicates or omissions.
+and their assignment to exactly one balanced shard.
 
 ## Running the suite
 
@@ -180,14 +182,15 @@ test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs use Playwright's
 default worker count, CI runs every core.
 
-CI runs the suite as shard jobs, each selecting whole spec files with
-`OPEN_DOUGH_DASHBOARD_SPLIT=i/n`, keeping its spec files' seconds through
+CI runs the suite as shard jobs, each running the whole spec files
+`OPEN_DOUGH_DASHBOARD_SPLIT=i/n` deals it by recorded duration, keeping its
+spec files' seconds through
 `OPEN_DOUGH_DASHBOARD_TIMES` as artifact `dashboard-times-<shard>`, the source
 `longest-first` is refreshed from, and running under
 `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`; [dashboard shards](shards.md) holds the
-split, the times file and the deadline. With the variables unset,
-`npm run test:dashboard` runs the whole suite, unbounded, and writes no times
-file.
+split with its preview and refresh, the times file and the deadline. With
+the variables unset, `npm run test:dashboard` runs the whole suite, unbounded,
+and writes no times file.
 
 A passing run prints nothing (`support/quietReporter.ts`) and leaves no
 output directory. A failing spec is shown with its error, output, and

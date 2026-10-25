@@ -17,7 +17,9 @@
 // recorded jobs, or a median of 0, each is assumed at 1 s so they still spread
 // across the shares). The deal is deterministic across input order, and the
 // predicted totals differ by at most one job's duration. Within a share the
-// jobs start in that same order: recorded longest first, then unrecorded.
+// jobs start in that same order: recorded longest first, then unrecorded. A
+// run selects one share as `<i>/<n>`, share i of n (`OPEN_DOUGH_TEST_SPLIT`,
+// `OPEN_DOUGH_DASHBOARD_SPLIT`, the `share` command's `--split`).
 
 import { readFileSync } from "node:fs";
 
@@ -32,6 +34,25 @@ const bytewise = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 
 export function formatSeconds(value) {
   return value.toFixed(1);
+}
+
+// Parses `<i>/<n>` with i from 1 to n into the share and the share count,
+// failing with the setting that carried it (as scripts/test-jobs.sh fails on
+// its own `OPEN_DOUGH_TEST_SPLIT`).
+export function parseSplit(value, setting) {
+  const match = /^([1-9][0-9]*)\/([1-9][0-9]*)$/.exec(value);
+  const share = Number(match?.[1]);
+  const count = Number(match?.[2]);
+  if (
+    !Number.isSafeInteger(share) ||
+    !Number.isSafeInteger(count) ||
+    share > count
+  ) {
+    throw new TestSharesError(
+      `FAIL: ${setting}=${value} is not <i>/<n> with i from 1 to n.`,
+    );
+  }
+  return { share, count };
 }
 
 // Records a label's seconds, keeping the largest when the label repeats.

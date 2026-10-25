@@ -53,9 +53,11 @@ node scripts/test-shares.mjs refresh --list tests/longest-first \
 
 The refresh keeps the header and records the source in its `# Source:` line.
 `OPEN_DOUGH_TEST_DIR=<dir>` and `--test-dir <dir>` preview a substitute
-directory with its own list and budget; `--list`, `--budget` and `--labels
-<file>` (labels one per line) name the inputs directly, and without a budget
-the preview prints no headroom.
+directory with its own list and budget; `--spec-dir <dir>` previews the
+dashboard's spec files under that directory instead, with no budget
+([dashboard/tests/shards.md](../dashboard/tests/shards.md)); `--list`,
+`--budget` and `--labels <file>` (labels one per line) name the inputs
+directly, and without a budget the preview prints no headroom.
 
 ## Proof
 
@@ -63,5 +65,6 @@ the preview prints no headroom.
 CI runs (`tests/support/fixtures/plan-350/`), `tests/support/share-deal.test.mjs`
 its rules on small inputs, `tests/support/test-shares.test.mjs` the commands,
 and `tests/test-runner-split.sh` that the runner's shares follow it. The
-dashboard's spec-file shards keep their own positional deal in
-`dashboard/tests/support/testFiles.mjs` until they adopt this allocator.
+dashboard's spec-file shards use the same allocator through
+`dashboard/tests/support/testFiles.mjs`
+([dashboard/tests/shards.md](../dashboard/tests/shards.md)).
