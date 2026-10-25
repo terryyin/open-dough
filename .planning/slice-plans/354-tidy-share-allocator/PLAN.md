@@ -6,7 +6,7 @@
 ## Goal and scope
 
 Bounded retrospective correction of SEED-151#balance-test-shares
-([plan 353](../353-balance-test-shares/PLAN.md); commits 61d16b66 Node
+(plan 353, recoverable at `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`; commits 61d16b66 Node
 shares by duration, 34f3192f dashboard per-spec times, 065d6655 dashboard
 shards by duration, 2a537b21 both lists refreshed). The retrospective's
 read-only review at 2a537b21 found no correctness regression and eight
@@ -182,8 +182,9 @@ test. Rename `tests/support/fixtures/plan-350/` to
 `stale-longest-first`), keep run ids 39875064344, 39883782226 and revision
 3fba18f9 in the test's header, and update `tests/test-shares.md` "Proof".
 Optional, only if every assertion survives: run `spec-times.spec.ts` tests
-1 and 2 as one nested run. The planning copy `plan-350-inputs/` is left to
-story 1's wrap-up.
+1 and 2 as one nested run. The former planning copy `plan-350-inputs/` was
+removed with plan 353 (recoverable at
+`8dd20d66:.planning/slice-plans/353-balance-test-shares/plan-350-inputs/`).
 
 ## Current decisions
 

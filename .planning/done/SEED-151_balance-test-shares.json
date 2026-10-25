@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-151#balance-test-shares",
+  "title": "Keep test-file changes from unexpectedly exhausting CI share budgets",
+  "completedAt": "2026-10-25T12:16:59.774Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "claude",
+  "model": "fable"
+}

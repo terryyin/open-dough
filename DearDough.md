@@ -519,7 +519,7 @@ Plan 353's story and plan quoted after-run totals from a scratch reconstruction 
   - Tool: Claude Code
   - Model: claude-fable-5-1
   - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: PLAN.md "Preparation observations" row 1 and story example 1 quote the figures; the implementation agent tried 1,728 ordering variants (file orders, tie-breaks, share-tie rules, unrecorded assumptions) and matched the sum (1795.3) but never the split; obligation G1 in `.planning/slice-plans/353-balance-test-shares/PLAN.md`.
+  - Evidence: PLAN.md "Preparation observations" row 1 and story example 1 quote the figures; the implementation agent tried 1,728 ordering variants (file orders, tie-breaks, share-tie rules, unrecorded assumptions) and matched the sum (1795.3) but never the split; obligation G1 in `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`.
   - Observed effect: the story's key example states measured figures and "more than 110 job-seconds of headroom" that the delivered deal does not produce (108.0 on share 1); a `no user cost` disposition and a developer decision on the example text.
   - Inference: qualified. A measured allocation is only an evaluable promise when the full sort key, or the reconstruction script, is retained with it; the predicted totals, which depend on no tie order, reproduced exactly.
 
@@ -547,6 +547,6 @@ Slice 2 proved the dashboard per-spec times on quiet-reporter fixtures where eve
   - Tool: Claude Code
   - Model: claude-fable-5-1
   - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: run 40187124945's `dashboard-times-*` list `support/productionUpdatePolicies.ts` 62.8 s and five Codex case modules; obligation G2 in `.planning/slice-plans/353-balance-test-shares/PLAN.md`; the fix walks `test.parent` to the file suite (`dashboard/tests/support/specTimes.ts`) with a new fixture pair `nested/cases.ts` and `nested/importing.proof.ts`.
+  - Evidence: run 40187124945's `dashboard-times-*` list `support/productionUpdatePolicies.ts` 62.8 s and five Codex case modules; obligation G2 in `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`; the fix walks `test.parent` to the file suite (`dashboard/tests/support/specTimes.ts`) with a new fixture pair `nested/cases.ts` and `nested/importing.proof.ts`.
   - Observed effect: a return obligation on the last slice, a reporter fix with its fixture, a dashboard list committed with misattributed seconds, and a further increment to refresh it from the corrected run.
   - Inference: qualified. The preparation observation checked `location.file` on one plain spec; a proof built only from synthetic fixtures does not sample the real suite's shapes. Reading one real artifact, or listing the real suite's distinct test-file origins, before accepting slice 2 would have shown it.

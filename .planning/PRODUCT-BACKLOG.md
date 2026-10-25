@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Keep test-file changes from unexpectedly exhausting CI share budgets](seeds/SEED-151-test-share-reliability.md#balance-test-shares) — SEED-151#balance-test-shares ([plan](slice-plans/353-balance-test-shares/PLAN.md))
-
 ## Backlog list
 
 - [Tidy the share allocator's surfaces and tests](seeds/SEED-151-test-share-reliability.md#tidy-share-allocator) — SEED-151#tidy-share-allocator
