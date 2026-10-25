@@ -153,6 +153,8 @@ managed_files=(
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs
   dough-execute-plan/scripts/story-obligations.mjs
+  dough-execute-plan/scripts/source-freshness.mjs
+  dough-execute-plan/scripts/source-freshness-comparison.mjs
   dough-execute-plan/scripts/publication-comparison.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs

@@ -186,7 +186,7 @@ Each slice runs its focused checks through `PATH="/opt/homebrew/bin:$PATH" bash 
 
 ### 1. A freshness command tells a Story Branch coordinator whether trunk amended the selected story or plan
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-execute-plan/scripts/source-freshness.test.mjs` through `scripts/test.sh` covers the four example shapes and the sibling-section case, the exit codes, `absorb`'s exact writes and refusal, unchanged origin trunk, and the closure-conflict baseline; `tests/payload-declaration-links.sh` green after declaring the script.
 
 Behavior: Given an owned Story Branch workspace whose remote trunk holds the
@@ -316,16 +316,23 @@ rollout is authorized.
   other execution scripts; it reads the backlog entry on fetched trunk and
   the base from `merge-base`, taking no retained SHA and no plan path from
   the caller.
-- `unchanged` means trunk equals the base for both records. Branch edits
-  alone never produce `amended`, since Story Branch increments do not reach
-  trunk.
+- `unchanged` means trunk equals the base for both records, or trunk's
+  change is already contained in the branch copy (its clean three-way
+  application equals the branch copy), so a rerun after `absorb` passes as the
+  story's gate acceptance ("the branch copy matches trunk's text") and
+  examples 4–6 require. Branch edits alone never produce `amended`, since
+  Story Branch increments do not reach trunk.
+- The branch copy is the workspace's working tree, so an uncommitted edit of
+  the slice being delivered survives `absorb`.
+- Refusals exit 3 with a `reason`; exit 0/1/2 are unchanged/amended/conflict.
 - `conflict` is a `git merge-file` conflict on either record, or a plan
-  slice the branch marks `done` that trunk changed or removed between base
-  and trunk, judged with `readPlanSlices`. Everything else that changed is
+  slice the branch marks `done` whose block the clean application changes or
+  removes, judged with `readPlanSlices`. Everything else that changed is
   `amended`.
 - `absorb` writes working-tree text only; the increment's existing commit and
-  publication carry it. The story section is never edited by execution, so
-  its application is always trunk's text.
+  publication carry it. The story section is merged three-way like the plan
+  and spliced back without touching sibling sections; since execution never
+  edits it, its application is trunk's section word for word.
 - Guidance scopes the gates to Story Branch Mode; the command itself is
   mode-agnostic Git.
 - The native family's baseline installs the slice 1 payload so the
@@ -334,7 +341,30 @@ rollout is authorized.
 
 ## Learnings
 
-None yet.
+- Slice 1: with the base fixed at the Take, `unchanged` defined only as
+  trunk-equals-base would stay `amended` forever after `absorb`; slice 2's
+  reference describes `unchanged` as in Current decisions. A second trunk
+  amendment overlapping an absorbed first one reads as `overlapping-edit`
+  conflict and stops for the human.
+
+## Acceptance evidence
+
+- Slice 1: source-only review by a fresh general-purpose agent given only the
+  selected story section (extracted to the job's scratch `story.md`); its
+  commitments R1–R9, C1–C4 and R18 (credential-free part) were compared with
+  `source-freshness.test.mjs`: amended story and plan with exact `absorb`
+  writes and an `unchanged` rerun (examples 1, R15); plan-only amendment
+  keeping `done` statuses (example 2); sibling edit, unrelated files and a
+  release commit `unchanged` with the trunk-only file absent (example 3, C2);
+  rewritten and removed done slices `conflict` with both texts and the trunk
+  revision, `absorb` writing nothing (example 4, R7, R16a, C1); origin trunk
+  SHA unchanged per run (C1b); closure `integrate` preserving a conflict on
+  seed and plan without the check (baseline). Untested refusals:
+  `fetch-failed`, `trunk-absent`, `no-common-base`, `no-plan-link`,
+  `record-absent`, `invalid-source-link`. Proof:
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/source-freshness.test.mjs`,
+  `tests/payload-declaration-links.sh` and the install payload tests, all
+  quiet passes after the refactor split.
 
 ## Plan concerns and readiness
 
