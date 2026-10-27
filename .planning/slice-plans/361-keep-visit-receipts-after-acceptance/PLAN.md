@@ -220,32 +220,24 @@ the obligation check passes.
 
 Coordinator reviewed original correction input, accepted proof, related source
 and caller paths, refactor checks, current ADR index and applicable ADR 0002/0006,
-and the existing execution conversation. Attributable implementation is
-`b1a0f093101503adc88992b6790c47941f6e80a5`; claim `4c84a50b` is provenance,
-and preceding `dd88b748` and sibling history are excluded from this correction.
-That implementation was accepted on the remote execution branch with suffix
-base `4c84a50beac7e95e44d94592f3ecebd2add70194`; observation reused
-`/tmp/dough-ci-501/watch-HD8LcY`. CI is pending during review.
+and execution conversation. Attributable implementation is `b1a0f093101503adc88992b6790c47941f6e80a5`, accepted on the execution branch with suffix base `4c84a50beac7e95e44d94592f3ecebd2add70194`; claim `4c84a50b` is provenance; preceding `dd88b748` and sibling history are excluded. Observation reused `/tmp/dough-ci-501/watch-HD8LcY`; CI was pending during review.
+The original promises, shared caller and standalone boundary, no-state recovery, surviving integration/retirement journey and distinct caller proofs are cohesive. No residue, direction/ADR conflict or follow-up correction was found. Alignment supports the backlog's low-cost delivery and feedback direction; product advice is no change.
+Process review is enabled by `skipProcessRetrospective: false`, with real coordinator/agent history available. No new supported process finding was identified; no log write or correction plan is needed. CI conclusions remain conditional on completion.
 
-The result satisfies the original receipt and interrupted-rerun promises.
-Post-acceptance handling has one shared caller, while standalone refusal retains
-its distinct contract. Recovery adds no durable state. The folded late-consumer
-journey retains integration and retirement proof; new cases observe distinct
-integration, finish and Land boundaries rather than duplicating one journey.
-Outside-in failures preceded the product fix and independent scratch-disable
-proof establishes sensitivity. The installed-helper proof issue was corrected
-and renewed only for its affected consumers. No remaining residue, contradictory
-direction, ADR conflict or supported follow-up correction was found. Product
-alignment supports the backlog's low-cost delivery and feedback direction;
-no further product recommendation is needed.
+## Owned CI repair
 
-Process review is enabled by `skipProcessRetrospective: false`. Real coordinator
-and agent history was available. No new supported shared-process finding was
-identified; proof-fixture correction and bounded related-suite execution were
-necessary observations, not unowned product work. No process log write or
-correction plan is needed. Final CI conclusions remain conditional on the
-execution's completion receipt.
+Execution completion for `76282b1f597d0dafd4af4ec0117a4da1fee34ab1` returned failure from its ignored-path basis `b1a0f093`, shutdown retained. Run `40480444428`, attempt 1, job `dashboard (12/12)` failed `story-review-touch.spec.ts`'s phone rotation `pageFits` assertion. Diagnostic and Playwright trace show viewport 390px while the prior `page-split`/422px panel arrangement remained. This is an observation race, not infrastructure or a supplier regression.
+Fresh repair `/root/ci_touch_repair` changed only the spec's two raw viewport calls to existing `resizeUntilArranged`, the contract already required by `writing-journeys.md`. All width, reading, scroll and control assertions remain; no production edit. The competing SEED-153 worktree owns layout edits but has no edits to this spec/helper; it was preserved. Clean stash receipt `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-WAJty6/record.json` has no entry/OID.
+CI trace red evidence is `/tmp/seed154-ci-touch-evidence.json` and `/tmp/seed154-ci-touch-artifact`. Local pre-change phone behavior passed, while its command failed on inherited color-variable warnings; that is not claimed as reproduced assertion failure. Corrected proof passed terminal exit 0, exactly two tests (phone/tablet), no retries:
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed154-ci-touch-repaired.json npm run test:dashboard -- story-review-touch.spec.ts --workers=1
+```
+
+Coordinator inspected the diff, existing helper's arrangement signal, unchanged observing assertions and two-test result record. Trace `/tmp/seed154-ci-touch-consumer-trace.md` has all dispositions: reused helper/callers are unchanged, this spec executes the existing wait, incidental style/catalog matches are excluded. One worker on the 16-core/48 GiB Mac at load about 6 and 14 GiB free+inactive was bounded; no proof deferred. Original supplier review/proof remains valid; retrospective's affected test conclusion now includes this repair and remains conditional on CI. The spec is 250 lines.
 
 ## Execution complete
 
 Product advice: no change.
+
+CI repair independent refactor `/root/ci_repair_refactor` returned `## REFACTOR COMPLETE`, none — already clean. No edits or reruns; coordinator confirmed unchanged proof and no open gap.

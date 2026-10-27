@@ -4,6 +4,7 @@ import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
 import { expectSettledPage } from "./dashboardPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
+import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   contextValues,
@@ -44,7 +45,6 @@ const control = (review: Locator, name: string) =>
 for (const { name, portrait, landscape } of launchTouchViewports) {
   test.describe(`${name} review by touch`, () => {
     test.use({ viewport: portrait, hasTouch: true, reducedMotion: "reduce" });
-
     test("chooses a comparison and file, reads within each pane, and keeps that context through rotation and panel controls", async ({
       page,
       dashboard,
@@ -181,7 +181,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         if (new URL(request.url()).pathname === storyReviewEndpoint) reads += 1;
       });
       for (const viewport of [landscape, portrait]) {
-        await page.setViewportSize(viewport);
+        await resizeUntilArranged(review, viewport);
         await expect(selected).toHaveAttribute("aria-pressed", "true");
         await expect(
           comparison.getByRole("radio", { name: "All changes" }),
@@ -233,7 +233,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await scrollByTouch(page, nextCode, -180);
       await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
       const nextAt = await scrollTopOf(nextCode);
-      await page.setViewportSize(landscape);
+      await resizeUntilArranged(review, landscape);
       await expect(
         comparison.getByRole("radio", { name: "Commits", exact: true }),
       ).toBeChecked();
