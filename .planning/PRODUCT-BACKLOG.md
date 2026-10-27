@@ -22,3 +22,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Reconcile current dependent stories after supplier integration](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#reconcile-current-consumers-after-supplier-integration) — SEED-154#reconcile-current-consumers-after-supplier-integration
