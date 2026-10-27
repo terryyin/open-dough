@@ -22,6 +22,7 @@ import {
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
+import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import "./trunk-closure-integrated-state-cases.mjs";
 
 const main = "refs/heads/main";
@@ -88,6 +89,48 @@ test("a stopped default-checkout refresh keeps the accepted closure, still retir
     await lsRemoteSha(fixture.origin, remoteBranch),
     remoteExecutionTip,
   );
+});
+
+// Commits a closure and pins its author time, so two closures share an
+// identity as when they land within one second.
+async function commitClosureAt(fixture, file) {
+  await commitFinalClosure(fixture, file);
+  await git(
+    fixture.execution,
+    "commit",
+    "-q",
+    "--amend",
+    "--no-edit",
+    "--date=@1700000000",
+  );
+  return revParse(fixture.execution, "exec/story");
+}
+
+test("finish publishes a final closure whose identity an earlier published closure shares, instead of taking that one as already published", async (t) => {
+  const fixture = await createTrunkClosureFixture(t);
+  const before = await deliverBeforeCleanupThroughCli(fixture);
+  const repair = await commitClosureAt(fixture, "repair.txt");
+  const { delivered } = await deliverThroughCli(fixture, {
+    base: before.receipt.sha,
+  });
+  assert.equal(delivered.receipt.sha, repair);
+  const final = await commitClosureAt(fixture, "closure.txt");
+  releaseCi(fixture, {
+    [before.receipt.sha]: "success",
+    [repair]: "success",
+    [final]: "success",
+  });
+
+  const { result, code, stderr } = await finishThroughCli(fixture, {
+    beforeCleanup: repair,
+    final,
+    extra: ["--created-for-work"],
+  });
+
+  assert.equal(code, 0, JSON.stringify({ result, stderr }));
+  assert.equal(result.acceptedSha, final);
+  assert.equal(result.pushCount, 1);
+  assert.equal(await lsRemoteSha(fixture.origin, main), final);
 });
 
 test("finish establishes its coordinator's observer on a non-default remote and target when it holds none, without a default checkout", async (t) => {

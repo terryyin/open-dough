@@ -275,6 +275,12 @@ supplier, Land and payload suites. Scratch omission of each path's visit fails
 its journey. Land reconciliation rewrites the preserved outcome commit, so its
 accepted rewrite is the supplier evidence revision.
 
+CI repair (run 40466809714): the widened rerun recognition could take an
+earlier published closure with the same author second and message as the
+rebased final; a candidate `final` already contains is now skipped. Proof:
+`trunk-closure.test.mjs` "finish publishes a final closure whose identity an
+earlier published closure shares…" failed before the fix and passes after.
+
 Safe stopping point: Both slices' promises are fulfilled; unresolved consumer
 conditions remain honest dispositions rather than failures silently converted
 to satisfaction. Existing CI/retirement stops still preserve recoverable work.

@@ -85,7 +85,8 @@ export async function commitOf(inspection, rev) {
 // revision this execution's observers registered that the branch contains,
 // as when a consumer publication followed the closure, else once the branch
 // is gone any revision they registered, whose identity equals `final`'s.
-// Null when none is recognized.
+// A revision `final` already contains, such as an earlier closure published
+// within the same second, is never its rebase. Null when none is recognized.
 async function rebasedFinalClosure({
   inspection,
   tracking,
@@ -112,6 +113,7 @@ async function rebasedFinalClosure({
   for (const candidate of new Set(candidates)) {
     // An observer may have registered a revision this repository lacks.
     if (!(await commitOf(inspection, candidate))) continue;
+    if (await isAncestor(inspection, candidate, original)) continue;
     if (!(await isAncestor(inspection, candidate, tracking))) continue;
     if ((await closureIdentity(inspection, candidate)) === wanted)
       return candidate;
