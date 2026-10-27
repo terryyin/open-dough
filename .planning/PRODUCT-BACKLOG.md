@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Visit consumers of every completed selected story and settle on its last publication](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#harden-supplier-visit-trigger-and-settlement) — SEED-154#harden-supplier-visit-trigger-and-settlement
