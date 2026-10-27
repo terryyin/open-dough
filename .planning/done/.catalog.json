@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-154_distinguish-documentation-anchors-in-consumer-discovery.json",
+      "identity": "SEED-154#distinguish-documentation-anchors-in-consumer-discovery",
+      "completedAt": "2026-10-27T08:25:25.075Z",
+      "blob": "6de587cc588ea0592e9c65d71c707b9a0b3a2008"
+    },
+    {
       "fileName": "SEED-154_reconcile-current-consumers-after-supplier-integration.json",
       "identity": "SEED-154#reconcile-current-consumers-after-supplier-integration",
       "completedAt": "2026-10-27T07:41:25.020Z",

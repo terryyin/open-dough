@@ -12,7 +12,11 @@ import {
   gitLine,
   repositoryRoot,
 } from "./product-backlog-git-repository.mjs";
-import { namedIdentity, readHome } from "./product-backlog-home-reader.mjs";
+import {
+  discoveryCandidates,
+  namedIdentity,
+  readHome,
+} from "./product-backlog-home-reader.mjs";
 import { declaredPlanTarget } from "./product-backlog-story-state-home.mjs";
 import { readStoryState } from "./product-backlog-story-state.mjs";
 import { splitHref } from "./product-backlog-identity.mjs";
@@ -59,14 +63,15 @@ export function discoverConsumers(file, supplierIdentity) {
       continue;
     }
     const href = relative(directory, path).split("\\").join("/");
-    const anchors = [...source.matchAll(/^<a id="([^"\n]+)"><\/a> *$/gm)];
+    const { anchors, wholeDocument, orphanedRecord } =
+      discoveryCandidates(source);
     if (anchors.length) {
-      for (const anchor of anchors) candidates.add(`${href}#${anchor[1]}`);
-    } else if (/^\*\*Identity:\*\*/m.test(source)) candidates.add(href);
-    else if (source.includes("dough-story-dependencies"))
+      for (const anchor of anchors) candidates.add(`${href}#${anchor}`);
+    } else if (wholeDocument) candidates.add(href);
+    else if (orphanedRecord)
       problems.push({
         path: href,
-        problem: "Dependency record has no canonical home.",
+        problem: `${orphanedRecord} record has no canonical home.`,
       });
   }
   const homes = [];
