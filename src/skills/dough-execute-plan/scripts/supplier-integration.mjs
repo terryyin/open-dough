@@ -7,6 +7,7 @@
 import { resolve } from "node:path";
 import { visitCurrentConsumers } from "../../dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
+import { BacklogError } from "../../dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   publishHistoryPreservingCandidate,
@@ -23,12 +24,23 @@ export function visitSelectedSupplier({
   remote = "origin",
   backlogPath = defaultBacklogPath,
 }) {
-  return visitCurrentConsumers(resolve(ownedWorkspace, backlogPath), {
-    "supplier-identity": supplierIdentity,
-    "accepted-revision": acceptedSha,
-    remote,
-    target: targetRef,
-  });
+  try {
+    return visitCurrentConsumers(resolve(ownedWorkspace, backlogPath), {
+      "supplier-identity": supplierIdentity,
+      "accepted-revision": acceptedSha,
+      remote,
+      target: targetRef,
+    });
+  } catch (error) {
+    if (!(error instanceof BacklogError)) throw error;
+    return {
+      status: "stopped",
+      reason: "error",
+      error: error.message,
+      recovery:
+        "Clear the reported failure, then run product-backlog.mjs visit-consumers with this accepted revision.",
+    };
+  }
 }
 
 export async function integrateSelectedSupplier({

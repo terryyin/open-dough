@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Align the dashboard globally with its UI domain concepts](seeds/SEED-153-dashboard-ui-domain-concepts.md#align-dashboard-ui-domain-concepts) — SEED-153#align-dashboard-ui-domain-concepts ([plan](slice-plans/358-align-dashboard-ui-domain-concepts/PLAN.md))
-- [Keep the integration receipt when a post-acceptance visit is refused](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#keep-visit-receipts-after-acceptance) — SEED-154#keep-visit-receipts-after-acceptance ([plan](slice-plans/361-keep-visit-receipts-after-acceptance/PLAN.md))
 
 ## Backlog list
 

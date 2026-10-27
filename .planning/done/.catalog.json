@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-154_keep-visit-receipts-after-acceptance.json",
+      "identity": "SEED-154#keep-visit-receipts-after-acceptance",
+      "completedAt": "2026-10-27T09:39:38.589Z",
+      "blob": "e981ef62ab86a61c1d8f75e25befd4d210882707"
+    },
+    {
       "fileName": "SEED-155_cursor-background-work-reads-working.json",
       "identity": "SEED-155#cursor-background-work-reads-working",
       "completedAt": "2026-10-27T08:59:33.854Z",

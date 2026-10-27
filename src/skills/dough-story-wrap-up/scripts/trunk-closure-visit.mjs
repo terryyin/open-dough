@@ -82,8 +82,7 @@ export async function settledVisit({
       stopped: "visit",
       reason:
         "execution worktree is absent, so no owned checkout can visit current consumers",
-      recovery:
-        "report the unfinished consumer visit with the accepted final closure; nothing here can establish its current consumers",
+      recovery: `if a clean visit with no consumers and no problems was printed by an earlier finish, rerun finish with --final ${acceptedSha} and --visit-settled ${acceptedSha}; otherwise report the unfinished consumer visit with the accepted final closure, since no owned checkout can establish its current consumers`,
     };
   }
   const visit = visitSelectedSupplier({

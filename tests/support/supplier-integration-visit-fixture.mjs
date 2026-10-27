@@ -2,9 +2,8 @@
 // dependency write and the integration use the real commands; tests supply
 // only the agent's per-consumer judgment, never the consumer list.
 import assert from "node:assert/strict";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   consumer,
   dependency,
@@ -21,24 +20,14 @@ import { runScript } from "../../src/skills/dough-story-wrap-up/scripts/closure-
 import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+import { deploySkill } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 
 export const executionBranch = "exec/supplier";
-const integrationCli = fileURLToPath(
-  new URL(
-    "../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs",
-    import.meta.url,
-  ),
-);
 
-// Consumer A waits on supplier B (and on THIRD) before B's branch starts,
-// unless `consumerBeforeBranch` is false, so B's branch shows no consumer. B's
-// branch preserves its completed proof, cleans up, and publishes its closure
-// tip; trunk meanwhile gains the prepared unqueued sibling SEED-A#late
-// waiting on B.
-export async function branchedSupplier(
-  t,
-  { consumerBeforeBranch = true } = {},
-) {
+// B's branch shows no consumer, preserves its completed proof, cleans up,
+// and publishes its closure tip. Trunk meanwhile gains consumer A waiting
+// on B and THIRD, and the prepared unqueued sibling SEED-A#late waiting on B.
+export async function branchedSupplier(t) {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
@@ -48,11 +37,6 @@ export async function branchedSupplier(
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
-  const early = consumerBeforeBranch ? [supplier, third] : [];
-  for (const entry of early.map(dependency)) {
-    const result = await updateDependency(project, consumer, entry);
-    assert.equal(result.code, 0, result.stderr);
-  }
   await publish(trunk, "supplier B is planned");
   const workspace = join(trunk.fixture, "supplier-workspace");
   await git(
@@ -65,6 +49,8 @@ export async function branchedSupplier(
     workspace,
     "HEAD",
   );
+  appendFileSync(join(trunk.integration, ".git/info/exclude"), ".agents/\n");
+  const installed = deploySkill(workspace);
   const owned = { directory: workspace, inputDirectory: trunk.fixture };
   writeFileSync(join(workspace, supplierPlan), plan("done"));
   await git(workspace, "add", supplierPlan);
@@ -82,6 +68,10 @@ export async function branchedSupplier(
   await git(workspace, "commit", "-q", "-m", "supplier final closure");
   const closureTip = await revParse(workspace, "HEAD");
   await git(workspace, "push", "-q", "origin", executionBranch);
+  for (const entry of [supplier, third].map(dependency)) {
+    const result = await updateDependency(project, consumer, entry);
+    assert.equal(result.code, 0, result.stderr);
+  }
   const late = draftLateStory(trunk);
   const sibling = { identity: late.identity, link: "seeds/A.md#late" };
   const waiting = await updateDependency(
@@ -95,6 +85,7 @@ export async function branchedSupplier(
     trunk,
     project,
     workspace,
+    installed,
     owned,
     evidence,
     closureTip,
@@ -108,7 +99,7 @@ export async function branchedSupplier(
 // supplier's completion integration.
 export async function integrate(setup, extra = []) {
   const result = await runScript(
-    integrationCli,
+    join(setup.installed, "scripts/history-preserving-publication.mjs"),
     "integrate",
     "--workspace",
     setup.workspace,
@@ -124,8 +115,14 @@ export async function integrate(setup, extra = []) {
 export const selected = ["--supplier-identity", supplier.identity];
 
 export async function visitConsumers(setup, accepted, remote = "origin") {
-  const result = await run(setup.owned, [
+  const result = await runScript(
+    join(
+      setup.installed,
+      "../dough-product-backlog/scripts/product-backlog.mjs",
+    ),
     "visit-consumers",
+    "--file",
+    join(setup.workspace, ".planning/PRODUCT-BACKLOG.md"),
     "--supplier-identity",
     supplier.identity,
     "--accepted-revision",
@@ -134,7 +131,7 @@ export async function visitConsumers(setup, accepted, remote = "origin") {
     remote,
     "--target",
     "main",
-  ]);
+  );
   return { ...result, json: result.stdout ? JSON.parse(result.stdout) : null };
 }
 
