@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-154_reconcile-current-consumers-after-supplier-integration.json",
+      "identity": "SEED-154#reconcile-current-consumers-after-supplier-integration",
+      "completedAt": "2026-10-27T07:41:25.020Z",
+      "blob": "ea244ae660a88e3c3d18f4b1285648166f27c80a"
+    },
+    {
       "fileName": "SEED-010_source-freshness-for-planless-and-reamended-work.json",
       "identity": "SEED-010#source-freshness-for-planless-and-reamended-work",
       "completedAt": "2026-10-25T15:56:07.637Z",

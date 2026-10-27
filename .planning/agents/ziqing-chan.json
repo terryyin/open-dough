@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "identity": "SEED-154#reconcile-current-consumers-after-supplier-integration",
-  "mode": "story-branch",
-  "branch": "claude/reconcile-current-dependent-stories-after-suppli",
-  "host": "claude"
-}

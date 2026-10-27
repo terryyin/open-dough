@@ -4,8 +4,9 @@
 
 **Source:** [Correction story](../../seeds/SEED-154-supplier-integration-consumer-reconciliation.md#harden-supplier-visit-trigger-and-settlement),
 from the execution retrospective of
-[SEED-154#reconcile-current-consumers-after-supplier-integration](../../seeds/SEED-154-supplier-integration-consumer-reconciliation.md#reconcile-current-consumers-after-supplier-integration)
-(completed plan `.planning/slice-plans/359-reconcile-current-supplier-consumers/PLAN.md`,
+SEED-154#reconcile-current-consumers-after-supplier-integration
+(story and completed plan recoverable at `75c6949cfeb43b7ba8a6ec57e5e62e6c06eddcf5:.planning/seeds/SEED-154-supplier-integration-consumer-reconciliation.md`
+and `75c6949cfeb43b7ba8a6ec57e5e62e6c06eddcf5:.planning/slice-plans/359-reconcile-current-supplier-consumers/PLAN.md`,
 both slices done, Story obligations G1–G7). Reviewed commits `cc9f858f`
 (slice 1) and `a8c05e46` (slice 2); Take `46e43c29`.
 
