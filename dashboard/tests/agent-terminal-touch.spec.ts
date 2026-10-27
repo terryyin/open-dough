@@ -103,14 +103,20 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             ),
           ).toBe(true);
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-          // Read in bounded small strokes: native touch slop and font wrapping
-          // mean one header-height drag need not reach the title ending.
+          // Read in bounded native strokes, observing within each stroke so a
+          // narrow fully readable position is not skipped between finger lifts.
           const headerSwipe = -(await box(identity)).height / 2;
           const scrollHeaderUntilShown = async (
             shown: () => Promise<boolean>,
           ) => {
             for (let stroke = 0; stroke < 12 && !(await shown()); stroke += 1) {
-              await scrollByTouch(page, identity, headerSwipe);
+              await scrollByTouch(
+                page,
+                identity,
+                headerSwipe,
+                "vertical",
+                shown,
+              );
               await page.evaluate(
                 () =>
                   new Promise<void>((resolve) => {
