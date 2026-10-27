@@ -138,7 +138,7 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(
     closurePublication,
-    /accepted integrated SHA[\s\S]+trunk observer[\s\S]+combined receipt/,
+    /accepted integrated SHA[\s\S]+trunk observer[\s\S]+final accepted SHA, the integrated SHA or the last consumer\s+publication, on that trunk observer[\s\S]+combined receipt/,
   );
   assert.doesNotMatch(
     closurePublication,
@@ -187,15 +187,7 @@ test("wrap-up retires execution resources through Dough Land with its completion
   );
   assert.match(
     wrapUpRetirement,
-    /gate: a `success` completion receipt[\s\S]+whose shutdown\s+is confirmed/,
-  );
-  assert.match(
-    wrapUpRetirement,
-    /active checkout-bound observer[\s\S]+preserve pending local work/,
-  );
-  assert.match(
-    wrapUpRetirement,
-    /Story Branch Mode[\s\S]+`--remote-branch <execution\s+branch>`[\s\S]+`--contained <integrated SHA>`/,
+    /In Story Branch Mode, retire them under \[Story Branch retirement\]\(references\/story-branch-integration\.md#retire-story-branch-resources\)/,
   );
   assert.match(
     wrapUpRetirement,

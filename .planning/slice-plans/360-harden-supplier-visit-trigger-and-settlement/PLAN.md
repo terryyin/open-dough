@@ -220,7 +220,7 @@ native closure evidence identities, which stay manual-only.
 ### 2. Every completed selected story takes the visit under one completion target
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new guidance test (for example
 `src/skills/dough-execute-plan/scripts/supplier-visit-guidance.test.mjs`) over
 the entry points and the shared procedure; a Story Branch regression in
@@ -256,6 +256,31 @@ publication.
 
 Safe stopping point: the original failure cannot recur through a judgment that
 the work "is a supplier".
+
+Accepted proof (2026-10-27): the rule is `supplier-dependencies.md#which-completed-work-takes-the-visit`;
+`supplier-visit-guidance.test.mjs` failed all five cases at `25ffa738` and
+passes now (one rule, every entry point links it with no "completed supplier"
+gate, explicit identity, wrap-up pointer, final-accepted-SHA target, moved
+Story Branch retirement gate). `supplier-integration-late-consumer.test.mjs`
+shows a branch whose own discovery is empty still visits and resolves the late
+trunk consumer through `integrate --supplier-identity`. Existing guidance and
+visit journeys stay green. Detail moved, not dropped: Story Branch retirement
+to `story-branch-integration.md#retire-story-branch-resources`, follow-up
+provenance to `follow-up-disposition.md`.
+
+Behavior review walk: SEED-B#b, completed with nothing depending on it when
+its branch was cut; SEED-A#late lands on trunk waiting on B. Story Branch
+wrap-up links the rule, runs `integrate --supplier-identity SEED-B#b` "even when
+its branch shows no consumer", judges SEED-A#late from `visit`, publishes on the
+trunk observer and completes the last consumer publication, then retires with
+`--contained` for it. Trunk closure passes `--supplier-identity` (never from
+`--identity`), gets `step: "visit"`, delivers and reruns with
+`--visit-settled <consumerSha>`; an empty clean visit finishes in one call.
+Selected-work Land uses the visit forms with `supplierIdentity`; a generic
+landing or `--keep-worktree` increment takes none. A decision-needed consumer
+records its question, cites any conflicting Accepted ADR, stops that path and
+is retained in active context for a human before completion. Context-only or
+one-shot work has no identity and takes no visit.
 
 ### 3. Standalone visit reports a Git failure as a stopped visit
 

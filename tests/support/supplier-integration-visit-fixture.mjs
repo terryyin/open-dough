@@ -30,11 +30,15 @@ const integrationCli = fileURLToPath(
   ),
 );
 
-// Consumer A waits on supplier B (and on THIRD) before B's branch starts. B's
+// Consumer A waits on supplier B (and on THIRD) before B's branch starts,
+// unless `consumerBeforeBranch` is false, so B's branch shows no consumer. B's
 // branch preserves its completed proof, cleans up, and publishes its closure
 // tip; trunk meanwhile gains the prepared unqueued sibling SEED-A#late
 // waiting on B.
-export async function branchedSupplier(t) {
+export async function branchedSupplier(
+  t,
+  { consumerBeforeBranch = true } = {},
+) {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
@@ -44,11 +48,12 @@ export async function branchedSupplier(t) {
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
-  for (const entry of [dependency(supplier), dependency(third)]) {
+  const early = consumerBeforeBranch ? [supplier, third] : [];
+  for (const entry of early.map(dependency)) {
     const result = await updateDependency(project, consumer, entry);
     assert.equal(result.code, 0, result.stderr);
   }
-  await publish(trunk, "consumer A waits on supplier B");
+  await publish(trunk, "supplier B is planned");
   const workspace = join(trunk.fixture, "supplier-workspace");
   await git(
     trunk.integration,

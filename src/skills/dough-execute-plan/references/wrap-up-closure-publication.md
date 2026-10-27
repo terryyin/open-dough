@@ -73,8 +73,9 @@ claimed. It prints one JSON line, exits 1 when `ok` is not true and 2 on a
 usage error. An `integrated_state` success gates retirement as any success
 does; report it as [completion mechanics](ci-completion-wait.md) describe.
 
-When the closed work is a completed supplier, pass its identity as
-`--supplier-identity`. Once the final closure is accepted, `finish` runs the
+Pass the closed work's identity as `--supplier-identity` under the
+[visit rule](../../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit);
+`--identity` never supplies it. Once the final closure is accepted, `finish` runs the
 [current-consumer visit](../../dough-product-backlog/references/supplier-dependencies.md#visit-current-consumers-after-integration)
 from the execution worktree against `acceptedSha`. When the `visit` is
 `visited` with no consumers and no problems, the same `finish` continues to
@@ -174,8 +175,9 @@ When the launch supplied a dashboard landing context, pass it as
 before retirement.
 After remote confirmation, register only the accepted integrated SHA, the
 printed receipt, with the trunk observer. A saved branch tip or superseded merge
-candidate is not that receipt. For a selected completed supplier, the caller
-passed `--supplier-identity` and acts on the printed `visit` before completion:
+candidate is not that receipt. The caller passed `--supplier-identity` under the
+[visit rule](../../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit)
+and acts on the printed `visit` before completion:
 publish its owned consumer changes from the same workspace through
 [the common sequence](trunk-publication.md#publish-the-candidate) to the trunk
 target, register each accepted SHA with that trunk observer, and finish or
