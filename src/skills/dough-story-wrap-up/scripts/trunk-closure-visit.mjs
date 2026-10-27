@@ -1,18 +1,43 @@
 // The selected supplier's current-consumer visit inside Trunk Mode `finish`.
 // After the final closure is accepted, `finish` visits from the execution
-// worktree and stops with that visit for the agent's judgment, keeping the
-// worktree, branch and observer. Only `--visit-settled`, the last accepted SHA
-// once the visit's owned publications finished or its unresolved work was
-// retained, lets completion and retirement continue, for that SHA.
+// worktree. A clean visit, with no consumers and no discovery problems, lets
+// completion and retirement continue for the accepted final closure in the
+// same `finish`. Otherwise `finish` stops with that visit for the agent's
+// judgment, keeping the worktree, branch and observer. Only `--visit-settled`,
+// the last accepted SHA once the visit's owned publications finished or its
+// unresolved work was retained, lets completion and retirement continue, for
+// that SHA; a later revision this closure's own observers registered on the
+// target refuses it, so completion cannot skip a consumer publication.
 import { existsSync } from "node:fs";
 import { visitSelectedSupplier } from "../../dough-execute-plan/scripts/supplier-integration.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import { listRegisteredRevisions } from "../../dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import { commitOf } from "./trunk-closure-settlement.mjs";
 
 const keep = "the worktree, branch and observer stay";
 
-// `{}` without a supplier; `{ finalSha }` for a settled visit; otherwise
-// `stopped: "visit"` with the visit or the reason none could run.
+// The latest revision `observerDirectories` registered that `tracking` holds
+// and that strictly descends from `settled`, or null when none does. A target
+// revision another writer published is never registered there.
+async function laterRegistered(inspection, tracking, settled, directories) {
+  let latest = null;
+  for (const revision of new Set(
+    directories.flatMap(listRegisteredRevisions),
+  )) {
+    if (revision === settled) continue;
+    // An observer may have registered a revision this repository lacks.
+    if (!(await commitOf(inspection, revision))) continue;
+    if (!(await isAncestor(inspection, settled, revision))) continue;
+    if (!(await isAncestor(inspection, revision, tracking))) continue;
+    if (!latest || (await isAncestor(inspection, latest, revision)))
+      latest = revision;
+  }
+  return latest;
+}
+
+// `{}` without a supplier; `{ finalSha }` for a settled visit; `{ visit }` for
+// a clean visit; otherwise `stopped: "visit"` with the visit or the reason
+// none could run or settle.
 export async function settledVisit({
   workspace,
   inspection,
@@ -20,6 +45,7 @@ export async function settledVisit({
   acceptedSha,
   supplierIdentity,
   visitSettled,
+  observerDirectories = [],
   targetRef,
   remote,
   backlogPath,
@@ -31,8 +57,20 @@ export async function settledVisit({
       finalSha &&
       (await isAncestor(inspection, acceptedSha, finalSha)) &&
       (await isAncestor(inspection, finalSha, tracking))
-    )
-      return { finalSha };
+    ) {
+      const later = await laterRegistered(
+        inspection,
+        tracking,
+        finalSha,
+        observerDirectories,
+      );
+      if (!later) return { finalSha };
+      return {
+        stopped: "visit",
+        reason: `${tracking} holds ${later}, a later publication this closure's observers registered after --visit-settled ${visitSettled}`,
+        recovery: `name ${later}, or a later accepted SHA of this visit's publications, as --visit-settled and rerun finish; ${keep}`,
+      };
+    }
     return {
       stopped: "visit",
       reason: `${tracking} holds no --visit-settled ${visitSettled} that contains the accepted final closure`,
@@ -56,6 +94,12 @@ export async function settledVisit({
     remote,
     backlogPath,
   });
+  if (
+    visit.status === "visited" &&
+    visit.consumers.length === 0 &&
+    visit.problems.length === 0
+  )
+    return { visit };
   const resume = `rerun finish with --final ${acceptedSha} and --visit-settled set to the last accepted SHA: a consumer publication, or ${acceptedSha} when none`;
   return {
     stopped: "visit",

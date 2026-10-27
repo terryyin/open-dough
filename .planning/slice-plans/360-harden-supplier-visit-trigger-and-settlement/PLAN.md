@@ -183,7 +183,7 @@ quiet-pass rule for printed output.
 ### 1. Trunk finish settles the visit on its last registered publication
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New cases beside the Trunk visit journey (a new file or the 119-line
 `tests/support/supplier-trunk-closure-visit-recovery.test.mjs`; keep each file
 under 250 lines) through the installed `finish` and `deliver` CLIs, plus the
@@ -204,6 +204,18 @@ resources kept, and naming it completes that publication before retirement.
 - Scratch-disable each rule and observe its new case fail before accepting.
 
 Safe stopping point: Trunk settlement is safe; guidance gating still unchanged.
+
+Accepted proof (2026-10-27): `tests/support/supplier-trunk-closure-visit-settlement.test.mjs`
+(clean visit completes `final` and retires in one call; a discovery problem
+still stops at `step: "visit"`; `--visit-settled <acceptedSha>` refused naming
+`consumerSha`, then `consumerSha` completes past another writer's unregistered
+commit), with `supplier-trunk-closure-visit*.test.mjs`, all 13
+`trunk-closure*.test.mjs`, `ci-completion-lifecycle-guidance` and
+`observer-owner-guidance` green through the runner. Each rule's scratch-disable
+failed its case. `settleFinalClosure` now returns `observerDirectories`; the
+gating sentence in `wrap-up-closure-publication.md` stays for slice 2.
+Learning: the changed closure scripts and guidance are inputs to the paid
+native closure evidence identities, which stay manual-only.
 
 ### 2. Every completed selected story takes the visit under one completion target
 
