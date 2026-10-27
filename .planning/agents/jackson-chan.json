@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-154#keep-visit-receipts-after-acceptance",
+  "mode": "story-branch",
+  "branch": "codex/keep-the-integration-receipt-when-a-post-accepta",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
