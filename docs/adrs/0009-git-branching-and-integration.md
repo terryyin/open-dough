@@ -195,7 +195,7 @@ Proposed ADR 0007. Describing its Git mechanics here neither accepts that delay
 nor grants an exception to ADR 0002.
 
 ADR 0007 should reference this record for branching and integration mechanics.
-[Proposed ADR 0008](./0008-project-dashboard-domain-and-architecture.md) should
+[Accepted ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md) requires the dashboard to
 observe remote publication and local checkout maintenance as separate facts;
 an absent default checkout is a normal workflow condition, not evidence that
 work is blocked or checkout ownership is missing.

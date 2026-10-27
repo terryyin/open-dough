@@ -9,9 +9,10 @@ use and revise before expanding the dashboard's scope.
 ## Authority and scope
 
 The [project visibility requirements](project-visibility-requirements.md) supply
-the product direction. [ADR 0008](adrs/0008-project-dashboard-domain-and-architecture.md)
-describes proposed domain and architecture; it remains **Proposed**. This guide
-does not accept that ADR, define a workflow state schema, or authorize execution.
+the product direction. [Accepted ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+defines the dashboard domain, UI concepts, and architectural boundaries. This
+guide follows those definitions and supplies temporary interface direction;
+it does not define a workflow state schema or authorize execution.
 
 **Firm user direction**, including the latest discussion constraints:
 

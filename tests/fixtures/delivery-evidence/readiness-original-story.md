@@ -120,7 +120,7 @@ story and plan text and the agreement itself, not the supplier's evidence.
 Records assessed before this change need a compatible comparison so they do not
 all read as changed. The supplier wrap-up's consumer visit gains a judged
 reassessment step through the existing recorder; the recorder's rules are
-unchanged. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture.md)
+unchanged. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 is Proposed and informs this without binding it. No Accepted decision conflicts
 with this story.
 

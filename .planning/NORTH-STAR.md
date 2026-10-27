@@ -53,8 +53,9 @@ published revision and pinned file data for the same browser interpretation;
 no direct browser-to-GitHub path remains. Credentials never enter browser
 assets. Configured project identity bounds the local reader's requests; no arbitrary proxy
 or new state authority is needed. Selection is transient UI state, with one
-project's observation visible at a time. This direction does not create
-coordination between the observed projects or adopt Proposed ADR 0008.
+project's observation visible at a time. This direction follows
+[Accepted ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+and creates no coordination between the observed projects.
 Terry's decision of 2026-10-02 adds and removes projects through the dashboard,
 using a GitHub URL and local checkout path. The local server saves one ordered
 project configuration per environment on this machine: built production and

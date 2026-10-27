@@ -1,13 +1,15 @@
 # 0008 — Project dashboard domain and architecture
 
-**Status:** Proposed
+**Status:** Accepted
+
+**Accepted:** 2026-10-27, by Terry Yin, including the dashboard UI concepts below.
 
 **Date:** 2026-09-19
 
 **Decision makers:** Terry Yin
 
-**Consulted:** Terry Yin supplied the direction in the dashboard requirements
-discussion; further advice pending.
+**Consulted:** Terry Yin supplied the dashboard requirements and directed the
+UI concept definitions and acceptance on 2026-10-27.
 
 ## Context
 
@@ -18,8 +20,8 @@ Open Dough should provide a graphical view that helps a developer understand
 the project's work and progress.
 
 The [project visibility requirements](../project-visibility-requirements.md)
-retain the detailed behavior, examples, and exploratory ideas. This proposal
-extracts the more stable domain distinctions and architectural intentions. It
+retain the detailed behavior, examples, and exploratory ideas. This decision
+records the stable domain distinctions and architectural intentions. It
 does not select an implementation or authorize execution.
 
 The living [Dashboard UX/UI North Star](../dashboard-ux-ui-north-star.md)
@@ -30,7 +32,7 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 
 ## Decision
 
-The following is proposed architectural intent, not an accepted decision.
+The following defines the dashboard's domain and architectural boundaries.
 
 ### Domain concepts and relationships
 
@@ -58,13 +60,33 @@ relevant features and structure without assigning each exclusively to a story.
 
 Derive Preparing from an active preparation assignment; keep refinement,
 planning, and readiness as independent story facts. One AI session may carry
-successive assignments. Follow [ADR 0007](./0007-software-development-lifecycles.md#shared-work-assignments)
-for assignment lifecycle and recovery; neither an assignment nor its age proves
-that an agent is running or has stopped.
+successive assignments. [ADR 0007](./0007-software-development-lifecycles.md#shared-work-assignments)
+proposes assignment lifecycle and recovery; neither an assignment nor its age
+proves that an agent is running or has stopped.
 
 Present the story state defined by [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md)
 without implying live activity. Distinguish missing, outdated, and conflicting
 evidence from an explicit negative result.
+
+### Dashboard UI concepts
+
+| Concept | Meaning |
+| --- | --- |
+| Board | The selected project's work overview, containing the Backlog, Taken, and Recently done columns. |
+| Column | One named region of the Board, grouping work by recorded story membership or session disposition. |
+| Story card | A representation of one story within a Column, holding its facts, actions, and associated Session entries. |
+| Session entry | A representation of one agent session, within a Story card, directly in a Column, or in the Sessions sidebar. |
+| Sessions sidebar | The left-hand region listing open agent sessions across projects, with an optional Running Cursor sessions section. |
+| Side panel | The auxiliary region, normally to the Board's right, showing one terminal, final report, or story review at a time. |
+| Panel divider | The resize control between the Board and Side panel when they appear side by side. |
+| Scrollbar | A control that scrolls its owning region; qualify it by that region, such as Board scrollbar or Side panel scrollbar. |
+
+Use these names directly across UI language, architecture, code, tests, and
+documentation, adapting casing only to programming syntax. Each concept has
+one name and responsibility; keep no competing synonym or alias layer. A Panel
+divider resizes; a Scrollbar scrolls. Terminals, final reports, and story reviews
+are Side panel contents, not names for the shared region. Layout and scrolling
+mechanics remain in the [navigation guidance](../dashboard-navigation.md).
 
 ### Durable project state and local operational state
 
@@ -75,9 +97,9 @@ display model must be rebuildable from its sources rather than becoming the
 only home of project state. Completing work leaves a short published done
 record beside the backlog, which the dashboard reads like any other record.
 
-Initially, one observed project is hardcoded in the dashboard project. There
-is no application/server database; optional browser storage is disposable.
-This does not introduce project registration or a second authority for state.
+Project configuration is machine-local operational state, separate from the
+observed repositories' workflow records. There is no application/server
+database; optional browser storage is disposable.
 
 The initial source is Git state published to origin, including relevant branch
 contents and history. A reader must not need a developer's clone, unpushed
@@ -110,8 +132,8 @@ services, processes, deployment units, or storage technologies.
 
 ### Spatial presentation remains derived
 
-The story perspective presents connected work stages with zoom, focus, and
-animation, as detailed in the requirements and UX/UI North Star. A visual stage
+The Board presents connected Columns with zoom, focus, and animation, as
+detailed in the requirements and UX/UI North Star. A Column
 groups supported workflow facts; drawing a connector does not establish a new
 persisted state, a dependency between stories, or a mandatory linear lifecycle.
 Story identity and source evidence remain stable independently of card placement.
@@ -130,8 +152,8 @@ Keep record maintenance, remote integration, and local workspace management in
 the workflow. Let the dashboard observe their evidence without requiring a GUI
 for agent cooperation.
 
-Follow the branching and integration direction in
-[ADR 0009](./0009-git-branching-and-integration.md), which remains Proposed.
+[ADR 0009](./0009-git-branching-and-integration.md) proposes branching and
+integration direction and remains Proposed.
 Owned workspaces publish to remote destinations; remote trunk is the shared
 integration authority. The dashboard observes accepted remote revisions for
 published progress and uses machine-local evidence for checkout activity.
@@ -154,7 +176,7 @@ protocol.
 Use the [requirements](../project-visibility-requirements.md) for local-edit,
 freshness, and recovery examples. Recheck observable checkout state around
 local mutations and preserve changes from human developers and other tools.
-Terry's 2026-09-28 direction replaces this draft's earlier default-checkout
+Terry's 2026-09-28 direction replaces this record's earlier default-checkout
 ownership and coordination proposal.
 
 ### Incremental scope
@@ -177,7 +199,7 @@ without building their machinery in advance.
   update cannot establish that an agent is currently running or has stopped.
 - Existing records will need sufficient consistent meaning for observation.
   Exact field formats and workflow changes need their own implementation work;
-  this proposal does not make today's records sufficient by declaration.
+  this decision does not make today's records sufficient by declaration.
 - Story identity, developer assignment, execution mode, and workspace ownership
   remain distinguishable, avoiding accidental coupling to a temporary branch,
   recycled name, or default checkout.
@@ -191,7 +213,7 @@ Record formats, assignment messaging and takeover, North Star
 placement, and detailed stage layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
 No GUI framework, daemon, database, schema, or distributed scheduler is selected.
 
-This proposal builds on
+This decision builds on
 [ADR 0001 — Ubiquitous language](./0001-ubiquitous-language-accepted.md),
 particularly its story and slice concepts, and
 [ADR 0002 — Software development lifecycle principles](./0002-software-development-lifecycle-principles-accepted.md),

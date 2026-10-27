@@ -6,7 +6,7 @@
 
 **Date:** 2026-09-06
 
-**Revised:** 2026-09-15, at Terry Yin's direction.
+**Revised:** 2026-10-27, at Terry Yin's direction, to reference the dashboard UI concepts.
 
 **Decision makers:** Terry Yin
 
@@ -77,6 +77,13 @@ project using it:
 The `dough-` naming convention applies to Open Dough skills across their
 lifecycle stages; internal skills need no such prefix. Rule naming remains
 undecided.
+
+### Dashboard UI vocabulary
+
+Dashboard UI element domain concepts are defined in
+[ADR 0008 — Dashboard UI concepts](./0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
+Use those names directly across the dashboard's UI, architecture, code, tests,
+and documentation.
 
 ### Published runtime language
 

@@ -565,9 +565,9 @@ supports learning through small valuable increments and decentralized
 coordination through continuous integration. The incremental exploration here
 follows that direction.
 
-The emerging domain concepts and architectural intentions are summarized in
-[ADR 0008 — Project dashboard domain and architecture](adrs/0008-project-dashboard-domain-and-architecture.md),
-which remains Proposed. Detailed requirements and exploratory ideas stay here.
+The domain concepts and architectural boundaries are defined in
+[Accepted ADR 0008 — Project dashboard domain and architecture](adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+Detailed requirements and exploratory ideas stay here.
 Under
 [ADR 0000 — Use Architectural Decision Records](adrs/0000-use-adrs-accepted.md),
 architectural acceptance remains a separate human-owned process. This document
