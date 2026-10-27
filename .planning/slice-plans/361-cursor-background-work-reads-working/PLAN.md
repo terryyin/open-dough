@@ -93,3 +93,7 @@ Slice-plan refinement was not needed: one Behavior slice, one proof loop, and
 the common rule (unfinished belonging subagent transcripts override follow-up
 `review`) without accumulating special-case recognizers. No remaining
 slice-specific concerns.
+
+## Execution complete
+
+Product advice: No product backlog change: delivered follow-up→`working` when any belonging `subagents/*.jsonl` lacks `turn_ended` matches SEED-155 intent and ADR 0008 (machine-local evidence; missing/unreadable trees do not invent Working); deferred abandoned-transcript reclaim and non-Cursor generalization stay out of scope.
