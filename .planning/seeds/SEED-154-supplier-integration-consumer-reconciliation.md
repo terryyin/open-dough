@@ -31,7 +31,7 @@ supplier was being developed on a separate branch.
 
 **Identity:** SEED-154#reconcile-current-consumers-after-supplier-integration
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/359-reconcile-current-supplier-consumers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"310fcd1cce5d71ba2a86fca1fc2c182d70c74331176198ec347fdbbac18ccc2b","plan":"ba31f9177d9c337981670814c20112657484dcc5fa1a7b537ef8942c26062c22"}}
 ```
 
 **Beneficiary:** A developer completing a supplier story or starting one of
@@ -47,6 +47,11 @@ outdated view of the dependents.
 - Discover consumers again from the current integrated project after accepted
   supplier integration/publication. A discovery result from the supplier branch
   before integration cannot establish coverage of the integrated project.
+- Establish that the checkout used for discovery and consumer writes contains
+  the accepted supplier integration and the fetched target's current content.
+  An accepted publication receipt does not establish that the checkout advanced.
+  Keep this work in the owned workspace; an optional default checkout's local
+  changes must not be required, included, or overwritten.
 - Judge every current agreement against the supplier's delivered outcome and
   recoverable proof. Use the existing guarded resolution and publication path;
   retain the distinction between the before-cleanup evidence revision and the
@@ -61,8 +66,17 @@ outdated view of the dependents.
   evidence, discovery gaps, and next actions in the existing active context.
   Rejudge changed agreements rather than applying a stale discovery or decision.
 - Cover the Story Branch path that failed here and keep supplier-resolution
-  behavior coherent with Trunk Mode and selected-supplier landing. Determine
-  the smallest effective guidance/tooling change during refinement and planning.
+  behavior coherent with Trunk Mode and selected-supplier landing. The owning
+  completion path must reach fresh discovery before completing its visit and
+  retiring resources; do not rely on a caller remembering an extra scan after
+  a completion command has already retired the workspace.
+
+**Boundary:** Current means the fetched, integrated content used for the visit,
+including changes incorporated by a publication retry. If reconciliation brings
+in another consumer or changes an agreement or its relevant intent, revisit that
+affected work before claiming coverage. This is a bounded completion visit, not
+a permanent monitor of future consumers or a lock on other writers. Persistent
+contention keeps the ordinary publication stop and explicit recovery action.
 
 **Outside scope:** Automatically satisfying agreements from a Done entry alone,
 changing the dashboard's dependency grammar, starting consumer execution,
@@ -90,10 +104,26 @@ The Pygardon instance is already repaired; this story prevents recurrence.
    preserved historical identity, outcome, completed plan/proof and accepted
    integration; it neither recreates the supplier nor infers fulfillment from
    its absence. A repeated completion visit is safe.
+6. Integration succeeds but returns to the old supplier branch, while the
+   optional default checkout has unrelated edits. Completion brings its own
+   clean workspace onto current accepted target content before discovery. Both
+   current consumers are visited and the default checkout's edits are preserved.
 
 The regression must exercise a consumer added on trunk during supplier branch
 execution through the relevant completion boundary. Existing command tests
 alone do not prove that the workflow invokes fresh discovery at that boundary.
+
+**Selected direction:** Reuse the shared supplier procedure, canonical-home
+discovery, guarded resolver and publication mechanics. Make the integration to
+current-consumer visit an explicit, command-backed handoff owned by completion,
+then retain agent judgment for fulfillment and human-owned product decisions.
+Keep resolution evidence in existing consumer agreements and recovery facts in
+the active context; no second dependency or completion registry is needed.
+
+The smaller alternative, adding “rediscover” beside the existing post-integration
+link, is insufficient: the publication helper restores the old branch, and
+completion/retirement can precede that link's continuation. Correct the checkout
+and ordering together. The existing resolver needs no new satisfaction policy.
 
 ## Preserved Investigation Evidence
 

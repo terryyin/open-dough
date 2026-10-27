@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-154#reconcile-current-consumers-after-supplier-integration",
-  "host": "codex",
-  "model": "gpt-6-astra"
-}
