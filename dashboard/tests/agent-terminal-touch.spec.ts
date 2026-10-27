@@ -22,6 +22,8 @@ import {
 } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
+// Bound the native input journey separately from its beforeAll setup.
+test.setTimeout(60_000);
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
@@ -64,8 +66,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
         expect(dashboard.claudeStopCalls()).toEqual([]);
       };
-      // Session navigation reveals its ordinary page entry. Scroll the
-      // stacked content back into view before reading or using its terminal.
+      // Reveal the stacked terminal after ordinary Session entry navigation.
       await panel.scrollIntoViewIfNeeded();
       await expect(rows).toContainText(`attached ${native.shortId}`);
       await expect(rows).toContainText("Claude Code");
@@ -103,8 +104,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             ),
           ).toBe(true);
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-          // Read in bounded native strokes, observing within each stroke so a
-          // narrow fully readable position is not skipped between finger lifts.
+          // Observe within native strokes to retain narrow reading positions.
           const headerSwipe = -(await box(identity)).height / 2;
           const scrollHeaderUntilShown = async (
             shown: () => Promise<boolean>,
@@ -135,13 +135,11 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
               titleWordsShown(heading, title.length - 20, title.length),
             )
             .toBe(true);
-          // Wrapped native identities can occupy another reading position
-          // than the title ending. Read both through the same header scroll.
-          // A stroke may land with the wrapped session a fraction of a pixel
-          // under the header's edge; strokes continue until the whole code
-          // lies inside the scrolling header and the window, the condition
-          // the viewport assertion then checks.
+          // Read the whole wrapped session inside the header and window.
           const session = panel.locator(".side-panel-names code");
+          expect((await box(session)).height).toBeLessThanOrEqual(
+            (await box(identity)).height,
+          );
           const sessionShown = () =>
             session.evaluate((element) => {
               const identity = element
