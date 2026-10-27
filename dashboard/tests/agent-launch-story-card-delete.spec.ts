@@ -1,14 +1,10 @@
-// Delete record on a session its story's card lists, on the committed
-// story-columns origin (./launchJourney.ts): while the whole listing cannot be
-// read, every entry says "State unknown" and offers "Delete record…", which
-// asks in place before it deletes and, once confirmed, takes only the
-// session's record: the entry leaves its card, Recently done and the
-// Sessions sidebar, the other session, the card's column and its attention
-// count stay, no deletion-success message appears, and the keyboard goes to
-// the next entry or to the card. A Session unavailable entry offers and does the same; a Working
-// or Needs input entry offers none. Origin alone still places the story. The page's own dashboard server
-// drives the synthetic `claude` (./fixtures/fake-claude); the real one is
-// never reached.
+// On the committed story-columns origin (./launchJourney.ts), an unreadable
+// listing says State unknown and offers Delete record… on each card session.
+// It asks in place; confirmation removes only that record from its card,
+// Recently done and Sessions sidebar. The other session, column and attention
+// count stay; no success message appears; focus moves to the next entry/card.
+// Session unavailable behaves likewise; Working and Needs input offer none.
+// Origin alone places stories. The server drives only synthetic Claude.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -97,9 +93,10 @@ test.describe("deleting a card's session record", () => {
 
     await test.step("pressing it asks in place, keeping the entry's words and Open terminal, with the keyboard on Keep", async () => {
       const cardTop = () =>
-        card(readyStory).evaluate(
-          (element) => element.getBoundingClientRect().top + window.scrollY,
-        );
+        card(readyStory).evaluate((element) => {
+          const region = element.closest(".board-scroll");
+          return element.getBoundingClientRect().top + (region?.scrollTop ?? 0);
+        });
       const before = await cardTop();
 
       await deleteButton(execution).click();

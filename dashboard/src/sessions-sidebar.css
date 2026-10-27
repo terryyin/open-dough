@@ -202,4 +202,9 @@
     border-right: 1px solid var(--edge);
     box-shadow: var(--shadow-2);
   }
+  /* When stacked, the banner and its Sessions button sit below the panel. */
+  .page-stacked:not(.page-maximized) > .sessions-sidebar {
+    top: var(--stacked-panel-height);
+  }
+
 }

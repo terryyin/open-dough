@@ -106,12 +106,18 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
 
   await test.step("the held record answering afterwards neither extends the list nor scrolls", async () => {
     await settle(page);
-    const scrolled = await page.evaluate(() => window.scrollY);
+    const scrolled = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     view.release();
     await settle(page);
     await expectEntries(recent, names(10));
     await expect(recent).toBeFocused();
-    expect(await page.evaluate(() => window.scrollY)).toBe(scrolled);
+    expect(
+      await page
+        .locator(".board-scroll")
+        .evaluate((region) => region.scrollTop),
+    ).toBe(scrolled);
     expect(recordsAsked(github)).toHaveLength(asked);
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   });
@@ -204,14 +210,20 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   await test.step("the held record answering afterwards neither extends the list nor brings the entry into view", async () => {
     await settle(page);
     const before = (await revealsOf(page)).length;
-    const scrolled = await page.evaluate(() => window.scrollY);
+    const scrolled = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     view.release();
     await settle(page);
     await expectEntries(recent, names(10));
     await expect(entry).toHaveCount(0);
     await expect(recent).toBeFocused();
     expect((await revealsOf(page)).slice(before)).toEqual([]);
-    expect(await page.evaluate(() => window.scrollY)).toBe(scrolled);
+    expect(
+      await page
+        .locator(".board-scroll")
+        .evaluate((region) => region.scrollTop),
+    ).toBe(scrolled);
     expect(recordsAsked(github)).toHaveLength(
       storiesThrough(destination).length,
     );

@@ -48,7 +48,7 @@ async function expectSelected(review: Locator, name: string) {
 }
 
 const pageScroll = (page: Page) =>
-  page.evaluate(() => document.scrollingElement?.scrollTop ?? 0);
+  page.locator(".board-scroll").evaluate((region) => region.scrollTop);
 
 test("Previous file and Next file move through the browser's order", async ({
   page,

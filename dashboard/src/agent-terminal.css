@@ -22,6 +22,18 @@
   }
 }
 
+/* The half-height stacked panel still leaves a touch input target when the
+   visible window shrinks. Its long identity keeps its existing own scroll. */
+@media (any-pointer: coarse) {
+  .page-stacked:not(.page-maximized) .side-panel:has(> .terminal-screen) .side-panel-header {
+    padding-block: min(var(--space-2), calc(var(--side-panel-height) / 50));
+  }
+
+  .page-stacked:not(.page-maximized) .terminal-identity {
+    max-height: min(30dvh, calc(var(--side-panel-height) - 5rem));
+  }
+}
+
 .terminal-identity > .agent-portrait {
   --portrait-size: calc(
     min(var(--terminal-rows-height, 2.5rem), 44px) - 2 * var(--portrait-edge)

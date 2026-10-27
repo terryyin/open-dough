@@ -1,3 +1,4 @@
+import { scrollYOf } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
@@ -39,7 +40,7 @@ test.describe("touch preparation help", () => {
     await expectSettledPage(page);
     const launcher = parts(page).preparationHelp;
     const reads = origin.requests.length;
-    const scroll = await page.evaluate(() => window.scrollY);
+    const scroll = await scrollYOf(page);
     await tapWhereShown(launcher);
     const dialog = page.getByRole("dialog", { name: "Preparation badges" });
     const close = dialog.getByRole("button", { name: "Close", exact: true });
@@ -61,7 +62,7 @@ test.describe("touch preparation help", () => {
     await tapWhereShown(close);
     await expect(dialog).not.toBeVisible();
     await expect(launcher).toBeFocused();
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
     await expect(
       parts(page).project.getByRole("radio", {
         name: "Open Dough",
@@ -124,7 +125,7 @@ for (const viewport of [
     await expectFrameIconControl(launcher, "Preparation badge legend");
 
     await launcher.scrollIntoViewIfNeeded();
-    const scroll = await page.evaluate(() => window.scrollY);
+    const scroll = await scrollYOf(page);
     await launcher.click();
     await expect(dialog).toBeVisible();
     await expect(
@@ -217,14 +218,14 @@ for (const viewport of [
     await close.click();
     await expect(dialog).not.toBeVisible();
     await expect(launcher).toBeFocused();
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
     await page.keyboard.press("Enter");
     await expect(dialog).toBeVisible();
     await expect(close).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
     await expectFocusedAndIndicated(page, launcher);
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scroll);
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
     expect(await badges.allTextContents()).toEqual(originalBadges);
     expect(origin.requests.length).toBe(reads);
   });

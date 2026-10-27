@@ -56,9 +56,6 @@ export async function expectTerminalPreviewFits(
     (await box(portrait)).y + (await box(portrait)).height,
   );
   await page.setViewportSize({ width: 800, height: 220 });
-  await page.evaluate(() => {
-    window.scrollTo(0, 0);
-  });
   await portrait.hover();
   await expectPreviewContained();
   // Move the real portrait to the panel's right edge, preserving its hover

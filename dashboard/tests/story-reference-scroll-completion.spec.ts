@@ -48,23 +48,25 @@ test("a late native scroll completion cannot strand a pending referenced story o
     const observed = window as unknown as {
       lateNativeCompletion?: NativeCompletion;
     };
+    const board = document.querySelector(".board-scroll");
+    if (!board) throw new Error("No Board scroll region");
     const finish = () => {
       const card = document.querySelector(
         `[data-done-story="${CSS.escape(identity)}"]`,
       );
-      if (card === null || scrollY <= innerHeight) return;
+      if (card === null || board.scrollTop <= board.clientHeight) return;
       const at = card.getBoundingClientRect();
       if (at.top < innerHeight) return;
-      window.removeEventListener("scroll", finish);
+      board.removeEventListener("scroll", finish);
       observed.lateNativeCompletion = {
-        y: scrollY,
-        height: innerHeight,
+        y: board.scrollTop,
+        height: board.clientHeight,
         top: at.top,
         focused: document.activeElement?.getAttribute("data-done-story"),
       };
-      window.scrollTo({ top: 0, behavior: "instant" });
+      board.scrollTo({ top: 0, behavior: "instant" });
     };
-    window.addEventListener("scroll", finish);
+    board.addEventListener("scroll", finish);
   }, farDone.identity);
   await consumer
     .getByRole("link", { name: farDone.identity, exact: true })

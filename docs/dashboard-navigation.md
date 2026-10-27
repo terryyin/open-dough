@@ -28,13 +28,21 @@ Story references and direct URLs share a configured project and story identity
 as their target, and share card reveal. Active membership comes from that
 project's published work; Done references use the existing catalog and range.
 A reveal aligns the card's top with the top reading edge below the pinned banner
-and Column heading, as far as the page's scroll range allows, so reading begins
+and Column heading, as far as the Board's scroll range allows, so reading begins
 at the story's start even when the card is taller than the viewport. It follows
 native scrolling until that beginning is readable, then lets later navigation
 bring its next control into view. Layout changes can retain that reading place
 until the developer moves.
 
-Keep one story overview with an always-visible banner pinned to the viewport top.
+Keep one Board with an always-visible banner above its own scroll region.
+The Board scrollbar sits at the Board's edge, left of the Panel divider when
+side by side. Scrolling the Board leaves the banner, Sessions sidebar, and
+Side panel in place. Stacked, the Side panel takes the upper half of the
+viewport and the banner and Board share the lower half. Column headings and
+hidden-column paging controls stay within the Board's scrolling viewport.
+The agent roster scrolls in its own region when it replaces the Board.
+Side panel content uses its terminal, final report, or story review scrollbars;
+each Sessions sidebar list has its own scrollbar.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page
 ([Agent launch](../dashboard/AGENT-LAUNCH.md)). Command+B toggles it

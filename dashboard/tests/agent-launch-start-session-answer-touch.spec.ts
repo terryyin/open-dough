@@ -51,7 +51,9 @@ const backlogHeadingTop = (page: Page) =>
   parts(page)
     .backlog.getByRole("heading", { name: "Backlog", exact: true })
     .evaluate(
-      (heading) => heading.getBoundingClientRect().top + window.scrollY,
+      (heading) =>
+        heading.getBoundingClientRect().top +
+        (heading.closest(".board-scroll")?.scrollTop ?? 0),
     );
 
 async function rowAt(page: Page, viewport: Viewport) {

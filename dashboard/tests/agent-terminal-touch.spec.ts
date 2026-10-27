@@ -78,6 +78,13 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await page.keyboard.press("Backspace");
       await page.keyboard.type(" please");
 
+      await test.step("a moderately reduced height keeps fitted input", async () => {
+        await page.setViewportSize({ width: portrait.width, height: 400 });
+        await expectFittedInput(panel, sizes);
+        await focusByTouch(panel);
+        await assertIdentity();
+      });
+
       await test.step("reducing visible height retains the input, fitted output and pinned controls without another attachment", async () => {
         await page.setViewportSize({ width: portrait.width, height: 240 });
         await expectFittedInput(panel, sizes);

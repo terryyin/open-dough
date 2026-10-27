@@ -67,6 +67,17 @@ export async function dragDivider(page: Page, by: number) {
   const { x, y, width, height } = await box(panelDivider(page));
   const from = { x: x + width / 2, y: y + height / 2 };
   await page.mouse.move(from.x, from.y);
+  expect(
+    await panelDivider(page).evaluate((element) => {
+      const at = element.getBoundingClientRect();
+      const target = document.elementFromPoint(
+        at.x + at.width / 2,
+        at.y + at.height / 2,
+      );
+      return { reached: target === element, target: target?.className };
+    }),
+    "the pointer reaches the Panel divider",
+  ).toEqual({ reached: true, target: "resize-divider panel-divider" });
   await page.mouse.down();
   await page.mouse.move(from.x + by, from.y, { steps: 8 });
   await page.mouse.up();

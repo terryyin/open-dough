@@ -35,7 +35,7 @@ side panel -- shows the whole columns that fit, two from 48rem and one below,
 filling the page from Backlog. A slim Column paging control on a side with a hidden
 column names the next one there and how many entries it holds ("Entry count
 incomplete" while that column's entries are still being read), stays in sight
-while the page scrolls, and moves the view one column with a brief slide (at
+while the Board scrolls, and moves the view one column with a brief slide (at
 once when the system asks for reduced motion). Widening or narrowing the page
 keeps the leftmost shown column where the width allows; the page never scrolls
 sideways. Hidden columns stay in the reading and tab order: keyboard focus,
@@ -45,14 +45,14 @@ holds the item in the page, so a dialog opened from a card belongs to that
 card's column wherever the window shows it; the focused item or chosen
 card is brought into sight once its column has its full length again. This browser keeps that position, as it keeps the side panel's
 width: a project switch or a reload shows the same columns, and a first visit
-starts at Backlog. The page is only as long as the columns it shows, with its
-ordinary framing and the Column paging controls' room: a taller hidden column adds no
+starts at Backlog. The Board's scroll range follows only the columns it shows,
+its ordinary framing and the Column paging controls' room: a taller hidden column adds no
 blank stretch, and showing it makes all of it reachable again. Paging keeps
 the vertical position while the newly shown columns reach it; where they are
-shorter, the page stops at their bottom instead, without returning to the top.
+shorter, the Board stops at their bottom instead, without returning to the top.
 
-The pinned banner keeps **Project** choices reachable while scrolling. Its selected
-project disclosure shows repository/ref, full source revision, retrieval time
+The banner keeps **Project** choices reachable above the Board's own scroll region.
+Its selected project disclosure shows repository/ref, full source revision, retrieval time
 (not commit time), and publication warning. Close it to return room to the work,
 especially at narrow widths or high browser zoom.
 

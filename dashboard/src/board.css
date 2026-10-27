@@ -1,11 +1,11 @@
 /* The Board (./Board.tsx): Backlog, Taken, and Recently
-   done, left to right in reading order on one row that never wraps. The page
-   column's own width (`@container page`, ./side-panel.css) decides how many
+   done, left to right in reading order on one row that never wraps. The Board's
+   inner scrolling content width (`@container board`) decides how many
    whole columns of at least 24rem show, `--columns-shown`, which
    ./columnPaging.ts reads: three from 72rem, two from 48rem, one below. The
    shown columns fill the page; the row is cut off at the view's sides rather
    than scrolled, so the page never scrolls sideways and column headings keep
-   sticking to the window, and it moves under the view by `--leftmost` columns.
+   sticking within the Board, and it moves under the view by `--leftmost` columns.
    This file loads before styles.css and column-frame.css, so its rules there
    say more to decide. */
 
@@ -77,7 +77,7 @@
    columns' framing, not the cards' room: the columns' main reaches the page
    column's sides, each side keeps room for its column paging control, and the
    columns, framed no more, stay distinct by their headings. */
-@container page (width < 72rem) {
+@container board (width < 72rem) {
   main:has(> .board) {
     margin-inline: 0;
   }
@@ -104,7 +104,7 @@
   }
 }
 
-@container page (width < 48rem) {
+@container board (width < 48rem) {
   .board {
     --columns-shown: 1;
   }
@@ -113,7 +113,7 @@
 /* Keep explicit column navigation comfortable to tap, including when a
    tablet has room for two columns. The existing column paging owns the view. */
 @media (any-pointer: coarse) {
-  @container page (width < 72rem) {
+  @container board (width < 72rem) {
     .board {
       --column-paging-control: var(--control-size);
     }
@@ -125,7 +125,7 @@
    hidden column top to bottom beside an arrow toward it. */
 .column-paging-control {
   position: sticky;
-  top: calc(var(--banner-height, 0px) + var(--space-2));
+  top: var(--space-2);
   z-index: 1;
   grid-row: 1;
   align-self: start;
@@ -135,7 +135,7 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  min-height: min(20rem, calc(100dvh - var(--banner-height, 0px) - 1rem));
+  min-height: min(20rem, calc(100cqh - 1rem));
   padding: var(--space-2) 0;
   border: 1px solid var(--line);
   font: inherit;
@@ -177,4 +177,25 @@
   font-size: var(--text-xs);
   font-weight: 600;
   background: var(--hover);
+}
+
+/* The banner stays above the independently scrolling Board or agent roster. */
+.board-scroll,
+.roster-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 1rem;
+  scroll-padding-bottom: var(--focus-ring-clearance);
+}
+
+.board-scroll {
+  scrollbar-gutter: stable;
+  container: board-scroll / size;
+}
+
+/* Inner content excludes the native scrollbar; it owns Column fit. */
+.board-scroll > .scroll-content {
+  container: board / inline-size;
 }

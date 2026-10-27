@@ -4,8 +4,7 @@
    control is one control height, and the icon controls share one look
    (./icon-control.css). */
 .banner {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 5;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto var(--control-size);
@@ -67,13 +66,6 @@
   border-radius: var(--radius-md);
   background: var(--surface);
   scroll-padding-block: var(--focus-ring-clearance);
-}
-
-/* Focus and reveal scrolling land below the pinned banner and clear of the
-   viewport's bottom edge. */
-html {
-  scroll-padding-top: calc(var(--banner-height, 0px) + 1rem);
-  scroll-padding-bottom: var(--focus-ring-clearance);
 }
 
 /* A narrow page column (./side-panel.css), whether the window is narrow

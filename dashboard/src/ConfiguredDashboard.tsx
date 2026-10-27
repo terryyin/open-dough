@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { useProjects } from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
+import { useBoardScrolling } from "./boardScroll.ts";
 import { Board } from "./Board.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
@@ -30,6 +31,7 @@ export function ConfiguredDashboard({
   readonly onOpenSettings: () => void;
   readonly onDashboardReady: (value: DashboardSelection) => void;
 }) {
+  useBoardScrolling(settingsOpen);
   const projects = useProjects();
   const initialSource = useRef(
     parseRoute(window.location, projects).route.source,
@@ -102,63 +104,72 @@ export function ConfiguredDashboard({
               onOpenSettings={onOpenSettings}
               onSelect={selectProject}
             />
-            <div className="page-header">
-              <StoryDestination
-                route={route}
-                status={destination}
-                retry={() => {
-                  window.location.reload();
-                }}
-                showStories={() => {
-                  showStories(source);
-                }}
-              />
-              <PublishedReadStatus
-                attempt={attempt}
-                reading={reading}
-                work={work}
-                withheld={withheld}
-                recoversAt={recoversAt}
-                notice={notice}
-              />
-              {storyNotice}
-              <ProjectActions
-                source={source}
-                work={work}
-                launches={launches}
-                hidden={showsRoster}
-              />
-              {!showsRoster && (
-                <StartupRecovery sourceId={source.id} recoveries={launches} />
-              )}
-              <StartupAnnouncer
-                sourceId={source.id}
-                startups={launches.storyStartupsOf(source.id)}
-              />
+            <div className={showsRoster ? "roster-scroll" : "board-scroll"}>
+              <div className="scroll-content">
+                <div className="page-header">
+                  <StoryDestination
+                    route={route}
+                    status={destination}
+                    retry={() => {
+                      window.location.reload();
+                    }}
+                    showStories={() => {
+                      showStories(source);
+                    }}
+                  />
+                  <PublishedReadStatus
+                    attempt={attempt}
+                    reading={reading}
+                    work={work}
+                    withheld={withheld}
+                    recoversAt={recoversAt}
+                    notice={notice}
+                  />
+                  {storyNotice}
+                  <ProjectActions
+                    source={source}
+                    work={work}
+                    launches={launches}
+                    hidden={showsRoster}
+                  />
+                  {!showsRoster && (
+                    <StartupRecovery
+                      sourceId={source.id}
+                      recoveries={launches}
+                    />
+                  )}
+                  <StartupAnnouncer
+                    sourceId={source.id}
+                    startups={launches.storyStartupsOf(source.id)}
+                  />
+                </div>
+                {work && (
+                  <main hidden={showsRoster}>
+                    <Board
+                      sourceId={source.id}
+                      work={work}
+                      launches={launches}
+                      onOpenRoster={openRoster}
+                    />
+                  </main>
+                )}
+                {showsRoster && (
+                  <main>
+                    <AgentRoster
+                      source={source}
+                      work={work}
+                      problem={readFailure}
+                      agent={
+                        opening?.sourceId === source.id
+                          ? opening.agent
+                          : undefined
+                      }
+                      onBack={onBack}
+                    />
+                  </main>
+                )}
+              </div>
             </div>
-            {work && (
-              <main hidden={showsRoster}>
-                <Board
-                  sourceId={source.id}
-                  work={work}
-                  launches={launches}
-                  onOpenRoster={openRoster}
-                />
-              </main>
-            )}
-            {showsRoster && (
-              <main>
-                <AgentRoster
-                  source={source}
-                  work={work}
-                  problem={readFailure}
-                  agent={
-                    opening?.sourceId === source.id ? opening.agent : undefined
-                  }
-                  onBack={onBack}
-                />
-              </main>
-            )}
           </>
         )}
       </StoryReferenceNavigation>

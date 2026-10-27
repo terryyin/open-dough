@@ -206,10 +206,7 @@ test.describe("maximizing the terminal", () => {
 
     await test.step("on a narrow window, Maximize fills the window and Restore stacks the panel above the page", async () => {
       await page.setViewportSize({ width: 800, height: 700 });
-      // The panel stacks first, so the page's top shows it.
-      await page.evaluate(() => {
-        window.scrollTo(0, 0);
-      });
+      // The fixed stacked panel stays above the independently scrolling Board.
       const room = await windowOf(page);
       await expect
         .poll(async () => (await box(panel)).width)

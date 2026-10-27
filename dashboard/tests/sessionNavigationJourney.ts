@@ -169,10 +169,14 @@ export async function expectWhollyInView(page: Page, name: string) {
             setTimeout(() => {
               const shown = document.querySelector(`[aria-label="${label}"]`);
               const box = shown?.getBoundingClientRect();
+              const region = shown
+                ?.closest(".board-scroll")
+                ?.getBoundingClientRect();
               answer(
                 box !== undefined &&
-                  box.top >= 0 &&
-                  box.bottom <= window.innerHeight,
+                  region !== undefined &&
+                  box.top >= region.top &&
+                  box.bottom <= region.bottom,
               );
             });
           });

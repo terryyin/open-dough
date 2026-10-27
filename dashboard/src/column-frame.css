@@ -54,7 +54,7 @@
 @media (min-height: 30rem) {
   .column-header {
     position: sticky;
-    top: var(--banner-height, 0px);
+    top: 0;
     z-index: 1;
   }
 }

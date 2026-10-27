@@ -98,13 +98,15 @@ for (const text of ["why is the CI slow on main?", ""]) {
     // whatever the fonts make its length, so a kept position is the page's
     // own and not one the window forces.
     await page.setViewportSize({ width: 1280, height: 480 });
-    await page.evaluate(() => {
-      window.scrollTo(0, 40);
+    await page.locator(".board-scroll").evaluate((region) => {
+      region.scrollTo(0, 40);
     });
     await button.click();
     await expect(dialog).toBeVisible();
     // Where the page is once the dialog is open; the launch does not move it.
-    const scroll = await page.evaluate(() => window.scrollY);
+    const scroll = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     expect(scroll).toBeGreaterThan(0);
     if (text !== "") {
       await startSessionField(dialog).fill(text);
@@ -128,7 +130,11 @@ for (const text of ["why is the CI slow on main?", ""]) {
 
     await expect(parts(page).adHocStarted).toBeVisible();
     await expect(entry).toContainText("Shown in terminal");
-    expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
+    expect(
+      await page
+        .locator(".board-scroll")
+        .evaluate((region) => region.scrollTop),
+    ).toBe(scroll);
     const { button: sessions, entries } = sessionsSidebarParts(page);
     await sessions.click();
     await expect(entries.first().getByRole("button")).toHaveAttribute(

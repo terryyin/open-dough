@@ -1,3 +1,4 @@
+import { readingBounds } from "./boardScroll.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 export { keepInView, untilOwnMove } from "./pageMovement.ts";
 
@@ -44,13 +45,13 @@ export function focusedStoryCard(): FocusedStoryCard | undefined {
 
 function inView(element: Element): boolean {
   const at = element.getBoundingClientRect();
-  const padding = getComputedStyle(document.documentElement);
+  const bounds = readingBounds(element);
   return (
     at.height > 0 &&
-    at.top >= Number.parseFloat(padding.scrollPaddingTop) &&
-    at.bottom <= innerHeight - Number.parseFloat(padding.scrollPaddingBottom) &&
-    at.left >= 0 &&
-    at.right <= innerWidth
+    at.top >= bounds.top &&
+    at.bottom <= bounds.bottom &&
+    at.left >= bounds.left &&
+    at.right <= bounds.right
   );
 }
 

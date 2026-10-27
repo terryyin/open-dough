@@ -30,9 +30,15 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   const card = parts(page).taken.getByRole("article", { name: onBranch });
   const detail = await inspectedDetail(card);
   const link = detail.getByRole("link", { name: /^Canonical record/ });
-  const before = await page.evaluate(() => scrollY);
+  const before = await page
+    .locator(".board-scroll")
+    .evaluate((region) => region.scrollTop);
   await link.scrollIntoViewIfNeeded();
-  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before);
+  await expect
+    .poll(() =>
+      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
+    )
+    .toBeGreaterThan(before);
   await link.focus();
   await expectVisibleReadingFocus(page, link);
   await expectView(page, ["Taken", "Recently done"], ["Backlog 0 entries"]);

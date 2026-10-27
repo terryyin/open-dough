@@ -45,12 +45,16 @@ async function openReadingPlace(page: Page) {
     await expect(doneCard).toHaveCount(0);
     await showColumn(page, "Recently done");
     await expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
-    const before = await page.evaluate(() => scrollY);
+    const before = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     await trunkCard
       .getByRole("button", { name: "Inspect story" })
       .scrollIntoViewIfNeeded();
     await expect
-      .poll(() => page.evaluate(() => scrollY))
+      .poll(() =>
+        page.locator(".board-scroll").evaluate((region) => region.scrollTop),
+      )
       .toBeGreaterThan(before);
   });
   const detail = await inspectedDetail(trunkCard);
@@ -142,8 +146,17 @@ test("arriving facts respect a reader who scrolls away while the inspected link 
   page.on("pageerror", (error) => errors.push(error.message));
   const { trunkCard, doneCard, release, link } = await openReadingPlace(page);
   // A real wheel movement returns to the overview without changing focus.
-  await page.mouse.wheel(0, -(await page.evaluate(() => scrollY)));
-  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+  await page.mouse.wheel(
+    0,
+    -(await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop)),
+  );
+  await expect
+    .poll(() =>
+      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
+    )
+    .toBe(0);
   await expect(link).toBeFocused();
   await expect(link).not.toBeInViewport();
   const overviewControl = page.getByRole("button", {

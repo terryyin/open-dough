@@ -14,7 +14,7 @@ import {
   unusableTarget,
 } from "./accessibleOverview.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
-import { showColumn } from "./boardPage.ts";
+import { scrollYOf, showColumn } from "./boardPage.ts";
 import {
   enabledStoryCardLaunchActions,
   inspectedDetail,
@@ -189,7 +189,7 @@ test("accessible overview keeps a read problem and the retained work reachable i
   await expect(problem).toBeInViewport();
 });
 
-test("accessible overview reads a backlog longer than one screen by scrolling the page", async ({
+test("accessible overview reads a backlog longer than one screen by scrolling the Board", async ({
   page,
 }) => {
   await publishLargeBacklog(page);
@@ -208,10 +208,10 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
   const lastInspect = lastCard.getByRole("button", { name: "Inspect story" });
   await expect(lastInspect).not.toBeInViewport();
 
-  await test.step("the page itself scrolls to the last queued work", async () => {
+  await test.step("the Board scrolls to the last queued work", async () => {
     await page.keyboard.press("End");
     await expect(lastInspect).toBeInViewport({ ratio: 1 });
-    expect(await page.evaluate("window.scrollY")).toBeGreaterThan(0);
+    expect(await scrollYOf(page)).toBeGreaterThan(0);
     await expectNoSidewaysScrollAndWholeText(page);
     await expect(lastCard).toContainText(`Priority ${queuedCount}`);
   });

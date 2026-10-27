@@ -109,21 +109,25 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
     ({ place, kind }) => place <= 10 || kind === "session",
   );
   await test.step("with the page scrolled to its end, a shorter list keeps the scroll within the page, and the keyboard on the last entry", async () => {
-    await page.evaluate(() => {
-      window.scrollTo(0, document.documentElement.scrollHeight);
+    await page.locator(".board-scroll").evaluate((region) => {
+      region.scrollTo(0, region.scrollHeight);
     });
     await settle(page);
-    const before = await page.evaluate(() => window.scrollY);
+    const before = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     const revisionE = main.publish(now, atE);
     await refreshedTo(page, revisionE);
     await expectEntries(recent, namesOf(atE, atE.length));
     await expect(recent).toContainText("All 17 entries are shown.");
     await expect(shownEntries(recent).last()).toBeFocused();
     await settle(page);
-    const { scrolled, end } = await page.evaluate(() => ({
-      scrolled: window.scrollY,
-      end: document.documentElement.scrollHeight - window.innerHeight,
-    }));
+    const { scrolled, end } = await page
+      .locator(".board-scroll")
+      .evaluate((region) => ({
+        scrolled: region.scrollTop,
+        end: region.scrollHeight - region.clientHeight,
+      }));
     expect(scrolled).toBeLessThan(before);
     expect(scrolled).toBeLessThanOrEqual(end);
     expect(recordsAskedAt(github, revisionE)).toEqual([]);

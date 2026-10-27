@@ -136,11 +136,13 @@ export async function expectStoryCardsKeepTheirShare(
   page: Page,
   shown: number,
 ) {
-  const pageColumn = await box(page.locator(".page-column"));
+  const width = await boardScroll(page).evaluate(
+    (region) => region.clientWidth,
+  );
   const window = page.viewportSize()?.width ?? 0;
   const margin = Math.min(1.5 * rem, Math.max(0.75 * rem, 0.04 * window));
   const share =
-    (pageColumn.width - 2 * margin - (shown - 1) * rem) / shown - 2 * (rem + 1);
+    (width - 2 * margin - (shown - 1) * rem) / shown - 2 * (rem + 1);
   const card = await box(parts(page).backlog.getByRole("article").first());
   expect(card.width).toBeGreaterThanOrEqual(share - 0.5);
 }
@@ -165,20 +167,25 @@ export const slidesOf = (page: Page) =>
 // The page's ordinary framing below the columns' end.
 const framing = 3 * rem;
 
-export const scrollYOf = (page: Page) => page.evaluate(() => scrollY);
+export const boardScroll = (page: Page) => page.locator(".board-scroll");
+export const scrollYOf = (page: Page) =>
+  boardScroll(page).evaluate((region) => region.scrollTop);
 export const bottomOf = (page: Page) =>
-  page.evaluate(
-    () =>
-      document.documentElement.scrollHeight -
-      document.documentElement.clientHeight,
+  boardScroll(page).evaluate(
+    (region) => region.scrollHeight - region.clientHeight,
   );
 export const extentOf = (page: Page) =>
-  page.evaluate(() => document.documentElement.scrollHeight);
+  boardScroll(page).evaluate((region) => region.scrollHeight);
 
 // Wheels the page to `y` as a developer reads, by exactly as far as is left,
 // so no wheel movement outlasts the read.
 export async function wheelTo(page: Page, y: number) {
   const left = y - (await scrollYOf(page));
+  const region = await box(boardScroll(page));
+  await page.mouse.move(
+    region.x + region.width / 2,
+    region.y + region.height / 2,
+  );
   if (left !== 0) await page.mouse.wheel(0, left);
   await expect.poll(() => scrollYOf(page)).toBe(y);
 }
@@ -186,7 +193,12 @@ export async function wheelTo(page: Page, y: number) {
 // Where a part ends, measured from the top of the page.
 async function endOf(part: Locator) {
   const { y, height } = await box(part);
-  return y + height + (await scrollYOf(part.page()));
+  return (
+    y +
+    height -
+    (await box(boardScroll(part.page()))).y +
+    (await scrollYOf(part.page()))
+  );
 }
 
 // A part starts below the pinned banner, not under it.

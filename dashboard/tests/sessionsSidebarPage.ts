@@ -2,6 +2,7 @@
 // entries show.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { columnPagingControl, pagingRoom } from "./boardPage.ts";
 import { box, expectSideBySideInOrder } from "./pageLayout.ts";
@@ -178,7 +179,7 @@ export async function expectSessionsSidebarLayout(
   await button.click();
   await expect(sidebar).toBeVisible();
 
-  await page.setViewportSize({ width: 700, height: view.height });
+  await resizeUntilArranged(panel, { width: 700, height: view.height });
   const overlay = await box(sidebar);
   const beside = await box(main);
   expect(overlay.x).toBe(0);

@@ -1,7 +1,6 @@
-// Sidebar selection reveals an open session's actual card or local Taken entry.
-// Unavailable sessions open no terminal; narrow selection closes the overlay,
-// reduced motion reveals at once, and stale project picks never scroll later.
-// The real dashboard boundary launches/attaches synthetic Claude only.
+// Sessions sidebar selection reveals the actual card or Taken entry; unavailable
+// sessions open no terminal. Narrow selection closes the overlay, reduced motion
+// reveals at once, and stale picks never scroll. Only synthetic Claude runs.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -10,6 +9,7 @@ import {
   standaloneSessionName,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
+import { expectReadingTop } from "./readingPlace.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
   notRefinedIdentity,
@@ -69,7 +69,6 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       await expect(local).not.toBeInViewport();
       await entry(removedStory.title).click();
       await expect(panel.getByRole("heading")).toHaveText(removedStory.title);
-      // The column beside the sidebar and terminal moves to Taken.
       await expect(local).toBeInViewport();
       await expectRevealsSince(page, 0, sessionName, "smooth");
       await expect(local.getByText("Shown in terminal")).toBeVisible();
@@ -177,8 +176,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const { sidebar, button, entry } = sessionsSidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    // Tall enough that the centered card, with the room it keeps above for the
-    // column's pinned heading, fits below the banner in any font's metrics.
+    // The card is taller than the stacked Board: reveal its readable top.
     await page.setViewportSize({ width: 700, height: 900 });
     await button.click();
     await expect(sidebar).toBeVisible();
@@ -197,17 +195,16 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       pygardonStoryCard.getByText("Shown in terminal"),
     ).toBeVisible();
     await expect.poll(async () => (await revealsOf(page)).length).not.toBe(0);
-    // At once: the card is in view once the page settles, and every reveal,
-    // the first and any keeping it in view as cards changed size, scrolled
-    // without animation, so no scrolling is still to come.
-    await expectWhollyInView(page, pygardonStory.title);
+    // Once settled, every reveal has reached its reading place without motion.
+    await expectReadingTop(pygardonStoryCard);
     await expectRevealsSince(page, 0, pygardonStory.title, "auto");
+    // With enough Board room for the same card, it still shows whole.
+    await page.setViewportSize({ width: 700, height: 1600 });
+    await expectWhollyInView(page, pygardonStory.title);
     await expect(
       panel.evaluate((element) => element.contains(document.activeElement)),
     ).resolves.toBe(true);
 
-    // The entry is out of sight with the sidebar closed, so closing the
-    // terminal returns the keyboard to Sessions.
     await panel.getByRole("button", { name: "Close" }).click();
     await expect(panel).toHaveCount(0);
     await expect(button).toBeFocused();
@@ -244,6 +241,10 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     ).toBeVisible();
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
     expect(await revealsOf(page)).toEqual([]);
-    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    expect(
+      await page
+        .locator(".board-scroll")
+        .evaluate((region) => region.scrollTop),
+    ).toBe(0);
   });
 });
