@@ -65,6 +65,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
   dough-product-backlog/references/supplier-dependencies.md
   dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs dough-product-backlog/scripts/product-backlog-dependency-completion.mjs dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
+  dough-product-backlog/scripts/product-backlog-accepted-integration.mjs
   dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
   dough-product-backlog/scripts/product-backlog-take.mjs
   dough-product-backlog/scripts/product-backlog-usage.mjs
@@ -224,6 +225,7 @@ managed_files=(
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-candidate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
+  dough-execute-plan/scripts/supplier-integration.mjs
   dough-execute-plan/scripts/maintain-default-checkout.mjs
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs

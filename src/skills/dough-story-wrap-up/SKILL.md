@@ -139,9 +139,11 @@ cannot be resolved, leave the material intact, report the gap, and do not claim
 closure. In Trunk Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/wrap-up-closure-publication.md) before deleting spent history.
 
 Before deletion, follow the shared [supplier dependency procedure](../dough-product-backlog/references/supplier-dependencies.md)
-to discover current consumers and retain recoverable completion evidence. In Trunk
-Mode, resolve and publish consumer changes after accepted before-cleanup publication
-and before `finish` can retire the workspace.
+to retain recoverable completion evidence. In Trunk
+Mode, discover, resolve and publish consumer changes after accepted before-cleanup publication
+and before `finish` can retire the workspace. In Story Branch Mode, the
+[current-consumer visit](references/story-branch-integration.md) follows accepted
+integration and precedes final completion and retirement.
 
 ## Delete spent history, including shared records
 
@@ -232,7 +234,8 @@ or another record there shows this work created it; pass Dough Land's [Retire th
 In Trunk Mode, `finish` retires the worktree and branch, never a remote execution branch, once its completion receipt holds `success` with confirmed shutdown;
 act on its `cleanup` result there, and after an interruption rerun it as [Finish Trunk Mode closure](../dough-execute-plan/references/wrap-up-closure-publication.md#finish-trunk-mode-closure)
 says. In Story Branch Mode, retire them under that section with `--remote-branch <execution branch>` and `--contained <integrated SHA>`,
-with wrap-up's gate: a `success` completion receipt for the integrated SHA whose shutdown is confirmed, and no
+adding `--contained` for each accepted consumer publication,
+with wrap-up's gate: a `success` completion receipt for the final accepted SHA whose shutdown is confirmed, and no
 active checkout-bound observer still hosting the worktree under [preserve pending local work](../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).
 Dough Land's [refresh](../dough-land/SKILL.md#refresh-the-default-checkout) never blocks retirement. Report blocked or
 partial cleanup without repeating already-completed closure. Skip cleanup in direct-current-branch mode.

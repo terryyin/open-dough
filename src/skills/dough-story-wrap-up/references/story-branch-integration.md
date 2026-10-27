@@ -26,8 +26,13 @@ is the accepted candidate SHA and the remote trunk ref. A superseded candidate
 is not the receipt. Unresolved integration preserves the execution resources
 and blocks completion. Do not force-push.
 
-After accepted Story Branch supplier integration, [resolve and publish consumers](../../dough-product-backlog/references/supplier-dependencies.md#apply-and-publish-a-direct-resolution)
-through the same closure publication/completion procedure before retirement, using
-the resulting accepted SHA and shutdown receipt. That later publication takes no
-dashboard landing context. Finish or explicitly retain
-unresolved dependency work and evidence in existing active context; report gaps.
+When the selected work is a completed supplier, pass its identity to that
+integration as `--supplier-identity`. After its accepted receipt, apply the
+[current-consumer visit](../../dough-product-backlog/references/supplier-dependencies.md#visit-current-consumers-after-integration)
+to the printed `visit` from the same owned workspace, judge each consumer, and
+publish owned consumer changes to the authorized trunk through
+[wrap-up closure publication](../../dough-execute-plan/references/wrap-up-closure-publication.md)
+on the same trunk observer. Those later publications take no dashboard landing
+context. Finish the visit, or explicitly retain unresolved dependency work,
+evidence and gaps in existing active context, before the final completion and
+retirement that procedure orders; report gaps.

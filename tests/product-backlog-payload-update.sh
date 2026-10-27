@@ -44,6 +44,7 @@ story_state_payload_files=(
   dough-product-backlog/scripts/product-backlog-story-state.mjs
   dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
   dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
+  dough-product-backlog/scripts/product-backlog-accepted-integration.mjs
   dough-product-backlog/scripts/product-backlog-dependency-completion.mjs
   dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs
   dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs

@@ -3,6 +3,15 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { parseBacklog } from "./product-backlog-document.mjs";
+import {
+  contains,
+  fetchAcceptedTarget,
+} from "./product-backlog-accepted-integration.mjs";
+import {
+  git,
+  gitLine,
+  repositoryRoot,
+} from "./product-backlog-git-repository.mjs";
 import { namedIdentity, readHome } from "./product-backlog-home-reader.mjs";
 import { declaredPlanTarget } from "./product-backlog-story-state-home.mjs";
 import { readStoryState } from "./product-backlog-story-state.mjs";
@@ -118,6 +127,72 @@ export function discoverConsumers(file, supplierIdentity) {
       ),
     problems,
   };
+}
+
+// A visit after accepted supplier integration discovers from a checkout that
+// holds the fetched target, never from the branch a publisher returned to.
+// A clean checkout behind the target fast-forwards; local changes or a
+// divergent history stop with nothing changed. It never resets or switches.
+export function visitCurrentConsumers(file, values) {
+  const supplierIdentity = values["supplier-identity"];
+  requireField(supplierIdentity, "supplier-identity");
+  const root = repositoryRoot(dirname(file));
+  const { accepted, target } = fetchAcceptedTarget(values, root);
+  const head = gitLine(["rev-parse", "HEAD"], root);
+  const stop = (reason, recovery, fields = {}) => ({
+    status: "stopped",
+    reason,
+    supplierIdentity,
+    acceptedRevision: accepted,
+    target,
+    checkout: { path: root, head, ...fields },
+    recovery,
+  });
+  if (!contains(accepted, target.sha, root))
+    return stop(
+      "accepted-not-on-target",
+      "The fetched target does not contain the accepted supplier integration. Establish the accepted integration receipt before visiting consumers.",
+    );
+  const changes = git(["status", "--porcelain"], root)
+    .split("\n")
+    .filter(Boolean);
+  if (changes.length)
+    return stop(
+      "local-changes",
+      "Commit or deliberately retain these changes in the owned checkout, then run this visit again. Nothing was changed.",
+      { changes },
+    );
+  let relation = "current";
+  if (head !== target.sha) {
+    if (contains(head, target.sha, root)) {
+      git(["merge", "--ff-only", "--quiet", target.sha], root);
+      relation = "fast-forwarded";
+    } else if (contains(target.sha, head, root)) relation = "ahead";
+    else
+      return stop(
+        "divergent",
+        "The owned checkout and the fetched target diverged. Publish or reconcile its commits through the caller's publication workflow, then run this visit again. Nothing was changed.",
+      );
+  }
+  return {
+    status: "visited",
+    supplierIdentity,
+    acceptedRevision: accepted,
+    target,
+    checkout: {
+      path: root,
+      relation,
+      from: head,
+      revision: gitLine(["rev-parse", "HEAD"], root),
+    },
+    ...discoverConsumers(file, supplierIdentity),
+  };
+}
+
+export async function visitConsumers(file, values) {
+  const visit = visitCurrentConsumers(file, values);
+  console.log(JSON.stringify(visit, null, 2));
+  if (visit.status !== "visited") process.exitCode = 1;
 }
 
 export async function readConsumers(file, values) {

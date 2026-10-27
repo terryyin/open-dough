@@ -176,7 +176,7 @@ the fixture convenient.
 ### 1. Visit the current integrated consumers during Story Branch completion
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bare-remote Story Branch completion regression with a late trunk
 consumer, plus the shared supplier resolution/refusal/replay suite and the
 representative guidance walk described below.
@@ -211,6 +211,26 @@ published outcomes. Trunk Mode still uses its prior path until slice 2; this is
 an explicitly incomplete story, not a claim of complete cross-mode coverage.
 One proof loop owns integration through the consumer result, with edge cases at
 the shared operation. No separate preparatory Structure slice is justified.
+
+Accepted proof: `product-backlog.mjs visit-consumers` (`visitCurrentConsumers`,
+using `product-backlog-accepted-integration.mjs`) and
+`history-preserving-publication.mjs integrate --supplier-identity`
+(`supplier-integration.mjs`). Observed by
+`tests/support/supplier-integration-visit.test.mjs` (late-consumer journey with
+order `[integrate-and-visit, publish-consumers, retire]`; generic integrate
+without `visit`; local-changes, ahead, divergent and accepted-not-on-target
+stops) and `tests/support/supplier-integration-revisit.test.mjs` (racing writer,
+stale refusal, waiting and decision-needed), plus the supplier, closure-story,
+payload and install suites, via
+`PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=2 bash scripts/test.sh <paths>`.
+Scratch omission of the fast-forward or of the CLI's visit call fails the journey.
+
+Learnings for slice 2: `update-dependency` refuses to author an agreement once
+the supplier home is cleaned up on trunk, so a racing-writer fixture must author
+before the cleanup lands. Trunk closure and Land can reuse `visit-consumers`
+and `integrateSelectedSupplier` directly. A raw Git failure in standalone
+`visit-consumers` (e.g. fetch) currently escapes as a stack trace; the integrate
+path wraps it as a stopped visit.
 
 ### 2. Finish Trunk Mode and selected-supplier landing after the current visit
 
@@ -294,3 +314,25 @@ No remaining slice-specific concern was identified in this review. Decisive
 current-state premises were observed or the contrary assumption was removed;
 new behavior still requires the discriminating proof owned above. No human
 decision is required before execution can be selected.
+
+## Story obligations
+
+### G1. Story Branch CI completion order is guidance-owned
+Reported: slice 1 — "The CI completion and shutdown order rests on guidance only; it is not executed in any test."
+Story clause: "The owning completion path must reach fresh discovery before completing its visit and retiring resources"
+Disposition: proved by slice 1: `integrate --supplier-identity` prints the visit with its receipt, so discovery precedes any completion the agent can invoke (`supplier-integration-visit.test.mjs` test 1 order `[integrate-and-visit, publish-consumers, retire]` with real `retireWorktree`); Story Branch Mode has no combined completion command, and `wrap-up-closure-publication.md` orders completion once for the final accepted SHA, read by `ci-completion-lifecycle-guidance.test.mjs`.
+
+### G2. Fixture consumer publication is a plain push
+Reported: slice 1 — "Consumer publication was a plain push with a single `pull --rebase` retry, not managed `deliver`."
+Story clause: "Use the existing guarded resolution and publication path"
+Disposition: proved by slice 1: guarded `resolve-dependency` runs through the real CLI in tests 1–2 (stale write refused in test 2); guidance routes the publication through the unchanged common sequence in `trunk-publication.md#publish-the-candidate`, which keeps its own suites.
+
+### G3. A stopped visit leaves the integrate exit code at 0
+Reported: slice 1 — "The integrate CLI still exits 0 when the integration is accepted but the visit stopped; the stop is reported in `visit.status`."
+Story clause: "explicitly retain unresolved work, evidence, discovery gaps, and next actions in the existing active context"
+Disposition: proved by slice 1: the accepted receipt is genuinely accepted, and the stop object with `reason`, `checkout.changes` and `recovery` is the same one `visit-consumers` returns (test 3 stop cases); `supplier-dependencies.md#visit-current-consumers-after-integration` directs keeping resources and reporting the unfinished visit.
+
+### G4. A checkout ahead of the target is visited as it is
+Reported: slice 1 — "The `ahead` relation is accepted, meaning discovery also reads unpublished local commits"
+Story clause: "Establish that the checkout used for discovery and consumer writes contains the accepted supplier integration and the fetched target's current content."
+Disposition: proved by slice 1: `ahead` is accepted only when the fetched target is an ancestor of HEAD, so the checkout contains both; test 3 asserts `relation: "ahead"` and the divergent stop.

@@ -154,11 +154,17 @@ When the launch supplied a dashboard landing context, pass it as
 before retirement.
 After remote confirmation, register only the accepted integrated SHA, the
 printed receipt, with the trunk observer. A saved branch tip or superseded merge
-candidate is not that receipt. Invoke
+candidate is not that receipt. For a selected completed supplier, the caller
+passed `--supplier-identity` and acts on the printed `visit` before completion:
+publish its owned consumer changes from the same workspace through
+[the common sequence](trunk-publication.md#publish-the-candidate) to the trunk
+target, register each accepted SHA with that trunk observer, and finish or
+explicitly retain the visit. Then invoke
 [the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
-once for the accepted integrated SHA on that trunk observer and handle its
-combined receipt. With a `success` receipt with confirmed shutdown as its
-gate, wrap-up then retires the execution resources under the same
+once for the final accepted SHA, the integrated SHA or the last consumer
+publication, on that trunk observer and handle its combined receipt. With
+a `success` receipt with confirmed shutdown as its gate, wrap-up then retires
+the execution resources under the same
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
 After retirement and final wording settle, apply the
 [final dashboard operation](../../dough-land/references/dashboard-completion.md)
