@@ -193,4 +193,17 @@ test("a generic integration carries no visit, and the visit only advances a clea
     "1234567890123456789012345678901234567890",
   );
   assert.equal(missing.json.reason, "accepted-not-on-target");
+
+  const unreachable = await visitConsumers(setup, acceptedSha, "nope-remote");
+  assert.equal(unreachable.code, 1);
+  assert.equal(unreachable.json.status, "stopped");
+  assert.equal(unreachable.json.reason, "error");
+  assert.match(unreachable.json.error, /git fetch .*nope-remote/);
+  assert.match(unreachable.json.recovery, /visit-consumers with this accepted/);
+  assert.doesNotMatch(unreachable.stderr, /^\s+at /m);
+  assert.equal(await revParse(setup.workspace, "HEAD"), local);
+  const partial = await visitConsumers(setup, acceptedSha.slice(0, 12));
+  assert.equal(partial.code, 1);
+  assert.equal(partial.json, null);
+  assert.match(partial.stderr, /accepted-revision must be a full Git revision/);
 });

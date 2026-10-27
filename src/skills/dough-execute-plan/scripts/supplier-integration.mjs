@@ -13,9 +13,8 @@ import {
   trunkTarget,
 } from "./history-preserving-publication.mjs";
 
-// The visit for `acceptedSha` from `ownedWorkspace`; a failure it cannot
-// classify is a stopped visit, never a thrown one, since the accepted
-// publication still stands.
+// The visit for `acceptedSha` from `ownedWorkspace`; its failures arrive as
+// a stopped visit, since the accepted publication still stands.
 export function visitSelectedSupplier({
   supplierIdentity,
   ownedWorkspace,
@@ -24,22 +23,12 @@ export function visitSelectedSupplier({
   remote = "origin",
   backlogPath = defaultBacklogPath,
 }) {
-  try {
-    return visitCurrentConsumers(resolve(ownedWorkspace, backlogPath), {
-      "supplier-identity": supplierIdentity,
-      "accepted-revision": acceptedSha,
-      remote,
-      target: targetRef,
-    });
-  } catch (error) {
-    return {
-      status: "stopped",
-      reason: "error",
-      error: error.message,
-      recovery:
-        "Clear the reported failure, then run product-backlog.mjs visit-consumers with this accepted revision.",
-    };
-  }
+  return visitCurrentConsumers(resolve(ownedWorkspace, backlogPath), {
+    "supplier-identity": supplierIdentity,
+    "accepted-revision": acceptedSha,
+    remote,
+    target: targetRef,
+  });
 }
 
 export async function integrateSelectedSupplier({

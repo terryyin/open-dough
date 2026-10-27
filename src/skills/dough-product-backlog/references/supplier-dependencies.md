@@ -52,14 +52,14 @@ visit. Otherwise, and for every repeated visit, run from the owned checkout:
 node <installed>/dough-product-backlog/scripts/product-backlog.mjs visit-consumers --file <backlog> --supplier-identity <supplier identity> --accepted-revision <accepted supplier integration SHA> --remote <authorized remote> --target <integration branch>
 ```
 
-The visit fetches the target and requires it to contain the accepted revision.
-A clean checkout behind the target fast-forwards to it; a checkout already
-holding the target is used as it is. It never resets or switches branches.
+The visit fetches the target; without the accepted revision there, it stops with
+`accepted-not-on-target`. A clean checkout behind the target fast-forwards to
+it; one already holding it is used as is. It never resets or switches branches.
 `status: "visited"` reports the `checkout.revision` it discovered from, the
 fetched `target`, and the discovery below. `status: "stopped"` changed nothing:
 `local-changes` lists them, `divergent` means the checkout and target each hold
-commits the other lacks, and `accepted-not-on-target` means the integration is
-not accepted there. Follow its `recovery`; keep those changes and the execution
+commits the other lacks, and `error` carries any other Git failure, such as an
+unreachable remote. Follow its `recovery`; keep those changes and the execution
 resources, and report the unfinished visit instead of judging an older view.
 
 Discovery reads current canonical homes, including queued, Taken, prepared

@@ -123,7 +123,7 @@ export async function integrate(setup, extra = []) {
 
 export const selected = ["--supplier-identity", supplier.identity];
 
-export async function visitConsumers(setup, accepted) {
+export async function visitConsumers(setup, accepted, remote = "origin") {
   const result = await run(setup.owned, [
     "visit-consumers",
     "--supplier-identity",
@@ -131,11 +131,11 @@ export async function visitConsumers(setup, accepted) {
     "--accepted-revision",
     accepted,
     "--remote",
-    "origin",
+    remote,
     "--target",
     "main",
   ]);
-  return { ...result, json: JSON.parse(result.stdout) };
+  return { ...result, json: result.stdout ? JSON.parse(result.stdout) : null };
 }
 
 export const identities = (visit) =>

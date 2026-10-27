@@ -285,7 +285,7 @@ one-shot work has no identity and takes no visit.
 ### 3. Standalone visit reports a Git failure as a stopped visit
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: A CLI case through `product-backlog.mjs visit-consumers` with an
 unreachable remote in the visit fixture's repositories (for example extending
 `tests/support/supplier-integration-visit.test.mjs` or its revisit sibling
@@ -300,6 +300,15 @@ trace; input refusals and the integrate/Land/Trunk stop shapes stay the same.
   `visitSelectedSupplier` once equivalent. Observation 4 is the failing case.
 
 Safe stopping point: every visit path reports failures the same way.
+
+Accepted proof (2026-10-27): `supplier-integration-visit.test.mjs` drives the
+real `visit-consumers` CLI at `nope-remote` (exit 1, `stopped`/`error` with the
+fetch error and recovery, no stack lines, HEAD unchanged) and a non-full
+revision (refusal text, empty stdout); it failed with the classification
+scratch-disabled. All 15 `tests/support/supplier-*.test.mjs` and
+`supplier-visit-guidance` stay green. `visitSelectedSupplier` keeps no wrapper,
+so a `BacklogError` from caller input now throws there; every caller passes a
+supplied identity and an accepted full SHA.
 
 ### 4. Remove the generic publisher's supplier import and split the oversized test
 

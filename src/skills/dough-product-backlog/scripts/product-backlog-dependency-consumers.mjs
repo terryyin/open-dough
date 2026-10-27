@@ -133,7 +133,24 @@ export function discoverConsumers(file, supplierIdentity) {
 // holds the fetched target, never from the branch a publisher returned to.
 // A clean checkout behind the target fast-forwards; local changes or a
 // divergent history stop with nothing changed. It never resets or switches.
+// An input it refuses stays a refusal; any other failure is a stopped visit,
+// never a thrown one, since the accepted integration it visits still stands.
 export function visitCurrentConsumers(file, values) {
+  try {
+    return visitFromCurrentCheckout(file, values);
+  } catch (error) {
+    if (error instanceof BacklogError) throw error;
+    return {
+      status: "stopped",
+      reason: "error",
+      error: error.message,
+      recovery:
+        "Clear the reported failure, then run product-backlog.mjs visit-consumers with this accepted revision.",
+    };
+  }
+}
+
+function visitFromCurrentCheckout(file, values) {
   const supplierIdentity = values["supplier-identity"];
   requireField(supplierIdentity, "supplier-identity");
   const root = repositoryRoot(dirname(file));
