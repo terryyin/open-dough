@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Keep the integration receipt when a post-acceptance visit is refused](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#keep-visit-receipts-after-acceptance) — SEED-154#keep-visit-receipts-after-acceptance
