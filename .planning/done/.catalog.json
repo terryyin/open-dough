@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-155_cursor-background-work-reads-working.json",
+      "identity": "SEED-155#cursor-background-work-reads-working",
+      "completedAt": "2026-10-27T08:59:33.854Z",
+      "blob": "186e1dbf4b5d4eb268c56976609716024b915896"
+    },
+    {
       "fileName": "SEED-154_distinguish-documentation-anchors-in-consumer-discovery.json",
       "identity": "SEED-154#distinguish-documentation-anchors-in-consumer-discovery",
       "completedAt": "2026-10-27T08:25:25.075Z",
