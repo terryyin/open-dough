@@ -53,3 +53,18 @@ the checkout, branch, index, and whatever state Git left. Name the conflict or
 contention, and report publication, refresh, and cleanup as not done. Do not
 loop.
 
+## Land a selected completed supplier
+
+Only when retained context establishes a selected completed supplier, publish
+with the installed `supplier-integration.mjs` APIs instead, adding
+`supplierIdentity`: `publishSelectedSupplier` takes the
+`publishExecutionIncrement` request for a wholly unpublished suffix, and
+`integrateSelectedSupplier` takes the `publishHistoryPreservingCandidate`
+request for a published prefix. Keep the same candidate check, proof check and
+first-publication `landingContext`. Once the candidate is accepted, the result
+also holds `visit`, the current-consumer visit from the landing checkout
+against the accepted SHA; its receipt stands even when that visit stopped.
+Reconciliation may rewrite the preserved outcome commit: cite its accepted
+rewrite, not the pre-publication SHA, as supplier evidence. Publish consumer
+changes afterwards with the plain publisher and no landing context. A rerun
+of either API after acceptance pushes nothing and visits again.

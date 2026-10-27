@@ -7,6 +7,11 @@
 // shutdown retire the worktree and branch through Dough Land's retirement
 // core. Any stop preserves the worktree, branch, and both closure commits and
 // names the unfinished step.
+// For a selected completed supplier (`--supplier-identity`), an accepted final
+// closure first hands the current-consumer visit to the agent from the
+// still-present worktree and stops at `step: "visit"`, before completion,
+// refresh or retirement. Only a rerun naming the last accepted SHA of that
+// settled visit (`--visit-settled`) completes that SHA and retires.
 // A rerun continues from the first unfinished step: an accepted final closure
 // is not pushed again, and once the worktree is gone the recorded management
 // context (`--repository`) carries completion and cleanup.
@@ -15,7 +20,6 @@ import { resolve } from "node:path";
 import { completeRevision } from "../../dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import { mailboxRoot } from "../../dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import { isDirectCliEntry } from "../../dough-execute-plan/scripts/ci-direct-entry.mjs";
-import { withExplicitSession } from "../../dough-execute-plan/scripts/ci-host-bridge.mjs";
 import { refreshDefaultCheckout } from "../../dough-execute-plan/scripts/maintain-default-checkout.mjs";
 import {
   git,
@@ -27,6 +31,8 @@ import { retireWorktree } from "../../dough-land/scripts/worktree-retirement.mjs
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import { observerAccess } from "./trunk-closure-observer.mjs";
 import { settleFinalClosure } from "./trunk-closure-settlement.mjs";
+import { settledVisit } from "./trunk-closure-visit.mjs";
+import { finishArguments } from "./trunk-closure-arguments.mjs";
 
 import {
   completionRecovery,
@@ -69,6 +75,9 @@ export async function finishTrunkClosure({
   observerDirectory,
   preferredAlias,
   defaultCheckout,
+  supplierIdentity,
+  visitSettled,
+  backlogPath,
   storage = mailboxRoot,
   env = process.env,
 }) {
@@ -125,10 +134,26 @@ export async function finishTrunkClosure({
     observation,
     startReceipt: published.startReceipt,
   };
+  const visited = await settledVisit({
+    workspace,
+    inspection,
+    tracking,
+    acceptedSha,
+    supplierIdentity,
+    visitSettled,
+    targetRef,
+    remote,
+    backlogPath,
+  });
+  if (visited.stopped) {
+    const { stopped, ...detail } = visited;
+    return stop(stopped, { ...accepted, ...detail });
+  }
+  const completed = visited.finalSha ?? acceptedSha;
   let completion = null;
   if (observation?.directory && observation.state !== "unobserved") {
     try {
-      completion = await completeRevision(observation.directory, acceptedSha, {
+      completion = await completeRevision(observation.directory, completed, {
         root,
       });
     } catch (error) {
@@ -155,63 +180,23 @@ export async function finishTrunkClosure({
     targetRef,
     identity,
     createdForWork,
-    contained: [beforeCleanup, acceptedSha],
+    contained: [...new Set([beforeCleanup, acceptedSha, completed])],
   });
   return {
     ok: cleanup.removed === true,
     step: cleanup.removed === true ? "done" : "retire",
     ...accepted,
+    ...(visited.finalSha && { visitSettled: visited.finalSha }),
     completion,
     refresh,
     cleanup,
   };
 }
 
-const required = [
-  "workspace",
-  "branch",
-  "beforeCleanup",
-  "final",
-  "previouslyPublishedBase",
-  "targetRef",
-  "repo",
-  "host",
-];
-const usage =
-  "usage: trunk-closure.mjs finish --workspace PATH --branch NAME --before-cleanup SHA --final SHA --previously-published-base SHA --target-ref REF --repo OWNER/REPO --host cursor|claude|codex [--remote NAME] [--repository PATH] [--identity WORK] [--created-for-work] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--preferred-alias .agents|.claude] [--default-checkout PATH]";
-
-function argumentsOf(argv) {
-  if (argv[0] !== "finish") {
-    throw new Error(usage);
-  }
-  const result = {};
-  for (let index = 1; index < argv.length; index += 1) {
-    const flag = argv[index];
-    if (flag === "--created-for-work") {
-      result.createdForWork = true;
-      continue;
-    }
-    if (!flag.startsWith("--") || index + 1 >= argv.length) {
-      throw new Error(`invalid argument ${flag}\n${usage}`);
-    }
-    const key = flag
-      .slice(2)
-      .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
-    result[key] = argv[++index];
-  }
-  for (const field of required) {
-    if (!result[field]) {
-      throw new Error(`missing ${field}\n${usage}`);
-    }
-  }
-  targetBranchName(result.targetRef);
-  return withExplicitSession(result);
-}
-
 if (isDirectCliEntry(import.meta.url, process.argv[1])) {
   let args;
   try {
-    args = argumentsOf(process.argv.slice(2));
+    args = finishArguments(process.argv.slice(2));
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 2;

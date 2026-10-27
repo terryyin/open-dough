@@ -139,11 +139,11 @@ cannot be resolved, leave the material intact, report the gap, and do not claim
 closure. In Trunk Mode, publish that commit through [wrap-up closure publication](../dough-execute-plan/references/wrap-up-closure-publication.md) before deleting spent history.
 
 Before deletion, follow the shared [supplier dependency procedure](../dough-product-backlog/references/supplier-dependencies.md)
-to retain recoverable completion evidence. In Trunk
-Mode, discover, resolve and publish consumer changes after accepted before-cleanup publication
-and before `finish` can retire the workspace. In Story Branch Mode, the
-[current-consumer visit](references/story-branch-integration.md) follows accepted
-integration and precedes final completion and retirement.
+to retain recoverable completion evidence. The current-consumer visit follows
+the supplier's accepted integration and precedes final completion and
+retirement: in Trunk Mode, [`finish --supplier-identity`](../dough-execute-plan/references/wrap-up-closure-publication.md#finish-trunk-mode-closure)
+hands it over once the final closure is accepted; in Story Branch Mode,
+[Story Branch integration](references/story-branch-integration.md) does.
 
 ## Delete spent history, including shared records
 

@@ -235,7 +235,7 @@ path wraps it as a stopped visit.
 ### 2. Finish Trunk Mode and selected-supplier landing after the current visit
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Installed Trunk closure CLI and selected-supplier landing journeys using
 the same visit operation, plus existing closure owner/completion/retirement cases.
 
@@ -262,6 +262,18 @@ retirement. Generic landing and unfinished increments keep their existing meanin
 - Complete the representative behavior review across both paths and their
   linked references. Preserve instructions to report unresolved decisions,
   missing evidence and publication stops using existing active context.
+
+Accepted proof: `trunk-closure.mjs finish --supplier-identity` stops at
+`step: "visit"` (`trunk-closure-visit.mjs`) until `--visit-settled` names the
+last accepted SHA, then completes that SHA and retires; selected-supplier Land
+uses `publishSelectedSupplier` or `integrateSelectedSupplier`
+(`supplier-integration.mjs`, shared `visitSelectedSupplier`). Observed by
+`tests/support/supplier-trunk-closure-visit.test.mjs`,
+`supplier-trunk-closure-visit-recovery.test.mjs` and
+`supplier-land-visit.test.mjs`, plus the trunk-closure, closure-story,
+supplier, Land and payload suites. Scratch omission of each path's visit fails
+its journey. Land reconciliation rewrites the preserved outcome commit, so its
+accepted rewrite is the supplier evidence revision.
 
 Safe stopping point: Both slices' promises are fulfilled; unresolved consumer
 conditions remain honest dispositions rather than failures silently converted
@@ -336,3 +348,18 @@ Disposition: proved by slice 1: the accepted receipt is genuinely accepted, and 
 Reported: slice 1 — "The `ahead` relation is accepted, meaning discovery also reads unpublished local commits"
 Story clause: "Establish that the checkout used for discovery and consumer writes contains the accepted supplier integration and the fetched target's current content."
 Disposition: proved by slice 1: `ahead` is accepted only when the fetched target is an ancestor of HEAD, so the checkout contains both; test 3 asserts `relation: "ahead"` and the divergent stop.
+
+### G5. Trunk visit stop after the worktree is gone
+Reported: slice 2 — "`finish --supplier-identity` after the worktree is gone and without `--visit-settled` stops with a \"worktree absent\" recovery. This is untested."
+Story clause: "Completion reports and retains the affected work; it cannot claim complete coverage from the earlier successful scan."
+Disposition: proved by slice 2: `tests/support/supplier-trunk-closure-visit-recovery.test.mjs` "finish for a selected supplier whose worktree is gone before the visit settled…" observes `step: "visit"`, the absent-worktree reason and unfinished-visit recovery, no push, no completion and no retirement.
+
+### G6. Settled consumer SHA whose observer ended
+Reported: slice 2 — "A settled SHA whose only coverage is an *ended* observer is not specially handled; the existing `step: \"observation\"` path applies."
+Story clause: "Finish the current-consumer visit and publish its owned resolutions before successful wrap-up/resource retirement"
+Disposition: proved by slice 2: `supplier-trunk-closure-visit-recovery.test.mjs` "a settled consumer publication whose observer ended stops at observation until deliver establishes this coordinator's own…" observes the observation stop with resources kept, then the documented `deliver` recovery and a rerun completing the consumer SHA before retirement.
+
+### G7. Land's published-prefix supplier form
+Reported: slice 2 — "The `integrateSelectedSupplier` API with Land's `onFetchedTarget` callback is not separately tested (the CLI path is covered by slice 1)."
+Story clause: "keep supplier-resolution behavior coherent with Trunk Mode and selected-supplier landing"
+Disposition: proved by slice 2: `integrateSelectedSupplier` passes its whole request, including `onFetchedTarget`, unchanged to `publishHistoryPreservingCandidate` and then calls the same `visitSelectedSupplier`; slice 1's `supplier-integration-visit.test.mjs` journey covers that function, and the unchanged callback keeps its existing Land suites (`queued-closure-check`, `dough-land.test.mjs`), rerun in slice 2.

@@ -45,8 +45,10 @@ assert_installed_publication_modules() {
       "dough-land/scripts/worktree-retirement.mjs",
       "dough-land/scripts/queued-closure-check.mjs",
       "dough-story-refinement/scripts/preparation-assignment.mjs",
+      "dough-story-wrap-up/scripts/trunk-closure-arguments.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-observer.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-settlement.mjs",
+      "dough-story-wrap-up/scripts/trunk-closure-visit.mjs",
       "dough-story-wrap-up/scripts/trunk-closure.mjs",
     ];
     for (const modulePath of modules) {

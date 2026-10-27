@@ -34,9 +34,9 @@ integration. A scan of the supplier branch before integration can help preserve
 context but never establishes which consumers exist. An accepted publication
 receipt does not show that the checkout advanced: the publisher may have
 returned to the supplier branch. Visit from the owned execution checkout, never
-from an optional default checkout. Where the caller's integration command offers
-the selected supplier's visit, use the `visit` it prints with its receipt.
-Otherwise, and for every repeated visit, run from the owned checkout:
+from an optional default checkout. Where the caller's publication command or
+API returns the selected supplier's `visit` with its accepted receipt, use that
+visit. Otherwise, and for every repeated visit, run from the owned checkout:
 
 ```sh
 node <installed>/dough-product-backlog/scripts/product-backlog.mjs visit-consumers --file <backlog> --supplier-identity <supplier identity> --accepted-revision <accepted supplier integration SHA> --remote <authorized remote> --target <integration branch>

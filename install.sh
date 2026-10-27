@@ -249,8 +249,10 @@ managed_files=(
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
   dough-story-wrap-up/references/story-branch-integration.md
+  dough-story-wrap-up/scripts/trunk-closure-arguments.mjs
   dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
+  dough-story-wrap-up/scripts/trunk-closure-visit.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs dough-story-wrap-up/scripts/trunk-closure-completion.mjs
 )
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"

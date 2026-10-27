@@ -3,7 +3,6 @@
 // and a context that names none (a session with no story) is retained and
 // delivered by its launch reference alone.
 import assert from "node:assert/strict";
-import { createServer } from "node:http";
 import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -14,10 +13,14 @@ import {
   reportLanding,
   retainLandingComparison,
 } from "./dashboard-landing.mjs";
+import {
+  landingContextFile,
+  landingReceiver,
+  landingReference as reference,
+} from "./dashboard-landing-test-fixtures.mjs";
 
 const base = "a".repeat(40);
 const revision = "b".repeat(40);
-const reference = "6f0e3c0e-6a0c-4b54-9d0b-0d3a3f0f4c11";
 const publication = { remote: "origin", targetRef: "refs/heads/main" };
 const accepted = {
   base,
@@ -26,59 +29,13 @@ const accepted = {
   target: "refs/heads/main",
 };
 
-// A receiver that keeps each request and answers its comparison as received.
-async function receiver(t) {
-  const requests = [];
-  const server = createServer((req, res) => {
-    let body = "";
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
-    req.on("end", () => {
-      const report = JSON.parse(body);
-      requests.push({ url: req.url, report });
-      res.setHeader("Content-Type", "application/json");
-      res.end(
-        JSON.stringify({
-          ...report,
-          receipt: "receipt-1",
-          state: req.url.endsWith("/prepare") ? "prepared" : "recorded",
-        }),
-      );
-    });
-  });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  t.after(() => server.close());
-  return { origin: `http://127.0.0.1:${server.address().port}`, requests };
-}
-
-// The context file the dashboard prepares for a launch, in its own directory.
-async function contextFile(t, origin, identity) {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "landing-context-"));
-  t.after(() => rm(directory, { recursive: true, force: true }));
-  const file = path.join(directory, "landing-context.json");
-  await writeFile(
-    file,
-    JSON.stringify({
-      origin,
-      source: "open-dough",
-      host: "claude",
-      reference,
-      ...(identity === undefined ? {} : { identity }),
-      remote: "origin",
-      target: "refs/heads/main",
-    }),
-  );
-  return file;
-}
-
 test("this installation says it takes a context that names no story", () => {
   assert.equal(acceptsLandingWithoutIdentity, true);
 });
 
 test("a context naming no story is retained before the push and recorded after acceptance by its launch reference alone", async (t) => {
-  const { origin, requests } = await receiver(t);
-  const file = await contextFile(t, origin);
+  const { origin, requests } = await landingReceiver(t);
+  const file = await landingContextFile(t, origin);
 
   const pending = await retainLandingComparison(
     file,
@@ -116,8 +73,8 @@ test("a context naming no story is retained before the push and recorded after a
 });
 
 test("a context naming a story still carries its identity, and a comparison trunk did not accept is not recorded", async (t) => {
-  const { origin, requests } = await receiver(t);
-  const file = await contextFile(t, origin, "SEED-1#story");
+  const { origin, requests } = await landingReceiver(t);
+  const file = await landingContextFile(t, origin, "SEED-1#story");
   await retainLandingComparison(
     file,
     { candidate: revision, suffixBase: base },
@@ -139,14 +96,14 @@ test("a context naming a story still carries its identity, and a comparison trun
 });
 
 test("a context still needs its launch, its target, and a nonblank identity when it names one", async (t) => {
-  const { origin, requests } = await receiver(t);
+  const { origin, requests } = await landingReceiver(t);
   const pair = { candidate: revision, suffixBase: base };
-  const blank = await contextFile(t, origin, "");
+  const blank = await landingContextFile(t, origin, "");
   await assert.rejects(
     retainLandingComparison(blank, pair, publication),
     /Missing landing identity/,
   );
-  const file = await contextFile(t, origin);
+  const file = await landingContextFile(t, origin);
   const context = JSON.parse(await readFile(file, "utf8"));
   delete context.reference;
   await writeFile(file, JSON.stringify(context));
@@ -155,7 +112,7 @@ test("a context still needs its launch, its target, and a nonblank identity when
     /Missing landing reference/,
   );
   await assert.rejects(
-    retainLandingComparison(await contextFile(t, origin), pair, {
+    retainLandingComparison(await landingContextFile(t, origin), pair, {
       ...publication,
       targetRef: "refs/heads/other",
     }),
@@ -165,7 +122,7 @@ test("a context still needs its launch, its target, and a nonblank identity when
 });
 
 test("the reporting command's landing operation takes a comparison with no identity", async (t) => {
-  const { origin, requests } = await receiver(t);
+  const { origin, requests } = await landingReceiver(t);
   // Retained away from the scripts other tests copy while this one runs.
   const retained = await mkdtemp(path.join(os.tmpdir(), "landing-retained-"));
   t.after(() => rm(retained, { recursive: true, force: true }));
