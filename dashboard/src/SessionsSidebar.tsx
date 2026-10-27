@@ -11,8 +11,9 @@ import { sessionKey } from "./sessionReference.ts";
 // unavailable storage starts closed. Toggling changes no story/session facts.
 // Running Cursor sessions starts collapsed per load, reports live runner and
 // session states, opens selected terminals, and explains unavailable runners.
-// Expanded, its content and session list scroll separately and share room
-// equally until resized (runningCursorHeight); collapsing restores list room.
+// Expanded, its content and the open session list scroll separately; one room
+// owner (runningCursorHeight) sizes every expanded list against shared floors
+// and preferred heights, equally until resized. Collapsing restores list room.
 // Expansion and split survive project/view/close changes; reload keeps split.
 
 import {

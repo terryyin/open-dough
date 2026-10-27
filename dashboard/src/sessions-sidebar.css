@@ -4,13 +4,13 @@
    sidebar | page | panel (./side-panel.css). On a narrow window, where the
    panel stacks above the page, it overlays the page from the left, below the
    pinned banner so the Sessions button stays in reach.
-   Inside, the session list fills the room the heading and the Running Cursor
-   sessions header leave, scrolling on its own; expanded, that section's
-   content takes the height the developer chose with the divider along its top
-   (./runningCursorHeight.ts), at first an equal share of the room, scrolling
-   on its own too. Where the window is too short for each to keep room to read
-   and choose an entry, the sidebar itself scrolls, so neither list nor the
-   header is out of reach, and the divider offers no range.
+   Inside, visible lists fill the room the heading and every expanded section
+   header leave, each scrolling on its own; one room owner
+   (./runningCursorHeight.ts) sizes preferred sections to the height chosen
+   with the divider along each section's top, at first an equal share, while
+   unpreferred lists take what remains. Where the window is too short for each
+   list to keep room to read and choose an entry, the sidebar itself scrolls,
+   so no list or header is out of reach, and dividers offer no range.
    Its entries are ./sessions-sidebar-session-entry.css's. */
 
 .page-with-sessions-sidebar {
@@ -19,8 +19,9 @@
 }
 
 .sessions-sidebar {
-  /* The room each list keeps to read and choose an entry, in rem, which the
-     divider between them keeps too (./runningCursorHeight.ts). */
+  /* The room each list keeps to read and choose an entry, in rem, which every
+     divider between lists keeps too (./runningCursorHeight.ts). Header rows
+     sit on even tracks; list rows on odd tracks between them. */
   --sessions-sidebar-list-floor: 8rem;
   position: sticky;
   top: 0;
@@ -125,7 +126,8 @@
   padding-top: var(--space-1);
 }
 
-.running-cursor-toggle {
+/* Section toggles (Running Cursor today; further sections reuse this class). */
+.sessions-sidebar-section-header {
   padding: 0;
   border: 0;
   background: transparent;

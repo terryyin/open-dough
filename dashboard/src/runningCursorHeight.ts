@@ -1,24 +1,28 @@
 // How the expanded Sessions sidebar (`./SessionsSidebar.tsx`) shares its room
-// between the session list and Running Cursor sessions' content. The developer
-// keeps one preferred height for the Cursor content, chosen by dragging the
-// divider above that section or with its Up and Down keys
-// (`./ResizeDivider.tsx`): collapsing and expanding the section, closing and
-// reopening the sidebar, and project and view changes keep it, and it is kept
-// in this browser's disposable storage, so expanding the section after a
-// reload recovers it. Until one is chosen, or where the browser keeps none or
-// an unusable one, the two share the room equally. The room is
-// what the sidebar's height leaves once its heading and the section's header
-// take theirs, as shown, so a banner or header that wraps leaves less. Each
-// keeps a usable floor: room to read and choose an entry, with the runner's
-// status. Where the room cannot hold both floors, the divider offers no range and
-// the sidebar's own scrolling keeps both in reach (`./sessions-sidebar.css`).
-// A limit the room sets never changes the preference, so more room recovers
-// it.
+// among its visible lists. One calculation owns every expanded list, section
+// header and usable floor: preferred-capable sections keep a disposable height
+// each, chosen by dragging the divider above that section or with its Up and
+// Down keys (`./ResizeDivider.tsx`); collapsing and expanding a section,
+// closing and reopening the sidebar, and project and view changes keep those
+// preferences, and each is kept in this browser's disposable storage, so
+// expanding after a reload recovers it. Unpreferred areas — today the open
+// session list — share what remains. Until a preference is chosen, or where
+// the browser keeps none or an unusable one, the visible lists share the room
+// equally. The room is what the sidebar's height leaves once its heading and
+// every expanded section's header take theirs, as shown, so a banner or header
+// that wraps leaves less. Each list keeps a usable floor: room to read and
+// choose an entry, with a runner's status where that section has one. Where
+// the room cannot hold every floor, dividers offer no range and the sidebar's
+// own scrolling keeps every list and header in reach (`./sessions-sidebar.css`).
+// A limit the room sets never changes a preference, so more room recovers it.
+// Callers still size one preferred section here (Running Cursor sessions);
+// further preferred sections join the same calculation without a second
+// independent allocator.
 
 import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
 import { flushSync } from "react-dom";
 import type { DividerRange } from "./ResizeDivider.tsx";
-import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
+import { sharesOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // Where this browser keeps the preferred height, in CSS px.
 const preferredHeightKey = "open-dough.sessionsSidebar.runningCursorHeight";
@@ -37,11 +41,18 @@ type Room = {
   readonly rem: number;
 };
 
-// The room the two areas share in the sidebar: its height inside its padding,
-// less the rows of its heading and the section's header (its first and third
-// rows). Measured as soon as the section expands or the sidebar opens, before
-// that is painted, and again whenever the sidebar, its heading or the header
-// changes size.
+// Header rows sit on even grid tracks (heading, then each expanded section's
+// header); list rows sit on the odd tracks between them.
+const headerRowHeight = (rows: readonly number[]) =>
+  rows.reduce(
+    (total, height, index) => (index % 2 === 0 ? total + (height || 0) : total),
+    0,
+  );
+
+// The room the visible lists share in the sidebar: its height inside its
+// padding, less every header row. Measured as soon as a preferred section
+// expands or the sidebar opens, before that is painted, and again whenever
+// the sidebar, its heading or a section header changes size.
 function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
   const [room, setRoom] = useState<Room | undefined>();
   useLayoutEffect(() => {
@@ -58,8 +69,7 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
           element.clientHeight -
           parseFloat(style.paddingTop) -
           parseFloat(style.paddingBottom) -
-          (rows[0] ?? 0) -
-          (rows[2] ?? 0),
+          headerRowHeight(rows),
         floor: parseFloat(style.getPropertyValue(areaFloor)) * rem,
         rem,
       });
@@ -71,7 +81,7 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
     for (const observed of [
       element,
       element.querySelector("h2"),
-      element.querySelector(".running-cursor-toggle"),
+      ...element.querySelectorAll(".sessions-sidebar-section-header"),
     ])
       if (observed !== null) observer.observe(observed);
     return () => {
@@ -81,8 +91,9 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
   return measuring ? room : undefined;
 }
 
-// The Cursor content's height while the section is expanded, and the divider's
-// range; both undefined while the room cannot hold both floors.
+// Running Cursor content's height while that section is expanded, and the
+// divider's range; both undefined while the room cannot hold every floor. The
+// open session list remains the unpreferred remainder of the same calculation.
 export function useRunningCursorHeight(
   sidebar: RefObject<HTMLElement | null>,
   measuring: boolean,
@@ -95,11 +106,12 @@ export function useRunningCursorHeight(
   const shown =
     room === undefined
       ? undefined
-      : shareOfRoom(room.height, preferred, {
-          floor: room.floor,
-          otherFloor: room.floor,
-          step: keyStep * room.rem,
-        });
+      : sharesOfRoom(
+          room.height,
+          [{ floor: room.floor, preferred }],
+          [room.floor],
+          keyStep * room.rem,
+        )?.[0];
   const minimum = shown?.minimum;
   const maximum = shown?.maximum;
   // The developer's choice, within the bounds the room sets now.

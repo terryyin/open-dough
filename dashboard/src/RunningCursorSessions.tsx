@@ -97,7 +97,7 @@ export function RunningCursorSessions({
       {open && divider}
       <button
         type="button"
-        className="running-cursor-toggle"
+        className="sessions-sidebar-section-header running-cursor-toggle"
         aria-expanded={open}
         aria-controls={contentId}
         onClick={() => {

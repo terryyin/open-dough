@@ -107,7 +107,7 @@ them. No paid, credentialed or developer-only probe is required.
 
 ### 1. One owner for the sidebar's available room
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing Running Cursor resize, persistence and short-window journeys
 remain green through the real rendered page.
 
@@ -123,6 +123,22 @@ resize family, including lasting, reload and former-height cases. Inspect and
 retain their existing promises when adapting helpers; never revise expected
 behavior merely to accommodate new structure. Reconcile any other consumers
 the execution consumer trace reaches.
+
+Accepted proof (implementation + reuse after refactor):
+```sh
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/cursor-sessions-sidebar-resize --workers=1 --reporter=list
+```
+Observations: `expectSplit`, divider `aria-valuemin`/`max`/`now`, floors at
+bounds, disabled divider and outer-sidebar scroll when floors cannot fit,
+independent list scroll, preferred split restored. Additional consumers run:
+`cursor-sessions-sidebar-size-kept`, `cursor-sessions-sidebar-size-unkept`,
+`side-panel-width.spec.ts` (all pass). Consumer-trace base
+`e236cb72f891bf63ebbf764e606b0feef52dee8f`.
+
+Learning for remaining slices: join a third preferred-capable list through the
+same `sharesOfRoom` call and even header / odd list CSS tracks with
+`sessions-sidebar-section-header`; do not add a second two-list allocator.
+File/hook names still say Running Cursor until slice 2 widens the API.
 
 ### 2. Find and open the newest completed sessions
 Type: Behavior
