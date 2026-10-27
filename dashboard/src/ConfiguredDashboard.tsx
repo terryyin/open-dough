@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { useProjects } from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
-import { DashboardColumns } from "./DashboardColumns.tsx";
+import { Board } from "./Board.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { PageFrame } from "./PageFrame.tsx";
@@ -138,7 +138,7 @@ export function ConfiguredDashboard({
             </div>
             {work && (
               <main hidden={showsRoster}>
-                <DashboardColumns
+                <Board
                   sourceId={source.id}
                   work={work}
                   launches={launches}

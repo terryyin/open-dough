@@ -14,10 +14,10 @@ import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { expectRoute } from "./agentRosterRecords.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
@@ -45,13 +45,13 @@ const keyboardInside = (page: Page, name: string) =>
     .evaluate((element) => element.contains(document.activeElement));
 
 test.describe("opening a Sessions sidebar entry", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("goes to its story and its session across projects, moves the marks, and gives the keyboard back to the entry once the terminal closes", async ({
@@ -61,7 +61,7 @@ test.describe("opening a Sessions sidebar entry", () => {
     const { card, sessions, holdPygardonStories } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button, entries, entry } = sidebarParts(page);
     const { roster } = rosterParts(page);
@@ -180,7 +180,7 @@ test.describe("opening a Sessions sidebar entry", () => {
       await expect(button).toBeFocused();
     });
 
-    // Going to sessions changed no story, stage, or position, and marked no
+    // Going to sessions changed no story, column, or position, and marked no
     // session done.
     await expectMembership(page, openDoughStories);
     await button.click();

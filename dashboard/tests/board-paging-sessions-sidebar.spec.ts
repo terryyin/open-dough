@@ -4,16 +4,16 @@
 // choice shows a local Taken entry hidden the same way
 // is ./session-sidebar-navigation-cases.spec.ts and
 // ./agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
-// ./dashboard-columns-paging.spec.ts.
+// ./board-paging.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import {
@@ -21,24 +21,20 @@ import {
   openNavigationJourney,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
-import {
-  expectEndsWithShown,
-  expectView,
-  showColumn,
-} from "./dashboardColumnsPage.ts";
+import { expectEndsWithShown, expectView, showColumn } from "./boardPage.ts";
 import { box } from "./pageLayout.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
 test.describe("a Sessions sidebar choice in a hidden column", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("a session whose story card is hidden shows its column and brings the card into view", async ({
@@ -48,7 +44,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
     const { card } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     await expectMembership(page, {
       taken: [],

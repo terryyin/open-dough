@@ -16,10 +16,10 @@ import {
 } from "./sessionSidebarPage.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -30,13 +30,13 @@ const longWork = {
 };
 
 test.describe("a Sessions sidebar entry", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("is one line of title and elapsed time, however long the title, with the rest in its tooltip", async ({
@@ -48,7 +48,7 @@ test.describe("a Sessions sidebar entry", () => {
     const { sessionId } = await launched(dashboard, "doughnut", shortWork);
     await launched(dashboard, "doughnut", longWork);
     dashboard.claudeSessionBecomes(sessionId, "blocked", "input needed");
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { button, entries, entry } = sidebarParts(page);
     await settled();
     await button.click();

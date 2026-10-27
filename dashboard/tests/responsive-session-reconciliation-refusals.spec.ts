@@ -95,7 +95,7 @@ test("a start refused because another writer removed the story publishes nothing
   );
 
   await expect(
-    parts(page).stages.getByRole("article", { name: "Story A" }),
+    parts(page).board.getByRole("article", { name: "Story A" }),
   ).toHaveCount(0, { timeout: 30_000 });
   await expectSettledPage(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);

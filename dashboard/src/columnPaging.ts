@@ -1,6 +1,6 @@
-// Which of the dashboard columns show (./DashboardColumns.tsx). The page's
+// Which of the Board's Columns show (./Board.tsx). The page's
 // own width decides how many whole columns fit: the stylesheet says so as
-// `--columns-shown` on the row's frame (./dashboard-columns.css), from the
+// `--columns-shown` on the row's frame (./board.css), from the
 // `page` container's width alone, and this reads it whenever the frame
 // resizes. The position is one fact, the leftmost shown column the developer
 // chose; the width only limits it, so the row never rests past the last
@@ -8,7 +8,7 @@
 // A hidden column also shows when keyboard focus lands in it, or when a part
 // of it is to be brought into view (`showColumnHolding`, ./workFocus.ts
 // `keepInView`): the view moves the fewest columns that show the column
-// holding that element in the page (`dashboardColumnMark`), so a dialog
+// holding that element in the page (`columnMark`), so a dialog
 // opened from a card belongs to the card's column wherever the window shows
 // it. Which columns are hidden follows from the same facts (`hidden`), so that
 // hidden columns add nothing to the page's length; focus that showed a column
@@ -69,11 +69,11 @@ function hiddenFrom(views: readonly number[], shown: number, columns: number) {
 
 // The position this browser keeps, if a usable one is kept, and otherwise the
 // one chosen on this page, even where the browser keeps nothing.
-const positionKey = "open-dough.dashboardColumns.position";
+const positionKey = "open-dough.board.position";
 let chosenOnPage = 0;
 
 function readPosition(): number {
-  const kept = readKept(positionKey);
+  const kept = readKept(positionKey, "open-dough.dashboardColumns.position");
   if (kept === undefined) return chosenOnPage;
   const position = Number(kept);
   return Number.isInteger(position) && position > 0 ? position : 0;
@@ -84,9 +84,9 @@ function keepPosition(position: number) {
   keep(positionKey, String(position));
 }
 
-// Asked of the dashboard columns by a part of the page about to be brought
+// Asked of the Board's Columns by a part of the page about to be brought
 // into view, which bubbles to the row that holds it; elsewhere nothing hears.
-const showHolding = "dashboard-columns-show";
+const showHolding = "board-show";
 
 // Shows the dashboard column that holds `element` before it is brought into
 // view, as focus landing in it would.
@@ -94,10 +94,10 @@ export function showColumnHolding(element: Element): void {
   element.dispatchEvent(new Event(showHolding, { bubbles: true }));
 }
 
-// Marks a region of the page as one of the dashboard columns, set where each
+// Marks a region of the page as one of the Board's Columns, set where each
 // column renders.
-const columnAttribute = "data-dashboard-column";
-export const dashboardColumnMark = { [columnAttribute]: "" } as const;
+const columnAttribute = "data-column";
+export const columnMark = { [columnAttribute]: "" } as const;
 
 // Which of the row's columns, counted from 0 in the row's order, holds
 // `element` in the page, wherever it shows on the screen; none when no column

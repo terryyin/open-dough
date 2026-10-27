@@ -18,7 +18,7 @@ import {
   launchGroup,
 } from "./cardControls.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 
 // At 420px and at the 640x450 proxy for 200% browser zoom, a card's scan view
 // reads whole beside its badges, and the keyboard goes from Inspect story to
@@ -70,7 +70,7 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(readyCard).not.toContainText(plannedReady.identity);
     await expect(readyCard.getByRole("link")).toHaveCount(0);
 
-    // From the card, shown by its column's edge control, the keyboard
+    // From the card, shown by its column's column paging control, the keyboard
     // reaches its Inspect story.
     await showColumn(page, "Taken");
     const inspect = readyCard.getByRole("button", { name: "Inspect story" });

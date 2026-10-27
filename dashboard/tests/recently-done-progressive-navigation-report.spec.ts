@@ -11,7 +11,7 @@
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import { parts, standaloneSessionName } from "./dashboardPage.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
 import { recordsAsked } from "./recentlyDoneProgressivePage.ts";
 import {

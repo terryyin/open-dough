@@ -1,7 +1,7 @@
 // The selected project's agent roster: every agent of the collection it
 // selected, and the assignments its published profiles record at the shown
 // revision. It is
-// one more view of the snapshot the stages show, never a separate read, and an
+// one more view of the snapshot the columns show, never a separate read, and an
 // assignment says what a profile records, never that its agent is working now.
 // Back returns to the stories the roster was opened from.
 

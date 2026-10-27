@@ -7,7 +7,7 @@ import type { useObservationAttempt } from "./observationAttempt.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
-  focusStages,
+  focusBoard,
   returnFocusTo,
   workHolding,
   type FocusedWork,
@@ -119,13 +119,13 @@ export function useDashboardNavigation({
     closed.current = undefined;
     // Work identities never carry focus into another project.
     if (opener === undefined || opener.sourceId !== source.id) {
-      focusStages();
+      focusBoard();
     } else if (opener.element.isConnected) {
       opener.element.focus();
     } else if (opener.work !== undefined) {
       returnFocusTo({ ...opener.work, link: undefined });
     } else {
-      focusStages();
+      focusBoard();
     }
   }, [route.view, source.id, work]);
 

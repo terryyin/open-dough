@@ -4,23 +4,23 @@ import { test, expect, stored } from "./support/codexLaunch.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { codexAttaches } from "./support/codexTerminal.ts";
 import { report, save, retained } from "./support/retainedReport.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("lookup error and result refusal stay uncertain; retry uses the same identity and deliberate done survives polling and concurrent update", async ({
   page,
@@ -30,7 +30,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   if (native === undefined) throw new Error("Missing protocol fixture");
   const { workspace } = await retained(dashboard, native, true);
   const since = native.calls.length;
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("availability could not be established");

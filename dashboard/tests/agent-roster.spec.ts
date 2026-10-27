@@ -192,7 +192,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
 
   await test.step("direct roster load selects project and focuses heading, reload keeps it, and Back returns to project stories", async () => {
     await openUntilRead(page, "/?project=doughnut&view=roster");
-    const { project, stages } = parts(page);
+    const { project, board } = parts(page);
     const { roster, back } = rosterParts(page);
 
     await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
@@ -221,7 +221,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
     await back.click();
     expectRoute(page, { project: "doughnut", view: null });
     await expectMembership(page, { taken: [doughnutStory], backlog: [] });
-    await expect(stages).toBeFocused();
+    await expect(board).toBeFocused();
   });
 
   await test.step("unknown project route resolves to default project stories and normalizes URL", async () => {

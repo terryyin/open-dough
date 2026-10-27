@@ -1,15 +1,15 @@
 // A page too narrow for Backlog, Taken, and Recently done side by side
 // shows the whole columns that fit, two from 48rem and one below, filling
-// the page from Backlog; an edge control on a side with a hidden column names
+// the page from Backlog; a column paging control on a side with a hidden column names
 // it and how many entries it holds, stays in sight down a long page, and
 // moves the view one column, briefly sliding unless the developer asked for
 // reduced motion, and the chosen position comes back where the width allows
 // it; focus landing in a hidden column shows it. That the side panel pages
 // the columns as a window would is
-// ./dashboard-columns-paging-side-panel.spec.ts; that three columns show side
+// ./board-paging-side-panel.spec.ts; that three columns show side
 // by side in a wide page is ./accessible-overview.spec.ts, and that a Sessions
 // sidebar choice shows its hidden column is
-// ./dashboard-columns-paging-sessions-sidebar.spec.ts.
+// ./board-paging-sessions-sidebar.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -24,8 +24,8 @@ import { box } from "./pageLayout.ts";
 import {
   bottomOf,
   columns,
-  edgeControl,
-  edgeRoom,
+  columnPagingControl,
+  pagingRoom,
   expectBelowBanner,
   expectCardsKeepTheirShare,
   expectEndsWithShown,
@@ -36,7 +36,7 @@ import {
   showColumn,
   slidesOf,
   wheelTo,
-} from "./dashboardColumnsPage.ts";
+} from "./boardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
 async function openLargeBacklog(page: Page) {
@@ -61,7 +61,7 @@ test.describe("in a narrow window", () => {
     });
 
     await test.step("one move shows Taken, with Backlog on the left and Recently done on the right", async () => {
-      await edgeControl(page, "Taken").click();
+      await columnPagingControl(page, "Taken").click();
       await expectView(
         page,
         ["Taken"],
@@ -70,7 +70,7 @@ test.describe("in a narrow window", () => {
     });
 
     await test.step("Recently done, the last column, leaves only the left control", async () => {
-      await edgeControl(page, "Recently done").click();
+      await columnPagingControl(page, "Recently done").click();
       await expectView(page, ["Recently done"], ["Taken 1 entry"]);
     });
 
@@ -95,7 +95,7 @@ test.describe("in a narrow window", () => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
     await openLargeBacklog(page);
     await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-    const right = page.locator(".column-edge-right");
+    const right = page.locator(".column-paging-control-right");
 
     await right.focus();
     await page.keyboard.press("Enter");
@@ -105,14 +105,14 @@ test.describe("in a narrow window", () => {
       [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
     );
     // The control pressed is still there and keeps the keyboard.
-    await expect(edgeControl(page, "Recently done")).toBeFocused();
+    await expect(columnPagingControl(page, "Recently done")).toBeFocused();
 
     await page.keyboard.press("Enter");
     await expectView(page, ["Recently done"], ["Taken 1 entry"]);
-    await expect(edgeControl(page, "Taken")).toBeFocused();
+    await expect(columnPagingControl(page, "Taken")).toBeFocused();
   });
 
-  test("far down a long Backlog the edge control stays in sight and moves the view, and the shown stage heading stays stuck below the banner", async ({
+  test("far down a long Backlog the column paging control stays in sight and moves the view, and the shown column heading stays stuck below the banner", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 700 });
@@ -134,7 +134,7 @@ test.describe("in a narrow window", () => {
       expect(stuck).toBeLessThan(bannerBox.y + bannerBox.height + rem);
       await wheelTo(page, 1500);
       expect((await box(heading)).y).toBe(stuck);
-      await expect(edgeControl(page, "Recently done")).toBeInViewport({
+      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
         ratio: 1,
       });
     });
@@ -152,7 +152,9 @@ test.describe("in a narrow window", () => {
       const clamped = await scrollYOf(page);
       expect(clamped).toBe(await bottomOf(page));
       expect(clamped).toBeLessThan(1500);
-      await expect(edgeControl(page, "Backlog")).toBeInViewport({ ratio: 1 });
+      await expect(columnPagingControl(page, "Backlog")).toBeInViewport({
+        ratio: 1,
+      });
       const takenHeading = parts(page).taken.getByRole("heading", {
         level: 2,
       });
@@ -166,7 +168,7 @@ test.describe("in a narrow window", () => {
       await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
       await wheelTo(page, 1500);
       expect((await box(heading)).y).toBe(stuck);
-      await expect(edgeControl(page, "Recently done")).toBeInViewport({
+      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
         ratio: 1,
       });
     });
@@ -183,11 +185,11 @@ test.describe("in a narrow window", () => {
     await recordSlides(page);
     const pageColumn = await box(page.locator(".page-column"));
 
-    await edgeControl(page, "Taken").click();
-    // Taken is in place at once, the page column's edge room from its side.
+    await columnPagingControl(page, "Taken").click();
+    // Taken is in place at once, the page column's paging-control room from its side.
     const at = await box(taken);
     expect(at.x).toBeGreaterThanOrEqual(pageColumn.x);
-    expect(at.x).toBeLessThanOrEqual(pageColumn.x + edgeRoom + 0.5);
+    expect(at.x).toBeLessThanOrEqual(pageColumn.x + pagingRoom + 0.5);
     expect(await slidesOf(page)).toBe(0);
     await expectView(
       page,

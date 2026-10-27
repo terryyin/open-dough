@@ -14,7 +14,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { rem, showColumn } from "./dashboardColumnsPage.ts";
+import { rem, showColumn } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import {

@@ -7,7 +7,7 @@
 import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { git, retireLaunchWorkspace } from "./support/launchLanding.ts";
 import { readReview, refreshReview } from "./support/launchLandingReview.ts";
 import { reviewFeedback } from "./support/reviewContextLine.ts";

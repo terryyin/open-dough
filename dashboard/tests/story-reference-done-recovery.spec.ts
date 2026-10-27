@@ -186,7 +186,7 @@ for (const observation of ["unavailable", "failed"] as const) {
       await passTimeUntilChecked(page);
       await expect(parts(page).source).toContainText(healed);
     }
-    await expect(recent.locator(".stage-count")).toHaveText("35 entries");
+    await expect(recent.locator(".column-count")).toHaveText("35 entries");
     await expect(recent.locator(":scope > ol > li > article")).toHaveCount(10);
     await expect(
       recent.locator(`[data-done-story="${farDone.identity}"]`),

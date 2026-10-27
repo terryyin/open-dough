@@ -1,5 +1,5 @@
 // Deleting the record of the session the page's one terminal shows
-// (./agent-terminal.spec.ts), on the committed story-stages origin
+// (./agent-terminal.spec.ts), on the committed story-columns origin
 // (./launchJourney.ts): while the listing cannot be read the session is State
 // unknown and still offers Open terminal; deleting its record from its card
 // entry closes the panel, as Mark as done does (./agent-terminal-done.spec.ts),
@@ -20,23 +20,23 @@ import {
   sessionStateOf,
 } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { attachesOf } from "./sessionNavigationJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting the record of the session the terminal shows", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("confirming Delete record closes the panel, leaves no Shown in terminal mark, detaches without stopping, sends the keyboard to the card, and the session is listed again once the listing recovers", async ({
@@ -44,9 +44,9 @@ test.describe("deleting the record of the session the terminal shows", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();

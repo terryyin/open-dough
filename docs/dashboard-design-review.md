@@ -8,7 +8,7 @@ and carry the same authority and scope.
 Review the first usable experience against these examples, using actual records
 when available. These are design review criteria, not an executable slice plan:
 
-- The first story opens connected Backlog and Taken stages. A reader can
+- The first story opens connected Backlog and Taken Columns. A reader can
   understand their relationship, read each entry and follow its source links.
   Normal scrolling or reflow is enough until a real navigation need appears.
 - A published queue-to-Taken change places that one card correctly on successful

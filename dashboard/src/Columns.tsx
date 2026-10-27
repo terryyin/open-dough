@@ -8,31 +8,30 @@ import {
   type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
-import { stagesMarks } from "./workFocus.ts";
 import { revealStory } from "./pageEntries.ts";
 import { useStoryNavigation } from "./storyNavigation.tsx";
-import { dashboardColumnMark } from "./columnPaging.ts";
+import { columnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { WorkCard } from "./WorkCard.tsx";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
-type StageView = {
+type ColumnView = {
   readonly column: ColumnSummary;
   readonly entries: readonly WorkEntry[];
   readonly localSessions: readonly LaunchWithState[] | undefined;
 };
 
-// Each stage's stories, standalone sessions, and completeness feed both its
-// rendered list and the heading/edge summary. Published order stays intact.
-export function stagesOf(
+// Each column's stories, standalone sessions, and completeness feed both its
+// rendered list and the heading/paging-control summary. Published order stays intact.
+export function columnsOf(
   work: PublishedWork,
   localTaken: readonly LaunchWithState[] | undefined,
 ) {
-  const stage = (
+  const column = (
     name: string,
     entries: readonly WorkEntry[],
     localSessions: readonly LaunchWithState[] | undefined,
-  ): StageView => ({
+  ): ColumnView => ({
     column: {
       name,
       entries:
@@ -44,12 +43,12 @@ export function stagesOf(
     localSessions,
   });
   return [
-    stage("Backlog", work.backlog, []),
-    stage("Taken", work.taken, localTaken),
+    column("Backlog", work.backlog, []),
+    column("Taken", work.taken, localTaken),
   ] as const;
 }
 
-function Stage({
+function Column({
   sourceId,
   view,
   prioritized,
@@ -62,7 +61,7 @@ function Stage({
   unreadableProfiles,
 }: {
   sourceId: string;
-  view: StageView;
+  view: ColumnView;
   prioritized: boolean;
   showsSliceProgress: boolean;
   launches: MachineSessions;
@@ -77,24 +76,24 @@ function Stage({
     entries,
     localSessions,
   } = view;
-  const headingId = `stage-${name.toLowerCase()}`;
+  const headingId = `column-${name.toLowerCase()}`;
   return (
     <section
-      className="stage"
+      className="column"
       aria-labelledby={headingId}
       tabIndex={-1}
-      {...dashboardColumnMark}
+      {...columnMark}
     >
-      <header className="stage-header">
+      <header className="column-header">
         <h2 id={headingId}>{name}</h2>
-        <p className="stage-count">{entryCount(count)}</p>
+        <p className="column-count">{entryCount(count)}</p>
       </header>
       <UnreadableProfiles profiles={unreadableProfiles} />
       {localSessions === undefined && (
         <p className="quiet">Reading sessions…</p>
       )}
       {count === 0 ? (
-        <p className="quiet stage-empty">No {name} entries are recorded.</p>
+        <p className="quiet column-empty">No {name} entries are recorded.</p>
       ) : (
         <ol className="cards">
           {entries.map((entry, index) => (
@@ -123,20 +122,20 @@ function Stage({
   );
 }
 
-// The projected stages keep published story membership/order separate from
+// The projected columns keep published story membership/order separate from
 // machine-local sessions. Cards retain work identity and workFocus marks.
-export function WorkStages({
+export function Columns({
   work,
-  stages,
+  columns,
   launches,
   onOpenRoster,
 }: {
   work: PublishedWork;
-  stages: ReturnType<typeof stagesOf>;
+  columns: ReturnType<typeof columnsOf>;
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
-  const [backlog, taken] = stages;
+  const [backlog, taken] = columns;
   const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
     undefined,
   );
@@ -158,8 +157,8 @@ export function WorkStages({
   };
   return (
     <>
-      <section className="stages" aria-label="Work stages" {...stagesMarks}>
-        <Stage
+      <div className="columns">
+        <Column
           sourceId={work.source.id}
           view={backlog}
           prioritized
@@ -170,7 +169,7 @@ export function WorkStages({
           onSelect={select}
           onOpenRoster={onOpenRoster}
         />
-        <Stage
+        <Column
           sourceId={work.source.id}
           view={taken}
           prioritized={false}
@@ -182,7 +181,7 @@ export function WorkStages({
           onOpenRoster={onOpenRoster}
           unreadableProfiles={work.unreadableProfiles}
         />
-      </section>
+      </div>
     </>
   );
 }

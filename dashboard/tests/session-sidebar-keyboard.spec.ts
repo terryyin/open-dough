@@ -16,13 +16,13 @@ import {
 } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { watchCommandShortcut } from "./pageShortcutsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
@@ -53,22 +53,22 @@ const stillFocused = (page: Page) =>
   );
 
 test.describe("Command+B and the Sessions sidebar", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Command+B toggles from the page and from the terminal without moving the keyboard, and Ctrl+B reaches the session", async ({
     page,
     dashboard,
   }) => {
-    const { settled, card, launch } = await openStoryStagesJourney(
+    const { settled, card, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button } = sidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -132,9 +132,9 @@ test.describe("Command+B and the Sessions sidebar", () => {
   test("an open launch dialog or badge legend keeps Command+B, and the sidebar stays as it was", async ({
     page,
   }) => {
-    const { settled, action } = await openStoryStagesJourney(
+    const { settled, action } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button } = sidebarParts(page);
     const { preparationHelp } = parts(page);

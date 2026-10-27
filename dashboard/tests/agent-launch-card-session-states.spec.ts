@@ -27,12 +27,12 @@ import { doughnutSharedTitle } from "./doughnutProject.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -66,13 +66,13 @@ const test = base.extend<{ machine: string }>({
 const notReadyNote = "Not assessed as ready";
 
 test.describe("a card's sessions whatever Claude Code lists", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("a ready-for-review, stopped, blocked, unavailable, or unknown session stays on its card with its state beside the Start actions, through a restart, a reload, and a project switch", async ({
@@ -82,9 +82,9 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     machine,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, action, settled, launch } = await openStoryStagesJourney(
+    const { card, action, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { project } = parts(page);
     const queued = {

@@ -1,19 +1,10 @@
-// Startup status and focus stay usable by keyboard and without motion
-// (../src/launchDialogLauncher.ts, ../src/protectedFrame.ts,
-// ../src/StartupAnnouncer.tsx, ../src/agent-launch.css), against the same
-// real bare origin and installed starts as ./responsive-session-start.spec.ts.
-// A start submitted by keyboard under reduced motion hands the keyboard to
-// what says the startup -- the story's card, or Start session's progress --
-// never to its unavailable action. The card and each of its unavailable
-// actions are described by why; the status words stand apart from the
-// story's stage and selection, and the pending frame's dashed edge joins the
-// selection and "Shown in terminal" marks without replacing them. Its
-// indicator moves only while the startup progresses and the developer has
-// not asked for reduced motion. Each transition is announced politely once,
-// however many reads find it unchanged. A startup that settles after the
-// developer moved on presents its session -- in the terminal, for Start
-// session -- without taking the keyboard from their new task. Static states:
-// ./responsiveRecovery.ts (`expectStaticallyProtected`).
+// Keyboard/reduced-motion startup journeys use the real bare origin and
+// installed starts from ./responsive-session-start.spec.ts. Focus transfers to
+// the protected card or Start session progress, with unavailable actions
+// described. Status stays distinct from Column/selection; pending marks join
+// selection and Shown in terminal. Progress animates only without reduced
+// motion. Transitions announce once; settling presents the session without
+// stealing focus from a newer task. Static protection is in responsiveRecovery.ts.
 
 import { cardSessions, parts, sessionNamedBy } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
@@ -97,7 +88,7 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
     other.getByRole("button", { name: "Start execution" }),
   ).not.toHaveAccessibleDescription(/Local startup/);
 
-  // The status is the startup's own, apart from the stage and selection.
+  // The status is the startup's own, apart from the column and selection.
   const status = story.locator(".card-startup-status");
   await expect(status).toContainText(unavailable);
   await expect(status).not.toContainText(/Backlog|Taken|detail/);

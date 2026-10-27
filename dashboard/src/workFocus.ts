@@ -7,13 +7,13 @@ export { keepInView, untilOwnMove } from "./pageMovement.ts";
 // find a work's card to bring into view (`workCard`, `keepInView`).
 
 // What can hold focus is marked here and nowhere else: the card of one work
-// entry, its recorded links by role, and the stages, which receive focus when
-// the work that held it is not in the new snapshot. WorkStages spreads these
-// marks onto what it renders. A card and the stages are focusable only so
+// entry, its recorded links by role, and the Board, which receives focus when
+// the work that held it is not in the new snapshot. Board spreads these
+// marks onto what it renders. A card and the Board are focusable only so
 // that focus can be returned to them, so they stay out of the tab order.
 const workAttribute = "data-work";
 const workLinkAttribute = "data-work-link";
-const stagesAttribute = "data-work-stages";
+const boardAttribute = "data-board";
 
 export function workCardMarks(identity: string) {
   return { [workAttribute]: identity, tabIndex: -1 } as const;
@@ -23,11 +23,11 @@ export function workLinkMarks(role: string) {
   return { [workLinkAttribute]: role } as const;
 }
 
-export const stagesMarks = { [stagesAttribute]: true, tabIndex: -1 } as const;
+export const boardMarks = { [boardAttribute]: true, tabIndex: -1 } as const;
 
 export type FocusedWork = {
   readonly identity: string;
-  // The card's accessible name, which WorkStages gives as the work's title.
+  // The card's accessible name, which Columns gives as the work's title.
   readonly title: string;
   // Which recorded link held focus; undefined when the card itself did.
   readonly link: string | undefined;
@@ -70,11 +70,11 @@ export function workHolding(focused: Element): FocusedWork | undefined {
 
 // Focus returns to the same link of the same work, or to its card when that
 // link is no longer offered. When the work is not shown at all, focus goes to
-// the stage so the keyboard position stays inside the work overview.
+// the Board so the keyboard position stays inside the work overview.
 export function returnFocusTo(held: FocusedWork): void {
   const card = workCard(held.identity);
   if (!card) {
-    focusStages();
+    focusBoard();
     return;
   }
   const link =
@@ -106,18 +106,17 @@ export function unlistedNotice(
     : "";
 }
 
-// The stages hold the keyboard position when no particular work does.
-export function focusStages(): void {
-  stages()?.focus();
+// The Board holds the keyboard position when no particular work does.
+export function focusBoard(): void {
+  board()?.focus();
 }
 
-const stages = () =>
-  document.querySelector<HTMLElement>(`[${stagesAttribute}]`);
+const board = () => document.querySelector<HTMLElement>(`[${boardAttribute}]`);
 
 // Where the keyboard is useful once what held it left the page: the work's
-// card while the page shows it, else the stages.
+// card while the page shows it, else the Board.
 export function workHome(identity: string | undefined): HTMLElement | null {
-  return (identity === undefined ? undefined : workCard(identity)) ?? stages();
+  return (identity === undefined ? undefined : workCard(identity)) ?? board();
 }
 
 // A snapshot can name a work before its derived links: a new revision keeps

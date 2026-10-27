@@ -14,11 +14,11 @@ import {
   sidebarParts,
 } from "./sessionSidebarPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   recordedClaude as recorded,
   report,
@@ -28,12 +28,12 @@ import {
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import { markAsDone, markDone } from "./support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("retired Claude preparation opens retained report after refresh without waking and preserves read/done intent", async ({
   page,
@@ -43,7 +43,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   dashboard.claudeSessionBecomes(record.session.sessionId, "blocked");
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
   const entry = cardSessions(card(notRefinedStory));
@@ -144,7 +144,7 @@ for (const context of ["preparation", "start"] as const) {
       expect(observation.status()).toBe(200);
       await route.fulfill({ response: observation });
     });
-    const { settled } = await openStoryStagesJourney(page, journey);
+    const { settled } = await openStoryColumnsJourney(page, journey);
     await settled();
     const entry = parts(page)
       .recentlyDone.getByRole("article")
@@ -174,7 +174,7 @@ test("missing Claude workspace without retained report explains the limitation w
   const { workspace } = await recorded(dashboard, "");
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   await cardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Read final report" })
@@ -200,7 +200,7 @@ for (const context of ["existing", "legacy"] as const) {
       delete record.preparation;
       save(dashboard.home, [record]);
     }
-    const { card, settled } = await openStoryStagesJourney(page, journey);
+    const { card, settled } = await openStoryColumnsJourney(page, journey);
     await settled();
     const entry = cardSessions(card(notRefinedStory));
     await entry.getByRole("button", { name: "Open terminal" }).click();

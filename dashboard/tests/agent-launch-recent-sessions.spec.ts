@@ -26,13 +26,13 @@ import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
-import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.setTimeout(120_000);
@@ -46,13 +46,13 @@ test.use({
 });
 
 test.describe("retained launches in their current column homes", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("lists the closed launch in Recently done and open launches on their cards with workflow, time, session, and Open terminal, only under their own project", async ({
@@ -60,9 +60,9 @@ test.describe("retained launches in their current column homes", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { project, recentlyDone: recent } = parts(page);
     const entries = recent.getByRole("article");

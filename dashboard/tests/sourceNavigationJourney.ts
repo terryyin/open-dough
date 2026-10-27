@@ -59,19 +59,19 @@ export async function openDashboard(page: Page) {
     backlog: { revision, answer: rawFileAnswer(linkedBacklog) },
   });
   await openUntilRead(page);
-  const { stages } = parts(page);
-  await expect(stages.getByRole("article")).toHaveCount(11);
+  const { board } = parts(page);
+  await expect(board.getByRole("article")).toHaveCount(11);
   // Every GitHub endpoint the local `gh` was asked for, as GitHub sees it.
   const github = githubFor(page);
   const askedOfGitHub = () =>
     github.calls.map(
       ({ argv }) => `/${argv.find((arg) => arg.startsWith("repos/")) ?? ""}`,
     );
-  return { stages, leftTheServer, askedOfGitHub };
+  return { board, leftTheServer, askedOfGitHub };
 }
 
-export function card(stages: Locator, title: string | RegExp): Locator {
-  return stages.getByRole("article", { name: title });
+export function card(board: Locator, title: string | RegExp): Locator {
+  return board.getByRole("article", { name: title });
 }
 
 // A card's source links are secondary detail: none is on its scan view, and
@@ -86,10 +86,10 @@ export async function inspectedSources(story: Locator): Promise<Locator> {
 // Each card's source links in turn, each read in its own detail once the
 // card is closed again.
 export async function forEachCardsSources(
-  stages: Locator,
+  board: Locator,
   read: (sources: Locator) => Promise<void>,
 ) {
-  for (const each of await stages.getByRole("article").all()) {
+  for (const each of await board.getByRole("article").all()) {
     const hide = each.getByRole("button", { name: "Hide detail" });
     if ((await hide.count()) > 0) await hide.click();
     await read(await inspectedSources(each));

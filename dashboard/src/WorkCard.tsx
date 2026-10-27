@@ -1,4 +1,4 @@
-// One work item's card in its stage (`./WorkStages.tsx`), read at two levels.
+// One work item's card in its column (`./Columns.tsx`), read at two levels.
 // Its scan view leads with the title, then its priority in the Backlog, the
 // assigned or preparing developer, preparation badges with the story's
 // start eligibility (`./startEligibility.ts`), dependencies, slice progress

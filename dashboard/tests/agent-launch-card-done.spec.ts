@@ -1,5 +1,5 @@
 // Mark as done on a session its story's card lists, on the committed
-// story-stages origin (./launchJourney.ts), through the same page operation as
+// story-columns origin (./launchJourney.ts), through the same page operation as
 // the terminal panel's (./agent-terminal-done.spec.ts): on a session Claude
 // Code no longer lists, it leaves the card without being stopped and Recently
 // done shows it Done. A refused mark keeps the entry on its card and says so
@@ -20,24 +20,24 @@ import {
 } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("marking a card's session done", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Mark as done on a card's session Claude Code no longer lists takes it off the card and Recently done shows it Done", async ({
@@ -45,9 +45,9 @@ test.describe("marking a card's session done", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const onCard = (workflow: "Execution" | "Refinement") =>
@@ -107,9 +107,9 @@ test.describe("marking a card's session done", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     await settled();
     await launch(readyStory, "Execution");

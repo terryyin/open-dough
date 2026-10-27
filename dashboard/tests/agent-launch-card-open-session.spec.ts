@@ -1,6 +1,6 @@
 // While a story's card lists an open session, every Start on that card is
-// disabled and described why, on the committed story-stages origin
-// (./launchJourney.ts, ./storyStagesPage.ts): both workflows, a Taken card's
+// disabled and described why, on the committed story-columns origin
+// (./launchJourney.ts, ./storyColumnsPage.ts): both workflows, a Taken card's
 // kept-start Start execution, Mark as done and Cursor Delete record return the
 // Starts without a reload, another story's Starts stay, and a dialog opened
 // before another page launched answers Start with the session-open refusal
@@ -23,12 +23,12 @@ import { sessionOpenExplanation } from "../src/launchOutcome.ts";
 import { openStoryRecord } from "./machineLaunchRecords.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { expectStartNote, launchGroup } from "./cardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
@@ -46,13 +46,13 @@ const openSessionDescription = new RegExp(
 );
 
 test.describe("a story's card while its session is open", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("disables both Starts until Mark as done or Delete record, keeps another story's Starts, blocks a Taken kept start, and refuses a dialog opened beforehand", async ({
@@ -62,7 +62,7 @@ test.describe("a story's card while its session is open", () => {
     test.setTimeout(120_000);
     dashboard.claudeScenario("launched");
     const { card, action, settled, show, launch } =
-      await openStoryStagesJourney(page, stagesJourney);
+      await openStoryColumnsJourney(page, columnsJourney);
     const { taken } = parts(page);
     const queued = {
       taken: [],
@@ -171,7 +171,7 @@ test.describe("a story's card while its session is open", () => {
           ],
         }),
       );
-      await show(stagesJourney.taken);
+      await show(columnsJourney.taken);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory, notRefinedStory],
@@ -207,7 +207,7 @@ test.describe("a story's card while its session is open", () => {
         path.join(storeDir, "agent-launches.json"),
         JSON.stringify({ "open-dough": [] }),
       );
-      await show(stagesJourney.queued);
+      await show(columnsJourney.queued);
       await expectMembership(page, queued);
       await page.reload();
       await settled();

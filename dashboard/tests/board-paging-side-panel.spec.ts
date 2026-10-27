@@ -1,9 +1,9 @@
-// The page's own width decides how many dashboard columns show, so the side
+// The page's own width decides how many Board Columns show, so the side
 // panel opening and closing pages them as a window would: beside it a 54rem
-// page shows two columns and an edge control naming the hidden one, a move
+// page shows two columns and a column paging control naming the hidden one, a move
 // slides the view, the chosen position comes back where the width allows it,
 // and an active story's session adds no Recently done entry. How a
-// narrow window pages the columns is ./dashboard-columns-paging.spec.ts.
+// narrow window pages the columns is ./board-paging.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
@@ -16,14 +16,14 @@ import { readyStory } from "./launchJourney.ts";
 import { box } from "./pageLayout.ts";
 import {
   columns,
-  edgeControl,
+  columnPagingControl,
   expectCardsKeepTheirShare,
   expectView,
   recordSlides,
   rem,
   slidesOf,
   type ColumnName,
-} from "./dashboardColumnsPage.ts";
+} from "./boardPage.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 
 test.describe("beside the side panel", () => {
@@ -48,7 +48,7 @@ test.describe("beside the side panel", () => {
     ) => expectView(page, shown, controls, scrollsOnItsOwn);
     await recordSlides(page);
 
-    await test.step("a 108rem page shows all three and no edge control", async () => {
+    await test.step("a 108rem page shows all three and no column paging control", async () => {
       await expectShown(columns, []);
     });
 
@@ -66,7 +66,7 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the right control shows Taken and Recently done, with a slide, and the left control names Backlog", async () => {
-      await edgeControl(page, "Recently done").click();
+      await columnPagingControl(page, "Recently done").click();
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
       expect(await slidesOf(page)).toBe(1);
     });
@@ -84,12 +84,12 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("a session started from a Backlog card stays on its card without adding to the right control's Recently done count, and the view stays", async () => {
-      await edgeControl(page, "Backlog").click();
+      await columnPagingControl(page, "Backlog").click();
       await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
       await start(readyStory).click();
       await dialog.getByRole("button", { name: "Start" }).click();
       await expect(cardSessions(card(readyStory))).toHaveCount(1);
-      await expect(edgeControl(page, "Recently done")).toHaveText(
+      await expect(columnPagingControl(page, "Recently done")).toHaveText(
         "Recently done 0 entries",
       );
       await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);

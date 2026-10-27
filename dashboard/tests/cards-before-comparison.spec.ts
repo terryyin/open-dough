@@ -44,7 +44,7 @@ async function expectCardsBeforeDetailsAt(
 ) {
   await expect(parts(page).source).toContainText(revision);
   await expectMembership(page, titles);
-  const cards = parts(page).stages.locator("[data-work]");
+  const cards = parts(page).board.locator("[data-work]");
   await expect(
     cards.filter({ hasText: "Reading preparation…" }).locator("fieldset > h3"),
   ).toHaveText([...reading]);

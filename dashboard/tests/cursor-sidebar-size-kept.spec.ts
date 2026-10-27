@@ -87,12 +87,12 @@ test.describe("with two projects", () => {
     await button.click();
     await expect(sidebar).toBeVisible();
     await keepInBrowser(page, "open-dough.sidePanel.width", "500");
-    await keepInBrowser(page, "open-dough.dashboardColumns.position", "1");
+    await keepInBrowser(page, "open-dough.board.position", "1");
     const others = await otherPreferences(page);
     expect(others).toEqual({
       [sidebarOpenKey]: "true",
       "open-dough.sidePanel.width": "500",
-      "open-dough.dashboardColumns.position": "1",
+      "open-dough.board.position": "1",
     });
     expect(await keptHeight(page)).toBeNull();
 

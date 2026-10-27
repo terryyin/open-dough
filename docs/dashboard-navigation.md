@@ -3,11 +3,11 @@
 Part of the [Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md).
 Its authority, scope, and revision policy apply to this guidance.
 
-## Connected stages and spatial navigation
+## Board and spatial navigation
 
 A direct story destination uses `/?project=<encoded-project-id>&story=<encoded-story-identity>`
 on the serving dashboard's HTTP origin. Encode the entire stable identity,
-including `#`; a title, file path, stage or session ID cannot identify a story.
+including `#`; a title, file path, Column or session ID cannot identify a story.
 The URL selects the named project's stories, waits for its published membership,
 then brings that card into view and puts the keyboard on it. The same rule
 applies to Backlog and Taken, including hidden columns and reduced motion, and
@@ -28,7 +28,7 @@ Story references and direct URLs share a configured project and story identity
 as their target, and share card reveal. Active membership comes from that
 project's published work; Done references use the existing catalog and range.
 A reveal aligns the card's top with the top reading edge below the pinned banner
-and stage heading, as far as the page's scroll range allows, so reading begins
+and Column heading, as far as the page's scroll range allows, so reading begins
 at the story's start even when the card is taller than the viewport. It follows
 native scrolling until that beginning is readable, then lets later navigation
 bring its next control into view. Layout changes can retain that reading place
@@ -166,7 +166,7 @@ direction, evidence, and view controls outside any zooming surface.
 
 Touch browsing uses the same project choices, story details and whole-column
 paging. With a coarse pointer, frame controls, project choices, story Start
-and Inspect actions, and column edges provide at least 44px targets. When
+and Inspect actions, and Column paging controls provide at least 44px targets. When
 hover is unavailable, a Start's preparation/readiness note and its disabled
 reason are readable on the card. Inspect story reveals the full identity,
 assessment and pinned source details; dependency explanations open in place.
@@ -176,23 +176,23 @@ focus to their originating card or control. Local Chromium touch viewport
 checks cover phone/tablet sizes and rotation alongside desktop checks; they
 do not establish physical-device keyboard or remote-connectivity behavior.
 
-Use one navigable stage containing connected regions for work stages. Initially,
+Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with work cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency
 between stories, a required sequence of all lifecycle steps, or evidence that
 a particular story moved during this observation. Label that relationship.
-Taken includes claimed work, not a claim of live execution. These visual stages
+Taken includes claimed work, not a claim of live execution. These visual Columns
 are separate from the two delivery stages in the requirements.
 
 Use stable story identity to preserve orientation across refreshes. Preserve
 source order within each region, with visible backlog priority; do not sort by
 title, owner, or inferred activity. Do not add Refined, Planned, Running, or
-Done stages to fill out a pipeline before their meaning and evidence are
+Done Columns to fill out a pipeline before their meaning and evidence are
 selected. Later refinement and planning facts may be independent annotations,
 not exclusive destinations. A missing entry is not proof of completion.
 Show **Preparing** and its assigned developer as such an annotation on a queued
 card while a published preparation assignment names that story. The card keeps
-its region, priority, and badges; Preparing is not a stage every story passes
+its region, priority, and badges; Preparing is not a Column every story passes
 through or evidence that an agent is running. The badge legend explains it.
 
 Following a supplier story reference in a dependency explanation stays in the

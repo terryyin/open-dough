@@ -1,29 +1,22 @@
-// A Backlog card's Starts on the committed story-stages origin: they share
-// the card's launch group's line when the card is wide enough, and wrap in
-// reading order, by keyboard, at 420px and the 200% zoom proxy, before Inspect
-// story in the inspection group; a cancelled launch dialog returns the
-// keyboard to its Start, and Tab moves on. A noted Start shows its note only
-// in the frame's styled tooltip, on hover and on keyboard focus, and as its
-// accessible description, announced once; its dialog says "This story is …".
-// A Start without a note has no tooltip. A clickable noted Start on a
-// story-stages preparing revision keeps a look distinct from a disabled Start
-// on the same page, in light and dark schemes. Each Start leads with its
-// workflow's decorative glyph, noted or disabled alike, and Inspect story
-// leads with a decorative chevron that turns while its detail is open.
-// Backlog-card launch behavior on a committed origin is ./agent-launch-card.spec.ts;
-// the page's own dashboard server launches the synthetic `claude`
-// (./fixtures/fake-claude); the real one is never reached.
+// Backlog Starts share their launch row or wrap in reading order before Inspect
+// story, at 420px and the 200% zoom proxy. Cancelling returns focus to Start;
+// Tab continues. A note appears in the styled tooltip on hover/focus and in
+// its accessible description once; the dialog says “This story is …”.
+// Unnoted Starts have no tooltip. Noted, disabled, and preparing Starts retain
+// distinct light/dark appearances and decorative workflow glyphs; Inspect
+// story's chevron turns with its detail. The committed story-columns origin
+// and synthetic Claude match ./agent-launch-card.spec.ts; no real host runs.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   cardLaunchActions,
   expectActionGlyph,
@@ -95,22 +88,22 @@ const launchPaint = (button: Locator) =>
   });
 
 test.describe("a Backlog card's Starts", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("share the launch group's line at 1440px and wrap in reading order, by keyboard, at 420px and 200% zoom", async ({
     page,
     dashboard,
   }) => {
-    const { card, action, settled } = await openStoryStagesJourney(
+    const { card, action, settled } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     await settled();
     const startsOf = (title: string) =>
@@ -179,8 +172,8 @@ test.describe("a Backlog card's Starts", () => {
   }) => {
     dashboard.claudeScenario("launched");
     const { card, action, settled, show, launch } =
-      await openStoryStagesJourney(page, stagesJourney);
-    await show(stagesJourney.preparing);
+      await openStoryColumnsJourney(page, columnsJourney);
+    await show(columnsJourney.preparing);
     // The preparing card's credited human arrives after the page settles and
     // lengthens its Preparing line, moving its Starts; wait for it so a hover
     // stays on the Start it is aimed at.

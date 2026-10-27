@@ -6,7 +6,7 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { startSessionField } from "./launchCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, workingCursorTest as test } from "./support/cursorStart.ts";

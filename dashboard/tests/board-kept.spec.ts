@@ -1,10 +1,10 @@
-// This browser keeps the dashboard columns' one position, for every project:
+// This browser keeps the Board's Columns' one position, for every project:
 // a first visit shows Backlog leftmost; once the developer moves the view, a
 // project switch or a reload shows the same columns, limited only by what the
 // page's width allows, and a wide page that shows every column does not lose
 // it. A browser that refuses storage starts at Backlog and pages for the
-// page's lifetime without error. That the position follows edge controls,
-// focus, and width is ./dashboard-columns-paging.spec.ts. Each test's browser
+// page's lifetime without error. That the position follows column paging controls,
+// focus, and width is ./board-paging.spec.ts. Each test's browser
 // context keeps its own storage.
 
 import type { Page } from "@playwright/test";
@@ -17,7 +17,7 @@ import {
   openDoughProject,
   publishCatalogProjects,
 } from "./projectKeyboardNavigationJourney.ts";
-import { expectView, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { expectView, rem, showColumn } from "./boardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Room for two of the three columns, and for all three.
@@ -89,6 +89,40 @@ test("the chosen columns stay across a project switch, a reload, and a wide page
   });
 });
 
+test("a position kept under the former Board key is recovered once and kept under the Board key", async ({
+  page,
+}) => {
+  await page.setViewportSize(narrowWindow);
+  await publishCatalogProjects(page);
+  await page.goto("/");
+  await page.evaluate(() => {
+    localStorage.removeItem("open-dough.board.position");
+    localStorage.setItem("open-dough.dashboardColumns.position", "1");
+  });
+  await reloadUntilRead(page);
+  await expectAtTaken(page);
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("open-dough.board.position"),
+    ),
+  ).toBe("1");
+
+  // Once adopted, the new key wins over a different former value.
+  await page.evaluate(() => {
+    localStorage.setItem("open-dough.dashboardColumns.position", "0");
+  });
+  await reloadUntilRead(page);
+  await expectAtTaken(page);
+  await showColumn(page, "Backlog");
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("open-dough.board.position"),
+    ),
+  ).toBe("0");
+  await reloadUntilRead(page);
+  await expectAtBacklog(page);
+});
+
 test("an unusable kept position starts at Backlog", async ({ page }) => {
   await page.setViewportSize(narrowWindow);
   await publishCatalogProjects(page);
@@ -97,10 +131,7 @@ test("an unusable kept position starts at Backlog", async ({ page }) => {
   for (const malformed of ["taken", "-1", "1.5"]) {
     await test.step(`kept as ${JSON.stringify(malformed)}`, async () => {
       await page.evaluate((value) => {
-        window.localStorage.setItem(
-          "open-dough.dashboardColumns.position",
-          value,
-        );
+        window.localStorage.setItem("open-dough.board.position", value);
       }, malformed);
       await reloadUntilRead(page);
       await expectAtBacklog(page);

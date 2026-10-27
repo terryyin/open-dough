@@ -1,4 +1,4 @@
-/* Recently done as the dashboard columns show it (./RecentlyDone.tsx): its
+/* Recently done as the Board's Columns show it (./RecentlyDone.tsx): its
    frame, the heading's count and range action, the list, and what shows of
    it. Its session entries and done story cards read as ./agent-launch.css
    sets them. */
@@ -13,14 +13,14 @@
 /* The count and the action that shows only the latest ten, together at the
    end of the heading. The action is as compact as the count and reaches into
    the heading's padding, so offering it never moves the entries below. */
-.recently-done .stage-header-actions {
+.recently-done .column-header-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
-.recently-done .stage-header-actions .frame-button {
+.recently-done .column-header-actions .frame-button {
   min-height: 1.5rem;
   margin-block: calc(var(--space-1) * -1);
   padding: 0 var(--space-2);

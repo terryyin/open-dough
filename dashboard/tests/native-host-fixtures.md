@@ -91,11 +91,11 @@ and Node. Nothing here ever calls the real
 `claude`. The card-sessions journey (`agent-launch-card-sessions.spec.ts`)
 reaches Preparing, including a refinement launched on the Preparing card, and
 walks on through the Take and completion; the attention journey
-(`agent-launch-attention.spec.ts`) walks the same stages counting the sessions
+(`agent-launch-attention.spec.ts`) walks the same board counting the sessions
 that need attention. Each card concern has one owner:
 `agent-launch-card.spec.ts` the Start actions, their dialogs, what a launch
 sends, and the keyboard on the newest entry; `agent-launch-card-sessions.spec.ts`
-which sessions a card lists, newest first, in each stage;
+which sessions a card lists, newest first, in each column;
 `agent-launch-card-open-session.spec.ts` that those Starts stay unavailable
 while an open session remains, return after Mark as done or Delete record, and
 a dialog opened beforehand is refused; `agent-launch-card-session-states.spec.ts`

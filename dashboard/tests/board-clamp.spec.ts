@@ -2,7 +2,7 @@
 // columns shown in its place, keeps a position the columns shown can hold, and
 // stays as long as the columns it shows when it widens or narrows. That the
 // page is only as long as its shown columns is
-// ./dashboard-columns-height.spec.ts.
+// ./board-height.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
@@ -13,7 +13,7 @@ import {
 } from "./accessibleOverview.ts";
 import {
   bottomOf,
-  edgeControl,
+  columnPagingControl,
   expectEndsWithShown,
   expectLongerThanThePage,
   expectView,
@@ -21,7 +21,7 @@ import {
   scrollYOf,
   showColumn,
   wheelTo,
-} from "./dashboardColumnsPage.ts";
+} from "./boardPage.ts";
 
 test("a long Backlog read far down: shorter columns clamp the page to their bottom, a position they hold stays, and widening or narrowing keeps the page as long as the columns it shows", async ({
   page,
@@ -52,7 +52,9 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
     expect(clamped).toBe(await bottomOf(page));
     expect(clamped).toBeGreaterThan(0);
     expect(clamped).toBeLessThan(1500);
-    await expect(edgeControl(page, "Backlog")).toBeInViewport({ ratio: 1 });
+    await expect(columnPagingControl(page, "Backlog")).toBeInViewport({
+      ratio: 1,
+    });
     await expectEndsWithShown(page, ["Taken", "Recently done"]);
   });
 

@@ -5,21 +5,21 @@ import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { recordedClaude as recorded, save } from "./support/retainedReport.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { markAsDone, markDone } from "./support/markDone.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 // The published work a journey opens on is answered before the stories'
 // details are -- seeds, plans, agent profiles -- and those answers reflow the
@@ -51,7 +51,7 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
       await route.fallback();
     },
   );
-  const { settled } = await openStoryStagesJourney(page, journey);
+  const { settled } = await openStoryColumnsJourney(page, journey);
   const control = markAsDone(
     parts(page)
       .recentlyDone.getByRole("article")
@@ -95,7 +95,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
       record.doneProblem = `Local done mark retained. Claude Code rename failed: ${oldProblem}`;
       save(dashboard.home, [record]);
       const doneName = `done-${record.session.name}`;
-      const { settled } = await openStoryStagesJourney(page, journey);
+      const { settled } = await openStoryColumnsJourney(page, journey);
       await settled();
       const recent = parts(page)
         .recentlyDone.getByRole("article")

@@ -4,10 +4,10 @@ import { expect, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
@@ -22,12 +22,12 @@ import {
 } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 const title =
   "Continue the intended terminal session with a long title whose final words identify the work that should remain attached";
@@ -43,7 +43,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         identity: "SEED-901#continue-touch-terminal",
         title,
       });
-      const opened = await openStoryStagesJourney(page, journey);
+      const opened = await openStoryColumnsJourney(page, journey);
       await opened.settled();
       const sidebar = sidebarParts(page);
       await tapWhereShown(sidebar.button);

@@ -23,7 +23,7 @@ export function DashboardBanner({
   const banner = useRef<HTMLElement>(null);
 
   // Reflow changes the pinned banner's height. Reserve its actual footprint
-  // for keyboard focus and stage headings, including at browser zoom.
+  // for keyboard focus and column headings, including at browser zoom.
   useLayoutEffect(() => {
     const element = banner.current;
     if (!element) return;

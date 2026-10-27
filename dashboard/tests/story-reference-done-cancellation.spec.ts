@@ -5,7 +5,7 @@ import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { settle } from "./recentlyDoneProgressivePage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import {
   doneEntries,
   farDone,

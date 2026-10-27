@@ -11,22 +11,22 @@ import {
   sessionStateOf,
 } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { recordedCursor, report, storeFile } from "./support/retainedReport.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import { markDone } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("retired Cursor workspace opens retained report without opening terminal and preserves read/done intent", async ({
   page,
@@ -35,7 +35,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   const { record, workspace } = await recordedCursor(dashboard);
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
   const entry = cardSessions(card(notRefinedStory));
@@ -90,7 +90,7 @@ test("missing Cursor workspace without retained report explains the limitation w
   const { workspace } = await recordedCursor(dashboard, "");
   rmSync(workspace, { recursive: true });
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   await cardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Read final report" })

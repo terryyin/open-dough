@@ -165,10 +165,10 @@ export async function expectNoEarlierFacts(
   page: Page,
   earlier: PublishedFacts,
 ) {
-  const { recentlyDone, stages } = parts(page);
+  const { recentlyDone, board } = parts(page);
   await expectNoEarlierAssignments(page, earlier);
-  await expect(stages.locator(`a[href*="${earlier.revision}"]`)).toHaveCount(0);
-  await expect(stages).not.toContainText(earlier.purpose);
+  await expect(board.locator(`a[href*="${earlier.revision}"]`)).toHaveCount(0);
+  await expect(board).not.toContainText(earlier.purpose);
   await expect(recentlyDone).not.toContainText(earlier.doneTitle);
 }
 

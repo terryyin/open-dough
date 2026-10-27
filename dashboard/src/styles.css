@@ -169,7 +169,7 @@ main {
 .source dt,
 .source-note,
 .quiet,
-.stage-count,
+.column-count,
 .card-priority,
 .card-identity,
 .link-note {

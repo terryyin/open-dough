@@ -8,7 +8,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {

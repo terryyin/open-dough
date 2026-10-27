@@ -1,4 +1,4 @@
-// Where the page has no room for all three dashboard columns, it is only as
+// Where the page has no room for all three Board Columns, it is only as
 // long as the columns it shows: read to its end, a developer reaches the end
 // of the longest shown column and the page's ordinary framing, never a blank
 // stretch left by a taller hidden column. Showing a longer column makes all
@@ -6,9 +6,9 @@
 // it shortens it again, while content arriving in a hidden column adds
 // nothing. Recently done shows its latest ten entries until its older ones are
 // revealed. Where a page read far down stops when shorter columns show is
-// ./dashboard-columns-clamp.spec.ts; that focus and a Sessions sidebar choice
-// reveal a hidden column whole is ./dashboard-columns-paging.spec.ts and
-// ./dashboard-columns-paging-sessions-sidebar.spec.ts.
+// ./board-clamp.spec.ts; that focus and a Sessions sidebar choice
+// reveal a hidden column whole is ./board-paging.spec.ts and
+// ./board-paging-sessions-sidebar.spec.ts.
 
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { inspectedDetail } from "./cardControls.ts";
@@ -18,7 +18,7 @@ import { publishFiles } from "./publishedOrigin.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import {
   bottomOf,
-  edgeControl,
+  columnPagingControl,
   expectEndsWithShown,
   expectLongerThanThePage,
   expectView,
@@ -27,7 +27,7 @@ import {
   scrollYOf,
   showColumn,
   wheelTo,
-} from "./dashboardColumnsPage.ts";
+} from "./boardPage.ts";
 import { heldFactGroups, moreDoneTitle } from "./publishedFactsArrival.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import { revealAction } from "./recentlyDoneProgressivePage.ts";
@@ -147,7 +147,7 @@ test.describe("in a two-column page", () => {
       );
       expect(await scrollYOf(page)).toBe(await bottomOf(page));
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
-      await expect(edgeControl(page, "Recently done")).toBeInViewport({
+      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
         ratio: 1,
       });
     });
@@ -156,7 +156,7 @@ test.describe("in a two-column page", () => {
   test("done stories arriving in a hidden Recently done add no blank tail below Backlog and Taken", async ({
     page,
   }) => {
-    // Read at the page's top, the edge control starts below the page header
+    // Read at the page's top, the column paging control starts below the page header
     // and is as tall as its "Entry count incomplete" label, whose length
     // differs by font: about 320 px on macOS and 340 px on Linux, ending near
     // 495 and 515 px. The window leaves room for a label far longer, and

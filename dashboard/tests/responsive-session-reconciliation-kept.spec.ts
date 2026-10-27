@@ -24,12 +24,12 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 // available once this machine's attempts are read, and no Startup recovery.
 async function expectRemovedSettled(page: Page, revision: string) {
   await expectSettledPage(page);
-  const { stages, backlog, taken, recentlyDone } = parts(page);
+  const { board, backlog, taken, recentlyDone } = parts(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${revision.slice(0, 7)}`,
   );
   await expect(
-    stages
+    board
       .locator("[data-work]")
       .and(page.getByRole("article", { name: "Story A" })),
   ).toHaveCount(0);

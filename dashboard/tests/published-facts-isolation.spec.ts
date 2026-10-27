@@ -174,9 +174,9 @@ for (const outcome of ["success", "failure"] as const) {
           exact: true,
         }),
       ).toBeChecked();
-      await expect(parts(page).stages).not.toContainText(doughnutSharedGoal);
+      await expect(parts(page).board).not.toContainText(doughnutSharedGoal);
       await expect(
-        parts(page).stages.locator(`a[href*="${revisionDoughnut}"]`),
+        parts(page).board.locator(`a[href*="${revisionDoughnut}"]`),
       ).toHaveCount(0);
     });
     await test.step("B's later real reads finish the same current observation", async () => {

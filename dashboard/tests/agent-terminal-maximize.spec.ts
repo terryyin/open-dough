@@ -22,12 +22,12 @@ import {
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
@@ -54,13 +54,13 @@ function expectCovers(
 }
 
 test.describe("maximizing the terminal panel", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Maximize gives the panel the page column's room beside the sidebar until Close, Restore returns the split, and on a narrow window it fills the window", async ({
@@ -68,11 +68,11 @@ test.describe("maximizing the terminal panel", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
-    const { banner, stages, backlog } = parts(page);
+    const { banner, board, backlog } = parts(page);
     const sidebar = sidebarParts(page);
     const pageColumn = page.locator(".page-column");
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -135,7 +135,7 @@ test.describe("maximizing the terminal panel", () => {
         height: room.height,
       });
       await expect(banner).toBeHidden();
-      await expect(stages).toBeHidden();
+      await expect(board).toBeHidden();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await expect(rows).toContainText("echo keep this line");
       expect(attachCount()).toBe(attachedBefore);
@@ -145,7 +145,7 @@ test.describe("maximizing the terminal panel", () => {
       await pressWhereShown(control("Restore"));
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
-      await expect(stages).toBeVisible();
+      await expect(board).toBeVisible();
       expectCovers(await box(pageColumn), split.column);
       expectCovers(await box(panel), split.panel);
       await expect(rows).toContainText("echo keep this line");
@@ -226,7 +226,7 @@ test.describe("maximizing the terminal panel", () => {
 
       await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
-      await expect(stages).toBeHidden();
+      await expect(board).toBeHidden();
       expectCovers(await box(panel), {
         x: 0,
         y: 0,
@@ -235,7 +235,7 @@ test.describe("maximizing the terminal panel", () => {
       });
 
       await pressWhereShown(control("Restore"));
-      await expect(stages).toBeVisible();
+      await expect(board).toBeVisible();
       expectCovers(await box(panel), stacked);
       expect(stacked.y + stacked.height).toBeLessThanOrEqual(
         (await box(pageColumn)).y + 0.5,

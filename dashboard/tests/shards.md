@@ -10,9 +10,11 @@ Node suite's shares are in [tests/test-shares.md](../../tests/test-shares.md).
 ## The split
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select shard `i` of `n` whole
-spec files. `longest-first` records each spec file's seconds from one CI run,
-one `<seconds><TAB><file>` line per file, longest first, `<file>` being the
-path relative to this directory; `#` lines are its header.
+spec files. `longest-first` indexes three duration lists: ordinary journeys,
+agent journeys, and boundary tests. Each part records one
+`<seconds><TAB><file>` row per spec, longest first, with paths relative to this
+directory. Header lines `# Include: <relative-path>` name the parts; the
+reader combines their rows before the unchanged deal. Other `#` lines are comments.
 `support/testFiles.mjs` hands the discovered spec files, that list and the
 split to `scripts/share-deal.mjs`, which deals them by the rule the Node
 suite's shares follow
@@ -52,7 +54,10 @@ node scripts/test-shares.mjs refresh --list dashboard/tests/longest-first \
   --source 'run RUN_ID at REVISION, DATE' DIR/dashboard-times-*/dashboard-times.txt
 ```
 
-The refresh keeps the header and records the source in its `# Source:` line.
+The refresh keeps the index and each known spec's part, writes the same new
+`# Source:` to each list, and keeps new specs in the index until they are
+organized. Single-file duration lists and CI timing artifacts retain their
+ordinary TSV form. No part changes a spec's recorded seconds or shard assignment.
 `tests/support/dashboard-test-files.test.mjs` proves the configuration's
 deal: every spec file in exactly one of the twelve shards, the preview
 listing a new spec as unrecorded in the shard the deal gives it, and a

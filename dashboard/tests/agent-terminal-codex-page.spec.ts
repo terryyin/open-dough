@@ -6,12 +6,12 @@ import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
   notRefinedIdentity,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -24,18 +24,18 @@ import {
 } from "./support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 // Opens the journey once its preparation is read and the boundary launch's
 // start has reconciled: until then Backlog cards shrink as they settle, which
 // moves Recently done under a press and loses its click.
 async function settledAfterBoundaryLaunch(page: Page) {
-  const opened = await openStoryStagesJourney(page, journey);
+  const opened = await openStoryColumnsJourney(page, journey);
   await opened.settled();
   await expect(page.getByText(/this story's actions/)).toHaveCount(0);
   return opened;

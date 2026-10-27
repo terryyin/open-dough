@@ -10,7 +10,7 @@ import {
   revision,
 } from "./accessibleOverview.ts";
 import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
-import { edgeControl, expectView, wheelTo } from "./dashboardColumnsPage.ts";
+import { columnPagingControl, expectView, wheelTo } from "./boardPage.ts";
 import {
   commitAnswer,
   emptyBacklog,
@@ -31,7 +31,7 @@ import { openSessionStartReason } from "../src/agentLaunch.ts";
 test.describe("touch reading", () => {
   test.use({ hasTouch: true });
 
-  test("project and stage navigation keep a long story readable and its detail selected through rotation", async ({
+  test("project and column navigation keep a long story readable and its detail selected through rotation", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -61,7 +61,7 @@ test.describe("touch reading", () => {
       project.getByRole("radio", { name: "Open Dough", exact: true }),
     );
     await expect(parts(page).backlog.getByRole("article")).toHaveCount(3);
-    await tapWhereShown(edgeControl(page, "Taken"));
+    await tapWhereShown(columnPagingControl(page, "Taken"));
     await expectView(
       page,
       ["Taken"],
@@ -107,12 +107,12 @@ test.describe("touch reading", () => {
     await tapWhereShown(hide);
     await expect(detail).toHaveCount(0);
     await expect(card).toBeFocused();
-    await tapWhereShown(edgeControl(page, "Recently done"));
+    await tapWhereShown(columnPagingControl(page, "Recently done"));
     await expect(
       recentlyDone.getByRole("article", { name: executed.title, exact: true }),
     ).toBeVisible();
     await expectNoSidewaysScrollAndWholeText(page, [".owner-mark"]);
-    await tapWhereShown(edgeControl(page, "Taken"));
+    await tapWhereShown(columnPagingControl(page, "Taken"));
     await expectView(
       page,
       ["Taken"],
@@ -184,7 +184,7 @@ test.describe("touch reading", () => {
       backlog: queuedTitles,
     });
     await wheelTo(page, 1000);
-    await tapWhereShown(edgeControl(page, "Taken"));
+    await tapWhereShown(columnPagingControl(page, "Taken"));
     await expectView(
       page,
       ["Taken"],
@@ -196,7 +196,7 @@ test.describe("touch reading", () => {
       ["Taken", "Recently done"],
       [`Backlog ${queuedCount} entries`],
     );
-    await tapWhereShown(edgeControl(page, "Backlog"));
+    await tapWhereShown(columnPagingControl(page, "Backlog"));
     await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
     await page.setViewportSize({ width: 390, height: 844 });
     await expectView(page, ["Backlog"], ["Taken 1 entry"]);

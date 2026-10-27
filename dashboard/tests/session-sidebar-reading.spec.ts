@@ -10,27 +10,27 @@
 import { expect, test } from "./dashboardTest.ts";
 import { cardSessions, parts, standaloneSessionName } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { edgeControl, showColumn } from "./dashboardColumnsPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { columnPagingControl, showColumn } from "./boardPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 test.describe("the Sessions sidebar's reading", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("says it is reading until the machine's sessions are first read, then that none are kept, then none open", async ({
@@ -39,12 +39,12 @@ test.describe("the Sessions sidebar's reading", () => {
   }) => {
     await page.setViewportSize({ width: 1000, height: 1000 });
     const { answer } = await holdSessionReads(page);
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button, entries, badge } = sidebarParts(page);
     const { recentlyDone, taken } = parts(page);
     await settled();
     await button.click();
-    await expect(taken.locator(".stage-count")).toHaveText(
+    await expect(taken.locator(".column-count")).toHaveText(
       "Entry count incomplete",
     );
     await expect(taken).toContainText("Reading sessions…");
@@ -53,18 +53,18 @@ test.describe("the Sessions sidebar's reading", () => {
       await expect(place).toContainText("Reading sessions…");
       await expect(place).not.toContainText("No sessions launched");
     }
-    await expect(edgeControl(page, "Taken")).toHaveText(
+    await expect(columnPagingControl(page, "Taken")).toHaveText(
       "Taken Entry count incomplete",
     );
     await showColumn(page, "Taken");
-    await expect(taken.locator(".stage-header")).toBeInViewport({
+    await expect(taken.locator(".column-header")).toBeInViewport({
       ratio: 0.999,
     });
-    await expect(edgeControl(page, "Recently done")).toHaveText(
+    await expect(columnPagingControl(page, "Recently done")).toHaveText(
       "Recently done Entry count incomplete",
     );
     await showColumn(page, "Recently done");
-    await expect(recentlyDone.locator(".stage-header")).toBeInViewport({
+    await expect(recentlyDone.locator(".column-header")).toBeInViewport({
       ratio: 0.999,
     });
     await showColumn(page, "Taken");
@@ -76,7 +76,7 @@ test.describe("the Sessions sidebar's reading", () => {
       );
       await expect(place).not.toContainText("Reading sessions…");
     }
-    await expect(taken.locator(".stage-count")).toHaveText("0 entries");
+    await expect(taken.locator(".column-count")).toHaveText("0 entries");
     await expect(taken).toContainText("No Taken entries are recorded.");
     await expect(entries).toHaveCount(0);
     await expect(badge).toHaveCount(0);
@@ -101,9 +101,9 @@ test.describe("the Sessions sidebar's reading", () => {
     await launched(dashboard, "doughnut");
     dashboard.claudeScenario("launched");
     const { answer } = await holdSessionReads(page);
-    const { settled, card, launch } = await openStoryStagesJourney(
+    const { settled, card, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button, entries } = sidebarParts(page);
     const { recentlyDone } = parts(page);
@@ -135,7 +135,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(own).toHaveCount(1);
     const key = await own.getAttribute("data-shows-session");
     await expect(
-      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      page.locator(`.board [data-shows-session="${key}"]`),
     ).toHaveCount(1);
     await expect(recentlyDone).toContainText(
       "No sessions are listed in Recently done.",
@@ -145,7 +145,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(entries).toHaveCount(2);
     await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(
-      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      page.locator(`.board [data-shows-session="${key}"]`),
     ).toHaveCount(1);
   });
 });

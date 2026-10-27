@@ -1,15 +1,15 @@
-/* The dashboard columns (./DashboardColumns.tsx): Backlog, Taken, and Recently
+/* The Board (./Board.tsx): Backlog, Taken, and Recently
    done, left to right in reading order on one row that never wraps. The page
    column's own width (`@container page`, ./side-panel.css) decides how many
    whole columns of at least 24rem show, `--columns-shown`, which
    ./columnPaging.ts reads: three from 72rem, two from 48rem, one below. The
    shown columns fill the page; the row is cut off at the view's sides rather
-   than scrolled, so the page never scrolls sideways and stage headings keep
+   than scrolled, so the page never scrolls sideways and column headings keep
    sticking to the window, and it moves under the view by `--leftmost` columns.
-   This file loads before styles.css and stage-frame.css, so its rules there
+   This file loads before styles.css and column-frame.css, so its rules there
    say more to decide. */
 
-.dashboard-columns {
+.board {
   --columns-shown: 3;
   --column-gap: var(--space-4);
 
@@ -17,7 +17,7 @@
   grid-template-columns: [view] minmax(0, 1fr);
 }
 
-.dashboard-columns-view {
+.board-view {
   grid-row: 1;
   grid-column: view;
   overflow-x: clip;
@@ -26,7 +26,7 @@
   overflow-clip-margin: var(--focus-ring-clearance);
 }
 
-.dashboard-columns-row {
+.board-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--column-gap);
@@ -39,11 +39,11 @@
   );
 }
 
-/* A move by an edge control slides briefly, so the developer sees where the
+/* A move by a column paging control slides briefly, so the developer sees where the
    columns went; a width change moves them at once. Reduced motion is decided
    where the move is made (`moveTo` in columnPaging.ts), which leaves
    `data-sliding` off so such a move happens at once. */
-.dashboard-columns-row[data-sliding] {
+.board-row[data-sliding] {
   transition: transform 0.2s ease-out;
 }
 
@@ -52,9 +52,9 @@
    to the page: the page is as long as the shown columns, and a column shown
    again has all its length back. Nothing in it anchors the page's scroll
    position, so hiding it never moves the shown columns. */
-.dashboard-columns-row[data-hidden~="1"] > .stages > :nth-child(1),
-.dashboard-columns-row[data-hidden~="2"] > .stages > :nth-child(2),
-.dashboard-columns-row[data-hidden~="3"] > .recently-done {
+.board-row[data-hidden~="1"] > .columns > :nth-child(1),
+.board-row[data-hidden~="2"] > .columns > :nth-child(2),
+.board-row[data-hidden~="3"] > .recently-done {
   height: 0;
   contain: size;
   overflow: clip;
@@ -65,7 +65,7 @@
 }
 
 /* Backlog and Taken take the row's first two columns. */
-.dashboard-columns .stages {
+.board .columns {
   display: grid;
   grid-column: span 2;
   grid-template-columns: subgrid;
@@ -73,39 +73,39 @@
   align-items: start;
 }
 
-/* While paging, the edge controls take the page's side margins and the
+/* While paging, the column paging controls take the page's side margins and the
    columns' framing, not the cards' room: the columns' main reaches the page
-   column's sides, each side keeps room for its edge control, and the
+   column's sides, each side keeps room for its column paging control, and the
    columns, framed no more, stay distinct by their headings. */
 @container page (width < 72rem) {
-  main:has(> .dashboard-columns) {
+  main:has(> .board) {
     margin-inline: 0;
   }
 
-  .dashboard-columns {
+  .board {
     --columns-shown: 2;
-    --column-edge: 1.75rem;
+    --column-paging-control: 1.75rem;
 
     grid-template-columns:
-      [left] var(--column-edge) [view] minmax(0, 1fr)
-      [right] var(--column-edge);
+      [left] var(--column-paging-control) [view] minmax(0, 1fr)
+      [right] var(--column-paging-control);
   }
 
-  .dashboard-columns .stage,
-  .dashboard-columns .recently-done {
+  .board .column,
+  .board .recently-done {
     border: none;
     padding-inline: 0;
     background: none;
     box-shadow: none;
   }
 
-  .dashboard-columns .stage-header {
+  .board .column-header {
     background: var(--surface);
   }
 }
 
 @container page (width < 48rem) {
-  .dashboard-columns {
+  .board {
     --columns-shown: 1;
   }
 }
@@ -114,16 +114,16 @@
    tablet has room for two columns. The existing column paging owns the view. */
 @media (any-pointer: coarse) {
   @container page (width < 72rem) {
-    .dashboard-columns {
-      --column-edge: var(--control-size);
+    .board {
+      --column-paging-control: var(--control-size);
     }
   }
 }
 
-/* An edge control (./ColumnEdge.tsx): a slim, tall strip in its side's
+/* A column paging control (./ColumnPagingControl.tsx): a slim, tall strip in its side's
    room, kept in sight below the banner while the page scrolls, naming the
    hidden column top to bottom beside an arrow toward it. */
-.column-edge {
+.column-paging-control {
   position: sticky;
   top: calc(var(--banner-height, 0px) + var(--space-2));
   z-index: 1;
@@ -145,32 +145,32 @@
   cursor: pointer;
 }
 
-.column-edge:hover {
+.column-paging-control:hover {
   background: var(--hover);
 }
 
-.column-edge:focus-visible {
+.column-paging-control:focus-visible {
   outline-offset: -3px;
 }
 
-.column-edge-left {
+.column-paging-control-left {
   grid-column: left;
   border-left: none;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
-.column-edge-right {
+.column-paging-control-right {
   grid-column: right;
   border-right: none;
   border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 
-.column-edge-label {
+.column-paging-control-label {
   writing-mode: vertical-rl;
   font-weight: var(--weight-strong);
 }
 
-.column-edge-count {
+.column-paging-control-count {
   margin-top: var(--space-1);
   border-radius: var(--radius-pill);
   padding: var(--space-2) 0;

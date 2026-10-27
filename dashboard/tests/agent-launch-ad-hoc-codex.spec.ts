@@ -5,7 +5,7 @@ import path from "node:path";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import {
   codexAttaches,
@@ -65,7 +65,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const panel = page.getByRole("region", { name: "Terminal" });
-    const recent = page.locator(".dashboard-columns .session-entry");
+    const recent = page.locator(".board .session-entry");
     await expect(panel.locator(".xterm-rows")).toContainText(
       "GPT-6.1-Sol default",
     );

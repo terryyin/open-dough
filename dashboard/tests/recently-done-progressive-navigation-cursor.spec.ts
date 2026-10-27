@@ -15,7 +15,7 @@ import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { parts, standaloneSessionName } from "./dashboardPage.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";

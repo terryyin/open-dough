@@ -1,9 +1,9 @@
 // The overview's frame in the frame's look: the row below the banner, the
-// stages' headings and counts, and what the frame
-// says in place of work -- an empty stage, a failed read, no projects -- read
+// board' headings and counts, and what the frame
+// says in place of work -- an empty column, a failed read, no projects -- read
 // clearly, keep their names, and fit a narrow window without sideways
 // scrolling. With no project, Open Dough's mark still leads the banner and
-// System settings. The cards inside the stages are not this look's to change.
+// System settings. The cards inside the board are not this look's to change.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -35,7 +35,7 @@ import {
 import { back, settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
-test("the row below the banner and the stages read clearly in the frame's look", async ({
+test("the row below the banner and the board read clearly in the frame's look", async ({
   page,
   afterGitHubStops,
 }) => {
@@ -63,14 +63,14 @@ test("the row below the banner and the stages read clearly in the frame's look",
     directionToggle.getByRole("heading", { name: "Near-future direction" }),
   );
 
-  for (const [stage, name] of [
+  for (const [column, name] of [
     [backlog, "Backlog"],
     [taken, "Taken"],
   ] as const) {
     await expectReadableContrast(
-      stage.getByRole("heading", { level: 2, name, exact: true }),
+      column.getByRole("heading", { level: 2, name, exact: true }),
     );
-    await expectReadableContrast(stage.getByText(/^\d+ entr(y|ies)$/));
+    await expectReadableContrast(column.getByText(/^\d+ entr(y|ies)$/));
   }
 
   for (const size of [narrowWindow, zoomedWindow]) {
@@ -81,7 +81,7 @@ test("the row below the banner and the stages read clearly in the frame's look",
   await expectNoSidewaysScrollAndWholeText(page);
 });
 
-test("an empty stage and a failed read are said in the frame's look, whole in a narrow window", async ({
+test("an empty column and a failed read are said in the frame's look, whole in a narrow window", async ({
   page,
 }) => {
   await pausePageClock(page);

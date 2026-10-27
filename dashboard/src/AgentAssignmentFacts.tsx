@@ -4,7 +4,7 @@
 // (which opens the roster) and name with its credited human, host and model,
 // and every gap; the mode, branch context and why a human is unknown are in
 // the story's inspected detail (`./AssignmentRecords.tsx`). Preparing is an
-// annotation on the queued card, never a stage or a claim that an agent is
+// annotation on the queued card, never a column or a claim that an agent is
 // running.
 
 import type {
@@ -115,7 +115,7 @@ export function TakenOwnerFacts({
 
 // A queued entry's published preparation assignment, as the card's scan view
 // shows it: Preparing and the assigned developer. Nothing is shown when none
-// is recorded, since Preparing is not a stage every entry passes through;
+// is recorded, since Preparing is not a column every entry passes through;
 // unread profiles and more than one assignment for the entry are shown as
 // uncertainty.
 export function PreparingFacts({
@@ -159,7 +159,7 @@ export function PreparingFacts({
 }
 
 // Profiles the shared reader could not read name no entry, so they are
-// listed with the stage rather than guessed onto a card.
+// listed with the column rather than guessed onto a card.
 export function UnreadableProfiles({
   profiles,
 }: {

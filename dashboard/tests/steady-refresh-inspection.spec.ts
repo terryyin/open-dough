@@ -102,7 +102,7 @@ test("an inspection open at A keeps its purpose while B is read", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const queueCard = parts(page).stages.getByRole("article", {
+  const queueCard = parts(page).board.getByRole("article", {
     name: queueStory,
   });
   const detail = await inspectedDetail(queueCard);

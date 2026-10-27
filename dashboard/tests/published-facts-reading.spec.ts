@@ -1,11 +1,11 @@
 // Independent raw GitHub fact groups enrich the built preview while a developer
-// reads a still-present Taken story. The real edge control and inspection open
+// reads a still-present Taken story. The real column paging control and inspection open
 // its detail; the focused pinned link stays visible after useful arrivals and
 // an ordinary read gap, with natural reflow rather than fixed pixel offsets.
 
 import type { Locator, Page } from "@playwright/test";
 import { inspectedDetail } from "./cardControls.ts";
-import { expectView, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { heldFactGroups, takenCanonicalPath } from "./publishedFactsArrival.ts";

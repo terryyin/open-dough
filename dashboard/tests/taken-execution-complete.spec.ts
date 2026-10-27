@@ -166,10 +166,10 @@ const complete = "Execution complete, awaiting wrap-up";
 test("a Taken card whose plan records its execution as complete shows it awaiting wrap-up and since when, or the record's gap", async ({
   page,
 }) => {
-  const { taken: takenStage, backlog: backlogStage } =
+  const { taken: takenColumn, backlog: backlogColumn } =
     await openedAtOpening(page);
   const card = (title: string) =>
-    takenStage.getByRole("article", { name: title });
+    takenColumn.getByRole("article", { name: title });
   const progress = (title: string) => card(title).locator(".card-progress");
 
   await test.step("a Story Branch Mode plan completed 40 min ago on its branch is complete there, not in trunk, with no current slice clock", async () => {
@@ -223,7 +223,7 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
   });
 
   await test.step("a queued entry whose plan records completion shows no complete state", async () => {
-    const queuedCard = backlogStage.getByRole("article", { name: queued });
+    const queuedCard = backlogColumn.getByRole("article", { name: queued });
     await expect(queuedCard).toBeVisible();
     await expect(queuedCard).not.toContainText("Execution complete");
     await expect(queuedCard).not.toContainText("Completed");

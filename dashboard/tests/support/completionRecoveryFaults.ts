@@ -72,7 +72,7 @@ export async function observeCompletionFaults(options: {
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
   await page.reload();
   const recent = page
-    .locator(".dashboard-columns .session-entry")
+    .locator(".board .session-entry")
     .filter({ hasText: record.session.sessionId });
   await expect(recent).not.toContainText("Done");
   const stale = {

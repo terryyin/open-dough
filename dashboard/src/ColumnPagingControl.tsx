@@ -3,11 +3,11 @@ import type { Ref } from "react";
 import { Icon } from "./Icon.tsx";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
-// The slim strip at one side of the dashboard columns while a column is
+// The slim strip at one side of the Board's Columns while a column is
 // hidden that way: it names the next hidden column and how many entries it
 // holds, as that column's heading would, and moves the view one column. It
 // is an ordinary button, named by what it shows.
-export function ColumnEdge({
+export function ColumnPagingControl({
   side,
   column,
   onMove,
@@ -22,13 +22,15 @@ export function ColumnEdge({
     <button
       ref={ref}
       type="button"
-      className={`column-edge column-edge-${side}`}
+      className={`column-paging-control column-paging-control-${side}`}
       onClick={onMove}
     >
       <Icon icon={side === "left" ? ChevronLeft : ChevronRight} />
-      <span className="column-edge-label">
-        <span className="column-edge-name">{column.name}</span>{" "}
-        <span className="column-edge-count">{entryCount(column.entries)}</span>
+      <span className="column-paging-control-label">
+        <span className="column-paging-control-name">{column.name}</span>{" "}
+        <span className="column-paging-control-count">
+          {entryCount(column.entries)}
+        </span>
       </span>
     </button>
   );

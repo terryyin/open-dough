@@ -33,15 +33,15 @@ test("accessible overview is read by keyboard in reading order, with visible foc
 
   // Reading order is the order of the page's source: Sessions, the project
   // selector, source evidence, System settings, then direction, Start
-  // session and the badge legend, then each card's controls by stage
+  // session and the badge legend, then each card's controls by column
   // (Backlog, then Taken): a Backlog card's enabled launch actions, then
   // Inspect. A card's recorded links are in its detail, not its scan view.
   // In a wide window Taken stands beside Backlog's first card, so position on
   // screen would order them differently.
-  const stopsFor = async (stage: Locator) => {
+  const stopsFor = async (column: Locator) => {
     const stops: Locator[] = [];
-    for (const card of await stage.getByRole("article").all()) {
-      if (stage === backlog) {
+    for (const card of await column.getByRole("article").all()) {
+      if (column === backlog) {
         // This overview publishes backlog bytes only: execution stays gated
         // while canonical dependency facts are unavailable; refinement is a stop.
         await expect(
@@ -82,7 +82,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, stop);
     }
-    // The stage container, cards, and all three columns take focus only when it is
+    // The column container, cards, and all three columns take focus only when it is
     // returned to them.
     await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4 + 3);
     await expect(page.locator("[tabindex='0']:visible")).toHaveCount(0);

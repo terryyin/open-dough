@@ -10,8 +10,8 @@
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
@@ -19,19 +19,19 @@ import {
   sidebarEdges,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 test.describe("the Sessions sidebar's state edge", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("each state has its own border style, thickness, and colour, and its hidden label", async ({
@@ -67,7 +67,7 @@ test.describe("the Sessions sidebar's state edge", () => {
       });
       dashboard.claudeSessionBecomes(sessionId, change);
     }
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const {
       button,
       entries,

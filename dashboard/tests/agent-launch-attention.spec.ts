@@ -21,10 +21,10 @@ import {
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectNotReloaded,
@@ -32,7 +32,7 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "./sessionStatePace.ts";
-import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
@@ -68,13 +68,13 @@ const publishedFactsOf = async (card: Locator) => {
 };
 
 test.describe("a story's card counts the sessions that need attention", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in local Taken", async ({
@@ -84,13 +84,13 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
     dashboard.claudeScenario("launched");
-    const { settled, show, launch } = await openStoryStagesJourney(
+    const { settled, show, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
-    const { stages, project, taken } = parts(page);
+    const { board, project, taken } = parts(page);
     const card = (title: string) =>
-      stages.getByRole("article", { name: title, exact: true });
+      board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
       cardSessionOf(card(title), workflow);
     // The words each card with affected sessions shows; every other card
@@ -99,7 +99,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       for (const [title, words] of Object.entries(counts)) {
         await expect(cardAttentionOf(card(title))).toHaveText(words);
       }
-      await expect(cardAttentionOf(stages)).toHaveCount(
+      await expect(cardAttentionOf(board)).toHaveCount(
         Object.keys(counts).length,
       );
     };
@@ -168,7 +168,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     });
 
     await test.step("a Preparing card counts the same way, and resumed work lowers its count without changing what origin publishes", async () => {
-      await show(stagesJourney.preparing);
+      await show(columnsJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
         card(readyStory).getByText("Preparing", { exact: true }),
@@ -183,22 +183,22 @@ test.describe("a story's card counts the sessions that need attention", () => {
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
     });
 
-    const takenStages = {
+    const takenColumns = {
       taken: [readyStory],
       backlog: [takenStory, notRefinedStory],
     };
     await test.step("a Taken card counts the same way, and marking its last affected session done leaves no count", async () => {
       becomes(readyStory, "Execution", "stopped");
       await passOnePace();
-      await show(stagesJourney.taken);
-      await expectMembership(page, takenStages);
+      await show(columnsJourney.taken);
+      await expectMembership(page, takenColumns);
       const takenFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
 
       await markDoneAnyway(entryOf(readyStory, "Execution"));
       await expect(entryOf(readyStory, "Execution")).toHaveCount(0);
       await expectCounted({ [notRefinedStory]: one });
-      await expectMembership(page, takenStages);
+      await expectMembership(page, takenColumns);
       expect(await publishedFactsOf(card(readyStory))).toBe(takenFacts);
     });
 
@@ -231,7 +231,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in local Taken", async () => {
       becomes(notRefinedStory, "Execution", "done-live");
       await passOnePace();
-      await show(stagesJourney.completed);
+      await show(columnsJourney.completed);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory],

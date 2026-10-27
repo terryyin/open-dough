@@ -1,5 +1,5 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
-// committed story-stages origin (./launchJourney.ts): while it marks, the panel
+// committed story-columns origin (./launchJourney.ts): while it marks, the panel
 // says so quietly; then the panel closes, the session leaves its card, and
 // Recently done shows the entry Done under its `done-` name, still openable.
 // How the boundary renames and stops the session is ./boundary/agent-launch-done.spec.ts, how
@@ -30,13 +30,13 @@ import {
 } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { colourOf, tokenColour } from "./pageColours.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -68,13 +68,13 @@ async function holdDoneRequests(page: Page): Promise<() => void> {
 }
 
 test.describe("marking a session done from its terminal", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Mark as done closes the panel, the session leaves its card, and Recently done shows it Done until its terminal opens again", async ({
@@ -82,9 +82,9 @@ test.describe("marking a session done from its terminal", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -153,9 +153,9 @@ test.describe("marking a session done from its terminal", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     const status = panel.getByRole("status");
@@ -193,9 +193,9 @@ test.describe("marking a session done from its terminal", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();

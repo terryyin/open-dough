@@ -2,11 +2,11 @@
 // view where the developer put it: the dialog lies within that card's column,
 // wherever the window shows it, so opening it, leaving it, and reloading keep
 // the same columns showing. How focus and Sessions sidebar choices show a
-// hidden column is ./dashboard-columns-paging.spec.ts and
-// ./dashboard-columns-paging-sessions-sidebar.spec.ts.
+// hidden column is ./board-paging.spec.ts and
+// ./board-paging-sessions-sidebar.spec.ts.
 
 import { expect } from "./dashboardTest.ts";
-import { expectView, showColumn } from "./dashboardColumnsPage.ts";
+import { expectView, showColumn } from "./boardPage.ts";
 import { reachKeptStart, startAction, test } from "./keptStartJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";

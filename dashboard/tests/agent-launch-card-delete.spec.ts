@@ -1,9 +1,9 @@
 // Delete record on a session its story's card lists, on the committed
-// story-stages origin (./launchJourney.ts): while the whole listing cannot be
+// story-columns origin (./launchJourney.ts): while the whole listing cannot be
 // read, every entry says "State unknown" and offers "Delete record…", which
 // asks in place before it deletes and, once confirmed, takes only the
 // session's record: the entry leaves its card, Recently done and the
-// Sessions sidebar, the other session, the card's stage and its attention
+// Sessions sidebar, the other session, the card's column and its attention
 // count stay, no deletion-success message appears, and the keyboard goes to
 // the next entry or to the card. A Session unavailable entry offers and does the same; a Working
 // or Needs input entry offers none. Origin alone still places the story. The page's own dashboard server
@@ -25,13 +25,13 @@ import {
 } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -39,13 +39,13 @@ const question =
   "Delete this session's dashboard record? The conversation stays in Claude Code; a running session keeps running.";
 
 test.describe("deleting a card's session record", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Delete record… on a State unknown entry asks first, Keep and Escape delete nothing, and confirming removes the entry everywhere and moves the keyboard", async ({
@@ -53,9 +53,9 @@ test.describe("deleting a card's session record", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
@@ -165,9 +165,9 @@ test.describe("deleting a card's session record", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
@@ -215,9 +215,9 @@ test.describe("deleting a card's session record", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     await settled();
     await launch(readyStory, "Refinement");

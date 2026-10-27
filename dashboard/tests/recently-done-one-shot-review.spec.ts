@@ -7,7 +7,7 @@ import { readReview } from "./support/launchLandingReview.ts";
 import { git } from "./support/launchLanding.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn, edgeControl, rem } from "./dashboardColumnsPage.ts";
+import { showColumn, columnPagingControl, rem } from "./boardPage.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { noConnection } from "./originAnswers.ts";
 import type { landingReceiptSchema } from "../src/launchLanding.ts";
@@ -94,7 +94,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
     backlog.getByRole("article", { name: "Story A", exact: true }),
   ).toHaveCount(0);
   await expect(taken.locator(".session-entry")).toHaveCount(0);
-  await expect(edgeControl(page, "Recently done")).toHaveText(
+  await expect(columnPagingControl(page, "Recently done")).toHaveText(
     "Recently done 1 entry",
   );
   await showColumn(page, "Recently done");
@@ -102,7 +102,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   await expect(card.locator(".card-identity").first()).toHaveText(
     queuedIdentity,
   );
-  await expect(recent.locator(".stage-count")).toHaveText("1 entry");
+  await expect(recent.locator(".column-count")).toHaveText("1 entry");
   await expect(card.locator(".session-entry")).toHaveCount(1);
   await expect(card.locator(".session-state")).toHaveText(
     "Done: Native session is still working",
@@ -190,7 +190,7 @@ test("an unfinished attention session outside its done card still supplies revie
   const card = recent.getByRole("article", { name: "Story A", exact: true });
   await expect(card).toBeVisible();
   await expect(card.locator(".session-entry")).toHaveCount(0);
-  await expect(recent.locator(".stage-count")).toHaveText("1 entry");
+  await expect(recent.locator(".column-count")).toHaveText("1 entry");
   await readReview(page, card);
   await expect(
     review.getByRole("heading", { name: "Story A", exact: true }),

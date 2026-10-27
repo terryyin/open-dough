@@ -6,24 +6,24 @@ import { launched } from "./agentTerminalBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
 } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { launchTouchViewports } from "./touchLaunchPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 const intended = {
   identity: "SEED-901#intended-mobile-session",
@@ -60,7 +60,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         "blocked",
         inputNote,
       );
-      const opened = await openStoryStagesJourney(page, journey);
+      const opened = await openStoryColumnsJourney(page, journey);
       await opened.settled();
       const { sidebar, button, badge, entries, entry } = sidebarParts(page);
       await tapWhereShown(button);

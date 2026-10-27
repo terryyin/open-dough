@@ -13,7 +13,7 @@
 // revision.
 
 import { expect, test } from "./dashboardTest.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import { entryName, type ProgressiveEntry } from "./recentlyDoneProgressive.ts";
 import {

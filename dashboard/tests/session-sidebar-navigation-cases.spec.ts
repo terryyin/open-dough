@@ -14,10 +14,10 @@ import { launched } from "./agentTerminalBoundary.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectSidebarSessionShown,
@@ -36,13 +36,13 @@ import {
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
 test.describe("opening a Sessions sidebar entry, in its other cases", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("a story on no card reveals and marks its Taken entry, and a Session unavailable entry reveals its card and opens no terminal", async ({
@@ -52,7 +52,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     const { card } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button, entry } = sidebarParts(page);
     const { taken, backlog } = parts(page);
@@ -119,7 +119,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     const { show } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     const doneStorySession = (
       await launched(dashboard, "open-dough", {
@@ -129,15 +129,15 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
       })
     ).sessionId;
     // Story C is done; its open session remains a local Taken entry.
-    await show(stagesJourney.completed);
+    await show(columnsJourney.completed);
     const { button, entry } = sidebarParts(page);
-    const { recentlyDone, stages } = parts(page);
+    const { recentlyDone, board } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const sessionName = standaloneSessionName("Refinement", notRefinedStory);
     const local = parts(page).taken.getByRole("article", { name: sessionName });
     await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     await expect(
-      stages.locator("[data-work]").filter({
+      board.locator("[data-work]").filter({
         has: page.getByRole("heading", {
           name: notRefinedStory,
           exact: true,
@@ -172,13 +172,13 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     const { sessions } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button, entry } = sidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await page.emulateMedia({ reducedMotion: "reduce" });
     // Tall enough that the centered card, with the room it keeps above for the
-    // stage's pinned heading, fits below the banner in any font's metrics.
+    // column's pinned heading, fits below the banner in any font's metrics.
     await page.setViewportSize({ width: 700, height: 900 });
     await button.click();
     await expect(sidebar).toBeVisible();
@@ -217,7 +217,7 @@ test.describe("opening a Sessions sidebar entry, in its other cases", () => {
     const { holdPygardonStories } = await openNavigationJourney(
       page,
       dashboard,
-      stagesJourney,
+      columnsJourney,
     );
     const { button, entry } = sidebarParts(page);
     const { project, backlog } = parts(page);

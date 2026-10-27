@@ -6,7 +6,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { enlargedView, expectMark, expectPortrait } from "./agentPortrait.ts";
 import {

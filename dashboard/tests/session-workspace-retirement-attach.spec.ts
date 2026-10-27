@@ -11,11 +11,11 @@ import type { APIResponse } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { report, storeFile, save, retained } from "./support/retainedReport.ts";
 import {
   codexAttaches,
@@ -25,12 +25,12 @@ import {
 import { processRunning } from "./support/processGroup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 for (const loss of ["missing", "unknown", "startup"] as const) {
   test(`attachment ${loss} after an existing-directory observation opens the same passive report, preserves done intent and returns focus`, async ({
@@ -56,7 +56,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
       expect(observation.status()).toBe(200);
       await route.fulfill({ response: observation });
     });
-    const { card } = await openStoryStagesJourney(page, journey);
+    const { card } = await openStoryColumnsJourney(page, journey);
     const entry =
       doneAt === undefined
         ? cardSessions(card(notRefinedStory))

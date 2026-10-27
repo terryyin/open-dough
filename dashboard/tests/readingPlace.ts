@@ -6,7 +6,7 @@ import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 
 // A card with enough page after it aligns with the configured reading edge,
-// including the clearance for the sticky stage heading.
+// including the clearance for the sticky column heading.
 export async function expectReadingTop(card: Locator) {
   await expect
     .poll(() =>

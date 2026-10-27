@@ -148,7 +148,7 @@ export function BadgeLegend() {
           <span>
             {" "}
             — with its developer, on a queued entry: a published preparation
-            assignment. It is neither a stage nor a sign that an agent is at
+            assignment. It is neither a column nor a sign that an agent is at
             work now; the entry keeps its priority and badges.
           </span>
         </li>

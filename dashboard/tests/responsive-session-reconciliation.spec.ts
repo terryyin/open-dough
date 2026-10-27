@@ -6,7 +6,7 @@
 // read snapshot of the accepted revision, or of one that contains it, returns
 // the story's actions once its native outcome settled: an older snapshot
 // arriving late or an unrelated revision keeps them unavailable, while the
-// published stage and facts show as read. The session goes on working. Once
+// published column and facts show as read. The session goes on working. Once
 // reconciled, a reload reconciles it again without asking GitHub.
 
 import { attempts } from "./agentLaunchBoundary.ts";

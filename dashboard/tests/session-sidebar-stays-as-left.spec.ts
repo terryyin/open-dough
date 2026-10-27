@@ -17,14 +17,14 @@ import {
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { watchPageErrors } from "./pageErrors.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -34,22 +34,22 @@ const queued = {
 };
 
 test.describe("the Sessions sidebar as left", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("starts closed, and once open stays open across a project switch, the roster and back, the terminal, and reloads", async ({
     page,
   }) => {
     const errors = watchPageErrors(page);
-    const { settled, card, launch, show } = await openStoryStagesJourney(
+    const { settled, card, launch, show } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button } = sidebarParts(page);
     const { project, taken } = parts(page);
@@ -95,7 +95,7 @@ test.describe("the Sessions sidebar as left", () => {
 
     await test.step("opening the agent roster and going back to the stories", async () => {
       const { roster, back } = rosterParts(page);
-      await show(stagesJourney.taken);
+      await show(columnsJourney.taken);
       const takenCard = taken.getByRole("article", { name: readyStory });
       await takenCard.getByRole("button", { name: "Inspect story" }).click();
       await takenCard
@@ -135,7 +135,7 @@ test.describe("the Sessions sidebar as left", () => {
         get: refused,
       });
     });
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button } = sidebarParts(page);
     await expectMembership(page, queued);
     await settled();

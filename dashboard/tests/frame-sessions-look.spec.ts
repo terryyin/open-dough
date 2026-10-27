@@ -17,10 +17,10 @@ import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -32,13 +32,13 @@ const cutTitles = ".sidebar-title";
 const terminalScreen = ".terminal-screen";
 
 test.describe("the Sessions sidebar and terminal panel in the frame's look", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("read clearly, keep their names, and fit a narrow and a zoomed window", async ({
@@ -47,7 +47,7 @@ test.describe("the Sessions sidebar and terminal panel in the frame's look", () 
   }) => {
     const { sessionId } = await launched(dashboard, "doughnut", work);
     await page.setViewportSize(narrowWindow);
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button, entries, entry } = sidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const control = (name: string) =>

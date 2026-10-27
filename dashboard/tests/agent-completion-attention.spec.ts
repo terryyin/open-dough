@@ -8,7 +8,7 @@ import { test, expect, stored } from "./support/codexStart.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { expectInstalledReportingScript } from "./support/reportingInputAssertions.ts";
 import { keepFinalReport } from "./support/retainedReport.ts";
@@ -26,10 +26,9 @@ import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
-// The saved conversation's own final report, as Codex keeps it.
 const nativeReport = "The saved conversation's final report.";
 
-test("installed attention report stays open, durable and readable through stage change, retirement, restart, Mark as read and Mark as done", async ({
+test("installed attention report stays open, durable and readable through column change, retirement, restart, Mark as read and Mark as done", async ({
   page,
   dashboard,
   origin,
@@ -51,8 +50,7 @@ test("installed attention report stays open, durable and readable through stage 
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  // Take publication, the workspace and the native session creation run
-  // dozens of real git and child processes, slower on a loaded machine.
+  // Real Git/workspace/session creation can take longer on a loaded machine.
   await expect
     .poll(
       () =>
@@ -93,8 +91,6 @@ test("installed attention report stays open, durable and readable through stage 
     const child = await exec("bash", ["-c", command], { cwd: origin.machine });
     return JSON.parse(child.stdout) as CompletionReceipt;
   };
-  // The native calls since `from` that interrupt, rename, or instruct the
-  // session.
   const steering = ["turn/interrupt", "thread/name/set", "turn/start"];
   const nativeSince = (from: number, methods: readonly string[] = steering) =>
     native.calls.slice(from).filter((call) => methods.includes(call.method));
@@ -196,9 +192,8 @@ test("installed attention report stays open, durable and readable through stage 
     await expect(
       panel.getByRole("button", { name: "Mark as read" }),
     ).toHaveCount(0);
-    // Read on the entry, the session stays open and the panel gains no
-    // control; Mark as done then closes it as any session: renamed, and its
-    // observed in-progress turn interrupted.
+    // Reading keeps the session open and adds no panel control. Mark as done
+    // renames it and interrupts its observed in-progress turn.
     native.observations.set(native.threadId, {
       status: { type: "active", activeFlags: [] },
       turns: [{ id: "observed-turn", status: "inProgress" }],

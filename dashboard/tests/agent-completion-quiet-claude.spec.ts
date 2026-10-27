@@ -12,7 +12,7 @@
 
 import { markDone, recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { storedRecords } from "./machineLaunchRecords.ts";
 import {
   builtDashboardDir,

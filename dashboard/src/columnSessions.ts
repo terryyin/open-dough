@@ -1,5 +1,5 @@
 // Session placement uses saved Done and the current published membership.
-// Native activity and local launch evidence never choose a story's stage.
+// Native activity and local launch evidence never choose a story's column.
 import {
   cardSessionsOf,
   isOpen,

@@ -21,18 +21,18 @@ const preceding = [...Array(12).keys()]
   .join("\n");
 
 export const targetBacklog = (
-  stage: "Backlog list" | "Taken" = "Backlog list",
+  column: "Backlog list" | "Taken" = "Backlog list",
 ) =>
-  `# Product backlog\n\n## Taken\n\n${stage === "Taken" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}\n## Backlog list\n\n${preceding}\n${stage === "Backlog list" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}`;
+  `# Product backlog\n\n## Taken\n\n${column === "Taken" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}\n## Backlog list\n\n${preceding}\n${column === "Backlog list" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}`;
 
-export async function notificationOrigins(page: Page, stage?: "Taken") {
+export async function notificationOrigins(page: Page, column?: "Taken") {
   const other = await publishMovingOrigin(page);
   other.push(
     "cd".repeat(20),
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${otherTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n`,
   );
   const target = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  target.push(targetRevision, targetBacklog(stage));
+  target.push(targetRevision, targetBacklog(column));
   return { other, target };
 }
 

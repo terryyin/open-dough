@@ -175,7 +175,7 @@ test("a target in a hidden column is revealed with reduced motion and useful key
   const card = page.getByRole("article", { name: notifiedTitle, exact: true });
   await expect(card).toBeFocused();
   await expect(card).toBeInViewport({ ratio: 0.99 });
-  await expect(page.locator(".dashboard-columns-row")).toHaveAttribute(
+  await expect(page.locator(".board-row")).toHaveAttribute(
     "data-hidden",
     "1 3",
   );

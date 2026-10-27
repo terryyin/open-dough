@@ -10,38 +10,31 @@
 //
 // A duration list (`tests/longest-first` for the Node suite) holds one
 // `<seconds><TAB><label>` line per recorded job, the form the runner's
-// `test-times` artifact prints; `#` lines and blank lines are ignored, and any
-// other line fails naming the file, line number and content before any job
-// runs.
+// `test-times` artifact prints. duration-list.mjs reads plain lists or indexes
+// with named TSV parts; malformed rows fail before any job runs.
 //
 // The deal itself is stated in tests/test-shares.md ("The deal").
 
-import { readFileSync } from "node:fs";
+import {
+  bytewise,
+  formatSeconds,
+  readInput,
+  TestSharesError,
+} from "./duration-list.mjs";
+export {
+  formatSeconds,
+  readInput,
+  TestSharesError,
+  readDurationList,
+  parseDurationList,
+  formatTimes,
+  mergeTimes,
+  writeDurationList,
+} from "./duration-list.mjs";
 
-// A failure to report as it is and exit 1 on.
-export class TestSharesError extends Error {}
-
-const secondsPattern = /^[0-9]+(\.[0-9]+)?$/;
 // Below this, two predicted totals are equal; sums of tenths differ from
 // their exact value by far less, and durations are never this close apart.
 const equalTotals = 1e-9;
-const bytewise = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
-
-export function formatSeconds(value) {
-  return value.toFixed(1);
-}
-
-// A file's text; a file that cannot be read fails naming it, as a malformed
-// one does.
-export function readInput(path) {
-  try {
-    return readFileSync(path, "utf8");
-  } catch (error) {
-    throw new TestSharesError(
-      `FAIL: ${path} cannot be read (${error.code ?? error.message}).`,
-    );
-  }
-}
 
 // Parses `<i>/<n>` with i from 1 to n into the share and the share count,
 // failing with the setting that carried it (as scripts/test-jobs.sh fails on
@@ -60,85 +53,6 @@ export function parseSplit(value, setting) {
     );
   }
   return { share, count };
-}
-
-// Records a label's seconds, keeping the largest when the label repeats.
-function recordLongest(seconds, label, value) {
-  if (!seconds.has(label) || seconds.get(label) < value) {
-    seconds.set(label, value);
-  }
-}
-
-// Parses a duration list or a times file into its leading header lines and
-// a map from label to seconds. Any non-comment, non-blank line must be
-// `<seconds><TAB><label>`.
-export function parseDurationList(text, name) {
-  const header = [];
-  const seconds = new Map();
-  let inHeader = true;
-  text.split(/\r?\n/).forEach((line, index) => {
-    if (line.startsWith("#")) {
-      if (inHeader) {
-        header.push(line);
-      }
-      return;
-    }
-    if (line.trim() === "") {
-      return;
-    }
-    inHeader = false;
-    const tab = line.indexOf("\t");
-    const value = tab === -1 ? "" : line.slice(0, tab);
-    const label = tab === -1 ? "" : line.slice(tab + 1);
-    if (!secondsPattern.test(value) || label === "") {
-      throw new TestSharesError(
-        `FAIL: ${name}:${index + 1}: ${JSON.stringify(line)} is not <seconds><TAB><label>; no check was run.`,
-      );
-    }
-    recordLongest(seconds, label, Number(value));
-  });
-  return { header, seconds };
-}
-
-export function readDurationList(path) {
-  return parseDurationList(readInput(path), path);
-}
-
-// The times form, which the runner's `test-times` and the dashboard's
-// `dashboard-times-<shard>` artifacts print and a list's job lines keep: one
-// `<seconds><TAB><label>` line per entry, seconds to a tenth, longest first,
-// equal seconds bytewise by label.
-/**
- * @param {Iterable<[string, number]>} entries label and seconds
- * @returns {string[]}
- */
-export function formatTimes(entries) {
-  return [...entries]
-    .map(([label, seconds]) => ({ label, printed: formatSeconds(seconds) }))
-    .sort(
-      (left, right) =>
-        Number(right.printed) - Number(left.printed) ||
-        bytewise(left.label, right.label),
-    )
-    .map(({ label, printed }) => `${printed}\t${label}`);
-}
-
-// The refreshed list text: the header lines (without any former `# Source:`
-// line) followed by `# Source: <source>`, then every job of the times files
-// in the times form.
-export function mergeTimes(times, { header, source }) {
-  const merged = new Map();
-  for (const { name, text } of times) {
-    for (const [label, seconds] of parseDurationList(text, name).seconds) {
-      recordLongest(merged, label, seconds);
-    }
-  }
-  const lines = [
-    ...header.filter((line) => !line.startsWith("# Source:")),
-    `# Source: ${source}`,
-    ...formatTimes(merged),
-  ];
-  return `${lines.join("\n")}\n`;
 }
 
 function median(values) {

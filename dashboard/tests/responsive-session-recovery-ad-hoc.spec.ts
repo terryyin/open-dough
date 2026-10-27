@@ -40,8 +40,8 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   });
 
   await openTakenBacklog(page, launchJourney);
-  const { stages } = parts(page);
-  const cards = stages.locator("[data-work]");
+  const { board } = parts(page);
+  const cards = board.locator("[data-work]");
   const storyCards = await cards.count();
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(
@@ -63,7 +63,7 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   await expect(
     cards.and(page.getByRole("article", { name: /ad hoc/i })),
   ).toHaveCount(0);
-  await expect(stages).not.toContainText("Startup needs reconciliation");
+  await expect(board).not.toContainText("Startup needs reconciliation");
   // The recorded native id has its local entry; recovery concerns whether
   // the blank conversation persisted, not a new published story.
   const session = stored(dashboard.home)[0]?.session.sessionId;

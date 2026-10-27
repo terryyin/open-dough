@@ -1,4 +1,4 @@
-// Recently done records on the committed story-stages origin (./launchJourney.ts):
+// Recently done records on the committed story-columns origin (./launchJourney.ts):
 // State unknown entries offer Delete record… with the card-entry question;
 // deletion removes the entry without success text and moves focus within its list,
 // then to its done card or the section. The sidebar offers no deletion, nor do
@@ -17,16 +17,16 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.setTimeout(120_000);
@@ -40,13 +40,13 @@ test.use({
 });
 
 test.describe("deleting a Recently done entry's record", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("a State unknown entry, inside a done story's card or of its own, offers Delete record…, deletes from Recently done and the sidebar, and moves the keyboard to the neighbouring entry; the sidebar offers none and Working or Done offers none", async ({
@@ -54,9 +54,9 @@ test.describe("deleting a Recently done entry's record", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryStagesJourney(
+    const { card, settled, show, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
@@ -113,14 +113,14 @@ test.describe("deleting a Recently done entry's record", () => {
       name: standaloneSessionName("Refinement", notRefinedStory),
     });
     const working = cardSessionOf(
-      parts(page).stages.getByRole("article", {
+      parts(page).board.getByRole("article", {
         name: readyStory,
         exact: true,
       }),
       "Refinement",
     );
     const ofStoryA = cardSessionOf(
-      parts(page).stages.getByRole("article", {
+      parts(page).board.getByRole("article", {
         name: takenStory,
         exact: true,
       }),
@@ -143,11 +143,12 @@ test.describe("deleting a Recently done entry's record", () => {
       await page.reload();
       await settled();
       await expect(sessionStateOf(markedDone)).toHaveText("Done");
-      await show(stagesJourney.completed);
+      await show(columnsJourney.completed);
+      await expect(doneCard).toBeVisible();
       await expect(insideDoneCard).toBeVisible();
       await expect(
         page
-          .getByRole("region", { name: "Work stages" })
+          .getByRole("region", { name: /^(Backlog|Taken)$/ })
           .getByRole("article", { name: notRefinedStory, exact: true }),
       ).toHaveCount(0);
     });
@@ -216,7 +217,7 @@ test.describe("deleting a Recently done entry's record", () => {
     });
 
     await test.step("on a revision with no done record, deleting the last session on an active Taken card puts the keyboard on that card", async () => {
-      await show(stagesJourney.taken);
+      await show(columnsJourney.taken);
       await expect(doneCard).toHaveCount(0);
       await showColumn(page, "Taken");
       await deleteEntry(working);

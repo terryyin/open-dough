@@ -90,7 +90,7 @@ export function deletedEntryHome(
   const column =
     control.closest(".recently-done") !== null
       ? ".recently-done"
-      : `.stage[aria-labelledby="${control.closest(".stage")?.getAttribute("aria-labelledby")}"]`;
+      : `.column[aria-labelledby="${control.closest(".column")?.getAttribute("aria-labelledby")}"]`;
   const within =
     control.closest(".card-sessions") !== null ? ".card-sessions" : column;
   return () =>
@@ -130,11 +130,11 @@ export function revealStory(identity: string): (() => void) | undefined {
   return keepInView(card);
 }
 
-// The actual entry across all dashboard columns. The sidebar is navigation,
+// The actual entry across all Board Columns. The sidebar is navigation,
 // so it does not compete with the session's one column home.
 export function sessionEntry(sessionKey: string): HTMLElement | null {
   return entryShown(
     { attribute: showsSessionAttribute, value: sessionKey },
-    ".dashboard-columns",
+    ".board",
   );
 }

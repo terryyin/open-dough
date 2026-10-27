@@ -20,7 +20,7 @@ import { sessionKey } from "./sessionReference.ts";
 // this browser's disposable preference (`sidebarOpenKey`): it survives project
 // switches, views, the terminal, and reloads, and without it, as when storage
 // cannot be used, the sidebar starts closed. Toggling it, or opening an entry,
-// is page state only: it changes no story fact, stage, or session. Entries are
+// is page state only: it changes no story fact, column, or session. Entries are
 // local evidence of launches, not story facts. Below the session list, the
 // open sidebar also offers Running Cursor sessions
 // (`./RunningCursorSessions.tsx`) as a section that starts collapsed on each

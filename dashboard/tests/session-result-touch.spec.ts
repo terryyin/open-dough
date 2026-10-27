@@ -4,8 +4,8 @@ import { existsSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { report, passive } from "./support/retainedReport.ts";
 import {
@@ -21,12 +21,12 @@ import { tapWhereShown, pressWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 for (const height of [320, 240]) {
   test.describe(`short phone ${height}`, () => {

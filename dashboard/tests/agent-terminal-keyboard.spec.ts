@@ -20,12 +20,12 @@ import {
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import { tooltipOf } from "./frameIconControl.ts";
@@ -42,13 +42,13 @@ const queued = {
 };
 
 test.describe("Command+Shift+Escape and the terminal panel", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Command+Shift+Escape closes the maximized panel from inside the terminal as Close does, plain Escape reaches the session, an open dialog keeps the key, and with no panel it changes nothing", async ({
@@ -56,9 +56,9 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { settled, card, launch, action } = await openStoryStagesJourney(
+    const { settled, card, launch, action } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { banner } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });

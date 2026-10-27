@@ -1,4 +1,4 @@
-// Recently done as the dashboard columns show it (`./recentlyDoneView.ts`
+// Recently done as the Board's Columns show it (`./recentlyDoneView.ts`
 // decides what it lists): the requested first entries newest first, each
 // done story's card holding its sessions, the gaps in what could be read, the
 // one action that shows the next ten older entries, and, beside the heading
@@ -11,7 +11,7 @@ import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlo
 import { launchRetentionDays } from "./agentLaunch.ts";
 import { entryCount } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
-import { dashboardColumnMark } from "./columnPaging.ts";
+import { columnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
@@ -133,12 +133,12 @@ export function RecentlyDone({
       className="recently-done"
       aria-labelledby="recently-done-heading"
       tabIndex={-1}
-      {...dashboardColumnMark}
+      {...columnMark}
     >
-      <header className="stage-header">
+      <header className="column-header">
         <h2 id="recently-done-heading">{recentlyDoneName}</h2>
-        <div className="stage-header-actions">
-          <p className="stage-count">{entryCount(column.entries)}</p>
+        <div className="column-header-actions">
+          <p className="column-count">{entryCount(column.entries)}</p>
           <ShowLatest view={view} section={section} />
         </div>
       </header>

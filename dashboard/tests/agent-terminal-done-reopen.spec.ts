@@ -1,5 +1,5 @@
 // Reopening a session marked done from the page, on the committed
-// story-stages origin (./launchJourney.ts): a session already marked done,
+// story-columns origin (./launchJourney.ts): a session already marked done,
 // through the boundary, shows Done in Recently done with no card entry;
 // opening its terminal there reopens it: once the terminal attaches, it is
 // back on its card and no longer Done, through a reload, until it is marked
@@ -20,24 +20,24 @@ import {
 } from "./dashboardPage.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("reopening a session marked done from its Recently done entry", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("opening its terminal puts it back on its card and no longer Done, through a reload, until it is marked done again", async ({
@@ -45,9 +45,9 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });

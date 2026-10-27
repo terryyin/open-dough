@@ -1,4 +1,4 @@
-// The story-stages journey (./launchJourney.ts) as the dashboard page shows it:
+// The story-columns journey (./launchJourney.ts) as the dashboard page shows it:
 // the page opens on the queued revision of its committed origin, beside a
 // Doughnut origin to switch to, and a journey launches from Backlog cards and
 // shows each later revision by reloading the page.
@@ -13,7 +13,7 @@ import {
   doughnutRepository,
   revisionDoughnut,
 } from "./doughnutProject.ts";
-import type { StoryStagesJourney } from "./launchJourney.ts";
+import type { StoryColumnsJourney } from "./launchJourney.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
@@ -24,13 +24,13 @@ import {
 
 export type Workflow = "Execution" | "Refinement";
 
-export async function openStoryStagesJourney(
+export async function openStoryColumnsJourney(
   page: Page,
-  stagesJourney: StoryStagesJourney,
+  columnsJourney: StoryColumnsJourney,
 ) {
   const origin = await publishCommittedOrigin(page, {
-    repoDir: stagesJourney.origin,
-    revision: stagesJourney.queued,
+    repoDir: columnsJourney.origin,
+    revision: columnsJourney.queued,
     repository: "terryyin/open-dough",
   });
   const doughnut = await publishMovingOrigin(page, doughnutRepository);

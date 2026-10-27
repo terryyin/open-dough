@@ -19,7 +19,7 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 import {
   expectRevealsSince,

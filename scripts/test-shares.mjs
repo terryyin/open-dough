@@ -27,7 +27,7 @@
 //                                            `# Source: TEXT` as its last line
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   dealShares,
@@ -39,6 +39,7 @@ import {
   readTimeBudget,
   shareLabels,
   TestSharesError,
+  writeDurationList,
 } from "./share-deal.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
@@ -205,7 +206,7 @@ function refreshCommand(argv) {
     name,
     text: readInput(name),
   }));
-  writeFileSync(
+  writeDurationList(
     options.list,
     mergeTimes(times, { header, source: options.source }),
   );

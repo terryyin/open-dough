@@ -14,10 +14,10 @@ import {
 import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
@@ -27,9 +27,9 @@ import {
   expectSidebarLayout,
   sidebarParts,
 } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -40,13 +40,13 @@ const pygardonStory = {
 const pygardonTitle = pygardonStory.title;
 
 test.describe("the Sessions sidebar", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("leads with the sessions that need the developer, earliest launch first, then the others newest first", async ({
@@ -74,7 +74,7 @@ test.describe("the Sessions sidebar", () => {
         dashboard.claudeSessionBecomes(sessionId, "failed");
       if (work === working11) toBlock = sessionId;
     }
-    const { settled } = await openStoryStagesJourney(page, stagesJourney);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { button, entries, badge } = sidebarParts(page);
     await settled();
     await button.click();
@@ -126,9 +126,9 @@ test.describe("the Sessions sidebar", () => {
       ...pygardonStory,
       workflow: "refinement",
     });
-    const { settled, card, launch } = await openStoryStagesJourney(
+    const { settled, card, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { sidebar, button, entries, badge, attentionSentence } =
       sidebarParts(page);

@@ -13,7 +13,7 @@ import type { Locator, Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { standaloneSessionName } from "./dashboardPage.ts";
-import { rem, showColumn } from "./dashboardColumnsPage.ts";
+import { rem, showColumn } from "./boardPage.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import {

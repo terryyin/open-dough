@@ -5,16 +5,16 @@
 import type { Locator, Page } from "@playwright/test";
 
 export function parts(page: Page) {
-  const stages = page.getByRole("region", { name: "Work stages" });
+  const board = page.getByRole("region", { name: "Board" });
   const status = page.getByRole("status").and(page.locator(".read-status"));
   const direction = page.getByRole("region", { name: "Near-future direction" });
   return {
     banner: page.getByRole("banner"),
     sourceEvidence: page.getByLabel(/^Source evidence for /),
     project: page.getByRole("radiogroup", { name: "Project" }),
-    stages,
-    backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
-    taken: stages.getByRole("region", { name: "Taken", exact: true }),
+    board,
+    backlog: board.getByRole("region", { name: "Backlog", exact: true }),
+    taken: board.getByRole("region", { name: "Taken", exact: true }),
     direction,
     directionToggle: page.locator(".direction summary"),
     // The direction's text, shown only while the direction is open.

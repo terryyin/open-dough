@@ -2,7 +2,7 @@
    Recently done: ./recently-done.css. A noted Start keeps its accent, dashed
    edge and tooltip (./icon-control.css); quiet gray means disabled. */
 
-/* In the card's launch group (stages.css), a Start's answer takes a line of
+/* In the card's launch group (story-cards.css), a Start's answer takes a line of
    its own right below it, before the next Start. */
 .card-launch-group > .start-launch {
   display: contents;
@@ -130,7 +130,7 @@
    entry also uses the selection outline; every card has the accent left edge. */
 .card.in-terminal,
 .recently-done .session-entry.in-terminal,
-.stage > .cards > li > .session-entry.in-terminal {
+.column > .cards > li > .session-entry.in-terminal {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }

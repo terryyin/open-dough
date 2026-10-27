@@ -1,5 +1,5 @@
-/* The connected stages' cards. The stages around them, and the taking of
-   work between them, are in stage-frame.css; the page around them, and the
+/* The connected columns' cards. The columns around them, and the taking of
+   work between them, are in column-frame.css; the page around them, and the
    text styles their cards share with it, are in styles.css. main.tsx loads
    that first, so that a rule here decides where both say something equally
    specific, as a card's corners do under focus. */
@@ -169,16 +169,9 @@
   font-weight: 600;
 }
 
-/* A long stage keeps its name and count in sight while its cards scroll with
-   the page, where the window is tall enough to spare the room; focus brought
-   back up the page stops below that heading rather than under it. */
+/* Focus returned to a card stays below the Column heading where the window
+   is tall enough to keep that heading in sight. */
 @media (min-height: 30rem) {
-  .stage-header {
-    position: sticky;
-    top: var(--banner-height, 0px);
-    z-index: 1;
-  }
-
   .card,
   .card a,
   .card button {

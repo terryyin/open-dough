@@ -54,7 +54,7 @@
   margin: 0;
 }
 
-/* Where the page shows one column (./dashboard-columns.css), as on a phone,
+/* Where the page shows one column (./board.css), as on a phone,
    the row has no room for an answer beside Start session: it reads whole
    beneath Start session and the help, as wide as the two, and takes none of
    the heading's room. */

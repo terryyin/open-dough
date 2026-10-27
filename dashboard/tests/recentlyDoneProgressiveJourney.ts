@@ -146,7 +146,7 @@ export async function expectThroughDestination(
     arrived ?? through.at(-1) ?? "",
   ]);
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  await expect(recent.locator(".stage-count")).toHaveText("35 entries");
+  await expect(recent.locator(".column-count")).toHaveText("35 entries");
   expect(recordsAsked(github).toSorted()).toEqual(
     storiesThrough(destination).toSorted(),
   );

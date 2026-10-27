@@ -3,11 +3,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { cardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   report,
   storeFile,
@@ -18,12 +18,12 @@ import {
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("card, Recently done and sidebar review the retained report with attention, association and keyboard focus, without continuing", async ({
   page,
@@ -34,7 +34,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   const { record, workspace } = await retained(dashboard, native);
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const since = native.calls.length;
-  const { card, show } = await openStoryStagesJourney(page, journey);
+  const { card, show } = await openStoryColumnsJourney(page, journey);
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
@@ -134,7 +134,7 @@ test("changing or closing selection cancels a held report and never shows its te
     await held;
     await route.fulfill({ response }).catch(() => undefined);
   });
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   const entries = cardSessions(card(notRefinedStory));
   const first = entries.filter({

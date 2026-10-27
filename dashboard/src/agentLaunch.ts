@@ -59,9 +59,9 @@ export function storySessionsOf(
   );
 }
 
-// The sessions a story's card lists, oldest first, in whatever stage origin
+// The sessions a story's card lists, oldest first, in whatever column origin
 // shows the story: every one of the story's sessions (`storySessionsOf`) that
-// has not been marked done. Neither the story's stage nor its session's state
+// has not been marked done. Neither the story's column nor its session's state
 // or age removes one.
 export function cardSessionsOf(
   records: readonly LaunchWithState[] | undefined,

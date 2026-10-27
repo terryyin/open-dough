@@ -9,7 +9,7 @@ import {
   parts,
   sessionNamedBy,
 } from "./dashboardPage.ts";
-import type { Workflow } from "./storyStagesPage.ts";
+import type { Workflow } from "./storyColumnsPage.ts";
 
 export function cardSessionListing(
   page: Page,
@@ -24,7 +24,7 @@ export function cardSessionListing(
   >(titles.map((title) => [title, []]));
   const expectUnique = async (key: string) => {
     await expect(
-      page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+      page.locator(`.board [data-shows-session="${key}"]`),
     ).toHaveCount(1);
     await expect(recent.locator(`[data-shows-session="${key}"]`)).toHaveCount(
       0,

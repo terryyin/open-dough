@@ -162,7 +162,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
 
   await stories();
   await expect(
-    parts(page).stages.getByRole("list", { name: "Sessions" }),
+    parts(page).board.getByRole("list", { name: "Sessions" }),
   ).toHaveCount(0);
   for (const start of ["Start execution", "Start refinement"]) {
     await expect(

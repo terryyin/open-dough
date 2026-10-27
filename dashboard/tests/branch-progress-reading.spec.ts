@@ -3,7 +3,7 @@
 // above a focused source link through the built preview's real local boundary.
 
 import { inspectedDetail } from "./cardControls.ts";
-import { expectView, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";

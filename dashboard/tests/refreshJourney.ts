@@ -67,7 +67,7 @@ export async function openAtA(page: Page): Promise<MovingOrigin> {
 export async function inspectDashboardStory(page: Page): Promise<void> {
   await test.step("the dashboard story's detail is inspected", async () => {
     await inspectedDetail(
-      parts(page).stages.getByRole("article", { name: dashboardStory }),
+      parts(page).board.getByRole("article", { name: dashboardStory }),
     );
   });
 }

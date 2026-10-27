@@ -1,6 +1,6 @@
 import { expect, test } from "./support/preparationPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { readReview, refreshReview } from "./support/launchLandingReview.ts";
 import {

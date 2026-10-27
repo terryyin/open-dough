@@ -17,29 +17,29 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { sidebarParts } from "./sessionSidebarPage.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.setTimeout(120_000);
 
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting an unavailable session's record from its current home", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("a Session unavailable entry offers Delete record…, deletes from its active card and the sidebar, and a completed story's entry keeps the record when its state became known", async ({
@@ -47,9 +47,9 @@ test.describe("deleting an unavailable session's record from its current home", 
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryStagesJourney(
+    const { card, settled, show, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sidebarParts(page);
@@ -66,17 +66,15 @@ test.describe("deleting an unavailable session's record from its current home", 
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
     // The completed story has no active card, so its open session retains
     // its local Taken home while the other session follows Taken.
-    await show(stagesJourney.completed);
+    await show(columnsJourney.completed);
     await sidebar.button.click();
     const unavailable = cardSessionOf(
       parts(page).taken.getByRole("article", { name: readyStory, exact: true }),
       "Execution",
     );
-    const becomesKnown = page
-      .locator(".dashboard-columns")
-      .getByRole("article", {
-        name: standaloneSessionName("Refinement", notRefinedStory),
-      });
+    const becomesKnown = page.locator(".board").getByRole("article", {
+      name: standaloneSessionName("Refinement", notRefinedStory),
+    });
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",

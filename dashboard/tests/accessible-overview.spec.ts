@@ -14,7 +14,7 @@ import {
   unusableTarget,
 } from "./accessibleOverview.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { enabledCardLaunchActions, inspectedDetail } from "./cardControls.ts";
 import {
   commitAnswer,
@@ -73,7 +73,7 @@ test("accessible overview reflows long published work for a narrow window and pa
     await expectNoSidewaysScrollAndWholeText(page);
   });
 
-  await test.step("the page reads direction, then Backlog alone, and its edge control brings Taken", async () => {
+  await test.step("the page reads direction, then Backlog alone, and its column paging control brings Taken", async () => {
     await expectStackedInOrder([directionToggle, backlog]);
     await showColumn(page, "Taken");
     await expectStackedInOrder([directionToggle, taken]);
@@ -166,8 +166,8 @@ test("accessible overview keeps a read problem and the retained work reachable i
   origin.push(revision, longBacklog);
   await pausePageClock(page);
   await openUntilRead(page);
-  const { stages, source, problem } = parts(page);
-  await expect(stages.getByRole("article")).toHaveCount(5);
+  const { board, source, problem } = parts(page);
+  await expect(board.getByRole("article")).toHaveCount(5);
 
   const missing = "f".repeat(40);
   origin.push(missing, longBacklog);
@@ -179,7 +179,7 @@ test("accessible overview keeps a read problem and the retained work reachable i
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   );
   await expectNoSidewaysScrollAndWholeText(page);
-  await expectStackedInOrder([source, problem, stages]);
+  await expectStackedInOrder([source, problem, board]);
   await expect(problem.locator("time")).toHaveCount(2);
   await expect(source).toContainText(revision);
   await problem.scrollIntoViewIfNeeded();
@@ -213,7 +213,7 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
     await expect(lastCard).toContainText(`Priority ${queuedCount}`);
   });
 
-  await test.step("the stage still says which stage this is and how much it holds", async () => {
+  await test.step("the column still says which column this is and how much it holds", async () => {
     await expect(heading).toBeInViewport({ ratio: 1 });
     await expect(backlog.getByText(`${queuedCount} entries`)).toBeInViewport({
       ratio: 1,

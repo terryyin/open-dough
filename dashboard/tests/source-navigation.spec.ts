@@ -14,9 +14,9 @@ import {
 test("source navigation opens canonical and plan records at the inspected revision", async ({
   page,
 }) => {
-  const { stages, leftTheServer, askedOfGitHub } = await openDashboard(page);
+  const { board, leftTheServer, askedOfGitHub } = await openDashboard(page);
   const story = card(
-    stages,
+    board,
     "See the project's published work in a story dashboard",
   );
 
@@ -50,7 +50,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
   });
 
   await test.step("a bounded correction's bare plan link, by the same rule", async () => {
-    const correction = card(stages, "Repair the installer's update report");
+    const correction = card(board, "Repair the installer's update report");
     const links = (await inspectedSources(correction)).getByRole("link");
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAccessibleName(
@@ -65,7 +65,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
 
   await test.step("dot segments and a root path resolve inside the repository", async () => {
     const linkOf = async (title: string) =>
-      (await inspectedSources(card(stages, title))).getByRole("link");
+      (await inspectedSources(card(board, title))).getByRole("link");
     const outsidePlanning = await destination(
       await linkOf("Follow a record kept outside the planning directory"),
     );
@@ -128,7 +128,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
 
   await test.step("every card's outbound anchors open in a new tab with safe opener policy", async () => {
     let seen = 0;
-    await forEachCardsSources(stages, async (sources) => {
+    await forEachCardsSources(board, async (sources) => {
       for (const anchor of await sources.locator("a[href]").all()) {
         seen += 1;
         await expect(anchor).toHaveAttribute("target", "_blank");
@@ -142,9 +142,9 @@ test("source navigation opens canonical and plan records at the inspected revisi
 test("source navigation keeps an external reference apart from files in this snapshot", async ({
   page,
 }) => {
-  const { stages } = await openDashboard(page);
+  const { board } = await openDashboard(page);
   const note = await inspectedSources(
-    card(stages, "Read the hosting provider's note"),
+    card(board, "Read the hosting provider's note"),
   );
 
   const canonical = note.getByRole("link", { name: /^Canonical record / });
@@ -179,12 +179,12 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
     dialogs.push(dialog.message());
     void dialog.dismiss();
   });
-  const { stages } = await openDashboard(page);
+  const { board } = await openDashboard(page);
   const opened = { title: await page.title(), url: page.url() };
 
   await test.step("script and data schemes stay readable and are not links", async () => {
     const hostile = await inspectedSources(
-      card(stages, /Run a script from a link/),
+      card(board, /Run a script from a link/),
     );
     await expect(hostile).toContainText(
       "Canonical record javascript:document.title='canonical-ran'",
@@ -216,7 +216,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
         "This is not a complete web address.",
       ],
     ] as const) {
-      const entry = await inspectedSources(card(stages, name));
+      const entry = await inspectedSources(card(board, name));
       await expect(entry).toContainText(`Canonical record ${recorded}`);
       await expect(entry).toContainText(`Not offered as a link. ${reason}`);
       await expect(entry.getByRole("link")).toHaveCount(0);
@@ -226,7 +226,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
   await test.step("recorded text is shown as text and nothing runs", async () => {
     const injected = "img:not([alt='Open Dough']), script:not([src])";
     await expect(
-      stages.getByRole("heading", {
+      board.getByRole("heading", {
         name: `<img src=x onerror="document.title='title ran'">Run a script from a link`,
       }),
     ).toBeVisible();
@@ -237,7 +237,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
     await expect(page.locator(injected)).toHaveCount(0);
     // Every card's links, each read in its detail.
     const schemes: string[] = [];
-    await forEachCardsSources(stages, async (sources) => {
+    await forEachCardsSources(board, async (sources) => {
       for (const anchor of await sources.locator("a[href]").all()) {
         schemes.push((await destination(anchor)).protocol);
       }

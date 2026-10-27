@@ -2,8 +2,8 @@
 // available grab area stay on that frame.
 import { test, expect } from "./support/codexLaunch.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   openUnfinishedReport,
@@ -15,12 +15,12 @@ import { box } from "./pageLayout.ts";
 import { dragEdge, expectWidth, keyStep } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"], hasTouch: true });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 for (const { name, viewport, lines } of [
   { name: "landscape", viewport: { width: 844, height: 390 }, lines: 20 },

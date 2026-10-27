@@ -30,12 +30,12 @@ const keptFromSight = `(element) => {
 }`;
 
 // The dashboard columns cut off the columns the page has no room to show, by
-// design: a developer moves the view to them by an edge control
-// (dashboardColumnsPage.ts `showColumn`). Inside the view, what lies wholly past its
+// design: a developer moves the view to them by a column paging control
+// (boardPage.ts `showColumn`). Inside the view, what lies wholly past its
 // sides is a hidden column's, as is what holds such a part; anything else
 // there must lie within the view, as everything else must within the window.
 // The view's own clipping cuts nothing shown short.
-const pagedView = JSON.stringify(".dashboard-columns-view");
+const pagedView = JSON.stringify(".board-view");
 
 // Elements that reach past either side of the window. What a part cut by
 // design holds, such as a code line in an area that scrolls on its own, is

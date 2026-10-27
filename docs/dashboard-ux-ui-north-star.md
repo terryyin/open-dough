@@ -30,7 +30,7 @@ it does not define a workflow state schema or authorize execution.
 - Stories can exist outside the backlog. Expose recorded backlog membership,
   Taken, refinement, planning, assignment, execution mode, and slice completion
   without inventing missing metadata. Taken does not establish live activity.
-- The primary experience is an animated spatial stage with connected stages
+- The primary experience is an animated Board with connected Columns
   of work, not just a list or table. Zoom out to understand the whole and zoom
   in to inspect a story. Canvas is optional; this is an experience direction,
   not a rendering-technology choice.
@@ -48,13 +48,13 @@ below are an initial design recommendation. Revise them when real use shows a
 clearer or smaller solution; do not treat them as additional user commitments.
 
 [The first overview](../dashboard/README.md)
-selects the published direction, connected Backlog and Taken stages, readable
+selects the published direction, connected Backlog and Taken Columns, readable
 entry facts, source links, and refresh/read states.
 It omits fetched story/plan detail, outside-backlog discovery, and
 owner/mode/readiness/slice facts. A connected spatial overview belongs in this
 story. General pan/zoom, multiple detail levels, and animated card travel are
 not prerequisites: add the smallest navigation or motion only when it solves
-a reading or orientation problem in this scope. A readable stage with ordinary
+a reading or orientation problem in this scope. A readable Board with ordinary
 scrolling and source links is a valid first increment of this direction.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
@@ -79,10 +79,10 @@ card's **Start execution** and **Start refinement** ask Claude Code on this mach
 execute or refine the story and change no published fact. Assignment and reprioritization
 stay outside this design. Zoom must not invent facts to answer these questions.
 
-## Connected stages and spatial navigation
+## Board and spatial navigation
 
 The [dashboard navigation guidance](dashboard-navigation.md) describes the pinned
-banner, supporting disclosures, connected stages, and progressive spatial navigation.
+banner, supporting disclosures, connected Columns, and progressive spatial navigation.
 It is part of this temporary design direction and carries the same authority.
 
 ## Animation explains change
@@ -92,17 +92,17 @@ work or returning to the overview, using short, interruptible transitions to
 help preserve orientation. When an automatic check reads a new snapshot,
 motion can explain observed placement or order changes for the same identity between the
 previous and new snapshots. Start with a small transition if it clarifies that
-change; continuous card travel between stages and an animation engine are not
+change; continuous card travel between Columns and an animation engine are not
 first-story acceptance criteria. Apply the new facts as one coherent snapshot;
 the transition illustrates that change, not an intermediate authoritative state.
 Source links and controls remain usable.
 
-Do not animate a story traversing stages it was never observed in, infer a
+Do not animate a story traversing Columns it was never observed in, infer a
 completion from disappearance, or show looping motion, pulsing agents, or
 continuous progress between refreshes. An unchanged snapshot should settle.
 New entries appear in their recorded place; removed entries leave the view
 without an invented destination. Preserve the user's viewport/focus where
-possible; if a focused entry disappears, return focus to a useful stage control
+possible; if a focused entry disappears, return focus to a useful Board control
 and announce the change rather than resetting the whole scene silently.
 
 Honor reduced-motion preferences with immediate placement and focus changes.
@@ -117,7 +117,7 @@ reason to introduce an animation engine now.
 | Story | An intended change or learning possibility. Show its recorded title; never replace its identity with a developer name or branch. |
 | Backlog / Outside backlog | Membership in selected work. “Outside backlog” requires sufficient membership evidence; a failed backlog read means membership is unknown. |
 | Taken | Published stories record claims for execution. Local open sessions without an active story card also appear here; their presence establishes only local session state. Avoid “Running,” “Online,” or an animated activity dot. |
-| Developer | Recorded assignment, potentially an agent's rotating name. Missing assignment is “Not recorded,” not an inferred commit author. A queued story's published preparation assignment shows “Preparing” with its developer on the backlog card: an undertaking, not live activity, a stage, or readiness; unreadable or conflicting assignments stay visibly uncertain. |
+| Developer | Recorded assignment, potentially an agent's rotating name. Missing assignment is “Not recorded,” not an inferred commit author. A queued story's published preparation assignment shows “Preparing” with its developer on the backlog card: an undertaking, not live activity, a Column, or readiness; unreadable or conflicting assignments stay visibly uncertain. |
 | Agent roster / Assignment | The roster shows every agent of the rotation with the assignment its published profile records at the shown revision, opened from a card's portrait and left with “Back to stories”: one more view of the same snapshot, not a presence list. “Assignment” is the one term on cards, roster, and detail for what a published agent profile records: its task, activity, and recorded host and model. A read directory without the agent's profile shows “No assignment recorded”; an unread one, “Assignment unknown” with its reason; an unreadable profile, “Assignment uncertain.” Conflicting preparation assignments are named as conflicting records, never resolved by picking one. |
 | Credited human / Human avatar | “Human developer: Name” is the committer of the commit that added the profile's current assignment, never a later commit author. Otherwise say “Human developer unknown” with why. It credits the assignment, not presence. Its avatar, or the name's initials, is decorative beside the name and never implies that the person or agent is online or working now. |
 | Refinement / Slice plan | Separate facts, not obligatory sequential gates. Show “Refinement recorded” or “Plan recorded” only with evidence; otherwise distinguish absence from unreadable evidence. |
@@ -191,7 +191,7 @@ unrelated looping animation. Use motion for the navigation and observed changes
 above; the one decorative exception is an agent portrait's single hover gesture
 in its enlargement, which never loops, implies presence, or carries meaning. Text must carry every status conveyed by color.
 
-Keep stage headings and work groups semantic, links and controls keyboard accessible,
+Keep Column headings and work groups semantic, links and controls keyboard accessible,
 focus visible, and navigation order consistent with the visual reading order.
 Name source links meaningfully. Announce refresh completion or errors without
 moving focus; return focus to the originating story after closing detail.
@@ -203,7 +203,7 @@ columns on one row and show the whole columns that fit; let the view pan to
 focused work. In readable work content, wrap
 long titles/refs and labeled facts; browser page zoom must not make controls
 unreachable. Avoid page-wide horizontal scrolling: panning is contained within
-the stage. Keep touch controls comfortably sized and do not require precise
+the Board. Keep touch controls comfortably sized and do not require precise
 clicks on tiny marks. Semantic reading order follows the groups and source order
 regardless of card coordinates. Canvas, if selected, still owes equivalent
 accessible work content and controls. Reading progress must work without

@@ -7,8 +7,8 @@ import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { completionReport } from "./completionReport.ts";
 import { cardSessions, parts } from "../dashboardPage.ts";
-import { notRefinedStory, type StoryStagesJourney } from "../launchJourney.ts";
-import { openStoryStagesJourney } from "../storyStagesPage.ts";
+import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
+import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
 export const title =
   "Read the saved unfinished report. Keep the intended work open until its remaining steps are complete.";
@@ -21,7 +21,7 @@ export async function openUnfinishedReport(
   page: Page,
   dashboard: DashboardServer,
   native: FakeCodex | undefined,
-  journey: StoryStagesJourney,
+  journey: StoryColumnsJourney,
   text = report,
 ) {
   if (native === undefined) throw new Error("Missing protocol fixture");
@@ -37,7 +37,7 @@ export async function openUnfinishedReport(
   record.reportRead = record.completion.receipt;
   save(dashboard.home, [record]);
   const since = native.calls.length;
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   const entry = cardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
@@ -72,7 +72,7 @@ export async function openUnfinishedReport(
       .project.getByRole("radio", { checked: true })
       .getAttribute("value"),
     storyDetails: await parts(page)
-      .stages.getByRole("region", { name: /^Detail for / })
+      .board.getByRole("region", { name: /^Detail for / })
       .count(),
   });
   return {
