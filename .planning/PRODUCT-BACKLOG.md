@@ -18,6 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Browse recently done sessions across projects in the sidebar](seeds/SEED-156-recently-done-sessions-in-sidebar.md#recently-done-sessions-in-sidebar) — SEED-156#recently-done-sessions-in-sidebar ([plan](slice-plans/362-recently-done-sessions-in-sidebar/PLAN.md))
+
 ## Backlog list
 
-- [Browse recently done sessions across projects in the sidebar](seeds/SEED-156-recently-done-sessions-in-sidebar.md#recently-done-sessions-in-sidebar) — SEED-156#recently-done-sessions-in-sidebar
