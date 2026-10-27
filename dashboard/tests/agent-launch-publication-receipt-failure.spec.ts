@@ -5,7 +5,7 @@ import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "./dashboardTest.ts";
 import { attempts, keptStarts } from "./agentLaunchBoundary.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import { recoveryOf, subject, worktrees } from "./responsiveRecovery.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
@@ -107,7 +107,7 @@ for (const workflow of ["execution", "refinement"] as const) {
       chmodSync(directory, 0o755);
       chmodSync(hook, 0o644);
       await continueButton.click();
-      await expect(cardSessions(card)).toHaveCount(1, { timeout: 60_000 });
+      await expect(storyCardSessions(card)).toHaveCount(1, { timeout: 60_000 });
       await expect(recovery).toHaveCount(0);
       expect(await attempts(dashboard)).toEqual([
         expect.objectContaining({

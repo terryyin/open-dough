@@ -1,5 +1,5 @@
-// A story review's context line (`./storyReview.ts`), beneath its panel's
-// header (`./StoryReviewPanel.tsx`): the branch, the baseline the snapshot
+// A story review's context line (`./storyReviewContract.ts`), beneath its panel's
+// header (`./StoryReview.tsx`): the branch, the baseline the snapshot
 // compares against, and the worktree, beside the control that hides or shows
 // the file browser (`./StoryReviewSnapshotView.tsx`) while the comparison
 // shown lists files.
@@ -10,7 +10,7 @@ import {
   baselineRevision,
   reviewTargetName,
   type TakenStoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 
 import {
   FileBrowserToggle,

@@ -3,7 +3,7 @@
 // wording, leaves the client running, and does not hang it up.
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { instructionDeliveryTimedOutExplanation } from "../server/hosts/cursor/instructionDelivery.ts";
 import {
   expectReadingWithoutScreenLabel,

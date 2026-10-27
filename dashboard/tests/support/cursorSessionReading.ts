@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts, sessionStateOf } from "../dashboardPage.ts";
-import { startSessionField } from "../launchCardPage.ts";
+import { startSessionField } from "../launchStoryCardPage.ts";
 import { cursorHeldLabels } from "../../src/cursorHeldLabel.ts";
 import { hostDescriptions } from "../../src/hostDescription.ts";
 import { agentLaunchEndpoint } from "../../src/launchRequest.ts";

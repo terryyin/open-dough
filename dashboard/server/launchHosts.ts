@@ -20,7 +20,7 @@ import type {
   SessionObservation,
 } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import type { SessionResult } from "../src/sessionResult.ts";
+import type { FinalReportRead } from "../src/finalReportContract.ts";
 import type { WorkspaceState } from "../src/launchRecord.ts";
 import type { HostDescription, HostIdentity } from "../src/hostDescription.ts";
 
@@ -122,10 +122,10 @@ export type LaunchHost = {
     folder: ProjectFolder,
     signal: AbortSignal,
   ) => Promise<readonly SessionObservation[]>;
-  readResult?(
+  readFinalReport?(
     session: HostSession,
     signal: AbortSignal,
-  ): Promise<SessionResult>;
+  ): Promise<FinalReportRead>;
   attach?(
     session: HostSession,
     folder: ProjectFolder,

@@ -4,7 +4,7 @@ import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
-import { SessionsButton } from "./SessionSidebar.tsx";
+import { SessionsButton } from "./SessionsSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -22,8 +22,7 @@ export function DashboardBanner({
 }) {
   const banner = useRef<HTMLElement>(null);
 
-  // Reflow changes the pinned banner's height. Reserve its actual footprint
-  // for keyboard focus and stage headings, including at browser zoom.
+  // Keep the banner footprint available to layout measurements.
   useLayoutEffect(() => {
     const element = banner.current;
     if (!element) return;

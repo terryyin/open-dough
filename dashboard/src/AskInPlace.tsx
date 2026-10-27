@@ -1,7 +1,7 @@
 // A control that asks first, in place, before its action, shared by the
 // record actions of session entries (`./sessionRecordActions.tsx`) and the
-// side panel's Mark as done (`./TerminalPanel.tsx`,
-// `./SessionResultPanel.tsx`).
+// side panel's Mark as done (`./Terminal.tsx`,
+// `./FinalReport.tsx`).
 import { useEffect, useId, useRef, useState } from "react";
 import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-launch.css";

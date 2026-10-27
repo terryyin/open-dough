@@ -6,6 +6,7 @@
 // scope exactly as before.
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
+import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   expectContinuationThroughScope,
@@ -108,11 +109,19 @@ test("cannot-load replacement for a scoped session keeps the scope and sends no 
   const workspace = before.session.continuation.workspace;
   const sharedBefore = cursor.sharedConfig();
   const replacementId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
+  // First-input acceptance can paint before the enclosing launch settles.
+  // Stop only a confirmed launch, so recovery starts from a stopped session.
+  const [accepted] = keptAttempts(dashboard);
+  if (accepted === undefined) throw new Error("Missing accepted launch.");
+  expect(await settledOutcome(dashboard, accepted.id)).toMatchObject({
+    kind: "launched",
+  });
   await endHeldClient(page, cursor, dashboard.home);
   cursor.setAttachMode("cannot-load");
   cursor.queueCreateChatId(replacementId);
-  await page.reload();
+  await reloadUntilRead(page);
   const entry = parts(page).taken.locator(".session-entry");
+  await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   await entry.getByRole("button", { name: "Recover" }).click();
   await expectNormalizedReading(entry, "Awaiting first instruction", false);
   const [after] = keptRecords(dashboard.home);

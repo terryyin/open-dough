@@ -54,7 +54,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   await expect(plan).toBeFocused();
 
   // A truly removed association completes enrichment without a plan link and
-  // leaves focus on the original work card, rather than another card/link.
+  // leaves focus on the original Story card, rather than another card/link.
   recordState(repo.directory, plannedBlocked, {
     refinement: "refined",
     approach: "planless",

@@ -9,7 +9,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   box,
@@ -46,12 +46,14 @@ const answers = [
   },
 ] as const;
 
-// Where the Backlog heading lies down the page, wherever the page is scrolled.
+// Where the Backlog heading lies in the Board, wherever the Board is scrolled.
 const backlogHeadingTop = (page: Page) =>
   parts(page)
     .backlog.getByRole("heading", { name: "Backlog", exact: true })
     .evaluate(
-      (heading) => heading.getBoundingClientRect().top + window.scrollY,
+      (heading) =>
+        heading.getBoundingClientRect().top +
+        (heading.closest(".board-scroll")?.scrollTop ?? 0),
     );
 
 async function rowAt(page: Page, viewport: Viewport) {

@@ -101,7 +101,12 @@ export const standing = async (page: Page, recent: Locator, count: number) => {
   for (let index = 0; index < count; index += 1) {
     tops.push((await shown.nth(index).boundingBox())?.y ?? Number.NaN);
   }
-  return { tops, scrolled: await page.evaluate(() => window.scrollY) };
+  return {
+    tops,
+    scrolled: await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop),
+  };
 };
 
 // Lets the page settle after a movement that must ask for nothing.

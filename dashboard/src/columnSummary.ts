@@ -1,5 +1,5 @@
 // One top-level entry per story or standalone session. Unknown inputs leave
-// the heading and edge count incomplete; nested sessions add no entries.
+// the heading and Column paging count incomplete; nested sessions add no entries.
 export type ColumnSummary = {
   readonly name: string;
   readonly entries: number | undefined;

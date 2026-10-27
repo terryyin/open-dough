@@ -2,7 +2,7 @@
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   expectSettledPage,
   parts,
@@ -11,7 +11,7 @@ import {
 import { expect } from "./dashboardTest.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import { tapWhereShown } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { messagePartOf } from "./support/sessionMessagePart.ts";
 import { doneQuestion, markAsDone } from "./support/markDone.ts";
 import { launchedStory, shortIdOf } from "./support/reportedLaunch.ts";
@@ -61,7 +61,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await publishOrigin(page, origin);
       await openUntilRead(page);
       await expectSettledPage(page);
-      const sidebar = sidebarParts(page);
+      const sidebar = sessionsSidebarParts(page);
       await tapWhereShown(sidebar.button);
       const row = sidebar.entries.filter({ hasText: "Story B" });
       await expect(
@@ -72,7 +72,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       );
       await expect(
         row
-          .locator(".sidebar-session-facts")
+          .locator(".sessions-sidebar-session-entry-facts")
           .getByText("Unread report: Unfinished work", { exact: true }),
       ).toBeVisible();
       await tapWhereShown(
@@ -127,7 +127,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         name: "Story B",
         exact: true,
       });
-      const entryB = cardSessions(cardB);
+      const entryB = storyCardSessions(cardB);
       const message = messagePartOf(entryB);
       await expect(message.text).toHaveText(attention);
       await message.text.scrollIntoViewIfNeeded();
@@ -190,7 +190,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
 
       // Delete remains unavailable for ordinary working work. Once its native
       // session is unavailable, deletion forgets only this dashboard record.
-      const entryA = cardSessions(
+      const entryA = storyCardSessions(
         parts(page).taken.getByRole("article", {
           name: "Story A",
           exact: true,

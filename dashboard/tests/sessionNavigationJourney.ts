@@ -1,5 +1,5 @@
 // The sessions a developer goes to from the Sessions sidebar, across three
-// catalog projects: Open Dough's story-stages journey (./launchJourney.ts),
+// catalog projects: Open Dough's story-columns journey (./launchJourney.ts),
 // Doughnut's one story (./doughnutProject.ts), and a Pygardon backlog whose
 // story with a session is listed last, below enough other stories that its
 // card starts out of view. Sessions are launched through the real launch
@@ -13,10 +13,10 @@ import type { Page } from "@playwright/test";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { expect } from "./dashboardTest.ts";
 import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
-import { readyStory, type StoryStagesJourney } from "./launchJourney.ts";
+import { readyStory, type StoryColumnsJourney } from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 
 export const pygardonStory = {
@@ -111,7 +111,7 @@ export async function expectRevealsSince(
 export async function openNavigationJourney(
   page: Page,
   dashboard: DashboardServer,
-  stagesJourney: StoryStagesJourney,
+  columnsJourney: StoryColumnsJourney,
 ) {
   const sessions: NavigationSessions = {
     doughnut: (
@@ -138,7 +138,7 @@ export async function openNavigationJourney(
   const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
   pygardon.push(pygardonRevision, pygardonBacklog);
   await recordReveals(page);
-  const journey = await openStoryStagesJourney(page, stagesJourney);
+  const journey = await openStoryColumnsJourney(page, columnsJourney);
   await journey.settled();
   return {
     ...journey,
@@ -169,10 +169,14 @@ export async function expectWhollyInView(page: Page, name: string) {
             setTimeout(() => {
               const shown = document.querySelector(`[aria-label="${label}"]`);
               const box = shown?.getBoundingClientRect();
+              const region = shown
+                ?.closest(".board-scroll")
+                ?.getBoundingClientRect();
               answer(
                 box !== undefined &&
-                  box.top >= 0 &&
-                  box.bottom <= window.innerHeight,
+                  region !== undefined &&
+                  box.top >= region.top &&
+                  box.bottom <= region.bottom,
               );
             });
           });

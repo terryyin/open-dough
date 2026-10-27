@@ -73,8 +73,8 @@ function carriedEntry(
   if (loading(entry.purpose) && shown.purpose !== undefined) {
     next = { ...next, purpose: shown.purpose };
   }
-  // Progress, owners, and preparers mean what they say only in the stage the
-  // story was shown in; a story that changed stages shows its new stage's
+  // Progress, owners, and preparers mean what they say only in the column the
+  // story was shown in; a story that changed columns shows its new column's
   // presentation for them.
   if (inSameList === undefined) return next;
   // Slices, where they were read, and the current slice's clock are shown

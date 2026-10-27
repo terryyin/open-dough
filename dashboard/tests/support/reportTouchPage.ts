@@ -18,8 +18,8 @@ export function reportGeometry(target: Locator, words?: string) {
         range.setEnd(text, start + words.length);
         bounds = [...range.getClientRects()];
       }
-      const panel = element.closest(".session-result-panel");
-      if (panel === null) throw new Error("Missing report panel");
+      const panel = element.closest(".final-report");
+      if (panel === null) throw new Error("Missing final report");
       const report = panel.getBoundingClientRect();
       const clips = [
         { left: 0, top: 0, right: innerWidth, bottom: innerHeight },

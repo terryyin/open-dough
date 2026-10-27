@@ -26,7 +26,7 @@ test("a story's review folders collapse and expand", async ({
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const files = review.getByRole("list", { name: "6 changed files" });
   await expect(files).toBeVisible();
 

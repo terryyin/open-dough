@@ -8,6 +8,13 @@ previews that deal before a push.
 
 ## The deal
 
+Duration lists may keep their ordinary TSV rows in named parts. Leading
+`# Include: <relative-path>` lines in the index name those files; each part
+contains rows, not another index. Reading combines all rows before this deal.
+Refresh keeps known labels in their existing parts, writes new labels in the
+index, and updates each source line. Single-file lists and timing artifacts
+keep their existing form.
+
 `tests/longest-first` records each job's seconds from one CI run, one
 `<seconds><TAB><label>` line per job, longest first, the form the runner's
 times file prints; `#` lines are its header. `scripts/test-jobs.sh` hands the

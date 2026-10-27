@@ -4,7 +4,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { startSessionField } from "../launchCardPage.ts";
+import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { keptRecord } from "./cursorStart.ts";
 import { keptRecords } from "./cursorSessionRecovery.ts";

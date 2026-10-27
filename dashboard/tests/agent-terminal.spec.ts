@@ -16,22 +16,22 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
   sessionNamedBy,
 } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
@@ -58,14 +58,14 @@ async function reportedSize(rows: Locator): Promise<string | undefined> {
 }
 
 test.describe("the terminal beside the page", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
     start.create();
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(async () => {
-    await (stagesJourney as StoryStagesJourney | undefined)?.cleanup();
+    await (columnsJourney as StoryColumnsJourney | undefined)?.cleanup();
     start.remove();
   });
 
@@ -74,14 +74,14 @@ test.describe("the terminal beside the page", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryStagesJourney(
+    const { card, settled, show, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { taken, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
-    const cardEntries = (title: string) => cardSessions(card(title));
+    const cardEntries = (title: string) => storyCardSessions(card(title));
     const entry = (title: string) =>
       taken.getByRole("article", {
         name: standaloneSessionName("Execution", title),
@@ -194,7 +194,7 @@ test.describe("the terminal beside the page", () => {
     });
 
     await test.step("an entry whose story is in no list still opens its session", async () => {
-      await show(stagesJourney.completed);
+      await show(columnsJourney.completed);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory],

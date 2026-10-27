@@ -2,7 +2,7 @@
 // their project/terminal; Done moves them to Recently done and reopen survives reload.
 // Blocked sessions count as needing attention; deletion under an unread native
 // listing returns focus to the next Taken entry. The real boundary drives fake Claude.
-// Related journeys: ./agent-launch-ad-hoc.spec.ts, ./session-sidebar-navigation-cases.spec.ts,
+// Related journeys: ./agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
 // ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
 import type { Page } from "@playwright/test";
@@ -12,14 +12,14 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import {
   expectMembership,
   parts,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 import {
   expectRevealsSince,
@@ -28,10 +28,10 @@ import {
 } from "./sessionNavigationJourney.ts";
 import { expectSessionShown } from "./sessionStatePace.ts";
 import {
-  expectSidebarSessionShown,
+  expectSessionsSidebarSessionEntryShown,
   expectTooltipLine,
-  sidebarParts,
-} from "./sessionSidebarPage.ts";
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
 test.setTimeout(120_000);
@@ -62,7 +62,7 @@ const localOf = (page: Page, text: string) =>
     name: `Ad hoc session for ${text}`,
   });
 
-test("its sidebar entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
+test("its Sessions sidebar Session entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
   dashboard,
   launchJourney,
@@ -72,7 +72,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Taken e
   await openTakenBacklog(page, launchJourney);
   const text = "why is the CI slow on main?";
   const { project } = parts(page);
-  const { button, entries, entry } = sidebarParts(page);
+  const { button, entries, entry } = sessionsSidebarParts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
   const active = localOf(page, text);
   const recent = parts(page).recentlyDone.getByRole("article", {
@@ -86,7 +86,7 @@ test("its sidebar entry opens Open Dough's stories, the terminal and its Taken e
   await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
   await expect(project.getByRole("radio", { name: "Pygardon" })).toBeChecked();
 
-  await test.step("the sidebar entry opens Open Dough's stories, its session in the terminal, and reveals its Taken entry", async () => {
+  await test.step("the Sessions sidebar Session entry opens Open Dough's stories, its session in the terminal, and reveals its Taken entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
@@ -150,7 +150,7 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
   const text = "what is blocking us?";
-  const { button, entries, badge } = sidebarParts(page);
+  const { button, entries, badge } = sessionsSidebarParts(page);
   const local = localOf(page, text);
 
   await startAndClose(page, "Open Dough", text);
@@ -165,7 +165,7 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
   await expect(badge).toHaveAccessibleName("1 session needs attention");
   await button.click();
   await expect(badge).toHaveText("1");
-  await expectSidebarSessionShown(
+  await expectSessionsSidebarSessionEntryShown(
     entries.first(),
     "Needs input: input needed",
     "needs-input",
@@ -179,7 +179,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  const { entries, button } = sidebarParts(page);
+  const { entries, button } = sessionsSidebarParts(page);
   const older = localOf(page, "the older question");
   const newer = localOf(page, "the newer question");
 
@@ -215,7 +215,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   ).toBeFocused();
 });
 
-test("with Open Dough already shown, its sidebar entry brings its Taken entry into view", async ({
+test("with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view", async ({
   page,
   dashboard,
   launchJourney,
@@ -225,7 +225,7 @@ test("with Open Dough already shown, its sidebar entry brings its Taken entry in
   await page.setViewportSize({ width: 700, height: 600 });
   await openTakenBacklog(page, launchJourney);
   const text = "where is this entry?";
-  const { button, entry } = sidebarParts(page);
+  const { button, entry } = sessionsSidebarParts(page);
   const local = localOf(page, text);
 
   await startAndClose(page, "Open Dough", text);

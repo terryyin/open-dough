@@ -17,7 +17,7 @@ import {
 } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
@@ -67,7 +67,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
-  const { notice, stages } = parts(page);
+  const { notice, board } = parts(page);
   expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
     true,
     true,
@@ -125,7 +125,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
     taken: [plannedReady.title],
     backlog: [plannedBlocked.title],
   });
-  await expect(stages).toBeFocused();
+  await expect(board).toBeFocused();
   await expect(notice).toHaveText(
     `${unrefined.title} is no longer listed in the published work.`,
   );

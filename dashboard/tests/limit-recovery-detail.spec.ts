@@ -7,7 +7,7 @@
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   checksAskedWhilePassing,
   setPageVisibility,
@@ -65,7 +65,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
   const unreachableCard = backlog.getByRole("article", {
     name: unreachableTitle,
   });
-  await expect(withheldCard.locator(".card-preparation")).toContainText(
+  await expect(withheldCard.locator(".story-card-preparation")).toContainText(
     `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
   );
   await expect(unreachableCard).toContainText(unreachableGap);
@@ -87,7 +87,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     await page.clock.runFor(1);
     await expectSettledPage(page, titlesBesideUnreachable);
     await expect(source).toContainText(revision);
-    await expect(withheldCard.locator(".card-preparation")).toHaveText(
+    await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
       "Not recorded",
     );
     await expect(await inspectedDetail(plannedCard)).toContainText(

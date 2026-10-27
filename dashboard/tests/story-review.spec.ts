@@ -1,17 +1,11 @@
-// A story's review from its card, of Story A's worktree and kept launch
-// record (./support/storyReviewWorktree.ts). Review changes names the
-// branch, the baseline, and the worktree in its context line
-// (./story-review-context-line.spec.ts), and lists the story's files with
-// their kinds under their folders, without either trunk file or the ignored
-// one; the worktree's own index and status stay as they were. It opens on
-// the first file in the browser's order, inside the folder that comes
-// first, with its diff shown. Selecting a file shows its diff with added
-// and removed lines marked in text beside their old and new line numbers,
-// the rename against its old path, the deletion as all lines removed, and
-// the image as having no textual diff; hiding the file browser leaves the
-// diff in place with more room. The review shows in the page's side panel, and
-// Command+Shift+Escape closes it, returning the keyboard to Review changes;
-// Tab then moves on. Requests the launch boundary refuses:
+// Story A's card opens its worktree review (./support/storyReviewWorktree.ts).
+// Context names branch/baseline/worktree (./story-review-context-line.spec.ts).
+// Only story files appear, grouped by kind/folder, first file selected; trunk
+// and ignored files are absent, and the worktree index/status stay unchanged.
+// Diffs mark added/removed lines beside old/new numbers, renames against old
+// paths, deletions as removed lines, and images as having no textual diff.
+// Hiding files widens the unchanged diff. Command+Shift+Escape closes the Side
+// panel, returning to Review changes; Tab moves on. Refused requests are in
 // ./story-review-refusal.spec.ts.
 
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
@@ -57,11 +51,11 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
   await action.click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   // The panel names the story it reviews, beside the dashboard, and holds
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
-  await expect(review).toContainText(`Review changes ${queuedIdentity}`);
+  await expect(review).toContainText(`Story review ${queuedIdentity}`);
   await expect(reviewBody(review)).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect

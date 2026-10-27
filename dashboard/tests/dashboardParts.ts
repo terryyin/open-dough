@@ -5,16 +5,16 @@
 import type { Locator, Page } from "@playwright/test";
 
 export function parts(page: Page) {
-  const stages = page.getByRole("region", { name: "Work stages" });
+  const board = page.getByRole("region", { name: "Board" });
   const status = page.getByRole("status").and(page.locator(".read-status"));
   const direction = page.getByRole("region", { name: "Near-future direction" });
   return {
     banner: page.getByRole("banner"),
     sourceEvidence: page.getByLabel(/^Source evidence for /),
     project: page.getByRole("radiogroup", { name: "Project" }),
-    stages,
-    backlog: stages.getByRole("region", { name: "Backlog", exact: true }),
-    taken: stages.getByRole("region", { name: "Taken", exact: true }),
+    board,
+    backlog: board.getByRole("region", { name: "Backlog", exact: true }),
+    taken: board.getByRole("region", { name: "Taken", exact: true }),
     direction,
     directionToggle: page.locator(".direction summary"),
     // The direction's text, shown only while the direction is open.
@@ -48,21 +48,21 @@ export const standaloneSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;
 
 // A card's session entries, newest first.
-export const cardSessions = (card: Locator) =>
+export const storyCardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
 
 // What a card says of how many of its sessions need attention, when any do.
-export const cardAttentionOf = (card: Locator) =>
+export const storyCardAttentionOf = (card: Locator) =>
   card.getByText(/^\d+ sessions? needs? attention$/);
 
 // A card's session entry, named for its launch's workflow.
-export const cardSessionName = (workflow: string) => `${workflow} session`;
+export const storyCardSessionName = (workflow: string) => `${workflow} session`;
 
 // A card's entry for its session in this workflow.
-export const cardSessionOf = (card: Locator, workflow: string) =>
-  cardSessions(card).and(
+export const storyCardSessionOf = (card: Locator, workflow: string) =>
+  storyCardSessions(card).and(
     card.page().getByRole("article", {
-      name: cardSessionName(workflow),
+      name: storyCardSessionName(workflow),
       exact: true,
     }),
   );

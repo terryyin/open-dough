@@ -110,7 +110,7 @@ function RecoveryEntry({
       <h3 id={`${id}-subject`}>
         {subject} · {named} in {hostName(request.host)}
       </h3>
-      <p className="launch-answer card-startup-static">
+      <p className="launch-answer story-card-startup-static">
         {cause === "waiting" ? (
           <>
             Waiting for published story state:{" "}

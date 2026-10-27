@@ -11,7 +11,7 @@ import path from "node:path";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 
 const request = {

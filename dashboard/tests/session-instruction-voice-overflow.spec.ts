@@ -5,7 +5,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import {
   observeMicrophone,

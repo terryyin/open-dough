@@ -16,7 +16,7 @@ import {
   storyReviewFileEndpoint,
   storyReviewMarkEndpoint,
   storyReviewSchema,
-} from "../../src/storyReview.ts";
+} from "../../src/storyReviewContract.ts";
 import { realpathSync, renameSync } from "node:fs";
 import path from "node:path";
 

@@ -2,7 +2,7 @@
 // Live workspaces use their configured author; completed stories use recorded
 // owners. Both comparisons subtract those commits through the same restatement
 // rule, retaining an explicit baseline for inseparable paths.
-import type { TakenStoryReview } from "../src/storyReview.ts";
+import type { TakenStoryReview } from "../src/storyReviewContract.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { restatedPoint } from "./storyReviewComparison.ts";
 import {

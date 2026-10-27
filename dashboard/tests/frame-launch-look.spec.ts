@@ -21,7 +21,7 @@ import {
 import { publishRosterOrigins } from "./agentRosterRecords.ts";
 import { rosterParts } from "./dashboardPage.ts";
 import { expectDecorativeIcon } from "./frameIconControl.ts";
-import { showOptions, startSession } from "./launchCardPage.ts";
+import { showOptions, startSession } from "./launchStoryCardPage.ts";
 import {
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,

@@ -90,7 +90,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
   // A real browser's own same-origin `fetch` (this endpoint's only intended
   // caller) never carries an `Origin` header -- confirmed against this exact
   // production middleware from a real Chromium page in
-  // ../authenticated-project-overview.spec.ts, which this narrower case reproduces
+  // ../authenticated-project-observation.spec.ts, which this narrower case reproduces
   // without a browser: what it does carry is `Sec-Fetch-Site: same-origin`,
   // which `../../server/localOrigin.ts` now accepts in place of `Origin`.
   test("accepts a same-origin request signaled by Sec-Fetch-Site with no Origin header at all", async () => {

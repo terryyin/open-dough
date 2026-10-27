@@ -3,10 +3,10 @@
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
+import { openTakenBacklog, startSessionField } from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { showColumn } from "./boardPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -65,7 +65,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const panel = page.getByRole("region", { name: "Terminal" });
-    const recent = page.locator(".dashboard-columns .session-entry");
+    const recent = page.locator(".board .session-entry");
     await expect(panel.locator(".xterm-rows")).toContainText(
       "GPT-6.1-Sol default",
     );
@@ -179,7 +179,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await parts(page)
         .project.getByRole("radio", { name: "Pygardon", exact: true })
         .check();
-      const sidebar = sidebarParts(page);
+      const sidebar = sessionsSidebarParts(page);
       await sidebar.button.click();
       await expect(sidebar.entries).toHaveCount(1);
       await sidebar.entry(label).click();

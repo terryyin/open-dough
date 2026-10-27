@@ -6,7 +6,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   expectEveryControlReachable,
@@ -48,6 +48,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         const label = dialog.locator("label", {
           has: page.getByRole("radio", { name: choice, exact: true }),
         });
+        await expect(radio).toBeEnabled();
         await label.scrollIntoViewIfNeeded();
         await tapWhereShown(label);
         await expect(radio).toBeChecked();

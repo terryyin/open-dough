@@ -3,7 +3,7 @@
 // files are written here; what the page shows is for each test to observe.
 
 import type { Page } from "@playwright/test";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import { test } from "./support/pageTest.ts";
@@ -67,7 +67,7 @@ export async function openAtA(page: Page): Promise<MovingOrigin> {
 export async function inspectDashboardStory(page: Page): Promise<void> {
   await test.step("the dashboard story's detail is inspected", async () => {
     await inspectedDetail(
-      parts(page).stages.getByRole("article", { name: dashboardStory }),
+      parts(page).board.getByRole("article", { name: dashboardStory }),
     );
   });
 }

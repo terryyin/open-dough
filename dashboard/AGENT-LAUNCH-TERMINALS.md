@@ -108,13 +108,13 @@ without re-attaching; its panel edge takes the theme's background.
 Switching sessions, or opening a story review, detaches the prior one without
 ending or marking it done; switching projects keeps it attached. Opening
 different panel content returns a maximized panel to the normal split.
-Resizing the panel by its edge
+Resizing the Side panel by its Panel divider
 ([navigation](../docs/dashboard-navigation.md)) fits the attached terminal to
 the new width without attaching again.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
 Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
-Shown entries/cards are outlined and sidebar entry current; closing clears them.
+Shown entries/cards are outlined and Sessions sidebar Session entry current; closing clears them.
 
 On touch screens, tap the terminal to focus its ordinary input, edit with the
 browser keyboard and submit with Enter. The terminal keeps its own scrollback;
@@ -128,7 +128,7 @@ proof covers phone/tablet portrait, landscape and a 240-pixel visible height,
 including Backspace, Enter and actual browser-to-WebSocket-to-PTY replies. It
 does not establish physical iOS keyboard or remote connectivity behavior.
 
-Mark as done uses one operation from card, final report panel or terminal. It saves local done intent,
+Mark as done uses one operation from card, final report or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
@@ -152,7 +152,7 @@ the project folder, with neither rename nor stop: a removed job has no name
 left to show. The short id goes alone, so the removal never discards commits or
 a worktree; the transcript stays with Claude Code.
 
-Wherever it is offered, on a card or in the terminal or final report panel, Mark as
+Wherever it is offered, on a card or in the terminal or final report, Mark as
 done marks a session at once only when its intended work is complete: its
 latest report is `completed`, with or without an attention message, and its
 reading is neither working nor waiting for input (Cursor's held-screen
@@ -162,7 +162,7 @@ also marks done at once despite a native wait, while native Working still asks.
 Mark as done acknowledges that session; it does not complete the story or change
 its published membership or readiness. Every other incomplete session is
 asked about first, in place, as Delete record… asks: on a card where Mark as
-done was, and in a panel below its header, with the terminal or report still
+done was, and in a question below the Side panel header, with the terminal or report still
 showing and the header's Mark as done disabled until answered. The question
 gives one statement, the most pressing that applies (“This session is
 still working. Marking it done asks it to stop.”, “This session is waiting for
@@ -223,45 +223,4 @@ same identity after a read failure. Reading changes no native input or done mark
 not establish story completion or why the directory was removed. Existing
 workspace continuation and Claude Code behavior keep their terminal path.
 
-## Explicit reports, Mark as read and Mark as done
-
-A session with an unread completion/attention report offers **Mark as read** in
-its entry's message part, on its card or in Recently done
-([explicit completion](AGENT-LAUNCH-COMPLETION.md)); it keeps the report read
-and leaves the session open.
-**Mark as done**, its own control beside it, closes a reported session as
-above, read or not; an unread report alone is not asked about. Cursor, which has no
-native stop operation, records local Done only, also after its workspace disappears.
-On coarse input, **Session details** in the sidebar exposes the full session
-title, story identity and the same project/state/model/time facts as its tooltip,
-including the unread-report label. Opening the session is a separate touch.
-Attention messages remain on the selected session's entry. Their disclosure,
-Mark as read, Mark as done, Delete record and confirmation answers have touch
-targets of at least 44 pixels; desktop retains its compact controls. Keep open
-on an incomplete session's Done question retains the session and attachment,
-as above. Portrait/landscape browser viewport proof covers these interactions
-locally; it does not establish physical iOS keyboard or remote access behavior.
-An observed native Working signal remains visible separately beside the attention
-or local Done label.
-An explicit attention message is read on the session's entry from machine-local
-evidence; the side panel's **Read final report** shows only Codex's passive
-native final report. No native last reply, inactivity, minimal marker or process
-exit counts as a submitted report.
-
-Completion delivery retains its exact submission beside the surviving reporting
-executable before contacting the receiver. If delivery fails, the operation prints
-an unacknowledged notice and a reporting-only `--retry` command. That command needs
-neither the removed workspace nor the original message file. Each new report has
-its own delivery identity; retry returns the original receipt and preserves newer
-reports and deliberate local Done or reopen. A newer attention or unfinished
-report clears an earlier automatic quiet Done while preserving explicit manual Done.
-Tracked execution stays open until published closure is locally confirmed under
-the [completion rule](AGENT-LAUNCH-COMPLETION.md); explicit Done remains authoritative.
-Eligible automatic quiet Done uses the same native naming operation as manual Done; its
-local mark reads `Native done mark is pending.` until one bounded rename wait
-that starts after the receipt is sent. Native failures retain a visible problem.
-Reporting preserves the sender's attachments and running turn for acknowledgment.
-Recovery beyond that wait is explicit and bounded, through Mark as done or a
-delivery retry;
-there is no background retry. Launch attempts retain receipts for their existing
-machine-local lifetime. Reporting reads local Git evidence for tracked execution closure, performs no Git mutations and preserves the sender's running turn and attachments.
+Read the [explicit report controls](AGENT-LAUNCH-REPORT-CONTROLS.md) for Mark as read, Mark as done and delivery recovery.

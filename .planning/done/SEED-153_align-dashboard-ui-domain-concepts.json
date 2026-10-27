@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-153#align-dashboard-ui-domain-concepts",
+  "title": "Align the dashboard globally with its UI domain concepts",
+  "completedAt": "2026-10-27T10:54:01.654Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

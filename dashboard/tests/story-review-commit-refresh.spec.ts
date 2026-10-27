@@ -6,7 +6,7 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
   nextSnapshot,
-  openReview,
+  openStoryReview,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
 import {
@@ -18,7 +18,7 @@ import {
 } from "./support/storyReviewWorktree.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
-import { storyReviewFileEndpoint } from "../src/storyReview.ts";
+import { storyReviewFileEndpoint } from "../src/storyReviewContract.ts";
 
 test.setTimeout(120_000);
 
@@ -31,7 +31,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   writeAt(workspace, "first.txt", "first\n");
   commitAll(workspace, "first story commit");
   await keepLaunchRecord(dashboard, workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const feedback = review.locator(".story-review-top").getByRole("status");
   writeAt(workspace, "second.txt", "second\n");
@@ -121,7 +121,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
 }) => {
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openReview(page, await openBacklog(page, origin));
+  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const feedback = review.locator(".story-review-top").getByRole("status");
   await review.getByRole("radio", { name: "Commits", exact: true }).check();

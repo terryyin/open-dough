@@ -10,7 +10,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import type { Page } from "@playwright/test";
 import {
   contentReads,
@@ -41,8 +41,8 @@ test("a story's shown facts give way to the gap when the read of its record at B
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, stages, problem } = parts(page);
-  const queueCard = stages.getByRole("article", { name: queueStory });
+  const { source, board, problem } = parts(page);
+  const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
   await expect(detail).toContainText(atA);
@@ -79,8 +79,8 @@ test("a story's shown facts give way to what the read itself read when a hidden 
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, stages, problem } = parts(page);
-  const queueCard = stages.getByRole("article", { name: queueStory });
+  const { source, board, problem } = parts(page);
+  const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
   const restoreBacklogAtB = origin.answerWith(revisionB, noConnection);

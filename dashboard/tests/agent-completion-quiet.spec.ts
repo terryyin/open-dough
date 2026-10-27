@@ -186,7 +186,7 @@ for (const closure of [
         await expect(
           page
             .getByRole("region", { name: "Final report" })
-            .locator(".session-final-report"),
+            .locator(".final-report-text"),
         ).toHaveText("Done.");
         expect(
           native.calls

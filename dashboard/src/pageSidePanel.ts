@@ -18,7 +18,8 @@ import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import { deletedEntryHome, sessionEntry } from "./pageEntries.ts";
 import {
-  type OpenSessionPanel,
+  type OpenTerminal,
+  type OpenFinalReport,
   type PageSessions,
   type SessionRequest,
   type MarkSessionDone,
@@ -29,21 +30,23 @@ import {
   sameStory,
   type OpenStoryReview,
   type StoryReviewRequest,
-} from "./pageReviews.ts";
+} from "./pageStoryReviews.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
-import { workHome } from "./workFocus.ts";
+import { storyCardHome } from "./storyCardFocus.ts";
 import { useKeyboardReturn } from "./keyboardReturn.ts";
 
 // What the panel shows, and whether it takes the page column's room too.
 // Maximization belongs to the shown content, so new content starts split.
-type Panel = (
+type SidePanel = (
   | { readonly kind: SessionAccess; readonly request: SessionRequest }
-  | { readonly kind: "review"; readonly request: StoryReviewRequest }
+  | { readonly kind: "story-review"; readonly request: StoryReviewRequest }
 ) & { readonly maximized?: boolean };
-type Shown = Panel["request"];
+type Shown = SidePanel["request"];
 
-const shownSessionOf = (panel: Panel | undefined) =>
-  panel === undefined || panel.kind === "review" ? undefined : panel.request;
+const shownSessionOf = (sidePanel: SidePanel | undefined) =>
+  sidePanel === undefined || sidePanel.kind === "story-review"
+    ? undefined
+    : sidePanel.request;
 
 // The session a panel shows as the page reads it now, from the machine's
 // sessions of every project, since the panel keeps the record it was opened
@@ -78,12 +81,12 @@ export function usePageSidePanel({
   | "stopSession"
   | "hostOperations"
 > & { readonly range: RecentlyDoneRange }) {
-  const [panel, setPanel] = useState<Panel | undefined>();
-  const shown = panel?.request;
-  const latest = useRef<Panel | undefined>(undefined);
+  const [sidePanel, setSidePanel] = useState<SidePanel | undefined>();
+  const shown = sidePanel?.request;
+  const latest = useRef<SidePanel | undefined>(undefined);
   useLayoutEffect(() => {
-    latest.current = panel;
-  }, [panel]);
+    latest.current = sidePanel;
+  }, [sidePanel]);
   // After `latest` follows the panel, so a return sees what the panel shows.
   const setReturning = useKeyboardReturn<Shown>(latest, range);
   // What each host offers as the page reads it now: a launch asked before a
@@ -95,8 +98,8 @@ export function usePageSidePanel({
   // The sessions whose terminal the developer opened themselves on this page,
   // which a launch's presentation then leaves as the developer left them.
   const openedByDeveloper = useRef(new Set<string>());
-  const openTerminal = useCallback<OpenSessionPanel>((request) => {
-    setPanel((current) =>
+  const openTerminal = useCallback<OpenTerminal>((request) => {
+    setSidePanel((current) =>
       current?.kind === "terminal" &&
       sessionKey(current.request.record.session) ===
         sessionKey(request.record.session)
@@ -104,33 +107,33 @@ export function usePageSidePanel({
         : { kind: "terminal", request },
     );
   }, []);
-  const openResult = useCallback<OpenSessionPanel>((request) => {
-    setPanel({ kind: "result", request });
+  const openFinalReport = useCallback<OpenFinalReport>((request) => {
+    setSidePanel({ kind: "final-report", request });
   }, []);
   // Asking again for the story's review already shown keeps that review, its
   // snapshot included, and takes the new request so the review takes the
   // keyboard; any other opening reads a fresh one.
-  const openReview = useCallback<OpenStoryReview>((request) => {
-    setPanel((current) =>
-      current?.kind === "review" && sameStory(current.request, request)
+  const openStoryReview = useCallback<OpenStoryReview>((request) => {
+    setSidePanel((current) =>
+      current?.kind === "story-review" && sameStory(current.request, request)
         ? { ...current, request }
-        : { kind: "review", request },
+        : { kind: "story-review", request },
     );
   }, []);
   const maximize = useCallback((maximized: boolean) => {
-    setPanel((current) => current && { ...current, maximized });
+    setSidePanel((current) => current && { ...current, maximized });
   }, []);
   const unavailableWorkspace = useCallback(
     (request: SessionRequest, workspaceState: TerminalWorkspaceUnavailable) => {
       if (latest.current?.request !== request) return;
       const record = { ...request.record, workspaceState };
-      openResult({ ...request, record });
+      openFinalReport({ ...request, record });
     },
-    [openResult],
+    [openFinalReport],
   );
   const close = (closed: Shown) => {
     if (latest.current?.request !== closed) return;
-    setPanel(undefined);
+    setSidePanel(undefined);
     const identity =
       "record" in closed
         ? launchSubject(closed.record.request).identity
@@ -142,7 +145,7 @@ export function usePageSidePanel({
       home: () =>
         ("record" in closed
           ? sessionEntry(sessionKey(closed.record.session))
-          : null) ?? workHome(identity),
+          : null) ?? storyCardHome(identity),
     });
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
@@ -163,7 +166,7 @@ export function usePageSidePanel({
         session: record,
         home: () =>
           sessionEntry(sessionKey(record.session)) ??
-          workHome(launchSubject(record.request).identity),
+          storyCardHome(launchSubject(record.request).identity),
       });
     return true;
   };
@@ -182,7 +185,7 @@ export function usePageSidePanel({
     const closes =
       (open === undefined ? undefined : sessionKey(open.record.session)) ===
       sessionKey(record.session);
-    if (closes) setPanel(undefined);
+    if (closes) setSidePanel(undefined);
     setReturning({
       control,
       shows: closes ? undefined : latest.current?.request,
@@ -205,12 +208,15 @@ export function usePageSidePanel({
       if (access === "terminal")
         openedByDeveloper.current.add(sessionKey(request.record.session));
       if (access !== undefined)
-        (access === "result" ? openResult : openTerminal)(request);
+        (access === "final-report" ? openFinalReport : openTerminal)(request);
     },
     shownSession:
-      panel === undefined || panel.kind === "review"
+      sidePanel === undefined || sidePanel.kind === "story-review"
         ? undefined
-        : { kind: panel.kind, key: sessionKey(panel.request.record.session) },
+        : {
+            kind: sidePanel.kind,
+            key: sessionKey(sidePanel.request.record.session),
+          },
     markDone: markSessionDone,
     markRead: markSessionRead,
     deleteRecord: deleteSessionRecord,
@@ -219,16 +225,18 @@ export function usePageSidePanel({
   };
   return {
     shown,
-    terminal: panel?.kind === "terminal" ? panel.request : undefined,
-    result: panel?.kind === "result" ? panel.request : undefined,
-    review: panel?.kind === "review" ? panel.request : undefined,
-    maximized: panel?.maximized === true,
+    terminal: sidePanel?.kind === "terminal" ? sidePanel.request : undefined,
+    finalReport:
+      sidePanel?.kind === "final-report" ? sidePanel.request : undefined,
+    storyReview:
+      sidePanel?.kind === "story-review" ? sidePanel.request : undefined,
+    maximized: sidePanel?.maximized === true,
     maximize,
     close,
     markSessionDone,
     sessions,
     openSession: sessions.openSession,
-    openReview,
+    openStoryReview,
     unavailableWorkspace,
   };
 }

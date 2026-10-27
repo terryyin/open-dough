@@ -22,7 +22,7 @@ import {
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
-  reopenReview,
+  reopenStoryReview,
 } from "./support/storyReviewMark.ts";
 import {
   integrateTrunk,
@@ -49,7 +49,7 @@ for (const printing of [false, true]) {
     integrateTrunk(origin, story, "c story and trunk");
     const beforeReview = driver?.invocations();
     writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
-    const since = await reopenReview(page, card);
+    const since = await reopenStoryReview(page, card);
     if (driver !== undefined) {
       expect(driver.invocations()).toBeGreaterThan(beforeReview ?? 0);
     }
@@ -115,7 +115,7 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   );
 
   integrateTrunk(origin, story, "c story");
-  const since = await reopenReview(page, card);
+  const since = await reopenStoryReview(page, card);
   expect(
     since.since?.files.map(({ path: file, includesTrunkFrom }) => ({
       file,
@@ -152,7 +152,7 @@ for (const printing of [false, true]) {
 
     integrateTrunk(origin, story, printing ? "c trunk" : undefined);
     const beforeReview = driver?.invocations();
-    const since = await reopenReview(page, card);
+    const since = await reopenStoryReview(page, card);
     if (driver !== undefined) {
       expect(driver.invocations()).toBeGreaterThan(beforeReview ?? 0);
     }
@@ -182,7 +182,7 @@ test("a marked story whose baseline is unchanged does not say trunk was integrat
   );
 
   writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
-  const since = await reopenReview(page, card);
+  const since = await reopenStoryReview(page, card);
   expect(since.since?.from).toBe(marked.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).not.toContainText("Trunk was integrated");
@@ -203,7 +203,7 @@ olderGit(
     // (a) All changes and Commits, why the earlier review cannot be compared.
     integrateTrunk(origin, story, "c story and trunk");
     writeAt(story.workspace, "src/b.ts", sixth("b", "b five"));
-    const all = await reopenReview(page, card);
+    const all = await reopenStoryReview(page, card);
     expect(all.since).toBeUndefined();
     expect(all.markUncomparable).toBe("not-restated");
     expect(all.files.map(({ path: file }) => file)).toEqual([
@@ -230,7 +230,7 @@ olderGit(
     await markReviewed(review);
     expect(keptStoryAMark(dashboard)?.tree).toBe(all.tree);
     writeAt(story.workspace, "src/b.ts", sixth("b", "b six"));
-    const since = await reopenReview(page, card);
+    const since = await reopenStoryReview(page, card);
     expect(since.markUncomparable).toBeUndefined();
     expect(since.since?.from).toBe(all.tree);
     await expectSinceTheReview(review, keptStoryAMark(dashboard));

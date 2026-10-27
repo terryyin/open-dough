@@ -19,7 +19,7 @@ import { treeRows } from "./support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
   nextSnapshot,
-  openReview,
+  openStoryReview,
   reviewRegion,
   uncommittedCheck,
 } from "./support/storyReviewMark.ts";
@@ -70,7 +70,7 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   const { workspace, trunk: first } = trunkModeStory(origin, { published: 1 });
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
   const values = contextValues(review);
   const baseline = contextLine(review).locator(
@@ -167,7 +167,7 @@ test("a flagged file two story commits changed is diffed from trunk before the o
   expect(beforeStory).not.toBe(git(workspace, "rev-parse", "HEAD~2^{tree}"));
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
 
   expect(snapshot.published).toEqual({ trunk, commits: 3 });

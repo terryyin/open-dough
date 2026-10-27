@@ -15,7 +15,7 @@ import {
   storyReviewFileEndpoint,
   storyReviewMarkEndpoint,
   reviewedFileDiffSchema,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 
 test("foreign or malformed historical review requests cannot choose a repository, comparison, file, or mark", async ({
   page,

@@ -1,6 +1,5 @@
-// A story's card action that opens its story review (`./storyReview.ts`) in
-// the page's side panel (`./StoryReviewPanel.tsx`), in place of whatever the
-// panel showed: offered from a kept launch workspace, including a retired
+// A Story card's action opens its story review (`./StoryReview.tsx`) in
+// the Side panel (`./PageFrame.tsx`), replacing its previous content: offered from a kept launch workspace, including a retired
 // landed run's captured result, or from the worktrees local Git found holding
 // the story's claim, by the boundary's same selection rule: one is reviewed,
 // and several open a review that names them. Closing the review returns the
@@ -13,7 +12,7 @@ import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { reviewWorkspaceOf } from "./storyReviewWorkspace.ts";
-import { useOpenStoryReview } from "./pageReviews.ts";
+import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import { ArrowRight, GitCompare } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import "./story-review.css";
@@ -34,7 +33,7 @@ export function StoryReviewAction({
   readonly work: Pick<WorkEntry, "identity" | "title">;
   readonly completed?: boolean;
 }) {
-  const openReview = useOpenStoryReview();
+  const openStoryReview = useOpenStoryReview();
   if (
     !completed &&
     reviewWorkspaceOf(records, workspaces, sourceId, work.identity) ===
@@ -47,7 +46,7 @@ export function StoryReviewAction({
         type="button"
         className="start-launch-button"
         onClick={(event) => {
-          openReview({
+          openStoryReview({
             source: sourceId,
             identity: work.identity,
             title: work.title,

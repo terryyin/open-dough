@@ -1,4 +1,4 @@
-// The side panel's resize edge and widths as shown, for Story A's real
+// The side panel's resize divider and widths as shown, for Story A's real
 // worktree (./support/storyReviewWorktree.ts) and its session, listed by the
 // synthetic `claude` (./fixtures/fake-claude), which prints its terminal size
 // whenever that changes.
@@ -7,13 +7,13 @@ import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import { box } from "./pageLayout.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
-import { listed } from "./support/storyPanels.ts";
+import { listed } from "./support/sidePanelContents.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
@@ -34,12 +34,12 @@ export const scrollsOnItsOwn = [
   ".story-review-code",
 ];
 
-export const resizeEdge = (within: Page | Locator) =>
-  within.getByRole("separator", { name: "Resize panel" });
+export const panelDivider = (within: Page | Locator) =>
+  within.getByRole("separator", { name: "Panel divider", exact: true });
 
 // Resizes the window and waits for the page to arrange the panel for it:
 // stacked above the page in a window up to 800px wide (side-panel.css),
-// beside the page with its resize edge otherwise. The page arranges on the
+// beside the page with its resize divider otherwise. The page arranges on the
 // frame after the resize, so a measurement taken, or a finger placed, before
 // that frame would take the previous arrangement's places in the new window.
 export async function resizeUntilArranged(
@@ -47,26 +47,37 @@ export async function resizeUntilArranged(
   view: { readonly width: number; readonly height: number },
 ) {
   await panel.page().setViewportSize(view);
-  const edge = resizeEdge(panel);
-  if (view.width > 800) await expect(edge).toBeVisible();
-  else await expect(edge).toHaveCount(0);
+  const divider = panelDivider(panel);
+  if (view.width > 800) await expect(divider).toBeVisible();
+  else await expect(divider).toHaveCount(0);
 }
 
 // The page column and the panel, side by side, as shown.
 export async function split(page: Page, panel: Locator) {
-  const [dashboard, shown] = await Promise.all([
+  const [pageColumn, shown] = await Promise.all([
     box(page.locator(".page-column")),
     box(panel),
   ]);
-  return { dashboard: dashboard.width, panel: shown.width };
+  return { pageColumn: pageColumn.width, sidePanel: shown.width };
 }
 
-// Drags the edge sideways by `by` px with the mouse and releases it there,
-// off the edge.
-export async function dragEdge(page: Page, by: number) {
-  const { x, y, width, height } = await box(resizeEdge(page));
+// Drags the divider sideways by `by` px with the mouse and releases it there,
+// off the divider.
+export async function dragDivider(page: Page, by: number) {
+  const { x, y, width, height } = await box(panelDivider(page));
   const from = { x: x + width / 2, y: y + height / 2 };
   await page.mouse.move(from.x, from.y);
+  expect(
+    await panelDivider(page).evaluate((element) => {
+      const at = element.getBoundingClientRect();
+      const target = document.elementFromPoint(
+        at.x + at.width / 2,
+        at.y + at.height / 2,
+      );
+      return { reached: target === element, target: target?.className };
+    }),
+    "the pointer reaches the Panel divider",
+  ).toEqual({ reached: true, target: "resize-divider panel-divider" });
   await page.mouse.down();
   await page.mouse.move(from.x + by, from.y, { steps: 8 });
   await page.mouse.up();
@@ -105,10 +116,13 @@ export async function expectWidth(panel: Locator, width: number) {
     .toBe(width);
 }
 
-export async function expectEdgeSays(page: Page, width: number) {
-  const edge = resizeEdge(page);
-  await expect(edge).toHaveAttribute("aria-valuenow", String(width));
-  await expect(edge).toHaveAttribute("aria-valuetext", `${width} pixels wide`);
+export async function expectDividerSays(page: Page, width: number) {
+  const divider = panelDivider(page);
+  await expect(divider).toHaveAttribute("aria-valuenow", String(width));
+  await expect(divider).toHaveAttribute(
+    "aria-valuetext",
+    `${width} pixels wide`,
+  );
 }
 
 // Story A's card, its session listed and its review available, and the
@@ -133,8 +147,8 @@ export async function storyAWithSession(
     card,
     session,
     terminal: page.getByRole("region", { name: "Terminal" }),
-    review: page.getByRole("region", { name: "Review changes" }),
-    edge: resizeEdge(page),
+    review: page.getByRole("region", { name: "Story review" }),
+    divider: panelDivider(page),
     // The session's attachments so far.
     attaches: () => {
       const all = dashboard.claudeAttaches();

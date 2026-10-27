@@ -2,13 +2,13 @@
    Recently done: ./recently-done.css. A noted Start keeps its accent, dashed
    edge and tooltip (./icon-control.css); quiet gray means disabled. */
 
-/* In the card's launch group (stages.css), a Start's answer takes a line of
-   its own right below it, before the next Start. */
-.card-launch-group > .start-launch {
+/* In story-cards.css's launch group, each Start's answer has its own line
+   directly below that Start and before the next. */
+.story-card-launch-group > .start-launch {
   display: contents;
 }
 
-.card-launch-group > .start-launch > .launch-answer {
+.story-card-launch-group > .start-launch > .launch-answer {
   flex-basis: 100%;
   margin-top: 0;
 }
@@ -22,7 +22,7 @@
 .launch-open button {
   font: inherit;
   color: var(--accent);
-  background: var(--panel);
+  background: var(--raised-surface);
   border: 1px solid var(--accent);
   border-radius: 0.25rem;
   padding: 0.2rem 0.55rem;
@@ -61,7 +61,7 @@
   color: var(--problem);
 }
 
-.card-sessions {
+.story-card-sessions {
   list-style: none;
   display: grid;
   gap: 0.45rem;
@@ -69,18 +69,18 @@
 }
 
 /* Attention and unread-report counts each say their meaning in words. */
-.card-attention,
-.card-unread-reports {
+.story-card-attention,
+.story-card-unread-reports {
   margin-top: 0.45rem;
   font-size: 0.9rem;
   font-weight: 600;
 }
 
-/* A story's sessions inside its card, on a work card or a done story's card,
-   are set off from the card on the panel. */
-.card-sessions .session-entry,
+/* A story's sessions inside its card, on a Story card or a done story's card,
+   are set off from the Story card on the raised surface. */
+.story-card-sessions .session-entry,
 .done-story-sessions .session-entry {
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .launch-local {
@@ -128,14 +128,14 @@
 
 /* "Shown in terminal" identifies the selected session. Its card or standalone
    entry also uses the selection outline; every card has the accent left edge. */
-.card.in-terminal,
-.recently-done .session-entry.in-terminal,
-.stage > .cards > li > .session-entry.in-terminal {
+.story-card.in-side-panel,
+.recently-done .session-entry.in-side-panel,
+.column > .story-cards > li > .session-entry.in-side-panel {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-.shown-in-terminal {
+.shown-session-content {
   font-weight: 600;
   color: var(--accent);
 }
@@ -151,16 +151,16 @@
 
 /* Startup disables actions and dashes the edge without moving the card or
    its selection marks. The indicator moves only while startup progresses. */
-.card-frame {
+.story-card-frame {
   display: contents;
 }
 
-.card.card-starting {
+.story-card.story-card-starting {
   border-style: dashed;
   border-left-style: solid;
 }
 
-.card-startup-progressing::before {
+.story-card-startup-progressing::before {
   content: "";
   display: inline-block;
   width: 0.55rem;
@@ -168,22 +168,22 @@
   margin-right: 0.4rem;
   border-radius: 50%;
   background: var(--accent);
-  animation: card-startup-pulse 1.2s ease-in-out infinite;
+  animation: story-card-startup-pulse 1.2s ease-in-out infinite;
 }
 
-@keyframes card-startup-pulse {
+@keyframes story-card-startup-pulse {
   50% {
     opacity: 0.25;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card-startup-progressing::before {
+  .story-card-startup-progressing::before {
     animation: none;
   }
 }
 
-.card-startup-note {
+.story-card-startup-note {
   font-size: 0.9rem;
 }
 
@@ -235,8 +235,8 @@
     box-shadow: none;
   }
 
-  .visually-hidden.card-session-open-reason,
-  .visually-hidden.card-launch-evidence-reason {
+  .visually-hidden.story-card-session-open-reason,
+  .visually-hidden.story-card-launch-evidence-reason {
     position: static;
     width: auto;
     height: auto;

@@ -1,9 +1,9 @@
-// The same published canonical, card-assignment, and done facts must survive
+// The same published canonical, story-card-assignment, and done facts must survive
 // both independent arrivals and failures. These assertions observe rendered
 // evidence; raw published records remain in publishedFactsArrival.ts.
 
 import type { Locator } from "@playwright/test";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expect } from "./dashboardTest.ts";
 import { preparer, preparingPath, purpose } from "./publishedFactsArrival.ts";
 import { executed } from "./recentlyDoneRecords.ts";
@@ -50,14 +50,14 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
     .click();
 }
 
-export async function expectCardAssignments(
+export async function expectStoryCardAssignments(
   branchCard: Locator,
   queuedCard: Locator,
 ) {
-  await expect(branchCard.locator(".card-owner .owner-line")).toContainText(
-    "Akiho-chan · Fixture Committer · Claude Code",
-  );
-  await expect(queuedCard.locator(".card-preparing")).toContainText(
+  await expect(
+    branchCard.locator(".story-card-owner .owner-line"),
+  ).toContainText("Akiho-chan · Fixture Committer · Claude Code");
+  await expect(queuedCard.locator(".story-card-preparing")).toContainText(
     `PreparingKirara-chan · ${preparer} · Codex`,
   );
 }

@@ -1,5 +1,5 @@
 // Semantic references navigate through the page's published observation. Source
-// evidence links keep their own policy in RecordedLink and DependenciesCard.
+// evidence links keep their own policy in RecordedLink and StoryCardDependencies.
 import {
   createContext,
   useContext,
@@ -15,7 +15,7 @@ import {
   activeStoryAt,
   type StoryDestination,
 } from "./dashboardDestination.ts";
-import { untilOwnMove } from "./workFocus.ts";
+import { untilOwnMove } from "./storyCardFocus.ts";
 import { usePageRange } from "./recentlyDoneRange.ts";
 import { revealStory } from "./pageEntries.ts";
 import {

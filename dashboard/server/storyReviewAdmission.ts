@@ -22,18 +22,18 @@ import {
   objectIdSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
-import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
+import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { projectFolder } from "./projectFolders.ts";
 
 export interface AdmittedFileDiff {
-  readonly kind: "review-file";
+  readonly kind: "story-review-file";
   readonly repository: string;
   // The tree the file diff compares from.
   readonly baseline: string;
@@ -43,8 +43,8 @@ export interface AdmittedFileDiff {
   readonly oldPath?: string;
 }
 
-export interface AdmittedReviewRange {
-  readonly kind: "review-range";
+export interface AdmittedStoryReviewRange {
+  readonly kind: "story-review-range";
   readonly established: ReviewedWorkspace;
   readonly fromTree: string;
   readonly fromBaseline: string;
@@ -73,7 +73,9 @@ const rangeQuerySchema = z.object({
   integrations: z.array(reviewIntegrationSchema),
 });
 
-export async function rangeRequest(url: URL): Promise<AdmittedReviewRange> {
+export async function rangeRequest(
+  url: URL,
+): Promise<AdmittedStoryReviewRange> {
   requireExactQuery(
     url,
     [
@@ -106,7 +108,7 @@ export async function rangeRequest(url: URL): Promise<AdmittedReviewRange> {
   if (!query.success)
     throw new RefusedRequest(400, "The commit range names a malformed object.");
   const { established } = await queriedWorkspace(url);
-  return { kind: "review-range", established, ...query.data };
+  return { kind: "story-review-range", established, ...query.data };
 }
 
 export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
@@ -184,7 +186,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
     repository = (await queriedWorkspace(url)).established.workspace;
   }
   return {
-    kind: "review-file",
+    kind: "story-review-file",
     repository,
     baseline,
     tree,
@@ -195,7 +197,7 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
 
 export async function markReviewedRequest(
   req: IncomingMessage,
-): Promise<AdmittedReviewMark> {
+): Promise<AdmittedStoryReviewMark> {
   const parsed = markReviewedRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success)
     throw new RefusedRequest(400, "The review mark request is malformed.");
@@ -204,7 +206,7 @@ export async function markReviewedRequest(
     parsed.data.identity,
   );
   return {
-    kind: "review-mark",
+    kind: "story-review-mark",
     sourceId: source.id,
     identity,
     established,
@@ -213,4 +215,7 @@ export async function markReviewedRequest(
   };
 }
 
-export { reviewRequest, type AdmittedReview } from "./storyReviewRequest.ts";
+export {
+  storyReviewRequest,
+  type AdmittedStoryReview,
+} from "./storyReviewRequest.ts";

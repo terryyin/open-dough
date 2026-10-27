@@ -4,9 +4,9 @@
 // the store and the native host untouched. The states themselves on the card
 // and sidebar are ./agent-launch-codex-observation.spec.ts.
 import path from "node:path";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { notRefinedStory } from "./launchJourney.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { passive as passiveReport } from "./support/retainedReport.ts";
 import {
@@ -53,7 +53,7 @@ test("predecessor without continuation gains no command; missing workspace prese
   save(dashboard, [legacy, missing]);
   const before = stored(dashboard.home);
   const { card } = await openTakenBacklog(page, launchJourney);
-  const entries = () => [cardSessions(card(notRefinedStory))];
+  const entries = () => [storyCardSessions(card(notRefinedStory))];
   const check = async () => {
     await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
     for (const list of entries()) {
@@ -95,7 +95,7 @@ test("predecessor without continuation gains no command; missing workspace prese
       .getByRole("button", { name: "Read final report" })
       .click();
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(
+    await expect(panel.locator(".final-report-text")).toHaveText(
       "The saved conversation's final report.",
     );
     await panel.getByRole("button", { name: "Close", exact: true }).click();

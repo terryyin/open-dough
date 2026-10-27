@@ -16,13 +16,13 @@ import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import type { RunningCursorSessions } from "../src/cursorRunnerSessions.ts";
 import type { RecoverSessionAnswer } from "../src/sessionRecovery.ts";
-import type { SessionResult } from "../src/sessionResult.ts";
+import type { FinalReportRead } from "../src/finalReportContract.ts";
 import type {
   MarkReviewedAnswer,
   ReviewedFileDiff,
   StoryReview,
   ReviewRange,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { hostOperations } from "./launchHosts.ts";
 
@@ -40,7 +40,7 @@ export type AgentLaunchAnswer =
       readonly body: Awaited<ReturnType<typeof submitCompletion>>;
     }
   | { readonly status: number; readonly body: LaunchHostOptions }
-  | { readonly status: number; readonly body: SessionResult }
+  | { readonly status: number; readonly body: FinalReportRead }
   | { readonly status: number; readonly body: StoryReview }
   | { readonly status: number; readonly body: ReviewRange }
   | { readonly status: number; readonly body: ReviewedFileDiff }

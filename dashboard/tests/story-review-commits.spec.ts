@@ -6,7 +6,7 @@ import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
+import { openStoryReview, reviewRegion } from "./support/storyReviewMark.ts";
 import {
   git,
   observed,
@@ -35,7 +35,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
   const card = await openBacklog(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
   const expected = git(
     workspace,
@@ -119,7 +119,7 @@ test("a clean merge selected alone changed nothing by itself", async ({
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review
@@ -153,7 +153,7 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   const { workspace } = unchangedWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
   expect(snapshot.commits).toEqual([]);
   await expect(review).toContainText(
@@ -180,7 +180,7 @@ test("an empty plain commit names its range and lists no files", async ({
   );
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   await expect(

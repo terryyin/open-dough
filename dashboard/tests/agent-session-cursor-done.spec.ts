@@ -19,7 +19,7 @@ import {
 import { markAsDone } from "./support/markDone.ts";
 import {
   markLocallyDone,
-  markLocallyDoneFromPanel,
+  markLocallyDoneFromSidePanel,
 } from "./support/cursorLocalDone.ts";
 
 const localDoneWording =
@@ -65,7 +65,7 @@ workingCursorTest(
 );
 
 workingCursorTest(
-  "Mark as done from the open terminal panel moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
+  "Mark as done from the open terminal moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
     workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
@@ -80,7 +80,7 @@ workingCursorTest(
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 
-    const recent = await markLocallyDoneFromPanel(page, panel);
+    const recent = await markLocallyDoneFromSidePanel(page, panel);
 
     await expect(panel).toHaveCount(0);
     await expect(recent).toContainText(localDoneWording);

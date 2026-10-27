@@ -17,7 +17,7 @@ import {
 } from "./dashboardPage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarHost } from "./agentAttributionRecords.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
   openSettledAtA,
@@ -44,7 +44,7 @@ const cardCredits = (page: Page) =>
     agents.map((agent) =>
       parts(page)
         .taken.getByRole("article", { name: titleOf(agent) })
-        .locator(".card-owner")
+        .locator(".story-card-owner")
         .innerText(),
     ),
   );
@@ -102,7 +102,7 @@ test("an inspection open at A keeps its purpose while B is read", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const queueCard = parts(page).stages.getByRole("article", {
+  const queueCard = parts(page).board.getByRole("article", {
     name: queueStory,
   });
   const detail = await inspectedDetail(queueCard);

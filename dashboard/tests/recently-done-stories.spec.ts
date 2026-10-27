@@ -173,7 +173,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expectEntries(recent, [adHocEntry]);
     await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
-    await expect(recent.locator(".stage-count")).toHaveText(
+    await expect(recent.locator(".column-count")).toHaveText(
       "Entry count incomplete",
     );
   });
@@ -197,7 +197,7 @@ test("a revision with no done records lists the sessions as before, and one whos
       "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records. Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.",
     );
     await expectEntries(recent, [adHocEntry]);
-    await expect(recent.locator(".stage-count")).toHaveText(
+    await expect(recent.locator(".column-count")).toHaveText(
       "Entry count incomplete",
     );
     expect(doneRecordsRead(requests)).toEqual([]);

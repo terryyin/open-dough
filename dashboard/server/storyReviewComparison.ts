@@ -17,7 +17,7 @@ import {
   type RestatedComparison,
   type ReviewedFile,
   type ReviewIntegration,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
 import {
   baselinesDiffer,

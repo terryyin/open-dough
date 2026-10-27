@@ -1,4 +1,4 @@
-// The terminal panel's header shows the portrait of the agent the session's
+// The terminal's header shows the portrait of the agent the session's
 // kept record names (its start's or preparation's `agent`), to the left of
 // the title and session rows and proportionate to both, named and titled by the
 // agent; with no recorded agent, or no portrait for it, there is none, and
@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { expectServed } from "./agentPortrait.ts";

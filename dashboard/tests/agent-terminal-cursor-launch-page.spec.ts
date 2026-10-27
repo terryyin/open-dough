@@ -6,7 +6,7 @@
 // opens its terminal.
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { startSessionField, startedSession } from "./launchCardPage.ts";
+import { startSessionField, startedSession } from "./launchStoryCardPage.ts";
 import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 import { keptCursor } from "./support/keptCursorTurn.ts";
 import { processRunning } from "./support/processGroup.ts";

@@ -56,17 +56,13 @@ export async function expectTerminalPreviewFits(
     (await box(portrait)).y + (await box(portrait)).height,
   );
   await page.setViewportSize({ width: 800, height: 220 });
-  await page.evaluate(() => {
-    window.scrollTo(0, 0);
-  });
   await portrait.hover();
   await expectPreviewContained();
   // Move the real portrait to the panel's right edge, preserving its hover
   // and preview rendering; the test supplies only the anchor's geometry.
   await portrait.evaluate((element) => {
     const terminal = element.closest(".side-panel");
-    if (!terminal)
-      throw new Error("Portrait must belong to the terminal panel");
+    if (!terminal) throw new Error("Portrait must belong to the terminal");
     const panel = terminal.getBoundingClientRect();
     const shown = element as HTMLElement;
     const anchor = element.getBoundingClientRect();

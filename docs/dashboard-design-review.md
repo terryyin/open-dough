@@ -8,7 +8,7 @@ and carry the same authority and scope.
 Review the first usable experience against these examples, using actual records
 when available. These are design review criteria, not an executable slice plan:
 
-- The first story opens connected Backlog and Taken stages. A reader can
+- The first story opens connected Backlog and Taken Columns. A reader can
   understand their relationship, read each entry and follow its source links.
   Normal scrolling or reflow is enough until a real navigation need appears.
 - A published queue-to-Taken change places that one card correctly on successful
@@ -16,7 +16,7 @@ when available. These are design review criteria, not an executable slice plan:
   this result and respects reduced motion. Failed refresh leaves membership intact.
 - Keyboard, narrow-screen use, and browser page zoom preserve readable work and
   access to evidence and refresh. If zoom/focus is added, a reader can return
-  to an overview without losing orientation.
+  to the whole Board without losing orientation.
 
 As later stories add the relevant facts, also review:
 
@@ -30,7 +30,7 @@ As later stories add the relevant facts, also review:
   different situations. Neither produces an invented live status.
 - Partial, conflicting, and empty evidence remain distinguishable. A reader
   understands the limits of the view without reconstructing Git history.
-- Keyboard and narrow-screen use preserve the overview-to-detail path and source
+- Keyboard and narrow-screen use preserve the Board-to-detail path and source
   access. Decoration does not compete with story understanding.
 
 Defer local worktree/lock activity, agent communication and takeover, feature

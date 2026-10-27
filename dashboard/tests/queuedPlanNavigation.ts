@@ -18,7 +18,7 @@ export function planHref(
   return `https://github.com/${repository}/blob/${revision}/.planning/${path}`;
 }
 
-export async function expectQueuedPlanCardAndDetail(
+export async function expectQueuedPlanStoryCardAndDetail(
   backlog: Locator,
   repository: string,
   repo: ReadinessRepo,

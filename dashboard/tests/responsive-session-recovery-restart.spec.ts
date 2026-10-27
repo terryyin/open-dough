@@ -8,7 +8,7 @@
 // no card locked.
 
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   continueLabel,
@@ -90,12 +90,16 @@ test("a start a closed server left unsettled stays protected after restart, relo
     await recoveryOf(second)
       .getByRole("button", { name: continueLabel })
       .click();
-    await expect(cardSessions(secondTaken)).toHaveCount(1, { timeout: 60_000 });
+    await expect(storyCardSessions(secondTaken)).toHaveCount(1, {
+      timeout: 60_000,
+    });
     await expect(
       secondTaken.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
     await expect(recoveryOf(second)).toHaveCount(0);
-    await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 60_000 });
+    await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+      timeout: 60_000,
+    });
     await expect(takenStory).not.toContainText(needsReconciliation);
 
     expect(await attempts(restarted)).toEqual([
@@ -132,7 +136,7 @@ test("a story removed while its startup needs reconciliation keeps that recovery
     await removeQueuedStory(origin);
     await reloadUntilRead(page);
     await expect(
-      parts(page).stages.getByRole("article", { name: "Story A" }),
+      parts(page).board.getByRole("article", { name: "Story A" }),
     ).toHaveCount(0);
     await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
     await expectRecoveryOffered(page);

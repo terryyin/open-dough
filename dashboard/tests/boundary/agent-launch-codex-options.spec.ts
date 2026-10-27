@@ -1,7 +1,7 @@
 // Selected-host defaults and admission are proven before native creation.
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { installRefinementSkill } from "../launchCardPage.ts";
+import { installRefinementSkill } from "../launchStoryCardPage.ts";
 import { test, expect, codexSkill } from "../support/codexLaunch.ts";
 import {
   launch,

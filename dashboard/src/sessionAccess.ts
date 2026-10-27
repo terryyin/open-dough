@@ -23,7 +23,7 @@ export function workspaceLimitation(
       ? workspaceUnknown
       : undefined;
 }
-export type SessionAccess = "terminal" | "result";
+export type SessionAccess = "terminal" | "final-report";
 
 export function sessionAccess(
   record: LaunchWithState,
@@ -33,7 +33,7 @@ export function sessionAccess(
     record.workspaceState !== undefined &&
     record.workspaceState.kind !== "available"
   )
-    return "result";
+    return "final-report";
   return embeddedTerminal(operations, record.session.host) &&
     attachOpens(record.sessionState)
     ? "terminal"

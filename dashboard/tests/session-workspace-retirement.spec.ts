@@ -1,13 +1,13 @@
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   report,
   storeFile,
@@ -18,12 +18,12 @@ import {
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("card, Recently done and sidebar review the retained report with attention, association and keyboard focus, without continuing", async ({
   page,
@@ -34,8 +34,8 @@ test("card, Recently done and sidebar review the retained report with attention,
   const { record, workspace } = await retained(dashboard, native);
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const since = native.calls.length;
-  const { card, show } = await openStoryStagesJourney(page, journey);
-  const entry = cardSessions(card(notRefinedStory));
+  const { card, show } = await openStoryColumnsJourney(page, journey);
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
   await expect(
@@ -48,10 +48,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   await open.focus();
   await page.keyboard.press("Enter");
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
-  await expect(panel.locator(".session-result-body")).toBeFocused();
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await expect(panel.locator(".final-report-body")).toBeFocused();
   await expect(entry).toContainText("Shown in final report");
-  await expect(card(notRefinedStory)).toHaveClass(/in-terminal/);
+  await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
   await expect(panel).toContainText(record.session.sessionId);
   expect(await page.evaluate(() => "reportExecuted" in window)).toBe(false);
   await page.keyboard.press("Meta+Shift+Escape");
@@ -68,7 +68,7 @@ test("card, Recently done and sidebar review the retained report with attention,
     .taken.locator(".session-entry")
     .filter({ hasText: native.threadId });
   await local.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(
     local.getByRole("button", { name: "Read final report" }),
@@ -80,7 +80,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   await parts(page)
     .project.getByRole("radio", { name: "Doughnut", exact: true })
     .check();
-  const sidebar = page.getByRole("complementary", { name: "Sessions" });
+  const sidebar = page.getByRole("complementary", {
+    name: "Sessions sidebar",
+    exact: true,
+  });
   const sideOpen = sidebar.getByRole("button", {
     name: notRefinedStory,
     exact: true,
@@ -89,7 +92,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(
     parts(page).project.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(sideOpen).toHaveAttribute("aria-current", "true");
   await expect(entry).toContainText("Ready for review");
   await panel.getByRole("button", { name: "Close", exact: true }).click();
@@ -134,9 +137,9 @@ test("changing or closing selection cancels a held report and never shows its te
     await held;
     await route.fulfill({ response }).catch(() => undefined);
   });
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  const entries = cardSessions(card(notRefinedStory));
+  const entries = storyCardSessions(card(notRefinedStory));
   const first = entries.filter({
     has: page.locator(`code:text-is("${record.session.sessionId}")`),
   });
@@ -167,11 +170,11 @@ test("changing or closing selection cancels a held report and never shows its te
   await second.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel).toContainText(next.session.sessionId);
-  await expect(panel.locator(".session-final-report")).toHaveText(
+  await expect(panel.locator(".final-report-text")).toHaveText(
     "Second conversation's own result",
   );
   release?.();
-  await expect(panel.locator(".session-final-report")).toHaveText(
+  await expect(panel.locator(".final-report-text")).toHaveText(
     "Second conversation's own result",
   );
   await expect(panel).not.toContainText("a5df85d90a");

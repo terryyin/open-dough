@@ -4,7 +4,7 @@ import { completionLabel, reportUnread } from "./completionReport.ts";
 // not yet marked read or done apart from it, shared by every session entry
 // (`./SessionEntry.tsx`) wherever it is listed, and by the card that says
 // how many of its sessions need attention and hold unread reports
-// (`./CardLaunches.tsx`).
+// (`./StoryCardLaunches.tsx`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
 import { cursorHeldLabel } from "./cursorHeldLabel.ts";

@@ -76,7 +76,7 @@ export async function reachKeptStart(
   await openUntilRead(page);
   const { backlog, taken, source } = parts(page);
   const backlogCard = backlog.getByRole("article", { name: "Story A" });
-  const takenCard = taken.getByRole("article", { name: "Story A" });
+  const takenStoryCard = taken.getByRole("article", { name: "Story A" });
   const otherTakenCard = taken.getByRole("article", { name: "Story B" });
   await expect(backlogCard).toBeVisible();
   await expect(otherTakenCard).toBeVisible();
@@ -112,10 +112,10 @@ export async function reachKeptStart(
   published.advanceTo(revision);
   await reloadUntilRead(page);
   await expect(source).toContainText(revision);
-  await expect(takenCard).toBeVisible();
+  await expect(takenStoryCard).toBeVisible();
   await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
     0,
   );
   await reloadUntilRead(page);
-  return { takenCard, otherTakenCard, workspace };
+  return { takenStoryCard, otherTakenCard, workspace };
 }

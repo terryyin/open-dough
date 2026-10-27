@@ -15,7 +15,7 @@ import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { parts, standaloneSessionName } from "./dashboardPage.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
@@ -31,7 +31,7 @@ import {
   recordReveals,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "./support/cursorStart.ts";
 
 const instruction = "hold this done session";
@@ -99,7 +99,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
       releaseCatalog();
       view.release();
     };
-    await expect(page.locator("#session-sidebar")).toContainText(
+    await expect(page.locator("#sessions-sidebar")).toContainText(
       "No sessions launched from this dashboard are open.",
     );
     releaseCatalog();
@@ -117,7 +117,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     await project.getByRole("radio", { name: "Pygardon" }).check();
     await expect(backlog).toContainText("A Pygardon story");
 
-    const { sidebar, button } = sidebarParts(page);
+    const { sidebar, button } = sessionsSidebarParts(page);
     await button.click();
     const region = sidebar.getByRole("region", {
       name: "Running Cursor sessions",

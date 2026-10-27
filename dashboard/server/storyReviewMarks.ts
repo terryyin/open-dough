@@ -1,4 +1,4 @@
-// This machine's story review marks (`../src/storyReview.ts`): the snapshot
+// This machine's story review marks (`../src/storyReviewContract.ts`): the snapshot
 // a developer marked reviewed, one per story, kept by project id and work
 // identity in `~/.open-dough/dashboard/review-marks.json`, resolved through
 // `HOME`. A mark is not a launch record: it belongs to the story, whichever
@@ -19,7 +19,7 @@ import {
   reviewMarkSchema,
   type MarkReviewedAnswer,
   type ReviewMark,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { defaultGitOutputLimit, gitProblem, runGit } from "./gitRunner.ts";
@@ -74,8 +74,8 @@ export async function reviewMark(
     : undefined;
 }
 
-export interface AdmittedReviewMark {
-  readonly kind: "review-mark";
+export interface AdmittedStoryReviewMark {
+  readonly kind: "story-review-mark";
   readonly sourceId: string;
   readonly identity: string;
   readonly established: ReviewedWorkspace;
@@ -93,7 +93,7 @@ export async function markReviewedResponse({
   established,
   tree,
   baseline,
-}: AdmittedReviewMark): Promise<AgentLaunchAnswer> {
+}: AdmittedStoryReviewMark): Promise<AgentLaunchAnswer> {
   const signal = AbortSignal.timeout(markWaitMs);
   const git = (args: readonly string[]) =>
     runGit(args, {

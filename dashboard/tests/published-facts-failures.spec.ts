@@ -7,7 +7,7 @@
 import type { Page } from "@playwright/test";
 import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { callsSince, contentReads, headsChecks } from "./autoRefreshJourney.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import { parts, rosterParts } from "./dashboardPage.ts";
 import {
@@ -18,7 +18,7 @@ import {
 import { revision } from "./sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
-  expectCardAssignments,
+  expectStoryCardAssignments,
   expectDoneFacts,
 } from "./publishedFactsAssertions.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -65,27 +65,29 @@ test("an ordinary canonical failure keeps completed assignments and done stories
   } = await heldFactGroups(page);
   release("profiles");
   release("done");
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(branchCard).toContainText("Reading preparation…");
 
   fail("preparation");
-  await expect(branchCard.locator(".card-preparation")).toHaveText(
+  await expect(branchCard.locator(".story-card-preparation")).toHaveText(
     preparationGap,
   );
-  await expect(trunkCard.locator(".card-preparation")).toHaveText(
+  await expect(trunkCard.locator(".story-card-preparation")).toHaveText(
     preparationGap,
   );
   await expect(branchCard).not.toContainText("No associated plan is recorded");
-  await expect(branchCard.locator(".card-progress")).toContainText(
+  await expect(branchCard.locator(".story-card-progress")).toContainText(
     "The associated plan path could not be resolved.",
   );
-  await expect(trunkCard.locator(".card-progress")).toContainText(
+  await expect(trunkCard.locator(".story-card-progress")).toContainText(
     preparationGap,
   );
   await expect(trunkCard).not.toContainText("No associated plan is recorded");
-  await expect(branchCard.locator(".card-preparation .badge")).toHaveCount(0);
-  await expectCardAssignments(branchCard, queuedCard);
+  await expect(
+    branchCard.locator(".story-card-preparation .badge"),
+  ).toHaveCount(0);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   // This group's unread canonical record also prevents plan reachability.
   // The queued canonical purpose was read; its plan/readiness remain gaps.
@@ -113,7 +115,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expect(branchCard).toContainText("Reading agent profile…");
 
   fail("profiles");
-  await expect(branchCard.locator(".card-owner")).toHaveText(profilesGap);
+  await expect(branchCard.locator(".story-card-owner")).toHaveText(profilesGap);
   await expect(queuedCard).toContainText(
     `Preparation assignment unknown. ${profilesGap}`,
   );
@@ -139,7 +141,7 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
   await expect(roster).not.toContainText("No assignment recorded");
   await expect(roster).not.toContainText("Reading agent profile…");
   await back.click();
-  await expect(branchCard.locator(".card-owner")).toHaveText(profilesGap);
+  await expect(branchCard.locator(".story-card-owner")).toHaveText(profilesGap);
   await expectCanonicalFacts(queuedCard);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
@@ -154,7 +156,7 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
   release("preparation");
   release("profiles");
   await expectCanonicalFacts(queuedCard);
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expect(branchCard).toContainText("Current slice started 7 min ago");
   await expect(doneCard).toHaveCount(0);
 
@@ -167,8 +169,8 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
   );
   await expect(doneCard).toHaveCount(0);
   await expectCanonicalFacts(queuedCard);
-  await expectCardAssignments(branchCard, queuedCard);
-  await expect(branchCard.locator(".card-progress")).toContainText(
+  await expectStoryCardAssignments(branchCard, queuedCard);
+  await expect(branchCard.locator(".story-card-progress")).toContainText(
     "0 of 2 slices recorded complete",
   );
   await expect(branchCard).toContainText("From story branch; not in trunk.");
@@ -184,7 +186,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
     await heldFactGroups(page);
   release("profiles");
   release("done");
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(branchCard).toContainText("Reading preparation…");
 
@@ -200,14 +202,14 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expect(problem).toContainText("What is shown is what it read");
   await expect(problem).not.toContainText("added nothing");
   await expect(problem).toContainText("this page reads it");
-  await expect(branchCard.locator(".card-preparation")).toHaveText(
+  await expect(branchCard.locator(".story-card-preparation")).toHaveText(
     preparationGap,
   );
   await expect(branchCard).not.toContainText("No associated plan is recorded");
-  await expect(branchCard.locator(".card-progress")).toContainText(
+  await expect(branchCard.locator(".story-card-progress")).toContainText(
     "The associated plan path could not be resolved.",
   );
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
   await expect(parts(page).source).toContainText(revision);
@@ -218,15 +220,15 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   expect(contentReads(callsSince(page, from))).toEqual([]);
   await expect(problem).toContainText(readAt);
   await expect(branchCard).toContainText(preparationGap);
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
 
   release("preparation");
   await page.clock.runFor(1_250);
   await expectCanonicalFacts(queuedCard);
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
-  await expect(branchCard.locator(".card-progress")).toContainText(
+  await expect(branchCard.locator(".story-card-progress")).toContainText(
     "0 of 2 slices recorded complete",
   );
   await expect(branchCard).not.toContainText(preparationGap);

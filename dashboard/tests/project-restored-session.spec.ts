@@ -58,7 +58,10 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     });
     await page.getByRole("button", { name: "Sessions", exact: true }).click();
     await expect(
-      page.getByRole("complementary", { name: "Sessions" }),
+      page.getByRole("complementary", {
+        name: "Sessions sidebar",
+        exact: true,
+      }),
     ).toContainText("Ready for review");
     await expect(page).toHaveURL(/project=sample-app/);
     await reloadUntilRead(page);

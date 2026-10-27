@@ -3,7 +3,7 @@
 // Startup recovery. These page journeys use real installed starts and origin.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { noConnection } from "./originAnswers.ts";
 import {
@@ -57,11 +57,11 @@ test.describe("a start past its warning threshold", () => {
     const warning =
       "Still starting after 2 minutes. The start goes on in workspace ~/git/open-dough/.worktrees/story-a on branch claude/story-a; its session starts when it finishes.";
     await expectProtected(story);
-    const progressing = story.locator(".card-startup-progressing");
+    const progressing = story.locator(".story-card-startup-progressing");
     await expect(progressing).toHaveText(`Preparing execution… ${warning}`);
     expect(await indicatorOf(progressing)).toEqual({
       shown: true,
-      animation: "card-startup-pulse",
+      animation: "story-card-startup-pulse",
     });
     await expect(story).not.toContainText("Started here, no session yet");
     await expect
@@ -83,11 +83,13 @@ test.describe("a start past its warning threshold", () => {
     await expect(progressing).toHaveText(`Preparing execution… ${warning}`);
     expect(await indicatorOf(progressing)).toEqual({
       shown: true,
-      animation: "card-startup-pulse",
+      animation: "story-card-startup-pulse",
     });
     await expect(recoveryOf(page)).toHaveCount(0);
     push.release();
-    await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+    await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+      timeout: 30_000,
+    });
     await expect(takenStory).not.toContainText(needsReconciliation);
     await expect(
       takenStory.getByRole("button", { name: "Inspect story" }),
@@ -134,7 +136,9 @@ test("a failed published read after settlement is said beside the project's acti
 
   restore();
   await recovery.getByRole("button", { name: `Recheck ${subject}` }).click();
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();

@@ -47,5 +47,5 @@ export async function openedSettled(
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   const card = parts(page).taken.getByRole("article", { name: onBranch });
-  return { origin, progress: card.locator(".card-progress") };
+  return { origin, progress: card.locator(".story-card-progress") };
 }

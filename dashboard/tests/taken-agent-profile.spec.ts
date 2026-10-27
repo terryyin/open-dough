@@ -6,7 +6,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { showColumn } from "./dashboardColumnsPage.ts";
+import { showColumn } from "./boardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { enlargedView, expectMark, expectPortrait } from "./agentPortrait.ts";
 import {
@@ -154,7 +154,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       for (const [title, mode, modeFile, host, hostFile] of marked) {
         // The scan view's host mark, before the detail opens.
         await expectMark(
-          card(title).locator(".card-owner"),
+          card(title).locator(".story-card-owner"),
           "host",
           host,
           `tool-avatars/${hostFile}`,
@@ -208,7 +208,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     await expect(taken.locator(".agent-portrait")).toHaveCount(4);
     // Each recorded assignment's host mark on its scan line, and its mode
     // and host marks in its detail; the entry without a profile has none.
-    await expect(taken.locator(".card-owner .owner-mark")).toHaveCount(4);
+    await expect(taken.locator(".story-card-owner .owner-mark")).toHaveCount(4);
     for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
       await inspected(title);
       await expect(card(title).locator(".owner-mark")).toHaveCount(3);

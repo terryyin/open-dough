@@ -9,7 +9,7 @@
 
 import { useId } from "react";
 import type { ReviewTreeNode } from "./reviewFileTree.ts";
-import type { ReviewedFile } from "./storyReview.ts";
+import type { ReviewedFile } from "./storyReviewContract.ts";
 import "./story-review-files.css";
 
 export const kindWords: Record<ReviewedFile["kind"], string> = {

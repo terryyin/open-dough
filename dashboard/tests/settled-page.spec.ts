@@ -1,5 +1,5 @@
 // The shared settled-page wait (`expectSettledPage` in ./dashboardPage.ts)
-// returns only once the stages show their cards and no card still reads its
+// returns only once the board show their cards and no card still reads its
 // preparation. The page, its local authenticated read boundary, and the fake
 // GitHub behind it are the usual ones; the test holds two of the page's reads
 // at that boundary: the snapshot, so no card is shown yet, and one card's

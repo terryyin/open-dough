@@ -2,13 +2,13 @@
 // completed story falls back to published history only when that local evidence
 // is unusable. Every path shares the response's bounded cancellation signal.
 import type { ServerResponse } from "node:http";
-import type { StoryReview } from "../src/storyReview.ts";
+import type { StoryReview } from "../src/storyReviewContract.ts";
 import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import type { AdmittedReview } from "./storyReviewAdmission.ts";
+import type { AdmittedStoryReview } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
@@ -18,7 +18,7 @@ import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
 const reviewWaitMs = 60_000;
 
 export async function storyReviewResponse(
-  request: AdmittedReview,
+  request: AdmittedStoryReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
   const choices =

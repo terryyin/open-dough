@@ -4,11 +4,11 @@ import { expect, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
-  publishStoryStagesJourney,
-  type StoryStagesJourney,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { launchTouchViewports } from "./touchLaunchPage.ts";
@@ -22,12 +22,14 @@ import {
 } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+// Bound the native input journey separately from its beforeAll setup.
+test.setTimeout(60_000);
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 const title =
   "Continue the intended terminal session with a long title whose final words identify the work that should remain attached";
@@ -43,9 +45,9 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         identity: "SEED-901#continue-touch-terminal",
         title,
       });
-      const opened = await openStoryStagesJourney(page, journey);
+      const opened = await openStoryColumnsJourney(page, journey);
       await opened.settled();
-      const sidebar = sidebarParts(page);
+      const sidebar = sessionsSidebarParts(page);
       await tapWhereShown(sidebar.button);
       const opener = sidebar.entry(title);
       const { sent, sizes } = noteTerminalTraffic(page);
@@ -64,8 +66,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
         expect(dashboard.claudeStopCalls()).toEqual([]);
       };
-      // Session navigation reveals its ordinary page entry. Scroll the
-      // stacked content back into view before reading or using its terminal.
+      // Reveal the stacked terminal after ordinary Session entry navigation.
       await panel.scrollIntoViewIfNeeded();
       await expect(rows).toContainText(`attached ${native.shortId}`);
       await expect(rows).toContainText("Claude Code");
@@ -77,6 +78,13 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await page.keyboard.type("carry onX");
       await page.keyboard.press("Backspace");
       await page.keyboard.type(" please");
+
+      await test.step("a moderately reduced height keeps fitted input", async () => {
+        await page.setViewportSize({ width: portrait.width, height: 400 });
+        await expectFittedInput(panel, sizes);
+        await focusByTouch(panel);
+        await assertIdentity();
+      });
 
       await test.step("reducing visible height retains the input, fitted output and pinned controls without another attachment", async () => {
         await page.setViewportSize({ width: portrait.width, height: 240 });
@@ -96,14 +104,19 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
             ),
           ).toBe(true);
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-          // Read in bounded small strokes: native touch slop and font wrapping
-          // mean one header-height drag need not reach the title ending.
+          // Observe within native strokes to retain narrow reading positions.
           const headerSwipe = -(await box(identity)).height / 2;
           const scrollHeaderUntilShown = async (
             shown: () => Promise<boolean>,
           ) => {
             for (let stroke = 0; stroke < 12 && !(await shown()); stroke += 1) {
-              await scrollByTouch(page, identity, headerSwipe);
+              await scrollByTouch(
+                page,
+                identity,
+                headerSwipe,
+                "vertical",
+                shown,
+              );
               await page.evaluate(
                 () =>
                   new Promise<void>((resolve) => {
@@ -122,13 +135,11 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
               titleWordsShown(heading, title.length - 20, title.length),
             )
             .toBe(true);
-          // Wrapped native identities can occupy another reading position
-          // than the title ending. Read both through the same header scroll.
-          // A stroke may land with the wrapped session a fraction of a pixel
-          // under the header's edge; strokes continue until the whole code
-          // lies inside the scrolling header and the window, the condition
-          // the viewport assertion then checks.
+          // Read the whole wrapped session inside the header and window.
           const session = panel.locator(".side-panel-names code");
+          expect((await box(session)).height).toBeLessThanOrEqual(
+            (await box(identity)).height,
+          );
           const sessionShown = () =>
             session.evaluate((element) => {
               const identity = element

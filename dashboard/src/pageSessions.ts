@@ -1,5 +1,5 @@
 // The page's operations on the sessions it shows: opening one in the page's
-// one terminal or final-report panel, marking one done or its report read, and
+// one terminal or final report, marking one done or its report read, and
 // reading one again once its terminal attaches, each asked with one request
 // shape. The page provides them (`./PageFrame.tsx`), and a session entry
 // on a card, in Taken or Recently done, or in the Sessions sidebar reaches opening
@@ -37,8 +37,9 @@ export type SessionOperation<
   Record extends LaunchRecord = LaunchRecord,
 > = (request: SessionRequest<Record>) => Answer;
 
-// Shows the session in the page's one terminal or report panel.
-export type OpenSessionPanel = SessionOperation<void>;
+// Opens the session's terminal or final report in the Side panel.
+export type OpenTerminal = SessionOperation<void>;
+export type OpenFinalReport = SessionOperation<void>;
 
 // Marks the session done, closing its terminal if the page shows it, and
 // answers whether it was marked. The control that asked gets the keyboard
@@ -76,7 +77,7 @@ export type PageSessions = {
   // long ago the launch was asked, unless the developer already opened that
   // session's terminal on this page; then it changes nothing and leaves the
   // keyboard where it is.
-  readonly presentTerminal: OpenSessionPanel;
+  readonly presentTerminal: OpenTerminal;
   readonly openSession: SessionOperation<void, LaunchWithState>;
   readonly shownSession:
     { readonly kind: SessionAccess; readonly key: string } | undefined;

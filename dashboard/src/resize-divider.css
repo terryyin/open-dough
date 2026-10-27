@@ -1,0 +1,32 @@
+/* A divider that resizes an area (./ResizeDivider.tsx): a strip its caller places
+   across the area's border, wide enough to grab, with a grip at its middle
+   that takes the accent while pointed at or holding the keyboard. Where it
+   offers no range, it has no grip and takes no pointer. */
+.resize-divider {
+  position: absolute;
+  touch-action: none;
+}
+
+.resize-divider::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background: var(--edge);
+}
+
+.resize-divider:hover::after,
+.resize-divider:focus-visible::after {
+  background: var(--accent);
+}
+
+.resize-divider:focus-visible {
+  outline-offset: -3px;
+}
+
+.resize-divider[aria-disabled="true"] {
+  pointer-events: none;
+}
+
+.resize-divider[aria-disabled="true"]::after {
+  display: none;
+}

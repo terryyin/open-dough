@@ -9,7 +9,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
   openSettledAtA,
@@ -37,7 +37,7 @@ const claimsStory = "Publish shared backlog claims";
 // Each card's title, text, and box, measured in one browser turn.
 async function cards(page: Page) {
   return parts(page)
-    .stages.locator("[data-work]")
+    .board.locator("[data-story-card]")
     .evaluateAll((nodes) =>
       nodes.map((node) => {
         const { x, y, width, height } = node.getBoundingClientRect();
@@ -57,7 +57,7 @@ async function notePlaceholders(page: Page): Promise<() => Promise<string[]>> {
     const seen = new Set<string>();
     (window as unknown as { placeholders: Set<string> }).placeholders = seen;
     const scan = () => {
-      for (const card of document.querySelectorAll("[data-work]")) {
+      for (const card of document.querySelectorAll("[data-story-card]")) {
         const title = card.querySelector("fieldset > h3")?.textContent ?? "";
         for (const found of (card as HTMLElement).innerText.matchAll(
           /Reading [^…]*…/g,
@@ -130,8 +130,8 @@ test("only the story B changed updates, when B answers for it", async ({
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { stages } = parts(page);
-  const dashboardCard = stages.getByRole("article", { name: dashboardStory });
+  const { board } = parts(page);
+  const dashboardCard = board.getByRole("article", { name: dashboardStory });
   const detail = await inspectedDetail(dashboardCard);
   await expect(detail).toContainText(`${dashboardStory}, as published at A.`);
   const before = await cards(page);
@@ -162,7 +162,7 @@ test("only the story B changed updates, when B answers for it", async ({
   await test.step("the unchanged stories read as published at A in B's answer", async () => {
     await expectSettledPage(page, titlesOfA);
     const queueDetail = await inspectedDetail(
-      stages.getByRole("article", { name: queueStory }),
+      board.getByRole("article", { name: queueStory }),
     );
     await expect(queueDetail).toContainText(
       `${queueStory}, as published at A.`,
@@ -175,7 +175,7 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { stages, taken, backlog } = parts(page);
+  const { board, taken, backlog } = parts(page);
   // The queue card's text but for its priority, which B changes.
   const queueText = async () =>
     (await cards(page))
@@ -196,7 +196,7 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
     const claimsCard = backlog.getByRole("article", { name: claimsStory });
     await expect(claimsCard).toContainText("Reading preparation…");
     await expect(
-      stages.getByRole("article", { name: workspaceStory }),
+      board.getByRole("article", { name: workspaceStory }),
     ).toHaveCount(0);
     expect(await queueText()).toBe(queueAtA);
     const dashboardCard = taken.getByRole("article", { name: dashboardStory });
@@ -204,7 +204,7 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
     const detail = await inspectedDetail(dashboardCard);
     await expect(detail).toContainText(`${dashboardStory}, as published at A.`);
     // The new card reads as on a first visit; the moved card reads only
-    // what its new stage shows, its owner and slice progress.
+    // what its new column shows, its owner and slice progress.
     expect(await placeholders()).toEqual(
       expect.arrayContaining([`${claimsStory}: Reading preparation…`]),
     );

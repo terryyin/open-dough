@@ -4,7 +4,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { edgeControl, rem } from "./dashboardColumnsPage.ts";
+import { columnPagingControl, rem } from "./boardPage.ts";
 import {
   expectMembership,
   parts,
@@ -132,7 +132,9 @@ test("a done story's card holds this machine's sessions for it, marked done, new
       name: executedOpen,
     });
     await expect(sessionStateOf(local)).toHaveText("Working");
-    await expect(local.locator(".card-identity")).toHaveText(executed.identity);
+    await expect(local.locator(".record-identity")).toHaveText(
+      executed.identity,
+    );
     await expect(local.getByRole("button")).toHaveText([
       "Open terminal",
       "Mark as done",
@@ -145,9 +147,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
     ).toHaveCount(0);
     for (const name of [executedOpen, executedDone]) {
       await expect(
-        page
-          .locator(".dashboard-columns")
-          .getByRole("article", { name, exact: true }),
+        page.locator(".board").getByRole("article", { name, exact: true }),
       ).toHaveCount(name === executedDone ? 2 : 1);
     }
   });
@@ -167,7 +167,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   });
 });
 
-test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose edge count uses the rendered entries", async ({
+test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
   page,
   dashboard,
 }) => {
@@ -236,11 +236,11 @@ test("an active story owns its open session even with a matching done card, whos
     await expect(sessionStateOf(closed)).toHaveText("Done");
     for (const key of [openKey, closedKey]) {
       await expect(
-        page.locator(`.dashboard-columns [data-shows-session="${key}"]`),
+        page.locator(`.board [data-shows-session="${key}"]`),
       ).toHaveCount(1);
     }
     await expectEntries(recent, [adHocEntry, queuedTitle]);
-    await expect(edgeControl(page, "Recently done")).toHaveText(
+    await expect(columnPagingControl(page, "Recently done")).toHaveText(
       "Recently done 2 entries",
     );
   };

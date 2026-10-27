@@ -17,8 +17,8 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField, startedSession } from "./launchCardPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { startSessionField, startedSession } from "./launchStoryCardPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   deploymentCursorTest as test,
@@ -194,7 +194,7 @@ for (const text of ["", "why is the CI slow?"]) {
       Number((await origin.originGit("rev-list", "--count", "main")).trim()),
     ).toBe(commitsBefore);
 
-    const sidebar = sidebarParts(page);
+    const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
     await expect(sidebar.entries).toHaveCount(1);
     await expect(sidebar.entry(title)).toBeVisible();

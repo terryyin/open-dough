@@ -13,7 +13,7 @@ import {
   storyReviewSchema,
   type ReviewMark,
   type TakenStoryReview,
-} from "../../src/storyReview.ts";
+} from "../../src/storyReviewContract.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./preparationPage.ts";
 import { openBacklog } from "./sessionDialog.ts";
@@ -27,7 +27,7 @@ import {
 } from "./storyReviewWorktree.ts";
 
 export const reviewRegion = (page: Page) =>
-  page.getByRole("region", { name: "Review changes" });
+  page.getByRole("region", { name: "Story review" });
 
 // A marked story's comparison switch.
 export const comparison = (review: Locator) =>
@@ -52,7 +52,7 @@ export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
 }
 
 // Opens the card's review and answers the snapshot the review shows.
-export async function openReview(page: Page, card: Locator) {
+export async function openStoryReview(page: Page, card: Locator) {
   const snapshot = nextSnapshot(page);
   await card.getByRole("button", { name: "Review changes" }).click();
   return snapshot;
@@ -71,12 +71,12 @@ export const changedPaths = (files: TakenStoryReview["files"] | undefined) =>
 
 // Closes the review and opens it again from the card, answering the fresh
 // snapshot it shows.
-export async function reopenReview(page: Page, card: Locator) {
+export async function reopenStoryReview(page: Page, card: Locator) {
   await reviewRegion(page)
     .getByRole("button", { name: "Close", exact: true })
     .click();
   await expect(reviewRegion(page)).toHaveCount(0);
-  return openReview(page, card);
+  return openStoryReview(page, card);
 }
 
 // Chooses Mark reviewed and waits until the review says it marked.
@@ -199,13 +199,13 @@ export async function markedThenChanged(
   const { workspace } = twelveFileWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
   editLater(workspace, 2);
   editLater(workspace, 9);
   writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
-  await reopenReview(page, card);
+  await reopenStoryReview(page, card);
   await expect(
     review.getByRole("list", { name: "3 changed files" }),
   ).toBeVisible();

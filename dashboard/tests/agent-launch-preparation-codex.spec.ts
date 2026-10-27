@@ -7,11 +7,11 @@ import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { stored } from "./support/codexLaunch.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
-import { showOptions } from "./launchCardPage.ts";
+import { showOptions } from "./launchStoryCardPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,

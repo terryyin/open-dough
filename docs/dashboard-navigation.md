@@ -3,11 +3,11 @@
 Part of the [Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md).
 Its authority, scope, and revision policy apply to this guidance.
 
-## Connected stages and spatial navigation
+## Board and spatial navigation
 
 A direct story destination uses `/?project=<encoded-project-id>&story=<encoded-story-identity>`
 on the serving dashboard's HTTP origin. Encode the entire stable identity,
-including `#`; a title, file path, stage or session ID cannot identify a story.
+including `#`; a title, file path, Column or session ID cannot identify a story.
 The URL selects the named project's stories, waits for its published membership,
 then brings that card into view and puts the keyboard on it. The same rule
 applies to Backlog and Taken, including hidden columns and reduced motion, and
@@ -28,13 +28,21 @@ Story references and direct URLs share a configured project and story identity
 as their target, and share card reveal. Active membership comes from that
 project's published work; Done references use the existing catalog and range.
 A reveal aligns the card's top with the top reading edge below the pinned banner
-and stage heading, as far as the page's scroll range allows, so reading begins
+and Column heading, as far as the Board's scroll range allows, so reading begins
 at the story's start even when the card is taller than the viewport. It follows
 native scrolling until that beginning is readable, then lets later navigation
 bring its next control into view. Layout changes can retain that reading place
 until the developer moves.
 
-Keep one story overview with an always-visible banner pinned to the viewport top.
+Keep one Board with an always-visible banner above its own scroll region.
+The Board scrollbar sits at the Board's edge, left of the Panel divider when
+side by side. Scrolling the Board leaves the banner, Sessions sidebar, and
+Side panel in place. Stacked, the Side panel takes the upper half of the
+viewport and the banner and Board share the lower half. Column headings and
+hidden-column paging controls stay within the Board's scrolling viewport.
+The agent roster scrolls in its own region when it replaces the Board.
+Side panel content uses its terminal, final report, or story review scrollbars;
+each Sessions sidebar list has its own scrollbar.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page
 ([Agent launch](../dashboard/AGENT-LAUNCH.md)). Command+B toggles it
@@ -58,8 +66,8 @@ load, its header alone below the list, which fills the rest of the sidebar.
 Expanding it with the mouse or keyboard gives the session list and the
 section's content an equal share of the room the heading and headers leave,
 each scrolling on its own; collapsing returns that room to the session list
-and leaves the keyboard on the header. The edge between the two lists is a
-focusable, horizontal separator named **Resize Running Cursor sessions** that
+and leaves the keyboard on the header. The divider between the two lists is a
+focusable, horizontal separator named **Running Cursor sessions divider** that
 says the section's content height in pixels and its bounds: dragging it, or
 Up (taller) and Down (shorter) by 2rem while it holds the keyboard, changes
 one preferred height, and a drag ends when released, wherever the pointer is,
@@ -72,20 +80,19 @@ a reload the section starts collapsed, and expanding it recovers that height.
 Where the browser keeps none, refuses storage, or keeps an unusable value, the
 two lists start at an equal share and still resize for the page's lifetime.
 Where the window is too short or zoomed for
-both lists to keep 8rem, the edge offers no range, and the sidebar itself
+both lists to keep 8rem, the divider offers no range, and the sidebar itself
 scrolls, keeping both lists and the header in reach; a height the room
 imposes never replaces the preferred one, so more room recovers it. Expanding,
 collapsing, or resizing it is page state only.
-Opening a sidebar entry
+Opening a Sessions sidebar Session entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a
 Codex saved workspace is missing or cannot be established, and brings its story's card into view once
-that project's stories are read. The page's one right-side panel shows one
-item at a time: a session's terminal, a read-only final report, or a story's
-review opened by **Review changes** on its card; opening one replaces the
-other, and the dashboard beside it stays usable. Its left edge is a
-focusable, named separator that says the panel's width in pixels: dragging it,
+that project's stories are read. The page's one Side panel shows one
+item at a time: a session's terminal, a read-only final report, or a story review opened by **Review changes** on its card; opening one replaces the
+other, and the Board beside it stays usable. The **Panel divider** is a
+focusable separator that says the panel's width in pixels: dragging it,
 or Left (wider) and Right (narrower) while it holds the keyboard, changes one
 preferred width shared by every panel content, kept across closing, the
 Sessions sidebar and Maximize/Restore, and starting at half the room. That
@@ -93,10 +100,10 @@ preference is local to this browser and disposable: a reload recovers it for
 either content, and where the browser keeps none, refuses storage, or keeps an
 unusable value, the panel starts at half the room and still resizes for the
 page's lifetime. A width the room or Maximize imposes never replaces it.
-Neither the panel nor the dashboard becomes narrower than 20rem, measured in
+Neither the Side panel nor the Board becomes narrower than 20rem, measured in
 the room beside the open sidebar; where that room cannot
 hold both, or the window is 800px wide or narrower, the panel stacks above
-the dashboard and offers no edge, as it does while maximized, and more room
+the Board and offers no Panel divider, as it does while maximized, and more room
 recovers the preferred width. Command+Shift+Escape closes
 the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
@@ -135,7 +142,7 @@ preserves selection; removing the selected row selects its next neighbor or the
 first remaining project. Settings remains available after the last removal.
 **Back to dashboard** and browser Back/Forward restore the preceding valid
 project and story/roster view with useful focus. Opening settings preserves the
-mounted session sidebar and terminal context. Project arrows leave settings
+mounted Sessions sidebar and terminal context. Project arrows leave settings
 controls and forms alone. Facts and actions wrap in reading order at narrow
 widths and browser zoom.
 
@@ -166,7 +173,7 @@ direction, evidence, and view controls outside any zooming surface.
 
 Touch browsing uses the same project choices, story details and whole-column
 paging. With a coarse pointer, frame controls, project choices, story Start
-and Inspect actions, and column edges provide at least 44px targets. When
+and Inspect actions, and Column paging controls provide at least 44px targets. When
 hover is unavailable, a Start's preparation/readiness note and its disabled
 reason are readable on the card. Inspect story reveals the full identity,
 assessment and pinned source details; dependency explanations open in place.
@@ -176,23 +183,23 @@ focus to their originating card or control. Local Chromium touch viewport
 checks cover phone/tablet sizes and rotation alongside desktop checks; they
 do not establish physical-device keyboard or remote-connectivity behavior.
 
-Use one navigable stage containing connected regions for work stages. Initially,
-show **Backlog → Taken**, with work cards placed inside their recorded region.
+Use one navigable Board containing connected Columns. Initially,
+show **Backlog → Taken**, with Story cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency
 between stories, a required sequence of all lifecycle steps, or evidence that
 a particular story moved during this observation. Label that relationship.
-Taken includes claimed work, not a claim of live execution. These visual stages
+Taken includes claimed work, not a claim of live execution. These visual Columns
 are separate from the two delivery stages in the requirements.
 
 Use stable story identity to preserve orientation across refreshes. Preserve
 source order within each region, with visible backlog priority; do not sort by
 title, owner, or inferred activity. Do not add Refined, Planned, Running, or
-Done stages to fill out a pipeline before their meaning and evidence are
+Done Columns to fill out a pipeline before their meaning and evidence are
 selected. Later refinement and planning facts may be independent annotations,
 not exclusive destinations. A missing entry is not proof of completion.
 Show **Preparing** and its assigned developer as such an annotation on a queued
 card while a published preparation assignment names that story. The card keeps
-its region, priority, and badges; Preparing is not a stage every story passes
+its region, priority, and badges; Preparing is not a Column every story passes
 through or evidence that an agent is running. The badge legend explains it.
 
 Following a supplier story reference in a dependency explanation stays in the
@@ -215,4 +222,4 @@ in a story's inspection, associated plans, and dependency revision evidence
 keep ordinary source navigation; repository files retain their pinned revisions.
 
 See [spatial-reading direction](dashboard-spatial-reading.md) for the layout
-hypothesis, compact overview and later zoom/pan guidance.
+hypothesis, whole-Board reading and later zoom/pan guidance.

@@ -40,7 +40,7 @@ Derive it solely from Git state published to origin.
 const claimsBeyondMembership =
   /\b(live|running|online|active|in progress|started|completed?|done|finished|owner(?! not recorded)|mode)\b/i;
 
-test("published overview shows Backlog and Taken work read at one revision", async ({
+test("published Board shows Backlog and Taken work read at one revision", async ({
   page,
 }) => {
   const retrievedAt = new Date("2026-09-20T08:30:00.000Z");
@@ -57,7 +57,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   await page.goto("/");
 
   const {
-    stages,
+    board,
     backlog,
     taken,
     recentlyDone,
@@ -68,7 +68,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   } = parts(page);
   await test.step("reading is shown before any work or count", async () => {
     await expect(status).toHaveText("Reading published work…");
-    await expect(stages).toHaveCount(0);
+    await expect(board).toHaveCount(0);
     await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
     releaseRef();
   });
@@ -119,10 +119,10 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   });
 
   await test.step("titles are text, never markup", async () => {
-    await expect(stages.locator("em")).toHaveCount(0);
+    await expect(board.locator("em")).toHaveCount(0);
   });
 
-  await test.step("backlog priority and stage counts", async () => {
+  await test.step("backlog priority and column counts", async () => {
     await expect(backlog.getByText(/^Priority \d+$/)).toHaveText([
       "Priority 1",
       "Priority 2",
@@ -134,8 +134,8 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   });
 
   await test.step("Backlog, Taken, and Recently done sit side by side", async () => {
-    // Recently done sits beside the stages, not one of them.
-    await expect(stages.getByRole("region")).toHaveCount(2);
+    // The Board contains all three Columns.
+    await expect(board.getByRole("region")).toHaveCount(3);
     await expect(
       recentlyDone.getByRole("heading", { name: "Recently done" }),
     ).toBeVisible();
@@ -145,7 +145,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
     await expectSideBySideInOrder([backlog, taken, recentlyDone]);
   });
 
-  await test.step("direction and source evidence sit outside the stage", async () => {
+  await test.step("direction and source evidence sit outside the Board", async () => {
     await openDirection(page);
     await expect(direction).toContainText(
       "Give developers visibility into a project's published work.",
@@ -160,8 +160,8 @@ test("published overview shows Backlog and Taken work read at one revision", asy
       "datetime",
       retrievedAt.toISOString(),
     );
-    await expect(stages.getByText("Near-future direction")).toHaveCount(0);
-    await expect(stages.getByText(revision)).toHaveCount(0);
+    await expect(board.getByText("Near-future direction")).toHaveCount(0);
+    await expect(board.getByText(revision)).toHaveCount(0);
   });
 
   await test.step("membership makes no live or completion claim", async () => {
@@ -172,7 +172,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
     await expect
       .poll(async () => {
         const column = await parts(page).recentlyDone.textContent();
-        const sidebar = await page.locator("#session-sidebar").textContent();
+        const sidebar = await page.locator("#sessions-sidebar").textContent();
         const body = await page.locator("body").textContent();
         return (body ?? "")
           .replace(column ?? "", "")
@@ -202,7 +202,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   });
 });
 
-test("published overview accepts successfully empty groups and no recorded direction", async ({
+test("published Board accepts successfully empty groups and no recorded direction", async ({
   page,
 }) => {
   await publishOrigin(page, {
@@ -212,12 +212,12 @@ test("published overview accepts successfully empty groups and no recorded direc
 
   await openUntilRead(page);
 
-  const { stages, backlog, taken, direction, source } = parts(page);
+  const { board, backlog, taken, direction, source } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
   await expect(backlog).toContainText("0 entries");
-  await expect(stages.getByRole("article")).toHaveCount(0);
+  await expect(board.getByRole("article")).toHaveCount(0);
   await openDirection(page);
   await expect(direction).toContainText(
     "No near-future direction is recorded.",

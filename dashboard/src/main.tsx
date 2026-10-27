@@ -5,8 +5,8 @@ import "./styles.css";
 import "./project-actions.css";
 import "./frame-states.css";
 import "./banner.css";
-import "./stages.css";
-import "./stage-frame.css";
+import "./story-cards.css";
+import "./column-frame.css";
 import "./story-detail.css";
 
 const root = document.getElementById("root");

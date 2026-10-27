@@ -106,11 +106,53 @@ export async function readContextByTouch(review: Locator, workspace: string) {
   await expect(values).toHaveAttribute("aria-expanded", "false");
 }
 
+// A scrolling review region may first reach a control beyond its fold.
+// Native scrolling keeps the Side panel and document stationary.
+export async function reachReviewControl(review: Locator, row: Locator) {
+  const panel = await review.boundingBox();
+  const page = review.page();
+  const documentTop = await page.evaluate(() => scrollY);
+  expect(documentTop).toBe(0);
+  await row.scrollIntoViewIfNeeded();
+  expect(await review.boundingBox()).toEqual(panel);
+  expect(await page.evaluate(() => scrollY)).toBe(documentTop);
+  const clipped = await row.evaluate((element) => {
+    const at = element.getBoundingClientRect();
+    const result = [];
+    for (
+      let parent = element.parentElement;
+      parent;
+      parent = parent.parentElement
+    ) {
+      const style = getComputedStyle(parent);
+      const area = parent.getBoundingClientRect();
+      if (
+        style.overflowY !== "visible" &&
+        (at.top < area.top - 1 || at.bottom > area.bottom + 1)
+      )
+        result.push({
+          region: parent.className,
+          top: area.top,
+          bottom: area.bottom,
+          rowTop: at.top,
+          rowBottom: at.bottom,
+          rowHeight: at.height,
+          clientHeight: parent.clientHeight,
+        });
+    }
+    return result;
+  });
+  expect(
+    clipped,
+    "the reached control fits its real scrolling regions",
+  ).toEqual([]);
+}
+
 export async function selectAddedFileByTouch(review: Locator, file: string) {
   const browser = fileBrowser(review);
   const row = browser.getByRole("button", { name: `Added ${file}` });
   // A long file list is ordinary independently scrolling content.
-  await row.scrollIntoViewIfNeeded();
+  await reachReviewControl(review, row);
   await tapWhereShown(row);
   await expect(row).toHaveAttribute("aria-pressed", "true");
   return review.getByRole("region", { name: `Added ${file}` });

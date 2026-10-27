@@ -1,5 +1,5 @@
 // A claim published without a session offers Start on its Taken card
-// (../server/agentLaunches.ts, ../src/CardLaunches.tsx), reached through a
+// (../server/agentLaunches.ts, ../src/StoryCardLaunches.tsx), reached through a
 // refused first launch (./keptStartJourney.ts). That Taken card offers Start
 // execution with "Started here, no session yet", and no other Taken card
 // does. Start there opens the session in the same workspace, never a second
@@ -9,7 +9,7 @@ import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { keptStarts, launch, launchRequest } from "./agentLaunchBoundary.ts";
 import { expect } from "./dashboardTest.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
@@ -33,24 +33,24 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   dashboard,
   origin,
 }) => {
-  const { takenCard, otherTakenCard, workspace } = await reachKeptStart(
+  const { takenStoryCard, otherTakenCard, workspace } = await reachKeptStart(
     page,
     dashboard,
     origin,
   );
   await expectSettledPage(page);
   await expectStartNote(
-    takenCard,
+    takenStoryCard,
     "Start execution",
     "Started here, no session yet",
   );
-  await expect(startAction(takenCard)).toBeVisible();
+  await expect(startAction(takenStoryCard)).toBeVisible();
   await expect(startAction(otherTakenCard)).toHaveCount(0);
   await expect(otherTakenCard).not.toContainText("Started here");
 
   // Start there opens the session in the same workspace, with no second claim.
   dashboard.claudeScenario("launched");
-  await startAction(takenCard).click();
+  await startAction(takenStoryCard).click();
   const dialog = page.getByRole("dialog", {
     name: "Start execution in Claude Code",
   });
@@ -64,12 +64,11 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   const attemptId = await acceptance;
   await settledOutcome(dashboard, attemptId);
   await untilPageRequestsAnswered(page);
-  await expect(takenCard.getByRole("list", { name: "Sessions" })).toContainText(
-    `Workspace ${workspaceShown}`,
-    { timeout: launchWaitMs },
-  );
-  await expect(startAction(takenCard)).toHaveCount(0);
-  await expect(takenCard).not.toContainText("Started here");
+  await expect(
+    takenStoryCard.getByRole("list", { name: "Sessions" }),
+  ).toContainText(`Workspace ${workspaceShown}`, { timeout: launchWaitMs });
+  await expect(startAction(takenStoryCard)).toHaveCount(0);
+  await expect(takenStoryCard).not.toContainText("Started here");
 
   const launches = dashboard.claudeLaunchCalls();
   expect(launches).toHaveLength(2);
@@ -105,8 +104,8 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   // Still gone after another reload.
   await reloadUntilRead(page);
   await expectSettledPage(page);
-  await expect(takenCard).toBeVisible();
-  await expect(startAction(takenCard)).toHaveCount(0);
+  await expect(takenStoryCard).toBeVisible();
+  await expect(startAction(takenStoryCard)).toHaveCount(0);
 });
 
 test("a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts", async ({

@@ -8,7 +8,7 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { box, expectInside } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
@@ -50,7 +50,7 @@ export async function showPage(page: Page, origin: StartOrigin): Promise<void> {
 }
 
 export function runningCursorParts(page: Page) {
-  const { sidebar, button, entries } = sidebarParts(page);
+  const { sidebar, button, entries } = sessionsSidebarParts(page);
   const region = sidebar.getByRole("region", {
     name: "Running Cursor sessions",
   });
@@ -62,11 +62,12 @@ export function runningCursorParts(page: Page) {
     region,
     header: region.getByRole("button", { name: "Running Cursor sessions" }),
     // The two areas that scroll on their own.
-    list: sidebar.locator(".sidebar-sessions"),
+    list: sidebar.locator(".sessions-sidebar-sessions"),
     body: region.locator(".running-cursor-body"),
-    // The edge between them, while expanded.
-    edge: sidebar.getByRole("separator", {
-      name: "Resize Running Cursor sessions",
+    // The divider between them, while expanded.
+    divider: sidebar.getByRole("separator", {
+      name: "Running Cursor sessions divider",
+      exact: true,
     }),
   };
 }

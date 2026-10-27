@@ -10,7 +10,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { expectMembership, parts, sessionNamedBy } from "./dashboardPage.ts";
 import {
   notRefinedStory,
@@ -23,7 +23,10 @@ import {
   publishMovingOrigin,
   publishOrigin,
 } from "./publishedOrigin.ts";
-import { expectTooltipLine, sidebarParts } from "./sessionSidebarPage.ts";
+import {
+  expectTooltipLine,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   expectNamedAdHocCall,
@@ -150,7 +153,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
-  await expect(entry.locator(".card-identity")).toHaveCount(0);
+  await expect(entry.locator(".record-identity")).toHaveCount(0);
   const launchedAt = Date.parse(
     (await entry.locator("time").getAttribute("datetime")) ?? "",
   );
@@ -162,7 +165,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
 
   await stories();
   await expect(
-    parts(page).stages.getByRole("list", { name: "Sessions" }),
+    parts(page).board.getByRole("list", { name: "Sessions" }),
   ).toHaveCount(0);
   for (const start of ["Start execution", "Start refinement"]) {
     await expect(
@@ -170,7 +173,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
     ).toHaveCount(2);
   }
 
-  const { button, entries } = sidebarParts(page);
+  const { button, entries } = sessionsSidebarParts(page);
   await button.click();
   await expect(entries).toHaveCount(1);
   await expect(entries.first().getByRole("heading", { level: 3 })).toHaveText(
@@ -221,7 +224,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
   await dialog.getByRole("button", { name: "Start" }).click();
 
   // Pygardon publishes no work here, so the sidebar is where it is listed.
-  const { button, entries } = sidebarParts(page);
+  const { button, entries } = sessionsSidebarParts(page);
   await button.click();
   await expect(entries).toHaveCount(1);
   await expectTooltipLine(entries.first(), "Pygardon · Ad hoc");

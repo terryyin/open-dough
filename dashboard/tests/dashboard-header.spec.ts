@@ -16,7 +16,7 @@ import {
   queuedCount,
   queuedTitle,
   revision,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
 import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
@@ -27,7 +27,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
 } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
@@ -93,7 +93,7 @@ for (const viewport of layouts) {
     ).toEqual([1, 1, 1, 1]);
     await expect(sourceEvidence).toContainText("Open Dough");
     await expectFrameIconControl(
-      sidebarParts(page).button,
+      sessionsSidebarParts(page).button,
       "Sessions",
       "Sessions (⌘B)",
     );
@@ -106,7 +106,7 @@ for (const viewport of layouts) {
         const mark = banner.getByRole("img", { name: "Open Dough" });
         const inOrder = [
           mark,
-          sidebarParts(page).button,
+          sessionsSidebarParts(page).button,
           sourceEvidence,
           project,
           gear,

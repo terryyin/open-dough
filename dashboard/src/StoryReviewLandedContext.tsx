@@ -5,7 +5,7 @@ import {
   type FileBrowserPlace,
 } from "./StoryReviewBrowserToggle.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
-import { reviewTargetName } from "./storyReview.ts";
+import { reviewTargetName } from "./storyReviewContract.ts";
 export function LandedContext({
   landing,
   browser,

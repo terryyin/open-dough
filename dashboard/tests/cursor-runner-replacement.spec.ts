@@ -5,7 +5,7 @@
 import type { Page } from "@playwright/test";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   holdSession,
@@ -54,18 +54,18 @@ workingCursorTest(
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     makeRecordedRunnerProofStale(dashboard.home);
-    const terminalPanel = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = page.getByRole("region", { name: "Terminal" });
     const { region } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is running.");
     const row = region.getByRole("button", { name: /Open Dough/ });
     await expect(row).toContainText("working");
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(runnerPid);
     expect(cursor.calls()).toHaveLength(calls);
     expect(cursor.attaches()).toHaveLength(attaches);
 
     await row.click();
-    await expect(terminalPanel.locator(".xterm-rows")).toContainText(
+    await expect(shownTerminal.locator(".xterm-rows")).toContainText(
       "ctrl+c to stop",
     );
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(runnerPid);

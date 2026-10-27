@@ -1,5 +1,5 @@
 // An ad hoc launch from the project actions row that did not start, or may
-// not have started, on the committed origin of ./agent-launch-card.spec.ts:
+// not have started, on the committed origin of ./agent-launch-story-card.spec.ts:
 // the answer stays beside Start session, which stays enabled to start again,
 // and it lists no session, opens no terminal, and shows on no card. The page's
 // own dashboard server launches the synthetic `claude` (./fixtures/fake-claude);
@@ -7,7 +7,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectDirectionOpensAcrossRow,
   parts,
 } from "./dashboardPage.ts";
@@ -16,7 +16,7 @@ import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { readyStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -71,7 +71,7 @@ for (const { scenario, words } of failures) {
     );
     await expectNothingStarted(page);
     await expect(page.locator(".launch-problem")).toHaveCount(1);
-    await expect(cardSessions(card(readyStory))).toHaveCount(0);
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
     await expectDirectionOpensAcrossRow(page);
 
@@ -122,7 +122,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     await expect(button).toBeEnabled();
     await expect(button).toBeFocused();
     await expectNothingStarted(page);
-    await expect(cardSessions(card(readyStory))).toHaveCount(0);
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     expect(dashboard.claudeCalls()).toHaveLength(1);
   });
 });

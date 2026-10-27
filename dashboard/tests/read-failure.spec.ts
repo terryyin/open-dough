@@ -86,7 +86,7 @@ const failedOpenings: {
   },
   {
     when: "an entry carries a field the shared reader does not support",
-    origin: publishedAs(backlogWith([`${claimsEntry} (stage: review)`])),
+    origin: publishedAs(backlogWith([`${claimsEntry} (column: review)`])),
     problem: 'Unsupported entry detail in "## Backlog list" at line 13',
   },
 ];
@@ -128,7 +128,7 @@ test("read failure names a missing published backlog concisely and keeps project
   ).toBeEnabled();
 });
 
-test("read failure and retry is not caused by an unknown section, which adds no stage, card, or control", async ({
+test("read failure and retry is not caused by an unknown section, which adds no column, card, or control", async ({
   page,
 }) => {
   const underReview = "Follow a story on its published branch";
@@ -147,8 +147,8 @@ test("read failure and retry is not caused by an unknown section, which adds no 
     taken: ["Repair the installer's update report"],
     backlog: ["Publish shared backlog claims"],
   });
-  const { stages, problem } = parts(page);
-  await expect(stages.getByRole("region")).toHaveCount(2);
+  const { board, problem } = parts(page);
+  await expect(board.getByRole("region")).toHaveCount(3);
   await expect(page.getByRole("region", { name: /review/i })).toHaveCount(0);
   await expect(page.getByText(underReview)).toHaveCount(0);
   await expect(problem).toHaveCount(0);

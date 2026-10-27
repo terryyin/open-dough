@@ -10,7 +10,7 @@
 import { realpathSync } from "node:fs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch, recordsOf } from "./agentLaunchBoundary.ts";
-import { startSession, startSessionDialog } from "./launchCardPage.ts";
+import { startSession, startSessionDialog } from "./launchStoryCardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";

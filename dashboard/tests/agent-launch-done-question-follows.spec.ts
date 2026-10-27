@@ -1,5 +1,5 @@
 // While Mark as done's question is open (./agent-launch-done-question.spec.ts
-// on a card, ./agent-terminal-done.spec.ts in the terminal panel), its
+// on a card, ./agent-terminal-done.spec.ts in the terminal), its
 // statement follows the session as the page reads it again: a Working session
 // that comes to wait for input is asked about as waiting, with the question
 // still open; a session with a read `completed` report that comes to read
@@ -11,7 +11,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
-import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
@@ -43,7 +43,7 @@ async function reportedWorkingEntry(
   await story.report();
   await publishOrigin(page, origin);
   await page.goto("/");
-  const entry = cardSessions(
+  const entry = storyCardSessions(
     parts(page).taken.getByRole("article", { name: titleA, exact: true }),
   );
   await markReportRead(entry);
@@ -119,7 +119,7 @@ test("on a card, the open question follows the session's reading and goes away o
   ]);
 });
 
-test("in the terminal panel, the open question follows the session's reading and goes away once it is complete", async ({
+test("in the terminal, the open question follows the session's reading and goes away once it is complete", async ({
   page,
   dashboard,
   origin,

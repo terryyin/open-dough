@@ -1,0 +1,98 @@
+// The Board's own width decides how many Board Columns show, so the side
+// panel opening and closing pages them as a window would: beside it a 54rem
+// Board shows two columns and a column paging control naming the hidden one, a move
+// slides the view, the chosen position comes back where the width allows it,
+// and an active story's session adds no Recently done entry. How a
+// narrow window pages the columns is ./board-paging.spec.ts.
+
+import { expect, test } from "./dashboardTest.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
+import {
+  openTakenBacklog,
+  startSession,
+  startSessionDialog,
+} from "./launchStoryCardPage.ts";
+import { readyStory } from "./launchJourney.ts";
+import { box } from "./pageLayout.ts";
+import {
+  columns,
+  columnPagingControl,
+  expectStoryCardsKeepTheirShare,
+  expectView,
+  recordSlides,
+  rem,
+  slidesOf,
+  type ColumnName,
+} from "./boardPage.ts";
+import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
+
+test.describe("beside the side panel", () => {
+  test.use({ projectFolders: ["open-dough"] });
+
+  // A 108rem window, which the side panel leaves a 54rem Board.
+  test.use({ viewport: { width: 108 * rem, height: 900 } });
+
+  test("a 54rem Board shows two columns and pages between them; a wider Board shows all three and gives the view back", async ({
+    page,
+    dashboard,
+    launchJourney,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
+    const terminal = page.getByRole("region", { name: "Terminal" });
+    const { taken } = parts(page);
+    // The view, beside a terminal whose screen scrolls on its own.
+    const expectShown = (
+      shown: readonly ColumnName[],
+      controls: readonly string[],
+    ) => expectView(page, shown, controls, scrollsOnItsOwn);
+    await recordSlides(page);
+
+    await test.step("a 108rem Board shows all three and no column paging control", async () => {
+      await expectShown(columns, []);
+    });
+
+    await test.step("the side panel opens, leaving 54rem: Backlog and Taken fill the Board, and the right control names Recently done", async () => {
+      const project = startSessionDialog(page, "Open Dough");
+      await startSession(page, "Open Dough").click();
+      await project.getByRole("button", { name: "Start" }).click();
+      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      expect((await box(page.locator(".page-column"))).width).toBeCloseTo(
+        54 * rem,
+        0,
+      );
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
+      await expectStoryCardsKeepTheirShare(page, 2);
+    });
+
+    await test.step("the right control shows Taken and Recently done, with a slide, and the left control names Backlog", async () => {
+      await columnPagingControl(page, "Recently done").click();
+      await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
+      expect(await slidesOf(page)).toBe(1);
+    });
+
+    await test.step("the side panel closes: all three show and both controls go", async () => {
+      await terminal.getByRole("button", { name: "Close" }).click();
+      await expect(terminal).toHaveCount(0);
+      await expectShown(columns, []);
+    });
+
+    await test.step("the side panel reopens: Taken and Recently done show again", async () => {
+      await taken.getByRole("button", { name: "Open terminal" }).click();
+      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
+    });
+
+    await test.step("a session started from a Backlog card stays on its card without adding to the right control's Recently done count, and the view stays", async () => {
+      await columnPagingControl(page, "Backlog").click();
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
+      await start(readyStory).click();
+      await dialog.getByRole("button", { name: "Start" }).click();
+      await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
+      await expect(columnPagingControl(page, "Recently done")).toHaveText(
+        "Recently done 0 entries",
+      );
+      await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
+    });
+  });
+});

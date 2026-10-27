@@ -1,5 +1,5 @@
 // What a page offers before and without this machine's launch evidence
-// (../src/startupRecoveries.ts, ../src/CardLaunches.tsx), against the same
+// (../src/startupRecoveries.ts, ../src/StoryCardLaunches.tsx), against the same
 // real bare origin and installed starts as ./responsive-session-start.spec.ts.
 // No story's Start is offered until a read of the machine's attempts
 // answered: held, the Start actions stay unavailable while the rest of the
@@ -14,7 +14,7 @@ import {
   agentAcceptEndpoint,
   agentLaunchEndpoint,
 } from "../src/agentLaunch.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   needsReconciliation,
@@ -130,7 +130,7 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   await expect(story).toContainText(lost);
   await expect(story).toContainText("Recheck it under Startup recovery");
   await expect(story).not.toContainText(/continu/i);
-  await expect(story.locator(".card-startup-progressing")).toHaveCount(0);
+  await expect(story.locator(".story-card-startup-progressing")).toHaveCount(0);
   await expectProtected(story);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await expect(recovery).toContainText(lost);
@@ -150,12 +150,14 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   reads.set("answer");
   await recovery.getByRole("button", { name: `Recheck ${subject}` }).click();
   await expect(story).toContainText("Local startup in progress");
-  await expect(story.locator(".card-startup-progressing")).toHaveCount(1);
+  await expect(story.locator(".story-card-startup-progressing")).toHaveCount(1);
   await expectProtected(story);
   await expect(recoveryOf(page)).toHaveCount(0);
 
   push.release();
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });

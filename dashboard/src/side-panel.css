@@ -1,31 +1,41 @@
 /* The page split while the side panel is open, whether it shows a terminal
    (./agent-terminal.css), a final report, or a story review: the page on the
    left, and the panel on the right, pinned to the window's height while the
-   page scrolls beside it. The panel takes the width its edge chose
+   Board scrolls beside it. The panel takes the width its Panel divider chose
    (`--side-panel-width`, ./sidePanelWidth.ts), or half the room until then,
-   right of the Sessions sidebar's column (./session-sidebar.css) while it is
+   right of the Sessions sidebar's column (./sessions-sidebar.css) while it is
    open. Where the room holds no usable split, as on a narrow window, the
    panel is stacked above the page. Maximized, the panel takes the page
    column's room, the page with its banner hidden behind it, pinned to the
    window's height in either arrangement. */
 
 .page-split {
+  --panel-divider-room: 0.4rem;
   --side-panel-track: var(--side-panel-width, minmax(0, 1fr));
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
 }
 
-.page-with-sidebar.page-split {
+.page-with-sessions-sidebar.page-split {
   grid-template-columns: 18rem minmax(0, 1fr) var(--side-panel-track);
 }
 
-/* The page's own width, which the sidebar and the side panel share the
-   window with, decides how the page lays itself out (`@container page`), so
-   it lays out as on a narrow window whenever its column is that narrow. */
+/* The page column's width lays out the banner and project controls
+   (`@container page`). Board Column fit uses its scrollbar-excluding content
+   (`@container board`, ./board.css). */
 .page-column {
   min-width: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   container: page / inline-size;
+}
+
+/* Keep each region scrollbar left of the Panel divider's hit area. */
+.page-split:not(.page-stacked) > .page-column > .board-scroll,
+.page-split:not(.page-stacked) > .page-column > .roster-scroll {
+  margin-inline-end: var(--panel-divider-room);
 }
 
 /* Maximized, the panel spans the page's column and its own, and the page
@@ -43,29 +53,31 @@
 }
 
 .side-panel {
+  --side-panel-height: 100dvh;
+
   position: sticky;
   top: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: var(--side-panel-height);
   border-left: 1px solid var(--line);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
-/* The edge that resizes the panel (./SidePanelEdge.tsx): a strip across the
+/* The Panel divider (./PanelDivider.tsx): a strip across the
    panel's left border, wide enough to grab, with its grip
-   (./resize-edge.css) at its middle. */
-.side-panel-edge {
+   (./resize-divider.css) at its middle. */
+.panel-divider {
   top: 0;
   bottom: 0;
-  left: -0.4rem;
+  left: calc(-1 * var(--panel-divider-room));
   z-index: 2;
-  width: 0.8rem;
+  width: calc(2 * var(--panel-divider-room));
   cursor: col-resize;
 }
 
-.side-panel-edge::after {
+.panel-divider::after {
   top: 50%;
   left: calc(50% - 2px);
   width: 4px;
@@ -75,7 +87,7 @@
 
 /* The panel's header: the shown session's or story's title and identity on
    the left, and the frame's icon controls (./icon-control.css) on the right:
-   the content's own operations, then the panel's (./PanelControls.tsx). */
+   the content's own operations, then the panel's (./SidePanelControls.tsx). */
 .side-panel-header {
   display: flex;
   align-items: flex-start;
@@ -113,37 +125,46 @@
 
 /* Stacked: the panel above the page in the page's column. */
 .page-split.page-stacked {
+  --stacked-panel-height: 50dvh;
+
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--stacked-panel-height) var(--stacked-panel-height);
 }
 
 .page-stacked > .side-panel {
+  --side-panel-height: var(--stacked-panel-height);
+
   grid-row: 1;
   grid-column: -2;
   position: static;
-  height: 70dvh;
   border-left: none;
   border-bottom: 1px solid var(--line);
 }
 
 .page-stacked > .page-column {
+  height: var(--stacked-panel-height);
   grid-row: 2;
   grid-column: -2;
 }
 
 /* Stacked beside the open sidebar, the panel sits above the page right of
    it; on a narrow window the sidebar overlays the page instead. */
-.page-with-sidebar.page-split.page-stacked {
+.page-with-sessions-sidebar.page-split.page-stacked {
   grid-template-columns: 18rem minmax(0, 1fr);
 }
 
-.page-with-sidebar.page-stacked > .session-sidebar {
+.page-with-sessions-sidebar.page-stacked > .sessions-sidebar {
   grid-row: 1 / span 2;
 }
 
 @media (max-width: 800px) {
-  .page-with-sidebar.page-split.page-stacked {
+  .page-with-sessions-sidebar.page-split.page-stacked {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.page-stacked.page-maximized {
+  grid-template-rows: 100dvh;
 }
 
 .page-stacked.page-maximized > .page-column {
@@ -151,8 +172,9 @@
 }
 
 .page-stacked.page-maximized > .side-panel {
+  --side-panel-height: 100dvh;
+
   position: sticky;
-  height: 100dvh;
 }
 
 /* Mark as done's question, between the header and what the panel keeps

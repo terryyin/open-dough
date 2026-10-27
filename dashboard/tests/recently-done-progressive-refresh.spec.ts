@@ -4,7 +4,7 @@
 // journey's destination still being read, shown. Only the records the shown
 // entries newly need are read, at the new revision; an unchanged record is
 // not read again. When the entry holding the keyboard is gone, the keyboard
-// goes to the entry in its place, and a shorter page keeps the scroll within
+// goes to the entry in its place, and a shorter Board keeps the scroll within
 // it. What a refresh and other moves keep or start again:
 // ./recently-done-progressive-reset.spec.ts; what it asks again after a
 // failed read: ./recently-done-progressive-failed-read-refresh.spec.ts.
@@ -13,7 +13,7 @@
 // revision.
 
 import { expect, test } from "./dashboardTest.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import { entryName, type ProgressiveEntry } from "./recentlyDoneProgressive.ts";
 import {
@@ -108,22 +108,26 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
   const atE = atD.filter(
     ({ place, kind }) => place <= 10 || kind === "session",
   );
-  await test.step("with the page scrolled to its end, a shorter list keeps the scroll within the page, and the keyboard on the last entry", async () => {
-    await page.evaluate(() => {
-      window.scrollTo(0, document.documentElement.scrollHeight);
+  await test.step("with the Board scrolled to its end, a shorter list keeps the scroll within the Board, and the keyboard on the last entry", async () => {
+    await page.locator(".board-scroll").evaluate((region) => {
+      region.scrollTo(0, region.scrollHeight);
     });
     await settle(page);
-    const before = await page.evaluate(() => window.scrollY);
+    const before = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     const revisionE = main.publish(now, atE);
     await refreshedTo(page, revisionE);
     await expectEntries(recent, namesOf(atE, atE.length));
     await expect(recent).toContainText("All 17 entries are shown.");
     await expect(shownEntries(recent).last()).toBeFocused();
     await settle(page);
-    const { scrolled, end } = await page.evaluate(() => ({
-      scrolled: window.scrollY,
-      end: document.documentElement.scrollHeight - window.innerHeight,
-    }));
+    const { scrolled, end } = await page
+      .locator(".board-scroll")
+      .evaluate((region) => ({
+        scrolled: region.scrollTop,
+        end: region.scrollHeight - region.clientHeight,
+      }));
     expect(scrolled).toBeLessThan(before);
     expect(scrolled).toBeLessThanOrEqual(end);
     expect(recordsAskedAt(github, revisionE)).toEqual([]);

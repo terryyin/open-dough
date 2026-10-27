@@ -9,5 +9,6 @@ copy_runner() {
   runner_source=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
   cp -- "${runner_source}/scripts/test.sh" "${runner_source}/scripts/test-jobs.sh" \
     "${runner_source}/scripts/test-shares.mjs" "${runner_source}/scripts/share-deal.mjs" \
+    "${runner_source}/scripts/duration-list.mjs" \
     "${runner_source}"/scripts/*.bash "${fixture}/scripts/"
 }

@@ -17,7 +17,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import {
   box,
   expectEveryControlReachable,

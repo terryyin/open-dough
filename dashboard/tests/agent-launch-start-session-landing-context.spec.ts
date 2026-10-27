@@ -14,7 +14,7 @@
 
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { startSession, startSessionDialog } from "./launchCardPage.ts";
+import { startSession, startSessionDialog } from "./launchStoryCardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, radio } from "./support/sessionDialog.ts";
 import {

@@ -13,7 +13,7 @@
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import {

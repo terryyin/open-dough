@@ -3,13 +3,13 @@
 // as the panel was opened with it: while another project is shown, where the
 // session has no entry, it still asks about the session's reading, and marking
 // closes the panel; a session opened while Ready for review that then reads
-// Working is asked about as working. On the committed story-stages origin
+// Working is asked about as working. On the committed story-columns origin
 // (./launchJourney.ts); the page's own dashboard server drives the synthetic
 // `claude` (./fixtures/fake-claude).
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   sessionStateOf,
@@ -17,11 +17,11 @@ import {
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import {
   expectAsked,
@@ -40,13 +40,13 @@ test.use({
 });
 
 test.describe("Mark as done in the terminal asks by the session's current reading", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Mark as done from the panel while another project is shown, where the session has no entry, closes the panel", async ({
@@ -54,15 +54,15 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { project } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(notRefinedStory, "Execution");
-    await cardSessions(card(notRefinedStory))
+    await storyCardSessions(card(notRefinedStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached ");
@@ -88,12 +88,12 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
-    const listed = cardSessions(card(readyStory));
+    const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
     const sessionId = String(dashboard.claudeListing()[0]?.["sessionId"]);

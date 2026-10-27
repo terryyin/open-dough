@@ -9,14 +9,14 @@ calling the real hosts.
 The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-refusal.spec.ts`, `agent-launch-records.spec.ts`, and
 `agent-launch-session-listing.spec.ts`) and the page journeys
-(`agent-launch-card.spec.ts`, `agent-launch-card-problems.spec.ts`,
-`agent-launch-card-sessions.spec.ts`, `agent-launch-card-session-states.spec.ts`,
+(`agent-launch-story-card.spec.ts`, `agent-launch-story-card-problems.spec.ts`,
+`agent-launch-story-card-sessions.spec.ts`, `agent-launch-story-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-session-state-pace.spec.ts`,
-`agent-launch-attention.spec.ts`, `session-sidebar.spec.ts`,
-`session-sidebar-reading.spec.ts`, `session-sidebar-row.spec.ts`, `session-sidebar-stays-as-left.spec.ts`,
-`session-sidebar-keyboard.spec.ts`, `session-sidebar-navigation.spec.ts`,
-and `session-sidebar-navigation-cases.spec.ts`, which name
+`agent-launch-attention.spec.ts`, `sessions-sidebar.spec.ts`,
+`sessions-sidebar-reading.spec.ts`, `sessions-sidebar-row.spec.ts`, `sessions-sidebar-stays-as-left.spec.ts`,
+`sessions-sidebar-keyboard.spec.ts`, `sessions-sidebar-navigation.spec.ts`,
+and `sessions-sidebar-navigation-cases.spec.ts`, which name
 their folders and launch wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first
@@ -69,7 +69,7 @@ The terminal boundary specs drive it over a raw socket
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
 marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
 and `agent-launch-done-refusal.spec.ts` for its refusals). The page
-journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
+journeys behind the terminal are `agent-terminal.spec.ts` (opening, one
 at a time, Close), `agent-terminal-touch.spec.ts` (coordinate touch focus,
 native Backspace/Enter input, reduced-height fitting, touch scrollback,
 rotation and Close/reopen identity), `agent-terminal-lifetime.spec.ts` (project switch, lost
@@ -80,7 +80,7 @@ the page reads it now), `agent-terminal-done-report.spec.ts` (on sessions that
 reported), and
 `agent-terminal-done-reopen.spec.ts` (reopening a session marked done from its
 Recently done entry);
-`agent-launch-card-done.spec.ts` marks a card's session done from its entry.
+`agent-launch-story-card-done.spec.ts` marks a card's session done from its entry.
 `agent-launch-done-question.spec.ts` covers the question Mark as done asks on a
 card, and `agent-launch-done-question-follows.spec.ts` an open question
 following the session's reading, on a card and in the panel.
@@ -88,17 +88,17 @@ following the session's reading, on a card and in the panel.
 shows.
 A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
-`claude`. The card-sessions journey (`agent-launch-card-sessions.spec.ts`)
+`claude`. The story-card-sessions journey (`agent-launch-story-card-sessions.spec.ts`)
 reaches Preparing, including a refinement launched on the Preparing card, and
 walks on through the Take and completion; the attention journey
-(`agent-launch-attention.spec.ts`) walks the same stages counting the sessions
+(`agent-launch-attention.spec.ts`) walks the same board counting the sessions
 that need attention. Each card concern has one owner:
-`agent-launch-card.spec.ts` the Start actions, their dialogs, what a launch
-sends, and the keyboard on the newest entry; `agent-launch-card-sessions.spec.ts`
-which sessions a card lists, newest first, in each stage;
-`agent-launch-card-open-session.spec.ts` that those Starts stay unavailable
+`agent-launch-story-card.spec.ts` the Start actions, their dialogs, what a launch
+sends, and the keyboard on the newest entry; `agent-launch-story-card-sessions.spec.ts`
+which sessions a card lists, newest first, in each column;
+`agent-launch-story-card-open-session.spec.ts` that those Starts stay unavailable
 while an open session remains, return after Mark as done or Delete record, and
-a dialog opened beforehand is refused; `agent-launch-card-session-states.spec.ts`
+a dialog opened beforehand is refused; `agent-launch-story-card-session-states.spec.ts`
 that an entry stays on its card in every state, without Open terminal when
 unavailable and with it when unknown, and survives a restarted server, a
 reload, and a project switch; `agent-launch-session-state-pace.spec.ts` what
@@ -119,7 +119,7 @@ instruction, a model outside the table refused, the refusal naming the model),
 and `agent-launch-model-entries.spec.ts` ("Model: <Name> (requested)" on a
 card, Recently done, and the sidebar, and nothing for Default).
 Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
-`agent-launch-card-delete.spec.ts` and `agent-launch-card-delete-problems.spec.ts`
+`agent-launch-story-card-delete.spec.ts` and `agent-launch-story-card-delete-problems.spec.ts`
 (a card entry, and what refusals and failures leave), and
 `agent-launch-recent-delete.spec.ts` and
 `agent-launch-recent-delete-unavailable.spec.ts` (a Recently done entry).

@@ -7,7 +7,7 @@ import {
   parseDoneRecordFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { StoryReview } from "../src/storyReview.ts";
+import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
 import {

@@ -49,7 +49,7 @@ async function openedAtOpening(page: Page) {
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   const { taken } = parts(page);
   const progress = (title: string) =>
-    taken.getByRole("article", { name: title }).locator(".card-progress");
+    taken.getByRole("article", { name: title }).locator(".story-card-progress");
   return { requests, taken, progress };
 }
 

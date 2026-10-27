@@ -53,7 +53,7 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
         const maximized =
           panel?.parentElement?.classList.contains("page-maximized");
         const panelHeight =
-          innerHeight * (stacked === true && maximized !== true ? 0.7 : 1);
+          innerHeight * (stacked === true && maximized !== true ? 0.5 : 1);
         return {
           rows: element.querySelectorAll(".xterm-rows > div").length,
           fits:

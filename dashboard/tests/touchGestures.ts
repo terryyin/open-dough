@@ -10,6 +10,7 @@ export async function scrollByTouch(
   area: Locator,
   distance: number,
   axis: "vertical" | "horizontal" = "vertical",
+  untilShown?: () => Promise<boolean>,
 ) {
   const bounds = await box(area);
   const browser = await page.context().newCDPSession(page);
@@ -31,22 +32,39 @@ export async function scrollByTouch(
     expect(room, "room for an in-view finger stroke").toBeGreaterThan(0);
     const strokes = Math.ceil(Math.abs(distance) / room);
     const duration = Math.abs(distance) / strokes / 400;
+    // A short reading window can lie between complete strokes. Once native
+    // scrolling recognizes this finger, observe at most one pixel of movement
+    // at a time and lift as soon as the requested content is wholly shown.
+    const steps = untilShown ? Math.ceil(Math.abs(distance) / strokes) : 10;
     // Model a stationary finger before lifting, preserving the synthesized
     // gesture's preventFling behavior. These are input timestamps, not waits
     // for the page result; keep the whole gesture in the past.
     let timestamp = Date.now() / 1000 - strokes * (duration + 0.1);
     for (let stroke = 0; stroke < strokes; stroke += 1) {
+      let shown = false;
       await browser.send("Input.dispatchTouchEvent", {
         type: "touchStart",
         touchPoints: [point(0)],
         timestamp,
       });
-      for (let step = 1; step <= 10; step += 1) {
+      for (let step = 1; step <= steps; step += 1) {
         await browser.send("Input.dispatchTouchEvent", {
           type: "touchMove",
-          touchPoints: [point((distance * step) / (strokes * 10))],
-          timestamp: timestamp + (duration * step) / 10,
+          touchPoints: [point((distance * step) / (strokes * steps))],
+          timestamp: timestamp + (duration * step) / steps,
         });
+        if (untilShown) {
+          await page.evaluate(
+            () =>
+              new Promise<void>((resolve) => {
+                requestAnimationFrame(() => {
+                  resolve();
+                });
+              }),
+          );
+          shown = await untilShown();
+          if (shown) break;
+        }
       }
       timestamp += duration + 0.1;
       await browser.send("Input.dispatchTouchEvent", {
@@ -54,6 +72,7 @@ export async function scrollByTouch(
         touchPoints: [],
         timestamp,
       });
+      if (shown) return;
     }
   } finally {
     await browser.detach();

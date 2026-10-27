@@ -3,7 +3,7 @@
 // its tree and baseline and its first parent's, the points a commit range
 // compares (`./storyReviewRange.ts`).
 
-import type { ReviewCommit } from "../src/storyReview.ts";
+import type { ReviewCommit } from "../src/storyReviewContract.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 
 export async function storyCommits(

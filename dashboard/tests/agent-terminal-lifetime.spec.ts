@@ -1,5 +1,5 @@
 // The page's one terminal (./agent-terminal.spec.ts) over its lifetime, on
-// the committed story-stages origin (./launchJourney.ts): switching projects
+// the committed story-columns origin (./launchJourney.ts): switching projects
 // keeps it attached to the same session; when the dashboard server restarts,
 // the panel says it is disconnected, and Reconnect attaches to the same
 // session again; when the attached CLI exits on its own (Ctrl+Z), the panel
@@ -13,16 +13,16 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "./dashboardTest.ts";
-import { cardSessions, expectMembership, parts } from "./dashboardPage.ts";
+import { storyCardSessions, expectMembership, parts } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -53,13 +53,13 @@ const test = base.extend<{ machine: string }>({
 });
 
 test.describe("the terminal's lifetime", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("the open terminal survives a project switch, says when it is disconnected or ended, and attaches again", async ({
@@ -69,9 +69,9 @@ test.describe("the terminal's lifetime", () => {
     machine,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
     const { project } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -86,7 +86,7 @@ test.describe("the terminal's lifetime", () => {
     await settled();
 
     await launch(notRefinedStory, "Execution");
-    const listed = cardSessions(card(notRefinedStory));
+    const listed = storyCardSessions(card(notRefinedStory));
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();

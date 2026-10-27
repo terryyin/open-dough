@@ -4,14 +4,14 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
   notRefinedIdentity,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -24,18 +24,18 @@ import {
 } from "./support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 // Opens the journey once its preparation is read and the boundary launch's
 // start has reconciled: until then Backlog cards shrink as they settle, which
 // moves Recently done under a press and loses its click.
 async function settledAfterBoundaryLaunch(page: Page) {
-  const opened = await openStoryStagesJourney(page, journey);
+  const opened = await openStoryColumnsJourney(page, journey);
   await opened.settled();
   await expect(page.getByText(/this story's actions/)).toHaveCount(0);
   return opened;
@@ -88,7 +88,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect(rows).toContainText("GPT-6.1-Sol default");
   await expect(rows).not.toContainText("context left");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
   await page.keyboard.type("answer here");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo answer here");
@@ -117,7 +117,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
     .toBe("SIGHUP");
   codexTerminalMode(native, "ready");
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(rows).toContainText("original retained history");
@@ -126,7 +126,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[1]?.pid ?? 0))
     .toBe("SIGHUP");
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(rows).toContainText("original retained history");

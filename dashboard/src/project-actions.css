@@ -54,7 +54,7 @@
   margin: 0;
 }
 
-/* Where the page shows one column (./dashboard-columns.css), as on a phone,
+/* Where the page shows one column (./board.css), as on a phone,
    the row has no room for an answer beside Start session: it reads whole
    beneath Start session and the help, as wide as the two, and takes none of
    the heading's room. */
@@ -83,7 +83,7 @@
   font-weight: var(--weight-strong);
 }
 
-/* The direction opens below the row as a quiet panel of its own. */
+/* The direction opens below the row on its own quiet surface. */
 .direction details > p {
   grid-row: 2;
   grid-column: 1 / -1;
@@ -91,7 +91,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .direction-text {

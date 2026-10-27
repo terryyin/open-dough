@@ -1,7 +1,8 @@
+import { boardScrollRegion } from "./boardScroll.ts";
 import { useRef } from "react";
 import { CircleHelp } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { BadgeLegend } from "./PreparationCard.tsx";
+import { BadgeLegend } from "./StoryCardPreparation.tsx";
 import "./frame-controls.css";
 import "./preparation-legend.css";
 
@@ -23,7 +24,11 @@ export function PreparationLegend() {
         align="end"
         aria-haspopup="dialog"
         onClick={() => {
-          readingPosition.current = { x: window.scrollX, y: window.scrollY };
+          const board = boardScrollRegion();
+          readingPosition.current = {
+            x: board?.scrollLeft ?? 0,
+            y: board?.scrollTop ?? 0,
+          };
           dialog.current?.showModal();
           close.current?.focus({ preventScroll: true });
         }}
@@ -44,7 +49,10 @@ export function PreparationLegend() {
         }}
         onClose={() => {
           launcher.current?.focus({ preventScroll: true });
-          window.scrollTo(readingPosition.current.x, readingPosition.current.y);
+          boardScrollRegion()?.scrollTo(
+            readingPosition.current.x,
+            readingPosition.current.y,
+          );
         }}
       >
         <div className="preparation-legend-actions">

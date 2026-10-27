@@ -8,11 +8,11 @@ import {
   openTakenBacklog,
   installRefinementSkill,
   showOptions,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { parts } from "./dashboardPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import { test, expect, stored, codexSkill } from "./support/codexLaunch.ts";
 import { machineSessions, deleteRecord } from "./agentLaunchBoundary.ts";
@@ -50,11 +50,11 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await refine(notRefinedStory).click();
   let dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
   const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
   idleBetweenSteps(dashboard, claudeSession);
-  await markDoneAnyway(cardSessions(card(notRefinedStory)));
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
+  await markDoneAnyway(storyCardSessions(card(notRefinedStory)));
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
   native.threadId = claudeSession;
   await refine(notRefinedStory).click();
   dialog = page.getByRole("dialog");
@@ -95,8 +95,8 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     });
   };
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
-  const codex = cardSessions(card(notRefinedStory)).filter({
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
+  const codex = storyCardSessions(card(notRefinedStory)).filter({
     hasText: "Refinement started in Codex",
   });
   await expect(codex).toContainText("First input accepted");
@@ -160,11 +160,11 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   passive(native.calls.slice(sinceDisplay));
   expect(native.sockets.size).toBe(1);
   await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(1);
   await expect(sidebar.entries.filter({ hasText: "Working" })).toHaveCount(1);
-  // Both hosts share the opaque ID; the open Codex session is the sidebar entry.
+  // Both hosts share the opaque ID; the open Codex session is the Sessions sidebar Session entry.
   await sidebar.entries.first().getByRole("button").click();
   await expect(page.locator(".side-panel")).toHaveCount(1);
   await expect(page.locator(".xterm-rows")).toContainText(

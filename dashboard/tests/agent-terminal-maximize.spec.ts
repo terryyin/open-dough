@@ -1,20 +1,14 @@
-// The terminal panel's header maximizes and restores the panel and closes it
-// by frame icon controls named by label and tooltip, on the journey of
-// ./agent-terminal.spec.ts: maximized, the panel takes the page column's
-// room, the banner and stories hidden behind it, with the same session still
-// attached; an open Sessions sidebar stays beside it, and opening another of
-// its entries shows that session in the normal split, as any change of the
-// panel's content does; Restore returns the split. Close
-// hides the panel and leaves the session running and not marked done, and the
-// next opened session shows in the split. On a narrow window, maximized fills
-// the window and Restore stacks the panel above the page again. The page's own
-// dashboard server attaches the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached.
+// The terminal's named frame icons maximize/restore/close (./agent-terminal.spec.ts).
+// Maximize takes the page column's room, hiding banner/stories with the same
+// session attached and Sessions sidebar beside it. A different session/content
+// opens split; Restore recovers split, stacked above the page on narrow windows.
+// Close leaves the session running and unmarked; reopening starts split.
+// This page's dashboard attaches only synthetic Claude (./fixtures/fake-claude).
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   sessionNamedBy,
@@ -22,13 +16,13 @@ import {
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 
@@ -53,14 +47,14 @@ function expectCovers(
   expect(found.height).toBeCloseTo(room.height, 0);
 }
 
-test.describe("maximizing the terminal panel", () => {
-  let stagesJourney: StoryStagesJourney;
+test.describe("maximizing the terminal", () => {
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("Maximize gives the panel the page column's room beside the sidebar until Close, Restore returns the split, and on a narrow window it fills the window", async ({
@@ -68,12 +62,12 @@ test.describe("maximizing the terminal panel", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryStagesJourney(
+    const { card, settled, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
-    const { banner, stages, backlog } = parts(page);
-    const sidebar = sidebarParts(page);
+    const { banner, board, backlog } = parts(page);
+    const sidebar = sessionsSidebarParts(page);
     const pageColumn = page.locator(".page-column");
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
@@ -89,11 +83,13 @@ test.describe("maximizing the terminal panel", () => {
     await settled();
     await launch(notRefinedStory, "Execution");
     await launch(readyStory, "Execution");
-    const first = await sessionNamedBy(cardSessions(card(notRefinedStory)));
-    const second = await sessionNamedBy(cardSessions(card(readyStory)));
+    const first = await sessionNamedBy(
+      storyCardSessions(card(notRefinedStory)),
+    );
+    const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openIn(cardSessions(card(notRefinedStory))).click();
+    await openIn(storyCardSessions(card(notRefinedStory))).click();
     await expect(rows).toContainText(`attached ${shortId(first)}`);
     await page.keyboard.type("keep this line");
     await page.keyboard.press("Enter");
@@ -135,7 +131,7 @@ test.describe("maximizing the terminal panel", () => {
         height: room.height,
       });
       await expect(banner).toBeHidden();
-      await expect(stages).toBeHidden();
+      await expect(board).toBeHidden();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await expect(rows).toContainText("echo keep this line");
       expect(attachCount()).toBe(attachedBefore);
@@ -145,7 +141,7 @@ test.describe("maximizing the terminal panel", () => {
       await pressWhereShown(control("Restore"));
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
-      await expect(stages).toBeVisible();
+      await expect(board).toBeVisible();
       expectCovers(await box(pageColumn), split.column);
       expectCovers(await box(panel), split.panel);
       await expect(rows).toContainText("echo keep this line");
@@ -198,7 +194,7 @@ test.describe("maximizing the terminal panel", () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openIn(cardSessions(card(readyStory))).click();
+      await openIn(storyCardSessions(card(readyStory))).click();
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
@@ -210,10 +206,7 @@ test.describe("maximizing the terminal panel", () => {
 
     await test.step("on a narrow window, Maximize fills the window and Restore stacks the panel above the page", async () => {
       await page.setViewportSize({ width: 800, height: 700 });
-      // The panel stacks first, so the page's top shows it.
-      await page.evaluate(() => {
-        window.scrollTo(0, 0);
-      });
+      // The fixed stacked panel stays above the independently scrolling Board.
       const room = await windowOf(page);
       await expect
         .poll(async () => (await box(panel)).width)
@@ -226,7 +219,7 @@ test.describe("maximizing the terminal panel", () => {
 
       await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
-      await expect(stages).toBeHidden();
+      await expect(board).toBeHidden();
       expectCovers(await box(panel), {
         x: 0,
         y: 0,
@@ -235,7 +228,7 @@ test.describe("maximizing the terminal panel", () => {
       });
 
       await pressWhereShown(control("Restore"));
-      await expect(stages).toBeVisible();
+      await expect(board).toBeVisible();
       expectCovers(await box(panel), stacked);
       expect(stacked.y + stacked.height).toBeLessThanOrEqual(
         (await box(pageColumn)).y + 0.5,

@@ -5,7 +5,12 @@
   /* Context and comparison explanations scroll without taking the reading
      panes' remaining height in a short landscape view. */
   .story-review-top {
-    max-height: 30%;
+    --story-review-top-height: max(
+      calc(var(--side-panel-height) * 0.3),
+      calc(var(--control-size) + 1rem)
+    );
+
+    max-height: var(--story-review-top-height);
     overflow-y: auto;
     scroll-padding-block: 0.5rem;
   }
@@ -26,7 +31,7 @@
   }
 
   .story-review-context-values[aria-expanded="true"] {
-    max-height: 18dvh;
+    max-height: min(18dvh, calc(var(--story-review-top-height) - 1rem));
     overflow-y: auto;
   }
 

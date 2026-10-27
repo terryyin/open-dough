@@ -5,7 +5,7 @@
 
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   openedBeside,
   waitSeconds,
@@ -63,9 +63,9 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
   const yumaCard = taken.getByRole("article", { name: justTaken });
 
   await test.step("the scan view says the human is unknown, the detail names the limit and its time, the Take clock is withheld by the limit, and another profile stays credited", async () => {
-    await expect(akihoCard.locator(".card-owner .owner-human-gap")).toHaveText(
-      "Human developer unknown",
-    );
+    await expect(
+      akihoCard.locator(".story-card-owner .owner-human-gap"),
+    ).toHaveText("Human developer unknown");
     await expect(akihoCard).toContainText(
       "Current slice time unavailable: GitHub's rate limit withheld",
     );

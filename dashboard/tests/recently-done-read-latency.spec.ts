@@ -1,17 +1,11 @@
-// Done stories are a later detail of the published read: a slow or stalled
-// done-record read never holds back or fails the Taken cards' owners,
-// preparation, and slice clocks. The done catalog places each done story,
-// with this machine's sessions for it, before its record is read; its card
-// fills in when that read answers. A record read still unanswered at the wait
-// bound is the Recently done column's gap, not the project's read problem, and
-// the story keeps its place and its sessions; a done catalog read still
-// unanswered then is the column's gap too, read again on the page's detail
-// recovery schedule. The fake GitHub only publishes the slice clock records
-// (sliceClockRecords.ts) with two done records spelled by the shared
-// done-record renderer and their catalog, holding one record's or the
-// catalog's content read; the
-// synthetic `claude` lists this machine's sessions; the page clock is paused,
-// and the local read boundary and the page decide everything shown.
+// Slow done-record reads leave Taken owners, preparation, and slice clocks
+// readable. The catalog places done cards and local sessions before their
+// records arrive; cards fill when answered and keep their place on timeout.
+// Timed-out record/catalog reads are Recently done gaps, retried on the detail
+// recovery schedule, without failing project membership. Fake GitHub publishes
+// sliceClockRecords.ts plus two rendered done records/catalog and holds the
+// selected read. Synthetic Claude supplies sessions, page time is paused, and
+// the real local read boundary and page determine every displayed result.
 
 import type { Page } from "@playwright/test";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -156,7 +150,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     await expect(
       recent.getByRole("article", { name: executed.identity }),
     ).toContainText("Reading done story…");
-    await expect(recent.locator(".stage-count")).toHaveText("4 entries");
+    await expect(recent.locator(".column-count")).toHaveText("4 entries");
     await expect(closed).toHaveCount(1);
     await expect(
       recent

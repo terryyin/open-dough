@@ -8,7 +8,7 @@ import {
   agentLaunchEndpoint,
   launchRecordsSchema,
 } from "../src/agentLaunch.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";

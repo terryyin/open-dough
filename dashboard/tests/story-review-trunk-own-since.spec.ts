@@ -21,7 +21,7 @@ import {
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
-  openReview,
+  openStoryReview,
   refreshReview,
   reviewedRefs,
   reviewRegion,
@@ -49,7 +49,7 @@ async function markedStory(
   commitUnpublished(workspace);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
-  const shown = await openReview(page, card);
+  const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
   return { workspace, trunk, shown, review };

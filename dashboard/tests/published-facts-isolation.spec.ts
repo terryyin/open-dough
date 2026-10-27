@@ -21,7 +21,7 @@ import {
 import {
   expectCurrentFacts,
   expectCurrentRoster,
-  factCards,
+  factStoryCards,
   expectHeldGroups,
   expectNextProjectCheck,
   expectNoEarlierAssignments,
@@ -54,11 +54,11 @@ test("new membership and fast B assignments replace a complete A's, while B's he
   await expectCurrentFacts(page, factsA);
   // Published status follows membership. The two credited humans and the
   // clock establish that A's remaining independent detail has really read.
-  const cardsA = factCards(page, factsA);
-  await expect(cardsA.taken.locator(".card-owner")).toContainText(
+  const cardsA = factStoryCards(page, factsA);
+  await expect(cardsA.taken.locator(".story-card-owner")).toContainText(
     "Fixture Committer",
   );
-  await expect(cardsA.queued.locator(".card-preparing")).toContainText(
+  await expect(cardsA.queued.locator(".story-card-preparing")).toContainText(
     "Fixture Committer",
   );
   await expect(cardsA.taken).toContainText("Current slice started 5 min ago");
@@ -174,9 +174,9 @@ for (const outcome of ["success", "failure"] as const) {
           exact: true,
         }),
       ).toBeChecked();
-      await expect(parts(page).stages).not.toContainText(doughnutSharedGoal);
+      await expect(parts(page).board).not.toContainText(doughnutSharedGoal);
       await expect(
-        parts(page).stages.locator(`a[href*="${revisionDoughnut}"]`),
+        parts(page).board.locator(`a[href*="${revisionDoughnut}"]`),
       ).toHaveCount(0);
     });
     await test.step("B's later real reads finish the same current observation", async () => {

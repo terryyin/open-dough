@@ -81,9 +81,9 @@ implemented perspective for the foreseeable work. The feature and structural
 perspectives preserve the broader idea for later exploration; they are not
 prerequisites for the first useful view or commitments to build all three.
 
-### Connected stages and zoom
+### Board and zoom
 
-Terry expects an **animated stage with connected stages of work**, rather than
+Terry expects an **animated Board with connected Columns of work**, rather than
 just a list. The direction includes zooming out for the whole picture and
 zooming or focusing in to read relevant work. Canvas is permitted but not
 required. Terry explicitly clarified that this UX ambition must follow the
@@ -91,11 +91,11 @@ just-in-time principle: build interactions to support the current story's goal,
 not to complete the visual concept ahead of a need.
 
 Initially, existing backlog evidence supports **Backlog** and **Taken**
-regions, containing work cards in their recorded order. Zoom exposes the title, identity, membership,
+regions, containing Story cards in their recorded order. Zoom exposes the title, identity, membership,
 priority where recorded, and source links already in the snapshot. It does not
 require adding metadata or interpreting story/plan contents in the first story.
-Richer stages and detail follow when their evidence and semantics are selected.
-The first story requires a readable connected overview and access to each
+Richer Columns and detail follow when their evidence and semantics are selected.
+The first story requires a readable connected Board and access to each
 entry's evidence. Ordinary layout, wrapping, and scrolling can serve that goal;
 general pan/zoom, multiple detail levels, and animated card travel are not
 prerequisites. Add the smallest navigation or transition only when it improves
@@ -106,405 +106,44 @@ snapshots, such as the same work becoming Taken. It must not imply continuous
 agent activity or animate an imagined path through unobserved states. Missing
 work does not automatically move to Done. Reading and navigation must remain
 available by keyboard and on narrow screens. When zoom is introduced, provide
-a way to regain the overview; when motion is used, reduced-motion preferences
+a way to regain the whole Board; when motion is used, reduced-motion preferences
 retain the same information and navigation without animation.
 
-The [UX/UI North Star](dashboard-ux-ui-north-star.md#connected-stages-and-spatial-navigation)
-owns the revisable layout and interaction guidance. These visual work stages
+The [UX/UI North Star](dashboard-ux-ui-north-star.md#board-and-spatial-navigation)
+owns the revisable layout and interaction guidance. These visual Columns
 are distinct from the two capability-delivery stages below.
 
 ## Two stages of the direction
 
-### Stage 1: published Git state across independent machines
+The [delivery direction](dashboard-delivery-direction.md) defines:
 
-Build the initial story perspective using only state published to Git origin:
-remote branches and their committed contents and history. Treat developers as
-working on separate machines, with no shared local checkout or operational
-state available to the dashboard. This is the first stage's working model, not
-a requirement to place agents on physically different machines.
-
-All state used to depict progress in this stage must be available from origin.
-Unpushed commits, working-tree edits, local branches, locks, and live agent
-sessions cannot supply required information. The dashboard may fetch or cache
-remote Git data; it must not need access to a developer's clone. Its view shows
-published progress, not necessarily the latest work occurring on a machine.
-
-This stage shows concurrent work published from independent clones or local
-worktrees. Synchronization uses the common remote Git publication contract;
-the dashboard reads its published evidence.
-
-### Stage 2: multiple agents sharing one machine
-
-Extend local visibility to multiple agents working in separate worktrees of the
-same repository. Use machine-local evidence to show the default checkout's
-freshness and any deferred refresh. Each owned workspace publishes through the
-same remote Git contract used across independent machines.
-
-The remote Git view remains independently useful, with local information
-supplementing published progress.
-
-These stages describe the intended order of capability development. They do
-not commit to building the feature or structural perspectives, or make the
-exploratory mailbox and takeover mechanism prerequisites for Stage 1.
-
-### Initial application constraints
-
-Initially, the observed client project is hardcoded in the Open Dough dashboard
-project. For the first story, Terry selected Open Dough's public GitHub `main`,
-with local launch and no sign-in or hosted deployment. Authoritative state stays
-in the observed repository. There is no
-application/server database or separate persistent project-state store;
-disposable browser storage for preferences or cache is permitted if useful.
-
-The delivered [story dashboard](../dashboard/README.md) observes Open Dough,
-Doughnut, and Pygardon, one selected project at a time. Its project catalog and
-access boundary supply published records for the selected project.
-
-The implementation should have very strong typing. The
-[dashboard technology recommendation](dashboard-tech-stack.md) proposes the UI,
-runtime-validation, and test tooling; it remains a recommendation rather than
-an accepted ADR or implemented stack. Playwright was the user's initial
-candidate, with alternatives welcome. The living
-[Dashboard UX/UI North Star](dashboard-ux-ui-north-star.md) guides the interface
-and evolves as the dashboard is used. Its design hypotheses are revisable.
+- <a id="stage-1-published-git-state-across-independent-machines"></a>[Stage 1: published Git state across independent machines](dashboard-delivery-direction.md#stage-1-published-git-state-across-independent-machines).
+- <a id="stage-2-multiple-agents-sharing-one-machine"></a>[Stage 2: multiple agents sharing one machine](dashboard-delivery-direction.md#stage-2-multiple-agents-sharing-one-machine).
+- <a id="initial-application-constraints"></a>[Initial application constraints](dashboard-delivery-direction.md#initial-application-constraints).
 
 ## Repository-backed project state
 
-Most project state must remain in the project's Git repository and be published
-to origin to become visible remotely. Access to that published Git state should
-be sufficient for the dashboard to recover most of the project's recorded
-status, even without access to a developer's local clone or temporary runtime
-data.
+[Repository state](dashboard-repository-state.md) defines durable published facts:
 
-The state available from the repository should include:
-
-- Which stories are in the product backlog.
-- Which stories are Taken.
-- Whether a story has been refined or slice planned.
-- The execution mode recorded for each active story.
-- The developer name assigned to each Taken story, and to each queued story
-  being prepared.
-- The origin branch carrying a Taken story's execution in Story Branch Mode.
-- Which slices have been completed.
-
-These facts must not depend on temporary files, an active agent session, or
-retained conversation context. The dashboard should observe the project's
-records rather than require the project to keep its durable workflow state
-only inside the dashboard.
-
-### Story states
-
-Terry anticipates needing explicit story states for visualization, despite a
-preference to avoid additional state-management overhead. Stories can exist
-outside the product backlog; membership in the backlog is itself a meaningful
-state, not a condition that defines whether a story exists.
-
-The view should be able to distinguish backlog membership, Taken work, and
-whether refinement and slice planning have occurred. The exact vocabulary,
-transitions, and storage remain open. These facts need not form a single linear
-sequence: this document does not decide whether to represent them as one state
-or several attributes, or require every story to pass through slice planning.
-Prefer deriving facts from authoritative repository records where sufficient;
-decide what additional explicit metadata is needed through concrete dashboard
-stories.
-
-### Blocking story dependencies
-
-A blocking dependency is recorded in the dependent story's canonical home,
-separately from preparation: supplier identity and link, required implementation,
-reason for sequencing, completion condition, and waiting, satisfied, or
-decision-needed state. Resolution evidence names a recoverable supplier revision
-and canonical path, the accepted integration revision, and the verification or
-remaining question. Shared code alone does not justify a blocking wait.
-The condition names the supplier outcome needed before the consumer can start;
-the consumer's own implementation belongs to its scope and acceptance examples.
-
-An unresolved dependency prevents new execution from starting. Loading,
-unreadable, or malformed dependency facts also prevent a new start. The actual
-start command checks current facts before creating a workspace or publishing a
-Take; an already accepted execution can continue. Refinement and inspection
-remain available. Satisfying every dependency removes this block without
-changing preparation judgments or other execution requirements.
-
-The dependency agreement is the only record of a prerequisite; it is not a
-readiness reason, so a preparing agent records Ready for a story that waits only
-on its suppliers. Start eligibility is derived from the recorded readiness
-assessment and the dependency facts, never stored: a story is eligible when its
-assessment is Ready and no dependency is unsatisfied, and otherwise it is
-blocked by the assessment, each unsatisfied dependency, or unreadable facts.
-The dashboard, `read-state`, and the start command answer from this one
-derivation and name the same blockers. Becoming eligible grants no execution
-permission. The readiness basis covers each agreement's supplier,
-implementation, rationale, and condition, but not its state, resolution
-evidence, or decision, so editing an agreement reports "Changed since readiness
-review" while a supplier's resolution does not.
-
-The supplying story's landing or wrap-up discovers current consumers and judges
-each condition against the completed, accepted outcome. It may reconcile bounded
-story or plan assumptions whose answer is settled by the consumer's existing
-intent. Unspecified choices remain decision-needed with the actual developer
-question. An agreement that includes the consumer's own implementation is
-corrected within its established intent or explicit developer direction before
-judging the supplier prerequisite; that correction grants no consumer execution
-authority and claims no consumer implementation. Unfulfilled supplier conditions
-stay waiting. Source disappearance, an increment, or queue removal never
-proves fulfillment. After satisfying a condition, the agent rereads the
-consumer's Not ready reasons and, by judgment, records a fresh assessment
-without any reason that only restated that condition, keeping every other
-reason. The [supplier resolution procedure](../src/skills/dough-product-backlog/references/supplier-dependencies.md)
-owns discovery, evidence, guarded writes, and publication.
-
-Only the dependent card exposes its dependencies; the
-[dashboard documentation](../dashboard/README.md#blocking-story-dependencies)
-describes presentation. Informational dependencies that allow parallel execution
-and close multi-agent collaboration remain future scope.
-
-### Recently finished stories
-
-A recently finished story is a published record of its own, beside the agent
-profiles. Completing a backlog entry through `product-backlog complete` writes
-one JSON done record under `.planning/done/` beside the backlog, in the same
-change that removes the entry and releases its execution profile, so
-committing the closure publishes it. The file name comes from the identity
-alone, with `#` read as `_` (`SEED-107_recently-done.json`), so completing the
-same identity again replaces its record. Work dropped rather than finished is
-removed with `complete --dropped`, which leaves the done records to finished
-work. The record keeps only facts that outlive wrap-up cleanup: the identity and
-title, the UTC completion time, the developer configured in that workspace's
-Git, and, when the work had an execution profile, its agent, host tool, and
-model. It links to no seed or plan, so wrap-up still deletes the spent
-history. The same `complete` run removes records completed more than 30 days
-before; a published record older than that is not recent work. The backlog
-scripts own the format and the window, and the dashboard reads the records at
-the revision it reads the backlog and profiles. That read is a later detail,
-like owners' humans and slice clocks. Owners, preparation, and progress never
-wait for it. If it is still unanswered at the read's wait bound, or it fails,
-the column says done stories could not be read and still lists the sessions.
-A record the shared format rejects is listed by file name with its problem,
-beside the readable ones. A few records are read at once, and each text is
-kept under its Git blob, so a later revision rereads only new or changed
-records.
-
-Git history was explored first and does not identify completions within a
-bounded read: closure commits share no subject convention, profile deletions
-also come from preparation releases, and the backlog sees over a thousand
-commits a month. Separate files, rather than a completion section in the
-backlog, let parallel closures integrate without merge adapters.
-
-### Taken-item information
-
-The backlog needs enough information on each Taken item to identify its owner
-and interpret its execution:
-
-| Information | Requirement |
-| --- | --- |
-| Developer name | Record which named agent has taken the story. |
-| Execution mode | Distinguish Story Branch Mode from Trunk Mode. |
-| Origin execution branch | For Story Branch Mode, identify the story's branch on origin so a repository reader can locate its published progress. Trunk Mode does not require this story-branch field. |
-
-Here, origin execution branch means the branch carrying the story's work, not
-the base branch from which it was created. Local worktree paths and local branch
-details should be derived from dynamic machine information when available,
-rather than required as durable backlog fields for the repository-only view.
-
-The Taken entry format itself carries none of these fields. They live in the
-owning agent's profile, described below, which refers to the work by identity.
-
-### Agent profiles and rotating names
-
-Open Dough ships one fixed rotation of 29 agent names, starting at Yui and
-ending at Rina. An agent's identity is `<Name>-chan` with email
-`<lowercase name>-chan@example.org`. These names identify agent developers,
-not human contributors.
-
-Each active agent has one JSON profile at
-`.planning/agents/<lowercase name>-chan.json` beside the backlog. It records
-the agent name and email, the work item identity, and its activity: either
-execution, with its execution mode and branch context (the owned execution
-branch in Story Branch Mode, remote trunk in Trunk Mode), or preparation of a
-queued story, which records no mode or branch. When the agent reports them, it
-also records its host tool (Claude Code, Codex, or Cursor) and AI model.
-Execution profiles written before activities existed record none and read as
-execution. Separate files keep parallel claims from contending for one shared
-file.
-
-- **Assignment.** The shared startup operation (`execution-start`) selects the
-  name, writes the profile, and commits it with the Take. A name is held while
-  its profile exists on remote trunk. The next name follows the profile most
-  recently added on trunk, skipping held names and wrapping after Rina, so a
-  released name is not reused at once. With no prior profile the rotation
-  starts at Yui. The name is chosen on the trunk the workspace is built on, so
-  a name published while startup fetches is skipped rather than stopping the
-  Take. When every name is held, the Take is refused and nothing is published.
-  When a lost publication race finds the selected name now held, the claim is
-  rebuilt on the new trunk under the next available name. Preparation start
-  (`preparation-assignment start`) assigns a name from the same rotation when
-  refinement or planning of a queued story begins, publishing a commit that
-  adds only its preparation profile; the story stays queued. Each profile is
-  one allocation, identified by its path and the commit that added it.
-- **Authorship.** The agent is the Git author of its coordination commits (the
-  Take and the preparation announcement and end) and, through the guided agent
-  commit, of the commits it makes for its own work in its owned workspace,
-  including closure and amended commits and the merge commit that integrates
-  its published Story Branch into trunk, whether made directly or by the
-  product-backlog merge adapter; the configured Git user remains the
-  committer. Each such commit credits that developer once as a
-  `Co-authored-by` trailer, read at commit time from the effective committer
-  identity of the checkout making it, never from a fixed account, beside any
-  co-authors the message already names, such as a model trailer. A message
-  that already credits the developer's email, whatever the trailer key case,
-  email case, or display name, keeps that one credit, and a rebase replays an
-  owned commit's message unchanged, so neither amendment nor replay duplicates
-  or drops a trailer. A missing, malformed, or agent-equal committer refuses
-  the commit before anything is committed or published
-  (`developer-identity-refused`). Startup and preparation start configure the
-  agent author through per-worktree Git config, so other checkouts keep their
-  usual author and gain no trailer. In a bare repository whose shared config
-  sets `core.bare=true` or `core.worktree`, enabling per-worktree config would
-  break every checkout, so it is left untouched: only coordination commits are
-  authored by the agent, the receipt reports
-  `workspaceAuthorship: "not-configured"` (otherwise `"configured"`), and
-  ordinary commits there are the developer's own. Historical commits are not
-  rewritten. GitHub attributes the credit only when the configured email
-  belongs to the developer's account, which is their Git setup, not checked
-  locally. Commit authors and co-authors are the history trace; the profile
-  records current ownership, so a developer-authored commit naming the agent
-  as co-author still belongs to the assignment its published profile names.
-- **Resume and release.** Resume keeps the profile and restores the
-  workspace's authorship from it. Completing the Taken entry through
-  `product-backlog complete` deletes its execution profile in the same change,
-  releasing the name. A preparation assignment is released when its kept
-  result lands (the landing removes the profile beside the result), when its
-  workspace explicitly abandons the preparation, or, when that workspace is
-  lost, when a developer confirms that one exact allocation is abandoned and
-  the release is addressed by profile path and allocation. A release of an
-  allocation that trunk already ended publishes nothing and never removes a
-  later allocation of the same name. Silence, age, a missing process, or a
-  lost workspace alone never releases a name; an abandoned profile keeps its
-  name held until one of these releases.
-- **Dashboard.** Each Taken card's scan view shows the agent's portrait and
-  name from the published profile. A queued card whose story has a published
-  preparation profile shows Preparing and its developer's portrait and name.
-  The story's inspected detail shows the assignment's mode, branch context,
-  host, model, and credited human developer; the agent roster shows mode,
-  host, model, and credited human developer beside each assignment. Branch
-  context is labelled as story branch work, never as work on trunk. A missing
-  profile shows "Owner not recorded" on the card, a missing field shows as not
-  recorded in the detail and roster, and an unreadable profile is listed as
-  unreadable without being matched to any entry. Decorative identity marks
-  sit beside their own text labels: the agent's portrait beside its name on
-  the card, and, in the detail and roster, the mode symbol beside the mode and
-  the host tool's mark beside the host. Hovering the portrait shows it larger
-  in place, over the card, without moving the owner line; each rotation
-  agent's gesture strip plays once in that enlargement on each hover and
-  settles on the still portrait, which reduced motion shows without the
-  gesture. Text alone carries each fact; no mark is drawn for an unrecorded or unreadable fact, and no mark implies that an
-  agent is present or active.
-
-### Future messaging and handover
-
-A later possibility is to address messages to a named developer through a
-commit mailbox or a similar repository-backed mechanism. Another agent or a
-human could send a message and wait for that developer's response.
-
-Terry suggested a response deadline, for example ten minutes, after which the
-developer could be considered gone and someone else could continue the work.
-The mailbox mechanism, deadline, and takeover protocol are exploratory, not
-requirements for the first dashboard phase.
-
-An unanswered message establishes a lack of observed response, not proof that
-the previous agent has stopped. Later design must settle how reassignment
-prevents competing owners, how a late response or returning agent is handled,
-and how recycled names remain distinguishable from earlier assignments.
+- <a id="story-states"></a>[Story states](dashboard-repository-state.md#story-states).
+- <a id="blocking-story-dependencies"></a>[Blocking story dependencies](dashboard-repository-state.md#blocking-story-dependencies).
+- <a id="recently-finished-stories"></a>[Recently finished stories](dashboard-repository-state.md#recently-finished-stories).
+- <a id="taken-item-information"></a>[Taken-item information](dashboard-repository-state.md#taken-item-information).
+- <a id="agent-profiles-and-rotating-names"></a>[Agent profiles and rotating names](dashboard-agent-assignments.md#agent-profiles-and-rotating-names).
+- <a id="future-messaging-and-handover"></a>[Future messaging and handover](dashboard-agent-assignments.md#future-messaging-and-handover).
 
 ## Limited machine-local state
 
-Some operational state belongs to a development machine and its local
-repository. It need not be committed to Git. Git-ignored files are one possible
-representation; the storage mechanism is not selected here.
+[Machine-local state](dashboard-machine-local-state.md) supplements published facts:
 
-The first identified example is the default checkout's freshness and any
-deferred refresh. The remote trunk is the integration authority under the
-direction in [ADR 0009](adrs/0009-git-branching-and-integration.md).
-Reconciliation and publication happen in owned workspaces. Preservation checks
-protect the default checkout's files and Git state.
-
-### Refreshing the default checkout
-
-A default checkout is optional. After each trunk publication, attempt a
-refresh of a supplied one; without one, refresh is not applicable.
-A clean checkout that is only behind fetched trunk advances by fast-forward.
-Pending edits, unpublished commits, active operations, or a checkout Git
-cannot read or refresh preserve their state and produce a visible
-deferred-refresh result. Publication success and checkout freshness are
-reported separately. Neither a missing checkout nor a deferred refresh undoes
-remote acceptance or blocks retiring owned workspaces, which runs from the
-repository's own Git directory.
-
-Before using the default checkout's revision as a new task's base, verify it
-against freshly fetched trunk. A task can create its owned worktree directly
-from the fetched base while checkout maintenance is pending. Including local
-unpublished work requires a deliberate ownership and dependency decision.
-
-### Quick edits in the default checkout
-
-Allow short, prepared changes directly in a default checkout the developer
-explicitly selects, under that task's established authority. Inspect the
-current state, apply the bounded change, verify and commit only the authorized
-result, and leave a recoverable state. Preserve other writers' staged and
-working-tree content. Publication follows the shared remote publication
-contract and its separately established publication authority.
-
-“Quick” describes the operation's shape:
-
-- The intended change is already decided and bounded.
-- Required discussion and investigation are complete before the edit starts.
-- The change can be verified and committed promptly.
-
-Updating a known backlog field is a representative quick action. Story
-refinement and slice planning use owned workspaces started from freshly fetched
-remote trunk, whatever the default checkout's state. Reuse a suitable workspace
-through related preparation, publish explicitly retained results to remote
-trunk, then clean up when publication and session ownership permit it.
-The origin-based dashboard observes the published records.
-
-If a direct edit is interrupted or needs further discussion, preserve its work
-and report its recoverable state.
-
-### Coexistence with human edits and other tools
-
-Human developers and other tools can change the default checkout at any time.
-Inspect its state and revalidate before a mutation where practical. Preserve
-unowned edits, staged content, unfinished Git operations, and unexpected branch
-or revision changes; report the observed ownership issue and resume after it is
-resolved. Re-read current state when resuming and reconcile the owned work with
-fresh remote history.
-
-Representative cases include a human's staged edit before refresh, a commit
-made between an agent's inspection and its refresh, and an edit made during an
-agent's direct edit. Each case preserves the human's work and the agent's prepared
-result, with a visible maintenance outcome. Another agent's owned worktree can
-continue publishing independently.
-
-Detection of external edits is limited by observable state and races between
-inspection and mutation. Refinement owns the precise checks and recovery
-interaction.
+- <a id="refreshing-the-default-checkout"></a>[Refreshing the default checkout](dashboard-machine-local-state.md#refreshing-the-default-checkout).
+- <a id="quick-edits-in-the-default-checkout"></a>[Quick edits in the default checkout](dashboard-machine-local-state.md#quick-edits-in-the-default-checkout).
+- <a id="coexistence-with-human-edits-and-other-tools"></a>[Coexistence with human edits and other tools](dashboard-machine-local-state.md#coexistence-with-human-edits-and-other-tools).
 
 ## Combining the two sources in the dashboard
 
-The dashboard should provide useful project visibility from repository state
-alone. When it also has access to a machine's local operational state, it should
-use that evidence to provide more detailed information about activity on that
-machine, such as default-checkout freshness or a deferred refresh where those
-facts are recorded.
-
-| Source | Intended information | Availability |
-| --- | --- | --- |
-| Git origin | Durable published backlog and execution progress | Without access to a developer's local clone |
-| Machine-local state | Default-checkout freshness and deferred refresh | When that machine's state is accessible |
-
-The local layer supplements the repository layer; durable project progress
-should not become dependent on the local layer.
+The [source comparison](dashboard-machine-local-state.md#combining-the-two-sources-in-the-dashboard)
+explains how local evidence supplements an independently useful repository view.
 
 ## Incremental learning
 
@@ -525,7 +164,7 @@ decisions:
 - How existing backlog and plan records expose sufficient information without
   introducing a duplicate status representation that can drift.
 - How the dashboard accesses local evidence, and how later story facts expand
-  the connected-stage view without imposing a false linear lifecycle.
+  the Board view without imposing a false linear lifecycle.
 - How story-to-feature and story-to-structure relationships would be recorded
   or derived, including the distinction between expected impact and observed
   changes, if those later perspectives are pursued.
@@ -543,9 +182,9 @@ scheduler, or dashboard control interface is selected by this document.
 ## Relationship to existing work and decisions
 
 The remote-only [story dashboard](../dashboard/README.md) precedes
-same-machine visibility. Its overview uses existing backlog membership and
+same-machine visibility. Its Board uses existing backlog membership and
 links; new entry metadata and persisted story states remain outside it.
-It begins the connected-stage direction with readable entry facts from the same
+It begins the Board direction with readable entry facts from the same
 snapshot rather than fetched story/plan detail. The broader zoom and animation
 ambition does not expand this outcome into a general navigation system.
 Its required setup includes one Playwright behavioral suite connected to current

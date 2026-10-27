@@ -32,7 +32,7 @@
   }
 }
 
-.card-selected {
+.story-card-selected {
   border-color: var(--accent);
 }
 
@@ -55,7 +55,7 @@
   font-size: 0.95rem;
 }
 
-.story-detail .card-identity {
+.story-detail .record-identity {
   margin-top: 0;
 }
 

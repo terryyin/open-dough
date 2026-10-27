@@ -41,7 +41,7 @@ end on those notes:
   the waits return at once on such a page.
 - A window resize is followed by the page's own rearrangement: the
   side-panel journeys resize with `resizeUntilArranged`
-  (`sidePanelWidthPage.ts`), which waits for the "Resize panel" separator of
+  (`sidePanelWidthPage.ts`), which waits for the "Panel divider" separator of
   the new width, before measuring or touching anything.
 
 Every answer of the local read boundary carries a `Server-Timing` header

@@ -1,9 +1,7 @@
-// Running Cursor sessions, opened from the Sessions sidebar without a
-// terminal already open. The list names a session the runner holds. Choosing
-// that row opens the terminal on that same client. A runner that is not
-// running, or cannot be reached, says so, lists nothing, and starts no agent.
-// While expanded, the list says it is reading until a read answers, then
-// follows each later read, recovering its rows when one succeeds.
+// Running Cursor sessions opens from the Sessions sidebar without a terminal.
+// Choosing a listed row opens that same client. An absent/unreachable runner
+// lists nothing and starts no agent. Expanded reading follows each later answer,
+// showing reading until answered and restoring rows after a successful read.
 import type { Page } from "@playwright/test";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { parts } from "./dashboardPage.ts";
@@ -74,15 +72,15 @@ for (const { screen, label, terminal } of held) {
     test.setTimeout(120_000);
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
-    const terminalPanel = page.getByRole("region", { name: "Terminal" });
-    await expect(terminalPanel).toHaveCount(0);
+    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    await expect(shownTerminal).toHaveCount(0);
     const { sidebar, region } = await openRunningList(page);
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     await expect(region).toContainText("The Cursor runner is running.");
     const row = region.getByRole("button", { name: /Open Dough/ });
     await expect(row).toContainText("Ad hoc");
     await expect(row).toContainText(label);
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     await expect(
       sidebar.getByRole("button", { name: instruction, exact: true }),
     ).toBeVisible();
@@ -93,7 +91,7 @@ for (const { screen, label, terminal } of held) {
     expect(cursor.attaches()).toHaveLength(1);
 
     await row.click();
-    await expect(terminalPanel.locator(".xterm-rows")).toContainText(terminal);
+    await expect(shownTerminal.locator(".xterm-rows")).toContainText(terminal);
     expect(cursor.attaches()).toHaveLength(1);
     expect(cursor.attaches()[0]?.pid).toBe(pid);
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
@@ -109,16 +107,16 @@ followUp(
     // becomes, and the runner keeps holding that screen.
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
-    const terminalPanel = page.getByRole("region", { name: "Terminal" });
-    await expect(terminalPanel).toHaveCount(0);
+    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    await expect(shownTerminal).toHaveCount(0);
     const { region } = await openRunningList(page);
     const row = region.getByRole("button", { name: /Open Dough/ });
     await expect(row).toContainText("Ad hoc");
     await expect(row).toContainText("working");
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     cursor.showReady();
     await expect(row).toContainText("at the follow-up prompt");
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     expect(cursor.attaches()).toHaveLength(1);
     expect(cursor.attaches()[0]?.pid).toBe(pid);
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
@@ -136,12 +134,12 @@ refused(
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     await stopCursorRunner(dashboard.home);
-    const terminalPanel = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = page.getByRole("region", { name: "Terminal" });
     const { region } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is not running.");
     await expect(region.getByRole("listitem")).toHaveCount(0);
     await expect(region.getByRole("button")).toHaveCount(1);
-    await expect(terminalPanel).toHaveCount(0);
+    await expect(shownTerminal).toHaveCount(0);
     expect(cursor.calls()).toHaveLength(calls);
     expect(cursor.attaches()).toHaveLength(attaches);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
@@ -159,14 +157,14 @@ refused(
     await stopCursorRunner(dashboard.home);
     const release = await occupyRunner(dashboard.home);
     try {
-      const terminalPanel = page.getByRole("region", { name: "Terminal" });
+      const shownTerminal = page.getByRole("region", { name: "Terminal" });
       const { region } = await openRunningList(page);
       await expect(region).toContainText(
         "The Cursor runner cannot be reached.",
       );
       await expect(region.getByRole("listitem")).toHaveCount(0);
       await expect(region.getByRole("button")).toHaveCount(1);
-      await expect(terminalPanel).toHaveCount(0);
+      await expect(shownTerminal).toHaveCount(0);
       expect(cursor.calls()).toHaveLength(calls);
       expect(cursor.attaches()).toHaveLength(attaches);
     } finally {
@@ -210,7 +208,7 @@ feedback(
       },
     );
     try {
-      const terminalPanel = page.getByRole("region", { name: "Terminal" });
+      const shownTerminal = page.getByRole("region", { name: "Terminal" });
       const { sidebar, region } = await openRunningList(page);
       const row = region.getByRole("button", { name: /Open Dough/ });
       await expect(region).toContainText("Reading the Cursor runner…");
@@ -238,7 +236,7 @@ feedback(
       await expect(region).toContainText("The Cursor runner is running.");
       await expect(region).not.toContainText("cannot be reached");
 
-      await expect(terminalPanel).toHaveCount(0);
+      await expect(shownTerminal).toHaveCount(0);
       expect(cursor.calls()).toHaveLength(calls);
       expect(cursor.attaches()).toHaveLength(1);
       expect(cursor.attaches()[0]?.pid).toBe(pid);

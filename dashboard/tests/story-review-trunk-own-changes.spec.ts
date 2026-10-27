@@ -20,8 +20,8 @@ import {
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
-  openReview,
-  reopenReview,
+  openStoryReview,
+  reopenStoryReview,
   reviewRegion,
   uncommittedCheck,
 } from "./support/storyReviewMark.ts";
@@ -42,7 +42,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
   expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
 
   await test.step("the published and uncommitted files are listed, and no other commit's", async () => {
@@ -94,7 +94,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
 
   await test.step("an unpublished commit is listed with the rest, and Commits stays the worktree's", async () => {
     commitUnpublished(workspace);
-    const later = await reopenReview(page, card);
+    const later = await reopenStoryReview(page, card);
     expect(later.published).toEqual({ trunk, commits: 2 });
     expect(later.files.map(({ path: file }) => file)).toEqual([
       "d.md",
@@ -138,7 +138,7 @@ test("a Trunk Mode story with nothing published since its claim is reviewed agai
   commitUnpublished(workspace);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
 
   expect(snapshot.published).toBeUndefined();

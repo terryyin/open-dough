@@ -11,7 +11,7 @@ import {
   launchRequest,
 } from "./agentLaunchBoundary.ts";
 import { answerOf, type Problem } from "./keptExecutionStart.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import { recoveryOf, worktrees } from "./responsiveRecovery.ts";
@@ -103,14 +103,14 @@ test("a second server follows the live script and native worker, protects its ca
     const story = parts(page).backlog.getByRole("article", { name: "Story A" });
     const warning =
       "Still starting after 2 minutes. The start goes on in workspace ~/git/open-dough/.worktrees/story-a on branch claude/story-a; its session starts when it finishes.";
-    await expect(story.locator(".card-startup-progressing")).toHaveText(
+    await expect(story.locator(".story-card-startup-progressing")).toHaveText(
       `Preparing execution… ${warning}`,
       { timeout: 30_000 },
     );
     await expectProtected(story);
     expect(
-      await indicatorOf(story.locator(".card-startup-progressing")),
-    ).toMatchObject({ shown: true, animation: "card-startup-pulse" });
+      await indicatorOf(story.locator(".story-card-startup-progressing")),
+    ).toMatchObject({ shown: true, animation: "story-card-startup-pulse" });
     await expect(recoveryOf(page)).toHaveCount(0);
     await reloadUntilRead(page);
     await expectProtected(story);
@@ -133,10 +133,9 @@ test("a second server follows the live script and native worker, protects its ca
       worker: { pid: dashboard.pid, step: "launch" },
     });
     const taken = parts(page).taken.getByRole("article", { name: "Story A" });
-    await expect(taken.locator(".card-startup-progressing")).toContainText(
-      "Starting execution in Claude Code…",
-      { timeout: 30_000 },
-    );
+    await expect(
+      taken.locator(".story-card-startup-progressing"),
+    ).toContainText("Starting execution in Claude Code…", { timeout: 30_000 });
     await expectProtected(taken);
     await expect(recoveryOf(page)).toHaveCount(0);
     dashboard.releaseHeldClaude();
@@ -151,7 +150,7 @@ test("a second server follows the live script and native worker, protects its ca
       running: false,
     });
     expect((await attempts(second))[0]?.worker).toBeUndefined();
-    await expect(cardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
+    await expect(storyCardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(worktrees(origin)).toEqual(["story-a"]);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);

@@ -7,9 +7,9 @@ import {
   startDashboardServer,
   builtDashboardDir,
 } from "./support/dashboardServer.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
@@ -62,7 +62,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
         session: { sessionId: native.threadId },
       });
       await reloadUntilRead(page);
-      const pending = cardSessions(card(notRefinedStory));
+      const pending = storyCardSessions(card(notRefinedStory));
       await expect(pending).toContainText("Conversation created in Codex");
       await expect(pending).toContainText("First input acceptance uncertain");
       await expect(pending).not.toContainText("Refinement started in Codex");
@@ -126,7 +126,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
           .map((call) => call.params),
       ).toEqual([{ threadId: native.threadId }]);
       await reloadUntilRead(page);
-      await expect(cardSessions(card(notRefinedStory))).toContainText(
+      await expect(storyCardSessions(card(notRefinedStory))).toContainText(
         "Refinement started in Codex",
       );
       await expect

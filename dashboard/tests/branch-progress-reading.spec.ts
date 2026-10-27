@@ -2,8 +2,8 @@
 // enrichment as independently arriving fact groups. Raw published plans grow
 // above a focused source link through the built preview's real local boundary.
 
-import { inspectedDetail } from "./cardControls.ts";
-import { expectView, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
+import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
@@ -30,9 +30,15 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   const card = parts(page).taken.getByRole("article", { name: onBranch });
   const detail = await inspectedDetail(card);
   const link = detail.getByRole("link", { name: /^Canonical record/ });
-  const before = await page.evaluate(() => scrollY);
+  const before = await page
+    .locator(".board-scroll")
+    .evaluate((region) => region.scrollTop);
   await link.scrollIntoViewIfNeeded();
-  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before);
+  await expect
+    .poll(() =>
+      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
+    )
+    .toBeGreaterThan(before);
   await link.focus();
   await expectVisibleReadingFocus(page, link);
   await expectView(page, ["Taken", "Recently done"], ["Backlog 0 entries"]);
@@ -55,7 +61,7 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   await expect(
     card.getByRole("button", { name: "Hide detail" }),
   ).toHaveAttribute("aria-expanded", "true");
-  await expect(detail.locator(".card-identity")).toHaveText(
+  await expect(detail.locator(".record-identity")).toHaveText(
     "SEED-092#on-branch",
   );
   await expect(link).toHaveAttribute("href", pinned);

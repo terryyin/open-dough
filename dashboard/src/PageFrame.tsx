@@ -1,7 +1,7 @@
 import { sessionKey } from "./sessionReference.ts";
 // The page keeps one side panel and its Sessions sidebar above project selection.
 // The panel shows one item: a session's terminal or final report, or a story's
-// review. Sidebar navigation reveals the chosen project/story without
+// story review. Sidebar navigation reveals the chosen project/story without
 // remounting the page. pageSidePanel owns selection, current marks,
 // maximization and focus return; sidePanelWidth its width beside the page;
 // terminal readiness alone rereads a done record after native attachment.
@@ -9,19 +9,19 @@ import { sessionKey } from "./sessionReference.ts";
 // too, so a journey's destination can ask it for the entry it lands on.
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
-import { SessionResultPanel } from "./SessionResultPanel.tsx";
+import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useProjects } from "./projectList.tsx";
 import {
-  SessionSidebar,
-  SidebarOnPage,
-  useSessionSidebar,
-} from "./SessionSidebar.tsx";
-import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
-import { TerminalPanel } from "./TerminalPanel.tsx";
-import { StoryReviewPanel } from "./StoryReviewPanel.tsx";
-import { ReviewsOnPage } from "./pageReviews.ts";
+  SessionsSidebar,
+  SessionsSidebarOnPage,
+  useSessionsSidebar,
+} from "./SessionsSidebar.tsx";
+import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
+import { Terminal } from "./Terminal.tsx";
+import { StoryReview } from "./StoryReview.tsx";
+import { StoryReviewsOnPage } from "./pageStoryReviews.ts";
 import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
@@ -29,7 +29,7 @@ import {
   RecentlyDoneRangeOnPage,
   useRecentlyDoneRange,
 } from "./recentlyDoneRange.ts";
-import { SidePanelEdgeOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
+import { PanelDividerOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
 import "./side-panel.css";
 
 export function PageFrame({
@@ -72,9 +72,9 @@ export function PageFrame({
   readonly children: ReactNode;
 }) {
   const projects = useProjects();
-  const sidebar = useSessionSidebar(records, alerts);
+  const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
-  const panel = usePageSidePanel({
+  const sidePanel = usePageSidePanel({
     markDone,
     markRead,
     deleteRecord,
@@ -83,11 +83,12 @@ export function PageFrame({
     hostOperations,
     range,
   });
-  const { terminal, result, review, maximized, markSessionDone } = panel;
+  const { terminal, finalReport, storyReview, maximized, markSessionDone } =
+    sidePanel;
   const frame = useRef<HTMLDivElement>(null);
-  const { stacked, edge } = useSidePanelWidth(
+  const { stacked, divider } = useSidePanelWidth(
     frame,
-    panel.shown !== undefined,
+    sidePanel.shown !== undefined,
     sidebar.open,
   );
   const attached = useCallback<SessionOperation<void>>(
@@ -103,7 +104,10 @@ export function PageFrame({
     stories.shown,
     range,
   );
-  const goToSession: OpenSidebarEntry = ({ record, control }) => {
+  const goToSession: OpenSessionsSidebarSessionEntry = ({
+    record,
+    control,
+  }) => {
     const source = projects.find(
       (project) => project.id === record.request.source,
     );
@@ -111,84 +115,84 @@ export function PageFrame({
       stories.show(source);
     }
     const returnTo = sidebar.closeOverPage() ?? control;
-    panel.openSession({ record, control: returnTo });
+    sidePanel.openSession({ record, control: returnTo });
     revealSession(record);
   };
   // The page keeps one element structure whether or not the sidebar or the
   // panel is open, so opening one never remounts the page or loses what it
   // had open.
   return (
-    <SessionsOnPage value={panel.sessions}>
-      <ReviewsOnPage value={panel.openReview}>
-        <SidePanelEdgeOnPage value={maximized ? undefined : edge}>
+    <SessionsOnPage value={sidePanel.sessions}>
+      <StoryReviewsOnPage value={sidePanel.openStoryReview}>
+        <PanelDividerOnPage value={maximized ? undefined : divider}>
           <div
             ref={frame}
             className={
               [
-                sidebar.open && "page-with-sidebar",
-                panel.shown !== undefined && "page-split",
-                panel.shown !== undefined && stacked && "page-stacked",
+                sidebar.open && "page-with-sessions-sidebar",
+                sidePanel.shown !== undefined && "page-split",
+                sidePanel.shown !== undefined && stacked && "page-stacked",
                 maximized && "page-maximized",
               ]
                 .filter(Boolean)
                 .join(" ") || undefined
             }
             style={
-              edge &&
+              divider &&
               ({
-                "--side-panel-width": `${String(edge.width)}px`,
+                "--side-panel-width": `${String(divider.width)}px`,
               } as CSSProperties)
             }
           >
-            <SessionSidebar {...sidebar} onOpen={goToSession} />
-            <SidebarOnPage value={sidebar}>
+            <SessionsSidebar {...sidebar} onOpen={goToSession} />
+            <SessionsSidebarOnPage value={sidebar}>
               <RecentlyDoneRangeOnPage value={range}>
                 <div className="page-column">{children}</div>
               </RecentlyDoneRangeOnPage>
-            </SidebarOnPage>
-            {result && (
-              <SessionResultPanel
-                key={sessionKey(result.record.session)}
-                session={result}
-                current={shownRecord(records, result)}
+            </SessionsSidebarOnPage>
+            {finalReport && (
+              <FinalReport
+                key={sessionKey(finalReport.record.session)}
+                session={finalReport}
+                current={shownRecord(records, finalReport)}
                 onClose={() => {
-                  panel.close(result);
+                  sidePanel.close(finalReport);
                 }}
                 onMarkDone={markSessionDone}
               />
             )}
             {terminal && (
-              <TerminalPanel
+              <Terminal
                 key={sessionKey(terminal.record.session)}
                 session={terminal}
                 current={shownRecord(records, terminal)}
                 onAttached={attached}
                 maximized={maximized}
-                onMaximize={panel.maximize}
+                onMaximize={sidePanel.maximize}
                 onClose={() => {
-                  panel.close(terminal);
+                  sidePanel.close(terminal);
                 }}
                 onMarkDone={markSessionDone}
-                onWorkspaceUnavailable={panel.unavailableWorkspace}
+                onWorkspaceUnavailable={sidePanel.unavailableWorkspace}
               />
             )}
-            {review && (
-              <StoryReviewPanel
-                // Each story's review, and each opening of one after Close or
+            {storyReview && (
+              <StoryReview
+                // Each story review, and each opening of one after Close or
                 // replacement, reads anew; asking again for the one shown
                 // focuses it and keeps its snapshot until Refresh.
-                key={`${review.source}\n${review.identity}`}
-                request={review}
+                key={`${storyReview.source}\n${storyReview.identity}`}
+                request={storyReview}
                 maximized={maximized}
-                onMaximize={panel.maximize}
+                onMaximize={sidePanel.maximize}
                 onClose={() => {
-                  panel.close(review);
+                  sidePanel.close(storyReview);
                 }}
               />
             )}
           </div>
-        </SidePanelEdgeOnPage>
-      </ReviewsOnPage>
+        </PanelDividerOnPage>
+      </StoryReviewsOnPage>
     </SessionsOnPage>
   );
 }

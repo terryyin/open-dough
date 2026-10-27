@@ -15,7 +15,7 @@
 // and the `gh` calls reaching the fake GitHub show which records were read.
 
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { edgeControl, rem, showColumn } from "./dashboardColumnsPage.ts";
+import { columnPagingControl, rem, showColumn } from "./boardPage.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { noConnection } from "./originAnswers.ts";
 import { answeringFirst, holdingAnswer } from "./support/heldGitHubAnswer.ts";
@@ -79,7 +79,7 @@ test("35 entries show ten, and the reveal action shows ten more at a time, readi
         .getByRole("list", { name: "Sessions" })
         .getByRole("article"),
     ).toHaveCount(3);
-    await expect(recent.locator(".stage-count")).toHaveText("35 entries");
+    await expect(recent.locator(".column-count")).toHaveText("35 entries");
     await expect(recent).toContainText("Showing 10 of 35 entries.");
     await expect(action).toHaveText("Show 10 of 25 older entries");
     expect(recordsAsked(github).toSorted()).toEqual(stories(1, 10).toSorted());
@@ -96,7 +96,7 @@ test("35 entries show ten, and the reveal action shows ten more at a time, readi
   await test.step("resizing until Recently done is hidden, scrolling there, and paging the columns to it read nothing", async () => {
     await page.setViewportSize({ width: 40 * rem, height: 700 });
     // One column shows: Backlog, with Taken and Recently done beyond it.
-    await expect(edgeControl(page, "Taken")).toBeVisible();
+    await expect(columnPagingControl(page, "Taken")).toBeVisible();
     await expect(recent).not.toBeInViewport();
     await page.mouse.wheel(0, 4000);
     await settle(page);
@@ -146,7 +146,7 @@ test("35 entries show ten, and the reveal action shows ten more at a time, readi
     await expect(all).toBeFocused();
     await expect(revealAction(recent)).toHaveCount(0);
     expect(await standing(page, recent, 30)).toEqual(before);
-    await expect(recent.locator(".stage-count")).toHaveText("35 entries");
+    await expect(recent.locator(".column-count")).toHaveText("35 entries");
     expect(recordsAsked(github).toSorted()).toEqual(stories(1, 35).toSorted());
   });
 });
@@ -173,7 +173,7 @@ test("a failed older read keeps the first ten, says so with retry, and the retry
   await expect(
     recent.getByRole("article", { name: storyAt(20).identity }),
   ).toContainText("This done story could not be read.");
-  await expect(recent.locator(".stage-count")).toHaveText("35 entries");
+  await expect(recent.locator(".column-count")).toHaveText("35 entries");
   await expect(action).toHaveText("Show 10 of 15 older entries");
   const failedAsked = recordsAsked(github).filter(
     (path) => path === failingPath,
@@ -204,7 +204,7 @@ test("six entries all show with no reveal action, and a project with no done ent
       nestedIn,
     });
     await expectEntries(recent, six.map(entryName));
-    await expect(recent.locator(".stage-count")).toHaveText("6 entries");
+    await expect(recent.locator(".column-count")).toHaveText("6 entries");
     await expect(revealAction(recent)).toHaveCount(0);
     await expect(recent).not.toContainText(/Showing|are shown/);
     expect(recordsAsked(github).toSorted()).toEqual(
@@ -222,7 +222,7 @@ test("six entries all show with no reveal action, and a project with no done ent
     await expect(recent).toContainText(
       "No sessions launched from this dashboard are kept.",
     );
-    await expect(recent.locator(".stage-count")).toHaveText("0 entries");
+    await expect(recent.locator(".column-count")).toHaveText("0 entries");
     await expect(revealAction(recent)).toHaveCount(0);
     await expect(recent.locator(":scope > ol")).toHaveCount(0);
     expect(recordsAsked(github).slice(before)).toEqual([]);

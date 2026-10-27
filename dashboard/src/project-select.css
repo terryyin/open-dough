@@ -53,7 +53,7 @@
 }
 
 .project-choice input:checked + span {
-  color: var(--panel);
+  color: var(--raised-surface);
 }
 
 /* In a narrow page column the choices share the banner's second row evenly. */

@@ -137,7 +137,7 @@ test.describe("project read isolation", () => {
       expect(doughnut.requests).toHaveLength(1);
     });
 
-    await test.step("focus stayed in the selection context: the late response did not pull it onto Doughnut's cards or the stages", async () => {
+    await test.step("focus stayed in the selection context: the late response did not pull it onto Doughnut's cards or the board", async () => {
       await expect(secondLink).toBeFocused();
       await expect(parts(page).notice).toBeEmpty();
     });

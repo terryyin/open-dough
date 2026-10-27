@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
-import { startSessionDialog } from "./launchCardPage.ts";
+import { startSessionDialog } from "./launchStoryCardPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { settings, back } from "./support/systemSettingsPage.ts";
 import { tapWhereShown } from "./pageLayout.ts";

@@ -1,7 +1,7 @@
 import { chmodSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/voiceTest.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import {
   observeMicrophone,
   recordClip,

@@ -6,18 +6,18 @@
 // review glyph and ends with a decorative arrow toward the side panel.
 // Closing the review in the side panel returns the keyboard in
 // ./story-review.spec.ts; closing the detail, in
-// ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts. Each
+// ./storyReadinessScan.ts and ./accessible-board-keyboard.spec.ts. Each
 // layout is read once the cards' preparation and the machine's sessions are
 // read, since each reading changes a card's height.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import {
-  cardLaunchActions,
+  storyCardLaunchActions,
   expectActionGlyph,
   inspectionGroup,
   launchGroup,
-} from "./cardControls.ts";
+} from "./storyCardControls.ts";
 import {
   expectFocusedAndIndicated,
   narrowWindow,
@@ -52,8 +52,8 @@ test("the inspection group shares a line below the launch group, wraps in readin
   const action = inspectionGroup(card).getByRole("button", {
     name: "Review changes",
   });
-  const review = page.getByRole("region", { name: "Review changes" });
-  const starts = cardLaunchActions.map((name) =>
+  const review = page.getByRole("region", { name: "Story review" });
+  const starts = storyCardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );
   const inspect = inspectionGroup(card).getByRole("button", {

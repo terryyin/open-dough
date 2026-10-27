@@ -10,7 +10,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
@@ -20,8 +20,8 @@ import {
   markedThenChanged,
   markReviewed,
   nextSnapshot,
-  openReview,
-  reopenReview,
+  openStoryReview,
+  reopenStoryReview,
   reviewRegion,
   twelveFileWorktree,
 } from "./support/storyReviewMark.ts";
@@ -117,7 +117,7 @@ test("each opening starts on the changes since the review", async ({
     review.getByRole("list", { name: "13 changed files" }),
   ).toBeVisible();
 
-  await reopenReview(page, card);
+  await reopenStoryReview(page, card);
   await expectShown(review, "Since the review");
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(
@@ -133,11 +133,11 @@ test("a marked story with no later change says nothing changed since the review 
   const { workspace } = twelveFileWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
 
-  const since = await reopenReview(page, card);
+  const since = await reopenStoryReview(page, card);
   expect(since.since?.files).toEqual([]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).toContainText("Nothing changed since the review.");
@@ -166,7 +166,7 @@ test("an unmarked story's review opens on all its changes and offers Commits", a
   const { workspace } = twelveFileWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const shown = await openReview(page, card);
+  const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   expect(shown.since).toBeUndefined();
   await expect(

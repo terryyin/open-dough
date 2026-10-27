@@ -21,13 +21,15 @@ export const colourOf = (element: Locator) =>
 export const backgroundOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).backgroundColor);
 
-// A session entry inside a card is set off from the card on the page's panel
+// A session entry inside a card is set off from the card on the shared raised surface
 // and reads in the card's own text, while its local-launch note stays quiet.
 export async function expectSessionEntrySetOff(entry: Locator) {
   const page = entry.page();
   const card = entry.locator("xpath=ancestor::article[1]");
   const quiet = await tokenColour(page, "--quiet");
-  expect(await backgroundOf(entry)).toBe(await tokenColour(page, "--panel"));
+  expect(await backgroundOf(entry)).toBe(
+    await tokenColour(page, "--raised-surface"),
+  );
   const cardColour = await colourOf(card);
   expect(cardColour).not.toBe(quiet);
   expect(await colourOf(entry)).toBe(cardColour);

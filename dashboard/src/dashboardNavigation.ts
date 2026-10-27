@@ -7,11 +7,11 @@ import type { useObservationAttempt } from "./observationAttempt.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
-  focusStages,
+  focusBoard,
   returnFocusTo,
-  workHolding,
-  type FocusedWork,
-} from "./workFocus.ts";
+  storyCardHolding,
+  type FocusedStoryCard,
+} from "./storyCardFocus.ts";
 
 // A portrait's opening of the roster: its agent, and the project it was opened
 // in. Back returns the keyboard to that portrait, or, once it is gone, to its
@@ -20,7 +20,7 @@ type RosterOpening = {
   readonly agent: string;
   readonly element: HTMLElement;
   readonly sourceId: string;
-  readonly work: FocusedWork | undefined;
+  readonly work: FocusedStoryCard | undefined;
 };
 
 // Coordinate page history with the mounted roster's opening and return focus.
@@ -85,7 +85,7 @@ export function useDashboardNavigation({
       agent,
       element,
       sourceId: source.id,
-      work: workHolding(element),
+      work: storyCardHolding(element),
     };
     latestOpening.current = openingInfo;
     setOpening(openingInfo);
@@ -119,13 +119,13 @@ export function useDashboardNavigation({
     closed.current = undefined;
     // Work identities never carry focus into another project.
     if (opener === undefined || opener.sourceId !== source.id) {
-      focusStages();
+      focusBoard();
     } else if (opener.element.isConnected) {
       opener.element.focus();
     } else if (opener.work !== undefined) {
       returnFocusTo({ ...opener.work, link: undefined });
     } else {
-      focusStages();
+      focusBoard();
     }
   }, [route.view, source.id, work]);
 

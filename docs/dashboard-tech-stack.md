@@ -6,27 +6,27 @@
 
 ## First-story application
 
-The first overview, for Open Dough's public GitHub `main` and launched locally,
+The first Board, for Open Dough's public GitHub `main` and launched locally,
 is built and described in the [dashboard README](../dashboard/README.md).
-That bounded overview uses the simpler static UI/browser-read option below,
+That bounded Board uses the simpler static UI/browser-read option below,
 with React, strict TypeScript, Vite, runtime validation, and one new behavioral
 suite: Playwright on Chromium. Include type checking, lint, production build,
 and the browser suite in existing CI; preserve existing repository tests.
 No application read server, Vitest/component-test layer, browser matrix,
-sign-in, or hosted deployment is required by that overview. Every project now
+sign-in, or hosted deployment is required by that Board. Every project now
 reads through a local `gh` read boundary; see the
 [dashboard README](../dashboard/README.md) for current behavior.
 
-The interface direction is an animated, zoomable **connected-stage view**.
+The interface direction is an animated, zoomable **Board view**.
 The first story needs a readable connection between Backlog and Taken, entry
-facts, evidence links, and refresh. Begin with semantic HTML work cards and
+facts, evidence links, and refresh. Begin with semantic HTML Story cards and
 controls, ordinary CSS layout, and simple SVG connectors if useful. Wrapping,
 reflow, and scrolling may be sufficient now. Add transforms, viewport state,
 or motion only for a demonstrated reading or orientation need. This is an initial
 implementation direction, not a canvas prohibition: choose a different renderer
 only for a demonstrated need, preserving accessible content and controls.
 Neither a graph-layout engine nor an animation framework is a prerequisite for
-two connected stages. If navigation or animation is introduced, keep its state
+two connected Columns. If navigation or animation is introduced, keep its state
 separate from published facts, honor reduced motion, and retain normal browser
 page zoom. The same Playwright suite covers the actual reading/navigation and
 refresh behavior; no speculative test layer is added for the longer-term UX.
@@ -219,120 +219,11 @@ JSON object is not enough to establish truthful progress.
 
 ## Obtaining published Git data with minimal runtime
 
-Implement **one** host adapter for the actual origin once identified. Do not
-build a provider plugin system. If it is GitHub, its REST APIs can list
-[branches](https://docs.github.com/en/rest/branches/branches), read
-[trees](https://docs.github.com/en/rest/git/trees), and inspect
-[commits/history](https://docs.github.com/en/rest/commits/commits). This is a
-concrete feasible route, not evidence that the observed project uses GitHub.
-
-Resolve trunk and the relevant remote refs to commit IDs before reading their
-files. Read each ref's records at that pinned revision. Discover supported story
-homes as well as backlog links, including relevant branch-only records; do not
-limit discovery to Taken entries. Reconcile by recorded identity with provenance.
-Read Story Branch Mode progress from its recorded remote execution branch, and
-Trunk Mode progress from trunk. Do not overlay every branch copy of the backlog
-onto trunk or infer ownership from a branch naming convention. The exact
-cross-ref authority rules remain a domain decision.
-
-Multiple refs are not an atomic global snapshot. Report the resolved revision
-set and observation time. If a ref disappears or required content becomes
-unavailable during a read, report that scope as incomplete rather than silently
-substituting the latest trunk content. Branch removal, file deletion, and
-unreachability do not independently prove story completion. History can recover
-published evidence after cleanup only while the relevant commits remain
-available from origin; Git hosting is not a guarantee of permanent access to
-deleted, unreachable branch history.
-
-Follow pagination and detect truncated tree responses. Traverse the relevant
-subtrees when necessary. Bound requests, file sizes, history exploration, and
-timeouts; expose an incomplete view if limits prevent a complete read. Read
-history where a requested fact needs it, not every commit on every refresh.
-Check the published revision on a paced schedule while the page is visible, use
-conditional requests when supported, and show explicit rate-limit/error states
-rather than polling tightly. GitHub documents
-[conditional requests and rate-limit handling](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api).
-
-The Node adapter should expose a small read endpoint for this fixed project and
-serve the built UI, using transient memory only. No arbitrary repository URL,
-general proxy endpoint, clone scanning, or Git subprocess is needed for the
-host-API route. If the actual origin lacks suitable APIs, reassess a disposable
-bare fetch of that origin as the specific fallback. That would be a rebuildable
-Git cache, never a developer checkout or separate project-state authority, and
-is not part of the recommended initial host-API runtime.
-
-For public GitHub data, direct browser access is technically possible through
-its documented [CORS support](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests).
-Public access can be unauthenticated, but request volume and host limits still
-matter. Choose that smaller deployment only after verifying access and the
-actual record volume; it should not require a token pasted into the UI.
-
-For private access, keep a narrowly scoped read credential in the reader's
-runtime environment. Never include it in browser JavaScript, responses, logs,
-or browser storage. Vite explicitly exposes `VITE_` variables to client code;
-they cannot hold secrets. [Vite environment documentation](https://vite.dev/guide/env-and-mode)
-For a single-user local launch, bind the reader to loopback and read origin over
-the network. For hosted private use, place it behind an existing access boundary
-that protects both UI and data endpoint; otherwise a server-held token merely
-turns private Git data into a public API. Hosting/access must be resolved before
-that deployment, without building an account or authentication platform here.
-
-Start with no persistent cache. Optional browser preferences may store filters
-or display choices. An optional snapshot cache must be disposable, validated,
-versioned, tied to repository/revision, and visibly stale until refreshed. It
-must not become the only home of assignment or progress. Avoid persisting
-private source content by default. Clearing browser storage or restarting the
-reader must lose no authoritative project state.
+See the [published Git data recommendation](dashboard-published-git-data.md).
 
 ## Testing and developer workflow
 
-Playwright is the recommended browser runner. It supports Chromium, Firefox,
-and WebKit, and offers role-based locators, waiting assertions, isolation, and
-failure traces. Use behavior assertions instead of implementation selectors
-or arbitrary sleeps. [Playwright introduction](https://playwright.dev/docs/intro),
-[best practices](https://playwright.dev/docs/best-practices)
-
-| Layer | Useful proof |
-| --- | --- |
-| Compiler and lint | No unchecked boundary escapes, missing union cases, or unhandled promises in the dashboard code. |
-| Vitest domain examples | Story outside backlog; legacy identity; unknown owner; independent refinement/planning; branch/trunk progress; valid planless execution; conflicting records. Test the interpretation, not just a parser returning its input. |
-| Reader contract/integration | Controlled host responses for pagination, truncated trees, moving/deleted refs, malformed blobs, access failures, and rate limits. Assert pinned-commit reads, provenance, bounded failure, and no false completion. |
-| Playwright browser journeys | A user can find recorded stories, inspect source evidence, distinguish Taken from live activity, see completed slices for each execution mode, and understand stale/partial/error states. Verify keyboard use and accessible names on real interactions. |
-| Small full-path test | Built UI through the real reader and parsers against a local HTTP fixture serving representative remote records. Catch contract drift that independently mocked UI and reader tests would miss. |
-| Deployment smoke | Once host/access is selected, perform a read-only smoke against the real configured origin. It proves connectivity and format compatibility, not every behavior; it need not make ordinary CI depend on private credentials or live Git availability. |
-
-Mock at the host boundary for full-path tests. Playwright's browser
-[network interception](https://playwright.dev/docs/mock) is useful for focused UI
-cases, but cannot intercept the Node reader's outbound requests; that reader
-needs an injected transport or test host endpoint. Keep test endpoint overrides
-out of production's fixed-project request surface.
-
-Use Chromium for frequent local feedback and a small core journey across
-Chromium, Firefox, and WebKit in CI; avoid multiplying every parser example by
-every browser. Visual snapshots can protect a settled layout later, but do not
-replace assertions about the displayed evidence.
-
-Vitest is complementary to Playwright, not a competing end-to-end runner. A
-DOM-only component runner would miss browser layout and interaction behavior;
-do not add it merely to repeat the browser journeys. Cypress is a credible
-alternative, but offers no demonstrated advantage for this new TypeScript
-read-only dashboard; its documented browser/test-model tradeoffs can be
-revisited if a concrete requirement favors it. [Cypress tradeoffs](https://docs.cypress.io/app/references/trade-offs)
-
-Keep one npm lockfile and a clearly bounded dashboard directory, with domain,
-remote reading, and UI responsibilities close to their relevant tests. Keep it
-outside the installed skills payload. Local development should offer one
-documented command for Vite plus the reader, an offline fixture mode, a compiler
-watch, and focused test commands. Production builds should compile the reader
-and produce static UI assets; Vite's development server is not the production
-application server.
-
-CI should retain existing repository checks and add dashboard type checking,
-linting, Vitest, a production build, and the selected Playwright journeys.
-Neither Vite nor Playwright execution guarantees type correctness:
-[Playwright explicitly requires separate type checking](https://playwright.dev/docs/test-typescript).
-Install the chosen runner's browser binaries in CI and keep failure traces
-available for diagnosis. This document adds no scripts or executable slice plan.
+See the [testing and developer workflow recommendation](dashboard-development-workflow.md).
 
 ## Decisions still needed
 
@@ -345,7 +236,7 @@ available for diagnosis. This document adds no scripts or executable slice plan.
 3. **Evidence contract:** supported story-home/refinement/plan formats, new
    owner/mode/branch fields, legacy handling, and cross-ref precedence. Until
    records establish these facts, show unknown or incomplete evidence.
-4. **Presentation detail:** the UX direction selects connected stages, zoom,
+4. **Presentation detail:** the UX direction selects connected Columns, zoom,
    focus, and meaningful animation. Exact geometry and rendering choices can be
    refined during implementation. A dependency graph, timeline, historical
    completion catalog, and editing surface remain outside the first story.

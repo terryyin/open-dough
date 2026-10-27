@@ -11,7 +11,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { back, settings } from "./support/systemSettingsPage.ts";
 import {

@@ -1,6 +1,6 @@
 // A fixed captured comparison reads only its original common repository and objects.
 import { isEstablishedOneShot } from "../src/launchRecord.ts";
-import type { StoryReview } from "../src/storyReview.ts";
+import type { StoryReview } from "../src/storyReviewContract.ts";
 import {
   landedReviewContextSchema,
   type ReviewLandedRun,

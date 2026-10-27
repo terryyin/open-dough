@@ -3,7 +3,7 @@ import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
+import { openStoryReview, reviewRegion } from "./support/storyReviewMark.ts";
 import { integrateTrunk, markedWorktree } from "./support/storyReviewTrunk.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
 import { commitAll, writeAt } from "./support/storyReviewWorktree.ts";
@@ -18,7 +18,10 @@ for (const conflicted of [false, true]) {
     const story = markedWorktree(origin);
     integrateTrunk(origin, story, conflicted ? "c story and trunk" : undefined);
     await keepLaunchRecord(dashboard, story.workspace);
-    const snapshot = await openReview(page, await openBacklog(page, origin));
+    const snapshot = await openStoryReview(
+      page,
+      await openBacklog(page, origin),
+    );
     const review = reviewRegion(page);
     expect(snapshot.mark).toBeUndefined();
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
@@ -94,7 +97,7 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
   const story = markedWorktree(origin);
   integrateTrunk(origin, story, "c 5");
   await keepLaunchRecord(dashboard, story.workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review
@@ -142,7 +145,7 @@ test("a clean integration of disjoint changes in one file shows only the story e
   commitAll(story.workspace, "story changes a on a separate line");
   integrateTrunk(origin, story, "c trunk");
   await keepLaunchRecord(dashboard, story.workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review

@@ -1,9 +1,9 @@
-// A story review snapshot's changed files (`../src/storyReview.ts`) as Git's
+// A story review snapshot's changed files (`../src/storyReviewContract.ts`) as Git's
 // rename-detecting tree diff prints them (`./storyReviewSnapshot.ts`): the
 // files from `--name-status -M -z`, each joined by its path with its added
 // and removed line counts from `--numstat -M -z` over the same comparison.
 
-import type { LineCounts, ReviewedFile } from "../src/storyReview.ts";
+import type { LineCounts, ReviewedFile } from "../src/storyReviewContract.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 
 // Complete tree comparisons keep rename detection, kinds, and counts

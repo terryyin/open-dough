@@ -48,7 +48,7 @@ export async function untilPageReadsAnswered(page: Page): Promise<void> {
 }
 
 // Waits until every read of the published work the page has sent is answered
-// or has failed: the stages, or the problem shown in their place, then come
+// or has failed: the board, or the problem shown in their place, then come
 // from nothing still on its way, so an expectation about a card is bounded by
 // the page's rendering, not by how long GitHub took. A journey's first card
 // check after an open waits here first (`expectMembership` and

@@ -1,7 +1,7 @@
 // A committed Open Dough origin whose queued Story C has a long title
 // (./launchJourney.ts fixtures), and its Start refinement dialog opened on a
 // project that installs the real refinement skill's options
-// (./launchCardPage.ts).
+// (./launchStoryCardPage.ts).
 
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -16,7 +16,7 @@ import {
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
-import { installRefinementSkill } from "./launchCardPage.ts";
+import { installRefinementSkill } from "./launchStoryCardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 export const longTitle =

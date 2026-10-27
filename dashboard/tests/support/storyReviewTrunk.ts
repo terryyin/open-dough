@@ -9,7 +9,11 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
-import { markReviewed, openReview, reviewRegion } from "./storyReviewMark.ts";
+import {
+  markReviewed,
+  openStoryReview,
+  reviewRegion,
+} from "./storyReviewMark.ts";
 import {
   addStoryWorktree,
   commitAll,
@@ -54,7 +58,7 @@ export async function markStoryReview(
   prepare?.(story.workspace);
   await keepLaunchRecord(dashboard, story.workspace);
   const card = await openBacklog(page, origin);
-  const marked = await openReview(page, card);
+  const marked = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
   return { story, card, review, marked };

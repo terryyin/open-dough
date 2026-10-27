@@ -23,7 +23,7 @@ import {
   type DashboardServer,
 } from "./support/dashboardServer.ts";
 import type { FakeClaudeOptions } from "./support/fakeClaude.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { afterFurtherListings, becomes } from "./support/sessionAlerts.ts";
 
 const test = base.extend<{
@@ -54,7 +54,7 @@ const noteOf = (page: Page) => page.getByText(/Alerts unavailable/);
 // Opens the page with the sidebar open, after the server has probed.
 async function openSidebar(server: DashboardServer, page: Page) {
   await page.goto(server.baseURL);
-  const { sidebar, button } = sidebarParts(page);
+  const { sidebar, button } = sessionsSidebarParts(page);
   await button.click();
   await expect(sidebar).toBeVisible();
   return { sidebar, button };
@@ -96,7 +96,7 @@ test.describe("no Open Dough sender set up, only terminal-notifier on PATH", () 
     expect(server.notifierProbes()).toEqual([]);
 
     await page.goto(server.baseURL);
-    const { sidebar, button } = sidebarParts(page);
+    const { sidebar, button } = sessionsSidebarParts(page);
     await expect(button).toHaveAccessibleName(/^Sessions/);
     await expect(noteOf(page)).toHaveCount(0);
     const closedName = await button.textContent();

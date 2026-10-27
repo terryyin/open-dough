@@ -3,7 +3,7 @@
 import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   openSessionStartReason,
   type LaunchAttemptRecord,
@@ -99,7 +99,7 @@ for (const count of [1, 2]) {
       .click();
 
     await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
-    await expect(cardSessions(card)).toHaveCount(count);
+    await expect(storyCardSessions(card)).toHaveCount(count);
     await expect(start).toBeDisabled();
     await expect(start).toHaveAccessibleDescription(openSessionDescription);
     await expect(

@@ -61,7 +61,7 @@ export async function openLargeReview(
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   // The keyboard lands in the review's named content.
   await expect(reviewBody(review)).toBeFocused();
   const browser = fileBrowser(review);

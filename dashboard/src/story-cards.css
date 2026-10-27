@@ -1,0 +1,180 @@
+/* The connected columns' cards. The columns around them, and the taking of
+   work between them, are in column-frame.css; the page around them, and the
+   text styles their cards share with it, are in styles.css. main.tsx loads
+   that first, so that a rule here decides where both say something equally
+   specific, as a card's corners do under focus. */
+
+.story-cards {
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* A card's scan view: the title leads, then a quiet line of priority and
+   developer, then badges, warnings, progress, and actions, each a short
+   step below the last. Secondary facts open in its detail (story-detail.css).
+   Its fill and corners follow the frame's raised surfaces. */
+.story-card {
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+}
+
+/* Each part of the card is spaced by the card's own gap. */
+.story-card > .story-card-frame > * {
+  margin-top: 0;
+}
+
+.story-card h3 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+}
+
+/* Priority and the assigned or preparing developer, on one wrapping line. */
+.story-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.story-card-meta:empty {
+  display: none;
+}
+
+/* A gap in the assignment reads on its own line, beside what it affects. */
+.story-card-meta > .assignment-gap {
+  flex-basis: 100%;
+}
+
+/* A card's related actions, its launch group and its inspection group, each
+   on one line while the card is wide enough and wrapping in reading order when
+   it is not. */
+.story-card-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.story-card-priority {
+  font-weight: 600;
+}
+
+.badge-legend ul {
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.badge-legend .quiet {
+  margin-top: 0.5rem;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--edge);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.badge-not-refined {
+  color: #3a3a36;
+  background: #d9d9d2;
+  border-color: #8a8a82;
+}
+
+.badge-refined {
+  color: #0b3d73;
+  background: #d5e6f7;
+  border-color: #1b5fa8;
+}
+
+.badge-slice-planned {
+  color: #4a1d73;
+  background: #eadcf5;
+  border-color: #7a3fb0;
+}
+
+.badge-ready {
+  color: #0f4a28;
+  background: #d8f0e0;
+  border-color: #2f7a4a;
+}
+
+.badge-planless {
+  color: var(--text);
+  background: var(--raised-surface);
+  border-color: var(--edge);
+}
+
+.badge-not-recorded {
+  color: var(--quiet);
+  background: var(--raised-surface);
+  border-color: var(--line);
+}
+
+/* Dependencies are ordinary waiting work, not an evidence problem. */
+.badge-blocked-by-dependencies,
+.badge-changed-since-review {
+  color: var(--text);
+  background: var(--raised-surface);
+  border-color: var(--edge);
+}
+
+.badge-not-ready,
+.badge-plan-association-conflict {
+  color: var(--problem);
+  background: #f8e8e8;
+  border-color: var(--problem);
+}
+
+/* A gap in the published records beside the fact it leaves unknown; an
+   assignment gap is one the agent profiles leave, or a credited human who
+   cannot be named. */
+.preparation-problem,
+.assignment-gap {
+  color: var(--problem);
+  font-size: 0.9rem;
+}
+
+.story-card-links {
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.story-card-links a {
+  color: var(--accent);
+}
+
+.link-role {
+  font-weight: 600;
+}
+
+/* Focus returned to a card stays below the Column heading where the window
+   is tall enough to keep that heading in sight. */
+@media (min-height: 30rem) {
+  .story-card,
+  .story-card a,
+  .story-card button {
+    scroll-margin-top: 5rem;
+  }
+}

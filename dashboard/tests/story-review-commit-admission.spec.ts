@@ -1,6 +1,6 @@
 // Range admission accepts object points and exact optional integration evidence,
 // while preserving the review's read-only story-workspace boundary.
-import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
+import { storyReviewRangeEndpoint } from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";

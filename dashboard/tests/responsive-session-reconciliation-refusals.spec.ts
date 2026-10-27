@@ -9,8 +9,12 @@
 // answer kept on it.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, expectSettledPage, parts } from "./dashboardPage.ts";
-import { expectStartNote } from "./cardControls.ts";
+import {
+  storyCardSessions,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
@@ -95,7 +99,7 @@ test("a start refused because another writer removed the story publishes nothing
   );
 
   await expect(
-    parts(page).stages.getByRole("article", { name: "Story A" }),
+    parts(page).board.getByRole("article", { name: "Story A" }),
   ).toHaveCount(0, { timeout: 30_000 });
   await expectSettledPage(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
@@ -134,7 +138,7 @@ test("a one-shot refinement publishes nothing: once its session settles, a fresh
   // The fresh read is held: settling alone returns nothing.
   const releaseRef = published.hold("main");
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 

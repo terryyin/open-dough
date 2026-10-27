@@ -1,6 +1,6 @@
 :root {
   --surface: #f6f6f3;
-  --panel: #ffffff;
+  --raised-surface: #ffffff;
   /* Decorative separation only; every group it outlines is also a headed
      region or a list item, so nothing is told by this faint line alone. */
   --line: #c9c9c1;
@@ -94,7 +94,7 @@ h3 {
 }
 
 code,
-.card-identity,
+.record-identity,
 .link-target {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.85rem;
@@ -169,14 +169,14 @@ main {
 .source dt,
 .source-note,
 .quiet,
-.stage-count,
-.card-priority,
-.card-identity,
+.column-count,
+.story-card-priority,
+.record-identity,
 .link-note {
   color: var(--quiet);
   font-size: 0.9rem;
 }
 
-.card-identity {
+.record-identity {
   margin-top: 0.15rem;
 }

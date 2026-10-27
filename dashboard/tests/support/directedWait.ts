@@ -16,8 +16,12 @@ export async function untilReported(
   answeredAtMs: number,
   retryAfterSeconds: number,
 ): Promise<void> {
-  const left = answeredAtMs + retryAfterSeconds * 1000 - Date.now();
-  if (left > 0) {
+  const deadline = answeredAtMs + retryAfterSeconds * 1000;
+  for (
+    let left = deadline - Date.now();
+    left > 0;
+    left = deadline - Date.now()
+  ) {
     await new Promise((resolve) => setTimeout(resolve, left));
   }
 }

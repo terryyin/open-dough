@@ -1,7 +1,7 @@
 // The snapshot's first-parent line, newest first, with a contiguous range
 // chosen by its two ends. Every item within the range states its membership.
 import { Moment } from "./Moment.tsx";
-import { reviewItemId, type ReviewItem } from "./storyReview.ts";
+import { reviewItemId, type ReviewItem } from "./storyReviewContract.ts";
 import "./story-review-commits.css";
 
 export function CommitList({

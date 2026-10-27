@@ -1,5 +1,6 @@
 // Keep a chosen part of the page readable while layout and native scrolling
 // settle, until the developer moves around the page themselves.
+import { readingBounds } from "./boardScroll.ts";
 import { showColumnHolding } from "./columnPaging.ts";
 import { prefersReducedMotion } from "./reducedMotion.ts";
 
@@ -8,11 +9,13 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 
 // Scrolls a part of the page, such as a work's card, into view, smoothly or,
 // when the developer asks for reduced motion, at once, leaving the keyboard
-// where it is; a dashboard column that hides it shows first. It keeps the
+// where it is; a Board Column that hides it shows first. It keeps the
 // part's beginning in view while the page changes size around it, as when
 // facts read after the stories lengthen the cards above it, until the developer
 // scrolls, points, or types, or the returned stop is called.
 export function keepInView(element: Element): () => void {
+  const content = element.closest(".board-row") ?? element;
+  const region = element.closest(".board-scroll, .roster-scroll");
   const show = () => {
     window.addEventListener("scroll", progressed, true);
     window.addEventListener("scrollend", settled, true);
@@ -27,20 +30,23 @@ export function keepInView(element: Element): () => void {
   // moves the page again, including one already made when observing first
   // reports it, as when a hidden column shows.
   const sizeOf = () => {
-    const { width, height } = document.body.getBoundingClientRect();
-    return `${String(width)} ${String(height)}`;
+    return [content, region]
+      .map((part) => {
+        const at = part?.getBoundingClientRect();
+        return `${String(at?.width)} ${String(at?.height)}`;
+      })
+      .join(" ");
   };
   const readable = () => {
     const at = element.getBoundingClientRect();
-    const padding = getComputedStyle(document.documentElement);
+    const bounds = readingBounds(element);
     const visibleOn = (start: number, end: number, low: number, high: number) =>
       ((start + end) / 2 >= low && (start + end) / 2 <= high) ||
       (start <= low && end >= high);
     return (
-      at.top >= (Number.parseFloat(padding.scrollPaddingTop) || 0) &&
-      at.top <=
-        innerHeight - (Number.parseFloat(padding.scrollPaddingBottom) || 0) &&
-      visibleOn(at.left, at.right, 0, innerWidth)
+      at.top >= bounds.top &&
+      at.top <= bounds.bottom &&
+      visibleOn(at.left, at.right, bounds.left, bounds.right)
     );
   };
   const stopSettling = () => {
@@ -65,7 +71,8 @@ export function keepInView(element: Element): () => void {
     size = now;
     show();
   });
-  resized.observe(document.body);
+  resized.observe(content);
+  if (region) resized.observe(region);
   const stopKeeping = () => {
     stopSettling();
     resized.disconnect();

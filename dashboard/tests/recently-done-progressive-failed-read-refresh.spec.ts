@@ -15,7 +15,7 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { rem } from "./dashboardColumnsPage.ts";
+import { rem } from "./boardPage.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { noConnection } from "./originAnswers.ts";
 import { doneDirectory } from "./recentlyDoneProgressive.ts";

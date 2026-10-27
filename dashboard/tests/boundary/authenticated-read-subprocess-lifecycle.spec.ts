@@ -14,7 +14,7 @@
 // revision checks share the same cancellation ownership; cases differ only by
 // URL shape. Every catalog source reaches that ownership through the same
 // code, so each read kind is exercised for one source; which source is asked
-// is covered in ../authenticated-project-overview.spec.ts. A page that
+// is covered in ../authenticated-project-observation.spec.ts. A page that
 // abandons a check -- on hiding, a new read, or a project switch --
 // disconnects the same way.
 //

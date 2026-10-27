@@ -18,7 +18,7 @@ import { realpathSync } from "node:fs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { attempts, keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSession, startSessionDialog } from "./launchCardPage.ts";
+import { startSession, startSessionDialog } from "./launchStoryCardPage.ts";
 import { status } from "./support/defaultCheckoutChanges.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";

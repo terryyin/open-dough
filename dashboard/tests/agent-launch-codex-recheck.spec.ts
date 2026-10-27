@@ -1,7 +1,7 @@
 // Codex Recheck rereads startup evidence without requesting native verification;
 // a direct verification request is refused without changing the attempt.
 import { agentVerifyEndpoint } from "../src/agentLaunch.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 import { attempts, launch, refinementRequest } from "./agentLaunchBoundary.ts";
 import { rawRequest } from "./support/rawHttp.ts";

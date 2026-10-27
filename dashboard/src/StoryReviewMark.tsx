@@ -1,5 +1,5 @@
-// What a story's review (`./StoryReviewPanel.tsx`) says of the story's mark
-// (`./storyReview.ts`), and Mark reviewed's request to make it: the snapshot
+// What a story's review (`./StoryReview.tsx`) says of the story's mark
+// (`./storyReviewContract.ts`), and Mark reviewed's request to make it: the snapshot
 // shown is marked, or an earlier one is, and when -- and why the earlier
 // review cannot be compared when its snapshot cannot be read or this
 // machine's Git cannot leave trunk's changes out of it; or, heading
@@ -26,7 +26,7 @@ import {
   type ReviewMark,
   type TakenStoryReview,
   type ReviewItem,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import "./story-review-marking.css";
 
 // Asks the boundary to mark the snapshot named reviewed: the story's mark,

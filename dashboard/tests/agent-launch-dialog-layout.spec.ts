@@ -19,7 +19,10 @@ import {
   expectNoSidewaysScrollIn,
 } from "./pageLayout.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { shippedRefinementDefinition, showOptions } from "./launchCardPage.ts";
+import {
+  shippedRefinementDefinition,
+  showOptions,
+} from "./launchStoryCardPage.ts";
 import { notRefinedIdentity } from "./launchJourney.ts";
 import {
   longTitle,

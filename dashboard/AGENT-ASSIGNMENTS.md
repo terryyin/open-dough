@@ -11,7 +11,7 @@ A Story Branch Mode profile's branch is shown there as branch context, never
 as work on trunk. A host or model the profile does not record is shown as not
 recorded, and a Taken entry without a profile shows "Owner not recorded" on
 the card. A profile the shared reader cannot read, or one naming another agent
-than its file, is listed with the Taken stage as unreadable and matched to no
+than its file, is listed with the Taken Column as unreadable and matched to no
 entry. A revision without a profile directory simply has no profiles. What a
 profile means is decided by the shared profile module under
 `src/skills/dough-product-backlog/scripts/`.

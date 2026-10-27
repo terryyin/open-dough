@@ -1,18 +1,15 @@
-// Cards count listed sessions needing attention by each entry's reading.
-// Working, unavailable and unknown sessions add none; every affected session
-// counts until work resumes or it is marked done. Backlog, Preparing and Taken
-// preserve membership and origin's published facts. Counts belong to their
-// project and are read afresh from Claude Code's listing on return or reload.
-// Stories leaving every list keep affected sessions, reasons and Open terminal
-// in local Taken. Only synthetic `claude` (./fixtures/fake-claude) launches;
-// the page clock stays still unless this journey advances it.
+// Cards count listed sessions needing attention until work resumes or Done;
+// Working/unavailable/unknown add none. Origin keeps Backlog/Preparing/Taken
+// facts; counts are project-local and reread from synthetic Claude on return
+// or reload. Departed stories keep affected local Taken sessions/reasons and
+// Open terminal. Page time stays still unless the journey advances it.
 
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
-  cardAttentionOf,
-  cardSessionOf,
-  cardSessions,
+  storyCardAttentionOf,
+  storyCardSessionOf,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -21,10 +18,10 @@ import {
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   readyStory,
   takenStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectNotReloaded,
@@ -32,7 +29,7 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "./sessionStatePace.ts";
-import { openStoryStagesJourney, type Workflow } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 
@@ -49,14 +46,14 @@ const publishedFactsOf = async (card: Locator) => {
         // Readiness (badges, each credited human) and capture share one
         // turn: a new snapshot may begin reading after an assertion passed.
         if (
-          !element.querySelector(".card-preparation .badge-row") ||
+          !element.querySelector(".story-card-preparation .badge-row") ||
           /Reading [^…]*…/.test(element.textContent) ||
           element.querySelector(".owner-line:not(:has([class*=owner-human-]))")
         )
           return null;
         const copy = element.cloneNode(true) as HTMLElement;
         const counted = copy.querySelectorAll(
-          ".card-sessions, .card-attention, .card-session-open-reason",
+          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason",
         );
         for (const part of counted) part.remove();
         return copy.textContent;
@@ -68,13 +65,13 @@ const publishedFactsOf = async (card: Locator) => {
 };
 
 test.describe("a story's card counts the sessions that need attention", () => {
-  let stagesJourney: StoryStagesJourney;
+  let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);
-    stagesJourney = await publishStoryStagesJourney();
+    columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
-    (stagesJourney as StoryStagesJourney | undefined)?.cleanup(),
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
   test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in local Taken", async ({
@@ -84,22 +81,22 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
     dashboard.claudeScenario("launched");
-    const { settled, show, launch } = await openStoryStagesJourney(
+    const { settled, show, launch } = await openStoryColumnsJourney(
       page,
-      stagesJourney,
+      columnsJourney,
     );
-    const { stages, project, taken } = parts(page);
+    const { board, project, taken } = parts(page);
     const card = (title: string) =>
-      stages.getByRole("article", { name: title, exact: true });
+      board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
-      cardSessionOf(card(title), workflow);
+      storyCardSessionOf(card(title), workflow);
     // The words each card with affected sessions shows; every other card
     // shows none.
     const expectCounted = async (counts: Record<string, string>) => {
       for (const [title, words] of Object.entries(counts)) {
-        await expect(cardAttentionOf(card(title))).toHaveText(words);
+        await expect(storyCardAttentionOf(card(title))).toHaveText(words);
       }
-      await expect(cardAttentionOf(stages)).toHaveCount(
+      await expect(storyCardAttentionOf(board)).toHaveCount(
         Object.keys(counts).length,
       );
     };
@@ -168,7 +165,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     });
 
     await test.step("a Preparing card counts the same way, and resumed work lowers its count without changing what origin publishes", async () => {
-      await show(stagesJourney.preparing);
+      await show(columnsJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
         card(readyStory).getByText("Preparing", { exact: true }),
@@ -183,22 +180,22 @@ test.describe("a story's card counts the sessions that need attention", () => {
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
     });
 
-    const takenStages = {
+    const takenColumns = {
       taken: [readyStory],
       backlog: [takenStory, notRefinedStory],
     };
     await test.step("a Taken card counts the same way, and marking its last affected session done leaves no count", async () => {
       becomes(readyStory, "Execution", "stopped");
       await passOnePace();
-      await show(stagesJourney.taken);
-      await expectMembership(page, takenStages);
+      await show(columnsJourney.taken);
+      await expectMembership(page, takenColumns);
       const takenFacts = await publishedFactsOf(card(readyStory));
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
 
       await markDoneAnyway(entryOf(readyStory, "Execution"));
       await expect(entryOf(readyStory, "Execution")).toHaveCount(0);
       await expectCounted({ [notRefinedStory]: one });
-      await expectMembership(page, takenStages);
+      await expectMembership(page, takenColumns);
       expect(await publishedFactsOf(card(readyStory))).toBe(takenFacts);
     });
 
@@ -210,7 +207,9 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await launch(doughnutSharedTitle, "Execution");
       await expectCounted({});
       dashboard.claudeSessionBecomes(
-        await sessionNamedBy(cardSessions(card(doughnutSharedTitle)).first()),
+        await sessionNamedBy(
+          storyCardSessions(card(doughnutSharedTitle)).first(),
+        ),
         "blocked",
       );
       // Open Dough's session fails while Doughnut is shown.
@@ -231,7 +230,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("a story that leaves every list keeps its affected session, with its reason and Open terminal, in local Taken", async () => {
       becomes(notRefinedStory, "Execution", "done-live");
       await passOnePace();
-      await show(stagesJourney.completed);
+      await show(columnsJourney.completed);
       await expectMembership(page, {
         taken: [readyStory],
         backlog: [takenStory],

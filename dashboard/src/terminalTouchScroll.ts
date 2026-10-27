@@ -1,6 +1,6 @@
 import type { Terminal } from "@xterm/xterm";
 
-// xterm's scrollbar handles wheel input; one-finger movement needs to
+// The terminal scrollbar handles wheel input; one-finger movement needs to
 // move its own scrollback instead of the surrounding page. Keep partial
 // rows between moves, and leave multi-touch gestures to the browser.
 export function listenToTerminalTouchScroll(

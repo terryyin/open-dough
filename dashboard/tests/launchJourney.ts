@@ -2,7 +2,7 @@
 // local bare origin, through the production commands: the queued preparation
 // trunk (Story A and Story B Ready for execution, Story C queued last and not
 // refined), then either an execution start that takes Story A, or the
-// story-stages journey below. The browser journey serves the origin's exact Git
+// story-columns journey below. The browser journey serves the origin's exact Git
 // bytes at each revision; nothing here writes display state. The launch
 // journey is read-only once published, so ./support/pageTest.ts publishes it
 // once per worker as the `launchJourney` fixture.
@@ -67,7 +67,7 @@ function expectOk(step: string, result: { code: number; receipt: unknown }) {
   }
 }
 
-export type StoryStagesJourney = {
+export type StoryColumnsJourney = {
   readonly origin: string;
   readonly cleanup: () => Promise<void>;
   // Remote main after each published step.
@@ -80,10 +80,10 @@ export type StoryStagesJourney = {
   readonly completed: string;
 };
 
-// The origin whose stories move through the stages: queued, then Story B under a
+// The origin whose stories move through the board: queued, then Story B under a
 // published preparation assignment, then Story B taken, then Story C
 // completed out of the backlog.
-export async function publishStoryStagesJourney(): Promise<StoryStagesJourney> {
+export async function publishStoryColumnsJourney(): Promise<StoryColumnsJourney> {
   const trunk = await createPreparationTrunk();
   try {
     const queued = await remoteMain(trunk);

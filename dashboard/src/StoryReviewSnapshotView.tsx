@@ -1,4 +1,4 @@
-// A story review's snapshot (`./storyReview.ts`) as its panel's body shows
+// A story review's snapshot (`./storyReviewContract.ts`) as its panel's body shows
 // it, beneath the context line (`./StoryReviewContextLine.tsx`): the story's
 // changed files in the comparison shown, with their change kinds, in a file
 // browser the developer can hide or show. The browser shows each file by
@@ -32,7 +32,7 @@ import {
   type ReviewComparison,
   type ReviewedFile,
   type TakenStoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";

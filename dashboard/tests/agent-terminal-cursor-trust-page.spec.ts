@@ -1,5 +1,6 @@
 // A joined current-screen replay is restored at its held dimensions before
 // xterm fits it to the panel. This uses the actual browser consumer and PTY.
+import { showColumn } from "./boardPage.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/cursorStart.ts";
@@ -54,6 +55,7 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
   const open = page
     .locator(".session-entry")
     .getByRole("button", { name: "Open terminal" });
+  await showColumn(page, "Taken");
   await open.click();
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
@@ -79,6 +81,7 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(panel).toHaveCount(0);
   await page.setViewportSize({ width: 1100, height: 800 });
+  await showColumn(page, "Taken");
   await open.click();
   await expect(rows).toContainText("[q] Quit");
   await expect(prompt).toHaveClass(/xterm-bold/);

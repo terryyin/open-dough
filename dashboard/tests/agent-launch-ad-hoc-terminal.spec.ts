@@ -1,18 +1,18 @@
 // A confirmed ad hoc launch opens its session in the page's terminal at once,
-// on the committed origin of ./agent-launch-card.spec.ts (./launchJourney.ts):
+// on the committed origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, a polite
-// status says it started, the session's entry and sidebar entry show it, and
-// the page does not scroll. Close detaches only and returns the keyboard to
+// status says it started, the session's entry and Sessions sidebar Session entry show it, and
+// the Board does not scroll. Close detaches only and returns the keyboard to
 // Start session. The synthetic `claude` (./fixtures/fake-claude) echoes what
 // is typed; the real one is never reached.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
+import { openTakenBacklog, startSessionField } from "./launchStoryCardPage.ts";
 import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 
 test.setTimeout(120_000);
 
@@ -93,18 +93,20 @@ for (const text of ["why is the CI slow on main?", ""]) {
     const rows = panel.locator(".xterm-rows");
     const { taken } = parts(page);
 
-    // A window short enough that the page scrolls well past 40 px both
+    // A window short enough that the Board scrolls well past 40 px both
     // before the launch and once the terminal shares the window with it,
     // whatever the fonts make its length, so a kept position is the page's
     // own and not one the window forces.
     await page.setViewportSize({ width: 1280, height: 480 });
-    await page.evaluate(() => {
-      window.scrollTo(0, 40);
+    await page.locator(".board-scroll").evaluate((region) => {
+      region.scrollTo(0, 40);
     });
     await button.click();
     await expect(dialog).toBeVisible();
     // Where the page is once the dialog is open; the launch does not move it.
-    const scroll = await page.evaluate(() => window.scrollY);
+    const scroll = await page
+      .locator(".board-scroll")
+      .evaluate((region) => region.scrollTop);
     expect(scroll).toBeGreaterThan(0);
     if (text !== "") {
       await startSessionField(dialog).fill(text);
@@ -128,8 +130,12 @@ for (const text of ["why is the CI slow on main?", ""]) {
 
     await expect(parts(page).adHocStarted).toBeVisible();
     await expect(entry).toContainText("Shown in terminal");
-    expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
-    const { button: sessions, entries } = sidebarParts(page);
+    expect(
+      await page
+        .locator(".board-scroll")
+        .evaluate((region) => region.scrollTop),
+    ).toBe(scroll);
+    const { button: sessions, entries } = sessionsSidebarParts(page);
     await sessions.click();
     await expect(entries.first().getByRole("button")).toHaveAttribute(
       "aria-current",

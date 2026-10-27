@@ -1,23 +1,23 @@
 // A disposed socket cannot control a later mounted attachment of the same request.
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "./support/codexLaunch.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { storeFile, save, retained } from "./support/retainedReport.ts";
 import { codexAttaches } from "./support/codexTerminal.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 test("a disposed attachment cannot redirect or write into a current retry of the same session request", async ({
   page,
@@ -48,9 +48,9 @@ test("a disposed attachment cannot redirect or write into a current retry of the
     if (new URL(request.url()).pathname === "/__agent-launch/result")
       resultReads++;
   });
-  const { card, settled } = await openStoryStagesJourney(page, journey);
+  const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   const panel = page.getByRole("region", { name: "Terminal", exact: true });

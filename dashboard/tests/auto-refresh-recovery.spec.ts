@@ -51,7 +51,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, stages, problem } = parts(page);
+  const { source, board, problem } = parts(page);
   const retrievedAt = source.locator("time");
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
@@ -102,7 +102,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
     await expect(source).toContainText(revisionA);
     await expect(source).not.toContainText(revisionB);
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
-    await expect(stages.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
+    await expect(board.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
     const calls = callsSince(page, beforeB);
     expect(headsChecks(calls)).toHaveLength(1);
     expect(contentReads(calls)).toEqual([
@@ -136,10 +136,10 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, stages, problem } = parts(page);
+  const { source, board, problem } = parts(page);
   const retrievedA =
     (await source.locator("time").getAttribute("datetime")) ?? "";
-  const dashboardCard = stages.getByRole("article", { name: dashboardStory });
+  const dashboardCard = board.getByRole("article", { name: dashboardStory });
   await dashboardCard.getByRole("button", { name: "Inspect story" }).click();
   const canonicalOfDashboardStory = dashboardCard.getByRole("link", {
     name: /^Canonical record/,
@@ -179,11 +179,11 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       "datetime",
       retrievedA,
     );
-    // The two stages; the inspected story's detail is a region of its card.
+    // The Board has three Columns; the inspected story's detail is a region of its card.
     await expect(
-      stages.getByRole("region").and(page.locator(":not(.story-detail)")),
-    ).toHaveCount(2);
-    await expect(stages.getByRole("article")).toHaveCount(4);
+      board.getByRole("region").and(page.locator(":not(.story-detail)")),
+    ).toHaveCount(3);
+    await expect(board.getByRole("article")).toHaveCount(4);
     await expect(canonicalOfDashboardStory).toHaveAttribute(
       "href",
       `https://github.com/terryyin/open-dough/blob/${revisionA}/.planning/seeds/SEED-021-progress.md#see-published-work`,
@@ -200,7 +200,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       [revisionA, revisionC],
     );
     await expect(
-      stages
+      board
         .getByRole("article", { name: dashboardStory })
         .getByRole("link", { name: /^Slice plan/ }),
     ).toHaveAttribute(

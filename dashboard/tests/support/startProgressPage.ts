@@ -4,18 +4,18 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { keptStarts, runningStarts } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { expectStartNote } from "../cardControls.ts";
+import { expectStartNote } from "../storyCardControls.ts";
 import { parts } from "../dashboardPage.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 
-// A page just loaded shows its stages only once its published read answers,
+// A page just loaded shows its board only once its published read answers,
 // which the server may wait on for as long as its own read bound.
-async function readStages(...viewed: Page[]): Promise<void> {
+async function readColumns(...viewed: Page[]): Promise<void> {
   for (const shown of viewed) {
-    await expect(parts(shown).stages).toBeVisible({
+    await expect(parts(shown).board).toBeVisible({
       timeout: readWaitLimitMs,
     });
   }
@@ -51,7 +51,7 @@ export async function expectStartProgress(
     exact: true,
   });
   await page.goto("/");
-  await readStages(page);
+  await readColumns(page);
   if (workflow === "execution") {
     await expect(
       backlogCard.getByText("Ready for execution", { exact: true }),
@@ -76,7 +76,7 @@ export async function expectStartProgress(
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const observer = await page.context().newPage();
   await observer.goto(dashboard.baseURL);
-  await readStages(observer);
+  await readColumns(observer);
   const observeCard = observer.getByRole("article", {
     name: "Story A",
     exact: true,
@@ -118,14 +118,14 @@ export async function expectStartProgress(
   await expect(backlogCard).toContainText(words);
   await expect(observeCard).toContainText(words);
   await observer.reload();
-  await readStages(observer);
+  await readColumns(observer);
   await expect(observeCard).toContainText(words);
   await expect(observeCard).not.toContainText(`Preparing ${workflow}…`);
   // The actual assignment is now published; phase survives new placement.
   published.advanceTo((await origin.originGit("rev-parse", "main")).trim());
   await page.reload();
   await observer.reload();
-  await readStages(page, observer);
+  await readColumns(page, observer);
   for (const viewed of [page, observer]) {
     if (workflow === "execution") {
       await expect(

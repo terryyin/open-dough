@@ -1,4 +1,4 @@
-// A story review's changed files (`./storyReview.ts`) arranged under the
+// A story review's changed files (`./storyReviewContract.ts`) arranged under the
 // folders that hold them, as its file browser shows them
 // (`./StoryReviewFileTree.tsx`). Files at the repository root sit at the
 // top level. A chain of folders that each hold only one folder is one folder
@@ -8,7 +8,7 @@
 // same snapshot always arranges the same way. The browser's order reads the
 // files from top to bottom with every folder expanded.
 
-import type { ReviewedFile } from "./storyReview.ts";
+import type { ReviewedFile } from "./storyReviewContract.ts";
 
 export type ReviewFolderNode = {
   readonly kind: "folder";

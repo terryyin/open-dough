@@ -6,7 +6,7 @@ import {
   launchRecordsSchema,
 } from "../src/agentLaunch.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { readyStory } from "./launchJourney.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";

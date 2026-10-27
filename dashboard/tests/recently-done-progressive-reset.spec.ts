@@ -11,7 +11,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { rem, showColumn } from "./dashboardColumnsPage.ts";
+import { rem, showColumn } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { entryName, revision as revisionA } from "./recentlyDoneProgressive.ts";
@@ -38,8 +38,8 @@ import {
   refreshedTo,
   retitled,
 } from "./recentlyDoneRefresh.ts";
-import { resizeEdge } from "./sidePanelWidthPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { panelDivider } from "./sidePanelWidthPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { holding } from "./support/heldGitHubAnswer.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
@@ -103,14 +103,14 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       .click();
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
     await expectEntries(recent, twenty);
-    await resizeEdge(page).focus();
+    await panelDivider(page).focus();
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
     await expectEntries(recent, twenty);
     await terminal.getByRole("button", { name: "Close" }).click();
     await expect(terminal).toHaveCount(0);
     await expectEntries(recent, twenty);
-    const { button } = sidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     await button.click();
     await button.click();
     await expectEntries(recent, twenty);

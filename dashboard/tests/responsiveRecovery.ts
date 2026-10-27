@@ -38,8 +38,8 @@ export const recoveryOf = (page: Page) =>
 // described by that status.
 export async function expectStaticallyProtected(card: Locator) {
   await expect(card).toContainText(needsReconciliation);
-  await expect(card.locator(".card-startup-progressing")).toHaveCount(0);
-  const status = card.locator(".card-startup-static").first();
+  await expect(card.locator(".story-card-startup-progressing")).toHaveCount(0);
+  const status = card.locator(".story-card-startup-static").first();
   expect(
     await status.evaluate((element) => [
       getComputedStyle(element).animationName,

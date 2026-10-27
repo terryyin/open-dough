@@ -27,7 +27,7 @@ import {
   retainedLanding,
 } from "./support/oneShotLandingRecovery.ts";
 import { landingReceiptSchema } from "../src/launchLanding.ts";
-import { storyReviewMarkEndpoint } from "../src/storyReview.ts";
+import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
 import { observeLandingRecoveryIntent } from "./support/landingRecoveryIntent.ts";
 
 test("a lost reconciled push result and record write recover the exact original launch once after retirement", async ({

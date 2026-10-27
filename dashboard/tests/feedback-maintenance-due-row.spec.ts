@@ -11,18 +11,14 @@
 // GitHub and the notification sender are fakes. Checks run every 100 ms,
 // except where a quiet report must be shown before the next check.
 
-import { rmSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import type { Page } from "@playwright/test";
-import { markDone, openDoughFolder } from "./agentLaunchBoundary.ts";
+import { markDone } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import { dayFromToday } from "./support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
@@ -37,26 +33,12 @@ import {
 } from "./support/feedbackMaintenanceServer.ts";
 import { reportingThrough } from "./support/reportedLaunch.ts";
 import { startOrigin } from "./support/startOrigin.ts";
-
-// What Open Dough's project row says of feedback maintenance.
-const row = (page: Page) =>
-  page.locator(".project-actions-end").getByRole("status");
-
-// The Feedback maintenance section's line on the due date and last launch.
-const settingsLine = (page: Page) =>
-  page
-    .getByRole("region", { name: "Feedback maintenance", exact: true })
-    .getByRole("status")
-    .filter({ hasText: "Last automatic launch" });
-
-async function openDashboard(page: Page, server: DashboardServer) {
-  await page.goto(server.baseURL);
-  await expect(startSession(page, "Open Dough")).toBeVisible();
-}
-
-async function openSettings(page: Page, server: DashboardServer) {
-  await page.goto(`${server.baseURL}/?view=settings`);
-}
+import {
+  row,
+  settingsLine,
+  openDashboard,
+  openSettings,
+} from "./feedbackMaintenanceDuePage.ts";
 
 test("the row says running while the automatic session is open and, once it ends without the date advancing, that it is still due; a developer's Start session with the invocation runs, and an advanced date clears both lines", async ({
   page,
@@ -237,42 +219,4 @@ test("an automatic session that ended unavailable without a done mark is, after 
   }
 });
 
-test("a launch held because Open Dough's default main has existing changes says so on the row and in settings, and starts once they are gone", async ({
-  page,
-  github,
-}) => {
-  test.setTimeout(120_000);
-  const origin = await startOrigin();
-  const moving = await publishMovingOrigin(github);
-  const due = dayFromToday(-1);
-  pushWatchList(moving, watchListDue(due));
-  const server = await serverOn(origin, github, "preview");
-  const leftover = path.join(openDoughFolder(server), "notes.txt");
-  try {
-    server.claudeScenario("launched");
-    writeFileSync(leftover, "unfinished\n");
-    turnOn(origin);
-    await afterFurtherChecks(moving);
-    await afterFurtherChecks(moving);
-    expect(server.claudeLaunchCalls()).toEqual([]);
-
-    const reason = "default main has existing changes (1 changed path)";
-    await openDashboard(page, server);
-    await expect(row(page)).toHaveText(
-      `Feedback maintenance due since ${due}; not started: ${reason}`,
-    );
-    await openSettings(page, server);
-    await expect(settingsLine(page)).toHaveText(
-      `Due since ${due}. Last automatic launch: not started (due ${due}): ${reason}.`,
-    );
-
-    rmSync(leftover);
-    await launchedInput(server);
-    await openDashboard(page, server);
-    await expect(row(page)).toHaveText("Feedback maintenance is running");
-    expect(server.notifierCalls()).toEqual([]);
-  } finally {
-    await server.close();
-    origin.cleanup();
-  }
-});
+import "./feedbackMaintenanceDueHeldCases.ts";

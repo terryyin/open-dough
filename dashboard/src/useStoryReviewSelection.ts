@@ -5,7 +5,7 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
   type StoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";

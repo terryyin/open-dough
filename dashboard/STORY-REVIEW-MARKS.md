@@ -76,7 +76,7 @@ without uncommitted changes carries no `committed` and offers no check, as
 Commits lists no Uncommitted changes item then; neither do Since the review,
 Commits or a landed comparison (`src/useStoryReviewComparison.ts`,
 `src/StoryReviewMark.tsx`). The check's state is the panel's
-(`src/StoryReviewPanel.tsx`): Refresh keeps it while the new snapshot still
+(`src/StoryReview.tsx`): Refresh keeps it while the new snapshot still
 holds uncommitted changes, and a snapshot that holds none resets it to on, so
 uncommitted changes appearing later are included again. Switching to Since the
 review, Commits or a landed run and back to All changes keeps it. Refresh

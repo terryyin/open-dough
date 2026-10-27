@@ -29,7 +29,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const snapshot = nextSnapshot(page);
       await tapWhereShown(action);
       const opened = await snapshot;
-      const review = page.getByRole("region", { name: "Review changes" });
+      const review = page.getByRole("region", { name: "Story review" });
       await expect(
         review.getByRole("list", { name: "7 changed files" }),
       ).toBeVisible();

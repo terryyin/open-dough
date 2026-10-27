@@ -9,7 +9,7 @@ import {
   reviewFileTree,
   type ReviewTreeNode,
 } from "../../src/reviewFileTree.ts";
-import type { ReviewedFile } from "../../src/storyReview.ts";
+import type { ReviewedFile } from "../../src/storyReviewContract.ts";
 
 // Each node as `name (count)` for a folder or `name` for a file, its rows
 // indented beneath it.

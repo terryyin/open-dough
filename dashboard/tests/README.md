@@ -61,7 +61,7 @@ Put a check where it is cheapest to prove, and prove it once:
   `project-configuration`'s empty development first start,
   `project-remove`'s removal of development's last project, the machine file
   `system-settings-openai` and `system-settings-terminal-theme` share across
-  both environments, and `frame-overview-look`'s frame with no project
+  both environments, and `frame-board-look`'s frame with no project
   configured, a state only development starts in.
 - **A layout rule is proved once per CSS branch**, in the journey whose
   state change is observed at that width (`dashboard-header.spec.ts` runs
@@ -77,7 +77,7 @@ Put a check where it is cheapest to prove, and prove it once:
   `launchJourney`); one the tests step through is one fixture per serial
   file (each production journey file's watcher, `production-watcher*.spec.ts`);
   [writing a journey](writing-journeys.md) says how each is shared. The
-  common shape is asserted in one named test (`agent-launch-card.spec.ts`,
+  common shape is asserted in one named test (`agent-launch-story-card.spec.ts`,
   "every Backlog card offers Start execution ..."), each sibling asserts
   only its difference, and a regression in one behavior fails one named
   test. The server and fake GitHub stay per test: siblings vary the server's
@@ -177,7 +177,7 @@ and their assignment to exactly one shard.
 ## Running the suite
 
 Run from the repository root; `npm run test:dashboard -- boundary/` or
-`-- --grep 'published overview'` selects files or tests, and `npx playwright
+`-- --grep 'published Board'` selects files or tests, and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs use Playwright's
 default worker count, CI runs every core.

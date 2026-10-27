@@ -10,7 +10,7 @@ import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
 import { pathChange } from "./pathHistoryAnswers.ts";
@@ -160,7 +160,7 @@ test("a Taken profile's addition walk still unanswered at the wait bound is its 
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeVisible();
-  await expect(card.locator(".card-owner .owner-human-gap")).toHaveText(
+  await expect(card.locator(".story-card-owner .owner-human-gap")).toHaveText(
     "Human developer unknown",
   );
   await expect(card).not.toContainText(
@@ -169,7 +169,7 @@ test("a Taken profile's addition walk still unanswered at the wait bound is its 
   await expect(await humanOf(card)).toHaveText(
     "Human developer unknown. GitHub did not answer within 30 seconds while reading the commit that added this agent profile.",
   );
-  await expect(card.locator(".card-owner .owner-human-gap")).toHaveText(
+  await expect(card.locator(".story-card-owner .owner-human-gap")).toHaveText(
     "Human developer unknown",
   );
   await expect(otherTaken).toContainText("Current slice started 5 min ago");

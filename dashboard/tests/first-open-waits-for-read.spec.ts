@@ -74,7 +74,7 @@ test("a published-work read that fails for good ends the wait, and the membershi
       releaseRef = resolve;
     }),
   });
-  const { status, problem, stages } = parts(page);
+  const { status, problem, board } = parts(page);
 
   await page.goto("/");
   await expect(status).toHaveText("Reading published work…");
@@ -95,8 +95,8 @@ test("a published-work read that fails for good ends the wait, and the membershi
   // Nothing is on its way and the page reads no more on its own, so the
   // check fails without waiting out an expectation's bound: it is over
   // before an expectation that was started first and can only end at that
-  // bound, the stages appearing.
-  const bound = expect(stages)
+  // bound, the board appearing.
+  const bound = expect(board)
     .toHaveCount(1)
     .then(
       () => "the bound",
@@ -148,7 +148,7 @@ machineTest(
       (request) => request.kind === "ref",
     );
     server.github.serve(everyRepository, ref.answer);
-    const { status, stages } = parts(page);
+    const { status, board } = parts(page);
     try {
       await page.goto(server.baseURL);
       await expect(status).toHaveText("Reading published work…");
@@ -167,7 +167,7 @@ machineTest(
 
       ref.release();
       await waited;
-      await expect(stages.getByRole("article").first()).toBeVisible();
+      await expect(board.getByRole("article").first()).toBeVisible();
     } finally {
       ref.release();
       await server.close();

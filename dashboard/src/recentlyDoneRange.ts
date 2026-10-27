@@ -24,7 +24,7 @@
 import { createContext, useContext, useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { untilOwnMove } from "./workFocus.ts";
+import { untilOwnMove } from "./storyCardFocus.ts";
 
 // How many entries the list starts with, and each reveal adds.
 export const doneBatch = 10;

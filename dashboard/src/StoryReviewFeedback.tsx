@@ -11,7 +11,7 @@ import {
   type ReviewComparison,
   type ReviewRange,
   type StoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import type { useReviewRead } from "./useReviewRead.ts";
 
 type RangeRead = ReturnType<typeof useReviewRead<ReviewRange>>;

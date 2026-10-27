@@ -1,9 +1,9 @@
-// What a journey expects of the dashboard page as a whole: its stages once
+// What a journey expects of the dashboard page as a whole: its board once
 // the published work is read, a settled page, a whole snapshot, a read
 // problem. The page's parts (./dashboardParts.ts) are found through here too.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { cardLaunchActions, detailToggle } from "./cardControls.ts";
+import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
 import { parts } from "./dashboardParts.ts";
 import {
   untilPageReadsAnswered,
@@ -30,14 +30,14 @@ export async function expectSnapshotButtons(
     page.getByRole("button", { name: /^Start session in / }),
   ).toHaveCount(1);
   await expect(parts(page).preparationHelp).toHaveCount(1);
-  for (const action of cardLaunchActions) {
+  for (const action of storyCardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
   await expect(page.getByRole("button", { name: detailToggle })).toHaveCount(
     shown.cards,
   );
   await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    4 + shown.backlogCards * storyCardLaunchActions.length + shown.cards,
   );
 }
 
@@ -59,18 +59,18 @@ async function readAndNothingMoreWillBeRead(page: Page): Promise<boolean> {
 const nothingMoreWillBeRead =
   "the page says the published work could not be read and it reads no more on its own";
 
-// The published story titles in each stage, excluding standalone sessions,
+// The published story titles in each column, excluding standalone sessions,
 // once no read of the published work is on its way: the titles then wait on
 // the page showing what it read, however long GitHub took to answer. When
 // the page says that read failed for good, nothing can still bring a title,
-// so what the stages show is compared at once.
+// so what the Board shows is compared at once.
 export async function expectMembership(
   page: Page,
   titles: { readonly taken: string[]; readonly backlog: string[] },
 ) {
   const { taken, backlog } = parts(page);
-  const titlesIn = (stage: Locator) =>
-    stage.locator("[data-work] > fieldset > h3");
+  const titlesIn = (column: Locator) =>
+    column.locator("[data-story-card] > fieldset > h3");
   if (await readAndNothingMoreWillBeRead(page)) {
     expect(
       {
@@ -85,10 +85,10 @@ export async function expectMembership(
   await expect(titlesIn(backlog)).toHaveText(titles.backlog);
 }
 
-// A first card in the stages, once no read of the published work is on its
+// A first card in the board, once no read of the published work is on its
 // way; looked for at once when the page says that read failed for good.
 async function expectFirstCard(page: Page) {
-  const cards = parts(page).stages.getByRole("article");
+  const cards = parts(page).board.getByRole("article");
   if (await readAndNothingMoreWillBeRead(page)) {
     expect(await cards.count(), nothingMoreWillBeRead).toBeGreaterThan(0);
     return;
@@ -100,7 +100,7 @@ async function expectFirstCard(page: Page) {
 // read it sent the local boundary besides its revision checks is answered:
 // a detail no card shows as reading, such as the agent profiles and project
 // setting file of a project with no Taken entry, has then reached GitHub
-// too. Cards come first: until the stages show them -- these titles, or else
+// too. Cards come first: until the Board shows them -- these titles, or else
 // a first card -- no card says it is still reading, as just after a reload,
 // so that absence alone settles nothing. Then the reads: once they are
 // answered, a card still reading its preparation is one the page has yet to
@@ -147,7 +147,7 @@ export async function expectWholeSnapshot(
   },
   otherRevisions: string[],
 ) {
-  const { stages, source } = parts(page);
+  const { board, source } = parts(page);
   await expectMembership(page, shown.titles);
   await expect(source).toContainText(shown.revision);
   if (shown.retrievedAt) {
@@ -156,7 +156,7 @@ export async function expectWholeSnapshot(
       shown.retrievedAt.toISOString(),
     );
   }
-  const detail = stages.getByRole("region", { name: /^Detail for / });
+  const detail = board.getByRole("region", { name: /^Detail for / });
   await expect(detail).toHaveCount(1);
   await expect(
     detail.locator(`a[href*="/blob/${shown.revision}/"]`).first(),
@@ -164,7 +164,7 @@ export async function expectWholeSnapshot(
   for (const other of otherRevisions) {
     await expect(page.locator("body")).not.toContainText(other);
     await expect(page.locator("body")).not.toContainText(other.slice(0, 7));
-    await expect(stages.locator(`a[href*="${other}"]`)).toHaveCount(0);
+    await expect(board.locator(`a[href*="${other}"]`)).toHaveCount(0);
   }
 }
 
@@ -186,7 +186,7 @@ export async function expectProblemAndNoSnapshot(
   repository = "terryyin/open-dough",
   recovery = "Reload the page to read again.",
 ) {
-  const { stages, source, problem } = parts(page);
+  const { board, source, problem } = parts(page);
   await untilPublishedWorkRead(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText(problemText);
@@ -196,7 +196,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(problem).toContainText(recovery);
   await expect(controlsBesideSessions(page)).toHaveCount(0);
   await expect(parts(page).reading).toHaveCount(0);
-  await expect(stages).toHaveCount(0);
+  await expect(board).toHaveCount(0);
   await expect(page.getByRole("article")).toHaveCount(0);
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);

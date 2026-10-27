@@ -1,7 +1,7 @@
-// Real worktree comparisons at touch sizes retain the chosen file and reading
-// position while the existing panes, comparison controls and panel change room.
+// Real touch comparisons retain the file and reading position as panes and controls change room.
+// Header controls need no scroll repair; pane reads avoid clamping the reading position.
 import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { expectSettledPage } from "./dashboardPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
@@ -33,6 +33,7 @@ import {
   codePartGeometry,
   readCodePartByTouch,
   readContextByTouch,
+  reachReviewControl,
   selectAddedFileByTouch,
   visibleShortCodeLine,
 } from "./support/reviewTouchReading.ts";
@@ -53,12 +54,11 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const { workspace } = largeWorktree(origin);
       await keepLaunchRecord(dashboard, workspace);
       const card = await openBacklog(page, origin);
-      // Settled card facts and ordinary scrolling precede coordinate touch.
       await expectSettledPage(page);
       const action = card.getByRole("button", { name: "Review changes" });
       await action.scrollIntoViewIfNeeded();
       await tapWhereShown(action);
-      const review = page.getByRole("region", { name: "Review changes" });
+      const review = page.getByRole("region", { name: "Story review" });
       await expect(reviewBody(review)).toBeFocused();
       const browser = fileBrowser(review);
       await expect(
@@ -68,7 +68,6 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const all = comparison.locator("label", { hasText: "All changes" });
       const commits = comparison.locator("label", { hasText: "Commits" });
       const folder = browser.getByRole("button", { name: /^many\b/ });
-      // These are actual activation surfaces, not native radios' tiny marks.
       for (const target of [contextValues(review), all, commits, folder]) {
         const targetBox = await box(target);
         expect(
@@ -77,10 +76,13 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         ).toBeGreaterThanOrEqual(44);
       }
       await readContextByTouch(review, "~/git/open-dough/.worktrees/story-a");
+      await reachReviewControl(review, folder);
       await tapWhereShown(folder);
       await expect(folder).toHaveAttribute("aria-expanded", "false");
+      await reachReviewControl(review, folder);
       await tapWhereShown(folder);
       await expect(folder).toHaveAttribute("aria-expanded", "true");
+      await reachReviewControl(review, commits);
       await tapWhereShown(commits);
       await expect(
         comparison.getByRole("radio", { name: "Commits", exact: true }),
@@ -93,11 +95,11 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         .getByRole("button");
       await commit.scrollIntoViewIfNeeded();
       await tapWhereShown(commit);
+      await reachReviewControl(review, all);
       await tapWhereShown(all);
       await expect(
         comparison.getByRole("radio", { name: "All changes" }),
       ).toBeChecked();
-
       const diff = await selectAddedFileByTouch(review, longA);
       const code = diff.locator(".story-review-code");
       await expect(code).toContainText("+first 0");
@@ -142,8 +144,6 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       expect(await scrollTopOf(browser)).toBe(browserAt);
       expect(await boxes(fixed)).toEqual(before);
       expect(await pageFits(page)).toBe(true);
-
-      // Avoid maximum scroll: a larger pane can clamp the reading position.
       await readCodePartByTouch(page, code, wide, 0, 11, "horizontal");
       expect((await codePartGeometry(wide, 0, 11)).visible).toBe(true);
       await scrollByTouch(page, code, 1000);
@@ -167,13 +167,11 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
           )
         ).visible,
       ).toBe(true);
-
       const codeBeforeBrowserScroll = await scrollTopOf(code);
       await scrollByTouch(page, browser, 100);
       await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
       expect(await scrollTopOf(code)).toBe(codeBeforeBrowserScroll);
       expect(await boxes(fixed)).toEqual(before);
-
       const selected = browser.getByRole("button", { name: `Added ${longA}` });
       const codeAt = await scrollTopOf(code);
       let reads = 0;
@@ -189,7 +187,6 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         expect(await scrollTopOf(code)).toBe(codeAt);
         expect((await box(code)).height).toBeGreaterThanOrEqual(44);
         expect(await pageFits(page)).toBe(true);
-        // Panel controls must be reachable where shown, without scroll repair.
         await tapWhereShown(control(review, "Maximize"));
         await expect(control(review, "Restore")).toBeVisible();
         expect(await scrollTopOf(code)).toBe(codeAt);
@@ -220,6 +217,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         browser.getByRole("button", { name: `Added ${longB}` }),
       ).toHaveAttribute("aria-pressed", "true");
       // Hidden files: explicit Commits and its reading place survive rotation.
+      await reachReviewControl(review, commits);
       await tapWhereShown(commits);
       await expect(
         comparison.getByRole("radio", { name: "Commits", exact: true }),

@@ -6,13 +6,13 @@
 // leaving the other, the top, and the diff's heading in place; the code
 // scrolls by keyboard. Selecting another file shows its diff from the top
 // and leaves the browser where it was; Refresh, Maximize/Restore, and
-// resizing the panel by its edge keep both panes' places. In a narrow panel
+// using the Panel divider keep both panes' places. In a narrow panel
 // the browser sits above the diff with a bounded share of the height, and
 // Hide files gives the diff the whole work area.
 
 import { narrowWindow } from "./accessibleReading.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
-import { control, dragEdge, expectWidth } from "./sidePanelWidthPage.ts";
+import { control, dragDivider, expectWidth } from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   contextLine,
@@ -145,9 +145,9 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
     await expectPanesKept();
   });
 
-  await test.step("resizing the panel by its edge keeps the selection and both panes' places", async () => {
+  await test.step("using the Panel divider keeps the selection and both panes' places", async () => {
     const width = (await box(review)).width;
-    await dragEdge(page, -200);
+    await dragDivider(page, -200);
     await expectWidth(review, Math.round(width + 200));
     await expectPanesKept();
   });

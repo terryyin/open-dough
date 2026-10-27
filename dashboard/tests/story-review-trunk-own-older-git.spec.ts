@@ -23,7 +23,7 @@ import {
   changedPaths,
   keptStoryAMark,
   markReviewed,
-  openReview,
+  openStoryReview,
   refreshReview,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
@@ -58,7 +58,7 @@ olderGit(
     const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
     commitUnpublished(workspace);
     await keepLaunchRecord(dashboard, workspace);
-    const snapshot = await openReview(page, await openTaken(page, origin));
+    const snapshot = await openStoryReview(page, await openTaken(page, origin));
     const review = reviewRegion(page);
 
     await olderGit.step(
@@ -121,7 +121,7 @@ olderGit(
     const { workspace, trunk } = trunkModeStory(origin, { published: 1 });
     commitUnpublished(workspace);
     await keepLaunchRecord(dashboard, workspace);
-    const marked = await openReview(page, await openTaken(page, origin));
+    const marked = await openStoryReview(page, await openTaken(page, origin));
     const review = reviewRegion(page);
     expect(marked.published).toEqual({ trunk, commits: 1 });
     expect(git(workspace, "cat-file", "-t", marked.baseline)).toBe("tree");

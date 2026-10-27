@@ -7,7 +7,7 @@
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog, radio } from "./support/sessionDialog.ts";
 import {

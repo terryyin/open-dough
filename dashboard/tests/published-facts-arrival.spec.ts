@@ -15,7 +15,7 @@ import {
 import { afterTake, revision } from "./sliceClockRecords.ts";
 import {
   expectCanonicalFacts,
-  expectCardAssignments,
+  expectStoryCardAssignments,
   expectDoneFacts,
 } from "./publishedFactsAssertions.ts";
 
@@ -24,7 +24,7 @@ async function expectAssignments(
   branchCard: Locator,
   queuedCard: Locator,
 ) {
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   const { opener, member, back, roster } = rosterParts(page);
   await opener("Akiho-chan").click();
   await expect(roster).toContainText(
@@ -79,7 +79,9 @@ for (const order of [
         } else {
           await expect(branchCard).toContainText("Reading agent profile…");
           await expect(branchCard).not.toContainText("Owner not recorded");
-          await expect(queuedCard.locator(".card-preparing")).toHaveCount(0);
+          await expect(queuedCard.locator(".story-card-preparing")).toHaveCount(
+            0,
+          );
         }
         if (complete.has("done")) {
           await expectDoneFacts(doneCard);
@@ -87,9 +89,9 @@ for (const order of [
           await expect(doneCard).toHaveCount(0);
         }
         if (complete.has("profiles") && complete.has("preparation")) {
-          await expect(branchCard.locator(".card-progress")).toContainText(
-            "0 of 2 slices recorded complete",
-          );
+          await expect(
+            branchCard.locator(".story-card-progress"),
+          ).toContainText("0 of 2 slices recorded complete");
           await expect(branchCard).toContainText(
             "From story branch; not in trunk.",
           );
@@ -104,7 +106,7 @@ for (const order of [
           );
         } else {
           for (const card of [branchCard, trunkCard]) {
-            await expect(card.locator(".card-progress")).toContainText(
+            await expect(card.locator(".story-card-progress")).toContainText(
               "Reading plan slices…",
             );
             await expect(

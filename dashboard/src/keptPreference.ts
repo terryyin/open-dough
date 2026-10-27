@@ -2,9 +2,14 @@
 // browser may keep nothing or refuse storage: reading then finds nothing, and
 // keeping does nothing, so the preference lasts only for the page.
 
-export function readKept(key: string): string | undefined {
+export function readKept(key: string, formerKey?: string): string | undefined {
   try {
-    return window.localStorage.getItem(key) ?? undefined;
+    const current = window.localStorage.getItem(key);
+    if (current !== null) return current;
+    const former =
+      formerKey === undefined ? null : window.localStorage.getItem(formerKey);
+    if (former !== null) keep(key, former);
+    return former ?? undefined;
   } catch {
     return undefined;
   }

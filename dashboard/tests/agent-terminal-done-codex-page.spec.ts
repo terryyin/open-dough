@@ -2,14 +2,14 @@
 // Mark as done in the panel on a Codex session waiting for input asks first.
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
-  publishStoryStagesJourney,
+  publishStoryColumnsJourney,
   notRefinedIdentity,
   notRefinedStory,
-  type StoryStagesJourney,
+  type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { openStoryStagesJourney } from "./storyStagesPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -25,12 +25,12 @@ import {
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-let journey: StoryStagesJourney;
+let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
-  journey = await publishStoryStagesJourney();
+  journey = await publishStoryColumnsJourney();
 });
-test.afterAll(() => (journey as StoryStagesJourney | undefined)?.cleanup());
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 for (const attached of [false, true]) {
   test(`mark ${attached ? "waiting attached" : "completed unattached"} Codex done, reload, fail reopening then reopen original identity`, async ({
     page,
@@ -54,8 +54,8 @@ for (const attached of [false, true]) {
         { id: "original-turn", status: attached ? "inProgress" : "completed" },
       ],
     });
-    const { card, settled } = await openStoryStagesJourney(page, journey);
-    const listed = cardSessions(card(notRefinedStory));
+    const { card, settled } = await openStoryColumnsJourney(page, journey);
+    const listed = storyCardSessions(card(notRefinedStory));
     const recent = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
@@ -152,8 +152,8 @@ test("native interrupt refusal remains Working with retained local intent and di
     code: -32000,
     message: "Owner denied native interruption.",
   };
-  const { card } = await openStoryStagesJourney(page, journey);
-  const listed = cardSessions(card(notRefinedStory));
+  const { card } = await openStoryColumnsJourney(page, journey);
+  const listed = storyCardSessions(card(notRefinedStory));
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

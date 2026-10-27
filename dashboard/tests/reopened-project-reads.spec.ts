@@ -68,7 +68,7 @@ async function expectSettled(
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   await expect(source).toContainText(revision);
   const card = taken.getByRole("article", { name: takenTitle });
-  const progress = card.locator(".card-progress");
+  const progress = card.locator(".story-card-progress");
   await expect(progress).toContainText("From story branch; not in trunk.");
   await expect(
     progress.getByRole("img", { name: "6 of 8 slices recorded complete" }),
