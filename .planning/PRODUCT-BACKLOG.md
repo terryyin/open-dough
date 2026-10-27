@@ -19,7 +19,7 @@ cost of the feedback process itself.
 ## Taken
 
 - [Align the dashboard globally with its UI domain concepts](seeds/SEED-153-dashboard-ui-domain-concepts.md#align-dashboard-ui-domain-concepts) — SEED-153#align-dashboard-ui-domain-concepts ([plan](slice-plans/358-align-dashboard-ui-domain-concepts/PLAN.md))
+- [Reconcile current dependent stories after supplier integration](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#reconcile-current-consumers-after-supplier-integration) — SEED-154#reconcile-current-consumers-after-supplier-integration ([plan](slice-plans/359-reconcile-current-supplier-consumers/PLAN.md))
 
 ## Backlog list
 
-- [Reconcile current dependent stories after supplier integration](seeds/SEED-154-supplier-integration-consumer-reconciliation.md#reconcile-current-consumers-after-supplier-integration) — SEED-154#reconcile-current-consumers-after-supplier-integration
