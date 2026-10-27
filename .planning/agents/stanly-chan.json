@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-153#align-dashboard-ui-domain-concepts",
+  "host": "claude",
+  "model": "opus"
+}
