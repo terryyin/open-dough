@@ -1,7 +1,7 @@
 // A disposed socket cannot control a later mounted attachment of the same request.
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "./support/codexLaunch.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -50,7 +50,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   const panel = page.getByRole("region", { name: "Terminal", exact: true });

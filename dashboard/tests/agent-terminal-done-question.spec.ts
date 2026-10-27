@@ -9,7 +9,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   sessionStateOf,
@@ -62,7 +62,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(notRefinedStory, "Execution");
-    await cardSessions(card(notRefinedStory))
+    await storyCardSessions(card(notRefinedStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached ");
@@ -93,7 +93,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       columnsJourney,
     );
     const panel = page.getByRole("region", { name: "Terminal" });
-    const listed = cardSessions(card(readyStory));
+    const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
     const sessionId = String(dashboard.claudeListing()[0]?.["sessionId"]);

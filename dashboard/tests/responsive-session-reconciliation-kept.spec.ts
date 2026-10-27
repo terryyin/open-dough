@@ -7,7 +7,11 @@
 // page once GitHub confirms the shown revision contains it.
 
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  storyCardSessions,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   recoveryOf,
@@ -30,7 +34,7 @@ async function expectRemovedSettled(page: Page, revision: string) {
   );
   await expect(
     board
-      .locator("[data-work]")
+      .locator("[data-story-card]")
       .and(page.getByRole("article", { name: "Story A" })),
   ).toHaveCount(0);
   await expect(taken.locator(".session-entry")).toHaveCount(1);
@@ -43,7 +47,9 @@ async function expectRemovedSettled(page: Page, revision: string) {
 
 // The Taken card shows its session with every action available.
 async function expectTakenSettled(takenStory: Locator) {
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 60_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 60_000,
+  });
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
   );

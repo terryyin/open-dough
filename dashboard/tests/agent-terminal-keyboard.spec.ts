@@ -4,7 +4,7 @@
 // control that opened it, and reopening shows the split. Plain Escape in the
 // terminal still reaches the session. An open dialog, as the launch dialog,
 // keeps the key, and with no panel the key changes nothing. When the control
-// that opened the panel is gone, as a Sessions sidebar entry once the sidebar
+// that opened the panel is gone, as a Sessions sidebar Session entry once the sidebar
 // is hidden, closing returns the keyboard to the session in its current story card.
 // The page's own dashboard server launches and attaches the synthetic
 // `claude` (./fixtures/fake-claude), which records each line entered in its
@@ -12,7 +12,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionOf,
+  storyCardSessionOf,
   expectMembership,
   parts,
   sessionNamedBy,
@@ -26,7 +26,7 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import { tooltipOf } from "./frameIconControl.ts";
 import { watchCommandShortcut } from "./pageShortcutsPage.ts";
@@ -70,7 +70,7 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
     await expectMembership(page, queued);
     await settled();
     await launch(readyStory, "Execution");
-    const entry = cardSessionOf(card(readyStory), "Execution");
+    const entry = storyCardSessionOf(card(readyStory), "Execution");
     const session = await sessionNamedBy(entry);
     const opener = entry.getByRole("button", { name: "Open terminal" });
     const attaches = () =>
@@ -201,7 +201,7 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
     });
 
     await test.step("with its opener gone, Command+Shift+Escape returns the keyboard to the session in its current story card", async () => {
-      const sidebar = sidebarParts(page);
+      const sidebar = sessionsSidebarParts(page);
       await control("Close").click();
       await expect(panel).toHaveCount(0);
       await sidebar.button.click();
@@ -213,7 +213,7 @@ test.describe("Command+Shift+Escape and the terminal panel", () => {
       await expect(sidebar.sidebar).toBeHidden();
       await page.keyboard.press(closeKey);
       await expect(panel).toHaveCount(0);
-      const home = cardSessionOf(card(readyStory), "Execution");
+      const home = storyCardSessionOf(card(readyStory), "Execution");
       await expect(home).toBeFocused();
       await expect(home).toBeInViewport();
       expect(await sessionNamedBy(home)).toBe(session);

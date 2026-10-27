@@ -9,7 +9,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
   openSettledAtA,
@@ -37,7 +37,7 @@ const claimsStory = "Publish shared backlog claims";
 // Each card's title, text, and box, measured in one browser turn.
 async function cards(page: Page) {
   return parts(page)
-    .board.locator("[data-work]")
+    .board.locator("[data-story-card]")
     .evaluateAll((nodes) =>
       nodes.map((node) => {
         const { x, y, width, height } = node.getBoundingClientRect();
@@ -57,7 +57,7 @@ async function notePlaceholders(page: Page): Promise<() => Promise<string[]>> {
     const seen = new Set<string>();
     (window as unknown as { placeholders: Set<string> }).placeholders = seen;
     const scan = () => {
-      for (const card of document.querySelectorAll("[data-work]")) {
+      for (const card of document.querySelectorAll("[data-story-card]")) {
         const title = card.querySelector("fieldset > h3")?.textContent ?? "";
         for (const found of (card as HTMLElement).innerText.matchAll(
           /Reading [^…]*…/g,

@@ -24,7 +24,7 @@ import { flushSync } from "react-dom";
 import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
-// (`./session-sidebar.css`) and the panel stacks above it.
+// (`./sessions-sidebar.css`) and the panel stacks above it.
 const narrowWindow = "(max-width: 800px)";
 
 // Each side's usable minimum, in rem: the narrowest width the page reflows to
@@ -85,13 +85,13 @@ type Room = { readonly width: number; readonly rem: number };
 function useRoom(
   frame: RefObject<HTMLElement | null>,
   shown: boolean,
-  sidebarOpen: boolean,
+  sessionsSidebarOpen: boolean,
 ) {
   const [room, setRoom] = useState<Room | undefined>();
   useLayoutEffect(() => {
     const element = frame.current;
     if (!shown || element === null) return;
-    const sidebar = element.querySelector<HTMLElement>(".session-sidebar");
+    const sidebar = element.querySelector<HTMLElement>(".sessions-sidebar");
     const measure = () => {
       setRoom({
         width: element.clientWidth - (sidebar?.offsetWidth ?? 0),
@@ -108,7 +108,7 @@ function useRoom(
     return () => {
       observer.disconnect();
     };
-  }, [frame, shown, sidebarOpen]);
+  }, [frame, shown, sessionsSidebarOpen]);
   return room;
 }
 
@@ -121,11 +121,11 @@ type SidePanelEdgeState = Extract<SidePanelLayout, { arrangement: "split" }> & {
 export function useSidePanelWidth(
   frame: RefObject<HTMLElement | null>,
   shown: boolean,
-  sidebarOpen: boolean,
+  sessionsSidebarOpen: boolean,
 ): { stacked: boolean; edge: SidePanelEdgeState | undefined } {
   const [preferred, prefer] = usePreferredSize(preferredWidthKey);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
-  const room = useRoom(frame, shown, sidebarOpen);
+  const room = useRoom(frame, shown, sessionsSidebarOpen);
   const layout: SidePanelLayout | undefined =
     room === undefined
       ? narrow

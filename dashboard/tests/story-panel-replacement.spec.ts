@@ -12,7 +12,7 @@
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { box } from "./pageLayout.ts";
 import {
   dragEdge,
@@ -125,7 +125,7 @@ test("a review, another story's review, and a final report replace each other in
   });
 
   await test.step("a final report and a review replace each other", async () => {
-    const readReport = cardSessions(cardB).getByRole("button", {
+    const readReport = storyCardSessions(cardB).getByRole("button", {
       name: "Read final report",
     });
     await readReport.click();

@@ -93,7 +93,7 @@ test("authenticated project overview: each catalog project opens and reloads thr
         await expect(source).not.toContainText(other.revision);
       }
 
-      const takenCard = page.getByRole("article", {
+      const takenStoryCard = page.getByRole("article", {
         name: published.taken,
       });
       const queuedCard = page.getByRole("article", {
@@ -101,12 +101,14 @@ test("authenticated project overview: each catalog project opens and reloads thr
       });
       await expectSettledPage(page);
       await expect(
-        takenCard.getByText("Not recorded", { exact: true }),
+        takenStoryCard.getByText("Not recorded", { exact: true }),
       ).toBeVisible();
       // Each story's source links are read in its detail.
-      await takenCard.getByRole("button", { name: "Inspect story" }).click();
+      await takenStoryCard
+        .getByRole("button", { name: "Inspect story" })
+        .click();
       await expect(
-        takenCard.getByRole("link", { name: /^Canonical record/ }),
+        takenStoryCard.getByRole("link", { name: /^Canonical record/ }),
       ).toHaveAttribute(
         "href",
         `https://github.com/${published.repository}/blob/${published.revision}/${published.takenPath}`,

@@ -77,7 +77,7 @@ Put a check where it is cheapest to prove, and prove it once:
   `launchJourney`); one the tests step through is one fixture per serial
   file (each production journey file's watcher, `production-watcher*.spec.ts`);
   [writing a journey](writing-journeys.md) says how each is shared. The
-  common shape is asserted in one named test (`agent-launch-card.spec.ts`,
+  common shape is asserted in one named test (`agent-launch-story-card.spec.ts`,
   "every Backlog card offers Start execution ..."), each sibling asserts
   only its difference, and a regression in one behavior fails one named
   test. The server and fake GitHub stay per test: siblings vary the server's

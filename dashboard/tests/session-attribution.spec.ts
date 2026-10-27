@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { publishPreparingJourney, storyA, storyC } from "./preparingJourney.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
@@ -127,19 +127,19 @@ test("a retained session keeps its allocation credit after release and a later p
   });
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: storyC });
-  const original = cardSessions(card).filter({ hasText: sessionId });
+  const original = storyCardSessions(card).filter({ hasText: sessionId });
   const historical = `Session assignment: ${journey.preparers.refining} · Integration Checkout · Claude Code`;
-  await expect(card.locator(".card-preparing .owner-line")).toHaveText(
+  await expect(card.locator(".story-card-preparing .owner-line")).toHaveText(
     `${journey.preparers.refining} · Integration Checkout · Claude Code · claude-opus-5-5`,
   );
   await expect(original).toContainText(historical);
   await expect(original).toContainText("Model: Fable (requested)");
-  const legacySession = cardSessions(card).filter({ hasText: "22222222" });
-  const missing = cardSessions(card).filter({ hasText: "33333333" });
+  const legacySession = storyCardSessions(card).filter({ hasText: "22222222" });
+  const missing = storyCardSessions(card).filter({ hasText: "33333333" });
   const unknown = `Session assignment: ${journey.preparers.refining} · Human developer unknown · Claude Code`;
   await expect(legacySession).toContainText(unknown);
   await expect(missing).toContainText(unknown);
-  const duplicate = cardSessions(card).filter({ hasText: matchingId });
+  const duplicate = storyCardSessions(card).filter({ hasText: matchingId });
   await expect(duplicate).toContainText("Ready for slice planning");
   await expect(duplicate.locator(".session-assignment")).toHaveCount(0);
   await expect(duplicate).toContainText(
@@ -173,7 +173,7 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(missing).toContainText(unknown);
   await expect(missing).toContainText("Model: claude-opus-5-5 (requested)");
   await show(journey.planningAnnounced);
-  await expect(card.locator(".card-preparing")).toContainText(
+  await expect(card.locator(".story-card-preparing")).toContainText(
     journey.preparers.planning,
   );
   await expect(original).toContainText(historical);

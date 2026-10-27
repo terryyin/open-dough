@@ -4,15 +4,15 @@ import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
 import {
-  cardAttentionOf,
-  cardSessions,
+  storyCardAttentionOf,
+  storyCardSessions,
   parts,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import {
-  expectSidebarSessionShown,
-  sidebarParts,
-} from "./sessionSidebarPage.ts";
+  expectSessionsSidebarSessionEntryShown,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -46,19 +46,19 @@ test("retired Claude preparation opens retained report after refresh without wak
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
-  const entry = cardSessions(card(notRefinedStory));
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
   await expect(sessionStateOf(entry)).not.toContainText("Needs input");
   await expect(entry).toContainText(
     "Mark as done acknowledges this session; it does not complete the story.",
   );
-  await expect(cardAttentionOf(card(notRefinedStory))).toHaveText(
+  await expect(storyCardAttentionOf(card(notRefinedStory))).toHaveText(
     "1 session needs attention",
   );
   await expect(card(notRefinedStory)).toContainText("Not assessed as ready");
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   await sidebar.button.click();
-  await expectSidebarSessionShown(
+  await expectSessionsSidebarSessionEntryShown(
     sidebar.entries,
     "Completed with attention: Mark as done acknowledges this session; it does not complete the story.",
     "ready",
@@ -86,7 +86,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
   await expect(entry.locator(".session-unread-report")).toHaveCount(0);
   await sidebar.button.click();
-  await expectSidebarSessionShown(
+  await expectSessionsSidebarSessionEntryShown(
     sidebar.entries,
     "Completed with attention: Mark as done acknowledges this session; it does not complete the story.",
     "ready",
@@ -108,7 +108,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(
     card(notRefinedStory).getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(0);
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
   await recent.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".session-final-report")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
@@ -176,7 +176,7 @@ test("missing Claude workspace without retained report explains the limitation w
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Read final report" })
     .click();
   const panel = page.getByRole("region", { name: "Final report" });
@@ -202,7 +202,7 @@ for (const context of ["existing", "legacy"] as const) {
     }
     const { card, settled } = await openStoryColumnsJourney(page, journey);
     await settled();
-    const entry = cardSessions(card(notRefinedStory));
+    const entry = storyCardSessions(card(notRefinedStory));
     await entry.getByRole("button", { name: "Open terminal" }).click();
     const panel = page.getByRole("region", { name: "Terminal", exact: true });
     await expect(panel).toBeVisible();

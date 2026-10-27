@@ -30,7 +30,7 @@ import {
   newerMessage,
   publishOrigin,
   recordOf,
-  takenCard,
+  takenStoryCard,
   test,
   titleA,
 } from "./support/unreadReportPage.ts";
@@ -48,7 +48,7 @@ test("a card entry's unread message is marked read in its message part, beside t
   await story.report();
   await publishOrigin(page, origin);
   await openUntilRead(page);
-  const entry = takenCard(page, titleA).getByRole("article");
+  const entry = takenStoryCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
 
   // Unread: expanded under its completion label, with Mark as read in the
@@ -157,7 +157,7 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   await story.report({ message: longMessage });
   await publishOrigin(page, origin);
   await openUntilRead(page);
-  const entry = takenCard(page, titleA).getByRole("article");
+  const entry = takenStoryCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
   const done = entry.getByRole("button", { name: "Mark as done" });
   await expectExpanded(message, label, longMessage);

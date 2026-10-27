@@ -21,10 +21,10 @@ import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/prod
 
 export function SessionAssignment({
   record,
-  cardAssignments,
+  storyCardAssignments,
 }: {
   readonly record: LaunchRecord;
-  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
+  readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   const established = record.start ?? record.preparation;
   const agent = assignedAgent(established);
@@ -95,7 +95,7 @@ export function SessionAssignment({
   if (
     !reading &&
     human?.status === "credited" &&
-    cardAssignments?.some(
+    storyCardAssignments?.some(
       (current) =>
         current.agent === agent &&
         current.host === record.session.host &&

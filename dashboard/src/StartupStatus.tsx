@@ -54,19 +54,19 @@ export function StartupStatus({
   if (state === "reconciling") {
     return (
       <>
-        <p className="launch-answer quiet card-startup card-startup-static">
+        <p className="launch-answer quiet story-card-startup story-card-startup-static">
           Waiting for published story state: this {named} settled on this
           machine, and this story's actions return once origin shows its result.
         </p>
         {problem !== undefined && (
-          <p className="card-startup-note quiet">{problem}</p>
+          <p className="story-card-startup-note quiet">{problem}</p>
         )}
       </>
     );
   }
   if (state === "needs-reconciliation") {
     return (
-      <p className="launch-answer card-startup card-startup-static">
+      <p className="launch-answer story-card-startup story-card-startup-static">
         Startup needs reconciliation: {reconciliationCause(startup, named)}{" "}
         {/* A lost answer has no accepted attempt to continue. */}
         {startup.cause === "unacknowledged"
@@ -91,11 +91,11 @@ export function StartupStatus({
   );
   return (
     <>
-      <p className="launch-answer quiet card-startup card-startup-progressing">
+      <p className="launch-answer quiet story-card-startup story-card-startup-progressing">
         {words}
         {warning !== undefined && <> {warning}</>}
       </p>
-      <p className="card-startup-note quiet">
+      <p className="story-card-startup-note quiet">
         Local startup in progress; this story's actions are unavailable until it
         settles.
       </p>

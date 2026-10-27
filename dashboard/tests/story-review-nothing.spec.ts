@@ -14,7 +14,7 @@
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -222,7 +222,7 @@ test("a story whose kept launch record names no workspace offers no review", asy
   delete withoutWorkspace.start;
   await keepLaunchRecords(dashboard, [withoutWorkspace]);
   const card = await openBacklog(page, origin);
-  await expect(cardSessions(card)).toHaveCount(1);
+  await expect(storyCardSessions(card)).toHaveCount(1);
   await expect(
     card.getByRole("button", { name: "Review changes" }),
   ).toHaveCount(0);

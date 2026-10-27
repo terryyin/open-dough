@@ -48,21 +48,21 @@ export const standaloneSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;
 
 // A card's session entries, newest first.
-export const cardSessions = (card: Locator) =>
+export const storyCardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
 
 // What a card says of how many of its sessions need attention, when any do.
-export const cardAttentionOf = (card: Locator) =>
+export const storyCardAttentionOf = (card: Locator) =>
   card.getByText(/^\d+ sessions? needs? attention$/);
 
 // A card's session entry, named for its launch's workflow.
-export const cardSessionName = (workflow: string) => `${workflow} session`;
+export const storyCardSessionName = (workflow: string) => `${workflow} session`;
 
 // A card's entry for its session in this workflow.
-export const cardSessionOf = (card: Locator, workflow: string) =>
-  cardSessions(card).and(
+export const storyCardSessionOf = (card: Locator, workflow: string) =>
+  storyCardSessions(card).and(
     card.page().getByRole("article", {
-      name: cardSessionName(workflow),
+      name: storyCardSessionName(workflow),
       exact: true,
     }),
   );

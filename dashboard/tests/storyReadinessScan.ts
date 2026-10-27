@@ -13,10 +13,10 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import {
-  cardLaunchActions,
+  storyCardLaunchActions,
   inspectionGroup,
   launchGroup,
-} from "./cardControls.ts";
+} from "./storyCardControls.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
 import { showColumn } from "./boardPage.ts";
 
@@ -59,7 +59,7 @@ export async function expectScanToDetailAt420AndTwiceZoom(
       }),
     ).toBeEnabled();
     await expectInReadingOrder(blockedCard, [
-      ...cardLaunchActions.map((name) =>
+      ...storyCardLaunchActions.map((name) =>
         launchGroup(blockedCard).getByRole("button", { name }),
       ),
       inspectionGroup(blockedCard).getByRole("button", {

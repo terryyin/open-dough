@@ -1,7 +1,7 @@
 // Session placement uses saved Done and the current published membership.
 // Native activity and local launch evidence never choose a story's column.
 import {
-  cardSessionsOf,
+  storyCardSessionsOf,
   isOpen,
   projectSessionsOf,
   type LaunchWithState,
@@ -15,7 +15,7 @@ export function columnSessionsOf(
   const project = projectSessionsOf(records, sourceId);
   const held = new Set(
     activeStoryIdentities.flatMap((identity) =>
-      cardSessionsOf(records, sourceId, identity),
+      storyCardSessionsOf(records, sourceId, identity),
     ),
   );
   return {

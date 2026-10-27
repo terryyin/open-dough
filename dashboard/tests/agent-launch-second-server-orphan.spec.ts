@@ -2,7 +2,7 @@
 // death leaves the held script alive until its real push completes.
 import { attempts, continueAttempt } from "./agentLaunchBoundary.ts";
 import { answerOf, type Problem } from "./keptExecutionStart.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import {
@@ -71,9 +71,9 @@ test("a server killed before the warning leaves a live script running; its exit 
     );
     await reloadUntilRead(page);
     await expectProtected(story);
-    await expect(story.locator(".card-startup-progressing")).toContainText(
-      "Still starting after 2 minutes.",
-    );
+    await expect(
+      story.locator(".story-card-startup-progressing"),
+    ).toContainText("Still starting after 2 minutes.");
     await expect(recoveryOf(page)).toHaveCount(0);
     expect(
       await answerOf<Problem>(continueAttempt(restarted, accepted.id)),
@@ -100,7 +100,7 @@ test("a server killed before the warning leaves a live script running; its exit 
     expect((await settledOutcome(restarted, accepted.id)).kind).toBe(
       "launched",
     );
-    await expect(cardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
+    await expect(storyCardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(worktrees(origin)).toEqual(["story-a"]);
     expect(restarted.claudeLaunchCalls()).toHaveLength(1);

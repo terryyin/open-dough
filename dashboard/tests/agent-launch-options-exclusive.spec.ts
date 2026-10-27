@@ -1,5 +1,5 @@
 // Exclusive groups and unavailable definitions in the refinement dialog, on
-// the committed origin of ./agent-launch-card.spec.ts (./launchJourney.ts): a
+// the committed origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts): a
 // group the definition declares is radios with a "No <group>" choice, options
 // outside it stay checkboxes, and choosing a member replaces the group's
 // other; a project without a usable definition (or one still being read) says
@@ -16,7 +16,7 @@ import {
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });

@@ -57,7 +57,7 @@ function MemberAssignment({ member: { profile } }: { member: RosterMember }) {
       ) : (
         <p className="roster-title">{profile.title}</p>
       )}
-      <p className="card-identity">{profile.identity}</p>
+      <p className="record-identity">{profile.identity}</p>
       <p className="owner-summary">
         <RecordedFacts developer={profile} />
       </p>

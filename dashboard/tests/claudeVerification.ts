@@ -4,7 +4,7 @@
 import type { Page } from "@playwright/test";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { readyStory, type LaunchJourney } from "./launchJourney.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";

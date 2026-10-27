@@ -92,16 +92,16 @@ export function TakenOwnerFacts({
     return null;
   }
   if (owner.status === "loading") {
-    return <p className="card-owner quiet">Reading agent profile…</p>;
+    return <p className="story-card-owner quiet">Reading agent profile…</p>;
   }
   if (owner.status === "unavailable") {
-    return <p className="card-owner assignment-gap">{owner.problem}</p>;
+    return <p className="story-card-owner assignment-gap">{owner.problem}</p>;
   }
   if (owner.status === "not-recorded") {
-    return <p className="card-owner">Owner not recorded</p>;
+    return <p className="story-card-owner">Owner not recorded</p>;
   }
   return (
-    <p className="card-owner">
+    <p className="story-card-owner">
       {owner.assignments.map((each) => (
         <DeveloperName
           key={each.agent}
@@ -130,7 +130,7 @@ export function PreparingFacts({
   }
   if (preparing.status === "unavailable") {
     return (
-      <p className="card-owner assignment-gap">
+      <p className="story-card-owner assignment-gap">
         Preparation assignment unknown. {preparing.problem}
       </p>
     );
@@ -138,7 +138,7 @@ export function PreparingFacts({
   const { assignments: preparers } = preparing;
   return (
     <>
-      <p className="card-owner card-preparing">
+      <p className="story-card-owner story-card-preparing">
         <span className="preparing-activity">Preparing</span>
         {preparers.map((each) => (
           <DeveloperName

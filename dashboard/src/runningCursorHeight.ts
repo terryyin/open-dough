@@ -1,4 +1,4 @@
-// How the expanded Sessions sidebar (`./SessionSidebar.tsx`) shares its room
+// How the expanded Sessions sidebar (`./SessionsSidebar.tsx`) shares its room
 // between the session list and Running Cursor sessions' content. The developer
 // keeps one preferred height for the Cursor content, chosen by dragging the
 // edge above that section or with its Up and Down keys
@@ -11,7 +11,7 @@
 // take theirs, as shown, so a banner or header that wraps leaves less. Each
 // keeps a usable floor: room to read and choose an entry, with the runner's
 // status. Where the room cannot hold both floors, the edge offers no range and
-// the sidebar's own scrolling keeps both in reach (`./session-sidebar.css`).
+// the sidebar's own scrolling keeps both in reach (`./sessions-sidebar.css`).
 // A limit the room sets never changes the preference, so more room recovers
 // it.
 
@@ -21,11 +21,11 @@ import type { EdgeRange } from "./ResizeEdge.tsx";
 import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // Where this browser keeps the preferred height, in CSS px.
-const preferredHeightKey = "open-dough.sessionSidebar.runningCursorHeight";
+const preferredHeightKey = "open-dough.sessionsSidebar.runningCursorHeight";
 
 // Each area's usable floor, in rem: the sidebar's own, which its rows keep
-// (./session-sidebar.css).
-const areaFloor = "--sidebar-list-floor";
+// (./sessions-sidebar.css).
+const areaFloor = "--sessions-sidebar-list-floor";
 // How far one Up or Down key moves the edge, in rem.
 const keyStep = 2;
 
@@ -87,7 +87,10 @@ export function useRunningCursorHeight(
   sidebar: RefObject<HTMLElement | null>,
   measuring: boolean,
 ): { height: number | undefined; range: EdgeRange | undefined } {
-  const [preferred, prefer] = usePreferredSize(preferredHeightKey);
+  const [preferred, prefer] = usePreferredSize(
+    preferredHeightKey,
+    "open-dough.sessionSidebar.runningCursorHeight",
+  );
   const room = useRoom(sidebar, measuring);
   const shown =
     room === undefined

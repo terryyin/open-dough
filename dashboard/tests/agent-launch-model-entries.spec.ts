@@ -1,5 +1,5 @@
 // A session entry says which model was requested, on the committed origin of
-// ./agent-launch-card.spec.ts (./launchJourney.ts): wherever the page lists a
+// ./agent-launch-story-card.spec.ts (./launchJourney.ts): wherever the page lists a
 // session -- its story's card, Taken, the Sessions sidebar -- the
 // entry reads "Model: <Name> (requested)" for a chosen model and says nothing
 // for Default, and a reload keeps the line, which is read from the launch
@@ -9,18 +9,18 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { readyStory } from "./launchJourney.ts";
 import {
   expectTooltipLine,
-  sidebarParts,
-  sidebarTooltipOf,
-} from "./sessionSidebarPage.ts";
+  sessionsSidebarParts,
+  sessionsSidebarSessionEntryTooltipOf,
+} from "./sessionsSidebarPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -61,12 +61,12 @@ for (const [model, words] of [
     dashboard.claudeScenario("launched");
     const { card, start } = await openTakenBacklog(page, launchJourney);
     const { recentlyDone } = parts(page);
-    const { button, sidebar } = sidebarParts(page);
+    const { button, sidebar } = sessionsSidebarParts(page);
 
     await start(readyStory).click();
     await startWith(page, model);
 
-    const entry = cardSessions(card(readyStory));
+    const entry = storyCardSessions(card(readyStory));
     const expectWords = async () => {
       await expect(recentlyDone.getByRole("article")).toHaveCount(0);
       if ((await button.getAttribute("aria-expanded")) !== "true") {
@@ -81,12 +81,14 @@ for (const [model, words] of [
       }
       const row = sidebar.getByRole("listitem");
       await expect(row).toHaveCount(1);
-      await expect(sidebarTooltipOf(row)).toHaveAttribute("title", /Execution/);
+      await expect(sessionsSidebarSessionEntryTooltipOf(row)).toHaveAttribute(
+        "title",
+        /Execution/,
+      );
       if (words === undefined) {
-        await expect(sidebarTooltipOf(row)).not.toHaveAttribute(
-          "title",
-          /Model:/,
-        );
+        await expect(
+          sessionsSidebarSessionEntryTooltipOf(row),
+        ).not.toHaveAttribute("title", /Model:/);
       } else {
         await expectTooltipLine(row, words);
       }
@@ -94,7 +96,7 @@ for (const [model, words] of [
 
     await expectWords();
     await reloadUntilRead(page);
-    await expect(cardSessions(card(readyStory))).toHaveCount(1);
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
     await expectWords();
   });
 }
@@ -107,7 +109,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
   const { taken, recentlyDone } = parts(page);
-  const { button, sidebar } = sidebarParts(page);
+  const { button, sidebar } = sessionsSidebarParts(page);
 
   await startSession(page, "Open Dough").click();
   await expect(startSessionDialog(page, "Open Dough")).toBeVisible();
@@ -123,7 +125,9 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
     await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     await expect(entry).toContainText("Ad hoc");
     await expect(entry).toContainText(requested("Sonnet"));
-    const tooltip = sidebarTooltipOf(sidebar.getByRole("listitem"));
+    const tooltip = sessionsSidebarSessionEntryTooltipOf(
+      sidebar.getByRole("listitem"),
+    );
     await expect(tooltip).toHaveCount(1);
     await expect(tooltip).toHaveAttribute("title", /Ad hoc/);
     await expectTooltipLine(sidebar.getByRole("listitem"), requested("Sonnet"));

@@ -1,0 +1,155 @@
+// Before the machine's sessions are first read, the Sessions sidebar says so,
+// as Recently done does, instead of claiming none are kept; once read with
+// none kept it says so, and with all kept ones marked done it says none is
+// open. Before that first read answers, no card offers Start while the lists
+// keep reading; once read, a launch lists its session on the card, keyboard
+// on its entry, and in the open sidebar, without a Recently done duplicate. The page's
+// own dashboard server launches the synthetic `claude`
+// (./fixtures/fake-claude).
+
+import { expect, test } from "./dashboardTest.ts";
+import {
+  storyCardSessions,
+  parts,
+  standaloneSessionName,
+} from "./dashboardPage.ts";
+import {
+  publishStoryColumnsJourney,
+  readyStory,
+  type StoryColumnsJourney,
+} from "./launchJourney.ts";
+import { markDone } from "./agentLaunchBoundary.ts";
+import { launched } from "./agentTerminalBoundary.ts";
+import { holdSessionReads } from "./sessionStatePace.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { columnPagingControl, showColumn } from "./boardPage.ts";
+
+test.use({ projectFolders: ["open-dough", "doughnut"] });
+
+test.describe("the Sessions sidebar's reading", () => {
+  let columnsJourney: StoryColumnsJourney;
+  test.beforeAll(async () => {
+    test.setTimeout(120_000);
+    columnsJourney = await publishStoryColumnsJourney();
+  });
+  test.afterAll(() =>
+    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
+  );
+
+  test("says it is reading until the machine's sessions are first read, then that none are kept, then none open", async ({
+    page,
+    dashboard,
+  }) => {
+    await page.setViewportSize({ width: 1000, height: 1000 });
+    const { answer } = await holdSessionReads(page);
+    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
+    const { sidebar, button, entries, badge } = sessionsSidebarParts(page);
+    const { recentlyDone, taken } = parts(page);
+    await settled();
+    await button.click();
+    await expect(taken.locator(".column-count")).toHaveText(
+      "Entry count incomplete",
+    );
+    await expect(taken).toContainText("Reading sessions…");
+    await expect(taken).not.toContainText("No Taken entries");
+    for (const place of [sidebar, recentlyDone]) {
+      await expect(place).toContainText("Reading sessions…");
+      await expect(place).not.toContainText("No sessions launched");
+    }
+    await expect(columnPagingControl(page, "Taken")).toHaveText(
+      "Taken Entry count incomplete",
+    );
+    await showColumn(page, "Taken");
+    await expect(taken.locator(".column-header")).toBeInViewport({
+      ratio: 0.999,
+    });
+    await expect(columnPagingControl(page, "Recently done")).toHaveText(
+      "Recently done Entry count incomplete",
+    );
+    await showColumn(page, "Recently done");
+    await expect(recentlyDone.locator(".column-header")).toBeInViewport({
+      ratio: 0.999,
+    });
+    await showColumn(page, "Taken");
+
+    answer();
+    for (const place of [sidebar, recentlyDone]) {
+      await expect(place).toContainText(
+        "No sessions launched from this dashboard are kept.",
+      );
+      await expect(place).not.toContainText("Reading sessions…");
+    }
+    await expect(taken.locator(".column-count")).toHaveText("0 entries");
+    await expect(taken).toContainText("No Taken entries are recorded.");
+    await expect(entries).toHaveCount(0);
+    await expect(badge).toHaveCount(0);
+
+    // Kept, but all marked done: none is open.
+    const { sessionId } = await launched(dashboard, "doughnut");
+    await markDone(dashboard, { source: "doughnut", session: sessionId });
+    await page.reload();
+    // Open as it was left.
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(sidebar).toContainText(
+      "No sessions launched from this dashboard are open.",
+    );
+    await expect(entries).toHaveCount(0);
+  });
+
+  test("no Start is offered before the first read while the lists keep reading; once read, a launch's session joins what was read", async ({
+    page,
+    dashboard,
+  }) => {
+    // Kept before the page opens, so the first read answers it too.
+    await launched(dashboard, "doughnut");
+    dashboard.claudeScenario("launched");
+    const { answer } = await holdSessionReads(page);
+    const { settled, card, launch } = await openStoryColumnsJourney(
+      page,
+      columnsJourney,
+    );
+    const { sidebar, button, entries } = sessionsSidebarParts(page);
+    const { recentlyDone } = parts(page);
+    await settled();
+    await button.click();
+
+    const own = storyCardSessions(card(readyStory));
+    await expect(
+      card(readyStory).getByRole("button", { name: "Start execution" }),
+    ).toBeDisabled();
+    for (const place of [sidebar, recentlyDone]) {
+      await expect(place).toContainText("Reading sessions…");
+    }
+    await expect(entries).toHaveCount(0);
+
+    answer();
+    await expect(entries).toHaveCount(1);
+    await launch(readyStory, "Execution");
+    await expect(own).toHaveCount(1);
+    await expect(own).toBeFocused();
+    await expect(sidebar).not.toContainText("Reading sessions…");
+    await expect(recentlyDone).not.toContainText("Reading sessions…");
+    await expect(entries).toHaveCount(2);
+    await expect(
+      recentlyDone.getByRole("article", {
+        name: standaloneSessionName("Execution", readyStory),
+      }),
+    ).toHaveCount(0);
+    await expect(own).toHaveCount(1);
+    const key = await own.getAttribute("data-shows-session");
+    await expect(
+      page.locator(`.board [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
+    await expect(recentlyDone).toContainText(
+      "No sessions are listed in Recently done.",
+    );
+    await page.reload();
+    await settled();
+    await expect(entries).toHaveCount(2);
+    await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
+    await expect(
+      page.locator(`.board [data-shows-session="${key}"]`),
+    ).toHaveCount(1);
+  });
+});

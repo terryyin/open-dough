@@ -7,13 +7,13 @@ import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pausePageClockAt } from "./dashboardTest.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { notRefinedStory } from "./launchJourney.ts";
-import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import {
-  expectSidebarSessionShown,
-  sidebarParts,
-} from "./sessionSidebarPage.ts";
+  expectSessionsSidebarSessionEntryShown,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import { test, expect } from "./support/codexLaunch.ts";
 import {
   observationRecord as record,
@@ -136,15 +136,15 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
   const { card } = await openTakenBacklog(page, launchJourney);
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   await sidebar.button.click();
   const recent = parts(page).recentlyDone;
-  const entry = (entries: ReturnType<typeof cardSessions>, id: string) =>
+  const entry = (entries: ReturnType<typeof storyCardSessions>, id: string) =>
     entries.filter({ has: page.locator(`code:text-is("${id}")`) });
   const check = async () => {
     for (const [id, , , words] of cases) {
       await expect(
-        sessionStateOf(entry(cardSessions(card(notRefinedStory)), id)),
+        sessionStateOf(entry(storyCardSessions(card(notRefinedStory)), id)),
       ).toHaveText(words);
       await expect(entry(recent.getByRole("article"), id)).toHaveCount(0);
       await expect
@@ -169,12 +169,12 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
         ].includes(id)
       ) {
         await expect(
-          entry(cardSessions(card(notRefinedStory)), id),
+          entry(storyCardSessions(card(notRefinedStory)), id),
         ).not.toHaveClass(/needs-attention/);
         const row = sidebar.entries.filter({
           has: page.locator(`button[title^="${words}"]`),
         });
-        await expectSidebarSessionShown(row, words, "unsettled");
+        await expectSessionsSidebarSessionEntryShown(row, words, "unsettled");
       }
     }
     await expect(
@@ -190,13 +190,15 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
     ).toHaveText("Done");
     await expect(
       sessionStateOf(
-        entry(cardSessions(card(notRefinedStory)), "unreadable-blank"),
+        entry(storyCardSessions(card(notRefinedStory)), "unreadable-blank"),
       ),
     ).toHaveText("State not recognized: Codex's latest turn could not be read");
     await expect(
-      sessionStateOf(entry(cardSessions(card(notRefinedStory)), "missing")),
+      sessionStateOf(
+        entry(storyCardSessions(card(notRefinedStory)), "missing"),
+      ),
     ).toHaveText("Session unavailable");
-    await expect(cardSessions(card(notRefinedStory))).toHaveCount(
+    await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(
       records.length - 1,
     );
   };
@@ -221,14 +223,14 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   });
   await passOnePace();
   await expect(
-    sessionStateOf(entry(cardSessions(card(notRefinedStory)), "work")),
+    sessionStateOf(entry(storyCardSessions(card(notRefinedStory)), "work")),
   ).toHaveText("Needs input: Codex is waiting for approval");
   await expect(entry(recent.getByRole("article"), "work")).toHaveCount(0);
   await expect(sidebar.badge).toHaveAccessibleName("7 sessions need attention");
   observed(native, "work", { type: "idle" }, "completed");
   await passOnePace();
   await expect(
-    sessionStateOf(entry(cardSessions(card(notRefinedStory)), "work")),
+    sessionStateOf(entry(storyCardSessions(card(notRefinedStory)), "work")),
   ).toHaveText("Ready for review");
   await expect(sidebar.badge).toHaveAccessibleName("7 sessions need attention");
   passive(native.calls);

@@ -6,7 +6,7 @@
 // chose; the width only limits it, so the row never rests past the last
 // column, and the chosen position comes back when the width allows it again.
 // A hidden column also shows when keyboard focus lands in it, or when a part
-// of it is to be brought into view (`showColumnHolding`, ./workFocus.ts
+// of it is to be brought into view (`showColumnHolding`, ./storyCardFocus.ts
 // `keepInView`): the view moves the fewest columns that show the column
 // holding that element in the page (`columnMark`), so a dialog
 // opened from a card belongs to the card's column wherever the window shows

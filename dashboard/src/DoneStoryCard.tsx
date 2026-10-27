@@ -84,7 +84,7 @@ export function DoneStoryCard({
       {...doneStoryMarks(identity)}
     >
       <h3 id={heading}>{title}</h3>
-      {story !== undefined && <p className="card-identity">{identity}</p>}
+      {story !== undefined && <p className="record-identity">{identity}</p>}
       <p>
         Done <Moment at={new Date(completedAt)} />
       </p>
@@ -92,7 +92,7 @@ export function DoneStoryCard({
         <p className={said.gap ? "assignment-gap" : "quiet"}>{said.words}</p>
       )}
       {facts.length > 0 && (
-        <p className="card-owner">
+        <p className="story-card-owner">
           <span className="owner-line">
             {facts.map(({ key, fact }, index) => (
               <span key={key}>
@@ -106,7 +106,7 @@ export function DoneStoryCard({
       <StorySessions
         sessions={sessions}
         className="done-story-sessions"
-        onCard={false}
+        onStoryCard={false}
       />
       <StoryReviewAction
         completed

@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionOf,
+  storyCardSessionOf,
   parts,
   standaloneSessionName,
   sessionNamedBy,
@@ -25,7 +25,7 @@ import {
   readyStory,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 
 test.setTimeout(120_000);
@@ -52,15 +52,15 @@ test.describe("deleting an unavailable session's record from its current home", 
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
-    const sidebar = sidebarParts(page);
+    const sidebar = sessionsSidebarParts(page);
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
     const gone = await sessionNamedBy(
-      cardSessionOf(card(readyStory), "Execution"),
+      storyCardSessionOf(card(readyStory), "Execution"),
     );
     const becameKnown = await sessionNamedBy(
-      cardSessionOf(card(notRefinedStory), "Refinement"),
+      storyCardSessionOf(card(notRefinedStory), "Refinement"),
     );
     dashboard.claudeSessionBecomes(gone, "forgotten");
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
@@ -68,7 +68,7 @@ test.describe("deleting an unavailable session's record from its current home", 
     // its local Taken home while the other session follows Taken.
     await show(columnsJourney.completed);
     await sidebar.button.click();
-    const unavailable = cardSessionOf(
+    const unavailable = storyCardSessionOf(
       parts(page).taken.getByRole("article", { name: readyStory, exact: true }),
       "Execution",
     );

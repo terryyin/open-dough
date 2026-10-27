@@ -39,7 +39,7 @@ import {
   retitled,
 } from "./recentlyDoneRefresh.ts";
 import { resizeEdge } from "./sidePanelWidthPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { holding } from "./support/heldGitHubAnswer.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
@@ -110,7 +110,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     await terminal.getByRole("button", { name: "Close" }).click();
     await expect(terminal).toHaveCount(0);
     await expectEntries(recent, twenty);
-    const { button } = sidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     await button.click();
     await button.click();
     await expectEntries(recent, twenty);

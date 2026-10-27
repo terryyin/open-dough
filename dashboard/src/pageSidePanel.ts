@@ -31,7 +31,7 @@ import {
   type StoryReviewRequest,
 } from "./pageReviews.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
-import { workHome } from "./workFocus.ts";
+import { storyCardHome } from "./storyCardFocus.ts";
 import { useKeyboardReturn } from "./keyboardReturn.ts";
 
 // What the panel shows, and whether it takes the page column's room too.
@@ -142,7 +142,7 @@ export function usePageSidePanel({
       home: () =>
         ("record" in closed
           ? sessionEntry(sessionKey(closed.record.session))
-          : null) ?? workHome(identity),
+          : null) ?? storyCardHome(identity),
     });
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
@@ -163,7 +163,7 @@ export function usePageSidePanel({
         session: record,
         home: () =>
           sessionEntry(sessionKey(record.session)) ??
-          workHome(launchSubject(record.request).identity),
+          storyCardHome(launchSubject(record.request).identity),
       });
     return true;
   };

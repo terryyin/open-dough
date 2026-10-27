@@ -1,18 +1,18 @@
 // A confirmed ad hoc launch opens its session in the page's terminal at once,
-// on the committed origin of ./agent-launch-card.spec.ts (./launchJourney.ts):
+// on the committed origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, a polite
-// status says it started, the session's entry and sidebar entry show it, and
+// status says it started, the session's entry and Sessions sidebar Session entry show it, and
 // the page does not scroll. Close detaches only and returns the keyboard to
 // Start session. The synthetic `claude` (./fixtures/fake-claude) echoes what
 // is typed; the real one is never reached.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog, startSessionField } from "./launchCardPage.ts";
+import { openTakenBacklog, startSessionField } from "./launchStoryCardPage.ts";
 import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 
 test.setTimeout(120_000);
 
@@ -129,7 +129,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     await expect(parts(page).adHocStarted).toBeVisible();
     await expect(entry).toContainText("Shown in terminal");
     expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
-    const { button: sessions, entries } = sidebarParts(page);
+    const { button: sessions, entries } = sessionsSidebarParts(page);
     await sessions.click();
     await expect(entries.first().getByRole("button")).toHaveAttribute(
       "aria-current",

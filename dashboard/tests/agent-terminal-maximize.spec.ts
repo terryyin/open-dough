@@ -14,7 +14,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   sessionNamedBy,
@@ -28,7 +28,7 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 
@@ -73,7 +73,7 @@ test.describe("maximizing the terminal panel", () => {
       columnsJourney,
     );
     const { banner, board, backlog } = parts(page);
-    const sidebar = sidebarParts(page);
+    const sidebar = sessionsSidebarParts(page);
     const pageColumn = page.locator(".page-column");
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
@@ -89,11 +89,13 @@ test.describe("maximizing the terminal panel", () => {
     await settled();
     await launch(notRefinedStory, "Execution");
     await launch(readyStory, "Execution");
-    const first = await sessionNamedBy(cardSessions(card(notRefinedStory)));
-    const second = await sessionNamedBy(cardSessions(card(readyStory)));
+    const first = await sessionNamedBy(
+      storyCardSessions(card(notRefinedStory)),
+    );
+    const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openIn(cardSessions(card(notRefinedStory))).click();
+    await openIn(storyCardSessions(card(notRefinedStory))).click();
     await expect(rows).toContainText(`attached ${shortId(first)}`);
     await page.keyboard.type("keep this line");
     await page.keyboard.press("Enter");
@@ -198,7 +200,7 @@ test.describe("maximizing the terminal panel", () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openIn(cardSessions(card(readyStory))).click();
+      await openIn(storyCardSessions(card(readyStory))).click();
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();

@@ -11,7 +11,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
-import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
@@ -43,7 +43,7 @@ async function reportedWorkingEntry(
   await story.report();
   await publishOrigin(page, origin);
   await page.goto("/");
-  const entry = cardSessions(
+  const entry = storyCardSessions(
     parts(page).taken.getByRole("article", { name: titleA, exact: true }),
   );
   await markReportRead(entry);

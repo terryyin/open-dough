@@ -1,5 +1,5 @@
 // Running Cursor sessions, a collapsible section of the Sessions sidebar
-// below its session list (`./SessionSidebar.tsx`, which keeps whether it is
+// below its session list (`./SessionsSidebar.tsx`, which keeps whether it is
 // expanded), opened without opening a terminal. Expanded, the sidebar's edge
 // that resizes it lies along its top, its content scrolls on its own, and it
 // says whether the Cursor runner is running. Each row is one session that
@@ -19,7 +19,7 @@ import {
   type RunningCursorSessions,
 } from "./cursorRunnerSessions.ts";
 import { projectLabel, useProjects } from "./projectList.tsx";
-import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
+import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 
 // Often enough to name the screen the runner still holds. The follow-up
@@ -59,7 +59,7 @@ export function RunningCursorSessions({
   readonly open: boolean;
   readonly onToggle: () => void;
   readonly records: readonly LaunchWithState[] | undefined;
-  readonly onOpen: OpenSidebarEntry;
+  readonly onOpen: OpenSessionsSidebarSessionEntry;
   // The edge between this section and the session list, while expanded.
   readonly edge: ReactNode;
 }) {

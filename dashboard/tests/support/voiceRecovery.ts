@@ -10,7 +10,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchCardPage.ts";
+} from "../launchStoryCardPage.ts";
 import { saveVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
 
 export const originalDraft = "Keep this work local";

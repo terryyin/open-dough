@@ -25,7 +25,7 @@ import { readsBesideChecks } from "./originObservation.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
   expectCanonicalFacts,
-  expectCardAssignments,
+  expectStoryCardAssignments,
   expectDoneFacts,
 } from "./publishedFactsAssertions.ts";
 import { heldFactGroups, takenCanonicalPath } from "./publishedFactsArrival.ts";
@@ -96,7 +96,7 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
     name: unreachableTitle,
   });
   const terminalCard = backlog.getByRole("article", { name: terminalTitle });
-  await expect(withheldCard.locator(".card-preparation")).toHaveText(
+  await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
     unreachableGap,
   );
   await expect(unreachableCard).toContainText(unreachableGap);
@@ -119,7 +119,7 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
     withheldFails = false;
     await page.clock.runFor(15_250);
     await untilPageReadsAnswered(page);
-    await expect(withheldCard.locator(".card-preparation")).toHaveText(
+    await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
       "Not recorded",
     );
     await expect(terminalCard).toContainText(unreachableGap);
@@ -161,7 +161,7 @@ test("a detail still unread at the wait bound recovers on its own at the same re
     await heldFactGroups(page);
   release("profiles");
   release("done");
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(branchCard).toContainText("Reading preparation…");
 
@@ -169,10 +169,10 @@ test("a detail still unread at the wait bound recovers on its own at the same re
   await expect(problem).toContainText(
     "GitHub did not answer within 30 seconds, so the read was given up.",
   );
-  await expect(branchCard.locator(".card-preparation")).toHaveText(
+  await expect(branchCard.locator(".story-card-preparation")).toHaveText(
     preparationGap,
   );
-  await expectCardAssignments(branchCard, queuedCard);
+  await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(problem).toContainText(detailRecovery);
   const from = githubFor(page).calls.length;
@@ -189,7 +189,7 @@ test("a detail still unread at the wait bound recovers on its own at the same re
     await untilPageReadsAnswered(page);
     await expect(branchCard).not.toContainText(preparationGap);
     await expectCanonicalFacts(queuedCard);
-    await expectCardAssignments(branchCard, queuedCard);
+    await expectStoryCardAssignments(branchCard, queuedCard);
     await expectDoneFacts(doneCard);
     await expect(problem).toHaveCount(0);
     expect(

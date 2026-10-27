@@ -14,11 +14,11 @@ import type { MachineSessions } from "./agentLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useProjects } from "./projectList.tsx";
 import {
-  SessionSidebar,
-  SidebarOnPage,
-  useSessionSidebar,
-} from "./SessionSidebar.tsx";
-import type { OpenSidebarEntry } from "./SidebarEntry.tsx";
+  SessionsSidebar,
+  SessionsSidebarOnPage,
+  useSessionsSidebar,
+} from "./SessionsSidebar.tsx";
+import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { TerminalPanel } from "./TerminalPanel.tsx";
 import { StoryReviewPanel } from "./StoryReviewPanel.tsx";
 import { ReviewsOnPage } from "./pageReviews.ts";
@@ -72,7 +72,7 @@ export function PageFrame({
   readonly children: ReactNode;
 }) {
   const projects = useProjects();
-  const sidebar = useSessionSidebar(records, alerts);
+  const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
   const panel = usePageSidePanel({
     markDone,
@@ -103,7 +103,10 @@ export function PageFrame({
     stories.shown,
     range,
   );
-  const goToSession: OpenSidebarEntry = ({ record, control }) => {
+  const goToSession: OpenSessionsSidebarSessionEntry = ({
+    record,
+    control,
+  }) => {
     const source = projects.find(
       (project) => project.id === record.request.source,
     );
@@ -125,7 +128,7 @@ export function PageFrame({
             ref={frame}
             className={
               [
-                sidebar.open && "page-with-sidebar",
+                sidebar.open && "page-with-sessions-sidebar",
                 panel.shown !== undefined && "page-split",
                 panel.shown !== undefined && stacked && "page-stacked",
                 maximized && "page-maximized",
@@ -140,12 +143,12 @@ export function PageFrame({
               } as CSSProperties)
             }
           >
-            <SessionSidebar {...sidebar} onOpen={goToSession} />
-            <SidebarOnPage value={sidebar}>
+            <SessionsSidebar {...sidebar} onOpen={goToSession} />
+            <SessionsSidebarOnPage value={sidebar}>
               <RecentlyDoneRangeOnPage value={range}>
                 <div className="page-column">{children}</div>
               </RecentlyDoneRangeOnPage>
-            </SidebarOnPage>
+            </SessionsSidebarOnPage>
             {result && (
               <SessionResultPanel
                 key={sessionKey(result.record.session)}

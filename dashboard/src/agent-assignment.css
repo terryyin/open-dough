@@ -6,7 +6,7 @@
 
 /* On a card's scan line: Preparing, then each developer's portrait, name,
    credited human, host and model. */
-.card-owner {
+.story-card-owner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

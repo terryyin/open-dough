@@ -2,7 +2,7 @@
 // Recently done entry of the mixed-host story.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
 
@@ -12,7 +12,7 @@ export async function expectMixedContinuation(
   continuation: NonNullable<CodexSession["continuation"]>,
   notice?: string,
 ) {
-  const codex = cardSessions(card).filter({
+  const codex = storyCardSessions(card).filter({
     hasText: "Refinement started in Codex",
   });
   await expect(codex.locator("p", { hasText: /^Workspace / })).toHaveText(

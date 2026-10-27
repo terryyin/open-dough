@@ -171,7 +171,7 @@ test("switching projects clears project-local recovery while a standing login li
   const withheldCard = parts(page).backlog.getByRole("article", {
     name: withheldTitle,
   });
-  await expect(withheldCard.locator(".card-preparation")).toContainText(
+  await expect(withheldCard.locator(".story-card-preparation")).toContainText(
     `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
   );
   const doughnut = await publishMovingOrigin(page, doughnutRepository);

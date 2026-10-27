@@ -222,7 +222,7 @@ export function StoryDetail({
     >
       <div>
         <h4>Identity</h4>
-        <p className="card-identity">{entry.identity}</p>
+        <p className="record-identity">{entry.identity}</p>
       </div>
       <PurposeBlock purpose={entry.purpose} />
       <AssignmentDetail owner={entry.owner} preparing={entry.preparing} />
@@ -234,7 +234,7 @@ export function StoryDetail({
       <ExecutionCompleteBlock planSlices={entry.planSlices} />
       <div>
         <h4>Pinned source links</h4>
-        <ul className="card-links" aria-label="Pinned source links">
+        <ul className="story-card-links" aria-label="Pinned source links">
           <WorkSourceLinks entry={entry} />
         </ul>
       </div>

@@ -19,7 +19,7 @@ reads through a local `gh` read boundary; see the
 
 The interface direction is an animated, zoomable **Board view**.
 The first story needs a readable connection between Backlog and Taken, entry
-facts, evidence links, and refresh. Begin with semantic HTML work cards and
+facts, evidence links, and refresh. Begin with semantic HTML Story cards and
 controls, ordinary CSS layout, and simple SVG connectors if useful. Wrapping,
 reflow, and scrolling may be sufficient now. Add transforms, viewport state,
 or motion only for a demonstrated reading or orientation need. This is an initial

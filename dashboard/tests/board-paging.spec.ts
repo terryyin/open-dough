@@ -27,7 +27,7 @@ import {
   columnPagingControl,
   pagingRoom,
   expectBelowBanner,
-  expectCardsKeepTheirShare,
+  expectStoryCardsKeepTheirShare,
   expectEndsWithShown,
   expectView,
   recordSlides,
@@ -57,7 +57,7 @@ test.describe("in a narrow window", () => {
 
     await test.step("Backlog fills the page; the right control names Taken", async () => {
       await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-      await expectCardsKeepTheirShare(page, 1);
+      await expectStoryCardsKeepTheirShare(page, 1);
     });
 
     await test.step("one move shows Taken, with Backlog on the left and Recently done on the right", async () => {

@@ -1,5 +1,5 @@
 // Choosing the model in a launch dialog, on the committed origin of
-// ./agent-launch-card.spec.ts (./launchJourney.ts): every launch dialog offers
+// ./agent-launch-story-card.spec.ts (./launchJourney.ts): every launch dialog offers
 // Model beside Host after its instruction field, on Default at each opening, and a chosen
 // model reaches the synthetic `claude` (./fixtures/fake-claude) as `--model`.
 // The real `claude` is never reached. How the launch boundary takes a model is
@@ -7,12 +7,12 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -211,6 +211,6 @@ test("a refused launch with Opus says Launch failed beside its action, closes th
   await expect(card(readyStory).locator(".launch-problem")).toContainText(
     "Opus",
   );
-  await expect(cardSessions(card(readyStory))).toHaveCount(0);
+  await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
   expect(dashboard.claudeCalls()).toHaveLength(1);
 });

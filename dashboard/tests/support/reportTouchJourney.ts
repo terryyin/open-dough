@@ -6,7 +6,7 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { completionReport } from "./completionReport.ts";
-import { cardSessions, parts } from "../dashboardPage.ts";
+import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
@@ -39,7 +39,7 @@ export async function openUnfinishedReport(
   const since = native.calls.length;
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  const entry = cardSessions(card(notRefinedStory));
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
   const open = entry.getByRole("button", { name: "Read final report" });
   await open.focus();

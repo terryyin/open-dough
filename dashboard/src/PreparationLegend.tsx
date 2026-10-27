@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { CircleHelp } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { BadgeLegend } from "./PreparationCard.tsx";
+import { BadgeLegend } from "./StoryCardPreparation.tsx";
 import "./frame-controls.css";
 import "./preparation-legend.css";
 

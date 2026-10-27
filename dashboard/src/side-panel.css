@@ -3,7 +3,7 @@
    left, and the panel on the right, pinned to the window's height while the
    page scrolls beside it. The panel takes the width its edge chose
    (`--side-panel-width`, ./sidePanelWidth.ts), or half the room until then,
-   right of the Sessions sidebar's column (./session-sidebar.css) while it is
+   right of the Sessions sidebar's column (./sessions-sidebar.css) while it is
    open. Where the room holds no usable split, as on a narrow window, the
    panel is stacked above the page. Maximized, the panel takes the page
    column's room, the page with its banner hidden behind it, pinned to the
@@ -16,7 +16,7 @@
   grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
 }
 
-.page-with-sidebar.page-split {
+.page-with-sessions-sidebar.page-split {
   grid-template-columns: 18rem minmax(0, 1fr) var(--side-panel-track);
 }
 
@@ -132,16 +132,16 @@
 
 /* Stacked beside the open sidebar, the panel sits above the page right of
    it; on a narrow window the sidebar overlays the page instead. */
-.page-with-sidebar.page-split.page-stacked {
+.page-with-sessions-sidebar.page-split.page-stacked {
   grid-template-columns: 18rem minmax(0, 1fr);
 }
 
-.page-with-sidebar.page-stacked > .session-sidebar {
+.page-with-sessions-sidebar.page-stacked > .sessions-sidebar {
   grid-row: 1 / span 2;
 }
 
 @media (max-width: 800px) {
-  .page-with-sidebar.page-split.page-stacked {
+  .page-with-sessions-sidebar.page-split.page-stacked {
     grid-template-columns: minmax(0, 1fr);
   }
 }

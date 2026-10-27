@@ -5,7 +5,7 @@
 // session launch -- is answered at once instead of being missed until the
 // attempt settles, and a wait naming the current count answers at the next
 // change. What the page says from those answers is
-// ../agent-launch-start-card.spec.ts.
+// ../agent-launch-start-story-card.spec.ts.
 
 import { expect, test } from "../support/pageTest.ts";
 import {

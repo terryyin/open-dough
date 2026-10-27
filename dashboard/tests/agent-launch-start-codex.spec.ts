@@ -5,7 +5,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexStart.ts";

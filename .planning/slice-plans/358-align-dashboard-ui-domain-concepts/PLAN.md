@@ -51,7 +51,7 @@ move to the concept they implement.
   - Panel divider: `SidePanelEdge` → `PanelDivider`, accessible name "Panel divider".
   - Other resize and paging controls: the generic `ResizeEdge` becomes a divider component, and the Running Cursor sessions control is named "Running Cursor sessions divider". `ColumnEdge` is renamed for its hidden-column paging responsibility, without "edge".
 - **Saved preferences:** each renamed browser key (`open-dough.dashboardColumns.position`, `open-dough.sessionSidebar.open`, `open-dough.sessionSidebar.runningCursorHeight`) is read from its new key, falls back to the former key once, and is then kept under the new key. `open-dough.sidePanel.width` already matches its concept.
-- **Board scroll region:** the region below the banner scrolls instead of the document. The banner sits above it unpinned by `position: sticky`. Focus and reveal padding, the readable/in-view checks (`pageMovement.ts`, `workFocus.ts`), the Preparation legend's reading-position restore, and the sticky Column headers and paging controls refer to that region instead of `html`/`window`. When the agent roster replaces the Board, it scrolls in its own region. Stacked, the Side panel takes 50dvh above the Board instead of 70dvh, so the banner and Board keep room to read a Story card. This is a reversible layout value.
+- **Board scroll region:** the region below the banner scrolls instead of the document. The banner sits above it unpinned by `position: sticky`. Focus and reveal padding, the readable/in-view checks (`pageMovement.ts`, `storyCardFocus.ts`), the Preparation legend's reading-position restore, and the sticky Column headers and paging controls refer to that region instead of `html`/`window`. When the agent roster replaces the Board, it scrolls in its own region. Stacked, the Side panel takes 50dvh above the Board instead of 70dvh, so the banner and Board keep room to read a Story card. This is a reversible layout value.
 
 ## Preparation observations and decisive premises
 
@@ -66,25 +66,7 @@ No paid or owner-held premise remains.
 
 ## Outside-in proof ownership
 
-| Promise (key example) | Owner | Observable result |
-| --- | --- | --- |
-| Board and Columns traceable under one name; screen reader announces "Board" (ex. 1) | 1 | Journeys find the Board by `getByRole("region", { name: "Board" })`; Column headings unchanged; no `DashboardColumns`, `WorkStages`, `stage` name remains for these concepts in src, tests, or docs |
-| Column position kept across the rename (ex. 4) | 1 | Column paging journey: a position saved under the former key shows the same Columns after reload and is kept under the new key |
-| Story cards and Session entries traceable (ex. 1) | 2 | Card and sidebar journeys pass with Story card and Session entry names; one Session entry concept in all three placements |
-| Sessions sidebar open state and Running Cursor height kept (ex. 2, 4) | 2 | Sidebar and Running Cursor journeys: former-key values recovered after reload |
-| Side panel content named by content (ex. 2) | 3 | Terminal, final report and story review journeys pass; content components carry no Side panel name; "session result" gone |
-| Panel divider resizes the Side panel; Running Cursor sessions divider keeps resizing (ex. 3) | 3 | Side panel width journeys find the separator named "Panel divider" and resize by drag and keys; Running Cursor journey finds "Running Cursor sessions divider" |
-| Board scrollbar scrolls only the Board, side by side and stacked; reveal lands below banner and Column heading (ex. 3, Board scroll example) | 4 | New journey at 1400×420 and 700×800 with the Side panel open: scrolling the Board leaves the Side panel's top unchanged, and the document does not scroll. The 20 tests in observation 2 pass against the Board region |
-| No competing or overloaded name; existing journeys pass (ex. 5) | 5 | Recorded whole-dashboard name review over src, tests, server, docs; full `npm run test:dashboard`, typecheck, and lint green |
-
-Each slice runs `npm run typecheck:dashboard` and `npm run lint` (with
-`/opt/homebrew/bin` first on `PATH`), plus the dashboard specs that the
-consumer-trace script lists for its renamed files, identifiers, selectors,
-and retired literals. A rename reaches many journeys, so when the trace lists
-most of the suite, the slice runs the whole `npm run test:dashboard` instead
-of hand-picking. Slice 5 runs the whole dashboard suite and `npm test` on the
-final state before publication, because the change spans shared dashboard
-paths. CI runs after publication.
+The source-only acceptance table below maps every promise, trigger and qualification to its owning slice and observation. Each slice runs typecheck and full lint with `/opt/homebrew/bin` first on PATH, plus consumer-traced specs. When most dashboard journeys consume the effect, run the full dashboard suite. Slice 5 runs full dashboard proof and `npm test` on the final state before publication; CI follows publication. Board scroll proof includes both 1400×420 and 700×800 with an open Side panel, stationary panel/document and preserved reveal/focus behavior.
 
 ## Ordered slices
 
@@ -101,7 +83,7 @@ paging control's new name.
 
 ### 2. Story cards, Session entries, and the Sessions sidebar carry their concept names
 Type: Behavior
-Status: planned
+Status: done
 Proof: card, Sessions sidebar, and Running Cursor journeys with former-key open state and height; consumer-trace-listed specs green
 
 Behavior: a developer opens the Sessions sidebar or a Story card's sessions →
@@ -225,3 +207,35 @@ Observer `/tmp/dough-ci-501/watch-SEWXXM` stopped at the judgment boundary: unre
 - With `PATH=/opt/homebrew/bin:$PATH`, `bash tests/test-runner-bash.sh`, `bash tests/test-runner-split.sh`, `bash tests/test-runner-failure-report.sh`, `bash tests/test-runner-interrupt.sh` each passed. `python3 /tmp/seed153-check-docs.py` confirmed retained paragraphs/anchors/links. Remaining 1,667-test proof is reused only for unchanged boundaries; no gap or running verification remains.
 
 Formatter expanded membership spec to254 lines; size guard withheld commit/publication. Shortened redundant comments to250 without executable edits; accepted proof remains applicable. Fresh preparation is retried with the same owned paths.
+
+Slice 1 delivered to the origin execution branch at `801f62c3bb2427ab838588ef2ba48f217ab156f6`, suffix base `3901d3ac8ddd5717744a0af36d53160033595add`; observer reused `/tmp/dough-ci-501/watch-8HHXKr`. Formatting, full lint, staged hook/typecheck and final size guard passed. This accepted SHA is the next increment’s published base.
+
+## Story obligations
+
+### G1. Sessions sidebar accessible region name
+Reported: slice 2 — "implementation reports the complementary region still has accessible name "Sessions"; coordinator requires "Sessions sidebar" to expose its adopted concept. Heading/button Sessions retain their existing content/action wording."
+Story clause: "align UI wording and accessible names"
+Disposition: proved by slice 2: sessions-sidebar.spec.ts opening journey observes exact complementary name; final full proof selects all55 region consumers; /tmp/seed153-slice2-handoff.txt.
+
+### G2. Required process-cleanup proof
+Reported: slice 2 — "full dashboard run observed boundary/run-processes.spec.ts:110 intentional timeout without its expected orphan-cleanup diagnostic; initial broad run was stopped gracefully and retained at /tmp/seed153-slice2-proof.json. Sanitized diagnosis /tmp/seed153-slice2-process-observation.json confirms spawnSync ps ENOBUFS at1,114,112 bytes versus successful1,967,922-byte observation locating the exact owned orphan. Repair observation completeness/failure handling without changing run ownership; preserve the separately observed foreign orphan. New fake-ps regression also needs explicit platform-boundary setup so Linux CI reaches the intended PS path; slice 2 owns that focused correction after the current full run."
+Story clause: "Existing relevant automated journeys still pass after their names and selectors are aligned."
+Disposition: proved by slice 2: boundary/run-process-observation.spec.ts covers complete large PS output, actual own-child termination/other-owner survival, sanitized failure and resource removal; original boundary/run-processes.spec.ts observes real nested orphan cleanup. Final portable six-test proof and full proof passed; /tmp/seed153-slice2-handoff.txt includes inspected lifecycle and exact-owned cleanup receipts. Actual Linux execution remains CI-owned.
+
+### G3. Story card geometry after rename
+Reported: slice 2 — "published-facts-reading scroll checks fail because StoryCard's className array retains literal "card" while its styling moved to ".story-card". Correct after the frozen run ends; fresh full proof must cover the corrected geometry and G1 accessibility together."
+Story clause: "Preserve published story facts, session identities, story URLs, existing behavior, and saved browser preferences."
+Disposition: proved by slice 2: StoryCard base class restored under adopted name; all nine geometry failures pass focused and full; /tmp/seed153-slice2-handoff.txt retains original traces/causal limits.
+
+## Slice 2 acceptance
+
+- Independent source-only `/root/source_review2` input/commitments retained in agent history and compared with canonical story/source table: Story cards, one Session entry across all placements, separate cross-project Sessions sidebar, saved preferences and preservation apply now; content/divider/scroll promises remain slices3–5. No qualification or example removed.
+- Inspected StoryCard/Columns and Story-card focus marks, SessionEntry/SessionsSidebarSessionEntry placements, exact complementary region naming, legacy/current preference reads, both real reload/precedence/subsequent-choice journeys, public process observation/lifecycle assertions and source setup. All original identity/URL/fact846 values retained; all52 class-name values audited. New split case modules preserve registrations/assertions.
+- Complete acceptance evidence `/tmp/seed153-slice2-handoff.txt` retains literal commands, setup/assertions, failure dispositions and cleanup. `PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed153-slice2-proof-final.json npm run test:dashboard -- --workers=8` passed all1,671, runner/strict,717.659s, all55 region consumers selected.
+- Focused27 passed all initial failures plus migrations/region/resource observations. Final portability/original-cleanup6 passed after only test platform-boundary setup changed; full product proof remains valid for unchanged boundaries. Typecheck, spec-discovery6, `PATH=/opt/homebrew/bin:$PATH bash tests/dashboard-repeat.sh`, whitespace check passed. Actual Linux execution is left to required CI observation.
+- Trace `/tmp/seed153-slice2-consumer-trace-dispositions.md`: all1,482 consumers dispositioned (845run/637excluded); external diagnostic-reader test passed after heavy browser proof. Initial failed/interrupted run is preserved: 1,507pass/10fail/6interrupted/146unattempted. One real truncated-process-list defect and nine geometry failures were corrected without weakening assertions/timeouts; exact-owned5 leftovers ended, unrelated orphan preserved.
+- All current297 owned files <=250 before formatting. Root accepts G1–G3 as proved; no remaining source or proof gap. Independent refactor and delivery remain.
+
+Slice 2 independent refactor `/root/refactor2` returned `## REFACTOR COMPLETE`: only dangling report-control prose became an explicit link to retained terminal instructions. Exact replacement, four relative links, operation/return pointer, six-consumer trace and whitespace passed; all297 files plus plan <=250. Root inspected `/tmp/seed153-refactor2-consumer-trace-dispositioned.md`; no executable boundary changed, all accepted proof reused. No unresolved gap or live verification remains.
+
+Slice 2 formatter expanded seven files beyond250; size guard withheld commit. Shortened comments and reused one existing Taken locator across identical assertions; runtime, setup and observing predicates unchanged, accepted proof reused.

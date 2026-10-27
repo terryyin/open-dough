@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { expectServed } from "./agentPortrait.ts";

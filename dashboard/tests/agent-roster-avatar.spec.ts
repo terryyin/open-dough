@@ -11,11 +11,10 @@
 // fetches each avatar (authenticated-avatar.spec.ts), and the page decides
 // everything shown. How a slow or stalled walk delays only its own profile's
 // details is profile-addition-latency.spec.ts.
-
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
 import { loadedWidth } from "./agentPortrait.ts";
@@ -45,7 +44,6 @@ import {
   queuedStory,
   takenStory,
 } from "./agentRosterRecords.ts";
-
 // The credited human beside an agent: their avatar or initials, and name.
 function creditOf(holder: Locator) {
   const credit = holder.locator(".owner-human-credit");
@@ -55,7 +53,6 @@ function creditOf(holder: Locator) {
     initials: credit.locator(".human-avatar-fallback"),
   };
 }
-
 async function expectAvatar(
   page: Page,
   holder: Locator,
@@ -96,7 +93,7 @@ test("each assignment credits the committer who added its profile's current allo
 
   const { taken, backlog, project, reading } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
-  const takenCard = taken.getByRole("article", { name: takenStory });
+  const takenStoryCard = taken.getByRole("article", { name: takenStory });
   const preparingCard = backlog.getByRole("article", { name: queuedStory });
   const { roster, member, opener, back } = rosterParts(page);
   const openRoster = (agent: string) => opener(agent).click();
@@ -107,7 +104,7 @@ test("each assignment credits the committer who added its profile's current allo
     const { revision } = firstRevision;
     await expectAvatar(
       page,
-      await inspectedDetail(takenCard),
+      await inspectedDetail(takenStoryCard),
       credited,
       creditedWidth,
       revision,
@@ -115,7 +112,7 @@ test("each assignment credits the committer who added its profile's current allo
     await expectInitials(await inspectedDetail(preparingCard), preparer, "PP");
     // The card's scan line shows the same avatar beside the credited name;
     // a name with no matched account stands alone there.
-    const takenScan = takenCard.locator(".owner-line");
+    const takenScan = takenStoryCard.locator(".owner-line");
     await expect(takenScan.locator(".owner-human-name")).toHaveText(credited);
     const scanImage = takenScan.locator("img.human-avatar");
     await expect(scanImage).toBeVisible();
@@ -123,7 +120,7 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(
       preparingCard.locator(".owner-line .human-avatar"),
     ).toHaveCount(0);
-    for (const card of [takenCard, preparingCard]) {
+    for (const card of [takenStoryCard, preparingCard]) {
       await expect(card).not.toContainText(modifier);
       await expect(card).not.toContainText(olderAllocator);
     }
@@ -166,7 +163,7 @@ test("each assignment credits the committer who added its profile's current allo
     await expect(reading).toHaveCount(0);
     await expectAvatar(
       page,
-      await inspectedDetail(takenCard),
+      await inspectedDetail(takenStoryCard),
       credited,
       creditedWidth,
       firstRevision.revision,
@@ -195,12 +192,12 @@ test("each assignment credits the committer who added its profile's current allo
     const { revision } = secondRevision;
     await expectAvatar(
       page,
-      await inspectedDetail(takenCard),
+      await inspectedDetail(takenStoryCard),
       reallocator,
       reallocatorWidth,
       revision,
     );
-    await expect(takenCard).not.toContainText(credited);
+    await expect(takenStoryCard).not.toContainText(credited);
     // The Preparing agent's new allocation credits the account the Taken
     // card showed before: its avatar is served from the boundary's memory.
     await expectAvatar(

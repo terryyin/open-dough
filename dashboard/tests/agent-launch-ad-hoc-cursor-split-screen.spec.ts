@@ -8,7 +8,7 @@
 // first answer, and the kept record is confirmed when the launch returns.
 
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { startSessionField, startedSession } from "./launchCardPage.ts";
+import { startSessionField, startedSession } from "./launchStoryCardPage.ts";
 import {
   expect,
   keptRecord,

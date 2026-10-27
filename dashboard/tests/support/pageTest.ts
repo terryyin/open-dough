@@ -43,7 +43,7 @@ endDescendantsAtExit();
 export const test = base.extend<{}, { launchJourney: LaunchJourney }>({
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
-  // worker runs from it (../launchCardPage.ts serves it as GitHub would).
+  // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).
   // Publishing runs real git and the backlog CLI; its own bound keeps a busy
   // machine from starving it, and only a worker that takes the fixture loads
   // the publishing code.

@@ -15,7 +15,10 @@ import {
 } from "./accessibleOverview.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
-import { enabledCardLaunchActions, inspectedDetail } from "./cardControls.ts";
+import {
+  enabledStoryCardLaunchActions,
+  inspectedDetail,
+} from "./storyCardControls.ts";
 import {
   commitAnswer,
   emptyBacklog,
@@ -230,7 +233,7 @@ test("accessible overview reads a backlog longer than one screen by scrolling th
         name: queuedTitle(place + 1),
         exact: true,
       });
-      const launches = await enabledCardLaunchActions(card);
+      const launches = await enabledStoryCardLaunchActions(card);
       for (let step = 0; step < launches.length + 1; step += 1) {
         await page.keyboard.press("Shift+Tab");
       }

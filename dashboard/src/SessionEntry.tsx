@@ -30,17 +30,17 @@ import "./agent-launch.css";
 
 export function SessionEntry({
   record,
-  onCard,
+  onStoryCard,
   takesFocus,
-  cardAssignments,
+  storyCardAssignments,
 }: {
   readonly record: LaunchWithState;
   // Set where the entry is listed on its story's card, which names the story.
-  readonly onCard: boolean;
+  readonly onStoryCard: boolean;
   // Given where the developer's own launch lists the entry, so the keyboard
   // can land on it; set, it takes the keyboard.
   readonly takesFocus?: boolean;
-  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
+  readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   const entry = useRef<HTMLElement>(null);
   const {
@@ -81,15 +81,17 @@ export function SessionEntry({
     <article
       ref={entry}
       className={current ? `${entryClass} in-terminal` : entryClass}
-      aria-label={onCard ? `${name} session` : `${name} session for ${title}`}
+      aria-label={
+        onStoryCard ? `${name} session` : `${name} session for ${title}`
+      }
       tabIndex={-1}
       {...showsSession(sessionKey(record.session))}
     >
-      {!onCard && (
+      {!onStoryCard && (
         <>
           <h3>{title}</h3>
           {identity !== undefined && (
-            <p className="card-identity">{identity}</p>
+            <p className="record-identity">{identity}</p>
           )}
         </>
       )}
@@ -111,7 +113,10 @@ export function SessionEntry({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelWords !== undefined && <p>{modelWords}</p>}
-      <SessionAssignment record={record} cardAssignments={cardAssignments} />
+      <SessionAssignment
+        record={record}
+        storyCardAssignments={storyCardAssignments}
+      />
       {optionsWords !== undefined && <p>{optionsWords}</p>}
       {policyWords !== undefined && <p>{policyWords}</p>}
       {workspace !== undefined && <p>{workspace}</p>}
@@ -184,23 +189,23 @@ export function SessionList({
 }
 
 // A story's sessions inside its card, newest first, each the entry Recently
-// done shows: on a work card (`./CardSessions.tsx`), without the story the
+// done shows: on a Story card (`./StoryCardSessions.tsx`), without the story the
 // card names, or on a done story's card (`./DoneStoryCard.tsx`). With none it
 // shows nothing. The entry the developer's own launch from the card just
 // listed takes the keyboard.
 export function StorySessions({
   sessions,
   className,
-  onCard,
+  onStoryCard,
   launchedHere,
-  cardAssignments,
+  storyCardAssignments,
 }: {
   // The story's sessions, oldest first.
   readonly sessions: readonly LaunchWithState[];
   readonly className: string;
-  readonly onCard: boolean;
+  readonly onStoryCard: boolean;
   readonly launchedHere?: string | undefined;
-  readonly cardAssignments?: readonly AgentAssignment[] | undefined;
+  readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   if (sessions.length === 0) return null;
   return (
@@ -209,9 +214,9 @@ export function StorySessions({
         <li key={sessionKey(record.session)}>
           <SessionEntry
             record={record}
-            onCard={onCard}
+            onStoryCard={onStoryCard}
             takesFocus={launchedHere === sessionKey(record.session)}
-            cardAssignments={cardAssignments}
+            storyCardAssignments={storyCardAssignments}
           />
         </li>
       ))}

@@ -41,11 +41,11 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   const { taken, backlog, project } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
-  const takenCard = taken.getByRole("article", { name: takenStory });
+  const takenStoryCard = taken.getByRole("article", { name: takenStory });
   const { roster, members, member, opener, back } = rosterParts(page);
 
   await test.step("the Taken card's portrait opens the roster and history walks back and forward", async () => {
-    await takenCard.getByRole("button", { name: "Inspect story" }).click();
+    await takenStoryCard.getByRole("button", { name: "Inspect story" }).click();
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
     await expect(taken).toBeHidden();
@@ -67,7 +67,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(roster).toBeHidden();
     await expect(taken).toBeVisible();
     await expect(
-      takenCard.getByRole("button", { name: "Hide detail" }),
+      takenStoryCard.getByRole("button", { name: "Hide detail" }),
     ).toHaveAttribute("aria-expanded", "true");
     await expect(opener("Akiho-chan")).toBeFocused();
 
@@ -88,14 +88,14 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(taken).toBeVisible();
     expectRoute(page, { view: null });
     await expect(
-      takenCard.getByRole("button", { name: "Hide detail" }),
+      takenStoryCard.getByRole("button", { name: "Hide detail" }),
     ).toHaveAttribute("aria-expanded", "true");
     await expect(opener("Akiho-chan")).toBeFocused();
   });
 
   await test.step("the Preparing card's portrait opens the roster from the keyboard, and Back returns there", async () => {
     const queuedCard = backlog.getByRole("article", { name: queuedStory });
-    await expect(queuedCard.locator(".card-preparing")).toContainText(
+    await expect(queuedCard.locator(".story-card-preparing")).toContainText(
       "Kirara-chan",
     );
     await expect(queuedCard).not.toContainText(/Sola-chan|Conflicting records/);
@@ -115,7 +115,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     expectRoute(page, { view: null });
     await expect(opener("Kirara-chan")).toBeFocused();
     await expect(
-      takenCard.getByRole("button", { name: "Hide detail" }),
+      takenStoryCard.getByRole("button", { name: "Hide detail" }),
     ).toBeVisible();
   });
 

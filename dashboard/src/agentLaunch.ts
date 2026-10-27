@@ -63,7 +63,7 @@ export function storySessionsOf(
 // shows the story: every one of the story's sessions (`storySessionsOf`) that
 // has not been marked done. Neither the story's column nor its session's state
 // or age removes one.
-export function cardSessionsOf(
+export function storyCardSessionsOf(
   records: readonly LaunchWithState[] | undefined,
   sourceId: string,
   identity: string,
@@ -140,7 +140,7 @@ export type RunningStart = z.infer<typeof runningStartSchema>;
 export const keptStartNote = "Started here, no session yet";
 
 // Why every Start on a story's card is unavailable while that story still has
-// an open session listed there (`cardSessionsOf`).
+// an open session listed there (`storyCardSessionsOf`).
 export const openSessionStartReason =
   "This story has an open session. Mark it done or delete its record to start another.";
 

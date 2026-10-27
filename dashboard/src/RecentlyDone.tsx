@@ -91,7 +91,7 @@ function ListedEntry({
   readonly launchRecords: readonly LaunchRecord[] | undefined;
 }) {
   if (!("record" in each)) {
-    return <SessionEntry record={each.session} onCard={false} />;
+    return <SessionEntry record={each.session} onStoryCard={false} />;
   }
   const { record, sessions } = each;
   const detail = detailOf(record);

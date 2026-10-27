@@ -170,7 +170,8 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
     await openedAtOpening(page);
   const card = (title: string) =>
     takenColumn.getByRole("article", { name: title });
-  const progress = (title: string) => card(title).locator(".card-progress");
+  const progress = (title: string) =>
+    card(title).locator(".story-card-progress");
 
   await test.step("a Story Branch Mode plan completed 40 min ago on its branch is complete there, not in trunk, with no current slice clock", async () => {
     await expect(progress(onBranch)).toContainText(complete);

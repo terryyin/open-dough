@@ -1,6 +1,6 @@
 // A boundary between two areas that resizes the one it belongs to: the side
 // panel's left edge (`./SidePanelEdge.tsx`) and the edge above Running Cursor
-// sessions in the Sessions sidebar (`./SessionSidebar.tsx`). It is a
+// sessions in the Sessions sidebar (`./SessionsSidebar.tsx`). It is a
 // focusable separator that says its area's current size and bounds. Dragged
 // with the pointer toward the area's far side, or, while it holds the
 // keyboard, with Left or Up, the area grows; away from it, or with Right or

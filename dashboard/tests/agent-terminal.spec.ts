@@ -16,7 +16,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -81,7 +81,7 @@ test.describe("the terminal beside the page", () => {
     const { taken, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
-    const cardEntries = (title: string) => cardSessions(card(title));
+    const cardEntries = (title: string) => storyCardSessions(card(title));
     const entry = (title: string) =>
       taken.getByRole("article", {
         name: standaloneSessionName("Execution", title),

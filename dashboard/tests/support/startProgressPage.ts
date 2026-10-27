@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { keptStarts, runningStarts } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { expectStartNote } from "../cardControls.ts";
+import { expectStartNote } from "../storyCardControls.ts";
 import { parts } from "../dashboardPage.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import type { DashboardServer } from "./dashboardServer.ts";

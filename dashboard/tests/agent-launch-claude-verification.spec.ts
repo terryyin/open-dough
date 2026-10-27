@@ -12,7 +12,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import {
   expect,
@@ -114,7 +114,7 @@ test("Recheck records the one session the uncertain launch started, and the card
     .click();
 
   await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
-  await expect(cardSessions(card)).toHaveCount(1);
+  await expect(storyCardSessions(card)).toHaveCount(1);
   await expect(card).not.toContainText("Startup needs reconciliation");
   await expect(start).toBeDisabled();
   await expect(start).toHaveAccessibleDescription(openSessionDescription);
@@ -162,7 +162,7 @@ test("Recheck finding no session this launch started, among others listed, settl
   await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
   await expect(start).toBeEnabled();
   await expect(card).not.toContainText("Startup needs reconciliation");
-  await expect(cardSessions(card)).toHaveCount(0);
+  await expect(storyCardSessions(card)).toHaveCount(0);
   expect((await attempts(dashboard))[0]?.outcome).toMatchObject({
     kind: "failed",
     reason: "not-listed",

@@ -3,7 +3,7 @@ import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { rawRequest } from "./support/rawHttp.ts";
-import { startSessionDialog } from "./launchCardPage.ts";
+import { startSessionDialog } from "./launchStoryCardPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import { settings, back } from "./support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
@@ -170,7 +170,7 @@ test("opening settings preserves one running native session and its attached ter
   await expect(terminal).toBeVisible();
   await expect(rows).toContainText("echo before settings");
   await expect(
-    page.getByRole("complementary", { name: "Sessions" }),
+    page.getByRole("complementary", { name: "Sessions sidebar", exact: true }),
   ).toBeVisible();
   await terminal.locator(".xterm-helper-textarea").focus();
   await page.keyboard.type("after settings");

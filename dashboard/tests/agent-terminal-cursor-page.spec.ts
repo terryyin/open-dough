@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { expect, workingCursorTest as test } from "./support/cursorStart.ts";
 import { waitUntil } from "./support/waitUntil.ts";

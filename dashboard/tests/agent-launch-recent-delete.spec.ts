@@ -1,5 +1,5 @@
 // Recently done records on the committed story-columns origin (./launchJourney.ts):
-// State unknown entries offer Delete record… with the card-entry question;
+// State unknown entries offer Delete record… with the story-card-entry question;
 // deletion removes the entry without success text and moves focus within its list,
 // then to its done card or the section. The sidebar offers no deletion, nor do
 // Working/Done entries. Origin owns placement; the dashboard drives fake-claude.
@@ -9,8 +9,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionOf,
-  cardSessions,
+  storyCardSessionOf,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -25,7 +25,7 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
 
@@ -59,7 +59,7 @@ test.describe("deleting a Recently done entry's record", () => {
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
-    const sidebar = sidebarParts(page);
+    const sidebar = sessionsSidebarParts(page);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -69,28 +69,30 @@ test.describe("deleting a Recently done entry's record", () => {
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
     const done = await sessionNamedBy(
-      cardSessionOf(card(readyStory), "Execution"),
+      storyCardSessionOf(card(readyStory), "Execution"),
     );
     idleBetweenSteps(dashboard, done);
-    await markDoneAnyway(cardSessionOf(card(readyStory), "Execution"));
-    await expect(cardSessions(card(readyStory))).toHaveCount(0);
+    await markDoneAnyway(storyCardSessionOf(card(readyStory), "Execution"));
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     await launch(readyStory, "Refinement");
     await launch(takenStory, "Execution");
     // Every launch finishes, its entry naming its session, before the page
     // reloads; reloading sooner would lose a launch still in flight.
     const inDoneStory = await sessionNamedBy(
-      cardSessionOf(card(notRefinedStory), "Refinement"),
+      storyCardSessionOf(card(notRefinedStory), "Refinement"),
     );
     idleBetweenSteps(dashboard, inDoneStory);
-    await markDoneAnyway(cardSessionOf(card(notRefinedStory), "Refinement"));
+    await markDoneAnyway(
+      storyCardSessionOf(card(notRefinedStory), "Refinement"),
+    );
     await expect(
-      cardSessionOf(card(notRefinedStory), "Refinement"),
+      storyCardSessionOf(card(notRefinedStory), "Refinement"),
     ).toHaveCount(0);
     const refinement = await sessionNamedBy(
-      cardSessionOf(card(readyStory), "Refinement"),
+      storyCardSessionOf(card(readyStory), "Refinement"),
     );
     const storyA = await sessionNamedBy(
-      cardSessionOf(card(takenStory), "Execution"),
+      storyCardSessionOf(card(takenStory), "Execution"),
     );
     const recordFile = path.join(
       dashboard.home,
@@ -112,14 +114,14 @@ test.describe("deleting a Recently done entry's record", () => {
     const insideDoneCard = doneCard.getByRole("article", {
       name: standaloneSessionName("Refinement", notRefinedStory),
     });
-    const working = cardSessionOf(
+    const working = storyCardSessionOf(
       parts(page).board.getByRole("article", {
         name: readyStory,
         exact: true,
       }),
       "Refinement",
     );
-    const ofStoryA = cardSessionOf(
+    const ofStoryA = storyCardSessionOf(
       parts(page).board.getByRole("article", {
         name: takenStory,
         exact: true,
@@ -164,7 +166,7 @@ test.describe("deleting a Recently done entry's record", () => {
       }
     });
 
-    await test.step("with the listing unreadable, each says State unknown and offers Delete record… while each sidebar entry stays one control", async () => {
+    await test.step("with the listing unreadable, each says State unknown and offers Delete record… while each Sessions sidebar Session entry stays one control", async () => {
       dashboard.claudeListingFails(true);
       await page.reload();
       await settled();

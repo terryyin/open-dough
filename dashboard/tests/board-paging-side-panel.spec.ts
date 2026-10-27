@@ -6,18 +6,18 @@
 // narrow window pages the columns is ./board-paging.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { readyStory } from "./launchJourney.ts";
 import { box } from "./pageLayout.ts";
 import {
   columns,
   columnPagingControl,
-  expectCardsKeepTheirShare,
+  expectStoryCardsKeepTheirShare,
   expectView,
   recordSlides,
   rem,
@@ -62,7 +62,7 @@ test.describe("beside the side panel", () => {
         0,
       );
       await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
-      await expectCardsKeepTheirShare(page, 2);
+      await expectStoryCardsKeepTheirShare(page, 2);
     });
 
     await test.step("the right control shows Taken and Recently done, with a slide, and the left control names Backlog", async () => {
@@ -88,7 +88,7 @@ test.describe("beside the side panel", () => {
       await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
       await start(readyStory).click();
       await dialog.getByRole("button", { name: "Start" }).click();
-      await expect(cardSessions(card(readyStory))).toHaveCount(1);
+      await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
       await expect(columnPagingControl(page, "Recently done")).toHaveText(
         "Recently done 0 entries",
       );

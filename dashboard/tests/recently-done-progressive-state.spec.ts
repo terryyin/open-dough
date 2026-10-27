@@ -29,7 +29,7 @@ import {
   storiesThrough,
 } from "./recentlyDoneProgressiveJourney.ts";
 import { recordReveals, revealsOf } from "./sessionNavigationJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "./support/cursorStart.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
@@ -169,7 +169,7 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   const { github, recent } = view;
   const entry = recent.getByRole("article", { name: entryName });
   const terminal = terminalOf(page);
-  const { sidebar, button } = sidebarParts(page);
+  const { sidebar, button } = sessionsSidebarParts(page);
   const region = sidebar.getByRole("region", {
     name: "Running Cursor sessions",
   });

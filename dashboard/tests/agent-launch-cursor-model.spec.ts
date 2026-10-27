@@ -4,12 +4,11 @@
 // layout, or fails, and records launch argv apart from model reads. The
 // Cursor start, preparation, and ad hoc specs stay the proofs that Default
 // sends no `--model`.
-
 import path from "node:path";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import {
   expectChosenModelScope,
   expectDefaultLaunchHasNoScope,
@@ -19,7 +18,6 @@ import { cursorModels } from "./support/fakeCursor.ts";
 import { stayedUp } from "./support/keptCursorTurn.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
-
 const sessionNote = "The chosen model applies to this session only.";
 const laterSessionsWarning =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";

@@ -132,7 +132,10 @@ export async function expectView(
 // today's framing, without column paging controls: the page's side margins (4vw,
 // from 0.75rem to 1.5rem), a 1rem gap between columns, and each column's 1rem
 // padding and border on both sides.
-export async function expectCardsKeepTheirShare(page: Page, shown: number) {
+export async function expectStoryCardsKeepTheirShare(
+  page: Page,
+  shown: number,
+) {
   const pageColumn = await box(page.locator(".page-column"));
   const window = page.viewportSize()?.width ?? 0;
   const margin = Math.min(1.5 * rem, Math.max(0.75 * rem, 0.04 * window));

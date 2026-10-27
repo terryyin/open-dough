@@ -31,7 +31,7 @@ import {
   openedWithHeldStory,
   storiesThrough,
 } from "./recentlyDoneProgressiveJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -46,7 +46,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
   const { github, recent } = view;
 
   await test.step("choosing the open session in the Sessions sidebar reveals its Taken entry, which Recently done does not hold, reading no older record", async () => {
-    const { button, entry } = sidebarParts(page);
+    const { button, entry } = sessionsSidebarParts(page);
     await button.click();
     await entry("Ad hoc work 27").click();
     await expect(terminalOf(page)).toHaveCount(1);

@@ -9,8 +9,8 @@
 // session's progress stays beside its own action.
 
 import { attempts, keptStarts } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import {
   expectOthersWork,
   expectProtected,
@@ -103,7 +103,7 @@ test("Start execution closes at acceptance while its Take is held, and continuin
 
   native.hold = false;
   native.release();
-  await expect(cardSessions(claimed)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(claimed)).toHaveCount(1, { timeout: 30_000 });
   await expect(claimed).not.toContainText("Local startup in progress");
 });
 

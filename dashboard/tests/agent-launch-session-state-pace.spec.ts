@@ -1,7 +1,7 @@
 // Session entries show Claude Code's state and attention reason, with a solid,
 // heavier edge only when the developer is needed. Changes appear within one
 // records-read pace without reload; origin alone places the stories. The card
-// placement variants are in agent-launch-card-session-states.spec.ts and counts
+// placement variants are in agent-launch-story-card-session-states.spec.ts and counts
 // in agent-launch-attention.spec.ts. Opening/answering/closing a blocked terminal
 // leaves Needs input until a later listing says Working: synthetic Claude only
 // echoes input. Mark as done clears attention permanently; a marked session is
@@ -11,14 +11,14 @@
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
-  cardSessionOf,
-  cardSessionName,
+  storyCardSessionOf,
+  storyCardSessionName,
   expectMembership,
   parts,
   sessionNamedBy,
   standaloneSessionName,
 } from "./dashboardPage.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
 import {
   expectNotReloaded,
@@ -71,12 +71,12 @@ test("each active card entry shows why its session needs attention, or that it d
   const entryAt = (index: number) => {
     const own = attentionLaunches[index];
     if (own === undefined) throw new Error("No launch at this index");
-    return cardSessionOf(card(own.title), own.workflow);
+    return storyCardSessionOf(card(own.title), own.workflow);
   };
   const sessionIds: string[] = [];
   for (const [index, { workflow }] of attentionLaunches.entries()) {
     await expect(entryAt(index)).toHaveAccessibleName(
-      cardSessionName(workflow),
+      storyCardSessionName(workflow),
     );
     await expectSessionShown(entryAt(index), "Working", false);
     sessionIds.push(await sessionNamedBy(entryAt(index)));
@@ -152,12 +152,12 @@ test("a session's attention stays through opening and closing its terminal, clea
   const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
   const { recentlyDone: recent } = parts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
-  const onCard = cardSessionOf(card(readyStory), "Execution");
+  const onStoryCard = storyCardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
     name: standaloneSessionName("Execution", readyStory),
   });
   const expectOpen = async (words: string, needsAttention: boolean) => {
-    await expectSessionShown(onCard, words, needsAttention);
+    await expectSessionShown(onStoryCard, words, needsAttention);
     await expect(inRecent).toHaveCount(0);
   };
 
@@ -169,7 +169,7 @@ test("a session's attention stays through opening and closing its terminal, clea
   await expect(
     card(readyStory).getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
-  const session = await sessionNamedBy(onCard);
+  const session = await sessionNamedBy(onStoryCard);
   await markNotReloaded(page);
 
   await test.step("a blocked session needs input, and still does after its terminal is opened, answered, and closed", async () => {
@@ -177,7 +177,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     await passOnePace();
     await expectOpen(needsInput, true);
 
-    await onCard.getByRole("button", { name: "Open terminal" }).click();
+    await onStoryCard.getByRole("button", { name: "Open terminal" }).click();
     // The stopped page clock holds the terminal's drawing, so the attach
     // and the answer are read from the synthetic `claude` itself.
     const attach = () => dashboard.claudeAttaches()[0];
@@ -205,8 +205,8 @@ test("a session's attention stays through opening and closing its terminal, clea
   });
 
   await test.step("a successful Mark as done clears it at once, and no later host state brings it back", async () => {
-    await markDoneAnyway(onCard);
-    await expect(onCard).toHaveCount(0);
+    await markDoneAnyway(onStoryCard);
+    await expect(onStoryCard).toHaveCount(0);
     await expectSessionShown(inRecent, "Done", false);
 
     // Opening it again wakes it.
@@ -230,7 +230,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     await expect(
       inRecent.getByRole("button", { name: "Open terminal" }),
     ).toHaveCount(0);
-    await expect(onCard).toHaveCount(0);
+    await expect(onStoryCard).toHaveCount(0);
   });
 
   await expectNotReloaded(page);

@@ -8,7 +8,7 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { launchTouchViewports } from "./touchLaunchPage.ts";
@@ -45,7 +45,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       });
       const opened = await openStoryColumnsJourney(page, journey);
       await opened.settled();
-      const sidebar = sidebarParts(page);
+      const sidebar = sessionsSidebarParts(page);
       await tapWhereShown(sidebar.button);
       const opener = sidebar.entry(title);
       const { sent, sizes } = noteTerminalTraffic(page);

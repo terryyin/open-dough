@@ -37,11 +37,11 @@ import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
 import {
-  focusedWork,
+  focusedStoryCard,
   restoreSnapshotFocus,
   unlistedNotice,
-  type FocusedWork,
-} from "./workFocus.ts";
+  type FocusedStoryCard,
+} from "./storyCardFocus.ts";
 
 // No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
@@ -78,8 +78,8 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
   const { visibility, visibilityChanges, settleRevealed } = usePageVisibility();
-  const heldFocus = useRef<FocusedWork | undefined>(undefined);
-  const deferredFocus = useRef<FocusedWork | undefined>(undefined);
+  const heldFocus = useRef<FocusedStoryCard | undefined>(undefined);
+  const deferredFocus = useRef<FocusedStoryCard | undefined>(undefined);
   // The snapshot shown, for a read of moved branches' progress to start from.
   const shownWork = useRef<PublishedWork | undefined>(undefined);
   shownWork.current = retrieval.work;
@@ -107,7 +107,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
       outcomes,
       {
         show: (next, firstMembership) => {
-          const held = focusedWork();
+          const held = focusedStoryCard();
           heldFocus.current = held;
           // New membership replaces the retrieval whole; same-revision
           // recovery keeps shown facts while unanswered detail is asked again.

@@ -4,7 +4,7 @@ import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
-import { SessionsButton } from "./SessionSidebar.tsx";
+import { SessionsButton } from "./SessionsSidebar.tsx";
 import { SourceStatus } from "./SourceStatus.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";

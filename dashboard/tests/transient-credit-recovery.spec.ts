@@ -5,7 +5,7 @@
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { noConnection } from "./originAnswers.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
@@ -82,9 +82,9 @@ async function openWithYumaRefused(
   await page.goto("/");
   await expectSettledPage(page);
   const yumaCard = card(page, justTaken);
-  await expect(yumaCard.locator(".card-owner .owner-human-gap")).toHaveText(
-    "Human developer unknown",
-  );
+  await expect(
+    yumaCard.locator(".story-card-owner .owner-human-gap"),
+  ).toHaveText("Human developer unknown");
   await expect(yumaCard).toContainText("Current slice time unavailable");
   await expect(
     (await inspectedDetail(yumaCard)).locator(".owner-human"),
@@ -112,7 +112,9 @@ async function expectCreditRecovered(
     "GitHub's rate limit withheld",
   );
   const yumaCard = card(page, justTaken);
-  await expect(yumaCard.locator(".card-owner")).toContainText(recoveredHuman);
+  await expect(yumaCard.locator(".story-card-owner")).toContainText(
+    recoveredHuman,
+  );
   await expect(yumaCard).toContainText("Current slice started 5 min ago");
   await expect(
     (await inspectedDetail(yumaCard)).locator(".owner-human"),

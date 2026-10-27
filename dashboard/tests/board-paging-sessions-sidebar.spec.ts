@@ -2,7 +2,7 @@
 // column shows that column, then brings the card into view as it does in a
 // shown one, and the page reaches the column's whole length again. That a
 // choice shows a local Taken entry hidden the same way
-// is ./session-sidebar-navigation-cases.spec.ts and
+// is ./sessions-sidebar-navigation-cases.spec.ts and
 // ./agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
 // ./board-paging.spec.ts.
 
@@ -15,7 +15,7 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   expectRevealsSince,
   openNavigationJourney,
@@ -50,7 +50,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
     });
-    const { button, entry } = sidebarParts(page);
+    const { button, entry } = sessionsSidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await button.click();
 
@@ -68,7 +68,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
         page,
         ["Backlog"],
         ["Taken 1 entry"],
-        [...scrollsOnItsOwn, ".sidebar-title"],
+        [...scrollsOnItsOwn, ".sessions-sidebar-session-entry-title"],
       );
       await expect(card(readyStory)).toBeInViewport();
       await expectRevealsSince(page, revealed, readyStory, "smooth");

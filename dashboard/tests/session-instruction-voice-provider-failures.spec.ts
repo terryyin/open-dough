@@ -1,5 +1,5 @@
 import { test, expect } from "./support/voiceTest.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { observeMicrophone, recordClip } from "./support/voicePage.ts";
 import {
   openVoiceDraft,

@@ -19,7 +19,7 @@ import {
   reloadUntilRead,
   untilPageRequestsAnswered,
 } from "./pageRequestNotes.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -80,7 +80,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     revision: accepted,
   });
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
@@ -123,9 +123,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toHaveCount(0);
   // Profiles now arrive independently; their known assignment still cannot
   // reconcile a snapshot whose canonical preparation remains unread.
-  await expect(takenStory.locator(".card-owner .owner-line")).toContainText(
-    "Claude Code",
-  );
+  await expect(
+    takenStory.locator(".story-card-owner .owner-line"),
+  ).toContainText("Claude Code");
   await expect(takenStory).toContainText(waiting);
   await expectProtected(takenStory);
   releaseSeed();
@@ -133,8 +133,8 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
   );
-  await expect(takenStory.locator(".card-owner")).toBeVisible();
-  await expect(cardSessions(takenStory)).toHaveCount(1);
+  await expect(takenStory.locator(".story-card-owner")).toBeVisible();
+  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
@@ -166,7 +166,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${descendant.slice(0, 7)}`,
   );
-  await expect(cardSessions(takenStory)).toHaveCount(1);
+  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
     0,
   );
@@ -203,12 +203,12 @@ test("a refinement's announcement, read before its session settles, keeps the st
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${accepted.slice(0, 7)}`,
   );
-  await expect(story.locator(".card-preparing")).toBeVisible();
+  await expect(story.locator(".story-card-preparing")).toBeVisible();
   await expect(story).toContainText("Local startup in progress");
   await expectProtected(story);
 
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(story).not.toContainText("Local startup in progress");
   await expect(story).not.toContainText(waiting);
   const startRefinement = story.getByRole("button", {

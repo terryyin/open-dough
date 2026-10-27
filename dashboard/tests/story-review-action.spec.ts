@@ -13,11 +13,11 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import {
-  cardLaunchActions,
+  storyCardLaunchActions,
   expectActionGlyph,
   inspectionGroup,
   launchGroup,
-} from "./cardControls.ts";
+} from "./storyCardControls.ts";
 import {
   expectFocusedAndIndicated,
   narrowWindow,
@@ -53,7 +53,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
     name: "Review changes",
   });
   const review = page.getByRole("region", { name: "Review changes" });
-  const starts = cardLaunchActions.map((name) =>
+  const starts = storyCardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );
   const inspect = inspectionGroup(card).getByRole("button", {

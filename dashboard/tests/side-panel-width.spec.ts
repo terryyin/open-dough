@@ -9,14 +9,14 @@
 // real `claude` is never reached.
 
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   box,
   expectSideBySideInOrder,
   expectStackedInOrder,
   pressWhereShown,
 } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   control,
   dragEdge,
@@ -44,10 +44,10 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await storyAWithSession(page, dashboard, origin);
   const reviewReads = recordReviewReads(page);
   const rows = terminal.locator(".xterm-rows");
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   const projectUrl = () => page.url();
 
-  await cardSessions(card)
+  await storyCardSessions(card)
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
@@ -225,7 +225,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   await test.step("closing and reopening the terminal uses the chosen width, attached anew", async () => {
     await pressWhereShown(control(review, "Close"));
     await expect(review).toHaveCount(0);
-    await cardSessions(card)
+    await storyCardSessions(card)
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);

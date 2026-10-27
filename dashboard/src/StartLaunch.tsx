@@ -8,7 +8,7 @@
 // action when hover is unavailable, and in the dialog; the session is asked anyway,
 // and the instruction can say what to do first. A failed or uncertain answer
 // stays on the card with the action; while the story starts, its card says
-// so (`CardLaunches`) and protects the action (`WorkCard`). The dialog's
+// so (`StoryCardLaunches`) and protects the action (`StoryCard`). The dialog's
 // mechanics, including the keyboard's return to the action, belong to
 // `LaunchDialog`. On a card whose
 // story this machine started without a session (`resumes`), the dialog names
@@ -49,7 +49,7 @@ import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
-import { workCard } from "./workFocus.ts";
+import { storyCard } from "./storyCardFocus.ts";
 import "./agent-launch.css";
 
 // The glyph each workflow's Start leads with. It stays beside the card rather
@@ -130,7 +130,7 @@ export function StartLaunch({
   // clearing it (Mark as done / Delete) does not reclaim this button.
   const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
     starting,
-    useCallback(() => workCard(work.identity), [work.identity]),
+    useCallback(() => storyCard(work.identity), [work.identity]),
     unavailable,
   );
   // The selection of the launch that failed, which the next opening keeps.
@@ -193,7 +193,7 @@ export function StartLaunch({
           subject={
             <>
               <strong>{work.title}</strong>{" "}
-              <span className="card-identity">{work.identity}</span>
+              <span className="record-identity">{work.identity}</span>
             </>
           }
           description={`${hostName(host)} starts a background session on this machine to ${verb} this story.`}

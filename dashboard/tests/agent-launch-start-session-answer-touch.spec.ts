@@ -9,7 +9,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   box,

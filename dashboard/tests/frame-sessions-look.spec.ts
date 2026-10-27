@@ -2,7 +2,7 @@
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
 // and both fit a narrow and a zoomed window without sideways scrolling. An
-// entry's title is cut by design (./session-sidebar-row.spec.ts), and the
+// entry's title is cut by design (./sessions-sidebar-row.spec.ts), and the
 // terminal's own screen is its contents, not this look's. The page's own
 // dashboard server attaches the synthetic `claude` (./fixtures/fake-claude).
 
@@ -15,7 +15,7 @@ import {
 } from "./accessibleReading.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -28,7 +28,7 @@ const work = {
   identity: "SEED-901#frame-look",
   title: `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`,
 };
-const cutTitles = ".sidebar-title";
+const cutTitles = ".sessions-sidebar-session-entry-title";
 const terminalScreen = ".terminal-screen";
 
 test.describe("the Sessions sidebar and terminal panel in the frame's look", () => {
@@ -48,7 +48,7 @@ test.describe("the Sessions sidebar and terminal panel in the frame's look", () 
     const { sessionId } = await launched(dashboard, "doughnut", work);
     await page.setViewportSize(narrowWindow);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button, entries, entry } = sidebarParts(page);
+    const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });

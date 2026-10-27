@@ -14,7 +14,7 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { keptSessionStarts } from "./support/keptSessionStart.ts";
 import { expect, test } from "./support/preparationPage.ts";

@@ -1,5 +1,5 @@
 // Choosing options in the refinement dialog, on the committed origin of
-// ./agent-launch-card.spec.ts (./launchJourney.ts): the dialog offers one
+// ./agent-launch-story-card.spec.ts (./launchJourney.ts): the dialog offers one
 // checkbox per entry of the definition the project's installed skill carries,
 // behind its closed Refinement options disclosure, with its label and summary,
 // and follows a changed definition with no code change; selecting entries
@@ -21,7 +21,7 @@ import {
   showOptions,
   startSession,
   startSessionDialog,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,

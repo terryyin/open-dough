@@ -101,14 +101,14 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(portrait).toHaveAttribute("aria-hidden", "true");
     // The scan view reads the credited human, tool, and model after
     // Preparing, without opening Inspect story; the detail repeats them.
-    await expect(card(storyC).locator(".card-preparing")).toHaveText(
+    await expect(card(storyC).locator(".story-card-preparing")).toHaveText(
       `Preparing${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
     );
     await expect(card(storyC).locator(".owner-line")).toHaveText(
       `${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
     );
     await expectMark(
-      card(storyC).locator(".card-owner"),
+      card(storyC).locator(".story-card-owner"),
       "host",
       "Claude Code",
       "tool-avatars/claude.png",
@@ -141,7 +141,7 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(card(storyA)).not.toContainText("Preparing");
     // The same priorities and preparation facts as before preparation began.
     for (const [index, title] of order.entries()) {
-      await expect(card(title).locator(".card-priority")).toHaveText(
+      await expect(card(title).locator(".story-card-priority")).toHaveText(
         `Priority ${index + 1}`,
       );
     }

@@ -13,7 +13,7 @@ import {
 import { queuedIdentity, queuedTitle } from "./support/startOrigin.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { markAsDone, markDone } from "./support/markDone.ts";
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
@@ -116,7 +116,7 @@ test("Cursor installed report offers local Done without a native stop capability
   ).toBeVisible();
   await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
-  const listed = cardSessions(card);
+  const listed = storyCardSessions(card);
   // Mark as done is offered beside the message, read or not; neither control
   // takes the other's place.
   await expect(markAsDone(card)).toBeVisible();
@@ -171,7 +171,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
   const release = await occupyRunner(dashboard.home);
   try {
     await reloadUntilRead(page);
-    const listed = cardSessions(card);
+    const listed = storyCardSessions(card);
     await expect(listed.locator(".session-state")).toHaveText(
       cursorRunnerSentence("unreachable"),
     );

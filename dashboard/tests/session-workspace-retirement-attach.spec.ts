@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -59,7 +59,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const { card } = await openStoryColumnsJourney(page, journey);
     const entry =
       doneAt === undefined
-        ? cardSessions(card(notRefinedStory))
+        ? storyCardSessions(card(notRefinedStory))
         : parts(page)
             .recentlyDone.getByRole("article")
             .filter({ hasText: native.threadId });

@@ -104,7 +104,7 @@ for (const viewport of [
         .getByRole("article", { name: plannedBlocked.title })
         .getByText("Not ready", { exact: true }),
     ).toBeVisible();
-    const badges = page.locator(".card .badge");
+    const badges = page.locator(".story-card .badge");
     const originalBadges = await badges.allTextContents();
     const reads = origin.requests.length;
     const launcher = parts(page).preparationHelp;

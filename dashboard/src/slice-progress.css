@@ -1,6 +1,6 @@
 /* A Taken card's recorded slice progress: the segmented bar and its count. */
 
-.card-progress {
+.story-card-progress {
   display: grid;
   gap: var(--space-1);
 }

@@ -11,7 +11,7 @@
 // ./board-paging-sessions-sidebar.spec.ts.
 
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";

@@ -6,7 +6,7 @@ import {
   recordsOf,
   refinementRequest,
 } from "../agentLaunchBoundary.ts";
-import { installRefinementSkill } from "../launchCardPage.ts";
+import { installRefinementSkill } from "../launchStoryCardPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../support/fakeCodex.ts";

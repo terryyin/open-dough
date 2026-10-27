@@ -12,14 +12,14 @@ import {
 import type { FakeCodex } from "./support/fakeCodex.ts";
 import { storeFile } from "./support/retainedReport.ts";
 import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import {
   launch,
   refinementRequest,
   machineSessions,
 } from "./agentLaunchBoundary.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 const request = {
   ...refinementRequest,
@@ -194,7 +194,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
       ).body,
     ),
   ).toMatchObject({ kind: "launched" });
-  const session = cardSessions(card(notRefinedStory));
+  const session = storyCardSessions(card(notRefinedStory));
   await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   expect(stored(dashboard.home)[0]?.firstInput).not.toHaveProperty(

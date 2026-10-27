@@ -172,7 +172,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
     await expect
       .poll(async () => {
         const column = await parts(page).recentlyDone.textContent();
-        const sidebar = await page.locator("#session-sidebar").textContent();
+        const sidebar = await page.locator("#sessions-sidebar").textContent();
         const body = await page.locator("body").textContent();
         return (body ?? "")
           .replace(column ?? "", "")

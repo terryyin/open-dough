@@ -9,7 +9,7 @@ import { RecentlyDone } from "./RecentlyDone.tsx";
 import { useRecentlyDone } from "./recentlyDoneView.ts";
 import { columnSessionsOf } from "./columnSessions.ts";
 import { columnsOf, Columns } from "./Columns.tsx";
-import { boardMarks } from "./workFocus.ts";
+import { boardMarks } from "./storyCardFocus.ts";
 import "./board.css";
 
 // The Board: Backlog, Taken, and Recently done, left to right on

@@ -13,7 +13,7 @@
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
@@ -63,7 +63,7 @@ async function openPage(page: Page, origin: StartOrigin) {
   await publishOrigin(page, origin);
   await openUntilRead(page);
   const entryOf = (title: string) =>
-    cardSessions(
+    storyCardSessions(
       parts(page).taken.getByRole("article", { name: title, exact: true }),
     );
   return { entryOf };

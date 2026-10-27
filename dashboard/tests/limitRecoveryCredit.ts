@@ -12,7 +12,7 @@
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { limiting } from "./limitedReadingJourney.ts";
 import { limitedUntil } from "./limitNotice.ts";
 import { readsBesideChecks } from "./originObservation.ts";
@@ -114,9 +114,9 @@ export async function openedWithYumaWithheld(
   );
   const withheld = `GitHub's rate limit withheld the commit that added ${profilePath("Yuma")} at ${revision}. ${until}`;
   const yumaCard = card(page, justTaken);
-  await expect(yumaCard.locator(".card-owner .owner-human-gap")).toHaveText(
-    "Human developer unknown",
-  );
+  await expect(
+    yumaCard.locator(".story-card-owner .owner-human-gap"),
+  ).toHaveText("Human developer unknown");
   await expect(yumaCard).toContainText(
     `Current slice time unavailable: ${withheld}`,
   );
@@ -151,7 +151,9 @@ export async function expectRecovered(page: Page, solaExplained: string) {
       "GitHub's rate limit withheld",
     );
     const yumaCard = card(page, justTaken);
-    await expect(yumaCard.locator(".card-owner")).toContainText(recoveredHuman);
+    await expect(yumaCard.locator(".story-card-owner")).toContainText(
+      recoveredHuman,
+    );
     await expect(yumaCard).toContainText("Current slice started 5 min ago");
     const human = (await inspectedDetail(yumaCard)).locator(".owner-human");
     await expect(human).toHaveText(`Human developer: ${recoveredHuman}`);

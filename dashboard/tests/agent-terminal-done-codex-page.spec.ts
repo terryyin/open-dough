@@ -2,7 +2,7 @@
 // Mark as done in the panel on a Codex session waiting for input asks first.
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedIdentity,
@@ -55,7 +55,7 @@ for (const attached of [false, true]) {
       ],
     });
     const { card, settled } = await openStoryColumnsJourney(page, journey);
-    const listed = cardSessions(card(notRefinedStory));
+    const listed = storyCardSessions(card(notRefinedStory));
     const recent = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
@@ -153,7 +153,7 @@ test("native interrupt refusal remains Working with retained local intent and di
     message: "Owner denied native interruption.",
   };
   const { card } = await openStoryColumnsJourney(page, journey);
-  const listed = cardSessions(card(notRefinedStory));
+  const listed = storyCardSessions(card(notRefinedStory));
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

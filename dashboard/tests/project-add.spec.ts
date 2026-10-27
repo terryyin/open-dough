@@ -12,7 +12,10 @@ import {
 import { rawRequest } from "./support/rawHttp.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { expect, test } from "./support/pageTest.ts";
-import { startSessionDialog, startSessionField } from "./launchCardPage.ts";
+import {
+  startSessionDialog,
+  startSessionField,
+} from "./launchStoryCardPage.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   projectAddMachine,

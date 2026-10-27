@@ -4,7 +4,7 @@
    that first, so that a rule here decides where both say something equally
    specific, as a card's corners do under focus. */
 
-.cards {
+.story-cards {
   list-style: none;
   display: grid;
   gap: 0.6rem;
@@ -14,7 +14,7 @@
    developer, then badges, warnings, progress, and actions, each a short
    step below the last. Secondary facts open in its detail (story-detail.css).
    Its fill and corners follow the frame's raised panels. */
-.card {
+.story-card {
   display: grid;
   gap: var(--space-2);
   border: 1px solid var(--line);
@@ -25,17 +25,17 @@
 }
 
 /* Each part of the card is spaced by the card's own gap. */
-.card > .card-frame > * {
+.story-card > .story-card-frame > * {
   margin-top: 0;
 }
 
-.card h3 {
+.story-card h3 {
   font-size: var(--text-md);
   font-weight: var(--weight-strong);
 }
 
 /* Priority and the assigned or preparing developer, on one wrapping line. */
-.card-meta {
+.story-card-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -43,26 +43,26 @@
   font-size: var(--text-sm);
 }
 
-.card-meta:empty {
+.story-card-meta:empty {
   display: none;
 }
 
 /* A gap in the assignment reads on its own line, beside what it affects. */
-.card-meta > .assignment-gap {
+.story-card-meta > .assignment-gap {
   flex-basis: 100%;
 }
 
 /* A card's related actions, its launch group and its inspection group, each
    on one line while the card is wide enough and wrapping in reading order when
    it is not. */
-.card-action-group {
+.story-card-action-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2) var(--space-4);
 }
 
-.card-priority {
+.story-card-priority {
   font-weight: 600;
 }
 
@@ -153,7 +153,7 @@
   font-size: 0.9rem;
 }
 
-.card-links {
+.story-card-links {
   list-style: none;
   display: grid;
   gap: var(--space-1);
@@ -161,7 +161,7 @@
   padding-top: var(--space-2);
 }
 
-.card-links a {
+.story-card-links a {
   color: var(--accent);
 }
 
@@ -172,9 +172,9 @@
 /* Focus returned to a card stays below the Column heading where the window
    is tall enough to keep that heading in sight. */
 @media (min-height: 30rem) {
-  .card,
-  .card a,
-  .card button {
+  .story-card,
+  .story-card a,
+  .story-card button {
     scroll-margin-top: 5rem;
   }
 }

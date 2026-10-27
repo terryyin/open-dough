@@ -3,7 +3,7 @@
 // problem. The page's parts (./dashboardParts.ts) are found through here too.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { cardLaunchActions, detailToggle } from "./cardControls.ts";
+import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
 import { parts } from "./dashboardParts.ts";
 import {
   untilPageReadsAnswered,
@@ -30,14 +30,14 @@ export async function expectSnapshotButtons(
     page.getByRole("button", { name: /^Start session in / }),
   ).toHaveCount(1);
   await expect(parts(page).preparationHelp).toHaveCount(1);
-  for (const action of cardLaunchActions) {
+  for (const action of storyCardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
   await expect(page.getByRole("button", { name: detailToggle })).toHaveCount(
     shown.cards,
   );
   await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * cardLaunchActions.length + shown.cards,
+    4 + shown.backlogCards * storyCardLaunchActions.length + shown.cards,
   );
 }
 
@@ -70,7 +70,7 @@ export async function expectMembership(
 ) {
   const { taken, backlog } = parts(page);
   const titlesIn = (column: Locator) =>
-    column.locator("[data-work] > fieldset > h3");
+    column.locator("[data-story-card] > fieldset > h3");
   if (await readAndNothingMoreWillBeRead(page)) {
     expect(
       {

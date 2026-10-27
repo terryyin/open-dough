@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { machineSessions } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -32,7 +32,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   const since = native.calls.length;
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  const entry = cardSessions(card(notRefinedStory));
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("availability could not be established");
   await expect(entry).not.toContainText("workspace is missing");
   await expect(entry).toContainText("Ready for review");

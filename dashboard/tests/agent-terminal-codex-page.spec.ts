@@ -4,7 +4,7 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -88,7 +88,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect(rows).toContainText("GPT-6.1-Sol default");
   await expect(rows).not.toContainText("context left");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-  await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
+  await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
   await page.keyboard.type("answer here");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo answer here");
@@ -117,7 +117,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
     .toBe("SIGHUP");
   codexTerminalMode(native, "ready");
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(rows).toContainText("original retained history");
@@ -126,7 +126,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[1]?.pid ?? 0))
     .toBe("SIGHUP");
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(rows).toContainText("original retained history");

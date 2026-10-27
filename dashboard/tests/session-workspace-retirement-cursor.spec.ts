@@ -5,8 +5,8 @@ import { readFileSync, rmSync } from "node:fs";
 import { test, expect } from "./dashboardTest.ts";
 import { stored } from "./support/codexLaunch.ts";
 import {
-  cardAttentionOf,
-  cardSessions,
+  storyCardAttentionOf,
+  storyCardSessions,
   parts,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -38,9 +38,9 @@ test("retired Cursor workspace opens retained report without opening terminal an
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
-  const entry = cardSessions(card(notRefinedStory));
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
-  await expect(cardAttentionOf(card(notRefinedStory))).toHaveText(
+  await expect(storyCardAttentionOf(card(notRefinedStory))).toHaveText(
     "1 session needs attention",
   );
   await expect(entry).toContainText("saved workspace is missing");
@@ -92,7 +92,7 @@ test("missing Cursor workspace without retained report explains the limitation w
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await cardSessions(card(notRefinedStory))
+  await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Read final report" })
     .click();
   const panel = page.getByRole("region", { name: "Final report" });

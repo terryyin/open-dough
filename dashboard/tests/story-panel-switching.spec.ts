@@ -12,10 +12,10 @@
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReview.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { otherQueuedIdentity } from "./support/startOrigin.ts";
@@ -68,14 +68,14 @@ test("review and terminal take turns in the one side panel beside a usable dashb
   const cardA = await openBacklog(page, origin);
   const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
   const { banner } = parts(page);
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   const items = panelItems(page);
   const terminal = page.getByRole("region", { name: "Terminal" });
   const review = page.getByRole("region", { name: "Review changes" });
   const rows = terminal.locator(".xterm-rows");
   const reviewOf = (card: Locator) =>
     card.getByRole("button", { name: "Review changes" });
-  const openTerminal = cardSessions(cardA).getByRole("button", {
+  const openTerminal = storyCardSessions(cardA).getByRole("button", {
     name: "Open terminal",
   });
   const control = (panel: Locator, name: string) =>
@@ -93,7 +93,7 @@ test("review and terminal take turns in the one side panel beside a usable dashb
   await page.keyboard.type("keep this line");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo keep this line");
-  const shownMark = cardSessions(cardA).getByText("Shown in terminal");
+  const shownMark = storyCardSessions(cardA).getByText("Shown in terminal");
   await expect(shownMark).toBeVisible();
   const splitPanel = await box(terminal);
   await pressWhereShown(control(terminal, "Maximize"));

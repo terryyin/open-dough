@@ -26,8 +26,11 @@ const clamp = (value: number, minimum: number, maximum: number) =>
 export const sizeWithin = (size: number, minimum: number, maximum: number) =>
   Math.round(clamp(size, minimum, maximum));
 
-function readPreferredSize(key: string): number | undefined {
-  const kept = Number(readKept(key));
+function readPreferredSize(
+  key: string,
+  formerKey?: string,
+): number | undefined {
+  const kept = Number(readKept(key, formerKey));
   return Number.isFinite(kept) && kept > 0 ? kept : undefined;
 }
 
@@ -35,8 +38,11 @@ function readPreferredSize(key: string): number | undefined {
 // `key`, and how a choice replaces it, here and in what the browser keeps.
 export function usePreferredSize(
   key: string,
+  formerKey?: string,
 ): [number | undefined, (size: number) => void] {
-  const [preferred, setPreferred] = useState(() => readPreferredSize(key));
+  const [preferred, setPreferred] = useState(() =>
+    readPreferredSize(key, formerKey),
+  );
   const prefer = useCallback(
     (size: number) => {
       setPreferred(size);

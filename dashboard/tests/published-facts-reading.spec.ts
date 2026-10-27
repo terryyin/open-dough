@@ -4,7 +4,7 @@
 // an ordinary read gap, with natural reflow rather than fixed pixel offsets.
 
 import type { Locator, Page } from "@playwright/test";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -24,7 +24,7 @@ async function expectReadingPlace(
     card.getByRole("button", { name: "Hide detail" }),
   ).toHaveAttribute("aria-expanded", "true");
   await expect(detail).toBeVisible();
-  await expect(detail.locator(".card-identity")).toHaveText(
+  await expect(detail.locator(".record-identity")).toHaveText(
     "SEED-091#just-taken",
   );
   await expect(link).toHaveAttribute(
@@ -81,13 +81,13 @@ for (const doneOutcome of ["success", "failure"] as const) {
 
     await test.step("available assignments keep the chosen reading context while preparation and done remain held", async () => {
       release("profiles");
-      await expect(trunkCard.locator(".card-owner")).toContainText(
+      await expect(trunkCard.locator(".story-card-owner")).toContainText(
         "Yuma-chan · Fixture Committer · Claude Code",
       );
-      await expect(branchCard.locator(".card-owner")).toContainText(
+      await expect(branchCard.locator(".story-card-owner")).toContainText(
         "Akiho-chan",
       );
-      await expect(queuedCard.locator(".card-preparing")).toContainText(
+      await expect(queuedCard.locator(".story-card-preparing")).toContainText(
         "Kirara-chan",
       );
       await expect(trunkCard).toContainText("Reading preparation…");
@@ -113,7 +113,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
 
     await test.step("preparation, dependent progress, and clocks enrich the open inspection without taking the reader back to the top", async () => {
       release("preparation");
-      await expect(trunkCard.locator(".card-progress")).toContainText(
+      await expect(trunkCard.locator(".story-card-progress")).toContainText(
         "1 of 2 slices recorded complete",
       );
       await expect(detail).toContainText("Approach: Slice planned");
@@ -157,7 +157,9 @@ test("arriving facts respect a reader who scrolls away while the inspected link 
         trunkCard.getByText("Slice planned", { exact: true }),
       ).toBeVisible();
     } else if (group === "profiles") {
-      await expect(trunkCard.locator(".card-owner")).toContainText("Yuma-chan");
+      await expect(trunkCard.locator(".story-card-owner")).toContainText(
+        "Yuma-chan",
+      );
     } else {
       await expectDoneFacts(doneCard);
     }

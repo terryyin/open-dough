@@ -11,7 +11,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { markDone } from "./agentLaunchBoundary.ts";
 import {
-  cardSessions,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -51,7 +51,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     );
     const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
-    const listed = cardSessions(card(readyStory));
+    const listed = storyCardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
     });

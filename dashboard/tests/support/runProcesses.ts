@@ -19,8 +19,17 @@
 
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
-import { processRunning, signal } from "./processGroup.ts";
+import {
+  closeSync,
+  mkdtempSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { processAlive, signal } from "./processGroup.ts";
 
 export const runIdVariable = "OPEN_DOUGH_DASHBOARD_RUN_ID";
 
@@ -43,17 +52,52 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function ps(args: readonly string[]): string {
-  return spawnSync("ps", [...args], { encoding: "utf8" }).stdout;
+// Full environments can exceed spawnSync's pipe buffer. A private descriptor
+// keeps the whole observation, and a failed read never means no owned process.
+function ps(args: readonly string[], disappearingPid?: number): string {
+  const directory = mkdtempSync(
+    join(tmpdir(), "dough-run-process-observation-"),
+  );
+  const listing = join(directory, "listing");
+  let descriptor: number | undefined;
+  try {
+    descriptor = openSync(listing, "wx", 0o600);
+    const result = spawnSync("ps", [...args], {
+      stdio: ["ignore", descriptor, "pipe"],
+    });
+    if (result.error !== undefined || result.status !== 0) {
+      // A process can finish between discovery and its metadata read.
+      if (disappearingPid !== undefined && !processAlive(disappearingPid))
+        return "";
+      const error = result.error as NodeJS.ErrnoException | undefined;
+      const reason = error?.code ?? result.signal ?? String(result.status);
+      throw new Error(
+        `Could not observe dashboard run processes: ps failed (${reason}).`,
+      );
+    }
+    return readFileSync(listing, "utf8");
+  } finally {
+    try {
+      if (descriptor !== undefined) closeSync(descriptor);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  }
+}
+
+function processIsRunning(pid: number): boolean {
+  if (!processAlive(pid)) return false;
+  const state = ps(["-o", "stat=", "-p", String(pid)], pid).trim();
+  return state !== "" && !/[EZ]/.test(state);
 }
 
 // A process's own command, without its environment.
 function commandOf(pid: number): string {
-  return ps(["-ww", "-o", "command=", "-p", String(pid)]).trim();
+  return ps(["-ww", "-o", "command=", "-p", String(pid)], pid).trim();
 }
 
 function ageOf(pid: number): string {
-  return ps(["-o", "etime=", "-p", String(pid)]).trim();
+  return ps(["-o", "etime=", "-p", String(pid)], pid).trim();
 }
 
 // The pids of every running process of this user whose environment holds
@@ -85,7 +129,7 @@ function pidsCarrying(entry: string): number[] {
 // runner, or a test asking about an inner run) excepted.
 export function processesOfRun(runId: string): RunProcess[] {
   return pidsCarrying(`${runIdVariable}=${runId}`)
-    .filter((pid) => pid !== process.pid && processRunning(pid))
+    .filter((pid) => pid !== process.pid && processIsRunning(pid))
     .map((pid) => ({ pid, command: commandOf(pid), age: ageOf(pid) }));
 }
 
@@ -106,7 +150,7 @@ export async function endRunProcesses(
     remaining = processesOfRun(runId);
   }
   if (remaining.length === 0) return [];
-  const running = () => remaining.some(({ pid }) => processRunning(pid));
+  const running = () => remaining.some(({ pid }) => processIsRunning(pid));
   for (const { pid } of remaining) signal(pid, "SIGTERM");
   const terminated = Date.now() + 5_000;
   while (running() && Date.now() < terminated) await delay(50);

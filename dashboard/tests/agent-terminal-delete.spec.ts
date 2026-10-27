@@ -6,14 +6,14 @@
 // leaves no "Shown in terminal" mark, detaches the attach, and stops nothing.
 // The conversation stays in Claude Code, so it is listed again once the
 // listing recovers. The keyboard follows the entry rule of
-// ./agent-launch-card-delete.spec.ts. Origin alone still places the story. The
+// ./agent-launch-story-card-delete.spec.ts. Origin alone still places the story. The
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionOf,
-  cardSessions,
+  storyCardSessionOf,
+  storyCardSessions,
   parts,
   standaloneSessionName,
   sessionNamedBy,
@@ -51,7 +51,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(readyStory, "Execution");
-    const entry = cardSessionOf(card(readyStory), "Execution");
+    const entry = storyCardSessionOf(card(readyStory), "Execution");
     const sessionName = await sessionNamedBy(entry);
     const inRecent = parts(page).recentlyDone.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
@@ -86,7 +86,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     ).toContain(sessionName);
     await page.reload();
     await settled();
-    await expect(cardSessions(card(readyStory))).toHaveCount(0);
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     await expect(inRecent).toHaveCount(0);
   });
 });

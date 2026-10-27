@@ -1,7 +1,7 @@
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -35,7 +35,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   const baseline = readFileSync(storeFile(dashboard.home), "utf8");
   const since = native.calls.length;
   const { card, show } = await openStoryColumnsJourney(page, journey);
-  const entry = cardSessions(card(notRefinedStory));
+  const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
   await expect(
@@ -80,7 +80,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   await parts(page)
     .project.getByRole("radio", { name: "Doughnut", exact: true })
     .check();
-  const sidebar = page.getByRole("complementary", { name: "Sessions" });
+  const sidebar = page.getByRole("complementary", {
+    name: "Sessions sidebar",
+    exact: true,
+  });
   const sideOpen = sidebar.getByRole("button", {
     name: notRefinedStory,
     exact: true,
@@ -136,7 +139,7 @@ test("changing or closing selection cancels a held report and never shows its te
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  const entries = cardSessions(card(notRefinedStory));
+  const entries = storyCardSessions(card(notRefinedStory));
   const first = entries.filter({
     has: page.locator(`code:text-is("${record.session.sessionId}")`),
   });

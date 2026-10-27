@@ -99,7 +99,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   );
   await showColumn(page, "Recently done");
   const card = recent.getByRole("article", { name: "Story A", exact: true });
-  await expect(card.locator(".card-identity").first()).toHaveText(
+  await expect(card.locator(".record-identity").first()).toHaveText(
     queuedIdentity,
   );
   await expect(recent.locator(".column-count")).toHaveText("1 entry");

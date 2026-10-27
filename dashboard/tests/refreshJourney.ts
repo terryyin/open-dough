@@ -3,7 +3,7 @@
 // files are written here; what the page shows is for each test to observe.
 
 import type { Page } from "@playwright/test";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import { test } from "./support/pageTest.ts";

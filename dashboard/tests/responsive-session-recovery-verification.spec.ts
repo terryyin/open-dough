@@ -11,7 +11,7 @@ import path from "node:path";
 import { attempts } from "./agentLaunchBoundary.ts";
 import { policyOf, type LaunchRecord } from "../src/agentLaunch.ts";
 import type { StartRecord } from "../server/startStore.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   expectRecoveryOffered,
@@ -92,7 +92,7 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
     .click();
 
   await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
-  await expect(cardSessions(takenStory)).toHaveCount(1);
+  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
@@ -164,7 +164,7 @@ for (const tracking of ["standard", "one-shot"] as const) {
       .click();
 
     await expect(recoveryOf(page)).toHaveCount(0, { timeout: 30_000 });
-    await expect(cardSessions(card)).toHaveCount(1);
+    await expect(storyCardSessions(card)).toHaveCount(1);
     await expect(
       card.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();

@@ -6,7 +6,7 @@
 // and another project's launches are not listed, through
 // reloads and project switches; until the page first reads them, it says it
 // is reading them. That entries stay through Preparing, the
-// Take, and completion is ./agent-launch-card-sessions.spec.ts, and each
+// Take, and completion is ./agent-launch-story-card-sessions.spec.ts, and each
 // entry's state is
 // ./agent-launch-session-state-pace.spec.ts. The page's own dashboard
 // server launches the synthetic `claude` (./fixtures/fake-claude); the real
@@ -14,9 +14,9 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessions,
-  cardSessionName,
-  cardSessionOf,
+  storyCardSessions,
+  storyCardSessionName,
+  storyCardSessionOf,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -70,11 +70,11 @@ test.describe("retained launches in their current column homes", () => {
     // Launches the workflow and remembers its session, as the new entry
     // names it.
     const launchListed = async (title: string, workflow: Workflow) => {
-      const before = await cardSessions(card(title)).count();
+      const before = await storyCardSessions(card(title)).count();
       await launch(title, workflow);
-      const own = cardSessionOf(card(title), workflow);
-      await expect(cardSessions(card(title))).toHaveCount(before + 1);
-      await expect(own).toHaveAccessibleName(cardSessionName(workflow));
+      const own = storyCardSessionOf(card(title), workflow);
+      await expect(storyCardSessions(card(title))).toHaveCount(before + 1);
+      await expect(own).toHaveAccessibleName(storyCardSessionName(workflow));
       sessionIds.unshift(await sessionNamedBy(own));
     };
     // Each launch's current entry names that launch's session.
@@ -86,11 +86,11 @@ test.describe("retained launches in their current column homes", () => {
         const closed = title === readyStory && workflow === "Refinement";
         const entry = closed
           ? entries.first()
-          : cardSessionOf(card(title), workflow);
+          : storyCardSessionOf(card(title), workflow);
         await expect(entry).toHaveAccessibleName(
           closed
             ? standaloneSessionName(workflow, title)
-            : cardSessionName(workflow),
+            : storyCardSessionName(workflow),
         );
         if (closed) {
           await expect(entry.getByRole("heading", { level: 3 })).toHaveText(
@@ -122,8 +122,8 @@ test.describe("retained launches in their current column homes", () => {
     const before = Date.now();
     await launchListed(readyStory, "Refinement");
     idleBetweenSteps(dashboard, sessionIds[0] ?? "");
-    await markDoneAnyway(cardSessions(card(readyStory)));
-    await expect(cardSessions(card(readyStory))).toHaveCount(0);
+    await markDoneAnyway(storyCardSessions(card(readyStory)));
+    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
     await launchListed(readyStory, "Execution");
     await launchListed(notRefinedStory, "Execution");
     const launched = [
@@ -136,9 +136,9 @@ test.describe("retained launches in their current column homes", () => {
     await expectMembership(page, { taken: [], backlog: queued });
 
     await test.step("an entry names its story, launch time, and local evidence", async () => {
-      const newest = cardSessionOf(card(notRefinedStory), "Execution");
+      const newest = storyCardSessionOf(card(notRefinedStory), "Execution");
       await expect(card(notRefinedStory)).toHaveAttribute(
-        "data-work",
+        "data-story-card",
         notRefinedIdentity,
       );
       await expect(newest).toContainText(
@@ -163,8 +163,8 @@ test.describe("retained launches in their current column homes", () => {
       await launch(doughnutSharedTitle, "Execution");
       await expect(entries).toHaveCount(0);
       await expect(
-        cardSessionOf(card(doughnutSharedTitle), "Execution"),
-      ).toHaveAccessibleName(cardSessionName("Execution"));
+        storyCardSessionOf(card(doughnutSharedTitle), "Execution"),
+      ).toHaveAccessibleName(storyCardSessionName("Execution"));
 
       await project
         .getByRole("radio", { name: "Open Dough", exact: true })

@@ -10,7 +10,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import type { Page } from "@playwright/test";
 import {
   contentReads,

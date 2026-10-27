@@ -9,17 +9,17 @@
 // stays absent. Delete record stays only while a reading is unknown
 // or unavailable, as for every host. This read starts no agent.
 import { cursorHeldLabel } from "../src/cursorHeldLabel.ts";
-import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
+
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launchHost } from "../server/launchHosts.ts";
-import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
+
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { parts } from "./dashboardPage.ts";
+
 import {
-  expectSidebarSessionShown,
-  sidebarParts,
-} from "./sessionSidebarPage.ts";
-import { occupyRunner } from "./support/cursorRunnerJourney.ts";
+  expectSessionsSidebarSessionEntryShown,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
+
 import {
   agentCalls,
   cursorQuestion,
@@ -28,16 +28,12 @@ import {
   expectCursorUnknownWording,
   expectHeldLabel,
   expectNormalizedReading,
-  expectReadingWithoutScreenLabel,
   instruction,
   openTakenCursorSession,
   projectedSessions,
   readLog,
 } from "./support/cursorSessionReading.ts";
-import {
-  agentNotRunningLabel,
-  openStoppedCursorEntry,
-} from "./support/cursorSessionRecovery.ts";
+
 import { expect, test } from "./support/cursorStart.ts";
 import type { CursorScreen } from "./support/fakeCursor.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
@@ -77,10 +73,14 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
     activity: "review",
   });
 
-  const sidebar = sidebarParts(page);
+  const sidebar = sessionsSidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(1);
-  await expectSidebarSessionShown(sidebar.entries, "Ready for review", "ready");
+  await expectSessionsSidebarSessionEntryShown(
+    sidebar.entries,
+    "Ready for review",
+    "ready",
+  );
   await expect(sidebar.badge).toHaveCount(1);
   await expect(sidebar.badge).toHaveAccessibleName("1 session needs attention");
   await expect(
@@ -235,77 +235,4 @@ test.describe("a held waiting screen that settles to the follow-up prompt", () =
   });
 });
 
-test("a stopped runner says so, shows no screen label, and starts no agent", async ({
-  page,
-  dashboard,
-  origin,
-  cursor,
-}) => {
-  test.setTimeout(120_000);
-  const recent = await openTakenCursorSession(page, origin);
-  await expectNormalizedReading(recent, "Ready for review", true);
-  const calls = agentCalls(cursor);
-  const attaches = cursor.attaches().length;
-  await stopCursorRunner(dashboard.home);
-  await reloadUntilRead(page);
-  const again = parts(page).taken.locator(".session-entry");
-  await expect(again).toHaveCount(1);
-  await expectReadingWithoutScreenLabel(
-    again,
-    cursorRunnerSentence("not-running"),
-  );
-  expect(agentCalls(cursor)).toEqual(calls);
-  expect(cursor.attaches()).toHaveLength(attaches);
-});
-
-test("an unreachable runner says so, shows no screen label, and starts no agent", async ({
-  page,
-  dashboard,
-  origin,
-  cursor,
-}) => {
-  test.setTimeout(120_000);
-  const recent = await openTakenCursorSession(page, origin);
-  await expectNormalizedReading(recent, "Ready for review", true);
-  const calls = agentCalls(cursor);
-  const attaches = cursor.attaches().length;
-  await stopCursorRunner(dashboard.home);
-  const release = await occupyRunner(dashboard.home);
-  try {
-    await reloadUntilRead(page);
-    const again = parts(page).taken.locator(".session-entry");
-    await expect(again).toHaveCount(1);
-    await expectReadingWithoutScreenLabel(
-      again,
-      cursorRunnerSentence("unreachable"),
-    );
-    expect(agentCalls(cursor)).toEqual(calls);
-    expect(cursor.attaches()).toHaveLength(attaches);
-  } finally {
-    await release();
-  }
-});
-
-test("a recorded session the runner does not hold shows the agent is not running and offers Recover", async ({
-  page,
-  dashboard,
-  origin,
-  cursor,
-}) => {
-  test.setTimeout(120_000);
-  const again = await openStoppedCursorEntry(
-    page,
-    origin,
-    cursor,
-    dashboard.home,
-  );
-  await expect(again).not.toHaveClass(/needs-attention/);
-  await expect(
-    again.getByRole("button", { name: "Delete record…" }),
-  ).toHaveCount(1);
-  const answer = await projectedSessions(page);
-  expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
-    kind: "unknown",
-    label: agentNotRunningLabel,
-  });
-});
+import "./agentSessionCursorUnavailableCases.ts";

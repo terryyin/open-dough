@@ -2,7 +2,7 @@
 // enrichment as independently arriving fact groups. Raw published plans grow
 // above a focused source link through the built preview's real local boundary.
 
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -55,7 +55,7 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   await expect(
     card.getByRole("button", { name: "Hide detail" }),
   ).toHaveAttribute("aria-expanded", "true");
-  await expect(detail.locator(".card-identity")).toHaveText(
+  await expect(detail.locator(".record-identity")).toHaveText(
     "SEED-092#on-branch",
   );
   await expect(link).toHaveAttribute("href", pinned);

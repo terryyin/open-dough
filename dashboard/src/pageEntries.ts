@@ -1,13 +1,13 @@
 // The entries the keyboard can be put on in the page's lists, by the marks
 // that name them: a session entry by its session, a done story's card by its
-// story, and a work card by its work. With them the page finds an entry again
+// story, and a Story card by its work. With them the page finds an entry again
 // once it has rendered the list anew: to bring a session's entry into view,
 // to give the keyboard a home once an entry is deleted, and to keep Recently
 // done's entry holding the keyboard across a refresh
 // (`./recentlyDoneFocus.ts`).
 
 import type { HeldEntry } from "./recentlyDoneRange.ts";
-import { keepInView, workCard } from "./workFocus.ts";
+import { keepInView, storyCard } from "./storyCardFocus.ts";
 
 // The attribute by which a session entry names the session it shows.
 const showsSessionAttribute = "data-shows-session";
@@ -33,7 +33,7 @@ type Entry = { readonly attribute: string; readonly value: string };
 const entryMarks = [
   showsSessionAttribute,
   doneStoryAttribute,
-  "data-work",
+  "data-story-card",
 ] as const;
 
 // The entry an element is, by its mark.
@@ -92,10 +92,12 @@ export function deletedEntryHome(
       ? ".recently-done"
       : `.column[aria-labelledby="${control.closest(".column")?.getAttribute("aria-labelledby")}"]`;
   const within =
-    control.closest(".card-sessions") !== null ? ".card-sessions" : column;
+    control.closest(".story-card-sessions") !== null
+      ? ".story-card-sessions"
+      : column;
   return () =>
     entryShown(beside, within) ??
-    (identity === undefined ? undefined : workCard(identity)) ??
+    (identity === undefined ? undefined : storyCard(identity)) ??
     document.querySelector<HTMLElement>(column);
 }
 
@@ -124,7 +126,7 @@ export const heldEntryShown = (held: HeldEntry) =>
 // The keeper shows a hidden column and retains its card in view until the
 // developer moves, including while later reads change the surrounding layout.
 export function revealStory(identity: string): (() => void) | undefined {
-  const card = workCard(identity) ?? heldEntryShown({ story: identity });
+  const card = storyCard(identity) ?? heldEntryShown({ story: identity });
   if (card === null) return;
   card.focus({ preventScroll: true });
   return keepInView(card);

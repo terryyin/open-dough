@@ -1,4 +1,4 @@
-// A work card's start eligibility: whether new execution may start, from
+// A Story card's start eligibility: whether new execution may start, from
 // the preparation and dependency facts the card already read. The shared
 // derivation owns the meaning; this maps the dashboard's own loading and
 // unavailable shapes to gaps and words the Start reason. Nothing is stored.

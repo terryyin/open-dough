@@ -1,7 +1,7 @@
 // Protocol evidence decides whether continuing an uncertain start may reuse
 // the saved first input; a fresh start of its story is refused meanwhile.
-import { openTakenBacklog } from "./launchCardPage.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   startDashboardServer,
   builtDashboardDir,
@@ -63,7 +63,7 @@ test("explicit input refusal allows the saved input once in the resumed same con
   expect(stored(dashboard.home)[0]?.firstInput).not.toHaveProperty(
     "explanation",
   );
-  const session = cardSessions(card(notRefinedStory));
+  const session = storyCardSessions(card(notRefinedStory));
   await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   await expect(session).not.toContainText("acceptance is not yet acknowledged");

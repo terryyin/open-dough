@@ -1,18 +1,15 @@
-// Cards count listed sessions needing attention by each entry's reading.
-// Working, unavailable and unknown sessions add none; every affected session
-// counts until work resumes or it is marked done. Backlog, Preparing and Taken
-// preserve membership and origin's published facts. Counts belong to their
-// project and are read afresh from Claude Code's listing on return or reload.
-// Stories leaving every list keep affected sessions, reasons and Open terminal
-// in local Taken. Only synthetic `claude` (./fixtures/fake-claude) launches;
-// the page clock stays still unless this journey advances it.
+// Cards count listed sessions needing attention until work resumes or Done;
+// Working/unavailable/unknown add none. Origin keeps Backlog/Preparing/Taken
+// facts; counts are project-local and reread from synthetic Claude on return
+// or reload. Departed stories keep affected local Taken sessions/reasons and
+// Open terminal. Page time stays still unless the journey advances it.
 
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
-  cardAttentionOf,
-  cardSessionOf,
-  cardSessions,
+  storyCardAttentionOf,
+  storyCardSessionOf,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -49,14 +46,14 @@ const publishedFactsOf = async (card: Locator) => {
         // Readiness (badges, each credited human) and capture share one
         // turn: a new snapshot may begin reading after an assertion passed.
         if (
-          !element.querySelector(".card-preparation .badge-row") ||
+          !element.querySelector(".story-card-preparation .badge-row") ||
           /Reading [^…]*…/.test(element.textContent) ||
           element.querySelector(".owner-line:not(:has([class*=owner-human-]))")
         )
           return null;
         const copy = element.cloneNode(true) as HTMLElement;
         const counted = copy.querySelectorAll(
-          ".card-sessions, .card-attention, .card-session-open-reason",
+          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason",
         );
         for (const part of counted) part.remove();
         return copy.textContent;
@@ -92,14 +89,14 @@ test.describe("a story's card counts the sessions that need attention", () => {
     const card = (title: string) =>
       board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
-      cardSessionOf(card(title), workflow);
+      storyCardSessionOf(card(title), workflow);
     // The words each card with affected sessions shows; every other card
     // shows none.
     const expectCounted = async (counts: Record<string, string>) => {
       for (const [title, words] of Object.entries(counts)) {
-        await expect(cardAttentionOf(card(title))).toHaveText(words);
+        await expect(storyCardAttentionOf(card(title))).toHaveText(words);
       }
-      await expect(cardAttentionOf(board)).toHaveCount(
+      await expect(storyCardAttentionOf(board)).toHaveCount(
         Object.keys(counts).length,
       );
     };
@@ -210,7 +207,9 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await launch(doughnutSharedTitle, "Execution");
       await expectCounted({});
       dashboard.claudeSessionBecomes(
-        await sessionNamedBy(cardSessions(card(doughnutSharedTitle)).first()),
+        await sessionNamedBy(
+          storyCardSessions(card(doughnutSharedTitle)).first(),
+        ),
         "blocked",
       );
       // Open Dough's session fails while Doughnut is shown.

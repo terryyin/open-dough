@@ -5,7 +5,7 @@
 import type { Page } from "@playwright/test";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   holdSession,

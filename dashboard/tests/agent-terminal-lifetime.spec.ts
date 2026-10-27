@@ -13,7 +13,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "./dashboardTest.ts";
-import { cardSessions, expectMembership, parts } from "./dashboardPage.ts";
+import { storyCardSessions, expectMembership, parts } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
@@ -86,7 +86,7 @@ test.describe("the terminal's lifetime", () => {
     await settled();
 
     await launch(notRefinedStory, "Execution");
-    const listed = cardSessions(card(notRefinedStory));
+    const listed = storyCardSessions(card(notRefinedStory));
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();

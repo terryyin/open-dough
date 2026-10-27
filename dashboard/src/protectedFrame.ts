@@ -1,5 +1,5 @@
 // Why a story card's actions are unavailable while its story starts on this
-// machine (`./WorkCard.tsx`): the card names what says so, its startup
+// machine (`./StoryCard.tsx`): the card names what says so, its startup
 // status, and every action button in the card's protected frame takes that
 // as part of its accessible description, so a disabled action and its
 // reason are found together by keyboard and screen-reader navigation.

@@ -7,7 +7,7 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
-import { openTakenBacklog } from "./launchCardPage.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 

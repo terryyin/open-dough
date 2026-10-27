@@ -4,7 +4,7 @@
 import type { Page } from "@playwright/test";
 import { expect, githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
   headsCheckArgv,
@@ -21,7 +21,7 @@ import {
   type PublishedFacts,
 } from "./publishedFactsIsolation.ts";
 
-export const factCards = (page: Page, facts: PublishedFacts) => ({
+export const factStoryCards = (page: Page, facts: PublishedFacts) => ({
   taken: parts(page).taken.getByRole("article", { name: takenTitle }),
   queued: parts(page).backlog.getByRole("article", { name: facts.queuedTitle }),
 });
@@ -59,7 +59,7 @@ export async function expectHeldGroups(
 }
 
 export async function focusCanonical(page: Page, facts: PublishedFacts) {
-  const detail = await inspectedDetail(factCards(page, facts).taken);
+  const detail = await inspectedDetail(factStoryCards(page, facts).taken);
   const link = detail.getByRole("link", { name: /^Canonical record/ });
   await link.focus();
   return link;
@@ -75,7 +75,7 @@ export async function expectCurrentFacts(
   pending: readonly ("preparation" | "done")[] = [],
   carriedFrom?: PublishedFacts,
 ) {
-  const { taken, queued } = factCards(page, facts);
+  const { taken, queued } = factStoryCards(page, facts);
   const { source, problem, status, recentlyDone } = parts(page);
   await expectMembership(page, facts.membership);
   await expect(source).toContainText(facts.revision);
@@ -86,16 +86,16 @@ export async function expectCurrentFacts(
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).notice).toBeEmpty();
-  await expect(taken.locator(".card-owner .owner-line")).toContainText(
+  await expect(taken.locator(".story-card-owner .owner-line")).toContainText(
     `${facts.owner}-chan`,
   );
-  await expect(taken.locator(".card-owner")).toContainText(
+  await expect(taken.locator(".story-card-owner")).toContainText(
     `model-at-${facts.label}`,
   );
-  await expect(queued.locator(".card-preparing")).toContainText(
+  await expect(queued.locator(".story-card-preparing")).toContainText(
     `${facts.preparer}-chan`,
   );
-  await expect(queued.locator(".card-preparing")).toContainText(
+  await expect(queued.locator(".story-card-preparing")).toContainText(
     `preparer-at-${facts.label}`,
   );
   await expect(
@@ -113,7 +113,7 @@ export async function expectCurrentFacts(
     await expect(taken.locator(".story-purpose")).toHaveText(
       carriedFrom.purpose,
     );
-    await expect(taken.locator(".card-progress")).toContainText(
+    await expect(taken.locator(".story-card-progress")).toContainText(
       "1 of 2 slices recorded complete",
     );
     await expect(
@@ -128,7 +128,7 @@ export async function expectCurrentFacts(
     await expect(queued).toContainText("Reading preparation…");
     await expect(taken).toContainText("Reading purpose…");
     await expect(taken.locator(".story-purpose")).toHaveCount(0);
-    await expect(taken.locator(".card-progress")).toContainText(
+    await expect(taken.locator(".story-card-progress")).toContainText(
       "Reading plan slices…",
     );
     await expect(taken.getByRole("link", { name: /^Slice plan/ })).toHaveCount(
@@ -137,7 +137,7 @@ export async function expectCurrentFacts(
   } else {
     await expect(taken.locator(".story-purpose")).toHaveText(facts.purpose);
     await expect(taken).not.toContainText("Reading preparation…");
-    await expect(taken.locator(".card-progress")).toContainText(
+    await expect(taken.locator(".story-card-progress")).toContainText(
       `${facts.label === "A" ? 1 : 0} of 2 slices recorded complete`,
     );
     await expect(

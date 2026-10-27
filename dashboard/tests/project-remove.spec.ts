@@ -1,4 +1,3 @@
-// Browser mutations go through the real loopback server and atomic machine file.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
@@ -7,13 +6,11 @@ import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
 import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
-
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
   fixture = projectAddMachine();
 });
 test.afterEach(async () => fixture.close());
-
 const removeButton = (
   page: import("@playwright/test").Page,
   label = "Sample App",
@@ -56,7 +53,10 @@ test("removing a configured project retains its checkout and records, hides sess
     timeout: 5_000,
   });
   await page.getByRole("button", { name: "Sessions", exact: true }).click();
-  const sidebar = page.getByRole("complementary", { name: "Sessions" });
+  const sidebar = page.getByRole("complementary", {
+    name: "Sessions sidebar",
+    exact: true,
+  });
   await expect(sidebar).toContainText("Retained sample session");
   const file = fixture.configurationFile("preview");
   const before = readFileSync(file, "utf8");
@@ -146,9 +146,7 @@ test("removing a configured project retains its checkout and records, hides sess
       ({ id }) => id,
     ),
   ).toEqual(["open-dough", "doughnut", "pygardon", "terry-talks"]);
-  // Removing a project leaves the runner's address and log, the notification
-  // sender, and the GitHub answers retained at commits already read. None is
-  // a project record.
+  // Runner/log, notifier and retained GitHub answers are not project records.
   expect(readdirSync(path.dirname(file)).sort()).toEqual([
     "agent-launches.json",
     "cursor-runner.json",

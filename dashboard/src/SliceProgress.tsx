@@ -137,7 +137,7 @@ export function SliceProgress({
   }
   if (planSlices.status !== "interpreted") {
     return (
-      <div className="card-progress">
+      <div className="story-card-progress">
         <ProgressSourceLabel progressSource={progressSource} brief />
         <PlanSlicesNote planSlices={planSlices} />
       </div>
@@ -146,7 +146,7 @@ export function SliceProgress({
   const { slices, completion } = planSlices;
   const done = recordedCompleteCount(slices);
   return (
-    <div className="card-progress">
+    <div className="story-card-progress">
       <div className="slice-bar" role="img" aria-labelledby={countId}>
         {slices.map((slice) => (
           <span

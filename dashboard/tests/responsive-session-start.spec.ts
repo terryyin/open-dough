@@ -1,5 +1,5 @@
 // Start releases the dashboard while protecting its story
-// (../src/LaunchDialog.tsx, ../src/launchAttempts.ts, ../src/WorkCard.tsx):
+// (../src/LaunchDialog.tsx, ../src/launchAttempts.ts, ../src/StoryCard.tsx):
 // the real installed starts against a real bare origin
 // (./support/startOrigin.ts) whose `pre-receive` hook holds the published
 // assignment, with the synthetic `claude` holding the native launch
@@ -20,7 +20,7 @@
 
 import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 import { attempts } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   countAcceptanceRequests,
@@ -114,7 +114,9 @@ for (const start of [
     // the published read places the story.
     dashboard.releaseHeldClaude();
     const settled = start.workflow === "execution" ? takenStory : story;
-    await expect(cardSessions(settled)).toHaveCount(1, { timeout: 30_000 });
+    await expect(storyCardSessions(settled)).toHaveCount(1, {
+      timeout: 30_000,
+    });
     await expect(settled).not.toContainText("Local startup in progress");
     await expect(
       settled.getByRole("button", { name: "Inspect story" }),
@@ -184,7 +186,9 @@ test("a lost acknowledgment says the launch is uncertain, never accepted, and th
 
   push.release();
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
 });
 
 test("Start session in Claude Code closes at acceptance while its launch is held, with its progress beside the action and no card", async ({

@@ -4,7 +4,7 @@ import {
   card,
   destination,
   followLeavingDashboard,
-  forEachCardsSources,
+  forEachStoryCardsSources,
   inspectedSources,
   openDashboard,
   revision,
@@ -128,7 +128,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
 
   await test.step("every card's outbound anchors open in a new tab with safe opener policy", async () => {
     let seen = 0;
-    await forEachCardsSources(board, async (sources) => {
+    await forEachStoryCardsSources(board, async (sources) => {
       for (const anchor of await sources.locator("a[href]").all()) {
         seen += 1;
         await expect(anchor).toHaveAttribute("target", "_blank");
@@ -237,7 +237,7 @@ test("source navigation shows unsafe or invalid targets as text that cannot be f
     await expect(page.locator(injected)).toHaveCount(0);
     // Every card's links, each read in its detail.
     const schemes: string[] = [];
-    await forEachCardsSources(board, async (sources) => {
+    await forEachStoryCardsSources(board, async (sources) => {
       for (const anchor of await sources.locator("a[href]").all()) {
         schemes.push((await destination(anchor)).protocol);
       }

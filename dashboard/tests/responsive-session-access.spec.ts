@@ -6,7 +6,7 @@
 // motion. Transitions announce once; settling presents the session without
 // stealing focus from a newer task. Static protection is in responsiveRecovery.ts.
 
-import { cardSessions, parts, sessionNamedBy } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionNamedBy } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   countMachineReads,
@@ -89,20 +89,20 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   ).not.toHaveAccessibleDescription(/Local startup/);
 
   // The status is the startup's own, apart from the column and selection.
-  const status = story.locator(".card-startup-status");
+  const status = story.locator(".story-card-startup-status");
   await expect(status).toContainText(unavailable);
   await expect(status).not.toContainText(/Backlog|Taken|detail/);
   await expect(takenStory).toHaveCount(0);
   await expect(hide).toHaveAttribute("aria-expanded", "true");
   const marks = await marksOf(story);
   expect(marks.classes).toEqual(
-    expect.arrayContaining(["card-selected", "card-starting"]),
+    expect.arrayContaining(["story-card-selected", "story-card-starting"]),
   );
   expect(marks.edge).toBe("dashed");
   expect(marks.edgeColor).toBe(marks.accent);
 
   // Progressing: a still indicator under reduced motion, moving without it.
-  const indicator = story.locator(".card-startup-progressing");
+  const indicator = story.locator(".story-card-startup-progressing");
   expect(await indicatorOf(indicator)).toEqual({
     shown: true,
     animation: "none",
@@ -110,7 +110,7 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await page.emulateMedia({ reducedMotion: "no-preference" });
   expect(await indicatorOf(indicator)).toEqual({
     shown: true,
-    animation: "card-startup-pulse",
+    animation: "story-card-startup-pulse",
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect.poll(announced).toEqual([inProgress]);
@@ -129,13 +129,15 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
 
   // Settled: the session is presented on the card; the keyboard stays.
   dashboard.releaseHeldClaude();
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
   await expect.poll(async () => (await announced()).at(-1)).toBe(reconciled);
   await expect(otherHide).toBeFocused();
-  await expect(cardSessions(takenStory)).not.toBeFocused();
+  await expect(storyCardSessions(takenStory)).not.toBeFocused();
   const said = await announced();
   expect(said[0]).toBe(inProgress);
   expect(new Set(said).size).toBe(said.length);
@@ -204,7 +206,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   // The card stays in the Backlog, where its session is listed on settling.
   const otherHide = await inspectByKeyboard(page, other);
   dashboard.releaseHeldClaude();
-  const entry = cardSessions(story);
+  const entry = storyCardSessions(story);
   await expect(entry).toHaveCount(1, { timeout: 30_000 });
   await expect(
     story.getByRole("button", { name: "Inspect story" }),
@@ -215,14 +217,16 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
 
   idleBetweenSteps(dashboard, await sessionNamedBy(entry));
   await markDoneAnyway(entry);
-  await expect(cardSessions(story)).toHaveCount(0);
+  await expect(storyCardSessions(story)).toHaveCount(0);
 
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await startExecution(page, story);
   await expect(story).toContainText(unavailable);
   const marks = await marksOf(story);
-  expect(marks.classes).toEqual(expect.arrayContaining(["card-starting"]));
+  expect(marks.classes).toEqual(
+    expect.arrayContaining(["story-card-starting"]),
+  );
   expect(marks.edge).toBe("dashed");
   // The terminal closed with Mark as done; no Shown-in-terminal on a new start.
   const panel = page.getByRole("region", { name: "Terminal" });
@@ -236,7 +240,9 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   dashboard.releaseHeldClaude();
   const { taken } = parts(page);
   const takenStory = taken.getByRole("article", { name: "Story A" });
-  await expect(cardSessions(takenStory)).toHaveCount(1, { timeout: 30_000 });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();

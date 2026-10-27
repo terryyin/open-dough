@@ -1,5 +1,5 @@
 // A session entry says which refinement options were requested, on the
-// committed origin of ./agent-launch-card.spec.ts (./launchJourney.ts): on the
+// committed origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts): on the
 // story's card the entry reads "Options: --explore
 // --borrow (requested)" beside its Model line, in definition order, and says
 // nothing for a launch that selected none; a reload keeps the line, which is
@@ -8,12 +8,12 @@
 // (./fixtures/fake-claude) stands in for the real one.
 
 import { expect, test } from "./dashboardTest.ts";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { notRefinedStory } from "./launchJourney.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
@@ -56,7 +56,7 @@ for (const [what, options, model] of [
     await expect(refinementDialog).toBeHidden();
 
     const expectWords = async () => {
-      const entry = cardSessions(card(notRefinedStory));
+      const entry = storyCardSessions(card(notRefinedStory));
       await expect(entry).toHaveCount(1);
       await expect(entry).toContainText("Refinement");
       if (options.length === 0) {
@@ -74,7 +74,7 @@ for (const [what, options, model] of [
 
     await expectWords();
     await reloadUntilRead(page);
-    await expect(cardSessions(card(notRefinedStory))).toHaveCount(1);
+    await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
     await expectWords();
   });
 }

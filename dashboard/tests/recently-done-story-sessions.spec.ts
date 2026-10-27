@@ -132,7 +132,9 @@ test("a done story's card holds this machine's sessions for it, marked done, new
       name: executedOpen,
     });
     await expect(sessionStateOf(local)).toHaveText("Working");
-    await expect(local.locator(".card-identity")).toHaveText(executed.identity);
+    await expect(local.locator(".record-identity")).toHaveText(
+      executed.identity,
+    );
     await expect(local.getByRole("button")).toHaveText([
       "Open terminal",
       "Mark as done",

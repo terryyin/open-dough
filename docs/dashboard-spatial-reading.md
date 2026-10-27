@@ -29,7 +29,7 @@ When zoom is introduced, include named Zoom in, Zoom out, and Fit overview
 controls, with bounded zoom and pan so work cannot be lost indefinitely
 offscreen. Provide pointer pan on
 the background and a keyboard-equivalent way to reach offscreen work; keyboard
-focus brings a work card into view. Focused reading and Fit overview must also
+focus brings a Story card into view. Focused reading and Fit overview must also
 work on touch screens without precise gestures. Preserve browser page zoom and
 normal page scrolling; gestures may supplement, not replace, explicit controls.
 Do not require a minimap, physics simulation, freely draggable cards, or custom
@@ -46,13 +46,13 @@ Illustrative compact overview; placeholders are not observed project data:
 ┌──────────────────── Board ────────────────────────────────┐
 │  BACKLOG                         TAKEN                    │
 │  ┌──────────────────┐            ┌───────────────────┐    │
-│  │ 1 · <work card>  │ ── take ─▶ │ <work card>       │    │
-│  │ 2 · <work card>  │            │ <work card>       │    │
+│  │ 1 · <Story card>  │ ── take ─▶ │ <Story card>       │    │
+│  │ 2 · <Story card>  │            │ <Story card>       │    │
 │  │ …               │            │                   │    │
 │  └──────────────────┘            └───────────────────┘    │
 └──────────────────────────────────────────────────────────┘
 
-Each work card → readable title, Column/priority, developer, badges, warnings;
+Each Story card → readable title, Column/priority, developer, badges, warnings;
 Inspect story → identity, assignment records, evidence, source links
 ```
 

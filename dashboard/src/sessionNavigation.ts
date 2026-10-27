@@ -5,7 +5,7 @@ import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { sessionEntry } from "./pageEntries.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
-import { keepInView, workCard } from "./workFocus.ts";
+import { keepInView, storyCard } from "./storyCardFocus.ts";
 
 type Going = { readonly to: LaunchRecord; readonly demand?: number };
 
@@ -56,9 +56,9 @@ export function useSessionNavigation(
     const { identity } = launchSubject(going.to.request);
     const entry = sessionEntry(sessionKey(going.to.session));
     const shown =
-      entry?.closest<HTMLElement>("[data-work]") ??
+      entry?.closest<HTMLElement>("[data-story-card]") ??
       entry ??
-      (identity === undefined ? undefined : workCard(identity)) ??
+      (identity === undefined ? undefined : storyCard(identity)) ??
       null;
     // Nothing to reveal yet leaves the going to a later rendering.
     if (shown === null) return;

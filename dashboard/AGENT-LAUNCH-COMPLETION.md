@@ -55,7 +55,7 @@ place. Ordinarily, while unread, an entry keeps its session's
 native reading — its words, its edge, its place in the Sessions sidebar, and
 whether the badge and the card's attention line count it — and shows the report
 apart, as “Unread report: <completion label>” in its state words and sidebar
-tooltip and as a message mark on its sidebar entry; a card says how many of its
+tooltip and as a message mark on its Sessions sidebar Session entry; a card says how many of its
 sessions hold one (“1 unread report”) in a line of its own. A new instruction to
 the session does not mark its report read. Messages survive a story's published
 Column change, dashboard restart, and workspace disappearance, and stay readable

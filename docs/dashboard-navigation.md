@@ -76,7 +76,7 @@ both lists to keep 8rem, the edge offers no range, and the sidebar itself
 scrolls, keeping both lists and the header in reach; a height the room
 imposes never replaces the preferred one, so more room recovers it. Expanding,
 collapsing, or resizing it is page state only.
-Opening a sidebar entry
+Opening a Sessions sidebar Session entry
 shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a
@@ -177,7 +177,7 @@ checks cover phone/tablet sizes and rotation alongside desktop checks; they
 do not establish physical-device keyboard or remote-connectivity behavior.
 
 Use one navigable Board containing connected Columns. Initially,
-show **Backlog → Taken**, with work cards placed inside their recorded region.
+show **Backlog → Taken**, with Story cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency
 between stories, a required sequence of all lifecycle steps, or evidence that
 a particular story moved during this observation. Label that relationship.

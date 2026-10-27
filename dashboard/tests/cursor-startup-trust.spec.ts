@@ -3,7 +3,7 @@
 // then the developer answers the kept client in the rendered terminal.
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { startSessionField } from "./launchCardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { recoveryOf } from "./responsiveRecovery.ts";
 import { expect, test, keptRecord } from "./support/cursorStart.ts";
 

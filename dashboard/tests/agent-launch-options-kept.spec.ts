@@ -1,5 +1,5 @@
 // A refused launch's selection in the refinement dialog, on the committed
-// origin of ./agent-launch-card.spec.ts (./launchJourney.ts): the launch says
+// origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts): the launch says
 // "Launch failed:" naming the option and keeps the selection for the next
 // opening, naming in one quiet line the kept flags the project no longer
 // offers, which are not sent; Cancel drops it. The synthetic `claude`
@@ -19,7 +19,7 @@ import {
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "./launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });

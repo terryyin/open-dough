@@ -6,7 +6,7 @@
 import type { Page } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { parts } from "../dashboardPage.ts";
-import { sidebarParts } from "../sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { publishOrigin, test } from "./startOriginTest.ts";
@@ -20,11 +20,13 @@ export const unreadWords = "Unread report: Completed with attention";
 export const newerMessage =
   "Retirement is held. Resolve ownership before continuing.";
 
-export const takenCard = (page: Page, title: string) =>
+export const takenStoryCard = (page: Page, title: string) =>
   parts(page).taken.getByRole("article", { name: title, exact: true });
 
 export const sidebarRow = (page: Page, title: string) =>
-  sidebarParts(page).sidebar.getByRole("listitem").filter({ hasText: title });
+  sessionsSidebarParts(page)
+    .sidebar.getByRole("listitem")
+    .filter({ hasText: title });
 
 // The session's stored record.
 export async function recordOf(

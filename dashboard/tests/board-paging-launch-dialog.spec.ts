@@ -8,7 +8,7 @@
 import { expect } from "./dashboardTest.ts";
 import { expectView, showColumn } from "./boardPage.ts";
 import { reachKeptStart, startAction, test } from "./keptStartJourney.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
@@ -21,8 +21,8 @@ test("opening and leaving Start execution on a shown Taken card keeps the view o
   dashboard,
   origin,
 }) => {
-  const { takenCard } = await reachKeptStart(page, dashboard, origin);
-  await sidebarParts(page).button.click();
+  const { takenStoryCard } = await reachKeptStart(page, dashboard, origin);
+  await sessionsSidebarParts(page).button.click();
   await showColumn(page, "Recently done");
   // The sidebar's entries are cut by design, read whole by their tooltip.
   const expectTakenAndRecentlyDone = () =>
@@ -30,12 +30,12 @@ test("opening and leaving Start execution on a shown Taken card keeps the view o
       page,
       ["Taken", "Recently done"],
       ["Backlog 0 entries"],
-      [...scrollsOnItsOwn, ".sidebar-title"],
+      [...scrollsOnItsOwn, ".sessions-sidebar-session-entry-title"],
     );
   await expectTakenAndRecentlyDone();
 
   await test.step("while the dialog is open", async () => {
-    await startAction(takenCard).click();
+    await startAction(takenStoryCard).click();
     const dialog = page.getByRole("dialog", {
       name: "Start execution in Claude Code",
     });
@@ -55,7 +55,7 @@ test("opening and leaving Start execution on a shown Taken card keeps the view o
 
   await test.step("after a reload", async () => {
     await reloadUntilRead(page);
-    await expect(takenCard).toBeVisible();
+    await expect(takenStoryCard).toBeVisible();
     await expectTakenAndRecentlyDone();
   });
 });

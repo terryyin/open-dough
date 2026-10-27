@@ -10,7 +10,7 @@ import {
   narrowWindow,
   expectFocusedAndIndicated,
 } from "./accessibleReading.ts";
-import { cardSessions } from "./dashboardPage.ts";
+import { storyCardSessions } from "./dashboardPage.ts";
 import {
   box,
   expectEveryControlReachable,
@@ -40,7 +40,7 @@ test("at a narrow window the panel stacks above the page with no edge, and a wid
     origin,
   );
 
-  await cardSessions(card)
+  await storyCardSessions(card)
     .getByRole("button", { name: "Open terminal" })
     .click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
@@ -77,7 +77,7 @@ test("at a narrow window the panel stacks above the page with no edge, and a wid
     await expectNoSidewaysScrollAndWholeText(page, [
       ...scrollsOnItsOwn,
       // The sidebar's entries are cut by design, read whole by their tooltip.
-      ".sidebar-title",
+      ".sessions-sidebar-session-entry-title",
       // The review's context line is shortened by design, read whole by
       // its name and once activated.
       ".story-review-context-values",

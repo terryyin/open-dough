@@ -102,7 +102,7 @@ test("an unknown project retains its requested target and explains how to return
   expect(new URL(page.url()).searchParams.get("project")).toBe(
     "retired-project",
   );
-  expect(await page.locator("[data-work]:focus").count()).toBe(0);
+  expect(await page.locator("[data-story-card]:focus").count()).toBe(0);
   await target.getByRole("button", { name: "Show project stories" }).click();
   await expect(target).toHaveCount(0);
   expect(new URL(page.url()).searchParams.has("story")).toBe(false);
@@ -121,7 +121,7 @@ test("an absent story is distinct from failed reading, and retry can resolve a f
     "is not listed in Doughnut's published work",
   );
   await expect(destination).toContainText("SEED-404#gone");
-  expect(await page.locator("[data-work]:focus").count()).toBe(0);
+  expect(await page.locator("[data-story-card]:focus").count()).toBe(0);
   const restore = target.answerWith("main", noConnection);
   await page.goto(storyUrl());
   await expect(destination).toContainText("could not be read");

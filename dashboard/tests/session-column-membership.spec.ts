@@ -18,11 +18,11 @@ import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import { emptyBacklog, publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   at,
   placed,
@@ -83,7 +83,9 @@ test("one Taken story with two sessions and one local session means two entries;
   await showColumn(page, "Taken");
   const { taken, recentlyDone } = parts(page);
   await expect(taken.locator(".column-count")).toHaveText("2 entries");
-  await expect(taken.locator("[data-work] .session-entry")).toHaveCount(2);
+  await expect(taken.locator("[data-story-card] .session-entry")).toHaveCount(
+    2,
+  );
   await expect(localEntries(page)).toHaveCount(1);
   for (const [index, name] of [
     queuedTitle,
@@ -93,7 +95,7 @@ test("one Taken story with two sessions and one local session means two entries;
       taken.locator(":scope > ol > li > article").nth(index),
     ).toHaveAccessibleName(name);
   await expect(
-    localEntries(page).locator(".card-meta, .slice-progress"),
+    localEntries(page).locator(".story-card-meta, .slice-progress"),
   ).toHaveCount(0);
   await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
   await expect(taken).not.toContainText("No Taken entries");
@@ -193,8 +195,8 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await expect(recent).toBeFocused();
   await expect(sessionStateOf(recent)).toHaveText("Done");
   expect((await savedLocalSessionRecords(dashboard))[0]?.doneAt).toBeDefined();
-  await sidebarParts(page).button.click();
-  await expect(sidebarParts(page).entries).toHaveCount(0);
+  await sessionsSidebarParts(page).button.click();
+  await expect(sessionsSidebarParts(page).entries).toHaveCount(0);
   await reloadUntilRead(page);
   await expect(recent).toHaveCount(1);
   const doneAt = (await savedLocalSessionRecords(dashboard))[0]?.doneAt;
@@ -239,12 +241,9 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
     .getByRole("button", { name: "Delete record", exact: true })
     .click();
   await expect(entry).toHaveCount(0);
-  await expect(parts(page).taken).toBeFocused();
-  await expect(parts(page).taken.locator(".column-count")).toHaveText(
-    "0 entries",
-  );
-  await expect(parts(page).taken).toContainText(
-    "No Taken entries are recorded.",
-  );
+  const { taken } = parts(page);
+  await expect(taken).toBeFocused();
+  await expect(taken.locator(".column-count")).toHaveText("0 entries");
+  await expect(taken).toContainText("No Taken entries are recorded.");
   expect(await savedLocalSessionRecords(dashboard)).toEqual([]);
 });

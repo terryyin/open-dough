@@ -12,7 +12,7 @@ import { revealStory } from "./pageEntries.ts";
 import { useStoryNavigation } from "./storyNavigation.tsx";
 import { columnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { WorkCard } from "./WorkCard.tsx";
+import { StoryCard } from "./StoryCard.tsx";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
 type ColumnView = {
@@ -95,10 +95,10 @@ function Column({
       {count === 0 ? (
         <p className="quiet column-empty">No {name} entries are recorded.</p>
       ) : (
-        <ol className="cards">
+        <ol className="story-cards">
           {entries.map((entry, index) => (
             <li key={entry.identity}>
-              <WorkCard
+              <StoryCard
                 sourceId={sourceId}
                 entry={entry}
                 priority={prioritized ? index + 1 : undefined}
@@ -113,7 +113,7 @@ function Column({
           ))}
           {localSessions?.map((record) => (
             <li key={sessionKey(record.session)}>
-              <SessionEntry record={record} onCard={false} />
+              <SessionEntry record={record} onStoryCard={false} />
             </li>
           ))}
         </ol>
@@ -123,7 +123,7 @@ function Column({
 }
 
 // The projected columns keep published story membership/order separate from
-// machine-local sessions. Cards retain work identity and workFocus marks.
+// machine-local sessions. Cards retain work identity and storyCardFocus marks.
 export function Columns({
   work,
   columns,

@@ -7,10 +7,10 @@
 // `claude` is never reached.
 
 import type { Locator, Page } from "@playwright/test";
-import { cardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { watchPageErrors } from "./pageErrors.ts";
 import { pressWhereShown } from "./pageLayout.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   control,
   dragEdge,
@@ -31,7 +31,7 @@ const storyA = (page: Page) =>
   parts(page).backlog.getByRole("article", { name: "Story A" });
 
 async function openTerminal(page: Page) {
-  await cardSessions(storyA(page))
+  await storyCardSessions(storyA(page))
     .getByRole("button", { name: "Open terminal" })
     .click();
   const terminal = page.getByRole("region", { name: "Terminal" });
@@ -161,7 +161,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
   const errors = watchPageErrors(page);
   // The Sessions sidebar's own kept preference is untouched.
   await page.evaluate(() => {
-    window.localStorage.setItem("open-dough.sessionSidebar.open", "true");
+    window.localStorage.setItem("open-dough.sessionsSidebar.open", "true");
   });
   for (const malformed of ["wide", "0", "Infinity"]) {
     await test.step(`kept as ${JSON.stringify(malformed)}`, async () => {
@@ -172,7 +172,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
         [widthKey, malformed] as const,
       );
       await page.reload();
-      await expect(sidebarParts(page).sidebar).toBeVisible();
+      await expect(sessionsSidebarParts(page).sidebar).toBeVisible();
       await expectHalfTheRoom(page, await openTerminal(page));
     });
   }

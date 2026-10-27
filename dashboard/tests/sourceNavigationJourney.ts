@@ -5,7 +5,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./cardControls.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, githubFor } from "./dashboardTest.ts";
 import {
   commitAnswer,
@@ -85,7 +85,7 @@ export async function inspectedSources(story: Locator): Promise<Locator> {
 
 // Each card's source links in turn, each read in its own detail once the
 // card is closed again.
-export async function forEachCardsSources(
+export async function forEachStoryCardsSources(
   board: Locator,
   read: (sources: Locator) => Promise<void>,
 ) {

@@ -20,7 +20,7 @@ import {
   startSessionDialog,
   startSessionField,
   startedSession,
-} from "./launchCardPage.ts";
+} from "./launchStoryCardPage.ts";
 import {
   dirty,
   existingChangesHeading as heading,

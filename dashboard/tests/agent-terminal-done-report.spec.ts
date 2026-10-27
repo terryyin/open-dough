@@ -11,9 +11,9 @@
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
-import { cardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
-import { sidebarParts } from "./sessionSidebarPage.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   idleBetweenSteps,
   markDone,
@@ -51,8 +51,8 @@ test("Mark as done in the terminal panel closes a session with an unread report 
   const { sessionId } = story;
   await story.report();
   const card = await openCard(page, origin);
-  await sidebarParts(page).button.click();
-  const row = sidebarParts(page)
+  await sessionsSidebarParts(page).button.click();
+  const row = sessionsSidebarParts(page)
     .sidebar.getByRole("listitem")
     .filter({ hasText: titleA });
   await expect(card.locator(".session-unread-report")).toHaveText(unreadWords);
@@ -98,7 +98,7 @@ test("in the terminal panel, a session with a read completed report that reads R
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   await story.report();
   dashboard.claudeSessionBecomes(story.sessionId, "done-live");
-  const entry = cardSessions(await openCard(page, origin));
+  const entry = storyCardSessions(await openCard(page, origin));
   await markReportRead(entry);
   await expect(sessionStateOf(entry)).toHaveText("Ready for review");
   const shortId = shortIdOf(dashboard, story.sessionId);

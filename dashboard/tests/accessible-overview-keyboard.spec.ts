@@ -5,7 +5,7 @@ import {
   politeRegionsOfferedThenMarked,
 } from "./accessibleReading.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { enabledCardLaunchActions } from "./cardControls.ts";
+import { enabledStoryCardLaunchActions } from "./storyCardControls.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -53,7 +53,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
         await expect(
           card.getByRole("button", { name: "Start refinement" }),
         ).toBeEnabled();
-        stops.push(...(await enabledCardLaunchActions(card)));
+        stops.push(...(await enabledStoryCardLaunchActions(card)));
       }
       stops.push(card.getByRole("button", { name: "Inspect story" }));
       await expect(card.getByRole("link")).toHaveCount(0);

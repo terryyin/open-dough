@@ -4,7 +4,7 @@
 // Recently done shows the entry Done under its `done-` name, still openable.
 // How the boundary renames and stops the session is ./boundary/agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
-// entry's own Mark as done is ./agent-launch-card-done.spec.ts. A refused mark
+// entry's own Mark as done is ./agent-launch-story-card-done.spec.ts. A refused mark
 // keeps the panel open and says so, and a mark answered after another session
 // replaced the panel leaves the keyboard in the new terminal. A session not
 // known to be complete is asked about first within the panel, with the
@@ -20,9 +20,9 @@ import type { Locator, Page } from "@playwright/test";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
-  cardSessionName,
-  cardSessionOf,
-  cardSessions,
+  storyCardSessionName,
+  storyCardSessionOf,
+  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -88,7 +88,7 @@ test.describe("marking a session done from its terminal", () => {
     );
     const { recentlyDone: recent } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
-    const listed = cardSessions(card(readyStory));
+    const listed = storyCardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
     });
@@ -99,7 +99,9 @@ test.describe("marking a session done from its terminal", () => {
     await expectMembership(page, queued);
     await settled();
     await launch(readyStory, "Execution");
-    await expect(listed).toHaveAccessibleName(cardSessionName("Execution"));
+    await expect(listed).toHaveAccessibleName(
+      storyCardSessionName("Execution"),
+    );
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const [session] = dashboard.claudeListing();
@@ -161,7 +163,7 @@ test.describe("marking a session done from its terminal", () => {
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
-    await cardSessions(card(readyStory))
+    await storyCardSessions(card(readyStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
@@ -201,7 +203,7 @@ test.describe("marking a session done from its terminal", () => {
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
-    await cardSessionOf(card(readyStory), "Execution")
+    await storyCardSessionOf(card(readyStory), "Execution")
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
@@ -209,7 +211,7 @@ test.describe("marking a session done from its terminal", () => {
     await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
-    await cardSessionOf(card(notRefinedStory), "Refinement")
+    await storyCardSessionOf(card(notRefinedStory), "Refinement")
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel).toContainText("Refinement session");
@@ -221,7 +223,9 @@ test.describe("marking a session done from its terminal", () => {
     release();
     await doneAnswered;
 
-    await expect(cardSessionOf(card(readyStory), "Execution")).toHaveCount(0);
+    await expect(storyCardSessionOf(card(readyStory), "Execution")).toHaveCount(
+      0,
+    );
     await expect(panel).toContainText("Refinement session");
     await expect(typing).toBeFocused();
   });

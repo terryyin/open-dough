@@ -1,5 +1,5 @@
 // A preparation announced without a session offers its resume on the story's
-// Backlog card (../server/agentLaunches.ts, ../src/CardLaunches.tsx). The real
+// Backlog card (../server/agentLaunches.ts, ../src/StoryCardLaunches.tsx). The real
 // installed preparation start and a real bare origin (./support/startOrigin.ts)
 // stand behind the page, which reads that origin as GitHub would
 // (./committedOrigin.ts); the synthetic `claude` refuses the first launch. After
@@ -15,7 +15,7 @@ import { keptStarts, recordsOf } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
-import { expectStartNote } from "./cardControls.ts";
+import { expectStartNote } from "./storyCardControls.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import {
