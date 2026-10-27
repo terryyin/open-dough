@@ -84,7 +84,7 @@ test("finish still hands an empty visit with a discovery problem to the agent wi
   const { fixture, final, result, code } = await closeUnconsumed(t, (fixture) =>
     writeFileSync(
       join(fixture.execution, ".planning/stray.md"),
-      "<!-- dough-story-dependencies -->\n",
+      "```json dough-story-dependencies\n{}\n```\n",
     ),
   );
 
