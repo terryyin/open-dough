@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-155#cursor-background-work-reads-working",
+  "mode": "story-branch",
+  "branch": "cursor/a-cursor-session-with-background-work-reads-work",
+  "host": "cursor",
+  "model": "auto"
+}
