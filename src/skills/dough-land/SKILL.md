@@ -158,24 +158,20 @@ retirement; reporting failure leaves Git acceptance accepted and retries only ev
 Apply [reviewed-checkout publication](references/publish-reviewed-checkout.md):
 use [publish the candidate](../dough-execute-plan/references/publish-the-candidate.md)
 for a wholly unpublished suffix, or history-preserving integration for a published
-prefix and the complete reviewed tip above it; for a selected completed supplier,
-use their [supplier forms](references/publish-reviewed-checkout.md#land-a-selected-completed-supplier). Keep the queued-closure check
+prefix and the complete reviewed tip above it; for completed selected work, use
+their [visit forms](references/publish-reviewed-checkout.md#land-completed-selected-work). Keep the queued-closure check
 before each reconciliation and retry, and recheck affected proof before pushing.
 Preserve the state on a conflict, refusal, failed recheck or second rejection;
 report publication, refresh and cleanup as unfinished. Do not loop.
 
 ## Visit consumers of completed selected work
 
-When retained context establishes a selected completed supplier, apply the
-shared [supplier dependency procedure](../dough-product-backlog/references/supplier-dependencies.md):
-preserve its recoverable outcome before cleanup, and publish it with the
-[supplier's visit](references/publish-reviewed-checkout.md#land-a-selected-completed-supplier)
-so the [current-consumer visit](../dough-product-backlog/references/supplier-dependencies.md#visit-current-consumers-after-integration)
-runs from the landing checkout after accepted publication. Judge each consumer,
-publish directly justified consumer updates through this authorized landing
-workflow, and finish the visit or explicitly retain unresolved work, before
-refresh, retirement and the final report. A generic landing or an unfinished
-increment establishes no supplier completion and takes no visit.
+Completed selected work that retained context establishes [takes the current-consumer visit](../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit)
+under that shared procedure: preserve its recoverable outcome before cleanup and
+publish with its [visit forms](references/publish-reviewed-checkout.md#land-completed-selected-work).
+Judge each consumer, publish directly justified consumer updates through this
+authorized landing workflow, and finish the visit or explicitly retain
+unresolved work, before refresh, retirement and the final report.
 
 ## Review this landing's process
 

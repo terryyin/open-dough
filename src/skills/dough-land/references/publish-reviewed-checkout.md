@@ -53,11 +53,14 @@ the checkout, branch, index, and whatever state Git left. Name the conflict or
 contention, and report publication, refresh, and cleanup as not done. Do not
 loop.
 
-## Land a selected completed supplier
+## Land completed selected work
 
-Only when retained context establishes a selected completed supplier, publish
-with the installed `supplier-integration.mjs` APIs instead, adding
-`supplierIdentity`: `publishSelectedSupplier` takes the
+When retained context establishes completed selected work with a recorded
+identity, it takes the visit under the shared
+[visit rule](../../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit),
+even when its checkout shows no consumer; a generic landing or an unfinished
+increment takes none. Publish with the installed `supplier-integration.mjs`
+APIs instead, adding `supplierIdentity`: `publishSelectedSupplier` takes the
 `publishExecutionIncrement` request for a wholly unpublished suffix, and
 `integrateSelectedSupplier` takes the `publishHistoryPreservingCandidate`
 request for a published prefix. Keep the same candidate check, proof check and

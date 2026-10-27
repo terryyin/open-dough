@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "identity": "SEED-154#harden-supplier-visit-trigger-and-settlement",
-  "mode": "story-branch",
-  "branch": "claude/visit-consumers-of-every-completed-selected-stor",
-  "host": "claude"
-}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-154#harden-supplier-visit-trigger-and-settlement",
+  "title": "Visit consumers of every completed selected story and settle on its last publication",
+  "completedAt": "2026-10-27T08:52:56.755Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "claude"
+}

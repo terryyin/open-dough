@@ -33,7 +33,8 @@ state Git left. With a supplied dashboard landing context, add
 `--landing-context <supplied absolute file>` under the shared
 [landing handoff](../../dough-land/references/dashboard-completion.md#retain-the-launch-landing).
 
-For a selected completed supplier, add `--supplier-identity <identity>`. Once
+For completed selected work, add `--supplier-identity <identity>` under the
+[visit rule](../../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit). Once
 the integration is `published` or `already-accepted`, the result also holds
 `visit`: the [current-consumer visit](../../dough-product-backlog/references/supplier-dependencies.md#visit-current-consumers-after-integration)
 from this workspace against the accepted SHA. Its receipt stands even when that

@@ -156,14 +156,9 @@ async function publishFinalClosure(request) {
   };
 }
 
-// Returns the accepted final closure with its observer, or `stopped` naming
-// the unfinished step with nothing pushed or retired.
-export async function settleFinalClosure(request) {
+// Resumes the final closure the target holds on `observers`, or publishes it.
+async function acceptFinalClosure(request, observers) {
   const { workspace, inspection, tracking, final } = request;
-  const observers = closureObservers({
-    ...request,
-    branch: targetBranchName(request.targetRef),
-  });
   if (await isAncestor(inspection, final, tracking)) {
     return resumeAcceptedClosure({ ...request, observers, accepted: final });
   }
@@ -187,4 +182,19 @@ export async function settleFinalClosure(request) {
     };
   }
   return publishFinalClosure(request);
+}
+
+// Returns the accepted final closure with its observer and
+// `observerDirectories`, this execution's own observers whose registered
+// revisions the visit's settlement reads, or `stopped` naming the unfinished
+// step with nothing pushed or retired.
+export async function settleFinalClosure(request) {
+  const observers = closureObservers({
+    ...request,
+    branch: targetBranchName(request.targetRef),
+  });
+  const settled = await acceptFinalClosure(request, observers);
+  return settled.stopped
+    ? settled
+    : { ...settled, observerDirectories: observers.directories };
 }

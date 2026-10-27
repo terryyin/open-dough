@@ -1,11 +1,21 @@
 # Resolve consumers of a completed supplier
 
-Use this shared procedure during a selected supplier's landing or wrap-up, or
-to explicitly correct an existing consumer agreement after supplier cleanup.
-A generic checkout landing, an increment, a queue `complete`, disappearance from
-Taken, or missing history does not establish completion. Without a selected
-completed supplier, continue the ordinary caller without satisfying dependencies.
+Use this shared procedure during completed selected work's landing or wrap-up,
+or to explicitly correct an existing consumer agreement after supplier cleanup.
 Refinement and planning remain possible while consumer execution is blocked.
+
+## Which completed work takes the visit
+
+Every completed selected work item with a recorded identity is a potential
+supplier, including planless work [judged complete](#preserve-context-before-cleanup).
+Discovery, not the agent, decides whether consumers exist; zero consumers is ordinary.
+Pass the identity explicitly: `--supplier-identity` to Story Branch `integrate`
+or Trunk `finish`, `supplierIdentity` to the Land APIs; no script defaults it,
+`finish` never derives it from `--identity`, and `integrate` without it stays
+supplier-free. Work without a recorded identity, such as a context-only or
+one-shot instruction, takes no visit. A generic checkout landing, an increment,
+a queue `complete`, disappearance from Taken, or missing history establishes no
+completion; continue such a caller without satisfying dependencies.
 
 ## Preserve context before cleanup
 
@@ -42,14 +52,14 @@ visit. Otherwise, and for every repeated visit, run from the owned checkout:
 node <installed>/dough-product-backlog/scripts/product-backlog.mjs visit-consumers --file <backlog> --supplier-identity <supplier identity> --accepted-revision <accepted supplier integration SHA> --remote <authorized remote> --target <integration branch>
 ```
 
-The visit fetches the target and requires it to contain the accepted revision.
-A clean checkout behind the target fast-forwards to it; a checkout already
-holding the target is used as it is. It never resets or switches branches.
+The visit fetches the target; without the accepted revision there, it stops with
+`accepted-not-on-target`. A clean checkout behind the target fast-forwards to
+it; one already holding it is used as is. It never resets or switches branches.
 `status: "visited"` reports the `checkout.revision` it discovered from, the
 fetched `target`, and the discovery below. `status: "stopped"` changed nothing:
 `local-changes` lists them, `divergent` means the checkout and target each hold
-commits the other lacks, and `accepted-not-on-target` means the integration is
-not accepted there. Follow its `recovery`; keep those changes and the execution
+commits the other lacks, and `error` carries any other Git failure, such as an
+unreachable remote. Follow its `recovery`; keep those changes and the execution
 resources, and report the unfinished visit instead of judging an older view.
 
 Discovery reads current canonical homes, including queued, Taken, prepared
@@ -126,8 +136,8 @@ Before writing, reread the consumer's goal, scope and plan and compare with the
 context used above. Changed intent or failed verification requires a new
 judgment; do not apply an old satisfaction. The command separately refuses a
 stale dependency basis or a changed agreement without explicit correction intent.
-Do not repeatedly
-retry that refusal with a refreshed basis and the same unreviewed judgment.
+Do not repeatedly retry that refusal with a refreshed basis and the same
+unreviewed judgment.
 
 <a id="apply-and-publish-a-direct-resolution"></a>
 
@@ -188,8 +198,8 @@ canonical record. Reread the corrected agreement, evidence, current basis and
 pending as before. A stale refusal requires rereading and rejudging. A repeat
 visit with an unchanged agreement preserves the first satisfied record and its
 evidence byte for byte, including a correction replay with the current basis;
-reuse unchanged unresolved
-questions/evidence rather than rewriting them as fulfilled or duplicating receipts.
+reuse unchanged unresolved questions/evidence rather than rewriting them as
+fulfilled or duplicating receipts.
 
 ## Reassess a consumer's reasons after satisfaction
 

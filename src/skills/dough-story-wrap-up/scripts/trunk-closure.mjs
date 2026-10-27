@@ -8,10 +8,13 @@
 // core. Any stop preserves the worktree, branch, and both closure commits and
 // names the unfinished step.
 // For a selected completed supplier (`--supplier-identity`), an accepted final
-// closure first hands the current-consumer visit to the agent from the
-// still-present worktree and stops at `step: "visit"`, before completion,
-// refresh or retirement. Only a rerun naming the last accepted SHA of that
-// settled visit (`--visit-settled`) completes that SHA and retires.
+// closure first visits current consumers from the still-present worktree. A
+// clean visit, with no consumers and no discovery problems, continues in the
+// same invocation and reports the visit. Any other visit stops at
+// `step: "visit"`, before completion, refresh or retirement. Only a rerun
+// naming the last accepted SHA of that settled visit (`--visit-settled`),
+// with no later publication registered on this closure's observers,
+// completes that SHA and retires.
 // A rerun continues from the first unfinished step: an accepted final closure
 // is not pushed again, and once the worktree is gone the recorded management
 // context (`--repository`) carries completion and cleanup.
@@ -141,6 +144,7 @@ export async function finishTrunkClosure({
     acceptedSha,
     supplierIdentity,
     visitSettled,
+    observerDirectories: published.observerDirectories,
     targetRef,
     remote,
     backlogPath,
@@ -149,6 +153,7 @@ export async function finishTrunkClosure({
     const { stopped, ...detail } = visited;
     return stop(stopped, { ...accepted, ...detail });
   }
+  if (visited.visit) accepted.visit = visited.visit;
   const completed = visited.finalSha ?? acceptedSha;
   let completion = null;
   if (observation?.directory && observation.state !== "unobserved") {
