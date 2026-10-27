@@ -6,8 +6,9 @@
 from the execution retrospective of
 SEED-154#harden-supplier-visit-trigger-and-settlement (plan 360, all four
 slices done; reviewed commits `25ffa738`, `c01a7b8a`, `b0f843ab`, `76a568ab`;
-Take `e2a363f6`). Plan 360 stays recoverable from that history after its
-wrap-up.
+Take `e2a363f6`). Its story and completed plan are recoverable at
+`3da055f403a62e68b2fd181edaf826f88338c7ff:.planning/seeds/SEED-154-supplier-integration-consumer-reconciliation.md`
+and `3da055f403a62e68b2fd181edaf826f88338c7ff:.planning/slice-plans/360-harden-supplier-visit-trigger-and-settlement/PLAN.md`.
 
 ## Goal and scope
 
