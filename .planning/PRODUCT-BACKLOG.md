@@ -24,3 +24,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [A Cursor session with background work reads Working](seeds/SEED-155-cursor-background-work-reads-working.md#cursor-background-work-reads-working) — SEED-155#cursor-background-work-reads-working
