@@ -3,12 +3,12 @@
 // One owned workspace merges an already-published tip onto fetched trunk,
 // pushes that candidate SHA through pushExactRef, and recomputes the merge
 // once after a rejected push. A conflicted or uncommitted merge is preserved
-// for the agent to resolve and commit; the next run publishes that commit as
-// the candidate.
+// for the agent to resolve and commit; the next run publishes it as candidate.
 // A launch's landing context retains each attempt's candidate and the fetched
 // tip it was built on before its push, and records the accepted pair as that
-// launch's landing. --supplier-identity adds supplier-integration.mjs's
-// current-consumer visit. Installed guidance is the agent's contract.
+// launch's landing. The CLI runs unawaited: --supplier-identity lazily imports
+// supplier-integration.mjs, which imports this module back. Installed guidance
+// is the agent's contract.
 import { resolve } from "node:path";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
@@ -27,7 +27,6 @@ import {
   pushExactRef,
   revParse,
 } from "./publication-git.mjs";
-import { integrateSelectedSupplier } from "./supplier-integration.mjs";
 import { isAncestor } from "./workspace-publication-ownership.mjs";
 
 export const trunkTarget = "refs/heads/main";
@@ -231,11 +230,11 @@ function argumentsOf(argv) {
   return { ownedWorkspace: resolve(workspace), publishedTip, branch, ...rest };
 }
 
-if (isDirectCliEntry(import.meta.url, process.argv[1])) {
+async function runCli(argv) {
   try {
-    const request = argumentsOf(process.argv.slice(2));
+    const request = argumentsOf(argv);
     const integrate = request.supplierIdentity
-      ? integrateSelectedSupplier
+      ? (await import("./supplier-integration.mjs")).integrateSelectedSupplier
       : publishHistoryPreservingCandidate;
     const result = await integrate(request);
     process.stdout.write(`${JSON.stringify(result)}\n`);
@@ -244,4 +243,8 @@ if (isDirectCliEntry(import.meta.url, process.argv[1])) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 2;
   }
+}
+
+if (isDirectCliEntry(import.meta.url, process.argv[1])) {
+  runCli(process.argv.slice(2));
 }

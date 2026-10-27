@@ -313,7 +313,7 @@ supplied identity and an accepted full SHA.
 ### 4. Remove the generic publisher's supplier import and split the oversized test
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Preserved behavior through `tests/support/supplier-integration-visit.test.mjs`,
 `supplier-integration-revisit.test.mjs`, `supplier-land-visit.test.mjs` (and its
 split sibling), `src/skills/dough-story-wrap-up/scripts/closure-story-integration.test.mjs`,
@@ -327,6 +327,15 @@ under 250 lines (finding 4). External behavior of generic and supplier
 correction slice; it enables no further Behavior.
 
 Safe stopping point: correction complete.
+
+Accepted proof (2026-10-27): `history-preserving-publication.mjs` has no static
+supplier import; its CLI runs from an unawaited `runCli` that lazily imports
+`supplier-integration.mjs` for `--supplier-identity` (a top-level-await form
+deadlocked with "unsettled top-level await", exit 13, since that module imports
+the publisher back). A static-import cycle scan finds 0 cycles (1 at
+`b0f843ab`). `supplier-land-visit.test.mjs` is 175 lines with its setup in
+`supplier-land-visit-fixture.mjs`. Supplier integration, Land, closure-story,
+CI-reuse story and done-catalog suites stay green; no runtime file was added.
 
 ## Verification and execution gates
 
