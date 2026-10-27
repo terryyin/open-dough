@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-154#keep-visit-receipts-after-acceptance",
+  "title": "Keep the integration receipt when a post-acceptance visit is refused",
+  "completedAt": "2026-10-27T09:39:38.589Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
