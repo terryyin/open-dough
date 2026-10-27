@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Align the dashboard globally with its UI domain concepts](seeds/SEED-153-dashboard-ui-domain-concepts.md#align-dashboard-ui-domain-concepts) — SEED-153#align-dashboard-ui-domain-concepts ([plan](slice-plans/358-align-dashboard-ui-domain-concepts/PLAN.md))
-
 ## Backlog list
 
