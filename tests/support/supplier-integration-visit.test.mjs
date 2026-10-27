@@ -7,6 +7,8 @@ import {
   git,
   readDependencies,
   revParse,
+  run,
+  supplier,
 } from "./supplier-dependency-fixture.mjs";
 import {
   branchedSupplier,
@@ -32,6 +34,13 @@ import { retireWorktree } from "../../src/skills/dough-land/scripts/worktree-ret
 
 test("Story Branch supplier integration visits a consumer added on trunk after branching before retirement", async (t) => {
   const setup = await branchedSupplier(t);
+  const onBranch = await run(setup.owned, [
+    "discover-consumers",
+    "--supplier-identity",
+    supplier.identity,
+  ]);
+  assert.equal(onBranch.code, 0, onBranch.stderr);
+  assert.deepEqual(JSON.parse(onBranch.stdout).consumers, []);
   await plantHumanEdit(setup.trunk.integration);
   const defaultBefore = await captureCheckout(setup.trunk.integration);
   const operations = [];

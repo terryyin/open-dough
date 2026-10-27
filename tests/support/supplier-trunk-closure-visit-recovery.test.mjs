@@ -8,7 +8,10 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { consumer } from "./supplier-dependency-fixture.mjs";
 import {
+  commitCompletedSupplier,
+  commitSupplierCleanup,
   handTrunkVisit,
   judgeConsumers,
   selectedTrunkSupplier,
@@ -18,6 +21,8 @@ import { deliverThroughCli } from "../../src/skills/dough-execute-plan/scripts/e
 import { git } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
 import {
   branchSha,
+  createTrunkClosureFixture,
+  deliverBeforeCleanupThroughCli,
   finishThroughCli,
   installInIntegration,
   recordPushes,
@@ -26,6 +31,68 @@ import {
 
 const main = "refs/heads/main";
 const question = "Does the late story adopt B's contract?";
+
+test("a clean visit printed by finish lets its worktree-absent rerun name --visit-settled and finish retirement", async (t) => {
+  const fixture = await createTrunkClosureFixture(t);
+  installInIntegration(fixture);
+  const project = await commitCompletedSupplier(
+    t,
+    fixture.execution,
+    fixture.fixture,
+  );
+  const before = await deliverBeforeCleanupThroughCli(fixture);
+  const final = await commitSupplierCleanup(project);
+  releaseCi(fixture, { [before.receipt.sha]: "success", [final]: "success" });
+  const selected = ["--supplier-identity", consumer.identity];
+  // Without the caller's creation fact, retirement holds after the real
+  // finish has printed its clean visit and completed CI. Removing only the
+  // worktree supplies the state of an interruption before branch removal.
+  const first = await finishThroughCli(fixture, {
+    beforeCleanup: before.receipt.sha,
+    final,
+    extra: selected,
+  });
+  assert.equal(first.result.step, "retire");
+  assert.equal(first.result.visit.status, "visited");
+  assert.deepEqual(first.result.visit.consumers, []);
+  assert.deepEqual(first.result.visit.problems, []);
+  assert.equal(first.result.completion.verdict, "success");
+  assert.equal(first.result.completion.shutdown.status, "confirmed");
+  await git(fixture.integration, "worktree", "remove", fixture.execution);
+  const recorded = recordPushes(fixture);
+  const rerun = (extra = []) =>
+    finishThroughCli(fixture, {
+      beforeCleanup: before.receipt.sha,
+      final,
+      checkout: fixture.integration,
+      env: recorded.env,
+      extra: [
+        ...selected,
+        "--created-for-work",
+        "--repository",
+        join(fixture.integration, ".git"),
+        ...extra,
+      ],
+    });
+
+  const stopped = await rerun();
+  assert.equal(stopped.code, 1);
+  assert.equal(stopped.result.step, "visit");
+  assert.equal(stopped.result.acceptedSha, final);
+  assert.match(stopped.result.recovery, /clean visit.*earlier finish/);
+  assert.ok(stopped.result.recovery.includes(`--visit-settled ${final}`));
+  assert.equal(await branchSha(fixture), final);
+
+  const finished = await rerun(["--visit-settled", final]);
+  assert.equal(finished.code, 0, finished.stderr);
+  assert.equal(finished.result.completion.requestedSha, final);
+  assert.equal(finished.result.completion.shutdown.status, "confirmed");
+  assert.equal(finished.result.cleanup.worktree, "already-absent");
+  assert.equal(finished.result.cleanup.branch, "removed");
+  assert.equal(await branchSha(fixture), "");
+  assert.deepEqual(recorded.pushes(), []);
+  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+});
 
 test("finish for a selected supplier whose worktree is gone before the visit settled stops at the visit with nothing pushed, completed or retired", async (t) => {
   const handed = await handTrunkVisit(t);
