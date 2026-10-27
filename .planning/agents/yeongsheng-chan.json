@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-154#distinguish-documentation-anchors-in-consumer-discovery",
+  "mode": "story-branch",
+  "branch": "codex/consumer-discovery-documentation-anchors",
+  "host": "codex"
+}

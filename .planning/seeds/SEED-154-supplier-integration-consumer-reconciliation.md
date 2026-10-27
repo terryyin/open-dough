@@ -51,6 +51,40 @@ guidance, and resolve the small cleanup findings the plan lists. The selected
 story's promises and exclusions stay unchanged. Findings, proof and decisions
 live in [the correction plan](../slice-plans/360-harden-supplier-visit-trigger-and-settlement/PLAN.md).
 
+<a id="distinguish-documentation-anchors-in-consumer-discovery"></a>
+
+### Distinguish documentation anchors from consumer story homes
+
+**Identity:** SEED-154#distinguish-documentation-anchors-in-consumer-discovery
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Beneficiary:** A developer completing a supplier visit in a project whose
+planning documents contain ordinary navigation anchors.
+
+**Goal:** Discover all current consumer agreements without reporting ordinary
+documentation anchors as malformed story homes.
+
+**Scope:** Reuse the canonical-home reader's section boundaries to distinguish
+story candidates from documentation. Preserve discovery of queued, Taken,
+unqueued and sibling stories, and plan-homed corrections. Retain problems for
+malformed listed homes and sections carrying identity, preparation or dependency
+records. Keep the three existing documentation/breadcrumb anchors intact.
+
+**Known expectations:** Add CLI regression coverage that first reproduces the
+three documentation-anchor shapes, including documentation beside a real
+consumer. Check malformed real homes still report discovery gaps. Rerun the
+consumer scan for
+`SEED-154#reconcile-current-consumers-after-supplier-integration`; its earlier
+result was no consumers and three missing-story-heading problems. A clean
+result must have no discovery problems; judge any consumers found independently.
+
+**Execution authority:** Terry requested this bounded bug repair, separate
+tracking, regression coverage and the repeat scan on 2026-10-27. Execute as one
+planless bug-fixing slice with no replanning and a ten-minute implementation
+attempt. The separate hardening story retains its scope and ownership.
+
 ## Breadcrumbs
 
 - Terry's report, instance-repair request, and instruction to queue the Open
