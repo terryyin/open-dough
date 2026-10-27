@@ -1,5 +1,5 @@
 import { expect, test } from "./dashboardTest.ts";
-import { publishLargeBacklog } from "./accessibleOverview.ts";
+import { publishLargeBacklog } from "./accessibleBoard.ts";
 import { boardScroll, bottomOf, scrollYOf } from "./boardPage.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";

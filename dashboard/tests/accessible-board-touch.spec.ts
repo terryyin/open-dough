@@ -8,7 +8,7 @@ import {
   queuedCount,
   queuedTitles,
   revision,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
 import { columnPagingControl, expectView, wheelTo } from "./boardPage.ts";
 import {
@@ -172,7 +172,7 @@ test.describe("touch reading", () => {
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 
-  test("comfortable edge targets page the work where the developer is reading on phone and tablet", async ({
+  test("comfortable Column paging controls show work where the developer is reading on phone and tablet", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });

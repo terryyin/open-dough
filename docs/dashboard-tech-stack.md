@@ -6,14 +6,14 @@
 
 ## First-story application
 
-The first overview, for Open Dough's public GitHub `main` and launched locally,
+The first Board, for Open Dough's public GitHub `main` and launched locally,
 is built and described in the [dashboard README](../dashboard/README.md).
-That bounded overview uses the simpler static UI/browser-read option below,
+That bounded Board uses the simpler static UI/browser-read option below,
 with React, strict TypeScript, Vite, runtime validation, and one new behavioral
 suite: Playwright on Chromium. Include type checking, lint, production build,
 and the browser suite in existing CI; preserve existing repository tests.
 No application read server, Vitest/component-test layer, browser matrix,
-sign-in, or hosted deployment is required by that overview. Every project now
+sign-in, or hosted deployment is required by that Board. Every project now
 reads through a local `gh` read boundary; see the
 [dashboard README](../dashboard/README.md) for current behavior.
 

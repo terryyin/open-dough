@@ -1,6 +1,6 @@
 :root {
   --surface: #f6f6f3;
-  --panel: #ffffff;
+  --raised-surface: #ffffff;
   /* Decorative separation only; every group it outlines is also a headed
      region or a list item, so nothing is told by this faint line alone. */
   --line: #c9c9c1;

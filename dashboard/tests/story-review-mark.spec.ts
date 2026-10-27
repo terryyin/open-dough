@@ -15,7 +15,10 @@ import {
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
-import { storyBLaunchRecord, storyBWorktree } from "./support/storyPanels.ts";
+import {
+  storyBLaunchRecord,
+  storyBWorktree,
+} from "./support/sidePanelContents.ts";
 import {
   expectSinceTheReview,
   keptReviewMarks,

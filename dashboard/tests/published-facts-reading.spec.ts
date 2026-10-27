@@ -145,7 +145,7 @@ test("arriving facts respect a reader who scrolls away while the inspected link 
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const { trunkCard, doneCard, release, link } = await openReadingPlace(page);
-  // A real wheel movement returns to the overview without changing focus.
+  // A real wheel movement returns to the top of the Board without changing focus.
   await page.mouse.wheel(
     0,
     -(await page

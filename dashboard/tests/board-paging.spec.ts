@@ -1,13 +1,13 @@
-// A page too narrow for Backlog, Taken, and Recently done side by side
+// A Board too narrow for Backlog, Taken, and Recently done side by side
 // shows the whole columns that fit, two from 48rem and one below, filling
-// the page from Backlog; a column paging control on a side with a hidden column names
-// it and how many entries it holds, stays in sight down a long page, and
+// the Board from Backlog; a column paging control on a side with a hidden column names
+// it and how many entries it holds, stays in sight down a long Board, and
 // moves the view one column, briefly sliding unless the developer asked for
 // reduced motion, and the chosen position comes back where the width allows
 // it; focus landing in a hidden column shows it. That the side panel pages
 // the columns as a window would is
 // ./board-paging-side-panel.spec.ts; that three columns show side
-// by side in a wide page is ./accessible-overview.spec.ts, and that a Sessions
+// by side in a wide Board is ./accessible-board.spec.ts, and that a Sessions
 // sidebar choice shows its hidden column is
 // ./board-paging-sessions-sidebar.spec.ts.
 
@@ -19,7 +19,7 @@ import {
   queuedCount,
   queuedTitle,
   queuedTitles,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { box } from "./pageLayout.ts";
 import {
   bottomOf,
@@ -45,7 +45,7 @@ async function openLargeBacklog(page: Page) {
 }
 
 test.describe("in a narrow window", () => {
-  test("a 40rem page shows one column; each move shows the next, and wider and narrower pages keep the leftmost shown column", async ({
+  test("a 40rem Board shows one column; each move shows the next, and wider and narrower Boards keep the leftmost shown column", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
@@ -55,7 +55,7 @@ test.describe("in a narrow window", () => {
       backlog: queuedTitles,
     });
 
-    await test.step("Backlog fills the page; the right control names Taken", async () => {
+    await test.step("Backlog fills the Board; the right control names Taken", async () => {
       await expectView(page, ["Backlog"], ["Taken 1 entry"]);
       await expectStoryCardsKeepTheirShare(page, 1);
     });
@@ -74,7 +74,7 @@ test.describe("in a narrow window", () => {
       await expectView(page, ["Recently done"], ["Taken 1 entry"]);
     });
 
-    await test.step("a 54rem page shows Taken and Recently done, never a blank place past them", async () => {
+    await test.step("a 54rem Board shows Taken and Recently done, never a blank place past them", async () => {
       await page.setViewportSize({ width: 54 * rem, height: 800 });
       await expectView(
         page,
@@ -83,7 +83,7 @@ test.describe("in a narrow window", () => {
       );
     });
 
-    await test.step("a 40rem page again shows Recently done, the leftmost column chosen", async () => {
+    await test.step("a 40rem Board again shows Recently done, the leftmost column chosen", async () => {
       await page.setViewportSize({ width: 40 * rem, height: 800 });
       await expectView(page, ["Recently done"], ["Taken 1 entry"]);
     });
@@ -148,7 +148,7 @@ test.describe("in a narrow window", () => {
         [`Backlog ${queuedCount} entries`],
       );
       // Taken and Recently done are shorter than the place read in Backlog:
-      // the page ends with them, and the position stops at their bottom.
+      // the Board ends with them, and the position stops at their bottom.
       const clamped = await scrollYOf(page);
       expect(clamped).toBe(await bottomOf(page));
       expect(clamped).toBeLessThan(1500);
@@ -186,7 +186,7 @@ test.describe("in a narrow window", () => {
     const pageColumn = await box(page.locator(".page-column"));
 
     await columnPagingControl(page, "Taken").click();
-    // Taken is in place at once, the page column's paging-control room from its side.
+    // Taken is in place at once, the Board column's paging-control room from its side.
     const at = await box(taken);
     expect(at.x).toBeGreaterThanOrEqual(pageColumn.x);
     expect(at.x).toBeLessThanOrEqual(pageColumn.x + pagingRoom + 0.5);
@@ -234,8 +234,8 @@ test.describe("in a narrow window", () => {
     // whole below the banner.
     await expect(focused).toBeInViewport({ ratio: 1 });
     await expectBelowBanner(focused);
-    // Backlog has its whole length again: read to the page's end, its last
-    // card ends the page.
+    // Backlog has its whole length again: read to the Board's end, its last
+    // card ends the Board.
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
     await expect(lastCard).toBeInViewport({ ratio: 1 });
     await expect(lastCard.locator(":focus")).toHaveCount(1);

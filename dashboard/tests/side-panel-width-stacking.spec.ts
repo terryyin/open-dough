@@ -45,7 +45,7 @@ test("at a narrow window the panel stacks above the page with no divider, and a 
     .click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   const room = await split(page, terminal);
-  const chosen = Math.floor(room.dashboard + room.panel - usableMinimum);
+  const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
   await dragDivider(page, -2000);
   await expectWidth(terminal, chosen);
 

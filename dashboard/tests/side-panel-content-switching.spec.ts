@@ -1,9 +1,9 @@
 // The page's one side panel switches between a story's review and a
 // session's terminal, of Story A's and Story B's real worktrees
-// (./support/storyPanels.ts) and kept launch records: Story A's session is
+// (./support/sidePanelContents.ts) and kept launch records: Story A's session is
 // listed by the synthetic `claude` (./fixtures/fake-claude). Whatever opens,
 // by a card's or the Sessions sidebar's own controls, the panel shows exactly
-// one named item beside a dashboard that stays usable. A review replaces the
+// one named item beside a Board that stays usable. A review replaces the
 // terminal, which detaches without ending the session or marking it done, and
 // opening that session again attaches to the same session. Review and
 // terminal share the panel's frame icon controls, maximize into the same
@@ -22,10 +22,10 @@ import { otherQueuedIdentity } from "./support/startOrigin.ts";
 import {
   keptSession,
   listed,
-  panelItems,
+  sidePanelContents,
   storyBLaunchRecord,
   storyBWorktree,
-} from "./support/storyPanels.ts";
+} from "./support/sidePanelContents.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
@@ -42,7 +42,7 @@ function expectCovers(
   expect(found.height).toBeCloseTo(room.height, 0);
 }
 
-test("review and terminal take turns in the one side panel beside a usable dashboard", async ({
+test("review and terminal take turns in the one side panel beside a usable Board", async ({
   page,
   dashboard,
   origin,
@@ -69,7 +69,7 @@ test("review and terminal take turns in the one side panel beside a usable dashb
   const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
   const { banner } = parts(page);
   const sidebar = sessionsSidebarParts(page);
-  const items = panelItems(page);
+  const items = sidePanelContents(page);
   const terminal = page.getByRole("region", { name: "Terminal" });
   const review = page.getByRole("region", { name: "Story review" });
   const rows = terminal.locator(".xterm-rows");

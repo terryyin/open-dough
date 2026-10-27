@@ -83,7 +83,7 @@
   font-weight: var(--weight-strong);
 }
 
-/* The direction opens below the row as a quiet panel of its own. */
+/* The direction opens below the row on its own quiet surface. */
 .direction details > p {
   grid-row: 2;
   grid-column: 1 / -1;
@@ -91,7 +91,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .direction-text {

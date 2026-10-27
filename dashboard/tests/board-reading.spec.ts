@@ -5,7 +5,7 @@ import {
   publishLargeBacklog,
   queuedTitle,
   revision,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { expectReadingTop } from "./readingPlace.ts";

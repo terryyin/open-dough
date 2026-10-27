@@ -167,7 +167,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   });
 });
 
-test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose edge count uses the rendered entries", async ({
+test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
   page,
   dashboard,
 }) => {

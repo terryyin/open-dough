@@ -42,9 +42,9 @@
 25.5	story-review-commit-trunk.spec.ts
 25.4	cursor-runner-sessions.spec.ts
 25.2	project-configuration.spec.ts
-24.8	cursor-sessions-sidebar-panels.spec.ts
+24.8	cursor-sessions-sidebar-layout.spec.ts
 24.0	recently-done-progressive-loading.spec.ts
-23.8	accessible-overview.spec.ts
+23.8	accessible-board.spec.ts
 23.8	auto-refresh-rate-limit.spec.ts
 23.4	project-remove.spec.ts
 23.3	published-facts-arrival.spec.ts
@@ -67,7 +67,7 @@
 21.2	story-review-uncommitted-check-refresh.spec.ts
 20.3	story-dependencies.spec.ts
 20.0	sessions-sidebar-reading.spec.ts
-19.8	cursor-sessions-sidebar-panels-navigation.spec.ts
+19.8	cursor-sessions-sidebar-navigation.spec.ts
 19.7	story-review-trunk-worktree-ambiguity.spec.ts
 19.2	cursor-runner-replacement.spec.ts
 19.2	sessions-sidebar-navigation-cases.spec.ts
@@ -97,7 +97,7 @@
 15.0	story-reference-recovery.spec.ts
 15.0	story-review-one-shot-choice-races.spec.ts
 14.9	auto-refresh-visibility.spec.ts
-14.9	frame-overview-look.spec.ts
+14.9	frame-board-look.spec.ts
 14.9	system-settings-openai-recovery.spec.ts
 14.8	transient-recovery-lifecycle.spec.ts
 14.7	recently-done-progressive-refresh.spec.ts
@@ -107,7 +107,7 @@
 14.2	system-settings.spec.ts
 13.9	story-review-panes.spec.ts
 13.8	story-review-commit-ranges.spec.ts
-13.7	accessible-overview-keyboard.spec.ts
+13.7	accessible-board-keyboard.spec.ts
 13.6	story-review-trunk-own-older-git.spec.ts
 13.6	system-settings-project-management-touch.spec.ts
 13.5	story-review-mark-touch.spec.ts
@@ -130,14 +130,14 @@
 11.9	transient-recovery-currentness.spec.ts
 11.8	auto-refresh-detail-recovery.spec.ts
 11.7	board-paging-launch-dialog.spec.ts
-11.6	accessible-overview-touch.spec.ts
+11.6	accessible-board-touch.spec.ts
 11.6	project-read-isolation.spec.ts
 11.6	recently-done-stories.spec.ts
 11.6	session-workspace-retirement-attach.spec.ts
 11.5	session-instruction-voice-key-failures.spec.ts
 11.5	story-review-one-shot.spec.ts
 11.2	session-workspace-retirement-claude-done.spec.ts
-11.1	authenticated-project-overview.spec.ts
+11.1	authenticated-project-observation.spec.ts
 11.1	story-review-one-shot-choice.spec.ts
 11.0	responsive-session-recovery-reads.spec.ts
 11.0	sessions-sidebar.spec.ts
@@ -146,7 +146,7 @@
 10.7	one-shot-landing-recovery.spec.ts
 10.6	session-instruction-voice-capture-failures.spec.ts
 10.5	side-panel-width-stacking.spec.ts
-10.5	story-panel-switching.spec.ts
+10.5	side-panel-content-switching.spec.ts
 10.4	limited-reading-detail.spec.ts
 10.3	auto-refresh-branches.spec.ts
 10.3	session-instruction-voice.spec.ts
@@ -165,7 +165,7 @@
 9.3	cursor-session-recovery-stops.spec.ts
 9.3	published-work.spec.ts
 9.3	steady-refresh.spec.ts
-9.3	story-panel-replacement.spec.ts
+9.3	side-panel-content-replacement.spec.ts
 9.3	story-review-trunk-own-changes.spec.ts
 9.2	steady-refresh-inspection.spec.ts
 9.2	story-review-file-moves.spec.ts

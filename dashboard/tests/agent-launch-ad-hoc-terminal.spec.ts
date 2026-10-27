@@ -3,7 +3,7 @@
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, a polite
 // status says it started, the session's entry and Sessions sidebar Session entry show it, and
-// the page does not scroll. Close detaches only and returns the keyboard to
+// the Board does not scroll. Close detaches only and returns the keyboard to
 // Start session. The synthetic `claude` (./fixtures/fake-claude) echoes what
 // is typed; the real one is never reached.
 
@@ -93,7 +93,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     const rows = panel.locator(".xterm-rows");
     const { taken } = parts(page);
 
-    // A window short enough that the page scrolls well past 40 px both
+    // A window short enough that the Board scrolls well past 40 px both
     // before the launch and once the terminal shares the window with it,
     // whatever the fonts make its length, so a kept position is the page's
     // own and not one the window forces.

@@ -8,11 +8,9 @@ Machine records live outside repositories in
 `~/.open-dough/dashboard/agent-launches.json`. Dev/preview servers read the file
 afresh and serialize the complete read-and-replace operation across dashboard
 processes, so concurrent launches and done marks preserve both updates.
-Replacement is atomic. Unclosed records remain indefinitely; done
-records expire after 30 days. Unreadable files are preserved on reads and moved
+Replacement is atomic. Unclosed records remain indefinitely; done records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
-
 Cards list all unclosed sessions for their project/story newest first. An open
 session whose story appears in Backlog (including Preparing) or Taken appears
 only inside that card across the columns, and follows the published story's
@@ -26,8 +24,7 @@ sessions and sessions whose saved story is in neither active list, even when a
 matching done-story card is visible. The saved story reference, host-qualified
 identity, attribution, reports and native terminal owner remain intact. A story
 returning to an active list takes its open sessions back inside its card.
-Adding, closing or reopening a local entry creates no published Take or story
-completion.
+Adding, closing or reopening a local entry creates no published Take or completion.
 
 Recently done combines published done stories by completion time and saved Done
 sessions by launch time. A done-story card holds only its marked-done sessions,
@@ -36,14 +33,14 @@ card. Closed sessions without a shown done card remain standalone, including
 those whose story is active. An expired published card releases its closed
 sessions to standalone entries for their remaining local retention window.
 Unread or failed done details retain closed-session access until regrouping.
-Each done-story card also offers [Review changes](STORY-REVIEW-LANDED-RUNS.md)
+Each done-story card offers [Review changes](STORY-REVIEW-LANDED-RUNS.md)
 from the full retained launch read, including an open session listed in Taken:
 a landed run, one-shot or a claimed Story Branch Mode launch's trunk
 integration, stays reviewable there after its workspace and branches are retired.
 Its review uses the catalog identity and that identity as the title until its
 done record supplies the title. Native availability, completion attention and
 the removed seed or plan do not decide whether review is offered. The review
-action and nested sessions do not add entries to the heading or edge counts.
+action and nested sessions add nothing to heading or Column paging counts.
 Native Working, Needs input, Ready for review, unavailable or unknown activity,
 and Mark as read, never choose a column. Existing operations recording or
 clearing Done remain authoritative; refused marking or native reopening keeps
@@ -90,8 +87,8 @@ nothing shown. A reload or another project starts again at ten unless
 a journey into it needs more. Opening or closing the sidebar or side panel,
 resizing the panel, and narrowing the page keep the range.
 
-Heading and edge counts use the same top-level entries: each story counts once,
-each standalone session once, and nested sessions add nothing. Unread machine
+Heading and Column paging counts use the same top-level entries:
+each story or standalone session counts once; nested sessions add nothing. Unread machine
 records or done details leave counts explicitly incomplete and never establish
 an empty combined column. Unresolved creation evidence stays reachable in its
 recovery surface but is not a confirmed session count. Ad hoc labels collapse
@@ -235,8 +232,8 @@ show ellipsized title and largest elapsed unit, updated every 30 seconds, with
 state border plus accessible label and tooltip. Command+B toggles it except in
 an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload
 in browser storage. Closing while focused there restores the Sessions button.
-Wide layout is sidebar/page/terminal; narrow sidebar overlays below the banner,
-terminal stacks above page. Opening a row changes project/history and reveals
+Wide layout is Sessions sidebar/page/Side panel; narrow, the sidebar overlays
+below the banner and the Side panel stacks above the page. Opening a row changes project/history and reveals
 its actual session entry or containing active card, in Taken or Recently done,
 until user navigation; reduced motion skips animation. Deleting a session
 record moves the keyboard to the next entry in the same list (a card's
@@ -246,8 +243,8 @@ else the containing column. Closing a terminal or report keeps its original
 return control while usable, otherwise returns to the same session in its
 current home. Membership movement alone never attaches or detaches its terminal.
 
-The same side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md).
-On phone and tablet touch views, its header keeps Close and Maximize/Restore
-reachable beside the story identity. Its file browser, diff and bounded
-context area scroll independently; rotation keeps the comparison, chosen file
-and reading context, and Close returns focus to the originating work.
+The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone
+and tablet, its header keeps Close and Maximize/Restore reachable beside the
+story identity. Its file browser, diff and bounded context scroll independently;
+rotation keeps the comparison, file and reading context, and Close returns
+focus to the originating work.

@@ -15,7 +15,7 @@
 .slice-segment {
   flex: 1 1 0;
   border: 1px solid var(--edge);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .slice-segment-done {

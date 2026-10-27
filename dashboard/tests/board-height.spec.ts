@@ -1,11 +1,11 @@
-// Where the page has no room for all three Board Columns, it is only as
+// Where the Board has no room for all three Board Columns, it is only as
 // long as the columns it shows: read to its end, a developer reaches the end
-// of the longest shown column and the page's ordinary framing, never a blank
+// of the longest shown column and the Board's ordinary framing, never a blank
 // stretch left by a taller hidden column. Showing a longer column makes all
-// of it reachable again. An opened inspection lengthens the page and closing
+// of it reachable again. An opened inspection lengthens the Board and closing
 // it shortens it again, while content arriving in a hidden column adds
 // nothing. Recently done shows its latest ten entries until its older ones are
-// revealed. Where a page read far down stops when shorter columns show is
+// revealed. Where a Board read far down stops when shorter columns show is
 // ./board-clamp.spec.ts; that focus and a Sessions sidebar choice
 // reveal a hidden column whole is ./board-paging.spec.ts and
 // ./board-paging-sessions-sidebar.spec.ts.
@@ -20,7 +20,7 @@ import {
   bottomOf,
   columnPagingControl,
   expectEndsWithShown,
-  expectLongerThanThePage,
+  expectLongerThanTheBoard,
   expectView,
   extentOf,
   rem,
@@ -41,8 +41,8 @@ import {
   revision,
 } from "./recentlyDoneRecords.ts";
 
-test.describe("in a two-column page", () => {
-  test("a hidden long Recently done adds no blank tail below Backlog and Taken; an inspection lengthens and shortens the page, and Recently done shown is read whole", async ({
+test.describe("in a two-column Board", () => {
+  test("a hidden long Recently done adds no blank tail below Backlog and Taken; an inspection lengthens and shortens the Board, and Recently done shown is read whole", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 54 * rem, height: 480 });
@@ -104,14 +104,14 @@ test.describe("in a two-column page", () => {
     });
     await expectView(page, ["Backlog", "Taken"], ["Recently done 40 entries"]);
 
-    await test.step("read to its end, the page ends with Backlog and Taken", async () => {
-      await expectLongerThanThePage(lastDone);
+    await test.step("read to its end, the Board ends with Backlog and Taken", async () => {
+      await expectLongerThanTheBoard(lastDone);
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
     });
 
     const card = backlog.getByRole("article", { name: inspectedTitle });
     const before = await extentOf(page);
-    await test.step("an opened inspection lengthens the page and is read to its end", async () => {
+    await test.step("an opened inspection lengthens the Board and is read to its end", async () => {
       const detail = await inspectedDetail(card);
       await expect(detail).toContainText("The purpose ends here.");
       expect(await extentOf(page)).toBeGreaterThan(before + 480);
@@ -119,10 +119,10 @@ test.describe("in a two-column page", () => {
       await expect(
         detail.getByText(/The purpose ends here\.$/),
       ).toBeInViewport();
-      await expectLongerThanThePage(lastDone);
+      await expectLongerThanTheBoard(lastDone);
     });
 
-    await test.step("closing it shortens the page again", async () => {
+    await test.step("closing it shortens the Board again", async () => {
       const hide = card.getByRole("button", { name: "Hide detail" });
       await wheelTo(page, 0);
       await hide.scrollIntoViewIfNeeded();
@@ -134,7 +134,7 @@ test.describe("in a two-column page", () => {
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
     });
 
-    await test.step("Recently done shown is reachable to its last entry, and the short pair again clamps the page", async () => {
+    await test.step("Recently done shown is reachable to its last entry, and the short pair again clamps the Board", async () => {
       await showColumn(page, "Recently done");
       await expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
       await expectEndsWithShown(page, ["Taken", "Recently done"]);
@@ -156,11 +156,11 @@ test.describe("in a two-column page", () => {
   test("done stories arriving in a hidden Recently done add no blank tail below Backlog and Taken", async ({
     page,
   }) => {
-    // Read at the page's top, the column paging control starts below the page header
+    // Read at the Board's top, the column paging control starts below the Board header
     // and is as tall as its "Entry count incomplete" label, whose length
     // differs by font: about 320 px on macOS and 340 px on Linux, ending near
     // 495 and 515 px. The window leaves room for a label far longer, and
-    // stays shorter than Backlog and Taken, so the page still ends with them.
+    // stays shorter than Backlog and Taken, so the Board still ends with them.
     await page.setViewportSize({ width: 54 * rem, height: 600 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const moreDone = 40;
@@ -181,7 +181,7 @@ test.describe("in a two-column page", () => {
     await expect(revealAction(recentlyDone)).toHaveText(
       "Show 10 of 31 older entries",
     );
-    await expectLongerThanThePage(revealAction(recentlyDone));
+    await expectLongerThanTheBoard(revealAction(recentlyDone));
     expect(await extentOf(page)).toBe(before);
     await expectEndsWithShown(page, ["Backlog", "Taken"]);
   });

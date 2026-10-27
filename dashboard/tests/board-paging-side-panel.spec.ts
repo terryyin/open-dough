@@ -1,6 +1,6 @@
-// The page's own width decides how many Board Columns show, so the side
+// The Board's own width decides how many Board Columns show, so the side
 // panel opening and closing pages them as a window would: beside it a 54rem
-// page shows two columns and a column paging control naming the hidden one, a move
+// Board shows two columns and a column paging control naming the hidden one, a move
 // slides the view, the chosen position comes back where the width allows it,
 // and an active story's session adds no Recently done entry. How a
 // narrow window pages the columns is ./board-paging.spec.ts.
@@ -29,10 +29,10 @@ import { scrollsOnItsOwn } from "./sidePanelWidthPage.ts";
 test.describe("beside the side panel", () => {
   test.use({ projectFolders: ["open-dough"] });
 
-  // A 108rem window, which the side panel leaves a 54rem page.
+  // A 108rem window, which the side panel leaves a 54rem Board.
   test.use({ viewport: { width: 108 * rem, height: 900 } });
 
-  test("a 54rem page shows two columns and pages between them; a wider page shows all three and gives the view back", async ({
+  test("a 54rem Board shows two columns and pages between them; a wider Board shows all three and gives the view back", async ({
     page,
     dashboard,
     launchJourney,
@@ -48,11 +48,11 @@ test.describe("beside the side panel", () => {
     ) => expectView(page, shown, controls, scrollsOnItsOwn);
     await recordSlides(page);
 
-    await test.step("a 108rem page shows all three and no column paging control", async () => {
+    await test.step("a 108rem Board shows all three and no column paging control", async () => {
       await expectShown(columns, []);
     });
 
-    await test.step("the side panel opens, leaving 54rem: Backlog and Taken fill the page, and the right control names Recently done", async () => {
+    await test.step("the side panel opens, leaving 54rem: Backlog and Taken fill the Board, and the right control names Recently done", async () => {
       const project = startSessionDialog(page, "Open Dough");
       await startSession(page, "Open Dough").click();
       await project.getByRole("button", { name: "Start" }).click();

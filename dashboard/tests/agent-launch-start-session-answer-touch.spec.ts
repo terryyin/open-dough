@@ -46,7 +46,7 @@ const answers = [
   },
 ] as const;
 
-// Where the Backlog heading lies down the page, wherever the page is scrolled.
+// Where the Backlog heading lies in the Board, wherever the Board is scrolled.
 const backlogHeadingTop = (page: Page) =>
   parts(page)
     .backlog.getByRole("heading", { name: "Backlog", exact: true })

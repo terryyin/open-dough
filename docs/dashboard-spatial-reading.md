@@ -15,7 +15,7 @@ scrolling stop serving the work. Exact geometry and styling can evolve.
 As density or richer evidence justifies zoom, support two useful levels of
 reading from the same snapshot:
 
-- **Overview:** fit the connected Columns, their names, and entry counts into
+- **Whole Board:** fit the connected Columns, their names, and entry counts into
   view. Work remains visibly distributed across the Columns; compact cards or
   marks may stand in for full titles when fitting every title would be illegible.
   Counts describe recorded entries, not completion percentages.
@@ -23,19 +23,19 @@ reading from the same snapshot:
   reveals its full title, identity, group/priority, and existing source links.
   Zoom reveals existing information; it does not fetch new story or plan facts
   in the first story. Keep the containing Column apparent and provide a clear
-  route back to the overview.
+  route back to the whole Board.
 
-When zoom is introduced, include named Zoom in, Zoom out, and Fit overview
+When zoom is introduced, include named Zoom in, Zoom out, and Fit Board
 controls, with bounded zoom and pan so work cannot be lost indefinitely
 offscreen. Provide pointer pan on
 the background and a keyboard-equivalent way to reach offscreen work; keyboard
-focus brings a Story card into view. Focused reading and Fit overview must also
+focus brings a Story card into view. Focused reading and Fit Board must also
 work on touch screens without precise gestures. Preserve browser page zoom and
-normal page scrolling; gestures may supplement, not replace, explicit controls.
+native Board scrolling; gestures may supplement, not replace, explicit controls.
 Do not require a minimap, physics simulation, freely draggable cards, or custom
 graph editor. Panning changes the view, never backlog order or membership.
 
-Illustrative compact overview; placeholders are not observed project data:
+Illustrative compact Board; placeholders are not observed project data:
 
 ```text
 ┌──────────────── pinned viewport-top banner ──────────────┐
@@ -64,7 +64,7 @@ Do not prebuild a viewport framework for future feature or structural views.
 As later stories deliver richer evidence, focused work can expose purpose,
 assignment/mode, independent refinement/planning facts, and named slices with
 completion evidence. Source revision and uncertainty stay attached to each
-fact. A readable anchored panel is an option for dense detail; it complements
+fact. The Side panel can hold dense detail; it complements
 the Board rather than replacing spatial navigation with a list-and-detail app.
 Stories outside the backlog must become reachable when their discovery is in
 scope. Search or filtering can follow actual navigation needs.

@@ -4,7 +4,7 @@
 // journey's destination still being read, shown. Only the records the shown
 // entries newly need are read, at the new revision; an unchanged record is
 // not read again. When the entry holding the keyboard is gone, the keyboard
-// goes to the entry in its place, and a shorter page keeps the scroll within
+// goes to the entry in its place, and a shorter Board keeps the scroll within
 // it. What a refresh and other moves keep or start again:
 // ./recently-done-progressive-reset.spec.ts; what it asks again after a
 // failed read: ./recently-done-progressive-failed-read-refresh.spec.ts.
@@ -108,7 +108,7 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
   const atE = atD.filter(
     ({ place, kind }) => place <= 10 || kind === "session",
   );
-  await test.step("with the page scrolled to its end, a shorter list keeps the scroll within the page, and the keyboard on the last entry", async () => {
+  await test.step("with the Board scrolled to its end, a shorter list keeps the scroll within the Board, and the keyboard on the last entry", async () => {
     await page.locator(".board-scroll").evaluate((region) => {
       region.scrollTo(0, region.scrollHeight);
     });

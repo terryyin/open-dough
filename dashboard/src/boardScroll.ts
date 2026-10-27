@@ -19,7 +19,7 @@ export function readingBounds(element: Element) {
   };
 }
 
-// With no control focused, reading keys belong to the visible overview.
+// With no control focused, reading keys belong to the visible Board.
 // Focus it before the browser's default action so native scrolling still
 // owns the key, just as when focus already lies inside this region.
 export function useBoardScrolling(suspended: boolean) {

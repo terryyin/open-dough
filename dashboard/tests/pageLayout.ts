@@ -1,7 +1,7 @@
 // How the page lies in the window, measured by asking the browser. The
 // whole-page measurements look at every element on the page, so they name no
-// part of the stylesheet but the one every page cuts by design, the dashboard
-// columns' view; how parts a journey found lie against one another is
+// part of the stylesheet but the one cut by design, the Board's
+// Columns view; how parts a journey found lie against one another is
 // compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -29,7 +29,7 @@ const keptFromSight = `(element) => {
   return false;
 }`;
 
-// The dashboard columns cut off the columns the page has no room to show, by
+// The Board cuts off the Columns it has no room to show, by
 // design: a developer moves the view to them by a column paging control
 // (boardPage.ts `showColumn`). Inside the view, what lies wholly past its
 // sides is a hidden column's, as is what holds such a part; anything else
@@ -196,7 +196,7 @@ function clippedEdges(element: Element, requireScrollableOverflow = true) {
   const scrolls = (overflow: string) =>
     overflow === "auto" || overflow === "scroll";
   // A modal dialog lies in the top layer, out of reach of what clips the
-  // parts around it in the page, such as the dashboard columns' view.
+  // parts around it in the page, such as the Board's view.
   for (
     let at = element.parentElement;
     at;

@@ -6,7 +6,7 @@
 // review glyph and ends with a decorative arrow toward the side panel.
 // Closing the review in the side panel returns the keyboard in
 // ./story-review.spec.ts; closing the detail, in
-// ./storyReadinessScan.ts and ./accessible-overview-keyboard.spec.ts. Each
+// ./storyReadinessScan.ts and ./accessible-board-keyboard.spec.ts. Each
 // layout is read once the cards' preparation and the machine's sessions are
 // read, since each reading changes a card's height.
 

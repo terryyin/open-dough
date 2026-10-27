@@ -13,7 +13,7 @@
 /* A card's scan view: the title leads, then a quiet line of priority and
    developer, then badges, warnings, progress, and actions, each a short
    step below the last. Secondary facts open in its detail (story-detail.css).
-   Its fill and corners follow the frame's raised panels. */
+   Its fill and corners follow the frame's raised surfaces. */
 .story-card {
   display: grid;
   gap: var(--space-2);
@@ -119,13 +119,13 @@
 
 .badge-planless {
   color: var(--text);
-  background: var(--panel);
+  background: var(--raised-surface);
   border-color: var(--edge);
 }
 
 .badge-not-recorded {
   color: var(--quiet);
-  background: var(--panel);
+  background: var(--raised-surface);
   border-color: var(--line);
 }
 
@@ -133,7 +133,7 @@
 .badge-blocked-by-dependencies,
 .badge-changed-since-review {
   color: var(--text);
-  background: var(--panel);
+  background: var(--raised-surface);
   border-color: var(--edge);
 }
 

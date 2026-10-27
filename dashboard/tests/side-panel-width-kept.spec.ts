@@ -48,9 +48,9 @@ async function openStoryReview(page: Page) {
 
 async function expectHalfTheRoom(page: Page, panel: Locator) {
   await expect(panelDivider(page)).toBeVisible();
-  const { dashboard, panel: width } = await split(page, panel);
-  expect(width).toBeCloseTo((dashboard + width) / 2, 0);
-  await expectDividerSays(page, Math.round((dashboard + width) / 2));
+  const { pageColumn, sidePanel: width } = await split(page, panel);
+  expect(width).toBeCloseTo((pageColumn + width) / 2, 0);
+  await expectDividerSays(page, Math.round((pageColumn + width) / 2));
 }
 
 const keptWidth = (page: Page) =>
@@ -66,7 +66,7 @@ test("a width chosen on the terminal is recovered for a review after a reload, a
   const terminal = await openTerminal(page);
   await expectHalfTheRoom(page, terminal);
   const start = await split(page, terminal);
-  const chosen = Math.round((start.dashboard + start.panel) / 2) + 200;
+  const chosen = Math.round((start.pageColumn + start.sidePanel) / 2) + 200;
   await dragDivider(page, -200);
   await expectWidth(terminal, chosen);
 
@@ -75,8 +75,8 @@ test("a width chosen on the terminal is recovered for a review after a reload, a
     const review = await openStoryReview(page);
     await expectWidth(review, chosen);
     await expectDividerSays(page, chosen);
-    expect((await split(page, review)).dashboard).toBeCloseTo(
-      start.dashboard + start.panel - chosen,
+    expect((await split(page, review)).pageColumn).toBeCloseTo(
+      start.pageColumn + start.sidePanel - chosen,
       0,
     );
   });
@@ -109,7 +109,7 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
   await storyAWithSession(page, dashboard, origin);
   const terminal = await openTerminal(page);
   const start = await split(page, terminal);
-  const chosen = Math.round((start.dashboard + start.panel) / 2) + 200;
+  const chosen = Math.round((start.pageColumn + start.sidePanel) / 2) + 200;
   await dragDivider(page, -200);
   await expectWidth(terminal, chosen);
   expect(await keptWidth(page)).toBe(String(chosen));
@@ -119,7 +119,7 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
     await page.reload();
     const review = await openStoryReview(page);
     const room = await split(page, review);
-    const fitted = Math.floor(room.dashboard + room.panel - usableMinimum);
+    const fitted = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
     expect(fitted).toBeLessThan(chosen);
     await expectWidth(review, fitted);
     await expectDividerSays(page, fitted);
@@ -180,7 +180,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
   const start = await split(page, terminal);
   await panelDivider(page).focus();
   await page.keyboard.press("ArrowLeft");
-  const chosen = start.panel + keyStep;
+  const chosen = start.sidePanel + keyStep;
   await expectWidth(terminal, Math.round(chosen));
   await page.reload();
   await expectWidth(await openStoryReview(page), Math.round(chosen));
@@ -207,7 +207,7 @@ test("where the browser refuses storage, the panel starts at half the room and r
   const terminal = await openTerminal(page);
   await expectHalfTheRoom(page, terminal);
   const start = await split(page, terminal);
-  const chosen = Math.round((start.dashboard + start.panel) / 2) + 200;
+  const chosen = Math.round((start.pageColumn + start.sidePanel) / 2) + 200;
   await dragDivider(page, -200);
   await expectWidth(terminal, chosen);
   await expectDividerSays(page, chosen);

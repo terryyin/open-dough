@@ -69,7 +69,7 @@
   font-weight: 500;
   line-height: 1.4;
   white-space: nowrap;
-  color: var(--panel);
+  color: var(--raised-surface);
   background: var(--text);
   box-shadow: var(--shadow-2);
 }

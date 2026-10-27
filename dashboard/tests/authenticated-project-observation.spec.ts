@@ -42,7 +42,7 @@ const credentialMarker = "gho_should-never-reach-a-browser-4c3b2a1f0e9d";
 
 test.use({ extraEnv: { GH_TOKEN: credentialMarker } });
 
-test("authenticated project overview: each catalog project opens and reloads through the local boundary; missing gh login reports a read failure that a reload after restored access recovers", async ({
+test("authenticated project observation: each catalog project opens and reloads through the local boundary; missing gh login reports a read failure that a reload after restored access recovers", async ({
   page,
   github,
   dashboard: server,

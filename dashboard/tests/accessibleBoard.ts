@@ -1,4 +1,4 @@
-// What the accessible-overview journeys publish: work too long for any line,
+// What the accessible-board journeys publish: work too long for any line,
 // and a backlog too long for one screen. Publishing supplies only source
 // preconditions; what the page shows is for each test to observe.
 

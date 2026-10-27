@@ -32,7 +32,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
-  background: var(--panel);
+  background: var(--raised-surface);
   overflow-wrap: anywhere;
 }
 

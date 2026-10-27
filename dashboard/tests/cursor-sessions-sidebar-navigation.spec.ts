@@ -4,7 +4,7 @@
 // lying over the page, while the saved session stays the session list's own.
 // Expansion lasts for the page, across project and view changes and closing
 // the sidebar, but a reload starts collapsed. The section's layout is
-// ./cursor-sessions-sidebar-panels.spec.ts's.
+// ./cursor-sessions-sidebar-layout.spec.ts's.
 import { parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {

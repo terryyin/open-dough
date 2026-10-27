@@ -1,4 +1,4 @@
-// Shared accessibility observations for overview and story-readiness journeys:
+// Shared accessibility observations for Board and story-readiness journeys:
 // visible focus, polite live regions, contrast from computed styles, and
 // reduced-motion settling. Journeys supply their own fixtures and assertions.
 

@@ -16,7 +16,7 @@ import {
   queuedCount,
   queuedTitle,
   revision,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
 import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";

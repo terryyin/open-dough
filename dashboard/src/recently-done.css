@@ -7,7 +7,7 @@
   border: 1px solid var(--line);
   border-radius: 0.5rem;
   padding: 0.75rem 1rem 1rem;
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 /* The count and the action that shows only the latest ten, together at the

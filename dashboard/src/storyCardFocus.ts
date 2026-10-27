@@ -73,7 +73,7 @@ export function storyCardHolding(
 
 // Focus returns to the same link of the same work, or to its card when that
 // link is no longer offered. When the work is not shown at all, focus goes to
-// the Board so the keyboard position stays inside the work overview.
+// the Board so the keyboard position stays inside the Board.
 export function returnFocusTo(held: FocusedStoryCard): void {
   const card = storyCard(held.identity);
   if (!card) {

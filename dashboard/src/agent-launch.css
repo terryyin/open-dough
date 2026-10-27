@@ -22,7 +22,7 @@
 .launch-open button {
   font: inherit;
   color: var(--accent);
-  background: var(--panel);
+  background: var(--raised-surface);
   border: 1px solid var(--accent);
   border-radius: 0.25rem;
   padding: 0.2rem 0.55rem;
@@ -77,10 +77,10 @@
 }
 
 /* A story's sessions inside its card, on a Story card or a done story's card,
-   are set off from the card on the panel. */
+   are set off from the Story card on the raised surface. */
 .story-card-sessions .session-entry,
 .done-story-sessions .session-entry {
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .launch-local {

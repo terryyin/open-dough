@@ -19,7 +19,7 @@ import {
 import { markAsDone } from "./support/markDone.ts";
 import {
   markLocallyDone,
-  markLocallyDoneFromPanel,
+  markLocallyDoneFromSidePanel,
 } from "./support/cursorLocalDone.ts";
 
 const localDoneWording =
@@ -80,7 +80,7 @@ workingCursorTest(
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 
-    const recent = await markLocallyDoneFromPanel(page, panel);
+    const recent = await markLocallyDoneFromSidePanel(page, panel);
 
     await expect(panel).toHaveCount(0);
     await expect(recent).toContainText(localDoneWording);

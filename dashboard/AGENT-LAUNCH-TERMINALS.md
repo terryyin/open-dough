@@ -162,7 +162,7 @@ also marks done at once despite a native wait, while native Working still asks.
 Mark as done acknowledges that session; it does not complete the story or change
 its published membership or readiness. Every other incomplete session is
 asked about first, in place, as Delete record… asks: on a card where Mark as
-done was, and in a panel below its header, with the terminal or report still
+done was, and in a question below the Side panel header, with the terminal or report still
 showing and the header's Mark as done disabled until answered. The question
 gives one statement, the most pressing that applies (“This session is
 still working. Marking it done asks it to stop.”, “This session is waiting for

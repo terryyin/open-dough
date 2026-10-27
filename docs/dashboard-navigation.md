@@ -91,7 +91,7 @@ terminal with the keyboard there, or opens the read-only final report when a
 Codex saved workspace is missing or cannot be established, and brings its story's card into view once
 that project's stories are read. The page's one Side panel shows one
 item at a time: a session's terminal, a read-only final report, or a story review opened by **Review changes** on its card; opening one replaces the
-other, and the dashboard beside it stays usable. The **Panel divider** is a
+other, and the Board beside it stays usable. The **Panel divider** is a
 focusable separator that says the panel's width in pixels: dragging it,
 or Left (wider) and Right (narrower) while it holds the keyboard, changes one
 preferred width shared by every panel content, kept across closing, the
@@ -100,10 +100,10 @@ preference is local to this browser and disposable: a reload recovers it for
 either content, and where the browser keeps none, refuses storage, or keeps an
 unusable value, the panel starts at half the room and still resizes for the
 page's lifetime. A width the room or Maximize imposes never replaces it.
-Neither the panel nor the dashboard becomes narrower than 20rem, measured in
+Neither the Side panel nor the Board becomes narrower than 20rem, measured in
 the room beside the open sidebar; where that room cannot
 hold both, or the window is 800px wide or narrower, the panel stacks above
-the dashboard and offers no Panel divider, as it does while maximized, and more room
+the Board and offers no Panel divider, as it does while maximized, and more room
 recovers the preferred width. Command+Shift+Escape closes
 the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
@@ -142,7 +142,7 @@ preserves selection; removing the selected row selects its next neighbor or the
 first remaining project. Settings remains available after the last removal.
 **Back to dashboard** and browser Back/Forward restore the preceding valid
 project and story/roster view with useful focus. Opening settings preserves the
-mounted session sidebar and terminal context. Project arrows leave settings
+mounted Sessions sidebar and terminal context. Project arrows leave settings
 controls and forms alone. Facts and actions wrap in reading order at narrow
 widths and browser zoom.
 
@@ -222,4 +222,4 @@ in a story's inspection, associated plans, and dependency revision evidence
 keep ordinary source navigation; repository files retain their pinned revisions.
 
 See [spatial-reading direction](dashboard-spatial-reading.md) for the layout
-hypothesis, compact overview and later zoom/pan guidance.
+hypothesis, whole-Board reading and later zoom/pan guidance.

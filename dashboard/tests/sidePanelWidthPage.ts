@@ -13,7 +13,7 @@ import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
-import { listed } from "./support/storyPanels.ts";
+import { listed } from "./support/sidePanelContents.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
@@ -54,11 +54,11 @@ export async function resizeUntilArranged(
 
 // The page column and the panel, side by side, as shown.
 export async function split(page: Page, panel: Locator) {
-  const [dashboard, shown] = await Promise.all([
+  const [pageColumn, shown] = await Promise.all([
     box(page.locator(".page-column")),
     box(panel),
   ]);
-  return { dashboard: dashboard.width, panel: shown.width };
+  return { pageColumn: pageColumn.width, sidePanel: shown.width };
 }
 
 // Drags the divider sideways by `by` px with the mouse and releases it there,

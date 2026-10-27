@@ -53,10 +53,10 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   expect(attaches()).toHaveLength(1);
 
   const start = await split(page, terminal);
-  const room = start.dashboard + start.panel;
+  const room = start.pageColumn + start.sidePanel;
   const maximum = Math.floor(room - usableMinimum);
   await test.step("the panel begins at half the room, with a Panel divider that says its width and bounds", async () => {
-    expect(start.panel).toBeCloseTo(room / 2, 0);
+    expect(start.sidePanel).toBeCloseTo(room / 2, 0);
     await expect(divider).toHaveAccessibleName("Panel divider");
     await expect(divider).toHaveAttribute("aria-orientation", "vertical");
     await expect(divider).toHaveAttribute(
@@ -74,7 +74,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     const widened = Math.round(room / 2) + 200;
     await expectWidth(terminal, widened);
     await expectDividerSays(page, widened);
-    expect((await split(page, terminal)).dashboard).toBeCloseTo(
+    expect((await split(page, terminal)).pageColumn).toBeCloseTo(
       room - widened,
       0,
     );
@@ -92,7 +92,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await dragDivider(page, -2000);
     await expectWidth(terminal, maximum);
     await expectDividerSays(page, maximum);
-    expect((await split(page, terminal)).dashboard).toBeGreaterThanOrEqual(
+    expect((await split(page, terminal)).pageColumn).toBeGreaterThanOrEqual(
       usableMinimum - 0.5,
     );
     await dragDivider(page, 2000);
@@ -112,7 +112,6 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   });
 
   await test.step("Left and Right on the focused divider change the same width within the same bounds", async () => {
-    // The keyboard reaches the divider just before the panel's header controls.
     await terminal.getByRole("button").first().focus();
     await page.keyboard.press("Shift+Tab");
     await expectFocusedAndIndicated(page, divider);
@@ -130,7 +129,6 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     for (let press = 0; press < 8; press += 1)
       await page.keyboard.press("ArrowRight");
     await expectWidth(terminal, maximum - 8 * keyStep);
-    // The page's own Left/Right project navigation is not reached.
     expect(projectUrl()).toBe(before);
     await expect(divider).toBeFocused();
     await expectStillHolds(terminal, "echo keep this line");
@@ -197,8 +195,8 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     const roomBeside = room - (await box(sidebar.sidebar)).width;
     await expectWidth(review, Math.floor(roomBeside - usableMinimum));
     const beside = await split(page, review);
-    expect(beside.dashboard + beside.panel).toBeCloseTo(roomBeside, 0);
-    expect(beside.dashboard).toBeGreaterThanOrEqual(usableMinimum - 0.5);
+    expect(beside.pageColumn + beside.sidePanel).toBeCloseTo(roomBeside, 0);
+    expect(beside.pageColumn).toBeGreaterThanOrEqual(usableMinimum - 0.5);
     await expect(divider).toHaveAttribute(
       "aria-valuemax",
       String(Math.floor(roomBeside - usableMinimum)),
@@ -207,7 +205,6 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expect(sidebar.sidebar).toBeHidden();
     await expectWidth(review, maximum);
 
-    // A width chosen beside the sidebar stays when it closes.
     await sidebar.button.click();
     await expectWidth(review, Math.floor(roomBeside - usableMinimum));
     await dragDivider(page, 2000);

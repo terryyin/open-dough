@@ -9,7 +9,7 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 
 // Scrolls a part of the page, such as a work's card, into view, smoothly or,
 // when the developer asks for reduced motion, at once, leaving the keyboard
-// where it is; a dashboard column that hides it shows first. It keeps the
+// where it is; a Board Column that hides it shows first. It keeps the
 // part's beginning in view while the page changes size around it, as when
 // facts read after the stories lengthen the cards above it, until the developer
 // scrolls, points, or types, or the returned stop is called.

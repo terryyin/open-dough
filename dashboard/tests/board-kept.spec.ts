@@ -1,7 +1,7 @@
 // This browser keeps the Board's Columns' one position, for every project:
 // a first visit shows Backlog leftmost; once the developer moves the view, a
 // project switch or a reload shows the same columns, limited only by what the
-// page's width allows, and a wide page that shows every column does not lose
+// Board's width allows, and a wide Board that shows every column does not lose
 // it. A browser that refuses storage starts at Backlog and pages for the
 // page's lifetime without error. That the position follows column paging controls,
 // focus, and width is ./board-paging.spec.ts. Each test's browser
@@ -36,7 +36,7 @@ async function chooseProject(page: Page, label: string) {
     .check();
 }
 
-test("the chosen columns stay across a project switch, a reload, and a wide page", async ({
+test("the chosen columns stay across a project switch, a reload, and a wide Board", async ({
   page,
 }) => {
   await page.setViewportSize(narrowWindow);
@@ -68,7 +68,7 @@ test("the chosen columns stay across a project switch, a reload, and a wide page
     await expectAtTaken(page);
   });
 
-  await test.step("a wide page shows every column and a narrow one comes back to them, also after a reload", async () => {
+  await test.step("a wide Board shows every column and a narrow one comes back to them, also after a reload", async () => {
     await page.setViewportSize(wideWindow);
     await expectView(page, ["Backlog", "Taken", "Recently done"], []);
     await reloadUntilRead(page);

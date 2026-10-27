@@ -39,7 +39,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-5);
-  background: var(--panel);
+  background: var(--raised-surface);
   box-shadow: var(--shadow-1);
 }
 

@@ -95,7 +95,7 @@ regions, containing Story cards in their recorded order. Zoom exposes the title,
 priority where recorded, and source links already in the snapshot. It does not
 require adding metadata or interpreting story/plan contents in the first story.
 Richer Columns and detail follow when their evidence and semantics are selected.
-The first story requires a readable connected overview and access to each
+The first story requires a readable connected Board and access to each
 entry's evidence. Ordinary layout, wrapping, and scrolling can serve that goal;
 general pan/zoom, multiple detail levels, and animated card travel are not
 prerequisites. Add the smallest navigation or transition only when it improves
@@ -106,7 +106,7 @@ snapshots, such as the same work becoming Taken. It must not imply continuous
 agent activity or animate an imagined path through unobserved states. Missing
 work does not automatically move to Done. Reading and navigation must remain
 available by keyboard and on narrow screens. When zoom is introduced, provide
-a way to regain the overview; when motion is used, reduced-motion preferences
+a way to regain the whole Board; when motion is used, reduced-motion preferences
 retain the same information and navigation without animation.
 
 The [UX/UI North Star](dashboard-ux-ui-north-star.md#board-and-spatial-navigation)
@@ -182,7 +182,7 @@ scheduler, or dashboard control interface is selected by this document.
 ## Relationship to existing work and decisions
 
 The remote-only [story dashboard](../dashboard/README.md) precedes
-same-machine visibility. Its overview uses existing backlog membership and
+same-machine visibility. Its Board uses existing backlog membership and
 links; new entry metadata and persisted story states remain outside it.
 It begins the Board direction with readable entry facts from the same
 snapshot rather than fetched story/plan detail. The broader zoom and animation

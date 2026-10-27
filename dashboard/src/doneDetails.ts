@@ -87,7 +87,7 @@ export function useDoneDetails(
   // twice.
   const batches = useRef(new Set<Batch>());
 
-  // A newer revision or another project, or leaving the page's columns,
+  // A newer revision or another project, or leaving the Board,
   // abandons every read still under way.
   useEffect(() => {
     const started = batches.current;

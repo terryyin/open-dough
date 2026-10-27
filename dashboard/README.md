@@ -28,16 +28,16 @@ selected project's folder, with no story, listed in Taken and the Sessions
 sidebar while open. Marking it done moves it to Recently done. Local session
 operations preserve published story membership.
 
-**Backlog**, **Taken**, and **Recently done** are three columns on one row.
-A page at least 72rem wide shows all three side by side. A narrower page --
-a narrow window, browser zoom, or the page beside an open Sessions sidebar or
-side panel -- shows the whole columns that fit, two from 48rem and one below,
-filling the page from Backlog. A slim Column paging control on a side with a hidden
+**Backlog**, **Taken**, and **Recently done** are the Board's three Columns.
+Board content at least 72rem wide shows all three side by side. A narrower Board --
+a narrow window, browser zoom, or room shared with an open Sessions sidebar or
+Side panel -- shows the whole Columns that fit, two from 48rem and one below,
+filling the Board from Backlog. A slim Column paging control on a side with a hidden
 column names the next one there and how many entries it holds ("Entry count
 incomplete" while that column's entries are still being read), stays in sight
 while the Board scrolls, and moves the view one column with a brief slide (at
-once when the system asks for reduced motion). Widening or narrowing the page
-keeps the leftmost shown column where the width allows; the page never scrolls
+once when the system asks for reduced motion). Widening or narrowing the Board
+keeps the leftmost shown Column where the width allows; the page never scrolls
 sideways. Hidden columns stay in the reading and tab order: keyboard focus,
 or a Sessions sidebar choice, landing in one moves the view to show it, while
 starting a session leaves the view where it is. What counts is the column that
@@ -63,20 +63,19 @@ stay in place; activate it again to collapse. A new read of the same project
 preserves this choice, including after a failed read; selecting another project
 starts collapsed. Opening or closing it makes no source request. What **Start
 session** answers (a started session, startup progress, or **Launch failed** or
-**Launch uncertain** with why) reads beside it on the row. Where the page shows
-one column, as on a phone in portrait, the answer reads whole beneath **Start
+**Launch uncertain** with why) reads beside it on the row. Where the Board shows
+one Column, as on a phone in portrait, the answer reads whole beneath **Start
 session** and the help instead, above the opened direction, and the title keeps
 its whole words.
 
 The **?** control, named **Preparation badge legend**, opens the badge explanations
-in a modal dialog. Card badges remain visible in the overview. Close or Escape
+in a modal dialog. Story card badges remain visible on the Board. Close or Escape
 returns focus and the reading position to the help control; opening help makes
 no source request. The dialog keeps Close reachable while its explanations scroll
 at narrow widths or high browser zoom.
 
 Observe one project at a time using the banner's tab-shaped **Project** choices.
 The selected choice is highlighted; Tab reaches it and arrow keys switch projects.
-
 Open **System settings → Projects** to add or remove projects and inspect their
 repository and local checkout paths, including when the project list is empty.
 [Project configuration](PROJECT-CONFIGURATION.md) describes validation, saved
@@ -178,7 +177,8 @@ destinations](AGENT-LAUNCH-HISTORY.md) and [navigation](../docs/dashboard-naviga
 
 The frame (banner, Sessions sidebar, terminal chrome, System settings,
 dialogs, Column containers, and page states) draws on one shared foundation:
-colour, type, spacing, radius, elevation, and control-size tokens on `:root` in
+colour (`--raised-surface` for shared raised fills), type, spacing, radius,
+elevation, and control-size tokens on `:root` in
 `src/styles.css`; `Icon` and `IconButton` in `src/Icon.tsx`, which wrap the
 bundled `lucide-react` glyphs at one size and stroke and hide them from
 assistive technology; and the frame button, field, and disclosure classes in

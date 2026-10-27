@@ -3,8 +3,8 @@
    inner scrolling content width (`@container board`) decides how many
    whole columns of at least 24rem show, `--columns-shown`, which
    ./columnPaging.ts reads: three from 72rem, two from 48rem, one below. The
-   shown columns fill the page; the row is cut off at the view's sides rather
-   than scrolled, so the page never scrolls sideways and column headings keep
+   shown Columns fill the Board; the row is cut off at the view's sides rather
+   than scrolled, so the Board never scrolls sideways and column headings keep
    sticking within the Board, and it moves under the view by `--leftmost` columns.
    This file loads before styles.css and column-frame.css, so its rules there
    say more to decide. */
@@ -49,8 +49,8 @@
 
 /* A hidden column, named by its place on the row (`data-hidden`), keeps its
    place across the row, its content, and its tab stops, but adds no length
-   to the page: the page is as long as the shown columns, and a column shown
-   again has all its length back. Nothing in it anchors the page's scroll
+   to the Board's scroll range; a Column shown
+   again has all its length back. Nothing in it anchors the Board's scroll
    position, so hiding it never moves the shown columns. */
 .board-row[data-hidden~="1"] > .columns > :nth-child(1),
 .board-row[data-hidden~="2"] > .columns > :nth-child(2),
@@ -73,9 +73,9 @@
   align-items: start;
 }
 
-/* While paging, the column paging controls take the page's side margins and the
-   columns' framing, not the cards' room: the columns' main reaches the page
-   column's sides, each side keeps room for its column paging control, and the
+/* While paging, the column paging controls take the Board's side margins and the
+   columns' framing, not the cards' room: the Columns' main reaches the Board
+   scroll region's sides, each side keeps room for its column paging control, and the
    columns, framed no more, stay distinct by their headings. */
 @container board (width < 72rem) {
   main:has(> .board) {
@@ -121,7 +121,7 @@
 }
 
 /* A column paging control (./ColumnPagingControl.tsx): a slim, tall strip in its side's
-   room, kept in sight below the banner while the page scrolls, naming the
+   room, kept in sight below the banner while the Board scrolls, naming the
    hidden column top to bottom beside an arrow toward it. */
 .column-paging-control {
   position: sticky;
@@ -141,7 +141,7 @@
   font: inherit;
   font-size: var(--text-sm);
   color: var(--text);
-  background: var(--panel);
+  background: var(--raised-surface);
   cursor: pointer;
 }
 

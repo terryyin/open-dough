@@ -74,7 +74,7 @@ export function PageFrame({
   const projects = useProjects();
   const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
-  const panel = usePageSidePanel({
+  const sidePanel = usePageSidePanel({
     markDone,
     markRead,
     deleteRecord,
@@ -84,11 +84,11 @@ export function PageFrame({
     range,
   });
   const { terminal, finalReport, storyReview, maximized, markSessionDone } =
-    panel;
+    sidePanel;
   const frame = useRef<HTMLDivElement>(null);
   const { stacked, divider } = useSidePanelWidth(
     frame,
-    panel.shown !== undefined,
+    sidePanel.shown !== undefined,
     sidebar.open,
   );
   const attached = useCallback<SessionOperation<void>>(
@@ -115,23 +115,23 @@ export function PageFrame({
       stories.show(source);
     }
     const returnTo = sidebar.closeOverPage() ?? control;
-    panel.openSession({ record, control: returnTo });
+    sidePanel.openSession({ record, control: returnTo });
     revealSession(record);
   };
   // The page keeps one element structure whether or not the sidebar or the
   // panel is open, so opening one never remounts the page or loses what it
   // had open.
   return (
-    <SessionsOnPage value={panel.sessions}>
-      <StoryReviewsOnPage value={panel.openStoryReview}>
+    <SessionsOnPage value={sidePanel.sessions}>
+      <StoryReviewsOnPage value={sidePanel.openStoryReview}>
         <PanelDividerOnPage value={maximized ? undefined : divider}>
           <div
             ref={frame}
             className={
               [
                 sidebar.open && "page-with-sessions-sidebar",
-                panel.shown !== undefined && "page-split",
-                panel.shown !== undefined && stacked && "page-stacked",
+                sidePanel.shown !== undefined && "page-split",
+                sidePanel.shown !== undefined && stacked && "page-stacked",
                 maximized && "page-maximized",
               ]
                 .filter(Boolean)
@@ -156,7 +156,7 @@ export function PageFrame({
                 session={finalReport}
                 current={shownRecord(records, finalReport)}
                 onClose={() => {
-                  panel.close(finalReport);
+                  sidePanel.close(finalReport);
                 }}
                 onMarkDone={markSessionDone}
               />
@@ -168,12 +168,12 @@ export function PageFrame({
                 current={shownRecord(records, terminal)}
                 onAttached={attached}
                 maximized={maximized}
-                onMaximize={panel.maximize}
+                onMaximize={sidePanel.maximize}
                 onClose={() => {
-                  panel.close(terminal);
+                  sidePanel.close(terminal);
                 }}
                 onMarkDone={markSessionDone}
-                onWorkspaceUnavailable={panel.unavailableWorkspace}
+                onWorkspaceUnavailable={sidePanel.unavailableWorkspace}
               />
             )}
             {storyReview && (
@@ -184,9 +184,9 @@ export function PageFrame({
                 key={`${storyReview.source}\n${storyReview.identity}`}
                 request={storyReview}
                 maximized={maximized}
-                onMaximize={panel.maximize}
+                onMaximize={sidePanel.maximize}
                 onClose={() => {
-                  panel.close(storyReview);
+                  sidePanel.close(storyReview);
                 }}
               />
             )}

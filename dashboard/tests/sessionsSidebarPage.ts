@@ -196,8 +196,8 @@ export async function expectSessionsSidebarLayout(
   ).toBe(await sidebar.evaluate((element) => element.id));
 }
 
-// The dashboard columns lay out as on a narrow window, for a page column that
-// narrow whatever the window's width: Backlog alone fills the page but its
+// The Board lays out as on a narrow window, when its scrolling content is that
+// narrow whatever the window's width: Backlog alone fills the Board except for its
 // column paging controls' slim room, the right one naming Taken, and
 // each card is as wide as the unframed column.
 async function expectOneColumnShown(page: Page): Promise<void> {

@@ -32,7 +32,7 @@
   container: page / inline-size;
 }
 
-/* Keep the native scrollbar left of the divider's original hit area. */
+/* Keep each region scrollbar left of the Panel divider's hit area. */
 .page-split:not(.page-stacked) > .page-column > .board-scroll,
 .page-split:not(.page-stacked) > .page-column > .roster-scroll {
   margin-inline-end: var(--panel-divider-room);
@@ -62,7 +62,7 @@
   flex-direction: column;
   height: var(--side-panel-height);
   border-left: 1px solid var(--line);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 /* The Panel divider (./PanelDivider.tsx): a strip across the

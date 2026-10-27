@@ -10,7 +10,7 @@
 // This spec covers what the boundary reads and reports: reachable record
 // reads and failure reporting. Resolve-then-read for every catalog source
 // from the page, with pinned `gh` arguments, is covered by
-// ../authenticated-project-overview.spec.ts; that the dev server answers a
+// ../authenticated-project-observation.spec.ts; that the dev server answers a
 // read as the preview does, by ./serving-modes.spec.ts. Which requests it refuses before
 // launching `gh` is covered in ./authenticated-read-refusal.spec.ts, and
 // which commit added an agent profile in

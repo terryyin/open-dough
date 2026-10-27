@@ -1,5 +1,5 @@
 /* The Sessions sidebar and its button. On a wide window the sidebar is a
-   fixed-width column left of the page, as tall as the window, while the page
+   fixed-width column left of the page, as tall as the window, while the Board
    scrolls beside it, with the side panel still on the right:
    sidebar | page | panel (./side-panel.css). On a narrow window, where the
    panel stacks above the page, it overlays the page from the left, below the
@@ -32,7 +32,7 @@
   overflow-y: auto;
   padding: var(--space-2) var(--space-3) var(--space-3);
   border-right: 1px solid var(--line);
-  background: var(--panel);
+  background: var(--raised-surface);
 }
 
 .sessions-sidebar[hidden] {
@@ -174,7 +174,7 @@
   box-sizing: border-box;
   min-width: 1.125rem;
   padding: 0 0.3rem;
-  border: 2px solid var(--panel);
+  border: 2px solid var(--raised-surface);
   border-radius: var(--radius-pill);
   font-size: var(--text-xs);
   font-weight: 700;

@@ -5,7 +5,7 @@
 // collapsing gives the room back and leaves the keyboard on the header. A
 // short, zoomed window keeps both lists and the header in reach by scrolling.
 // Choosing a held row and keeping expansion across page changes are
-// ./cursor-sessions-sidebar-panels-navigation.spec.ts's. The crowded lists' saved
+// ./cursor-sessions-sidebar-navigation.spec.ts's. The crowded lists' saved
 // sessions and runner answers are preconditions only.
 import type { Locator } from "@playwright/test";
 import {

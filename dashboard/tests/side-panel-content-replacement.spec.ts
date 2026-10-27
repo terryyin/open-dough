@@ -1,6 +1,6 @@
 // The page's one side panel replaces one story's review with another's, and a
 // review with a final report, of Story A's and Story B's real worktrees
-// (./support/storyPanels.ts) and kept launch records, Story B's Codex session
+// (./support/sidePanelContents.ts) and kept launch records, Story B's Codex session
 // having lost its saved workspace, so its final report is Codex's native one,
 // not an attention message. A review still being read when another story's
 // review opens never answers the new one; reading the report neither continues
@@ -26,11 +26,11 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
 import {
   keptSession,
-  panelItems,
+  sidePanelContents,
   storyBReport,
   storyBRetiredCodexRecord,
   storyBWorktree,
-} from "./support/storyPanels.ts";
+} from "./support/sidePanelContents.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import {
   keepLaunchRecords,
@@ -61,7 +61,7 @@ test("a review, another story's review, and a final report replace each other in
   });
   const cardA = await openBacklog(page, origin);
   const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
-  const items = panelItems(page);
+  const items = sidePanelContents(page);
   const review = page.getByRole("region", { name: "Story review" });
   const report = page.getByRole("region", { name: "Final report" });
   const reviewOf = (card: Locator) =>

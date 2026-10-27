@@ -2,8 +2,8 @@
 // region, the column paging controls naming hidden ones, bringing a column into view
 // as a developer does, and what the paging journeys
 // (./board-paging*.spec.ts) observe: which columns show and fill
-// the page, which column paging controls offer which column, whether cards keep their
-// share of the page, whether a move slid, and whether the page ends with the
+// the Board, which column paging controls offer which column, whether cards keep their
+// share of the Board, whether a move slid, and whether the Board ends with the
 // shown columns.
 // Journeys reach a hidden column only as a developer does, through a column paging
 // control or focus, by `showColumn`; the product has no test-only way in.
@@ -30,7 +30,7 @@ export const columnPagingControl = (page: Page, column: ColumnName) =>
 export const columnPagingControls = (page: Page) =>
   page.getByRole("button", { name: controlName(columns.join("|")) });
 
-// Brings a dashboard column into view as a developer does where the page has
+// Brings a Board Column into view as a developer does where the Board has
 // no room for all three: by pressing the column paging control toward it, once per
 // column the view has to move, each once the row rests after the last. A
 // shown column needs no move.
@@ -75,13 +75,13 @@ export async function showColumn(page: Page, column: ColumnName) {
 }
 
 export const rem = 16;
-// The slim room each side's column paging control takes while the columns page.
+// The slim room each side's column paging control takes while Columns are paged.
 export const pagingRoom = 1.75 * rem;
 // Exactly the `shown` columns show, whole and side by side in order, filling
-// the page but its column paging controls' slim room; every other column lies wholly
+// the Board except for its Column paging controls' slim room; every other column lies wholly
 // outside the columns' view, which cuts it off. The controls are exactly
 // those named in `controls`, each in view, read as a column's name and its
-// count; and the page never scrolls sideways.
+// count; and the Board never scrolls sideways.
 export async function expectView(
   page: Page,
   shown: readonly ColumnName[],
@@ -120,7 +120,7 @@ export async function expectView(
   const last = boxes.at(-1);
   if (first === undefined || last === undefined) throw new Error("none shown");
   // The shown columns fill their available view and share it equally,
-  // whether its sides reserve touch paging controls, mouse paging controls, or page margins.
+  // whether its sides reserve touch paging controls, mouse paging controls, or Board margins.
   expect(last.x + last.width - first.x).toBeGreaterThanOrEqual(view.width - 1);
   for (const at of boxes) {
     expect(Math.abs(at.width - first.width)).toBeLessThanOrEqual(1);
@@ -128,8 +128,8 @@ export async function expectView(
   await expectNoSidewaysScrollAndWholeText(page, cutByDesign);
 }
 
-// A Backlog card is no narrower than its share of the page would make it in
-// today's framing, without column paging controls: the page's side margins (4vw,
+// A Backlog card is no narrower than its share of the Board would make it in
+// today's framing, without column paging controls: the Board's side margins (4vw,
 // from 0.75rem to 1.5rem), a 1rem gap between columns, and each column's 1rem
 // padding and border on both sides.
 export async function expectStoryCardsKeepTheirShare(
@@ -160,11 +160,11 @@ export async function recordSlides(page: Page) {
 export const slidesOf = (page: Page) =>
   page.evaluate(() => (window as unknown as { slides: number }).slides);
 
-// How long the page is against the columns it shows: as far as it
+// How long the Board is against the columns it shows: as far as it
 // scrolls, read with the wheel as a developer reads, and whether it ends
 // with the shown columns.
 
-// The page's ordinary framing below the columns' end.
+// The Board's ordinary framing below the columns' end.
 const framing = 3 * rem;
 
 export const boardScroll = (page: Page) => page.locator(".board-scroll");
@@ -177,7 +177,7 @@ export const bottomOf = (page: Page) =>
 export const extentOf = (page: Page) =>
   boardScroll(page).evaluate((region) => region.scrollHeight);
 
-// Wheels the page to `y` as a developer reads, by exactly as far as is left,
+// Wheels the Board to `y` as a developer reads, by exactly as far as is left,
 // so no wheel movement outlasts the read.
 export async function wheelTo(page: Page, y: number) {
   const left = y - (await scrollYOf(page));
@@ -190,7 +190,7 @@ export async function wheelTo(page: Page, y: number) {
   await expect.poll(() => scrollYOf(page)).toBe(y);
 }
 
-// Where a part ends, measured from the top of the page.
+// Where a part ends, measured from the top of the Board.
 async function endOf(part: Locator) {
   const { y, height } = await box(part);
   return (
@@ -207,7 +207,7 @@ export async function expectBelowBanner(part: Locator) {
   expect((await box(part)).y).toBeGreaterThanOrEqual(banner.y + banner.height);
 }
 
-// Read to its end, the page shows the end of the longest `shown` column, or
+// Read to its end, the Board shows the end of the longest `shown` column, or
 // of its column paging controls' room where that is longer, followed by no more than
 // its ordinary framing.
 export async function expectEndsWithShown(
@@ -221,16 +221,18 @@ export async function expectEndsWithShown(
   ]);
   const shownEnd = Math.max(...ends);
   const blank = (await extentOf(page)) - shownEnd;
-  expect(blank, "blank page below the shown columns").toBeGreaterThanOrEqual(0);
-  expect(blank, "blank page below the shown columns").toBeLessThanOrEqual(
+  expect(blank, "blank Board below the shown Columns").toBeGreaterThanOrEqual(
+    0,
+  );
+  expect(blank, "blank Board below the shown Columns").toBeLessThanOrEqual(
     framing,
   );
 }
 
-// A part of a hidden column lies further down than the page reaches: its
+// A part of a hidden column lies further down than the Board reaches: its
 // content is longer than the shown columns' and would leave a blank tail
 // were it counted.
-export async function expectLongerThanThePage(part: Locator) {
+export async function expectLongerThanTheBoard(part: Locator) {
   expect(await endOf(part)).toBeGreaterThan(
     (await extentOf(part.page())) + framing,
   );

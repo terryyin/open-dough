@@ -1,7 +1,7 @@
-// A page read far down the long Backlog stops at the bottom of shorter
+// A Board read far down the long Backlog stops at the bottom of shorter
 // columns shown in its place, keeps a position the columns shown can hold, and
 // stays as long as the columns it shows when it widens or narrows. That the
-// page is only as long as its shown columns is
+// Board is only as long as its shown columns is
 // ./board-height.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -10,12 +10,12 @@ import {
   publishLargeBacklog,
   queuedCount,
   queuedTitle,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import {
   bottomOf,
   columnPagingControl,
   expectEndsWithShown,
-  expectLongerThanThePage,
+  expectLongerThanTheBoard,
   expectView,
   rem,
   scrollYOf,
@@ -23,7 +23,7 @@ import {
   wheelTo,
 } from "./boardPage.ts";
 
-test("a long Backlog read far down: shorter columns clamp the page to their bottom, a position they hold stays, and widening or narrowing keeps the page as long as the columns it shows", async ({
+test("a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 54 * rem, height: 480 });
@@ -38,16 +38,16 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
   // Backlog's end reaches whatever the card's height against the window.
   const lastCardEnd = lastCard.getByRole("button", { name: "Inspect story" });
   // Read only once every card has its length, so the bottom a move stops
-  // at is the page's own and not one a later read lengthens.
+  // at is the Board's own and not one a later read lengthens.
   await expectSettledPage(page);
   await expect(lastCard).toBeVisible();
   const backlogControl = `Backlog ${queuedCount} entries`;
 
-  await test.step("far down the Backlog, showing Taken and Recently done stops the page at their bottom, below its top", async () => {
+  await test.step("far down the Backlog, showing Taken and Recently done stops the Board at their bottom, below its top", async () => {
     await wheelTo(page, 1500);
     await showColumn(page, "Recently done");
     await expectView(page, ["Taken", "Recently done"], [backlogControl]);
-    await expectLongerThanThePage(lastCard);
+    await expectLongerThanTheBoard(lastCard);
     const clamped = await scrollYOf(page);
     expect(clamped).toBe(await bottomOf(page));
     expect(clamped).toBeGreaterThan(0);
@@ -67,20 +67,20 @@ test("a long Backlog read far down: shorter columns clamp the page to their bott
     await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
   });
 
-  await test.step("a page wide enough for all three is as long as Backlog, which is read whole", async () => {
+  await test.step("a Board wide enough for all three is as long as Backlog, which is read whole", async () => {
     await page.setViewportSize({ width: 80 * rem, height: 480 });
     await expectView(page, ["Backlog", "Taken", "Recently done"], []);
     await expectEndsWithShown(page, ["Backlog", "Taken", "Recently done"]);
     await expect(lastCardEnd).toBeInViewport({ ratio: 1 });
   });
 
-  await test.step("a one-column page shows Backlog, the kept column, then only a short Recently done, with no blank page past it", async () => {
+  await test.step("a one-column Board shows Backlog, the kept column, then only a short Recently done, with no blank Board past it", async () => {
     await page.setViewportSize({ width: 40 * rem, height: 480 });
     await expectView(page, ["Backlog"], ["Taken 1 entry"]);
     await expectEndsWithShown(page, ["Backlog"]);
     await showColumn(page, "Recently done");
     await expectView(page, ["Recently done"], ["Taken 1 entry"]);
-    await expectLongerThanThePage(lastCard);
+    await expectLongerThanTheBoard(lastCard);
     await expectEndsWithShown(page, ["Recently done"]);
   });
 });

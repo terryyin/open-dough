@@ -61,7 +61,7 @@ Put a check where it is cheapest to prove, and prove it once:
   `project-configuration`'s empty development first start,
   `project-remove`'s removal of development's last project, the machine file
   `system-settings-openai` and `system-settings-terminal-theme` share across
-  both environments, and `frame-overview-look`'s frame with no project
+  both environments, and `frame-board-look`'s frame with no project
   configured, a state only development starts in.
 - **A layout rule is proved once per CSS branch**, in the journey whose
   state change is observed at that width (`dashboard-header.spec.ts` runs
@@ -177,7 +177,7 @@ and their assignment to exactly one shard.
 ## Running the suite
 
 Run from the repository root; `npm run test:dashboard -- boundary/` or
-`-- --grep 'published overview'` selects files or tests, and `npx playwright
+`-- --grep 'published Board'` selects files or tests, and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs use Playwright's
 default worker count, CI runs every core.

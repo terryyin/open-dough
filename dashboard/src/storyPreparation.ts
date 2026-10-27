@@ -1,4 +1,4 @@
-// Typed projection of shared story-state facts for overview cards. The shared
+// Typed projection of shared story-state facts for Story cards. The shared
 // reader owns meaning; this only checks the shape the dashboard shows and maps
 // it to labels. Loading is observation, never a lifecycle state.
 
@@ -172,7 +172,7 @@ export function interpretStoryState(
   };
 }
 
-// Peek at recorded approach without requiring a plan file, so the overview can
+// Peek at recorded approach without requiring a plan file, so the Board can
 // discover which plan paths to fetch. Assessment is not trusted until a plan
 // is supplied for planned work.
 export function peekRecordedApproach(

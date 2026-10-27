@@ -40,7 +40,7 @@ Derive it solely from Git state published to origin.
 const claimsBeyondMembership =
   /\b(live|running|online|active|in progress|started|completed?|done|finished|owner(?! not recorded)|mode)\b/i;
 
-test("published overview shows Backlog and Taken work read at one revision", async ({
+test("published Board shows Backlog and Taken work read at one revision", async ({
   page,
 }) => {
   const retrievedAt = new Date("2026-09-20T08:30:00.000Z");
@@ -202,7 +202,7 @@ test("published overview shows Backlog and Taken work read at one revision", asy
   });
 });
 
-test("published overview accepts successfully empty groups and no recorded direction", async ({
+test("published Board accepts successfully empty groups and no recorded direction", async ({
   page,
 }) => {
   await publishOrigin(page, {

@@ -1,4 +1,4 @@
-// A launch dialog opened from a card in a shown dashboard column leaves the
+// A launch dialog opened from a card in a shown Board Column leaves the
 // view where the developer put it: the dialog lies within that card's column,
 // wherever the window shows it, so opening it, leaving it, and reloading keep
 // the same columns showing. How focus and Sessions sidebar choices show a

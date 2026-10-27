@@ -35,7 +35,7 @@ export async function markLocallyDone(
 // Marks the session done from its open terminal's header Mark as
 // done, through the same local-only ask-first question, and returns the
 // Recently done entry.
-export async function markLocallyDoneFromPanel(
+export async function markLocallyDoneFromSidePanel(
   page: Page,
   panel: Locator,
 ): Promise<Locator> {

@@ -14,7 +14,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  background: var(--panel);
+  background: var(--raised-surface);
   box-shadow: var(--shadow-1);
 }
 
@@ -40,7 +40,7 @@
    whole area, whatever its edge; the entry the terminal shows keeps its own
    fill. */
 .sessions-sidebar .sessions-sidebar-session-entry.has-unread-report {
-  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+  background: color-mix(in srgb, var(--accent) 7%, var(--raised-surface));
 }
 
 .sessions-sidebar .sessions-sidebar-session-entry.in-side-panel {

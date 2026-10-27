@@ -75,7 +75,7 @@ other region scrollbars.
 
 ### 5. A whole-dashboard review finds one name per concept
 Type: Behavior
-Status: planned
+Status: done
 Proof: recorded name review (search terms in Current decisions plus "page"/"dashboard"/"panel"/"edge" meaning an adopted concept) with every remaining match dispositioned; full dashboard suite, `npm test`, typecheck, and lint green
 
 Behavior: Whole-dashboard review finds no competing or overloaded adopted names. Rename residue and keep existing journeys green.
@@ -89,7 +89,7 @@ Five cohesive concept/proof groups; Board scrolling is separated from naming and
 - Established Story Branch start: `SEED-153#align-dashboard-ui-domain-concepts`, publisher `dashboard-territory.local-open-dough`, agent `bas-chan`.
 - Originating and integration checkout: `/Users/terryyin/git/open-dough`; execution checkout: `/Users/terryyin/git/open-dough/.worktrees/align-the-dashboard-globally-with-its-ui-domain` (existing owned linked worktree), branch `codex/align-the-dashboard-globally-with-its-ui-domain`.
 - Authorized trunk `origin/main`; ordinary delivery targets the origin execution branch. Starting revision `421fbf9e9dbdeb561e4f886a50a06ae2b37c383e`; published claim and initial candidate `3901d3ac8ddd5717744a0af36d53160033595add`. Claim CI is unobserved on trunk.
-- Execution-branch accepted revisions: `801f62c3bb2427ab838588ef2ba48f217ab156f6` (base `3901d3ac8ddd5717744a0af36d53160033595add`), `08b604666d982b7140faab011cfb801aae5a7fe2` (base `801f62c3bb2427ab838588ef2ba48f217ab156f6`), current published base `420f72dc12a441e10e27c4070300ab9c1146a1a4` (base `08b604666d982b7140faab011cfb801aae5a7fe2`). All formatting/full lint/size/staged-hook/typecheck gates passed; observer reused for each.
+- Execution-branch accepted revisions: `801f62c3bb2427ab838588ef2ba48f217ab156f6` (base `3901d3ac8ddd5717744a0af36d53160033595add`), `08b604666d982b7140faab011cfb801aae5a7fe2` (base `801f62c3bb2427ab838588ef2ba48f217ab156f6`), `420f72dc12a441e10e27c4070300ab9c1146a1a4` (base `08b604666d982b7140faab011cfb801aae5a7fe2`), current published base `1f45ec1c2fe7d481a3fc817ea41958c2d4494121` (base `420f72dc12a441e10e27c4070300ab9c1146a1a4`). All formatting/full lint/size/staged-hook/typecheck gates passed; observer reused for each.
 - Checkout readiness: Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser`, `check`, then `npm run typecheck:dashboard` passed in this checkout. Selective formatting is `PATH=/opt/homebrew/bin:$PATH npm run format`; `.githooks/pre-commit` is check-only staged lint and script-triggered dashboard typecheck.
 - CI observer: GitHub Actions `terryyin/open-dough`, execution branch, selector `ci.yml` (verified active, display name `CI`); coordinator `seed153-codex`, live directory `/tmp/dough-ci-501/watch-8HHXKr`, PID 3898, PTY 11390, yielded cell 6, checkout as above. Rearmed after confirmed old shutdown; unchanged locked setup and resume typecheck passed.
 - Settled size decision: Terry rejected an exception on2026-10-27 (“no. Make it shorter.”); coherently shorten all touched files to<=250. Original observer `/tmp/dough-ci-501/watch-SEWXXM` stopped for that judgment (unread0, recorded/delivered0, PID51741 absent); current rearmed observer is named above. This is historical, not an active stop.
@@ -99,40 +99,11 @@ Five cohesive concept/proof groups; Board scrolling is separated from naming and
 
 ## Source-only acceptance review
 
-Fresh isolated `/root/source_review1` received only original story Goal, Scope, examples/exclusions and Terry's scroll decision; launch input and 36 commitments remain in agent history. Compared with canonical source, all qualifications/examples are retained below. `/root/source_review2` independently reviewed the same source for slice 2; its input/return are retained there too.
-
-| Original trigger / qualification | Expected result | Current proof or legitimate remaining owner |
-| --- | --- | --- |
-| Developer names an adopted concept (syntax casing may vary) | Same name in UI, architecture, code, tests, and docs | Slices 1–3 align their groups; slice 5 audits the whole dashboard |
-| An ADR 0008 concept occurs in wording, accessible names, components, modules, files, types, functions, state, CSS/custom properties, selectors, support, docs or comments | Every such representation uses the adopted name | Slice 1 Board/Column inspection; slices 2–3 other groups; slice 5 residual review |
-| Existing competing synonym or alias | Remove it rather than retain vocabulary translation | All naming slices and final review; preference recovery remains expressly required |
-| Open terminal, final report, or story review | Same Side panel responsibility, each content and component named by content without container name | Slice 3 |
-| Final report formerly called session result | One final-report name | Slice 3, residual review slice 5 |
-| Session entry in Story card, Column, or Sessions sidebar | One concept name; placement can vary presentation | Slice 2, all three placements |
-| Resize or scroll control | Distinct responsibilities | Slice 3 dividers; slice 4 scrolling; slice 5 review |
-| Board–Side panel control | Only this control is Panel divider, consistently in code/styles/tests/docs, and resizes Side panel | Slice 3 |
-| Drag Running Cursor sessions resize control | Section still resizes; own responsibility name, neither edge nor Panel divider | Slice 3 |
-| Hidden-column control | Own paging responsibility name, neither edge nor Panel divider; existing paging behavior preserved | Slice 1 names; slice 4 preserves against Board scrolling |
-| A Scrollbar is named | Qualify it by the region actually scrolled | Slice 4 docs and scroll ownership; slice 5 review |
-| Board in any layout, including side by side and stacked | Own scroll region instead of document; Board scrollbar at its edge | Slice 4 |
-| Side by side with open panel; stacked below it | Side by side: only Board moves, bar left of divider and panel stationary. Stacked: only Board moves, panel above stationary | Slice4: each layout journey |
-| Reveal through story URL | Story card top readable below banner and Column heading, including tall cards as range allows | Slice 4 existing URL/reveal journeys |
-| Reveal through Session entry | Same card-top positioning | Slice 4 existing session/reveal journeys |
-| After owner change: keyboard scrolling; hidden-column paging; pinned banner; Maximize/Restore | Native reading keys scroll the region; paging retains its chosen view; banner remains visible; Maximize/Restore retains its content/size/reading behavior | Slice4: individual keyboard, paging, stationary-banner and panel observations |
-| Existing published story facts, session identities, story URLs | Unchanged | All slices preserve record formats; existing journeys and final full suite |
-| Existing other behavior | Preserved except explicitly requested scroll-region change | Per-slice consumer proof plus final whole suite |
-| Saved width; sidebar open; Running Cursor height; Board column position | Recover the same width, open state, height and column view respectively | Width:3 width/reload journeys; open/height:2 former-key/reload journeys; column position:1 former-key/reload journey |
-| Renamed preference key contains only former-key value | Recover former value; new key subsequently owns it | Slices 1–2 |
-| Outside-table concept, including banner/roster/project selection/settings/dialogs/frame style | Keep name unless it overloads an adopted concept | Each slice; slice 5 residual review |
-| Sessions sidebar across projects | Separate cross-project region | Slice 2 existing sidebar journeys |
-| Screen reader reaches Board | Announces Board, covering Backlog, Taken, Recently done | Slice 1 `Board.tsx`, `published-work.spec.ts` and role-based helpers |
-| Whole-dashboard review | No competing synonym and no name for incompatible concepts | Slice 5 |
-| Existing relevant automated journeys after alignment | Pass with names/selectors aligned | Per-slice consumer suites and slice 5 full dashboard / npm tests |
-| Deferred concepts or layout redesign | Do not define new ADR concepts or redesign beyond Board scroll region | All slices; no such expansion selected |
+[Original commitments, qualifications and proof owners](ACCEPTED-PROOF.md#source-only-acceptance-review) remain intact in the acceptance evidence.
 
 ## Accepted proof
 
-[Slices 1–4 acceptance and independent refactoring](ACCEPTED-PROOF.md) retain commands, observations, trace dispositions and failure recovery. Their accepted revisions are in Execution context.
+[Slices 1–5 acceptance and independent refactoring](ACCEPTED-PROOF.md) retain commands, observations, trace dispositions and failure recovery. Their accepted revisions are in Execution context.
 
 Destructive-outcome check for slice4: replace document scrolling with Board-owned scrolling; later slice5 requires existing journeys and consistent region names. Compatible: source explicitly requests this ownership change, with reveal/keyboard/paging/banner/Maximize preserved through adapted consumers. No later-outcome conflict.
 Baseline reuse: recorded pre-change document/stacked observations remain applicable to scroll ownership; slices1–3 retained layout declaration values (including stacked70dvh) and all existing journeys passed. Obtain only missing current observations before invalidating them; no repeat of the expensive scratch experiment is required.
@@ -167,7 +138,7 @@ Disposition: proved by slice 3: exact SidePanelControls module/API comparison an
 ### G6. Component/model basename collision
 Reported: slice 3 — "Required formatter/lint project service omits FinalReport.tsx and StoryReview.tsx because case-insensitive TypeScript roots select paired finalReport.ts/storyReview.ts schema modules. Installed parser confirms only model roots; no commit or publication occurred. Rename schema/transport modules to explicit finalReportContract.ts/storyReviewContract.ts and renew affected module-loading proof."
 Story clause: "components, modules, files, types, functions, state"
-Disposition: proved by slice 3: all four compiler roots present on actual case-insensitive host, forced typecheck and eight fresh content/schema/native-report module-loading cases passed; exact module/API equivalence and1177-consumer trace in /tmp/seed153-slice3-handoff.md. Required formatter/lint retry remains the delivery gate.
+Disposition: proved by slice 3: all four compiler roots present on actual case-insensitive host, forced typecheck and eight fresh content/schema/native-report module-loading cases passed; exact module/API equivalence and1177-consumer trace in /tmp/seed153-slice3-handoff.md. Required formatter/lint retry passed before420f72dc publication.
 
 ### G7. Native keyboard scrolling from the body
 Reported: slice 4 — "First focused scroll proof passed 15/16; End from body no longer moved the Board after document scrolling was removed. Existing modal/settings boundaries are reused for a minimal body-only focus handoff to the visible Board/roster before native default scrolling; focused controls keep native keys."
@@ -223,3 +194,18 @@ Disposition: proved by slice 4: agent-terminal-cursor-trust-page.spec.ts retains
 Reported: slice 4 — "Frozen full run reports cursor-session-scope-continuation.spec.ts cannot-load replacement timeout after raw reload: Recover remains disabled and retained snapshot says execution start needs reconciliation. The sibling journey uses reloadUntilRead plus agent-not-running assertion. Inspect lifecycle/startup/read paths before choosing a real product correction or missing settled-recovery precondition; no assumed harmless timing explanation."
 Story clause: "Existing relevant automated journeys still pass after their names and selectors are aligned."
 Disposition: proved by slice 4: inspected storyStartup/needsReconciliation and disabled StoryCard frame through RecoverSession; test now observes real enclosing settledOutcome launched before endHeldClient held-list0, reloadUntilRead and agent-not-running before Recover. Original replacement/scope/no-model assertions passed in corrected2-case strict proof; no product change.
+
+### G18. Whole-dashboard vocabulary residue
+Reported: slice 5 — "Initial audit finds Column paging counts still named edge, Board helpers/specs called accessible overview or dashboard, Column CSS described as panels, stale page/document-scroll and query-owner comments, and shared white-fill token --panel also used outside the Side panel. Align actual responsibilities across every representation; preserve generic shell/frame and real wire/record exclusions, fixture facts/URLs, timing rows and color values."
+Story clause: "A whole-dashboard review finds no competing name for an adopted concept or single name used for incompatible concepts."
+Disposition: proved by slice 5: final per-match name audit /tmp/seed153-slice5-name-audit.json maps13,891 remaining lines across1,481 text files to actual meanings, with native/browser/sprite/visual frame distinctions and legacy-key/record exceptions inspected. Direct SidePanel state and Board/support/spec/doc renames, identical21 CSS declaration sequences after color-token spelling, all549 mapped timing rows and matched fact literals preserved. Full current1,681 passed observations cover these names; rate-limit observation is renewed under proved G20.
+
+### G19. Touch Start waits for real policy offers
+Reported: slice 5 — "Frozen full reports phone/tablet agent-launch-start-session-touch.spec.ts line53 unchecked radio after raw tap. At load29/16cores the actual Isolated workspace radio was disabled awaiting session-policy offers; openBacklog supplies origin/page, not completed offers. Preserve original fixtures/44px/clipping/hit/raw-tap/checked/rotation/draft assertions and wait for the real enabled precondition. Owned failed run stopped gracefully with diagnostics retained; next full bounded to4workers."
+Story clause: "Existing relevant automated journeys still pass after their names and selectors are aligned."
+Disposition: proved by slice 5: launchOffers reading→offered and notOfferedHint/UnattachedSessionPolicy disabled guard inspected. Existing phone/tablet raw touch now waits for real enabled radio before unchanged hit/clipping/checked/draft/rotation observations. Focused2/2 strict6.450s and both cases in current full passed; no product or timeout change.
+
+### G20. Directed-time rate-limit check admission
+Reported: slice 5 — "Four-worker full reports auto-refresh-rate-limit.spec.ts directed-time check expected200 but got502 while the page reports server admission wait1s remaining. Host load11.67/16cores does not establish an environmental cause. Inspect real/server/browser clock and admission/continuation paths before correcting behavior or setup; retain actual failed verdict and current unaffected observations."
+Story clause: "Existing relevant automated journeys still pass after their names and selectors are aligned."
+Disposition: proved by slice 5: controlled unchanged-helper plus actual ReadAdmission counterexample reproduces return79ms before its own deadline and held-back1 under80ms during-wait clock rollback; no OS clock changed. One absolute deadline is now rechecked after each timer wake, with no cushion/API/policy change. Both controlled cases now at/after deadline and allowed; all27 real tests across11 affected specs passed strict24.006s. Original incident clock event remains unrecorded, not claimed; current fixture contract and original journey are proved. Full1,681/1 failed verdict retained,1,655 unaffected observations reused plus27 renewed; final typecheck passed. Evidence /tmp/seed153-g20-clock-adjustment-before.json, /tmp/seed153-g20-clock-adjustment-after.json and /tmp/seed153-slice5-g20-real-consumers-20261027-1715.json; actual single-request continuation/store-before-response and35-consumer dispositions inspected.

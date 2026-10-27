@@ -1,6 +1,6 @@
 // Two published repositories, each with its own revision and its own
 // telling of a story identity the two projects happen to share. Selecting a
-// project shows only that project's overview, through the same reader and
+// project shows only that project's Board, through the same reader and
 // presentation Open Dough already used when it was the only source.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -71,7 +71,7 @@ const titlesOfDoughnut = {
   backlog: [doughnutSharedTitle, doughnutQueuedTitle],
 };
 
-test("project selection shows each project's own overview, and returning to a project asks its ref again", async ({
+test("project selection shows each project's own Board, and returning to a project asks its ref again", async ({
   page,
 }) => {
   const openDoughRequests = await publishOrigin(
@@ -115,7 +115,7 @@ test("project selection shows each project's own overview, and returning to a pr
     expect(doughnutRequests).toHaveLength(0);
   });
 
-  await test.step("selecting Doughnut shows only Doughnut's overview; Open Dough is not read again", async () => {
+  await test.step("selecting Doughnut shows only Doughnut's Board; Open Dough is not read again", async () => {
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
     await expectMembership(page, titlesOfDoughnut);
     await openDirection(page);
@@ -144,7 +144,7 @@ test("project selection shows each project's own overview, and returning to a pr
     );
   });
 
-  await test.step("returning to Open Dough shows its overview again, its ref asked again", async () => {
+  await test.step("returning to Open Dough shows its Board again, its ref asked again", async () => {
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .check();

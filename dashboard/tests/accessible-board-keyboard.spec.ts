@@ -21,7 +21,7 @@ import {
   titlesOfB,
 } from "./refreshJourney.ts";
 
-test("accessible overview is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
+test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
   page,
 }) => {
   const origin = await publishMovingOrigin(page);
@@ -42,7 +42,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
     const stops: Locator[] = [];
     for (const card of await column.getByRole("article").all()) {
       if (column === backlog) {
-        // This overview publishes backlog bytes only: execution stays gated
+        // This Board fixture publishes backlog bytes only: execution stays gated
         // while canonical dependency facts are unavailable; refinement is a stop.
         await expect(
           card.getByRole("button", { name: "Start execution" }),
@@ -141,7 +141,7 @@ test("accessible overview is read by keyboard in reading order, with visible foc
   });
 });
 
-test("accessible overview announces reading, the read result, and a failure while focus stays where it is", async ({
+test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async ({
   page,
 }) => {
   await pausePageClock(page);

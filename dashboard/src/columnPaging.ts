@@ -1,7 +1,7 @@
-// Which of the Board's Columns show (./Board.tsx). The page's
-// own width decides how many whole columns fit: the stylesheet says so as
+// Which of the Board's Columns show (./Board.tsx). Its scrolling content
+// width decides how many whole Columns fit: the stylesheet says so as
 // `--columns-shown` on the row's frame (./board.css), from the
-// `page` container's width alone, and this reads it whenever the frame
+// `board` container's width, and this reads it whenever the frame
 // resizes. The position is one fact, the leftmost shown column the developer
 // chose; the width only limits it, so the row never rests past the last
 // column, and the chosen position comes back when the width allows it again.
@@ -11,7 +11,7 @@
 // holding that element in the page (`columnMark`), so a dialog
 // opened from a card belongs to the card's column wherever the window shows
 // it. Which columns are hidden follows from the same facts (`hidden`), so that
-// hidden columns add nothing to the page's length; focus that showed a column
+// hidden Columns add nothing to the Board's scroll range; focus that showed a column
 // is brought into sight once that column has its length again.
 
 import {
@@ -88,7 +88,7 @@ function keepPosition(position: number) {
 // into view, which bubbles to the row that holds it; elsewhere nothing hears.
 const showHolding = "board-show";
 
-// Shows the dashboard column that holds `element` before it is brought into
+// Shows the Board Column that holds `element` before it is brought into
 // view, as focus landing in it would.
 export function showColumnHolding(element: Element): void {
   element.dispatchEvent(new Event(showHolding, { bubbles: true }));
@@ -158,7 +158,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
     [moveTo, leftmost, columns, shown],
   );
   // Focus or a reveal in a hidden column moves the view the fewest columns
-  // that show it, as many as the page shows right now; the chosen position
+  // that show it, as many as the Board shows right now; the chosen position
   // stays while the column already shows.
   useLayoutEffect(() => {
     const moved = row.current;
@@ -172,7 +172,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
       const from = leftmostOf(position, columns, fit);
       const to =
         column < from ? column : column >= from + fit ? column - fit + 1 : from;
-      // Focus can land in a column still hidden on the row while a wider page
+      // Focus can land in a column still hidden on the row while a wider Board
       // already fits it, as when the side panel closes: it too waits for the
       // column's length.
       const hiddenOnRow = (moved.dataset["hidden"] ?? "")
@@ -195,7 +195,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
   }, [moveTo, columns, position]);
 
   // The browser scrolled the focus into view while its column was hidden, so
-  // within the page as long as the shown columns were: now that the column
+  // within the Board as long as the shown Columns were: now that the column
   // has its length, the focus is brought the rest of the way, as little as
   // shows it.
   useLayoutEffect(() => {

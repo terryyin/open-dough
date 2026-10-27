@@ -1,7 +1,7 @@
 import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/preparationPage.ts";
-import { largeBacklog, publishLargeBacklog } from "./accessibleOverview.ts";
+import { largeBacklog, publishLargeBacklog } from "./accessibleBoard.ts";
 import { boardScroll, expectView, scrollYOf, wheelTo } from "./boardPage.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";

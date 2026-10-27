@@ -1,9 +1,9 @@
-// The overview's frame in the frame's look: the row below the banner, the
-// board' headings and counts, and what the frame
+// The frame's look: the row below the banner, the
+// Board's headings and counts, and what the frame
 // says in place of work -- an empty column, a failed read, no projects -- read
 // clearly, keep their names, and fit a narrow window without sideways
 // scrolling. With no project, Open Dough's mark still leads the banner and
-// System settings. The cards inside the board are not this look's to change.
+// System settings. The cards inside the Board are not this look's to change.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -35,7 +35,7 @@ import {
 import { back, settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
-test("the row below the banner and the board read clearly in the frame's look", async ({
+test("the row below the banner and the Board read clearly in the frame's look", async ({
   page,
   afterGitHubStops,
 }) => {

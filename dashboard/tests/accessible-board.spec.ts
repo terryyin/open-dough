@@ -12,7 +12,7 @@ import {
   queuedTitles,
   revision,
   unusableTarget,
-} from "./accessibleOverview.ts";
+} from "./accessibleBoard.ts";
 import { expectMembership, openDirection, parts } from "./dashboardPage.ts";
 import { scrollYOf, showColumn } from "./boardPage.ts";
 import {
@@ -39,7 +39,7 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 
 const narrowWindow = { width: 360, height: 740 };
 
-test("accessible overview reflows long published work for a narrow window and page zoom", async ({
+test("accessible Board reflows long published work for a narrow window and page zoom", async ({
   page,
 }, testInfo) => {
   await publishOrigin(page, {
@@ -133,7 +133,7 @@ test("accessible overview reflows long published work for a narrow window and pa
   });
 });
 
-test("accessible overview keeps empty groups readable in a narrow window", async ({
+test("accessible Board keeps empty groups readable in a narrow window", async ({
   page,
 }) => {
   await page.setViewportSize(narrowWindow);
@@ -161,7 +161,7 @@ test("accessible overview keeps empty groups readable in a narrow window", async
   await expectNoSidewaysScrollAndWholeText(page);
 });
 
-test("accessible overview keeps a read problem and the retained work reachable in a narrow window", async ({
+test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async ({
   page,
 }) => {
   await page.setViewportSize(zoomedWindow);
@@ -189,7 +189,7 @@ test("accessible overview keeps a read problem and the retained work reachable i
   await expect(problem).toBeInViewport();
 });
 
-test("accessible overview reads a backlog longer than one screen by scrolling the Board", async ({
+test("accessible Board reads a backlog longer than one screen by scrolling the Board", async ({
   page,
 }) => {
   await publishLargeBacklog(page);

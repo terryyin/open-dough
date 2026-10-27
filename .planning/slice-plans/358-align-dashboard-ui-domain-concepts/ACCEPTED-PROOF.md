@@ -2,6 +2,39 @@
 
 Details retained for execution retrospective and wrap-up; [active plan](PLAN.md).
 
+## Source-only acceptance review
+
+Fresh isolated `/root/source_review1` received only original story Goal, Scope, examples/exclusions and Terry's scroll decision; launch input and 36 commitments remain in agent history. Compared with canonical source, all qualifications/examples are retained below. `/root/source_review2` independently reviewed the same source for slice 2; its input/return are retained there too.
+
+| Original trigger / qualification | Expected result | Current proof or legitimate remaining owner |
+| --- | --- | --- |
+| Developer names an adopted concept (syntax casing may vary) | Same name in UI, architecture, code, tests, and docs | Slices 1–3 align their groups; slice 5 audits the whole dashboard |
+| An ADR 0008 concept occurs in wording, accessible names, components, modules, files, types, functions, state, CSS/custom properties, selectors, support, docs or comments | Every such representation uses the adopted name | Slice 1 Board/Column inspection; slices 2–3 other groups; slice 5 residual review |
+| Existing competing synonym or alias | Remove it rather than retain vocabulary translation | All naming slices and final review; preference recovery remains expressly required |
+| Open terminal, final report, or story review | Same Side panel responsibility, each content and component named by content without container name | Slice 3 |
+| Final report formerly called session result | One final-report name | Slice 3, residual review slice 5 |
+| Session entry in Story card, Column, or Sessions sidebar | One concept name; placement can vary presentation | Slice 2, all three placements |
+| Resize or scroll control | Distinct responsibilities | Slice 3 dividers; slice 4 scrolling; slice 5 review |
+| Board–Side panel control | Only this control is Panel divider, consistently in code/styles/tests/docs, and resizes Side panel | Slice 3 |
+| Drag Running Cursor sessions resize control | Section still resizes; own responsibility name, neither edge nor Panel divider | Slice 3 |
+| Hidden-column control | Own paging responsibility name, neither edge nor Panel divider; existing paging behavior preserved | Slice 1 names; slice 4 preserves against Board scrolling |
+| A Scrollbar is named | Qualify it by the region actually scrolled | Slice 4 docs and scroll ownership; slice 5 review |
+| Board in any layout, including side by side and stacked | Own scroll region instead of document; Board scrollbar at its edge | Slice 4 |
+| Side by side with open panel; stacked below it | Side by side: only Board moves, bar left of divider and panel stationary. Stacked: only Board moves, panel above stationary | Slice4: each layout journey |
+| Reveal through story URL | Story card top readable below banner and Column heading, including tall cards as range allows | Slice 4 existing URL/reveal journeys |
+| Reveal through Session entry | Same card-top positioning | Slice 4 existing session/reveal journeys |
+| After owner change: keyboard scrolling; hidden-column paging; pinned banner; Maximize/Restore | Native reading keys scroll the region; paging retains its chosen view; banner remains visible; Maximize/Restore retains its content/size/reading behavior | Slice4: individual keyboard, paging, stationary-banner and panel observations |
+| Existing published story facts, session identities, story URLs | Unchanged | All slices preserve record formats; existing journeys and final full suite |
+| Existing other behavior | Preserved except explicitly requested scroll-region change | Per-slice consumer proof plus final whole suite |
+| Saved width; sidebar open; Running Cursor height; Board column position | Recover the same width, open state, height and column view respectively | Width:3 width/reload journeys; open/height:2 former-key/reload journeys; column position:1 former-key/reload journey |
+| Renamed preference key contains only former-key value | Recover former value; new key subsequently owns it | Slices 1–2 |
+| Outside-table concept, including banner/roster/project selection/settings/dialogs/frame style | Keep name unless it overloads an adopted concept | Each slice; slice 5 residual review |
+| Sessions sidebar across projects | Separate cross-project region | Slice 2 existing sidebar journeys |
+| Screen reader reaches Board | Announces Board, covering Backlog, Taken, Recently done | Slice 1 `Board.tsx`, `published-work.spec.ts` and role-based helpers |
+| Whole-dashboard review | No competing synonym and no name for incompatible concepts | Slice 5 |
+| Existing relevant automated journeys after alignment | Pass with names/selectors aligned | Per-slice consumer suites and slice 5 full dashboard / npm tests |
+| Deferred concepts or layout redesign | Do not define new ADR concepts or redesign beyond Board scroll region | All slices; no such expansion selected |
+
 ## Slice 1 acceptance
 
 - Source review: Board/Column names, full Board region, paging-control name, former-key recovery and preservation apply now; other groups/scrolling remain with slices 2–5 in the table above.
@@ -62,3 +95,18 @@ Targeted independent `/root/refactor3` continuation returned `## REFACTOR COMPLE
 - Final `PATH=/opt/homebrew/bin:$PATH npm run typecheck:dashboard` passed. Handoff `/tmp/seed153-slice4-handoff.md`, complete failure history `/tmp/seed153-slice4-proof-history.md`, and792-consumer `/tmp/seed153-slice4-consumer-dispositions.md` retain selection, setup/assertion and reuse limits. Root inspected actual native bounds/hits, recovery guard/producer continuation and corrected real examples; all listed consumers dispositioned. No gap or live command remains; independent refactor/delivery follows.
 
 Independent `/root/refactor4` returned `## REFACTOR COMPLETE`: removed two redundant50dvh declarations and duplicate maximized height; corrected Board container comments. Root inspected the exact cascade across sidebar/stacked/maximized paths; computed values and all observation paths unchanged. No tests rerun; accepted proof reused. `/tmp/seed153-refactor4-handoff.md` and105-consumer disposition record retain80reused/25excluded, no blanks. All47 paths<=250 and whitespace passed; no gap or live verification.
+
+Slice4 preparation caught two test typing findings and formatter-expanded navigation spec252. Replaced the non-null assertion with an explicit missing-Board failure and represented the fixture's actual optional-before-setup lifetime with an entry guard; valid setup/observations unchanged. Removed two redundant comments to250. Accepted proof reused. Formatting/full lint/size/staged hook/typecheck retry passed; accepted execution-branch revision1f45ec1c2fe7d481a3fc817ea41958c2d4494121, suffix base420f72dc12a441e10e27c4070300ab9c1146a1a4, observer reused.
+
+## Slice 5 acceptance
+
+- Fresh isolated `/root/source_review5` actual launch/input/46commitments retained `/tmp/seed153-source_review5-retained.json`, compared with canonical source and table above. All eight concepts/representations, content/container separation, one Session entry, resize/scroll distinctions, every-layout ownership, URL/Session reveal, keyboard/paging/banner/Maximize, facts/IDs/URLs/preferences and outside-table/shorter-file qualifications are accounted for; no source promise/example dropped.
+- Root inspected direct SidePanel state/reference changes, Board/spec/support/doc names, actual palette role, width-shell measurements and original setup/assertion preservation. `/tmp/seed153-slice5-name-audit.json`:13,891 remaining matching lines/1,481 text files, each actual meaning dispositioned; legacy keys and published/native protocols remain genuine contracts. Corrected native/browser/sprite/visual frame distinctions. No competing live name remains.
+- Exact preservation `/tmp/seed153-slice5-preservation.py`/`.json`:21 CSS declaration sequences identical after only color-token spelling/comments, including #ffffff owner; all three actual timing parts preserve549 rows (245/202/102) under9spec path mappings; five matched long fact/identity/plan/URL/hostile-target literals and native storyBReport unchanged. Root inspected comparisons and corrected line-versus-row reporting; doc links checked.
+- `PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed153-slice5-final-four-workers-20261027-1624.json npm run test:dashboard -- --workers=4`:1,682 selected,1,681passed/1failed, runner/strict failed,1123.072s. All1,485 scoped hashes matched through terminal. No clean local-full claim; original rate-limit failure and all negative diagnostic limits retained.
+- G20 confirmed fixture-contract correction and exact real27-consumer command/setup/assertions are in `/tmp/seed153-slice5-handoff.md` final section. Controlled old helper returns79ms early/actual admissionheld1 after an80ms clock rollback; revised same-deadline recheck returns at/after target/allowed in both cases. Original incident's actual clock event is not recorded. Original public rate-limit recovery and all26 related cases now pass strict24.006s. Current coverage is1,655 unchanged full observations +27 renewed; no known affected local consumer omitted.
+- G19 original phone/tablet radio/touch/draft/rotation journeys passed focused2 and current full after waiting for real policy offers; no fixture/assertion/timeout weakened. Early interrupted runs and resource reconsideration (load29/16cores→4browserworkers) remain in handoff.
+- `OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_TIMES=/tmp/seed153-slice5-npm-test-times.tsv PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR npm test`:436/436 selected jobs passed (82shell/354Node), exact receipt `/tmp/seed153-slice5-npm-test-receipt.json`. Reused after test-helper-only correction: no non-browser/selection consumer imports untilReported; all actual helper consumers renewed. Final typecheck and actual discovery6 passed; whitespace/all92 current implementation files<=250.
+- Broad1,730-consumer trace plus35 focused G20 consumers all dispositioned; root inspected supported exclusions/reuse and corresponding observations. `/tmp/seed153-slice5-after-g20-candidate.json`:103 owned paths/1,485 scoped hashes, only post-full scoped edit is directedWait.ts. All commands terminal; no temporary instrumentation, auxiliary watch or known proof gap remains. Full applicable-revision CI remains required before execution completion/wrap-up. Independent refactor/delivery follows.
+
+Independent `/root/refactor5` returned `## REFACTOR COMPLETE`, none/already clean: all103 implementation-path/1,485 scoped hashes match accepted candidate, all11 rename pairs and21 CSS declaration sequences inspected; no edit/test or new trace needed. Existing1,730+35 consumer dispositions and all accepted proof reused. All94 current files<=250, whitespace clean; no production/ADR/subsystem conflict, proof gap or live verification. Root corrected stale G18 cross-reference; `/tmp/seed153-refactor5-handoff.md` retains the review.

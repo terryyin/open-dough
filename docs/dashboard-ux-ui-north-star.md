@@ -47,11 +47,11 @@ it does not define a workflow state schema or authorize execution.
 below are an initial design recommendation. Revise them when real use shows a
 clearer or smaller solution; do not treat them as additional user commitments.
 
-[The first overview](../dashboard/README.md)
+[The first Board](../dashboard/README.md)
 selects the published direction, connected Backlog and Taken Columns, readable
 entry facts, source links, and refresh/read states.
 It omits fetched story/plan detail, outside-backlog discovery, and
-owner/mode/readiness/slice facts. A connected spatial overview belongs in this
+owner/mode/readiness/slice facts. A connected Board belongs in this
 story. General pan/zoom, multiple detail levels, and animated card travel are
 not prerequisites: add the smallest navigation or motion only when it solves
 a reading or orientation problem in this scope. A readable Board with ordinary
@@ -88,7 +88,7 @@ It is part of this temporary design direction and carries the same authority.
 ## Animation explains change
 
 When spatial navigation is introduced, animate viewport movement when focusing
-work or returning to the overview, using short, interruptible transitions to
+work or returning to the whole Board, using short, interruptible transitions to
 help preserve orientation. When an automatic check reads a new snapshot,
 motion can explain observed placement or order changes for the same identity between the
 previous and new snapshots. Start with a small transition if it clarifies that

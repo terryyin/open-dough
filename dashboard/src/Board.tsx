@@ -15,12 +15,12 @@ import "./board.css";
 // The Board: Backlog, Taken, and Recently done, left to right on
 // one row (./board.css). Published work and local sessions use
 // the same projected lists and completeness in headings and column paging controls.
-// Where the page has no room for all three, the whole columns that fit show, and a column paging
+// Where the Board has no room for all three, the whole columns that fit show, and a column paging
 // control on either side that has a hidden column moves the view to it
 // (./columnPaging.ts), as does focus or a reveal landing in it. Hidden
 // columns stay rendered, in the reading and tab order, cut off at the row's
 // sides, and the row names them (`data-hidden`, counted from 1) so that they
-// add nothing to the page's length.
+// add nothing to the Board's scroll range.
 export function Board({
   sourceId,
   work,
@@ -58,7 +58,7 @@ export function Board({
   const right = summaries[leftmost + shown];
   // The keyboard stays on the column paging controls: a control that holds it and is
   // gone after its move hands it to the other side's, which points back the
-  // way the developer came, kept in sight where it stands, so the page does
+  // way the developer came, kept in sight where it stands, so the Board does
   // not scroll for it.
   const pagingControls = {
     left: useRef<HTMLButtonElement>(null),
