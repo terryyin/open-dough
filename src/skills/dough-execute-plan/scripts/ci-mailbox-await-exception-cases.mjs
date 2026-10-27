@@ -18,7 +18,6 @@ import {
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
   launcher,
-  releaseRun,
   setupProcessMailbox,
   sha,
 } from "./ci-mailbox-process-test-fixtures.mjs";
@@ -35,15 +34,19 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
   });
 
   await t.test("terminal incomplete coverage", async (t) => {
-    const fixture = await setupProcessMailbox(t);
-    await register(fixture.env, fixture.mailbox);
-    const waiting = launchAwait(fixture.teardown, fixture.env, fixture.mailbox);
-    releaseRun(fixture.directory, {
-      status: "completed",
-      conclusion: "cancelled",
+    // The reader consumes a published terminal record without integrated
+    // evidence. Cancellation -> incomplete is observed in revision coverage.
+    const { directory, storage } = pendingMailbox(t);
+    publishJson(join(directory, "coverage"), `${sha}.json`, {
+      sha,
+      state: "incomplete",
     });
-    const completed = await waiting.completed;
-    const result = parseReceipt(completed.stdout);
+    const { stdout } = await exec(
+      process.execPath,
+      [launcher, "await-revision", directory, sha],
+      { env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage } },
+    );
+    const result = parseReceipt(stdout);
     assert.equal(result.unresolvedReason, "incomplete");
     assert.equal(result.effectiveEvidence.revision.state, "incomplete");
   });

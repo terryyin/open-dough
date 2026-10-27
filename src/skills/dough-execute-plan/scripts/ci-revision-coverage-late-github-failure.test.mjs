@@ -87,11 +87,12 @@ test("a selected workflow with a non-default display name delivers a late failur
     { storage },
   );
 
+  // Modeled polls read fixture settings, independent of this checkout's policy.
   const startWorker = (mailbox, sleep) => {
     const worker = runMailboxWorker(mailbox, {
       storage,
       observe: (request) =>
-        watchCiExecution({ ...request, gh: github.gh, sleep }),
+        watchCiExecution({ ...request, root: storage, gh: github.gh, sleep }),
     });
     deferWorkerStop(teardown, worker, () =>
       requestMailboxStop(mailbox, { storage }),
