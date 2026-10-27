@@ -125,6 +125,33 @@ link, is insufficient: the publication helper restores the old branch, and
 completion/retirement can precede that link's continuation. Correct the checkout
 and ordering together. The existing resolver needs no new satisfaction policy.
 
+## Follow-up Correction
+
+<a id="harden-supplier-visit-trigger-and-settlement"></a>
+
+### Visit consumers of every completed selected story and settle on its last publication
+
+**Identity:** SEED-154#harden-supplier-visit-trigger-and-settlement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/360-harden-supplier-visit-trigger-and-settlement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b516021be0447a0c79f03bb73e8bb63cdf2d1935758a1055a26dbd495cf27b22","plan":"41d2efe8c2c7b46b1ef94d545a7b3f3fc0d8a58f3fc9b5ba92110791d4402759"}}
+```
+
+**Goal:** A developer completing any selected story through Story Branch
+wrap-up, Trunk closure or a selected-work landing gets the current-consumer
+visit without the agent first judging that consumers exist, and Trunk
+completion and retirement cannot skip the last consumer publication's CI
+completion. This bounded correction follows the execution retrospective of
+[the selected story above](#reconcile-current-consumers-after-supplier-integration);
+it adds no feature promise.
+
+**Scope:** Make every completion entry point pass the completed selected work's
+identity to the existing visit, let Trunk `finish` continue in one call after a
+clean zero-consumer visit, refuse a `--visit-settled` SHA earlier than this
+closure's last registered consumer publication, name one completion target in
+guidance, and resolve the small cleanup findings the plan lists. The selected
+story's promises and exclusions stay unchanged. Findings, proof and decisions
+live in [the correction plan](../slice-plans/360-harden-supplier-visit-trigger-and-settlement/PLAN.md).
+
 ## Preserved Investigation Evidence
 
 ### Verified Pygardon history

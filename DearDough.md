@@ -353,6 +353,18 @@ Former local code: DD-331. The mandatory per-slice source-only review repeats un
 
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-326.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-326.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
+Existing shared finding: this execution adds a reuse occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+- Execution: SEED-154#reconcile-current-consumers-after-supplier-integration (plan 359, first implementation commit cc9f858f62a2949b35a3c7587e529a85f6cc07e4)
+  - Timestamp: unknown (2026-10-27, slice 2 acceptance before commit `a8c05e46`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72 (installed)
+  - Evidence: slice 1 acceptance launched one fresh source-only reviewer (about 42k tokens, one tool use) on the unchanged seed's Goal/Scope/Boundary/exclusions/examples; slice 2 acceptance reused its 25 returned commitments instead of launching a second reviewer, although `wrap-up.md#accept-proof` says "For each slice, obtain a source-only review"; slice 2's mapping relied on commitments 16, 21 and 22
+  - Observed effect: no second reviewer cost; the source had no amendment between the slices, so a repeat could only have restated the same input. Slice 2's acceptance found and closed two gaps (worktree-absent visit stop, ended-observer settlement) through ordinary return inspection, not through the source review.
+  - Inference: qualified. The reuse departed from the written per-slice rule; whether a second, independently sampled review would have surfaced a different commitment stays unmeasured.
+
 ## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
 
 Former local code: DD-332. Preparation schedules evaluation criteria as later execution while the observed event can start first, making the resulting assessment exploratory.
@@ -420,6 +432,14 @@ The guarded fresh delivery runs each preparation operation directly without a sh
   - Evidence: guarded fresh delivery returned `preparation-failed`, `operation: formatting`, "eslint: not found on PATH ... prettier: not found on PATH" with `["node","scripts/lint.mjs","--fix"]` while `node_modules/.bin/eslint` existed; the retry with `["npm","run","--silent","format"]` was accepted (`cc6d3979`)
   - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
   - Inference: the coordinator had read this finding's two earlier rows only after the failure; the installed `fresh-increment.md` still names no package-script formatter, so the third occurrence followed the same path.
+- Execution: SEED-154#reconcile-current-consumers-after-supplier-integration (plan 359, first implementation commit cc9f858f62a2949b35a3c7587e529a85f6cc07e4)
+  - Timestamp: unknown (2026-10-27, slice 1 delivery shortly before 14:36:34+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72 (installed)
+  - Evidence: guarded fresh delivery returned `preparation-failed`, `operation: formatting`, "eslint: not found on PATH ... prettier: not found on PATH" with `["node","scripts/lint.mjs","--fix"]`; the retry with `["npm","run","--silent","format"]` was accepted (`cc9f858f`)
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+  - Inference: the coordinator chose the script from `package.json`'s `format` entry without reading this finding first; a fourth occurrence with the same cause.
 
 ## DD-339 — Nested-fixture proof missed a real-suite shape, so the artifact misattributed 124 s
 

@@ -363,3 +363,15 @@ Disposition: proved by slice 2: `supplier-trunk-closure-visit-recovery.test.mjs`
 Reported: slice 2 — "The `integrateSelectedSupplier` API with Land's `onFetchedTarget` callback is not separately tested (the CLI path is covered by slice 1)."
 Story clause: "keep supplier-resolution behavior coherent with Trunk Mode and selected-supplier landing"
 Disposition: proved by slice 2: `integrateSelectedSupplier` passes its whole request, including `onFetchedTarget`, unchanged to `publishHistoryPreservingCandidate` and then calls the same `visitSelectedSupplier`; slice 1's `supplier-integration-visit.test.mjs` journey covers that function, and the unchanged callback keeps its existing Land suites (`queued-closure-check`, `dough-land.test.mjs`), rerun in slice 2.
+
+## Execution complete
+
+Product advice: Execute the follow-up correction
+[SEED-154#harden-supplier-visit-trigger-and-settlement](../../seeds/SEED-154-supplier-integration-consumer-reconciliation.md#harden-supplier-visit-trigger-and-settlement)
+(plan 360, ready) before relying on supplier visits: the visit still depends on
+the agent choosing `--supplier-identity`, and Trunk `--visit-settled` accepts
+an earlier SHA than the last consumer publication. Separately, this
+repository's `discover-consumers` reports problems for anchors in SEED-001,
+SEED-010 and SEED-028 without a `### ` heading, so a Trunk supplier visit here
+stops until those homes are repaired; consider a small records fix. No other
+priority change.
