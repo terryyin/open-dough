@@ -80,6 +80,10 @@ Proof: recorded name review (search terms in Current decisions plus "page"/"dash
 
 Behavior: Whole-dashboard review finds no competing or overloaded adopted names. Rename residue and keep existing journeys green.
 
+## Execution complete
+
+Product advice: no change. The adopted vocabulary and independent Board scrolling satisfy the selected story; preserve deferred spatial navigation and existing priorities. Review found no remaining correction or product decision. Actual repaired Linux CI remains the owned completion gate.
+
 ## Plan review
 
 Five cohesive concept/proof groups; Board scrolling is separated from naming and bounded by preparation observation. No original slice-review concern remained.
@@ -89,7 +93,8 @@ Five cohesive concept/proof groups; Board scrolling is separated from naming and
 - Established Story Branch start: `SEED-153#align-dashboard-ui-domain-concepts`, publisher `dashboard-territory.local-open-dough`, agent `bas-chan`.
 - Originating and integration checkout: `/Users/terryyin/git/open-dough`; execution checkout: `/Users/terryyin/git/open-dough/.worktrees/align-the-dashboard-globally-with-its-ui-domain` (existing owned linked worktree), branch `codex/align-the-dashboard-globally-with-its-ui-domain`.
 - Authorized trunk `origin/main`; ordinary delivery targets the origin execution branch. Starting revision `421fbf9e9dbdeb561e4f886a50a06ae2b37c383e`; published claim and initial candidate `3901d3ac8ddd5717744a0af36d53160033595add`. Claim CI is unobserved on trunk.
-- Execution-branch accepted revisions: `801f62c3bb2427ab838588ef2ba48f217ab156f6` (base `3901d3ac8ddd5717744a0af36d53160033595add`), `08b604666d982b7140faab011cfb801aae5a7fe2` (base `801f62c3bb2427ab838588ef2ba48f217ab156f6`), `420f72dc12a441e10e27c4070300ab9c1146a1a4` (base `08b604666d982b7140faab011cfb801aae5a7fe2`), `1f45ec1c2fe7d481a3fc817ea41958c2d4494121` (base `420f72dc12a441e10e27c4070300ab9c1146a1a4`), current published base `08a2c4aa8297fe7c357099880af8a6f5b2f44aff` (base `1f45ec1c2fe7d481a3fc817ea41958c2d4494121`). All formatting/full lint/size/staged-hook/typecheck gates passed; observer reused for each.
+- Execution-branch accepted revisions: `801f62c3bb2427ab838588ef2ba48f217ab156f6` (base `3901d3ac8ddd5717744a0af36d53160033595add`), `08b604666d982b7140faab011cfb801aae5a7fe2` (base `801f62c3bb2427ab838588ef2ba48f217ab156f6`), `420f72dc12a441e10e27c4070300ab9c1146a1a4` (base `08b604666d982b7140faab011cfb801aae5a7fe2`), `1f45ec1c2fe7d481a3fc817ea41958c2d4494121` (base `420f72dc12a441e10e27c4070300ab9c1146a1a4`), slice5 `08a2c4aa8297fe7c357099880af8a6f5b2f44aff` (base `1f45ec1c2fe7d481a3fc817ea41958c2d4494121`). All formatting/full lint/size/staged-hook/typecheck gates passed; observer reused for each.
+- Current published base/CI repair: `bdfdfb409949d7b5bf145a95dfa0b44443a57097`, suffix08a2; final observer reused.
 - Checkout readiness: Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser`, `check`, then `npm run typecheck:dashboard` passed in this checkout. Selective formatting is `PATH=/opt/homebrew/bin:$PATH npm run format`; `.githooks/pre-commit` is check-only staged lint and script-triggered dashboard typecheck.
 - CI observer: GitHub Actions `terryyin/open-dough`, execution branch, selector `ci.yml` (verified active, display name `CI`); replacement coordinator `seed153-codex-final`, live directory `/tmp/dough-ci-501/watch-XrEojj`, PID55840, PTY13757, yielded cell220, checkout as above. Prior8HHXKr ended finished after08:11 GitHub read failure; PID3898 absent, native delivered events2/ack2 recovered (not CI success). Workflow readiness reverified; managed resume of08a2 accepted with pushCount0 and recovered observation. No publication repeated.
 - Settled size decision: Terry rejected an exception on2026-10-27 (“no. Make it shorter.”); coherently shorten all touched files to<=250. Original observer `/tmp/dough-ci-501/watch-SEWXXM` stopped for that judgment (unread0, recorded/delivered0, PID51741 absent); current rearmed observer is named above. This is historical, not an active stop.
