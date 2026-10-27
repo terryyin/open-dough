@@ -17,7 +17,7 @@ import {
   storyReviewEndpoint,
   storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { reviewBody } from "./support/reviewContextLine.ts";
 import {
@@ -32,7 +32,7 @@ import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
   keptStoryAMark,
   markReviewed,
-  openReview,
+  openStoryReview,
   reviewRegion,
   uncommittedCheck as check,
   uncommittedLeftOut as leftOut,
@@ -75,7 +75,7 @@ test("the check leaves uncommitted changes out of all changes and back without r
   const { workspace } = storyWorktreeEditedAgain(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   const whole = review.getByRole("list", { name: "7 changed files" });
   const diff = review.getByRole("region", { name: "Added story.txt" });
@@ -128,7 +128,7 @@ test("the selected file stays selected while the committed files list it, and ot
   const { workspace } = storyWorktreeEditedAgain(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   const expectSelected = (name: string) => expectFileSelected(review, name);
 
@@ -156,7 +156,7 @@ test("a worktree without uncommitted changes offers no check", async ({
   const { workspace } = nestedWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const snapshot = await openReview(page, card);
+  const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await expect(
     review.getByRole("list", { name: "6 changed files" }),
@@ -174,7 +174,7 @@ test("with nothing committed, the check off says so, lists no files, and stays t
   writeFileSync(path.join(workspace, "wip.txt"), "work in progress\n");
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   const whole = review.getByRole("list", { name: "1 changed file" });
   await expect(whole).toBeVisible();
@@ -203,7 +203,7 @@ test("Mark reviewed with the check off marks the whole snapshot, and the review 
   const { workspace } = storyWorktreeEditedAgain(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const shown = await openReview(page, card);
+  const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await check(review).uncheck();
   const committed = review.getByRole("list", { name: "4 changed files" });

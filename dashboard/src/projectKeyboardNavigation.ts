@@ -80,7 +80,7 @@ function isArrowOperatedControl(target: EventTarget | null): boolean {
   const role = target.getAttribute("role");
   return (
     role === "slider" ||
-    // A focusable separator, as the side panel's resize edge.
+    // A focusable separator, as the Panel divider.
     role === "separator" ||
     role === "spinbutton" ||
     role === "listbox" ||

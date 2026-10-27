@@ -1,4 +1,4 @@
-// Command+Shift+Escape closes the terminal panel page-wide, from inside the
+// Command+Shift+Escape closes the terminal page-wide, from inside the
 // terminal and maximized too, as its Close control does: the panel hides, the
 // session keeps running and is not marked done, the keyboard returns to the
 // control that opened it, and reopening shows the split. Plain Escape in the
@@ -41,7 +41,7 @@ const queued = {
   backlog: [takenStory, readyStory, notRefinedStory],
 };
 
-test.describe("Command+Shift+Escape and the terminal panel", () => {
+test.describe("Command+Shift+Escape and the terminal", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);

@@ -19,11 +19,11 @@ import { notifyRecordRemoved } from "./launchRecordRemoval.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
-import { withResponseSignal } from "./responseSignal.ts";
+import { launchHostOptionsResponse } from "./launchHostOptionsResponse.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
-import { sessionResultResponse } from "./sessionResultResponse.ts";
+import { finalReportResponse } from "./finalReportResponse.ts";
 import { stopRecordedSession } from "./sessionStop.ts";
 import {
   storyReviewFileResponse,
@@ -126,36 +126,17 @@ export async function answer(
       case "drain":
         await launches.drain();
         return { status: 200, body: { drained: true } };
-      case "host-options": {
-        return await withResponseSignal(res, async (signal) => {
-          try {
-            if (request.host.options === undefined)
-              throw new Error("Host startup choices unavailable.");
-            return {
-              status: 200,
-              body: await request.host.options(signal, request.cwd),
-            };
-          } catch {
-            return {
-              status: 503,
-              body: {
-                error:
-                  request.host.description.modelCatalog?.unreadable ??
-                  `${request.host.name} model choices could not be read.`,
-              },
-            };
-          }
-        });
-      }
-      case "result":
-        return await sessionResultResponse(request, res);
-      case "review":
+      case "host-options":
+        return await launchHostOptionsResponse(request, res);
+      case "final-report":
+        return await finalReportResponse(request, res);
+      case "story-review":
         return await storyReviewResponse(request, res);
-      case "review-file":
+      case "story-review-file":
         return await storyReviewFileResponse(request, res);
-      case "review-range":
+      case "story-review-range":
         return await storyReviewRangeResponse(request, res);
-      case "review-mark":
+      case "story-review-mark":
         return await markReviewedResponse(request);
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };

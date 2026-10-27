@@ -53,7 +53,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     name: "Story A",
     exact: true,
   });
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
 
   // While the integrated workspace remains, the review opens on it and the
   // Comparison switch lists the integration and the earlier one-shot run.

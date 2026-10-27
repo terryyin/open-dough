@@ -117,7 +117,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(
         pygardonStoryCard.getByText("Shown in terminal"),
       ).toBeVisible();
-      await expect(entries.and(page.locator(".in-terminal"))).toHaveCount(1);
+      await expect(entries.and(page.locator(".in-side-panel"))).toHaveCount(1);
       await expect(sidebar).toBeVisible();
       await expect(button).toHaveAttribute("aria-expanded", "true");
       expect(await keyboardInside(page, "Terminal")).toBe(true);
@@ -174,7 +174,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
-      await expect(page.locator(".in-terminal")).toHaveCount(0);
+      await expect(page.locator(".in-side-panel")).toHaveCount(0);
       await expect(sidebar.locator("[aria-current]")).toHaveCount(0);
       await expect(entry(readyStory)).toBeFocused();
     });

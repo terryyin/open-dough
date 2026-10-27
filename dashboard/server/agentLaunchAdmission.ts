@@ -1,8 +1,8 @@
-// Local launch admission for launches, continuations, reconciliation,
-// verification, recover, and session actions. Delete, terminal attach, and
-// native Done need a folder; Done/read marks need only the session. Reviews use
-// the review workspace. Reads cover attempts, sessions, reports, hosts,
-// reviews, and Cursor held sessions (terminal admission alone reads natives).
+// Local admission for launch, continuation, reconciliation, verification,
+// recovery and session actions. Delete/attach/native Done need a folder;
+// Done/read marks need only a session. Story reviews use the review workspace.
+// Reads cover attempts, sessions, reports, hosts, story reviews and held Cursor
+// sessions; only terminal admission reads natives.
 
 import {
   landingEndpoint,
@@ -16,23 +16,23 @@ import {
 } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
-import { sessionResultEndpoint } from "../src/sessionResult.ts";
+import { finalReportEndpoint } from "../src/finalReportContract.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import {
   fileDiffRequest,
   markReviewedRequest,
-  reviewRequest,
+  storyReviewRequest,
   rangeRequest,
   type AdmittedFileDiff,
-  type AdmittedReview,
-  type AdmittedReviewRange,
+  type AdmittedStoryReview,
+  type AdmittedStoryReviewRange,
 } from "./storyReviewAdmission.ts";
-import type { AdmittedReviewMark } from "./storyReviewMarks.ts";
+import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
@@ -74,20 +74,20 @@ import {
   stopRequest,
 } from "./sessionAdmission.ts";
 import {
-  resultRequest,
-  type AdmittedResult,
-} from "./sessionResultAdmission.ts";
+  finalReportRequest,
+  type AdmittedFinalReport,
+} from "./finalReportAdmission.ts";
 
 export type Admitted =
   | { readonly kind: "sessions" }
   | { readonly kind: "drain" }
   | { readonly kind: "cursor-sessions" }
   | AdmittedHostOptions
-  | AdmittedResult
-  | AdmittedReview
-  | AdmittedReviewRange
+  | AdmittedFinalReport
+  | AdmittedStoryReview
+  | AdmittedStoryReviewRange
   | AdmittedFileDiff
-  | AdmittedReviewMark
+  | AdmittedStoryReviewMark
   | AdmittedChanged
   | {
       // Answered once the launch is accepted.
@@ -199,8 +199,8 @@ const postRequests = new Map<
 // The reads only a GET may make with exactly their parameters, by path.
 const exactReads = new Map<string, (url: URL) => Admitted | Promise<Admitted>>([
   [agentChangedEndpoint, changedRequest],
-  [sessionResultEndpoint, resultRequest],
-  [storyReviewEndpoint, reviewRequest],
+  [finalReportEndpoint, finalReportRequest],
+  [storyReviewEndpoint, storyReviewRequest],
   [storyReviewFileEndpoint, fileDiffRequest],
   [storyReviewRangeEndpoint, rangeRequest],
 ]);

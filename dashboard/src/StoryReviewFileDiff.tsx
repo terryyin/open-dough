@@ -1,5 +1,5 @@
 // The diff of one file a story review lists, read within the review's
-// snapshot (`./storyReview.ts`) from its *from* tree in the comparison shown:
+// snapshot (`./storyReviewContract.ts`) from its *from* tree in the comparison shown:
 // lines marked `+` added and `-` removed in hunks whose long lines scroll
 // within the diff, each beside its old and new line numbers, or that the
 // file has no textual diff.
@@ -10,7 +10,7 @@ import {
   storyReviewFileEndpoint,
   type ReviewedFile,
   type ReviewedFileDiff,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import {
   parsedUnifiedDiff,
   type DiffLine,

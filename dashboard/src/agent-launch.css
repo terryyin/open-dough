@@ -2,8 +2,8 @@
    Recently done: ./recently-done.css. A noted Start keeps its accent, dashed
    edge and tooltip (./icon-control.css); quiet gray means disabled. */
 
-/* In the card's launch group (story-cards.css), a Start's answer takes a line of
-   its own right below it, before the next Start. */
+/* In story-cards.css's launch group, each Start's answer has its own line
+   directly below that Start and before the next. */
 .story-card-launch-group > .start-launch {
   display: contents;
 }
@@ -128,14 +128,14 @@
 
 /* "Shown in terminal" identifies the selected session. Its card or standalone
    entry also uses the selection outline; every card has the accent left edge. */
-.story-card.in-terminal,
-.recently-done .session-entry.in-terminal,
-.column > .story-cards > li > .session-entry.in-terminal {
+.story-card.in-side-panel,
+.recently-done .session-entry.in-side-panel,
+.column > .story-cards > li > .session-entry.in-side-panel {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-.shown-in-terminal {
+.shown-session-content {
   font-weight: 600;
   color: var(--accent);
 }

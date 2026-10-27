@@ -1,6 +1,6 @@
 // In a window up to 800 CSS pixels wide (../src/sidePanelWidth.ts,
 // ../src/side-panel.css) the side panel stacks above the page with no resize
-// edge, whether it shows the terminal or a review, is read whole without
+// divider, whether it shows the terminal or a review, is read whole without
 // sideways scrolling, and keeps the width chosen on a wide window for when
 // the window is wide again. A narrow desktop window is that side of the
 // query with the least room; a 200% zoomed window lies on the same side. The
@@ -19,7 +19,7 @@ import {
 } from "./pageLayout.ts";
 import {
   control,
-  dragEdge,
+  dragDivider,
   expectWidth,
   scrollsOnItsOwn,
   split,
@@ -29,12 +29,12 @@ import {
 } from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 
-test("at a narrow window the panel stacks above the page with no edge, and a wide window recovers the chosen width", async ({
+test("at a narrow window the panel stacks above the page with no divider, and a wide window recovers the chosen width", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { card, terminal, review, edge } = await storyAWithSession(
+  const { card, terminal, review, divider } = await storyAWithSession(
     page,
     dashboard,
     origin,
@@ -46,7 +46,7 @@ test("at a narrow window the panel stacks above the page with no edge, and a wid
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   const room = await split(page, terminal);
   const chosen = Math.floor(room.dashboard + room.panel - usableMinimum);
-  await dragEdge(page, -2000);
+  await dragDivider(page, -2000);
   await expectWidth(terminal, chosen);
 
   for (const [panel, open] of [
@@ -68,7 +68,7 @@ test("at a narrow window the panel stacks above the page with no edge, and a wid
     await open();
     await expectWidth(panel, chosen);
     await page.setViewportSize(narrowWindow);
-    await expect(edge).toHaveCount(0);
+    await expect(divider).toHaveCount(0);
     await expectStackedInOrder([panel, page.locator(".page-column")]);
     expect((await box(panel)).width).toBeCloseTo(
       await page.evaluate(() => document.documentElement.clientWidth),
@@ -91,6 +91,6 @@ test("at a narrow window the panel stacks above the page with no edge, and a wid
     await expectFocusedAndIndicated(page, close);
     await page.setViewportSize(wideWindow);
     await expectWidth(panel, chosen);
-    await expect(edge).toBeVisible();
+    await expect(divider).toBeVisible();
   }
 });

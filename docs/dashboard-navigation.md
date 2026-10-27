@@ -58,8 +58,8 @@ load, its header alone below the list, which fills the rest of the sidebar.
 Expanding it with the mouse or keyboard gives the session list and the
 section's content an equal share of the room the heading and headers leave,
 each scrolling on its own; collapsing returns that room to the session list
-and leaves the keyboard on the header. The edge between the two lists is a
-focusable, horizontal separator named **Resize Running Cursor sessions** that
+and leaves the keyboard on the header. The divider between the two lists is a
+focusable, horizontal separator named **Running Cursor sessions divider** that
 says the section's content height in pixels and its bounds: dragging it, or
 Up (taller) and Down (shorter) by 2rem while it holds the keyboard, changes
 one preferred height, and a drag ends when released, wherever the pointer is,
@@ -72,7 +72,7 @@ a reload the section starts collapsed, and expanding it recovers that height.
 Where the browser keeps none, refuses storage, or keeps an unusable value, the
 two lists start at an equal share and still resize for the page's lifetime.
 Where the window is too short or zoomed for
-both lists to keep 8rem, the edge offers no range, and the sidebar itself
+both lists to keep 8rem, the divider offers no range, and the sidebar itself
 scrolls, keeping both lists and the header in reach; a height the room
 imposes never replaces the preferred one, so more room recovers it. Expanding,
 collapsing, or resizing it is page state only.
@@ -81,11 +81,10 @@ shows its project's stories through the same project selection and URL
 history as a project choice, as one history entry, opens its session in the
 terminal with the keyboard there, or opens the read-only final report when a
 Codex saved workspace is missing or cannot be established, and brings its story's card into view once
-that project's stories are read. The page's one right-side panel shows one
-item at a time: a session's terminal, a read-only final report, or a story's
-review opened by **Review changes** on its card; opening one replaces the
-other, and the dashboard beside it stays usable. Its left edge is a
-focusable, named separator that says the panel's width in pixels: dragging it,
+that project's stories are read. The page's one Side panel shows one
+item at a time: a session's terminal, a read-only final report, or a story review opened by **Review changes** on its card; opening one replaces the
+other, and the dashboard beside it stays usable. The **Panel divider** is a
+focusable separator that says the panel's width in pixels: dragging it,
 or Left (wider) and Right (narrower) while it holds the keyboard, changes one
 preferred width shared by every panel content, kept across closing, the
 Sessions sidebar and Maximize/Restore, and starting at half the room. That
@@ -96,7 +95,7 @@ page's lifetime. A width the room or Maximize imposes never replaces it.
 Neither the panel nor the dashboard becomes narrower than 20rem, measured in
 the room beside the open sidebar; where that room cannot
 hold both, or the window is 800px wide or narrower, the panel stacks above
-the dashboard and offers no edge, as it does while maximized, and more room
+the dashboard and offers no Panel divider, as it does while maximized, and more room
 recovers the preferred width. Command+Shift+Escape closes
 the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes

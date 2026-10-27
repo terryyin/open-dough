@@ -6,7 +6,7 @@ import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 
 test("delayed run and file responses leave the later run selected through narrow layout and panel controls", async ({
   page,
@@ -22,7 +22,7 @@ test("delayed run and file responses leave the later run selected through narrow
     codexProtocol,
   );
   const { card } = await openCapturedReview(page, origin);
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const radio = review.getByRole("radio", { name: "Landed runs" });
   const select = review.getByRole("listbox", { name: "Landed run" });
   const heldRun = await holdNextReviewResponse(
@@ -75,12 +75,12 @@ test("delayed run and file responses leave the later run selected through narrow
     heldFile.release();
     await heldFile.delivery;
   }
-  const edge = review.getByRole("separator", { name: "Resize panel" });
-  await expect(edge).toBeVisible();
-  const width = Number(await edge.getAttribute("aria-valuenow"));
-  await edge.focus();
+  const divider = review.getByRole("separator", { name: "Panel divider" });
+  await expect(divider).toBeVisible();
+  const width = Number(await divider.getAttribute("aria-valuenow"));
+  await divider.focus();
   await page.keyboard.press("ArrowLeft");
-  await expect(edge).toHaveAttribute("aria-valuenow", String(width + 32));
+  await expect(divider).toHaveAttribute("aria-valuenow", String(width + 32));
   await expect(select).toHaveValue(first.key);
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",

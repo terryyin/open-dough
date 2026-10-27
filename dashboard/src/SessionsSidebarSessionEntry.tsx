@@ -13,7 +13,7 @@ import { sessionKey } from "./sessionReference.ts";
 // reveals those same facts, the full title and story identity before opening.
 // The entry's Open control is named by its title; opening goes to its story
 // and session (`./PageFrame.tsx`). It is current, and outlined, while the
-// page's session panel shows its session.
+// Side panel shows its session.
 
 import { useId } from "react";
 import { ChevronRight, MessageSquareText } from "lucide-react";
@@ -65,7 +65,7 @@ export function SessionsSidebarSessionEntry({
   ];
   return (
     <li
-      className={`${entryClass} sessions-sidebar-session-entry tone-${tone}${unreadReportWords === undefined ? "" : " has-unread-report"}${current ? " in-terminal" : ""}`}
+      className={`${entryClass} sessions-sidebar-session-entry tone-${tone}${unreadReportWords === undefined ? "" : " has-unread-report"}${current ? " in-side-panel" : ""}`}
     >
       <button
         type="button"

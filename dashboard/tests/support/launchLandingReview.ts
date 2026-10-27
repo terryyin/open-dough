@@ -4,7 +4,7 @@ import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
-} from "../../src/storyReview.ts";
+} from "../../src/storyReviewContract.ts";
 
 // The review the server answers once `control` is activated.
 export async function reviewAfter(page: Page, control: Locator) {

@@ -8,14 +8,17 @@ import {
 } from "./agentLaunch.ts";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import {
-  sessionResultEndpoint,
-  sessionResultSchema,
-  type SessionResult,
-} from "./sessionResult.ts";
+  finalReportEndpoint,
+  finalReportSchema,
+  type FinalReportRead,
+} from "./finalReportContract.ts";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import { workspaceLimitation } from "./sessionAccess.ts";
 import { sessionDoneMeaning } from "./sessionShown.ts";
-import { closeShortcutLabel, usePanelCloseShortcut } from "./PanelControls.tsx";
+import {
+  sidePanelCloseShortcutLabel,
+  useSidePanelCloseShortcut,
+} from "./SidePanelControls.tsx";
 import {
   doneAnswers,
   notMarkedDone,
@@ -24,12 +27,12 @@ import {
   type MarkSessionDone,
   type SessionRequest,
 } from "./pageSessions.ts";
-import { SidePanelEdge } from "./SidePanelEdge.tsx";
+import { PanelDivider } from "./PanelDivider.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
-import "./session-result.css";
+import "./final-report.css";
 
-export function SessionResultPanel({
+export function FinalReport({
   session,
   current,
   onClose,
@@ -43,35 +46,35 @@ export function SessionResultPanel({
 }) {
   const { record } = session;
   const { hostOperations } = usePageSessions();
-  const [result, setResult] = useState<SessionResult | undefined>();
+  const [finalReport, setFinalReport] = useState<FinalReportRead | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
-  usePanelCloseShortcut(onClose);
+  useSidePanelCloseShortcut(onClose);
   useEffect(() => {
     const controller = new AbortController();
     let current = true;
-    setResult(undefined);
+    setFinalReport(undefined);
     const query = new URLSearchParams({
       source: record.request.source,
       host: record.session.host,
       session: record.session.sessionId,
     });
-    void fetch(`${sessionResultEndpoint}?${query}`, {
+    void fetch(`${finalReportEndpoint}?${query}`, {
       signal: controller.signal,
       cache: "no-store",
     })
       .then(async (response) => {
-        if (!response.ok) throw new Error("Result read refused");
-        return sessionResultSchema.parse(await response.json());
+        if (!response.ok) throw new Error("Final report read refused");
+        return finalReportSchema.parse(await response.json());
       })
       .then((answer) => {
-        if (current) setResult(answer);
+        if (current) setFinalReport(answer);
       })
       .catch(() => {
         if (current)
-          setResult({
+          setFinalReport({
             kind: "unavailable",
             explanation:
               "The final report could not be read. The saved conversation is unchanged.",
@@ -92,12 +95,9 @@ export function SessionResultPanel({
   }, []);
   const { title, name } = launchSubject(record.request);
   return (
-    <section
-      className="side-panel session-result-panel"
-      aria-label="Final report"
-    >
-      <SidePanelEdge />
-      <div className="session-result-scroll">
+    <section className="side-panel final-report" aria-label="Final report">
+      <PanelDivider />
+      <div className="final-report-scroll">
         <header className="side-panel-header">
           <div className="side-panel-names">
             <h2>{title}</h2>
@@ -124,7 +124,7 @@ export function SessionResultPanel({
               type="button"
               className="frame-button"
               onClick={onClose}
-              title={`Close (${closeShortcutLabel})`}
+              title={`Close (${sidePanelCloseShortcutLabel})`}
             >
               Close
             </button>
@@ -137,7 +137,7 @@ export function SessionResultPanel({
             placed="side-panel-question"
           />
         )}
-        <div ref={report} className="session-result-body" tabIndex={-1}>
+        <div ref={report} className="final-report-body" tabIndex={-1}>
           <p>
             Read-only final report. Reading it does not continue or mark the
             session done.
@@ -150,14 +150,14 @@ export function SessionResultPanel({
           <div role="status">
             {marking === "marking" && <p>Marking as done…</p>}
             {marking === "not-marked" && <p>{notMarkedDone}</p>}
-            {result === undefined && <p>Reading final report…</p>}
-            {result?.kind === "unavailable" && (
+            {finalReport === undefined && <p>Reading final report…</p>}
+            {finalReport?.kind === "unavailable" && (
               <>
-                <p>{result.explanation}</p>
+                <p>{finalReport.explanation}</p>
                 <button
                   type="button"
                   onClick={() => {
-                    setResult(undefined);
+                    setFinalReport(undefined);
                     setAttempt((previous) => previous + 1);
                   }}
                 >
@@ -166,8 +166,8 @@ export function SessionResultPanel({
               </>
             )}
           </div>
-          {result?.kind === "available" && (
-            <pre className="session-final-report">{result.text}</pre>
+          {finalReport?.kind === "available" && (
+            <pre className="final-report-text">{finalReport.text}</pre>
           )}
         </div>
       </div>

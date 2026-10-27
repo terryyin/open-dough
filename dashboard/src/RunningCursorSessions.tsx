@@ -1,6 +1,6 @@
 // Running Cursor sessions, a collapsible section of the Sessions sidebar
 // below its session list (`./SessionsSidebar.tsx`, which keeps whether it is
-// expanded), opened without opening a terminal. Expanded, the sidebar's edge
+// expanded), opened without opening a terminal. Expanded, the sidebar's divider
 // that resizes it lies along its top, its content scrolls on its own, and it
 // says whether the Cursor runner is running. Each row is one session that
 // runner holds: the project, what was started, and one label from that
@@ -51,7 +51,7 @@ export function RunningCursorSessions({
   onToggle,
   records,
   onOpen,
-  edge,
+  divider,
 }: {
   // Whether the Sessions sidebar itself is open. The list is read only then.
   readonly shown: boolean;
@@ -60,11 +60,11 @@ export function RunningCursorSessions({
   readonly onToggle: () => void;
   readonly records: readonly LaunchWithState[] | undefined;
   readonly onOpen: OpenSessionsSidebarSessionEntry;
-  // The edge between this section and the session list, while expanded.
-  readonly edge: ReactNode;
+  // The divider between this section and the session list, while expanded.
+  readonly divider: ReactNode;
 }) {
   const projects = useProjects();
-  const panelId = useId();
+  const contentId = useId();
   const [listed, setListed] = useState<Listed | undefined>();
   useEffect(() => {
     if (!shown || !open) return;
@@ -94,12 +94,12 @@ export function RunningCursorSessions({
       className="running-cursor-sessions"
       aria-label="Running Cursor sessions"
     >
-      {open && edge}
+      {open && divider}
       <button
         type="button"
         className="running-cursor-toggle"
         aria-expanded={open}
-        aria-controls={panelId}
+        aria-controls={contentId}
         onClick={() => {
           setListed(undefined);
           onToggle();
@@ -108,7 +108,7 @@ export function RunningCursorSessions({
         Running Cursor sessions
       </button>
       {open && (
-        <div id={panelId} className="running-cursor-body">
+        <div id={contentId} className="running-cursor-body">
           <p className="quiet">{runnerSentence(listed)}</p>
           {sessions.length > 0 && (
             <ul>

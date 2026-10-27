@@ -32,7 +32,7 @@ export async function markLocallyDone(
   return answerLocalDone(page, entry, entry);
 }
 
-// Marks the session done from its open terminal panel's header Mark as
+// Marks the session done from its open terminal's header Mark as
 // done, through the same local-only ask-first question, and returns the
 // Recently done entry.
 export async function markLocallyDoneFromPanel(

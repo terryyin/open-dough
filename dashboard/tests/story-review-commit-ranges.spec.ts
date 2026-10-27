@@ -4,7 +4,7 @@ import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
+import { openStoryReview, reviewRegion } from "./support/storyReviewMark.ts";
 import { olderGit } from "./support/storyReviewOlderGit.ts";
 import { observed, storyWorktree } from "./support/storyReviewWorktree.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
@@ -17,7 +17,7 @@ test("two ends select three commits in either direction, reset to one, and survi
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
   await keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openReview(page, await openBacklog(page, origin));
+  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
   const rows = review
@@ -83,7 +83,7 @@ olderGit(
   async ({ page, dashboard, origin }) => {
     const { workspace } = storyWorktree(origin);
     await keepLaunchRecord(dashboard, workspace);
-    await openReview(page, await openBacklog(page, origin));
+    await openStoryReview(page, await openBacklog(page, origin));
     const review = reviewRegion(page);
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
     const rows = review

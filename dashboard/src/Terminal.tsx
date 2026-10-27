@@ -1,17 +1,17 @@
-// The page's one terminal: the right-hand panel showing one native
+// The page's one terminal, showing one native
 // session this dashboard launched, attached through the terminal boundary
 // (`./agentTerminal.ts`) for as long as the panel shows it. What the session
 // prints appears in the terminal, what the developer types goes to the
 // session, and the terminal's size follows the panel. Its toolbar names the
 // session, led by the portrait of the agent its record names, if it has one,
-// and, by the panel's icon controls on the right (`./PanelControls.tsx`),
+// and, by the panel's icon controls on the right (`./SidePanelControls.tsx`),
 // maximizes or restores the panel and closes it, while plain Escape still
 // goes to the session; closing it, or opening another session or a story
 // review in its place, detaches only, so the session keeps running. When
 // the connection drops, as when the dashboard server restarts, the panel
 // says so and offers to reconnect; when the attached CLI exits on its own,
 // it says the terminal ended and offers to open it again. Either attaches to
-// the same session anew. The terminal, and the panel's edge around it, show
+// the same session anew. The terminal, and the Side panel's border around it, show
 // the theme saved in System settings.
 // Each attachment reports native readiness; startup decisions remain interactive.
 // Where supported, Mark as done asks the boundary to finish this session, or,
@@ -32,9 +32,9 @@ import {
 } from "react";
 import { CircleCheck } from "lucide-react";
 import { marksRecordDone } from "./sessionCapabilities.ts";
-import { PanelControls } from "./PanelControls.tsx";
+import { SidePanelControls } from "./SidePanelControls.tsx";
 import "@xterm/xterm/css/xterm.css";
-import { SidePanelEdge } from "./SidePanelEdge.tsx";
+import { PanelDivider } from "./PanelDivider.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
 import "./side-panel.css";
@@ -85,7 +85,7 @@ const endings = {
   failed: { says: "The session could not be attached", action: "Reconnect" },
 } as const;
 
-export function TerminalPanel({
+export function Terminal({
   session,
   current,
   onAttached,
@@ -159,7 +159,7 @@ export function TerminalPanel({
   const { background } = terminalPalette(useShownTerminalTheme());
   return (
     <section className="side-panel" aria-label="Terminal">
-      <SidePanelEdge />
+      <PanelDivider />
       <header className="side-panel-header">
         <div ref={identity} className="terminal-identity">
           {agentName !== undefined && (
@@ -187,7 +187,7 @@ export function TerminalPanel({
               }}
             />
           )}
-          <PanelControls
+          <SidePanelControls
             maximized={maximized}
             onMaximize={onMaximize}
             onClose={onClose}

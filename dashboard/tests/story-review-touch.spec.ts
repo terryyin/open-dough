@@ -1,7 +1,7 @@
 // Real worktree comparisons at touch sizes retain the chosen file and reading
 // position while the existing panes, comparison controls and panel change room.
 import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { expectSettledPage } from "./dashboardPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
 import { expect, test } from "./support/preparationPage.ts";
@@ -58,7 +58,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const action = card.getByRole("button", { name: "Review changes" });
       await action.scrollIntoViewIfNeeded();
       await tapWhereShown(action);
-      const review = page.getByRole("region", { name: "Review changes" });
+      const review = page.getByRole("region", { name: "Story review" });
       await expect(reviewBody(review)).toBeFocused();
       const browser = fileBrowser(review);
       await expect(

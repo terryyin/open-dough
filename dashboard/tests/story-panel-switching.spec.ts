@@ -11,7 +11,7 @@
 // `claude` is never reached.
 
 import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
@@ -71,7 +71,7 @@ test("review and terminal take turns in the one side panel beside a usable dashb
   const sidebar = sessionsSidebarParts(page);
   const items = panelItems(page);
   const terminal = page.getByRole("region", { name: "Terminal" });
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const rows = terminal.locator(".xterm-rows");
   const reviewOf = (card: Locator) =>
     card.getByRole("button", { name: "Review changes" });
@@ -106,7 +106,7 @@ test("review and terminal take turns in the one side panel beside a usable dashb
     await expect(review.getByRole("heading", { level: 2 })).toHaveText(
       "Story B",
     );
-    await expect(review).toContainText(`Review changes ${otherQueuedIdentity}`);
+    await expect(review).toContainText(`Story review ${otherQueuedIdentity}`);
     await expect(
       review
         .getByRole("list", { name: "1 changed file" })
@@ -124,7 +124,7 @@ test("review and terminal take turns in the one side panel beside a usable dashb
       .toBe(true);
     // A review is no session: no session entry is marked as shown.
     await expect(shownMark).toHaveCount(0);
-    await expect(cardA).not.toHaveClass(/in-terminal/);
+    await expect(cardA).not.toHaveClass(/in-side-panel/);
     expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
   });
 

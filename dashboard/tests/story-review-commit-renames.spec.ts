@@ -4,7 +4,7 @@ import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
+import { openStoryReview, reviewRegion } from "./support/storyReviewMark.ts";
 import { markedWorktree, sixth } from "./support/storyReviewTrunk.ts";
 import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
 import { treeRows } from "./support/reviewTreeRows.ts";
@@ -32,7 +32,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
   commitAll(story.workspace, "rename d to e");
 
   await keepLaunchRecord(dashboard, story.workspace);
-  const snapshot = await openReview(page, await openBacklog(page, origin));
+  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   expect(snapshot.commits.map(({ subject }) => subject)).toEqual([
     "rename d to e",
     "merge trunk with renamed conflict",

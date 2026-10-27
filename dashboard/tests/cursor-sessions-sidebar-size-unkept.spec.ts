@@ -7,7 +7,7 @@
 import {
   expandCrowded,
   expectCollapsed,
-  expectEdgeSays,
+  expectDividerSays,
   expectSplit,
   heightKey,
   keepInBrowser,
@@ -36,7 +36,7 @@ test("an unusable kept height starts at an equal share, is not replaced by expan
     origin,
     cursor,
   );
-  const { sidebar, header, edge, entries } = shown;
+  const { sidebar, header, divider, entries } = shown;
   const room = await roomOf(shown);
   const half = Math.round(room / 2);
   for (const unusable of ["tall", "", "0", "-240", "Infinity", "NaN"]) {
@@ -46,20 +46,20 @@ test("an unusable kept height starts at an equal share, is not replaced by expan
       await expect(sidebar).toBeVisible();
       await expectCollapsed(shown);
       await header.click();
-      await expectEdgeSays(edge, half);
+      await expectDividerSays(divider, half);
       await expectSplit(shown, room, half);
       expect(await keptHeight(page)).toBe(unusable);
     });
   }
 
-  await edge.focus();
+  await divider.focus();
   await press(page, "ArrowDown", 2);
   const chosen = half - 2 * keyStep;
   await expectSplit(shown, room, chosen);
   expect(await keptHeight(page)).toBe(String(chosen));
   await page.reload();
   await header.click();
-  await expectEdgeSays(edge, chosen);
+  await expectDividerSays(divider, chosen);
   await expectSplit(shown, room, chosen);
   // Both lists are whole throughout.
   await expect(entries).toHaveCount(crowd + 1);
@@ -92,17 +92,17 @@ test("where the browser refuses storage, the lists start at an equal share and r
     cursor,
   );
   await expect(keptHeight(page)).rejects.toThrow("Storage is refused.");
-  const { sidebar, button, header, edge, entries } = shown;
+  const { sidebar, button, header, divider, entries } = shown;
   const room = await roomOf(shown);
   const half = Math.round(room / 2);
-  await expectEdgeSays(edge, half);
+  await expectDividerSays(divider, half);
   await expectSplit(shown, room, half);
 
-  await edge.focus();
+  await divider.focus();
   await press(page, "ArrowUp", 3);
   const chosen = half + 3 * keyStep;
   const expectChosen = async () => {
-    await expectEdgeSays(edge, chosen);
+    await expectDividerSays(divider, chosen);
     await expectSplit(shown, room, chosen);
     await expect(entries).toHaveCount(crowd + 1);
     await expect(heldRows).toHaveCount(crowd);
@@ -126,7 +126,7 @@ test("where the browser refuses storage, the lists start at an equal share and r
     await button.click();
     await expectCollapsed(shown);
     await header.click();
-    await expectEdgeSays(edge, half);
+    await expectDividerSays(divider, half);
     await expectSplit(shown, room, half);
     await expect(entries).toHaveCount(crowd + 1);
     await expect(heldRows).toHaveCount(crowd);

@@ -1,4 +1,4 @@
-// Passive result requests admit only a catalog project's recorded native identity.
+// Passive final report requests admit only a catalog project's recorded native identity.
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { report, retained, save } from "../support/retainedReport.ts";
@@ -6,7 +6,7 @@ import { completionReport } from "../support/completionReport.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test("result admission refuses unknown projects, unrecorded or wrong-host sessions, hosts without a report reader, arbitrary endpoints and methods before native read", async ({
+test("final report admission refuses unknown projects, unrecorded or wrong-host sessions, hosts without a report reader, arbitrary endpoints and methods before native read", async ({
   dashboard,
   codexProtocol: native,
 }) => {

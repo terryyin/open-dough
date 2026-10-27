@@ -1,4 +1,4 @@
-// The host's passive result contract uses the shape observed from Codex 0.159.3
+// The host's passive final report contract uses the shape observed from Codex 0.159.3
 // after workspace retirement. This vendor substitute is not native proof.
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -70,9 +70,9 @@ async function withNative(
 
 const read = (session: HostSession, signal = AbortSignal.timeout(10_000)) => {
   const boundary = launchHost("codex");
-  if (boundary?.readResult === undefined)
-    throw new Error("Missing Codex result operation");
-  return boundary.readResult(session, signal);
+  if (boundary?.readFinalReport === undefined)
+    throw new Error("Missing Codex final report operation");
+  return boundary.readFinalReport(session, signal);
 };
 
 test("reads the retained completed final report without native control or workspace creation", async () => {
@@ -87,7 +87,7 @@ test("reads the retained completed final report without native control or worksp
       "initialized",
       "thread/read",
     ]);
-    expect(typeof launchHost("claude")?.readResult).toBe("undefined");
+    expect(typeof launchHost("claude")?.readFinalReport).toBe("undefined");
   });
 });
 
@@ -104,7 +104,7 @@ test("rejects wrong native identity or workspace without changing the recorded s
   });
 });
 
-test("refusal, lost connection, or caller cancellation leaves result availability unconfirmed", async () => {
+test("refusal, lost connection, or caller cancellation leaves final report availability unconfirmed", async () => {
   await withNative(async (fixture, session) => {
     const native = fixture;
     native.readError = true;
@@ -123,7 +123,7 @@ test("refusal, lost connection, or caller cancellation leaves result availabilit
   });
 });
 
-test("does not substitute older reports for missing, unrecognized, or unfinished latest results", async () => {
+test("does not substitute older reports for missing, unrecognized, or unfinished latest reports", async () => {
   await withNative(async (fixture, session) => {
     const native = fixture;
     const completed = native.history[0];

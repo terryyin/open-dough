@@ -152,14 +152,14 @@ object IDs and paths, never a filesystem path
 (`server/storyReviewAdmission.ts`, `server/storyReviewSnapshot.ts`).
 
 The review opens in the page's one side panel, beside a dashboard that stays
-usable, not in a modal dialog (`src/StoryReviewPanel.tsx`). It replaces
+usable, not in a modal dialog (`src/StoryReview.tsx`). It replaces
 whatever the panel showed: a terminal detaches without ending or marking its
 session done, and opening a session afterwards replaces the review. Each
 opening, the first or one after Close or replacement, reads a fresh snapshot
 for the project and story it names; a read still pending for an earlier story
 never answers a later one. Review changes for the review already shown moves
 the keyboard into that review and keeps its snapshot; Refresh is the explicit
-re-read. Maximize/Restore and resizing the panel by its edge keep the snapshot
+re-read. Maximize/Restore and the Panel divider keep the snapshot
 and selection without reading again. The
 header names the story and offers Refresh, Maximize/Restore and Close as frame
 icon controls shared with the terminal. Directly beneath the header, the
@@ -167,7 +167,7 @@ review's top stays in place while the panes beneath it scroll. It holds
 the context line, the review's feedback, and, for a snapshot, its marking
 controls: the Comparison switch, the changes since the review's heading, and
 Mark reviewed with what the review says of the mark
-(`src/StoryReviewContextLine.tsx`, `src/StoryReviewPanel.tsx`,
+(`src/StoryReviewContextLine.tsx`, `src/StoryReview.tsx`,
 `src/StoryReviewMark.tsx`). The context line is one line that never wraps:
 branch, the baseline's short revision with the `<remote>/<target>` it meets,
 worktree, and, while the comparison shown lists files, Hide files / Show
@@ -181,7 +181,7 @@ line reads `<short revision> <remote>/<target> less <n> story commits` and the
 full form `<revision> where <branch> meets <remote>/<target>, less the story's
 <n> published commits`. The review's other mentions of the baseline, with no
 changes and after Refresh, name that trunk revision too (`baselineRevision` in
-`src/storyReview.ts`). That the review is read-only is the
+`src/storyReviewContract.ts`). That the review is read-only is the
 review's accessible description, not a visible line. The feedback region,
 beneath the context line, announces reading, refreshing, refreshed, and
 problem messages, and an unavailable review's explanation. A review with no
@@ -229,7 +229,7 @@ a session: it marks no session entry as shown.
 
 Phone and tablet views use those same panes and panel controls. Rotation
 keeps the selected comparison and file and the diff's reading position;
-Maximize/Restore and Hide files/Show files need no resize-edge dragging.
+Maximize/Restore and Hide files/Show files need no Panel divider dragging.
 Long code lines scroll sideways inside the diff, and file names inside the
 browser, without widening the page. A pane's scroll position can be clamped
 when its enlarged view no longer has enough content below that position.

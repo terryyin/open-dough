@@ -65,7 +65,7 @@ workingCursorTest(
 );
 
 workingCursorTest(
-  "Mark as done from the open terminal panel moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
+  "Mark as done from the open terminal moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
     workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);

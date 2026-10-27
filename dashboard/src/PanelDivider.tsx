@@ -1,24 +1,24 @@
-// The side panel's left edge (`./ResizeEdge.tsx`), which resizes it
+// The Panel divider beside the Side panel (`./ResizeDivider.tsx`), which resizes it
 // (`./sidePanelWidth.ts`) in the normal split: dragged with the pointer, or,
 // while it holds the keyboard, with Left, which widens the panel, and Right,
 // which narrows it. Both change the one preferred width within the same
 // bounds, and it says the panel's current width. While the panel is maximized
-// or stacked above the page there is no edge.
+// or stacked above the page there is no divider.
 
-import { ResizeEdge } from "./ResizeEdge.tsx";
-import { useSidePanelEdge } from "./sidePanelWidth.ts";
+import { ResizeDivider } from "./ResizeDivider.tsx";
+import { usePanelDivider } from "./sidePanelWidth.ts";
 
-export function SidePanelEdge() {
-  const edge = useSidePanelEdge();
-  if (edge === undefined) return null;
-  const { width, minimum, maximum, step, choose } = edge;
+export function PanelDivider() {
+  const divider = usePanelDivider();
+  if (divider === undefined) return null;
+  const { width, minimum, maximum, step, choose } = divider;
   return (
-    <ResizeEdge
+    <ResizeDivider
       orientation="vertical"
-      label="Resize panel"
+      label="Panel divider"
       title="Drag, or use Left and Right, to resize the panel"
       valueText={(size) => `${String(size)} pixels wide`}
-      className="side-panel-edge"
+      className="panel-divider"
       range={{ size: width, minimum, maximum, step, choose }}
     />
   );

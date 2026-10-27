@@ -147,7 +147,7 @@
 1.0	boundary/cursor-runner-environment.spec.ts
 0.9	boundary/authenticated-read-done-catalog-gaps.spec.ts
 0.9	boundary/production-qualification.spec.ts
-0.9	boundary/session-result-admission.spec.ts
+0.9	boundary/final-report-admission.spec.ts
 0.8	boundary/agent-launch-change-wait.spec.ts
 0.8	boundary/agent-terminal-close.spec.ts
 0.8	boundary/authenticated-branch-read-boundary.spec.ts
@@ -164,7 +164,7 @@
 0.5	boundary/feedback-maintenance-boundary.spec.ts
 0.5	boundary/openai-configuration-boundary.spec.ts
 0.5	boundary/project-remove-boundary.spec.ts
-0.5	boundary/session-result-codex.spec.ts
+0.5	boundary/final-report-codex.spec.ts
 0.4	boundary/authenticated-read-refusal.spec.ts
 0.4	boundary/launch-attempt-retention.spec.ts
 0.3	boundary/agent-launch-environment.spec.ts

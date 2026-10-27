@@ -6,7 +6,7 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import type { ReviewedFile } from "./storyReview.ts";
+import type { ReviewedFile } from "./storyReviewContract.ts";
 
 export function FileMoves({
   order,

@@ -1,6 +1,6 @@
-// The edge between the Sessions sidebar's two lists as the resize specs meet
+// The divider between the Sessions sidebar's two lists as the resize specs meet
 // it: the held session and the crowded lists (./runningCursorSessionsPage.ts)
-// with the section expanded, the split and what the edge says as shown, and
+// with the section expanded, the split and what the divider says as shown, and
 // the mouse and keys that move it, and the preferred height this browser
 // keeps.
 import type { Locator, Page } from "@playwright/test";
@@ -39,11 +39,11 @@ export const keepInBrowser = (page: Page, key: string, value: string) =>
     [key, value] as const,
   );
 
-// The section is collapsed, showing no content and no edge.
-export async function expectCollapsed({ header, body, edge }: Shown) {
+// The section is collapsed, showing no content and no divider.
+export async function expectCollapsed({ header, body, divider }: Shown) {
   await expect(header).toHaveAttribute("aria-expanded", "false");
   await expect(body).toHaveCount(0);
-  await expect(edge).toHaveCount(0);
+  await expect(divider).toHaveCount(0);
 }
 
 export const heightOf = async (area: Locator) => (await box(area)).height;
@@ -59,26 +59,29 @@ export async function expectSplit(shown: Shown, room: number, height: number) {
   expect(await heightOf(shown.list)).toBeCloseTo(room - height, 0);
 }
 
-export async function expectEdgeSays(edge: Locator, height: number) {
-  await expect(edge).toHaveAttribute("aria-valuenow", String(height));
-  await expect(edge).toHaveAttribute("aria-valuetext", `${height} pixels tall`);
+export async function expectDividerSays(divider: Locator, height: number) {
+  await expect(divider).toHaveAttribute("aria-valuenow", String(height));
+  await expect(divider).toHaveAttribute(
+    "aria-valuetext",
+    `${height} pixels tall`,
+  );
 }
 
-export const valueOf = async (edge: Locator, name: string) =>
-  Number(await edge.getAttribute(name));
+export const valueOf = async (divider: Locator, name: string) =>
+  Number(await divider.getAttribute(name));
 
-// Presses the mouse on the middle of the edge and holds it there.
-export async function grab(page: Page, edge: Locator) {
-  const { x, y, width, height } = await box(edge);
+// Presses the mouse on the middle of the divider and holds it there.
+export async function grab(page: Page, divider: Locator) {
+  const { x, y, width, height } = await box(divider);
   const from = { x: x + width / 2, y: y + height / 2 };
   await page.mouse.move(from.x, from.y);
   await page.mouse.down();
   return from;
 }
 
-// Drags the edge up (negative) or down by `by` and releases it there.
-export async function dragEdge(page: Page, edge: Locator, by: number) {
-  const from = await grab(page, edge);
+// Drags the divider up (negative) or down by `by` and releases it there.
+export async function dragDivider(page: Page, divider: Locator, by: number) {
+  const from = await grab(page, divider);
   await page.mouse.move(from.x, from.y + by, { steps: 8 });
   await page.mouse.up();
 }

@@ -43,7 +43,7 @@
   background: color-mix(in srgb, var(--accent) 7%, var(--panel));
 }
 
-.sessions-sidebar .sessions-sidebar-session-entry.in-terminal {
+.sessions-sidebar .sessions-sidebar-session-entry.in-side-panel {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
   background: var(--accent-soft);

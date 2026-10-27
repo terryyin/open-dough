@@ -5,31 +5,11 @@
 
 ## Goal and scope
 
-A developer finds each dashboard region under one name: the Board, its
-Columns, Story cards, and Session entries; the Sessions sidebar; the Side panel
-and its terminal, final report, and story review content; the Panel divider;
-and Scrollbars qualified by the region they scroll. The same names run through
-UI wording and accessible names, components, modules, files, types, state,
-CSS, test selectors and support, and maintained documentation. The Board also
-becomes its own scroll region, so the Board scrollbar scrolls only the Board in
-every layout (Terry's decision, 2026-10-27).
+Use ADR 0008's Board, Column, Story card, Session entry, Sessions sidebar, Side panel, Panel divider and region-qualified Scrollbar names directly throughout UI/accessibility, implementation, CSS, tests/support and maintained docs. No competing synonyms or vocabulary aliases. Make the Board its own scroll region in every layout (Terry, 2026-10-27).
 
-Included: `dashboard/src`, `dashboard/tests` (specs, page objects, support,
-`writing-journeys.md`), `dashboard/*.md`, `docs/dashboard-*.md`, and
-dashboard references in `docs/project-visibility-requirements.md`, wherever
-they represent an ADR 0008 concept. `dashboard/server` only where a name
-represents one of these UI concepts.
-
-Excluded: the story's deferred promises (new ADR 0008 concepts; layout
-redesign beyond the Board scroll region); renaming dashboard concepts outside
-ADR 0008's table (banner, agent roster, project selection, settings, dialogs,
-the "frame" control style) unless one reuses an adopted concept's name;
-published record formats and session identities, which keep their names.
-
-Assumptions: casing adapts to syntax (`Board`, `board`, `.board`,
-`SidePanel`, `side-panel`); a Session entry's placement may keep a
-placement-specific presentation component when it shares the concept's name
-(for example a Sessions sidebar Session entry), not a separate "entry" concept.
+Included: `dashboard/src`, `dashboard/tests` (specs, page objects/support and writing guidance), `dashboard/*.md`, `docs/dashboard-*.md`, dashboard references in `docs/project-visibility-requirements.md`, and server names representing adopted UI concepts.
+Preserve facts, session identities, story URLs, behavior and saved preferences, including former-key recovery. Exclude new ADR concepts and redesign beyond Board scrolling. Outside-table concepts retain names unless they overload an adopted concept; published record formats retain their names.
+Casing adapts to syntax. Session entry presentation may vary by placement while keeping the same concept name.
 
 ## Architecture and current decisions
 
@@ -93,7 +73,7 @@ sessions height survive the rename.
 
 ### 3. Side panel content and its dividers carry their concept names
 Type: Behavior
-Status: planned
+Status: done
 Proof: terminal, final report, story review, side panel width, and Running Cursor resize journeys; consumer-trace-listed specs green
 
 Behavior: a developer opens a terminal, final report, or story review → the
@@ -126,10 +106,7 @@ slice, and the existing journeys pass.
 
 ## Plan review
 
-Slice-plan refinement not needed: each slice owns one concept group with its
-own proof loop, the Board scroll change is separated from naming and sized by
-observation 2, and the final slice owns only the residual review.
-No slice-specific concern remains from this review.
+Five cohesive concept/proof groups; Board scrolling is separated from naming and bounded by preparation observation. No original slice-review concern remained.
 
 ## Execution context
 
@@ -227,6 +204,21 @@ Reported: slice 2 — "published-facts-reading scroll checks fail because StoryC
 Story clause: "Preserve published story facts, session identities, story URLs, existing behavior, and saved browser preferences."
 Disposition: proved by slice 2: StoryCard base class restored under adopted name; all nine geometry failures pass focused and full; /tmp/seed153-slice2-handoff.txt retains original traces/causal limits.
 
+### G4. Current selection marker overload
+Reported: slice 3 — "Frozen review finds .in-terminal also marks final-report content on Story cards and both Session entry placements. Rename to .in-side-panel after terminal proof and validate traced observers."
+Story clause: "A whole-dashboard review finds no competing name for an adopted concept or single name used for incompatible concepts."
+Disposition: proved by slice 3: final marker twelve-case proof observes Story card and both Session entry placements for terminal/final report, close/replacement/navigation; declarations and selection expressions unchanged. /tmp/seed153-slice3-handoff.md.
+
+### G5. Side panel controls global names
+Reported: slice 3 — "Coordinator inspection finds PanelControls/usePanelCloseShortcut/closeShortcutLabel exclusively implement shared Side panel controls. Rename global module/API to expose that adopted region while preserving implementation."
+Story clause: "components, modules, files, types, functions, state"
+Disposition: proved by slice 3: exact SidePanelControls module/API comparison and typecheck, with shared controls exercised in twelve marker cases; shortcut/resize/full content proof retained. /tmp/seed153-slice3-handoff.md.
+
+### G6. Component/model basename collision
+Reported: slice 3 — "Required formatter/lint project service omits FinalReport.tsx and StoryReview.tsx because case-insensitive TypeScript roots select paired finalReport.ts/storyReview.ts schema modules. Installed parser confirms only model roots; no commit or publication occurred. Rename schema/transport modules to explicit finalReportContract.ts/storyReviewContract.ts and renew affected module-loading proof."
+Story clause: "components, modules, files, types, functions, state"
+Disposition: proved by slice 3: all four compiler roots present on actual case-insensitive host, forced typecheck and eight fresh content/schema/native-report module-loading cases passed; exact module/API equivalence and1177-consumer trace in /tmp/seed153-slice3-handoff.md. Required formatter/lint retry remains the delivery gate.
+
 ## Slice 2 acceptance
 
 - Independent source-only `/root/source_review2` input/commitments retained in agent history and compared with canonical story/source table: Story cards, one Session entry across all placements, separate cross-project Sessions sidebar, saved preferences and preservation apply now; content/divider/scroll promises remain slices3–5. No qualification or example removed.
@@ -239,3 +231,17 @@ Disposition: proved by slice 2: StoryCard base class restored under adopted name
 Slice 2 independent refactor `/root/refactor2` returned `## REFACTOR COMPLETE`: only dangling report-control prose became an explicit link to retained terminal instructions. Exact replacement, four relative links, operation/return pointer, six-consumer trace and whitespace passed; all297 files plus plan <=250. Root inspected `/tmp/seed153-refactor2-consumer-trace-dispositioned.md`; no executable boundary changed, all accepted proof reused. No unresolved gap or live verification remains.
 
 Slice 2 formatter expanded seven files beyond250; size guard withheld commit. Shortened comments and reused one existing Taken locator across identical assertions; runtime, setup and observing predicates unchanged, accepted proof reused.
+
+Slice 2 delivered at `08b604666d982b7140faab011cfb801aae5a7fe2` to origin execution branch, suffix base `801f62c3bb2427ab838588ef2ba48f217ab156f6`, observer reused `/tmp/dough-ci-501/watch-8HHXKr`. Formatting, full lint, final <=250 guard and staged hook/typecheck passed. This is the next increment’s published base.
+
+## Slice 3 acceptance
+
+- Fresh isolated source-only `/root/source_review3` input/commitments retained and compared with canonical source/table: content/container distinction, one final-report name, exclusive Panel divider, Running Cursor divider and preserved behavior/preferences apply now. Scroll behavior remains slices4–5; no qualification/example dropped.
+- Root inspected content region names, opening-state routing, PanelDivider/ResizeDivider pointer+key/range flow, shared controls and unchanged host-options response extraction. Handoff `/tmp/seed153-slice3-handoff.md` maps all three content replacement journeys, width drag/keys/reload, Running Cursor drag/keys/floors and report touch proof to real starting preconditions and observations; all622 audited identity/URL/fact literals,549 durations and wire fields/endpoints retained.
+- `PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed153-slice3-proof.json npm run test:dashboard -- --workers=8`: all1,671 passed, runner/strict,671.203s. Final marker12 passed at4workers (literal command/selection in handoff); G4/G5 proved. Only spelling/API/private/prose changes after full proof, declarations/selection expressions unchanged, so other broad proof reused.
+- Typecheck passed after final edits. `PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR node --test tests/support/dashboard-test-files.test.mjs tests/support/duration-list.test.mjs tests/support/share-deal.test.mjs`:13 passed. Owned whitespace, <=250 sizes, all7 stylesheet declaration sequences and39 relative doc links checked.
+- Trace `/tmp/seed153-slice3-consumer-trace-dispositions.md`:1,173 consumers,714run/458excluded/1reused, none uncovered. Wire/native-operation result identifiers are explicit protocol exclusions, not UI aliases. No remaining source/proof gap or running verification; independent refactor/delivery follows.
+
+Slice 3 independent `/root/refactor3` returned `## REFACTOR COMPLETE`: none/already clean, no edits or tests. All accepted proof and1173-consumer trace reused unchanged; independent size/whitespace check passed for150 current owned files plus plan (17 retired). No gap or live verification.
+
+Targeted independent `/root/refactor3` continuation returned `## REFACTOR COMPLETE`, none/already clean: contract roles/names and63-reference equivalence inspected, all4roots and forced typecheck/eight module-load observations accepted,1177-consumer trace complete; no edits/tests. Existing185 files <=250.

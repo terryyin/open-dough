@@ -25,7 +25,7 @@ test("keyboard choices show each retained captured or legacy run beside the live
     choices.first.key,
     choices.legacy.key,
   ]);
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   await markReviewed(review);
   const mark = keptStoryAMark(dashboard);
   const refs = reviewedRefs(origin.project);

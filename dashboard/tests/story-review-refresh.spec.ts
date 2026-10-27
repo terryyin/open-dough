@@ -38,7 +38,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
   await action.click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const listed = [
     "fresh",
     "  new.txt",

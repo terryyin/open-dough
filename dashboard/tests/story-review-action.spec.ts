@@ -52,7 +52,7 @@ test("the inspection group shares a line below the launch group, wraps in readin
   const action = inspectionGroup(card).getByRole("button", {
     name: "Review changes",
   });
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const starts = storyCardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );

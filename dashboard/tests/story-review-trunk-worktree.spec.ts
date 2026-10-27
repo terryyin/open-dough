@@ -13,7 +13,7 @@
 
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewMarkEndpoint } from "../src/storyReview.ts";
+import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { contextValues, contextWords } from "./support/reviewContextLine.ts";
@@ -25,7 +25,7 @@ import {
   keptStoryAMark,
   markReviewed,
   nextSnapshot,
-  openReview,
+  openStoryReview,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
 import { commitAll, git } from "./support/storyReviewWorktree.ts";
@@ -55,7 +55,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
   await expect(
     card.getByRole("button", { name: "Review changes" }),
   ).toBeVisible();
-  const opened = await openReview(page, card);
+  const opened = await openStoryReview(page, card);
   const review = reviewRegion(page);
   const commits = review
     .getByRole("list", { name: "Story commits", exact: true })

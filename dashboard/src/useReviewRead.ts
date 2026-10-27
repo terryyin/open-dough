@@ -1,5 +1,5 @@
 // One read of the launch boundary's story review endpoints
-// (`./storyReview.ts`), kept until the reader leaves or reads again: the
+// (`./storyReviewContract.ts`), kept until the reader leaves or reads again: the
 // answer, or why it could not be read. A new query or `round` reads again;
 // the last answer stays until the new one arrives, and `reading` says it is
 // not yet the answer to what was last asked.

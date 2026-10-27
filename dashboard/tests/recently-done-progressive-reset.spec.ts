@@ -38,7 +38,7 @@ import {
   refreshedTo,
   retitled,
 } from "./recentlyDoneRefresh.ts";
-import { resizeEdge } from "./sidePanelWidthPage.ts";
+import { panelDivider } from "./sidePanelWidthPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { holding } from "./support/heldGitHubAnswer.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
@@ -103,7 +103,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       .click();
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
     await expectEntries(recent, twenty);
-    await resizeEdge(page).focus();
+    await panelDivider(page).focus();
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
     await expectEntries(recent, twenty);

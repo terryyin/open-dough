@@ -11,7 +11,7 @@ import {
   reviewItemId,
   type ReviewRange,
   type TakenStoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 
 export function useStoryReviewComparison({

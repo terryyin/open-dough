@@ -1,7 +1,7 @@
 import { sessionKey } from "./sessionReference.ts";
 // The page keeps one side panel and its Sessions sidebar above project selection.
 // The panel shows one item: a session's terminal or final report, or a story's
-// review. Sidebar navigation reveals the chosen project/story without
+// story review. Sidebar navigation reveals the chosen project/story without
 // remounting the page. pageSidePanel owns selection, current marks,
 // maximization and focus return; sidePanelWidth its width beside the page;
 // terminal readiness alone rereads a done record after native attachment.
@@ -9,7 +9,7 @@ import { sessionKey } from "./sessionReference.ts";
 // too, so a journey's destination can ask it for the entry it lands on.
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
-import { SessionResultPanel } from "./SessionResultPanel.tsx";
+import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useProjects } from "./projectList.tsx";
@@ -19,9 +19,9 @@ import {
   useSessionsSidebar,
 } from "./SessionsSidebar.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
-import { TerminalPanel } from "./TerminalPanel.tsx";
-import { StoryReviewPanel } from "./StoryReviewPanel.tsx";
-import { ReviewsOnPage } from "./pageReviews.ts";
+import { Terminal } from "./Terminal.tsx";
+import { StoryReview } from "./StoryReview.tsx";
+import { StoryReviewsOnPage } from "./pageStoryReviews.ts";
 import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
@@ -29,7 +29,7 @@ import {
   RecentlyDoneRangeOnPage,
   useRecentlyDoneRange,
 } from "./recentlyDoneRange.ts";
-import { SidePanelEdgeOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
+import { PanelDividerOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
 import "./side-panel.css";
 
 export function PageFrame({
@@ -83,9 +83,10 @@ export function PageFrame({
     hostOperations,
     range,
   });
-  const { terminal, result, review, maximized, markSessionDone } = panel;
+  const { terminal, finalReport, storyReview, maximized, markSessionDone } =
+    panel;
   const frame = useRef<HTMLDivElement>(null);
-  const { stacked, edge } = useSidePanelWidth(
+  const { stacked, divider } = useSidePanelWidth(
     frame,
     panel.shown !== undefined,
     sidebar.open,
@@ -122,8 +123,8 @@ export function PageFrame({
   // had open.
   return (
     <SessionsOnPage value={panel.sessions}>
-      <ReviewsOnPage value={panel.openReview}>
-        <SidePanelEdgeOnPage value={maximized ? undefined : edge}>
+      <StoryReviewsOnPage value={panel.openStoryReview}>
+        <PanelDividerOnPage value={maximized ? undefined : divider}>
           <div
             ref={frame}
             className={
@@ -137,9 +138,9 @@ export function PageFrame({
                 .join(" ") || undefined
             }
             style={
-              edge &&
+              divider &&
               ({
-                "--side-panel-width": `${String(edge.width)}px`,
+                "--side-panel-width": `${String(divider.width)}px`,
               } as CSSProperties)
             }
           >
@@ -149,19 +150,19 @@ export function PageFrame({
                 <div className="page-column">{children}</div>
               </RecentlyDoneRangeOnPage>
             </SessionsSidebarOnPage>
-            {result && (
-              <SessionResultPanel
-                key={sessionKey(result.record.session)}
-                session={result}
-                current={shownRecord(records, result)}
+            {finalReport && (
+              <FinalReport
+                key={sessionKey(finalReport.record.session)}
+                session={finalReport}
+                current={shownRecord(records, finalReport)}
                 onClose={() => {
-                  panel.close(result);
+                  panel.close(finalReport);
                 }}
                 onMarkDone={markSessionDone}
               />
             )}
             {terminal && (
-              <TerminalPanel
+              <Terminal
                 key={sessionKey(terminal.record.session)}
                 session={terminal}
                 current={shownRecord(records, terminal)}
@@ -175,23 +176,23 @@ export function PageFrame({
                 onWorkspaceUnavailable={panel.unavailableWorkspace}
               />
             )}
-            {review && (
-              <StoryReviewPanel
-                // Each story's review, and each opening of one after Close or
+            {storyReview && (
+              <StoryReview
+                // Each story review, and each opening of one after Close or
                 // replacement, reads anew; asking again for the one shown
                 // focuses it and keeps its snapshot until Refresh.
-                key={`${review.source}\n${review.identity}`}
-                request={review}
+                key={`${storyReview.source}\n${storyReview.identity}`}
+                request={storyReview}
                 maximized={maximized}
                 onMaximize={panel.maximize}
                 onClose={() => {
-                  panel.close(review);
+                  panel.close(storyReview);
                 }}
               />
             )}
           </div>
-        </SidePanelEdgeOnPage>
-      </ReviewsOnPage>
+        </PanelDividerOnPage>
+      </StoryReviewsOnPage>
     </SessionsOnPage>
   );
 }

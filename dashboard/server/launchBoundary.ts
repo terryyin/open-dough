@@ -14,7 +14,7 @@
 // from its host's own session listing, or answers why it stays unresolved; a
 // same-origin GET of `/__agent-launch/changed?attempt=` answers once that accepted attempt
 // changed, at once if it has since the observation whose change count `seen=`
-// names, or after a bounded wait. A same-origin GET of the session result
+// names, or after a bounded wait. A same-origin GET of the final report
 // endpoint reads one kept session's final report through its host, bounded
 // and abandoned when the caller leaves. A same-origin GET of the story review
 // endpoint takes a snapshot of one story's launch workspace

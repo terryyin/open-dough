@@ -66,7 +66,7 @@ export function LaunchSession({
               openSession({ record, control: event.currentTarget });
             }}
           >
-            {access === "result" ? "Read final report" : "Open terminal"}
+            {access === "final-report" ? "Read final report" : "Open terminal"}
           </button>
         </p>
       )}

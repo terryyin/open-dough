@@ -1,7 +1,7 @@
 /* The page split while the side panel is open, whether it shows a terminal
    (./agent-terminal.css), a final report, or a story review: the page on the
    left, and the panel on the right, pinned to the window's height while the
-   page scrolls beside it. The panel takes the width its edge chose
+   page scrolls beside it. The panel takes the width its Panel divider chose
    (`--side-panel-width`, ./sidePanelWidth.ts), or half the room until then,
    right of the Sessions sidebar's column (./sessions-sidebar.css) while it is
    open. Where the room holds no usable split, as on a narrow window, the
@@ -53,10 +53,10 @@
   background: var(--panel);
 }
 
-/* The edge that resizes the panel (./SidePanelEdge.tsx): a strip across the
+/* The Panel divider (./PanelDivider.tsx): a strip across the
    panel's left border, wide enough to grab, with its grip
-   (./resize-edge.css) at its middle. */
-.side-panel-edge {
+   (./resize-divider.css) at its middle. */
+.panel-divider {
   top: 0;
   bottom: 0;
   left: -0.4rem;
@@ -65,7 +65,7 @@
   cursor: col-resize;
 }
 
-.side-panel-edge::after {
+.panel-divider::after {
   top: 50%;
   left: calc(50% - 2px);
   width: 4px;
@@ -75,7 +75,7 @@
 
 /* The panel's header: the shown session's or story's title and identity on
    the left, and the frame's icon controls (./icon-control.css) on the right:
-   the content's own operations, then the panel's (./PanelControls.tsx). */
+   the content's own operations, then the panel's (./SidePanelControls.tsx). */
 .side-panel-header {
   display: flex;
   align-items: flex-start;

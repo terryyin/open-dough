@@ -2,14 +2,14 @@
 // to be a commit, and Mark reviewed always marks that whole snapshot.
 import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
-import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
+import { storyReviewRangeEndpoint } from "../src/storyReviewContract.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
 import {
   keptStoryAMark,
   markReviewed,
-  openReview,
-  reopenReview,
+  openStoryReview,
+  reopenStoryReview,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
 import { markStoryReview } from "./support/storyReviewTrunk.ts";
@@ -29,7 +29,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
   await keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openReview(page, await openBacklog(page, origin));
+  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   expect(snapshot.uncommitted).toMatchObject({
     kind: "uncommitted",
@@ -103,7 +103,7 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
   const { workspace } = unchangedWorktree(origin);
   writeAt(workspace, "only.txt", "only uncommitted\n");
   await keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openReview(page, await openBacklog(page, origin));
+  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   expect(snapshot.commits).toEqual([]);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
@@ -133,7 +133,7 @@ test("a marked review opens on Since the review and marking from Commits marks t
     origin,
   );
   writeAt(story.workspace, "src/b.ts", "uncommitted b\n");
-  const snapshot = await reopenReview(page, card);
+  const snapshot = await reopenStoryReview(page, card);
   await expect(
     review.getByRole("radio", { name: "Since the review" }),
   ).toBeChecked();
@@ -158,7 +158,7 @@ test("a marked review opens on Since the review and marking from Commits marks t
     tree: snapshot.tree,
     baseline: snapshot.baseline,
   });
-  const again = await reopenReview(page, card);
+  const again = await reopenStoryReview(page, card);
   expect(again.since?.files).toEqual([]);
   await expect(
     review.getByRole("radio", { name: "Since the review" }),

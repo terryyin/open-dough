@@ -69,7 +69,7 @@ The terminal boundary specs drive it over a raw socket
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session
 marked done; `agent-launch-done.spec.ts` for Mark as done's rename and stop,
 and `agent-launch-done-refusal.spec.ts` for its refusals). The page
-journeys behind the terminal panel are `agent-terminal.spec.ts` (opening, one
+journeys behind the terminal are `agent-terminal.spec.ts` (opening, one
 at a time, Close), `agent-terminal-touch.spec.ts` (coordinate touch focus,
 native Backspace/Enter input, reduced-height fitting, touch scrollback,
 rotation and Close/reopen identity), `agent-terminal-lifetime.spec.ts` (project switch, lost

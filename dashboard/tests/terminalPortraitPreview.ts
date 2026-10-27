@@ -65,8 +65,7 @@ export async function expectTerminalPreviewFits(
   // and preview rendering; the test supplies only the anchor's geometry.
   await portrait.evaluate((element) => {
     const terminal = element.closest(".side-panel");
-    if (!terminal)
-      throw new Error("Portrait must belong to the terminal panel");
+    if (!terminal) throw new Error("Portrait must belong to the terminal");
     const panel = terminal.getBoundingClientRect();
     const shown = element as HTMLElement;
     const anchor = element.getBoundingClientRect();

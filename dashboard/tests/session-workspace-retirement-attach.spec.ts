@@ -85,14 +85,14 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     expect(read.searchParams.get("session")).toBe(record.session.sessionId);
     expect(read.searchParams.get("host")).toBe("codex");
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(report);
+    await expect(panel.locator(".final-report-text")).toHaveText(report);
     await expect(panel).toContainText(record.session.sessionId);
     await expect(panel).toContainText(
       loss === "unknown"
         ? "saved workspace availability could not be established"
         : "saved workspace is missing",
     );
-    await expect(panel.locator(".session-result-body")).toBeFocused();
+    await expect(panel.locator(".final-report-body")).toBeFocused();
     await expect(
       page.getByRole("region", { name: "Terminal", exact: true }),
     ).toHaveCount(0);
@@ -101,7 +101,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     ).toHaveCount(0);
     await expect(entry).toContainText("Shown in final report");
     if (doneAt === undefined)
-      await expect(card(notRefinedStory)).toHaveClass(/in-terminal/);
+      await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
     if (loss === "unknown")
       await expect(panel).not.toContainText("workspace is missing");
     await expect(

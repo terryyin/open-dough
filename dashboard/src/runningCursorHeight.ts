@@ -1,8 +1,8 @@
 // How the expanded Sessions sidebar (`./SessionsSidebar.tsx`) shares its room
 // between the session list and Running Cursor sessions' content. The developer
 // keeps one preferred height for the Cursor content, chosen by dragging the
-// edge above that section or with its Up and Down keys
-// (`./ResizeEdge.tsx`): collapsing and expanding the section, closing and
+// divider above that section or with its Up and Down keys
+// (`./ResizeDivider.tsx`): collapsing and expanding the section, closing and
 // reopening the sidebar, and project and view changes keep it, and it is kept
 // in this browser's disposable storage, so expanding the section after a
 // reload recovers it. Until one is chosen, or where the browser keeps none or
@@ -10,14 +10,14 @@
 // what the sidebar's height leaves once its heading and the section's header
 // take theirs, as shown, so a banner or header that wraps leaves less. Each
 // keeps a usable floor: room to read and choose an entry, with the runner's
-// status. Where the room cannot hold both floors, the edge offers no range and
+// status. Where the room cannot hold both floors, the divider offers no range and
 // the sidebar's own scrolling keeps both in reach (`./sessions-sidebar.css`).
 // A limit the room sets never changes the preference, so more room recovers
 // it.
 
 import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
 import { flushSync } from "react-dom";
-import type { EdgeRange } from "./ResizeEdge.tsx";
+import type { DividerRange } from "./ResizeDivider.tsx";
 import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // Where this browser keeps the preferred height, in CSS px.
@@ -26,7 +26,7 @@ const preferredHeightKey = "open-dough.sessionsSidebar.runningCursorHeight";
 // Each area's usable floor, in rem: the sidebar's own, which its rows keep
 // (./sessions-sidebar.css).
 const areaFloor = "--sessions-sidebar-list-floor";
-// How far one Up or Down key moves the edge, in rem.
+// How far one Up or Down key moves the divider, in rem.
 const keyStep = 2;
 
 // The room's height and each area's floor, in CSS px, and the rem they are
@@ -81,12 +81,12 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
   return measuring ? room : undefined;
 }
 
-// The Cursor content's height while the section is expanded, and the edge's
+// The Cursor content's height while the section is expanded, and the divider's
 // range; both undefined while the room cannot hold both floors.
 export function useRunningCursorHeight(
   sidebar: RefObject<HTMLElement | null>,
   measuring: boolean,
-): { height: number | undefined; range: EdgeRange | undefined } {
+): { height: number | undefined; range: DividerRange | undefined } {
   const [preferred, prefer] = usePreferredSize(
     preferredHeightKey,
     "open-dough.sessionSidebar.runningCursorHeight",

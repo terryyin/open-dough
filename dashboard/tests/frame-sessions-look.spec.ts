@@ -1,4 +1,4 @@
-// The Sessions sidebar and the terminal panel's header in the frame's look:
+// The Sessions sidebar and the terminal's header in the frame's look:
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
 // and both fit a narrow and a zoomed window without sideways scrolling. An
@@ -31,7 +31,7 @@ const work = {
 const cutTitles = ".sessions-sidebar-session-entry-title";
 const terminalScreen = ".terminal-screen";
 
-test.describe("the Sessions sidebar and terminal panel in the frame's look", () => {
+test.describe("the Sessions sidebar and terminal in the frame's look", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);

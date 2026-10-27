@@ -1,4 +1,4 @@
-// A story's mark on this machine (`./storyReview.ts`): the one workspace
+// A story's mark on this machine (`./storyReviewContract.ts`): the one workspace
 // snapshot the developer marked reviewed, the request and answer of Mark
 // reviewed, and why a mark cannot be compared with a later snapshot.
 

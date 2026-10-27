@@ -13,7 +13,7 @@
 
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { storyCardSessions } from "./dashboardPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { expect, test } from "./support/preparationPage.ts";
@@ -52,7 +52,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
@@ -81,7 +81,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   expect(fetchedTrunk()).toBe(merged);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const status = reviewFeedback(review);
   await expect(status).toHaveText(gapExplanation);
   await expect(
@@ -121,7 +121,7 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   await keepLaunchRecords(dashboard, [record]);
   const card = await openBacklog(page, origin);
   const open = card.getByRole("button", { name: "Review changes" });
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const live = await reviewAfter(page, open);
   expect(live.kind).toBe("snapshot");
   expect(live.runs).toBeUndefined();
@@ -185,7 +185,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect(files).toBeVisible();
   const refresh = review.getByRole("button", { name: "Refresh" });

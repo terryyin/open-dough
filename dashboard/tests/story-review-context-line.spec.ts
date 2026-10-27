@@ -26,7 +26,7 @@ test("a story review's context line keeps to one line until activated and stays 
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const words = contextWords({
     branch,
     baseline: merged,

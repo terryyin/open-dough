@@ -64,9 +64,10 @@ export function runningCursorParts(page: Page) {
     // The two areas that scroll on their own.
     list: sidebar.locator(".sessions-sidebar-sessions"),
     body: region.locator(".running-cursor-body"),
-    // The edge between them, while expanded.
-    edge: sidebar.getByRole("separator", {
-      name: "Resize Running Cursor sessions",
+    // The divider between them, while expanded.
+    divider: sidebar.getByRole("separator", {
+      name: "Running Cursor sessions divider",
+      exact: true,
     }),
   };
 }

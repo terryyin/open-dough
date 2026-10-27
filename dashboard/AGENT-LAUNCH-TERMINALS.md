@@ -108,7 +108,7 @@ without re-attaching; its panel edge takes the theme's background.
 Switching sessions, or opening a story review, detaches the prior one without
 ending or marking it done; switching projects keeps it attached. Opening
 different panel content returns a maximized panel to the normal split.
-Resizing the panel by its edge
+Resizing the Side panel by its Panel divider
 ([navigation](../docs/dashboard-navigation.md)) fits the attached terminal to
 the new width without attaching again.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
@@ -128,7 +128,7 @@ proof covers phone/tablet portrait, landscape and a 240-pixel visible height,
 including Backspace, Enter and actual browser-to-WebSocket-to-PTY replies. It
 does not establish physical iOS keyboard or remote connectivity behavior.
 
-Mark as done uses one operation from card, final report panel or terminal. It saves local done intent,
+Mark as done uses one operation from card, final report or terminal. It saves local done intent,
 requests native rename, closes dashboard attachments, then requests native stop
 unless the session is confirmed unavailable. Codex renames with `thread/name/set`
 and interrupts only the observed nonempty in-progress turn ID; completed/unloaded
@@ -152,7 +152,7 @@ the project folder, with neither rename nor stop: a removed job has no name
 left to show. The short id goes alone, so the removal never discards commits or
 a worktree; the transcript stays with Claude Code.
 
-Wherever it is offered, on a card or in the terminal or final report panel, Mark as
+Wherever it is offered, on a card or in the terminal or final report, Mark as
 done marks a session at once only when its intended work is complete: its
 latest report is `completed`, with or without an attention message, and its
 reading is neither working nor waiting for input (Cursor's held-screen

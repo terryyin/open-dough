@@ -1,4 +1,4 @@
-// Recorded Claude workspace retirement uses the shared passive report panel.
+// Recorded Claude workspace retirement uses the shared passive final report.
 import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "./dashboardTest.ts";
@@ -71,7 +71,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(entry).toContainText("saved workspace is missing");
   await entry.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(panel).toContainText(
     "Mark as done acknowledges this session; it does not complete the story.",
   );
@@ -110,7 +110,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   ).toBeEnabled();
   await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
   await recent.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
 });
 
@@ -154,7 +154,7 @@ for (const context of ["preparation", "start"] as const) {
     rmSync(workspace, { recursive: true });
     await open.click();
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(report);
+    await expect(panel.locator(".final-report-text")).toHaveText(report);
     await expect(panel).toContainText("saved workspace is missing");
     await expect(
       page.getByRole("region", { name: "Terminal", exact: true }),
@@ -185,7 +185,7 @@ test("missing Claude workspace without retained report explains the limitation w
     "Claude Code cannot read a native final report here.",
   );
   await expect(panel).toContainText("saved workspace is missing");
-  await expect(panel.locator(".session-final-report")).toHaveCount(0);
+  await expect(panel.locator(".final-report-text")).toHaveCount(0);
   expect(dashboard.claudeAttaches()).toEqual([]);
   expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
 });

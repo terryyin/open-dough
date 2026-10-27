@@ -13,7 +13,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
-import { storyReviewFileEndpoint } from "../src/storyReview.ts";
+import { storyReviewFileEndpoint } from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { reviewFeedback } from "./support/reviewContextLine.ts";
 import {
@@ -27,8 +27,8 @@ import {
   comparison,
   markReviewed,
   nextSnapshot,
-  openReview,
-  reopenReview,
+  openStoryReview,
+  reopenStoryReview,
   reviewRegion,
   uncommittedCheck as check,
   uncommittedLeftOut as leftOut,
@@ -61,7 +61,7 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
 }) => {
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const list = (files: number) =>
     review.getByRole("list", { name: `${String(files)} changed files` });
@@ -115,7 +115,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
 }) => {
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const choose = (name: string) =>
     comparison(review).getByRole("radio", { name, exact: true }).check();
@@ -162,7 +162,7 @@ test("with the check off the file moves stay within the committed files and a bi
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const shown = await openReview(page, card);
+  const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   const binary = review.getByRole("region", { name: "Modified image.png" });
   const noDiff = "This file has no textual diff: Git reads it as binary.";
@@ -202,7 +202,7 @@ test("with the check off the file moves stay within the committed files and a bi
   }
   await expect(next).toHaveAttribute("aria-disabled", "true");
 
-  await reopenReview(page, card);
+  await reopenStoryReview(page, card);
   await expect(check(review)).toBeChecked();
   await expect(review.getByText(leftOut)).toHaveCount(0);
   await expect(

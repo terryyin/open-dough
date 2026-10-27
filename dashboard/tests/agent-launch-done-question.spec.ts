@@ -6,7 +6,7 @@
 // open, and is a group labelled by its words. Keep open or Escape leaves the
 // session, its record and its report's read state as they were and puts the
 // keyboard back on Mark as done; the question's Mark as done marks the session
-// done as the one-click mark does. The terminal panel's own Mark as done on a
+// done as the one-click mark does. The terminal's own Mark as done on a
 // reported session is ./agent-terminal-done-report.spec.ts. Real start, launch, installed reporting
 // command, store and page; only the synthetic `claude` and GitHub are fakes.
 

@@ -45,8 +45,8 @@ export async function openUnfinishedReport(
   await open.focus();
   await page.keyboard.press("Enter");
   const panel = page.getByRole("region", { name: "Final report" });
-  const result = panel.locator(".session-final-report");
-  await expect(result).toHaveText(text);
+  const reportText = panel.locator(".final-report-text");
+  await expect(reportText).toHaveText(text);
   const mark = panel
     .locator(".side-panel-header")
     .getByRole("button", { name: "Mark as done" });
@@ -82,7 +82,7 @@ export async function openUnfinishedReport(
     since,
     open,
     panel,
-    result,
+    reportText,
     mark,
     question,
     choice,

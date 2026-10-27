@@ -38,7 +38,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
   expect(first.completion).toBe(completion);
   expect(first.files.map((file) => file.path)).toContain("[literal]*.txt");
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   await expect(review).toContainText("Published completion");
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),

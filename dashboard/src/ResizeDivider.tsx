@@ -1,20 +1,20 @@
 // A boundary between two areas that resizes the one it belongs to: the side
-// panel's left edge (`./SidePanelEdge.tsx`) and the edge above Running Cursor
+// Panel divider (`./PanelDivider.tsx`) and the divider above Running Cursor
 // sessions in the Sessions sidebar (`./SessionsSidebar.tsx`). It is a
 // focusable separator that says its area's current size and bounds. Dragged
 // with the pointer toward the area's far side, or, while it holds the
 // keyboard, with Left or Up, the area grows; away from it, or with Right or
-// Down, it shrinks, along the edge's own axis. A drag ends wherever the
+// Down, it shrinks, along the divider's own axis. A drag ends wherever the
 // pointer is released, or when the browser cancels it. Each caller owns its
-// area's sizes: the edge only asks for one (`choose`), within the bounds the
-// caller gives. Where the room offers no range to choose from, the edge says
+// area's sizes: the divider only asks for one (`choose`), within the bounds the
+// caller gives. Where the room offers no range to choose from, the divider says
 // so and resizes nothing.
 
 import { useRef, type PointerEvent } from "react";
-import "./resize-edge.css";
+import "./resize-divider.css";
 
 // The area's size and its bounds, in CSS px, and how a new one is asked for.
-export type EdgeRange = {
+export type DividerRange = {
   readonly size: number;
   readonly minimum: number;
   readonly maximum: number;
@@ -43,7 +43,7 @@ const axes = {
   },
 } as const;
 
-export function ResizeEdge({
+export function ResizeDivider({
   orientation,
   label,
   title,
@@ -57,7 +57,7 @@ export function ResizeEdge({
   readonly valueText: (size: number) => string;
   readonly className: string;
   // Undefined while the room offers nothing to choose from.
-  readonly range: EdgeRange | undefined;
+  readonly range: DividerRange | undefined;
 }) {
   const drag = useRef<Drag | undefined>(undefined);
   const axis = axes[orientation];
@@ -71,7 +71,7 @@ export function ResizeEdge({
         aria-label={label}
         aria-orientation={orientation}
         aria-disabled
-        className={`resize-edge ${className}`}
+        className={`resize-divider ${className}`}
       />
     );
   const { size, minimum, maximum, step, choose } = range;
@@ -86,7 +86,7 @@ export function ResizeEdge({
       aria-valuemax={maximum}
       aria-valuetext={valueText(size)}
       title={title}
-      className={`resize-edge ${className}`}
+      className={`resize-divider ${className}`}
       onKeyDown={(event) => {
         if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
           return;
@@ -104,7 +104,7 @@ export function ResizeEdge({
       }}
       onPointerDown={(event) => {
         if (event.button !== 0) return;
-        // No text selection while dragging; the edge takes the keyboard.
+        // No text selection while dragging; the divider takes the keyboard.
         event.preventDefault();
         event.currentTarget.focus();
         event.currentTarget.setPointerCapture(event.pointerId);

@@ -1,5 +1,5 @@
 // Mark as done on a session from the scope that offers it: a card or Recently
-// done entry, a Sessions sidebar Session entry, or a terminal or report panel. A session whose
+// done entry, a Sessions sidebar Session entry, or a terminal or final report. A session whose
 // intention is complete (its latest report is `completed`, and it reads
 // neither working nor waiting) is marked done with `markDone`; any other
 // session is marked done with `markDoneAnyway`, which answers the question

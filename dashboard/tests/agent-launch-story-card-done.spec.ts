@@ -1,6 +1,6 @@
 // Mark as done on a session its story's card lists, on the committed
 // story-columns origin (./launchJourney.ts), through the same page operation as
-// the terminal panel's (./agent-terminal-done.spec.ts): on a session Claude
+// the terminal's (./agent-terminal-done.spec.ts): on a session Claude
 // Code no longer lists, it leaves the card without being stopped and Recently
 // done shows it Done. A refused mark keeps the entry on its card and says so
 // there. Origin alone still places the story. The page's own dashboard

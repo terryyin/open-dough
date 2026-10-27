@@ -6,11 +6,11 @@
    pinned banner so the Sessions button stays in reach.
    Inside, the session list fills the room the heading and the Running Cursor
    sessions header leave, scrolling on its own; expanded, that section's
-   content takes the height the developer chose with the edge along its top
+   content takes the height the developer chose with the divider along its top
    (./runningCursorHeight.ts), at first an equal share of the room, scrolling
    on its own too. Where the window is too short for each to keep room to read
    and choose an entry, the sidebar itself scrolls, so neither list nor the
-   header is out of reach, and the edge offers no range.
+   header is out of reach, and the divider offers no range.
    Its entries are ./sessions-sidebar-session-entry.css's. */
 
 .page-with-sessions-sidebar {
@@ -20,7 +20,7 @@
 
 .sessions-sidebar {
   /* The room each list keeps to read and choose an entry, in rem, which the
-     edge between them keeps too (./runningCursorHeight.ts). */
+     divider between them keeps too (./runningCursorHeight.ts). */
   --sessions-sidebar-list-floor: 8rem;
   position: sticky;
   top: 0;
@@ -95,9 +95,9 @@
   grid-template-rows: subgrid;
 }
 
-/* The edge between the two lists: a strip across the section's top border,
-   with its grip (./resize-edge.css) at its middle. */
-.running-cursor-edge {
+/* The Running Cursor sessions divider between the two lists: a strip across the section's top border,
+   with its grip (./resize-divider.css) at its middle. */
+.running-cursor-sessions-divider {
   top: calc(-0.4rem - 0.5px);
   right: 0;
   left: 0;
@@ -106,7 +106,7 @@
   cursor: row-resize;
 }
 
-.running-cursor-edge::after {
+.running-cursor-sessions-divider::after {
   top: calc(50% - 2px);
   left: 50%;
   width: 2.5rem;

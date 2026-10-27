@@ -1,13 +1,13 @@
-// How the split chosen with the edge between the Sessions sidebar's two lists
+// How the split chosen with the divider between the Sessions sidebar's two lists
 // (./cursor-sessions-sidebar-resize.spec.ts) lasts for the page: across collapsing,
 // project and view changes and closing the sidebar. Where the window is too
-// short for both floors, the edge offers no range and the sidebar scrolls;
+// short for both floors, the divider offers no range and the sidebar scrolls;
 // more room recovers the chosen split. The crowded lists' saved sessions and
 // runner answers are preconditions only; the held client is real, and
 // resizing asks it nothing.
 import {
   expandCrowded,
-  expectEdgeSays,
+  expectDividerSays,
   expectSplit,
   heightOf,
   keyStep,
@@ -33,7 +33,7 @@ import { expect, test } from "./support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 
-test("where the window is too short for both floors, the edge offers no range and the sidebar scrolls; more room recovers the chosen split", async ({
+test("where the window is too short for both floors, the divider offers no range and the sidebar scrolls; more room recovers the chosen split", async ({
   page,
   dashboard,
   origin,
@@ -46,12 +46,12 @@ test("where the window is too short for both floors, the edge offers no range an
     origin,
     cursor,
   );
-  const { sidebar, edge, header, list, body } = shown;
+  const { sidebar, divider, header, list, body } = shown;
   const room = await roomOf(shown);
   // What the sidebar's heading, header and padding take from its height.
   const taken = wide.height - room;
-  const maximum = await valueOf(edge, "aria-valuemax");
-  await edge.focus();
+  const maximum = await valueOf(divider, "aria-valuemax");
+  await divider.focus();
   await press(page, "ArrowUp", 40);
   await press(page, "ArrowDown", 2);
   const chosen = maximum - 2 * keyStep;
@@ -60,20 +60,20 @@ test("where the window is too short for both floors, the edge offers no range an
   await test.step("less room fits the chosen split within the floors", async () => {
     const height = Math.ceil(taken + 2 * floor + 40);
     await page.setViewportSize({ width: wide.width, height });
-    await expect(edge).toHaveAttribute("aria-valuemax", String(floor + 40));
-    await expectEdgeSays(edge, floor + 40);
+    await expect(divider).toHaveAttribute("aria-valuemax", String(floor + 40));
+    await expectDividerSays(divider, floor + 40);
     await expectSplit(shown, height - taken, floor + 40);
   });
 
-  await test.step("too little room for both floors: the edge offers no range, and both lists and the header stay in reach by scrolling", async () => {
+  await test.step("too little room for both floors: the divider offers no range, and both lists and the header stay in reach by scrolling", async () => {
     await page.setViewportSize({
       width: wide.width,
       height: Math.floor(taken + 2 * floor - 40),
     });
-    await expect(edge).toBeDisabled();
+    await expect(divider).toBeDisabled();
     // Nothing to say or to take the keyboard for.
-    expect(await edge.getAttribute("aria-valuenow")).toBeNull();
-    expect(await edge.getAttribute("tabindex")).toBeNull();
+    expect(await divider.getAttribute("aria-valuenow")).toBeNull();
+    expect(await divider.getAttribute("tabindex")).toBeNull();
     for (const area of [list, body])
       expect(await heightOf(area)).toBeCloseTo(floor, 0);
     expect(
@@ -90,9 +90,9 @@ test("where the window is too short for both floors, the edge offers no range an
 
   await test.step("more room offers the range again and recovers the chosen split", async () => {
     await page.setViewportSize(wide);
-    await expect(edge).toBeEnabled();
-    await expect(edge).toHaveAttribute("aria-valuemax", String(maximum));
-    await expectEdgeSays(edge, chosen);
+    await expect(divider).toBeEnabled();
+    await expect(divider).toHaveAttribute("aria-valuemax", String(maximum));
+    await expectDividerSays(divider, chosen);
     await expectSplit(shown, room, chosen);
   });
 
@@ -101,12 +101,12 @@ test("where the window is too short for both floors, the edge offers no range an
     ["the bottom", "ArrowDown", floor],
   ] as const) {
     await test.step(`resized to ${bound}, a short, zoomed window keeps both lists and the header in reach without sideways scrolling, and more room recovers it`, async () => {
-      await edge.focus();
+      await divider.focus();
       await press(page, key, 40);
       await expectSplit(shown, room, height);
       await page.setViewportSize({ width: 320, height: 256 });
       await expect(sidebar).toBeVisible();
-      await expect(edge).toBeDisabled();
+      await expect(divider).toBeDisabled();
       // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
       await expectNoSidewaysScrollAndWholeText(page, [
         ".sessions-sidebar-session-entry-title",
@@ -121,7 +121,7 @@ test("where the window is too short for both floors, the edge offers no range an
       await header.scrollIntoViewIfNeeded();
       await expect(header).toBeInViewport();
       await page.setViewportSize(wide);
-      await expect(edge).toBeEnabled();
+      await expect(divider).toBeEnabled();
       await expectSplit(shown, room, height);
     });
   }
@@ -147,26 +147,26 @@ test.describe("with two projects", () => {
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);
-    const { sidebar, button, header, edge, body } = shown;
+    const { sidebar, button, header, divider, body } = shown;
     const { project, backlog } = parts(page);
     await button.click();
     await header.click();
     await expect(body).toBeVisible();
     const room = await roomOf(shown);
-    await edge.focus();
+    await divider.focus();
     await press(page, "ArrowUp", 3);
     const chosen = Math.round(room / 2) + 3 * keyStep;
     await expectSplit(shown, room, chosen);
     const expectChosen = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
-      await expectEdgeSays(edge, chosen);
+      await expectDividerSays(divider, chosen);
       await expectSplit(shown, room, chosen);
     };
 
     await test.step("collapsing and expanding again restores it", async () => {
       await header.click();
       await expect(body).toHaveCount(0);
-      await expect(edge).toHaveCount(0);
+      await expect(divider).toHaveCount(0);
       await header.click();
       await expectChosen();
     });

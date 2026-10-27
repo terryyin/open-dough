@@ -2,10 +2,10 @@
 // after a newer range has settled cannot change its heading, files or diff.
 import { expect, test } from "./support/preparationPage.ts";
 import { chooseCommit } from "./support/storyReviewCommitChoice.ts";
-import { storyReviewRangeEndpoint } from "../src/storyReview.ts";
+import { storyReviewRangeEndpoint } from "../src/storyReviewContract.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { openReview, reviewRegion } from "./support/storyReviewMark.ts";
+import { openStoryReview, reviewRegion } from "./support/storyReviewMark.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
 import { holdNextReviewResponse } from "./support/holdReviewResponse.ts";
 
@@ -16,7 +16,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
 }) => {
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
-  await openReview(page, await openBacklog(page, origin));
+  await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const held = await holdNextReviewResponse(
     page,

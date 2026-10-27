@@ -1,7 +1,7 @@
 // Run choices use native controls, ordered by the retained launch read.
 import { useId } from "react";
 import { launchKindName } from "./launchWorkflow.ts";
-import { reviewTargetName } from "./storyReview.ts";
+import { reviewTargetName } from "./storyReviewContract.ts";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 export function RunChoice({
   runs,

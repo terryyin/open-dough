@@ -1,5 +1,5 @@
 // Which comparison of a story's snapshot its review
-// (`./StoryReviewPanel.tsx`) shows: the changes since the review, or all
+// (`./StoryReview.tsx`) shows: the changes since the review, or all
 // changes against trunk, or selected commits. All changes and Since the
 // review come with the snapshot; Commits reads the selected points. Native
 // radios keep the choice keyboard-operable and say

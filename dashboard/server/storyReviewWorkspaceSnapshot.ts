@@ -1,4 +1,4 @@
-// Takes a story review's snapshot (`../src/storyReview.ts`) of one workspace
+// Takes a story review's snapshot (`../src/storyReviewContract.ts`) of one workspace
 // the launch boundary resolved from its kept records or local Git: fetches
 // its trunk target, takes the review baseline as the merge-base of the
 // workspace's head and the fetched `<remote>/<target>`, or, for a Trunk
@@ -38,7 +38,7 @@ import {
 import { mkdtemp, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { ReviewMark, StoryReview } from "../src/storyReview.ts";
+import type { ReviewMark, StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { directoryState } from "./sessionWorkspace.ts";

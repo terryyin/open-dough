@@ -52,7 +52,7 @@ async function inspectDelivered(
       }),
     ]),
   );
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   await expect(review).toContainText("Execution launched");
   await expect(review).toContainText(receipt.base);
   await expect(review).toContainText(receipt.revision);

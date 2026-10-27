@@ -8,7 +8,7 @@ import { codexSessions } from "./hosts/codex/sessions.ts";
 import { renameCodex, stopCodex } from "./hosts/codex/done.ts";
 import { attachCodex } from "./hosts/codex/terminal.ts";
 import { codexCreationEvidence } from "./hosts/codex/creation.ts";
-import { readCodexResult } from "./hosts/codex/result.ts";
+import { readCodexFinalReport } from "./hosts/codex/finalReport.ts";
 import { daemonEndpoint } from "./hosts/codex/rpc.ts";
 import { hostDescriptions } from "../src/hostDescription.ts";
 
@@ -24,7 +24,7 @@ export const codexHost: LaunchHost = {
   options: codexOptions,
   recover: recoverCodex,
   sessions: (...[records, , signal]) => codexSessions(records, signal),
-  readResult: readCodexResult,
+  readFinalReport: readCodexFinalReport,
   attach: attachCodex,
   rename: renameCodex,
   stop: (...[session, , signal]) => stopCodex(session, signal),

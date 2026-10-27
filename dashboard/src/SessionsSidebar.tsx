@@ -31,7 +31,7 @@ import {
 } from "./agentLaunch.ts";
 import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { ResizeEdge } from "./ResizeEdge.tsx";
+import { ResizeDivider } from "./ResizeDivider.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import {
@@ -216,13 +216,13 @@ export function SessionsSidebar({
         }}
         records={records}
         onOpen={onOpen}
-        edge={
-          <ResizeEdge
+        divider={
+          <ResizeDivider
             orientation="horizontal"
-            label="Resize Running Cursor sessions"
+            label="Running Cursor sessions divider"
             title="Drag, or use Up and Down, to resize Running Cursor sessions"
             valueText={(size) => `${String(size)} pixels tall`}
-            className="running-cursor-edge"
+            className="running-cursor-sessions-divider"
             range={range}
           />
         }

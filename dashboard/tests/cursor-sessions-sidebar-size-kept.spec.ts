@@ -1,4 +1,4 @@
-// This browser keeps the one preferred height chosen with the edge between
+// This browser keeps the one preferred height chosen with the divider between
 // the Sessions sidebar's two lists (./cursor-sessions-sidebar-resize.spec.ts): after a
 // reload the section starts collapsed, and expanding it recovers that height,
 // within the room there is now; a height the room imposes never replaces it.
@@ -9,9 +9,9 @@
 // storage; resizing asks the server and the cursor-agent nothing.
 import type { Page } from "@playwright/test";
 import {
-  dragEdge,
+  dragDivider,
   expectCollapsed,
-  expectEdgeSays,
+  expectDividerSays,
   expectSplit,
   heightKey,
   keepInBrowser,
@@ -53,7 +53,7 @@ async function expandToEqualShare(shown: Shown) {
   await expect(shown.body).toBeVisible();
   const room = await roomOf(shown);
   await expectSplit(shown, room, Math.round(room / 2));
-  await expectEdgeSays(shown.edge, Math.round(room / 2));
+  await expectDividerSays(shown.divider, Math.round(room / 2));
   return room;
 }
 
@@ -82,7 +82,7 @@ test.describe("with two projects", () => {
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);
-    const { sidebar, button, header, edge } = shown;
+    const { sidebar, button, header, divider } = shown;
     const { project, backlog } = parts(page);
     await button.click();
     await expect(sidebar).toBeVisible();
@@ -99,12 +99,12 @@ test.describe("with two projects", () => {
     const room = await expandToEqualShare(shown);
     // Expanding at the default is no choice: nothing is kept yet.
     expect(await keptHeight(page)).toBeNull();
-    await edge.focus();
+    await divider.focus();
     await press(page, "ArrowUp", 3);
     const chosen = Math.round(room / 2) + 3 * keyStep;
     const expectChosen = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
-      await expectEdgeSays(edge, chosen);
+      await expectDividerSays(divider, chosen);
       await expectSplit(shown, room, chosen);
       expect(await keptHeight(page)).toBe(String(chosen));
     };
@@ -180,13 +180,13 @@ test("less room fits the shown height, also after a reload, without replacing th
   test.setTimeout(120_000);
   await showPage(page, origin);
   const shown = runningCursorParts(page);
-  const { button, header, edge } = shown;
+  const { button, header, divider } = shown;
   await button.click();
   const room = await expandToEqualShare(shown);
   // What the sidebar's heading, header and padding take from its height.
   const taken = wide.height - room;
-  await dragEdge(page, edge, -150);
-  const chosen = await valueOf(edge, "aria-valuenow");
+  await dragDivider(page, divider, -150);
+  const chosen = await valueOf(divider, "aria-valuenow");
   expect(chosen).toBeGreaterThan(Math.round(room / 2) + 100);
   await expectSplit(shown, room, chosen);
   const expectKept = async () => {
@@ -199,7 +199,7 @@ test("less room fits the shown height, also after a reload, without replacing th
 
   await test.step("less room fits the shown height and keeps the chosen one", async () => {
     await page.setViewportSize({ width: wide.width, height: less });
-    await expectEdgeSays(edge, fitted);
+    await expectDividerSays(divider, fitted);
     await expectSplit(shown, less - taken, fitted);
     await expectKept();
   });
@@ -209,7 +209,7 @@ test("less room fits the shown height, also after a reload, without replacing th
       width: wide.width,
       height: Math.floor(taken + 2 * floor - 40),
     });
-    await expect(edge).toBeDisabled();
+    await expect(divider).toBeDisabled();
     await expectKept();
   });
 
@@ -218,14 +218,14 @@ test("less room fits the shown height, also after a reload, without replacing th
     await page.reload();
     await expectCollapsed(shown);
     await header.click();
-    await expectEdgeSays(edge, fitted);
+    await expectDividerSays(divider, fitted);
     await expectSplit(shown, less - taken, fitted);
     await expectKept();
   });
 
   await test.step("more room recovers the chosen height", async () => {
     await page.setViewportSize(wide);
-    await expectEdgeSays(edge, chosen);
+    await expectDividerSays(divider, chosen);
     await expectSplit(shown, room, chosen);
     await expectKept();
   });

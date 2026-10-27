@@ -1,6 +1,6 @@
 // Context and browser visibility follow the comparison actually shown, while
 // each source of evidence keeps its own description and completion facts.
-import type { StoryReview, ReviewComparison } from "./storyReview.ts";
+import type { StoryReview, ReviewComparison } from "./storyReviewContract.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {

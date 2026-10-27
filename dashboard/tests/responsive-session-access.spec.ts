@@ -228,7 +228,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
     expect.arrayContaining(["story-card-starting"]),
   );
   expect(marks.edge).toBe("dashed");
-  // The terminal closed with Mark as done; no Shown-in-terminal on a new start.
+  // The terminal closed with Mark as done; no current-session mark on a new start.
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toHaveCount(0);
   // Recently done lists the done session outside the frame.

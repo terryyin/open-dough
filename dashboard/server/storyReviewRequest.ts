@@ -15,7 +15,7 @@ import { requireExactQuery } from "./sessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
-  readonly kind: "review";
+  readonly kind: "story-review";
   readonly sourceId: string;
   readonly identity: string;
   readonly established: ReviewedWorkspace;
@@ -29,10 +29,10 @@ interface AdmittedWorkspaceReview {
   };
 }
 
-export type AdmittedReview =
+export type AdmittedStoryReview =
   | AdmittedWorkspaceReview
   | {
-      readonly kind: "review";
+      readonly kind: "story-review";
       readonly published: PublishedSource;
       readonly identity: string;
       readonly runs: readonly ReviewLandedRun[];
@@ -40,12 +40,12 @@ export type AdmittedReview =
   // Several worktrees hold the story's claim: the review reads none and says
   // why.
   | {
-      readonly kind: "review";
+      readonly kind: "story-review";
       readonly explanation: string;
       readonly runs: readonly ReviewLandedRun[];
     }
   | {
-      readonly kind: "review";
+      readonly kind: "story-review";
       readonly run: ReviewLandedRun;
       readonly runs: readonly ReviewLandedRun[];
       readonly publishedFallback?: {
@@ -54,7 +54,9 @@ export type AdmittedReview =
       };
     };
 
-export async function reviewRequest(url: URL): Promise<AdmittedReview> {
+export async function storyReviewRequest(
+  url: URL,
+): Promise<AdmittedStoryReview> {
   requireExactQuery(
     url,
     [
@@ -73,7 +75,7 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
   if (url.searchParams.has("reference") && url.searchParams.has("run"))
     throw new RefusedRequest(400, "The review names two run identities.");
   if (found.run !== undefined)
-    return { kind: "review", run: found.run, runs: found.runs };
+    return { kind: "story-review", run: found.run, runs: found.runs };
   const fallback = preferredReviewRun(
     found.runs,
     ({ record }) => record.landing,
@@ -85,7 +87,7 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
     directoryState(resolved.established.workspace).kind === "available";
   if (!readable && fallback !== undefined)
     return {
-      kind: "review",
+      kind: "story-review",
       run: fallback,
       runs: found.runs,
       ...(completed === "true"
@@ -96,7 +98,12 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
     completed === "true" &&
     (resolved === undefined || resolved.kind === "ambiguous")
   )
-    return { kind: "review", published: source, identity, runs: found.runs };
+    return {
+      kind: "story-review",
+      published: source,
+      identity,
+      runs: found.runs,
+    };
   if (resolved === undefined)
     throw new RefusedRequest(
       404,
@@ -104,12 +111,12 @@ export async function reviewRequest(url: URL): Promise<AdmittedReview> {
     );
   if (resolved.kind === "ambiguous")
     return {
-      kind: "review",
+      kind: "story-review",
       explanation: resolved.explanation,
       runs: found.runs,
     };
   return {
-    kind: "review",
+    kind: "story-review",
     sourceId: source.id,
     identity,
     established: resolved.established,

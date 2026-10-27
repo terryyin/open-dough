@@ -1,6 +1,6 @@
 // One common literal file diff serves workspace and fixed historical comparisons.
 import type { ServerResponse } from "node:http";
-import type { ReviewedFileDiff } from "../src/storyReview.ts";
+import type { ReviewedFileDiff } from "../src/storyReviewContract.ts";
 import type { AdmittedFileDiff } from "./storyReviewAdmission.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit } from "./gitRunner.ts";

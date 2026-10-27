@@ -8,7 +8,7 @@ import path from "node:path";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 import { git, observed, storyWorktree } from "./support/storyReviewWorktree.ts";

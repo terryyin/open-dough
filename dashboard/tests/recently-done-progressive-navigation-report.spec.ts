@@ -1,4 +1,4 @@
-// Mark as done in the Final report panel, on a session placed 27th in
+// Mark as done in the Final report, on a session placed 27th in
 // Recently done once done: a refinement session of a story no list shows,
 // whose prepared workspace is gone, so Taken offers only its final report.
 // The panel closes, and Recently done extends exactly through the entry,
@@ -31,7 +31,7 @@ const retired = {
 };
 const entryName = standaloneSessionName("Refinement", retired.title);
 
-test("Mark as done in the Final report panel closes it and lands on entry 27 once entries 1 to 27 are read, never reading 28 to 35", async ({
+test("Mark as done in the Final report closes it and lands on entry 27 once entries 1 to 27 are read, never reading 28 to 35", async ({
   page,
   dashboard,
 }) => {

@@ -14,19 +14,19 @@ import {
 } from "./sessionAdmission.ts";
 
 // A kept session with its admitted passive final-report reader.
-export type AdmittedResult = {
-  readonly kind: "result";
+export type AdmittedFinalReport = {
+  readonly kind: "final-report";
   readonly record: LaunchRecord;
-  readonly read: NonNullable<LaunchHost["readResult"]>;
+  readonly read: NonNullable<LaunchHost["readFinalReport"]>;
 };
 
 // Recorded Claude and Cursor launches read dashboard completion evidence:
 // the retained explicit report is each host's result source, never a native
 // final-answer extraction. Legacy Claude records keep their existing
 // refusal, rather than implying a native reader.
-function retainedResultReader(
+function retainedFinalReportReader(
   record: LaunchRecord,
-): AdmittedResult["read"] | undefined {
+): AdmittedFinalReport["read"] | undefined {
   const { host } = record.session;
   if (
     (host !== "claude" && host !== "cursor") ||
@@ -50,19 +50,22 @@ function retainedResultReader(
   };
 }
 
-export async function resultRequest(url: URL): Promise<AdmittedResult> {
-  requireExactQuery(url, ["source", "host", "session"], "result");
+export async function finalReportRequest(
+  url: URL,
+): Promise<AdmittedFinalReport> {
+  requireExactQuery(url, ["source", "host", "session"], "final report");
   const source = knownSource(url.searchParams.get("source"));
   const host = sessionHostSchema.safeParse(url.searchParams.get("host"));
   const sessionId = url.searchParams.get("session");
   if (!host.success || !sessionId)
-    throw new RefusedRequest(400, "The result session is malformed.");
+    throw new RefusedRequest(400, "The final report session is malformed.");
   const record = await keptSession(source.id, { host: host.data, sessionId });
   if (record === undefined) throw noSuchSession();
   const boundary = launchHost(record.session.host);
   const read =
-    boundary?.readResult?.bind(boundary) ?? retainedResultReader(record);
+    boundary?.readFinalReport?.bind(boundary) ??
+    retainedFinalReportReader(record);
   if (read === undefined)
     throw new RefusedRequest(400, "This host cannot read a final report.");
-  return { kind: "result", record, read };
+  return { kind: "final-report", record, read };
 }

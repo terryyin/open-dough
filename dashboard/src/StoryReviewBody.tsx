@@ -4,7 +4,7 @@ import type {
   ReviewComparison,
   ReviewItem,
   StoryReview,
-} from "./storyReview.ts";
+} from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";

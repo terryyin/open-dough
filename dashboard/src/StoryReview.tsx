@@ -1,27 +1,27 @@
-// One side panel selects a workspace, captured run or published completion.
+// One story review selects a workspace, captured run or published completion.
 // Refresh preserves selection; the common body and frame keep navigation and focus.
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { PanelControls } from "./PanelControls.tsx";
-import { type MarkReviewedAnswer, type StoryReview } from "./storyReview.ts";
+import { SidePanelControls } from "./SidePanelControls.tsx";
+import type * as Review from "./storyReviewContract.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
 import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
 import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
-import type { StoryReviewRequest } from "./pageReviews.ts";
+import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
-import { SidePanelEdge } from "./SidePanelEdge.tsx";
+import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
 import "./story-review-touch.css";
 
-export function StoryReviewPanel({
+export function StoryReview({
   request,
   maximized,
   onMaximize,
@@ -62,8 +62,8 @@ export function StoryReviewPanel({
   // Mark reviewed's answer for the review it marked, and whether a mark is
   // still being made.
   const [made, setMade] = useState<{
-    readonly of: StoryReview;
-    readonly answer: MarkReviewedAnswer;
+    readonly of: Review.StoryReview;
+    readonly answer: Review.MarkReviewedAnswer;
   }>();
   const [marking, setMarking] = useState(false);
   const madeHere =
@@ -104,16 +104,16 @@ export function StoryReviewPanel({
   }, [request]);
   return (
     <section
-      className="side-panel story-review-panel"
-      aria-label="Review changes"
+      className="side-panel story-review"
+      aria-label="Story review"
       aria-describedby={descriptionId}
     >
-      <SidePanelEdge />
+      <PanelDivider />
       <header className="side-panel-header">
         <div className="side-panel-names">
           <h2 id={headingId}>{title}</h2>
           <p className="quiet">
-            Review changes <code>{identity}</code>
+            Story review <code>{identity}</code>
           </p>
         </div>
         <div className="side-panel-actions">
@@ -127,7 +127,7 @@ export function StoryReviewPanel({
               if (!reading) setRound(round + 1);
             }}
           />
-          <PanelControls
+          <SidePanelControls
             maximized={maximized}
             onMaximize={onMaximize}
             onClose={onClose}

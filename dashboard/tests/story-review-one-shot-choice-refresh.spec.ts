@@ -21,7 +21,7 @@ test("Refresh preserves a selected run after a new capture and reconciles deleti
     codexProtocol,
   );
   await openCapturedReview(page, origin);
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   await review.getByRole("radio", { name: "Landed runs" }).check();
   const select = review.getByRole("listbox", { name: "Landed run" });
   await select.selectOption(first.key);

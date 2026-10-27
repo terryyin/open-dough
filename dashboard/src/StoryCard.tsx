@@ -73,7 +73,7 @@ export function StoryCard({
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   // Outlined while the page's panel shows one of the card's sessions.
   const { shownSession } = usePageSessions();
-  const inPanel = storyCardSessionsOf(
+  const inSidePanel = storyCardSessionsOf(
     launches.launched,
     sourceId,
     entry.identity,
@@ -90,7 +90,7 @@ export function StoryCard({
       className={[
         "story-card",
         selected && "story-card-selected",
-        inPanel && "in-terminal",
+        inSidePanel && "in-side-panel",
         starting && "story-card-starting",
       ]
         .filter(Boolean)

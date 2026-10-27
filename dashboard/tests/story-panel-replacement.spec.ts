@@ -6,20 +6,20 @@
 // review opens never answers the new one; reading the report neither continues
 // nor marks its session done, and reopening a review reads a fresh snapshot.
 // Asking again for the review shown takes the keyboard to it and keeps its
-// snapshot; the real `claude` is never reached. The final report's edge
+// snapshot; the real `claude` is never reached. The Panel divider beside the final report
 // resizes the panel as the terminal's and a review's do
 // (./side-panel-width.spec.ts).
 
 import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../src/storyReview.ts";
+import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { box } from "./pageLayout.ts";
 import {
-  dragEdge,
-  expectEdgeSays,
+  dragDivider,
+  expectDividerSays,
   expectWidth,
   keyStep,
-  resizeEdge,
+  panelDivider,
 } from "./sidePanelWidthPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
@@ -62,7 +62,7 @@ test("a review, another story's review, and a final report replace each other in
   const cardA = await openBacklog(page, origin);
   const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
   const items = panelItems(page);
-  const review = page.getByRole("region", { name: "Review changes" });
+  const review = page.getByRole("region", { name: "Story review" });
   const report = page.getByRole("region", { name: "Final report" });
   const reviewOf = (card: Locator) =>
     card.getByRole("button", { name: "Review changes" });
@@ -113,7 +113,7 @@ test("a review, another story's review, and a final report replace each other in
     await expect(review.getByRole("heading", { level: 2 })).toHaveText(
       "Story B",
     );
-    await expect(review).toContainText(`Review changes ${otherQueuedIdentity}`);
+    await expect(review).toContainText(`Story review ${otherQueuedIdentity}`);
     await expect(
       review.getByRole("list", { name: "1 changed file" }),
     ).toBeVisible();
@@ -132,15 +132,15 @@ test("a review, another story's review, and a final report replace each other in
     await expect(report).toContainText(storyBReport);
     await expect(items).toHaveCount(1);
     await expect(review).toHaveCount(0);
-    // The report's edge resizes the panel with the mouse and the keyboard.
+    // The Panel divider resizes the Side panel with the mouse and the keyboard.
     const before = Math.round((await box(report)).width);
-    await dragEdge(page, -100);
+    await dragDivider(page, -100);
     await expectWidth(report, before + 100);
-    await expectEdgeSays(page, before + 100);
-    await resizeEdge(page).focus();
+    await expectDividerSays(page, before + 100);
+    await panelDivider(page).focus();
     await page.keyboard.press("ArrowRight");
     await expectWidth(report, before + 100 - keyStep);
-    await expectEdgeSays(page, before + 100 - keyStep);
+    await expectDividerSays(page, before + 100 - keyStep);
     await expect(report).toContainText(storyBReport);
     const reads = reviewReads.length;
     await reviewOf(cardB).click();

@@ -185,9 +185,7 @@ test("installed attention report stays open, durable and readable through column
     // The final report is Codex's own; the message stays on the entry.
     await claimed.getByRole("button", { name: "Read final report" }).click();
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(
-      nativeReport,
-    );
+    await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
     await expect(panel).not.toContainText("Reminder: inspect the migration");
     await expect(
       panel.getByRole("button", { name: "Mark as read" }),
@@ -227,9 +225,7 @@ test("installed attention report stays open, durable and readable through column
     await heading.click();
     await expect(messagePartOf(recent).text).toHaveText(text);
     await recent.getByRole("button", { name: "Read final report" }).click();
-    await expect(panel.locator(".session-final-report")).toHaveText(
-      nativeReport,
-    );
+    await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
     expect(
       nativeSince(nativeBeforeDone, [...steering, "thread/resume"]),
     ).toEqual([

@@ -12,7 +12,7 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewSchema,
-} from "../../src/storyReview.ts";
+} from "../../src/storyReviewContract.ts";
 import { git, writeAt } from "../support/storyReviewWorktree.ts";
 import {
   agentWorktree,

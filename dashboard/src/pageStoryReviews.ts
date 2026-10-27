@@ -1,4 +1,4 @@
-// The page's one opening of a story review (`./StoryReviewPanel.tsx`) in its
+// The page's one opening of a story review (`./StoryReview.tsx`) in its
 // side panel (`./PageFrame.tsx`), which a story's card reaches without
 // every component between them passing it along. A review is not a session:
 // it has no session mark and no lifecycle action, and showing one detaches
@@ -19,13 +19,13 @@ export type StoryReviewRequest = {
 
 export type OpenStoryReview = (request: StoryReviewRequest) => void;
 
-export const ReviewsOnPage = createContext<OpenStoryReview | undefined>(
+export const StoryReviewsOnPage = createContext<OpenStoryReview | undefined>(
   undefined,
 );
 
 // Opens a story's review in the page's panel.
 export function useOpenStoryReview(): OpenStoryReview {
-  const open = useContext(ReviewsOnPage);
+  const open = useContext(StoryReviewsOnPage);
   if (open === undefined) {
     throw new Error("A story review is opened outside the page's PageFrame.");
   }

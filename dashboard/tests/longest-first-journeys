@@ -22,7 +22,7 @@
 33.4	notification-story-navigation.spec.ts
 33.0	session-workspace-retirement-claude.spec.ts
 32.8	feedback-maintenance-due-row.spec.ts
-32.7	session-result-touch.spec.ts
+32.7	final-report-touch.spec.ts
 32.6	story-readiness-gaps.spec.ts
 32.4	feedback-maintenance-launch.spec.ts
 32.4	story-reference-done.spec.ts
@@ -77,7 +77,7 @@
 18.0	frame-launch-look.spec.ts
 17.9	story-review-nothing.spec.ts
 17.7	board-kept.spec.ts
-17.7	session-result-touch-edge.spec.ts
+17.7	final-report-touch-divider.spec.ts
 17.6	responsive-session-start-codex.spec.ts
 17.4	startup-host-words.spec.ts
 17.0	story-review-commit-refresh.spec.ts

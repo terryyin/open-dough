@@ -9,7 +9,7 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewSchema,
-} from "../../src/storyReview.ts";
+} from "../../src/storyReviewContract.ts";
 
 test.use({ serverMode: "boundary" });
 

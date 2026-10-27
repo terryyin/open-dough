@@ -2,7 +2,7 @@
 // Registered by ./cursor-sessions-sidebar-size-kept.spec.ts.
 import {
   expectCollapsed,
-  expectEdgeSays,
+  expectDividerSays,
   expectSplit,
   heightKey,
   keepInBrowser,
@@ -31,7 +31,7 @@ test("a height saved under the former Sessions sidebar key is recovered once and
   await expect(shown.sidebar).toBeVisible();
   await expectCollapsed(shown);
   await shown.header.click();
-  await expectEdgeSays(shown.edge, 280);
+  await expectDividerSays(shown.divider, 280);
   await expectSplit(shown, await roomOf(shown), 280);
   expect(await keptHeight(page)).toBe("280");
 
@@ -40,15 +40,15 @@ test("a height saved under the former Sessions sidebar key is recovered once and
   await reloadUntilRead(page);
   await expectCollapsed(shown);
   await shown.header.click();
-  await expectEdgeSays(shown.edge, 280);
-  await shown.edge.focus();
+  await expectDividerSays(shown.divider, 280);
+  await shown.divider.focus();
   await page.keyboard.press("ArrowUp");
   const chosen = 280 + keyStep;
-  await expectEdgeSays(shown.edge, chosen);
+  await expectDividerSays(shown.divider, chosen);
   expect(await keptHeight(page)).toBe(String(chosen));
   await reloadUntilRead(page);
   await expectCollapsed(shown);
   await shown.header.click();
-  await expectEdgeSays(shown.edge, chosen);
+  await expectDividerSays(shown.divider, chosen);
   await expectSplit(shown, await roomOf(shown), chosen);
 });

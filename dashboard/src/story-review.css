@@ -1,4 +1,4 @@
-/* A story review (./StoryReviewPanel.tsx) in the page's side panel, whose
+/* A story review (./StoryReview.tsx) in the page's side panel, whose
    frame, header, Refresh, and panel controls it shares with the terminal
    (./side-panel.css). Beneath the header, the review's fixed top holds the
    context line, the review's feedback, and its marking controls: the

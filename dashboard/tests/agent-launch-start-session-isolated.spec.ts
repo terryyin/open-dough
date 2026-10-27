@@ -161,7 +161,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
 
   // The session opened in the page's terminal, whose toolbar names the
   // session and no workspace. Once the worktree is gone, the entry says its
-  // saved workspace is missing and the report panel names that worktree.
+  // saved workspace is missing and the final report names that worktree.
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal).toContainText(text);
   await expect(terminal).toContainText("Ad hoc session");

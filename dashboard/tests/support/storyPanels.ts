@@ -93,7 +93,7 @@ export const listed = (sessionId: string) => ({
 // The panel's named items: whichever of them the page shows.
 export const panelItems = (page: Page) =>
   page.getByRole("region", {
-    name: /^(Terminal|Final report|Review changes)$/,
+    name: /^(Terminal|Final report|Story review)$/,
   });
 
 // What a session's kept record says of it: its state and whether it is done.

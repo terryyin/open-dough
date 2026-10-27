@@ -1,15 +1,9 @@
-// The terminal panel's header maximizes and restores the panel and closes it
-// by frame icon controls named by label and tooltip, on the journey of
-// ./agent-terminal.spec.ts: maximized, the panel takes the page column's
-// room, the banner and stories hidden behind it, with the same session still
-// attached; an open Sessions sidebar stays beside it, and opening another of
-// its entries shows that session in the normal split, as any change of the
-// panel's content does; Restore returns the split. Close
-// hides the panel and leaves the session running and not marked done, and the
-// next opened session shows in the split. On a narrow window, maximized fills
-// the window and Restore stacks the panel above the page again. The page's own
-// dashboard server attaches the synthetic `claude` (./fixtures/fake-claude);
-// the real one is never reached.
+// The terminal's named frame icons maximize/restore/close (./agent-terminal.spec.ts).
+// Maximize takes the page column's room, hiding banner/stories with the same
+// session attached and Sessions sidebar beside it. A different session/content
+// opens split; Restore recovers split, stacked above the page on narrow windows.
+// Close leaves the session running and unmarked; reopening starts split.
+// This page's dashboard attaches only synthetic Claude (./fixtures/fake-claude).
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -53,7 +47,7 @@ function expectCovers(
   expect(found.height).toBeCloseTo(room.height, 0);
 }
 
-test.describe("maximizing the terminal panel", () => {
+test.describe("maximizing the terminal", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     test.setTimeout(120_000);

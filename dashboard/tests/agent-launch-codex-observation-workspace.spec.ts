@@ -95,7 +95,7 @@ test("predecessor without continuation gains no command; missing workspace prese
       .getByRole("button", { name: "Read final report" })
       .click();
     const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".session-final-report")).toHaveText(
+    await expect(panel.locator(".final-report-text")).toHaveText(
       "The saved conversation's final report.",
     );
     await panel.getByRole("button", { name: "Close", exact: true }).click();

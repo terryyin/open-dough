@@ -176,7 +176,7 @@ destinations](AGENT-LAUNCH-HISTORY.md) and [navigation](../docs/dashboard-naviga
 
 ## Look and controls
 
-The frame (banner, Sessions sidebar, terminal panel chrome, System settings,
+The frame (banner, Sessions sidebar, terminal chrome, System settings,
 dialogs, Column containers, and page states) draws on one shared foundation:
 colour, type, spacing, radius, elevation, and control-size tokens on `:root` in
 `src/styles.css`; `Icon` and `IconButton` in `src/Icon.tsx`, which wrap the

@@ -5,7 +5,7 @@ import {
   agentNameOf,
   profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { objectIdSchema } from "../src/storyReview.ts";
+import { objectIdSchema } from "../src/storyReviewContract.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
 import {
   publishedStoryEvidence,

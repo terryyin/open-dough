@@ -48,10 +48,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   await open.focus();
   await page.keyboard.press("Enter");
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
-  await expect(panel.locator(".session-result-body")).toBeFocused();
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await expect(panel.locator(".final-report-body")).toBeFocused();
   await expect(entry).toContainText("Shown in final report");
-  await expect(card(notRefinedStory)).toHaveClass(/in-terminal/);
+  await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
   await expect(panel).toContainText(record.session.sessionId);
   expect(await page.evaluate(() => "reportExecuted" in window)).toBe(false);
   await page.keyboard.press("Meta+Shift+Escape");
@@ -68,7 +68,7 @@ test("card, Recently done and sidebar review the retained report with attention,
     .taken.locator(".session-entry")
     .filter({ hasText: native.threadId });
   await local.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(
     local.getByRole("button", { name: "Read final report" }),
@@ -92,7 +92,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(
     parts(page).project.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(sideOpen).toHaveAttribute("aria-current", "true");
   await expect(entry).toContainText("Ready for review");
   await panel.getByRole("button", { name: "Close", exact: true }).click();
@@ -170,11 +170,11 @@ test("changing or closing selection cancels a held report and never shows its te
   await second.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel).toContainText(next.session.sessionId);
-  await expect(panel.locator(".session-final-report")).toHaveText(
+  await expect(panel.locator(".final-report-text")).toHaveText(
     "Second conversation's own result",
   );
   release?.();
-  await expect(panel.locator(".session-final-report")).toHaveText(
+  await expect(panel.locator(".final-report-text")).toHaveText(
     "Second conversation's own result",
   );
   await expect(panel).not.toContainText("a5df85d90a");

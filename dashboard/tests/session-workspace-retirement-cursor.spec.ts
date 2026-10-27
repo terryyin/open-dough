@@ -1,4 +1,4 @@
-// Recorded Cursor workspace retirement uses the shared passive report panel:
+// Recorded Cursor workspace retirement uses the shared passive final report:
 // the retained explicit report is Cursor's result source, read without
 // opening, resuming, or taking control of the session.
 import { readFileSync, rmSync } from "node:fs";
@@ -46,7 +46,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   await expect(entry).toContainText("saved workspace is missing");
   await entry.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(panel).toContainText(
     "Mark as done acknowledges this session; it does not complete the story.",
   );
@@ -64,7 +64,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
   await expect(entry.locator(".session-unread-report")).toHaveCount(0);
   await entry.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await markDone(panel);
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
@@ -76,7 +76,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
     .filter({ hasText: record.session.sessionId });
   await expect(recent).toContainText("Done");
   await recent.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
@@ -102,7 +102,7 @@ test("missing Cursor workspace without retained report explains the limitation w
   );
   await expect(panel).toContainText("The saved conversation is unchanged.");
   await expect(panel).toContainText("saved workspace is missing");
-  await expect(panel.locator(".session-final-report")).toHaveCount(0);
+  await expect(panel.locator(".final-report-text")).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);

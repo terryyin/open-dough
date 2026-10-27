@@ -1,6 +1,6 @@
 // The side panel's width beside the page (`./PageFrame.tsx`). The developer
-// keeps one preferred width, chosen by dragging the panel's edge or with its
-// Left and Right keys (`./SidePanelEdge.tsx`), and it serves whatever the
+// keeps one preferred width, chosen by dragging the panel's divider or with its
+// Left and Right keys (`./PanelDivider.tsx`), and it serves whatever the
 // panel shows, across closing and reopening, the Sessions sidebar, and
 // Maximize/Restore, and is kept in this browser's disposable storage, so a
 // reload recovers it. Until one is chosen, or where the browser keeps none,
@@ -8,7 +8,7 @@
 // preference and the room the page and the panel share, beside the sidebar
 // when it is open: neither becomes narrower than its usable minimum. Where
 // that room cannot hold both, or the window is narrow, the panel stacks above
-// the page and offers no edge. A limit the room sets never changes the
+// the page and offers no divider. A limit the room sets never changes the
 // preference, so more room recovers it.
 
 import {
@@ -33,7 +33,7 @@ const narrowWindow = "(max-width: 800px)";
 // file list above its diff.
 const panelMinimum = 20;
 const pageMinimum = 20;
-// How far one Left or Right key moves the edge, in rem.
+// How far one Left or Right key moves the divider, in rem.
 const keyStep = 2;
 
 type SidePanelLayout =
@@ -112,17 +112,17 @@ function useRoom(
   return room;
 }
 
-// The edge's width and how it changes, while the panel offers one.
-type SidePanelEdgeState = Extract<SidePanelLayout, { arrangement: "split" }> & {
+// The width controlled by the Panel divider, while it is offered.
+type PanelDividerState = Extract<SidePanelLayout, { arrangement: "split" }> & {
   readonly choose: (width: number) => void;
 };
 
-// Whether the panel stacks above the page, and otherwise its edge.
+// Whether the panel stacks above the page, and otherwise its divider.
 export function useSidePanelWidth(
   frame: RefObject<HTMLElement | null>,
   shown: boolean,
   sessionsSidebarOpen: boolean,
-): { stacked: boolean; edge: SidePanelEdgeState | undefined } {
+): { stacked: boolean; divider: PanelDividerState | undefined } {
   const [preferred, prefer] = usePreferredSize(preferredWidthKey);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
   const room = useRoom(frame, shown, sessionsSidebarOpen);
@@ -145,10 +145,10 @@ export function useSidePanelWidth(
   );
   return {
     stacked: layout?.arrangement === "stacked",
-    edge: split && { ...split, choose },
+    divider: split && { ...split, choose },
   };
 }
 
-const EdgeContext = createContext<SidePanelEdgeState | undefined>(undefined);
-export const SidePanelEdgeOnPage = EdgeContext.Provider;
-export const useSidePanelEdge = () => useContext(EdgeContext);
+const DividerContext = createContext<PanelDividerState | undefined>(undefined);
+export const PanelDividerOnPage = DividerContext.Provider;
+export const usePanelDivider = () => useContext(DividerContext);

@@ -21,7 +21,7 @@ import {
   storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
   storyReviewSchema,
-} from "../src/storyReview.ts";
+} from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   agentWorktree,
@@ -46,7 +46,7 @@ import {
 } from "./support/startOrigin.ts";
 import {
   keptReviewMarks,
-  openReview,
+  openStoryReview,
   reviewedRefs,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
@@ -85,7 +85,7 @@ async function expectStoryWorktreeReviewedAlone(
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
-  const opened = await openReview(page, card);
+  const opened = await openStoryReview(page, card);
   const review = reviewRegion(page);
   expect(opened.baseline).toBe(claim);
   expect(opened.head).toBe(git(workspace, "rev-parse", "HEAD"));

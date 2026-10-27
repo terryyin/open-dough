@@ -1,16 +1,12 @@
-// Mark reviewed marks the snapshot a story's review shows, of Story A's
-// worktree (./support/storyReviewWorktree.ts): the review then says the
-// snapshot is marked and when. What the worktree gained after the snapshot
-// stays unmarked, the marked tree survives Git's housekeeping through its
-// ref, and the worktree's index and status stay as they were. The mark
-// outlives a dashboard restart: the reopened review compares with it.
-// Opening, closing, refreshing, or replacing a review marks nothing; marking
-// again replaces the story's one mark and its ref. A mark request naming a
-// path, a malformed object, or an object the repository lacks keeps no mark.
+// Mark reviewed marks Story A's shown snapshot (./support/storyReviewWorktree.ts)
+// with a time; later work stays unmarked. Its ref survives Git housekeeping and
+// restart, when reopening compares with it; worktree index/status stay unchanged.
+// Opening/closing/refreshing/replacing marks nothing. Marking again replaces the
+// story's mark/ref. Paths, malformed objects and missing objects keep no mark.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewMarkEndpoint } from "../src/storyReview.ts";
+import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   builtDashboardDir,
@@ -26,7 +22,7 @@ import {
   keptStoryAMark,
   markReviewed,
   nextSnapshot,
-  openReview,
+  openStoryReview,
   reviewedRefs,
   reviewRegion,
 } from "./support/storyReviewMark.ts";
@@ -49,7 +45,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const shown = await openReview(page, card);
+  const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await expect(
     review.getByRole("list", { name: "7 changed files" }),
@@ -92,7 +88,7 @@ test("the review still compares with the mark, saying when it was made, after th
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await openReview(page, card);
+  await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
   const mark = keptStoryAMark(dashboard);
@@ -109,7 +105,7 @@ test("the review still compares with the mark, saying when it was made, after th
   });
   try {
     await page.reload();
-    const reopened = await openReview(
+    const reopened = await openStoryReview(
       page,
       parts(page).backlog.getByRole("article", { name: "Story A" }),
     );
@@ -142,21 +138,21 @@ test("opening, closing, refreshing, and replacing a review marks nothing", async
     expect(reviewedRefs(origin.project)).toBe("");
   };
 
-  await openReview(page, cardA);
+  await openStoryReview(page, cardA);
   await unmarked();
   await review.getByRole("button", { name: "Close", exact: true }).click();
   await expect(review).toHaveCount(0);
-  await openReview(page, cardA);
+  await openStoryReview(page, cardA);
   await unmarked();
   await review.getByRole("button", { name: "Refresh" }).click();
   await expect(review.getByRole("status").first()).toHaveText(
     /^Review refreshed:/,
   );
   await unmarked();
-  await openReview(page, cardB);
+  await openStoryReview(page, cardB);
   await expect(review.getByRole("heading", { name: "Story B" })).toBeVisible();
   await unmarked();
-  await openReview(page, cardA);
+  await openStoryReview(page, cardA);
   await expect(review.getByRole("heading", { name: "Story A" })).toBeVisible();
   await unmarked();
 });
@@ -169,7 +165,7 @@ test("marking again replaces the story's one mark and its ref", async ({
   const { workspace } = storyWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const first = await openReview(page, card);
+  const first = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await markReviewed(review);
 

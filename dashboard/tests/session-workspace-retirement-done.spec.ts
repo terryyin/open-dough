@@ -43,11 +43,11 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await expect(
     panel.getByRole("button", { name: "Retry report" }),
   ).toBeVisible();
-  await expect(panel.locator(".session-final-report")).toHaveCount(0);
+  await expect(panel.locator(".final-report-text")).toHaveCount(0);
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   protocol.readError = false;
   await panel.getByRole("button", { name: "Retry report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   // A separate record arrives while this result is open; viewing cannot rewrite it.
   const records = stored(dashboard.home);
   const first = records[0];
@@ -73,7 +73,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
     .filter({ hasText: native.threadId });
   await expect(recent).toContainText("Done");
   await recent.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".session-final-report")).toHaveText(report);
+  await expect(panel.locator(".final-report-text")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
   expect(
     stored(dashboard.home).find(

@@ -67,7 +67,7 @@ export function SessionEntry({
     (record.completion === undefined ||
       marksDone(hostOperations, record.session.host));
   const current = shown?.key === sessionKey(record.session);
-  const inResult = current && shown.kind === "result";
+  const inFinalReport = current && shown.kind === "final-report";
   const inTerminal = current && shown.kind === "terminal";
   // The entry's status line, which says what its last mark or delete came to;
   // nothing clears it but the next control asking.
@@ -80,7 +80,7 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className={current ? `${entryClass} in-terminal` : entryClass}
+      className={current ? `${entryClass} in-side-panel` : entryClass}
       aria-label={
         onStoryCard ? `${name} session` : `${name} session for ${title}`
       }
@@ -103,8 +103,10 @@ export function SessionEntry({
           say={say}
         />
       )}
-      {inTerminal && <p className="shown-in-terminal">Shown in terminal</p>}
-      {inResult && <p className="shown-in-terminal">Shown in final report</p>}
+      {inTerminal && <p className="shown-session-content">Shown in terminal</p>}
+      {inFinalReport && (
+        <p className="shown-session-content">Shown in final report</p>
+      )}
       <p>
         {record.firstInput !== undefined &&
         record.firstInput.state !== "confirmed"

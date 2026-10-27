@@ -43,7 +43,7 @@ for (const height of [320, 240]) {
         since,
         open,
         panel,
-        result,
+        reportText,
         mark,
         question,
         choice,
@@ -122,10 +122,14 @@ for (const height of [320, 240]) {
       passive(native, since);
       expect(await underlying()).toEqual(beforePage);
       expect(existsSync(workspace)).toBe(false);
-      await readReportByTouch(panel, result, "Landed on main at `a5df85d90a`.");
       await readReportByTouch(
         panel,
-        result,
+        reportText,
+        "Landed on main at `a5df85d90a`.",
+      );
+      await readReportByTouch(
+        panel,
+        reportText,
         "<script>window.reportExecuted=true</script>",
       );
       const close = panel.getByRole("button", { name: "Close", exact: true });
@@ -138,7 +142,7 @@ for (const height of [320, 240]) {
       // Reopening still needs the same explicit answer; only the coordinate tap
       // below records Done and performs its native operation.
       await page.keyboard.press("Enter");
-      await expect(result).toHaveText(report);
+      await expect(reportText).toHaveText(report);
       await readReportByTouch(panel, mark);
       await tapWhereShown(mark);
       await expect(question).toHaveCount(1);
@@ -189,11 +193,19 @@ for (const { name, viewport, hasTouch } of [
       dashboard,
       codexProtocol,
     }) => {
-      const { workspace, native, since, open, panel, result, mark, question } =
-        await openUnfinishedReport(page, dashboard, codexProtocol, journey);
+      const {
+        workspace,
+        native,
+        since,
+        open,
+        panel,
+        reportText,
+        mark,
+        question,
+      } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
       const initial = stored(dashboard.home)[0];
-      await expect(result).toHaveText(report);
-      expect(await reportGeometry(result)).toMatchObject({
+      await expect(reportText).toHaveText(report);
+      expect(await reportGeometry(reportText)).toMatchObject({
         visible: true,
         hit: true,
       });
