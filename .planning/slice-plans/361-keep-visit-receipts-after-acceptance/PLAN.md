@@ -215,3 +215,37 @@ boundaries have distinct responsibilities, so extracting their small stopped
 result would add indirection. All accepted implementation, setup, assertions
 and consumer proof remain unchanged. Coordinator confirmed G1 is proved and
 the obligation check passes.
+
+## Execution retrospective
+
+Coordinator reviewed original correction input, accepted proof, related source
+and caller paths, refactor checks, current ADR index and applicable ADR 0002/0006,
+and the existing execution conversation. Attributable implementation is
+`b1a0f093101503adc88992b6790c47941f6e80a5`; claim `4c84a50b` is provenance,
+and preceding `dd88b748` and sibling history are excluded from this correction.
+That implementation was accepted on the remote execution branch with suffix
+base `4c84a50beac7e95e44d94592f3ecebd2add70194`; observation reused
+`/tmp/dough-ci-501/watch-HD8LcY`. CI is pending during review.
+
+The result satisfies the original receipt and interrupted-rerun promises.
+Post-acceptance handling has one shared caller, while standalone refusal retains
+its distinct contract. Recovery adds no durable state. The folded late-consumer
+journey retains integration and retirement proof; new cases observe distinct
+integration, finish and Land boundaries rather than duplicating one journey.
+Outside-in failures preceded the product fix and independent scratch-disable
+proof establishes sensitivity. The installed-helper proof issue was corrected
+and renewed only for its affected consumers. No remaining residue, contradictory
+direction, ADR conflict or supported follow-up correction was found. Product
+alignment supports the backlog's low-cost delivery and feedback direction;
+no further product recommendation is needed.
+
+Process review is enabled by `skipProcessRetrospective: false`. Real coordinator
+and agent history was available. No new supported shared-process finding was
+identified; proof-fixture correction and bounded related-suite execution were
+necessary observations, not unowned product work. No process log write or
+correction plan is needed. Final CI conclusions remain conditional on the
+execution's completion receipt.
+
+## Execution complete
+
+Product advice: no change.
