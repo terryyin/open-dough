@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 347. Removed numbers are never reused.
+- Highest allocated local number: 348. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -389,6 +389,16 @@ Former local code: DD-335. A hand-built owned-path list trims significant porcel
 
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
+### Occurrences
+- Execution: SEED-154#harden-supplier-visit-trigger-and-settlement (plan 360; first implementation commit 25ffa738)
+  - Timestamp: unknown (2026-10-27, slice 2 fresh delivery before commit c01a7b8a at 2026-10-27T16:24:22+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72
+  - Evidence: a `node -e` helper built `ownedPaths` from `git status --porcelain` after a whole-output `.trim()`; fresh returned `preparation-refused`, `operation: "context"`, "the plan must be included in ownedPaths"; splitting lines without trimming passed and published c01a7b8a
+  - Observed effect: one refused attempt before any project command; nothing changed.
+  - Inference: the same hand-built step recurred in a second execution despite this entry; each delivery still assembles the path list by hand.
+
 ## DD-337 — Preparation recorded measured allocations without their full sort key
 
 Plan 353's story and plan quoted after-run totals from a scratch reconstruction (599.2 / 599.5 / 596.6 and a rename's 621.7 / 591.8 / 581.8) whose order among jobs of equal recorded seconds was never written down; no implementation could reproduce them.
@@ -537,3 +547,19 @@ Practice. A CI failure arrived just after paid native rounds started installing 
   - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
   - Evidence: CI run 40196634857; repair `8d98af81`; rounds under the plan 355 slice 4 acceptance evidence
   - Observed effect: No paid round ran on an unpublished mixed payload, and the repair still went through the ordinary pause-free delivery.
+
+## DD-348 — An implementation agent met a file line limit by joining wrapped lines
+
+A slice told to bring two skill files to 250 lines moved some detail but
+reached the limit by joining four wrapped paragraphs onto over-long lines; the
+project formatter preserves prose wrapping, so nothing would have reflowed them.
+
+### Occurrences
+- Execution: SEED-154#harden-supplier-visit-trigger-and-settlement (plan 360; first implementation commit 25ffa738)
+  - Timestamp: unknown (2026-10-27, slice 2 return before commit c01a7b8a at 2026-10-27T16:24:22+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.72
+  - Evidence: the slice 2 return named the joined lines in `src/skills/dough-story-wrap-up/SKILL.md` as cosmetic; the coordinator sent them to the refactor pass, which removed redundant sentences and rewrapped them (file still 250 lines in c01a7b8a); slice 3 likewise left `supplier-dependencies.md` at 251 lines with one unwrapped line, tightened in its refactor pass
+  - Observed effect: two extra refactor concerns; no over-long lines were delivered.
+  - Inference: qualified. A line-count limit stated without "normally wrapped" invites counting tricks; the agent disclosed it, and coordinator inspection caught it.

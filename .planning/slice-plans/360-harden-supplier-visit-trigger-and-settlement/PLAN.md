@@ -363,3 +363,13 @@ concern was identified. Decisive premises for slices 1, 3 and the settlement
 discriminator were observed above; slice 2's guidance assertions are written to
 fail on the current text. No human decision is required: the trigger rule uses
 the shared procedure's existing completion definition, including planless work.
+
+## Execution complete
+
+Product advice: no backlog change. The visit now depends on a rule rather than
+the agent's supplier judgment; the remaining failure mode is an agent omitting
+`--supplier-identity` altogether, which nothing records. Observe whether
+completions actually carry a visit (for example in wrap-up or dashboard
+evidence) before adding machinery; keep identity derivation excluded unless
+that evidence shows omissions. The retrospective's defects are the follow-up
+correction [SEED-154#keep-visit-receipts-after-acceptance](../../seeds/SEED-154-supplier-integration-consumer-reconciliation.md#keep-visit-receipts-after-acceptance).
