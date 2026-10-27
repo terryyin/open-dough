@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-153#align-dashboard-ui-domain-concepts",
+  "mode": "story-branch",
+  "branch": "codex/align-the-dashboard-globally-with-its-ui-domain",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
