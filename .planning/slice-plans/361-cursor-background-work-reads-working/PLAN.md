@@ -68,16 +68,8 @@ Observed in this workspace on 2026-10-27 (this preparation's investigation):
 
 ### 1. Follow-up with unfinished belonging subagents reads Working
 Type: Behavior
-Status: planned
-Proof: Focused boundary/unit coverage under `dashboard/tests` (extend
-`boundary/cursor-session-classification.spec.ts` and/or a sibling host-boundary
-spec): with a temporary home whose
-`projects/<slug>/agent-transcripts/<sessionId>/subagents/` holds an unfinished
-jsonl, a held follow-up record with confirmed first instruction observes
-`activity: "working"`; the same tree with only `turn_ended` siblings (or no
-subagents / missing tree) observes `review`; a live stop-hint label still
-observes `working` without needing transcripts. Existing follow-up, waiting,
-and stop-hint classification cases stay green.
+Status: done
+Proof: Accepted — `npm run test:dashboard -- dashboard/tests/boundary/cursor-session-classification.spec.ts dashboard/tests/boundary/cursor-session-belonging-subagents.spec.ts --reporter=list` (18 passed). Observations: unfinished belonging → `working`; only `turn_ended` / no subagents / empty / unreadable → `review`; unconfirmed → `awaiting-instruction`; live stop-hint label → `working`; prior idleScreen cases green. Setup: mkdtemp home; stage under `cursorBelongingSubagentsDirectory`. Consumer-trace: reused shared `working` via `observeCursorSessions` → `nativeSessionShown` (Working, no attention).
 
 Behavior: Held Cursor session at the follow-up prompt after a confirmed first
 instruction, with any belonging `subagents/*.jsonl` lacking a `turn_ended`
@@ -86,6 +78,14 @@ When every belonging subagent has `turn_ended`, or none exist / the tree is
 unreadable → keep today's follow-up reading (`review` or
 `awaiting-instruction`). Live parent stop hint stays `working` regardless of
 subagents.
+
+## Learnings
+
+- Host `sessions(records, folder, signal)` must not take injected `home` as the
+  second positional arg; tests pass `home` only into `observeHeldCursorSession`.
+- Belonging observation cases live in sibling
+  `cursor-session-belonging-subagents.spec.ts`; production path builder is
+  `cursorBelongingSubagentsDirectory`.
 
 ## Concern evidence
 
