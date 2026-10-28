@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-158#publish-awaiting-hosted-proof",
+  "mode": "story-branch",
+  "branch": "cursor/publish-source-for-hosted-proof-without-marking",
+  "host": "cursor",
+  "model": "auto"
+}
