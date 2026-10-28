@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 349. Removed numbers are never reused.
+- Highest allocated local number: 363. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -479,3 +479,18 @@ delivery.
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-362](docs/maintainer/findings/ODF-362.md); rereading adds no occurrence.
+
+## DD-363 — Coordinator source-review hard-breaks fail fresh delivery
+
+Coordinator-authored `source-review.md` used Markdown hard-break trailing spaces
+that the fresh-delivery preparation refused; selective `npm run format` does not
+cover Markdown, so the defect reached the first guarded delivery.
+
+### Occurrences
+- Execution: SEED-157#check-stalled-delegated-verification, plan `.planning/slice-plans/363-check-stalled-delegated-verification/PLAN.md`, first related implementation commit `cd30010f9044cf703596a58e98a494e610cc6f2d`
+  - Timestamp: unknown (2026-10-28; first fresh-delivery attempt before accepted `cd30010` at 16:19:23+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.73
+  - Evidence: coordinator transcript `3bd97cc2-93e0-4e61-bca4-b477e0d7b5f4` — after writing/updating `source-review.md` and running `npm run format`, first `execution-increment-delivery.mjs fresh` failed; repair removed trailing hard-break spaces on the Launch/Input/Reviewer header lines; retry published `cd30010`. Distinct from ODF-329 (implementer ESLint under a lint-forbidden delegation brief).
+  - Observed effect: one refused fresh-delivery attempt and a mechanical coordinator repair before the accepted publish.
+  - Inference: qualified one-off. Coordinator Markdown artifacts need a pre-delivery whitespace check or must avoid hard-break trailing spaces; format alone does not cover them.

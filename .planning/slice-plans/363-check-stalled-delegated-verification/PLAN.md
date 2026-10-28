@@ -201,3 +201,9 @@ busy-spin diagnosed ~3s with owned recovery; healthy progressing child kept to
 terminal DONE; queued/inaccessible/ended-observer walked; sentinel ownership
 retry passed. Evidence retained in ODF-369 Delivered response. Response commit
 SHA filled after delivery.
+
+## Execution complete
+
+Product advice: No further product change from this execution; close the
+ODF-369 loop with release/install and the recorded ordinary-use observation.
+Leave backlog priorities unchanged.
