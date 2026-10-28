@@ -492,6 +492,6 @@ was required before acceptance.
   - Tool: Cursor
   - Model: auto
   - Open Dough release: modified; revision 67fad4e0; base 0.3.73
-  - Evidence: plan `source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
+  - Evidence: before-cleanup `1223cddb7bd75f7f56d4668ebd46930e28326491:.planning/slice-plans/364-publish-awaiting-hosted-proof/source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
   - Observed effect: one discarded source-only review, then a second launch that recovered examples 3–4 before commitment allocation
   - Inference: distinct from ODF-326 (unchanged-input repeat); here the first inputs were incomplete, so the second launch was corrective rather than redundant

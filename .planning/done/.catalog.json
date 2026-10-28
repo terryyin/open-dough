@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-158_publish-awaiting-hosted-proof.json",
+      "identity": "SEED-158#publish-awaiting-hosted-proof",
+      "completedAt": "2026-10-28T08:44:49.402Z",
+      "blob": "9cf19a2d2792483c06f0241f4c730ccb58d0dd8e"
+    },
+    {
       "fileName": "SEED-159_cursor-start-opens-the-session.json",
       "identity": "SEED-159#cursor-start-opens-the-session",
       "completedAt": "2026-10-28T07:48:54.651Z",
