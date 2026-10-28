@@ -33,7 +33,7 @@ remaining diagnosis.
 
 **Identity:** SEED-162#keep-long-running-dashboard-sessions-responsive
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["An execution approach and slice plan with memory, queue and interaction budgets and mapped proof have not been selected."],"basis":{"document":"97a15cc5b5c01dbde61cdd21a391bae379a71593c59c62d524393f4ba0bbffe8"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e9355ab8be08f74065c75f2a8686a150defd14edeb757645fa6dd033d747bf75","plan":"434b3bbf7a6109e4dec3a266f930ba36f78331f2b3c4a1bfd3c86d8ba9980a7c"}}
 ```
 
 **Beneficiary:** A developer leaving the dashboard open while agents produce
@@ -121,10 +121,7 @@ keeps its measured value and existing session semantics if later increments
 are deferred. The story is complete only when its stated memory and control
 outcomes are proved or an explicit scope decision changes them.
 
-**Next preparation:** Select the execution approach and budgets, map regression
-proof to the existing HTTP/WebSocket and synthetic-host fixtures, and settle
-the incident-observation probe in slice planning. No executable plan or
-implementation is supplied by this research-and-backlog request.
+**Plan:** [366 — Keep long-running dashboard sessions responsive with bounded memory](../slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md)
 
 ## Breadcrumbs
 
