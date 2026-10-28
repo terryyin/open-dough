@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-160_choose-cursor-session-effort.json",
+      "identity": "SEED-160#choose-cursor-session-effort",
+      "completedAt": "2026-10-28T10:15:30.309Z",
+      "blob": "fb420b319f894b2917eebdff68045a8916ddfe1e"
+    },
+    {
       "fileName": "SEED-157_check-stalled-delegated-verification.json",
       "identity": "SEED-157#check-stalled-delegated-verification",
       "completedAt": "2026-10-28T08:42:24.360Z",

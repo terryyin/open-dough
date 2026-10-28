@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-160#choose-cursor-session-effort",
+  "title": "Choose effort when starting a Cursor session",
+  "completedAt": "2026-10-28T10:15:30.309Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "cursor",
+  "model": "auto"
+}
