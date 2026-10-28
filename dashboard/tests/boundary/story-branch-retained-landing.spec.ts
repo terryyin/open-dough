@@ -90,9 +90,12 @@ test("a retained unfinished landing keeps the published prefix, local suffix, cl
   expect(executionRecordBytes(workspace, start.plan, start.agent)).toEqual(
     before,
   );
-  expect(
-    capturedPublicationSchema.parse(await story.integrated()),
-  ).toMatchObject({ classification: "already-accepted", pushCount: 0 });
+  const againWithout: unknown = await story.integrated();
+  expect(againWithout).toMatchObject({
+    classification: "already-accepted",
+    pushCount: 0,
+  });
+  expect(againWithout).not.toHaveProperty("landing");
   expect((await origin.originGit("rev-parse", "main")).trim()).toBe(accepted);
   expect(git(workspace, "rev-parse", "HEAD")).toBe(story.reviewedTip);
 
