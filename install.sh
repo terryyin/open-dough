@@ -120,34 +120,21 @@ managed_files=(
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md dough-execute-plan/manuals/custom-reuse-ci.md dough-execute-plan/manuals/reuse-ci.md dough-execute-plan/manuals/custom-ci-queue.md
-  dough-execute-plan/references/admit-accepted-work.md
-  dough-execute-plan/references/agent-commits.md
-  dough-execute-plan/references/ci-background-handoff.md
-  dough-execute-plan/references/ci-completion-wait.md
-  dough-execute-plan/references/ci-monitor.md
-  dough-execute-plan/references/ci-notify-codex.md
-  dough-execute-plan/references/ci-notify-hosts.md
-  dough-execute-plan/references/delegation.md
-  dough-execute-plan/references/destructive-later-outcome-check.md
-  dough-execute-plan/references/disposable-research.md
-  dough-execute-plan/references/established-start.md
-  dough-execute-plan/references/established-session.md
-  dough-execute-plan/references/execution-decisions.md
-  dough-execute-plan/references/execution-location.md
-  dough-execute-plan/references/finish-or-stop.md
-  dough-execute-plan/references/fresh-increment.md
-  dough-execute-plan/references/maintain-default-checkout.md
-  dough-execute-plan/references/one-shot.md
-  dough-execute-plan/references/one-shot-escalation.md
-  dough-execute-plan/references/oversized-slice.md
-  dough-execute-plan/references/preserve-published-history.md
-  dough-execute-plan/references/publication-rebase-conflict.md
-  dough-execute-plan/references/publish-the-candidate.md
-  dough-execute-plan/references/runtime-setup.md
-  dough-execute-plan/references/source-freshness.md
-  dough-execute-plan/references/story-obligations.md
-  dough-execute-plan/references/trunk-publication.md
-  dough-execute-plan/references/wrap-up-closure-publication.md
+  dough-execute-plan/references/admit-accepted-work.md dough-execute-plan/references/agent-commits.md
+  dough-execute-plan/references/ci-background-handoff.md dough-execute-plan/references/ci-completion-wait.md
+  dough-execute-plan/references/ci-monitor.md dough-execute-plan/references/ci-notify-codex.md
+  dough-execute-plan/references/ci-notify-hosts.md dough-execute-plan/references/delegation.md
+  dough-execute-plan/references/destructive-later-outcome-check.md dough-execute-plan/references/disposable-research.md
+  dough-execute-plan/references/established-start.md dough-execute-plan/references/established-session.md
+  dough-execute-plan/references/execution-decisions.md dough-execute-plan/references/execution-location.md
+  dough-execute-plan/references/finish-or-stop.md dough-execute-plan/references/fresh-increment.md
+  dough-execute-plan/references/interrupted-delegation.md dough-execute-plan/references/maintain-default-checkout.md
+  dough-execute-plan/references/one-shot.md dough-execute-plan/references/one-shot-escalation.md
+  dough-execute-plan/references/overdue-delegated-verification.md dough-execute-plan/references/oversized-slice.md
+  dough-execute-plan/references/preserve-published-history.md dough-execute-plan/references/publication-rebase-conflict.md
+  dough-execute-plan/references/publish-the-candidate.md dough-execute-plan/references/runtime-setup.md
+  dough-execute-plan/references/source-freshness.md dough-execute-plan/references/story-obligations.md
+  dough-execute-plan/references/trunk-publication.md dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-background-handoff.mjs dough-execute-plan/scripts/ci-background-hook.mjs
   dough-execute-plan/scripts/ci-background-session.mjs dough-execute-plan/scripts/ci-background-state.mjs dough-execute-plan/scripts/ci-background-waiter.mjs

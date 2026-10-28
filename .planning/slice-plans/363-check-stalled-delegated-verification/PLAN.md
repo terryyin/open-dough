@@ -2,6 +2,7 @@
 
 **Identity:** SEED-157#check-stalled-delegated-verification
 **Source:** [Selected story](../../seeds/SEED-157-check-stalled-delegated-verification.md#check-stalled-delegated-verification)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -28,8 +29,12 @@ recovery, plus the retained finding. Change the existing coordinator wait in
 it already owns supported waits, permits bounded state retrieval, assigns the
 command owner through terminal observation, retires only owned command watches,
 and handles interrupted agents. Extend that coherent ownership rule rather than
-adding another liveness owner or supervisor. Place the detailed rule there;
-link from an affected handoff only where needed for discovery.
+adding another liveness owner or supervisor. Keep discovery on the await
+handoff; place the detailed overdue rule in
+[overdue-delegated-verification.md](../../../src/skills/dough-execute-plan/references/overdue-delegated-verification.md)
+beside it (file-size cohesive split). Interrupted recovery stays reachable from
+the same delegation boundary via
+[interrupted-delegation.md](../../../src/skills/dough-execute-plan/references/interrupted-delegation.md).
 
 Reuse [expensive-proof policy](../../../src/skills/dough-story-refinement/references/executable-proof.md#choose-expensive-proof-before-launch)
 for workload evidence and reconsideration, and
@@ -114,7 +119,7 @@ stop the dependent claim and reassess its proof/ADR 0005 obligations.
 
 ### 1. Diagnose an overdue delegated proof while keeping ownership and coverage truthful
 Type: Behavior
-Status: planned
+Status: done
 Proof: The controlled stalled/healthy rehearsal and boundary walkthrough in the
 mapping above, plus affected existing delegation/CI guidance regression checks.
 
@@ -167,6 +172,32 @@ at execution; an unavailable controlled observation leaves its promise open.
 ## Learnings
 
 The focused runner needs Bash 5+ on this machine; putting the available
-Homebrew tools first on PATH reaches the actual checks. Preparation changed only
-records; the implementation, controlled rehearsal and finding response remain
-unexecuted.
+Homebrew tools first on PATH reaches the actual checks. Homebrew `timeout` /
+`gtimeout` may be absent — use an owned sleep+kill bound for short fixture
+lifetime. Prefer detached sentinels when the shell harness reaps background
+jobs with the parent. File-size refactor moved the overdue rule to
+`overdue-delegated-verification.md` and interrupted recovery to
+`interrupted-delegation.md`, with thin discovery stubs on `delegation.md` and
+payload declarations in `install.sh`.
+
+## Accepted proof (slice 1)
+
+```text
+proof:
+  command: PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-execute-plan/scripts/interrupted-delegation-guidance.test.mjs src/skills/dough-execute-plan/scripts/overdue-delegated-verification-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs tests/payload-declaration-links.sh
+  covers: overdue liveness rule; interrupted recovery stub+rule; CI completion ownership; payload declares new references
+  boundary: dough-execute-plan delegation wait / verification ownership / CI lifecycle / install payload
+  observations:
+    - overdue-delegated-verification-guidance.test.mjs: trigger, bounded evidence, healthy/queued/inaccessible, expensive-proof+CI reuse
+    - interrupted-delegation-guidance.test.mjs: interrupted recovery + recoverable stub anchor
+    - ci-completion-lifecycle-guidance.test.mjs: CI completion ownership unchanged
+    - tests/payload-declaration-links.sh: new references declared
+  setup: Homebrew Bash 5+ first on PATH; after post-change refactor split
+  result: pass (15 node guidance tests under node --test; payload check green)
+```
+
+Guided controlled rehearsal (scaled windows; not native acceptance): stalled
+busy-spin diagnosed ~3s with owned recovery; healthy progressing child kept to
+terminal DONE; queued/inaccessible/ended-observer walked; sentinel ownership
+retry passed. Evidence retained in ODF-369 Delivered response. Response commit
+SHA filled after delivery.

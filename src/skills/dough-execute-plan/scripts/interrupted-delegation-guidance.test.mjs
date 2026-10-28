@@ -14,8 +14,9 @@ const skill = dirname(dirname(fileURLToPath(import.meta.url)));
 const reference = (name) =>
   readFileSync(join(skill, "references", name), "utf8").replace(/\s+/g, " ");
 
-const delegation = reference("delegation.md");
+const recovery = reference("interrupted-delegation.md");
 const wrapUp = reference("wrap-up.md");
+const awaitResults = reference("delegation.md");
 
 const section = (text, start, end) => {
   const from = text.search(start);
@@ -25,12 +26,6 @@ const section = (text, start, end) => {
   const to = rest.slice(1).search(end);
   return to === -1 ? rest : rest.slice(0, to + 1);
 };
-
-const recovery = section(
-  delegation,
-  /## Recover an interrupted delegated/,
-  null,
-);
 
 test("an interrupted delegated call leaves the slice incomplete, never done on its claim", () => {
   // Both triggers start recovery: no return at all, and a later return
@@ -150,5 +145,17 @@ test("proof acceptance in wrap-up routes interrupted returns through this recove
   assert.match(
     acceptProof,
     /delegation\.md#recover-an-interrupted-delegated-result/,
+  );
+});
+
+test("delegation keeps a recoverable interrupted-result anchor that reaches the recovery rule", () => {
+  const stub = section(
+    awaitResults,
+    /## Recover an interrupted delegated/,
+    null,
+  );
+  assert.match(
+    stub,
+    /interrupted-delegation\.md#recover-an-interrupted-delegated-result/,
   );
 });
