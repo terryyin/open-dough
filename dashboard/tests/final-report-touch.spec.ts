@@ -21,6 +21,9 @@ import { tapWhereShown, pressWhereShown } from "./pageLayout.ts";
 import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
+// Short-phone journeys resize, rotate, and re-read choices before Done; keep
+// that body separate from beforeAll's publish budget (default 30s is too tight).
+test.setTimeout(60_000);
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
   test.setTimeout(120_000);
