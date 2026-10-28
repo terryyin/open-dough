@@ -2,6 +2,7 @@
 
 **Identity:** SEED-158#publish-awaiting-hosted-proof
 **Source:** [Selected story](../../seeds/SEED-158-publish-awaiting-hosted-proof.md#publish-awaiting-hosted-proof)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -121,10 +122,15 @@ stop the dependent claim and reassess ADR 0005 obligations.
 
 ### 1. Publish unfinished-slice source through guarded fresh without claiming done
 Type: Behavior
-Status: planned
-Proof: Discriminating fresh/obligation fixture coverage and the representative
-guidance walk in the mapping above, plus preserved ordinary done-path
-regressions touched by the change.
+Status: done
+Proof: Accepted 2026-10-28. Source review retained in `source-review.md`
+(commitments 1–25.4 observed or excluded). Discriminating fixtures in
+`execution-increment-fresh-progress.test.mjs` plus ordinary
+fresh/slice-status/obligations regressions; consumer-trace dispositions for
+prep/obligations/guidance; guidance walk of `fresh-increment.md` `progress`
+and wrap-up link; ODF-275 response draft with SHA placeholder until the
+response commit exists.
+Command: `PATH="<checkout>/node_modules/.bin:/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-slice-status.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-fresh-progress.test.mjs` — pass.
 
 Behavior: A coordinator has reviewed planned-slice source whose promised hosted
 or external observation still depends on the published revision (receiving
@@ -162,6 +168,50 @@ implementation, focused verification, guidance and cleanup; no preparatory
 Structure slice or speculative second publisher. No numeric slice budget is
 supplied here. Honor any budget supplied at execution.
 
+## Story obligations
+
+### X1. Early trunk / Dough Land for stable checkout
+Reported: slice 1 — "Early trunk / Dough Land for stable checkout deferred"
+Story clause: "Early trunk integration or early Dough Land solely to obtain a stable main checkout for later proof remains a separate publication-before-proof boundary and is not promised here."
+Disposition: excluded "Early trunk integration or early Dough Land solely to obtain a stable main checkout for later proof remains a separate publication-before-proof boundary and is not promised here."
+Commitment: 14
+
+### X2. Second Git plumbing path
+Reported: slice 1 — "No second Git plumbing path"
+Story clause: "No second Git plumbing path"
+Disposition: excluded "No second Git plumbing path"
+Commitment: 15.1
+
+### X3. Agent-commit-plus-deliver as supported contract
+Reported: slice 1 — "Agent-commit-plus-deliver not the supported contract"
+Story clause: "manual agent-commit-plus-deliver workaround as the supported contract"
+Disposition: excluded "manual agent-commit-plus-deliver workaround as the supported contract"
+Commitment: 15.2
+
+### X4. New observer
+Reported: slice 1 — "No new observer"
+Story clause: "new observer"
+Disposition: excluded "new observer"
+Commitment: 15.3
+
+### X5. Broad story-obligation redesign
+Reported: slice 1 — "No broad story-obligation redesign"
+Story clause: "broad redesign of story-obligation ownership"
+Disposition: excluded "broad redesign of story-obligation ownership"
+Commitment: 15.4
+
+### X6. Preparation does not authorize implementation or release
+Reported: slice 1 — "Preparation does not authorize implementation or a release"
+Story clause: "This preparation does not authorize implementation or a release."
+Disposition: excluded "This preparation does not authorize implementation or a release."
+Commitment: 16
+
+### X7. Queueing is not resolution
+Reported: slice 1 — "Queueing is not resolution"
+Story clause: "Queueing is **not resolution**."
+Disposition: excluded "Queueing is **not resolution**."
+Commitment: 17
+
 ## Current decisions and concern review
 
 - One authoritative unfinished-slice publication contract on the existing fresh
@@ -177,7 +227,11 @@ supplied here. Honor any budget supplied at execution.
 
 ## Learnings
 
-Preparation changed only records; the implementation, discriminating progress
-fixture and finding response remain unexecuted. Existing fresh fixtures already
-exercise local-only preparation and open-obligation refusal, so execution should
-extend those owners rather than invent a parallel harness.
+- Progress is one guarded fresh field (`progress: true`): omit selected-slice
+  `done` and pass `committing: false` into obligation checks so motivating open
+  receiving obligations stay owned without refusing publication.
+- Delivery read-budget required compressing recovery prose in
+  `fresh-increment.md` to fit the progress contract; resume rules unchanged.
+- Pre-existing `wrap-up.md` oversize left unresolved (unrelated to this outcome).
+- ODF-275 response SHA and first containing release stay honest until the
+  response commit and any later release exist; queueing is not resolution.
