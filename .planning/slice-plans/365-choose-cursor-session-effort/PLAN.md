@@ -143,3 +143,7 @@ do not send `model_reasoning_effort` on Cursor.
   and launch admission (Cursor and Codex).
 - Feedback-maintenance stays Codex-only for effort (`effortHosts=["codex"]`)
   until deferred FM Cursor effort lands.
+
+## Execution complete
+
+Product advice: no change
