@@ -198,11 +198,12 @@ lives in `terminalDiagnosticCapture.ts`; successful-keep release is
 
 ### 2. End launch observation after successful startup handoff
 Type: Behavior
-Status: planned
-Proof: In-process evaluation-count (or disposal) assertion after first-screen /
-instruction entry, plus focused
-`dashboard/tests/boundary/cursor-recovery-frame.spec.ts` (and related recover)
-regressions for paste/handoff/frame rules.
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/boundary/launch-instruction-observation.spec.ts dashboard/tests/boundary/cursor-recovery-frame.spec.ts dashboard/tests/boundary/cursor-recover-submitted-chip.spec.ts --reporter=list`
+(5 passed). After entry+announce, further chunks add no readiness evaluations;
+handoff hold and recovery/paste regressions stay green. End observation only
+when `entered && announced` (not announce alone).
 
 Behavior: A launched kept client has announced its first screen and entered its
 instruction → further PTY chunks do not keep the launch readiness observer

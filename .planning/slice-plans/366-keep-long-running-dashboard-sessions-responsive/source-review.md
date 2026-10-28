@@ -19,7 +19,7 @@ only.
 | 7.1 | Resolve lifetime raw PTY capture | slice 1 | observed: `TerminalDiagnosticCapture.retain` / `LiveTerminalClient.releaseDiagnosticCapture`; probe above |
 | 7.2 | Resolve stale revision text | slice 5 | |
 | 7.3 | Resolve output/screen queue pressure | slice 3 | |
-| 7.4 | Resolve unnecessary startup observation after its job ends | slice 2 | |
+| 7.4 | Resolve unnecessary startup observation after its job ends | slice 2 | observed: `launch-instruction-observation.spec.ts` — after entry+announce, 512 chunks add 0 readiness checks |
 | 7.5 | Resolve overlapping Cursor-session polling that discards every slow success | slice 4 | |
 | 8.1 | Trace partial-control far enough to distinguish a stalled main thread | slice 6 | |
 | 8.2 | Trace partial-control far enough to distinguish a pending/failed request | slice 6 | |
@@ -33,7 +33,7 @@ only.
 | 10.2 | Queued work drains after finite output | slice 3 | |
 | 10.3 | The correct screen reappears | slice 3 | |
 | 11 | A client exiting before readiness still explains its startup failure with bounded useful diagnostics | slice 1 | observed: diagnostic-capture probe retains useful tail; `agent-terminal-cursor-exit.spec.ts` early-exit explanation still green |
-| 12 | Successful startup releases observation that is no longer needed | slice 2 | |
+| 12 | Successful startup releases observation that is no longer needed | slice 2 | observed: `LaunchInstruction.observationDone` stops write/evaluate after entered+announced; screen dispose remains on `releaseIdle` |
 | 13.1 | Uneven multi-client output: session-observation path remains within its declared bound | slice 3 | |
 | 13.2 | Reflects coherent completed screens | slice 3 | |
 | 13.3 | Recovers without treating a still-running client as stopped | slice 3 | |
@@ -61,7 +61,7 @@ only.
 | 23.2 | Local caches remain rebuildable (ADR 0008) | slice 5 | |
 | 24.1 | Preserve output order | slice 3 | |
 | 24.2 | Preserve synchronized updates | slice 3 | |
-| 24.3 | Preserve startup/paste confirmation | slice 2 | |
+| 24.3 | Preserve startup/paste confirmation | slice 2 | observed: `cursor-recovery-frame.spec.ts` + `cursor-recover-submitted-chip.spec.ts` paste/handoff/frame regressions green |
 | 24.4 | Preserve reconnect/replay | slice 1 | observed: release leaves modeled screen/`idle` path unchanged; no replay owner change |
 | 25.1 | Outside this story: a general performance dashboard | | G1 |
 | 25.2 | Outside this story: a production telemetry service | | G2 |

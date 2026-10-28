@@ -55,7 +55,11 @@ export class LaunchInstruction {
   }
 
   // Resolves once this output has been parsed and its readiness judged.
+  // firstScreen can settle before the instruction is entered; later screens
+  // may still accept it. Once entry and that wait have both settled, further
+  // chunks are ignored. The headless screen stays until releaseIdle disposes.
   write(output: string): Promise<void> {
+    if (this.observationDone()) return Promise.resolve();
     const screen = this.screen;
     if (screen === undefined) return Promise.resolve();
     screen.write(output);
@@ -83,8 +87,15 @@ export class LaunchInstruction {
     screen?.dispose();
   }
 
+  private observationDone(): boolean {
+    // Entry plus wait settlement: paste confirmation announces after enter.
+    return this.entered && this.announced;
+  }
+
   private async evaluate(screen: KeptClientScreen): Promise<void> {
     await screen.settled();
+    // A chunk queued before observation ended can still run; skip it.
+    if (this.observationDone()) return;
     if (this.screen !== screen || !this.client.tracked()) {
       this.announce();
       return;
