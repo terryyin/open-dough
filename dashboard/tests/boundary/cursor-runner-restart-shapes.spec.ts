@@ -14,6 +14,7 @@ import path from "node:path";
 import net from "node:net";
 import { expect, test } from "../support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
+import { cursorRunnerSpawnHelper } from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import {
   cursorRunnerAddressFile,
@@ -153,6 +154,10 @@ test("an unrelated process reusing the recorded pid and port proves no current b
 
 test("a runner whose terminal helper is gone is left by start-if-absent and replaced before the next launch", async () => {
   test.setTimeout(60_000);
+  test.skip(
+    cursorRunnerSpawnHelper() === undefined,
+    "this install's node-pty ships no separate terminal helper",
+  );
   const fixture = startRunnerProofFixture();
   try {
     await keepWorkingClient(fixture);
