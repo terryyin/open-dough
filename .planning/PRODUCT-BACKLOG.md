@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Choose effort when starting a Cursor session](seeds/SEED-160-choose-cursor-session-effort.md#choose-cursor-session-effort) — SEED-160#choose-cursor-session-effort ([plan](slice-plans/365-choose-cursor-session-effort/PLAN.md))
-- [The Cursor runner keeps a terminal helper](seeds/SEED-161-cursor-runner-keeps-its-terminal-helper.md#cursor-runner-keeps-its-terminal-helper) — SEED-161#cursor-runner-keeps-its-terminal-helper
 
 ## Backlog list
 

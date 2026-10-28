@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-161_cursor-runner-keeps-its-terminal-helper.json",
+      "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
+      "completedAt": "2026-10-28T09:33:20.860Z",
+      "blob": "c41fcfcde760dfdc42e49c6c87a362d798a255d9"
+    },
+    {
       "fileName": "SEED-158_publish-awaiting-hosted-proof.json",
       "identity": "SEED-158#publish-awaiting-hosted-proof",
       "completedAt": "2026-10-28T08:44:49.402Z",

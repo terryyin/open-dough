@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
+  "title": "The Cursor runner keeps a terminal helper",
+  "completedAt": "2026-10-28T09:33:20.860Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
