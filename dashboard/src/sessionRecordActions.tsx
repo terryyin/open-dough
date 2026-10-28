@@ -10,6 +10,7 @@ import {
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
   doneAnswers,
+  markDoneUnresolved,
   notDeleted,
   notMarkedDone,
   nowKnown,
@@ -48,9 +49,12 @@ export function MarkDone({
       }}
       act={(control) => {
         say(undefined);
-        return mark(markDone({ record, control }), (marked) => {
-          if (!marked) say(notMarkedDone);
+        const asked = markDone({ record, control });
+        void asked.then((outcome) => {
+          if (outcome === "refused") say(notMarkedDone);
+          if (outcome === "unresolved") say(markDoneUnresolved);
         });
+        return mark(asked);
       }}
     />
   );

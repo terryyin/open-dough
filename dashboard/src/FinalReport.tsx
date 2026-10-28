@@ -21,6 +21,7 @@ import {
 } from "./SidePanelControls.tsx";
 import {
   doneAnswers,
+  markDoneUnresolved,
   notMarkedDone,
   useDoneMark,
   usePageSessions,
@@ -149,6 +150,7 @@ export function FinalReport({
           </p>
           <div role="status">
             {marking === "marking" && <p>Marking as done…</p>}
+            {marking === "unresolved" && <p>{markDoneUnresolved}</p>}
             {marking === "not-marked" && <p>{notMarkedDone}</p>}
             {finalReport === undefined && <p>Reading final report…</p>}
             {finalReport?.kind === "unavailable" && (

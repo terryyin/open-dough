@@ -13,6 +13,7 @@ import {
 } from "./deleteRecord.ts";
 import { agentDoneEndpoint, markDoneAnswerSchema } from "./doneMark.ts";
 import { agentReadEndpoint, markReadAnswerSchema } from "./readMark.ts";
+import { sessionKey } from "./sessionReference.ts";
 import {
   agentRecoverEndpoint,
   recoverSessionAnswerSchema,
@@ -31,22 +32,92 @@ const sessionReference = (record: LaunchRecord) => ({
   host: record.session.host,
 });
 
-// Marks the recorded session done, and answers its marked record with its
-// session's state, or undefined when no trustworthy answer came.
-export async function requestMarkDone(
-  record: LaunchRecord,
-): Promise<LaunchWithState | undefined> {
+// How long the page waits for one Done answer before leaving an explicit
+// recoverable unresolved state. The POST itself is not aborted, so a late
+// answer can still settle that one native operation; recovery joins the same
+// in-flight request instead of posting again.
+export const markDoneWaitMs = 45_000;
+
+// What marking a recorded session done came to: the marked record, a refused
+// or unreadable answer after the boundary responded, or an unresolved wait
+// (bound passed or the request never completed) that must not be said as a
+// failed persisted done intent.
+export type MarkDoneResult =
+  | { readonly kind: "marked"; readonly record: LaunchWithState }
+  | { readonly kind: "refused" }
+  | { readonly kind: "unresolved" };
+
+// What the page's Mark as done answers after the request: marked, refused, or
+// left unresolved. Distinct from `MarkDoneResult`, which may carry the record.
+export type MarkDoneOutcome = MarkDoneResult["kind"];
+
+const pendingMarkDone = new Map<string, Promise<MarkDoneResult>>();
+const settledMarkDone = new Map<
+  string,
+  Extract<MarkDoneResult, { kind: "marked" }>
+>();
+
+async function postMarkDone(record: LaunchRecord): Promise<MarkDoneResult> {
   try {
     const response = await postJson(
       agentDoneEndpoint,
       sessionReference(record),
     );
-    if (!response.ok) return undefined;
+    if (!response.ok) return { kind: "refused" };
     const answer = markDoneAnswerSchema.safeParse(await response.json());
-    return answer.success ? answer.data.record : undefined;
+    return answer.success
+      ? { kind: "marked", record: answer.data.record }
+      : { kind: "refused" };
   } catch {
-    return undefined;
+    // An unreachable or otherwise unfinished request never completed; do not
+    // claim the persisted done intent failed.
+    return { kind: "unresolved" };
   }
+}
+
+async function withinMarkDoneWait(
+  pending: Promise<MarkDoneResult>,
+): Promise<MarkDoneResult> {
+  let waiting: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      pending,
+      new Promise<MarkDoneResult>((resolve) => {
+        waiting = setTimeout(() => {
+          resolve({ kind: "unresolved" });
+        }, markDoneWaitMs);
+      }),
+    ]);
+  } finally {
+    if (waiting !== undefined) clearTimeout(waiting);
+  }
+}
+
+// Marks the recorded session done, and answers its marked record, a refusal,
+// or unresolved when no trustworthy answer came within the wait. One session
+// keeps at most one in-flight Done POST; a late marked answer is remembered
+// so recovery applies it without posting again.
+export async function requestMarkDone(
+  record: LaunchRecord,
+): Promise<MarkDoneResult> {
+  const key = sessionKey(record.session);
+  const remembered = settledMarkDone.get(key);
+  if (remembered !== undefined) {
+    settledMarkDone.delete(key);
+    return remembered;
+  }
+  let pending = pendingMarkDone.get(key);
+  if (pending === undefined) {
+    pending = postMarkDone(record).then((result) => {
+      pendingMarkDone.delete(key);
+      if (result.kind === "marked") settledMarkDone.set(key, result);
+      return result;
+    });
+    pendingMarkDone.set(key, pending);
+  }
+  const result = await withinMarkDoneWait(pending);
+  if (result.kind === "marked") settledMarkDone.delete(key);
+  return result;
 }
 
 // Marks the recorded session's report read, and answers its record with its

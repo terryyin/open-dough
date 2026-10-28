@@ -53,6 +53,7 @@ import {
 } from "./useAttachedTerminal.ts";
 import {
   doneAnswers,
+  markDoneUnresolved,
   notMarkedDone,
   useDoneMark,
   usePageSessions,
@@ -203,6 +204,7 @@ export function Terminal({
       )}
       <div role="status" className="terminal-status">
         {marking === "marking" && <p className="quiet">Marking as done…</p>}
+        {marking === "unresolved" && <p>{markDoneUnresolved}</p>}
         {marking === "not-marked" && <p>{notMarkedDone}</p>}
         {status && marking !== "marking" && (
           <>

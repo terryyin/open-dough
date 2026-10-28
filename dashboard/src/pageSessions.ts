@@ -16,7 +16,10 @@ import type { LaunchRecord, LaunchWithState } from "./agentLaunch.ts";
 import { unfinishedIntention } from "./sessionShown.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import type { SessionAccess } from "./sessionAccess.ts";
-import type { DeleteRecordOutcome } from "./sessionRecordRequests.ts";
+import type {
+  DeleteRecordOutcome,
+  MarkDoneOutcome,
+} from "./sessionRecordRequests.ts";
 import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
 import type { StopSessionAnswer } from "./sessionStop.ts";
 
@@ -42,9 +45,9 @@ export type OpenTerminal = SessionOperation<void>;
 export type OpenFinalReport = SessionOperation<void>;
 
 // Marks the session done, closing its terminal if the page shows it, and
-// answers whether it was marked. The control that asked gets the keyboard
-// back while it is on the page.
-export type MarkSessionDone = SessionOperation<Promise<boolean>>;
+// answers whether it was marked, refused, or left unresolved. The control
+// that asked gets the keyboard back while it is on the page.
+export type MarkSessionDone = SessionOperation<Promise<MarkDoneOutcome>>;
 
 // Marks the session's unread report read and answers whether it was marked.
 // The session stays open.
@@ -101,13 +104,16 @@ export function usePageSessions(): PageSessions {
   return sessions;
 }
 
-// Where a control's Mark as done or Mark as read stands: asked, or refused.
-// A mark that succeeds leaves nothing to follow: Mark as done takes the
-// control off the page.
-export type Marking = "marking" | "not-marked";
+// Where a control's Mark as done or Mark as read stands: asked, refused, or
+// left unresolved after a pending or late answer. A mark that succeeds leaves
+// nothing to follow: Mark as done takes the control off the page.
+export type Marking = "marking" | "not-marked" | "unresolved";
 
-// What a control says when the boundary refused its mark or no answer came.
+// What a control says when the boundary refused its mark after answering.
 export const notMarkedDone = "The session could not be marked done.";
+// What a control says when Mark as done never completed: recoverable, and not
+// a claim that a persisted done intent failed.
+export const markDoneUnresolved = "Mark as done did not finish. Try again.";
 export const notMarkedRead = "The report could not be marked read.";
 
 // What an entry says when its record could not be deleted, or when the
@@ -119,15 +125,22 @@ export const nowKnown = "This session's state is now known";
 export const doneAnswers = { confirm: "Mark as done", keep: "Keep open" };
 
 // Follows one control's Mark as done or Mark as read from its asking to the
-// answer, which `answered`, when given, is then told.
+// answer, which `answered`, when given, is then told. Mark as read stays a
+// boolean; Mark as done may leave an unresolved recoverable state.
 export function useMarking() {
   const [marking, setMarking] = useState<Marking | undefined>();
   const follow = (
-    asked: Promise<boolean>,
+    asked: Promise<boolean | MarkDoneOutcome>,
     answered?: (marked: boolean) => void,
   ) => {
     setMarking("marking");
-    void asked.then((marked) => {
+    void asked.then((outcome) => {
+      if (outcome === "unresolved") {
+        setMarking("unresolved");
+        answered?.(false);
+        return;
+      }
+      const marked = outcome === true || outcome === "marked";
       setMarking(marked ? undefined : "not-marked");
       answered?.(marked);
     });
@@ -148,12 +161,12 @@ export function useDoneMark(
   const { marking, follow } = useMarking();
   const statement = unfinishedIntention(record, operations);
   const mark = (
-    done: Promise<boolean>,
+    done: Promise<MarkDoneOutcome>,
     answered?: (marked: boolean) => void,
   ) => {
     follow(done, answered);
-    return done.then((marked) =>
-      marked ? ("settled" as const) : ("returned" as const),
+    return done.then((outcome) =>
+      outcome === "marked" ? ("settled" as const) : ("returned" as const),
     );
   };
   return {

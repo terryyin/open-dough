@@ -18,14 +18,15 @@ import {
   requestRecoverSession,
   requestStopSession,
   type DeleteRecordOutcome,
+  type MarkDoneOutcome,
 } from "./sessionRecordRequests.ts";
 import type { RecoverSessionAnswer } from "./sessionRecovery.ts";
 import type { StopSessionAnswer } from "./sessionStop.ts";
 
 export type LaunchRecordActions = {
   // Marks a recorded session done, and answers whether the boundary marked
-  // it.
-  readonly markDone: (record: LaunchRecord) => Promise<boolean>;
+  // it, refused, or left the operation unresolved.
+  readonly markDone: (record: LaunchRecord) => Promise<MarkDoneOutcome>;
   // Marks a recorded session's report read, and answers whether the boundary
   // marked it.
   readonly markRead: (record: LaunchRecord) => Promise<boolean>;
@@ -73,11 +74,13 @@ export function useLaunchRecordActions({
   );
 
   const markDone = useCallback(
-    async (record: LaunchRecord) => {
+    async (record: LaunchRecord): Promise<MarkDoneOutcome> => {
       const marked = await requestMarkDone(record);
-      if (marked === undefined) return false;
-      replaceRecord(marked);
-      return true;
+      if (marked.kind === "marked") {
+        replaceRecord(marked.record);
+        return "marked";
+      }
+      return marked.kind;
     },
     [replaceRecord],
   );

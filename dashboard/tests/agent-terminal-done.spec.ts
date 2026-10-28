@@ -6,7 +6,8 @@
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
 // entry's own Mark as done is ./agent-launch-story-card-done.spec.ts. A refused mark
 // keeps the panel open and says so, and a mark answered after another session
-// replaced the panel leaves the keyboard in the new terminal. A session not
+// replaced the panel leaves the keyboard in the new terminal. Pending and late
+// Done answers are ./agent-terminal-done-pending.spec.ts. A session not
 // known to be complete is asked about first within the panel, with the
 // terminal still showing; Keep open or Escape leaves the panel open, attached,
 // and the session running, with the keyboard back on Mark as done. What the
@@ -16,7 +17,7 @@
 
 import { renameSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -37,6 +38,7 @@ import {
 } from "./launchJourney.ts";
 import { colourOf, tokenColour } from "./pageColours.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { holdDoneRequests } from "./support/holdDoneRequest.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -52,20 +54,6 @@ test.use({ projectFolders: ["open-dough"] });
 // The panel header's own Mark as done, apart from the question's.
 const headerMarkAsDone = (panel: Locator) =>
   markAsDone(panel.locator("header"));
-
-// Holds the page's done requests until released, then lets each reach the
-// boundary.
-async function holdDoneRequests(page: Page): Promise<() => void> {
-  let release = () => {};
-  const released = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  await page.route(`**${agentDoneEndpoint}`, async (route) => {
-    await released;
-    await route.continue();
-  });
-  return release;
-}
 
 test.describe("marking a session done from its terminal", () => {
   let columnsJourney: StoryColumnsJourney;

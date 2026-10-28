@@ -150,9 +150,10 @@ export function usePageSidePanel({
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
     const askedFrom = latest.current?.request;
-    if (!(await markDone(record))) return false;
+    const outcome = await markDone(record);
+    if (outcome !== "marked") return outcome;
     // A later panel owns the keyboard after the developer changes content.
-    if (latest.current?.request !== askedFrom) return true;
+    if (latest.current?.request !== askedFrom) return "marked";
     const open = shownSessionOf(latest.current);
     if (
       open !== undefined &&
@@ -168,7 +169,7 @@ export function usePageSidePanel({
           sessionEntry(sessionKey(record.session)) ??
           storyCardHome(launchSubject(record.request).identity),
       });
-    return true;
+    return "marked";
   };
   const markSessionRead: MarkSessionRead = ({ record }) => markRead(record);
   const deleteSessionRecord: DeleteSessionRecord = async ({

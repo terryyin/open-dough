@@ -267,11 +267,14 @@ cache or share the server retained-answers directory.
 
 ### 6. Keep terminal-header controls truthful under pending Done
 Type: Behavior
-Status: planned
-Proof: Extend `agent-terminal-done.spec.ts` hold coverage: Maximize/Close under
-hold; release completes and closes; failed or late answer leaves explicit
-recoverable state; focused Done boundary specs for hosts touched by the shared
-`postJson` / marking change stay green.
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/agent-terminal-done.spec.ts dashboard/tests/agent-terminal-done-pending.spec.ts dashboard/tests/agent-session-cursor-done.spec.ts dashboard/tests/agent-terminal-done-codex-page.spec.ts dashboard/tests/boundary/agent-terminal-done-codex-boundary.spec.ts dashboard/tests/agent-launch-story-card-done.spec.ts dashboard/tests/boundary/agent-launch-done.spec.ts --reporter=list`
+(18 passed). Maximize/Close under hold; release closes; wait-bound/failed leave
+recoverable unresolved without refused-intent wording or duplicate native stop;
+Cursor/Claude/Codex Done regressions green. Pending/late journeys live in
+`agent-terminal-done-pending.spec.ts`. Process attribution (9.x) reused from
+`docs/dashboard-memory-investigation.md` (no new RSS measurement this slice).
 
 Behavior: During terminal output and during a deliberately held Done response →
 confirmation and marking states stay observable → Maximize/Restore and Close
