@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-163#reliably-report-dashboard-wrap-up",
+  "mode": "story-branch",
+  "branch": "cursor/reliably-record-quiet-dashboard-wrap-up-after-wo",
+  "host": "cursor",
+  "model": "auto"
+}
