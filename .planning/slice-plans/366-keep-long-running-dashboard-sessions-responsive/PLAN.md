@@ -251,11 +251,11 @@ read is owned → collapsing the section or leaving the sidebar ends that demand
 
 ### 5. Bound browser repository file cache with eviction
 Type: Behavior
-Status: planned
-Proof: In-process exercise of `fileContentCache` / `repositoryFileReads` past
-the 16 MiB budget (and/or a focused journey that reads many revisions): eviction,
-correct reread, current snapshot revision-correct, post-GC plateau for the fixed
-set.
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/boundary/file-content-cache-budget.spec.ts --reporter=list`
+(3 passed). Over-budget writes keep retained ≤ 16 MiB with oldest miss/reread;
+pinned snapshot stays revision-correct; retained bytes plateau for the fixed set.
 
 Behavior: The browser session reads repository text across many revisions until
 retained cache bytes would exceed 16 MiB → older entries can be evicted and

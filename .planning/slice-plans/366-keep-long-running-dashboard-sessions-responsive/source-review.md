@@ -11,13 +11,13 @@ only.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Memory retained for diagnostics stays bounded for a fixed working set | slice 1 | observed: `dashboard/tests/boundary/live-terminal-diagnostic-capture.spec.ts` — retained/`processExit` ≤ 256 KiB useful tail |
-| 2 | Memory retained for cached repository text stays bounded for a fixed working set | slice 5 | |
+| 2 | Memory retained for cached repository text stays bounded for a fixed working set | slice 5 | observed: `file-content-cache-budget.spec.ts` — retained ≤ 16 MiB with eviction |
 | 3 | Memory retained for pending terminal/session observations stays bounded for a fixed working set | slice 4 | observed: `cursor-runner-sessions-demand.spec.ts` — peak outstanding reads = 1 |
 | 4 | Session observations progress (do not stall indefinitely under the retention/observation mechanisms in scope) | slice 4 | observed: demand journey leaves Reading and publishes held row; follow journeys green |
 | 5 | The terminal header's controls remain usable | slice 6 | |
 | 6 | Done reports a truthful outcome or an explicit unresolved operation, rather than silently remaining disabled indefinitely | slice 6 | |
 | 7.1 | Resolve lifetime raw PTY capture | slice 1 | observed: `TerminalDiagnosticCapture.retain` / `LiveTerminalClient.releaseDiagnosticCapture`; probe above |
-| 7.2 | Resolve stale revision text | slice 5 | |
+| 7.2 | Resolve stale revision text | slice 5 | observed: pinned snapshot stays revision-correct under eviction pressure |
 | 7.3 | Resolve output/screen queue pressure | slice 3 | observed: `kept-client-screen-write-queue.spec.ts` — busy+quiet `held()` ~17 ms under 500 ms |
 | 7.4 | Resolve unnecessary startup observation after its job ends | slice 2 | observed: `launch-instruction-observation.spec.ts` — after entry+announce, 512 chunks add 0 readiness checks |
 | 7.5 | Resolve overlapping Cursor-session polling that discards every slow success | slice 4 | observed: sequential in-flight demand in `RunningCursorSessions.tsx`; slow answers publish |
@@ -42,9 +42,9 @@ only.
 | 14.3 | Collapse or departure ends owned demand | slice 4 | observed: collapse stops further owned reads in demand journey |
 | 14.4 | Background/return behavior preserves recovery | slice 4 | observed: hide pauses starts; show recovers in demand journey |
 | 14.5 | 38-request/37-answer reproduction must no longer stay on Reading indefinitely | slice 4 | observed: demand journey leaves Reading with completed observation |
-| 15.1 | Repository text past byte budget: old entries can be evicted and reread | slice 5 | |
-| 15.2 | Current snapshot remains revision-correct | slice 5 | |
-| 15.3 | Post-GC retained memory plateaus for the fixed test working set | slice 5 | |
+| 15.1 | Repository text past byte budget: old entries can be evicted and reread | slice 5 | observed: over-budget writes evict oldest; reread via rememberFile hits |
+| 15.2 | Current snapshot remains revision-correct | slice 5 | observed: pin refreshed under pressure stays correct |
+| 15.3 | Post-GC retained memory plateaus for the fixed test working set | slice 5 | observed: retained bytes stable across rounds; further keys leave retained ≤ budget |
 | 16.1 | During output and held Done: confirmation state remains observable | slice 6 | |
 | 16.2 | Marking state remains observable | slice 6 | |
 | 16.3 | Request state remains observable | slice 6 | |
@@ -56,9 +56,9 @@ only.
 | 19 | Preserve the other hosts' existing Done semantics | slice 6 | |
 | 20 | Preserve intentional lifetime of kept sessions; closing a panel does not acquire permission to terminate a kept session | slice 6 | |
 | 21 | A memory budget must not silently drop live terminal output | slice 1 | observed: `watch` still forwards every chunk to `idle`/`sockets`; only the diagnostic string is capped/released |
-| 22 | A memory budget must not substitute stale project facts | slice 5 | |
-| 23.1 | Repository records own durable workflow facts (ADR 0008) | slice 5 | |
-| 23.2 | Local caches remain rebuildable (ADR 0008) | slice 5 | |
+| 22 | A memory budget must not substitute stale project facts | slice 5 | observed: pin stays revision-correct; eviction rereads rather than serving stale |
+| 23.1 | Repository records own durable workflow facts (ADR 0008) | slice 5 | observed: in-memory cache only; no durable workflow writes |
+| 23.2 | Local caches remain rebuildable (ADR 0008) | slice 5 | observed: miss path rereads via repositoryFileReads; rebuildable |
 | 24.1 | Preserve output order | slice 3 | observed: coalesce appends in arrival order; replay specs green |
 | 24.2 | Preserve synchronized updates | slice 3 | observed: `kept-client-screen-replay.spec.ts` `?2026` / unfinished paint green |
 | 24.3 | Preserve startup/paste confirmation | slice 2 | observed: `cursor-recovery-frame.spec.ts` + `cursor-recover-submitted-chip.spec.ts` paste/handoff/frame regressions green |
