@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-160#choose-cursor-session-effort",
+  "mode": "story-branch",
+  "branch": "cursor/choose-effort-when-starting-a-cursor-session",
+  "host": "cursor",
+  "model": "auto"
+}
