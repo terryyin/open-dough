@@ -17,6 +17,8 @@ import {
   revParse,
 } from "./publication-git.mjs";
 
+import { completedIdentityStop } from "./publication-backlog-validation.mjs";
+
 const defaultTargetRef = "refs/heads/main";
 
 // Runs one remote transport step. A step that outlasts the transport bound
@@ -92,6 +94,7 @@ export async function resumeInterruptedPublication({
   remote = "origin",
   onFetchedTarget,
   landingContext,
+  backlogPath,
 }) {
   if (supersededShas.includes(candidateSha)) {
     throw new Error(
@@ -135,6 +138,18 @@ export async function resumeInterruptedPublication({
         pushCount: 0,
         ...comparison,
         held,
+      };
+    const invalid = await completedIdentityStop({
+      workspace: ownedWorkspace,
+      candidate: candidateSha,
+      backlogPath,
+    });
+    if (invalid)
+      return {
+        classification: "not-on-remote",
+        pushCount: 0,
+        ...comparison,
+        held: invalid,
       };
     if (landingContext)
       await retainLandingComparison(

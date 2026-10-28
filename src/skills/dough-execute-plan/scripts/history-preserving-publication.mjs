@@ -28,6 +28,7 @@ import {
   revParse,
 } from "./publication-git.mjs";
 import { isAncestor } from "./workspace-publication-ownership.mjs";
+import { completedIdentityStop } from "./publication-backlog-validation.mjs";
 
 export const trunkTarget = "refs/heads/main";
 
@@ -141,6 +142,24 @@ export async function publishHistoryPreservingCandidate({
         ...(prepared.conflictedPaths && {
           conflictedPaths: prepared.conflictedPaths,
         }),
+        mergeCount,
+        pushCount: 0,
+        rejectedPushCount,
+        supersededSha,
+        adapterStatuses,
+        receipt: null,
+      };
+    }
+    const invalid = await completedIdentityStop({
+      workspace: ownedWorkspace,
+      candidate: prepared.sha,
+      backlogPath,
+    });
+    if (invalid) {
+      return {
+        classification: "preserved",
+        reason: invalid.status,
+        ...invalid.fields,
         mergeCount,
         pushCount: 0,
         rejectedPushCount,

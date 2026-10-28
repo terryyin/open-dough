@@ -112,6 +112,7 @@ export async function resumeManagedExecutionIncrement(request) {
       suffixBase,
       remote,
       landingContext,
+      backlogPath: request.backlogPath,
       supersededShas,
       publishedRevisions,
       observer,

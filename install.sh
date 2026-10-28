@@ -176,6 +176,7 @@ managed_files=(
   dough-execute-plan/scripts/source-freshness.mjs
   dough-execute-plan/scripts/source-freshness-comparison.mjs
   dough-execute-plan/scripts/publication-comparison.mjs
+  dough-execute-plan/scripts/publication-backlog-validation.mjs
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs

@@ -35,6 +35,7 @@ import {
   tryPushExactRef,
 } from "./publication-git.mjs";
 import { isAncestor } from "./workspace-publication-ownership.mjs";
+import { completedIdentityStop } from "./publication-backlog-validation.mjs";
 
 export async function publishExecutionIncrement({
   workspace,
@@ -216,6 +217,25 @@ export async function publishExecutionIncrement({
     return accept(remoteTip, "already-published");
   }
 
+  const invalidCandidate = async () => {
+    const invalid = await completedIdentityStop({
+      workspace,
+      candidate,
+      backlogPath,
+    });
+    return invalid
+      ? stopped(invalid.status, {
+          preRebaseSha,
+          remoteTip,
+          previouslyPublishedBase,
+          suffixBase,
+          reconciliations,
+          ...invalid.fields,
+        })
+      : null;
+  };
+  const invalid = await invalidCandidate();
+  if (invalid) return invalid;
   const heldFirst = await held(0);
   if (heldFirst) return heldFirst;
   // Validated resume supplies previouslyPublishedBase as the tip the candidate
@@ -226,6 +246,8 @@ export async function publishExecutionIncrement({
   }
 
   const preparePush = async (attempt) => {
+    const invalid = await invalidCandidate();
+    if (invalid) return invalid;
     const comparison = { candidate, suffixBase };
     if (landingContext)
       await retainLandingComparison(landingContext, comparison, {
@@ -234,7 +256,8 @@ export async function publishExecutionIncrement({
       });
     await beforePush?.({ attempt, ...comparison });
   };
-  await preparePush(0);
+  const firstStop = await preparePush(0);
+  if (firstStop) return firstStop;
   let pushed = await push("push");
   if (pushed.stop) return pushed.stop;
   if (pushed.value.rejected) {
@@ -248,7 +271,8 @@ export async function publishExecutionIncrement({
     if (beforeRetryPush) {
       await beforeRetryPush();
     }
-    await preparePush(1);
+    const retryStop = await preparePush(1);
+    if (retryStop) return retryStop;
     pushed = await push("retry-push");
     if (pushed.stop) return pushed.stop;
     if (pushed.value.rejected) {
