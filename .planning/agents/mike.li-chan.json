@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-165#keep-cursor-effort-visible",
+  "mode": "story-branch",
+  "branch": "codex/keep-cursor-effort-visible",
+  "host": "codex"
+}

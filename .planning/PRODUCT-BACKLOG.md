@@ -19,6 +19,7 @@ cost of the feedback process itself.
 ## Taken
 
 - [Shorten dashboard CI without weakening its proof](seeds/SEED-164-dashboard-ci-time.md#dashboard-ci-time) — SEED-164#dashboard-ci-time
+- [Keep Cursor effort selection visible](seeds/SEED-165-keep-cursor-effort-visible.md#keep-cursor-effort-visible) — SEED-165#keep-cursor-effort-visible
 
 ## Backlog list
 
