@@ -20,3 +20,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Keep long-running dashboard sessions responsive with bounded memory](seeds/SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive) — SEED-162#keep-long-running-dashboard-sessions-responsive
