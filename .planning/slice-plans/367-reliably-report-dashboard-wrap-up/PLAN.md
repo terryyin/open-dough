@@ -2,6 +2,7 @@
 
 **Identity:** SEED-163#reliably-report-dashboard-wrap-up
 **Source:** [Selected story](../../seeds/SEED-163-dashboard-wrap-up-reporting.md#reliably-report-dashboard-wrap-up)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -121,7 +122,7 @@ local proof.
 
 ### 1. Distinguish final-report evidence states after retirement
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `final-report-admission.spec.ts` so no-completion vs quiet empty
 `completed` vs nonempty attention message return distinct retained-reader
 answers; extend `session-workspace-retirement-cursor.spec.ts` (and Claude twin
@@ -131,11 +132,21 @@ absent, the panel states product-closure evidence, unavailable terminal
 continuation, and that no final dashboard message was saved—without treating
 directory absence as proof of completion or failure.
 
+Accepted proof:
+`PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- tests/boundary/final-report-admission.spec.ts tests/session-workspace-retirement-cursor.spec.ts tests/session-workspace-retirement-claude.spec.ts --reporter=line`
+→ 10 passed. Observations: distinct quiet/absent/attention retained-reader
+answers; Cursor panel product-closure + workspaceMissing + unsaved message;
+Claude quiet twin with independent workspaceMissing; Codex native path unchanged.
+
 Behavior: Pre-condition → developer opens the final report for a kept
 Cursor/Claude session after retirement-shaped workspace absence → Result:
 evidence states are not conflated; Mark as done meaning unchanged; Codex native
 reader path undisturbed unless a shared string helper is reused without changing
 its contract.
+
+Learnings: Opposite early-return polarities for “claimed tracked execution”
+belong behind one positively named predicate when splitting closure evidence
+from Done closing (`claimedTrackedExecution` in `completionClosure.ts`).
 
 ### 2. Plant and clear first-landing expectation outside the working tree
 Type: Structure
@@ -197,3 +208,29 @@ than a parallel automation.
 Remaining slice-specific concerns: none identified. Interim: after slice 1
 alone, landing omission can still succeed until slices 2–3 land; that is an
 accepted ordered trade-off, not a remaining concern.
+
+## Story obligations
+
+### G-excl-stale. Manual stale-session reconciliation deferred
+Reported: slice 1 — "Manually reconciling the original stale session is a separate recovery task"
+Story clause: "Manually reconciling the original stale session is a separate recovery task"
+Disposition: excluded "Manually reconciling the original stale session is a separate recovery task"
+Commitment: 17
+
+### G-excl-native-reader. No native Cursor transcript reader promised
+Reported: slice 1 — "This story does not promise a native Cursor transcript reader"
+Story clause: "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Disposition: excluded "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Commitment: 19.1
+
+### G-excl-reconstruct-landing. No automatic reconstruction of missed landing
+Reported: slice 1 — "automatic reconstruction of a missed historical landing"
+Story clause: "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Disposition: excluded "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Commitment: 19.2
+
+### G-excl-auto-done. No automatic Done from directory/native/exit alone
+Reported: slice 1 — "automatic Done based solely on a missing directory, deleted branch, native response, or exit"
+Story clause: "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Disposition: excluded "This story does not promise a native Cursor transcript reader, automatic reconstruction of a missed historical landing, or automatic Done based solely on a missing directory, deleted branch, native response, or exit."
+Commitment: 19.3

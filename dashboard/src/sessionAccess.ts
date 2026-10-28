@@ -13,6 +13,9 @@ export const workspaceMissing =
   "The saved workspace is missing. Terminal continuation is unavailable here.";
 export const workspaceUnknown =
   "The saved workspace availability could not be established. Terminal continuation is unconfirmed.";
+// Panel-only claim from retained landing plus readable published closure.
+export const productClosureEvidencePresent =
+  "Product closure evidence is present.";
 
 export function workspaceLimitation(
   record: LaunchRecord & Pick<LaunchWithState, "workspaceState">,

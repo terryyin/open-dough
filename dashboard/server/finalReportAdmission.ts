@@ -36,10 +36,20 @@ function retainedFinalReportReader(
   const hostName = hostDescription(host).name;
   return () => {
     const { completion } = record;
-    if (completion === undefined || completion.message === "") {
+    const nativeLimit = `${hostName} cannot read a native final report here. The saved conversation is unchanged.`;
+    // No completion, quiet empty completed, and a nonempty attention message
+    // are independent retained-reader answers. Missing workspace is panel-
+    // composed separately and never substitutes for these facts.
+    if (completion === undefined) {
       return Promise.resolve({
         kind: "unavailable",
-        explanation: `No retained final report is available. ${hostName} cannot read a native final report here. The saved conversation is unchanged.`,
+        explanation: `No final dashboard message was saved. ${nativeLimit}`,
+      });
+    }
+    if (completion.message === "") {
+      return Promise.resolve({
+        kind: "unavailable",
+        explanation: `Quiet completion was recorded with no attention message. ${nativeLimit}`,
       });
     }
     return Promise.resolve({

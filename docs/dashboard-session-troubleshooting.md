@@ -39,11 +39,16 @@ this same report access when that directory is missing or its availability is
 unknown. Cursor sessions use it when the workspace their continuation names
 is missing or its availability is unknown. The panel shows the completion
 message retained by the dashboard, identified by its receipt, rather than
-reading the host's native turn history. When no completion text was retained,
-it explains that no retained final report is available and Claude Code (or
-Cursor) cannot read a native final report here. Reading
-the panel leaves the developer's read and done marks unchanged; **Mark as read**
-and **Mark as done** remain deliberate actions.
+reading the host's native turn history. Absent completion, quiet empty
+`completed`, and a nonempty attention message stay distinct: no completion
+says no final dashboard message was saved; quiet empty completion says that
+receipt was recorded with no attention message; neither invents product
+success or failure from directory absence. Missing or unknown workspace stays
+an independent terminal-continuation line. When tracked-execution landing and
+readable published closure hold, the panel can also state that product closure
+evidence is present. Reading the panel leaves the developer's read and done
+marks unchanged; **Mark as read** and **Mark as done** remain deliberate
+actions.
 
 Codex and recorded Claude sessions whose saved workspaces exist retain terminal
 continuation. Legacy Claude records without a recorded execution or preparation

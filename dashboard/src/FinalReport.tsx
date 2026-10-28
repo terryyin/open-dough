@@ -13,7 +13,10 @@ import {
   type FinalReportRead,
 } from "./finalReportContract.ts";
 import { marksRecordDone } from "./sessionCapabilities.ts";
-import { workspaceLimitation } from "./sessionAccess.ts";
+import {
+  productClosureEvidencePresent,
+  workspaceLimitation,
+} from "./sessionAccess.ts";
 import { sessionDoneMeaning } from "./sessionShown.ts";
 import {
   sidePanelCloseShortcutLabel,
@@ -143,6 +146,9 @@ export function FinalReport({
             session done.
           </p>
           <p>{sessionDoneMeaning}</p>
+          {finalReport?.productClosureEvidence === true && (
+            <p>{productClosureEvidencePresent}</p>
+          )}
           <p>{workspaceLimitation(record)}</p>
           <p>
             Saved workspace <code>{recordedWorkspace(record)}</code>
