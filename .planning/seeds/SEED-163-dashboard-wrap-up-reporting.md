@@ -33,82 +33,98 @@ confused the dashboard, or whether an action was required.
 
 **Identity:** SEED-163#reliably-report-dashboard-wrap-up
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/367-reliably-report-dashboard-wrap-up/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84802d19ece17280600c5d4cedb8635ba1905a0d039c8d571cb425fafe5782ae","plan":"696a9405e35a25ae1863632e8ccb65978821e390d543f2e8b642b0d2ca3d1121"}}
 ```
 
 **Beneficiary:** A developer using the dashboard to start and observe story work,
 especially when successful wrap-up removes the session's temporary workspace.
 
-**Goal:** A successful dashboard-started wrap-up reliably retains its supplied
-landing evidence and acknowledges quiet completion, so the session settles
-without unnecessary human attention. An incomplete reporting operation leaves a
-specific, recoverable explanation that distinguishes accepted product work from
-missing dashboard evidence.
+**Goal:** A successful dashboard-started wrap-up retains its supplied landing
+evidence and acknowledges quiet completion so the session settles without
+unnecessary human attention. When a reporting duty is incomplete after accepted
+product work, the session leaves a specific recoverable explanation that
+separates accepted product work from missing dashboard evidence, without treating
+normal workspace retirement as product failure.
 
-**Scope:** Refine and implement a reliable mechanism for the existing supplied
-landing and completion duties across publication, CI/shutdown, refresh, and
-workspace retirement. Preserve the distinction between story completion,
-dashboard session disposition, native activity, and saved-directory availability.
-When dashboard evidence is incomplete, explain the known gap without presenting
-normal resource retirement as evidence of product failure. Establish the actual
-execution responsibility and focused verification before sizing or implementation.
+**Scope:** Carry the launch's existing supplied landing and final-completion
+duties through first trunk publication, observation/shutdown, refresh, and
+workspace retirement on the shared Dough Land / Story Wrap Up reporting contract.
 
-**Initial acceptance examples for refinement:**
+Responsibility stays with those existing operations: the first-trunk publication
+handoff that already accepts `--landing-context` / `landingContext`, and the
+final dashboard completion command after wrap-up or land settles. Do not add
+another store, completion-inference owner, or lifecycle. Instruction-only
+reminders are rejected as the prevention mechanism: the incident already had
+correct launch text and installed guidance and still omitted both duties.
 
-- A dashboard-started tracked execution has supplied landing and reporting
-  contexts. It publishes final closure, satisfies its existing completion gates,
-  refreshes when applicable, and retires its owned worktree and branch. Its first
-  accepted trunk publication is retained against the original launch; final
-  completion is acknowledged with `outcome: completed` and an empty message.
-  With published closure confirmed, the dashboard marks that session Done
-  quietly, with no unread attention message or alert. Normal retirement requires
-  no human acknowledgment.
-- The same journey encounters failed or unacknowledged reporting after accepted
-  Git publication or retirement. It preserves the completed work and exact
-  surviving reporting-only retry input, identifies the unfinished reporting
-  operation, and does not repeat publication or retirement to retry delivery.
-  A lost acknowledgment can recover the original receipt without duplicate work.
-- A completed session has an empty success message. That is distinguished from
-  this incident's complete absence of a completion receipt. A missing workspace
-  alone establishes neither product completion nor a reporting failure.
-- Work requiring attention retains its exact useful message; unfinished work
-  remains unfinished. A native final reply or process exit cannot manufacture
-  dashboard success. Explicit Mark as done retains its existing session meaning
-  and does not complete a product story or fabricate a landing receipt.
-- A direct invocation with no supplied dashboard context makes no dashboard
-  contact. The selected solution preserves the existing shared Codex, Cursor,
-  and Claude Code reporting contract; host-specific proof is chosen where its
-  integration actually changes.
+Prevention must make those duties leave observable receipts that a native final
+reply, marker, silence, or process exit cannot substitute. Preserve the
+distinction among product-story completion, dashboard session disposition, native
+activity, and saved-directory availability. Explicit Mark as done keeps its
+existing session meaning and neither completes a product story nor fabricates a
+landing receipt. Direct invocations without supplied dashboard context still make
+no dashboard contact. Preserve the shared Codex, Cursor, and Claude Code
+reporting contract; add host-specific proof only where that host's integration
+changes.
 
-**Existing behavior and boundaries:** The launch already prepares its reporting
-executable and landing context outside the temporary worktree. Both its initial
-instruction and installed wrap-up guidance require the correct operations.
-Completion storage can acknowledge a delivery independently of native activity.
-For tracked execution, automatic Done additionally requires retained landing
-evidence and readable published closure; an execution-complete handoff alone
-does not close the session. Existing reporting retries preserve delivery identity
-and never repeat Git publication. Reuse and assess these mechanisms before
-adding another store, completion inference, or lifecycle owner.
+When dashboard evidence is incomplete, explain known facts without inventing
+others: no completion receipt is distinct from a quiet `completed` receipt with
+an empty message; missing or unknown workspace is an independent directory fact.
+Claim published product closure in the panel only from dashboard-readable
+evidence under the existing tracked-execution closure gates (retained landing and
+readable published closure). When those facts are absent, do not claim the story
+is complete because a directory disappeared. Do not present ordinary retirement
+as evidence that the product work failed.
 
-**Open refinement and sizing questions:**
+**Key examples:**
 
-- Which existing operation should ensure these supplied duties are carried
-  through integration and finalization, so an agent cannot accidentally finish
-  this journey by printing a native response alone? The observed omission is
-  confirmed; the smallest reliable prevention mechanism is still unresolved.
-- Which observable proof covers both the omitted landing handoff and the omitted
-  final completion operation, including retirement and failed/lost delivery?
-  Existing fixtures and reporting/retirement tests provide starting boundaries;
-  another instruction-only reminder has no demonstrated prevention effect.
-- How should the session explain known published closure and absent reporting
-  evidence while preserving uncertainty about why an arbitrary directory went
-  away? The incident-specific wording proposed below is an example grounded in
-  this story's verified closure, not a rule to infer success from disappearance.
+- Pre-condition: a dashboard-started tracked execution has surviving landing and
+  reporting contexts outside its worktree. Trigger: it publishes final closure
+  with the supplied landing context on its first trunk publication, satisfies
+  existing completion gates, refreshes when applicable, retires its owned
+  worktree and branch, then runs the final completion command with
+  `outcome: completed` and no message. Result: landing is retained against the
+  original launch; the receipt acknowledges quiet completion; with published
+  closure confirmed the dashboard marks the session Done quietly, with no unread
+  attention message or alert, and normal retirement needs no human acknowledgment.
+- Pre-condition: the same journey has already accepted Git publication or
+  retirement. Trigger: landing capture or final completion fails or goes
+  unacknowledged. Result: accepted product work stays accepted; the exact
+  surviving reporting-only retry input is retained; the unfinished reporting
+  operation is identified; retry never repeats publication or retirement; a lost
+  acknowledgment recovers the original receipt without duplicate work.
+- Pre-condition: a session has a quiet `completed` receipt with an empty message
+  and, separately, a session has no completion receipt at all; one or both may
+  also show a missing workspace. Trigger: the developer opens the final report.
+  Result: empty successful completion is not presented as “no retained final
+  report”; absent completion says no final dashboard message was saved; missing
+  workspace states only that terminal continuation is unavailable; none of these
+  alone invents product success or product failure.
+- Pre-condition: tracked-execution closure evidence is readable (retained landing
+  and published closure under existing gates) while completion reporting is
+  still missing after retirement. Trigger: the developer opens the session’s
+  final report. Result: the panel states that product closure evidence is present,
+  the temporary workspace is gone so terminal continuation is unavailable, and no
+  final dashboard message was saved—without treating directory absence as the
+  proof of completion.
+- Pre-condition: work still needs attention, or the journey is unfinished.
+  Trigger: final reporting runs. Result: the exact useful message is retained;
+  unfinished work stays unfinished; a native final reply or process exit does not
+  manufacture dashboard success.
+- Pre-condition: Dough Land or Story Wrap Up runs with no supplied dashboard
+  context. Trigger: closure settles. Result: no dashboard contact is made.
 
-**Effort hypothesis:** Not yet sized. The intended outcome is a small story;
-refinement must establish responsibility, proof, and whether one coherent slice
-is credible before selecting a plan. No planless or execution authority is
-supplied by this record.
+**Constraints:** Reuse the prepared reporting executable and landing context
+outside the temporary worktree, existing automatic-Done gates for tracked
+execution, and reporting retries that preserve delivery identity. An
+execution-complete handoff alone does not close a tracked session. Do not replace
+those mechanisms with a new store, completion inference, or lifecycle owner.
+
+**Effort hypothesis:** S–M, medium confidence. Quiet success and truthful
+recovery share one outcome; slice planning must decide whether mechanical
+prevention of omitted landing and omitted final completion, plus panel
+distinction of evidence states, fit one coherent plan or need ordered slices with
+owned proof. No planless or execution authority is supplied by this record.
 
 **Depends on:** No known blocking story prerequisite. The queued
 [dashboard responsiveness story](SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive)
@@ -126,10 +142,6 @@ separate recovery task. A wording-only change does not complete prevention of th
 observed omission. This story does not promise a native Cursor transcript reader,
 automatic reconstruction of a missed historical landing, or automatic Done based
 solely on a missing directory, deleted branch, native response, or exit.
-
-**Next preparation:** Refine the responsibility and acceptance examples, select
-the execution approach and focused proof, and size the story. This request queues
-the evidence and desired outcome; it starts no implementation or session repair.
 
 ## Incident Evidence
 
