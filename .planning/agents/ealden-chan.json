@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-164#dashboard-ci-time",
+  "mode": "story-branch",
+  "branch": "codex/dashboard-ci-time",
+  "host": "codex"
+}

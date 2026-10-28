@@ -18,5 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Shorten dashboard CI without weakening its proof](seeds/SEED-164-dashboard-ci-time.md#dashboard-ci-time) — SEED-164#dashboard-ci-time
+
 ## Backlog list
 
