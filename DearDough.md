@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 363. Removed numbers are never reused.
+- Highest allocated local number: 364. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -494,3 +494,19 @@ cover Markdown, so the defect reached the first guarded delivery.
   - Evidence: coordinator transcript `3bd97cc2-93e0-4e61-bca4-b477e0d7b5f4` — after writing/updating `source-review.md` and running `npm run format`, first `execution-increment-delivery.mjs fresh` failed; repair removed trailing hard-break spaces on the Launch/Input/Reviewer header lines; retry published `cd30010`. Distinct from ODF-329 (implementer ESLint under a lint-forbidden delegation brief).
   - Observed effect: one refused fresh-delivery attempt and a mechanical coordinator repair before the accepted publish.
   - Inference: qualified one-off. Coordinator Markdown artifacts need a pre-delivery whitespace check or must avoid hard-break trailing spaces; format alone does not cover them.
+
+## DD-364 — Source-only review launched without the full seed examples
+
+A coordinator's first source-only review prompt omitted Key examples 3–4, so
+the reviewer returned incomplete commitments and a second complete-seed launch
+was required before acceptance.
+
+### Occurrences
+- Execution: SEED-158#publish-awaiting-hosted-proof
+  - Timestamp: 2026-10-28T16:22:00+08:00
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: modified; revision 67fad4e0; base 0.3.73
+  - Evidence: before-cleanup `1223cddb7bd75f7f56d4668ebd46930e28326491:.planning/slice-plans/364-publish-awaiting-hosted-proof/source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
+  - Observed effect: one discarded source-only review, then a second launch that recovered examples 3–4 before commitment allocation
+  - Inference: distinct from ODF-326 (unchanged-input repeat); here the first inputs were incomplete, so the second launch was corrective rather than redundant

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-158#publish-awaiting-hosted-proof",
+  "title": "Publish source for hosted proof without marking its slice complete",
+  "completedAt": "2026-10-28T08:44:49.402Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "cursor",
+  "model": "auto"
+}

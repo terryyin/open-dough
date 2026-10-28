@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Publish source for hosted proof without marking its slice complete](seeds/SEED-158-publish-awaiting-hosted-proof.md#publish-awaiting-hosted-proof) — SEED-158#publish-awaiting-hosted-proof ([plan](slice-plans/364-publish-awaiting-hosted-proof/PLAN.md))
 - [Choose effort when starting a Cursor session](seeds/SEED-160-choose-cursor-session-effort.md#choose-cursor-session-effort) — SEED-160#choose-cursor-session-effort ([plan](slice-plans/365-choose-cursor-session-effort/PLAN.md))
 
 ## Backlog list
