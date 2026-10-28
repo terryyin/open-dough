@@ -140,7 +140,7 @@ export function plantTrackedClosureRepository(repository: string): {
   readonly revision: string;
 } {
   mkdirSync(path.join(repository, ".planning"), { recursive: true });
-  execFileSync("git", ["init"], { cwd: repository });
+  execFileSync("git", ["init", "-b", "main"], { cwd: repository });
   writeFileSync(
     path.join(repository, ".planning", "PRODUCT-BACKLOG.md"),
     "# Product backlog\n\n## Taken\n\n## Backlog list\n",
