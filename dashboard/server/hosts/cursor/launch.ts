@@ -38,6 +38,7 @@ import {
   timedOut,
   untilAbort,
 } from "./launchOutcomes.ts";
+import { composeCursorListedId } from "./modelIds.ts";
 import { cursorPrompt } from "./prompt.ts";
 import {
   establishCursorSessionScope,
@@ -64,6 +65,10 @@ export const launchCursor: LaunchHost["launch"] = async (
     throw new Error("Durable launch recording is required.");
   }
   const prompt = cursorPrompt(request, established?.handoff);
+  const listedModel =
+    request.model === undefined
+      ? undefined
+      : composeCursorListedId(request.model, request.effort);
   // Only a blank unattached session has no prompt. Any other missing prompt
   // is refused before create-chat, so a skill launch is never recorded empty.
   if (prompt === undefined && request.workflow !== "ad-hoc") {
@@ -73,7 +78,7 @@ export const launchCursor: LaunchHost["launch"] = async (
       explanation: "Cursor was not given a first prompt. Nothing was launched.",
     };
   }
-  if (prompt === undefined && request.model !== undefined) {
+  if (prompt === undefined && listedModel !== undefined) {
     return {
       kind: "failed",
       reason: "refused",
@@ -86,10 +91,8 @@ export const launchCursor: LaunchHost["launch"] = async (
   // persistence lands in the scope from the first turn. Failure refuses
   // here rather than launching against the shared configuration.
   const configScope =
-    request.model === undefined
-      ? undefined
-      : await establishCursorSessionScope();
-  if (request.model !== undefined && configScope === undefined) {
+    listedModel === undefined ? undefined : await establishCursorSessionScope();
+  if (listedModel !== undefined && configScope === undefined) {
     return {
       kind: "failed",
       reason: "unavailable",
@@ -164,7 +167,7 @@ export const launchCursor: LaunchHost["launch"] = async (
     command: cursorAgent,
     args: [
       ...resumeFlags(workspace, session.sessionId),
-      ...(request.model === undefined ? [] : ["--model", request.model]),
+      ...(listedModel === undefined ? [] : ["--model", listedModel]),
     ],
     cwd: workspace,
     cols: cursorTerminalSize.cols,

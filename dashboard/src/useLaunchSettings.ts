@@ -28,18 +28,19 @@ export function useLaunchSettings(
   return { model, setModel, effort, setEffort, catalog, settingsBlocked };
 }
 
-// A chosen model the host's catalog does not offer, or a Codex effort the
-// chosen model does not take, cannot be started.
+// A chosen model the host's catalog does not offer, or an effort the chosen
+// model does not take for a host that offers effort here, cannot be started.
 export function launchSettingsBlocked(
   host: AgentLaunchRequest["host"],
   model: LaunchModel,
   effort: string,
   options: LaunchHostOptions | undefined,
+  effortHosts: readonly AgentLaunchRequest["host"][] = ["codex", "cursor"],
 ): boolean {
   return (
     (hostDescription(host).modelCatalog !== undefined &&
       model !== "" &&
       !options?.models.some((item) => item.model === model)) ||
-    (host === "codex" && effortBlocked(options, model, effort))
+    (effortHosts.includes(host) && effortBlocked(options, model, effort, host))
   );
 }

@@ -1,7 +1,11 @@
+import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { effortBlocked, launchEfforts } from "./launchEffort.ts";
+import { hostName } from "./sessionCapabilities.ts";
+
 export function LaunchReasoningEffort({
   id,
+  host,
   model,
   effort,
   onEffort,
@@ -9,6 +13,7 @@ export function LaunchReasoningEffort({
   error,
 }: {
   readonly id: string;
+  readonly host: AgentLaunchRequest["host"];
   readonly model: string;
   readonly effort: string;
   readonly onEffort: (effort: string) => void;
@@ -16,7 +21,16 @@ export function LaunchReasoningEffort({
   readonly error: string | undefined;
 }) {
   const { efforts, known } = launchEfforts(options, model);
-  const blocked = effortBlocked(options, model, effort);
+  const blocked = effortBlocked(options, model, effort, host);
+  const hasEmptyEffort = efforts.some((item) => item.effort === "");
+  const setting =
+    host === "cursor" ? "your Cursor setting" : "the Codex setting";
+  const emptyLabel =
+    host === "cursor"
+      ? model === ""
+        ? "Use your Cursor setting"
+        : "Choose a listed effort"
+      : "Use Codex setting";
   return (
     <div className="launch-dialog-field">
       <label htmlFor={`${id}-effort`}>Reasoning effort</label>
@@ -30,27 +44,38 @@ export function LaunchReasoningEffort({
           onEffort(event.target.value);
         }}
       >
-        <option value="">Use Codex setting</option>
+        {!hasEmptyEffort && <option value="">{emptyLabel}</option>}
         {effort !== "" && !efforts.some((item) => item.effort === effort) && (
           <option value={effort}>{effort} (unavailable)</option>
         )}
         {efforts.map((item) => (
-          <option key={item.effort} value={item.effort}>
-            {item.effort} — {item.description}
+          <option
+            key={item.effort === "" ? "listed" : item.effort}
+            value={item.effort}
+          >
+            {item.effort === ""
+              ? item.description
+              : `${item.effort} — ${item.description}`}
           </option>
         ))}
       </select>
       <p id={`${id}-effort-feedback`} className="quiet" aria-live="polite">
         {blocked
-          ? "This reasoning effort cannot be verified for this model. Choose a supported effort or use the Codex setting."
+          ? `This reasoning effort cannot be verified for this model. Choose a supported effort or use ${setting}.`
           : (error ??
             (options === undefined
-              ? "Reading Codex reasoning efforts… You can use the Codex setting."
+              ? `Reading ${hostName(host)} reasoning efforts… You can use ${setting}.`
               : effort === ""
-                ? "Codex resolves its configured reasoning effort in the launch workspace."
+                ? host === "cursor"
+                  ? model === ""
+                    ? "Cursor starts with your current Cursor model setting."
+                    : hasEmptyEffort
+                      ? efforts.find((item) => item.effort === "")?.description
+                      : "Choose a listed reasoning effort for this model."
+                  : "Codex resolves its configured reasoning effort in the launch workspace."
                 : known
                   ? efforts.find((item) => item.effort === effort)?.description
-                  : "Codex resolves the configured model in the launch workspace. This explicit effort will be verified there before initial input."))}
+                  : `${hostName(host)} resolves the configured model in the launch workspace. This explicit effort will be verified there before initial input.`))}
       </p>
     </div>
   );

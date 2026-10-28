@@ -31,6 +31,19 @@ export const cursorModels = [
   { model: "gpt-5.2", name: "GPT-5.2\u200B" },
 ] as const;
 
+// Multi-effort family for dialog and composed `--model` proof. No bare base
+// id is listed, so an explicit effort is required. Fast is a distinct choice.
+export const cursorEffortModels = [
+  { model: "fixture-orb-low", name: "Fixture Orb Low" },
+  { model: "fixture-orb-high", name: "Fixture Orb High" },
+  { model: "fixture-orb-high-fast", name: "Fixture Orb High Fast" },
+] as const;
+
+// A second family that lists a different effort set, for incompatible switch.
+export const cursorOtherEffortModels = [
+  { model: "fixture-luna-medium", name: "Fixture Luna Medium" },
+] as const;
+
 // The fake's directory and wiring, for reading its recorded environment.
 export const fakeCursorHost: FakeHostWiring = {
   binDir: "cursor-bin",

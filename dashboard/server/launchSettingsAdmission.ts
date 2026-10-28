@@ -1,6 +1,7 @@
 // Startup settings admission keeps static host aliases distinct from a host
 // boundary's transient native offerings.
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
+import { effortBlocked } from "../src/launchEffort.ts";
 import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { knownSource } from "./sessionAdmission.ts";
@@ -11,10 +12,14 @@ export async function admitLaunchSettings(
   request: AgentLaunchRequest,
   host: LaunchHost,
 ): Promise<void> {
-  if (request.effort !== undefined && request.host !== "codex")
+  if (
+    request.effort !== undefined &&
+    request.host !== "codex" &&
+    request.host !== "cursor"
+  )
     throw new RefusedRequest(
       400,
-      "Reasoning effort is only offered for Codex startup.",
+      "Reasoning effort is only offered for Codex or Cursor startup.",
     );
   const unoffered =
     host.description.unofferedModelExplanation ??
@@ -29,6 +34,9 @@ export async function admitLaunchSettings(
   }
   if (request.model === undefined && request.effort === undefined) return;
   const modelCatalog = host.description.modelCatalog;
+  const effortSetting =
+    request.host === "cursor" ? "your Cursor setting" : "the Codex setting";
+  const staleEffort = `The selected reasoning effort is no longer supported by this model. Choose a supported effort or use ${effortSetting}.`;
   try {
     const options = await host.options(AbortSignal.timeout(10_000));
     if (
@@ -36,17 +44,30 @@ export async function admitLaunchSettings(
       !options.models.some((item) => item.model === request.model)
     )
       throw new RefusedRequest(400, modelCatalog?.stale ?? unoffered);
+    if (request.host === "cursor") {
+      if (request.effort !== undefined && request.model === undefined)
+        throw new RefusedRequest(
+          400,
+          "Cursor reasoning effort requires a chosen model.",
+        );
+      if (
+        request.model !== undefined &&
+        effortBlocked(
+          options,
+          request.model,
+          request.effort ?? "",
+          request.host,
+        )
+      )
+        throw new RefusedRequest(400, staleEffort);
+      return;
+    }
     if (
       request.effort !== undefined &&
       request.model !== undefined &&
-      !options.models
-        .find((item) => item.model === request.model)
-        ?.efforts.some((item) => item.effort === request.effort)
+      effortBlocked(options, request.model, request.effort, request.host)
     )
-      throw new RefusedRequest(
-        400,
-        "The selected reasoning effort is no longer supported by this model. Choose a supported effort or use the Codex setting.",
-      );
+      throw new RefusedRequest(400, staleEffort);
   } catch (error) {
     if (error instanceof RefusedRequest) throw error;
     throw new RefusedRequest(

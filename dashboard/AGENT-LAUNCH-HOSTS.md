@@ -9,105 +9,74 @@ public boundary; an unavailable host never uses another host's implementation.
 Attach and Mark as done availability is projected from that boundary's actual
 optional `attach` and `stop` operations in the machine-sessions answer. Browser
 controls also honor session state and workspace access; server admission retains
-its own missing-operation checks. Cursor's module launches with `create-chat`,
-then one kept terminal client, `cursor-agent --workspace` and `--resume` in
-the established workspace, and stores that id, workspace, and resume command,
-with no alias or endpoint. The launch does not pass `-w`, `--worktree`,
-`--trust`, `--force`, or `--yolo`. Cursor can request workspace trust for a
-fresh isolated worktree. Opening its terminal shows the held prompt; the
-developer answers there before the first instruction can be delivered.
-The instruction is written into that
-client when its server-side screen shows the text
-`Add a follow-up` or `Plan, search, build anything`, even when the terminal
-cursor is hidden and no synchronized-update frame has arrived. A long or
-multiline instruction that Cursor shows as a paste chip is submitted with a
-later Enter, and the record says the first input was accepted only then. A
-screen that is not ready does not receive the instruction, the record stays
-uncertain, and the developer can still type. When that same client later
-becomes ready, it receives the instruction. The client exiting does not
-accept the instruction. Continue of that unconfirmed launch starts no other
-conversation while the runner still holds the client, or when the runner
-cannot be reached. When the runner is up and no longer holds the client, or
-is not running, Continue creates a new chat in the recorded configuration
-scope, submits the same first prompt, and does not resume the exited session
-id. A missing or unreadable recorded scope refuses that Continue and starts
-nothing. The launch attempt settles once the client is running and the first screen
-has been judged, or when the shared launch wait
-(`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s) ends while keep is still open —
-including a screen that never becomes ready, and a paste chip whose Enter was
-submitted but never answered by a later paint or exit. That wait expiry
-answers `uncertain` with reason `timed-out`. When the runner's current read of
-that same client shows its workspace trust prompt and the first input is
-still uncertain, the launch answer, Startup recovery, and session entry say
-Cursor is waiting for workspace trust and that the developer answers the
-prompt in this session's terminal to deliver the first input. The record
-retains that explanation until input is confirmed. The runner read starts
-nothing; an unavailable read or an older runner without trust evidence keeps
-the existing timeout wording. Other wait expiries say Cursor did not show it
-took the instruction in time, that the session remains kept, and how to
-continue from the recorded resume. The expiry does not invent or revoke
-first-input state, and it does not kill the client. Acceptance of a later ready screen is still
-recorded after Start returns. A Cursor that settles before the bound returns
-`launched` as before. Opening the terminal joins that client and shows its
-output. There is no launch-wait notice and no second `cursor-agent`. A blank
-ad hoc start still creates the session, submits nothing, and starts the
-client when opened. Attach is supplied: a later open with no client already
-kept runs the stored command. The text `Add a follow-up` or
-`Plan, search, build anything` admits it even when the terminal cursor is
-hidden. That
-attach result declares keep, so a detached terminal leaves the client running
-and a later open joins the same process instead of starting another. The
-follow-up prompt — `→ Add a follow-up` or
-`→ Plan, search, build anything` — keeps that process after the launch
-instruction has been entered, as does a working, waiting, or unrecognized
-screen. Stop is not supplied, so
-Mark as done stays absent.
-An unfinished Cursor session the runner does not hold — including when the
-runner is not running or cannot be reached — offers Recover on the session
-entry. Observation never starts the runner or an agent. Recover resumes the
-recorded `cursor-agent` continuation in the recorded worktree through the
-runner (which may start), racing that keep against the same shared launch
-wait. When keep has not settled by that bound, Recover answers `failed` with
-the same unconfirmed-delivery explanation, leaves the client kept, and does
-not hang it up. When the keep settles in ordinary time and the resulting
-screen is the idle composer and first input is already confirmed, it types
-one continuation naming the recorded workflow, identity, worktree, and
-branch, plus the reporting command when present, and tells the agent to
-continue from the worktree's state without opening another assignment; it
-does not paste the original first prompt. Working, waiting, unconfirmed
-first input, and blank not-requested type nothing. When resume exits with
-the cannot-load sentence (`Cursor could not load this chat.` — provisional
-until native cursor-agent emits an observed sentence), Recover starts one
-replacement chat in the same workspace on the same launch record, updates
-the stored session id before instructing that agent, and sends the original
-prompt plus the continuation facts (blank not-requested sends only the
-continuation facts). Missing workspace, workspace trust, an unreachable
-runner, or any other exit explains the reason, leaves no agent running, and
-starts no replacement. Held, done, and completed sessions offer no Recover.
-Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor
-setting)": each `<id> - <name>` line, with no efforts and no configured model.
-An unreadable list is explained with Retry, and Default stays startable.
-Launch admission rechecks a chosen id against that list and refuses a stale
-one before `create-chat`. A chosen id is sent as `--model <id>` on that
-first terminal client only; the stored resume command never carries it, and
-opening again does not send it.
-A chosen model runs in a session-scoped Cursor configuration cloned from
-the developer's current configuration (under the dashboard machine home,
-its `chats` linked to the shared Cursor chats) and recorded on the launch
-record; every process that runs the session inherits that scope, so
-Cursor's model persistence lands in the scope and never in the shared
-configuration, and deleting the launch record removes the scope. The
-dialog says the choice applies to this session only. A blank ad hoc start
-with a chosen model is refused before `create-chat`, because no Cursor run
-would apply it. Default omits `--model`. Skills are read from
-`.agents/skills`, and the prompt sigil is `/`.
+its own missing-operation checks. Cursor's module launches with `create-chat`, then one kept terminal client, `cursor-agent --workspace` and
+`--resume` in the established workspace, and stores that id, workspace, and resume command, with no alias or
+endpoint. The launch does not pass `-w`, `--worktree`, `--trust`, `--force`, or `--yolo`. Cursor can request
+workspace trust for a fresh isolated worktree. Opening its terminal shows the held prompt; the developer answers
+there before the first instruction can be delivered. The instruction is written into that client when its
+server-side screen shows the text `Add a follow-up` or `Plan, search, build anything`, even when the terminal
+cursor is hidden and no synchronized-update frame has arrived. A long or multiline instruction that Cursor shows
+as a paste chip is submitted with a later Enter, and the record says the first input was accepted only then. A
+screen that is not ready does not receive the instruction, the record stays uncertain, and the developer can
+still type. When that same client later becomes ready, it receives the instruction. The client exiting does not
+accept the instruction. Continue of that unconfirmed launch starts no other conversation while the runner still
+holds the client, or when the runner cannot be reached. When the runner is up and no longer holds the client, or
+is not running, Continue creates a new chat in the recorded configuration scope, submits the same first prompt,
+and does not resume the exited session id. A missing or unreadable recorded scope refuses that Continue and
+starts nothing. The launch attempt settles once the client is running and the first screen has been judged, or
+when the shared launch wait (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s) ends while keep is still open — including a
+screen that never becomes ready, and a paste chip whose Enter was submitted but never answered by a later paint
+or exit. That wait expiry answers `uncertain` with reason `timed-out`. When the runner's current read of that
+same client shows its workspace trust prompt and the first input is still uncertain, the launch answer, Startup
+recovery, and session entry say Cursor is waiting for workspace trust and that the developer answers the prompt
+in this session's terminal to deliver the first input. The record retains that explanation until input is
+confirmed. The runner read starts nothing; an unavailable read or an older runner without trust evidence keeps
+the existing timeout wording. Other wait expiries say Cursor did not show it took the instruction in time, that
+the session remains kept, and how to continue from the recorded resume. The expiry does not invent or revoke
+first-input state, and it does not kill the client. Acceptance of a later ready screen is still recorded after
+Start returns. A Cursor that settles before the bound returns `launched` as before. Opening the terminal joins
+that client and shows its output. There is no launch-wait notice and no second `cursor-agent`. A blank ad hoc
+start still creates the session, submits nothing, and starts the client when opened. Attach is supplied: a later
+open with no client already kept runs the stored command. The text `Add a follow-up` or `Plan, search, build
+anything` admits it even when the terminal cursor is hidden. That attach result declares keep, so a detached
+terminal leaves the client running and a later open joins the same process instead of starting another. The
+follow-up prompt — `→ Add a follow-up` or `→ Plan, search, build anything` — keeps that process after the launch
+instruction has been entered, as does a working, waiting, or unrecognized screen. Stop is not supplied, so Mark
+as done stays absent. An unfinished Cursor session the runner does not hold — including when the runner is not
+running or cannot be reached — offers Recover on the session entry. Observation never starts the runner or an
+agent. Recover resumes the recorded `cursor-agent` continuation in the recorded worktree through the runner
+(which may start), racing that keep against the same shared launch wait. When keep has not settled by that
+bound, Recover answers `failed` with the same unconfirmed-delivery explanation, leaves the client kept, and does
+not hang it up. When the keep settles in ordinary time and the resulting screen is the idle composer and first
+input is already confirmed, it types one continuation naming the recorded workflow, identity, worktree, and
+branch, plus the reporting command when present, and tells the agent to continue from the worktree's state
+without opening another assignment; it does not paste the original first prompt. Working, waiting, unconfirmed
+first input, and blank not-requested type nothing. When resume exits with the cannot-load sentence (`Cursor
+could not load this chat.` — provisional until native cursor-agent emits an observed sentence), Recover starts
+one replacement chat in the same workspace on the same launch record, updates the stored session id before
+instructing that agent, and sends the original prompt plus the continuation facts (blank not-requested sends
+only the continuation facts). Missing workspace, workspace trust, an unreachable runner, or any other exit
+explains the reason, leaves no agent running, and starts no replacement. Held, done, and completed sessions
+offer no Recover. Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor setting)". Listed
+ids that encode effort are projected into base models with per-model Reasoning effort choices derived only from
+that listing; a listed id with no separable variants stays model-only. An unreadable list is explained with
+Retry, and Default stays startable. Launch admission rechecks a chosen base id and effort pair against that
+projection and refuses a stale or unsupported composition before `create-chat`. An explicit model and effort
+compose to the matching listed id, sent as `--model <id>` on that first terminal client only; the stored resume
+command never carries it, and opening again does not send it. Default omits `--model` and sends no effort. A
+chosen model runs in a session-scoped Cursor configuration cloned from the developer's current configuration
+(under the dashboard machine home, its `chats` linked to the shared Cursor chats) and recorded on the launch
+record; every process that runs the session inherits that scope, so Cursor's model persistence lands in the
+scope and never in the shared configuration, and deleting the launch record removes the scope. The dialog says
+the choice applies to this session only. A blank ad hoc start with a chosen model is refused before
+`create-chat`, because no Cursor run would apply it. Skills are read from `.agents/skills`, and the prompt sigil
+is `/`.
 
-Common workflow, records, actions and presentation do not call another host's
-private helpers. Shared wording reads the host description, and alerts consume native
-observation meaning. Identity is host plus the opaque native conversation ID
-throughout stores, merging, page keys, focus and action lookup. Equal IDs in different hosts stay separate. Claude
-additionally retains its native attach/stop alias; Codex needs no fabricated
-alias. Predecessor actions without host address Claude only.
+Common workflow, records, actions and presentation do not call another host's private helpers. Shared wording
+reads the host description, and alerts consume native observation meaning. Identity is host plus the opaque
+native conversation ID throughout stores, merging, page keys, focus and action lookup. Equal IDs in different
+hosts stay separate. Claude additionally retains its native attach/stop alias; Codex needs no fabricated alias.
+Predecessor actions without host address Claude only.
 
 Every process the dashboard starts for a session, on every host, runs in the
 developer's shell environment (`server/developerShellEnvironment.ts`): the

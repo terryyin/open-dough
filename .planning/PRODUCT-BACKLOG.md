@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Choose effort when starting a Cursor session](seeds/SEED-160-choose-cursor-session-effort.md#choose-cursor-session-effort) — SEED-160#choose-cursor-session-effort ([plan](slice-plans/365-choose-cursor-session-effort/PLAN.md))
-
 ## Backlog list
 

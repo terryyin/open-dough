@@ -149,7 +149,9 @@ export function LaunchDialog({
             host,
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
-            ...(host !== "codex" || effort === "" ? {} : { effort }),
+            ...((host === "codex" || host === "cursor") && effort !== ""
+              ? { effort }
+              : {}),
             ...(flags.length === 0 ? {} : { options: flags }),
             ...session.chosen,
           });

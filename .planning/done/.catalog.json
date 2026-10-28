@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-160_choose-cursor-session-effort.json",
+      "identity": "SEED-160#choose-cursor-session-effort",
+      "completedAt": "2026-10-28T10:15:30.309Z",
+      "blob": "fb420b319f894b2917eebdff68045a8916ddfe1e"
+    },
+    {
       "fileName": "SEED-161_cursor-runner-keeps-its-terminal-helper.json",
       "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
       "completedAt": "2026-10-28T09:33:20.860Z",

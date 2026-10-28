@@ -175,6 +175,7 @@ export function FeedbackMaintenanceSettings() {
             effort={effort}
             onEffort={setEffort}
             catalog={catalog}
+            effortHosts={["codex"]}
           />
         </fieldset>
         <div className="openai-settings-actions">
@@ -183,7 +184,9 @@ export function FeedbackMaintenanceSettings() {
             className="frame-button frame-button-primary"
             disabled={
               busy ||
-              launchSettingsBlocked(host, model, effort, catalog.options)
+              launchSettingsBlocked(host, model, effort, catalog.options, [
+                "codex",
+              ])
             }
           >
             {enabled ? "Save feedback maintenance" : "Turn on"}
