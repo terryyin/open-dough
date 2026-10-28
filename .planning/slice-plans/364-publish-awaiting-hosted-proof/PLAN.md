@@ -168,6 +168,16 @@ implementation, focused verification, guidance and cleanup; no preparatory
 Structure slice or speculative second publisher. No numeric slice budget is
 supplied here. Honor any budget supplied at execution.
 
+## Execution complete
+
+Product advice:
+1. After a release contains `0b6d4dfae9ad68ba20261cd3ea3c517b8631874f` and
+   install, run ODF-275 ordinary-use; do not resolve from delivery alone.
+2. Early trunk / Dough Land for a stable main checkout stays deferred
+   (ODF-275 / X1).
+3. Optional hygiene only: correct the plan's ADR 0009 Accepted claim (record
+   is Proposed); wrap-up.md pre-existing oversize — not queued here.
+
 ## Story obligations
 
 ### X1. Early trunk / Dough Land for stable checkout
