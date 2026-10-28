@@ -162,8 +162,9 @@ export function plantTrackedClosureRepository(repository: string): {
   return { revision };
 }
 
-// Retained landing plus claimed start so panel composition can reuse existing
-// tracked-execution closure-gate facts without inventing a parallel owner.
+// Retained landing plus claimed start so panel composition and quiet-Done
+// admission reuse existing tracked-execution closure-gate facts without inventing
+// a parallel owner. Identity stays the launch's own story identity.
 export function keepTrackedClosureEvidence(
   record: LaunchRecord,
   repository: string,
@@ -175,11 +176,12 @@ export function keepTrackedClosureEvidence(
       "Tracked closure fixture requires a story-identity launch request",
     );
   }
+  const identity = record.request.identity;
   return {
     ...record,
     request: { ...record.request, workflow: "execution" },
     start: {
-      identity: notRefinedIdentity,
+      identity,
       publisherId: "closure-fixture",
       workspace,
       branch: "cursor/retired",
@@ -193,7 +195,7 @@ export function keepTrackedClosureEvidence(
       delivery: randomUUID(),
       receipt: randomUUID(),
       repository,
-      identity: notRefinedIdentity,
+      identity,
       remote: "origin",
       target: "refs/heads/main",
       base: revision,

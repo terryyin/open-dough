@@ -35,6 +35,15 @@ export async function unavailableCompletion(
   expect(unavailable.stderr).toContain(
     "Completion delivery was not acknowledged",
   );
+  // Incomplete completion after accepted work stays a reporting-only recovery:
+  // identify the unfinished completion operation and keep the exact pending input.
+  expect(unavailable.stderr).toMatch(/Retained completion: /);
+  expect(unavailable.stderr).toMatch(
+    /Retry reporting only: .+['"]--retry['"] /,
+  );
+  expect(unavailable.stderr).toContain(
+    "Keep the message and retry without repeating the work.",
+  );
   const pending = retainedSubmission(unavailable.stderr);
   const submission = JSON.parse(readFileSync(pending, "utf8")) as {
     delivery: string;

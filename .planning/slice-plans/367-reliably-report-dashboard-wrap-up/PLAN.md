@@ -199,18 +199,25 @@ support were split so publication modules stay under the file-size limit.
 
 ### 4. Keep incomplete completion reporting recoverable without manufacturing Done
 Type: Behavior
-Status: planned
+Status: done
 Proof: Preserve/extend reporting-only retry fixtures for attempted-but-unacked
 completion; panel/admission from slice 1 covers never-attempted completion after
 accepted work and retirement; quiet success journey (or focused equivalent)
 still reaches Done only with landing + empty completed receipt + existing
 closure gates. No new auto-completion or host exit gate.
 
+Accepted proof:
+1. `PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- tests/boundary/agent-completion-quiet-closure.spec.ts tests/boundary/final-report-admission.spec.ts tests/session-workspace-retirement-cursor.spec.ts --reporter=line` → 5 passed.
+2. `PATH="/opt/homebrew/bin:$PATH" node --test src/skills/dough-land/scripts/completion-attention-guidance.test.mjs src/skills/dough-execute-plan/scripts/planned-wrap-up-continuation-guidance.test.mjs` → 12 passed.
+
 Behavior: Pre-condition: accepted publication/retirement with incomplete
 completion evidence → Trigger: developer reads the session / retries when a
 pending file exists → Result: unfinished reporting is identified; retry never
 repeats Git or retirement; native final reply still does not set Done; when both
 duties succeed, quiet Done still works as today.
+
+Learnings: Focused quiet-closure boundary is sufficient for Done-gate and
+reporting-only recovery without re-running full Land journeys locally.
 
 ## Concern evidence
 
