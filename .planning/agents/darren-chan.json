@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
+  "mode": "story-branch",
+  "branch": "cursor/cursor-runner-keeps-its-terminal-helper",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
