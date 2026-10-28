@@ -462,20 +462,6 @@ The guarded fresh delivery runs each preparation operation directly without a sh
   - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
   - Inference: the coordinator chose the script from `package.json`'s `format` entry without reading this finding first; a fourth occurrence with the same cause.
 
-## DD-339 — Nested-fixture proof missed a real-suite shape, so the artifact misattributed 124 s
-
-Slice 2 proved the dashboard per-spec times on quiet-reporter fixtures where every test is declared in its own spec file; the real suite registers tests from imported case modules, which Playwright locates at the module, so the first CI artifacts credited six module files with 124.3 s that belong to three specs.
-
-### Occurrences
-- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
-  - Timestamp: 2026-10-25T20:38:14+09:00 (found during slice 3, fixed in commit `065d6655`)
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: run 40187124945's `dashboard-times-*` list `support/productionUpdatePolicies.ts` 62.8 s and five Codex case modules; obligation G2 in `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`; the fix walks `test.parent` to the file suite (`dashboard/tests/support/specTimes.ts`) with a new fixture pair `nested/cases.ts` and `nested/importing.proof.ts`.
-  - Observed effect: a return obligation on the last slice, a reporter fix with its fixture, a dashboard list committed with misattributed seconds, and a further increment to refresh it from the corrected run.
-  - Inference: qualified. The preparation observation checked `location.file` on one plain spec; a proof built only from synthetic fixtures does not sample the real suite's shapes. Reading one real artifact, or listing the real suite's distinct test-file origins, before accepting slice 2 would have shown it.
-
 ## DD-340 — Preparation observations recorded results their own commands contradict
 
 Plan 354's "Preparation observations" quoted command results that the same commands, rerun at the same revision, do not give: a premise grep's file list, a "differs only in" comparison, and a key example's file count.
@@ -531,20 +517,6 @@ A command added for coordinators to run (`source-freshness.mjs`) made its scratc
   - Evidence: `tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T133952-0d3e` (two `EPERM` mkdtemp refusals, then a `TMPDIR` workaround); plan 355 story obligation G1; fix `2b46202c` with the unwritable-`TMPDIR` test in `source-freshness.test.mjs`
   - Observed effect: One paid round failed, one retry was spent, and the command needed a fix after its slice was accepted.
   - Inference: An unwritable-`TMPDIR` case in the slice's focused proof, or keeping scratch inside the repository by default, would have caught this before paid rounds.
-
-## DD-345 — A native assessor required a literal result word where the plan declared a named signal
-
-The new `delivery-evidence/amended` assessor required the literal word `amended` in the final response, while the plan declared `surfaced` as the result named in the stream. Codex wrote "the absorbed trunk amendment" and failed on wording alone after correct behavior; the observer was corrected afterwards to a word-stem rule with paraphrase and unnamed-response controls.
-
-### Occurrences
-- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
-  - Timestamp: 2026-10-25T13:57:00Z
-  - Tool: Claude Code (coordinator); Codex (native round)
-  - Model: claude-opus-5-5 (coordinator)
-  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
-  - Evidence: `tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T135700-1825` (`corrected: response-names amended`); `ea8fa390` observer change and controls in `tests/delivery-evidence-amended.sh`; ODF-354 "Delivered response"
-  - Observed effect: A behaviorally correct round was recorded as failed and the assessor was changed after seeing results, which then needed open disclosure in the finding.
-  - Inference: Paraphrase controls derived from the declared signal, written before paid rounds, would have avoided the post-hoc correction.
 
 ## DD-346 — A CI repair was diagnosed in a scratch worktree while paid rounds read the execution checkout
 
