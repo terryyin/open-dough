@@ -5,7 +5,7 @@
 // names the landing context, the attempt holds the capture authority, and the
 // instruction's reporting block tells the session where to supply it.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { keptAttempts } from "../acceptedAttempts.ts";
@@ -19,6 +19,10 @@ import {
   type StartOrigin,
 } from "../support/startOrigin.ts";
 import { claimedStoryBranchLaunch } from "../support/storyBranchIntegration.ts";
+import {
+  firstLandingExpectationPath,
+  openFirstLandingExpectation,
+} from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode execution launch", () => {
   let origin: StartOrigin;
@@ -62,22 +66,40 @@ test.describe("a claimed Story Branch Mode execution launch", () => {
 
     // The attempt holds the capture authority: the project's own repository,
     // which outlives the worktree.
+    const repository = git(
+      origin.project,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-common-dir",
+    );
     expect(
       keptAttempts(server).find((entry) => entry.id === reporting.reference)
         ?.landingRepository,
     ).toEqual({
-      repository: git(
-        origin.project,
-        "rev-parse",
-        "--path-format=absolute",
-        "--git-common-dir",
-      ),
+      repository,
       workspace,
       branch,
       identity: queuedIdentity,
       remote: "origin",
       target: "refs/heads/main",
     });
+
+    // Reporting preparation planted a durable first-landing expectation beside
+    // that management context, keyed to this workspace/branch — not in the tree.
+    await expect(
+      openFirstLandingExpectation({ repository, workspace, branch }),
+    ).resolves.toEqual({
+      workspace,
+      branch,
+      landingContext,
+    });
+    expect(
+      existsSync(firstLandingExpectationPath(repository, workspace, branch)),
+    ).toBe(true);
+    expect(readdirSync(workspace).includes("open-dough")).toBe(false);
+    expect(
+      existsSync(path.join(workspace, "first-landing-expectation.json")),
+    ).toBe(false);
 
     // The session is told which publication takes the context: the one that
     // first lands its work on trunk.

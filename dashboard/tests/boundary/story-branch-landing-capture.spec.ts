@@ -25,6 +25,7 @@ import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
 } from "../support/storyBranchIntegration.ts";
+import { openFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
   let origin: StartOrigin;
@@ -123,6 +124,10 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
     });
     expect(landed.completion).toBeUndefined();
     expect(landed.doneAt).toBeUndefined();
+    // Accepted capture cleared the open first-landing expectation.
+    await expect(
+      openFirstLandingExpectation({ repository, workspace, branch }),
+    ).resolves.toBeUndefined();
 
     // Both ends are pinned, and the comparison holds the story's file alone.
     const pin = `refs/open-dough/one-shot/${reporting.reference}/${receipt.delivery}`;

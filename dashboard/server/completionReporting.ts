@@ -91,16 +91,29 @@ export async function reportingContext(
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
-  if (capturesLanding)
+  let expectationModule: string | undefined;
+  if (capturesLanding) {
     await copyFile(
       landingModule,
       path.join(directory, "dashboard-landing.mjs"),
     );
+    // Landing capture clears the open expectation through this sibling module.
+    // Plant uses the same installed bytes so preparation and clear stay aligned.
+    expectationModule = path.join(
+      path.dirname(landingModule),
+      "first-landing-expectation.mjs",
+    );
+    await copyFile(
+      expectationModule,
+      path.join(directory, "first-landing-expectation.mjs"),
+    );
+  }
   // Every established start, preparation or unattached session names its
   // trunk target; only a story's names an identity.
   const identity = establishedStory(established);
   if (
     capturesLanding &&
+    expectationModule !== undefined &&
     established !== undefined &&
     (identity !== undefined || (await acceptsStoryless(landingModule)))
   ) {
@@ -127,6 +140,22 @@ export async function reportingContext(
       `${JSON.stringify({ origin: attempt.reportingOrigin, source: attempt.request.source, host: attempt.request.host, reference: attempt.id, identity, remote: landingRepository.remote, target: landingRepository.target }, null, 2)}\n`,
       { mode: 0o600 },
     );
+    // Durable pointer outside the working tree so first trunk publication can
+    // resolve this prepared context when the agent omits --landing-context.
+    const { plantFirstLandingExpectation } = await installedExports<{
+      plantFirstLandingExpectation: (args: {
+        repository: string;
+        workspace: string;
+        branch: string;
+        landingContext: string;
+      }) => Promise<string>;
+    }>(expectationModule);
+    await plantFirstLandingExpectation({
+      repository,
+      workspace: established.workspace,
+      branch: established.branch,
+      landingContext,
+    });
   }
   return {
     ...(landingRepository === undefined ? {} : { landingRepository }),

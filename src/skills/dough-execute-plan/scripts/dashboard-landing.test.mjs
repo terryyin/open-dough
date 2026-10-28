@@ -18,6 +18,10 @@ import {
   landingReceiver,
   landingReference as reference,
 } from "./dashboard-landing-test-fixtures.mjs";
+import {
+  firstLandingExpectationPath,
+  openFirstLandingExpectation,
+} from "./first-landing-expectation.mjs";
 
 const base = "a".repeat(40);
 const revision = "b".repeat(40);
@@ -29,13 +33,29 @@ const accepted = {
   target: "refs/heads/main",
 };
 
+async function plantedExpectationKeys(t, branch) {
+  const management = await mkdtemp(path.join(os.tmpdir(), "landing-mgmt-"));
+  t.after(() => rm(management, { recursive: true, force: true }));
+  return {
+    repository: path.join(management, "repo.git"),
+    workspace: path.join(management, "workspace"),
+    branch,
+  };
+}
+
 test("this installation says it takes a context that names no story", () => {
   assert.equal(acceptsLandingWithoutIdentity, true);
 });
 
 test("a context naming no story is retained before the push and recorded after acceptance by its launch reference alone", async (t) => {
   const { origin, requests } = await landingReceiver(t);
-  const file = await landingContextFile(t, origin);
+  const expectation = await plantedExpectationKeys(t, "claude/unattached");
+  const file = await landingContextFile(t, origin, undefined, expectation);
+  assert.deepEqual(await openFirstLandingExpectation(expectation), {
+    workspace: expectation.workspace,
+    branch: expectation.branch,
+    landingContext: file,
+  });
 
   const pending = await retainLandingComparison(
     file,
@@ -70,6 +90,43 @@ test("a context naming no story is retained before the push and recorded after a
     assert.equal("identity" in report, false);
     assert.equal(report.delivery, retained.delivery);
   }
+  // Accepted capture clears the open expectation; unacknowledged would not.
+  assert.equal(await openFirstLandingExpectation(expectation), undefined);
+  assert.equal(
+    await readFile(
+      firstLandingExpectationPath(
+        expectation.repository,
+        expectation.workspace,
+        expectation.branch,
+      ),
+      "utf8",
+    ).then(
+      () => "present",
+      (error) => error.code,
+    ),
+    "ENOENT",
+  );
+});
+
+test("unacknowledged capture leaves the first-landing expectation open", async (t) => {
+  const { origin } = await landingReceiver(t);
+  const expectation = await plantedExpectationKeys(t, "claude/unack");
+  const file = await landingContextFile(t, origin, "SEED-1#story", expectation);
+  await retainLandingComparison(
+    file,
+    { candidate: revision, suffixBase: base },
+    publication,
+  );
+  const mismatched = await captureAcceptedLanding(file, {
+    ...accepted,
+    revision: "c".repeat(40),
+  });
+  assert.equal(mismatched.state, "unacknowledged");
+  assert.deepEqual(await openFirstLandingExpectation(expectation), {
+    workspace: expectation.workspace,
+    branch: expectation.branch,
+    landingContext: file,
+  });
 });
 
 test("a context naming a story still carries its identity, and a comparison trunk did not accept is not recorded", async (t) => {

@@ -150,18 +150,26 @@ from Done closing (`claimedTrackedExecution` in `completionClosure.ts`).
 
 ### 2. Plant and clear first-landing expectation outside the working tree
 Type: Structure
-Status: planned
+Status: done
 Proof: Focused unit/boundary coverage that reporting preparation for an
 established workspace writes the expectation beside the git common dir (or the
 chosen management-context location), keyed to that workspace/branch; clearing
 runs after accepted capture; no expectation when landing context is not
 prepared; working tree stays free of commit-polluting pointer files.
 
+Accepted proof:
+1. `PATH="/opt/homebrew/bin:$PATH" node --test src/skills/dough-execute-plan/scripts/first-landing-expectation.test.mjs src/skills/dough-execute-plan/scripts/dashboard-landing.test.mjs` → 9 passed (plant/clear/keying; clear after accepted; unacknowledged leaves open).
+2. `PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- tests/boundary/story-branch-landing-context.spec.ts tests/boundary/story-branch-landing-capture.spec.ts tests/boundary/agent-launch-start-session-landing-admission.spec.ts --reporter=line` → 7 passed.
+
 Internal change: Extend `completionReporting.ts` (and any start/prep caller that
 already materializes `landing-context.json`) to plant the expectation; extend
 landing capture acceptance path to clear it. Enables slice 3. External launch
 instruction may still name `--landing-context`; planting is not an
 instruction-only fix.
+
+Learnings: Accepted capture only has the context file path, so plant also writes
+a reporting-dir sidecar naming repository/workspace/branch so clear does not
+need new capture API args.
 
 ### 3. First trunk publication retains landing when expectation is open
 Type: Behavior
