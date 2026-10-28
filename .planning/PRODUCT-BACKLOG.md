@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Starting a Cursor refinement or execution opens the session](seeds/SEED-159-cursor-start-opens-the-session.md#cursor-start-opens-the-session) — SEED-159#cursor-start-opens-the-session ([plan](slice-plans/364-cursor-start-opens-the-session/PLAN.md))
-
 ## Backlog list
 
 - [Check stalled delegated verification before observation coverage lapses](seeds/SEED-157-check-stalled-delegated-verification.md#check-stalled-delegated-verification) — SEED-157#check-stalled-delegated-verification

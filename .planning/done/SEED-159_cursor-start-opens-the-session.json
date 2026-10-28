@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-159#cursor-start-opens-the-session",
+  "title": "Starting a Cursor refinement or execution opens the session",
+  "completedAt": "2026-10-28T07:48:54.651Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "cursor",
+  "model": "grok-4.7"
+}

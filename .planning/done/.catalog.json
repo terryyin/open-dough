@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-159_cursor-start-opens-the-session.json",
+      "identity": "SEED-159#cursor-start-opens-the-session",
+      "completedAt": "2026-10-28T07:48:54.651Z",
+      "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
+    },
+    {
       "fileName": "SEED-156_recently-done-sessions-in-sidebar.json",
       "identity": "SEED-156#recently-done-sessions-in-sidebar",
       "completedAt": "2026-10-28T00:53:51.785Z",
