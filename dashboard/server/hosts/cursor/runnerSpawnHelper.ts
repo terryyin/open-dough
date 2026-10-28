@@ -9,11 +9,17 @@ import path from "node:path";
 const require = createRequire(import.meta.url);
 
 // The same place node-pty resolves its helper: beside `pty.node` under the
-// platform package, reached from that package's entry in `lib/`.
-export function cursorRunnerSpawnHelper(): string {
-  const entry = require.resolve(
-    `@lydell/node-pty-${process.platform}-${process.arch}`,
-  );
+// platform package, reached from that package's entry in `lib/`. Some
+// platforms ship no separate helper and fork without one.
+export function cursorRunnerSpawnHelper(): string | undefined {
+  let entry: string;
+  try {
+    entry = require.resolve(
+      `@lydell/node-pty-${process.platform}-${process.arch}`,
+    );
+  } catch {
+    return undefined;
+  }
   const helper = path.resolve(
     path.dirname(entry),
     "..",
@@ -21,8 +27,5 @@ export function cursorRunnerSpawnHelper(): string {
     `${process.platform}-${process.arch}`,
     "spawn-helper",
   );
-  if (!existsSync(helper)) {
-    throw new Error("The Cursor runner could not find its terminal helper.");
-  }
-  return helper;
+  return existsSync(helper) ? helper : undefined;
 }

@@ -11,6 +11,7 @@ import { existsSync } from "node:fs";
 import http from "node:http";
 import { homedir } from "node:os";
 import { computeRunnerBuildId, runnerEntryPath } from "./runnerBuild.ts";
+import { cursorRunnerSpawnHelper } from "./runnerSpawnHelper.ts";
 import {
   acceptingCursorRunnerPort,
   cursorRunnerAccepting,
@@ -92,13 +93,29 @@ async function acceptingRunnerIsCurrent(
   const probe = await probeRunnerProof(port);
   if (!probe.answered) return null;
   const address = readCursorRunnerAddress(home);
-  const helper = address?.spawnHelper;
-  const helperReady =
-    helper !== undefined && helper === probe.spawnHelper && existsSync(helper);
+  const recordedHelper =
+    address === undefined ? undefined : address.spawnHelper;
   return (
     address?.buildId === currentBuildId &&
     probe.buildId === currentBuildId &&
-    helperReady
+    spawnHelperReady(recordedHelper, probe.spawnHelper)
+  );
+}
+
+// A platform whose node-pty ships no separate helper is current when the
+// runner reports none. Where this install has a helper, the runner must
+// report a helper file that is still on disk. A dashboard update deletes
+// the old install's helper while the old process keeps answering.
+function spawnHelperReady(
+  recorded: string | undefined,
+  reported: string | undefined,
+): boolean {
+  const installed = cursorRunnerSpawnHelper();
+  if (installed === undefined) {
+    return recorded === undefined && reported === undefined;
+  }
+  return (
+    recorded !== undefined && recorded === reported && existsSync(recorded)
   );
 }
 
