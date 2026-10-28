@@ -23,12 +23,14 @@ import {
   cursorRunnerExecRequest,
 } from "./runnerProtocol.ts";
 import { computeRunnerBuildId } from "./runnerBuild.ts";
+import { cursorRunnerSpawnHelper } from "./runnerSpawnHelper.ts";
 
 // The identity of the code this process is running, from the entry it was
 // actually started with (process.argv[1], not import.meta.url, which
 // bundles preserve as the original source location): the bundled file
 // itself, or the source entry and its reached modules.
 const buildId = computeRunnerBuildId(process.argv[1] ?? "");
+const spawnHelper = cursorRunnerSpawnHelper();
 
 const attachments = new TerminalAttachments();
 // The starter passes the directory it created. This process's own HOME can
@@ -83,7 +85,7 @@ async function publishAddress(port: number): Promise<void> {
   const temporary = `${file}.${String(process.pid)}.tmp`;
   await writeFile(
     temporary,
-    JSON.stringify({ port, pid: process.pid, buildId }),
+    JSON.stringify({ port, pid: process.pid, buildId, spawnHelper }),
     "utf8",
   );
   await rename(temporary, file);
@@ -117,6 +119,7 @@ async function answer(
     const held = await attachments.held();
     sendJson(res, 200, {
       buildId,
+      spawnHelper,
       sessions: held.flatMap((client) => {
         if (client.session.host !== "cursor") return [];
         const label = cursorSessionLabel(client.screen);

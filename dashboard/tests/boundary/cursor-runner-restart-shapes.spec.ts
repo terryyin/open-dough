@@ -9,7 +9,8 @@
 // and is claimed nowhere here.
 import { spawn } from "node:child_process";
 import http from "node:http";
-import { rmSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
+import path from "node:path";
 import net from "node:net";
 import { expect, test } from "../support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
@@ -146,6 +147,44 @@ test("an unrelated process reusing the recorded pid and port proves no current b
         resolve();
       });
     });
+    await fixture.restore();
+  }
+});
+
+test("a runner whose terminal helper is gone is left by start-if-absent and replaced before the next launch", async () => {
+  test.setTimeout(60_000);
+  const fixture = startRunnerProofFixture();
+  try {
+    await keepWorkingClient(fixture);
+    const before = readCursorRunnerAddress(fixture.home);
+    const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
+    expect(before?.spawnHelper).toBeTruthy();
+    expect(existsSync(before?.spawnHelper ?? "")).toBe(true);
+    writeRunnerAddress(fixture, {
+      ...before,
+      spawnHelper: path.join(fixture.root, "missing-spawn-helper"),
+    });
+
+    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
+    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
+    expect(processRunning(heldPid)).toBe(true);
+
+    const created = await createChatOnRunner(fixture);
+    expect(created).toMatchObject({
+      failed: false,
+      stdout: `${fixture.cursor.sessionId}\n`,
+    });
+    await expect.poll(() => processRunning(before?.pid)).toBe(false);
+    const replacement = readCursorRunnerAddress(fixture.home);
+    expect(replacement?.pid).not.toBe(before?.pid);
+    expect(replacement?.buildId).toBe(computeRunnerBuildId());
+    expect(existsSync(replacement?.spawnHelper ?? "")).toBe(true);
+    expect(replacement?.spawnHelper).not.toBe(
+      path.join(fixture.root, "missing-spawn-helper"),
+    );
+    await keepWorkingClient(fixture);
+    expect(fixture.cursor.attaches().at(-1)?.pid).not.toBe(heldPid);
+  } finally {
     await fixture.restore();
   }
 });

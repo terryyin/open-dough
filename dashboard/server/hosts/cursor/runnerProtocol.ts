@@ -67,6 +67,9 @@ export const cursorRunnerSessionsResult = z.object({
   // runners omit it; missing proof is readable and means stale for new
   // work, following the workspaceTrust/screen precedent below.
   buildId: z.string().min(1).optional(),
+  // The helper this process executes to open a terminal. Older runners
+  // omit it; a missing path means this runner cannot open another one.
+  spawnHelper: z.string().min(1).optional(),
   sessions: z.array(
     z.object({
       session: hostSessionSchema,

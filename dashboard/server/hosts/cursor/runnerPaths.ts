@@ -13,6 +13,10 @@ const addressSchema = z.object({
   // The build the runner is running (./runnerBuild.ts). Runners started
   // before build proof existed publish no identity; absence means stale.
   buildId: z.string().min(1).optional(),
+  // The node-pty helper this process executes to open a terminal
+  // (./runnerSpawnHelper.ts). Absence, or a path no longer on disk, means
+  // this runner cannot open another terminal.
+  spawnHelper: z.string().min(1).optional(),
 });
 
 export type CursorRunnerAddress = z.infer<typeof addressSchema>;

@@ -1,11 +1,13 @@
 // The current-runner guarantee for new Cursor work (see
 // ./runnerProcess.ts for start-if-absent): a runner already accepting is
-// reused only when it proves it runs the current build, in its recorded
-// address and on the wire. An accepting runner with absent or differing
-// proof is stopped and replaced first, once under the start lock. An
-// accepting process that does not answer the protocol is left alone and
+// reused only when it proves it runs the current build and its terminal
+// helper is still on disk, in its recorded address and on the wire. An
+// accepting runner with absent or differing proof is stopped and replaced
+// first, once under the start lock. An accepting process that does not
+// answer the protocol is left alone and
 // this answers false, so new work fails as unreachable and starts no
 // agent. Observation and startup never replace.
+import { existsSync } from "node:fs";
 import http from "node:http";
 import { homedir } from "node:os";
 import { computeRunnerBuildId, runnerEntryPath } from "./runnerBuild.ts";
@@ -30,7 +32,11 @@ function delay(ms: number): Promise<void> {
 }
 
 type RunnerProofProbe =
-  | { readonly answered: true; readonly buildId: string | undefined }
+  | {
+      readonly answered: true;
+      readonly buildId: string | undefined;
+      readonly spawnHelper: string | undefined;
+    }
   | { readonly answered: false };
 
 // Asks the accepting runner, over its own wire protocol, which build it
@@ -50,7 +56,11 @@ function probeRunnerProof(port: number): Promise<RunnerProofProbe> {
             );
             resolve(
               parsed.success
-                ? { answered: true, buildId: parsed.data.buildId }
+                ? {
+                    answered: true,
+                    buildId: parsed.data.buildId,
+                    spawnHelper: parsed.data.spawnHelper,
+                  }
                 : { answered: false },
             );
           } catch {
@@ -70,8 +80,9 @@ function probeRunnerProof(port: number): Promise<RunnerProofProbe> {
 }
 
 // True only for an accepting runner whose recorded and wire proof both
-// match the build this dashboard would start now. Null when the accepting
-// process does not answer the protocol at all.
+// match the build this dashboard would start now, and whose terminal
+// helper is the same path on both and still on disk. Null when the
+// accepting process does not answer the protocol at all.
 async function acceptingRunnerIsCurrent(
   home: string,
   currentBuildId: string,
@@ -80,8 +91,15 @@ async function acceptingRunnerIsCurrent(
   if (port === undefined) return false;
   const probe = await probeRunnerProof(port);
   if (!probe.answered) return null;
-  const recorded = readCursorRunnerAddress(home)?.buildId;
-  return recorded === currentBuildId && probe.buildId === currentBuildId;
+  const address = readCursorRunnerAddress(home);
+  const helper = address?.spawnHelper;
+  const helperReady =
+    helper !== undefined && helper === probe.spawnHelper && existsSync(helper);
+  return (
+    address?.buildId === currentBuildId &&
+    probe.buildId === currentBuildId &&
+    helperReady
+  );
 }
 
 async function ensureCurrentCursorRunnerOnce(home: string): Promise<boolean> {

@@ -53,8 +53,9 @@ connections. At startup and on any read it leaves an accepting runner
 alone; two overlapping starts still leave one runner. New Cursor work
 (a launch, a keep, Recover, or resuming a session the runner does not
 hold) instead reuses an accepting runner only when it proves it runs
-the current runner build, and stops and replaces a runner whose proof
-is missing or stale first; the sessions that runner held then stand as
+the current runner build and the helper it uses to open a terminal is
+still on disk, and stops and replaces a runner whose proof is missing
+or stale first; the sessions that runner held then stand as
 their launch records, not running and resumable through Recover.
 Listing sessions, reading their state, and joining a client the runner
 still holds are observation: they never start or replace a runner.
