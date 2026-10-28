@@ -1,3 +1,17 @@
+## 0.3.73 - 2026-10-28
+
+- Keep Story Branch delivery, execution completion and cleanup aligned with human amendments on trunk. Check each selected story or plan, absorb clean changes, stop overlapping or completed-slice conflicts for human judgment, and handle quick stories, plan-homed corrections and repeated amendments without false stops.
+- Number source-review commitments and require an owning slice or an explicit disposition before accepting proof. An observation must show the commitment's expected result; plan decisions cannot silently narrow the source promise.
+- Visit current consumers after every completed selected story's accepted integration, including consumers added later on trunk. Settle completion against the final consumer publication, preserve accepted integration receipts when a visit refuses input, and keep unresolved decisions and retirement gates explicit.
+- Align dashboard Board, Column, Story card, Sessions and Side panel vocabulary and scrolling. Add cross-project Recently done sessions with older-history paging, stable refresh ranges, navigation and narrow-screen focus recovery; keep Cursor sessions Working while their belonging background subagents remain unfinished.
+- Balance CI test shares using recorded durations, isolate modeled CI observations from project completion policy, and handle early Git hook rejection without a commit-input crash.
+
+The Promoted installation payload adds eight runtime/support files for source freshness and supplier-consumer visits and updates existing execution, backlog, landing and wrap-up guidance. No payload paths are removed. Dashboard, test-scheduling and maintainer findings changes remain source functionality; guidance outside the installer declaration remains Proposed.
+
+Validation: representative behavior reviews and the owning stories' real Git, installed CLI, source-review, amendment, consumer-visit, receipt-recovery and retirement checks passed. Hosted CI passed the complete source revision `ce2728ba386cc5ab25a58e9cd870b3a463aae95b` (run `40611771683`), including dashboard browser shards. Release self-installation, lint, dashboard typecheck, native prerequisites and focused payload, link, host-hook and finalization checks passed.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code discovery, launch and host ownership mechanisms reuse their existing integration evidence. Recovered owning-story native observations cover source drift on Codex and Claude Code, the explicitly amended Cursor follow-through limit, and story amendments on all three tools, plus a Claude Code conflict. These are reused observations, not fresh native acceptance in this release run. Plan-only amendments, unrelated trunk advances and Codex/Cursor conflicts remain covered by the owning command/controlled proof rather than a native run. The quick-story and repeated-amendment corrections retain the same boundary and result shapes; consumer visits have representative behavior review and real installed-CLI/Git proof. No new native exception is claimed; earlier outstanding native requirements remain pending.
+
 ## 0.3.72 - 2026-10-25
 
 - Preserve a recoverable pending completion when a containing revision has a current automatic retry or running attempt, even when queue metadata is absent. Keep the accepted revision's own state and the original completion deadline.
