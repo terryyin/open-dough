@@ -17,8 +17,10 @@ import {
 import { JoinedSockets } from "./joinedSockets.ts";
 import { LaunchInstruction } from "./launchInstruction.ts";
 import type { LiveTerminalClientOptions } from "./liveTerminalClientOptions.ts";
+import { TerminalDiagnosticCapture } from "./terminalDiagnosticCapture.ts";
 
 export type { LiveTerminalClientOptions } from "./liveTerminalClientOptions.ts";
+export { diagnosticCaptureBudgetBytes } from "./terminalDiagnosticCapture.ts";
 
 type LiveTerminalClientInput = LiveTerminalClientOptions & {
   readonly pty: IPty;
@@ -45,7 +47,7 @@ export class LiveTerminalClient {
   private idle: DetachedIdleWatch | undefined;
   private size: { cols: number; rows: number };
   private readonly launch: LaunchInstruction | undefined;
-  private captured = "";
+  private readonly diagnostic = new TerminalDiagnosticCapture();
   private resolveExit: (text: string) => void = () => {};
 
   constructor(input: LiveTerminalClientInput) {
@@ -111,7 +113,7 @@ export class LiveTerminalClient {
   // this client, so an exit can still find it.
   watch(): void {
     this.pty.onData((output) => {
-      this.captured += output;
+      this.diagnostic.retain(output);
       this.idle?.write(output);
       void this.launch?.write(output);
       if (!this.sockets.hasOpen() && !this.launch?.holdsIdle()) {
@@ -123,7 +125,7 @@ export class LiveTerminalClient {
     // kept client, because that client stays tracked.
     this.pty.onExit(() => {
       this.launch?.clientExited();
-      const text = this.captured;
+      const text = this.diagnostic.snapshot();
       this.releaseIdle();
       if (!this.untrack()) {
         this.resolveExit(text);
@@ -132,6 +134,18 @@ export class LiveTerminalClient {
       this.sockets.closeAll();
       this.resolveExit(text);
     });
+  }
+
+  // Bytes currently held for startup-exit explanation. Zero after a
+  // successful keep releases the capture.
+  retainedDiagnosticBytes(): number {
+    return this.diagnostic.byteLength();
+  }
+
+  // Drop the raw diagnostic string once keep has settled successfully so
+  // later redraw traffic does not accumulate a lifetime buffer.
+  releaseDiagnosticCapture(): void {
+    this.diagnostic.release();
   }
 
   attach(ws: WebSocket, session: TerminalSession, joining: boolean): void {

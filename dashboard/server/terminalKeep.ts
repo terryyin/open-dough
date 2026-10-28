@@ -18,6 +18,16 @@ function keptFromScreen(screen: string): KeepOutcome {
   return screen.trim() === "" ? { kind: "kept" } : { kind: "kept", screen };
 }
 
+// Successful keep settles the screen, then releases raw diagnostic capture
+// so later redraw traffic does not accumulate a lifetime string.
+async function keptAndRelease(
+  client: LiveTerminalClient,
+): Promise<KeepOutcome> {
+  const kept = keptFromScreen(await client.screenText());
+  client.releaseDiagnosticCapture();
+  return kept;
+}
+
 export async function settleKeep(input: {
   readonly existing: LiveTerminalClient | undefined;
   readonly pty: IPty;
@@ -40,7 +50,7 @@ export async function settleKeep(input: {
     if (!tracked(pty)) {
       return { kind: "exited", text: await client.processExit };
     }
-    return keptFromScreen(await client.screenText());
+    return keptAndRelease(client);
   }
   const signal = new AbortController();
   const shown = client.waitForScreen(
@@ -55,7 +65,7 @@ export async function settleKeep(input: {
     if (!ready || !tracked(pty)) {
       return { kind: "exited" as const, text: await client.processExit };
     }
-    return keptFromScreen(await client.screenText());
+    return keptAndRelease(client);
   });
   const outcome = await Promise.race([painted, exited]);
   signal.abort();

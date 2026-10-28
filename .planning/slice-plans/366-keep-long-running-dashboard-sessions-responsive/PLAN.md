@@ -2,6 +2,7 @@
 
 **Identity:** SEED-162#keep-long-running-dashboard-sessions-responsive
 **Source:** [Selected story](../../seeds/SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -173,10 +174,12 @@ evidence when available, not a readiness gate.
 
 ### 1. Bound and release raw terminal diagnostic capture
 Type: Behavior
-Status: planned
-Proof: New boundary/module probe for capture length and release-after-keep, plus
-focused early-exit explanation regressions
-(`dashboard/tests/boundary/agent-terminal-cursor-exit.spec.ts` and keep helpers).
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/boundary/live-terminal-diagnostic-capture.spec.ts dashboard/tests/boundary/agent-terminal-cursor-exit.spec.ts --reporter=list`
+(4 passed). Probe: over-budget emit retains ≤256 KiB useful tail for
+`processExit`; successful `settleKeep` releases capture so later output does
+not accumulate. Early-exit explanation regressions remain green.
 
 Behavior: A kept client is watched and emits more output than the diagnostic
 budget before keep settles, or exits during startup → retained diagnostic text
@@ -187,6 +190,11 @@ modeled screen.
 
 Change `LiveTerminalClient` capture policy only. Do not drop live socket output
 or change keep permission rules.
+
+Learnings: Quiet Playwright reporter fails on `NO_COLOR`+`FORCE_COLOR` Node
+warnings; focused dashboard proof needs `env -u NO_COLOR`. Capture ownership
+lives in `terminalDiagnosticCapture.ts`; successful-keep release is
+`settleKeep` → `keptAndRelease`.
 
 ### 2. End launch observation after successful startup handoff
 Type: Behavior
@@ -280,3 +288,35 @@ proof (capture vs launch observation).
 Remaining slice-specific concerns: none identified. Interim behavior is named
 only where slice 2 follows slice 1 on the same client without blocking either
 proof.
+
+## Story obligations
+
+### G1. Outside this story: a general performance dashboard
+Reported: slice 1 — "Outside this story: a general performance dashboard"
+Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Commitment: 25.1
+
+### G2. Outside this story: a production telemetry service
+Reported: slice 1 — "Outside this story: a production telemetry service"
+Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Commitment: 25.2
+
+### G3. Outside this story: vendor-agent memory optimization
+Reported: slice 1 — "Outside this story: vendor-agent memory optimization"
+Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Commitment: 25.3
+
+### G4. Outside this story: session-retention policy redesign
+Reported: slice 1 — "Outside this story: session-retention policy redesign"
+Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Commitment: 25.4
+
+### G5. Outside this story: a dashboard-wide rewrite
+Reported: slice 1 — "Outside this story: a dashboard-wide rewrite"
+Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
+Commitment: 25.5
