@@ -57,7 +57,7 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
 
 ### Occurrences
 
-- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; plan `.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
+- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; before-cleanup `b0c9d8fc4290d39ce4ee23aff91fed648f915dd7:.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
   - Timestamp: 2026-10-28T21:34:58+08:00
   - Tool: Cursor
   - Open Dough release: 0.3.73
@@ -143,7 +143,7 @@ Former local code: DD-261. A reported GitHub transport failure ends observation 
 
 ### Occurrences
 
-- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; plan `.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
+- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; before-cleanup `b0c9d8fc4290d39ce4ee23aff91fed648f915dd7:.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
   - Timestamp: unknown (around slice-5 accept near `c467f720` 2026-10-28T22:07:05+08:00)
   - Tool: Cursor
   - Open Dough release: 0.3.73

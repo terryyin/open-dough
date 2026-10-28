@@ -15,8 +15,9 @@ stale session-list failure in the real browser page, and measured slow queued
 screen reads. A separately held Done response reproduced a disabled Done
 button while other controls worked. The original incident's exact cause and
 memory-owning process remain unconfirmed. No product code or live session
-state was changed. The selected fix is queued as
-[SEED-162#keep-long-running-dashboard-sessions-responsive](../.planning/seeds/SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive).
+state was changed. The bounded repairs that followed this investigation are
+recoverable from before-cleanup commit
+`b0c9d8fc4290d39ce4ee23aff91fed648f915dd7` (SEED-162 execution-complete).
 
 ## Findings, ordered for follow-up
 
