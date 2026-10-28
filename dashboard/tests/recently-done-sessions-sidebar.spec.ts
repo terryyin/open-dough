@@ -1,7 +1,7 @@
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
-// and opening through PageFrame. Room sharing, reopen, and Board/final-report
-// destinations live beside this file. Older paging is the next slice.
+// and opening through PageFrame. Room sharing, reopen, Board/final-report
+// destinations, and older paging live beside this file.
 import { standaloneSessionName, parts } from "./dashboardPage.ts";
 import {
   doneRecord,

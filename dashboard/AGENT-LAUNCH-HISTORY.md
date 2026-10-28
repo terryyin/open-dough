@@ -239,11 +239,12 @@ card, else column. Closing a terminal or report keeps its return control while u
 session in its current home. Membership movement alone never attaches or detaches its terminal.
 **Recently done sessions** and **Running Cursor sessions** sit below the open list, each
 collapsed on load. Recently done lists retained Done across projects/hosts by newest completion
-(identity breaks ties), initially newest 20 or every retained Done when fewer; reading and empty
-stay distinct. Older scrolling is later; Board Recently done keeps its own range. Expanded
-optional sections share one room owner with the open list (disposable preferred heights,
-independent scroll, short-window reach, page-lasting expansion/reached range; preferred sizes
-only across reload). Successful native reopen removes a Done row; a failed reopen keeps feedback
-and membership.
+(identity breaks ties), initially newest 20 or all when fewer; reading and empty stay distinct.
+Scrolling that list alone reveals older batches of up to 20; end of history is inert. Refresh
+reconciles by identity/completion, keeping reached older sessions and admitting new ones; focused
+removed rows return nearby or to the section header. Collapse, hide and project changes keep the
+page range; reload starts at 20. Board Recently done keeps its own range and story-detail reads;
+this section does not eagerly read older Board done-story details. Expanded optional sections share
+one room owner with the open list (disposable preferred heights, independent scroll, short-window reach, page-lasting expansion/reached range; preferred sizes only across reload). Successful native reopen removes a Done row; failed reopen keeps feedback and membership.
 
 The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone and tablet, Close and Maximize/Restore stay reachable beside the story identity; file browser, diff and context scroll independently; rotation keeps comparison/file/reading context; Close returns focus to the origin.

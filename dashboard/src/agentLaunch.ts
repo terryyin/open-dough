@@ -93,26 +93,25 @@ export function openSessionsOf(
 }
 
 // How many newest completions the Sessions sidebar's Recently done section
-// shows on first expansion; older paging is a later responsibility.
+// shows on first expansion; scrolling that list reveals further batches of
+// the same size (`./recentlyDoneSessionsRange.ts`).
 export const recentlyDoneSessionsInitialLimit = 20;
 
 // Done sessions across every configured project, newest completion first.
 // Equal completion times break ties by host-qualified session identity.
-// `limit` caps how many of those ordered entries to return (the Sessions
-// sidebar's initial Recently done range); omit it for the full retained set.
+// The sidebar's progressive shown prefix lives in
+// `./recentlyDoneSessionsRange.ts`; callers take the full ordered set.
 export function doneSessionsOf(
   records: readonly LaunchWithState[] | undefined,
-  limit?: number,
 ): readonly LaunchWithState[] | undefined {
   if (records === undefined) return undefined;
-  const done = records
+  return records
     .filter((record) => record.doneAt !== undefined)
     .toSorted((a, b) => {
       const byDone = Date.parse(b.doneAt ?? "") - Date.parse(a.doneAt ?? "");
       if (byDone !== 0) return byDone;
       return sessionKey(a.session).localeCompare(sessionKey(b.session));
     });
-  return limit === undefined ? done : done.slice(0, limit);
 }
 
 // Whether the boundary can raise its macOS notifications
