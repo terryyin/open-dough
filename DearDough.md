@@ -1,6 +1,6 @@
 # DearDough Process Findings
 
-Source maintenance on 2026-10-28 retained collected evidence before shortening at Open Dough `7716badfa29258ebcd299c3f61c0966a7c6a75d1:docs/maintainer/findings/`. The complete post-local source is `432ed9ec9c9e9954dd5bff0c9a7324d1d8a991a6:DearDough.md`; linked source records share that revision. Unknown execution releases and local facets remain qualified.
+Source maintenance on 2026-10-28 retained collected evidence before shortening at Open Dough `32b5ae0b4414d755bcde4ef6cd822774d7450771:docs/maintainer/findings/`. The complete post-local source is `432ed9ec9c9e9954dd5bff0c9a7324d1d8a991a6:DearDough.md`; linked source records share that revision. Unknown execution releases and local facets remain qualified.
 
 Reviewed 2026-10-28 (Asia/Singapore). Four shared process sources were
 reviewed after local maintenance: Open Dough, Doughnut, Pygardon and Lizard.
@@ -378,6 +378,8 @@ Former local code: DD-335. A hand-built owned-path list trims significant porcel
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-330](docs/maintainer/findings/ODF-330.md); rereading adds no occurrence.
 
+<a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
+
 ## ODF-355 — Preparation recorded measured allocations without their full sort key
 
 Former local code: DD-337.
@@ -387,6 +389,8 @@ Plan 353's story and plan quoted after-run totals from a scratch reconstruction 
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-355](docs/maintainer/findings/ODF-355.md); rereading adds no occurrence.
+
+<a id="dd-338--a-direct-formatter-command-in-fresh-delivery-lacked-the-packages-binaries"></a>
 
 ## ODF-356 — A direct formatter command in fresh delivery lacked the package's binaries
 
@@ -398,6 +402,8 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
 
+<a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
+
 ## ODF-357 — Preparation observations recorded results their own commands contradict
 
 Former local code: DD-340.
@@ -407,6 +413,8 @@ Plan 354's "Preparation observations" quoted command results that the same comma
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-357](docs/maintainer/findings/ODF-357.md); rereading adds no occurrence.
+
+<a id="dd-341--coordinator-wrote-subagent-completion-notices-in-its-own-turn"></a>
 
 ## ODF-358 — Coordinator wrote subagent completion notices in its own turn
 
@@ -418,6 +426,8 @@ After launching background agents and saying it would wait, the coordinator emit
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-358](docs/maintainer/findings/ODF-358.md); rereading adds no occurrence.
 
+<a id="dd-342--a-developer-run-observation-inside-a-slices-proof-cannot-be-delivered-with-that-slice"></a>
+
 ## ODF-359 — A developer-run observation inside a slice's proof cannot be delivered with that slice
 
 Former local code: DD-342.
@@ -428,6 +438,8 @@ Plan 354 put its paid baseline round in slice 1's proof and made slice 2 depend 
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-359](docs/maintainer/findings/ODF-359.md); rereading adds no occurrence.
 
+<a id="dd-344--a-new-installed-command-assumed-a-writable-system-temp-directory-that-host-sandboxes-refuse"></a>
+
 ## ODF-360 — A new installed command assumed a writable system temp directory that host sandboxes refuse
 
 Former local code: DD-344.
@@ -437,6 +449,8 @@ A command added for coordinators to run (`source-freshness.mjs`) made its scratc
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-360](docs/maintainer/findings/ODF-360.md); rereading adds no occurrence.
+
+<a id="dd-348--an-implementation-agent-met-a-file-line-limit-by-joining-wrapped-lines"></a>
 
 ## ODF-361 — An implementation agent met a file line limit by joining wrapped lines
 
@@ -449,6 +463,8 @@ project formatter preserves prose wrapping, so nothing would have reflowed them.
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-361](docs/maintainer/findings/ODF-361.md); rereading adds no occurrence.
+
+<a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
