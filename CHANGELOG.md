@@ -1,3 +1,17 @@
+## 0.3.74 - 2026-10-29
+
+- Publish a guarded progress increment when planned hosted or external proof needs its own published revision. Keep the selected slice and receiving obligations unfinished until the observation is accepted, while preserving hooks, exact-candidate publication and recovery.
+- Check overdue delegated verification within a bounded observation, distinguish queued, progressing, yielded and inaccessible work, and preserve command ownership and truthful CI coverage.
+- Refuse publication when a candidate lists an active story identity that already has a completion record. Preserve first-trunk landing evidence when its explicit context flag is omitted and distinguish final-report evidence after workspace retirement.
+- Open Cursor sessions on their terminal, report Cursor's own exit, offer supported reasoning effort, and replace runners whose required terminal helper is missing.
+- Keep long-running dashboard sessions responsive with bounded terminal diagnostics, coalesced screen writes, one in-flight Cursor session read, a 16 MiB repository-file cache and settled launch observers. Keep Maximize and Close usable while Done is pending, and retain recoverable late or lost completion reporting.
+
+The Promoted installation payload adds eight execution runtime/support files and updates existing execution guidance and publication helpers. No payload paths are removed. Dashboard and CI-budget changes remain source functionality; guidance outside the installer declaration remains Proposed.
+
+Validation: representative behavior reviews and the owning stories' controlled delegation rehearsal, real Git publication, guarded progress, completion-record refusal, landing and recovery checks passed. All 16 focused release check files passed, including payload links, updates, both native roots, host-hook registration, finalization and native prerequisites. Release self-installation, full lint and dashboard typecheck passed. Hosted CI passed source revision `feb9bc4b1b00005e86ca671f1eee0bc3293e3d42` (run `40711304739`), including dashboard browser checks.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code discovery, installation, hook registration and host ownership mechanisms reuse their existing integration evidence. The new shared publication behavior is covered by real Git/command fixtures; the overdue-verification guidance has a representative review and guided controlled rehearsal. These are not fresh native acceptance or sustained ordinary-use evidence. No new native exception is claimed; earlier outstanding native requirements and the ODF-275/ODF-369 ordinary-use observations remain pending.
+
 ## 0.3.73 - 2026-10-28
 
 - Keep Story Branch delivery, execution completion and cleanup aligned with human amendments on trunk. Check each selected story or plan, absorb clean changes, stop overlapping or completed-slice conflicts for human judgment, and handle quick stories, plan-homed corrections and repeated amendments without false stops.
