@@ -1,6 +1,7 @@
 // An instructed Cursor launch starts one kept terminal client and enters the
 // instruction when that client's screen is ready. Opening the terminal joins
 // that client. A screen that is not ready does not receive the instruction.
+// A client that leaves before acceptance is agent-terminal-cursor-exit.spec.ts.
 import { test, expect } from "../support/pageTest.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { shows } from "../agentTerminalBoundary.ts";
@@ -56,6 +57,8 @@ test.describe(`Cursor launch turn`, () => {
           "--resume",
           sessionId,
         ]);
+        expect(client?.stdinTTY).toBe(true);
+        expect(client?.stdoutTTY).toBe(true);
         expect(enteredInstruction(cursor, pid)).toBe(
           recorded.firstInput?.instruction,
         );
@@ -214,52 +217,6 @@ test.describe(`Cursor launch turn`, () => {
         expect(cursor.attaches()).toHaveLength(1);
         expect(cursor.attaches()[0]?.pid).toBe(pid);
         expect(processRunning(pid)).toBe(true);
-      },
-    );
-  });
-
-  test("the client exiting does not accept the instruction, and the next launch submits it in a new conversation", async () => {
-    const cursor = installFakeCursor({ screen: "trust" });
-    const replacementId = "b1c2d3e4-f5a6-4789-abcd-ef0123456789";
-    await withInstructedCursor(
-      { mode: "boundary" },
-      cursor,
-      instruction,
-      async (server) => {
-        const pid = cursor.attaches()[0]?.pid ?? 0;
-        process.kill(pid, "SIGKILL");
-        await expect.poll(() => processRunning(pid)).toBe(false);
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
-        expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
-
-        cursor.setAttachMode("follow-up");
-        cursor.queueCreateChatId(replacementId);
-        const again = await launch(
-          server,
-          instructedCursorRequest(instruction),
-        );
-        expect(JSON.parse(again.body)).toMatchObject({
-          kind: "launched",
-          record: {
-            session: { sessionId: replacementId },
-            firstInput: { state: "confirmed", instruction },
-          },
-        });
-        expect(cursor.calls().map((call) => call.args)).toEqual([
-          ["create-chat"],
-          ["create-chat"],
-        ]);
-        const resumed = cursor.attaches().at(-1);
-        expect(resumed?.sessionId).toBe(replacementId);
-        expect(enteredInstruction(cursor, resumed?.pid ?? 0)).toContain(
-          instruction,
-        );
-        expect(keptCursor(server.home).session.sessionId).toBe(replacementId);
-        expect(keptCursor(server.home).firstInput).toMatchObject({
-          state: "confirmed",
-          instruction,
-        });
       },
     );
   });

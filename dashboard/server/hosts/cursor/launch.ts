@@ -32,6 +32,7 @@ import {
   aborted,
   keptClientTimedOut,
   noSessionId,
+  sessionEndedExplanation,
   missingLaunchPath,
   runnerUnreachable,
   timedOut,
@@ -42,6 +43,7 @@ import {
   establishCursorSessionScope,
   removeCursorSessionScope,
 } from "./sessionScope.ts";
+import { setRecordPendingInputExplanation } from "../../launchRecordStore.ts";
 import { execOnRunner, keepCursorClient } from "./runnerClient.ts";
 import { terminalHandoffRequested } from "../../terminalHandoff.ts";
 import { cursorTerminalSize } from "./terminal.ts";
@@ -186,6 +188,15 @@ export const launchCursor: LaunchHost["launch"] = async (
     }
     if (outcome.kind === "missing") {
       return missingLaunchPath(workspace);
+    }
+    if (outcome.kind === "exited") {
+      const explanation = sessionEndedExplanation(outcome.text);
+      await setRecordPendingInputExplanation(source.id, session, explanation);
+      return {
+        kind: "uncertain",
+        reason: "unconfirmed",
+        explanation,
+      };
     }
     return {
       kind: "uncertain",

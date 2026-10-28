@@ -75,6 +75,8 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
         args,
         cols: process.stdout.columns,
         rows: process.stdout.rows,
+        stdinTTY: process.stdin.isTTY === true,
+        stdoutTTY: process.stdout.isTTY === true,
         sessionId: resumed,
         stored,
         env,
@@ -83,8 +85,13 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
   };
   if (mode === "exit" || mode === "cannot-load") {
     recordAttach();
+    const exitText = process.env.FAKE_CURSOR_EXIT_TEXT;
     process.stdout.write(
-      mode === "cannot-load" ? cannotLoadExit : unclassifiedExit,
+      mode === "cannot-load"
+        ? cannotLoadExit
+        : exitText !== undefined && exitText !== ""
+          ? exitText
+          : unclassifiedExit,
     );
     // cannot-load is one-shot so a replacement attach paints the idle composer.
     if (mode === "cannot-load" && modeFile) {

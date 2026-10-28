@@ -1,7 +1,9 @@
 // Continue for a Cursor launch whose first prompt was never confirmed.
-// A client the runner still holds starts nothing. Once that client is gone,
-// Continue creates a new chat in the recorded scope and submits the same
-// prompt. It does not resume the exited session id.
+// A client the runner still holds starts nothing. A start whose client
+// already exited keeps that session: Continue shows the recorded ending
+// and creates no other session id. Once a client is gone without that
+// ending, Continue creates a new chat in the recorded scope and submits
+// the same prompt. It does not resume the exited session id.
 import { z } from "zod";
 import type { LaunchRecord } from "../../../src/launchRecord.ts";
 import type { CursorSession } from "../../../src/hostSession.ts";
@@ -13,6 +15,7 @@ import {
   noSessionId,
   missingLaunchPath,
   runnerUnreachable,
+  sessionHasEnded,
   timedOut,
 } from "./launchOutcomes.ts";
 import { keptSession } from "../../launchRecordStore.ts";
@@ -62,6 +65,14 @@ export const recoverUnconfirmedCursor: NonNullable<
       kind: "uncertain",
       reason: "unconfirmed",
       explanation: stillHeld,
+    };
+  }
+  const ended = record.firstInput?.explanation;
+  if (sessionHasEnded(ended)) {
+    return {
+      kind: "uncertain",
+      reason: "unconfirmed",
+      explanation: ended,
     };
   }
   const instruction = savedInstruction(record);

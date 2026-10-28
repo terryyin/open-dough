@@ -1,30 +1,27 @@
 // PATH stand-in for `cursor-agent`. The dashboard server and the page create
 // the launch record. Launch argv is create-chat. A resume with no prompt
 // argument, including `--model` and no prompt, is a separate attach record
-// and exits on SIGHUP. Working mode paints `ctrl+c to stop`. The default
-// attach screen is the ordinary finished prompt. Waiting mode paints the
-// native clarifying-question screen (a `Question N of M` line, numbered
-// question lines, and the `Space select · Enter next/submit` footer). Trust mode paints a screen that is not ready for an
-// instruction. Cancelled-follow-up mode paints cancelled/failed history
-// above the ordinary follow-up prompt. Composer mode paints `→ Plan, search, build anything` with
-// the cursor hidden and no synchronized-update frame. Unrecognized mode
-// paints neither the prompt nor a question.
-// Trust-unframed models the native trust screen without a synchronized
-// frame or output from the join's resize nudge. Other modes redraw on
-// SIGWINCH. `showReady()` repaints the ordinary prompt.
-// `splitPaintMs` delivers each screen in two writes that far apart.
-// `models` prints the configured listing in the observed layout, or fails.
+// and exits on SIGHUP. Attach screens are ./fakeCursorScreen.ts.
+// `showReady()` repaints the ordinary prompt. `splitPaintMs` delivers each
+// screen in two writes that far apart. `models` prints the configured
+// listing in the observed layout, or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { cursorCannotLoadChat } from "../../src/cursorCannotLoad.ts";
 import { appendedRecords } from "./appendedRecords.ts";
 import {
+  unclassifiedCursorExit,
+  type CursorScreen,
+} from "./fakeCursorScreen.ts";
+import {
   installFakeCursorSharedConfig,
   type FakeCursorSharedConfig,
 } from "./fakeCursorSharedConfig.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
+
+export { unclassifiedCursorExit, type CursorScreen };
 
 export const cursorSessionId = "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
 
@@ -56,6 +53,8 @@ export type CursorAttach = {
   readonly args: readonly string[];
   readonly cols: number;
   readonly rows: number;
+  readonly stdinTTY: boolean;
+  readonly stdoutTTY: boolean;
   readonly sessionId: string;
   readonly stored: string | null;
   readonly env: Readonly<Record<string, string>>;
@@ -99,21 +98,6 @@ function readJsonl<T>(file: string): T[] {
   return appendedRecords<T>(readOptional(file) ?? "");
 }
 
-export type CursorScreen =
-  | "working"
-  | "follow-up"
-  | "cancelled-follow-up"
-  | "waiting"
-  | "unrecognized"
-  | "trust"
-  | "trust-unframed"
-  | "composer"
-  | "exit"
-  | "cannot-load";
-
-export const unclassifiedCursorExit =
-  "Cursor resume failed for an unclassified reason.";
-
 export { cursorCannotLoadChat };
 
 export function installFakeCursor(options?: {
@@ -125,6 +109,8 @@ export function installFakeCursor(options?: {
   readonly submitPaintMs?: number;
   // After paste-chip Enter, do not repaint (keep stays open / silent).
   readonly holdAfterPaste?: boolean;
+  // Written by an exit-mode client instead of the unclassified exit.
+  readonly exitText?: string;
 }): FakeCursor {
   const root = mkdtempSync(path.join(tmpdir(), "dough-cursor-"));
   const binDir = path.join(root, fakeCursorHost.binDir);
@@ -201,6 +187,9 @@ export function installFakeCursor(options?: {
       ...(options?.holdAfterPaste === true
         ? { FAKE_CURSOR_HOLD_AFTER_PASTE: "1" }
         : {}),
+      ...(options?.exitText === undefined
+        ? {}
+        : { FAKE_CURSOR_EXIT_TEXT: options.exitText }),
     },
     calls() {
       return readJsonl<CursorInvocation>(logPath);

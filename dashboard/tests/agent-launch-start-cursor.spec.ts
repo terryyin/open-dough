@@ -99,6 +99,8 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
   const [record] = kept["open-dough"] ?? [];
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   expect(client.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
+  expect(client.stdinTTY).toBe(true);
+  expect(client.stdoutTTY).toBe(true);
   expect(client.args).toEqual([
     "--workspace",
     workspace,

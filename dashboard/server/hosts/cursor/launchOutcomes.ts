@@ -46,6 +46,21 @@ export function runnerUnreachable(): HostLaunch {
   };
 }
 
+// Cursor printed this and left. The text is Cursor's own, including an empty
+// print when it printed nothing, and the session is recorded as ended.
+const sessionEnded = "The session ended.";
+
+export function sessionEndedExplanation(text: string): string {
+  const printed = text.trim();
+  return printed === "" ? sessionEnded : `${printed}\n${sessionEnded}`;
+}
+
+export function sessionHasEnded(
+  explanation: string | undefined,
+): explanation is string {
+  return explanation?.includes(sessionEnded) === true;
+}
+
 export function noSessionId(): HostLaunch {
   return {
     kind: "uncertain",

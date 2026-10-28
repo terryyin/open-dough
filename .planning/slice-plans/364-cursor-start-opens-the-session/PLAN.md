@@ -2,6 +2,8 @@
 
 **Source:** [Starting a Cursor refinement or execution opens the session](../../seeds/SEED-159-cursor-start-opens-the-session.md#cursor-start-opens-the-session) — SEED-159#cursor-start-opens-the-session
 
+**Source review:** [source review](source-review.md)
+
 ## Goal and scope
 
 A person starting a Cursor refinement or execution gets that session running,
@@ -39,7 +41,7 @@ session" sentence, does not own these promises.
 ### 1. A Cursor start opens the session or shows why it quit
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the three observations above, through `npm run test:dashboard -- dashboard/tests/agent-launch-start-cursor.spec.ts dashboard/tests/agent-launch-unconfirmed-input.spec.ts`
 
 Behavior: A trusted workspace, including trust inherited from a parent, is
@@ -68,6 +70,15 @@ Feature behavior stays with this start. No ADR is required.
 Slice-plan refinement was not needed: the story is one start outcome, one
 proof loop, and one behavior slice. This review found no remaining
 slice-specific concern.
+
+Accepted proof for slice 1, in this checkout: an exit before acceptance
+records Cursor's text and `The session ended.`, and Continue keeps that
+session id (`dashboard/tests/boundary/agent-terminal-cursor-exit.spec.ts`).
+A resumed client has a terminal on stdin and stdout, and a refinement start
+and an execution start accept the first prompt
+(`dashboard/tests/boundary/agent-terminal-cursor-launch.spec.ts`,
+`dashboard/tests/agent-launch-preparation-cursor.spec.ts`,
+`dashboard/tests/agent-launch-start-cursor.spec.ts`).
 
 ## Decisive premises
 
