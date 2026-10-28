@@ -6,7 +6,7 @@
 
 **Identity:** SEED-164#dashboard-ci-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/368-dashboard-ci-time/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"146d5a08c6bf280365a743c39eb511fc95bf0d2709066ac9c91036a5165d3803","plan":"b88d8bd547e13989c2972405bfaf3a7f4d77dfb3933ef03ec41758bddf470208"}}
 ```
 
 **Goal:** Reduce the dashboard suite's CI elapsed time through the two selected
