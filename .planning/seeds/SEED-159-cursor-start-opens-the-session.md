@@ -39,7 +39,7 @@ terminal resume of the same worktree reaches the composer.
 
 **Identity:** SEED-159#cursor-start-opens-the-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/001-cursor-start-opens-the-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97c639d5915ea9d3c31db73aecd6f6168eb065602858d6fca3b163ff81091ffd","plan":"0804e2d6a9adb785862d1325b6a3787731b790b6a1b58d7b46b64eebaa979bdc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/364-cursor-start-opens-the-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97c639d5915ea9d3c31db73aecd6f6168eb065602858d6fca3b163ff81091ffd","plan":"67956c66289745499773c25d844542f7a05a3a3b91f9b5d13ba0beb1ceab94b2"}}
 ```
 
 ## Goal

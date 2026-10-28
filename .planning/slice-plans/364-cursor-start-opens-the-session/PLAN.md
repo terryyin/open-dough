@@ -1,4 +1,4 @@
-# Plan 001: Starting Cursor opens the session
+# Plan 364: Starting Cursor opens the session
 
 **Source:** [Starting a Cursor refinement or execution opens the session](../../seeds/SEED-159-cursor-start-opens-the-session.md#cursor-start-opens-the-session) — SEED-159#cursor-start-opens-the-session
 
