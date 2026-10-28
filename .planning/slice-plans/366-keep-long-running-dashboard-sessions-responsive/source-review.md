@@ -18,7 +18,7 @@ only.
 | 6 | Done reports a truthful outcome or an explicit unresolved operation, rather than silently remaining disabled indefinitely | slice 6 | |
 | 7.1 | Resolve lifetime raw PTY capture | slice 1 | observed: `TerminalDiagnosticCapture.retain` / `LiveTerminalClient.releaseDiagnosticCapture`; probe above |
 | 7.2 | Resolve stale revision text | slice 5 | |
-| 7.3 | Resolve output/screen queue pressure | slice 3 | |
+| 7.3 | Resolve output/screen queue pressure | slice 3 | observed: `kept-client-screen-write-queue.spec.ts` — busy+quiet `held()` ~17 ms under 500 ms |
 | 7.4 | Resolve unnecessary startup observation after its job ends | slice 2 | observed: `launch-instruction-observation.spec.ts` — after entry+announce, 512 chunks add 0 readiness checks |
 | 7.5 | Resolve overlapping Cursor-session polling that discards every slow success | slice 4 | |
 | 8.1 | Trace partial-control far enough to distinguish a stalled main thread | slice 6 | |
@@ -30,13 +30,13 @@ only.
 | 9.3 | Measure Cursor runner separately | slice 6 | |
 | 9.4 | Measure native-agent processes separately | slice 6 | |
 | 10.1 | Kept terminal after startup/redraw/detach/reopen: diagnostic retention reaches its declared cap | slice 1 | observed: diagnostic-capture probe — over-budget emit retains ≤ `diagnosticCaptureBudgetBytes` |
-| 10.2 | Queued work drains after finite output | slice 3 | |
-| 10.3 | The correct screen reappears | slice 3 | |
+| 10.2 | Queued work drains after finite output | slice 3 | observed: write-queue probe burst settles with marker (~12 ms) |
+| 10.3 | The correct screen reappears | slice 3 | observed: `kept-client-screen-replay.spec.ts` synchronized-frame/replay preserved |
 | 11 | A client exiting before readiness still explains its startup failure with bounded useful diagnostics | slice 1 | observed: diagnostic-capture probe retains useful tail; `agent-terminal-cursor-exit.spec.ts` early-exit explanation still green |
 | 12 | Successful startup releases observation that is no longer needed | slice 2 | observed: `LaunchInstruction.observationDone` stops write/evaluate after entered+announced; screen dispose remains on `releaseIdle` |
-| 13.1 | Uneven multi-client output: session-observation path remains within its declared bound | slice 3 | |
-| 13.2 | Reflects coherent completed screens | slice 3 | |
-| 13.3 | Recovers without treating a still-running client as stopped | slice 3 | |
+| 13.1 | Uneven multi-client output: session-observation path remains within its declared bound | slice 3 | observed: write-queue `held()` within 500 ms under 64 KiB/2048-chunk busy sibling |
+| 13.2 | Reflects coherent completed screens | slice 3 | observed: quiet sibling coherent and kept in write-queue probe |
+| 13.3 | Recovers without treating a still-running client as stopped | slice 3 | observed: busy client remains kept after burst in write-queue probe |
 | 14.1 | Expanded Running Cursor with slow reads: completed observations appear | slice 4 | |
 | 14.2 | Outstanding demand stays bounded | slice 4 | |
 | 14.3 | Collapse or departure ends owned demand | slice 4 | |
@@ -59,8 +59,8 @@ only.
 | 22 | A memory budget must not substitute stale project facts | slice 5 | |
 | 23.1 | Repository records own durable workflow facts (ADR 0008) | slice 5 | |
 | 23.2 | Local caches remain rebuildable (ADR 0008) | slice 5 | |
-| 24.1 | Preserve output order | slice 3 | |
-| 24.2 | Preserve synchronized updates | slice 3 | |
+| 24.1 | Preserve output order | slice 3 | observed: coalesce appends in arrival order; replay specs green |
+| 24.2 | Preserve synchronized updates | slice 3 | observed: `kept-client-screen-replay.spec.ts` `?2026` / unfinished paint green |
 | 24.3 | Preserve startup/paste confirmation | slice 2 | observed: `cursor-recovery-frame.spec.ts` + `cursor-recover-submitted-chip.spec.ts` paste/handoff/frame regressions green |
 | 24.4 | Preserve reconnect/replay | slice 1 | observed: release leaves modeled screen/`idle` path unchanged; no replay owner change |
 | 25.1 | Outside this story: a general performance dashboard | | G1 |

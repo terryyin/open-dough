@@ -216,11 +216,13 @@ post-startup observation work.
 
 ### 3. Bound screen write queues under multi-client pressure
 Type: Behavior
-Status: planned
-Proof: Boundary probe for 64 KiB / 2,048-chunk settle time and
-`TerminalAttachments.held()` with one busy and one quiet synthetic client;
-preserve `dashboard/tests/boundary/kept-client-screen-replay.spec.ts`
-synchronized-frame / replay promises.
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/boundary/kept-client-screen-write-queue.spec.ts dashboard/tests/boundary/kept-client-screen-replay.spec.ts --reporter=list`
+(8 passed). Burst settle ~12 ms; busy+quiet `held()` ~17 ms (was ~2.39 s);
+replay/synchronized-frame green. Do not seal coalesce on `settled()` (defeats
+idle-watch coalesce). Queue coalesce alone meets the 500 ms budget; deferred
+WebSocket parse-ack flow control not selected.
 
 Behavior: One of two kept clients receives the bursty 64 KiB shape while the
 other is quiet → pending screen work drains so all-session `held()` returns

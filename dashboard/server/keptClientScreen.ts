@@ -37,6 +37,9 @@ export class KeptClientScreen {
   private readonly serializer = new SerializeAddon();
   private readonly csi: { dispose(): void }[];
   private pending: Promise<void> = Promise.resolve();
+  // Chunks that arrive before the current coalesce batch is sealed append
+  // here so one xterm write covers a burst instead of one Promise per chunk.
+  private coalesce: { text: string } | undefined;
   // Starts hidden. `?25` from the stream shows or hides the cursor. The
   // host's ready rule decides whether a hidden cursor can take an instruction.
   private cursorOn = false;
@@ -105,17 +108,25 @@ export class KeptClientScreen {
   }
 
   write(data: string): void {
+    if (this.coalesce !== undefined) {
+      this.coalesce.text += data;
+      return;
+    }
+    const batch = { text: data };
+    this.coalesce = batch;
     this.pending = this.pending
       .then(
         () =>
           new Promise<void>((resolve) => {
-            this.terminal.write(data, () => {
+            if (this.coalesce === batch) this.coalesce = undefined;
+            this.terminal.write(batch.text, () => {
               resolve();
             });
           }),
       )
       .catch(() => {
         // A write already queued can fail once the screen is disposed.
+        if (this.coalesce === batch) this.coalesce = undefined;
       });
   }
 
@@ -124,6 +135,8 @@ export class KeptClientScreen {
   }
 
   settled(): Promise<void> {
+    // Do not seal here: detached idle `watch` awaits settled after every
+    // chunk, and sealing would reopen one Promise per chunk under a burst.
     return this.pending;
   }
 
@@ -131,6 +144,7 @@ export class KeptClientScreen {
   // ANSI rendition, buffer and terminal modes survive a new page terminal.
   // A paint still arriving stays open for the page's readiness judgment.
   replay(): Promise<ScreenReplay | undefined> {
+    this.sealCoalesce();
     return this.pending.then(() => {
       if (this.disposed) return undefined;
       const cursor = this.terminal.buffer.active;
@@ -164,5 +178,11 @@ export class KeptClientScreen {
     this.disposed = true;
     for (const handler of this.csi) handler.dispose();
     this.terminal.dispose();
+  }
+
+  // Close the open coalesce batch so later writes start a new chain link.
+  // `replay` seals before capturing `pending` so later writes are excluded.
+  private sealCoalesce(): void {
+    this.coalesce = undefined;
   }
 }
