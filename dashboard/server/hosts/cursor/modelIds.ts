@@ -84,7 +84,7 @@ export function projectCursorModels(
       throw new Error(`Cursor model group missing for ${model}.`);
     }
     const hasVariants = group.efforts.some((entry) => entry.effort !== "");
-    // Bare-only listings keep an empty efforts array so the dialog hides
+    // Bare-only listings keep an empty efforts array so the dialog disables
     // Reasoning effort. Multi-effort bases keep an empty effort entry only
     // when that bare id was itself listed.
     return {

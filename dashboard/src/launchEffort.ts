@@ -1,6 +1,11 @@
 // Known models constrain effort; an unknown inherited model is checked in the
 // actual workspace at launch, without borrowing the catalog's recommendation.
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
+
+export function cursorNeedsSpecificModel(model: string): boolean {
+  return model === "" || model === "auto";
+}
+
 export function launchEfforts(
   options: LaunchHostOptions | undefined,
   model: string,

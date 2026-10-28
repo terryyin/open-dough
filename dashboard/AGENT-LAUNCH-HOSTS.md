@@ -59,7 +59,10 @@ only the continuation facts). Missing workspace, workspace trust, an unreachable
 explains the reason, leaves no agent running, and starts no replacement. Held, done, and completed sessions
 offer no Recover. Cursor's Model menu lists `cursor-agent models` after "Default (your Cursor setting)". Listed
 ids that encode effort are projected into base models with per-model Reasoning effort choices derived only from
-that listing; a listed id with no separable variants stays model-only. An unreadable list is explained with
+that listing. Reasoning effort stays visible for Cursor: Default and Auto disable it with a hint to choose a
+specific model; selecting a model with listed efforts enables it. A listed id with no separable variants keeps
+it disabled with an explanation. Returning to a model without selectable effort clears a prior effort so it
+cannot prevent startup. An unreadable list is explained with
 Retry, and Default stays startable. Launch admission rechecks a chosen base id and effort pair against that
 projection and refuses a stale or unsupported composition before `create-chat`. An explicit model and effort
 compose to the matching listed id, sent as `--model <id>` on that first terminal client only; the stored resume
