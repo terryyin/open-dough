@@ -14,4 +14,7 @@
 # Check a change against recent trunk CI times with
 # `bash scripts/ci-test-times.sh` (tests/time-budget.md).
 per-job-seconds=74
-total-job-seconds=710
+# 2026-10-28: SEED-163 trunk integrate a32cebc3 and branch tip 2ba5950d saw
+# split 1/3 totals 728.7 and 741.0 job-seconds with no assertion failures
+# (runner load). Raise total to 750; keep per-job ceiling.
+total-job-seconds=750
