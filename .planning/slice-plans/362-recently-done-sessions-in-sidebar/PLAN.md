@@ -35,7 +35,7 @@ deferred. This plan prepares execution and grants none.
   its own range; the sidebar range and Board range are distinct presentation
   state. Successful native attach can reopen the record and remove its Done
   row; existing keyboard return must still find a useful destination.
-- Change the sidebar's existing room owner (`runningCursorHeight.ts`,
+- Change the sidebar's existing room owner (`sessionsSidebarHeights.ts`,
   `sharedRoom.ts`, `SessionsSidebar.tsx` and its CSS) to account for every
   expanded list and header. Reuse `ResizeDivider` and disposable preferred
   sizes. Do not run independent two-list allocators against the same space.
@@ -65,43 +65,28 @@ product-wide architectural decision or temporary topic is needed.
 
 ## Premises observed during preparation
 
-Checkout: `/Users/terryyin/git/open-dough/.worktrees/browse-recently-done-sessions-across-projects-in`,
-revision `b01320a4d273aafaa09672d2fca374ad0fa480d2`, 2026-10-28 Singapore time.
-
-The isolated built-preview fixtures use synthetic native hosts and GitHub;
-they neither launch real agent work nor modify production session records.
-After installing this checkout's dependencies with `npm ci --ignore-scripts`,
-the following command exited 0:
+Checkout: this worktree, revision `b01320a4d273aafaa09672d2fca374ad0fa480d2`,
+2026-10-28 Singapore time. Isolated built-preview fixtures use synthetic hosts
+and GitHub; they neither launch real agent work nor modify production records.
+After `npm ci --ignore-scripts`, this exited 0:
 
 ```sh
 env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- dashboard/tests/recently-done-progressive-navigation-cursor.spec.ts dashboard/tests/cursor-sessions-sidebar-resize-lasting.spec.ts --workers=1
 ```
 
-- The Cursor navigation setup writes a retained Done record, reads it through
-  the real session boundary, chooses it from another project, and observes
-  Board entry 27 revealed only once required published detail arrives. Closing
-  returns focus to its entry. Its held terminal deliberately prevents native
-  reopen, so this observation does not prove reopen behavior.
-- The two resize journeys observe changed sizes, short/zoomed-window reachable
-  controls, recovery of the preference, and persistence across collapse,
-  project/view changes and sidebar hiding. They prove the existing two-list
-  behavior, not the new three-list behavior.
-- Discrimination: temporarily replacing `range.demand(going.to)` with `0` in
-  `sessionNavigation.ts`, then running only the navigation spec with the same
-  command prefix and `--workers=1`, exited 1 at line 137: the requested older
-  Board entry never appeared. Source was restored byte-for-byte.
-- Discrimination: temporarily replacing the `prefer(sizeWithin(...))` call in
-  `runningCursorHeight.ts` with `void height`, then running only the resize
-  lasting spec, exited 1 in both journeys: measured sizes stayed at the equal
-  share instead of the selected height. Source was restored byte-for-byte.
-- Initial setup lacked a local `node_modules` directory; another attempt was
-  refused solely by the suite's strict output rule for conflicting color
-  environment variables. The successful command above resolves both setup
-  issues without changing product code or weakening the suite.
+- Cursor navigation: retained Done chosen from another project reveals Board
+  entry 27 once published detail arrives; focus returns; held terminal blocks
+  reopen proof.
+- Resize journeys prove existing two-list size/floor/persistence, not three-list.
+- Discrimination: `range.demand(going.to)` → `0` in `sessionNavigation.ts`
+  fails the navigation spec at the older Board entry; restored byte-for-byte.
+- Discrimination: `prefer(sizeWithin(...))` → `void height` in the room owner
+  fails both lasting resize journeys; restored byte-for-byte.
+- First setup needed local `node_modules`; color env vars also refuse the suite
+  until the command above clears them.
 
-The new completion ordering, three-list room allocation and sidebar paging
-are implementation obligations below; no current test is claimed to prove
-them. No paid, credentialed or developer-only probe is required.
+Completion ordering, three-list room and sidebar paging remain implementation
+obligations below. No paid or developer-only probe.
 
 ## Ordered slices
 
@@ -142,7 +127,7 @@ File/hook names still say Running Cursor until slice 2 widens the API.
 
 ### 2. Find and open the newest completed sessions
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new `recently-done-sessions-sidebar.spec.ts` browser journey starts
 with interleaved launch/completion times across three configured projects,
 expands the new section from the third project, observes completion order and
@@ -173,6 +158,27 @@ behavior in the same slice.
 
 Interim behavior: only the newest 20 can be reached in this section; slice 3
 adds access to older sessions. Existing project history remains available.
+
+Accepted proof (after G1–G3 closure and post-change refactor; 24 passed):
+```sh
+env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- \
+  dashboard/tests/recently-done-sessions-sidebar.spec.ts \
+  dashboard/tests/recently-done-sessions-sidebar-room.spec.ts \
+  dashboard/tests/recently-done-sessions-sidebar-reopen.spec.ts \
+  dashboard/tests/recently-done-sessions-sidebar-navigation.spec.ts \
+  dashboard/tests/recently-done-sessions-sidebar-touch.spec.ts \
+  dashboard/tests/cursor-sessions-sidebar-resize \
+  dashboard/tests/cursor-sessions-sidebar-layout.spec.ts \
+  dashboard/tests/cursor-sessions-sidebar-navigation.spec.ts \
+  dashboard/tests/cursor-sessions-sidebar-size-kept.spec.ts \
+  dashboard/tests/cursor-sessions-sidebar-size-unkept.spec.ts \
+  dashboard/tests/sessions-sidebar.spec.ts \
+  dashboard/tests/sessions-sidebar-row.spec.ts \
+  --workers=1 --reporter=list
+```
+Learning: room owner renamed to `sessionsSidebarHeights.ts`; optional sections
+extracted to `SessionsSidebarOptionalSections.tsx`. Paging remains slice 3
+(G4–G5 interim).
 
 ### 3. Reach older sessions without losing the browsing position
 Type: Behavior
@@ -219,28 +225,48 @@ the actual diff and supplies dispositions for all affected consumers.
 
 Run new sidebar specs plus affected sidebar/resize/navigation consumers with
 `env -u FORCE_COLOR -u NO_COLOR npm run test:dashboard -- <paths> --workers=1`.
-Start new promised journeys red before implementing their behavior. Follow
+Start promised journeys red before implementing. Follow
 [the test strategy](../../../dashboard/tests/README.md): one representative
-integrated browser journey per cohesive behavior, focused boundary variants,
-synthetic hosts, no sleeps and no leaked processes. The repository pre-commit
-hook requires staged lint and dashboard typecheck for script changes; perform
-the execution workflow's independent post-change refactor before accepting
-proof and committing each slice. Hosted CI retains its existing role; its
-configuration does not require unrelated full-suite local runs here.
+integrated journey per cohesive behavior, focused variants, synthetic hosts,
+no sleeps or leaked processes. Pre-commit requires staged lint and dashboard
+typecheck for script changes; run independent post-change refactor before
+accepting proof and committing each slice. Hosted CI keeps its existing role.
 
 ## Boundedness and readiness review
 
-No numeric slice time limit was supplied. Slice 1 is one preserved-layout
-proof loop; slice 2 adds the requested entry point and its required coexistence;
-slice 3 extends its reachable history with one range/refresh rule. Sizing
+No numeric slice time limit was supplied. Slice 1 preserves layout; slice 2 adds
+the entry point and coexistence; slice 3 extends reachable history. Sizing
 includes implementation, affected proof and cleanup. If the three-list room
-model proves unsuitable, revise the same plan before extending it; do not add
-per-panel exceptions. Cumulatively there is one room owner, one session store,
-one navigation journey and one sidebar history-range rule.
+model proves unsuitable, revise this plan before extending it. Cumulatively:
+one room owner, one session store, one navigation journey, one sidebar
+history-range rule. Slice-plan refinement was not needed; every source promise
+has an owning slice and observable proof. The initial-load interpretation above
+is not a server-side performance claim. Readiness is recorded by the
+product-backlog recorder, separately from execution authority.
 
-Slice-plan refinement was not needed: the necessary Structure sits immediately
-before its consuming Behavior, and every source promise has an owning slice
-and observable proof. This review identified no remaining blocking concern.
-The initial-load interpretation is recorded above; it is not a server-side
-performance claim. Readiness is recorded by the product-backlog recorder,
-separately from execution authority.
+## Story obligations
+
+### G1. Done entry touch/Session details omit observed completion identity
+Reported: slice 2 — "Touch disclosure for Done rows not in the new journey (desktop tooltip asserted; coarse path still existing sessions-sidebar-touch)."
+Story clause: "The completion age must be distinguishable from launch age, including its accessible description."
+Disposition: proved by slice 2: dashboard/tests/recently-done-sessions-sidebar-touch.spec.ts "Session details identifies completion, not launch age"
+
+### G2. Final-report destination from Recently done unobserved
+Reported: slice 2 — "Final-report host delta not separately journeyed (Claude terminal + unavailable + Cursor reopen covered)."
+Story clause: "Opening chooses the session's project and its available terminal, final report, or existing unavailable-session destination."
+Disposition: proved by slice 2: dashboard/tests/recently-done-sessions-sidebar-navigation.spec.ts "opening a Done entry whose destination is a final report reaches Final report"
+
+### G3. Older Board reveal and narrow focus-return from Recently done unobserved
+Reported: slice 2 — "cross-project open and Cursor reopen are observed; choosing a Done session beyond the project's initially shown Board entries from this sidebar, and narrow-screen focus return after the side panel closes when reopen removed the Done row, lack current observations at this entry point."
+Story clause: "An old Done session is beyond its project's initially shown Board entries. Choosing it from this sidebar switches projects and uses the existing reveal journey. On a narrow screen the sidebar closes; focus returns to a useful control when the session's side panel closes, including when reopening has removed the Done row."
+Disposition: proved by slice 2: dashboard/tests/recently-done-sessions-sidebar-navigation.spec.ts "choosing a Done session beyond Board's first ten from Pygardon reveals its Board entry"; dashboard/tests/recently-done-sessions-sidebar-reopen.spec.ts "on a narrow window, closing the panel after a successful reopen returns focus to Sessions"
+
+### G4. Scrolling beyond the newest 20 Done sessions
+Reported: slice 2 — "Slice 3 still owns older-than-20 paging. Interim: only the newest 20 can be reached in this section."
+Story clause: "With 45 done sessions, the first load contains the newest 20. Scrolling to the end loads older sessions in completion order, allowing the developer to reach all 45 without duplicate or skipped entries."
+Disposition: interim until slices 3
+
+### G5. Refresh reconcile after a reached range beyond 20
+Reported: slice 2 — "paging and post-reveal refresh reconcile remain with slice 3."
+Story clause: "After revealing 40 sessions, a newly marked-done session arrives on refresh: it appears in completion order without duplicating identities or losing the older entries already reached."
+Disposition: interim until slices 3

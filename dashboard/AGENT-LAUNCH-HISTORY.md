@@ -226,25 +226,24 @@ dashboard produces the browser's connection failure, not successful navigation.
 Closing the server aborts every owned helper operation (startup diagnostics and
 in-flight delivery); shutdown is not recorded as a notification refusal.
 
-Sessions sidebar lists unclosed records across projects: attention first oldest
-first, others newest first. Sessions button badge counts attention only. Rows
-show ellipsized title and largest elapsed unit, updated every 30 seconds, with
-state border plus accessible label and tooltip. Command+B toggles it except in
-an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload
-in browser storage. Closing while focused there restores the Sessions button.
-Wide layout is Sessions sidebar/page/Side panel; narrow, the sidebar overlays
-below the banner and the Side panel stacks above the page. Opening a row changes project/history and reveals
-its actual session entry or containing active card, in Taken or Recently done,
-until user navigation; reduced motion skips animation. Deleting a session
-record moves the keyboard to the next entry in the same list (a card's
-sessions, a done card's sessions, or either standalone column list), else the
-previous one, else the done card or story card that held it,
-else the containing column. Closing a terminal or report keeps its original
-return control while usable, otherwise returns to the same session in its
-current home. Membership movement alone never attaches or detaches its terminal.
+Sessions sidebar lists unclosed records across projects (attention first oldest first, others
+newest first); badge counts attention only. Rows show ellipsized title and largest elapsed unit
+(30s), state border, accessible label/tooltip. Open rows use launch age; Done rows in Recently
+done sessions use completion age and say so in details/tooltip. Command+B toggles it except in
+an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload; closing while
+focused there restores Sessions. Wide: sidebar/page/Side panel; narrow: sidebar overlays below
+the banner, Side panel above the page. Opening a row changes project/history and reveals its
+session entry or active card in Taken or Recently done until user navigation; reduced motion
+skips animation. Deleting moves keyboard within the same list, else previous, else done/story
+card, else column. Closing a terminal or report keeps its return control while usable, else the
+session in its current home. Membership movement alone never attaches or detaches its terminal.
+**Recently done sessions** and **Running Cursor sessions** sit below the open list, each
+collapsed on load. Recently done lists retained Done across projects/hosts by newest completion
+(identity breaks ties), initially newest 20 or every retained Done when fewer; reading and empty
+stay distinct. Older scrolling is later; Board Recently done keeps its own range. Expanded
+optional sections share one room owner with the open list (disposable preferred heights,
+independent scroll, short-window reach, page-lasting expansion/reached range; preferred sizes
+only across reload). Successful native reopen removes a Done row; a failed reopen keeps feedback
+and membership.
 
-The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone
-and tablet, its header keeps Close and Maximize/Restore reachable beside the
-story identity. Its file browser, diff and bounded context scroll independently;
-rotation keeps the comparison, file and reading context, and Close returns
-focus to the originating work.
+The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone and tablet, Close and Maximize/Restore stay reachable beside the story identity; file browser, diff and context scroll independently; rotation keeps comparison/file/reading context; Close returns focus to the origin.

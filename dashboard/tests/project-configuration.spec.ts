@@ -147,7 +147,7 @@ test("saved projects retain order and default selection across restart", async (
     ).toBeChecked();
     await expect(page).toHaveURL(`${server.baseURL}/`);
     await expect(
-      page.getByRole("region", { name: "Recently done" }),
+      page.getByRole("region", { name: "Recently done", exact: true }),
     ).toBeVisible();
     expect(server.ghCalls()).toContainEqual([
       "api",

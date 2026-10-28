@@ -20,10 +20,15 @@ export function sessionsSidebarParts(page: Page) {
     badge: page.getByRole("banner").getByRole("img", {
       name: /^\d+ sessions? needs? attention$/,
     }),
-    // The session list's entries, apart from Running Cursor sessions' rows.
-    entries: sidebar.locator("li.sessions-sidebar-session-entry"),
-    // The control of the entry for the story with this title.
-    entry: (title: string) => sidebar.getByRole("button", { name: title }),
+    // The open session list's entries, apart from optional section rows.
+    entries: sidebar.locator(
+      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+    ),
+    // The open-list control of the entry for the story with this title.
+    entry: (title: string) =>
+      sidebar
+        .locator(".sessions-sidebar-sessions")
+        .getByRole("button", { name: title }),
     // The card's attention sentence, which the sidebar never shows.
     attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };

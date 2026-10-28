@@ -25,7 +25,10 @@ export function parts(page: Page) {
       name: "Preparation badge legend",
     }),
     // The selected project's sessions launched from this dashboard.
-    recentlyDone: page.getByRole("region", { name: "Recently done" }),
+    recentlyDone: page.getByRole("region", {
+      name: "Recently done",
+      exact: true,
+    }),
     source: page.getByRole("region", { name: "Published Git state" }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is

@@ -15,17 +15,22 @@
 // the room cannot hold every floor, dividers offer no range and the sidebar's
 // own scrolling keeps every list and header in reach (`./sessions-sidebar.css`).
 // A limit the room sets never changes a preference, so more room recovers it.
-// Callers still size one preferred section here (Running Cursor sessions);
-// further preferred sections join the same calculation without a second
-// independent allocator.
+// Recently done sessions and Running Cursor sessions join the same
+// `sharesOfRoom` call as preferred-capable areas; there is no second allocator.
 
 import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
 import { flushSync } from "react-dom";
 import type { DividerRange } from "./ResizeDivider.tsx";
-import { sharesOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
+import {
+  sharesOfRoom,
+  sizeWithin,
+  usePreferredSize,
+  type Share,
+} from "./sharedRoom.ts";
 
-// Where this browser keeps the preferred height, in CSS px.
-const preferredHeightKey = "open-dough.sessionsSidebar.runningCursorHeight";
+// Where this browser keeps each preferred height, in CSS px.
+const runningCursorHeightKey = "open-dough.sessionsSidebar.runningCursorHeight";
+const recentlyDoneHeightKey = "open-dough.sessionsSidebar.recentlyDoneHeight";
 
 // Each area's usable floor, in rem: the sidebar's own, which its rows keep
 // (./sessions-sidebar.css).
@@ -41,8 +46,20 @@ type Room = {
   readonly rem: number;
 };
 
-// Header rows sit on even grid tracks (heading, then each expanded section's
-// header); list rows sit on the odd tracks between them.
+export type SessionsSidebarSectionHeights = {
+  readonly recentlyDone: {
+    readonly height: number | undefined;
+    readonly range: DividerRange | undefined;
+  };
+  readonly runningCursor: {
+    readonly height: number | undefined;
+    readonly range: DividerRange | undefined;
+  };
+};
+
+// Header rows sit on even grid tracks (heading, then each section's header);
+// list rows sit on the odd tracks between them. Collapsed sections keep a
+// zero-height body track so that parity holds with more than one section.
 const headerRowHeight = (rows: readonly number[]) =>
   rows.reduce(
     (total, height, index) => (index % 2 === 0 ? total + (height || 0) : total),
@@ -91,36 +108,63 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
   return measuring ? room : undefined;
 }
 
-// Running Cursor content's height while that section is expanded, and the
-// divider's range; both undefined while the room cannot hold every floor. The
-// open session list remains the unpreferred remainder of the same calculation.
-export function useRunningCursorHeight(
+function useShareChoice(
+  share: Share | undefined,
+  prefer: (height: number) => void,
+): SessionsSidebarSectionHeights["recentlyDone"] {
+  const choose = useCallback(
+    (height: number) => {
+      if (share === undefined) return;
+      prefer(sizeWithin(height, share.minimum, share.maximum));
+    },
+    [share, prefer],
+  );
+  return share === undefined
+    ? { height: undefined, range: undefined }
+    : { height: share.size, range: { ...share, choose } };
+}
+
+// Preferred section heights while those sections are expanded, and each
+// divider's range; both undefined for a section while the room cannot hold
+// every floor. The open session list remains the unpreferred remainder.
+export function useSessionsSidebarHeights(
   sidebar: RefObject<HTMLElement | null>,
-  measuring: boolean,
-): { height: number | undefined; range: DividerRange | undefined } {
-  const [preferred, prefer] = usePreferredSize(
-    preferredHeightKey,
+  sections: {
+    readonly recentlyDone: boolean;
+    readonly runningCursor: boolean;
+  },
+): SessionsSidebarSectionHeights {
+  const [recentlyDonePreferred, preferRecentlyDone] = usePreferredSize(
+    recentlyDoneHeightKey,
+  );
+  const [runningCursorPreferred, preferRunningCursor] = usePreferredSize(
+    runningCursorHeightKey,
     "open-dough.sessionSidebar.runningCursorHeight",
   );
+  const measuring = sections.recentlyDone || sections.runningCursor;
   const room = useRoom(sidebar, measuring);
-  const shown =
-    room === undefined
+  const preferredAreas = [
+    ...(sections.recentlyDone ? [{ preferred: recentlyDonePreferred }] : []),
+    ...(sections.runningCursor ? [{ preferred: runningCursorPreferred }] : []),
+  ];
+  const shares =
+    room === undefined || preferredAreas.length === 0
       ? undefined
       : sharesOfRoom(
           room.height,
-          [{ floor: room.floor, preferred }],
+          preferredAreas.map((area) => ({
+            floor: room.floor,
+            preferred: area.preferred,
+          })),
           [room.floor],
           keyStep * room.rem,
-        )?.[0];
-  const minimum = shown?.minimum;
-  const maximum = shown?.maximum;
-  // The developer's choice, within the bounds the room sets now.
-  const choose = useCallback(
-    (height: number) => {
-      if (minimum === undefined || maximum === undefined) return;
-      prefer(sizeWithin(height, minimum, maximum));
-    },
-    [minimum, maximum, prefer],
-  );
-  return { height: shown?.size, range: shown && { ...shown, choose } };
+        );
+  const recentlyDoneShare = sections.recentlyDone ? shares?.[0] : undefined;
+  const runningCursorShare = sections.runningCursor
+    ? shares?.[sections.recentlyDone ? 1 : 0]
+    : undefined;
+  return {
+    recentlyDone: useShareChoice(recentlyDoneShare, preferRecentlyDone),
+    runningCursor: useShareChoice(runningCursorShare, preferRunningCursor),
+  };
 }

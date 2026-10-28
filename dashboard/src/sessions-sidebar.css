@@ -6,7 +6,7 @@
    pinned banner so the Sessions button stays in reach.
    Inside, visible lists fill the room the heading and every expanded section
    header leave, each scrolling on its own; one room owner
-   (./runningCursorHeight.ts) sizes preferred sections to the height chosen
+   (./sessionsSidebarHeights.ts) sizes preferred sections to the height chosen
    with the divider along each section's top, at first an equal share, while
    unpreferred lists take what remains. Where the window is too short for each
    list to keep room to read and choose an entry, the sidebar itself scrolls,
@@ -20,15 +20,19 @@
 
 .sessions-sidebar {
   /* The room each list keeps to read and choose an entry, in rem, which every
-     divider between lists keeps too (./runningCursorHeight.ts). Header rows
-     sit on even tracks; list rows on odd tracks between them. */
+     divider between lists keeps too (./sessionsSidebarHeights.ts). Header rows
+     sit on even tracks; list rows on odd tracks between them. Collapsed
+     optional sections keep a zero-height body track so that parity holds. */
   --sessions-sidebar-list-floor: 8rem;
   position: sticky;
   top: 0;
   box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(var(--sessions-sidebar-list-floor), 1fr) auto;
+  grid-template-rows:
+    auto minmax(var(--sessions-sidebar-list-floor), 1fr)
+    auto minmax(0, 0)
+    auto minmax(0, 0);
   height: 100dvh;
   overflow-y: auto;
   padding: var(--space-2) var(--space-3) var(--space-3);
@@ -40,15 +44,34 @@
   display: none;
 }
 
-.sessions-sidebar.running-cursor-open {
+/* Recently done expanded alone. */
+.sessions-sidebar.recently-done-open:not(.running-cursor-open) {
   grid-template-rows:
     auto minmax(var(--sessions-sidebar-list-floor), 1fr)
+    auto minmax(var(--sessions-sidebar-list-floor), var(--recently-done-height, 1fr))
+    auto minmax(0, 0);
+}
+
+/* Running Cursor expanded alone. */
+.sessions-sidebar.running-cursor-open:not(.recently-done-open) {
+  grid-template-rows:
+    auto minmax(var(--sessions-sidebar-list-floor), 1fr)
+    auto minmax(0, 0)
+    auto minmax(var(--sessions-sidebar-list-floor), var(--running-cursor-height, 1fr));
+}
+
+/* Both preferred sections expanded. */
+.sessions-sidebar.recently-done-open.running-cursor-open {
+  grid-template-rows:
+    auto minmax(var(--sessions-sidebar-list-floor), 1fr)
+    auto minmax(var(--sessions-sidebar-list-floor), var(--recently-done-height, 1fr))
     auto minmax(var(--sessions-sidebar-list-floor), var(--running-cursor-height, 1fr));
 }
 
 /* Each list scrolls on its own, reaching the sidebar's sides so its entries'
    focus rings keep their room. */
 .sessions-sidebar-sessions,
+.recently-done-sessions-body,
 .running-cursor-body {
   overflow-y: auto;
   margin-inline: calc(-1 * var(--space-3));
@@ -78,26 +101,24 @@
   margin-top: var(--space-2);
 }
 
-/* The section reaches the sidebar's sides, holding its header and content
-   within the sidebar's own padding. */
+/* Optional sections reach the sidebar's sides, holding header and content
+   within the sidebar's own padding. Each always spans its header and body
+   tracks, so collapsed bodies stay zero-height and even/odd header/list
+   parity holds. */
+.recently-done-sessions,
 .running-cursor-sessions {
   position: relative;
   display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
   margin: var(--space-2) calc(-1 * var(--space-3)) 0;
   padding: 0.75rem var(--space-3) 0;
   border-top: 1px solid var(--line);
 }
 
-/* Expanded, the header keeps the sidebar's third row and the content its
-   fourth, as tall as the session list's: the room between them is the
-   header's own, so the content's row keeps its whole height. */
-.running-cursor-open > .running-cursor-sessions {
-  grid-row: span 2;
-  grid-template-rows: subgrid;
-}
-
-/* The Running Cursor sessions divider between the two lists: a strip across the section's top border,
-   with its grip (./resize-divider.css) at its middle. */
+/* Dividers between lists: a strip across the section's top border, with its
+   grip (./resize-divider.css) at its middle. */
+.recently-done-sessions-divider,
 .running-cursor-sessions-divider {
   top: calc(-0.4rem - 0.5px);
   right: 0;
@@ -107,6 +128,7 @@
   cursor: row-resize;
 }
 
+.recently-done-sessions-divider::after,
 .running-cursor-sessions-divider::after {
   top: calc(50% - 2px);
   left: 50%;
@@ -115,10 +137,12 @@
   transform: translateX(-50%);
 }
 
+.recently-done-open .recently-done-toggle,
 .running-cursor-open .running-cursor-toggle {
   margin-bottom: var(--space-1);
 }
 
+.recently-done-sessions-body,
 .running-cursor-body {
   display: grid;
   align-content: start;
@@ -126,7 +150,7 @@
   padding-top: var(--space-1);
 }
 
-/* Section toggles (Running Cursor today; further sections reuse this class). */
+/* Section toggles for Recently done and Running Cursor. */
 .sessions-sidebar-section-header {
   padding: 0;
   border: 0;

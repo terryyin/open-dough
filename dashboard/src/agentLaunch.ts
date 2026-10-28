@@ -10,7 +10,7 @@
 
 import { creationViewSchema } from "./launchCreation.ts";
 import { hostOperationsSchema } from "./sessionCapabilities.ts";
-import { sessionHostSchema } from "./sessionReference.ts";
+import { sessionHostSchema, sessionKey } from "./sessionReference.ts";
 import { z } from "zod";
 import { offeredShapeSchema } from "./commandOptions.ts";
 import { sessionPolicySchema } from "./launchRequest.ts";
@@ -90,6 +90,29 @@ export function openSessionsOf(
         .toSorted((a, b) => launchedAt(b) - launchedAt(a)),
     ]
   );
+}
+
+// How many newest completions the Sessions sidebar's Recently done section
+// shows on first expansion; older paging is a later responsibility.
+export const recentlyDoneSessionsInitialLimit = 20;
+
+// Done sessions across every configured project, newest completion first.
+// Equal completion times break ties by host-qualified session identity.
+// `limit` caps how many of those ordered entries to return (the Sessions
+// sidebar's initial Recently done range); omit it for the full retained set.
+export function doneSessionsOf(
+  records: readonly LaunchWithState[] | undefined,
+  limit?: number,
+): readonly LaunchWithState[] | undefined {
+  if (records === undefined) return undefined;
+  const done = records
+    .filter((record) => record.doneAt !== undefined)
+    .toSorted((a, b) => {
+      const byDone = Date.parse(b.doneAt ?? "") - Date.parse(a.doneAt ?? "");
+      if (byDone !== 0) return byDone;
+      return sessionKey(a.session).localeCompare(sessionKey(b.session));
+    });
+  return limit === undefined ? done : done.slice(0, limit);
 }
 
 // Whether the boundary can raise its macOS notifications

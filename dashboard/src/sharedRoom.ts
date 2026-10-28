@@ -1,6 +1,6 @@
 // How areas take their share of a room along one axis: the side panel beside
 // the page (`./sidePanelWidth.ts`) and the Sessions sidebar's visible lists
-// (`./runningCursorHeight.ts`). Preferred-capable areas take each chosen size;
+// (`./sessionsSidebarHeights.ts`). Preferred-capable areas take each chosen size;
 // unpreferred areas share what remains. While none of those preferred-capable
 // areas has a usable chosen preference, every area — preferred-capable and
 // unpreferred — shares the room equally. When some preferences are chosen and

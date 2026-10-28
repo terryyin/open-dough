@@ -9,16 +9,15 @@ import { sessionKey } from "./sessionReference.ts";
 // Entries open their story/session through PageFrame; narrow overlays close.
 // Browser open preference survives project/view/terminal changes and reloads;
 // unavailable storage starts closed. Toggling changes no story/session facts.
-// Running Cursor sessions starts collapsed per load, reports live runner and
-// session states, opens selected terminals, and explains unavailable runners.
-// Expanded, its content and the open session list scroll separately; one room
-// owner (runningCursorHeight) sizes every expanded list against shared floors
-// and preferred heights, equally until resized. Collapsing restores list room.
-// Expansion and split survive project/view/close changes; reload keeps split.
+// Recently done sessions and Running Cursor sessions each start collapsed per
+// load (`./SessionsSidebarOptionalSections.tsx`). Expanded, every list scrolls
+// separately; one room owner (`./sessionsSidebarHeights.ts`) sizes every
+// expanded list against shared floors and preferred heights, equally until
+// resized. Collapsing restores list room. Expansion and splits survive
+// project/view/close changes; reload keeps preferred sizes, not expansion.
 
 import {
   createContext,
-  type CSSProperties,
   useCallback,
   useContext,
   useEffect,
@@ -32,15 +31,16 @@ import {
 } from "./agentLaunch.ts";
 import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { ResizeDivider } from "./ResizeDivider.tsx";
-import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import { SessionList } from "./SessionEntry.tsx";
 import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,
 } from "./SessionsSidebarSessionEntry.tsx";
+import {
+  SessionsSidebarOptionalSections,
+  useOptionalSidebarSectionState,
+} from "./SessionsSidebarOptionalSections.tsx";
 import { keep, readKept } from "./keptPreference.ts";
-import { useRunningCursorHeight } from "./runningCursorHeight.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import { attentionCount, attentionSummary } from "./sessionShown.ts";
 import "./agent-launch.css";
@@ -164,24 +164,14 @@ export function SessionsSidebar({
   readonly onOpen: OpenSessionsSidebarSessionEntry;
 }) {
   const sessions = openSessionsOf(records);
-  // Unkept: each page load starts with Running Cursor sessions collapsed.
-  const [cursorOpen, setCursorOpen] = useState(false);
   const aside = useRef<HTMLElement>(null);
-  const { height, range } = useRunningCursorHeight(aside, open && cursorOpen);
+  const optional = useOptionalSidebarSectionState(aside, open);
   return (
     <aside
       ref={aside}
       id={sessionsSidebarId}
-      className={
-        cursorOpen ? "sessions-sidebar running-cursor-open" : "sessions-sidebar"
-      }
-      style={
-        height === undefined
-          ? undefined
-          : ({
-              "--running-cursor-height": `${String(height)}px`,
-            } as CSSProperties)
-      }
+      className={optional.className}
+      style={optional.style}
       aria-label="Sessions sidebar"
       hidden={!open}
     >
@@ -209,24 +199,15 @@ export function SessionsSidebar({
           )}
         </SessionList>
       </div>
-      <RunningCursorSessions
-        shown={open}
-        open={cursorOpen}
-        onToggle={() => {
-          setCursorOpen((current) => !current);
-        }}
+      <SessionsSidebarOptionalSections
+        sidebarOpen={open}
         records={records}
         onOpen={onOpen}
-        divider={
-          <ResizeDivider
-            orientation="horizontal"
-            label="Running Cursor sessions divider"
-            title="Drag, or use Up and Down, to resize Running Cursor sessions"
-            valueText={(size) => `${String(size)} pixels tall`}
-            className="running-cursor-sessions-divider"
-            range={range}
-          />
-        }
+        recentlyDoneOpen={optional.recentlyDoneOpen}
+        onToggleRecentlyDone={optional.toggleRecentlyDone}
+        cursorOpen={optional.cursorOpen}
+        onToggleCursor={optional.toggleCursor}
+        heights={optional.heights}
       />
     </aside>
   );
