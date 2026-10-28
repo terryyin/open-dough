@@ -28,6 +28,8 @@ export function LaunchHostModel({
   catalog,
   effort,
   onEffort,
+  // Feedback maintenance keeps Codex-only effort until that story lands.
+  effortHosts = ["codex", "cursor"],
 }: {
   readonly catalog: {
     options?: LaunchHostOptions;
@@ -36,6 +38,7 @@ export function LaunchHostModel({
   };
   readonly effort: string;
   readonly onEffort: (effort: string) => void;
+  readonly effortHosts?: readonly AgentLaunchRequest["host"][];
   readonly id: string;
   readonly host: AgentLaunchRequest["host"];
   // Absent when the host is fixed.
@@ -44,6 +47,12 @@ export function LaunchHostModel({
   readonly onModel: (model: LaunchModel) => void;
 }) {
   const modelCatalog = hostDescription(host).modelCatalog;
+  const showEffort =
+    effortHosts.includes(host) &&
+    (host !== "cursor" ||
+      (model !== "" &&
+        (catalog.options?.models.find((item) => item.model === model)?.efforts
+          .length ?? 0) > 0));
   return (
     <div className="launch-dialog-row">
       <div className="launch-dialog-field">
@@ -129,9 +138,10 @@ export function LaunchHostModel({
           </div>
         )}
       </div>
-      {host === "codex" && (
+      {showEffort && (
         <LaunchReasoningEffort
           id={id}
+          host={host}
           model={model}
           effort={effort}
           onEffort={onEffort}

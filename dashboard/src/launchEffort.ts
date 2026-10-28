@@ -22,9 +22,20 @@ export function effortBlocked(
   options: LaunchHostOptions | undefined,
   model: string,
   effort: string,
+  host?: string,
 ) {
-  if (effort === "") return false;
   const choices = launchEfforts(options, model);
+  if (effort === "") {
+    // Cursor multi-effort models without a listed bare id require an explicit
+    // effort; empty remains valid for Codex and for Cursor bare/default.
+    if (host !== "cursor" || model === "") return false;
+    return (
+      options === undefined ||
+      (choices.known &&
+        choices.efforts.length > 0 &&
+        !choices.efforts.some((item) => item.effort === ""))
+    );
+  }
   return (
     options === undefined ||
     !choices.efforts.some((item) => item.effort === effort)

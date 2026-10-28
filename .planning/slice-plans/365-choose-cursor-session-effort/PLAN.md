@@ -2,6 +2,7 @@
 
 **Identity:** SEED-160#choose-cursor-session-effort
 **Source:** [Selected story](../../seeds/SEED-160-choose-cursor-session-effort.md#choose-cursor-session-effort)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -101,12 +102,13 @@ observations and limits in accepted proof at execution.
 
 ### 1. Choose Cursor reasoning effort at session start
 Type: Behavior
-Status: planned
-Proof: Fake multi-effort `cursor-agent models` listing through the Cursor start
-dialog and launch fixture: effort choices appear for a multi-effort model;
-Start sends the composed listed `--model`; incompatible model changes cannot
-silently launch; Default still omits `--model`; bare ids remain startable;
-focused Codex effort and Cursor Default/model regressions stay green.
+Status: done
+Proof: Accepted. Focused Playwright
+`npm run test:dashboard -- dashboard/tests/agent-launch-cursor-model.spec.ts dashboard/tests/agent-launch-codex-model.spec.ts dashboard/tests/boundary/agent-launch-codex-model-boundary.spec.ts --reporter=line`
+→ 36 passed (dialog cases in `cursorEffortDialogCases.ts`; Codex regressions green).
+Live `cursor-agent models` in this checkout: 270 listed → 57 projected,
+composition mismatch 0, unreachable 0. Source review commitments 1–12 and
+E1–E7 observed in `source-review.md`.
 
 Behavior: Developer opens a Cursor start dialog whose model catalog is
 readable → selects a Cursor model that has listed effort variants and a
@@ -131,3 +133,13 @@ do not send `model_reasoning_effort` on Cursor.
   independent Structure slice; no cumulative special-case design beyond
   deriving offerings from listed ids.
 - Remaining slice-specific concerns: none identified.
+
+## Learnings (execution)
+
+- Effort is encoded in listed Cursor model ids; project by stripping
+  `-(none|minimal|low|medium|high|xhigh|max)(-fast)?` or trailing `-fast`,
+  keeping `-thinking` in the base; compose base+effort back to the listed id.
+- Shared `effortBlocked` is the single validity rule for dialog Start blocking
+  and launch admission (Cursor and Codex).
+- Feedback-maintenance stays Codex-only for effort (`effortHosts=["codex"]`)
+  until deferred FM Cursor effort lands.

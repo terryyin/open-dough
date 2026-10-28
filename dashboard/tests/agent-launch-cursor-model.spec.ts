@@ -248,3 +248,4 @@ test("a chosen-model launch whose scope cannot be established is refused before 
   expect(cursor.calls()).toEqual([]);
   expect(cursor.attaches()).toEqual([]);
 });
+import "./cursorEffortDialogCases.ts";
