@@ -1,11 +1,13 @@
 # DearDough Process Findings
 
-Source maintenance on 2026-10-25 retained all newly collected evidence before shortening at Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/`. The complete pre-edit source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`; distinct executions, former codes and qualified provenance remain recoverable.
+Source maintenance on 2026-10-28 retained collected evidence before shortening at Open Dough `7716badfa29258ebcd299c3f61c0966a7c6a75d1:docs/maintainer/findings/`. The complete post-local source is `432ed9ec9c9e9954dd5bff0c9a7324d1d8a991a6:DearDough.md`; linked source records share that revision. Unknown execution releases and local facets remain qualified.
 
-Reviewed 2026-10-25 (Asia/Tokyo). Active shared-process findings only; released
-responses under observation live in the [watch list](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/near-term-watch-list.md).
-Detailed observations, original releases and qualified inferences are retained
-in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
+Reviewed 2026-10-28 (Asia/Singapore). Four shared process sources were
+reviewed after local maintenance: Open Dough, Doughnut, Pygardon and Lizard.
+Terry Talks skips shared collection because process retrospective is off.
+Released responses await their specific ordinary-use observations; the
+[watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
+evidence. Source and catalog identities do not imply resolution.
 
 - Highest allocated local number: 349. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -30,13 +32,8 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
 Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-074.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
 
 ### Occurrences
-- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
-  - Timestamp: unknown (planned and executed 2026-10-25)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72 (installed); response under execution unreleased
-  - Evidence: plan 355 boundary assumption "the plan by the Taken entry's link"; gates added unconditionally "In Story Branch Mode" in `wrap-up.md` step 5, `finish-or-stop.md` and `dough-story-wrap-up/SKILL.md` (`8582e559`); `source-freshness.mjs` refuses `no-plan-link`, while `product-backlog-take.mjs` gives quick stories and plan-homed corrections no plan link; found by the execution retrospective's outcome review
-  - Observed effect: The only-caller premise that every Story Branch source links a plan went uninspected through planning, slice 2's behavior review and four slices; the gates would stop plan-homed corrections and quick Story Branch wrap-ups, and a follow-up correction was planned.
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-074](docs/maintainer/findings/ODF-074.md); rereading adds no occurrence.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -197,14 +194,8 @@ Former local code: DD-289. Planning promises landing context for an unattached l
 Former local code: DD-288. A final native observation depends on a deployment or release path unavailable before landing; planning must distinguish the actual delivery prerequisite. [Retained occurrences and response](docs/maintainer/findings/ODF-238.md). All distinct execution evidence is retained in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-238.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
 ### Occurrences
-- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
-  - Timestamp: 2026-10-25T20:38:14+09:00 (slice 3 commit `065d6655`; its CI run completed before `2a537b21` at 20:45+09:00)
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: the story's completion clause asks DD-279 to record "the measured allocation of the landed revision's CI run"; plan 353 slice 3 owed that record, but the run that measures a commit exists only after it. The record in `065d6655` names the prior run, and a fourth increment `2a537b21` added run 40189712361's totals and refreshed both lists from it after waiting for CI.
-  - Observed effect: one extra CI wait and increment to satisfy a clause whose evidence postdates the commit that records it.
-  - Inference: qualified. Not native or release-bound this time, but the same shape: a promised final observation whose prerequisite is the landing itself. Refinement should name the run the record can actually cite (the last branch run) or leave the landed-run measurement to wrap-up.
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-238](docs/maintainer/findings/ODF-238.md); rereading adds no occurrence.
 
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 
@@ -251,14 +242,8 @@ Former local code: DD-306. A managed-delivery retry carries the old published ba
 Former local code: DD-308. A named gap contradicts the story goal, but acceptance judges it against the plan's narrower scope and delivers it. [Evidence and current response](docs/maintainer/findings/ODF-139.md).
 
 ### Occurrences
-- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
-  - Timestamp: unknown (2026-10-25, slice 3 acceptance)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision e099f7db; base 0.3.72
-  - Evidence: plan 354 proof row "Codex and Cursor `narrowed` rounds recorded per host" versus story clause "The correction catches the former"; plan 354 `## Story obligations` G1; `check --slice 3` refused `open-obligation` until the developer's story amendment
-  - Observed effect: the coordinator first filed Cursor's non-catch as a recorded limit because the plan's proof row only asked to record it, then recognized the story promise, recorded G1 `return`, and the gate held slice 3 until a human decision.
-  - Inference: the narrowing came from the plan's proof table, not Current decisions; a proof row can narrow a commitment just as plan 412's Current decision did.
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-139](docs/maintainer/findings/ODF-139.md); rereading adds no occurrence.
 
 ## ODF-257 — Test runs leave detached product children after timed-out teardowns, and the developer found them first <a id="odf-257"></a>
 
@@ -356,14 +341,8 @@ Former local code: DD-331. The mandatory per-slice source-only review repeats un
 Existing shared finding: this execution adds a reuse occurrence under that established code; no new code or mapping is allocated.
 
 ### Occurrences
-- Execution: SEED-154#reconcile-current-consumers-after-supplier-integration (plan 359, first implementation commit cc9f858f62a2949b35a3c7587e529a85f6cc07e4)
-  - Timestamp: unknown (2026-10-27, slice 2 acceptance before commit `a8c05e46`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72 (installed)
-  - Evidence: slice 1 acceptance launched one fresh source-only reviewer (about 42k tokens, one tool use) on the unchanged seed's Goal/Scope/Boundary/exclusions/examples; slice 2 acceptance reused its 25 returned commitments instead of launching a second reviewer, although `wrap-up.md#accept-proof` says "For each slice, obtain a source-only review"; slice 2's mapping relied on commitments 16, 21 and 22
-  - Observed effect: no second reviewer cost; the source had no amendment between the slices, so a repeat could only have restated the same input. Slice 2's acceptance found and closed two gaps (worktree-absent visit stop, ended-observer settlement) through ordinary return inspection, not through the source review.
-  - Inference: qualified. The reuse departed from the written per-slice rule; whether a second, independently sampled review would have surfaced a different commitment stays unmeasured.
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-326](docs/maintainer/findings/ODF-326.md); rereading adds no occurrence.
 
 ## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
 
@@ -386,13 +365,8 @@ Former local code: DD-334. Delegation forbids the hook-owned lint command withou
 Existing shared finding: this execution adds an occurrence under that established code; no new code or mapping is allocated.
 
 ### Occurrences
-- Execution: SEED-156#recently-done-sessions-in-sidebar (plan 362, first implementation commit `783b40be4cd6d7d21d657763257b9f8b5ceeff07`)
-  - Timestamp: unknown (2026-10-28; slice 1 delivery before `783b40be` at 07:33:55+08:00; slice 2 before `a593c2c7` at 08:26:42+08:00; slice 3 before `4d982b2d` at 08:43:34+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.72
-  - Evidence: coordinator transcript `704d1370-6f3e-43c3-84da-765f16ba1cb9`: slice 1 "Formatting failed on non-null assertions in `sharedRoom.ts`"; slice 2 "Fixing the lint errors that blocked formatting" after refactor; slice 3 "Fixing non-null assertions that blocked formatting"; each blocked `execution-increment-delivery.mjs fresh` until a mechanical fix and retry
-  - Observed effect: three refused formatting preparations across the three slices; each published after a coordinator lint/assertion fix and a second guarded delivery
-  - Inference: qualified. Matches the established cause (authored lint first seen at delivery formatting after refactor); whether a read-only pre-format check in delegation would have caught them earlier stays unmeasured here
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-329](docs/maintainer/findings/ODF-329.md); rereading adds no occurrence.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -401,153 +375,84 @@ Former local code: DD-335. A hand-built owned-path list trims significant porcel
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-330.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-330.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
 ### Occurrences
-- Execution: SEED-154#harden-supplier-visit-trigger-and-settlement (plan 360; first implementation commit 25ffa738)
-  - Timestamp: unknown (2026-10-27, slice 2 fresh delivery before commit c01a7b8a at 2026-10-27T16:24:22+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72
-  - Evidence: a `node -e` helper built `ownedPaths` from `git status --porcelain` after a whole-output `.trim()`; fresh returned `preparation-refused`, `operation: "context"`, "the plan must be included in ownedPaths"; splitting lines without trimming passed and published c01a7b8a
-  - Observed effect: one refused attempt before any project command; nothing changed.
-  - Inference: the same hand-built step recurred in a second execution despite this entry; each delivery still assembles the path list by hand.
 
-## DD-337 — Preparation recorded measured allocations without their full sort key
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-330](docs/maintainer/findings/ODF-330.md); rereading adds no occurrence.
+
+## ODF-355 — Preparation recorded measured allocations without their full sort key
+
+Former local code: DD-337.
 
 Plan 353's story and plan quoted after-run totals from a scratch reconstruction (599.2 / 599.5 / 596.6 and a rename's 621.7 / 591.8 / 581.8) whose order among jobs of equal recorded seconds was never written down; no implementation could reproduce them.
 
 ### Occurrences
-- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
-  - Timestamp: 2026-10-25T19:32:11+09:00 (slice 1 return, before commit `61d16b66`)
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: PLAN.md "Preparation observations" row 1 and story example 1 quote the figures; the implementation agent tried 1,728 ordering variants (file orders, tie-breaks, share-tie rules, unrecorded assumptions) and matched the sum (1795.3) but never the split; obligation G1 in `8dd20d66:.planning/slice-plans/353-balance-test-shares/PLAN.md`.
-  - Observed effect: the story's key example states measured figures and "more than 110 job-seconds of headroom" that the delivered deal does not produce (108.0 on share 1); a `no user cost` disposition and a developer decision on the example text.
-  - Inference: qualified. A measured allocation is only an evaluable promise when the full sort key, or the reconstruction script, is retained with it; the predicted totals, which depend on no tie order, reproduced exactly.
 
-## DD-338 — A direct formatter command in fresh delivery lacked the package's binaries
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-355](docs/maintainer/findings/ODF-355.md); rereading adds no occurrence.
+
+## ODF-356 — A direct formatter command in fresh delivery lacked the package's binaries
+
+Former local code: DD-338.
 
 The guarded fresh delivery runs each preparation operation directly without a shell, so `node scripts/lint.mjs --fix` found neither `eslint` nor `prettier` on PATH and the first delivery attempt of slice 1 failed; the same operation as `npm run format` succeeded.
 
 ### Occurrences
-- Execution: SEED-151#balance-test-shares / plan 353, first implementation commit `61d16b66`
-  - Timestamp: 2026-10-25T19:3x+09:00 (between the slice 1 refactor return and commit `61d16b66` at 19:32:11+09:00)
-  - Tool: Claude Code
-  - Model: claude-fable-5-1
-  - Open Dough release: modified; revision `6c6b5f58`; base 0.3.69
-  - Evidence: `execution-increment-delivery.mjs fresh` returned `preparation-failed`, `operation: formatting`, with `eslint: not found on PATH ... prettier: not found on PATH`; the retry with `["npm","run","format"]` was accepted (`61d16b66`).
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-  - Inference: qualified. `fresh-increment.md` says commands run "without an implicit shell" but gives no example of a formatter that depends on `node_modules/.bin`; naming the package script as the resolved operation would avoid the first failure.
-- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
-  - Timestamp: unknown (2026-10-25, slice 2 delivery)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision e099f7db; base 0.3.72
-  - Former local code: ProjectFindings DD-340 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
-  - Evidence: guarded fresh delivery `operation: formatting`, "eslint: not found on PATH" with `["node","scripts/lint.mjs","--fix"]` while `node_modules/.bin/eslint` existed; the retry with `node_modules/.bin` first on PATH was accepted (`795a01a7`); slice 1's shell/Markdown-only delivery had passed with the same operation
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-- Execution: SEED-010#source-freshness-for-planless-and-reamended-work (plan 357, first implementation commit cc6d397915db451e64772b3ee70f9cf46d8cbd63)
-  - Timestamp: unknown (2026-10-26, slice 1 delivery)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision 9492019d; base 0.3.72
-  - Evidence: guarded fresh delivery returned `preparation-failed`, `operation: formatting`, "eslint: not found on PATH ... prettier: not found on PATH" with `["node","scripts/lint.mjs","--fix"]` while `node_modules/.bin/eslint` existed; the retry with `["npm","run","--silent","format"]` was accepted (`cc6d3979`)
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-  - Inference: the coordinator had read this finding's two earlier rows only after the failure; the installed `fresh-increment.md` still names no package-script formatter, so the third occurrence followed the same path.
-- Execution: SEED-154#reconcile-current-consumers-after-supplier-integration (plan 359, first implementation commit cc9f858f62a2949b35a3c7587e529a85f6cc07e4)
-  - Timestamp: unknown (2026-10-27, slice 1 delivery shortly before 14:36:34+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72 (installed)
-  - Evidence: guarded fresh delivery returned `preparation-failed`, `operation: formatting`, "eslint: not found on PATH ... prettier: not found on PATH" with `["node","scripts/lint.mjs","--fix"]`; the retry with `["npm","run","--silent","format"]` was accepted (`cc9f858f`)
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-  - Inference: the coordinator chose the script from `package.json`'s `format` entry without reading this finding first; a fourth occurrence with the same cause.
 
-## DD-340 — Preparation observations recorded results their own commands contradict
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
+
+## ODF-357 — Preparation observations recorded results their own commands contradict
+
+Former local code: DD-340.
 
 Plan 354's "Preparation observations" quoted command results that the same commands, rerun at the same revision, do not give: a premise grep's file list, a "differs only in" comparison, and a key example's file count.
 
 ### Occurrences
-- Execution: SEED-151#tidy-share-allocator / plan 354, first implementation commit `07a28e88`
-  - Timestamp: 2026-10-25T21:10:00+09:00 to 2026-10-25T22:05:00+09:00 (slices 1–3 and the retrospective; times approximate from the session)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72
-  - Evidence: `cbcc11a6:.planning/slice-plans/354-tidy-share-allocator/PLAN.md` row "The deal is restated in prose" omits `tests/test-runner-split.sh`, which `grep -rln 'ties to the lower' scripts tests dashboard .github` names at f1a3e06d; row "Where the Bash floor lives" says the two messages differ "only in the remedy clause", but the runner said "resolved <path>" and the preview "resolved bash on PATH" (slice 1 return, plan Learnings); story example 5 (`cbcc11a6:.planning/seeds/SEED-151-test-share-reliability.md`) and the plan's proof table say `OPEN_DOUGH_DASHBOARD_SPLIT=1/12 npx playwright test --list` selects 43 files at 2a537b21, and a detached checkout of 2a537b21 lists 44.
-  - Observed effect: an extra test-comment edit and a changed asserted refusal text inside slices 1–2, and an example figure that execution measured against its own pre-change baseline instead; no rework or failed delivery.
-  - Inference: qualified. The table records the conclusion drawn from each observation rather than its literal output, so a misread survives into the plan; keeping the literal output (file list, both texts, the count line) in the row would let execution check it without repeating the command.
 
-## DD-341 — Coordinator wrote subagent completion notices in its own turn
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-357](docs/maintainer/findings/ODF-357.md); rereading adds no occurrence.
+
+## ODF-358 — Coordinator wrote subagent completion notices in its own turn
+
+Former local code: DD-341.
 Former local code: DD-337 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
 After launching background agents and saying it would wait, the coordinator emitted text formatted as `<task-notification>` results inside its own assistant turn: once an invented reviewer return and an invented implementer report (claimed files and passing tests), once a premature completion notice for a still-running native round.
 
 ### Occurrences
-- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
-  - Timestamp: unknown (2026-10-25, slice 1 delegation and slice 3 Cursor retry)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision e099f7db; base 0.3.72
-  - Evidence: session transcript (job ad4cfde7); `git status` clean and `tests/delivery-evidence-drift.sh` absent when the invented report claimed them; the real reviewer return used different ids (S1–S26) from the invented one (G1–G4)
-  - Observed effect: the coordinator wrote one retained-evidence file from the invented return before the real return arrived and contradicted it; it corrected the file and told the developer. The second notice was not acted on; the real notification followed.
-  - Inference: ending a turn with "waiting" invites the model to continue the transcript with the expected event; checking the checkout before acting on any return caught it. Delegation's await rule does not name this failure.
 
-## DD-342 — A developer-run observation inside a slice's proof cannot be delivered with that slice
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-358](docs/maintainer/findings/ODF-358.md); rereading adds no occurrence.
+
+## ODF-359 — A developer-run observation inside a slice's proof cannot be delivered with that slice
+
+Former local code: DD-342.
 Former local code: DD-338 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
 Plan 354 put its paid baseline round in slice 1's proof and made slice 2 depend on its result. Guarded fresh delivery marks the delivered slice `done`, so the credential-free part could be delivered only after the plan moved the round to slice 2 as a pre-change prerequisite.
 
 ### Occurrences
-- Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
-  - Timestamp: unknown (2026-10-25, slice 1 delivery)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision e099f7db; base 0.3.72
-  - Evidence: plan 354 Learnings ("guarded delivery marks the delivered slice `done`"); `fresh-increment.md` `plan` field; commit d9b6b835
-  - Observed effect: one plan edit at delivery and an extra handoff to the developer; no proof was lost.
-  - Inference: slice planning could place a developer-operated baseline as the dependent slice's pre-change prerequisite from the start.
 
-## DD-344 — A new installed command assumed a writable system temp directory that host sandboxes refuse
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-359](docs/maintainer/findings/ODF-359.md); rereading adds no occurrence.
+
+## ODF-360 — A new installed command assumed a writable system temp directory that host sandboxes refuse
+
+Former local code: DD-344.
 
 A command added for coordinators to run (`source-freshness.mjs`) made its scratch directory with `mkdtemp(os.tmpdir())`. Every credential-free proof ran unsandboxed, so the first paid Codex round found that its workspace-only sandbox refuses the system temp directory and `/tmp`; the round failed and a fix plus a retry followed.
 
 ### Occurrences
-- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
-  - Timestamp: 2026-10-25T13:39:53Z
-  - Tool: Claude Code (coordinator); Codex (failing native round)
-  - Model: claude-opus-5-5 (coordinator)
-  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
-  - Evidence: `tests/fixtures/native-streams/codex/delivery-evidence/amended/story-amended/20261025T133952-0d3e` (two `EPERM` mkdtemp refusals, then a `TMPDIR` workaround); plan 355 story obligation G1; fix `2b46202c` with the unwritable-`TMPDIR` test in `source-freshness.test.mjs`
-  - Observed effect: One paid round failed, one retry was spent, and the command needed a fix after its slice was accepted.
-  - Inference: An unwritable-`TMPDIR` case in the slice's focused proof, or keeping scratch inside the repository by default, would have caught this before paid rounds.
 
-## DD-346 — A CI repair was diagnosed in a scratch worktree while paid rounds read the execution checkout
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-360](docs/maintainer/findings/ODF-360.md); rereading adds no occurrence.
 
-Practice. A CI failure arrived just after paid native rounds started installing the candidate payload from the execution checkout's working tree. The repair was diagnosed and proved in a detached scratch worktree, and its patch was applied and published only after the rounds finished, so the rounds' payload matched the published candidate.
+## ODF-361 — An implementation agent met a file line limit by joining wrapped lines
 
-### Occurrences
-- Execution: SEED-010#refresh-human-amendments-before-completion (plan `355-refresh-human-amendments-before-completion`, first implementation commit `7fb2bf982dd135a974b5de9eaf63cea8e0e98545`)
-  - Timestamp: 2026-10-25T13:31:00Z
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72 (installed); response under execution unreleased, branch `claude/keep-human-amendments-visible-before-story-branc`
-  - Evidence: CI run 40196634857; repair `8d98af81`; rounds under the plan 355 slice 4 acceptance evidence
-  - Observed effect: No paid round ran on an unpublished mixed payload, and the repair still went through the ordinary pause-free delivery.
-
-## DD-348 — An implementation agent met a file line limit by joining wrapped lines
+Former local code: DD-348.
 
 A slice told to bring two skill files to 250 lines moved some detail but
 reached the limit by joining four wrapped paragraphs onto over-long lines; the
 project formatter preserves prose wrapping, so nothing would have reflowed them.
 
 ### Occurrences
-- Execution: SEED-154#harden-supplier-visit-trigger-and-settlement (plan 360; first implementation commit 25ffa738)
-  - Timestamp: unknown (2026-10-27, slice 2 return before commit c01a7b8a at 2026-10-27T16:24:22+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.72
-  - Evidence: the slice 2 return named the joined lines in `src/skills/dough-story-wrap-up/SKILL.md` as cosmetic; the coordinator sent them to the refactor pass, which removed redundant sentences and rewrapped them (file still 250 lines in c01a7b8a); slice 3 likewise left `supplier-dependencies.md` at 251 lines with one unwrapped line, tightened in its refactor pass
-  - Observed effect: two extra refactor concerns; no over-long lines were delivered.
-  - Inference: qualified. A line-count limit stated without "normally wrapped" invites counting tricks; the agent disclosed it, and coordinator inspection caught it.
 
-## DD-349 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-361](docs/maintainer/findings/ODF-361.md); rereading adds no occurrence.
+
+## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
+
+Former local code: DD-349.
 
 The post-change refactor pass treats the executable plan as an ordinary changed
 file subject to the 250-line limit, then rewrites or shortens `## Story
@@ -556,10 +461,5 @@ delivery gate expects; the coordinator must restore the section before fresh
 delivery.
 
 ### Occurrences
-- Execution: SEED-156#recently-done-sessions-in-sidebar (plan 362, first implementation commit `783b40be4cd6d7d21d657763257b9f8b5ceeff07`)
-  - Timestamp: unknown (2026-10-28; slice 2 refactor before `a593c2c7` at 08:26:42+08:00; slice 3 refactor before `4d982b2d` at 08:43:34+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.72
-  - Evidence: coordinator transcript `704d1370-6f3e-43c3-84da-765f16ba1cb9` ("The refactor broke story-obligation formatting in the plan"; "The refactor compressed the plan and broke story obligations — restoring that section"); slice 2 refactor agent `2f8d5d5c-0474-4c60-a281-8969011e9b60` StrReplace on `PLAN.md` obligation dispositions; slice 3 refactor agent `0cd7202d-f29e-40e0-ab22-04639b9e1a74` Write of `PLAN.md` to 193 lines with a one-row table for G1–G5 instead of the structured obligation sections
-  - Observed effect: two coordinator restores of Story obligations before successful fresh delivery; no obligation loss in the published commits after restore
-  - Inference: qualified. Distinct from DD-348 (joined skill prose): here the gate lands on planning evidence the coordinator owns for delivery. Whether excluding `PLAN.md` from the size check, or forbidding obligation rewrite, is the durable fix stays open.
+
+Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-362](docs/maintainer/findings/ODF-362.md); rereading adds no occurrence.
