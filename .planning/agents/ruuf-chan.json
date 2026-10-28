@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-162#keep-long-running-dashboard-sessions-responsive",
+  "mode": "story-branch",
+  "branch": "cursor/keep-long-running-dashboard-sessions-responsive",
+  "host": "cursor",
+  "model": "auto"
+}

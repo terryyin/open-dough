@@ -19,7 +19,7 @@ cost of the feedback process itself.
 ## Taken
 
 - [Reliably record quiet dashboard wrap-up after workspace retirement](seeds/SEED-163-dashboard-wrap-up-reporting.md#reliably-report-dashboard-wrap-up) — SEED-163#reliably-report-dashboard-wrap-up ([plan](slice-plans/367-reliably-report-dashboard-wrap-up/PLAN.md))
+- [Keep long-running dashboard sessions responsive with bounded memory](seeds/SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive) — SEED-162#keep-long-running-dashboard-sessions-responsive ([plan](slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md))
 
 ## Backlog list
 
-- [Keep long-running dashboard sessions responsive with bounded memory](seeds/SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive) — SEED-162#keep-long-running-dashboard-sessions-responsive
