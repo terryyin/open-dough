@@ -50,6 +50,12 @@ attached to a terminal, the conversation stays up, and the first prompt is
 accepted. When that client exits before acceptance, the dashboard shows
 Cursor's own text and says the session ended, and Continue adds no session id.
 
+## Execution complete
+
+Product advice: No further product change. The start records Cursor's own
+exit and leaves that session in place. Repairing the two starts that already
+quit stays outside this story.
+
 ## Current decisions
 
 Reuse the runner's existing terminal keep (`spawnCursorPty` in
