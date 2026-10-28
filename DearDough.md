@@ -7,7 +7,7 @@ responses under observation live in the [watch list](https://github.com/terryyin
 Detailed observations, original releases and qualified inferences are retained
 in the linked Open Dough catalog. Source compaction follows recoverable evidence retention at `eeefa1588ba0b04c6573384de520e1374e7e7afa`; the complete pre-compaction source remains at `e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5:DearDough.md`. The previous compaction followed `341293c09f1115b8ad3412fc6da63679ce563457` (pre-compaction source `77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805:DearDough.md`). Earlier compaction recovery remains at `dbe36711` and `327b6fa255b84ba8a2552ca41dba37a46fadf4d9:DearDough.md`. Terry Talks and Lizard are excluded from shared collection because process retrospective is off; the three selected process sources are complete. Unknown execution provenance remains unknown.
 
-- Highest allocated local number: 348. Removed numbers are never reused.
+- Highest allocated local number: 349. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -383,6 +383,17 @@ Former local code: DD-334. Delegation forbids the hook-owned lint command withou
 
 [Retained evidence and current response](https://github.com/terryyin/open-dough/blob/main/docs/maintainer/findings/ODF-329.md). Original occurrence provenance and distinct effects are recoverable in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-329.md` and this project's source snapshot `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Name adoption is not resolution.
 
+Existing shared finding: this execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+- Execution: SEED-156#recently-done-sessions-in-sidebar (plan 362, first implementation commit `783b40be4cd6d7d21d657763257b9f8b5ceeff07`)
+  - Timestamp: unknown (2026-10-28; slice 1 delivery before `783b40be` at 07:33:55+08:00; slice 2 before `a593c2c7` at 08:26:42+08:00; slice 3 before `4d982b2d` at 08:43:34+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.72
+  - Evidence: coordinator transcript `704d1370-6f3e-43c3-84da-765f16ba1cb9`: slice 1 "Formatting failed on non-null assertions in `sharedRoom.ts`"; slice 2 "Fixing the lint errors that blocked formatting" after refactor; slice 3 "Fixing non-null assertions that blocked formatting"; each blocked `execution-increment-delivery.mjs fresh` until a mechanical fix and retry
+  - Observed effect: three refused formatting preparations across the three slices; each published after a coordinator lint/assertion fix and a second guarded delivery
+  - Inference: qualified. Matches the established cause (authored lint first seen at delivery formatting after refactor); whether a read-only pre-format check in delegation would have caught them earlier stays unmeasured here
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
 Former local code: DD-335. A hand-built owned-path list trims significant porcelain status spacing and corrupts a path; the input guard contains the mistake before project commands.
@@ -563,3 +574,20 @@ project formatter preserves prose wrapping, so nothing would have reflowed them.
   - Evidence: the slice 2 return named the joined lines in `src/skills/dough-story-wrap-up/SKILL.md` as cosmetic; the coordinator sent them to the refactor pass, which removed redundant sentences and rewrapped them (file still 250 lines in c01a7b8a); slice 3 likewise left `supplier-dependencies.md` at 251 lines with one unwrapped line, tightened in its refactor pass
   - Observed effect: two extra refactor concerns; no over-long lines were delivered.
   - Inference: qualified. A line-count limit stated without "normally wrapped" invites counting tricks; the agent disclosed it, and coordinator inspection caught it.
+
+## DD-349 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
+
+The post-change refactor pass treats the executable plan as an ordinary changed
+file subject to the 250-line limit, then rewrites or shortens `## Story
+obligations` so structured dispositions no longer match the plan format the
+delivery gate expects; the coordinator must restore the section before fresh
+delivery.
+
+### Occurrences
+- Execution: SEED-156#recently-done-sessions-in-sidebar (plan 362, first implementation commit `783b40be4cd6d7d21d657763257b9f8b5ceeff07`)
+  - Timestamp: unknown (2026-10-28; slice 2 refactor before `a593c2c7` at 08:26:42+08:00; slice 3 refactor before `4d982b2d` at 08:43:34+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.72
+  - Evidence: coordinator transcript `704d1370-6f3e-43c3-84da-765f16ba1cb9` ("The refactor broke story-obligation formatting in the plan"; "The refactor compressed the plan and broke story obligations — restoring that section"); slice 2 refactor agent `2f8d5d5c-0474-4c60-a281-8969011e9b60` StrReplace on `PLAN.md` obligation dispositions; slice 3 refactor agent `0cd7202d-f29e-40e0-ab22-04639b9e1a74` Write of `PLAN.md` to 193 lines with a one-row table for G1–G5 instead of the structured obligation sections
+  - Observed effect: two coordinator restores of Story obligations before successful fresh delivery; no obligation loss in the published commits after restore
+  - Inference: qualified. Distinct from DD-348 (joined skill prose): here the gate lands on planning evidence the coordinator owns for delivery. Whether excluding `PLAN.md` from the size check, or forbidding obligation rewrite, is the durable fix stays open.
