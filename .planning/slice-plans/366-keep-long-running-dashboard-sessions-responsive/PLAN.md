@@ -236,11 +236,12 @@ flow control.
 
 ### 4. Publish completed Running Cursor observations under bounded demand
 Type: Behavior
-Status: planned
-Proof: Extend or add a Playwright journey using the real page and held/slow
-`/sessions` fulfills (build on `cursor-runner-sessions.spec.ts` /
-`cursorRunnerHeldReads.ts`) so answers slower than the poll gap still publish
-and outstanding request count stays bounded; collapse ends further owned reads.
+Status: done
+Proof: Accepted —
+`env -u NO_COLOR FORCE_COLOR=0 npm run test:dashboard -- dashboard/tests/cursor-runner-sessions.spec.ts dashboard/tests/cursor-runner-sessions-demand.spec.ts --reporter=list`
+(8 passed). Slow >50 ms fulfills publish under at most one owned read; collapse
+ends demand; visibility pause/resume works; existing follow journeys green.
+Bounded-demand journey lives in `cursor-runner-sessions-demand.spec.ts`.
 
 Behavior: The Running Cursor section is expanded and each valid read takes
 longer than 50 ms → completed observations appear and the UI does not remain on

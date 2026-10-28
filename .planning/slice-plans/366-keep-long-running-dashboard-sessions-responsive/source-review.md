@@ -12,15 +12,15 @@ only.
 | --- | --- | --- | --- |
 | 1 | Memory retained for diagnostics stays bounded for a fixed working set | slice 1 | observed: `dashboard/tests/boundary/live-terminal-diagnostic-capture.spec.ts` — retained/`processExit` ≤ 256 KiB useful tail |
 | 2 | Memory retained for cached repository text stays bounded for a fixed working set | slice 5 | |
-| 3 | Memory retained for pending terminal/session observations stays bounded for a fixed working set | slice 4 | |
-| 4 | Session observations progress (do not stall indefinitely under the retention/observation mechanisms in scope) | slice 4 | |
+| 3 | Memory retained for pending terminal/session observations stays bounded for a fixed working set | slice 4 | observed: `cursor-runner-sessions-demand.spec.ts` — peak outstanding reads = 1 |
+| 4 | Session observations progress (do not stall indefinitely under the retention/observation mechanisms in scope) | slice 4 | observed: demand journey leaves Reading and publishes held row; follow journeys green |
 | 5 | The terminal header's controls remain usable | slice 6 | |
 | 6 | Done reports a truthful outcome or an explicit unresolved operation, rather than silently remaining disabled indefinitely | slice 6 | |
 | 7.1 | Resolve lifetime raw PTY capture | slice 1 | observed: `TerminalDiagnosticCapture.retain` / `LiveTerminalClient.releaseDiagnosticCapture`; probe above |
 | 7.2 | Resolve stale revision text | slice 5 | |
 | 7.3 | Resolve output/screen queue pressure | slice 3 | observed: `kept-client-screen-write-queue.spec.ts` — busy+quiet `held()` ~17 ms under 500 ms |
 | 7.4 | Resolve unnecessary startup observation after its job ends | slice 2 | observed: `launch-instruction-observation.spec.ts` — after entry+announce, 512 chunks add 0 readiness checks |
-| 7.5 | Resolve overlapping Cursor-session polling that discards every slow success | slice 4 | |
+| 7.5 | Resolve overlapping Cursor-session polling that discards every slow success | slice 4 | observed: sequential in-flight demand in `RunningCursorSessions.tsx`; slow answers publish |
 | 8.1 | Trace partial-control far enough to distinguish a stalled main thread | slice 6 | |
 | 8.2 | Trace partial-control far enough to distinguish a pending/failed request | slice 6 | |
 | 8.3 | Trace partial-control far enough to distinguish confirmation state | slice 6 | |
@@ -37,11 +37,11 @@ only.
 | 13.1 | Uneven multi-client output: session-observation path remains within its declared bound | slice 3 | observed: write-queue `held()` within 500 ms under 64 KiB/2048-chunk busy sibling |
 | 13.2 | Reflects coherent completed screens | slice 3 | observed: quiet sibling coherent and kept in write-queue probe |
 | 13.3 | Recovers without treating a still-running client as stopped | slice 3 | observed: busy client remains kept after burst in write-queue probe |
-| 14.1 | Expanded Running Cursor with slow reads: completed observations appear | slice 4 | |
-| 14.2 | Outstanding demand stays bounded | slice 4 | |
-| 14.3 | Collapse or departure ends owned demand | slice 4 | |
-| 14.4 | Background/return behavior preserves recovery | slice 4 | |
-| 14.5 | 38-request/37-answer reproduction must no longer stay on Reading indefinitely | slice 4 | |
+| 14.1 | Expanded Running Cursor with slow reads: completed observations appear | slice 4 | observed: `cursor-runner-sessions-demand.spec.ts` publishes held row after >50 ms fulfills |
+| 14.2 | Outstanding demand stays bounded | slice 4 | observed: peak outstanding owned reads = 1 in demand journey |
+| 14.3 | Collapse or departure ends owned demand | slice 4 | observed: collapse stops further owned reads in demand journey |
+| 14.4 | Background/return behavior preserves recovery | slice 4 | observed: hide pauses starts; show recovers in demand journey |
+| 14.5 | 38-request/37-answer reproduction must no longer stay on Reading indefinitely | slice 4 | observed: demand journey leaves Reading with completed observation |
 | 15.1 | Repository text past byte budget: old entries can be evicted and reread | slice 5 | |
 | 15.2 | Current snapshot remains revision-correct | slice 5 | |
 | 15.3 | Post-GC retained memory plateaus for the fixed test working set | slice 5 | |

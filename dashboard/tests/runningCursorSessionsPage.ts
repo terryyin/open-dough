@@ -7,15 +7,59 @@ import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { parts } from "./dashboardPage.ts";
 import { box, expectInside } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
-import { expect } from "./support/cursorStart.ts";
+import { expect, test as cursorTest } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import type { FakeCursor } from "./support/fakeCursor.ts";
+import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 
 export const instruction = "hold this session";
+
+type CursorScreen = "working" | "waiting" | "trust";
+
+// Cursor fixture for Running Cursor journeys; screen options match the
+// labels the section shows for held clients.
+export function withRunningCursor(options?: {
+  readonly screen?: CursorScreen;
+  readonly becomeReady?: boolean;
+}) {
+  return cursorTest.extend<{ cursor: FakeCursor }>({
+    // eslint-disable-next-line no-empty-pattern
+    cursor: async ({}, use) => {
+      const cursor = installFakeCursor(options);
+      await use(cursor);
+      cursor.cleanup();
+    },
+  });
+}
+
+// Opens the published project and waits until the held session is also the
+// project's local Taken entry.
+export async function showPageWithTaken(
+  page: Page,
+  origin: StartOrigin,
+): Promise<void> {
+  await showPage(page, origin);
+  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+}
+
+// The runner's own held-sessions answer, used as a route precondition.
+export async function heldSessionsAnswer(
+  page: Page,
+  dashboard: DashboardServer,
+): Promise<unknown> {
+  const answered = await page.request.get(
+    `${dashboard.baseURL}${cursorRunnerSessionsEndpoint}`,
+    { headers: { Origin: dashboard.baseURL } },
+  );
+  expect(answered.ok()).toBe(true);
+  const held: unknown = await answered.json();
+  expect(held).toMatchObject({ runner: "running" });
+  return held;
+}
 
 // Launches an ad hoc Cursor session the runner holds; returns its client's
 // process.

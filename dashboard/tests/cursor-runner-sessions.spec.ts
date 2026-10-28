@@ -2,45 +2,25 @@
 // Choosing a listed row opens that same client. An absent/unreachable runner
 // lists nothing and starts no agent. Expanded reading follows each later answer,
 // showing reading until answered and restoring rows after a successful read.
-import type { Page } from "@playwright/test";
+// Bounded slow-answer demand lives in ./cursor-runner-sessions-demand.spec.ts.
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  heldSessionsAnswer,
   holdSession,
   instruction,
   openRunningList,
-  showPage as showProject,
+  showPageWithTaken,
+  withRunningCursor,
 } from "./runningCursorSessionsPage.ts";
 import { expect, test as cursorTest } from "./support/cursorStart.ts";
-import type { StartOrigin } from "./support/startOrigin.ts";
-import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import { occupyRunner } from "./support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../server/hosts/cursor/runnerClient.ts";
 
 type Screen = "working" | "waiting" | "trust";
 
-function withCursor(options?: {
-  readonly screen?: Screen;
-  readonly becomeReady?: boolean;
-}) {
-  return cursorTest.extend<{ cursor: FakeCursor }>({
-    // eslint-disable-next-line no-empty-pattern
-    cursor: async ({}, use) => {
-      const cursor = installFakeCursor(options);
-      await use(cursor);
-      cursor.cleanup();
-    },
-  });
-}
-
 function withScreen(screen: Screen) {
-  return withCursor({ screen });
-}
-
-// The page also lists the held session as the project's local Taken entry.
-async function showPage(page: Page, origin: StartOrigin): Promise<void> {
-  await showProject(page, origin);
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  return withRunningCursor({ screen });
 }
 
 const held = [
@@ -71,7 +51,7 @@ for (const { screen, label, terminal } of held) {
   }) => {
     test.setTimeout(120_000);
     const pid = await holdSession(dashboard, cursor);
-    await showPage(page, origin);
+    await showPageWithTaken(page, origin);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
     await expect(shownTerminal).toHaveCount(0);
     const { sidebar, region } = await openRunningList(page);
@@ -98,7 +78,7 @@ for (const { screen, label, terminal } of held) {
   });
 }
 
-const followUp = withCursor({ screen: "working", becomeReady: true });
+const followUp = withRunningCursor({ screen: "working", becomeReady: true });
 followUp(
   "the follow-up prompt is listed on the client the runner still holds",
   async ({ page, dashboard, origin, cursor }) => {
@@ -106,7 +86,7 @@ followUp(
     // Working keeps the client. The ordinary prompt is what that same client
     // becomes, and the runner keeps holding that screen.
     const pid = await holdSession(dashboard, cursor);
-    await showPage(page, origin);
+    await showPageWithTaken(page, origin);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
     await expect(shownTerminal).toHaveCount(0);
     const { region } = await openRunningList(page);
@@ -130,7 +110,7 @@ refused(
   async ({ page, dashboard, origin, cursor }) => {
     refused.setTimeout(120_000);
     await holdSession(dashboard, cursor);
-    await showPage(page, origin);
+    await showPageWithTaken(page, origin);
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     await stopCursorRunner(dashboard.home);
@@ -151,7 +131,7 @@ refused(
   async ({ page, dashboard, origin, cursor }) => {
     refused.setTimeout(120_000);
     await holdSession(dashboard, cursor);
-    await showPage(page, origin);
+    await showPageWithTaken(page, origin);
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     await stopCursorRunner(dashboard.home);
@@ -181,13 +161,7 @@ feedback(
     const pid = await holdSession(dashboard, cursor);
     // The runner's own answer for the held session; the replies below are
     // what the page's reads are given, preconditions only.
-    const answered = await page.request.get(
-      `${dashboard.baseURL}${cursorRunnerSessionsEndpoint}`,
-      { headers: { Origin: dashboard.baseURL } },
-    );
-    expect(answered.ok()).toBe(true);
-    const held: unknown = await answered.json();
-    expect(held).toMatchObject({ runner: "running" });
+    const held = await heldSessionsAnswer(page, dashboard);
     const replies = {
       held,
       unreachable: { runner: "unreachable", sessions: [] },
@@ -198,7 +172,7 @@ feedback(
     const reading = new Promise<void>((resolve) => {
       release = resolve;
     });
-    await showPage(page, origin);
+    await showPageWithTaken(page, origin);
     const calls = cursor.calls().length;
     await page.route(
       (url) => url.pathname === cursorRunnerSessionsEndpoint,

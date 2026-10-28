@@ -22,9 +22,10 @@ import { projectLabel, useProjects } from "./projectList.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 
-// Often enough to name the screen the runner still holds. The follow-up
-// prompt keeps that process.
-const refreshMs = 50;
+// Minimum gap after a settled read before the next owned ask. The follow-up
+// prompt keeps that process; slow answers still publish because demand never
+// overlaps.
+const askGapMs = 50;
 
 type Listed = RunningCursorSessions | "unanswered";
 
@@ -66,21 +67,53 @@ export function RunningCursorSessions({
   const projects = useProjects();
   const contentId = useId();
   const [listed, setListed] = useState<Listed | undefined>();
+  // At most one owned read while the sidebar and section are open. Schedule
+  // the next only after the prior settles (askGapMs gap); collapse, sidebar
+  // close, or unmount ends owned demand; a hidden document pauses further
+  // asks until it is seen again.
   useEffect(() => {
     if (!shown || !open) return;
     let current = true;
-    let latest = 0;
-    const read = () => {
-      const mine = ++latest;
-      void readRunningCursorSessions().then((answer) => {
-        if (current && mine === latest) setListed(answer ?? "unanswered");
-      });
+    let waiting: ReturnType<typeof setTimeout> | undefined;
+    let owned: Promise<void> | undefined;
+    const pageHidden = () => document.visibilityState === "hidden";
+    const clearWaiting = () => {
+      if (waiting === undefined) return;
+      clearTimeout(waiting);
+      waiting = undefined;
     };
-    read();
-    const timer = setInterval(read, refreshMs);
+    const scheduleNext = () => {
+      clearWaiting();
+      if (!current || pageHidden()) return;
+      waiting = setTimeout(() => {
+        waiting = undefined;
+        demand();
+      }, askGapMs);
+    };
+    const demand = () => {
+      if (!current || owned !== undefined || pageHidden()) return;
+      owned = readRunningCursorSessions()
+        .then((answer) => {
+          if (current) setListed(answer ?? "unanswered");
+        })
+        .finally(() => {
+          owned = undefined;
+          if (current) scheduleNext();
+        });
+    };
+    const onVisibility = () => {
+      if (pageHidden()) {
+        clearWaiting();
+        return;
+      }
+      if (owned === undefined) demand();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    demand();
     return () => {
       current = false;
-      clearInterval(timer);
+      clearWaiting();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [shown, open]);
   const sessions =
