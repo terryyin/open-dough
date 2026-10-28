@@ -327,3 +327,11 @@ Reported: slice 1 — "Outside this story: a dashboard-wide rewrite"
 Story clause: "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
 Disposition: excluded "A general performance dashboard, production telemetry service, vendor-agent memory optimization, session-retention policy redesign, or a dashboard-wide rewrite is outside this story."
 Commitment: 25.5
+
+## Execution complete
+
+Product advice: no change. Aligned with measured mechanisms → bounded
+responses; deferred WebSocket parse-ack correctly stayed out after slice 3 met
+budget. Multi-hour native incident reproduction remains optional evidence, not
+a new promise. Leave wrap-up and queue edits to story wrap-up. Conclusions
+remain conditional on unresolved CI for tip `0d1672f7`.

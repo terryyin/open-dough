@@ -55,6 +55,16 @@ Former local code: DD-155. Concurrent unpublished plan allocation produces two q
 
 Former local code: DD-192. Every small slice launches a fresh full refactor agent even when the accepted diff needs no further changes, creating substantial repeated cost. [Evidence and current response](docs/maintainer/findings/ODF-141.md).
 
+### Occurrences
+
+- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; plan `.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
+  - Timestamp: 2026-10-28T21:34:58+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.73
+  - Evidence: coordinator transcript `526c01b7-1fb2-4f61-9a8a-64275b27fbb6` — six per-slice `dough-post-change-refactor` Task launches; slices 2, 3, and 5 returned “none — already clean”; slices 1, 4, and 6 made useful edits
+  - Observed effect: three of six mandatory refactor agents edited nothing after reading the accepted slice diffs
+  - Inference: same fixed per-slice refactor cost as ODF-141; mixed payoff on a six-behavior bounded-memory plan
+
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
 Former local code: DD-215. After its call is interrupted, a delegated agent continues, commits and pushes its slice despite a no-commit delegation, leaving two writers in one checkout. [Evidence and current response](docs/maintainer/findings/ODF-204.md).
@@ -130,6 +140,16 @@ Former local code: DD-260. Repair quiescence checks only writers, so stashing an
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
 
 Former local code: DD-261. A reported GitHub transport failure ends observation and leaves later revisions without notification coverage. [Evidence and current response](docs/maintainer/findings/ODF-121.md).
+
+### Occurrences
+
+- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; plan `.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
+  - Timestamp: unknown (around slice-5 accept near `c467f720` 2026-10-28T22:07:05+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.73
+  - Evidence: coordinator transcript `526c01b7-1fb2-4f61-9a8a-64275b27fbb6` L56–L57 — `CI_MONITOR_UNAVAILABLE` (GitHub unreachable); continued; later attached `/tmp/dough-ci-501/watch-gFrx9R`
+  - Observed effect: lost observation coverage once mid-execution; re-attach restored coverage for later publications including accepted tip `0d1672f7`
+  - Inference: same transient-transport ending as ODF-121; managed re-attach limited the gap to already-published revisions
 
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
