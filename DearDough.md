@@ -487,7 +487,7 @@ that the fresh-delivery preparation refused; selective `npm run format` does not
 cover Markdown, so the defect reached the first guarded delivery.
 
 ### Occurrences
-- Execution: SEED-157#check-stalled-delegated-verification, plan `.planning/slice-plans/363-check-stalled-delegated-verification/PLAN.md`, first related implementation commit `cd30010f9044cf703596a58e98a494e610cc6f2d`
+- Execution: SEED-157#check-stalled-delegated-verification; plan and source-review recoverable at before-cleanup `e8e841c8e15d23db9f8d9e4d86923d134294992b` (`.planning/slice-plans/363-check-stalled-delegated-verification/`); first related implementation commit `cd30010f9044cf703596a58e98a494e610cc6f2d`
   - Timestamp: unknown (2026-10-28; first fresh-delivery attempt before accepted `cd30010` at 16:19:23+08:00)
   - Tool: Cursor
   - Open Dough release: 0.3.73

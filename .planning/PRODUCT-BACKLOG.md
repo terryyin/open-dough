@@ -18,8 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Check stalled delegated verification before observation coverage lapses](seeds/SEED-157-check-stalled-delegated-verification.md#check-stalled-delegated-verification) — SEED-157#check-stalled-delegated-verification ([plan](slice-plans/363-check-stalled-delegated-verification/PLAN.md))
-
 ## Backlog list
 
 - [Publish source for hosted proof without marking its slice complete](seeds/SEED-158-publish-awaiting-hosted-proof.md#publish-awaiting-hosted-proof) — SEED-158#publish-awaiting-hosted-proof
