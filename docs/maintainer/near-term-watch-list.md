@@ -1,15 +1,16 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-10-25","reviewAfter":"2026-11-01"}
+{"schemaVersion":1,"reviewed":"2026-10-28","reviewAfter":"2026-11-04"}
 ```
 
-Reviewed 2026-10-25 (Asia/Tokyo): all three selected process-feedback sources —
-Open Dough, Doughnut and Pygardon — reviewed after local maintenance. Terry
-Talks and Lizard are outside the shared source set because process retrospective
-is off; their absent logs are not missing-source gaps. Production inventory was
-rechecked unchanged. Only attributable use, seven calendar days and absence of
-unresolved contrary evidence support retirement; delivery alone is insufficient.
+Reviewed 2026-10-28 (Asia/Singapore): Open Dough, Doughnut, Pygardon and
+newly enabled Lizard post-local records reviewed; production inventory rechecked
+unchanged. Terry Talks is outside shared collection because process retrospective
+is off and has no local findings record. ODF-201's consequential unknown-release
+contrary report remains unresolved; elapsed time does not pass this watch.
+Lizard's missing observer-identity receipt is separately retained as ODF-376,
+not an inferred failure or success of durable batch acknowledgment. No retirement.
 
 <a id="odf-201"></a>
 

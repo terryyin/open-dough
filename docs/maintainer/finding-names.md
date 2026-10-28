@@ -1,42 +1,54 @@
 # Finding names and current follow-up
 
-Reviewed 2026-10-25 (Asia/Tokyo) under the combined feedback-maintenance invocation.
-Local maintenance completed for all five maintained projects. Shared-source
-coverage is complete for Open Dough, Doughnut and Pygardon; Terry Talks and
-Lizard are skipped because process retrospective is off. Thirty new identities
-ODF-325–354 retain the supplied mechanisms and provenance, alongside missing
-occurrences for existing identities. Repeated effects of one project/execution
-count once. Unknown releases remain unknown.
+Reviewed 2026-10-28 (Asia/Singapore) under the combined feedback-maintenance
+invocation. Local maintenance was assessed first for all five configured
+projects. Terry Talks has no local findings record and its missing process
+setting skips shared collection; no local pass or watch success is inferred.
+Open Dough, Doughnut, Pygardon and newly enabled Lizard supply the four shared
+sources. Production inventory was rechecked unchanged. Unknown execution
+releases and local/shared responsibility limits remain explicit.
 
-Selected shared responses: ODF-139's source-versus-plan acceptance recurrence
-first, then ODF-354's late discovery of human amendments. The former is a verified
-failure after the source-only response and led to a correction story; the latter
-caused a reverted closure, a semantic merge and three further slices. The
-strongest alternatives are ODF-150/287's consumer/proof gaps and ODF-340's
-compound-proof omission: consumer tracing already has a delivered response whose
-application and separate noise mechanisms need observation, the broad fake-boundary
-problem lacks an equally bounded new response, and ODF-340's expensive missing
-alternative was caught before delivery. ODF-326's roughly 40k-token repeated
-source review is retained with mixed benefit/independence evidence; token cost
-alone does not outrank demonstrated behavioral drift. ODF-351's modeling result
-has an adopted local owner decision and adverse sensitivity; it is not a second
-local policy implementation. Existing Taken work, unselected order and direction
-are preserved. No improvement story is implemented by this review.
+Reconciliation retained 22 new identities ODF-355–376 and missing distinct
+execution evidence under existing owners, including ODF-218 and ODF-275.
+An execution appearing in several findings or both a source index and linked
+record counts once in a synthesized ranking. Local test/assessor and host-script
+repairs were retired with exact original recovery in the local-phase commits;
+Lizard's local shell entry and Pygardon's local test-process containment each
+have one queued response. Shared collection preserves those local stories.
 
-Verified containing releases supersede eight stale release assessments.
-Eligible ordinary-use counterevidence is connected at ODF-139 and ODF-150;
-conditional candidates and precise unmet requests remain at their finding owners.
-The extra work was one targeted pass over open requests, seven encountered
-execution/response candidates, tagged implementation containment and targeted
-recovered source/plan reads; no new native runs or suites. Marginal time/tokens
-were not isolated, so no net-saving claim is made. Other encountered executions
-meet no additional checkable observation request; generic "effectiveness
-unverified" labels without an event condition are not invented requests.
+Selected shared responses: ODF-369's stalled delegated verification first,
+then ODF-275's publication-before-hosted-proof cycle. One 32-hour wait consumed
+about 20 CPU-hours and lost CI coverage until the owner asked; it outweighs
+routine mechanical retries. Three distinct Lizard executions demonstrate the
+second response's recurring manual-publication boundary, alongside the older
+Pygardon evidence. The strongest alternatives are ODF-358's invented completion
+notices (one corrected false evidence file; no escaping accepted product defect),
+ODF-150's persistent indirect-consumer failures (a delivered trace response and
+a broader remaining runtime-graph problem), ODF-362's two restored plan-obligation
+rewrites in one execution, and the repeated size/refactor costs. Their effects
+remain material, but are less severe or less bounded than the selected pair.
+No improvement is implemented; direction, Taken membership and unselected order
+are preserved.
 
-Three watches retire after verified use, more than seven calendar days and
-complete selected-source review; reasons and exact recovery are in the
-maintenance commit. ODF-201 remains for its consequential provenance-limited
-contrary report. The next review is due 2026-11-01; no automation was changed.
+Actual source/tag containment establishes 0.3.73 for the latest source-review,
+review-reuse, human-amendment and scratch-directory responses. They need
+ordinary qualifying use, not duplicate implementation stories. Observation
+checking connected one existing Pygardon execution as counterevidence at
+ODF-150 and one existing Open Dough retry as a bounded result at ODF-323.
+The latter does not test a refusal after status mutation. ODF-139/354 have no
+eligible ordinary exposure to their latest response among encountered records;
+ODF-142, ODF-297 and the unknown-release startup cases still lack their named
+discriminating event/provenance. ODF-201 remains watched with its unresolved
+contrary report; no watch is retired. Exact gaps stay at their owners.
+
+Added review effort: one pass connecting encountered execution identities to
+checkable open requests, tagged source-containment reads and targeted recovered
+plan/status/CI reads. No new native sessions or application measurements were
+run for shared evaluation. Marginal time/tokens and net benefit were not
+isolated. Source compaction follows recoverable evidence commits; successful
+practice DD-346 is pruned as low-value problem-list noise, not as a claimed fix.
+Next watch review is due 2026-11-04; no automation or dashboard configuration
+is changed.
 
 ### Previous review — 2026-10-22
 
@@ -46,7 +58,7 @@ priority decision, not a claim that discarded problems were fixed or cannot recu
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-354. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-376. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -425,3 +437,47 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-337 — [Owned deletion staging has unresolved contradictory observations](findings/ODF-337.md) <a id="odf-337"></a>
 
 ## ODF-343 — [A mutating delivery is repeated to recover diagnostics](findings/ODF-343.md) <a id="odf-343"></a>
+
+## ODF-355 — [Preparation recorded measured allocations without their full sort key](findings/ODF-355.md) <a id="odf-355"></a>
+
+## ODF-356 — [A direct formatter command in fresh delivery lacked the package's binaries](findings/ODF-356.md) <a id="odf-356"></a>
+
+## ODF-357 — [Preparation observations recorded results their own commands contradict](findings/ODF-357.md) <a id="odf-357"></a>
+
+## ODF-358 — [Coordinator wrote subagent completion notices in its own turn](findings/ODF-358.md) <a id="odf-358"></a>
+
+## ODF-359 — [A developer-run observation inside a slice's proof cannot be delivered with that slice](findings/ODF-359.md) <a id="odf-359"></a>
+
+## ODF-360 — [A new installed command assumed a writable system temp directory that host sandboxes refuse](findings/ODF-360.md) <a id="odf-360"></a>
+
+## ODF-361 — [An implementation agent met a file line limit by joining wrapped lines](findings/ODF-361.md) <a id="odf-361"></a>
+
+## ODF-362 — [Post-change refactor compressed PLAN.md Story obligations under the file-size gate](findings/ODF-362.md) <a id="odf-362"></a>
+
+## ODF-363 — [A plan premise about a sibling Taken story's effect was false when that story landed before the Take](findings/ODF-363.md) <a id="odf-363"></a>
+
+## ODF-364 — [A plan deferred API client generation past the slices that added routes, against the project's CI check](findings/ODF-364.md) <a id="odf-364"></a>
+
+## ODF-365 — [A page slice's plan omitted the reload its own generate journey needed](findings/ODF-365.md) <a id="odf-365"></a>
+
+## ODF-366 — [A delegation brief named the "complete" pytest command as a broad check within a slice](findings/ODF-366.md) <a id="odf-366"></a>
+
+## ODF-367 — [Slice briefs carried only the plan's proof minimum, so story qualifications returned at acceptance](findings/ODF-367.md) <a id="odf-367"></a>
+
+## ODF-368 — [A plan nested its slices under Current decisions, so guarded delivery could not mark them done](findings/ODF-368.md) <a id="odf-368"></a>
+
+## ODF-369 — [A delegated broad test run with no external time bound busy-spun for 32 hours while the coordinator waited](findings/ODF-369.md) <a id="odf-369"></a>
+
+## ODF-370 — [A brief's "ownership: only these paths" made a refactor pass revert coherent edits](findings/ODF-370.md) <a id="odf-370"></a>
+
+## ODF-371 — [Slice acceptance checked each example's trigger but not a once-only reading made repeating](findings/ODF-371.md) <a id="odf-371"></a>
+
+## ODF-372 — [A "pre-existing failure" baseline was taken after earlier slices of the same execution](findings/ODF-372.md) <a id="odf-372"></a>
+
+## ODF-373 — [A correction slice reopened the defect class an earlier slice of the same correction had closed](findings/ODF-373.md) <a id="odf-373"></a>
+
+## ODF-374 — [A source-only review inherited execution context and became a product review](findings/ODF-374.md) <a id="odf-374"></a>
+
+## ODF-375 — [Guarded fresh delivery refused directory paths listed in ownedPaths](findings/ODF-375.md) <a id="odf-375"></a>
+
+## ODF-376 — [Codex stream can yield before exposing observer identity](findings/ODF-376.md) <a id="odf-376"></a>
