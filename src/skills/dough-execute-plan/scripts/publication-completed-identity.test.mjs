@@ -186,3 +186,31 @@ for (const publisher of ["history", "execution", "resume"]) {
     assert.equal(await lsRemoteSha(fixture.origin, main), fixture.candidate);
   });
 }
+
+test("ordinary publication accepts legacy backlog text beside only an empty done catalog", async (t) => {
+  const fixture = await createCleanTrunkFixture();
+  t.after(fixture.cleanup);
+  const { execution, origin, trunkSha } = fixture;
+  const file = "delivery/custom.md";
+  mkdirSync(join(execution, "delivery/done"), { recursive: true });
+  writeFileSync(
+    join(execution, file),
+    "# Retained backlog\n\nReviewed draft.\n",
+  );
+  writeFileSync(
+    join(execution, "delivery/done/.catalog.json"),
+    '{"schemaVersion":1,"records":[],"unreadable":[]}\n',
+  );
+  await git(execution, "add", "delivery");
+  await git(execution, "commit", "-m", "retain reviewed backlog draft");
+  const candidate = await revParse(execution, "HEAD");
+  const result = await publishExecutionIncrement({
+    workspace: execution,
+    branch,
+    previouslyPublishedBase: trunkSha,
+    targetRef: main,
+    backlogPath: file,
+  });
+  assert.equal(result.receipt?.sha, candidate);
+  assert.equal(await lsRemoteSha(origin, main), candidate);
+});

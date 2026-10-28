@@ -30,7 +30,12 @@ export async function completedIdentityStop({
   // Execute Plan remains loadable alone when the project has no backlog.
   const [
     { parseBacklog },
-    { doneRecordPath, doneRecordDirectory, requireUncompletedIdentity },
+    {
+      doneRecordPath,
+      doneRecordDirectory,
+      isDoneRecordFileName,
+      requireUncompletedIdentity,
+    },
     { BacklogError },
   ] = await Promise.all([
     import("../../dough-product-backlog/scripts/product-backlog-document.mjs"),
@@ -38,6 +43,7 @@ export async function completedIdentityStop({
     import("../../dough-product-backlog/scripts/product-backlog-refusal.mjs"),
   ]);
   const directory = posix.dirname(backlogPath);
+  const recordDirectory = posix.join(directory, doneRecordDirectory);
   const files = new Set(
     (
       await git(
@@ -48,10 +54,17 @@ export async function completedIdentityStop({
         "-z",
         candidate,
         "--",
-        posix.join(directory, doneRecordDirectory),
+        recordDirectory,
       )
-    ).stdout.split("\0"),
+    ).stdout
+      .split("\0")
+      .filter(
+        (file) =>
+          posix.dirname(file) === recordDirectory &&
+          isDoneRecordFileName(posix.basename(file)),
+      ),
   );
+  if (files.size === 0) return null;
   const source = (await git(workspace, "show", `${candidate}:${backlogPath}`))
     .stdout;
   for (const { identity, list } of parseBacklog(source).entries) {
