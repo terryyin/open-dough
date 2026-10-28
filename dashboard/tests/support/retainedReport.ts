@@ -1,4 +1,5 @@
 // Vendor report payload and privately retired workspace for real dashboard journeys.
+import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
   readFileSync,
@@ -6,6 +7,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
@@ -130,6 +132,77 @@ export async function recordedCursor(
   record.completion = completionReport({ message });
   save(dashboard.home, [record]);
   return { record, workspace };
+}
+
+// A minimal repository whose remote-tracking target contains a backlog without
+// `identity`, so tracked-execution closure readability holds for a planted landing.
+export function plantTrackedClosureRepository(repository: string): {
+  readonly revision: string;
+} {
+  mkdirSync(path.join(repository, ".planning"), { recursive: true });
+  execFileSync("git", ["init", "-b", "main"], { cwd: repository });
+  writeFileSync(
+    path.join(repository, ".planning", "PRODUCT-BACKLOG.md"),
+    "# Product backlog\n\n## Taken\n\n## Backlog list\n",
+  );
+  const git = (...args: string[]) =>
+    execFileSync("git", args, { cwd: repository }).toString().trim();
+  git("add", ".");
+  git(
+    "-c",
+    "user.email=fixture@example",
+    "-c",
+    "user.name=fixture",
+    "commit",
+    "-m",
+    "closed",
+  );
+  const revision = git("rev-parse", "HEAD");
+  git("update-ref", "refs/remotes/origin/main", revision);
+  return { revision };
+}
+
+// Retained landing plus claimed start so panel composition and quiet-Done
+// admission reuse existing tracked-execution closure-gate facts without inventing
+// a parallel owner. Identity stays the launch's own story identity.
+export function keepTrackedClosureEvidence(
+  record: LaunchRecord,
+  repository: string,
+  revision: string,
+  workspace: string,
+): LaunchRecord {
+  if (!("identity" in record.request)) {
+    throw new Error(
+      "Tracked closure fixture requires a story-identity launch request",
+    );
+  }
+  const identity = record.request.identity;
+  return {
+    ...record,
+    request: { ...record.request, workflow: "execution" },
+    start: {
+      identity,
+      publisherId: "closure-fixture",
+      workspace,
+      branch: "cursor/retired",
+      mode: "story-branch",
+      remote: "origin",
+      target: "main",
+      publishedSha: "a".repeat(40),
+    },
+    landing: {
+      reference: randomUUID(),
+      delivery: randomUUID(),
+      receipt: randomUUID(),
+      repository,
+      identity,
+      remote: "origin",
+      target: "refs/heads/main",
+      base: revision,
+      revision,
+      receivedAt: "2026-10-01T10:00:00.000Z",
+    },
+  };
 }
 export function passive(native: FakeCodex, since: number) {
   expect(

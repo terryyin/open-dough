@@ -1,11 +1,12 @@
 // A claimed Story Branch Mode launch has one landing
 // (../../server/launchLandingReservation.ts). Once its trunk integration is
-// recorded, a later trunk publication of the same launch, such as a repair,
-// is made without the landing context as the launch's instruction directs
-// (../../server/reportingInstruction.ts): trunk accepts it and the launch record
-// keeps the first pair. The same publication with the context is refused
-// before its push. Raw HTTP against the real installed start and a real bare
-// origin (../support/startOrigin.ts) with the synthetic `claude`.
+// recorded (first publish may omit --landing-context when an open expectation
+// supplies the prepared path), a later trunk publication of the same launch,
+// such as a repair, is made without the landing context as the launch's
+// instruction directs (../../server/reportingInstruction.ts): trunk accepts it
+// and the launch record keeps the first pair. The same publication with the
+// context is refused before its push. Raw HTTP against the real installed start
+// and a real bare origin (../support/startOrigin.ts) with the synthetic `claude`.
 
 import { expect, test } from "../support/pageTest.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -16,6 +17,7 @@ import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
 } from "../support/storyBranchIntegration.ts";
+import { openFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.setTimeout(120_000);
 
@@ -32,7 +34,7 @@ test.afterEach(async () => {
   origin.cleanup();
 });
 
-test("after the recorded integration, a later trunk publication is accepted without the landing context and the launch keeps its first pair", async () => {
+test("after the recorded integration from an open expectation, a later trunk publication is accepted without landing and the launch keeps its first pair", async () => {
   const { workspace, branch, trunkTip, ...story } =
     await claimedLaunchWithStoryCommit(origin, server);
   const integrated = capturedPublicationSchema.parse(await story.integrated());
@@ -47,6 +49,16 @@ test("after the recorded integration, a later trunk publication is accepted with
     revision: accepted,
     receipt: integrated.landing.receipt.receipt,
   });
+  const repository = git(
+    origin.project,
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir",
+  );
+  // Accepted capture cleared the expectation so a later omit takes no landing.
+  await expect(
+    openFirstLandingExpectation({ repository, workspace, branch }),
+  ).resolves.toBeUndefined();
 
   const repair = story.laterTrunkPublication("repair.txt");
 

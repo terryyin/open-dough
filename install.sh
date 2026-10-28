@@ -123,6 +123,11 @@ managed_files=(
   dough-slice-plan-refinement/SKILL.md
   dough-execute-plan/scripts/dashboard-completion.mjs
   dough-execute-plan/scripts/dashboard-landing.mjs
+  dough-execute-plan/scripts/first-landing-expectation.mjs
+  dough-execute-plan/scripts/resolve-publication-landing-context.mjs
+  dough-execute-plan/scripts/execution-increment-publication-support.mjs
+  dough-execute-plan/scripts/history-preserving-publish.mjs
+  dough-execute-plan/scripts/publication-resume-support.mjs
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json

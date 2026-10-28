@@ -27,6 +27,7 @@ import {
 } from "./support/retainedReport.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import { markAsDone, markDone } from "./support/markDone.ts";
+import { workspaceMissing } from "../src/sessionAccess.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
@@ -167,7 +168,7 @@ for (const context of ["preparation", "start"] as const) {
   });
 }
 
-test("missing Claude workspace without retained report explains the limitation without waking", async ({
+test("missing Claude workspace with quiet empty completion keeps report and directory facts independent without waking", async ({
   page,
   dashboard,
 }) => {
@@ -180,11 +181,16 @@ test("missing Claude workspace without retained report explains the limitation w
     .getByRole("button", { name: "Read final report" })
     .click();
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel).toContainText("No retained final report is available.");
+  await expect(panel).toContainText(
+    "Quiet completion was recorded with no attention message.",
+  );
   await expect(panel).toContainText(
     "Claude Code cannot read a native final report here.",
   );
-  await expect(panel).toContainText("saved workspace is missing");
+  await expect(panel).toContainText(workspaceMissing);
+  await expect(panel).not.toContainText(
+    "No retained final report is available.",
+  );
   await expect(panel.locator(".final-report-text")).toHaveCount(0);
   expect(dashboard.claudeAttaches()).toEqual([]);
   expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);

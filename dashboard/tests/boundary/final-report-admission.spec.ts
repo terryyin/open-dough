@@ -1,7 +1,14 @@
 // Passive final report requests admit only a catalog project's recorded native identity.
+import path from "node:path";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { rawRequest } from "../support/rawHttp.ts";
-import { report, retained, save } from "../support/retainedReport.ts";
+import {
+  keepTrackedClosureEvidence,
+  plantTrackedClosureRepository,
+  report,
+  retained,
+  save,
+} from "../support/retainedReport.ts";
 import { completionReport } from "../support/completionReport.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -29,9 +36,11 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   const cursorCompletion = completionReport({ message: attention });
   const cursorSessionId = "22222222-2222-4222-8222-222222222222";
   const cursorEmptySessionId = "33333333-3333-4333-8333-333333333333";
+  const cursorAbsentSessionId = "44444444-4444-4444-8444-444444444444";
+  const cursorClosureSessionId = "55555555-5555-4555-8555-555555555555";
   const cursorRecord = (
     sessionId: string,
-    completion: typeof cursorCompletion,
+    completion: typeof cursorCompletion | undefined,
   ) => ({
     ...record,
     session: {
@@ -45,10 +54,20 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
     },
     completion,
   });
+  const closureRepository = path.join(dashboard.home, "closure-repository");
+  const { revision } = plantTrackedClosureRepository(closureRepository);
+  const cursorWithClosure = keepTrackedClosureEvidence(
+    cursorRecord(cursorClosureSessionId, undefined),
+    closureRepository,
+    revision,
+    workspace,
+  );
   save(dashboard.home, [
     ...stored(dashboard.home),
     cursorRecord(cursorSessionId, cursorCompletion),
     cursorRecord(cursorEmptySessionId, completionReport({ message: "" })),
+    cursorRecord(cursorAbsentSessionId, undefined),
+    cursorWithClosure,
   ]);
   const since = native.calls.length;
   const query = new URLSearchParams({
@@ -154,7 +173,34 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   expect(JSON.parse(cursorEmpty.body)).toEqual({
     kind: "unavailable",
     explanation:
-      "No retained final report is available. Cursor cannot read a native final report here. The saved conversation is unchanged.",
+      "Quiet completion was recorded with no attention message. Cursor cannot read a native final report here. The saved conversation is unchanged.",
+  });
+  const cursorAbsent = await request(
+    new URLSearchParams({
+      source: "open-dough",
+      host: "cursor",
+      session: cursorAbsentSessionId,
+    }),
+  );
+  expect(cursorAbsent.status).toBe(200);
+  expect(JSON.parse(cursorAbsent.body)).toEqual({
+    kind: "unavailable",
+    explanation:
+      "No final dashboard message was saved. Cursor cannot read a native final report here. The saved conversation is unchanged.",
+  });
+  const cursorClosure = await request(
+    new URLSearchParams({
+      source: "open-dough",
+      host: "cursor",
+      session: cursorClosureSessionId,
+    }),
+  );
+  expect(cursorClosure.status).toBe(200);
+  expect(JSON.parse(cursorClosure.body)).toEqual({
+    kind: "unavailable",
+    explanation:
+      "No final dashboard message was saved. Cursor cannot read a native final report here. The saved conversation is unchanged.",
+    productClosureEvidence: true,
   });
   expect(nativeReads()).toBe(readsBeforeClaude);
   const answer = await request(query);

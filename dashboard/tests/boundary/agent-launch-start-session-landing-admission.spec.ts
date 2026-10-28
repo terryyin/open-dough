@@ -12,6 +12,8 @@
 // ../agent-launch-start-session-landing-context.spec.ts.
 
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keptAttempts } from "../acceptedAttempts.ts";
 import { launch } from "../agentLaunchBoundary.ts";
@@ -72,6 +74,18 @@ test("a Wait for review session carries the landing context too; a context namin
       (entry) => entry.id === plainReporting.reference,
     ),
   ).not.toHaveProperty("landingRepository");
+  // No prepared landing context means no first-landing expectation either.
+  const plainReportingDir = path.join(
+    dashboard.home,
+    ".open-dough/dashboard/reporting",
+    plainReporting.reference,
+  );
+  expect(existsSync(path.join(plainReportingDir, "landing-context.json"))).toBe(
+    false,
+  );
+  expect(
+    existsSync(path.join(plainReportingDir, "first-landing-expectation.json")),
+  ).toBe(false);
 
   const base = await originMain(origin);
   const revision = commit(session.workspace, "later.txt");

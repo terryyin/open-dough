@@ -45,6 +45,8 @@ assert_upgraded_execution_payload() {
       "${target}/${root}/dough-execute-plan/scripts/ci-direct-entry.mjs"
     cmp "${newer}/src/skills/dough-execute-plan/scripts/dashboard-landing.mjs" \
       "${target}/${root}/dough-execute-plan/scripts/dashboard-landing.mjs"
+    cmp "${newer}/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs" \
+      "${target}/${root}/dough-execute-plan/scripts/first-landing-expectation.mjs"
     for script in publication-comparison.mjs execution-increment-reconciliation.mjs; do
       cmp "${newer}/src/skills/dough-execute-plan/scripts/${script}" \
         "${target}/${root}/dough-execute-plan/scripts/${script}"

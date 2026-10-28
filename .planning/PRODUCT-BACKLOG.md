@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Reliably record quiet dashboard wrap-up after workspace retirement](seeds/SEED-163-dashboard-wrap-up-reporting.md#reliably-report-dashboard-wrap-up) — SEED-163#reliably-report-dashboard-wrap-up ([plan](slice-plans/367-reliably-report-dashboard-wrap-up/PLAN.md))
-
 ## Backlog list
 

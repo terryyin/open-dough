@@ -1,9 +1,10 @@
 // A loopback landing receiver and the context file a dashboard prepares for a
 // launch, shared by tests of the landing handoff.
 import { createServer } from "node:http";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { plantFirstLandingExpectation } from "./first-landing-expectation.mjs";
 
 export const landingReference = "6f0e3c0e-6a0c-4b54-9d0b-0d3a3f0f4c11";
 
@@ -34,8 +35,9 @@ export async function landingReceiver(t) {
 }
 
 // The context file for `origin`, in its own directory; `identity` names the
-// story, when given.
-export async function landingContextFile(t, origin, identity) {
+// story, when given. When `expectation` is set, also plant a first-landing
+// expectation beside that management context for the named workspace/branch.
+export async function landingContextFile(t, origin, identity, expectation) {
   const directory = await mkdtemp(path.join(os.tmpdir(), "landing-context-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const file = path.join(directory, "landing-context.json");
@@ -51,5 +53,14 @@ export async function landingContextFile(t, origin, identity) {
       target: "refs/heads/main",
     }),
   );
+  if (expectation !== undefined) {
+    await mkdir(expectation.repository, { recursive: true });
+    await plantFirstLandingExpectation({
+      repository: expectation.repository,
+      workspace: expectation.workspace,
+      branch: expectation.branch,
+      landingContext: file,
+    });
+  }
   return file;
 }

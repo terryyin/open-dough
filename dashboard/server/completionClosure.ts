@@ -8,17 +8,23 @@ import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/pro
 import { configuredProject } from "./projectConfiguration.ts";
 import { runGit, defaultGitOutputLimit } from "./gitRunner.ts";
 
-export async function completionClosesSession(
+// Claimed tracked execution needs published closure; other launches do not.
+function claimedTrackedExecution(
+  record: Pick<LaunchRecord, "request" | "start">,
+): boolean {
+  return (
+    record.request.workflow === "execution" &&
+    record.start !== undefined &&
+    !("tracking" in record.start)
+  );
+}
+
+// Tracked-execution product-closure evidence: retained landing and readable
+// published closure. Directory absence is never this evidence.
+export async function trackedExecutionClosureReadable(
   record: Pick<LaunchRecord, "request" | "start" | "landing">,
-  report: Pick<CompletionReport, "outcome" | "message">,
 ): Promise<boolean> {
-  if (!completedWithoutAttention(report)) return false;
-  if (
-    record.request.workflow !== "execution" ||
-    record.start === undefined ||
-    "tracking" in record.start
-  )
-    return true;
+  if (!claimedTrackedExecution(record)) return false;
   const source = configuredProject(record.request.source);
   const landing = record.landing;
   if (source === undefined || landing === undefined) return false;
@@ -45,4 +51,13 @@ export async function completionClosesSession(
     // Missing or unreadable closure evidence keeps the continuation available.
     return false;
   }
+}
+
+export async function completionClosesSession(
+  record: Pick<LaunchRecord, "request" | "start" | "landing">,
+  report: Pick<CompletionReport, "outcome" | "message">,
+): Promise<boolean> {
+  if (!completedWithoutAttention(report)) return false;
+  if (!claimedTrackedExecution(record)) return true;
+  return trackedExecutionClosureReadable(record);
 }
