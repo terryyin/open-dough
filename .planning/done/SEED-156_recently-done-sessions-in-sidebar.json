@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-156#recently-done-sessions-in-sidebar",
+  "title": "Browse recently done sessions across projects in the sidebar",
+  "completedAt": "2026-10-28T00:53:51.785Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "cursor",
+  "model": "auto"
+}
