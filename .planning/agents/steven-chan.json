@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-159#cursor-start-opens-the-session",
-  "host": "cursor",
-  "model": "grok-4.7"
-}

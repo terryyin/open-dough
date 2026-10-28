@@ -39,24 +39,52 @@ terminal resume of the same worktree reaches the composer.
 
 **Identity:** SEED-159#cursor-start-opens-the-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/001-cursor-start-opens-the-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97c639d5915ea9d3c31db73aecd6f6168eb065602858d6fca3b163ff81091ffd","plan":"0804e2d6a9adb785862d1325b6a3787731b790b6a1b58d7b46b64eebaa979bdc"}}
 ```
 
-For a person starting a Cursor refinement or execution, the start leaves
-Cursor running in that session and the first prompt delivered into it. The
-same start still works when the workspace was already trusted through a
-parent directory. When Cursor quits before the prompt is delivered, the
-dashboard shows Cursor's own reason and keeps that failed start. Continue
-does not create another empty session that quits the same way.
+## Goal
 
-**Evaluation:** Start one Cursor refinement and one Cursor execution. Each
-session is running and its first prompt was accepted. Resume one of those
-sessions with standard input closed and confirm the current CLI would
-otherwise exit with `No prompt provided for print mode`; the dashboard start
-does not take that exit. A startup quit shows that reason, says the session
-ended, and a further Continue adds no new session id. An already trusted
-parent workspace is not asked for trust again, and the runner does not grant
-trust by itself.
+A person starting a Cursor refinement or execution gets that Cursor session
+running, with the start's first prompt delivered into it.
 
-**Completion:** The two recorded starts above are the evidence that ordinary
-starts were quitting. Queueing this story does not repair those two launches.
+## Scope
+
+Required. The start keeps `cursor-agent` attached to a terminal from the
+moment it decides whether to open a conversation. It opens that conversation
+and the dashboard types the first prompt into it. The saved session shows the
+prompt accepted, and the process is still running. A workspace already
+trusted on its own or through a parent directory, as `/Users/terryyin/git` is,
+starts this way with no new trust question.
+
+When Cursor still exits before the prompt is accepted, the dashboard shows
+the text Cursor printed, including `No prompt provided for print mode`, and
+records that the session ended. Continue on that start does not create
+another session id.
+
+Deferred. Repairing the two starts that already quit: Pygardon
+`0e93f076-3827-46d6-8970-672a7fd036ea` and Lizard
+`037ce608-8457-4daa-b8f2-c1ff732b7da1`. Changing the words of the refinement
+or execution prompt. Granting workspace trust for a directory that is not
+already trusted.
+
+Boundary. Cursor decides trust. This story leaves that decision with the
+person and does not pass `--trust`.
+
+## Key examples
+
+1. **Refinement start.** The workspace is already trusted through its parent.
+   The person starts a Cursor refinement. Cursor is attached to a terminal,
+   the conversation is saved, the refinement prompt is accepted, and the
+   process is still running.
+
+2. **Execution start.** The same for a Cursor execution: the process stays
+   up and the execution prompt is accepted.
+
+3. **Closed input would quit.** Resuming the same workspace with standard
+   input closed makes the current CLI exit with `No prompt provided for
+   print mode` and save no chat. The dashboard start of that workspace does
+   not take that exit: Cursor is on a terminal and receives the prompt.
+
+4. **A later quit is shown and not replaced.** If Cursor exits before the
+   prompt is accepted, the dashboard shows Cursor's text and says the session
+   ended. Continue does not add a session id.
