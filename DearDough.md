@@ -123,6 +123,19 @@ Former local code: DD-258. A native acceptance replay constructs a fresh current
 
 Former local code: DD-259. Focused consumer selection misses indirect callers, contract comparisons or prose consumers, so named proof can pass while owned CI or a wider suite finds the omitted effect. [Retained occurrences and response](docs/maintainer/findings/ODF-150.md). All distinct execution evidence is retained in Open Dough `ccf309a69459284de3f1d45f2de813e9180c2971:docs/maintainer/findings/ODF-150.md`; the pre-compaction source is `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`.
 
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-150.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
+  - Timestamp: 2026-10-28T14:19:12Z (CI failure on slice 3 SHA `242e5fe7`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.73
+  - Evidence: plan slice 3 accepted proof named `story-branch-landing-capture.spec.ts` / later-publication twin plus unit coverage; CI run 40704491019 job `dashboard (3/12)` failed `story-branch-retained-landing.spec.ts:43` (ZodError requiring `landing` on second integrate). Repair `804e7d7f` asserts `already-accepted` without a landing field after expectation clear. Coordinator transcript `3fc700d8-1e3b-486e-82de-cd7b0c5e26e7` stashed slice 4 for that repair.
+  - Observed effect: one owned CI failure and one assertion repair before slice 4 delivery; the sibling retained-landing journey was not in the slice's focused proof.
+  - Inference: recurrence of focused-neighbor selection missing an existing consumer of the same second-integrate / no-landing contract after open-expectation clear.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. Repair quiescence checks only writers, so stashing an interrupted agent’s checkout while read-only tests still observe it invalidates the proof. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
@@ -131,9 +144,35 @@ Former local code: DD-260. Repair quiescence checks only writers, so stashing an
 
 Former local code: DD-261. A reported GitHub transport failure ends observation and leaves later revisions without notification coverage. [Evidence and current response](docs/maintainer/findings/ODF-121.md).
 
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-121.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
+  - Timestamp: unknown (coordinator noted lost coverage after slice 2 publish `c2aa41dd` at 2026-10-28T22:00:03+08:00 and before slice 3 publish `242e5fe7` at 2026-10-28T22:17:11+08:00)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.73
+  - Evidence: coordinator transcript `3fc700d8-1e3b-486e-82de-cd7b0c5e26e7` L75 — “Noting lost CI coverage once (GitHub unreachable) and continuing slice 3 acceptance.” Supplied execution limitations name `CI_MONITOR_UNAVAILABLE`. Later mailbox `/tmp/dough-ci-501/watch-UB2SnZ` retains CI_FAILURE for `c2aa41dd` (OVER BUDGET) and `242e5fe7` (retained-landing); the unavailable event payload itself is not in that mailbox.
+  - Observed effect: coordinator reported lost coverage once and continued; slice 2’s hosted OVER BUDGET failure was not classified in the same turn; coverage resumed for later publications on a subsequent observer.
+  - Inference: qualified recurrence of transport-ending observation loss. Exact `gh`/TLS error text is unrecovered from the dead observer; distinct from eight-hour budget expiry (ODF-259).
+
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
 Former local code: DD-262. A focused proof overrides a configured reporter that owns failure policy, making local passing assertions insufficient evidence for the project’s actual verdict. [Evidence and current response](docs/maintainer/findings/ODF-226.md).
+
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-226.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
+  - Timestamp: 2026-10-28T13:45:25Z (CI failure on slice 1 SHA `938f2f1e`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.73
+  - Evidence: plan accepted proof for slice 1 used `--reporter=line`; CI run 40698951934 jobs `dashboard (12/12)` and `(6/12)` reported “passed but wrote output” from `plantTrackedClosureRepository`’s bare `git init` printing default-branch advice under configured `quietReporter`. Repair `2ba5950d` switches to `git init -b main`.
+  - Observed effect: local focused proof accepted; hosted quietReporter rejected the same green assertions; one fixture repair and stash of in-flight slice 2 work.
+  - Inference: recurrence of reporter override hiding the project’s configured output-failure policy; the fixture noise was the proximate print, not a separate finding.
 
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 

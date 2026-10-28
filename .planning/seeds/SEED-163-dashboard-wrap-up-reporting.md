@@ -126,10 +126,11 @@ prevention of omitted landing and omitted final completion, plus panel
 distinction of evidence states, fit one coherent plan or need ordered slices with
 owned proof. No planless or execution authority is supplied by this record.
 
-**Depends on:** No known blocking story prerequisite. The queued
-[dashboard responsiveness story](SEED-162-long-running-dashboard-responsiveness.md#keep-long-running-dashboard-sessions-responsive)
-addresses memory and observation/control responsiveness; sharing session code
-does not make it a prerequisite or duplicate this completion outcome.
+**Depends on:** No known blocking story prerequisite. A completed dashboard
+responsiveness execution (before-cleanup
+`b0c9d8fc4290d39ce4ee23aff91fed648f915dd7`) addressed memory and
+observation/control responsiveness; sharing session code does not make it a
+prerequisite or duplicate this completion outcome.
 
 **Safe stopping point:** Accepted product publication remains accepted throughout
 reporting failure and recovery. Any increment must preserve recoverable session
