@@ -41,7 +41,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
     origin.cleanup();
   });
 
-  test("records the fetched trunk tip and the accepted merge, and refuses a candidate that is not the workspace HEAD", async () => {
+  test("records the fetched trunk tip and the accepted merge without an explicit landing-context flag, and refuses a candidate that is not the workspace HEAD", async () => {
     const { record, reporting, workspace, branch, identity, ...story } =
       await claimedLaunchWithStoryCommit(origin, server);
     const { storyTip, trunkTip, integrated: integrate } = story;
@@ -138,9 +138,22 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
       "story.txt",
     );
 
-    // Running the integration again publishes nothing and answers the same
-    // landing receipt.
-    expect(capturedPublicationSchema.parse(await integrate())).toMatchObject({
+    // Running the integration again publishes nothing. Without an open
+    // expectation it takes no landing; an explicit context still answers the
+    // same landing receipt.
+    const againWithout = await story.integrate();
+    expect(againWithout.ok, againWithout.stderr).toBe(true);
+    const againWithoutResult: unknown = JSON.parse(againWithout.stdout);
+    expect(againWithoutResult).toMatchObject({
+      classification: "already-accepted",
+      pushCount: 0,
+    });
+    expect(againWithoutResult).not.toHaveProperty("landing");
+    const againWith = await story.integrateWithContext();
+    expect(againWith.ok, againWith.stderr).toBe(true);
+    expect(
+      capturedPublicationSchema.parse(JSON.parse(againWith.stdout)),
+    ).toMatchObject({
       classification: "already-accepted",
       pushCount: 0,
       landing: { state: "recorded", receipt },

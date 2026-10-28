@@ -10,18 +10,18 @@ as the commitment ids.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A successful dashboard-started wrap-up retains its supplied landing evidence. | slice 3 | |
+| 1 | A successful dashboard-started wrap-up retains its supplied landing evidence. | slice 3 | observed: story-branch-landing-capture.spec.ts integrate omits flag yet records landing; history-preserving-landing-expectation.test.mjs |
 | 2 | A successful dashboard-started wrap-up acknowledges quiet completion so the session settles without unnecessary human attention. | slice 4 | |
 | 3.1 | When a reporting duty is incomplete after accepted product work, the session leaves a specific recoverable explanation that separates accepted product work from missing dashboard evidence. | slice 4 | |
 | 3.2 | When a reporting duty is incomplete after accepted product work, the session leaves a specific recoverable explanation that does not treat normal workspace retirement as product failure. | slice 1 | observed: FinalReport.tsx shows productClosureEvidencePresent only from gates; workspaceMissing independent; retirement-cursor no-completion case does not invent product failure |
-| 4.1 | Carry supplied landing and final-completion duties through first trunk publication. | slice 3 | |
+| 4.1 | Carry supplied landing and final-completion duties through first trunk publication. | slice 3 | observed: resolvePublicationLandingContext + capture on first integrate without explicit flag |
 | 4.2 | Carry those duties through observation/shutdown. | slice 4 | |
 | 4.3 | Carry those duties through refresh. | slice 4 | |
 | 4.4 | Carry those duties through workspace retirement. | slice 4 | |
-| 5.1 | Responsibility stays with the first-trunk publication handoff that already accepts `--landing-context` / `landingContext`. | slice 3 | |
+| 5.1 | Responsibility stays with the first-trunk publication handoff that already accepts `--landing-context` / `landingContext`. | slice 3 | observed: history-preserving-publication / execution-increment-publication resolve via existing landingContext path; explicit still wins |
 | 5.2 | Responsibility stays with the final dashboard completion command after wrap-up or land settles. | slice 4 | |
 | 6 | Do not add another store, completion-inference owner, or lifecycle. | slice 4 | |
-| 7 | Instruction-only reminders are rejected as the prevention mechanism. | slice 3 | |
+| 7 | Instruction-only reminders are rejected as the prevention mechanism. | slice 3 | observed: mechanical expectation + resolvePublicationLandingContext; capture specs omit flag |
 | 8 | Prevention must make those duties leave observable receipts that a native final reply, marker, silence, or process exit cannot substitute. | slice 4 | |
 | 9.1 | Preserve the distinction among product-story completion. | slice 1 | observed: productClosureEvidencePresent vs completion explanation vs Mark as done meaning in FinalReport.tsx |
 | 9.2 | Preserve the distinction among dashboard session disposition. | slice 1 | observed: sessionDoneMeaning unchanged; panel does not auto-Done from directory absence |
@@ -35,7 +35,7 @@ as the commitment ids.
 | 14 | Claim published product closure in the panel only from dashboard-readable evidence under the existing tracked-execution closure gates (retained landing and readable published closure). | slice 1 | observed: finalReportResponse.ts + trackedExecutionClosureReadable; retirement-cursor planted-closure case |
 | 15 | When those facts are absent, do not claim the story is complete because a directory disappeared. | slice 1 | observed: quiet-empty missing-workspace case asserts not productClosureEvidencePresent |
 | 16 | Do not present ordinary retirement as evidence that the product work failed. | slice 1 | observed: retirement panel shows directory limitation and report facts without failure-from-retirement wording |
-| E1.1 | Landing is retained against the original launch. | slice 3 | |
+| E1.1 | Landing is retained against the original launch. | slice 3 | observed: story-branch-landing-capture.spec.ts retained landing pair; later-publication keeps first pair |
 | E1.2 | The receipt acknowledges quiet completion. | slice 4 | |
 | E1.3 | With published closure confirmed, the dashboard marks the session Done quietly, with no unread attention message or alert. | slice 4 | |
 | E1.4 | Normal retirement needs no human acknowledgment. | slice 4 | |
@@ -57,10 +57,10 @@ as the commitment ids.
 | E5.3 | A native final reply or process exit does not manufacture dashboard success. | slice 4 | |
 | E6.1 | No dashboard contact is made. | slice 4 | |
 | 17 | Manually reconciling the original stale session is a separate recovery task (out of scope). | | G-excl-stale |
-| 18 | A wording-only change does not complete prevention of the observed omission. | slice 3 | |
+| 18 | A wording-only change does not complete prevention of the observed omission. | slice 3 | observed: plant/open expectation + publish resolve, not wording-only |
 | 19.1 | This story does not promise a native Cursor transcript reader. | | G-excl-native-reader |
 | 19.2 | This story does not promise automatic reconstruction of a missed historical landing. | | G-excl-reconstruct-landing |
 | 19.3 | This story does not promise automatic Done based solely on a missing directory, deleted branch, native response, or exit. | | G-excl-auto-done |
 | 20 | Do not add another store, completion-inference owner, or lifecycle. | slice 4 | |
-| 21 | Instruction-only reminders are rejected as prevention. | slice 3 | |
+| 21 | Instruction-only reminders are rejected as prevention. | slice 3 | observed: same mechanical prevention as commitment 7 |
 | 22 | Mark as done neither completes a product story nor fabricates a landing receipt. | slice 1 | observed: sessionDoneMeaning; read does not mutate store in retirement-cursor specs |

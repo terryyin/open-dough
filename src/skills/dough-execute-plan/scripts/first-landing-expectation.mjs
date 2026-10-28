@@ -1,7 +1,9 @@
 // Durable first-landing expectation beside the git common dir (management
 // context), keyed to one launch workspace and branch. Preparation plants it
 // when it writes landing-context.json; accepted capture clears it. Publication
-// may later resolve an open match when --landing-context is omitted.
+// may later resolve an open match when --landing-context is omitted
+// (resolve-publication-landing-context.mjs). This module stays free of Git
+// helpers so the reporting-dir copy used by accepted capture can clear alone.
 import { createHash } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";

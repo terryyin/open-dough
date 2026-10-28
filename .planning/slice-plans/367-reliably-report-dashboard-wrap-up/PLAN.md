@@ -173,7 +173,7 @@ need new capture API args.
 
 ### 3. First trunk publication retains landing when expectation is open
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story-branch (and one-shot/increment as touched) publish without an
 explicit `--landing-context` still retains/records landing when the expectation
 from slice 2 is open; later trunk publication after cleared expectation takes no
@@ -182,11 +182,20 @@ still prints reporting-only retry and does not republish. Extend
 `story-branch-landing-capture.spec.ts` / later-publication twin and
 history-preserving / increment unit coverage.
 
+Accepted proof:
+1. `PATH="/opt/homebrew/bin:$PATH" node --test src/skills/dough-execute-plan/scripts/first-landing-expectation.test.mjs src/skills/dough-execute-plan/scripts/resolve-publication-landing-context.test.mjs src/skills/dough-execute-plan/scripts/dashboard-landing.test.mjs src/skills/dough-execute-plan/scripts/history-preserving-landing-expectation.test.mjs src/skills/dough-execute-plan/scripts/execution-increment-publication.test.mjs` → 18 passed.
+2. `PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- tests/boundary/story-branch-landing-capture.spec.ts tests/boundary/story-branch-landing-later-publication.spec.ts --reporter=line` → 4 passed.
+
 Behavior: Pre-condition: launch prepared landing context and open expectation →
 Trigger: first trunk `integrate` / `publishExecutionIncrement` omits the flag →
 Result: landing is retained against the original launch (or unacknowledged with
 retry-only if transport fails); accepted Git stays accepted; expectation clears
 after accepted capture so a later trunk publish does not capture again.
+
+Learnings: Resolve lives in its own module so the reporting-dir copy of
+`first-landing-expectation.mjs` stays free of `publication-git` imports.
+History-preserving library/CLI, resume helpers, and increment accept/transport
+support were split so publication modules stay under the file-size limit.
 
 ### 4. Keep incomplete completion reporting recoverable without manufacturing Done
 Type: Behavior

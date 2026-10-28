@@ -9,7 +9,13 @@ import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { restoreRepairStash, saveRepairStash } from "./ci-repair-stash.mjs";
+import {
+  landingContextFile,
+  landingReceiver,
+} from "./dashboard-landing-test-fixtures.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
+import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
+import { managementContext } from "./publication-git.mjs";
 import {
   assertCheckoutUnchanged,
   captureCheckout,
@@ -196,3 +202,31 @@ for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
     await assertUnpublishedBaseRefused(published, fixture, staged);
   });
 }
+
+test("omitted landingContext retains landing from an open expectation and clears it after acceptance", async (t) => {
+  const { origin: dashboard, requests } = await landingReceiver(t);
+  const { origin, execution, trunkSha, candidateSha, cleanup } =
+    await createCleanTrunkFixture();
+  t.after(cleanup);
+  const branch = "exec/story";
+  const repository = await managementContext(execution);
+  const expectation = { repository, workspace: execution, branch };
+  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+
+  const published = await publishExecutionIncrement({
+    workspace: execution,
+    branch,
+    previouslyPublishedBase: trunkSha,
+    targetRef: trunkTarget,
+  });
+
+  assert.equal(published.ok, true);
+  assert.equal(published.receipt.sha, candidateSha);
+  assert.equal(published.landing.state, "recorded");
+  assert.equal(await lsRemoteSha(origin, trunkTarget), candidateSha);
+  assert.equal(await openFirstLandingExpectation(expectation), undefined);
+  assert.equal(
+    requests.some(({ url }) => url.endsWith("/landing")),
+    true,
+  );
+});

@@ -148,7 +148,11 @@ export async function claimedLaunchWithStoryCommit(
           .map(quote)
           .join(" ");
   const landingContextFlag = ["--landing-context", landingContext];
+  // First trunk publication omits --landing-context so an open first-landing
+  // expectation supplies the prepared path; explicit context still wins.
   const integrate = (env = process.env) =>
+    reportingChild(command(reviewedTip, []), origin.machine, env);
+  const integrateWithContext = (env = process.env) =>
     reportingChild(
       command(reviewedTip, landingContextFlag),
       origin.machine,
@@ -166,6 +170,7 @@ export async function claimedLaunchWithStoryCommit(
     reviewedTip,
     trunkTip,
     integrate,
+    integrateWithContext,
     // A later commit made in the workspace and pushed to the story branch, and
     // its trunk publication with or without the launch's landing context.
     laterTrunkPublication: (name: string) => {
