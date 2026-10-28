@@ -38,7 +38,9 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-guard-hook.mjs
   dough-product-backlog/scripts/product-backlog-home-reader.mjs
   dough-product-backlog/scripts/product-backlog-home.mjs
-  dough-product-backlog/scripts/product-backlog-identity-evidence.mjs dough-product-backlog/scripts/product-backlog-identity-history.mjs dough-product-backlog/scripts/product-backlog-identity-sources.mjs
+  dough-product-backlog/scripts/product-backlog-identity-evidence.mjs
+  dough-product-backlog/scripts/product-backlog-identity-history.mjs
+  dough-product-backlog/scripts/product-backlog-identity-sources.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
   dough-product-backlog/scripts/product-backlog-order.mjs
@@ -64,7 +66,9 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
   dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
   dough-product-backlog/references/supplier-dependencies.md
-  dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs dough-product-backlog/scripts/product-backlog-dependency-completion.mjs dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
+  dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs
+  dough-product-backlog/scripts/product-backlog-dependency-completion.mjs
+  dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
   dough-product-backlog/scripts/product-backlog-accepted-integration.mjs
   dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
   dough-product-backlog/scripts/product-backlog-take.mjs
@@ -104,9 +108,12 @@ managed_files=(
   dough-story-refinement/scripts/preparation-one-shot-recheck.mjs
   dough-story-refinement/scripts/preparation-one-shot-start.mjs
   dough-land/SKILL.md
-  dough-land/references/completion-attention.md dough-land/references/dashboard-completion.md
-  dough-land/references/publish-reviewed-checkout.md dough-land/references/worktree-retirement.md
-  dough-land/scripts/retirement-checks.mjs dough-land/scripts/worktree-retirement.mjs
+  dough-land/references/completion-attention.md
+  dough-land/references/dashboard-completion.md
+  dough-land/references/publish-reviewed-checkout.md
+  dough-land/references/worktree-retirement.md
+  dough-land/scripts/retirement-checks.mjs
+  dough-land/scripts/worktree-retirement.mjs
   dough-land/scripts/queued-closure-check.mjs
   dough-resplit-story/SKILL.md
   dough-slice-planning/SKILL.md
@@ -119,7 +126,10 @@ managed_files=(
   dough-execute-plan/SKILL.md
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
-  dough-execute-plan/manuals/custom-ci.md dough-execute-plan/manuals/custom-reuse-ci.md dough-execute-plan/manuals/reuse-ci.md dough-execute-plan/manuals/custom-ci-queue.md
+  dough-execute-plan/manuals/custom-ci.md
+  dough-execute-plan/manuals/custom-reuse-ci.md
+  dough-execute-plan/manuals/reuse-ci.md
+  dough-execute-plan/manuals/custom-ci-queue.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
@@ -136,9 +146,11 @@ managed_files=(
   dough-execute-plan/references/execution-location.md
   dough-execute-plan/references/finish-or-stop.md
   dough-execute-plan/references/fresh-increment.md
+  dough-execute-plan/references/interrupted-delegation.md
   dough-execute-plan/references/maintain-default-checkout.md
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
+  dough-execute-plan/references/overdue-delegated-verification.md
   dough-execute-plan/references/oversized-slice.md
   dough-execute-plan/references/preserve-published-history.md
   dough-execute-plan/references/publication-rebase-conflict.md
@@ -149,9 +161,14 @@ managed_files=(
   dough-execute-plan/references/trunk-publication.md
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
-  dough-execute-plan/scripts/ci-background-handoff.mjs dough-execute-plan/scripts/ci-background-hook.mjs
-  dough-execute-plan/scripts/ci-background-session.mjs dough-execute-plan/scripts/ci-background-state.mjs dough-execute-plan/scripts/ci-background-waiter.mjs
-  dough-execute-plan/scripts/ci-command-adapter.mjs dough-execute-plan/scripts/ci-project-configuration.mjs dough-execute-plan/scripts/ci-command-attempts.mjs
+  dough-execute-plan/scripts/ci-background-handoff.mjs
+  dough-execute-plan/scripts/ci-background-hook.mjs
+  dough-execute-plan/scripts/ci-background-session.mjs
+  dough-execute-plan/scripts/ci-background-state.mjs
+  dough-execute-plan/scripts/ci-background-waiter.mjs
+  dough-execute-plan/scripts/ci-command-adapter.mjs
+  dough-execute-plan/scripts/ci-project-configuration.mjs
+  dough-execute-plan/scripts/ci-command-attempts.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs
   dough-execute-plan/scripts/story-obligation-source-review.mjs
@@ -162,24 +179,40 @@ managed_files=(
   dough-execute-plan/scripts/ci-checkout-runtime.mjs
   dough-execute-plan/scripts/ci-direct-entry.mjs
   dough-execute-plan/scripts/ci-failures.mjs
-  dough-execute-plan/scripts/ci-github-actions.mjs dough-execute-plan/scripts/ci-integrated-state.mjs dough-execute-plan/scripts/ci-integrated-state-ancestry.mjs
-  dough-execute-plan/scripts/ci-reuse-policy.mjs dough-execute-plan/scripts/ci-reuse-gate.mjs
-  dough-execute-plan/scripts/ci-reuse-github.mjs dough-execute-plan/scripts/ci-reuse-github-command.mjs
-  dough-execute-plan/scripts/ci-reuse-custom-example.mjs dough-execute-plan/scripts/ci-integrated-state-policy.mjs
+  dough-execute-plan/scripts/ci-github-actions.mjs
+  dough-execute-plan/scripts/ci-integrated-state.mjs
+  dough-execute-plan/scripts/ci-integrated-state-ancestry.mjs
+  dough-execute-plan/scripts/ci-reuse-policy.mjs
+  dough-execute-plan/scripts/ci-reuse-gate.mjs
+  dough-execute-plan/scripts/ci-reuse-github.mjs
+  dough-execute-plan/scripts/ci-reuse-github-command.mjs
+  dough-execute-plan/scripts/ci-reuse-custom-example.mjs
+  dough-execute-plan/scripts/ci-integrated-state-policy.mjs
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
-  dough-execute-plan/scripts/ci-host-bridge.mjs dough-execute-plan/scripts/ci-host-hook.mjs
-  dough-execute-plan/scripts/ci-mailbox-await.mjs dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
-  dough-execute-plan/scripts/ci-mailbox-complete.mjs dough-execute-plan/scripts/ci-mailbox-completion-state.mjs dough-execute-plan/scripts/ci-mailbox-json-file.mjs
-  dough-execute-plan/scripts/ci-mailbox-location.mjs dough-execute-plan/scripts/ci-mailbox-match.mjs
-  dough-execute-plan/scripts/ci-observer-owner.mjs dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
-  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs dough-execute-plan/scripts/ci-mailbox-store.mjs dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
-  dough-execute-plan/scripts/ci-mailbox-worker-process.mjs dough-execute-plan/scripts/ci-mailbox.mjs
+  dough-execute-plan/scripts/ci-host-bridge.mjs
+  dough-execute-plan/scripts/ci-host-hook.mjs
+  dough-execute-plan/scripts/ci-mailbox-await.mjs
+  dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
+  dough-execute-plan/scripts/ci-mailbox-complete.mjs
+  dough-execute-plan/scripts/ci-mailbox-completion-state.mjs
+  dough-execute-plan/scripts/ci-mailbox-json-file.mjs
+  dough-execute-plan/scripts/ci-mailbox-location.mjs
+  dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-observer-owner.mjs
+  dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
+  dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
+  dough-execute-plan/scripts/ci-mailbox-store.mjs
+  dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
+  dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
+  dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
-  dough-execute-plan/scripts/ci-repair-stash-applied.mjs dough-execute-plan/scripts/ci-repair-stash-git.mjs
+  dough-execute-plan/scripts/ci-repair-stash-applied.mjs
+  dough-execute-plan/scripts/ci-repair-stash-git.mjs
   dough-execute-plan/scripts/ci-repair-stash.mjs
-  dough-execute-plan/scripts/ci-revisions.mjs dough-execute-plan/scripts/ci-runs.mjs
+  dough-execute-plan/scripts/ci-revisions.mjs
+  dough-execute-plan/scripts/ci-runs.mjs
   dough-execute-plan/scripts/ci-workflow-path-policy.mjs
   dough-execute-plan/scripts/consumer-trace-record.mjs
   dough-execute-plan/scripts/consumer-trace-terms.mjs
@@ -199,10 +232,14 @@ managed_files=(
   dough-execute-plan/scripts/github-request-owner.mjs
   dough-execute-plan/scripts/github-request-rules.mjs
   dough-execute-plan/scripts/github-requests.mjs
-  dough-execute-plan/scripts/execution-increment-delivery.mjs dough-execute-plan/scripts/execution-increment-fresh.mjs dough-execute-plan/scripts/execution-increment-request.mjs dough-execute-plan/scripts/execution-increment-preparation.mjs
+  dough-execute-plan/scripts/execution-increment-delivery.mjs
+  dough-execute-plan/scripts/execution-increment-fresh.mjs
+  dough-execute-plan/scripts/execution-increment-request.mjs
+  dough-execute-plan/scripts/execution-increment-preparation.mjs
   dough-execute-plan/scripts/selected-slice-status.mjs
   dough-execute-plan/scripts/execution-increment-observation.mjs
-  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
+  dough-execute-plan/scripts/execution-increment-observation-gaps.mjs
+  dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
@@ -218,7 +255,9 @@ managed_files=(
   dough-execute-plan/scripts/execution-start-receipt.mjs
   dough-execute-plan/scripts/execution-start-request.mjs
   dough-execute-plan/scripts/session-policy.mjs
-  dough-execute-plan/scripts/execution-start-source.mjs dough-execute-plan/scripts/execution-source.mjs dough-execute-plan/scripts/execution-admission-source.mjs
+  dough-execute-plan/scripts/execution-start-source.mjs
+  dough-execute-plan/scripts/execution-source.mjs
+  dough-execute-plan/scripts/execution-admission-source.mjs
   dough-execute-plan/scripts/execution-admission-reconcile.mjs
   dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
@@ -237,11 +276,13 @@ managed_files=(
   dough-execute-plan/scripts/workspace-publication-ownership.mjs
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
-  dough-post-change-refactor/SKILL.md dough-post-change-refactor/references/refactor-checks.md
+  dough-post-change-refactor/SKILL.md
+  dough-post-change-refactor/references/refactor-checks.md
   dough-test-optimization/SKILL.md
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/resolving-candidates.md
-  dough-manual-testing/SKILL.md dough-manual-testing/references/exploration-workspace.md
+  dough-manual-testing/SKILL.md
+  dough-manual-testing/references/exploration-workspace.md
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md
@@ -253,6 +294,7 @@ managed_files=(
   dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   dough-story-wrap-up/scripts/trunk-closure-visit.mjs
-  dough-story-wrap-up/scripts/trunk-closure.mjs dough-story-wrap-up/scripts/trunk-closure-completion.mjs
+  dough-story-wrap-up/scripts/trunk-closure.mjs
+  dough-story-wrap-up/scripts/trunk-closure-completion.mjs
 )
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"
