@@ -43,10 +43,13 @@ both presentations fit four minutes and both reviews fit eight minutes.
 
 The [native timing receipts](https://github.com/terryyin/open-dough/blob/7a2c2501c4aa0faba2b02a8eef3c74d1afd2bbc0/.planning/slice-plans/374-consumer-handoff-trial/v2/timing.json) and
 [result arithmetic](https://github.com/terryyin/open-dough/blob/7a2c2501c4aa0faba2b02a8eef3c74d1afd2bbc0/.planning/slice-plans/374-consumer-handoff-trial/v2/replay/RESULT.json) retain the measurements.
-The [budget snapshot](https://github.com/terryyin/open-dough/blob/7a2c2501c4aa0faba2b02a8eef3c74d1afd2bbc0/.planning/slice-plans/374-consumer-handoff-trial/v2/budget.json) at 08:21 UTC
-records 5,267.126 task-seconds (about 88 minutes), including data preparation,
+The [published budget snapshot](https://github.com/terryyin/open-dough/blob/de26af8e7e46b66b18ed8f647266a304ed565c6c/.planning/slice-plans/374-consumer-handoff-trial/v2/budget.json) at 08:38 UTC
+records 6,467.768 task-seconds (107.796 minutes), including data preparation,
 independent evaluation and controller work. Later administrative/closing costs
-are not yet final in that snapshot. Evaluation is not free. Human reading,
+are not final in that snapshot. Closing measurement at 08:46:56 UTC
+records 7077.300 task-seconds (117.955 minutes), including documentation,
+independent refactors and retrospective; subsequent publication/CI tail is separate.
+Evaluation is not free. Human reading,
 usage and money remain unknown; no experimental human contact or manual task
 was requested. Controller cost is an elapsed proxy outside explicit blocking
 waits plus native child tasks once, including concurrent controller work.

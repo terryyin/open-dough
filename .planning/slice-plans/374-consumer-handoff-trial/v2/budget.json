@@ -1,8 +1,8 @@
 {
   "session_start": "2026-10-29T07:10:31+00:00",
-  "snapshot": "2026-10-29T08:38:01.567958+00:00",
-  "session_elapsed_seconds": 5250.567958,
-  "explicit_blocking_child_wait_seconds": 1053.82,
+  "snapshot": "2026-10-29T08:46:56.114054+00:00",
+  "session_elapsed_seconds": 5785.114054,
+  "explicit_blocking_child_wait_seconds": 1125.651,
   "blocking_wait_intervals": [
     {
       "start": "2026-10-29T07:22:03.231000+00:00",
@@ -178,13 +178,34 @@
       "seconds": 50.009,
       "start_line": 2854,
       "end_line": 2857
+    },
+    {
+      "start": "2026-10-29T08:39:35.642000+00:00",
+      "end": "2026-10-29T08:40:25.811000+00:00",
+      "seconds": 50.169,
+      "start_line": 3100,
+      "end_line": 3103
+    },
+    {
+      "start": "2026-10-29T08:40:34.833000+00:00",
+      "end": "2026-10-29T08:40:35.350000+00:00",
+      "seconds": 0.517,
+      "start_line": 3108,
+      "end_line": 3110
+    },
+    {
+      "start": "2026-10-29T08:44:22.458000+00:00",
+      "end": "2026-10-29T08:44:43.603000+00:00",
+      "seconds": 21.145,
+      "start_line": 3147,
+      "end_line": 3150
     }
   ],
-  "controller_proxy_seconds": 4196.747958,
-  "summed_child_native_seconds": 2271.02,
-  "trial_task_seconds": 6467.767958,
-  "remaining_seconds_to_120min": 732.2320419999996,
-  "definition": "Root elapsed outside explicit native blocking child-wait calls plus all native child tasks once. Includes concurrent reasoning/tools and root tool wait, not CPU/money. Manual controller-overlap bound is included, not added twice.",
+  "controller_proxy_seconds": 4659.463054,
+  "summed_child_native_seconds": 2417.8369999999995,
+  "trial_task_seconds": 7077.300053999999,
+  "remaining_seconds_to_120min": 122.69994600000064,
+  "definition": "Observed root elapsed outside native blocking child waits plus native child tasks once. Includes concurrent reasoning/tools; manual overlap not added twice. Not CPU or money. Snapshot includes decision documentation, refactors and retrospective; later publication/CI tail remains separately unobserved until completed.",
   "human_minutes": "unknown; no experimental human/manual work solicited",
-  "v1_costs": "separate and unknown where unmeasured"
+  "v1_costs": "separate; unknown where unmeasured"
 }
