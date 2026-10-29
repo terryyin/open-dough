@@ -18,7 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-176-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-176#optimize-dashboard-test-feedback
+- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-176-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-176#optimize-dashboard-test-feedback ([plan](slice-plans/378-optimize-dashboard-test-feedback/PLAN.md))
 
 ## Backlog list
 
