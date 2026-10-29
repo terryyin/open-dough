@@ -1,14 +1,11 @@
 # Dashboard tests
 
-This directory holds the dashboard's one Playwright suite, run with
-`npm run test:dashboard` from the repository root, in two tiers and nothing
-in between. This page is the strategy and the index; the guides beside it
-hold the detail: [writing a journey](writing-journeys.md) (waits, clocks,
-commands, the fake GitHub's own answers), the [native-host
-fixtures](native-host-fixtures.md) (the synthetic `claude`, `codex` and
-`cursor`), the [proof record](proof-record.md) of a run, and the [dashboard
-shards](shards.md) CI runs (the split, each shard's recorded times and its
-deadline).
+Run the dashboard's single Playwright suite from the repository root with
+`npm run test:dashboard`. Its two tiers share one run and shard selection.
+See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
+GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
+hosts; [proof records](proof-record.md); and [CI shards](shards.md) for allocation,
+recorded times and deadlines.
 
 ## Two tiers: browser journeys and boundary tests
 
@@ -71,18 +68,23 @@ Put a check where it is cheapest to prove, and prove it once:
   change of its own, joins the journey whose state change shows it or moves
   down a tier to the cheapest proof of the rule; a matrix of widths or fonts
   over one static layout is not written.
-- **Siblings share what they only read and assert their deltas.** A
-  precondition every test reads and none writes is published once per
-  worker as a worker-scoped fixture (the launch journeys' origin,
-  `launchJourney`); one the tests step through is one fixture per serial
-  file (each production journey file's watcher, `production-watcher*.spec.ts`);
-  [writing a journey](writing-journeys.md) says how each is shared. The
-  common shape is asserted in one named test (`agent-launch-story-card.spec.ts`,
-  "every Backlog card offers Start execution ..."), each sibling asserts
-  only its difference, and a regression in one behavior fails one named
-  test. The server and fake GitHub stay per test: siblings vary the server's
-  options per test (`projectFolders`, `launchTimeoutMs`, the viewport) and
-  most launch or mark done.
+- **Siblings share read-only preconditions and assert deltas.** Publish inputs
+  no test writes once per worker (`launchJourney`'s origin); use one fixture per
+  serial file for state tests step through (`production-watcher*.spec.ts`'s watcher).
+  [Journey writing](writing-journeys.md) explains both. Assert the common shape
+  once (`agent-launch-story-card.spec.ts`, "every Backlog card offers Start
+  execution ..."); siblings assert differences so a regression fails one named
+  test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
+  `launchTimeoutMs`, viewport and usually launch or mark done.
+
+Fresh installed-start origins are packed once per run from current working-tree
+skills (`support/startOriginPreparation.ts`): one Claude and one Codex/Cursor
+layout. Tests receive private byte copies and native clones with independent
+objects, refs, config, indexes and HOME; preparation stays read-only and global
+teardown removes it. Without global setup, nested runs prepare only their
+requested layout and remove it after initialization. Eager setup costs time
+even without starts, avoiding repeated skill copying, indexing and initial
+commits. Servers, browser contexts and fake-service state stay private.
 
 ## Synchronization
 
