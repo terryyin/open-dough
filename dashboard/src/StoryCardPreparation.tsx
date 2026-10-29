@@ -14,9 +14,11 @@ import {
 export function StoryCardPreparationFacts({
   preparation,
   eligibility,
+  executionOpen = false,
 }: {
   preparation: WorkPreparation | undefined;
   eligibility: StartEligibility;
+  executionOpen?: boolean;
 }) {
   if (preparation === undefined) {
     return null;
@@ -65,7 +67,7 @@ export function StoryCardPreparationFacts({
         {preparation.approach.kind === "planless" && (
           <span className="badge badge-planless">Planless</span>
         )}
-        {ready && (
+        {ready && !executionOpen && (
           <span className="badge badge-ready">Ready for execution</span>
         )}
         {blockedBy && (

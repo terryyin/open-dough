@@ -35,6 +35,9 @@ export async function expectRetainedUnconfirmed(
   ...phrases: readonly string[]
 ): Promise<LaunchRecord> {
   await expect(entry).toContainText("Stop unconfirmed");
+  await expect(
+    entry.getByRole("status").filter({ hasText: "Stop unconfirmed" }).first(),
+  ).toBeVisible();
   const record = keptRecord(home);
   expect(record.session.sessionId).toBe(sessionId);
   expect(record.stopUnconfirmed).toContain("Stop unconfirmed");

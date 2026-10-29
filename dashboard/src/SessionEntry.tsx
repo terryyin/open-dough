@@ -1,20 +1,24 @@
 import { hasCompletionMessage } from "./completionReport.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { hostName, marksDone, marksLocalDone } from "./sessionCapabilities.ts";
+import {
+  hostName,
+  marksLocalDone,
+  offersMarkDone,
+} from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in either session column.
 // Its native observations and supported controls stay distinct from story facts.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { ChevronRight, Ellipsis } from "lucide-react";
+import { Icon, IconButton } from "./Icon.tsx";
 import {
-  establishedPlace,
   launchSubject,
-  workspaceWords,
+  recordDeletable,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { doneSessionName, nativeDoneMarkPending } from "./doneMark.ts";
-import { Moment } from "./Moment.tsx";
+import { nativeDoneMarkPending } from "./doneMark.ts";
 import { shownSession } from "./ShownSession.tsx";
-import { LaunchSession } from "./LaunchSession.tsx";
+import { LaunchSession, LaunchSessionNotice } from "./LaunchSession.tsx";
 import { SessionAttentionMessage } from "./SessionAttentionMessage.tsx";
 import { showsSession } from "./pageEntries.ts";
 import { usePageSessions } from "./pageSessions.ts";
@@ -23,9 +27,11 @@ import {
   MarkDone,
   RecoverSession,
   StopSession,
+  offersStopSession,
 } from "./sessionRecordActions.tsx";
-import { SessionAssignment } from "./SessionAssignment.tsx";
+import { SessionDetails } from "./SessionDetails.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";
+import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -43,35 +49,27 @@ export function SessionEntry({
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
 }) {
   const entry = useRef<HTMLElement>(null);
-  const {
-    title,
-    identity,
-    name,
-    startedWords,
-    modelWords,
-    optionsWords,
-    policyWords,
-  } = launchSubject(record.request);
-  const workspace = workspaceWords(
-    establishedPlace(record),
-    record.shownWorkspace,
-  );
+  const { title, identity, name, modelWords } = launchSubject(record.request);
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const { shownSession: shown, hostOperations } = usePageSessions();
-  // Supported native done operations use the same intended name for every Done.
-  // A local-only Done attempts no native naming, so it claims none.
   const localDone = marksLocalDone(hostOperations, record.session.host);
-  const nativelyNamed =
-    !localDone &&
-    (record.completion === undefined ||
-      marksDone(hostOperations, record.session.host));
   const current = shown?.key === sessionKey(record.session);
   const inFinalReport = current && shown.kind === "final-report";
   const inTerminal = current && shown.kind === "terminal";
   // The entry's status line, which says what its last mark or delete came to;
   // nothing clears it but the next control asking.
   const [said, say] = useState<string | undefined>();
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsControl = useRef<HTMLButtonElement>(null);
+  const detailsId = useId();
+  const actionsId = useId();
+  const described = useFrameDescription();
+  const hasActions =
+    offersStopSession(record, hostOperations) ||
+    offersMarkDone(hostOperations, record) ||
+    recordDeletable(record);
 
   useEffect(() => {
     if (takesFocus === true) entry.current?.focus();
@@ -95,7 +93,35 @@ export function SessionEntry({
           )}
         </>
       )}
-      {stateWords}
+      <div className="session-entry-summary">
+        <div className="session-entry-summary-facts">
+          {stateWords}
+          <p className="session-entry-host">{hostName(record.session.host)}</p>
+          {modelWords !== undefined && (
+            <p className="session-entry-model">{modelWords}</p>
+          )}
+        </div>
+        {hasActions && (
+          <IconButton
+            ref={actionsControl}
+            label="More session actions"
+            icon={Ellipsis}
+            align="end"
+            aria-expanded={actionsOpen}
+            aria-controls={actionsId}
+            aria-describedby={described}
+            onClick={() => {
+              setActionsOpen(!actionsOpen);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && actionsOpen) {
+                event.stopPropagation();
+                setActionsOpen(false);
+              }
+            }}
+          />
+        )}
+      </div>
       {hasCompletionMessage(record.completion) && (
         <SessionAttentionMessage
           record={record}
@@ -107,30 +133,35 @@ export function SessionEntry({
       {inFinalReport && (
         <p className="shown-session-content">Shown in final report</p>
       )}
-      <p>
-        {record.firstInput !== undefined &&
-        record.firstInput.state !== "confirmed"
-          ? `Conversation created in ${hostName(record.session.host)}`
-          : startedWords}{" "}
-        <Moment at={new Date(record.launchedAt)} />
-      </p>
-      {modelWords !== undefined && <p>{modelWords}</p>}
-      <SessionAssignment
-        record={record}
-        storyCardAssignments={storyCardAssignments}
-      />
-      {optionsWords !== undefined && <p>{optionsWords}</p>}
-      {policyWords !== undefined && <p>{policyWords}</p>}
-      {workspace !== undefined && <p>{workspace}</p>}
-      <p className="launch-local">
-        Local: launched from this dashboard on this machine.
-      </p>
-      {markedDone && nativelyNamed && (
-        <p>
-          {record.doneProblem === undefined ? "Named" : "Intended name"}{" "}
-          <code>{doneSessionName(record.session)}</code>
-        </p>
-      )}
+      <LaunchSessionNotice record={record} />
+      <div className="session-entry-controls">
+        <LaunchSession record={record} />
+        <RecoverSession record={record} say={say} />
+        <button
+          type="button"
+          className="session-details-toggle frame-disclosure-button"
+          aria-expanded={detailsOpen}
+          aria-controls={detailsId}
+          aria-describedby={described}
+          onClick={() => {
+            setDetailsOpen(!detailsOpen);
+          }}
+        >
+          <Icon icon={ChevronRight} />
+          Session details
+        </button>
+      </div>
+      <div
+        className="session-entry-details"
+        id={detailsId}
+        hidden={!detailsOpen}
+      >
+        <SessionDetails
+          record={record}
+          say={say}
+          storyCardAssignments={storyCardAssignments}
+        />
+      </div>
       {markedDone && localDone && (
         <p>
           Done is a dashboard-local name only; marking it done did not stop the
@@ -155,73 +186,24 @@ export function SessionEntry({
           {record.stopUnconfirmed}
         </p>
       )}
-      <LaunchSession record={record} />
-      <StopSession record={record} say={say} />
-      <RecoverSession record={record} say={say} />
-      <MarkDone record={record} say={say} />
-      <DeleteRecord record={record} say={say} />
+      <div
+        id={actionsId}
+        className="session-entry-actions"
+        hidden={!actionsOpen || !hasActions}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.stopPropagation();
+          setActionsOpen(false);
+          actionsControl.current?.focus();
+        }}
+      >
+        <StopSession record={record} say={say} />
+        <MarkDone record={record} say={say} />
+        <DeleteRecord record={record} say={say} />
+      </div>
       <p role="status" className="launch-problem">
         {said}
       </p>
     </article>
-  );
-}
-
-// A list of the machine's sessions: until they are first read it says it is
-// reading them rather than claiming none, and with none it says none are
-// kept; otherwise it lists them.
-export function SessionList({
-  sessions,
-  none = "No sessions launched from this dashboard are kept.",
-  children,
-}: {
-  // Undefined until the machine's sessions are first read.
-  readonly sessions: readonly LaunchWithState[] | undefined;
-  // What the list says once read with no sessions to list.
-  readonly none?: string;
-  readonly children: (sessions: readonly LaunchWithState[]) => ReactNode;
-}) {
-  if (sessions === undefined) {
-    return <p className="quiet">Reading sessions…</p>;
-  }
-  if (sessions.length === 0) {
-    return <p className="quiet">{none}</p>;
-  }
-  return children(sessions);
-}
-
-// A story's sessions inside its card, newest first, each the entry Recently
-// done shows: on a Story card (`./StoryCardSessions.tsx`), without the story the
-// card names, or on a done story's card (`./DoneStoryCard.tsx`). With none it
-// shows nothing. The entry the developer's own launch from the card just
-// listed takes the keyboard.
-export function StorySessions({
-  sessions,
-  className,
-  onStoryCard,
-  launchedHere,
-  storyCardAssignments,
-}: {
-  // The story's sessions, oldest first.
-  readonly sessions: readonly LaunchWithState[];
-  readonly className: string;
-  readonly onStoryCard: boolean;
-  readonly launchedHere?: string | undefined;
-  readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
-}) {
-  if (sessions.length === 0) return null;
-  return (
-    <ol className={className} aria-label="Sessions">
-      {sessions.toReversed().map((record) => (
-        <li key={sessionKey(record.session)}>
-          <SessionEntry
-            record={record}
-            onStoryCard={onStoryCard}
-            takesFocus={launchedHere === sessionKey(record.session)}
-            storyCardAssignments={storyCardAssignments}
-          />
-        </li>
-      ))}
-    </ol>
   );
 }

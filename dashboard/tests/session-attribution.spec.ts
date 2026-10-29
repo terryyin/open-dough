@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -152,7 +153,9 @@ test("a retained session keeps its allocation credit after release and a later p
     duplicate.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
   await expect(
-    duplicate.getByRole("button", { name: "Mark as done" }),
+    (await sessionActions(duplicate)).getByRole("button", {
+      name: "Mark as done",
+    }),
   ).toBeVisible();
   await expect(
     parts(page)

@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Recently done records on the committed story-columns origin (./launchJourney.ts):
 // State unknown entries offer Delete record… with the story-card-entry question;
 // deletion removes the entry without success text and moves focus within its list,
@@ -128,12 +129,12 @@ test.describe("deleting a Recently done entry's record", () => {
       }),
       "Execution",
     );
-    const deleteButton = (entry: typeof working) =>
-      entry.getByRole("button", { name: "Delete record…" });
+    const deleteButton = async (entry: typeof working) =>
+      await sessionAction(entry, "Delete record…");
     const confirm = (entry: typeof working) =>
       entry.getByRole("button", { name: "Delete record", exact: true });
     const deleteEntry = async (entry: typeof working) => {
-      await deleteButton(entry).click();
+      await (await deleteButton(entry)).click();
       await confirm(entry).click();
       await expect(entry).toHaveCount(0);
       await expect(
@@ -177,7 +178,7 @@ test.describe("deleting a Recently done entry's record", () => {
         await expect(sessionStateOf(entry)).toHaveText(
           "State unknown: Claude Code's session list could not be read",
         );
-        await expect(deleteButton(entry)).toBeVisible();
+        await expect(await deleteButton(entry)).toBeVisible();
       }
       for (let index = 0; index < 2; index++) {
         const entry = sidebar.entries.nth(index);
@@ -190,7 +191,7 @@ test.describe("deleting a Recently done entry's record", () => {
 
     await test.step("deleting the last session inside a done story's card asks first, removes it from Recently done and the sidebar, and puts the keyboard on the card, which stays", async () => {
       await showColumn(page, "Recently done");
-      await deleteButton(insideDoneCard).click();
+      await (await deleteButton(insideDoneCard)).click();
       await expect(
         insideDoneCard.getByRole("button", { name: "Keep" }),
       ).toBeFocused();

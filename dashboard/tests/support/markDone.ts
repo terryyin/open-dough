@@ -12,6 +12,7 @@
 import { expect, type Locator } from "@playwright/test";
 import { untilDoneMarkAnswered } from "../pageRequestNotes.ts";
 import type { ClaudeListingControls } from "./fakeClaudeListing.ts";
+import { sessionActions } from "./sessionEntryDisclosure.ts";
 
 const anyway = "Mark it done anyway?";
 
@@ -34,6 +35,7 @@ export const doneQuestion = (scope: Locator) =>
 // Presses Mark as done and expects the question that opens with this
 // statement (`expectQuestion`).
 export async function expectAsked(scope: Locator, statement: string) {
+  await sessionActions(scope);
   await markAsDone(scope).click();
   return expectQuestion(scope, statement);
 }
@@ -67,6 +69,7 @@ export function idleBetweenSteps(
 // own when its intention is complete, or an open question's -- and waits
 // until the boundary has answered it and the page has acted on the answer.
 export async function markDone(scope: Locator) {
+  await sessionActions(scope);
   await markAsDone(scope).click();
   await untilDoneMarkAnswered(scope.page());
 }
@@ -75,6 +78,7 @@ export async function markDone(scope: Locator) {
 // Mark as done, without waiting for the mark's answer: for a journey that
 // holds it.
 export async function sendDoneMarkAnyway(scope: Locator) {
+  await sessionActions(scope);
   await markAsDone(scope).click();
   const question = doneQuestion(scope);
   await expect(question).toBeVisible();

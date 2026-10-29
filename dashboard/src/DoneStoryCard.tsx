@@ -25,7 +25,7 @@ import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
-import { StorySessions } from "./SessionEntry.tsx";
+import { StorySessions } from "./SessionLists.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
 import "./agent-launch.css";

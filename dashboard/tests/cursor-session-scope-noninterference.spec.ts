@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Non-interference across scoped Cursor sessions and scope lifetime
 // (plan 329 slice 4): overlapping chosen-model launches keep separate
 // scopes and models with the shared configuration untouched; a
@@ -232,7 +233,7 @@ test("deleting a scoped session's launch record removes exactly its scope, leavi
   // retained until the record itself is removed, never before.
   expect(existsSync(scope)).toBe(true);
 
-  await entry.getByRole("button", { name: "Delete record…" }).click();
+  await (await sessionAction(entry, "Delete record…")).click();
   await entry
     .getByRole("button", { name: "Delete record", exact: true })
     .click();

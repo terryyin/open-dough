@@ -6,6 +6,7 @@ import {
   marksLocalDone,
   offersMarkDone,
   offersSeparateStop,
+  type HostOperations,
 } from "./sessionCapabilities.ts";
 import { recordDeletable, type LaunchWithState } from "./agentLaunch.ts";
 import {
@@ -109,6 +110,19 @@ export function DeleteRecord({
 const notStopped = "The session could not be stopped.";
 const stoppedWording = "Session stopped.";
 
+// Shared by the action and its disclosure: capability and retained Done intent
+// together decide whether a separate Stop is available on this entry.
+export function offersStopSession(
+  record: LaunchWithState,
+  operations: HostOperations,
+): boolean {
+  return (
+    (record.doneAt === undefined ||
+      marksLocalDone(operations, record.session.host)) &&
+    offersSeparateStop(operations, record.session.host)
+  );
+}
+
 // Stop for an active (not done) session, offered only where a separate
 // stop is needed (`offersSeparateStop`): its host supplies a stop that
 // Mark as done does not already perform, so hosts whose Mark as done
@@ -128,12 +142,7 @@ export function StopSession({
   const [stopping, setStopping] = useState(false);
   // A local-only Done did not stop the native session, so Stop stays
   // offered on its done entry; other hosts' done entries offer none.
-  if (
-    record.doneAt !== undefined &&
-    !marksLocalDone(hostOperations, record.session.host)
-  )
-    return null;
-  if (!offersSeparateStop(hostOperations, record.session.host)) return null;
+  if (!offersStopSession(record, hostOperations)) return null;
   return (
     <p className="launch-open">
       <button

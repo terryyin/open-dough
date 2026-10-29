@@ -110,7 +110,9 @@ Each story card has scan and detail views. The scan starts with title, backlog
 priority, and the assigned or preparing developer with its
 credited human, tool and model, preparation and readiness badges, dependencies
 and evidence warnings, a Taken story's slice count with its clock or
-completion and a short source qualification, its launch group, its sessions, and its inspection group. The launch group holds
+completion and a short source qualification, its launch group, its compact sessions,
+and its inspection group. The [Session entry contract](AGENT-LAUNCH-SESSION-ENTRIES.md)
+defines compact facts, disclosures, attention and readiness. The launch group holds
 **Start execution** and **Start refinement**, each with any launch answer beside
 it and any note in its tooltip; the inspection group holds **Inspect story** and, when
 offered, **Review changes**. Each group's actions share a line when the card is
@@ -212,10 +214,8 @@ portraits keep their own concepts; prose-only documentation adds no artwork.
 
 ## Tests
 
-`tests/` holds one Playwright suite that replaces only GitHub's answers to `gh`.
-[Its README](tests/README.md) indexes the strategy, two tiers, check placement,
-real and replaced boundaries, silence rule, and guides to journeys, synthetic
-hosts, and proof records.
+[Dashboard tests](tests/README.md) indexes the Playwright strategy, two tiers,
+check placement, real/replaced boundaries, silence rule, journeys, hosts and proof records.
 
 ## GitHub requests
 

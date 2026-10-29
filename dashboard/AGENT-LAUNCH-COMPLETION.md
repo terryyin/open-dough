@@ -49,7 +49,7 @@ expanded and says so in the entry's status line. Read, or on a session marked
 done, the part is collapsed until the developer expands it from its heading,
 without Mark as read; that choice lasts for the report only until a reload. A
 newer report, with a new receipt, is unread again and expanded. The entry's
-**Mark as done** is its own control, offered whenever the session can be marked
+**Mark as done** is its own control in **More session actions**, offered whenever the session can be marked
 done, an unread report included; marking read never puts Mark as done in its
 place. Ordinarily, while unread, an entry keeps its session's
 native reading — its words, its edge, its place in the Sessions sidebar, and

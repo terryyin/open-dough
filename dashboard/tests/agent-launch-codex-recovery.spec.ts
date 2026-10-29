@@ -65,6 +65,12 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       const pending = storyCardSessions(card(notRefinedStory));
       await expect(pending).toContainText("Conversation created in Codex");
       await expect(pending).toContainText("First input acceptance uncertain");
+      await expect(
+        pending.getByText("First input acceptance uncertain", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        pending.getByRole("button", { name: "Session details", exact: true }),
+      ).toHaveAttribute("aria-expanded", "false");
       await expect(pending).not.toContainText("Refinement started in Codex");
       const record = stored(limited.home)[0];
       if (record?.session.host !== "codex")

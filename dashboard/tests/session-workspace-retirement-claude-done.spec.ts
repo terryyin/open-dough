@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Mark as done on a Recently done entry of a recorded Claude session whose
 // workspace is retired: where a press finds it, and the rename it retries.
 import { rmSync } from "node:fs";
@@ -52,6 +53,11 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
     },
   );
   const { settled } = await openStoryColumnsJourney(page, journey);
+  await sessionActions(
+    parts(page)
+      .recentlyDone.getByRole("article")
+      .filter({ hasText: record.session.sessionId }),
+  );
   const control = markAsDone(
     parts(page)
       .recentlyDone.getByRole("article")

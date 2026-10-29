@@ -5,6 +5,7 @@ import { expect } from "./dashboardTest.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
+import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
 
 export async function expectMixedContinuation(
   page: Page,
@@ -15,12 +16,14 @@ export async function expectMixedContinuation(
   const codex = storyCardSessions(card).filter({
     hasText: "Refinement started in Codex",
   });
+  await sessionDetails(codex);
   await expect(codex.locator("p", { hasText: /^Workspace / })).toHaveText(
     `Workspace ${continuation.workspace}`,
   );
-  await expect(codex.locator("p", { hasText: /^Continue in / })).toHaveText(
-    `Continue in Codex: ${shellCommand(continuation.args)}`,
-  );
+  await expect(
+    codex.locator("p", { hasText: /^Continue in / }).locator("code"),
+  ).toHaveText(shellCommand(continuation.args));
+  await expect(codex.locator("p", { hasText: /^Continue in / })).toBeVisible();
   if (notice !== undefined)
     await expect(codex.getByText(notice, { exact: true })).toBeVisible();
   else await expect(codex.locator("p.quiet")).toHaveCount(0);

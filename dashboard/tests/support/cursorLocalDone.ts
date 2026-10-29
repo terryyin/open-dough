@@ -3,6 +3,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { expectQuestion, markAsDone, markDone } from "./markDone.ts";
+import { sessionActions } from "./sessionEntryDisclosure.ts";
 
 export const localWorkingStatement =
   "This session is still working. Marking it done only acknowledges it in this dashboard; it does not stop the session.";
@@ -14,6 +15,7 @@ async function answerLocalDone(
   control: Locator,
   surface: Locator,
 ): Promise<Locator> {
+  await sessionActions(control);
   await markAsDone(control).click();
   await expect(surface).not.toContainText("Marking it done asks it to stop.");
   const question = await expectQuestion(surface, localWorkingStatement);

@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Recover for an unfinished Cursor session the runner does not hold: the
 // not-held offer, resume through the runner, one continuation only on the
 // idle composer with confirmed first input, and cases that type nothing or
@@ -49,9 +50,7 @@ test("an unfinished not-held Cursor session says the agent is not running, offer
     dashboard.home,
   );
   await expect(entry).not.toHaveClass(/needs-attention/);
-  await expect(
-    entry.getByRole("button", { name: "Delete record…" }),
-  ).toHaveCount(1);
+  await expect(await sessionAction(entry, "Delete record…")).toHaveCount(1);
   const answer = await projectedSessions(page);
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",

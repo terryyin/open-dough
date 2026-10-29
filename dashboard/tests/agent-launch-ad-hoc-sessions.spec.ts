@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Ad hoc sessions occupy Taken without a story card. Sidebar selection opens
 // their project/terminal; Done moves them to Recently done and reopen survives reload.
 // Blocked sessions count as needing attention; deletion under an unread native
@@ -196,7 +197,11 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   const unknown = "State unknown: Claude Code's session list could not be read";
   await expect(sessionStateOf(newer)).toHaveText(unknown);
   await showColumn(page, "Taken");
-  await newer.getByRole("button", { name: "Delete record…" }).click();
+  await (
+    await sessionActions(newer)
+  )
+    .getByRole("button", { name: "Delete record…" })
+    .click();
   await newer
     .getByRole("button", { name: "Delete record", exact: true })
     .click();
@@ -205,7 +210,11 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   await expect(entries).toHaveCount(1);
   await expect(entries.first()).toContainText("the older question");
   await expect(older).toBeFocused();
-  await older.getByRole("button", { name: "Delete record…" }).click();
+  await (
+    await sessionActions(older)
+  )
+    .getByRole("button", { name: "Delete record…" })
+    .click();
   await older
     .getByRole("button", { name: "Delete record", exact: true })
     .click();

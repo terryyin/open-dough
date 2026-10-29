@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // A session entry's message part, on a card or in Recently done: expanded
 // with Mark as read while its report is unread, beside the entry's own Mark as
 // done; a refused mark says so in the entry's status line; marked read, the
@@ -54,7 +55,9 @@ test("a card entry's unread message is marked read in its message part, beside t
   // Unread: expanded under its completion label, with Mark as read in the
   // part and the entry's own Mark as done beside it.
   await expectExpanded(message, label, reportedMessage);
-  const done = entry.getByRole("button", { name: "Mark as done" });
+  const done = (await sessionActions(entry)).getByRole("button", {
+    name: "Mark as done",
+  });
   await expect(done).toBeVisible();
   await expect(message.part.locator(done)).toHaveCount(0);
   await expect(entry.getByRole("button", { name: "Mark as read" })).toHaveCount(
@@ -159,7 +162,9 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   await openUntilRead(page);
   const entry = takenStoryCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
-  const done = entry.getByRole("button", { name: "Mark as done" });
+  const done = (await sessionActions(entry)).getByRole("button", {
+    name: "Mark as done",
+  });
   await expectExpanded(message, label, longMessage);
 
   // The text's box is shorter than the message and scrolls; with the entry

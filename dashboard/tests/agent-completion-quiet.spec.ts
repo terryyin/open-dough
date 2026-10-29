@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../src/launchOutcome.ts";
 import type { submitCompletion } from "../server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
@@ -128,7 +129,10 @@ for (const closure of [
             "Native rename refused.",
           );
           await expect(
-            recent.getByRole("button", { name: "Mark as done", exact: true }),
+            (await sessionActions(recent)).getByRole("button", {
+              name: "Mark as done",
+              exact: true,
+            }),
           ).toBeVisible();
           nativeSession.renameError = undefined;
           const retry = () =>

@@ -1,0 +1,115 @@
+/* Compact Session entries on cards and in the Taken/Recently done columns.
+   Shared launch controls and attention remain in ./agent-launch.css. */
+
+.session-entry {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.session-entry [hidden] {
+  display: none;
+}
+
+.session-entry-summary,
+.session-entry-summary-facts,
+.session-entry-controls,
+.session-entry-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.session-entry-summary {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.session-entry-summary-facts {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-2);
+}
+
+.session-entry-summary-facts .session-unread-report {
+  order: 1;
+  flex-basis: 100%;
+}
+
+.session-entry-host,
+.session-entry-model {
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+.session-entry-controls {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}
+
+.session-entry-controls > .launch-open,
+.session-entry-actions > .launch-open {
+  margin: 0;
+}
+
+.session-details-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-size);
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--quiet);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.session-details-toggle:hover {
+  background: var(--hover);
+}
+
+.session-details-toggle .icon {
+  width: var(--label-icon-size);
+  height: var(--label-icon-size);
+}
+
+.session-entry-details,
+.session-entry-actions {
+  border-top: 1px solid var(--line);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.session-entry-details {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--quiet);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+
+.session-entry-details code {
+  color: var(--text);
+  font-size: inherit;
+}
+
+.session-copy-command {
+  margin-top: var(--space-2);
+  display: flex;
+}
+
+.session-entry-actions {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.session-entry-actions > .in-place-question {
+  flex-basis: 100%;
+}

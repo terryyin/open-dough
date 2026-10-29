@@ -2,7 +2,8 @@
 
 **Story:** [SEED-169#compact-session-entry](../../seeds/SEED-169-compact-session-entry.md#compact-session-entry)
 **Status:** ready
-**Source:** The developer accepted the Compact proposal in this chat and requested implementation.
+**Source:** [Selected story](../../seeds/SEED-169-compact-session-entry.md#compact-session-entry). The developer accepted the Compact proposal in this chat and requested implementation.
+**Source review:** [Independent commitments](source-review.md)
 
 ## Goal and scope
 
@@ -24,10 +25,12 @@ North Star's Meaning and terminology, Evidence/freshness and accessibility topic
 retain qualified slice counts, requested-vs-observed model, meaningful uncertainty,
 focus and touch access. The approved design changes scan hierarchy, not those facts.
 
-## Slice 1 — Scan and operate a compact session
+## Ordered slices
+
+### 1. Scan and operate a compact session
 
 Type: Behavior
-Status: pending
+Status: done
 
 Precondition: A story or local session entry has a retained session record.
 Trigger: Read the entry, disclose details or session actions, then use a control.
@@ -71,3 +74,109 @@ Refinement not needed: one accepted layout, one cohesive slice and one outside-i
 proof loop. No remaining slice-specific design concern. The proof-route premise
 is bounded by the initial discriminating fixture observation in Slice 1; no live
 host behavior is inferred from the mockup.
+
+## Execution identity and setup
+
+Story Branch Mode; owned managed worktree created for this chat at
+`/Users/terryyin/.codex/worktrees/compact-session-card/open-dough`, branch
+`codex/compact-session-card`. Originating/default checkout:
+`/Users/terryyin/git/open-dough`. Base `d848e6d0fc35037635923ac6cbd3643772a5ecd9`.
+Accepted admission `e4fdd3ef3d1a359568a5326303a57f9522d9e121` on origin/main,
+also the published execution branch base; assigned agent bas-chan. Startup
+reported reused because the Codex app had just created/attached the worktree.
+`npm ci` with current lockfile and `npm run typecheck:dashboard` passed in this
+exact worktree; no parent dependency resolution or mutable installation sharing.
+
+Ordinary target: origin `refs/heads/codex/compact-session-card`. Final integration
+target: origin `refs/heads/main`. GitHub CI selector `ci.yml`, verified id
+351271804, display name CI. Observer coordinator `compact-session-card-20261029`,
+directory `/tmp/dough-ci-501/watch-uQyWVa`, PID 93361, stream session 94095,
+yielded functions cell 35. Startup claim on trunk was not observed by this
+branch observer; normal code delivery is registered through managed delivery.
+
+## Accepted implementation proof
+
+The new compact journey failed before production edits at the missing Session
+details control (`dashboard/test-results/2026-10-29T03-49-19.159Z`), then passed
+with the compact implementation. Source-only reviewer launch and commitments
+are retained in source-review.md. Parent inspected production, observing tests,
+fixture setup and desktop/narrow screenshots. Setup supplies only native/Git
+starting state; real page disclosures, routing, actions and feedback supply the
+observed outcomes.
+
+The main regression command below selected 56 tests, all strict passed in 59s;
+record `/private/tmp/compact-session-regression-proof.json` was inspected with
+phase completed, selectedCount/tests 56, runnerStatus/strictStatus passed.
+Literal command:
+
+```sh
+env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/private/tmp/compact-session-regression-proof.json npm run test:dashboard -- compact-session-entry.spec.ts agent-completion-quiet-claude.spec.ts agent-completion-quiet.spec.ts agent-launch-ad-hoc-sessions.spec.ts agent-launch-recent-delete-unavailable.spec.ts agent-launch-story-card-delete-problems.spec.ts agent-launch-story-card-delete.spec.ts agent-launch-story-card-done.spec.ts agent-launch-story-card-open-session.spec.ts agent-terminal-delete.spec.ts cursor-session-scope-noninterference.spec.ts session-attribution.spec.ts session-column-membership.spec.ts session-unread-report-message.spec.ts session-unread-report.spec.ts agent-launch-session-state-pace.spec.ts agent-launch-story-card-sessions.spec.ts agent-launch-story-card-session-states.spec.ts agent-launch-model-entries.spec.ts agent-launch-options-entries.spec.ts agent-launch-codex-observation-workspace.spec.ts agent-launch-start-session-isolated.spec.ts agent-launch-start-session-landing.spec.ts agent-launch-preparation-kept.spec.ts agent-launch-done-question.spec.ts agent-launch-done-question-follows.spec.ts
+```
+
+Additional focused command covering uncertainty, workspace/report access,
+unconfirmed Stop, Cursor recovery and touch management (pass):
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- compact-session-entry.spec.ts agent-launch-recent-delete.spec.ts agent-session-cursor-stop.spec.ts agent-launch-codex-recovery.spec.ts session-workspace-retirement-cursor.spec.ts cursor-session-recovery-stops.spec.ts session-management-touch.spec.ts agent-completion-cursor.spec.ts session-workspace-retirement-claude-done.spec.ts agent-session-cursor.spec.ts agent-session-cursor-done.spec.ts
+```
+
+Responsive/continuation/established-workspace consumer command (pass):
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- compact-session-entry.spec.ts agent-launch-codex.spec.ts recently-done-story-sessions.spec.ts responsive-session-access.spec.ts agent-launch-start-story-card.spec.ts agent-launch-start-session-recovery.spec.ts agent-launch-start-taken.spec.ts project-add.spec.ts
+```
+
+Final command after removing screenshot-only instrumentation and adding the
+single-workspace assertion/final-report glyph (pass), followed by typecheck:
+
+```sh
+env -u NO_COLOR npm run test:dashboard -- compact-session-entry.spec.ts session-workspace-retirement-cursor.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+Consumer trace: `/private/tmp/compact-session-consumer-trace.md`, produced by the
+installed tracer and inspected for shared entry/card/local/Recently done,
+confirmation, metadata and panel purposes. The new disclosure helper is reached
+by existing lifecycle helpers; their behavior assertions remain. Native/panel
+protocol details have unchanged production ownership; common changed UI
+boundaries use the equivalent-purpose observations above. No full local suite,
+live host session or hook-owned lint was run. Focused selections are bounded
+by the changed frontend presentation/helper effects; no expensive proof deferred.
+
+
+## Accepted independent refactor
+
+Fresh reviewer returned REFACTOR COMPLETE. Routine metadata moved unchanged to
+SessionDetails, list functions to SessionLists, compact rules to a top-imported
+session-entry.css, with all import consumers updated. Documentation has one
+maintained session-entry home. Repeated test action orchestration is shared;
+the independent active/done membership journey moved intact to its own spec.
+Parent inspected the extraction, import/cascade consumers and retained assertions.
+No new native responsibility or user behavior. Existing detailed protocol,
+readiness, warning and lifecycle proof remains valid; replaced module/CSS/list
+wiring proof passed below. The new built-preview run has 35 selected/passed,
+strict passed in 125.6s. Two workers were deliberately chosen on this busy Mac;
+no competing owned heavy command, no unrelated processes changed.
+
+```sh
+env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/private/tmp/compact-session-refactor-proof.json npm run test:dashboard -- --workers=2 compact-session-entry.spec.ts agent-launch-story-card-sessions.spec.ts agent-launch-story-card-open-session.spec.ts agent-launch-story-card-delete.spec.ts agent-launch-recent-delete.spec.ts agent-session-cursor-stop.spec.ts cursor-session-recovery.spec.ts cursor-session-scope-noninterference.spec.ts recently-done-story-sessions.spec.ts recently-done-active-story-sessions.spec.ts session-column-membership.spec.ts session-management-touch.spec.ts session-unread-report.spec.ts sessions-sidebar.spec.ts recently-done-sessions-sidebar.spec.ts
+npm run typecheck:dashboard
+git diff --check
+```
+
+Trace `/private/tmp/compact-session-refactor-consumer-trace.md` disposes all 157
+located consumers with run/reused/excluded boundary reasons. New SessionLists
+consumers include both sidebar lists, observed by sessions-sidebar and
+recently-done-sessions-sidebar; their separate entry rendering is unchanged.
+No uncovered consumer, gap, deferred observation or further product advice.
+Saved and formatting-preview source/prose files meet the refactor size rule.
+
+
+Mechanical preparation initially refused a Clipboard API optional guard because
+DOM typings assume secure-context availability. The equivalent feature check
+now derives optional availability from property presence. No behavior changed;
+renewed `env -u NO_COLOR npm run test:dashboard -- --workers=2 compact-session-entry.spec.ts`
+passed, observing success, rejection and unavailable API again. Formatter-only
+edits preserve all other accepted boundaries. The refused attempt committed and
+published nothing; guarded preparation is retried on the repaired candidate.

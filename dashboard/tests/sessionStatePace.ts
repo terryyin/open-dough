@@ -163,18 +163,15 @@ export async function expectNotReloaded(page: Page): Promise<void> {
 }
 
 // The entry shows these state words, and its attention edge only when the
-// developer is needed there: solid and heavier than a quiet entry's dashed
-// one, so it does not rest on color.
+// developer is needed there: a heavier edge than a quiet entry's thin one,
+// so it does not rest on color.
 export async function expectSessionShown(
   entry: Locator,
   words: string,
   needsAttention: boolean,
 ): Promise<void> {
   await expect(sessionStateOf(entry)).toHaveText(words);
-  await expect(entry).toHaveCSS(
-    "border-top-style",
-    needsAttention ? "solid" : "dashed",
-  );
+  await expect(entry).toHaveCSS("border-top-style", "solid");
   await expect(entry).toHaveCSS(
     "border-left-width",
     needsAttention ? "4px" : "1px",

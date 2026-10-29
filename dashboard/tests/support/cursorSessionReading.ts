@@ -11,6 +11,7 @@ import { hostDescriptions } from "../../src/hostDescription.ts";
 import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
 import type { HostOperations } from "../../src/sessionCapabilities.ts";
 import type { StartOrigin } from "./startOrigin.ts";
+import { sessionActions } from "./sessionEntryDisclosure.ts";
 
 export const instruction = "inspect this session";
 
@@ -67,6 +68,7 @@ export function cursorRecord(answer: SessionsAnswer, sessionId: string) {
 export async function openTakenCursorSession(
   page: Page,
   origin: StartOrigin,
+  model?: string,
 ): Promise<Locator> {
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
@@ -81,6 +83,8 @@ export async function openTakenCursorSession(
     .click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  if (model !== undefined)
+    await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const recent = parts(page).taken.locator(".session-entry");
@@ -101,6 +105,7 @@ export async function expectCursorSessionActions(
   page: Page,
   entry: Locator,
 ): Promise<void> {
+  await sessionActions(entry);
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(1);
