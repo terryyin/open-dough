@@ -96,7 +96,7 @@ Enables: Slice 3's full-suite confirmation of the selected local wait.
 
 ### 3. Selected local suite confirms the measured outcome
 Type: Behavior
-Status: planned
+Status: done
 Proof: Re-run `env -u NO_COLOR npm run test:dashboard` under conditions
 comparable to slice 1's baseline, with a proof record. Report before/after wall
 time and executed case count, retained behavioral proof, rejected experiments,
@@ -123,98 +123,100 @@ permitted when probe or experiment evidence changes the family strategy.
 - **Revision:** `7d8d83ff2986ecc385e13be3d2dba44230521ecb`
 - **Literal command:**
   `env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-dashboard-baseline.B3xSoT/proof.json npm run test:dashboard`
-  (resolves to `playwright test --config dashboard/playwright.config.ts`)
-- **Runner conditions:** default local workers (Playwright half of
-  `availableParallelism()` → 8 on this 16-CPU host); `fullyParallel: true`; no
-  test filter; Chromium browsers from `~/Library/Caches/ms-playwright`;
-  `env -u NO_COLOR`; proof path outside `dashboard/test-results/`.
-- **Load context:** decision-time load averages ~3.91 / 4.51 / 4.76; no other
-  owned heavy dashboard suite in sibling worktrees; only lightweight Playwright
-  MCP processes present. Post-run load rose (~7.6 / 13.2 / 10.9) as expected
-  from the suite itself.
-- **Wall time:** 630 s shell (`date +%s` before/after); proof
-  `terminal.durationMs` ≈ 629.3 s (run span ~619 s attempt wall).
-- **Executed cases:** `selectedCount` 1741; 1741 finished attempts, all
-  `passed`.
-- **Strict terminal:** `phase: "completed"`, `terminal.strictStatus: "passed"`,
-  `terminal.runnerStatus: "passed"`, command exit 0. Successful baseline.
+  (→ `playwright test --config dashboard/playwright.config.ts`)
+- **Runner conditions:** default workers=8 (`availableParallelism()`/2 on 16
+  CPUs); `fullyParallel: true`; no filter; Chromium from
+  `~/Library/Caches/ms-playwright`; `env -u NO_COLOR`; proof outside
+  `dashboard/test-results/`.
+- **Load context:** decision ~3.91 / 4.51 / 4.76; no competing owned dashboard
+  suite; post-run ~7.6 / 13.2 / 10.9 from the suite.
+- **Wall / cases / terminal:** 630 s shell (`terminal.durationMs` ≈ 629.3);
+  `selectedCount` 1741 all `passed`; `phase: "completed"`, strict/runner
+  `passed`, exit 0. Successful baseline.
 - **Raw proof:** `/tmp/od-dashboard-baseline.B3xSoT/proof.json` (outside Git).
 
 ### Dominant-cost hypothesis (for slice 2)
 
-Local wait is wall-bound by a near-fully utilized 8-worker parallel run, not by
-runner idle gaps (internal all-idle gaps ≈ 0) and not by a few outliers (top 10
-cases ≈ 7% of summed `durationMs`). Summed attempt `durationMs` ≈ 4324 s versus
-~630 s wall (avg concurrency ≈ 7). Browser **journeys** dominate worker-seconds
-(~3368 s / 910 cases) over **boundary** (~957 s / 831 cases).
-
-Largest coherent behavioral family for a first experiment: journey
-**`agent-launch*`** — 73 specs / 195 cases / ~770 s concurrent-area
-(~18% of worker-seconds); p50 ≈ 2.4 s, p90 ≈ 7.8 s, with multi-step poles
-(`agent-launch-second-server` 65 s, orphan 31 s, preparation-codex-retry 10
-cases / 74 s, ad-hoc-terminal 41 s). Second family: journey **`story-review*`**
-(95 / ~500 s). Do not reopen SEED-171 production-policy or SEED-173 allocation as
-the first move (`production*` ≈ 139 s area only).
-
-Credible slice 2 experiment remains: reduce wasted journey cost inside
-`agent-launch*` (redundant journey variants boundary can own, collapse multi-step
-durability duplication, or share fixture/setup) under dashboard tier guidance,
-with measured retain-or-undo against this baseline.
+Local wait is wall-bound by a near-fully utilized 8-worker run (idle gaps ≈ 0;
+top 10 cases ≈ 7% of summed `durationMs`). Summed attempt `durationMs` ≈ 4324 s
+vs ~630 s wall (avg concurrency ≈ 7). Journeys dominate (~3368 s / 910) over
+boundary (~957 s / 831). First family: journey **`agent-launch*`** — 73 specs /
+195 cases / ~770 s (~18%); poles include preparation-codex-retry 10 cases / 74 s.
+Second: **`story-review*`** (95 / ~500 s). Leave SEED-171/173 closed
+(`production*` ≈ 139 s only). Slice 2 targeted wasted journey cost inside
+`agent-launch*` under dashboard tier guidance with measured retain-or-undo.
 
 ### Slice 2 experiment (preparation-codex-retry matrix → boundary)
 
-- **Hypothesis:** `agent-launch-preparation-codex-retry.spec.ts` ran ten nearly
-  identical browser journeys over retained-preparation damage variants; dashboard
-  tier guidance puts those server/script variants at boundary and keeps one page
-  path in a journey.
-- **Change (retained pending slice 3):** move the ten damage cases to
+- **Hypothesis:** ten nearly identical journeys over retained-preparation damage
+  variants; tier guidance keeps one page path and moves variants to boundary.
+- **Change (retained; slice 3 confirmed):** move ten damage cases to
   `dashboard/tests/boundary/agent-launch-preparation-codex-retry.spec.ts`; keep
-  one representative journey proving the kept-start dialog surfaces the
-  reconcile refusal (`workspace` damage).
-- **Replacement proof:** boundary matrix established and passing before the
-  journey was narrowed; three consecutive focused passes of journey+boundary
-  after the narrow (all exit 0).
-- **Focused BEFORE** (revision `692d9032…`, default local workers=8,
-  `env -u NO_COLOR`):
-  `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-dashboard-slice2-before.prepRetry/proof.json`
-  `npx playwright test --config dashboard/playwright.config.ts`
-  `dashboard/tests/agent-launch-preparation-codex-retry.spec.ts`
-  `dashboard/tests/agent-launch-preparation-codex.spec.ts`
-  `dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`
-  `dashboard/tests/boundary/agent-launch-preparation-codex-continuation.spec.ts`
-  — wall **19 s** shell / `terminal.durationMs` ≈ **18649**; `selectedCount`
-  **14**; all passed; journey-retry area ≈ **72.5 s** (10 cases).
-- **Focused AFTER** (same workers/env; selection adds replacement boundary
-  file): proof `/tmp/od-dashboard-slice2-after.prepRetry/proof.json` (and
-  repeats after2/after3) — wall **14–15 s** / `terminal.durationMs` ≈
-  **13647–14164**; `selectedCount` **15**; journey-retry **1** case ≈ **6.5–7.0 s**
-  + boundary-retry **10** cases ≈ **48–50 s**. Focused wall gain ≈ **4–5 s**
-  (~25%); worker-seconds for the matrix ≈ **72.5 → ~55**.
-- **Decision:** **retain** on focused wall-time gain. Full-suite confirmation
-  of the selected local wait remains **slice 3**; do not claim suite speedup
-  from focused timings alone.
-- **Reassess / stop:** no further slice 2 experiments. Remaining
-  `agent-launch*` cost poles are mostly unique multi-step journeys
-  (`second-server` ~65 s, `second-server-orphan` ~31 s, `ad-hoc-terminal` ~41 s)
-  without a redundant variant matrix boundary can own; smaller multi-case
-  page files (`model` ~19 s, touch layout) offer weaker credible wall savings.
-  Do not reopen SEED-171/173. Second family `story-review*` stays a later
-  candidate only if slice 3 still needs more after confirmation.
+  one journey for kept-start dialog / reconcile refusal (`workspace` damage).
+- **Replacement proof:** boundary matrix green before journey narrow; three
+  consecutive focused journey+boundary passes after (exit 0).
+- **Focused BEFORE** (`692d9032…`, workers=8, `env -u NO_COLOR`): proof
+  `/tmp/od-dashboard-slice2-before.prepRetry/proof.json` selecting the three
+  preparation-codex journey specs plus
+  `boundary/agent-launch-preparation-codex-continuation.spec.ts` — wall **19 s**
+  / `durationMs` ≈ **18649**; `selectedCount` **14**; journey-retry ≈ **72.5 s**.
+- **Focused AFTER** (adds replacement boundary file; after/after2/after3): wall
+  **14–15 s** / `durationMs` ≈ **13647–14164**; `selectedCount` **15**;
+  journey-retry **1** ≈ **6.5–7.0 s** + boundary **10** ≈ **48–50 s**
+  (~25% wall; matrix worker-seconds ≈ **72.5 → ~55**).
+- **Decision:** **retain** on focused gain; slice 3 confirmed the selected local
+  wait. Do not claim suite speedup from focused timings alone.
+- **Reassess / stop:** no further slice 2 experiments. Remaining unique
+  multi-step `agent-launch*` poles (`second-server` ~65 s, orphan ~31 s,
+  `ad-hoc-terminal` ~41 s) and weaker page files; `story-review*` follow-up
+  only. Leave SEED-171/173 closed.
+
+### Slice 3 confirmation (ordinary local re-run)
+
+- **Verdict:** **measured improvement**; slice 2 retain holds; no undo.
+- **Revision:** `a1703fdd59ed9c9b39d40e9e6a5e96e0464db197` (commits `692d9032`
+  baseline, `a1703fdd` preparation-codex-retry boundary move).
+- **Literal command / conditions:**
+  `env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-dashboard-slice3.vQYmal/proof.json npm run test:dashboard`;
+  default workers=8; `fullyParallel: true`; no filter; proof outside
+  `dashboard/test-results/`.
+- **Load context:** decision ~5.10 / 6.24 / 7.10 (warmer than slice 1
+  ~3.91 / 4.51 / 4.76); post-run ~17.6 / 14.1 / 11.1; no competing owned suite.
+- **Wall AFTER / BEFORE:** **589 s** (`terminal.durationMs` ≈ **588.7**) vs
+  slice 1 **630 s** (≈ **629.3**); Δ **−41 s** (~6.5%).
+- **Cases:** AFTER `selectedCount` **1742** (net +1: journey 10→1, boundary
+  +10); BEFORE **1741**; 1742 finished attempts, all `passed`.
+- **Strict terminal:** `phase: "completed"`, `strictStatus` / `runnerStatus`
+  `passed`, exit 0. Complete measurement.
+- **Family delta:** summed attempt `durationMs` ≈ 4324→4092; `agent-launch*`
+  journeys 195→186 / ~770→~673 s; boundary 831→841 / ~957→~967 s.
+- **Replacement-test cost (full suite):** preparation-codex-retry ≈ **74.5 s**
+  (10 journeys) → ≈ **42.5 s** (1 journey ~8.0 s + 10 boundary ~34.5 s).
+- **Retained behavioral proof:** one journey page-path (`workspace` /
+  kept-start dialog) plus ten boundary damage variants; full suite green.
+- **Rejected experiments:** **none** this pass.
+- **Remaining candidates:** unique multi-step `agent-launch*` poles
+  (`second-server`, orphan, `ad-hoc-terminal`); `story-review*`. Leave
+  SEED-171/173 closed without new local-wait evidence.
+- **Raw proof:** `/tmp/od-dashboard-slice3.vQYmal/proof.json` (outside Git).
+- **Unused story alternatives:** no-gain paths (source-review 12, 27, 28.1,
+  28.2, 31.2) unused; 21 / 31.1 observed.
 
 ## Learnings
 
 - Proof JSON uses top-level `tests[]` (not `selections`); each entry has
   `attempts[]` with `startedAt` / `durationMs` / `status`.
 - Default local worker count here is 8 (half of 16 CPUs); CI would use full
-  parallelism — keep slice 3 comparisons on the same local default.
+  parallelism — keep full-suite comparisons on the same local default.
 - Near-zero inter-test idle under load means savings must cut work per case or
   case count in heavy journey families; worker-count tweaks alone are out of
   story scope for local wait unless evidence changes.
-- Moving a ten-case preparation damage matrix from journey to boundary cut
-  focused wall ~19 s → ~14 s and matrix worker-seconds ~72.5 s → ~55 s while
-  preserving one page-path journey; include replacement boundary cost in AFTER
-  selection. Focused gain alone does not finish the story — slice 3 re-profiles
-  `npm run test:dashboard`.
+- Journey→boundary move of the preparation damage matrix cut focused wall
+  ~19→~14 s and full-suite wall **630→589 s** (−41 s) at selectedCount
+  1741→1742 while preserving one page-path journey; include replacement
+  boundary cost in AFTER selection, and claim suite speedup only after a
+  comparable full re-run (tests-only / dashboard-only; no CI-allocation
+  reopen).
 
 ## Story obligations
 
