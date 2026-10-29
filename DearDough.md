@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 365. Removed numbers are never reused.
+- Highest allocated local number: 368. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -599,3 +599,18 @@ the story-branch candidate.
   - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` — each `execution-increment-delivery.mjs fresh` commit succeeded then refused with “Publication does not match the supplied landing context”; open first-landing expectation keyed by workspace+branch named landing-context.json targeting `refs/heads/main`; `execution-increment-resume.mjs resume` of the same candidate then accepted on the story branch without supplying `--landing-context`
   - Observed effect: every story-branch fresh publish interrupted on trunk-targeted landing retain; resume without landing context accepted the candidate
   - Inference: distinct from ODF-251 (second worktree for trunk corrections). Planted trunk first-landing expectation and story-branch publish target collide on the same launch workspace; auto-resolve should not apply trunk landing to execution-branch increments
+
+
+## DD-368 — A CI log excerpt hides an earlier failed test in the same job
+
+The default CI diagnostic keeps lines around GitHub error markers. With the quiet dashboard reporter, the process-exit marker follows only the last test failure; an earlier failure can be omitted without a complete failed-test inventory. This differs from ODF-221's same-cause sibling repair omission: here the first diagnosis did not expose the sibling failure at all.
+
+### Occurrences
+
+- Execution: SEED-169#compact-session-entry; first implementation `c036dbd73a6f58949356b3b7de497085642bd1fc`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown; installed diagnostic at `c036dbd73a6f58949356b3b7de497085642bd1fc:.agents/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs`
+  - Evidence: [run 40817756668, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40817756668/job/123262746829), 2026-10-29 UTC logs, has FAIL lines for agent-launch-attention.spec.ts and sessions-sidebar-navigation-cases.spec.ts. The diagnostic excerpt showed only navigation. After its repair `76d61616d6e74866024a3091a2ec7040d2b9791e`, [run 40819519249, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40819519249/job/123268443339) retained only the unchanged attention failure. Full logs were read through the same CI GitHub source to verify both inventories.
+  - Observed effect: the coordinator published the navigation-only repair before discovering that readiness comparison had already failed in the first job; another CI cycle repeated that known-but-unseen failure.
+  - Inference: bounded per-failure inventory before repair publication could have avoided at least that extra cycle; retain bounded excerpts without treating a tail as the complete failed-test list.
