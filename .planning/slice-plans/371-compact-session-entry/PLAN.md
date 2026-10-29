@@ -180,3 +180,37 @@ renewed `env -u NO_COLOR npm run test:dashboard -- --workers=2 compact-session-e
 passed, observing success, rejection and unavailable API again. Formatter-only
 edits preserve all other accepted boundaries. The refused attempt committed and
 published nothing; guarded preparation is retried on the repaired candidate.
+
+
+## Execution retrospective
+
+Reviewed planned intent, all 57 independently derived source clauses, aggregate
+implementation and current product boundaries. Attribution: admission e4fdd3ef
+is preparation provenance; implementation c036dbd73a6f58949356b3b7de497085642bd1fc
+is the delivered UI/test/doc change. Other trunk work since the fork is excluded
+from this execution's claims. Trunk source check reports unchanged.
+
+The compact scan, independent disclosures and visible exceptions match the
+accepted outcome. One shared entry remains responsible for card/local/Recently
+done presentation; extracted details/list/styles retain that ownership. Native
+capabilities, confirmations, terminal/report routing and published story facts
+remain separate under ADR 0008. No refactoring residue or product defect was
+found in the inspected changed boundaries or their relevant untouched consumers.
+
+Outside-in tests drove the change from a failing compact expectation. The two
+new integrated journeys use existing fixtures, observe real UI outcomes and do
+not duplicate native protocol variants. Existing scenarios/assertions survive
+disclosure helper changes and the intact membership-test split. Full-suite
+assessment used current focused proof and boundary inspection, not a local full
+run. CI remains pending on the published execution branch.
+
+Process review was enabled by project configuration and used this coordinator's
+record plus available delegate handoffs. Mechanical preparation refused an
+optional-browser guard and two untracked trailing blank lines before any commit;
+these were corrected without changing the outcome or weakening checks. No
+new supported durable process finding or correction plan is warranted.
+Product direction remains compatible; no further backlog action recommended.
+
+## Execution complete
+
+Product advice: no further product change recommended from this execution.
