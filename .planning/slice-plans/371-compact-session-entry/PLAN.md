@@ -46,9 +46,6 @@ Postconditions:
 - Shared card/local/Recently done entries remain coherent and responsive, using
   the existing design foundation rather than the proposal's standalone CSS.
 
-Implementation, focused proof, documentation and slice-local cleanup are one loop.
-No supplied time budget; this is one cohesive presentation/interaction outcome.
-
 Proof: extend the session browser journey with collapsed-default, keyboard
 disclosure/menu, unchanged terminal and done/stop behavior, visible attention and
 narrow-width checks; adapt shared journey helpers at the changed disclosure
@@ -70,10 +67,9 @@ checkout. The check-only pre-commit hook runs staged lint and typecheck for scri
 
 ## Preparation review
 
-Refinement not needed: one accepted layout, one cohesive slice and one outside-in
-proof loop. No remaining slice-specific design concern. The proof-route premise
-is bounded by the initial discriminating fixture observation in Slice 1; no live
-host behavior is inferred from the mockup.
+Refinement was not needed: one accepted layout, cohesive slice and outside-in
+proof loop. The discriminating premise is settled by the red/green proof below;
+no live host behavior is inferred from the mockup.
 
 ## Execution identity and setup
 
@@ -223,13 +219,16 @@ Story clause: "Keep native host capabilities, session lifecycle, terminal/review
 Disposition: proved by slice 1: sessions-sidebar-navigation-cases.spec.ts offscreen-to-revealed/terminal assertions, /private/tmp/compact-session-ci-repair-green.json (4/4 strict passed, retry 0)
 
 
+### G2. Conditional readiness in the published-facts comparator
+Reported: slice 1 — "CI run 40819519249/1 dashboard (12/12) failed agent-launch-attention.spec.ts:199: the published-facts text comparator included the scan Ready badge, which intentionally reappears after the last execution session closes. Full logs show this assertion also failed in run 40817756668/1; its bounded diagnostic excerpt omitted that earlier failure."
+Story clause: "retain preparation facts in Inspect story and preserve warnings."
+Disposition: proved by slice 1: agent-launch-attention.spec.ts retains three fact comparisons excluding only conditional positive scan; compact-session-entry.spec.ts observes initial/open/closed scan readiness and inspected Assessment: Ready
+
 ## CI repair proof
 
-Owned run 40817756668/1 failed one dashboard job at the offscreen setup, before
-the navigation trigger. Unchanged Mac reproduction failed at the same assertion
-(ratio .19387; CI .19584). A 1280x600 desktop viewport restores the real offscreen
-precondition; terminal attach, actual reveal, smooth-scroll, outline and current
-entry assertions are retained. No production UI or navigation behavior changed.
+G1: Mac red reproduced the CI offscreen assertion (.19387 vs .19584). Explicit
+1280x600 setup preserves real terminal/reveal/outline/current-entry assertions.
+No production behavior changed; full logs confirm G1 passed in the next run.
 
 ```sh
 env -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/private/tmp/compact-session-ci-repair-green.json npm run test:dashboard -- sessions-sidebar-navigation-cases.spec.ts --workers=2
@@ -240,3 +239,11 @@ already establish their viewport/column preconditions. Prior accepted UI/native
 proof and retrospective conclusions remain applicable; G1 supplies the missing
 geometry consumer. Repair stash record is clean/no entry at
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-pGgvxS/record.json`.
+
+
+G2 red reproduced the same line-199 comparison at unchanged 76d61616. The
+comparator excludes only conditional positive scan readiness, keeping all other
+published facts/warnings; the Compact journey now marks its actual session done,
+observes Ready restored and inspects unchanged Assessment: Ready. Green:
+`env -u FORCE_COLOR -u NO_COLOR npm run --silent test:dashboard -- agent-launch-attention.spec.ts compact-session-entry.spec.ts --workers=2`.
+No production change, retry, skipped assertion or timeout increase.

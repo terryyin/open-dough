@@ -13,6 +13,7 @@ import { readyStory } from "./launchJourney.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import { workingCursorTest } from "./support/cursorStart.ts";
 import { openTakenCursorSession } from "./support/cursorSessionReading.ts";
+import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -127,6 +128,18 @@ test("a compact session discloses technical details and secondary actions withou
   await expect(parts(page).recentlyDone.locator(".session-entry")).toHaveCount(
     0,
   );
+  await markDoneAnyway(entry);
+  await expect(entry).toHaveCount(0);
+  await expect(
+    card(readyStory).getByText("Ready for execution", { exact: true }),
+  ).toBeVisible();
+  const inspect = card(readyStory).getByRole("button", {
+    name: "Inspect story",
+    exact: true,
+  });
+  await inspect.focus();
+  await inspect.click();
+  await expect(card(readyStory).getByText(/^Assessment: Ready/)).toBeVisible();
 });
 
 workingCursorTest(
