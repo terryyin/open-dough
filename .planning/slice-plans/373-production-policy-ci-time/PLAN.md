@@ -143,6 +143,11 @@ Reported: slice 1 — "Both saved files contain 96 consumers: 11 run, 85 exclude
 Story clause: "Map original observations to surviving proof."
 Disposition: proved by slice 1: parent independently counted all96 located rows after the trace heading,11run and85excluded, no missing disposition. Corrected97 to96 in plan/map prose; actual consumer set, coverage ledger, observations and implementation are unchanged. Refactor removed only an extra EOF blank line, so all accepted proof remains applicable.
 
+### G3. First candidate full CI failed a custom-provider fixture race
+Reported: slice 1 — "CI40830010312 job test (1/3) failed: custom integrated-state completion expected confirmed shutdown but received retained."
+Story clause: "Compare fresh full hosted CI on named baseline and candidate revisions"
+Disposition: proved by slice 1: deterministic slow-registration diagnostic records success plus retained/unread_actionable_failure for startup D. Parent inspected observe/register/release, real completion assertions and unchanged safety consumers. Custom hold/release no-ops violated the existing fixture contract; file handshake repairs that precondition without suppressing runtime safety. Three complete six-case passes and six downstream/safety files (53 top-level plus4 nested cases) pass. Independent refactor reports no edits and REFACTOR COMPLETE. Hosted acceptance remains G1; the failed run is never counted as green CI.
+
 ## Plan concern review
 
 Refinement was not needed: one cohesive owner, existing real boundaries and
@@ -192,3 +197,19 @@ Independent refactor /root/refactor_policy_coverage completed with
 structural residue. Accepted boundary, setup and observing assertions unchanged;
 no tests rerun. Formatted size predictions172/230/78, all records below250.
 G2 settles the96-row accounting correction. Refactor quiescent, observer intact.
+
+## Owned CI repair before hosted evaluation resumes
+
+Failed run40830010312 at90ea7710 passed all12 dashboard jobs:1741selected,
+1737expected/same4skips,580files, no extra attempts, all1740baseline identities
+and verdicts retained plus one real-Git case. Policy body27.959to15.474s;
+update chain129.923to116.837s. Maxjob227s/fullCI229s reached a failed Node
+result, not green CI. Fixture startup totals also varied; no overall gain claimed.
+Repair owns only ci-integrated-state-custom-test-fixtures.mjs. Raw diagnosis,
+negative patch/log, three focused passes, six-file consumer/safety pass and
+13-consumer trace are ci-repair-custom-completion/ under the raw directory.
+Actual runtime correctly retained unread D failure; no assertions, runtime,
+guidance, installed copies or dashboard code change. Fresh independent refactor
+/root/refactor_ci_fixture_repair returned REFACTOR COMPLETE, no edits/tests.
+Saved CI repair stash receipt i8D6Ze records clean; restore after repair publication.
+G1 stays open for fresh complete hosted proof of the repaired candidate.

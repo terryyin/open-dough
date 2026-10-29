@@ -4,7 +4,8 @@
 // wrapper counts discoveries, fails them while `unavailable` holds, and can
 // shape discovery as a Pygardon-like all-branch history (every target attempt
 // of every branch, newest first) or as a legacy adapter (no branch, check or
-// context).
+// context). Requests can be held until the journey registers its accepted SHA,
+// so startup history is never diagnosed as an unregistered execution.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
@@ -23,13 +24,24 @@ import { publishFileAsAnotherWriter } from "./publication-test-fixtures.mjs";
 
 export const customPolicy = { check: "project-checks", context: "push" };
 
-const wrapperSource = ({ example, state, requests, unavailable, shape }) => `
+const wrapperSource = ({
+  example,
+  state,
+  requests,
+  unavailable,
+  hold,
+  release,
+  shape,
+}) => `
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { customAdapterResponse, discoveredAttempts } from ${JSON.stringify(example)};
+import { guardFixtureProcess, waitForFixtureRelease } from ${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)};
+guardFixtureProcess(${JSON.stringify(join(state, ".."))});
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync(${JSON.stringify(requests)}, JSON.stringify(request) + '\\n');
+if (existsSync(${JSON.stringify(hold)})) await waitForFixtureRelease(${JSON.stringify(release)});
 if (existsSync(${JSON.stringify(unavailable)})) {
   process.stderr.write('custom CI service unavailable');
   process.exit(3);
@@ -53,6 +65,8 @@ export function customProvider(shape = "example") {
     const provider = await installCustomReuseProvider(fixture);
     const requests = join(fixture.fixture, "adapter-requests.jsonl");
     const unavailable = join(fixture.fixture, "adapter-unavailable");
+    const hold = join(fixture.fixture, "hold-adapter");
+    const release = join(fixture.fixture, "release-adapter");
     const wrapper = join(fixture.fixture, "recording-adapter.mjs");
     const example = pathToFileURL(
       join(fixture.skill, "scripts/ci-reuse-custom-example.mjs"),
@@ -64,6 +78,8 @@ export function customProvider(shape = "example") {
         state: provider.state,
         requests,
         unavailable,
+        hold,
+        release,
         shape,
       }),
     );
@@ -123,8 +139,8 @@ process.exit(result.status ?? 1);
     return {
       repo: provider.policy.repo,
       polls: () => operations().filter((name) => name === "discover").length,
-      holdRequests: () => undefined,
-      releaseRequests: () => undefined,
+      holdRequests: () => writeFileSync(hold, ""),
+      releaseRequests: () => writeFileSync(release, ""),
       members: {
         provider,
         operations,
