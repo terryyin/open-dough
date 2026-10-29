@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-169#compact-session-entry",
+  "title": "Scan and operate compact session entries",
+  "completedAt": "2026-10-29T05:14:18.632Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "codex"
+}

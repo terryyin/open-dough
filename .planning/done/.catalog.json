@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-169_compact-session-entry.json",
+      "identity": "SEED-169#compact-session-entry",
+      "completedAt": "2026-10-29T05:14:18.632Z",
+      "blob": "257e83aa2225410d3f1cf9f573f82de00d2b6f66"
+    },
+    {
       "fileName": "SEED-168_story-branch-publication-with-first-landing.json",
       "identity": "SEED-168#story-branch-publication-with-first-landing",
       "completedAt": "2026-10-29T03:31:09.315Z",
