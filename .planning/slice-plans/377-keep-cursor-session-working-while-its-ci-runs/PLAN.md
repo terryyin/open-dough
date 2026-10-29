@@ -1,6 +1,7 @@
 # Keep a Cursor session Working while its CI is still running
 
 **Source:** [Selected story](../../seeds/SEED-175-cursor-session-working-during-owned-ci.md#keep-cursor-session-working-while-its-ci-runs)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-175#keep-cursor-session-working-while-its-ci-runs
 
 ## Goal and scope
@@ -75,7 +76,7 @@ revision `8d62e185`):
 
 ### 1. Idle follow-up stays Working while this conversation owns fresh CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: Boundary tests beside
 `dashboard/tests/boundary/cursor-session-belonging-subagents.spec.ts` that call
 `observeHeldCursorSession` with a confirmed follow-up held session and a
@@ -102,11 +103,26 @@ idle/review and unfinished-subagent rules apply unchanged.
 
 ## Current decisions
 
-Preparation only: this plan grants no Take or execution. Story Branch Mode will
-reuse this owned workspace and branch when execution is separately authorized.
-Coordinator owns formatting, hooks, commits, publication, and closure during
-execution. CI Working evidence is a read of the existing mailbox only. Inject
-mailbox storage for tests; production uses the shared observer directory.
+Coordinator owns formatting, hooks, commits, publication, and closure.
+CI Working evidence is a read of the existing mailbox only. Inject mailbox
+storage for tests; production uses `mailboxRoot`. Source review retained in
+`source-review.md` (commitments 1–33 allocated to slice 1 and observed).
+
+## Accepted proof (slice 1)
+
+```text
+proof:
+  command: env -u FORCE_COLOR -u NO_COLOR PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- dashboard/tests/boundary/cursor-session-owned-pending-ci.spec.ts --reporter=line
+  covers: owner-matched fresh pending → working; terminal/stale/missing/unreadable/other-conversation/child-owned/worker-only → review; unfinished subagents and live stop-hint → working
+  boundary: observeHeldCursorSession with injectable mailbox storage
+  observations:
+    - dashboard/tests/boundary/cursor-session-owned-pending-ci.spec.ts (11 named cases): sessionState.activity
+  setup: temp home + mailbox roots; createMailbox/claimMailbox/publishRevisionRecord/recordWorkerIdentity/subagent jsonl
+  result: pass (11/11)
+```
+
+Belonging-subagents regression reused (unchanged production seam for that adapter).
+Consumer-trace: `hasOwnedFreshPendingCi` run at classifier boundary; `cursorHost.ts` → `observeCursorSessions` reused via default `mailboxRoot`.
 
 ## Story obligations
 
