@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-173#dashboard-ci-balance",
+  "mode": "story-branch",
+  "branch": "codex/dashboard-ci-balance",
+  "host": "codex"
+}
