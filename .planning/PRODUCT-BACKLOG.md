@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Decide whether a compact handoff earns its review cost](seeds/SEED-172-consumer-handoff-trial.md#trial-compact-consumer-handoff) — SEED-172#trial-compact-consumer-handoff ([plan](slice-plans/374-consumer-handoff-trial/PLAN.md))
 - [Refresh dashboard timing weights and rebalance CI](seeds/SEED-173-dashboard-ci-balance.md#dashboard-ci-balance) — SEED-173#dashboard-ci-balance ([plan](slice-plans/375-dashboard-ci-balance/PLAN.md))
 
 ## Backlog list

@@ -1,9 +1,0 @@
-[
-  {
-    "start": "2026-10-29T07:30:29Z",
-    "end": "2026-10-29T07:31:47.545880+00:00",
-    "work": "Concurrent status/record inspection and escaped-pipe disposition correction sent to producer before common freeze",
-    "scope": "Controller overhead, not an arm or historical tracing discovery",
-    "boundary": "Observed clock to this write; includes coordinator reasoning; do not subtract this work with child waiting"
-  }
-]

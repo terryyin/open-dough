@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-172_trial-compact-consumer-handoff.json",
+      "identity": "SEED-172#trial-compact-consumer-handoff",
+      "completedAt": "2026-10-29T09:08:11.970Z",
+      "blob": "787aa164ae36df0319e81127fd005329569b60eb"
+    },
+    {
       "fileName": "SEED-171_production-policy-ci-time.json",
       "identity": "SEED-171#production-policy-ci-time",
       "completedAt": "2026-10-29T07:15:50.761Z",

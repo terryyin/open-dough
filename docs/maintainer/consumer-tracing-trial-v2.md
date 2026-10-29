@@ -91,8 +91,9 @@ measures reconstruction from fixed inputs, not recovered ordinary execution
 cost. Historical proof qualifies the observers without certifying exact-candidate
 execution. The 18-purpose audit is bounded; semantic completeness, hosted benefit,
 actual human effort and delayed effects remain unestablished. Version 1's failed,
-inconclusive attempt remains separately preserved in the plan history and
-`case-01/`; none of its results or unknown costs becomes a v2 success.
+inconclusive attempt remains separately recoverable in the
+[landed trial history](https://github.com/terryyin/open-dough/tree/014fa2e84dbbbbc13daa99f7d4bcea9d527042af/.planning/slice-plans/374-consumer-handoff-trial);
+none of its results or unknown costs becomes a v2 success.
 
 Keep lexical discovery and effect-to-observer reasoning. The existing direction
 of delivering useful outcomes and changing direction cheaply remains unchanged;
@@ -100,4 +101,4 @@ this candidate has not demonstrated a worthwhile gain under ADR 0010. If a futur
 trial is separately selected, explicitly carry contract exceptions and lifecycle
 phases, and capture ordinary I0/C before tracing. This is an untested hypothesis,
 not queued work or revised guidance. No new experiment or duplicate tests are
-needed to record this result. Execution-branch CI coverage remains unobserved.
+needed to record this result. Execution-branch coverage was unavailable; main-branch closure evidence is separate.
