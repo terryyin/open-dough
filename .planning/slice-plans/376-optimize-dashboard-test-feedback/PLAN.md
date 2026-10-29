@@ -1,6 +1,7 @@
 # Reduce dashboard test feedback time with measured optimization
 
 **Source:** [Selected story](../../seeds/SEED-174-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-174#optimize-dashboard-test-feedback
 
 ## Goal and scope
@@ -50,19 +51,16 @@ at announcement revision `4897e037`):
   allocation (`91756ccd` / SEED-173) and production-policy optimization
   (`7e687acd` / SEED-171).
 
-Unsettled, bounded by slice 1 (authorized early probe):
-
-- Baseline wall time, executed case count, and which families or shared-setup
-  costs dominate the ordinary local run under this checkout's runner conditions.
-- Which first experiment offers a credible local-wait saving. `node_modules` is
-  absent in this preparation checkout, so the probe includes install readiness
-  before the baseline run.
+Settled by slice 1 probe (see Current decisions / Learnings): baseline facts and
+dominant-cost hypothesis recorded; a credible first local-wait experiment remains
+in the journey `agent-launch*` family. Install readiness was already satisfied
+before the probe (`npm ci` in the owned workspace).
 
 ## Ordered slices
 
 ### 1. Ordinary local dashboard baseline and dominant costs are recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: In this owned workspace, after install readiness, run
 `env -u NO_COLOR npm run test:dashboard` once under default local workers with
 `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` at an unused absolute path outside
@@ -114,13 +112,64 @@ and confidence required by the story remain intact.
 
 ## Current decisions
 
-Preparation only: this plan grants no Take or execution. Story Branch Mode will
-reuse this owned workspace and branch when execution is separately authorized.
 Coordinator owns formatting, hooks, commits, publication, and closure during
 execution. Use `env -u NO_COLOR` for dashboard commands. No numeric wall-time
 target is selected; worthwhile gain is judged under ADR 0010 against the slice 1
 baseline within coverage constraints. Replanning within this outcome is
 permitted when probe or experiment evidence changes the family strategy.
+
+### Slice 1 baseline (ordinary local run)
+
+- **Revision:** `7d8d83ff2986ecc385e13be3d2dba44230521ecb`
+- **Literal command:**
+  `env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-dashboard-baseline.B3xSoT/proof.json npm run test:dashboard`
+  (resolves to `playwright test --config dashboard/playwright.config.ts`)
+- **Runner conditions:** default local workers (Playwright half of
+  `availableParallelism()` → 8 on this 16-CPU host); `fullyParallel: true`; no
+  test filter; Chromium browsers from `~/Library/Caches/ms-playwright`;
+  `env -u NO_COLOR`; proof path outside `dashboard/test-results/`.
+- **Load context:** decision-time load averages ~3.91 / 4.51 / 4.76; no other
+  owned heavy dashboard suite in sibling worktrees; only lightweight Playwright
+  MCP processes present. Post-run load rose (~7.6 / 13.2 / 10.9) as expected
+  from the suite itself.
+- **Wall time:** 630 s shell (`date +%s` before/after); proof
+  `terminal.durationMs` ≈ 629.3 s (run span ~619 s attempt wall).
+- **Executed cases:** `selectedCount` 1741; 1741 finished attempts, all
+  `passed`.
+- **Strict terminal:** `phase: "completed"`, `terminal.strictStatus: "passed"`,
+  `terminal.runnerStatus: "passed"`, command exit 0. Successful baseline.
+- **Raw proof:** `/tmp/od-dashboard-baseline.B3xSoT/proof.json` (outside Git).
+
+### Dominant-cost hypothesis (for slice 2)
+
+Local wait is wall-bound by a near-fully utilized 8-worker parallel run, not by
+runner idle gaps (internal all-idle gaps ≈ 0) and not by a few outliers (top 10
+cases ≈ 7% of summed `durationMs`). Summed attempt `durationMs` ≈ 4324 s versus
+~630 s wall (avg concurrency ≈ 7). Browser **journeys** dominate worker-seconds
+(~3368 s / 910 cases) over **boundary** (~957 s / 831 cases).
+
+Largest coherent behavioral family for a first experiment: journey
+**`agent-launch*`** — 73 specs / 195 cases / ~770 s concurrent-area
+(~18% of worker-seconds); p50 ≈ 2.4 s, p90 ≈ 7.8 s, with multi-step poles
+(`agent-launch-second-server` 65 s, orphan 31 s, preparation-codex-retry 10
+cases / 74 s, ad-hoc-terminal 41 s). Second family: journey **`story-review*`**
+(95 / ~500 s). Do not reopen SEED-171 production-policy or SEED-173 allocation as
+the first move (`production*` ≈ 139 s area only).
+
+Credible slice 2 experiment remains: reduce wasted journey cost inside
+`agent-launch*` (redundant journey variants boundary can own, collapse multi-step
+durability duplication, or share fixture/setup) under dashboard tier guidance,
+with measured retain-or-undo against this baseline.
+
+## Learnings
+
+- Proof JSON uses top-level `tests[]` (not `selections`); each entry has
+  `attempts[]` with `startedAt` / `durationMs` / `status`.
+- Default local worker count here is 8 (half of 16 CPUs); CI would use full
+  parallelism — keep slice 3 comparisons on the same local default.
+- Near-zero inter-test idle under load means savings must cut work per case or
+  case count in heavy journey families; worker-count tweaks alone are out of
+  story scope for local wait unless evidence changes.
 
 ## Story obligations
 
