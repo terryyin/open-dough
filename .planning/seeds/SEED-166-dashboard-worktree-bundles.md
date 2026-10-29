@@ -31,64 +31,75 @@ The dashboard should recognize and guide that recovery itself.
 
 **Identity:** SEED-166#handle-stale-worktree-bundles
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/369-handle-stale-worktree-bundles/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4f89e14ddbb6da107e507a16c0a389f26079e1d6cb07e525e8e2e3b2cddba15d","plan":"c6b237fe69d0b6a448f4bb19277ca0d5afbf3cb35350fe094a8576d66f18360c"}}
 ```
 
-**Beneficiary:** A developer starting or continuing an agent from the dashboard
-in an existing worktree whose Open Dough installation differs from the main
-checkout's installation.
+**Goal:** A developer starting or continuing a dashboard agent in an existing
+worktree whose Open Dough installation differs from the main checkout's gets a
+compatible launch when that worktree's bundle already supports the needed
+capabilities, or a definite pre-launch recovery path that updates that exact
+worktree and retries the retained start when it does not — without diagnosing
+which checkout is stale or losing a published assignment.
 
-**Goal:** Start and Continue check the bundle in the actual launch workspace,
-keep supported older installations usable, and provide a reliable update and
-retry journey when required support is unavailable.
+**Scope:**
 
-**Scope:** Check the selected host's installed capabilities and complete
-required helper dependencies in the workspace that will launch the agent.
-Perform checks before avoidable publication or native launch effects when the
-workspace is already known. Preserve any assignment and start already kept.
-A known incompatibility before native launch produces a definite, actionable
-pre-launch failure rather than an uncertain-session recovery state.
+- Before avoidable publication or native launch effects when the launch
+  workspace is already known, check the selected host's installed capabilities
+  and required helper dependencies in that workspace — not the main checkout's
+  bundle alone.
+- Keep a compatible older installation usable when it already provides the
+  needed support; do not require a version match with the main checkout or
+  fetch release support for ordinary use.
+- When required support is missing before native launch, fail with a definite,
+  actionable pre-launch explanation rather than an uncaught helper-copy error
+  or an uncertain-session recovery state. Preserve any assignment and start
+  already kept.
+- Offer **Update worktree and retry**: run the existing verified whole-payload
+  release updater for that exact worktree, then resume the retained start with
+  the same story identity, assignment, workspace, and duplicate-session
+  safeguards. Reuse the updater's baseline checks, recorded release source,
+  all-tool installation into both native skill roots, and refusal behavior.
+- Apply the same compatibility rules wherever Start, Continue, or retained
+  session recovery consume installed helpers for execution, refinement, or
+  unattached sessions. Codex, Cursor, and Claude Code keep their native paths
+  and existing start/recovery contracts.
 
-Provide an **Update worktree and retry** action that invokes the existing
-verified whole-payload release updater for that exact worktree, then resumes
-the retained start. Preserve its story identity, assignment, workspace, and
-duplicate-session safeguards. Use the updater's existing baseline checks,
-recorded release source, all-tool installation, and refusal behavior.
+**Key examples:**
 
-**Key examples / evaluation:**
-
-- The main checkout has 0.3.74 while a retained refinement worktree has 0.3.73
-  and lacks the newly required reporting helper. Start or Continue identifies
-  that worktree's missing support without an uncaught copy error or a false
-  claim that a session might have launched.
-- With an assignment already published and no native session launched, the
-  update action installs the complete verified release in both native skill
-  roots. Retry reuses the retained assignment and worktree and launches one
-  session; it creates no replacement claim or workspace.
-- A compatible older bundle launches using its supported capabilities, without
-  fetching release support or requiring a version match with the main checkout.
+- Main checkout is on 0.3.74; a retained refinement worktree is on 0.3.73 and
+  lacks a newly required reporting helper. Start or Continue names that
+  worktree's missing support, does not throw an uncaught copy error, and does
+  not claim a session might have launched.
+- An assignment is already published and no native session has launched. Update
+  worktree and retry installs the complete verified release in both native
+  skill roots, then reuses the retained assignment and worktree to launch one
+  session — no replacement claim or workspace.
+- A compatible older bundle still supports the needed capabilities: Start or
+  Continue launches from that worktree without fetching release support and
+  without requiring a version match with the main checkout.
 - Edited or incomplete managed files, an unverifiable recorded baseline, an
   unavailable release source, or an updater failure leave an actionable
-  explanation. Retry does not launch through an unsuccessful update, and no
-  automatic force reinstall overwrites local changes. Preserve the updater's
-  truthful incomplete-install recovery if replacement had already begun.
-- Execution, refinement, and retained session starts use the same compatibility
-  rules wherever they consume installed helpers. Codex, Cursor, and Claude Code
-  retain their native paths and existing start/recovery contracts.
+  explanation. Retry does not launch after an unsuccessful update. No automatic
+  force reinstall overwrites local changes. If replacement had already begun,
+  the updater's truthful incomplete-install recovery remains.
 
-**Constraints:** Automatic detection stays local. Updating is an explicit
-maintenance action, and uses complete tagged releases under
+**Constraints:** Automatic detection stays local to the machine and known
+workspace. Updating is an explicit maintenance action using complete tagged
+releases under
 [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) and
 [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md).
-Keep workspace/update behavior in the existing workflow and updater boundaries
-under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+Keep workspace and update behavior inside existing workflow and updater
+boundaries under
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
 
-**Excluded:** Background upgrades on every launch, partial helper-file copying,
-automatic forced updates, resetting worktrees to the main checkout, and changes
-to story implementation or assignment ownership.
+**Deferred / excluded:** Background upgrades on every launch; partial
+helper-file copying as a substitute for a release update; automatic forced
+updates; resetting worktrees to the main checkout; changes to story
+implementation or assignment ownership.
 
-**Preparation:** Queued for refinement and implementation planning. This seed
-does not authorize execution.
+**Preparation:** Refined and planned in
+[slice-plans/369-handle-stale-worktree-bundles/PLAN.md](../slice-plans/369-handle-stale-worktree-bundles/PLAN.md).
+This seed does not authorize execution.
 
 ## Breadcrumbs
 
