@@ -83,7 +83,7 @@ test("host adapters keep quiet delivery and reserve stop for cancellation", () =
       /(?:stop binding|stop command) never substitutes\s+for\s+that completion/,
     );
   }
-  assert.match(codex, /do not `write_stdin`\s+the\s+stream PTY/);
+  assert.match(codex, /do not `write_stdin`\s+the\s+stream session/);
   assert.match(detached, /Pending polls and successful CI add no\s+context/);
 });
 

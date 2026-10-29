@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#expose-codex-observer-identity",
+  "title": "Expose Codex observer identity",
+  "completedAt": "2026-10-29T05:37:53.157Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "codex"
+}

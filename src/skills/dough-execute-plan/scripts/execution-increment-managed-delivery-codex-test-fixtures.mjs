@@ -59,10 +59,15 @@ export async function armStream(fixture, options = {}) {
 }
 
 // Runs the documented yielded cell for `coordinator` against the installed
-// stream and resolves once its first yielded output reported the mailbox.
-// The cell stays at its yield until `resume()`, as a coordinator that has not
-// reached its next boundary; it notifies and acknowledges from then on.
-export async function armDocumentedStream(fixture, coordinator) {
+// stream and resolves once its output or late notification reports the mailbox.
+// A ready initial output stays at its first yield until `resume()`, modeling
+// a coordinator between boundaries. With delayed output, the cell continues
+// after that yield so its late notification can establish readiness.
+export async function armDocumentedStream(
+  fixture,
+  coordinator,
+  { yieldBeforeOutput = false } = {},
+) {
   const { teardown, env, skill } = fixture;
   let resume;
   const boundary = new Promise((resolve) => {
@@ -72,6 +77,7 @@ export async function armDocumentedStream(fixture, coordinator) {
   const host = processBackedCodexTools({
     env,
     skill,
+    yieldBeforeOutput,
     placeholders: { "OWNER/REPO": "owner/project", COORDINATOR: coordinator },
     startStream: (nodeArguments) => {
       stream = spawn(process.execPath, nodeArguments, { env });
@@ -80,6 +86,7 @@ export async function armDocumentedStream(fixture, coordinator) {
   });
   const notifications = [];
   const stores = [];
+  let initial;
   let watching;
   const watched = new Promise((resolve) => {
     watching = resolve;
@@ -87,9 +94,15 @@ export async function armDocumentedStream(fixture, coordinator) {
   const binding = runDocumentedCodexHostBinding({
     load: () => undefined,
     store: (key, value) => stores.push([key, value]),
-    text: watching,
-    notify: (event) => notifications.push(event),
-    yield_control: () => boundary,
+    text: (value) => {
+      initial = value;
+      if (value.status === "watching") watching(value);
+    },
+    notify: (event) => {
+      notifications.push(event);
+      if (event.type === "CI_OBSERVER_READY") watching(event);
+    },
+    yield_control: () => (yieldBeforeOutput ? Promise.resolve() : boundary),
     tools: host.tools,
   });
   // The cell launched its stream before its first wait. Teardown steps run in
@@ -106,6 +119,7 @@ export async function armDocumentedStream(fixture, coordinator) {
   const ended = settledProbe(binding);
   return {
     coordinator,
+    initial,
     directory,
     pid,
     host,

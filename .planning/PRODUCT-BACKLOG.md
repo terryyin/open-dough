@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Expose Codex observer identity](seeds/SEED-010-learn-from-execution-retrospectives.md#expose-codex-observer-identity) — SEED-010#expose-codex-observer-identity ([plan](slice-plans/372-codex-observer-identity/PLAN.md))
-
 ## Backlog list
 
