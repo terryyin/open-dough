@@ -1,11 +1,12 @@
 # Dashboard timing-weight experiment
 
-Measured on 2026-10-29 for SEED-173. Refreshing timing weights through the
+Measured on 2026-10-29. Refreshing timing weights through the
 existing allocator did not improve overall CI in the two candidate runs.
 Fresh baselines took 229s and 216s; the identical candidate took 245s and 242s.
 The means are 222.5s versus 243.5s: 21s (9.4%) slower in this sample.
-The candidate remains on `codex/dashboard-ci-balance`; it is not on main.
-It is unsuitable for production delivery as a CI speed improvement.
+The allocation was rejected. The four duration files are restored byte for
+byte to the baseline; no refreshed weight is retained in the final change.
+The rejected candidate remains recoverable at its named commit.
 
 ## Experiment and preserved proof
 
@@ -116,17 +117,25 @@ remain separate; the recorded failed processes and runner children are gone.
 The first allocation invocation also rejected system Bash 3.2 before tests;
 the documented Homebrew PATH supplies the required Bash 5.
 
+After rejection, the same normal allocation command passes again, terminal
+zero, wall 1.61s. All four restored files match the baseline hashes exactly.
+Original split/unsplit selection and full baseline observations therefore
+apply to the restored allocation; no additional elapsed CI saving is claimed.
+
 ## Decision boundary and evidence
 
-Do not land the measured weight-only allocation as a speed improvement.
-The next credible experiment must model elapsed worker scheduling and account
-for fixed per-job overhead, or explicitly reconsider where the existing
-type-check runs. Preserve every test, isolation, twelve shards and four
-workers. No such allocator or workflow change has been implemented; it extends
-the current weight-only plan and needs its scope settled first.
+The developer selected rejection and retention of the measurements. The final
+change preserves this report and restores the allocation, with no runtime,
+test, allocator, workflow or dependency change.
 
-The full candidate, source review and unfinished plan remain on the execution
-branch for review. Raw profiles, 48 complete HTML/timing artifact pairs for
+A possible future experiment could model elapsed worker scheduling and account
+for fixed per-job overhead, or reconsider where the existing type-check runs.
+Any such work must preserve every test, isolation, twelve shards and four
+workers. These are hypotheses, not measured savings or an approved follow-up;
+no further experiment is implemented or queued by this result.
+
+The [reviewed experiment and original measurement plan](https://github.com/terryyin/open-dough/tree/8e129818d49bff875432f65270e66f711e8979f6/.planning/slice-plans/375-dashboard-ci-balance)
+remain recoverable in Git. Raw profiles, 48 complete HTML/timing artifact pairs for
 the four measured runs, parsed identity/verdict comparisons, local commands,
 refresh inputs and consumer dispositions are temporarily retained under
 `/private/tmp/dashboard-ci-balance-173` on the measurement host. Supporting

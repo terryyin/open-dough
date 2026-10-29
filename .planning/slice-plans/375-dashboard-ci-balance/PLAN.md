@@ -34,9 +34,10 @@ Exact-checkout npm ci succeeded with unchanged lockfile; Node24.21 matches the
 pin. The applicable preview command succeeds:580specs,570recorded/10unrecorded.
 The installed checkout-bound runtime matches this workspace; native GitHub
 workflow ci.yml/CI (id351271804) is active and push-triggered. Main admission
-is unobserved by the branch observer. Retained branch coordinator
-dashboard-ci-balance-173, directory /tmp/dough-ci-501/watch-K4rhGM,
-cell525/session35175/PID3715. Reuse this stream for every implementation push.
+is unobserved by the branch observer. Earlier directory watch-K4rhGM stopped
+cleanly with no unread event and PID3715 exited at the scope decision.
+Rearmed same branch/coordinator dashboard-ci-balance-173 for authorized rejection:
+directory /tmp/dough-ci-501/watch-nfnFaA,cell585/session57557/PID31804.
 Raw measurement records: /private/tmp/dashboard-ci-balance-173.
 
 ## Existing solution and decisive premises
@@ -103,7 +104,7 @@ Do not implement another optimization priority to manufacture a speedup.
 
 ### 1. Current timing weights rebalance the unchanged browser workload
 Type: Structure
-Status: planned
+Status: done
 
 Capture/reuse the named evidence, refresh weights through the existing tool,
 inspect the public twelve-way selection and unsplit selection, and verify
@@ -141,13 +142,11 @@ invalidated. Both candidates finish last on shard12, including the unchanged
 type-check step17/16s; other suites remain comparable to the old maximum.
 Another unmotivated weight refresh has no supported saving hypothesis.
 Do not publish these weights to main or start another optimization priority.
-Retain the reviewed experiment/evidence and stop the dependent path for a
-developer decision: reject it and restore original weights, or extend this
-task to elapsed-aware allocation/fixed-overhead rebalancing. The current plan
-excludes allocator/workflow changes; no such extension is silently authorized.
-G4 owns that decision. Measurement is complete; delivery/closure is not.
-Before this evidence increment, source-freshness check reports unchanged
-story/plan against main014fa2e84dbbbbc13daa99f7d4bcea9d527042af.
+The developer explicitly chose “Reject this allocation and retain the
+measurements (Recommended)”. Restore the original four weight files; retain
+the measured negative result and candidate in Git. No new strategy or follow-up
+is authorized. G4 is settled by that direction and exact restoration proof.
+Source-freshness reports unchanged story/plan against main6329fd76c23b0615b65f050d967c0be7cb570d3f.
 
 ## Story obligations
 
@@ -169,7 +168,7 @@ Disposition: proved by slice 1: parent inspected runProcesses.ts64-74/122-131 an
 ### G4. Weight-only experiment is slower; further strategy needs disposition
 Reported: slice 1 — "Both candidate observations are slower than both fresh baselines; equal accumulated duration weights do not equal elapsed CI balance, and the unchanged shard12 type-check is now on the critical path."
 Story clause: "Report supported improvement, inconclusive or negative results honestly."
-Disposition: return
+Disposition: proved by slice 1: developer explicitly rejected allocation and retained measurements; fresh implementation restores all four lists byte-for-byte to15f35ac0, exact hashes in restoration-verification.json, same normal allocation command terminal0/wall1.606s in restoration-allocation-result.json. Parent inspected source/hash/assertion correspondence; baseline fullCI/public selection apply to identical restored inputs, not a new speed claim. Durable report retains rejected874ef52c and all four measurements. No allocator/workflow scope extension or follow-up is selected.
 
 ## Plan concern review
 
@@ -187,20 +186,16 @@ noextraattempts. Maxjobs226/213s,maxsuites202.591/187.369s,fullCI229/216s,
 firstqueue3/3s,startspread1/0s. Both are workflow_dispatch; parent owns complete
 reports/jobs. Supporting main40834521203 supplies the third complete input.
 
-The same normal local allocation command passes all three named files, exit0,
-wall1.28s after G2's PATH correction. Public Playwright lists for unsplit and
-all12 splits each exit0:1741unique full identities,580files, each file in one
-shard, all cases in exactly one complementary ordinary/deployment project.
-Raw selection-before.json and before-list-commands.json retain the accounting.
-Local host load18.21 on16CPU/48GiB with unknown other-chat work; listings ran
-sequentially, no competing owned heavy local proof. Listing proves selection,
-not execution. Node24.21/locked dependencies/relevant environment are unchanged.
+Normal allocation passes three named files,exit0,wall1.28s after G2. Public
+unsplit/all12 split lists each exit0:1741unique identities,580files once,
+complementary projects; selection-before.json/before-list-commands.json.
+Listings ran sequentially (load18.21,16CPU/48GiB,unknown other-chat work),
+with unchanged Node24.21/dependencies/environment. Listing proves selection,
+not execution.
 
 The229s/216s baseline spread remains uncertainty, not a selected best baseline.
 All36 intended timing artifacts are present (12 each from both baselines and
 main40834521203).
-Repeated startup without admission confirmed existing ready claim15f35ac0,
-unchanged published preparation; current exact-checkout preview remains usable.
 
 ## Accepted local implementation before independent refactor
 
@@ -217,10 +212,9 @@ passes16.98s after G3's demonstrated environment correction. Parent inspected
 actual once-only/project, native overlap/strict and hook-counting assertions.
 Consumer trace locates359files:34weight-related (19run/1reused/14excluded) and
 325metadata-only matches excluded. All dispositions retained in raw directory.
-No unexcluded consumer lacks allocation/reporter proof; unchanged real-browser
-integration/isolation and candidate timing remain G1 coordinator-owned.
-All69 returned ids/text match source-review;37 have inspected local/baseline/
-exclusion observations,32 retain G1 hosted ownership. Implementation quiescent;
+No unexcluded consumer lacks allocation/reporter proof. All69 returned ids/text
+match source-review; local/baseline/candidate observations now cover every id.
+Implementation quiescent;
 all proof commands terminal and failed diagnostics copied outside the worktree.
 
 Fresh independent refactor /root/refactor_ci_weights returned REFACTOR COMPLETE,
@@ -229,5 +223,18 @@ observation locations and trace dispositions remain valid. Index empty;
 formatter/hooks and progress publication remained coordinator-owned. Accepted
 implementation874ef52c0e99857feefde9b4058673c83029d875 published to the same
 execution branch with suffixBase15f35ac0 and reused observer. Hosted G1 is now
-proved; G4 prevents a done transition or production publication. Durable report
+proved; G4 was then held for the developer's now-selected rejection. Durable report
 docs/maintainer/dashboard-weight-timings.md preserves all four measured runs.
+
+## Rejection and restored allocation
+
+Fresh /root/restore_rejected_weights changes exactly four lists back to baseline
+15f35ac0, all hashes equal. Same three-file normal command terminal0,wall1.606s;
+restoration-verification/allocation-result/correspondence.json and log retain
+command, assertions and exact byte correspondence. No test/config/runtime edit.
+Original public selection/full baseline proof remains applicable; no new CI
+measurement is asserted. Candidate874ef52c and report8e129818 stay recoverable.
+Coordinator accepts exact restoration and complete measurement. Fresh independent
+/root/refactor_rejected_allocation returns REFACTOR COMPLETE,none already clean;
+no edits/tests, all accepted proof/359consumer dispositions remain applicable.
+Ordinary delivery, retrospective and closure remain coordinator-owned.

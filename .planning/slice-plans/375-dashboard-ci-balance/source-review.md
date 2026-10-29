@@ -7,6 +7,11 @@ individual promises and preserve alternatives/examples without inventing scope.
 The actual returned commitments are retained verbatim in the table below.
 Q03/Q04/Q05 are conditional reporting alternatives, not three required outcomes.
 The original launch/input and return remain in this execution conversation.
+The rows observe the measured experiment at874ef52c, not a retained speedup.
+After the complete negative comparison the developer explicitly rejected the
+allocation. Exact restoration proof in restoration-verification.json and the
+same normal allocation command terminal0/wall1.606s settle the final output;
+all measured candidate/source boundaries remain recoverable in Git.
 
 ## Commitments
 
