@@ -1,0 +1,24 @@
+[
+  {
+    "task": "trial_v2_source_review",
+    "role": "source-review-overhead",
+    "dispatch": "2026-10-29T07:18:05.145Z",
+    "return": "2026-10-29T07:19:01.746Z",
+    "elapsed_seconds": 56.601,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2306,
+    "return_line": 2320,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_protocol_refactor",
+    "role": "protocol-refactor-overhead",
+    "dispatch": "2026-10-29T07:21:55.828Z",
+    "return": "2026-10-29T07:22:54.793Z",
+    "elapsed_seconds": 58.965,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2341,
+    "return_line": 2370,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  }
+]
