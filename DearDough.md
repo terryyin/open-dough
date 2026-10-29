@@ -74,6 +74,15 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Observed effect: three of six mandatory refactor agents edited nothing after reading the accepted slice diffs
   - Inference: same fixed per-slice refactor cost as ODF-141; mixed payoff on a six-behavior bounded-memory plan
 
+
+- Execution: SEED-173#dashboard-ci-balance; first implementation `874ef52c0e99857feefde9b4058673c83029d875`, restored result `783d6bda38ab381e686bfb63500b97970dc8817f`
+  - Timestamp: unknown (2026-10-29 execution conversation)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: fresh `/root/refactor_ci_weights` and `/root/refactor_rejected_allocation` returns both report `none — already clean`, no edits/tests, approximately ten and seven active minutes respectively; the latter independently checked all four restored weight files against the baseline. Recoverable plan: `783d6bda38ab381e686bfb63500b97970dc8817f:.planning/slice-plans/375-dashboard-ci-balance/PLAN.md`.
+  - Observed effect: two independent refactor handoffs made no changes on one data-only experiment and its explicit rejection; accepted proof remained applicable.
+  - Inference: qualified recurrence of fixed review cost on small accepted changes. Durations are agent estimates, not stopwatch/token totals, and confirming restoration and proof boundaries may add confidence; no claim that either review was valueless or that skipping it would produce a measured saving.
+
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
 Former local code: DD-215. After its call is interrupted, a delegated agent continues, commits and pushes its slice despite a no-commit delegation, leaving two writers in one checkout. [Evidence and current response](docs/maintainer/findings/ODF-204.md).
