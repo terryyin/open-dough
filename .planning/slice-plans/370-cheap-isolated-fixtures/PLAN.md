@@ -192,3 +192,30 @@ confirms component reduction; maxjob227s/fullCI230s versus baseline230s/235s.
 Its maxsuite203.380s exceeds baseline199.324s, so no reliable suite-elapsed
 improvement is claimed. Across candidates dashboardjobs219–227s andfullCI
 221–230s show modest observed improvements with runner/cache uncertainty.
+
+## Retrospective
+
+Reviewed original preparation c42973e5 and selected implementation8c55a30c plus
+measurement91405941; admissiona94c65e2 is provenance, later unrelated main
+commits are excluded. All planned slices and66source commitments are settled.
+Aggregate fixture design has one installed-skill manifest and one run lifecycle;
+private native Git/real installed starts and server/browser/fake-state ownership
+remain coherent under ADR0002/0008/0010. Existing integrated scenarios retain
+meaningful coverage; the three new guards prove introduced sharing boundaries.
+No supported obsolete behavior, assertion loss or refactor residue was found.
+The measured eager-cost tradeoff is explicit, not a claim every filter is faster.
+Unchanged server bootstrap has no justified new optimization in this scope.
+North Star direction is respected; no cited temporary topic was realized or
+retired by this maintenance. No correction plan or new backlog recommendation.
+Process review uses this execution conversation and concrete tool/agent returns:
+DD-367 records missing escalation in the first proof handoff and incomplete
+diagnostics; later corrected proof is retained, not retroactively counted.
+DearDough.md is above its500-line warning threshold but below1000; no retention
+or unrelated maintenance was performed. No human-owned decision remains.
+
+## Execution complete
+
+Product advice: no change. Retain the measured immutable origin preparation
+and its new isolation proof. Preserve the stated focused-run cost and modest,
+variable elapsed CI effect; no further bootstrap or suite-tier change is
+justified by this execution's evidence.

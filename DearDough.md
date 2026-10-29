@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 365. Removed numbers are never reused.
+- Highest allocated local number: 367. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -599,3 +599,19 @@ the story-branch candidate.
   - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` — each `execution-increment-delivery.mjs fresh` commit succeeded then refused with “Publication does not match the supplied landing context”; open first-landing expectation keyed by workspace+branch named landing-context.json targeting `refs/heads/main`; `execution-increment-resume.mjs resume` of the same candidate then accepted on the story branch without supplying `--landing-context`
   - Observed effect: every story-branch fresh publish interrupted on trunk-targeted landing retain; resume without landing context accepted the candidate
   - Inference: distinct from ODF-251 (second worktree for trunk corrections). Planted trunk first-landing expectation and story-branch publish target collide on the same launch workspace; auto-resolve should not apply trunk landing to execution-branch increments
+
+## DD-367 — Delegated dashboard proof omitted its required sandbox wrapper
+
+The coordinator handed off dashboard proof without carrying the established
+escalated socket/process-inspection wrapper. Two sandboxed diagnostic runners
+hung in teardown when process inspection was denied; precise termination and
+cleanup attribution were needed before usable proof could continue.
+
+### Occurrences
+- Execution: SEED-167#cheap-isolated-fixtures; first implementation `8c55a30c56d324100cc44cbb105123aa8ebfc823`
+  - Timestamp: unknown (2026-10-29, Asia/Singapore; slice-1 diagnostic attempts)
+  - Tool: Codex
+  - Open Dough release: 0.3.74
+  - Evidence: coordinator/implement_origin_preparation conversation; diagnostic runners12117/17810 ended143 after denied ps teardown; slice1-proof.md, slice1-quiescence.json and aborted-owned-paths.json in `/private/tmp/cheap-isolated-fixtures-167`; final escalated guard runs ended0.
+  - Observed effect: two attempts supplied no complete pass; owned processes required termination and four generic temporary directories were retained because ownership was uncertain.
+  - Inference: carry the known runtime wrapper in each proof handoff before launch; an omitted permission boundary can invalidate teardown evidence even when test bodies run. No duration saving is inferred.
