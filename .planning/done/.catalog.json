@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-166_handle-stale-worktree-bundles.json",
+      "identity": "SEED-166#handle-stale-worktree-bundles",
+      "completedAt": "2026-10-29T01:38:15.722Z",
+      "blob": "0a823253e9755914625a3daea0ad156d2d79ee36"
+    },
+    {
       "fileName": "SEED-165_keep-cursor-effort-visible.json",
       "identity": "SEED-165#keep-cursor-effort-visible",
       "completedAt": "2026-10-28T23:56:59.362Z",

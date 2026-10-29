@@ -577,10 +577,10 @@ trunk. The coordinator temporarily moved the expectation aside, resumed
 publication, then restored it — outside guided resume steps.
 
 ### Occurrences
-- Execution: SEED-166#handle-stale-worktree-bundles; plan `.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
-  - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31` at 09:05:57+08:00, before slice-2 delegation)
+- Execution: SEED-166#handle-stale-worktree-bundles; plan at before-cleanup `d3bfd15b60526de1430ca12da7c3acb1a12447ee:.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
+  - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31`, through execution-complete publish)
   - Tool: Cursor
   - Open Dough release: 0.3.74
-  - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` turns 50–60 — fresh delivery committed then refused on landing-context mismatch; open expectation under the common git dir keyed by workspace+branch; landing-context.json targeted `refs/heads/main`; resume after `mv …held-for-story-branch-push` then restore
-  - Observed effect: one interrupted story-branch publish, improvised expectation hold/restore, then accepted resume of candidate `0bb02d31`
-  - Inference: distinct from ODF-251 (second worktree for trunk corrections). Here the planted trunk expectation and story-branch publish target collide on the same launch workspace; guidance did not name the hold-aside recovery
+  - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` — each `execution-increment-delivery.mjs fresh` commit succeeded then refused with “Publication does not match the supplied landing context”; open first-landing expectation keyed by workspace+branch named landing-context.json targeting `refs/heads/main`; `execution-increment-resume.mjs resume` of the same candidate then accepted on the story branch without supplying `--landing-context`
+  - Observed effect: every story-branch fresh publish interrupted on trunk-targeted landing retain; resume without landing context accepted the candidate
+  - Inference: distinct from ODF-251 (second worktree for trunk corrections). Planted trunk first-landing expectation and story-branch publish target collide on the same launch workspace; auto-resolve should not apply trunk landing to execution-branch increments

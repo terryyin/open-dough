@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-166#handle-stale-worktree-bundles",
+  "title": "Handle stale worktree bundles before dashboard agent launches",
+  "completedAt": "2026-10-29T01:38:15.722Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Shorten dashboard CI without weakening its proof](seeds/SEED-164-dashboard-ci-time.md#dashboard-ci-time) — SEED-164#dashboard-ci-time ([plan](slice-plans/368-dashboard-ci-time/PLAN.md))
-- [Handle stale worktree bundles before dashboard agent launches](seeds/SEED-166-dashboard-worktree-bundles.md#handle-stale-worktree-bundles) — SEED-166#handle-stale-worktree-bundles ([plan](slice-plans/369-handle-stale-worktree-bundles/PLAN.md))
 
 ## Backlog list
 
