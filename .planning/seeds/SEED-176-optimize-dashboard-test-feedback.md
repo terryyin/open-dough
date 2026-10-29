@@ -25,7 +25,7 @@ measured pass; this is a fresh pass against the current suite.
 
 **Identity:** SEED-176#optimize-dashboard-test-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/378-optimize-dashboard-test-feedback/PLAN.md","assessment":"not-ready","reasons":["Ordinary local npm run test:dashboard fails board-scroll native scrollbar width (clientWidth equals viewport 1152); no successful comparable baseline, so measured optimization slices stay blocked."],"basis":{"document":"551310d1d353a4eda63476bb9dd42bfb5961d5b1dc1d0948a57284e1cd0e5273","plan":"62abffea570d1f223a22b2928fb4b0ed96f32a8eda2bc21e410829fa557a9ff9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/378-optimize-dashboard-test-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"551310d1d353a4eda63476bb9dd42bfb5961d5b1dc1d0948a57284e1cd0e5273","plan":"c8bca332a2a8470c0250ffabfb70802d76cccca24b9b50bbd80e34dd558bbffb"}}
 ```
 
 **Beneficiary:** A developer running the dashboard tests during local work.

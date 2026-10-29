@@ -1,16 +1,11 @@
-// Both servers observe a real installed start on one machine; a server-only
-// death leaves the held script alive until its real push completes.
-import {
-  agentChangedEndpoint,
-  type AttemptObservation,
-} from "../src/agentLaunch.ts";
-import {
-  accept,
-  attempts,
-  continueAttempt,
-  launchRequest,
-} from "./agentLaunchBoundary.ts";
-import { answerOf, type Problem } from "./keptExecutionStart.ts";
+// Both servers observe a real installed start on one machine; the second
+// server's page keeps the card protected through reload and project switch
+// until one session shows. Server-only refusals and the non-owner change-wait
+// bound live in ./boundary/agent-launch-worker-handoff.spec.ts and
+// ./boundary/agent-launch-change-wait.spec.ts.
+import { type AttemptObservation } from "../src/agentLaunch.ts";
+import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
+import { answerOf } from "./keptExecutionStart.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
@@ -22,7 +17,6 @@ import {
   builtDashboardDir,
   startDashboardServer,
 } from "./support/dashboardServer.ts";
-import { rawRequest } from "./support/rawHttp.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
 
 const request = {
@@ -72,30 +66,6 @@ test("a second server follows the live script and native worker, protects its ca
       },
     });
     expect(live?.outcome).toBeUndefined();
-    for (const workflow of ["execution", "refinement"]) {
-      expect(
-        await answerOf<Problem>(accept(second, { ...request, workflow })),
-      ).toMatchObject({
-        kind: "failed",
-        reason: "already-starting",
-        explanation: expect.stringContaining("already starting"),
-      });
-    }
-    expect(
-      await answerOf<Problem>(continueAttempt(second, accepted.attempt.id)),
-    ).toMatchObject({
-      kind: "uncertain",
-      explanation: expect.stringContaining("already running"),
-    });
-    // A non-owner consumes the existing bounded wait rather than waking a
-    // client immediately; this direct call observes the existing 30-second bound.
-    const began = Date.now();
-    const changed = await rawRequest({
-      url: `${second.baseURL}${agentChangedEndpoint}?attempt=${accepted.attempt.id}`,
-      headers: { Origin: second.origin },
-    });
-    expect(JSON.parse(changed.body)).toMatchObject({ changed: false });
-    expect(Date.now() - began).toBeGreaterThanOrEqual(29_000);
     await page.clock.setFixedTime(
       new Date(Date.parse(accepted.attempt.acceptedAt) + 120_000),
     );
