@@ -35,6 +35,15 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-074](docs/maintainer/findings/ODF-074.md); rereading adds no occurrence.
 
+- Execution: SEED-010#expose-codex-observer-identity / plan 372, first implementation `eac4f2083efe6c2909d6022a6ca0f5e699c8996b`
+  - Timestamp: unknown (2026-10-29, Asia/Singapore; source-review acceptance before slice delivery)
+  - Tool: Codex
+  - Open Dough release: 0.3.75 (installed guidance at accepted Take `68014eebcf717ecac6330fb813a613b42a4fb947`; the native binding probe separately used modified source)
+  - Evidence: coordinator inspected plan 371's `## Slice 1` / `Status: pending` layout, drafted plan 372 likewise and recorded ready/admitted it. Once source-review commitments required the full slice reader, three `story-obligations.mjs check --slice 1` refusals named missing `## Ordered slices`, unsupported `### Slice 1` instead of `### 1. name`, and unsupported `Status: pending` instead of `planned|done`; accepted plan at `eac4f208` contains the corrected layout.
+  - Observed effect: three local repair rounds after implementation; the strict delivery check failed closed and no incorrect slice completion was published.
+  - Inference: qualified recurrence of an unverified consuming-operation premise: another active plan's layout was treated as a usable template without exercising the reader that later consumes it. Checking that reader before readiness could catch the mismatch earlier; no escaping product defect or measured duration saving is claimed.
+
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop. [Evidence and current response](docs/maintainer/findings/ODF-110.md).

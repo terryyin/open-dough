@@ -30,7 +30,7 @@ commit and landing steps keep their required later workflow boundary.
 | 7c | Use documented-cell tests in the verification. | slice 1 | observed: existing extraction helper executes the actual first markdown JS fence |
 | 7d | Use real-process delivery in the verification. | slice 1 | observed: processBackedCodexTools yieldBeforeOutput; managed CLI delivery test |
 | 7e | Use native Codex transport in the verification. | slice 1 | observed: native functions cell72 and terminal80523; ready /tmp/odf376-native-l3y_xokh/mailboxes/watch-IpcBlf PID70429; real stream, fake provider event, ack1 and confirmed stopped |
-| 8 | Preserve the investigation evidence in the implementation commit. | slice 1 | observed: prepared implementation commit body /tmp/odf376-commit-message.txt; guarded fresh commit owns this procedural step; verify committed body before closure |
+| 8 | Preserve the investigation evidence in the implementation commit. | slice 1 | observed: implementation commit eac4f2083efe6c2909d6022a6ca0f5e699c8996b body retains recovered transcript hashes/records, release provenance, reproduction and native evidence |
 | 9 | Land the completed correction after implementation and verification. | slice 1 | observed: authorized Dough Land continuation after execution/review/completion; closure owns actual trunk acceptance, not a claim of completed landing at slice acceptance |
 | 10a | Keep release outside this correction and explicitly pending. | slice 1 | observed: ODF-376 Response pending first containing release; VERSION/CHANGELOG/tags untouched |
 | 10b | Keep installation outside this correction and explicitly pending. | slice 1 | observed: installed .agents/.claude payload unchanged; finding notes pending released adoption |
