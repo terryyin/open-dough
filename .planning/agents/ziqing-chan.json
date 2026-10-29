@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "identity": "SEED-170#evaluate-consumer-tracing",
-  "mode": "story-branch",
-  "branch": "codex/consumer-tracing-review",
-  "host": "codex"
-}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-170_evaluate-consumer-tracing.json",
+      "identity": "SEED-170#evaluate-consumer-tracing",
+      "completedAt": "2026-10-29T05:30:52.298Z",
+      "blob": "cb35754d2fc5f50fd538b667309f809898e9db1f"
+    },
+    {
       "fileName": "SEED-169_compact-session-entry.json",
       "identity": "SEED-169#compact-session-entry",
       "completedAt": "2026-10-29T05:14:18.632Z",
