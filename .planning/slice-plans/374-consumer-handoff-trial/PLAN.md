@@ -171,7 +171,7 @@ identity and retained immutable input hashes. Replay remains outside cohort.
 
 ### 3. The stopped trial receives a reproducible decision
 Type: Behavior
-Status: planned
+Status: done
 Apply the already frozen B-only miss/lost-lead stop: do not activate prospective
 recruitment. Record zero cohort cases and no later exposure, preserve the replay
 and v1 separately, apply all benefit/quality gates, and publish the bounded
@@ -205,20 +205,26 @@ Disposition: proved by slice 1: CALIBRATION-SCORING.md and corrected prospective
 ### G2. First prospective audit exceeded its cap before a timely reference
 Reported: slice 2 — "Auditor declared freeze252.119s after dispatch, above the four-minute cap; interrupted partial/late result is unaccepted and neither review arm started."
 Story clause: "Missing timing, an unaudited case or insufficient recruitment remains inconclusive; it is not recorded as zero cost or a successful trial."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: docs/maintainer/consumer-tracing-trial-v2.md retains v1 inconclusive/unknown evidence separately, reports v2 measured replay and quality rejection without inventing prospective results.
 
 ### G3. Original tracing and variant preparation timing are unavailable
 Reported: slice 2 — "I0, original C and full P_A/P_B lack reliable measurements; tiny file-write durations omit drafting and do not establish mechanism cost."
 Story clause: "measuring missed consumers, useful discoveries and review effort before deciding whether to change the mechanism."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: docs/maintainer/consumer-tracing-trial-v2.md retains v1 inconclusive/unknown evidence separately, reports v2 measured replay and quality rejection without inventing prospective results.
 
 ### G4. Quality stop precludes the prospective cohort
 Reported: slice 3 — "The compact replay lost the baseline asset-filter purpose and had a candidate-only missed purpose; the preregistered quality rule stops recruitment at zero prospective cases."
 Story clause: "A compact summary is quicker to read but hides an earlier relevant lead: reject it despite time saved."
 Disposition: excluded "A compact summary is quicker to read but hides an earlier relevant lead: reject it despite time saved."
-Commitment: 6, 14, 15, 30, 42
+Commitment: 2, 6, 14, 15, 30, 42
 
 ### G5. Controller cost description and measured proxy differed
 Reported: slice 2 — "Refactor found PLAN subtracting all child intervals while budget.json subtracts explicit blocking wait intervals and counts concurrent root work."
 Story clause: "The version-2 120-minute budget includes its replay and controller work; retain version-1 costs separately."
 Disposition: proved by slice 2: PLAN timing contract now explicitly uses native blocking-wait subtraction; v2/budget.json retains all components, includes concurrent reasoning/tools, and never adds the earlier overlap bound twice.
+
+### G6. Passive human reading cost is not measured
+Reported: slice 3 — "No experimental human contact or manual task was requested; passive reading cost remains unknown and no total-human-cost or cap certification is made."
+Story clause: "Missing timing, an unaudited case or insufficient recruitment remains inconclusive; it is not recorded as zero cost or a successful trial."
+Disposition: excluded "Missing timing, an unaudited case or insufficient recruitment remains inconclusive; it is not recorded as zero cost or a successful trial."
+Commitment: 18

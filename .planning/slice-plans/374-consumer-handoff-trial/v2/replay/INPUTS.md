@@ -13,3 +13,6 @@ These are actual old ordinary local proofs with explicit provenance limits,
 not newly run tests. Fresh producer must freeze I0 before opening them, any
 trace or the old normal handoff. Do not inspect old experimental audits/packets.
 No old C/I0 duration is recovered by this new replay.
+
+The owned temporary source worktree was verified clean and retired after replay.
+All source is still recoverable from the immutable Git candidate; execution checkout stays.
