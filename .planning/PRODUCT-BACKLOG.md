@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-174-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-174#optimize-dashboard-test-feedback ([plan](slice-plans/376-optimize-dashboard-test-feedback/PLAN.md))
 - [Keep a Cursor session Working while its CI is still running](seeds/SEED-175-cursor-session-working-during-owned-ci.md#keep-cursor-session-working-while-its-ci-runs) — SEED-175#keep-cursor-session-working-while-its-ci-runs ([plan](slice-plans/377-keep-cursor-session-working-while-its-ci-runs/PLAN.md))
 
 ## Backlog list

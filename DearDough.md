@@ -193,6 +193,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Observed effect: coordinator reported lost coverage once and continued; slice 2’s hosted OVER BUDGET failure was not classified in the same turn; coverage resumed for later publications on a subsequent observer.
   - Inference: qualified recurrence of transport-ending observation loss. Exact `gh`/TLS error text is unrecovered from the dead observer; distinct from eight-hour budget expiry (ODF-259).
 
+- Execution: SEED-174#optimize-dashboard-test-feedback / plan 376 / first related implementation `692d90320ebb6e6d0a96f61a52e0597717a982e4`
+  - Timestamp: unknown (2026-10-29 Asia/Singapore; two finished observers left `CI_MONITOR_UNAVAILABLE` event files dated ~18:19 and ~19:11 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.76
+  - Evidence: `/tmp/dough-ci-501/watch-dzWNZd/events/000000000001.json` — `CI_MONITOR_UNAVAILABLE` reason “gh did not answer within the request's time limit”; `/tmp/dough-ci-501/watch-lDWSLx/events/000000000001.json` — same type, reason “GitHub is unreachable”; both for branch `cursor/reduce-dashboard-test-feedback-time-with-measure`. Coordinator transcript `5473d3e9-6f21-4fad-9a6f-c38bde1e1b81` noted lost coverage once mid-slice-2 and continued. Later observer `/tmp/dough-ci-501/watch-1xJHW1` retained coverage for tip `f5d22bce` as `not_required` with basis `a1703fdd` `success`.
+  - Observed effect: two transport-ended observers on this execution; coordinator continued without claiming CI success; tip observation remains pending/possibly gapped relative to those dead mailboxes.
+  - Inference: qualified recurrence of ODF-121 transient-transport ending (gh timeout and unreachable); distinct from eight-hour budget expiry (ODF-259) and from wrong-`--repo` 404 (ODF-256).
+
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
 Former local code: DD-262. A focused proof overrides a configured reporter that owns failure policy, making local passing assertions insufficient evidence for the project’s actual verdict. [Evidence and current response](docs/maintainer/findings/ODF-226.md).
@@ -221,6 +229,18 @@ Former local code: DD-264. A long repeated full-suite probe starts and continues
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. An interrupted Cursor implementation Task leaves edits but no agent return; the coordinator must reconstruct proof and acceptance from the checkout. [Evidence and current response](docs/maintainer/findings/ODF-229.md).
+
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-229.md). This execution adds an occurrence under that established code; no new code or mapping is allocated. Matching uncertainty: the interrupted Task left no edits (clean tree), so the original “edits without return” symptom is absent; the decisive interrupted-without-return recovery still applied.
+
+### Occurrences
+
+- Execution: SEED-174#optimize-dashboard-test-feedback / plan 376 / first related implementation `692d90320ebb6e6d0a96f61a52e0597717a982e4`
+  - Timestamp: unknown (2026-10-29 Asia/Singapore; after slice-1 delivery `692d9032` 18:15 +08 and before slice-2 delivery `a1703fdd` 18:32 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.76
+  - Evidence: coordinator transcript `5473d3e9-6f21-4fad-9a6f-c38bde1e1b81` — first slice-2 Task (“Slice 2 agent-launch optimize”) interrupted with no return; coordinator followed interrupted-delegation recovery, found clean working tree at `692d9032`, then launched fresh Task “Slice 2 optimize retry” which delivered `a1703fdd`.
+  - Observed effect: one aborted implementation Task with no product edits; full recovery + fresh agent before acceptance; no work lost or dual-writer conflict.
+  - Inference: qualified recurrence of interrupted Cursor implementation without return; empty-tree case made reconstruction cheap but still required a replacement writer. Host termination cause (watchdog vs other) is unestablished here.
 
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 
