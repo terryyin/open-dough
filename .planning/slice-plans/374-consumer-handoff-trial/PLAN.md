@@ -1,9 +1,12 @@
 # Bounded trial of a compact consumer-tracing handoff
 
 **Source:** [Selected story](../../seeds/SEED-172-consumer-handoff-trial.md#trial-compact-consumer-handoff)
+**Source review:** [Source review](source-review.md)
 **Identity:** SEED-172#trial-compact-consumer-handoff
 **Basis:** [ODF-150 assessment](../../../docs/maintainer/consumer-tracing-evaluation.md)
-**Authority:** Planning only. All slices remain planned; no trial has started.
+**Authority:** User selected “land. Then execute”; execute this bounded trial.
+**Activation:** 2026-10-29T06:23:43Z (14:23:43 Singapore). Recruitment ends
+2026-11-12T06:23:43Z; final decision due 2026-11-19T06:23:43Z.
 
 ## Goal, hypothesis and scope
 
@@ -64,7 +67,7 @@ for attributable CI/ordinary-use misses for seven days, finishing by day 21;
 unintegrated, unexposed or unavailable outcomes remain unknown. Do not invent work
 to fill the sample or create scheduled wakeups without separate authorization.
 
-Proposed incremental caps: 120 summed agent task-minutes and 30 measured human
+Activated incremental caps: 120 summed agent task-minutes and 30 measured human
 minutes for the whole trial. Within that cap allow at most eight task-minutes
 per reviewer, four per independent audit, three extra minutes of packet preparation
 per case, and 20 combined minutes for calibration and final scoring. These are
@@ -141,7 +144,7 @@ these results preserved. Zero complaints or installation alone are never success
 
 ### 1. Comparable packets and scoring are ready for a first case
 Type: Behavior
-Status: planned
+Status: done
 Behavior: Given this frozen basis, construct A/B presentation rules, a case ledger
 and reviewer/auditor briefs; demonstrate that neither format drops required records.
 Proof: Walk the known plan-411 indirect fake consumer, plan-430 discovered owner,
@@ -208,5 +211,29 @@ packet equivalence and reserve closing effort. No remaining slice-specific conce
 Host-dependent observation is explicitly owned by the authorized early probe.
 The sample cannot establish sustained effectiveness; this is an evaluation limit,
 not an extra implementation promise. Proposed criteria are fixed before activation.
-This draft is unqueued and retained for review; recording readiness grants no
-execution, publication, standing authority or permission to change runtime guidance.
+The reviewed preparation landed before execution admission. Current authority
+is this bounded trial; runtime guidance and standing automation remain excluded.
+
+## Execution and resume
+
+Owned checkout `/Users/terryyin/git/open-dough/.worktrees/consumer-handoff-trial`,
+branch `codex/consumer-handoff-trial`; default checkout `/Users/terryyin/git/open-dough`.
+Story Branch Mode, remote `origin`, trunk `main`; pushes authorized. Preparation
+accepted at `8caaa6507a5fd9b123d5e449aba13ac1fa971358`; execution claim
+`9f5bf344ec08f6160886c4e2f9a14e015f771bf9`, agent `YeongSheng-chan`.
+Reuse this checkout and claim; this session created the worktree before preparation.
+Locked setup and checkout-local lint passed. No tracing/runtime source change is authorized.
+[Trial ledger](TRIAL-LEDGER.md) owns screenings, calibration, timing and remaining budget.
+Pre-activation landing/setup is separate and its total effort is unknown.
+Slice1 proof: CALIBRATION-RECEIPT.md preserves v1 failure; corrected rubric in
+CALIBRATION-SCORING.md and independent refactor (no edits) accept limited host/gap
+feasibility, not corrected-reviewer performance. Original six hashes match.
+Next: first potential prospective candidate90ea7710 awaits eligibility/freeze;
+never turn rehearsal into a prospective pair. All case proof/later effects remain owed.
+
+## Story obligations
+
+### G1. Initial scoring brief omitted M/G definitions
+Reported: slice 1 — "calibration reviewers caught specific gaps but v1's missing definitions produced inconsistent numeric labels; source review acceptance inspected both retained reports."
+Story clause: "measuring missed consumers, useful discoveries and review effort before deciding whether to change the mechanism."
+Disposition: proved by slice 1: CALIBRATION-SCORING.md applies the frozen definitions to each observed purpose, preserves failed v1 results and unknown historical denominators; REVIEWER-BRIEF.md revision 2 supplies those definitions. First-case audit remains required.
