@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 364. Removed numbers are never reused.
+- Highest allocated local number: 365. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -567,3 +567,18 @@ was required before acceptance.
   - Evidence: before-cleanup `1223cddb7bd75f7f56d4668ebd46930e28326491:.planning/slice-plans/364-publish-awaiting-hosted-proof/source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
   - Observed effect: one discarded source-only review, then a second launch that recovered examples 3–4 before commitment allocation
   - Inference: distinct from ODF-326 (unchanged-input repeat); here the first inputs were incomplete, so the second launch was corrective rather than redundant
+
+## DD-365 — Commit-specific preparation approval repeats after safe reconciliation
+
+Approval named one preparation commit, then a metadata-only rebase changed its
+SHA while retaining the reviewed story, plan and backlog link. Automatic
+approval review required another human approval before publication.
+
+### Occurrences
+- Execution: SEED-164#dashboard-ci-time; first implementation `7eda0986bafe78cbf6088df514bb6b088edf9333`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: execution conversation; approval of preparation `3c5f3ded`, reconciliation onto another chat's metadata as `aeff46decceb5fef150962b5ce72db259d866382`, then explicit approval of preparation-only changes and safe reconciliation. Seed/plan bytes and the sole backlog plan-link edit were checked unchanged before publication.
+  - Observed effect: publication paused for a second human approval although the reviewed preparation change was unchanged.
+  - Inference: qualified one-off; requesting approval for the concrete change scope plus safe reconciliation can avoid a SHA-only authorization becoming stale. This differs from ODF-262's permission-only UI probes.

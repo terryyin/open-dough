@@ -1,7 +1,7 @@
 import { availableParallelism } from "node:os";
 import { defineConfig, devices } from "@playwright/test";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
-import { dashboardTestMatch } from "./tests/support/testFiles.mjs";
+import { dashboardTestProjects } from "./tests/support/testFiles.mjs";
 import type { QuietReporterOptions } from "./tests/support/quietReporter.ts";
 
 // Vite and other descendants may explicitly enable Node's compile cache.
@@ -39,14 +39,6 @@ const quietReporter: [string, QuietReporterOptions] = [
 
 export default defineConfig({
   testDir: "./tests",
-  ...(process.env["OPEN_DOUGH_DASHBOARD_SPLIT"]
-    ? {
-        testMatch: dashboardTestMatch(
-          new URL("./tests/", import.meta.url),
-          process.env["OPEN_DOUGH_DASHBOARD_SPLIT"],
-        ),
-      }
-    : {}),
   outputDir: `./test-results/${runStamp}`,
   fullyParallel: true,
   // Playwright's default uses half the cores. Each CI dashboard shard job must
@@ -72,7 +64,10 @@ export default defineConfig({
   use: {
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: dashboardTestProjects(
+    new URL("./tests/", import.meta.url),
+    process.env["OPEN_DOUGH_DASHBOARD_SPLIT"],
+  ).map((project) => ({ ...project, use: { ...devices["Desktop Chrome"] } })),
   // Every run builds the production app once; each page journey then serves
   // that build from its own preview server, whose `gh` is a synthetic one
   // answering from that test's own fake GitHub (tests/dashboardTest.ts).

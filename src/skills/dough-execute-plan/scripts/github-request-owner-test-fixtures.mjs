@@ -21,8 +21,16 @@ export function ownerRecords(root) {
     for (const name of readdirSync(directory)) {
       if (!/^owner\.\d+\.json$/.test(name)) continue;
       const file = join(directory, name);
+      let text;
+      try {
+        text = readFileSync(file, "utf8");
+      } catch (error) {
+        // Replacement may withdraw a record from the directory snapshot.
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
       records.push({
-        ...JSON.parse(readFileSync(file, "utf8")),
+        ...JSON.parse(text),
         directory,
         file,
       });

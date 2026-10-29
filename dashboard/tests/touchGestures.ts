@@ -1,6 +1,20 @@
-import type { Locator, Page } from "@playwright/test";
+import type { JSHandle, Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { box } from "./pageLayout.ts";
+
+// A browser-side reading keeps its DOM predicate beside the frame it observes.
+export type TouchReading = JSHandle<() => boolean>;
+
+export function readAfterTouchFrame(reading: TouchReading) {
+  return reading.evaluate(async (sample) => {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        resolve();
+      });
+    });
+    return sample();
+  });
+}
 
 // Send native finger movement explicitly: Linux Chromium's synthesized scroll
 // can deliver only touchstart/end. Split long drags into feasible in-view
@@ -10,7 +24,7 @@ export async function scrollByTouch(
   area: Locator,
   distance: number,
   axis: "vertical" | "horizontal" = "vertical",
-  untilShown?: () => Promise<boolean>,
+  untilShown?: TouchReading,
 ) {
   const bounds = await box(area);
   const browser = await page.context().newCDPSession(page);
@@ -54,15 +68,7 @@ export async function scrollByTouch(
           timestamp: timestamp + (duration * step) / steps,
         });
         if (untilShown) {
-          await page.evaluate(
-            () =>
-              new Promise<void>((resolve) => {
-                requestAnimationFrame(() => {
-                  resolve();
-                });
-              }),
-          );
-          shown = await untilShown();
+          shown = await readAfterTouchFrame(untilShown);
           if (shown) break;
         }
       }

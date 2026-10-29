@@ -19,6 +19,10 @@ import {
   noteTerminalTraffic,
   scrollByTouch,
   titleWordsShown,
+  titleWordsReading,
+  sessionReading,
+  readAfterTouchFrame,
+  type TouchReading,
 } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -106,30 +110,29 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
           expect(await titleWordsShown(heading, 0, 28)).toBe(true);
           // Observe within native strokes to retain narrow reading positions.
           const headerSwipe = -(await box(identity)).height / 2;
-          const scrollHeaderUntilShown = async (
-            shown: () => Promise<boolean>,
-          ) => {
-            for (let stroke = 0; stroke < 12 && !(await shown()); stroke += 1) {
+          const scrollHeaderUntilShown = async (reading: TouchReading) => {
+            let shown = await reading.evaluate((sample) => sample());
+            for (let stroke = 0; stroke < 12 && !shown; stroke += 1) {
               await scrollByTouch(
                 page,
                 identity,
                 headerSwipe,
                 "vertical",
-                shown,
+                reading,
               );
-              await page.evaluate(
-                () =>
-                  new Promise<void>((resolve) => {
-                    requestAnimationFrame(() => {
-                      resolve();
-                    });
-                  }),
-              );
+              shown = await readAfterTouchFrame(reading);
             }
           };
-          await scrollHeaderUntilShown(() =>
-            titleWordsShown(heading, title.length - 20, title.length),
+          const titleReading = await titleWordsReading(
+            heading,
+            title.length - 20,
+            title.length,
           );
+          try {
+            await scrollHeaderUntilShown(titleReading);
+          } finally {
+            await titleReading.dispose();
+          }
           await expect
             .poll(() =>
               titleWordsShown(heading, title.length - 20, title.length),
@@ -140,19 +143,12 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
           expect((await box(session)).height).toBeLessThanOrEqual(
             (await box(identity)).height,
           );
-          const sessionShown = () =>
-            session.evaluate((element) => {
-              const identity = element
-                .closest(".terminal-identity")
-                ?.getBoundingClientRect();
-              const shown = element.getBoundingClientRect();
-              return (
-                identity !== undefined &&
-                shown.top >= Math.max(identity.top, 0) &&
-                shown.bottom <= Math.min(identity.bottom, innerHeight)
-              );
-            });
-          await scrollHeaderUntilShown(sessionShown);
+          const reading = await sessionReading(session);
+          try {
+            await scrollHeaderUntilShown(reading);
+          } finally {
+            await reading.dispose();
+          }
           await expect(session).toBeInViewport({ ratio: 1 });
         }
         await assertIdentity();

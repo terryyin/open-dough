@@ -6,6 +6,8 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   proofDirectory,
+  proofFixtures,
+  quietReporter,
   readProof,
   removeProofDirectories,
   startProofRun,
@@ -153,4 +155,60 @@ test("a listing runs no test and writes no times file", async () => {
   expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
   expect(existsSync(timesPath)).toBe(false);
   expect(readProof(run.recordPath).phase).toBe("listed");
+});
+
+test("serial file hooks contribute once while test-scoped hooks stay inside each attempt", async () => {
+  const directory = proofDirectory();
+  const timesPath = path.join(directory, "times.txt");
+  const recordPath = path.join(directory, "proof.json");
+  const hooksPath = path.join(directory, "hooks.json");
+  const run = startProofRun({
+    directory,
+    timesPath,
+    recordPath,
+    spec: "shared-hooks.proof.ts",
+    config: {
+      reporter: [
+        [quietReporter, { proofRecord: recordPath, times: timesPath }],
+        [
+          path.join(proofFixtures, "hookReporter.ts"),
+          { destination: hooksPath },
+        ],
+      ],
+    },
+  });
+  expect(await run.result).toMatchObject({ status: 0, stdout: "", stderr: "" });
+  const record = readProof(recordPath);
+  expect(record.selectedCount).toBe(2);
+  const hooks = JSON.parse(readFileSync(hooksPath, "utf8")) as {
+    title: string;
+    duration: number;
+  }[];
+  const shared = hooks.filter((hook) =>
+    ["beforeAll hook", "afterAll hook"].includes(hook.title),
+  );
+  expect(shared.map((hook) => hook.title)).toEqual([
+    "beforeAll hook",
+    "afterAll hook",
+  ]);
+  expect(hooks.filter((hook) => hook.title === "beforeEach hook")).toHaveLength(
+    2,
+  );
+  expect(hooks.filter((hook) => hook.title === "afterEach hook")).toHaveLength(
+    2,
+  );
+  const attempts = record.tests.flatMap((selected) => selected.attempts);
+  const attemptMs = attempts.reduce(
+    (total, attempt) => total + (attempt.durationMs ?? 0),
+    0,
+  );
+  const sharedMs = shared.reduce((total, hook) => total + hook.duration, 0);
+  expect(sharedMs).toBeGreaterThanOrEqual(500);
+  expect(attemptMs).toBeGreaterThanOrEqual(400);
+  expect(timesLines(timesPath)).toEqual([
+    {
+      seconds: ((attemptMs + sharedMs) / 1000).toFixed(1),
+      file: "shared-hooks.proof.ts",
+    },
+  ]);
 });

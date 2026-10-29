@@ -29,6 +29,14 @@ subprocesses choose their own selection; their harness
 (`support/proofRecordRun.ts`) removes the inherited split before launching
 them.
 
+Within a shard, two complementary native Playwright projects queue the serial
+`production-watcher*.spec.ts` chains before ordinary files. They share one phase
+and one global setup: there are no project dependencies, so the other workers
+run ordinary checks while a chain builds and replaces its deployments. The
+projects partition the existing selected files; they neither add shards nor
+repeat tests. The project names are `chromium-deployments` and `chromium`; a
+whole-suite invocation selects both.
+
 ### Preview before pushing
 
 Before pushing a change that adds, removes or renames a spec file, preview
@@ -69,10 +77,12 @@ Each CI shard sets `OPEN_DOUGH_DASHBOARD_TIMES` to a file the quiet
 reporter writes when the run ends, however it ended (`support/specTimes.ts`):
 one `<seconds><TAB><file>` line per spec file that ran, longest first (equal
 seconds bytewise by file), the file's seconds being the sum of its tests' own
-durations to a tenth, including tests it registers through an imported case
-module (they count under the spec file Playwright ran, not the module), and
-`<file>` its path relative to this directory, the label `longest-first`
-carries. A failed or deadline-ended shard still records
+durations plus each executed `beforeAll`/`afterAll` hook once, to a tenth.
+Test-scoped setup and teardown are already in each test duration and are never
+added a second time. Tests registered through an imported case module count
+under the spec file Playwright ran, not the module. `<file>` is its path relative
+to this directory, the label `longest-first` carries. A failed or deadline-ended
+shard still records
 what completed; a `--list` run writes nothing, and a run without the variable
 writes no times file. CI keeps the file for seven days as artifact
 `dashboard-times-<shard>`, under the same condition as the Playwright report,

@@ -3,7 +3,11 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { tapWhereShown } from "./pageLayout.ts";
-export { scrollByTouch } from "./touchGestures.ts";
+export {
+  scrollByTouch,
+  readAfterTouchFrame,
+  type TouchReading,
+} from "./touchGestures.ts";
 
 // Observe browser traffic without supplying input or native resize outcomes.
 export function noteTerminalTraffic(page: Page) {
@@ -83,25 +87,59 @@ export async function focusByTouch(panel: Locator) {
   await expect(panel.locator("textarea")).toBeFocused();
 }
 
-export function titleWordsShown(heading: Locator, start: number, end: number) {
-  return heading.evaluate(
-    (element, { start, end }) => {
-      const text = element.firstChild;
-      const identity = element
-        .closest(".terminal-identity")
-        ?.getBoundingClientRect();
-      if (text === null || identity === undefined) return false;
-      const words = document.createRange();
-      words.setStart(text, start);
-      words.setEnd(text, end);
-      return Array.from(words.getClientRects()).every(
-        (shown) =>
-          shown.top >= identity.top &&
-          shown.bottom <= identity.bottom + 1 &&
-          shown.left >= identity.left &&
-          shown.right <= identity.right + 1,
-      );
-    },
+export function titleWordsReading(
+  heading: Locator,
+  start: number,
+  end: number,
+) {
+  return heading.evaluateHandle(
+    (element, { start, end }) =>
+      () => {
+        if (!element.isConnected) return false;
+        const text = element.firstChild;
+        const identity = element
+          .closest(".terminal-identity")
+          ?.getBoundingClientRect();
+        if (text === null || identity === undefined) return false;
+        const words = document.createRange();
+        words.setStart(text, start);
+        words.setEnd(text, end);
+        return Array.from(words.getClientRects()).every(
+          (shown) =>
+            shown.top >= identity.top &&
+            shown.bottom <= identity.bottom + 1 &&
+            shown.left >= identity.left &&
+            shown.right <= identity.right + 1,
+        );
+      },
     { start, end },
   );
+}
+
+export async function titleWordsShown(
+  heading: Locator,
+  start: number,
+  end: number,
+) {
+  const reading = await titleWordsReading(heading, start, end);
+  try {
+    return await reading.evaluate((sample) => sample());
+  } finally {
+    await reading.dispose();
+  }
+}
+
+export function sessionReading(session: Locator) {
+  return session.evaluateHandle((element) => () => {
+    if (!element.isConnected) return false;
+    const identity = element
+      .closest(".terminal-identity")
+      ?.getBoundingClientRect();
+    const shown = element.getBoundingClientRect();
+    return (
+      identity !== undefined &&
+      shown.top >= Math.max(identity.top, 0) &&
+      shown.bottom <= Math.min(identity.bottom, innerHeight)
+    );
+  });
 }
