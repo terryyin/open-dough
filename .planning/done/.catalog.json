@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-171_production-policy-ci-time.json",
+      "identity": "SEED-171#production-policy-ci-time",
+      "completedAt": "2026-10-29T07:15:50.761Z",
+      "blob": "28fb8c846e2ea198e01708b79df20649563d2022"
+    },
+    {
       "fileName": "SEED-010_expose-codex-observer-identity.json",
       "identity": "SEED-010#expose-codex-observer-identity",
       "completedAt": "2026-10-29T05:37:53.157Z",
