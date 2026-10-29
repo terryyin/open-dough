@@ -8,7 +8,7 @@ Reviewed 2026-10-29 (Asia/Singapore): targeted response-watch review of Open Dou
 Doughnut, Pygardon and Lizard sources and relevant retained findings; production
 inventory rechecked unchanged. Terry Talks is outside shared collection because
 process retrospective is off and has no local findings record. The remaining
-scope-limit watch awaits verified release or modified-guidance use. Lizard's
+scope-limit watch awaits verified relevant use after release. Lizard's
 missing observer-identity receipt remains separately retained as ODF-376.
 
 <a id="scope-limits-and-required-restrictions"></a>
@@ -35,8 +35,11 @@ missing observer-identity receipt remains separately retained as ODF-376.
   accepted in [ADR 0001](../adrs/0001-ubiquitous-language-accepted.md).
 - **Validation / status:** Independent authoring walkthrough covered approved-spec
   batching, the qualified polling case and a justified implementation guard;
-  whitespace and commit-hook lint checks passed. Source committed, unreleased;
-  native effectiveness and first containing release/adoption remain unverified.
+  whitespace and commit-hook lint checks passed. First containing release
+  `v0.3.75` (`0aa2b32d83f26b0a2a7956d50c2f4cc4935e50dc`) published
+  2026-10-29; Open Dough, Doughnut, Pygardon, Terry Talks and Lizard adopted it
+  in both native roots the same day. Installation does not establish native
+  effectiveness or qualifying use.
 - **Watch start:** Pending first verified relevant use. Record the containing
   release and installation/execution evidence, or the exact modified-guidance
   revision used; the source commit date does not start the watch.
@@ -49,5 +52,5 @@ missing observer-identity receipt remains separately retained as ODF-376.
 - **Review after:** 2026-11-04 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-10-29 (Asia/Singapore), targeted historical and authoring
-  review only; no qualifying use of the fix observed.
+- **Last assessed:** 2026-10-29 (Asia/Singapore), historical/authoring review and
+  release/installation verification; no qualifying use of the fix observed.
