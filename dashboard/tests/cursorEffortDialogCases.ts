@@ -44,11 +44,20 @@ test("a multi-effort Cursor model lists effort choices and Start sends the compo
     "Fixture Orb Low",
     "Fixture Luna Medium",
   ]);
-  await expect(
-    dialog.getByLabel("Reasoning effort", { exact: true }),
-  ).toHaveCount(0);
-  await models.selectOption("fixture-orb");
   const effort = dialog.getByLabel("Reasoning effort", { exact: true });
+  await expect(effort).toBeVisible();
+  await expect(effort).toBeDisabled();
+  await expect(effort).toHaveAccessibleDescription(
+    "Choose a specific model to select reasoning effort.",
+  );
+  await startSessionField(dialog).fill("why is the CI slow?");
+  await models.selectOption("auto");
+  await expect(effort).toBeDisabled();
+  await expect(effort).toHaveAccessibleDescription(
+    "Choose a specific model to select reasoning effort.",
+  );
+  await models.selectOption("fixture-orb");
+  await expect(effort).toBeEnabled();
   await expect(effort.locator("option")).toHaveText([
     "Choose a listed effort",
     "low — Fixture Orb Low",
@@ -58,8 +67,35 @@ test("a multi-effort Cursor model lists effort choices and Start sends the compo
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeDisabled();
+  await effort.selectOption("high");
+  await models.selectOption("");
+  await expect(effort).toBeDisabled();
+  await expect(effort).toHaveValue("");
+  await expect(
+    dialog.getByRole("button", { name: "Start", exact: true }),
+  ).toBeEnabled();
+  await models.selectOption("fixture-orb");
+  await effort.selectOption("high");
+  await models.selectOption("auto");
+  await expect(effort).toBeDisabled();
+  await expect(effort).toHaveValue("");
+  await expect(
+    dialog.getByRole("button", { name: "Start", exact: true }),
+  ).toBeEnabled();
+  await models.selectOption("fixture-orb");
+  await effort.selectOption("high");
+  await models.selectOption("gpt-5.2");
+  await expect(effort).toBeDisabled();
+  await expect(effort).toHaveValue("");
+  await expect(effort).toHaveAccessibleDescription(
+    "This model does not offer reasoning effort choices.",
+  );
+  await expect(
+    dialog.getByRole("button", { name: "Start", exact: true }),
+  ).toBeEnabled();
+  await models.selectOption("fixture-orb");
+  await expect(effort).toBeEnabled();
   await effort.selectOption("high-fast");
-  await startSessionField(dialog).fill("why is the CI slow?");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
   await expect(parts(page).taken.locator(".session-entry")).toContainText(

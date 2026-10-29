@@ -1,6 +1,10 @@
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
-import { effortBlocked, launchEfforts } from "./launchEffort.ts";
+import {
+  cursorNeedsSpecificModel,
+  effortBlocked,
+  launchEfforts,
+} from "./launchEffort.ts";
 import { hostName } from "./sessionCapabilities.ts";
 
 export function LaunchReasoningEffort({
@@ -21,6 +25,15 @@ export function LaunchReasoningEffort({
   readonly error: string | undefined;
 }) {
   const { efforts, known } = launchEfforts(options, model);
+  const needsSpecificModel =
+    host === "cursor" && cursorNeedsSpecificModel(model);
+  const disabled =
+    host === "cursor" && (needsSpecificModel || !known || efforts.length === 0);
+  const disabledHint = needsSpecificModel
+    ? "Choose a specific model to select reasoning effort."
+    : disabled && known
+      ? "This model does not offer reasoning effort choices."
+      : undefined;
   const blocked = effortBlocked(options, model, effort, host);
   const hasEmptyEffort = efforts.some((item) => item.effort === "");
   const setting =
@@ -38,6 +51,7 @@ export function LaunchReasoningEffort({
         id={`${id}-effort`}
         className="frame-input"
         value={effort}
+        disabled={disabled}
         aria-describedby={`${id}-effort-feedback`}
         aria-invalid={blocked || undefined}
         onChange={(event) => {
@@ -60,22 +74,25 @@ export function LaunchReasoningEffort({
         ))}
       </select>
       <p id={`${id}-effort-feedback`} className="quiet" aria-live="polite">
-        {blocked
-          ? `This reasoning effort cannot be verified for this model. Choose a supported effort or use ${setting}.`
-          : (error ??
-            (options === undefined
-              ? `Reading ${hostName(host)} reasoning efforts… You can use ${setting}.`
-              : effort === ""
-                ? host === "cursor"
-                  ? model === ""
-                    ? "Cursor starts with your current Cursor model setting."
-                    : hasEmptyEffort
-                      ? efforts.find((item) => item.effort === "")?.description
-                      : "Choose a listed reasoning effort for this model."
-                  : "Codex resolves its configured reasoning effort in the launch workspace."
-                : known
-                  ? efforts.find((item) => item.effort === effort)?.description
-                  : `${hostName(host)} resolves the configured model in the launch workspace. This explicit effort will be verified there before initial input.`))}
+        {disabledHint ??
+          (blocked
+            ? `This reasoning effort cannot be verified for this model. Choose a supported effort or use ${setting}.`
+            : (error ??
+              (options === undefined
+                ? `Reading ${hostName(host)} reasoning efforts… You can use ${setting}.`
+                : effort === ""
+                  ? host === "cursor"
+                    ? model === ""
+                      ? "Cursor starts with your current Cursor model setting."
+                      : hasEmptyEffort
+                        ? efforts.find((item) => item.effort === "")
+                            ?.description
+                        : "Choose a listed reasoning effort for this model."
+                    : "Codex resolves its configured reasoning effort in the launch workspace."
+                  : known
+                    ? efforts.find((item) => item.effort === effort)
+                        ?.description
+                    : `${hostName(host)} resolves the configured model in the launch workspace. This explicit effort will be verified there before initial input.`)))}
       </p>
     </div>
   );

@@ -89,10 +89,13 @@ Configured defaults are never inferred from catalog recommendations. Cursor
 lists `cursor-agent models` after “Default (your Cursor setting)”, with the same
 unreadable-list Retry and the same recheck before `create-chat`. A chosen id
 goes as `--model` on that first terminal client only, never into the stored
-resume command, and the dialog says that Cursor also saves it as its own model
-setting. A blank ad hoc Cursor start with a chosen model is refused, because no
-Cursor run would apply it. Cursor offers no reasoning effort, and Default omits
-`--model`. Switching
+resume command, and the choice applies to this session only. A blank ad hoc
+Cursor start with a chosen model is refused, because no Cursor run would apply
+it. Cursor's Reasoning effort selector stays visible: Default and Auto disable
+it with a hint to choose a specific model; models with listed effort variants
+enable their supported choices. Models without variants keep it disabled with
+an explanation. Returning to a model without selectable effort clears any prior
+effort. Default omits `--model`. Switching
 hosts and fresh openings clear both selections; no authentication, trust, approval,
 sandbox or permission setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.

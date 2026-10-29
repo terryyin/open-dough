@@ -8,6 +8,7 @@ import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { hostName, launchHosts } from "./sessionCapabilities.ts";
 import { hostDescription, type HostDescription } from "./hostDescription.ts";
 import { type AgentLaunchRequest, type LaunchModel } from "./agentLaunch.ts";
+import { cursorNeedsSpecificModel } from "./launchEffort.ts";
 
 function chosenFeedback(
   item: LaunchHostOptions["models"][number] | undefined,
@@ -47,12 +48,7 @@ export function LaunchHostModel({
   readonly onModel: (model: LaunchModel) => void;
 }) {
   const modelCatalog = hostDescription(host).modelCatalog;
-  const showEffort =
-    effortHosts.includes(host) &&
-    (host !== "cursor" ||
-      (model !== "" &&
-        (catalog.options?.models.find((item) => item.model === model)?.efforts
-          .length ?? 0) > 0));
+  const showEffort = effortHosts.includes(host);
   return (
     <div className="launch-dialog-row">
       <div className="launch-dialog-field">
@@ -85,7 +81,15 @@ export function LaunchHostModel({
             modelCatalog === undefined ? undefined : `${id}-model-feedback`
           }
           onChange={(event) => {
-            onModel(event.target.value);
+            const nextModel = event.target.value;
+            onModel(nextModel);
+            if (
+              host === "cursor" &&
+              (cursorNeedsSpecificModel(nextModel) ||
+                catalog.options?.models.find((item) => item.model === nextModel)
+                  ?.efforts.length === 0)
+            )
+              onEffort("");
           }}
         >
           <option value="">
