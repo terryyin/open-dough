@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-175#keep-cursor-session-working-while-its-ci-runs",
+  "title": "Keep a Cursor session Working while its CI is still running",
+  "completedAt": "2026-10-29T11:39:35.694Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "cursor",
+  "model": "auto"
+}

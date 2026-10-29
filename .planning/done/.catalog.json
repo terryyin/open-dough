@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-175_keep-cursor-session-working-while-its-ci-runs.json",
+      "identity": "SEED-175#keep-cursor-session-working-while-its-ci-runs",
+      "completedAt": "2026-10-29T11:39:35.694Z",
+      "blob": "97aadb1541db6891f6053c049fc3343681c7a1ec"
+    },
+    {
       "fileName": "SEED-173_dashboard-ci-balance.json",
       "identity": "SEED-173#dashboard-ci-balance",
       "completedAt": "2026-10-29T09:28:46.068Z",
