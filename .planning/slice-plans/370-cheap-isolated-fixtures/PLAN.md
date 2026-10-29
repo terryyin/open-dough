@@ -92,7 +92,7 @@ results; final CI comparison and remaining startup investigation belong to2.
 
 ### 2. Fresh preview servers use only justified cheaper immutable bootstrap
 Type: Structure
-Status: planned
+Status: done
 
 Profile the remaining real preview-server bootstrap through its existing
 fixture seam. Select the smallest measured removal of redundant immutable work,
@@ -111,17 +111,17 @@ and uncertainty; reject unproved complexity before completion.
 ### G1. Eager preparation has a fixed cost for suites without installed starts
 Reported: slice 1 — "Preparation is eager for every global-setup run, including focused suites that use no startOrigin."
 Story clause: "Reuse only immutable preparation when measurements justify it."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: measured normal45-case comparison includes eager preparation and falls41.26s to30.88s; complete baseline/candidate CI includes it and three new guards while origin spans fall442.99s to81.66s. The real no-start profile confirms1.71–3.29s eager cost, so focused commands without starts may be slower. Reuse is justified for the measured normal/full workload, not claimed free for every filter.
 
 ### G2. First-use diagnostic does not independently establish a speedup
 Reported: slice 1 — "First real installed starts were included: old total 6.813s, candidate 8.176s."
 Story clause: "Retain only supported gains; report inconclusive or rejected experiments honestly."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: the6.813s/8.176s diagnostic is explicitly inconclusive and excluded from supported speed claims. Final normal same45-case/default8worker result and complete same-workload hosted comparison supply aggregate evidence; no independent first-use gain is asserted.
 
 ### G3. Complete hosted comparison and added-proof cost remain pending
 Reported: slice 1 — "full hosted coverage remains explicitly parent-owned."
 Story clause: "Compare full hosted CI on named baseline and candidate revisions, including case/verdict equality, fixture costs, queue, job and suite time, and uncertainty."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: fullCI40809484652 at a94c65e2 and40814111625 at8c55a30c passed all16jobs; all1735 original identities/verdicts occur once, same4skips/zero retries plus3passing guards. Reports observe unchanged12shards/4workers, fixture spans, queue, job and suite time; new guards cost6.63 accumulated body seconds. Runner/cache variance is retained; repeated candidate observation is recorded in the durable timing report.
 
 ### G4. Aborted diagnostic directories with uncertain ownership were retained
 Reported: slice 1 — "Four build/request directories were retained because creation windows alone did not establish ownership; uncertainty is preserved rather than deleting potentially unrelated state."
@@ -159,3 +159,36 @@ varied/slowed in a diagnostic before final parity cleanup (G1/G2). Host load and
 cache conditions remain comparison limits. Two sandbox diagnostics were ended
 with status143 and count as no pass; all accepted dashboard proof uses the
 escalated wrapper needed for sockets/ps/process cleanup on this host.
+
+## Slice 2 accepted proof and limits
+
+No additional bootstrap runtime change was justified. Real globalSetup prepared
+assets and bundles before worker imports. Actual Vite/native-config previews
+started in268.8/274.9/276.2ms, with only4.0/7.1/5.5ms private pre-spawn work;
+close27.6–30.3ms. Compile cache stayed disabled. Two concurrent real previews
+had separate PIDs/addresses/HOME/fakeGitHub/Codex sockets/browser contexts.
+Mutating A changed only A; stopping A refused connections/deleted its HOME while
+B retained its process, original HTTP/browser revision/backlog/localStorage,
+HOME marker and model; then B stopped independently. The corrected private
+profile command exited0 with no cleanup errors, all7childPIDs stopped and all
+run preparation removed. Two earlier diagnostic assertion/cache-path attempts
+are incomplete, not passing product proof. See slice2-profile-launch.mjs,
+controller/worker JSON and log in the raw directory for literal command/setup/
+assertions. No changed async code needs further repetition; accepted slice1
+guard3passes and ordinary consumers remain applicable.
+
+The fresh full hosted run closes all previously pending installed consumer
+observations in slice1-consumer-trace.md: original selection/verdict equality
+and added guards are checked in ci-comparison.json and ci-attempts.json. No
+original assertion or scenario, fixture server, context, fake service, native
+input, clock, tier, shard, worker or retry policy changed. Durable aggregate
+measurements, fixed eager cost and runner uncertainty are retained in
+docs/maintainer/dashboard-test-timings.md; maintained fixture rules are in
+dashboard/tests/README.md. Do not sum nested fixture spans as elapsed savings.
+
+Repeated identical candidate40815056135 also passed16jobs, same1738identities/
+verdicts/same4skips/zeroextraattempts and12shards4workers. Origin81.833s
+confirms component reduction; maxjob227s/fullCI230s versus baseline230s/235s.
+Its maxsuite203.380s exceeds baseline199.324s, so no reliable suite-elapsed
+improvement is claimed. Across candidates dashboardjobs219–227s andfullCI
+221–230s show modest observed improvements with runner/cache uncertainty.
