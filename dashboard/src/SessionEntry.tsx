@@ -31,6 +31,7 @@ import {
 } from "./sessionRecordActions.tsx";
 import { SessionDetails } from "./SessionDetails.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";
+import { assignedAgent } from "./launchRecord.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
 import "./agent-launch.css";
 
@@ -50,6 +51,18 @@ export function SessionEntry({
 }) {
   const entry = useRef<HTMLElement>(null);
   const { title, identity, name, modelWords } = launchSubject(record.request);
+  const assignment =
+    onStoryCard && storyCardAssignments?.length === 1
+      ? storyCardAssignments[0]
+      : undefined;
+  const repeatedHost =
+    assignment !== undefined &&
+    assignment.agent === assignedAgent(record.start ?? record.preparation) &&
+    assignment.host === record.session.host;
+  const repeatedModel =
+    repeatedHost &&
+    record.request.model !== undefined &&
+    assignment.model === record.request.model;
   const markedDone = record.doneAt !== undefined;
   const { entryClass, stateWords } = shownSession(record);
   const { shownSession: shown, hostOperations } = usePageSessions();
@@ -96,8 +109,12 @@ export function SessionEntry({
       <div className="session-entry-summary">
         <div className="session-entry-summary-facts">
           {stateWords}
-          <p className="session-entry-host">{hostName(record.session.host)}</p>
-          {modelWords !== undefined && (
+          {!repeatedHost && (
+            <p className="session-entry-host">
+              {hostName(record.session.host)}
+            </p>
+          )}
+          {!repeatedModel && modelWords !== undefined && (
             <p className="session-entry-model">{modelWords}</p>
           )}
         </div>
@@ -160,6 +177,7 @@ export function SessionEntry({
           record={record}
           say={say}
           storyCardAssignments={storyCardAssignments}
+          modelInDetails={repeatedModel}
         />
       </div>
       {markedDone && localDone && (

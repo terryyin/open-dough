@@ -135,6 +135,10 @@ test("a retained session keeps its allocation credit after release and a later p
   );
   await expect(original).toContainText(historical);
   await expect(original).toContainText("Model: Fable (requested)");
+  await expect(original.locator(".session-entry-host")).toHaveCount(0);
+  await expect(original.locator(".session-entry-model")).toHaveText(
+    "Model: Fable (requested)",
+  );
   const legacySession = storyCardSessions(card).filter({ hasText: "22222222" });
   const missing = storyCardSessions(card).filter({ hasText: "33333333" });
   const unknown = `Session assignment: ${journey.preparers.refining} · Human developer unknown · Claude Code`;
@@ -143,6 +147,16 @@ test("a retained session keeps its allocation credit after release and a later p
   const duplicate = storyCardSessions(card).filter({ hasText: matchingId });
   await expect(duplicate).toContainText("Ready for slice planning");
   await expect(duplicate.locator(".session-assignment")).toHaveCount(0);
+  await expect(duplicate.locator(".session-entry-host")).toHaveCount(0);
+  await expect(duplicate.locator(".session-entry-model")).toHaveCount(0);
+  await duplicate.getByRole("button", { name: "Session details" }).click();
+  await expect(
+    duplicate.getByText("Model: claude-opus-5-5 (requested)", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    duplicate.getByText(/^Refinement started in Claude Code/),
+  ).toBeVisible();
+  await duplicate.getByRole("button", { name: "Session details" }).click();
   await expect(duplicate).toContainText(
     "Workspace ~/git/open-dough/.worktrees/c-refine",
   );
@@ -163,6 +177,8 @@ test("a retained session keeps its allocation credit after release and a later p
       .filter({ hasText: matchingId }),
   ).toHaveCount(0);
   await show(journey.refinedLanded);
+  await expect(duplicate.locator(".session-entry-host")).toBeVisible();
+  await expect(duplicate.locator(".session-entry-model")).toBeVisible();
   await expect(duplicate).toContainText(historical);
   await expect(duplicate).toContainText("Model: claude-opus-5-5 (requested)");
   await expect(original).toContainText(historical);

@@ -22,12 +22,14 @@ export function SessionDetails({
   record,
   say,
   storyCardAssignments,
+  modelInDetails = false,
 }: {
   readonly record: LaunchWithState;
   readonly say: (words: string | undefined) => void;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
+  readonly modelInDetails?: boolean;
 }) {
-  const { startedWords, optionsWords, policyWords } = launchSubject(
+  const { startedWords, modelWords, optionsWords, policyWords } = launchSubject(
     record.request,
   );
   const { hostOperations } = usePageSessions();
@@ -46,6 +48,7 @@ export function SessionDetails({
           : startedWords}{" "}
         <Moment at={new Date(record.launchedAt)} />
       </p>
+      {modelInDetails && modelWords !== undefined && <p>{modelWords}</p>}
       <SessionAssignment
         record={record}
         storyCardAssignments={storyCardAssignments}
