@@ -10,7 +10,7 @@ id: SEED-171
 
 **Identity:** SEED-171#production-policy-ci-time
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/373-production-policy-ci-time/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f6ad37c3d4ebd7d4c00ae5bfc5c0645c9d0f8b50e36cce7e70f16351a14fcd54","plan":"3b700c2c3bcaf21757ab7cd3c5cfd6bb2983de986e908ec49a276ff05c58ebfb"}}
 ```
 
 **Goal:** Reduce repeated full-app builds in the production-watcher policy tests
