@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "identity": "SEED-168#story-branch-publication-with-first-landing",
-  "mode": "story-branch",
-  "branch": "codex/story-branch-first-landing",
-  "host": "codex"
-}

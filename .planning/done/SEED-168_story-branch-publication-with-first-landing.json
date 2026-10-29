@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-168#story-branch-publication-with-first-landing",
+  "title": "Publish story increments with a pending trunk landing",
+  "completedAt": "2026-10-29T03:31:09.315Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "codex"
+}

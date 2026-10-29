@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-168_story-branch-publication-with-first-landing.json",
+      "identity": "SEED-168#story-branch-publication-with-first-landing",
+      "completedAt": "2026-10-29T03:31:09.315Z",
+      "blob": "1a38d35916416c94bbce064a84e875a2018e9476"
+    },
+    {
       "fileName": "SEED-166_handle-stale-worktree-bundles.json",
       "identity": "SEED-166#handle-stale-worktree-bundles",
       "completedAt": "2026-10-29T01:38:15.722Z",

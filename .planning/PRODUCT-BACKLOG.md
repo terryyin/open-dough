@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Reduce fixture setup cost while preserving private test state](seeds/SEED-167-cheap-isolated-fixtures.md#cheap-isolated-fixtures) — SEED-167#cheap-isolated-fixtures ([plan](slice-plans/370-cheap-isolated-fixtures/PLAN.md))
-- [Publish story increments with a pending trunk landing](seeds/SEED-168-story-branch-publication.md#story-branch-publication-with-first-landing) — SEED-168#story-branch-publication-with-first-landing
 
 ## Backlog list
 
