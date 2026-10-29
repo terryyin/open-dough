@@ -1,6 +1,7 @@
 # Refresh dashboard CI workload weights
 
 **Source:** [Selected story](../../seeds/SEED-173-dashboard-ci-balance.md#dashboard-ci-balance)
+**Source review:** [Independent source commitments](source-review.md)
 **Identity:** SEED-173#dashboard-ci-balance
 
 ## Goal and scope
@@ -21,11 +22,22 @@ d57a83b2bc6d6f9e84814c34de2b6a6dbdfa1763. Originating/default checkout
 /Users/terryyin/git/open-dough. Remote origin, trunk main. Execution will use
 Story Branch Mode and this same workspace, without another worktree or claim.
 
-Automatic approval review rejected the startup command before execution:
-main publication of preparation metadata lacked explicit authorization.
-No claim or profile was published. This draft and plan are local; no weights
-are changed. Admission/publication approval is the remaining boundary before
-implementation. Retain the same source and workspace after approval.
+Preparation publication was explicitly approved by the developer, including
+safe reconciliation. Admission accepted15f35ac010da59083d254ca8dabcf5ebe7dd2f8b
+on main and codex/dashboard-ci-balance; agent Jane-chan, publisher
+codex-dashboard-ci-balance. Startup reported created:false because this same
+worktree had already been created for this work before approval. Its original
+created-for-work fact above remains authoritative. The identical originating
+drafts were removed and the default checkout safely advanced to15f35ac0.
+
+Exact-checkout npm ci succeeded with unchanged lockfile; Node24.21 matches the
+pin. The applicable preview command succeeds:580specs,570recorded/10unrecorded.
+The installed checkout-bound runtime matches this workspace; native GitHub
+workflow ci.yml/CI (id351271804) is active and push-triggered. Main admission
+is unobserved by the branch observer. Retained branch coordinator
+dashboard-ci-balance-173, directory /tmp/dough-ci-501/watch-K4rhGM,
+cell525/session35175/PID3715. Reuse this stream for every implementation push.
+Raw measurement records: /private/tmp/dashboard-ci-balance-173.
 
 ## Existing solution and decisive premises
 
@@ -69,7 +81,7 @@ reporter does. Confirm all580 discovered spec paths have one recorded weight;
 retain the existing list parts, with genuinely unrecorded files accounted for.
 
 Normal local proof before/after uses the same default command and environment:
-env -u NO_COLOR npm test -- tests/support/dashboard-test-files.test.mjs tests/support/duration-list.test.mjs tests/support/test-shares.test.mjs.
+env -u NO_COLOR PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-test-files.test.mjs tests/support/duration-list.test.mjs tests/support/test-shares.test.mjs.
 Record terminal status and selected observations. Also compare the public
 Playwright list output for every one of12 configured splits and unsplit mode:
 each original full identity exactly once, with unchanged deployment/ordinary
@@ -112,13 +124,30 @@ fixture or runtime behavior is narrowed. Existing full CI observes isolation.
 ## Current decisions
 
 One cohesive Structure slice owns data refresh, allocation proof and elapsed
-measurement. The user authorizes implementation and CI measurement; preparation
-publication needs the explicit approval auto-review requested. Coordinator owns
+measurement. The user authorizes implementation and CI measurement and has explicitly
+approved preparation publication to main with safe reconciliation. Coordinator owns
 formatting, hooks, commits, publication, observer and closure. Fresh agents own
 implementation/source review/refactor under the execution skill. Replanning
 within this outcome is permitted; no slice budget or wider outcome is inferred.
 Git and network writes need sandbox escalation, and the shared stash stack and
 other worktrees remain owned by their respective writers. Use env -u NO_COLOR.
+
+## Story obligations
+
+### G1. Implementation and complete hosted comparison remain pending
+Reported: slice 1 — "Before delegation, the coordinator observes that the timing weights have not been refreshed and complete fresh baseline/candidate proof has not yet run."
+Story clause: "Refresh dashboard timing weights and rebalance the existing workload, keeping all tests and isolation, twelve shards and four workers per shard unchanged, and measure the effect on overall CI time."
+Disposition: return
+
+### G2. Initial local command selected the unsupported system Bash
+Reported: slice 1 — "The first allocation command stopped before tests: resolved /bin/bash3.2, while this repository requires Bash5 or newer."
+Story clause: "run suitable local allocation/selection proof before and after instead."
+Disposition: proved by slice 1: the same normal three-file command with the documented Homebrew bin first on PATH exits0, wall1.28s, in allocation-before-pass.log/-times.txt. No test or runtime edit was needed; the initial setup rejection is not passing proof. Keep that PATH for the candidate command.
+
+### G3. Sandboxed runner proof could not observe its owned processes
+Reported: slice 1 — "The first sandboxed extra runner attempt timed out and was explicitly stopped, terminal137; an unchanged process-observation probe failed with ps EPERM inside the sandbox and succeeded outside it."
+Story clause: "run suitable local allocation/selection proof before and after instead."
+Disposition: proved by slice 1: parent inspected runProcesses.ts64-74/122-131 and globalSetup.ts77 teardown, exact sandbox/unsandbox probe logs, same-command terminal0/16.98s with8selected boundary cases, strict nested proof/one-attempt assertions and quiescence. No source/test/timeout changes; missing process-observation precondition restored. Original failed context/tree retained under sandbox-runner-failure; all7 recorded failed PIDs and exact-checkout runner processes are gone. Never count137 as passing proof.
 
 ## Plan concern review
 
@@ -127,3 +156,56 @@ and future hosted uncertainty has an explicit owner/proof loop. The source and
 formatter/hook contracts are understood. No further plan-specific design
 concern is identified. Publication authorization is an execution boundary,
 not a fabricated readiness judgment or evidence of implementation completion.
+
+## Baseline progress before implementation
+
+Baseline1 run40839078106 at15f35ac0 passes16jobs,1741selected/1737expected,
+same4platformskips,580files,12shards with4actual workers and no extra attempts.
+Longest dashboardjob226s, maxsuite202.591s, fullCI229s; firstqueue3s/startspread1s.
+Baseline2 run40839642385 at the identical revision is pending, dispatched only
+after baseline1 completed. Both are workflow_dispatch on the execution branch;
+parent owns measurement/downloads. No weights or runtime code have changed.
+
+The same normal local allocation command passes all three named files, exit0,
+wall1.28s after G2's PATH correction. Public Playwright lists for unsplit and
+all12 splits each exit0:1741unique full identities,580files, each file in one
+shard, all cases in exactly one complementary ordinary/deployment project.
+Raw selection-before.json and before-list-commands.json retain the accounting.
+Local host load18.21 on16CPU/48GiB with unknown other-chat work; listings ran
+sequentially, no competing owned heavy local proof. Listing proves selection,
+not execution. Node24.21/locked dependencies/relevant environment are unchanged.
+
+Baseline2 run40839642385 also passes16jobs at15f35ac0: identical1741identities/
+verdicts, same4skips, no extra attempts,580files,12shards/4workers. Maxjob213s,
+maxsuite187.369s, fullCI216s, firstqueue3s/startspread0s. The229s/216s baseline
+spread remains uncertainty, not a selected best baseline. All36 intended timing
+artifacts are present (12 each from baseline1, baseline2 and main40834521203).
+Repeated startup without admission confirmed existing ready claim15f35ac0,
+unchanged published preparation; current exact-checkout preview remains usable.
+
+## Accepted local implementation before independent refactor
+
+Only four duration lists change. Existing max refresh consumes all36 artifacts;
+all580 labels occur once and equal actual input maxima,519 changed/51 unchanged/
+10new/no removals. Original non-source headers/includes/part ownership remain;
+source provenance is explicit. Current native parser/allocator/config stays put.
+Public before/after lists preserve1741full identities/project/expectedStatus,
+580owning files once;522files/1575cases move, preview678.3–678.5 predicted
+accumulated seconds. These observations establish allocation, not CI speed.
+Normal three-file command passes1.28s before and after; shared-allocator suites
+pass0.29s. Native scheduling, hook times and proof-entry8case consumer command
+passes16.98s after G3's demonstrated environment correction. Parent inspected
+actual once-only/project, native overlap/strict and hook-counting assertions.
+Consumer trace locates359files:34weight-related (19run/1reused/14excluded) and
+325metadata-only matches excluded. All dispositions retained in raw directory.
+No unexcluded consumer lacks allocation/reporter proof; unchanged real-browser
+integration/isolation and candidate timing remain G1 coordinator-owned.
+All69 returned ids/text match source-review;37 have inspected local/baseline/
+exclusion observations,32 retain G1 hosted ownership. Implementation quiescent;
+all proof commands terminal and failed diagnostics copied outside the worktree.
+
+Fresh independent refactor /root/refactor_ci_weights returned REFACTOR COMPLETE,
+none already clean: no edits or tests. All accepted implementation/setup/
+observation locations and trace dispositions remain valid. Index empty;
+formatter/hooks and progress publication remain coordinator-owned. G1 stays
+open for candidate hosted measurements; no early done transition.
