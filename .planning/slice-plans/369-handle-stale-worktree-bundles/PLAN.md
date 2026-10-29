@@ -131,3 +131,7 @@ installation model (check completeness, then explicit whole-payload update and
 resume), map 1:1 to the story's key examples, and need no preparatory Structure
 beyond work inside each Behavior. No remaining slice-specific concern was
 identified.
+
+## Execution complete
+
+Product advice: no change

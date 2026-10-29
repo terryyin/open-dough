@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 364. Removed numbers are never reused.
+- Highest allocated local number: 365. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -567,3 +567,20 @@ was required before acceptance.
   - Evidence: before-cleanup `1223cddb7bd75f7f56d4668ebd46930e28326491:.planning/slice-plans/364-publish-awaiting-hosted-proof/source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
   - Observed effect: one discarded source-only review, then a second launch that recovered examples 3–4 before commitment allocation
   - Inference: distinct from ODF-326 (unchanged-input repeat); here the first inputs were incomplete, so the second launch was corrective rather than redundant
+
+## DD-365 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
+
+A dashboard launch plants an open first-landing expectation whose landing
+context targets trunk (`main`). Story-branch increment publication auto-resolves
+that expectation and refuses because the publish target is the story branch, not
+trunk. The coordinator temporarily moved the expectation aside, resumed
+publication, then restored it — outside guided resume steps.
+
+### Occurrences
+- Execution: SEED-166#handle-stale-worktree-bundles; plan `.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
+  - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31` at 09:05:57+08:00, before slice-2 delegation)
+  - Tool: Cursor
+  - Open Dough release: 0.3.74
+  - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` turns 50–60 — fresh delivery committed then refused on landing-context mismatch; open expectation under the common git dir keyed by workspace+branch; landing-context.json targeted `refs/heads/main`; resume after `mv …held-for-story-branch-push` then restore
+  - Observed effect: one interrupted story-branch publish, improvised expectation hold/restore, then accepted resume of candidate `0bb02d31`
+  - Inference: distinct from ODF-251 (second worktree for trunk corrections). Here the planted trunk expectation and story-branch publish target collide on the same launch workspace; guidance did not name the hold-aside recovery
