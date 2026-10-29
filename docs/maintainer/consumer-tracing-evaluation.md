@@ -4,6 +4,8 @@ Exploratory assessment for Terry Yin, 29 October 2026, under
 [ADR 0010](../adrs/0010-definition-of-improvement-accepted.md).
 Finding owner: [ODF-150](findings/ODF-150.md).
 
+Latest result (2026-10-29): [The timed v2 replay rejected this compact candidate](consumer-tracing-trial-v2.md); current practice is retained, with zero prospective cases and no seven-day exposure.
+
 ## Decision
 
 Keep the lexical discovery tool and effect-to-consumer reasoning. Change the
