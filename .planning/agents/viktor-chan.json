@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-010#expose-codex-observer-identity",
+  "mode": "story-branch",
+  "branch": "codex/odf376-observer-identity",
+  "host": "codex"
+}
