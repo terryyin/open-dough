@@ -30,9 +30,10 @@ in this checkout; runner selection observes10cases through the two filters.
 Selected checkout and canonical installed CI runtime match. Workflow diagnostic
 selects ci.yml/CI, id351271804, push-triggered; native GitHub adapter, existing
 integrated-state policy. The main admission is unobserved by the branch observer.
-Retained branch observer: coordinator production-policy-ci-time-171,
-directory /tmp/dough-ci-501/watch-sgyuzH, cell375, session92922, PID89768.
-Reuse it for all execution increments; no duplicate watcher.
+Original observer /tmp/dough-ci-501/watch-sgyuzH, cell375/session92922/PID89768,
+finished at its eight-hour bound. Current coordinator production-policy-ci-time-171
+stream /tmp/dough-ci-501/watch-j9i5bH, cell432/session50703/PID41056, recovered
+published f84ddb57 through managed resume with no push. Reuse it; no duplicate watcher.
 
 ## Baseline and decision basis
 
@@ -96,7 +97,7 @@ inconclusive hosted elapsed results honestly; do not widen scope to hit a number
 
 ### 1. Production policy coverage uses the least expensive real boundary
 Type: Structure
-Status: planned
+Status: done
 
 First map every original policy observation to an inspected surviving or
 replacement assertion. Establish missing real-Git boundary coverage before
@@ -135,8 +136,7 @@ sandbox_permissions. Use env -u NO_COLOR for all dashboard commands.
 ### G1. Candidate hosted evaluation remains incomplete
 Reported: slice 1 — "Fresh candidate CI, named candidate revision, hosted verdict/platform accounting, queue/job/suite comparison and runner-variance assessment remain coordinator-owned."
 Story clause: "Compare fresh full hosted CI on named baseline and candidate revisions"
-Disposition: return
-Commitment: C03, Q09, Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18, Q19, Q20, Q21, Q22, Q23
+Disposition: proved by slice 1: durable docs/maintainer/production-policy-test-timings.md and baseline/candidate/repaired/repeat-measured.json compare named revisions, all original identities/verdicts, unchanged skips/attempts, real-build counts, fixture spans, queues/jobs/suites and variance. Both repaired runs pass16jobs. Normal local feedback and first hosted policy case improve; overall elapsed CI does not improve in this sample. All15 linked source commitments now cite their specific observation.
 
 ### G2. Consumer trace prose overstated its row count
 Reported: slice 1 — "Both saved files contain 96 consumers: 11 run, 85 excluded, with none missing a disposition."
@@ -146,7 +146,7 @@ Disposition: proved by slice 1: parent independently counted all96 located rows 
 ### G3. First candidate full CI failed a custom-provider fixture race
 Reported: slice 1 — "CI40830010312 job test (1/3) failed: custom integrated-state completion expected confirmed shutdown but received retained."
 Story clause: "Compare fresh full hosted CI on named baseline and candidate revisions"
-Disposition: proved by slice 1: deterministic slow-registration diagnostic records success plus retained/unread_actionable_failure for startup D. Parent inspected observe/register/release, real completion assertions and unchanged safety consumers. Custom hold/release no-ops violated the existing fixture contract; file handshake repairs that precondition without suppressing runtime safety. Three complete six-case passes and six downstream/safety files (53 top-level plus4 nested cases) pass. Independent refactor reports no edits and REFACTOR COMPLETE. Hosted acceptance remains G1; the failed run is never counted as green CI.
+Disposition: proved by slice 1: deterministic slow-registration diagnostic records success plus retained/unread_actionable_failure for startup D. Parent inspected observe/register/release, real completion assertions and unchanged safety consumers. Custom hold/release no-ops violated the existing fixture contract; file handshake repairs that precondition without suppressing runtime safety. Three complete six-case passes and six downstream/safety files (53 top-level plus4 nested cases) pass. Independent refactor reports no edits and REFACTOR COMPLETE. Hosted acceptance is separately proved by G1; the failed run is never counted as green CI.
 
 ## Plan concern review
 
@@ -189,8 +189,8 @@ baseline-measured.json retain identities/hooks/jobs. Main preparation accepted
 58e2f647 after unrelated VERSION/CHANGELOG-only release metadata; this execution
 branch intentionally stays prepared2f8cb0e2, keeping baseline runtime unchanged.
 Repeated startup confirmed existing ready claim. Its default maintenance was
-stopped/diverged by unrelated root work; root work is preserved. G1 remains
-incomplete and requires a published progress revision; do not mark done yet.
+stopped/diverged by unrelated root work; root work is preserved. At progress90ea, G1 remained incomplete and required the published revision.
+Its final accepted observations are below; no early done mark was made.
 
 Independent refactor /root/refactor_policy_coverage completed with
 `## REFACTOR COMPLETE`: one EOF blank line removed, no semantic edit or
@@ -211,5 +211,20 @@ negative patch/log, three focused passes, six-file consumer/safety pass and
 Actual runtime correctly retained unread D failure; no assertions, runtime,
 guidance, installed copies or dashboard code change. Fresh independent refactor
 /root/refactor_ci_fixture_repair returned REFACTOR COMPLETE, no edits/tests.
-Saved CI repair stash receipt i8D6Ze records clean; restore after repair publication.
-G1 stays open for fresh complete hosted proof of the repaired candidate.
+Saved clean CI repair receipt i8D6Ze was restored after f84ddb57 publication;
+no stash bytes were applied or dropped. G1 now has complete hosted observations.
+
+## Accepted hosted measurements
+
+Durable report: docs/maintainer/production-policy-test-timings.md. Repaired push
+40832680173 and identical-revision repeat40833205738 at f84ddb57 each pass16jobs.
+All1740 baseline identities/verdicts remain, plus one passing Git case; same4skips,
+zero extra attempts,580files,12shards and4observed workers. First policy case
+27.959s becomes14.346s/21.274s (original candidate15.474s). Whole update chain
+129.923s becomes120.714s/194.809s, so no reliable chain-elapsed gain is claimed.
+Passing fullCI221s becomes228s/230s; maxdashboard217s becomes225s/226s;
+maxsuite191.422s becomes194.337s/203.697s. This sample is slower overall.
+First queues3/3/3s, start spreads1/0/1s. Fixture costs and unchanged recovery
+variation are in the report, with runner/cache uncertainty and single-baseline
+limits. Retain the simpler proof and9.3–9.9percent local gain; no overall CI
+speedup claimed. G1/G2/G3 and all67 source commitments have inspected proof.

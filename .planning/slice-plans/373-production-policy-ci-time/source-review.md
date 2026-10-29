@@ -14,7 +14,7 @@ as alternative triggers, and examples without inventing a scenario count.
 | --- | --- | --- | --- |
 | C01 | Reduce repeated full-app builds in production-watcher policy tests. | slice 1 | observed: productionUpdatePolicies folds F into E and relocates H rules; actual independent prefix assertions observe policy activations 5 to 3 and total successful watcher builds 8 to 6, plus unchanged held shutdown gate |
 | C02 | Preserve coverage while reducing those builds. | slice 1 | observed: coverage-map.md original ledger; inspected watcher/qualifier implementation and all retained signals; replacement4 passes before narrowing; all ten old case identities pass in each eleven-case family run |
-| C03 | Measure the effect on CI time. | slice 1 | G1 |
+| C03 | Measure the effect on CI time. | slice 1 | observed: durable production-policy-test-timings.md compares fresh baseline40825747965 and candidate/repair/repeat, separating failed result and all elapsed measures; no overall CI speedup claimed |
 | C04 | Consolidate overlapping range coverage at the existing real-Git qualification boundary. | slice 1 | observed: real Git whole-range case plus new extra/docs/mixed/accumulated case, qualification-replacement.json 4 strict passes |
 | C05 | Consolidate overlapping exclusion coverage at that boundary. | slice 1 | observed: new Git case checks exact extra exclusion and docs inclusion under original F policy, including dirty-local conflict; watcher D/G/T retain actual no-work observations |
 | C06 | Consolidate overlapping published-policy rule coverage at that boundary. | slice 1 | observed: qualifyPublishedRange owns the published policy; existing selected-policy assertions remain and new exact F variant passes from real remote trees |
@@ -42,21 +42,21 @@ as alternative triggers, and examples without inventing a scenario count.
 | Q06 | Use default workers for that local comparison. | slice 1 | observed: normal commands omit worker overrides; unchanged default capacity and runner configuration, Node24.21 on same16CPU host |
 | Q07 | Use identical relevant environment for that local comparison. | slice 1 | observed: same locked dependencies, Node24.21 and env -u NO_COLOR; no clock/reporter/retry/worker config change; host-load variation disclosed |
 | Q08 | Include replacement tests’ cost in that local comparison. | slice 1 | observed: normal candidate family includes the new Git case, extracted fixture, global setup/build and teardown; wall67.53/67.75/67.30 versus74.68 baseline |
-| Q09 | Compare fresh full hosted CI. | slice 1 | G1 |
+| Q09 | Compare fresh full hosted CI. | slice 1 | observed: full baseline40825747965 passes16jobs; repaired40832680173 and same-revision40833205738 each pass16jobs with all12 dashboard reports downloaded and parsed |
 | Q10 | Identify the baseline revision by name. | slice 1 | observed: fresh baseline40825747965 at80678d4a (runtimeb8ad020a), all16jobs pass,1740selected/same4skips/zeroextraattempts; baseline-measured.json retains full identities |
-| Q11 | Identify the candidate revision by name. | slice 1 | G1 |
-| Q12 | Account for unchanged case verdicts. | slice 1 | G1 |
-| Q13 | Account for intentional test moves. | slice 1 | G1 |
-| Q14 | Account for unchanged platform skips. | slice 1 | G1 |
-| Q15 | Account for unchanged platform retries. | slice 1 | G1 |
-| Q16 | Account for real-build counts. | slice 1 | G1 |
-| Q17 | Account for fixture costs. | slice 1 | G1 |
-| Q18 | Account for queue time. | slice 1 | G1 |
-| Q19 | Account for job time. | slice 1 | G1 |
-| Q20 | Account for suite time. | slice 1 | G1 |
-| Q21 | Account for runner variance. | slice 1 | G1 |
-| Q22 | Retain only supported improvements. | slice 1 | G1 |
-| Q23 | Report inconclusive measurements honestly. | slice 1 | G1 |
+| Q11 | Identify the candidate revision by name. | slice 1 | observed: named original90ea7710 and repaired f84ddb57 revisions in durable report; repaired push and manual repeat execute identical full revision |
+| Q12 | Account for unchanged case verdicts. | slice 1 | observed: candidate/repaired/repeat-measured.json removedOrChanged empty; all1740 original identities and verdicts retained with one added real-Git case |
+| Q13 | Account for intentional test moves. | slice 1 | observed: coverage-map original F/H observations move to exact real-Git boundary proof; no case removed and original seven-case journey remains |
+| Q14 | Account for unchanged platform skips. | slice 1 | observed: all three candidate dashboard reports preserve exactly the same four platform-skip identities as baseline |
+| Q15 | Account for unchanged platform retries. | slice 1 | observed: all complete baseline and candidate dashboard reports have zero extra attempts, with unchanged retry configuration |
+| Q16 | Account for real-build counts. | slice 1 | observed: actual independent gate-prefix assertions observe policy activations5to3 and successful journey builds8to6, plus same held shutdown gate/global Vite; failed attempts remain variable |
+| Q17 | Account for fixture costs. | slice 1 | observed: durable report retains dashboard/origin accumulated fixture spans for baseline and all three candidates, labels nested costs as distinct from elapsed time |
+| Q18 | Account for queue time. | slice 1 | observed: durable report records first queue3/2/3/3s and start spread1/1/0/1s, keeping queue outside job/suite durations |
+| Q19 | Account for job time. | slice 1 | observed: baseline longest dashboard job217s versus227/225/226s; full CI221s versus failed229s and passing228/230s, explicitly not a speedup |
+| Q20 | Account for suite time. | slice 1 | observed: baseline maxsuite191.42s versus194.69/194.34/203.70s; update-chain and qualifier owning-spec costs include exact shared hooks once |
+| Q21 | Account for runner variance. | slice 1 | observed: same-revision repeat shows update-chain116.84–194.81s and recovery39.11–78.81s; unmeasured runner/cache/load effects and one baseline limit inference |
+| Q22 | Retain only supported improvements. | slice 1 | observed: retain two fewer real activations and consistently9.3–9.9percent faster normal local feedback with preserved coverage; no unsupported whole-CI gain asserted |
+| Q23 | Report inconclusive measurements honestly. | slice 1 | observed: durable report explicitly states passing fullCI228/230s versus221s is slower in this sample; overall elapsed improvement remains unproven |
 | J01 | Excluded-only ranges are decided from real published Git trees. | slice 1 | observed: real published-tree excluded-only equality in existing Git range case and live D/G/T watcher skips |
 | J02 | Mixed ranges are a stated variant decided from real published Git trees. | slice 1 | observed: existing real Git mixed-range case plus new F-policy mixed exact changed/qualifying paths |
 | J03 | Accumulated ranges are a stated variant decided from real published Git trees. J02 and J03 retain the source’s “mixed/accumulated” variants. | slice 1 | observed: existing real Git app-plus-docs accumulated range and new docs-plus-extra exact result; actual watcher E selects latest once |
@@ -65,17 +65,17 @@ as alternative triggers, and examples without inventing a scenario count.
 | J06 | A failed build is the other alternative trigger for that journey. | slice 1 | observed: R real build fails, docs S also fails keeping Q preview; removing cause makes S serve unserved R application |
 | J07 | Under either J05 or J06, a later documentation-only commit cannot hide the application change. | slice 1 | observed: P/Q and R/S independently retained; Q must include P application paths and S must include R paths; neither is claimed by a generic qualifier alone |
 | J08 | After successful activation, a later excluded-only commit is skipped without deployment work. | slice 1 | observed: after S actual activation, docs T skips explicitly from S, with unchanged work/PID and added MAIN R browser assertion |
-| X01 | Production behavior changes. | slice 1 | observed: aggregate implementation diff changes only three test/support files and coverage record; production files restored before planning and unchanged |
+| X01 | Production behavior changes. | slice 1 | observed: aggregate implementation diff changes four test/support files plus measurement/planning records; owned CI repair only restores fixture registration preconditions; production runtime remains unchanged |
 | X02 | Fake internal outcomes. | slice 1 | observed: unchanged qualifier/Git/npm/Vite/preview boundaries compute actual outcomes; only remote Git inputs and machine-local failure causes supplied |
 | X03 | Shared mutable fixtures. | slice 1 | observed: same disposable per-journey origin/HOME and per-qualification private fixtures; extraction adds no cache or shared writable state |
 | X04 | Weakened assertions. | slice 1 | observed: original ledger preserves every unique signal with inspected equivalent proof; new baseline and retained-page assertions strengthen recovery |
-| X05 | Skips. | slice 1 | observed: no skip/config change; all local11 and broader27 execute as expected; hosted skip accounting stays G1 |
+| X05 | Skips. | slice 1 | observed: no skip/config change; all local11 and broader27 execute as expected; all1740original hosted identities/verdicts and same4skips retained |
 | X06 | Retries. | slice 1 | observed: no retry/config change; local proof records have zero retries; expected scratch failures are diagnostics, not passing retries |
 | X07 | Second-server changes. | slice 1 | observed: second-server files untouched and not used to obtain savings |
 | X08 | Clock changes. | slice 1 | observed: clock helpers/configuration/call sites unchanged |
 | X09 | Additional workers. | slice 1 | observed: worker configuration unchanged; no command worker override |
 | X10 | Additional shards. | slice 1 | observed: CI/shard configuration unchanged at twelve shards |
-| X11 | Unrelated fixture optimization. | slice 1 | observed: only qualification setup extraction and selected policy assertions changed; origin/preview/global fixture optimization untouched |
+| X11 | Unrelated fixture optimization. | slice 1 | observed: selected policy proof and qualification setup changed; separate owned CI fixture-race repair restores green without new performance scope; origin/preview/global fixture optimization untouched |
 | X12 | Releases. | slice 1 | observed: implementation changes no VERSION, CHANGELOG, tag or installed payload; unrelated main0.3.76 metadata is excluded from attributable patches |
 | X13 | Guidance changes. | slice 1 | observed: no skill/rule/AGENTS or published guidance changes |
 | X14 | Shard-weight refresh, expressly outside the selected priority. | slice 1 | observed: longest-first duration lists and allocation source unchanged |

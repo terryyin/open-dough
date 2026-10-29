@@ -214,3 +214,14 @@ hook-owned lint/typecheck, refactor pass, commit or push was run here. Only the
 three test/support files and this map are changed/untracked; production,
 configuration, package/lock, shard weights, guidance and release files are
 unchanged. Hosted commitments remain incomplete and coordinator-owned.
+
+## Coordinator hosted acceptance after implementation handoff
+
+Original90ea dashboard run40830010312 passes all12 dashboard jobs but fails
+one Node fixture assertion; the report never treats229s as green CI. Repaired
+f84ddb57 runs40832680173/40833205738 each pass16jobs. Every1740original case
+identity/verdict remains plus one passing Git case, same4platformskips and no
+extra attempts. Policy5to3/journey8to6 build counts above remain applicable.
+Durable production-policy-test-timings.md records queues, jobs, suites, fixture
+spans and fullCI221to228/230s: no overall CI gain. Local9.3–9.9percent gain
+and first-policy-case24–49percent gain support retaining equivalent cheaper proof.

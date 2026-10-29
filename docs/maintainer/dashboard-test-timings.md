@@ -206,3 +206,6 @@ Raw strict records, complete report downloads, profiles, exact commands and
 comparison outputs are retained outside Git under
 `/private/tmp/cheap-isolated-fixtures-167`. Hosted reports and named revisions
 provide the reproducible workload, subject to artifact retention.
+
+Subsequent reduction of repeated production-watcher policy builds is measured
+in [production policy test timings](production-policy-test-timings.md).
