@@ -35,6 +35,19 @@ test("omitted landingContext retains landing from an open expectation, and a lat
     branch: executionBranch,
   };
   await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  const originalExpectation = await openFirstLandingExpectation(expectation);
+  const intermediate = await publishHistoryPreservingCandidate({
+    ownedWorkspace: execution,
+    publishedTip,
+    branch: executionBranch,
+    targetRef: `refs/heads/${executionBranch}`,
+  });
+  assert.equal("landing" in intermediate, false);
+  assert.deepEqual(requests, []);
+  assert.deepEqual(
+    await openFirstLandingExpectation(expectation),
+    originalExpectation,
+  );
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,

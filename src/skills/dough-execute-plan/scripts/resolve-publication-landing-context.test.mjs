@@ -20,7 +20,10 @@ async function gitWorkspace(t) {
   const reporting = path.join(root, "reporting");
   await mkdir(reporting, { recursive: true });
   const landingContext = path.join(reporting, "landing-context.json");
-  await writeFile(landingContext, "{}\n");
+  await writeFile(
+    landingContext,
+    JSON.stringify({ remote: "origin", target: "refs/heads/main" }),
+  );
   return {
     repository,
     workspace,
@@ -33,9 +36,17 @@ async function gitWorkspace(t) {
 test("publication resolves an open expectation when landingContext is omitted, and an explicit path still wins", async (t) => {
   const { repository, workspace, branch, landingContext, otherContext } =
     await gitWorkspace(t);
-  await writeFile(otherContext, "{}\n");
+  await writeFile(
+    otherContext,
+    JSON.stringify({ remote: "origin", target: "refs/heads/main" }),
+  );
   assert.equal(
-    await resolvePublicationLandingContext({ workspace, branch }),
+    await resolvePublicationLandingContext({
+      workspace,
+      branch,
+      remote: "origin",
+      targetRef: "refs/heads/main",
+    }),
     undefined,
   );
   await plantFirstLandingExpectation({
@@ -45,7 +56,12 @@ test("publication resolves an open expectation when landingContext is omitted, a
     landingContext,
   });
   assert.equal(
-    await resolvePublicationLandingContext({ workspace, branch }),
+    await resolvePublicationLandingContext({
+      workspace,
+      branch,
+      remote: "origin",
+      targetRef: "refs/heads/main",
+    }),
     landingContext,
   );
   assert.equal(
@@ -53,6 +69,8 @@ test("publication resolves an open expectation when landingContext is omitted, a
       landingContext: otherContext,
       workspace,
       branch,
+      remote: "origin",
+      targetRef: "refs/heads/main",
     }),
     otherContext,
   );
@@ -60,7 +78,27 @@ test("publication resolves an open expectation when landingContext is omitted, a
     await resolvePublicationLandingContext({
       workspace,
       branch: "other/branch",
+      remote: "origin",
+      targetRef: "refs/heads/main",
     }),
     undefined,
   );
 });
+
+for (const destination of [
+  { remote: "origin", targetRef: "refs/heads/cursor/story" },
+  { remote: "another", targetRef: "refs/heads/main" },
+]) {
+  test(`an implicit context is not used for ${destination.remote} ${destination.targetRef}`, async (t) => {
+    const fixture = await gitWorkspace(t);
+    await plantFirstLandingExpectation(fixture);
+    assert.equal(
+      await resolvePublicationLandingContext({
+        ...fixture,
+        ...destination,
+        landingContext: undefined,
+      }),
+      undefined,
+    );
+  });
+}

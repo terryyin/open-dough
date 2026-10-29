@@ -6,6 +6,12 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  landingContextFile,
+  landingReceiver,
+} from "./dashboard-landing-test-fixtures.mjs";
+import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
+import { managementContext } from "./publication-git.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import {
   createCleanTrunkFixture,
@@ -32,6 +38,14 @@ test("a retained Story Branch candidate already on that remote stays published a
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
     await createCleanTrunkFixture();
   t.after(cleanup);
+  const { origin: dashboard, requests } = await landingReceiver(t);
+  const expectation = {
+    repository: await managementContext(execution),
+    workspace: execution,
+    branch: "exec/story",
+  };
+  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  const originalExpectation = await openFirstLandingExpectation(expectation);
 
   await git(execution, "checkout", "-b", "other-story", trunkSha);
   writeFileSync(join(execution, "story-writer.txt"), "their story work\n");
@@ -49,6 +63,8 @@ test("a retained Story Branch candidate already on that remote stays published a
 
   const resumed = await resumeInterruptedPublication({
     ownedWorkspace: execution,
+    branch: "exec/story",
+    suffixBase: trunkSha,
     defaultCheckout: integration,
     candidateSha: rewrittenSha,
     supersededShas: [candidateSha],
@@ -64,6 +80,11 @@ test("a retained Story Branch candidate already on that remote stays published a
   assert.equal(publishedRevisions.includes(candidateSha), false);
   assert.equal(await lsRemoteSha(origin, storyTarget), rewrittenSha);
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), trunkSha);
+  assert.deepEqual(
+    await openFirstLandingExpectation(expectation),
+    originalExpectation,
+  );
+  assert.deepEqual(requests, []);
   let preRebaseOnRemote = true;
   try {
     await git(
@@ -85,11 +106,21 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
     await createCleanTrunkFixture();
   t.after(cleanup);
+  const { origin: dashboard, requests } = await landingReceiver(t);
+  const expectation = {
+    repository: await managementContext(execution),
+    workspace: execution,
+    branch: "exec/story",
+  };
+  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  const originalExpectation = await openFirstLandingExpectation(expectation);
   const publishedRevisions = [];
   const observer = createObserverStub();
 
   const published = await resumeInterruptedPublication({
     ownedWorkspace: execution,
+    branch: "exec/story",
+    suffixBase: trunkSha,
     defaultCheckout: integration,
     candidateSha,
     publishedRevisions,
@@ -106,5 +137,25 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
   ]);
   assert.equal(await lsRemoteSha(origin, storyTarget), candidateSha);
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), trunkSha);
+  assert.deepEqual(
+    await openFirstLandingExpectation(expectation),
+    originalExpectation,
+  );
+  assert.deepEqual(requests, []);
   assert.equal(await lsRemoteSha(origin, "refs/heads/exec/story"), "");
+
+  const landed = await resumeInterruptedPublication({
+    ownedWorkspace: execution,
+    branch: "exec/story",
+    candidateSha,
+    suffixBase: trunkSha,
+    publishedRevisions,
+    targetRef: "refs/heads/main",
+  });
+  assert.equal(landed.acceptedSha, candidateSha);
+  assert.equal(landed.landing.state, "recorded");
+  assert.equal(await openFirstLandingExpectation(expectation), undefined);
+  const capture = requests.find(({ url }) => url.endsWith("/landing"));
+  assert.equal(capture.report.base, trunkSha);
+  assert.equal(capture.report.revision, candidateSha);
 });
