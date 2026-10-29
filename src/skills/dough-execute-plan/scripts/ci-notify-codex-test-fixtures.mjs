@@ -129,12 +129,15 @@ function documentedNodeArguments(cmd, skill, placeholders) {
 // `stopReading()`, the host stops returning that session's output, as when the
 // coordinator no longer reads it; the child keeps running. `skill` is the
 // resolved skill the cell runs, this source by default, and `placeholders`
-// replaces the fixture values the cell's placeholders resolve to.
+// replaces the fixture values the cell's placeholders resolve to. With
+// `yieldBeforeOutput`, the first host yield precedes stdout delivery: genuine
+// process bytes stay buffered for write_stdin, without a timing-dependent sleep.
 export function processBackedCodexTools({
   env,
   startStream,
   skill = resolvedSkill,
   placeholders,
+  yieldBeforeOutput = false,
 }) {
   const resolved = { ...documentedPlaceholders, ...placeholders };
   let child;
@@ -147,6 +150,7 @@ export function processBackedCodexTools({
     readingStopped = resolve;
   });
   const commands = [];
+  let launches = 0;
   const nextChunk = async () => {
     if (buffer === "" && !closed && reading)
       await Promise.race([once(child.stdout, "data"), closeEvent, stopped]);
@@ -158,6 +162,7 @@ export function processBackedCodexTools({
   const run = promisify(execFile);
   return {
     commands,
+    launches: () => launches,
     stopReading() {
       reading = false;
       readingStopped();
@@ -177,13 +182,16 @@ export function processBackedCodexTools({
           return { output: `${stdout}${stderr}`, session_id: undefined };
         }
         child = startStream(nodeArguments);
+        launches += 1;
         child.stdout.on("data", (chunk) => {
           buffer += chunk.toString();
         });
         closeEvent = once(child, "close").then(() => {
           closed = true;
         });
-        return nextChunk();
+        return yieldBeforeOutput
+          ? { output: "", session_id: String(child.pid) }
+          : nextChunk();
       },
       write_stdin: async () => nextChunk(),
     },

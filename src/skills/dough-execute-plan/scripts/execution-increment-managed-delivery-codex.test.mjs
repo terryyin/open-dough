@@ -16,6 +16,7 @@ import {
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
+  armDocumentedStream,
   installedStream,
   retained,
 } from "./execution-increment-managed-delivery-codex-test-fixtures.mjs";
@@ -31,43 +32,61 @@ async function commitIncrement(fixture, name) {
 const shas = (directory) =>
   readRevisionCoverage(directory).map(({ sha }) => sha);
 
-test("a Codex coordinator's start-time stream is the observer its increment and repair deliveries reuse", async (t) => {
-  const fixture = await createManagedFixture();
-  t.after(fixture.cleanup);
-  const stream = installedStream(fixture, { coordinator });
-  const { directory } = await stream.setup();
+test(
+  "a late identity from the documented Codex stream supplies the observer its increment and repair deliveries reuse",
+  { timeout: 30_000 },
+  async (t) => {
+    const fixture = await createManagedFixture();
+    t.after(fixture.cleanup);
+    const stream = await armDocumentedStream(fixture, coordinator, {
+      yieldBeforeOutput: true,
+    });
+    const { directory, pid } = stream;
+    assert.equal(stream.initial.status, "starting");
+    assert.equal(stream.initial.directory, undefined);
+    assert.deepEqual(
+      stream.notifications.map(
+        ({ type, directory: observed, pid: process }) => ({
+          type,
+          observed,
+          process,
+        }),
+      ),
+      [{ type: "CI_OBSERVER_READY", observed: directory, process: pid }],
+    );
 
-  const increment = await deliverThroughCli(fixture, {
-    host: "codex",
-    base: fixture.trunkSha,
-    extra: retained(coordinator, directory),
-  });
-  assert.equal(increment.code, 0);
-  assert.equal(increment.delivered.publication, "accepted");
-  assert.equal(increment.delivered.observation.state, "reused");
-  assert.equal(increment.delivered.observation.directory, directory);
-  assert.equal(increment.delivered.startReceipt, null);
+    const increment = await deliverThroughCli(fixture, {
+      host: "codex",
+      base: fixture.trunkSha,
+      extra: retained(coordinator, directory),
+    });
+    assert.equal(increment.code, 0);
+    assert.equal(increment.delivered.publication, "accepted");
+    assert.equal(increment.delivered.observation.state, "reused");
+    assert.equal(increment.delivered.observation.directory, directory);
+    assert.equal(increment.delivered.startReceipt, null);
 
-  await commitIncrement(fixture, "repair.txt");
-  const repair = await deliverThroughCli(fixture, {
-    host: "codex",
-    base: increment.delivered.receipt.sha,
-    extra: retained(coordinator, directory),
-  });
-  assert.equal(repair.delivered.publication, "accepted");
-  assert.equal(repair.delivered.observation.state, "reused");
-  assert.equal(repair.delivered.observation.directory, directory);
+    await commitIncrement(fixture, "repair.txt");
+    const repair = await deliverThroughCli(fixture, {
+      host: "codex",
+      base: increment.delivered.receipt.sha,
+      extra: retained(coordinator, directory),
+    });
+    assert.equal(repair.delivered.publication, "accepted");
+    assert.equal(repair.delivered.observation.state, "reused");
+    assert.equal(repair.delivered.observation.directory, directory);
 
-  assert.deepEqual(
-    shas(directory).sort(),
-    [
-      increment.delivered.receipt.sha.toLowerCase(),
-      repair.delivered.receipt.sha.toLowerCase(),
-    ].sort(),
-  );
-  assert.equal(stream.launches(), 1);
-  assert.equal(watchCount(fixture.storage), 1);
-});
+    assert.deepEqual(
+      shas(directory).sort(),
+      [
+        increment.delivered.receipt.sha.toLowerCase(),
+        repair.delivered.receipt.sha.toLowerCase(),
+      ].sort(),
+    );
+    assert.equal(stream.host.launches(), 1);
+    assert.equal(watchCount(fixture.storage), 1);
+  },
+);
 
 test("a Codex delivery before any stream is armed keeps publication and names arming the yielded stream; the next delivery with the armed stream's receipt reuses it", async (t) => {
   const fixture = await createManagedFixture();
