@@ -38,8 +38,7 @@ ODF-150 and one existing Open Dough retry as a bounded result at ODF-323.
 The latter does not test a refusal after status mutation. ODF-139/354 have no
 eligible ordinary exposure to their latest response among encountered records;
 ODF-142, ODF-297 and the unknown-release startup cases still lack their named
-discriminating event/provenance. ODF-201 remains watched with its unresolved
-contrary report; no watch is retired. Exact gaps stay at their owners.
+discriminating event/provenance. Exact gaps stay at their owners.
 
 Added review effort: one pass connecting encountered execution identities to
 checkable open requests, tagged source-containment reads and targeted recovered

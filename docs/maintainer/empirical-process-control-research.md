@@ -1240,7 +1240,7 @@ improvements reach it only through retrospectives.
 | [ODF-324](findings/ODF-324.md) native checks keep asking the developer | 1 (Open Dough DD-327) | New code; the developer withdrew | Declined for frequency; named in the report as next-strongest. Queued afterwards at Terry's request (`552b2134`) |
 | [ODF-322](findings/ODF-322.md) projected result drops the command handle | 1 (Open Dough DD-325); resume recovered with `pushCount: 0` | New code | Recorded, not queued |
 | ODF-074, ODF-141, ODF-152, ODF-302 | 2, 2, 1, 1 | Existing records | Evidence retained; no new response |
-| ODF-156, ODF-200, ODF-201, ODF-202 watches | No same-mechanism recurrence in reviewed sources | Past review dates | Not retired: Terry Talks and Lizard coverage incomplete |
+| Released-response watches | No same-mechanism recurrence in reviewed sources | Past review dates | Not retired: Terry Talks and Lizard coverage incomplete |
 
 The two selections follow the evidence: the highest added frequency (ODF-264)
 and a recurring correctness cost after two released responses (ODF-150). The
