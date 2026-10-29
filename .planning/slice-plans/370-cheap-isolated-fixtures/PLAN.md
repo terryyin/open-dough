@@ -76,7 +76,7 @@ local comparison. Its literal script/results remain in the raw directory.
 
 ### 1. Installed-start fixtures reuse immutable preparation and keep private state
 Type: Structure
-Status: planned
+Status: done
 
 Replace repeated installed-skill copying/indexing/initial commit preparation
 with a run-owned immutable seed and independent per-test instances. Keep source
@@ -108,8 +108,26 @@ and uncertainty; reject unproved complexity before completion.
 
 ## Story obligations
 
-None at preparation. Record implementation/acceptance gaps here, retaining
-source clauses and a concrete owner before any done transition.
+### G1. Eager preparation has a fixed cost for suites without installed starts
+Reported: slice 1 — "Preparation is eager for every global-setup run, including focused suites that use no startOrigin."
+Story clause: "Reuse only immutable preparation when measurements justify it."
+Disposition: receiving slice 2
+
+### G2. First-use diagnostic does not independently establish a speedup
+Reported: slice 1 — "First real installed starts were included: old total 6.813s, candidate 8.176s."
+Story clause: "Retain only supported gains; report inconclusive or rejected experiments honestly."
+Disposition: receiving slice 2
+
+### G3. Complete hosted comparison and added-proof cost remain pending
+Reported: slice 1 — "full hosted coverage remains explicitly parent-owned."
+Story clause: "Compare full hosted CI on named baseline and candidate revisions, including case/verdict equality, fixture costs, queue, job and suite time, and uncertainty."
+Disposition: receiving slice 2
+
+### G4. Aborted diagnostic directories with uncertain ownership were retained
+Reported: slice 1 — "Four build/request directories were retained because creation windows alone did not establish ownership; uncertainty is preserved rather than deleting potentially unrelated state."
+Story clause: "Failures retain cleanup and unexpected-error behavior."
+Disposition: proved by slice 1: current failure guard observes missing preparation, partial clone Git128, owned machine/preparation deletion and unchanged peer; slice1-quiescence.json confirms no owned process/preparation survives. Known uniquely owned abort paths were removed. Generic uncertain directories from forced diagnostic aborts remain documented in aborted-owned-paths.json; no cleanup of those directories or claim of their ownership is made.
+
 
 ## Plan concern review
 
@@ -118,3 +136,26 @@ and proof loops. The bootstrap choice is an authorized bounded probe in2, not
 an assumed speedup. No remaining human decision or out-of-scope concern was
 identified. Initial baseline and source-isolation premises are observed; all
 new reuse and speed premises are owned by their producing slice's proof.
+
+## Slice 1 accepted proof and limits
+
+Final candidate adds only immutable installed-start preparation, private copies
+and native clones, and three guards. The final45-case normal comparison passes
+strictly in30.88s versus41.26s baseline; same names/verdicts/default8workers and
+sanitized environment. Reporter40.558s to30.458s. The earlier26.83s trial is
+superseded after restoring clone metadata parity. Three final isolation runs
+pass3/3, terminal0, in10.36/10.19/10.72s. Twenty ordinary real-host, recovery,
+store-failure, serving/process/compile-cache consumers passed with unaffected
+boundary reuse after the parity correction. Complete config/ref/HEAD/tree/
+status parity, private object storage and fresh-source/failure paths are
+observed. No owned test/writer remains; raw exact commands, traces and caveats
+are in slice1-proof.md and slice1-quiescence.json in the raw evidence directory.
+Full hosted coverage and added three-test cost remain G3, owned by2.
+The fresh baseline40809484652 passed all16jobs,1,735selected/1,731passed/same4
+skips,577files; max job230s, max suite199.324s, full CI235s. Reported dashboard
+fixture1,162.174 accumulated seconds and origin fixture442.992s. No speed claim
+comes from the bare setup microprofile: preparation is eager, and first real use
+varied/slowed in a diagnostic before final parity cleanup (G1/G2). Host load and
+cache conditions remain comparison limits. Two sandbox diagnostics were ended
+with status143 and count as no pass; all accepted dashboard proof uses the
+escalated wrapper needed for sockets/ps/process cleanup on this host.

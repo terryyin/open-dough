@@ -5,9 +5,7 @@
 import { execFile } from "node:child_process";
 import {
   chmodSync,
-  cpSync,
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -16,26 +14,17 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { repoRoot } from "./repositoryRoot.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
+import { initializeStartOrigin } from "./startOriginPreparation.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
   queuedTitle,
-  writeQueuedStories,
 } from "./queuedStories.ts";
 
 const exec = promisify(execFile);
 
 export { otherQueuedIdentity, queuedIdentity, queuedTitle };
-
-const installedSkills = [
-  "dough-execute-plan",
-  "dough-product-backlog",
-  "dough-story-refinement",
-  "dough-land",
-  "dough-story-wrap-up",
-] as const;
 
 export type StartOrigin = {
   readonly machine: string;
@@ -79,29 +68,13 @@ export async function startOrigin(
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
   const project = path.join(machine, "home", "git", projectId);
-  mkdirSync(project, { recursive: true });
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-  await git(origin, "config", "maintenance.auto", "false");
-  await exec("git", ["init", "-b", "main", project]);
-  await git(project, "config", "user.name", "Dashboard Developer");
-  await git(project, "config", "user.email", "developer@example.test");
-  await git(project, "config", "maintenance.auto", "false");
-  const spelled = `https://github.com/${repository}.git`;
-  await git(project, "remote", "add", "origin", spelled);
-  await git(project, "config", `url.${origin}.insteadOf`, spelled);
-  writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
-  writeQueuedStories(project);
-  const folder = { path: project, shown: project };
-  for (const skill of installedSkills) {
-    cpSync(
-      path.join(repoRoot, "src", "skills", skill),
-      installedSkillPath(host, folder, skill),
-      { recursive: true },
-    );
+  try {
+    await initializeStartOrigin(origin, project, repository, host);
+  } catch (error) {
+    rmSync(machine, { recursive: true, force: true });
+    throw error;
   }
-  await git(project, "add", ".");
-  await git(project, "commit", "-m", "queued story and installed skills");
-  await git(project, "push", "origin", "main");
+  const folder = { path: project, shown: project };
   const originGit = async (...args: string[]) => git(origin, ...args);
   const takenProfiles = async () => {
     const listed = await originGit(

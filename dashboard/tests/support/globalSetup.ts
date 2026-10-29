@@ -37,6 +37,11 @@ import {
   endRunProcesses,
   identifyRun,
 } from "./runProcesses.ts";
+import {
+  createStartOriginPreparationDirectory,
+  prepareStartOrigins,
+  startOriginPreparationVariable,
+} from "./startOriginPreparation.ts";
 
 export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
@@ -45,16 +50,19 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
   const ownerless = ownerlessRequestRoot(requests);
   const bundle = createServerBundleDirectory();
+  const origins = createStartOriginPreparationDirectory();
   const remove = (): void => {
     process.off("exit", remove);
     rmSync(bundle, { recursive: true, force: true });
     rmSync(outDir, { recursive: true, force: true });
     rmSync(requests, { recursive: true, force: true });
+    rmSync(origins, { recursive: true, force: true });
   };
   // Playwright runs the returned teardown after a graceful interruption.
   // Exit also covers interruption while asynchronous setup is still pending.
   process.once("exit", remove);
   try {
+    await prepareStartOrigins(origins);
     await bundleServerEntries(bundle);
     buildDashboardTo(outDir);
   } catch (error) {
@@ -63,6 +71,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   }
   process.env[builtDashboardVariable] = outDir;
   process.env[serverBundleVariable] = bundle;
+  process.env[startOriginPreparationVariable] = origins;
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
   return async () => {
     const survived = await endRunProcesses(runId);
