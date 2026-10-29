@@ -37,11 +37,8 @@ import {
   terminalHandoffHeader,
 } from "../src/agentTerminal.ts";
 
-// How long a wait for an accepted attempt's change is held before it is
-// answered unchanged, for the page to ask again.
 const changeWaitMs = 30_000;
 
-// A done mark on the admitted recorded session, with its current state.
 async function markedDone(
   { source, record, folder }: Extract<Admitted, { readonly kind: "done" }>,
   launches: AgentLaunches,
@@ -51,8 +48,6 @@ async function markedDone(
   return launches.stateOf(source, marked);
 }
 
-// A read mark on the admitted session's unread report, with its current
-// state; nothing native is touched.
 async function markedRead(
   { source, record }: Extract<Admitted, { readonly kind: "read" }>,
   launches: AgentLaunches,
@@ -66,11 +61,6 @@ async function markedRead(
   return launches.stateOf(source, read);
 }
 
-// A delete of the admitted recorded session's record, made only while the
-// boundary's own reading of its state is unknown or unavailable. Nothing is stopped,
-// renamed, or marked; a record file that cannot be written is answered with
-// why, the record kept. After the record is gone, its host retires the
-// session-local state that record alone remembered.
 async function deleted(
   { source, record }: Extract<Admitted, { readonly kind: "delete" }>,
   launches: AgentLaunches,
@@ -191,6 +181,14 @@ export async function answer(
         return {
           status: 200,
           body: await launches.continueAttempt(request.source, request.attempt),
+        };
+      case "update-worktree":
+        return {
+          status: 200,
+          body: await launches.updateWorktreeAndRetry(
+            request.source,
+            request.attempt,
+          ),
         };
       case "reconciled":
         return {

@@ -1,11 +1,5 @@
-// Shared by the local launch boundary specs (./boundary/agent-launch-boundary.spec.ts,
-// ./boundary/agent-launch-refusal.spec.ts, ./boundary/agent-launch-records.spec.ts,
-// ./boundary/agent-launch-session-listing.spec.ts, and ./boundary/agent-launch-done.spec.ts):
-// one execution launch request for this repository's own story, and its
-// refinement counterpart, sent over raw HTTP to be answered once accepted,
-// or followed to what it settled to (./acceptedAttempts.ts), a continuation, a
-// reconciliation note, a done mark, a record delete, and what the boundary
-// keeps, read as the machine's sessions and scoped by project.
+// Shared launch-boundary HTTP helpers for Start, Continue, update-worktree,
+// reconciliation, done/delete, and machine session reads.
 
 import { realpathSync } from "node:fs";
 import path from "node:path";
@@ -15,6 +9,7 @@ import {
   agentContinueEndpoint,
   agentLaunchEndpoint,
   agentReconciledEndpoint,
+  agentUpdateWorktreeEndpoint,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
@@ -56,6 +51,14 @@ export async function continued(
   attempt: string,
 ): Promise<RawResponse> {
   return followed(server, await continueAttempt(server, attempt));
+}
+
+// Applies the release updater to the attempt's worktree, then continues it.
+export async function updateWorktreeRetried(
+  server: DashboardServer,
+  attempt: string,
+): Promise<RawResponse> {
+  return followed(server, await updateWorktreeAttempt(server, attempt));
 }
 
 // The acceptance answer when nothing was accepted, otherwise what the
@@ -132,6 +135,12 @@ export const continueAttempt = (
   attempt: string,
   source = "open-dough",
 ) => post(server, agentContinueEndpoint, { source, attempt });
+
+export const updateWorktreeAttempt = (
+  server: DashboardServer,
+  attempt: string,
+  source = "open-dough",
+) => post(server, agentUpdateWorktreeEndpoint, { source, attempt });
 
 // Notes that the project's kept attempt `attempt` reconciled with published
 // state, answered with the attempt so noted or why not.

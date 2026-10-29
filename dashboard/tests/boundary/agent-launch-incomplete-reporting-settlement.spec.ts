@@ -76,9 +76,8 @@ test.describe("Start-Continue settlement with incomplete launch-workspace suppor
     });
     expect(resumed.explanation).toContain("first-landing-expectation.mjs");
     expect(resumed.explanation).toContain(missingPath);
-    expect(resumed.explanation).toContain(
-      "Update that worktree's Open Dough installation",
-    );
+    expect(resumed.explanation).toContain("Update worktree and retry");
+    expect(resumed).toMatchObject({ worktreeUpdateNeeded: true });
     expect(resumed.explanation).toContain(
       "The start was kept and can be resumed",
     );

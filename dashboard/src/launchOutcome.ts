@@ -56,9 +56,10 @@ const unlaunchedSchemas = [
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),
-    // Definite refusal after establishment: no native session started, but
-    // this attempt keeps its unattached start for Continue or identical Start.
+    // Unattached start kept for Continue or identical Start.
     sessionStartKept: z.literal(true).optional(),
+    // Incomplete launch-workspace install: Update worktree and retry / Continue.
+    worktreeUpdateNeeded: z.literal(true).optional(),
     explanation: z.string().min(1),
   }),
   z.object({
@@ -77,33 +78,18 @@ export const launchResultSchema = z.discriminatedUnion("kind", [
 
 export type LaunchResult = z.infer<typeof launchResultSchema>;
 
-// A launch the local service accepted: its exact request, kept on this
-// machine before any side effect, under an identity independent of the
-// caller that asked for it. Its publication receipt tells absent publication
-// (`none`: no assignment is published by this launch) from one not yet known
-// (`unknown`) and an accepted one (`published`, with the revision when the
-// start reported it). Its outcome names the launched session by reference,
-// or why nothing (or maybe nothing) was launched. `running` observes a live
-// worker on this machine; `owned` says the answering
-// server owns its execution; an unsettled attempt with no live worker needs
-// reconciliation, never a fresh start.
+// Accepted launch: exact request kept before side effects. Publication is
+// `none`, `unknown`, or `published`. `running`/`owned` observe this server.
 export const agentAcceptEndpoint = `${agentLaunchEndpoint}/accept`;
 
-// A page following an accepted attempt asks here, naming it as `attempt`:
-// the answer comes once the attempt this server runs changes (its
-// publication receipt is noted or it settles), at once when the server runs
-// no such unsettled attempt, or after a bounded wait, and says whether it
-// changed, with the attempt as the server running it knows it (none when no
-// server runs it). The machine's sessions tell the rest, such as a launched
-// session's record.
+// Wait until the named accepted attempt changes, or answer unchanged.
 export const agentChangedEndpoint = `${agentLaunchEndpoint}/changed`;
 
-// A page asks here to continue one accepted attempt that needs
-// reconciliation (`needsReconciliation`), naming its project and attempt:
-// its exact kept request runs again under the same attempt identity and the
-// existing recovery rules, or the answer says why it does not, the attempt
-// kept as it was.
+// Continue one attempt that needs reconciliation under the same identity.
 export const agentContinueEndpoint = `${agentLaunchEndpoint}/continue`;
+
+// Apply the verified release updater to that attempt's worktree, then Continue.
+export const agentUpdateWorktreeEndpoint = `${agentLaunchEndpoint}/update-worktree-and-retry`;
 
 // A request about one kept attempt, naming its project and attempt: a
 // continuation, a reconciliation note or a launch verification.
@@ -186,6 +172,7 @@ export type AttemptObservation = z.infer<typeof attemptObservationSchema>;
 export {
   needsReconciliation,
   sessionStartRetained,
+  worktreeUpdateNeeded,
   publicationRecordingStopped,
   laterAttempt,
   unresolvedAttempt,

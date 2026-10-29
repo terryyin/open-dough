@@ -104,5 +104,5 @@ export function incompleteReportingExplanation(
   missing: MissingReportingSupport,
   workspaceShown: string,
 ): string {
-  return `This launch workspace (${workspaceShown}) is missing required Open Dough reporting support: ${missing.helper} (expected at ${missing.path}). Update that worktree's Open Dough installation to restore the helper, then Continue.`;
+  return `This launch workspace (${workspaceShown}) is missing required Open Dough reporting support: ${missing.helper} (expected at ${missing.path}). Use Update worktree and retry to restore the helper from the verified release for that worktree, or update its Open Dough installation and Continue.`;
 }

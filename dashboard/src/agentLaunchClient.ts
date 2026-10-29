@@ -19,6 +19,7 @@ import {
   agentLaunchEndpoint,
   agentContinueEndpoint,
   agentReconciledEndpoint,
+  agentUpdateWorktreeEndpoint,
   agentVerifyEndpoint,
   launchRecordsSchema,
   type Acceptance,
@@ -110,6 +111,18 @@ export function requestAttemptContinuation(
 ): Promise<AcceptanceAnswer> {
   return askAcceptance(
     agentContinueEndpoint,
+    attemptReference(attempt),
+    attempt.request.host,
+  );
+}
+
+// Applies the verified release updater to the attempt's launch worktree, then
+// continues that same attempt. A refused update does not launch.
+export function requestUpdateWorktreeAndRetry(
+  attempt: AttemptObservation,
+): Promise<AcceptanceAnswer> {
+  return askAcceptance(
+    agentUpdateWorktreeEndpoint,
     attemptReference(attempt),
     attempt.request.host,
   );

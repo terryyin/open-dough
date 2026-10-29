@@ -3,7 +3,6 @@
 // settle IncompleteReportingSupport as a definite failed result.
 import {
   establishedPlace,
-  recordedWorkspace,
   type AgentLaunchRequest,
   type LaunchAttemptRecord,
   type LaunchRecord,
@@ -22,41 +21,13 @@ import {
   type PreparedReporting,
 } from "./completionReporting.ts";
 import { establishedLaunch, type Started } from "./launchStart.ts";
-import { startWorkspaceFolder } from "./launchWorkspace.ts";
+import { knownLaunchWorkspace } from "./knownLaunchWorkspace.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { keptStart } from "./startStore.ts";
 import { keptStartWords } from "./startResult.ts";
-import { keptSessionStart } from "./sessionStartStore.ts";
-import { startOf } from "./startWorkflows.ts";
 
 export type PreparedAttemptReporting =
   | PreparedReporting
   | { readonly reporting: NonNullable<LaunchAttemptRecord["reporting"]> };
-
-// A launch workspace already known from a pending conversation or kept start,
-// before this run's start script can publish further.
-async function knownLaunchWorkspace(
-  source: PublishedSource,
-  request: AgentLaunchRequest,
-  folder: ProjectFolder,
-  attemptId: string,
-  pending: LaunchRecord | undefined,
-): Promise<ProjectFolder | undefined> {
-  const pendingWorkspace = pending && recordedWorkspace(pending);
-  if (pendingWorkspace !== undefined)
-    return startWorkspaceFolder(folder, pendingWorkspace);
-  if (request.workflow === "ad-hoc") {
-    const session = await keptSessionStart(source.id, attemptId);
-    return session === undefined
-      ? undefined
-      : startWorkspaceFolder(folder, session.workspace);
-  }
-  if (startOf(request.workflow) === undefined) return undefined;
-  const kept = await keptStart(source.id, request.identity, request.workflow);
-  return kept === undefined
-    ? undefined
-    : startWorkspaceFolder(folder, kept.workspace);
-}
 
 function incompleteReportingFailure(
   missing: MissingReportingSupport,
@@ -66,6 +37,7 @@ function incompleteReportingFailure(
   return {
     kind: "failed",
     reason: "refused",
+    worktreeUpdateNeeded: true,
     explanation: `${incompleteReportingExplanation(missing, workspaceShown)} ${continuation}`,
   };
 }

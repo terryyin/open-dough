@@ -82,16 +82,8 @@ before avoidable further publication or native launch effects.
 
 ### 2. Update worktree and retry restores support and resumes the retained start
 Type: Behavior
-Status: planned
-Proof: Dashboard/API journey for the Update worktree and retry action: successful
-apply against the exact worktree then Continue-equivalent resume reuses the
-retained assignment, workspace, and duplicate-session safeguards and launches
-one session (no replacement claim or workspace). Updater refusal (edited or
-incomplete managed files, unverifiable baseline, unavailable source) leaves an
-actionable explanation and does not launch; no automatic `--force`. Incomplete
-install after a started replacement preserves the updater's truthful recovery
-guidance. Host native paths and existing start/recovery contracts remain for
-Codex, Cursor, and Claude Code.
+Status: done
+Proof: Accepted — `npm run test:dashboard -- dashboard/tests/boundary/agent-launch-update-worktree-retry.spec.ts dashboard/tests/boundary/worktree-release-apply.spec.ts dashboard/tests/boundary/agent-launch-incomplete-reporting-settlement.spec.ts dashboard/tests/boundary/agent-launch-workspace-reporting-support.spec.ts --reporter=list` (8 passed). Success apply targets exact worktree without `--force`, restores helper, resumes same attempt/workspace once; refusal keeps start, actionable explanation, no launch; both skill roots proved in worktree-release-apply; slice 1 incomplete/compatible cases stay green.
 
 Behavior: From the definite incompatible-bundle failure (or equivalent kept
 start), the developer can run **Update worktree and retry**. That action invokes
