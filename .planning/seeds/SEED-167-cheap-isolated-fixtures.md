@@ -10,7 +10,7 @@ id: SEED-167
 
 **Identity:** SEED-167#cheap-isolated-fixtures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/370-cheap-isolated-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9d3ce880248a95f7917b2047f83b9707a01be1890721345669ecd1ac36f59735","plan":"5eac2c99a82ccf35ff682a37d38a5da4e6ee44dff1fdc3d7dd4bddf528a04081"}}
 ```
 
 **Goal:** Make the isolated dashboard fixtures cheaper without weakening coverage
