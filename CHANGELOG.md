@@ -1,3 +1,17 @@
+## 0.3.75 - 2026-10-29
+
+- Distinguish scope limits from required restrictions during refinement. Require independent justification for implicated prerequisites, filters, count limits and suppressed operations, including restrictions inherited from code or tests; leave disputed requirements with the human.
+- Resolve an implicit first-trunk landing context only for its intended remote and target, so story-branch increments and resumed publications do not inherit an unrelated trunk obligation.
+- Detect incomplete reporting support before native dashboard launch, and offer Update worktree and retry for stale installations while preserving the selected worktree and assignment.
+- Keep Cursor reasoning effort visible while choosing a model.
+- Reduce dashboard CI setup and observation overhead with earlier serial checks, shared hook costs, batched browser observations and reusable immutable fixture preparation while retaining isolated Git state.
+
+The Promoted installation payload updates two guidance references and four publication runtime files. No payload paths are added or removed. Dashboard and test-performance changes remain source functionality; guidance outside the installer declaration remains Proposed.
+
+Validation: representative guidance behavior reviews and the owning stories' real Git publication and isolated-fixture checks passed. All 15 focused release check files passed, covering payload links and byte comparison, updates, both native roots, host hooks, finalization and publication recovery. Release self-installation, full lint and dashboard typecheck passed. Hosted CI passed source revision `0c911e7c578735723a5f23ebe32c885880ea821b` (run `40816905906`), including dashboard browser checks; the subsequent source commit changes maintainer records only.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code discovery, installation, hook registration and host ownership mechanisms reuse their existing integration evidence. The shared publication correction has real Git fixture proof; the scope-limit clarification has a representative three-case authoring review. These are not fresh native acceptance or sustained ordinary-use evidence. No new native exception is claimed; earlier outstanding native requirements remain pending. The scope-limit response remains on the near-term watch list until qualifying use supplies evidence of its effect.
+
 ## 0.3.74 - 2026-10-29
 
 - Publish a guarded progress increment when planned hosted or external proof needs its own published revision. Keep the selected slice and receiving obligations unfinished until the observation is accepted, while preserving hooks, exact-candidate publication and recovery.
