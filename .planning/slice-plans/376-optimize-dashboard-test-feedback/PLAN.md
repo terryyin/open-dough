@@ -110,6 +110,10 @@ decision after slice 1). Trigger — comparable full local re-run.
 Postcondition — the story's reported outcome matches the measurements; coverage
 and confidence required by the story remain intact.
 
+## Execution complete
+
+Product advice: No backlog change. Measured local wait improved 630s→589s (−41s) with coverage retained (ADR 0010). Remaining candidates (unique multi-step agent-launch* poles; story-review*) stay recorded learning for a later measured pass when local wait is again the priority; leave SEED-171/173 closed without new local-wait evidence.
+
 ## Current decisions
 
 Coordinator owns formatting, hooks, commits, publication, and closure during
