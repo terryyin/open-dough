@@ -2,44 +2,17 @@
 // checkouts; the minimal fixture copies no workflow, so each case publishes
 // the repository's actual CI workflow or a variant of it.
 import { expect, test } from "../support/pageTest.ts";
-import { execFileSync } from "node:child_process";
-import {
-  chmod,
-  mkdir,
-  readFile,
-  readdir,
-  symlink,
-  writeFile,
-} from "node:fs/promises";
+import { readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   ciWorkflowPath,
   qualifyPublishedRange,
 } from "../../server/productionQualification.mjs";
-import { publishedMainFixture } from "../support/publishedMainFixture.ts";
-import { repoRoot } from "../support/repositoryRoot.ts";
-
-const pushExclusions =
-  '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
-
-async function qualificationFixture() {
-  const fixture = await publishedMainFixture();
-  const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");
-  expect(workflow).toContain(`  push:\n${pushExclusions}`);
-  const inspectionsRoot = path.join(fixture.root, "inspections");
-  const qualify = async (from: string, to: string) => {
-    const result = await qualifyPublishedRange({
-      developmentRoot: fixture.development,
-      baseline: { origin: fixture.origin, commit: from },
-      selected: { origin: fixture.origin, commit: to },
-      inspectionsRoot,
-      env: fixture.env,
-    });
-    expect(await readdir(inspectionsRoot)).toEqual([]);
-    return result;
-  };
-  return { fixture, workflow, inspectionsRoot, qualify };
-}
+import {
+  backgroundPackWriterGit,
+  pushExclusions,
+  qualificationFixture,
+} from "../support/productionQualificationFixture.ts";
 
 test("qualification spans the whole published range, including deletions and both rename endpoints", async () => {
   const { fixture, workflow, qualify } = await qualificationFixture();
@@ -124,43 +97,6 @@ test("qualification spans the whole published range, including deletions and bot
   }
 });
 
-// Git's own exec path with `git` replaced: automatic maintenance, which a
-// fetch starts detached, keeps writing pack entries until its repository's
-// pack directory is gone, as CI's Git once left it writing during removal;
-// every other Git command runs unchanged.
-async function backgroundPackWriterGit(root: string) {
-  const real = execFileSync("git", ["--exec-path"], {
-    encoding: "utf8",
-  }).trim();
-  const execPath = path.join(root, "git-exec-path");
-  await mkdir(execPath);
-  for (const entry of await readdir(real)) {
-    if (entry !== "git") {
-      await symlink(path.join(real, entry), path.join(execPath, entry));
-    }
-  }
-  const wrapper = path.join(execPath, "git");
-  await writeFile(
-    wrapper,
-    `#!/bin/sh
-if [ "$1" = maintenance ]; then
-  pack="$("${real}/git" rev-parse --absolute-git-dir)/objects/pack"
-  (
-    n=0
-    while [ -d "$pack" ] && [ "$n" -lt 200000 ]; do
-      : >"$pack/racing-$((n % 20))" 2>/dev/null
-      n=$((n + 1))
-    done
-  ) </dev/null >/dev/null 2>&1 &
-  exit 0
-fi
-exec "${real}/git" "$@"
-`,
-  );
-  await chmod(wrapper, 0o755);
-  return execPath;
-}
-
 test("qualification removes its inspection without racing Git's background maintenance", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();
   try {
@@ -242,6 +178,52 @@ test("qualification uses the selected commit's push policy and reports an unread
       `Could not read ${ciWorkflowPath} at ${missing}.`,
     );
     expect(await readdir(inspectionsRoot)).toEqual([]);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test("qualification follows published extra and documentation rules despite a conflicting local workflow", async () => {
+  const { fixture, workflow, qualify } = await qualificationFixture();
+  try {
+    const a = await fixture.publish(
+      { [ciWorkflowPath]: workflow, "app.js": "A" },
+      "Baseline",
+    );
+    const policy = workflow.replace(
+      pushExclusions,
+      '    paths-ignore:\n      - ".planning/**"\n      - "extra/**"\n',
+    );
+    const published = await fixture.publish(
+      { [ciWorkflowPath]: policy, "app.js": "B", "docs/policy.md": "policy" },
+      "Mixed published policy",
+    );
+    expect(await qualify(a, published)).toEqual({
+      qualifies: true,
+      changed: [ciWorkflowPath, "app.js", "docs/policy.md"],
+      qualifying: [ciWorkflowPath, "app.js", "docs/policy.md"],
+    });
+    await writeFile(path.join(fixture.development, ciWorkflowPath), workflow);
+    const extra = await fixture.publish({ "extra/g.md": "extra" }, "Extra");
+    expect(await qualify(published, extra)).toEqual({
+      qualifies: false,
+      changed: ["extra/g.md"],
+      qualifying: [],
+    });
+    const documentation = await fixture.publish(
+      { "docs/h.md": "docs" },
+      "Docs",
+    );
+    expect(await qualify(extra, documentation)).toEqual({
+      qualifies: true,
+      changed: ["docs/h.md"],
+      qualifying: ["docs/h.md"],
+    });
+    expect(await qualify(published, documentation)).toEqual({
+      qualifies: true,
+      changed: ["docs/h.md", "extra/g.md"],
+      qualifying: ["docs/h.md"],
+    });
   } finally {
     await fixture.cleanup();
   }

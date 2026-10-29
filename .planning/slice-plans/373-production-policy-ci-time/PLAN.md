@@ -132,6 +132,17 @@ sandbox_permissions. Use env -u NO_COLOR for all dashboard commands.
 
 ## Story obligations
 
+### G1. Candidate hosted evaluation remains incomplete
+Reported: slice 1 — "Fresh candidate CI, named candidate revision, hosted verdict/platform accounting, queue/job/suite comparison and runner-variance assessment remain coordinator-owned."
+Story clause: "Compare fresh full hosted CI on named baseline and candidate revisions"
+Disposition: return
+Commitment: C03, Q09, Q11, Q12, Q13, Q14, Q15, Q16, Q17, Q18, Q19, Q20, Q21, Q22, Q23
+
+### G2. Consumer trace prose overstated its row count
+Reported: slice 1 — "Both saved files contain 96 consumers: 11 run, 85 excluded, with none missing a disposition."
+Story clause: "Map original observations to surviving proof."
+Disposition: proved by slice 1: parent independently counted all96 located rows after the trace heading,11run and85excluded, no missing disposition. Corrected97 to96 in plan/map prose; actual consumer set, coverage ledger, observations and implementation are unchanged. Refactor removed only an extra EOF blank line, so all accepted proof remains applicable.
+
 ## Plan concern review
 
 Refinement was not needed: one cohesive owner, existing real boundaries and
@@ -139,3 +150,45 @@ bounded proof loop. Baseline and discriminator premises are observed in this
 checkout. No remaining human choice or architectural conflict was identified.
 The future implementation/measurement proof is owned by slice1 and may not be
 claimed complete merely because its preparation is ready.
+
+## Accepted local proof before independent refactor
+
+The original-observation ledger is coverage-map.md. New real-Git rule coverage
+selected4/passed strict before narrowing F/H. Retained actual watcher E/G
+proves selected-policy precedence and no-work; P/Q and R/S remain independent
+real recoveries. E/Q policy ignores workflow/docs repairs, so Q must retain
+P application paths. Actual E/Q/S prefix, browser, no-work and replacement
+signals preserve the integration contract. Parent inspected the unchanged
+watch-dashboard qualifier boolean branch through deployment staging, actual
+changed tests and all original ledger rows; no internal result is faked.
+
+Three consecutive normal-family runs selected11 (all10original names plus
+new Git case), strictpass/terminal0, wall67.53/67.75/67.30s, reporter67.091/
+67.356/66.895s versus baseline74.68/74.315s. Exact same filters/default cap/
+Node/deps/env; new proof and setup cost included. The broader normal command
+`env -u NO_COLOR npm run test:dashboard -- production-watcher production-deployment production-qualification`
+selected27 across6owning specs and passed strict, terminal0, wall84.83s.
+Consumer trace dispositions cover96listed files, with actual changed callers
+observed; quiescence.json has no processes/output paths for five run IDs.
+Raw literal commands/comparison are implementation-commands.txt and
+local-family-comparison.json. Single baseline, differing host load and unknown
+other-chat work limit inference. Actual policy activations5to3 and successful
+watcher builds8to6 are observed through independent gate-prefix assertions;
+one held shutdown gate and global Vite build remain. Failed R/S preparation
+attempt counts vary and are not claimed exact.
+
+Fresh baseline40825747965 passed16jobs:1740selected/1736expected/same4skips,
+580owning files,12shards/4workers, no extra attempts. Longest dashboardjob217s,
+maxsuite191.422s, fullCI221s, firstqueue3s/startspread1s. Baseline reports and
+baseline-measured.json retain identities/hooks/jobs. Main preparation accepted
+58e2f647 after unrelated VERSION/CHANGELOG-only release metadata; this execution
+branch intentionally stays prepared2f8cb0e2, keeping baseline runtime unchanged.
+Repeated startup confirmed existing ready claim. Its default maintenance was
+stopped/diverged by unrelated root work; root work is preserved. G1 remains
+incomplete and requires a published progress revision; do not mark done yet.
+
+Independent refactor /root/refactor_policy_coverage completed with
+`## REFACTOR COMPLETE`: one EOF blank line removed, no semantic edit or
+structural residue. Accepted boundary, setup and observing assertions unchanged;
+no tests rerun. Formatted size predictions172/230/78, all records below250.
+G2 settles the96-row accounting correction. Refactor quiescent, observer intact.
