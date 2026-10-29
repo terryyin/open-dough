@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-164#dashboard-ci-time",
+  "title": "Shorten dashboard CI without weakening its proof",
+  "completedAt": "2026-10-29T01:16:35.248Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "codex"
+}
