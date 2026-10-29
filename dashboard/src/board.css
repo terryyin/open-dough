@@ -195,6 +195,13 @@
   container: board-scroll / size;
 }
 
+/* Overlay scrollbars leave clientWidth full-bleed and ignore stable gutter, so
+   Column fit would sit under the track. A classic WebKit track keeps the
+   reserved width the gutter already promises on engines that honor it. */
+.board-scroll::-webkit-scrollbar {
+  width: 15px;
+}
+
 /* Inner content excludes the native scrollbar; it owns Column fit. */
 .board-scroll > .scroll-content {
   container: board / inline-size;

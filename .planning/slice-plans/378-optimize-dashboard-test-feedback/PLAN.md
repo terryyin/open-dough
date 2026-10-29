@@ -104,15 +104,22 @@ conditions comparable to a successful baseline.
 - Other poles: `story-review*` ≈ 619 s / 122; `production-watcher*` and
   `support/productionUpdatePolicies.ts` remain expensive serial chains.
 
-### Authorized stop
+### Board-scroll Column-fit fix (developer-requested)
 
-A failed ordinary local run is not a successful baseline (skill rule). Slices 2–3
-cannot proceed without a green comparable full-suite measurement. This is a
-**stop for the developer**: restore a green `npm run test:dashboard` on this
-host (board-scroll native scrollbar width / gutter observation), then resume
-this plan from a fresh successful slice-1 baseline. Do not claim local-wait
-speedup from diagnostics alone. Do not change product behavior solely to make
-tests faster; board-scroll may need a separate product or environment decision.
+Chromium overlay scrollbars leave `.board-scroll` `clientWidth` full-bleed and
+ignore `scrollbar-gutter: stable`, so Column fit sat under the track and the
+native-scrollbar journey failed (`clientWidth === 1152`). Product CSS now keeps
+a classic WebKit track width on `.board-scroll` so the reserved width matches
+the gutter promise (`dashboard/src/board.css`). Focused
+`board-scroll.spec.ts` and related board geometry specs pass. This restores the
+documented Column-fit contract; it is not a test-speed change. Re-run slice 1's
+ordinary local command for a successful baseline before slice 2 experiments.
+
+### Prior authorized stop (superseded)
+
+The developer asked to fix the board-scroll failure that blocked the baseline.
+Slices 2–3 still require a successful comparable full-suite measurement before
+claiming local-wait speedup.
 
 ### Remaining candidates (after a green baseline)
 
