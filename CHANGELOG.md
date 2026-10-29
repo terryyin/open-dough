@@ -1,3 +1,14 @@
+## 0.3.76 - 2026-10-29
+
+- Expose a Codex observer's complete identity when it arrives after the initial tool yield. Report `starting` until that receipt is available, deliver one late `CI_OBSERVER_READY` before failure notifications, and retain truthful terminal state, exact ownership and acknowledgment behavior. Use plain pipes for the machine stream.
+- Keep dashboard session entries compact across story cards, local sessions and Recently done. Put supporting facts and actions behind a shared disclosure while retaining visible attention cues, navigation, keyboard access and touch controls.
+
+The Promoted installation payload updates the Codex observer-binding reference only. No payload paths are added or removed. Dashboard changes, regression tests and maintainer investigations remain source functionality; guidance outside the installer declaration remains Proposed.
+
+Validation: the owning ODF-376 correction passed 39 focused observer tests, including delayed identity, managed delivery, repair, ownership, acknowledgment and stop behavior. A controlled source-binding run through the actual Codex tool transport exposed late identity before a fake-provider failure, acknowledged sequence 1 and stopped with unread 0. All 15 focused release check files, release self-installation, full lint and dashboard typecheck passed. Hosted CI passed the integrated source revision `b8ad020a2ec8d12b26a5ef6db6ed3308833dc2f5` (run `40824757263`), including dashboard browser checks; the subsequent source commit admits unrelated planning work only.
+
+Under ADR 0005, the affected Codex transport uses the owning fix's native observation above. Unchanged Codex, Cursor and Claude Code discovery, installation, hook registration and host ownership mechanisms reuse their existing integration evidence. The controlled source run is not installed ordinary use or an ODF-376 watch start. No new native exception is claimed; earlier outstanding requirements remain pending. ODF-376 retains its release, adoption and ordinary-use evidence in its finding record.
+
 ## 0.3.75 - 2026-10-29
 
 - Distinguish scope limits from required restrictions during refinement. Require independent justification for implicated prerequisites, filters, count limits and suppressed operations, including restrictions inherited from code or tests; leave disputed requirements with the human.
