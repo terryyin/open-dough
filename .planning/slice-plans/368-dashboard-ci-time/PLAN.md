@@ -19,6 +19,12 @@ Originating/default checkout `/Users/terryyin/git/open-dough`.
 Claim `0bffc434d8ef9cb7db0f294fbf6c8bcf1aca7869` accepted on origin/main;
 agent `ealden-chan`, publisher `codex-dashboard-ci-time`.
 Implementation publication targets origin/refs/heads/codex/dashboard-ci-time.
+Scheduling slice accepted at `7eda0986bafe78cbf6088df514bb6b088edf9333` on that
+execution target; its real hosted run is 40793949962. Retained CI observer:
+coordinator `dashboard-ci-time-164`, directory `/tmp/dough-ci-501/watch-OS1NT8`,
+yielded cell80, session96084, PID2391, installed runtime in this worktree;
+workflow `ci.yml` (CI), target `codex/dashboard-ci-time`. Reuse it for all
+implementation publications; do not start another observer.
 
 ## Baseline and outside-in proof
 
@@ -82,6 +88,24 @@ selection and ordinary local comparison plus the complete hosted suite. Publish 
 compare queue-adjusted shard and complete CI durations with the baseline, and
 record actual savings and comparison limits before completion.
 
+## Performance checkpoint
+
+The combined24-case local comparison passed in92.09s (reporter91.685s),
+versus original97.35s and scheduling-only88.97s. The assumption that fewer
+browser round trips necessarily reduce local wall time is not established.
+Retain semantic proof, but do not mark slice2 complete or claim an additional
+helper gain yet. Publish a validated progress candidate solely to obtain the
+required real hosted comparison; if that remains neutral, reassess the cost
+hypothesis and reject unsupported complexity rather than declare speedup from
+call counts. No broader clock/fixture/tier changes are authorized.
+
+## Story obligations
+
+### G1. Combined hosted performance and final coverage await the candidate
+Reported: slice 2 — "The final candidate has not yet run the complete hosted suite; additional helper speedup remains unproved by the 24-case local comparison."
+Story clause: "Compare normal local execution and full hosted CI on named baseline and candidate revisions"
+Disposition: return
+
 ## Learnings and accepted proof
 
 Prior investigation is retained in the conversation and temporary CI reports.
@@ -93,7 +117,14 @@ NO_COLOR in nested runs that enable FORCE_COLOR; it is diagnostic only. Use
 the sanitized environment consistently before/after. Full coverage remains
 owned by hosted CI. Baseline runs 40789926577 and 40790934008 both passed all
 16 jobs; longest dashboard jobs were 291s and 247s, showing material variance.
-Slice1 focused proof: node selection8/8; reporting/proof-record/quiet-reporter/run-processes34/34; two new guards passed three consecutive focused observations. Listing preserves all1,721 original cases and adds2guards. The same24-case ordinary local comparison passed in88.97s versus97.35s baseline; this single observation is not a full CI claim. Raw evidence and exact commands are retained in /private/tmp/dashboard-ci-time-164 and the implementation return. Coordinator refreshed the existing split lists from exact result durations plus beforeAll/afterAll events in hosted baselines40789926577 and40790934008, using scripts/test-shares.mjs refresh; refreshed selection tests8/8passed and preview covers571files,570recorded. Real hosted tail and CI improvement remain owned by slice2 (J02).
+Slice1 focused proof: node selection8/8; reporting/proof-record/quiet-reporter/run-processes34/34; two new guards passed three consecutive focused observations. Listing preserves all1,721 original cases and adds2guards. The same24-case ordinary local comparison passed in88.97s versus97.35s baseline; this single observation is not a full CI claim. Raw evidence and exact commands are retained in /private/tmp/dashboard-ci-time-164 and the implementation return. Coordinator refreshed the existing split lists from exact result durations plus beforeAll/afterAll events in hosted baselines40789926577 and40790934008, using scripts/test-shares.mjs refresh; refreshed selection tests8/8passed and preview covers571files,570recorded. Scheduling-only hosted run40793949962 passed all16jobs and1,723cases (all1,721 original cases preserved plus2guards). Max browser-suite elapsed211.35s versus252.96/217.71s baselines; max dashboard-job241s versus291/247s. Production updates began6.295s into its suite versus102.387/81.628s and its idle tail was13.46s versus64.837/52.922s. These observations support the mechanism; final combined repeated CI comparison and J02 remain owned by slice2.
+
+Slice2 local semantic proof: four real-browser guards preserve late/revealed
+controls, hidden overflow, modal taps, exact one-pixel native moves and samples
+after RAF callback completion. The full34-case helper family passed three
+consecutive times (38.12/37.76/37.94s); commands, loads, raw strict records and
+91consumer dispositions are retained under /private/tmp/dashboard-ci-time-164
+and the implementation return. Dashboard typecheck and whitespace check passed.
 
 ## Plan concern review
 
