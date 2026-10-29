@@ -35,7 +35,7 @@ treat an unarmed deadline as pending work.
 
 **Identity:** SEED-175#keep-cursor-session-working-while-its-ci-runs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/377-keep-cursor-session-working-while-its-ci-runs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ef5ee73c53aa2e4ab6f61fc184df6d562b119ef1b208311c011066e1bcc32245","plan":"555cee1272b3d1fd003eca71624fe996857039894e1f7ce75d0f3f14ad841de7"}}
 ```
 
 **Beneficiary:** A developer watching a Cursor execution on the dashboard.
