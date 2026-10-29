@@ -22,3 +22,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Keep a Cursor session Working while its CI is still running](seeds/SEED-175-cursor-session-working-during-owned-ci.md#keep-cursor-session-working-while-its-ci-runs) — SEED-175#keep-cursor-session-working-while-its-ci-runs
