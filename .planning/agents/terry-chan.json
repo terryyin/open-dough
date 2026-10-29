@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "terry-chan",
+  "email": "terry-chan@example.org",
+  "identity": "SEED-167#cheap-isolated-fixtures",
+  "mode": "story-branch",
+  "branch": "codex/cheap-isolated-fixtures",
+  "host": "codex"
+}
