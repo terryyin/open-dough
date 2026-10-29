@@ -101,6 +101,14 @@ Postcondition — the session reads Working while this conversation's mailbox
 owner claim still has a fresh pending CI revision; otherwise the existing
 idle/review and unfinished-subagent rules apply unchanged.
 
+## Execution complete
+
+Product advice: no change. The idle follow-up classifier now keeps Working
+from this conversation's mailbox owner claim and freshPendingRevision, with
+exclusions and unfinished-subagent/stop-hint behavior preserved. No further
+product work is warranted from this execution; timer leases remain a separate
+story as scoped.
+
 ## Current decisions
 
 Coordinator owns formatting, hooks, commits, publication, and closure.
