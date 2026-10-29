@@ -1,0 +1,45 @@
+{
+  "case": "case-01",
+  "packet_preparation_start": "2026-10-29T06:43:06Z",
+  "packet_preparation_end": "2026-10-29T06:46:04.924321+00:00",
+  "cap_seconds": 180,
+  "C": null,
+  "C_reason": "no reliable existing tracing/normal-record duration; normal test durations do not measure tracing cost",
+  "P_A": {
+    "start": "2026-10-29T06:45:33.705633+00:00",
+    "end": "2026-10-29T06:45:33.705790+00:00",
+    "limitation": "write phase only; full attributed A preparation unknown"
+  },
+  "P_B": {
+    "start": "2026-10-29T06:45:33.705793+00:00",
+    "end": "2026-10-29T06:45:33.705885+00:00",
+    "limitation": "write phase only; drafting/read time not isolated, full attributed B preparation unknown"
+  },
+  "P_A_total": null,
+  "P_B_total": null,
+  "coin": {
+    "method": "Python secrets.randbits(1), operating-system randomness, 0=A-first, 1=B-first",
+    "value": 1,
+    "time": "2026-10-29T06:45:33.705898+00:00",
+    "order": [
+      "B",
+      "A"
+    ]
+  },
+  "requested_configuration": {
+    "host": "current Codex desktop",
+    "model": "same inherited/default for both fresh reviewers; no override",
+    "settings": "identical defaults requested; no override",
+    "resolved": "unknown"
+  },
+  "common_manifest_sha256": "b94de91141b4765977edd6c0b7c59dd47ccb590598db2338a47eeed224dbfc63",
+  "A_sha256": "e7093fb827cef80cad5bccb59da3004a106e93cabd894a4e48ad379908b17744",
+  "B_sha256": "139e5f619411e08c25b0db7364a8b00f1fef582a79bfce8610ba16b71116a29f",
+  "comparability": "same complete common facts, trace/dispositions, H0 and limits; no private added B facts; parent packet audit and independent assessor still required before dispatch",
+  "producer_discoveries": "none claimed; unknown H0-I0",
+  "no_arm_started": true,
+  "no_tests_edits_other_worktree_ci_candidate_results": true,
+  "observed_elapsed_seconds": 178.924321,
+  "hash_validation": "all 69 common input file SHA256 values validated",
+  "optional_guidance_gap": "ADR0010 not copied: guessed filename absent; actual candidate path docs/adrs/0010-definition-of-improvement-accepted.md remains accessible by git show. Frozen executable-proof.md is supplied."
+}

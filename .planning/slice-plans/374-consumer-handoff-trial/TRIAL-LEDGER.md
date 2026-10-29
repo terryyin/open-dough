@@ -60,3 +60,30 @@ Subject: Reduce redundant production policy builds while preserving real coverag
 Potential eligible implementation; complete trace/handoff not yet checked. No
 case enrolled or results inspected at this boundary. Preserve the earlier
 planning-only screen; investigate this first potential case after slice1 delivery.
+
+## First eligible case and stop
+
+- Case01 enrolled: candidate90ea771039c36761b5973ab728e73ddcbce19935;
+  first implementation identified06:39:41Z, source/normal-record eligibility
+  inspected after slice1 publication. See case-01/RESULT.md for frozen inputs.
+- Packet preparation06:43:06–06:46:04.924321Z,178.924321s; original C/I0 and
+  full attributed P_A/P_B unknown. All69 common hashes/A/B hashes reverified.
+- Independent audit dispatched06:43:33.881Z; deadline06:47:33.881Z; declared
+  freeze06:47:46Z exceeded cap. Interrupted06:47:54.995Z,261.114s charge.
+  Late audit retained unaccepted; zero arms, zero complete pairs, one incomplete
+  enrolled case. Stop recruitment; no replacement or retry and no benefit score.
+- Added known reservation packet178.924321s + audit261.114s =440.038321s,
+  7.3340 task-minutes, excluding separately counted parent work. Full non-wait
+  controller/human cost remains unknown. Neither cap overrun nor missing cost is
+  reclassified as free. Final interpretation is inconclusive; source story and
+  unfinished slices remain retained for a concrete disposition/revised trial.
+
+Accounting qualification: case-01/RESULT.md also retains native packet dispatch
+06:42:59.899Z, at least185.025s to packet completion before return. The178.924s
+first-tool span does not establish a180s dispatch-based preparation cap. Original
+C/P attribution, exact final scoring time and non-overlapping administrative cost
+are unknown. Do not claim complete20-minute calibration/scoring compliance or
+zero controller cost. By07:03:58Z root activation-to-clock is40.25min; adding
+known child windows gives an upper reservation near60min, with overlap/waiting
+explicitly overcounted; exact cost and later administrative time remain unknown.
+This is preservation/stop handling, not further recruitment or an experimental retry.

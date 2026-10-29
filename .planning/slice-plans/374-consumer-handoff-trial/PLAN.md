@@ -215,7 +215,6 @@ The reviewed preparation landed before execution admission. Current authority
 is this bounded trial; runtime guidance and standing automation remain excluded.
 
 ## Execution and resume
-
 Owned checkout `/Users/terryyin/git/open-dough/.worktrees/consumer-handoff-trial`,
 branch `codex/consumer-handoff-trial`; default checkout `/Users/terryyin/git/open-dough`.
 Story Branch Mode, remote `origin`, trunk `main`; pushes authorized. Preparation
@@ -228,12 +227,23 @@ Pre-activation landing/setup is separate and its total effort is unknown.
 Slice1 proof: CALIBRATION-RECEIPT.md preserves v1 failure; corrected rubric in
 CALIBRATION-SCORING.md and independent refactor (no edits) accept limited host/gap
 feasibility, not corrected-reviewer performance. Original six hashes match.
-Next: first potential prospective candidate90ea7710 awaits eligibility/freeze;
-never turn rehearsal into a prospective pair. All case proof/later effects remain owed.
+Case01 (candidate90ea7710) stopped before arms: its audit froze after the
+four-minute cap. See case-01/RESULT.md. Recruitment stops under frozen rules;
+no retry, no complete pair or speed claim. Slice2 remains unfinished; disposition
+of this inconclusive attempt/revised prospective protocol is the next decision.
 
 ## Story obligations
-
 ### G1. Initial scoring brief omitted M/G definitions
 Reported: slice 1 — "calibration reviewers caught specific gaps but v1's missing definitions produced inconsistent numeric labels; source review acceptance inspected both retained reports."
 Story clause: "measuring missed consumers, useful discoveries and review effort before deciding whether to change the mechanism."
 Disposition: proved by slice 1: CALIBRATION-SCORING.md applies the frozen definitions to each observed purpose, preserves failed v1 results and unknown historical denominators; REVIEWER-BRIEF.md revision 2 supplies those definitions. First-case audit remains required.
+
+### G2. First prospective audit exceeded its cap before a timely reference
+Reported: slice 2 — "Auditor declared freeze252.119s after dispatch, above the four-minute cap; interrupted partial/late result is unaccepted and neither review arm started."
+Story clause: "Missing timing, an unaudited case or insufficient recruitment remains inconclusive; it is not recorded as zero cost or a successful trial."
+Disposition: receiving slice 4
+
+### G3. Original tracing and variant preparation timing are unavailable
+Reported: slice 2 — "I0, original C and full P_A/P_B lack reliable measurements; tiny file-write durations omit drafting and do not establish mechanism cost."
+Story clause: "measuring missed consumers, useful discoveries and review effort before deciding whether to change the mechanism."
+Disposition: receiving slice 4
