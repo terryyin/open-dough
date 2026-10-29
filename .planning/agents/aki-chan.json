@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-171#production-policy-ci-time",
+  "mode": "story-branch",
+  "branch": "codex/production-policy-ci-time",
+  "host": "codex"
+}

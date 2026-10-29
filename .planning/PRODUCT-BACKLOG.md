@@ -18,5 +18,7 @@ cost of the feedback process itself.
 
 ## Taken
 
+- [Reduce repeated full-app policy builds without losing protection](seeds/SEED-171-production-policy-ci-time.md#production-policy-ci-time) — SEED-171#production-policy-ci-time
+
 ## Backlog list
 
