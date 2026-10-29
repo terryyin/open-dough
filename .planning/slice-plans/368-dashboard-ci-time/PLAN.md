@@ -77,7 +77,7 @@ and compare their retained reports. Measure rather than infer a speedup.
 
 ### 2. Exhaustive layout and touch proof uses fewer observation round trips
 Type: Structure
-Status: planned
+Status: done
 
 Correction: Reduce repeated browser observation calls across reachability and
 native touch consumers while keeping every existing scenario, assertion,
@@ -90,21 +90,25 @@ record actual savings and comparison limits before completion.
 
 ## Performance checkpoint
 
-The combined24-case local comparison passed in92.09s (reporter91.685s),
-versus original97.35s and scheduling-only88.97s. The assumption that fewer
-browser round trips necessarily reduce local wall time is not established.
-Retain semantic proof, but do not mark slice2 complete or claim an additional
-helper gain yet. Publish a validated progress candidate solely to obtain the
-required real hosted comparison; if that remains neutral, reassess the cost
-hypothesis and reject unsupported complexity rather than declare speedup from
-call counts. No broader clock/fixture/tier changes are authorized.
+The normal 24-case comparison improved from 97.35s to 92.09s, but scheduling
+alone measured 88.97s; no additional local helper gain is demonstrated.
+Hosted dashboard jobs measured 233s and 226s maximum versus baseline 291s and
+247s; suites measured 199.296s/202.912s versus 252.958s/217.707s. Both candidate
+reports preserve all original cases and verdicts. The phone header step
+measured 21.401s/20.861s versus scheduling-only 26.811s; separate layout gain
+remains inconclusive. Retain the supported dispatch and touch improvements,
+and the small lazy-diagnostic simplification without claiming an isolated
+layout saving. No credible further saving remains within these two bounded
+experiments; no clock, fixture-reuse, tier or workload change is selected.
+The full evidence, queue limits and small-sample uncertainty are retained in
+[maintained measurements](../../../docs/maintainer/dashboard-test-timings.md).
 
 ## Story obligations
 
 ### G1. Combined hosted performance and final coverage await the candidate
-Reported: slice 2 — "The helper candidate passed all twelve dashboard shards, but the complete workflow found an unrelated owner-record observation race. Repair CI and repeated hosted performance remain pending."
+Reported: slice 2 — "The final candidate has not yet run the complete hosted suite; additional helper speedup remains unproved by the 24-case local comparison."
 Story clause: "Compare normal local execution and full hosted CI on named baseline and candidate revisions"
-Disposition: return
+Disposition: proved by slice 2: docs/maintainer/dashboard-test-timings.md; complete candidate run40798322595 passes all16jobs, exact original selection/verdict equality and sequential hosted timings in repaired-coverage.json/repaired-metrics.json; the first failed Node attempt is retained and repaired, with no retry-until-green claim
 
 ## Learnings and accepted proof
 
@@ -158,3 +162,26 @@ Retained clean repair boundary:
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-XAjufX/record.json`.
 Publish the repair through the same branch/observer, restore this clean boundary,
 and measure a successful complete workflow before completion.
+
+Repair accepted on the same execution target at
+`876b2645cf0273f05a2dce116a9d3523c2208201`; hosted run 40798322595 is pending.
+The clean repair boundary was restored with status resumed, no stash entry or
+work to apply. This preserves the earlier failed attempt; a later passing
+result does not erase it. The repeated dashboard measurement runs sequentially
+on the same browser code and fixed runner/shard policy.
+
+## Accepted repeated hosted proof
+
+Run 40798322595 on `876b2645cf0273f05a2dce116a9d3523c2208201` passes all
+16 jobs. All twelve dashboard reports observe four workers and 1,727 selections
+in 573 files: 1,723 pass and the same four platform cases remain skipped.
+Exact original case/verdict equality, unique selection and no retries were
+verified in `repaired-coverage.json`. Max dashboard job 226s; max suite
+202.912s; full CI 229s; all jobs start3s after workflow creation, with no start
+spread. The update chain begins6.021s into its suite and leaves7.97s idle tail,
+versus0s in the preceding candidate and52.92–64.84s in baselines. A residual
+tail is possible; the dominant late serial tail is removed. The phone header
+step repeats its improvement at20.861s. This settles G1 without a false claim
+of independent layout or additional local helper gain. No new experiment is
+needed after this passing complete run and the two consistent dashboard
+observations. Root owns final metadata publication and CI completion.

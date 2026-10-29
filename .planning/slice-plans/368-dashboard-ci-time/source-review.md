@@ -10,13 +10,13 @@ is retained verbatim by id below. No implementation or plan was supplied.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | Reduce the dashboard suite’s CI elapsed time. | slice 2 | |
+| C01 | Reduce the dashboard suite’s CI elapsed time. | slice 2 | observed: docs/maintainer/dashboard-test-timings.md: longest dashboard jobs247–291s before and226–233s after; observed mean14.7% lower, with stated runner uncertainty |
 | C02 | Start serial production watcher chains early. | slice 1 | observed: dashboard/tests/boundary/dashboard-scheduling.spec.ts native dispatch event gates; first production project in dashboardTestProjects |
 | C03 | Use honest shared-hook weights. | slice 1 | observed: dashboard/tests/boundary/spec-times.spec.ts exact artifact = attemptMs + sharedMs; hosted hook-inclusive duration-list refresh |
 | C04 | Reduce browser round trips in exhaustive layout checks. | slice 2 | observed: controlReachability.expectEveryControlReachable keeps all-controls/freshvisibility/native scroll/clipping and reads diagnostic text only on failure |
 | C05 | Reduce browser round trips in native touch checks. | slice 2 | observed: touchGestures.readAfterTouchFrame waits then samples the retained browser predicate in one evaluation; native reading guard records every move and frame |
-| C06 | Measure the result against the unchanged suite. | slice 2 | |
-| C07 | Preserve all current scenarios. | slice 2 | |
+| C06 | Measure the result against the unchanged suite. | slice 2 | observed: case-by-case report comparison in combined-coverage.json and repaired-coverage.json preserves all1,721 original selections and verdicts; no retries |
+| C07 | Preserve all current scenarios. | slice 2 | observed: all1,721 original cases occur once in both candidate reports; samefour platform skips, plus six passing guards |
 | C08 | Preserve all current assertions. | slice 2 | observed: inspected native journey diff preserves original identity/input/layout/attachment assertions; controlReachability retains original clipping/tap assertions |
 | C09 | Preserve every-control reachability. | slice 2 | observed: control-reachability-observation.spec.ts covers allcontrolkinds, lateclip, revealedcontrol, unscrollableoverflow andmodal escape;34-casefamily3passes |
 | C10 | Preserve native touch moves. | slice 2 | observed: touch-reading-observation.spec.ts forwards realCDPevents and observes five exactonepixelmoves plus touchstart/end; originalphone/tabletjourneys3passes |
@@ -29,22 +29,22 @@ is retained verbatim by id below. No implementation or plan was supplied.
 | C17 | Include shared setup in timing evidence. | slice 1 | observed: quietReporter.onStepEnd to SpecTimes.addSharedHook; real beforeAll/afterAll guard; hosted baseline weights include exact shared hooks |
 | C18 | Avoid double-counting test-scoped fixtures. | slice 1 | observed: spec-times.spec.ts observes2beforeEach and2afterEach but artifact adds only attemptMs plus sharedMs |
 | C19 | Compare normal local execution between baseline and candidate. | slice 2 | observed: focused-before97.35s and focused-after92.09s are same24selectedcases, ordinarydefaultworkers, env -uNO_COLOR; scheduling-only88.97s limits attribution |
-| C20 | Compare full hosted CI between baseline and candidate. | slice 2 | |
+| C20 | Compare full hosted CI between baseline and candidate. | slice 2 | observed: docs/maintainer/dashboard-test-timings.md compares hosted40789926577/40790934008 with40796911428/40798322595; all12 dashboard jobs pass in both candidates; final16-job workflow passes |
 | C21 | Name the baseline revision. | slice 2 | observed: baseline application revision0bffc434 (samecodeas5de6411d); hosted40789926577/40790934008; named local proof records |
-| C22 | Name the candidate revision. | slice 2 | |
-| C23 | Report case selection. | slice 2 | |
-| C24 | Report workers. | slice 2 | |
-| C25 | Report queue delay. | slice 2 | |
-| C26 | Report job elapsed time. | slice 2 | |
-| C27 | Report suite elapsed time. | slice 2 | |
-| C28 | Report uncertainty. | slice 2 | |
-| C29 | Retain only supported gains. | slice 2 | |
-| C30 | Report inconclusive comparisons honestly. | slice 2 | |
+| C22 | Name the candidate revision. | slice 2 | observed: runtime candidate876b2645cf0273f05a2dce116a9d3523c2208201; helper candidate930974d6 retained as first measured dashboard observation |
+| C23 | Report case selection. | slice 2 | observed: baseline1,721selected/1,717passed/fourskipped/570files; candidate1,727selected/1,723passed/samefourskipped/573files, exact equality verified |
+| C24 | Report workers. | slice 2 | observed: all four compared reports observe four workers in each of twelve dashboard shards; unchanged workflow/configuration worker policy |
+| C25 | Report queue delay. | slice 2 | observed: timing document records job-start spread1s/104s baseline and1s/0s candidate; waits2–4s exceptbaseline2 up to108s |
+| C26 | Report job elapsed time. | slice 2 | observed: max dashboard jobs291s/247s baseline,233s/226s candidate, documented separately from queue and browser elapsed |
+| C27 | Report suite elapsed time. | slice 2 | observed: max browser suites252.958s/217.707s baseline,199.296s/202.912s candidate, from retained HTML reports |
+| C28 | Report uncertainty. | slice 2 | observed: timing document states small sample, shared-runner/cache variance, queue skew, candidate fixture repair and no independent layout attribution |
+| C29 | Retain only supported gains. | slice 2 | observed: retained scheduling mechanism and repeated phone-step improvement; no gain claimed from reduced call counts or inconclusive layout/local helper comparison |
+| C30 | Report inconclusive comparisons honestly. | slice 2 | observed: local additional helper benefit and separate layout gain are explicitly inconclusive; failed Node attempt is retained rather than treated as passing CI |
 | Q01 | The improvement is bounded to the two selected changes: early serial watcher chains with honest weights, and fewer browser round trips. | slice 2 | observed: diff restricted to selected scheduling/reporting and browserobservations/tests; no unrelated product responsibility changed |
-| Q02 | A focused speedup alone is insufficient evidence of the requested outcome. | slice 2 | |
+| Q02 | A focused speedup alone is insufficient evidence of the requested outcome. | slice 2 | observed: complete hosted comparison and final all16-job success at876b2645 supplement the focused local proof |
 | Q03 | Release and trunk integration remain bounded by the ordinary story-branch execution workflow. | slice 2 | observed: implementation published onlyto refs/heads/codex/dashboard-ci-time; main contains explicitlyapprovedpreparation only |
 | J01 | Long serial deployment chains begin alongside ordinary tests. | slice 1 | observed: dashboard-scheduling.spec.ts ordinary:start before chain:first, chain:setup before ordinary:later, one globalsetup |
-| J02 | Those chains stop holding an otherwise idle shard open. | slice 2 | |
+| J02 | Those chains stop holding an otherwise idle shard open. | slice 2 | observed: production updates idle tail64.84s/52.92s baseline to0s/7.97s candidate; other chains finish before ordinary peers; residual variance stated rather than zero-tail guarantee |
 | J03 | Every control still scrolls into view. | slice 2 | observed: reachability guard observes Last fullyinviewport and positive nativescrollTop; originalallcontrols loop retained |
 | J04 | Every control still passes clipping checks. | slice 2 | observed: guards reject lateLast/Revealed clips andunscrollable overflow with original diagnostics; modalcontext andtap pass |
 | J05 | Every native touch movement is observed after its animation frame. | slice 2 | observed: touch-reading-observation.spec.ts RAF wrapper marks callback completion aftercallback returns; readingFrames equality rejects earlysamples |
