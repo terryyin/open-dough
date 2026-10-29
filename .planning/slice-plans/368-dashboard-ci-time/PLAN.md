@@ -185,3 +185,37 @@ step repeats its improvement at20.861s. This settles G1 without a false claim
 of independent layout or additional local helper gain. No new experiment is
 needed after this passing complete run and the two consistent dashboard
 observations. Root owns final metadata publication and CI completion.
+
+## Execution retrospective
+
+Manifest: `7eda0986` owns native dispatch, hook accounting and baseline weight
+refresh; `930974d6` owns browser observations/guards and DD-365; `876b2645`
+owns the independently reviewed ENOENT-only test-fixture repair; `effbc94f`
+owns measured acceptance and the durable timing report. `0bffc434`/`aeff46de`
+are admission/preparation provenance; intervening sibling claim `28654c7f` and
+later main-only work are excluded. The aggregate implementation range after
+preparation is uncontaminated. Original source scope and both slices are met,
+with explicit small-sample, queue and layout-attribution limits retained.
+
+Whole-product review found no corrective plan: production behavior and
+architecture boundaries are unchanged; allocation and reporter ownership stay
+at existing seams (ADRs0002/0008), with measured evidence under ADR0010.
+Real browser/native-input journeys and all original assertions remain;
+selection, shared hooks and transient-frame guards cover the changed contracts.
+The broad suite's remaining native gestures and exhaustive scrolls retain
+required protection; no unsupported coverage consolidation is proposed.
+Direction alignment is neutral maintenance of trustworthy dashboard feedback.
+The repaired race preserves real replacement/cardinality/fencing proof and
+unexpected failures. Full run40798322595 and all focused proofs pass.
+
+Enabled process review used the available coordinator and agent history. One
+supported occurrence is retained as DD-365 in DearDough.md; ordinary write
+584lines, above the500-line warning threshold and below the1,000-line ceiling.
+No retention pruning or process-guidance implementation was performed. No
+additional product/backlog change is recommended from this bounded experiment.
+
+## Execution complete
+
+Product advice: no change. Keep the current coverage and native-input contract;
+the maintained timing report records remaining cost and inconclusive isolated
+layout benefit. No product priority or additional optimization is selected.
