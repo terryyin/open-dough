@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-167_cheap-isolated-fixtures.json",
+      "identity": "SEED-167#cheap-isolated-fixtures",
+      "completedAt": "2026-10-29T04:15:39.562Z",
+      "blob": "81cc81afd2af2d8893a70f4cb003c32afdfe9eeb"
+    },
+    {
       "fileName": "SEED-166_handle-stale-worktree-bundles.json",
       "identity": "SEED-166#handle-stale-worktree-bundles",
       "completedAt": "2026-10-29T01:38:15.722Z",

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-167#cheap-isolated-fixtures",
+  "title": "Reduce fixture setup cost while preserving private test state",
+  "completedAt": "2026-10-29T04:15:39.562Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "codex"
+}
