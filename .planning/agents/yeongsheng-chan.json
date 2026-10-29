@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-172#trial-compact-consumer-handoff",
+  "mode": "story-branch",
+  "branch": "codex/consumer-handoff-trial",
+  "host": "codex"
+}
