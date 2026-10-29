@@ -16,10 +16,10 @@ No plan, product, proof, or other project files were supplied.
 | 4.2 | Cover boundary tests. | slice 3 | |
 | 4.3 | Cover their shared setup. | slice 3 | |
 | 5 | Profile before choosing experiments. | slice 1 | observed: PLAN.md Current decisions Slice 1 baseline + Dominant-cost hypothesis; proof `/tmp/od-dashboard-baseline.B3xSoT/proof.json` phase completed strictStatus passed before any experiment |
-| 6 | Investigate related test families. | slice 2 | |
-| 7 | Retain only changes supported by comparable wall-time measurements under like runner conditions. | slice 2 | |
-| 8 | Follow the project's dashboard test guidance when simplifying tests or moving proof between tiers. | slice 2 | |
-| 9 | Establish replacement proof before removing or narrowing cases. | slice 2 | |
+| 6 | Investigate related test families. | slice 2 | observed: PLAN.md Slice 2 experiment — agent-launch* investigation; retained-preparation-codex-retry matrix named as waste |
+| 7 | Retain only changes supported by comparable wall-time measurements under like runner conditions. | slice 2 | observed: focused before ~19s / after ~14–15s under workers=8; retain pending slice 3 full-suite confirmation |
+| 8 | Follow the project's dashboard test guidance when simplifying tests or moving proof between tiers. | slice 2 | observed: variants moved to boundary/; one representative journey retained |
+| 9 | Establish replacement proof before removing or narrowing cases. | slice 2 | observed: boundary/agent-launch-preparation-codex-retry.spec.ts (10 cases) established before journey narrowed |
 | 10 | After experiments, re-run the same local command under comparable conditions. | slice 3 | |
 | 11.1 | Report before/after wall time. | slice 3 | |
 | 11.2 | Report executed case count. | slice 3 | |
@@ -38,17 +38,17 @@ No plan, product, proof, or other project files were supplied.
 | 20.2 | That baseline records executed case count. | slice 1 | observed: PLAN.md selectedCount 1741; proof `selectedCount` 1741 |
 | 21 | After retained experiments, the same command under comparable conditions finishes sooner. | slice 3 | |
 | 22 | Behavioral coverage is preserved. | slice 3 | |
-| 23 | Replacement proof is in place for any removed cases. | slice 2 | |
-| 24 | An experiment that fails to improve comparable wall time is undone or left out. | slice 2 | |
-| 25 | An experiment that weakens coverage or confidence is undone or left out. | slice 2 | |
+| 23 | Replacement proof is in place for any removed cases. | slice 2 | observed: boundary matrix + coordinator accept `/tmp/od-s2-accept.e8UdcP/proof.json` selectedCount 15 strict passed |
+| 24 | An experiment that fails to improve comparable wall time is undone or left out. | slice 2 | observed: focused wall improved (~19→~14s); retain path taken (no undo owed) |
+| 25 | An experiment that weakens coverage or confidence is undone or left out. | slice 2 | observed: 10 boundary damage variants + 1 journey page path retain refusal behavior |
 | 26 | The report names such an experiment among rejected experiments. | slice 3 | |
 | 27 | When profiling and credible experiments find no worthwhile saving within scope, the suite is left unchanged. | slice 3 | |
 | 28.1 | The no-saving report records its measurements. | slice 3 | |
 | 28.2 | The no-saving report records remaining candidates. | slice 3 | |
-| 29 | A journey that only repeats a variant the boundary tier can answer has that proof moved or dropped per dashboard test guidance. | slice 2 | |
-| 30 | The cheaper surviving check retains the behavior. | slice 2 | |
+| 29 | A journey that only repeats a variant the boundary tier can answer has that proof moved or dropped per dashboard test guidance. | slice 2 | observed: agent-launch-preparation-codex-retry journey 10→1; damage variants at boundary |
+| 30 | The cheaper surviving check retains the behavior. | slice 2 | observed: boundary tests assert reconcile refusal per damage; journey asserts dialog/page path |
 | 31.1 | The local suite wall time improves, or | slice 3 | |
-| 31.2 | the change is rejected when it does not. | slice 2 | |
+| 31.2 | the change is rejected when it does not. | slice 3 | |
 
 ## Slice 1 acceptance comparison
 

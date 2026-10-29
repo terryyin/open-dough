@@ -80,7 +80,7 @@ in this plan.
 
 ### 2. Dominant-family cost is reduced with measured retain-or-reject
 Type: Structure
-Status: planned
+Status: done
 Proof: For the family named by slice 1, follow dough-test-optimization:
 smallest meaningful change, focused comparable before/after measurement,
 behavioral verification with replacement proof before any removal, three
@@ -161,6 +161,46 @@ Credible slice 2 experiment remains: reduce wasted journey cost inside
 durability duplication, or share fixture/setup) under dashboard tier guidance,
 with measured retain-or-undo against this baseline.
 
+### Slice 2 experiment (preparation-codex-retry matrix → boundary)
+
+- **Hypothesis:** `agent-launch-preparation-codex-retry.spec.ts` ran ten nearly
+  identical browser journeys over retained-preparation damage variants; dashboard
+  tier guidance puts those server/script variants at boundary and keeps one page
+  path in a journey.
+- **Change (retained pending slice 3):** move the ten damage cases to
+  `dashboard/tests/boundary/agent-launch-preparation-codex-retry.spec.ts`; keep
+  one representative journey proving the kept-start dialog surfaces the
+  reconcile refusal (`workspace` damage).
+- **Replacement proof:** boundary matrix established and passing before the
+  journey was narrowed; three consecutive focused passes of journey+boundary
+  after the narrow (all exit 0).
+- **Focused BEFORE** (revision `692d9032…`, default local workers=8,
+  `env -u NO_COLOR`):
+  `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-dashboard-slice2-before.prepRetry/proof.json`
+  `npx playwright test --config dashboard/playwright.config.ts`
+  `dashboard/tests/agent-launch-preparation-codex-retry.spec.ts`
+  `dashboard/tests/agent-launch-preparation-codex.spec.ts`
+  `dashboard/tests/agent-launch-preparation-codex-recovery.spec.ts`
+  `dashboard/tests/boundary/agent-launch-preparation-codex-continuation.spec.ts`
+  — wall **19 s** shell / `terminal.durationMs` ≈ **18649**; `selectedCount`
+  **14**; all passed; journey-retry area ≈ **72.5 s** (10 cases).
+- **Focused AFTER** (same workers/env; selection adds replacement boundary
+  file): proof `/tmp/od-dashboard-slice2-after.prepRetry/proof.json` (and
+  repeats after2/after3) — wall **14–15 s** / `terminal.durationMs` ≈
+  **13647–14164**; `selectedCount` **15**; journey-retry **1** case ≈ **6.5–7.0 s**
+  + boundary-retry **10** cases ≈ **48–50 s**. Focused wall gain ≈ **4–5 s**
+  (~25%); worker-seconds for the matrix ≈ **72.5 → ~55**.
+- **Decision:** **retain** on focused wall-time gain. Full-suite confirmation
+  of the selected local wait remains **slice 3**; do not claim suite speedup
+  from focused timings alone.
+- **Reassess / stop:** no further slice 2 experiments. Remaining
+  `agent-launch*` cost poles are mostly unique multi-step journeys
+  (`second-server` ~65 s, `second-server-orphan` ~31 s, `ad-hoc-terminal` ~41 s)
+  without a redundant variant matrix boundary can own; smaller multi-case
+  page files (`model` ~19 s, touch layout) offer weaker credible wall savings.
+  Do not reopen SEED-171/173. Second family `story-review*` stays a later
+  candidate only if slice 3 still needs more after confirmation.
+
 ## Learnings
 
 - Proof JSON uses top-level `tests[]` (not `selections`); each entry has
@@ -170,6 +210,11 @@ with measured retain-or-undo against this baseline.
 - Near-zero inter-test idle under load means savings must cut work per case or
   case count in heavy journey families; worker-count tweaks alone are out of
   story scope for local wait unless evidence changes.
+- Moving a ten-case preparation damage matrix from journey to boundary cut
+  focused wall ~19 s → ~14 s and matrix worker-seconds ~72.5 s → ~55 s while
+  preserving one page-path journey; include replacement boundary cost in AFTER
+  selection. Focused gain alone does not finish the story — slice 3 re-profiles
+  `npm run test:dashboard`.
 
 ## Story obligations
 
