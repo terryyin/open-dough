@@ -216,35 +216,6 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
-<a id="expose-codex-observer-identity"></a>
-
-### Expose Codex observer identity
-
-**Identity:** SEED-010#expose-codex-observer-identity
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/372-codex-observer-identity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7fadd3fa1d8ee83064ae7f0e9a2823a6ee4b7f1b8161447b6eb69e9be8e18d40","plan":"d7e8cd6a8c6ac20b5185965152ae3d8e346747f61ae9695d5b1c95cdb0b95abe"}}
-```
-
-**Goal:** A Codex coordinator receives its observer's complete identity while the
-stream is live even when startup outlasts the first tool yield, so managed
-increment and repair delivery can reuse the observer without manual discovery.
-
-**Scope:** Correct ODF-376 in the existing source binding: publish late identity
-once, distinguish starting from ready/ended, use plain pipes, retain ownership
-and acknowledgment semantics, and verify delayed/fragmented and early-ending
-streams through documented-cell tests, real-process delivery and native Codex
-transport. Preserve the investigation in the implementation commit and land the
-completed correction. Release, installation, observer retry policy and finding
-retirement remain outside this correction; retain their explicit pending state.
-
-**Key examples:** Empty first yield followed by a split identity receipt exposes
-one complete identity before a failure notification and managed delivery; an
-immediate receipt exposes it once; an early terminal or missing terminal cannot
-claim usable observation. A delivery and repair reuse that exact owned stream;
-received failures acknowledge and unseen failures remain unread.
-
-**Plan:** [Executable correction](../slice-plans/372-codex-observer-identity/PLAN.md).
-
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

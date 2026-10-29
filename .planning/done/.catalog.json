@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_expose-codex-observer-identity.json",
+      "identity": "SEED-010#expose-codex-observer-identity",
+      "completedAt": "2026-10-29T05:37:53.157Z",
+      "blob": "35533cb50f2488273270c589e15e71ca5ea4e1ae"
+    },
+    {
       "fileName": "SEED-167_cheap-isolated-fixtures.json",
       "identity": "SEED-167#cheap-isolated-fixtures",
       "completedAt": "2026-10-29T04:15:39.562Z",
