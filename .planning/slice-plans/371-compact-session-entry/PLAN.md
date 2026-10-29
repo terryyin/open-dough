@@ -214,3 +214,29 @@ Product direction remains compatible; no further backlog action recommended.
 ## Execution complete
 
 Product advice: no further product change recommended from this execution.
+
+## Story obligations
+
+### G1. Offscreen navigation precondition after compact layout
+Reported: slice 1 — "CI run 40817756668/1 dashboard (12/12) failed sessions-sidebar-navigation-cases.spec.ts:147 before selection: the local Taken entry was expected offscreen but had viewport ratio 0.1958. Current navigation proof must retain its real offscreen-to-revealed journey under the shorter layout."
+Story clause: "Keep native host capabilities, session lifecycle, terminal/review routing and workflow facts."
+Disposition: proved by slice 1: sessions-sidebar-navigation-cases.spec.ts offscreen-to-revealed/terminal assertions, /private/tmp/compact-session-ci-repair-green.json (4/4 strict passed, retry 0)
+
+
+## CI repair proof
+
+Owned run 40817756668/1 failed one dashboard job at the offscreen setup, before
+the navigation trigger. Unchanged Mac reproduction failed at the same assertion
+(ratio .19387; CI .19584). A 1280x600 desktop viewport restores the real offscreen
+precondition; terminal attach, actual reveal, smooth-scroll, outline and current
+entry assertions are retained. No production UI or navigation behavior changed.
+
+```sh
+env -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/private/tmp/compact-session-ci-repair-green.json npm run test:dashboard -- sessions-sidebar-navigation-cases.spec.ts --workers=2
+```
+
+Parent inspected 4 selected/passed, strict passed, each retry 0. Sibling cases
+already establish their viewport/column preconditions. Prior accepted UI/native
+proof and retrospective conclusions remain applicable; G1 supplies the missing
+geometry consumer. Repair stash record is clean/no entry at
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-pGgvxS/record.json`.
