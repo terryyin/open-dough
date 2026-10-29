@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-173#dashboard-ci-balance",
+  "title": "Refresh dashboard timing weights and rebalance CI",
+  "completedAt": "2026-10-29T09:28:46.068Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "codex"
+}

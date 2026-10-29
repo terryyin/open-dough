@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-173_dashboard-ci-balance.json",
+      "identity": "SEED-173#dashboard-ci-balance",
+      "completedAt": "2026-10-29T09:28:46.068Z",
+      "blob": "51c09717acd35407260433bf950923327abc7a07"
+    },
+    {
       "fileName": "SEED-171_production-policy-ci-time.json",
       "identity": "SEED-171#production-policy-ci-time",
       "completedAt": "2026-10-29T07:15:50.761Z",
