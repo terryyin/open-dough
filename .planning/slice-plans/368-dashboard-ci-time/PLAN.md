@@ -1,6 +1,7 @@
 # Dashboard CI feedback time
 
 **Source:** [Selected story](../../seeds/SEED-164-dashboard-ci-time.md#dashboard-ci-time)
+**Source review:** [Independent source commitments](source-review.md)
 **Identity:** SEED-164#dashboard-ci-time
 
 ## Goal and scope
@@ -27,9 +28,10 @@ occupied 138.7s including 33.8s shared setup and left a 54.3s tail. Fresh unchan
 hosted baseline run 40789926577 uses claim revision 0bffc434, workflow_dispatch.
 Compare execution and queue time separately; retain raw reports outside Git.
 
-Run normal local `npm run test:dashboard` before edits and after both changes,
-with proof records, same default worker count and cache conditions. The root
-coordinator owns these full runs and hosted comparisons. Focused proof owns
+Compare the affected 24-test family in ordinary local mode before edits and
+after both changes, using the same default workers and cache conditions:
+`env -u NO_COLOR npm run test:dashboard -- production-watcher cursor-sessions-sidebar-resize-lasting recently-done-sessions-sidebar-room agent-terminal-touch`.
+The coordinator owns this comparison and the complete hosted suite comparisons. Focused proof owns
 selection equality, early serial dispatch, honest hook accounting, all-control
 clipping rejection, and real touch/frame observations. Obtain three consecutive
 focused passes for changed browser synchronization, then full-suite proof.
@@ -57,7 +59,7 @@ focused passes for changed browser synchronization, then full-suite proof.
 
 ### 1. Long deployment chains overlap ordinary dashboard checks
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The same selected CI tests dispatch their serial production chains
 early while other workers run ordinary checks; the allocator includes shared
@@ -76,14 +78,22 @@ native touch consumers while keeping every existing scenario, assertion,
 control, viewport, native event and animation-frame/per-pixel observation.
 Proof: Relevant layout/sidebar/native touch journeys, including clipping and
 narrow reading-window rejection, three consecutive focused passes, unchanged
-selection and the full normal local suite. Publish the candidate to hosted CI,
+selection and ordinary local comparison plus the complete hosted suite. Publish the candidate to hosted CI,
 compare queue-adjusted shard and complete CI durations with the baseline, and
 record actual savings and comparison limits before completion.
 
 ## Learnings and accepted proof
 
 Prior investigation is retained in the conversation and temporary CI reports.
-No implementation proof is accepted yet.
+Preparation aeff46decceb5fef150962b5ce72db259d866382 was approved and published
+to main. Local comparison baseline passed all 24 selected tests in 97.35s wall
+(96.98s reporter time), on Node 24.21 and the default eight workers. A prior full
+local baseline was interrupted after strict failures caused by inherited
+NO_COLOR in nested runs that enable FORCE_COLOR; it is diagnostic only. Use
+the sanitized environment consistently before/after. Full coverage remains
+owned by hosted CI. Baseline runs 40789926577 and 40790934008 both passed all
+16 jobs; longest dashboard jobs were 291s and 247s, showing material variance.
+Slice1 focused proof: node selection8/8; reporting/proof-record/quiet-reporter/run-processes34/34; two new guards passed three consecutive focused observations. Listing preserves all1,721 original cases and adds2guards. The same24-case ordinary local comparison passed in88.97s versus97.35s baseline; this single observation is not a full CI claim. Raw evidence and exact commands are retained in /private/tmp/dashboard-ci-time-164 and the implementation return. Coordinator refreshed the existing split lists from exact result durations plus beforeAll/afterAll events in hosted baselines40789926577 and40790934008, using scripts/test-shares.mjs refresh; refreshed selection tests8/8passed and preview covers571files,570recorded. Real hosted tail and CI improvement remain owned by slice2 (J02).
 
 ## Plan concern review
 

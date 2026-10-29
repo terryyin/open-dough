@@ -220,7 +220,11 @@ shared setup shows in wall time and in the gaps between one test's end and
 the next's start on the same worker, not in the summed durations. A measured
 run omits `--reporter`: `--reporter=list` replaces the quiet reporter and
 no record is written. Record the load average before and after, and compare
-runs taken under different loads relatively.
+runs taken under different loads relatively. The separate shard timing artifact
+adds each executed `beforeAll`/`afterAll` hook once to those test durations, so
+allocation includes the serial files' shared setup and teardown without
+counting per-test fixtures twice. [Dashboard shards](shards.md) describes the
+early dispatch of serial production chains beside ordinary checks.
 
 ## No process outlives its run
 

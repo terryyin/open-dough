@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   dashboardSpecFiles,
   dashboardTestMatch,
+  dashboardTestProjects,
 } from "../../dashboard/tests/support/testFiles.mjs";
 import { remainingSuiteTime } from "../../dashboard/tests/support/suiteDeadline.mjs";
 import {
@@ -144,4 +145,50 @@ test("a passed or unreadable deadline fails the run naming it", () => {
         ),
     );
   }
+});
+
+test("native projects queue production chains first and partition every shard without omissions or repeats", () => {
+  const files = dashboardSpecFiles(fileURLToPath(suite));
+  const allMatches = [];
+  for (const index of shardIndices) {
+    const projects = dashboardTestProjects(suite, `${index}/${shardCount}`);
+    assert.deepEqual(
+      projects.map((project) => project.name),
+      ["chromium-deployments", "chromium"],
+    );
+    const matches = projects.flatMap((project) => project.testMatch);
+    const selected = dashboardTestMatch(suite, `${index}/${shardCount}`);
+    for (const file of files) {
+      const path = new URL(file, suite).pathname;
+      assert.equal(matched(matches, path), matched(selected, path), file);
+      const expected = /^production-watcher(?:-.*)?\.spec\.ts$/.test(file)
+        ? 0
+        : 1;
+      if (matched(matches, path)) {
+        assert.equal(matched(projects[expected].testMatch, path), 1, file);
+      }
+    }
+    allMatches.push(...matches);
+  }
+  for (const file of files) {
+    assert.equal(matched(allMatches, new URL(file, suite).pathname), 1, file);
+  }
+});
+
+test("unsharded projects include new specs and an empty shard never expands to every file", () => {
+  const files = [
+    "production-watcher-updates.spec.ts",
+    "a.spec.ts",
+    "boundary/production-watcher-refusals.spec.ts",
+  ];
+  withSpecDirectory(files, "", (directory, path) => {
+    const projects = dashboardTestProjects(directory);
+    assert.equal(matched(projects[0].testMatch, join(path, files[0])), 1);
+    assert.equal(matched(projects[1].testMatch, join(path, files[1])), 1);
+    assert.equal(matched(projects[1].testMatch, join(path, files[2])), 1);
+    const matches = dashboardTestProjects(directory, "4/4").flatMap(
+      (project) => project.testMatch,
+    );
+    assert.equal(matches.length, 0);
+  });
 });

@@ -3,4 +3,25 @@
 # Include: longest-first-journeys
 # Include: longest-first-agents
 # Include: longest-first-boundary
-# Source: run 40189712361 at 065d6655, 2026-10-25
+# Source: runs 40789926577 and 40790934008 at 0bffc434, 2026-10-29; test attempts plus beforeAll/afterAll hooks
+39.7	recently-done-sessions-sidebar-room.spec.ts
+36.6	board-scroll.spec.ts
+35.0	agent-terminal-done-pending.spec.ts
+30.9	board-session-reading.spec.ts
+18.4	board-reading.spec.ts
+15.5	recently-done-sessions-sidebar-navigation.spec.ts
+14.1	recently-done-sessions-sidebar-paging.spec.ts
+11.5	recently-done-sessions-sidebar.spec.ts
+10.6	recently-done-sessions-sidebar-reopen.spec.ts
+5.2	recently-done-sessions-sidebar-paging-board.spec.ts
+5.1	board-native-reading.spec.ts
+4.9	boundary/agent-completion-quiet-closure.spec.ts
+4.5	recently-done-sessions-sidebar-touch.spec.ts
+4.1	cursor-runner-sessions-demand.spec.ts
+2.3	boundary/agent-terminal-cursor-exit.spec.ts
+1.0	boundary/run-process-observation.spec.ts
+0.5	boundary/file-content-cache-budget.spec.ts
+0.1	boundary/kept-client-screen-write-queue.spec.ts
+0.0	boundary/cursor-session-belonging-subagents.spec.ts
+0.0	boundary/launch-instruction-observation.spec.ts
+0.0	boundary/live-terminal-diagnostic-capture.spec.ts

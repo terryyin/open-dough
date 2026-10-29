@@ -2,7 +2,7 @@
 // runner's times file: one `<seconds><TAB><file>` line per spec file that
 // ran, in the times form of scripts/share-deal.mjs (`formatTimes`), from which
 // a duration list such as `dashboard/tests/longest-first` is refreshed. A
-// file's seconds are the sum of its test attempts' own durations,
+// file's seconds sum test attempts and their beforeAll/afterAll hooks once,
 // including the tests it registers through a module it imports (a case
 // module), which Playwright places under the spec file's suite while their
 // own `location.file` is the module; `<file>` is the spec's path relative to
@@ -15,6 +15,7 @@ import type {
   Suite,
   TestCase,
   TestResult,
+  TestStep,
 } from "@playwright/test/reporter";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -38,12 +39,24 @@ export class SpecTimes {
     return suite?.location?.file ?? test.location.file;
   }
 
+  // These hooks are attached to a test's result steps, but Playwright excludes
+  // their duration from result.duration. Per-test hooks are already included.
+  addSharedHook(test: TestCase, step: TestStep): void {
+    if (
+      step.category === "hook" &&
+      (step.title === "beforeAll hook" || step.title === "afterAll hook")
+    ) {
+      this.addMilliseconds(test, step.duration);
+    }
+  }
+
   add(test: TestCase, result: TestResult): void {
+    this.addMilliseconds(test, result.duration);
+  }
+
+  private addMilliseconds(test: TestCase, duration: number): void {
     const file = path.relative(this.config.rootDir, this.specFile(test));
-    this.milliseconds.set(
-      file,
-      (this.milliseconds.get(file) ?? 0) + result.duration,
-    );
+    this.milliseconds.set(file, (this.milliseconds.get(file) ?? 0) + duration);
   }
 
   write(): void {

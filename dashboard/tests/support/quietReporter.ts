@@ -21,6 +21,7 @@ import type {
   TestCase,
   TestError,
   TestResult,
+  TestStep,
 } from "@playwright/test/reporter";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -104,6 +105,10 @@ export default class QuietReporter implements Reporter {
 
   onStdErr(chunk: string | Buffer, test?: TestCase): void {
     this.onStdOut(chunk, test);
+  }
+
+  onStepEnd(test: TestCase, ...[, step]: [TestResult, TestStep]): void {
+    this.times?.addSharedHook(test, step);
   }
 
   onTestEnd(test: TestCase, result: TestResult): void {
