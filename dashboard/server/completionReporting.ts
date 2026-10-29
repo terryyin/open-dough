@@ -5,10 +5,7 @@ import type { IncomingMessage } from "node:http";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
-import {
-  sendsFirstInput,
-  type LaunchAttemptRecord,
-} from "../src/agentLaunch.ts";
+import { type LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import type { ReportingContext } from "../src/launchRequest.ts";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import { installedSkillPath } from "./launchHosts.ts";
@@ -23,6 +20,12 @@ import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { machineDashboardPath } from "./machineHome.ts";
+import {
+  IncompleteReportingSupport,
+  preparesReporting,
+  reportingSupport,
+} from "./launchWorkspaceReporting.ts";
+export { IncompleteReportingSupport } from "./launchWorkspaceReporting.ts";
 
 export const completionEndpoint = "/__agent-launch/completion";
 // What a launch's attempt keeps in one write: the context its instruction
@@ -52,11 +55,13 @@ export async function reportingContext(
   folder: ProjectFolder,
   established?: EstablishedContext | EstablishedSession,
 ): Promise<PreparedReporting | undefined> {
-  if (
-    attempt.reportingOrigin === undefined ||
-    (attempt.request.workflow === "ad-hoc" && !sendsFirstInput(attempt.request))
-  )
-    return undefined;
+  if (!preparesReporting(attempt)) return undefined;
+  // Incomplete sibling helpers must fail before copyFile ENOENT escapes as an
+  // uncertain session through settlement. Absent completion skips preparation.
+  const support = await reportingSupport(attempt.request.host, folder);
+  if (support.kind === "absent") return undefined;
+  if (support.kind === "incomplete")
+    throw new IncompleteReportingSupport(support.missing);
   const installed = installedSkillPath(
     attempt.request.host,
     folder,
@@ -64,11 +69,6 @@ export async function reportingContext(
     "scripts",
     "dashboard-completion.mjs",
   );
-  try {
-    await access(installed);
-  } catch {
-    return undefined;
-  }
   const directory = machineDashboardPath("reporting", attempt.id);
   await mkdir(directory, { recursive: true });
   const script = path.join(directory, "dashboard-completion.mjs");

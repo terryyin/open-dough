@@ -3,7 +3,6 @@
 // original request and established facts while its host owns native input
 // and reconciliation.
 import {
-  establishedPlace,
   type PublicationReceipt,
   type LaunchAttemptRecord,
   type RecordedLaunchRequest,
@@ -34,7 +33,10 @@ import type { StartProgress } from "./startProgress.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 
 import { keepAttempt } from "./launchAttemptStore.ts";
-import { reportingContext } from "./completionReporting.ts";
+import {
+  prepareAttemptReporting,
+  refuseIncompleteKnownReporting,
+} from "./launchReportingPreparation.ts";
 import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
 
 const defaultLaunchWaitMs = 30_000;
@@ -90,6 +92,14 @@ async function startedRun(
   const began = new Date(attempt.acceptedAt);
   const requested = recordedRequest(request, began);
   const pending = await pendingInputOf(source.id, request);
+  const refused = await refuseIncompleteKnownReporting(
+    source,
+    request,
+    folder,
+    attempt,
+    pending,
+  );
+  if (refused !== undefined) return refused;
   const start =
     pending === undefined
       ? await started(
@@ -121,17 +131,15 @@ async function startedRun(
         ? withStartPolicy(requested, start.policy)
         : requested);
     const kept = pending?.request.reporting ?? attempt.reporting;
-    const prepared =
-      kept === undefined
-        ? await reportingContext(
-            attempt,
-            establishedLaunch(start)?.workspace ?? folder,
-            // A story's start or preparation, or an unattached session.
-            establishedPlace(
-              pending ?? establishedLaunch(start)?.handoff.established ?? {},
-            ),
-          )
-        : { reporting: kept };
+    const preparedReporting = await prepareAttemptReporting(
+      attempt,
+      start,
+      folder,
+      pending,
+      kept,
+    );
+    if (preparedReporting.kind === "failed") return preparedReporting.result;
+    const prepared = preparedReporting.prepared;
     const reporting = prepared?.reporting;
     if (prepared !== undefined) {
       // Kept before this server answers it.

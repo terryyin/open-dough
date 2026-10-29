@@ -13,6 +13,7 @@ import {
   startName,
   publicationRecordingStopped,
   sessionStartRetained,
+  worktreeUpdateNeeded,
   startPhaseWords,
   type RunningStart,
 } from "./agentLaunch.ts";
@@ -27,6 +28,8 @@ export function reconciliationCause(
 ): string {
   if (sessionStartRetained(attempt))
     return `this ${start} established its workspace, but no session was started. Continue resumes the kept start.`;
+  if (worktreeUpdateNeeded(attempt))
+    return `this ${start}'s launch worktree is missing required Open Dough support. Update worktree and retry restores it, then resumes the kept start.`;
   if (publicationRecordingStopped(attempt))
     return `this ${start} published its assignment, but its receipt could not be recorded, so no session was started. Repair the file, then Continue.`;
   switch (cause) {

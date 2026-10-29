@@ -582,3 +582,20 @@ approval review required another human approval before publication.
   - Evidence: execution conversation; approval of preparation `3c5f3ded`, reconciliation onto another chat's metadata as `aeff46decceb5fef150962b5ce72db259d866382`, then explicit approval of preparation-only changes and safe reconciliation. Seed/plan bytes and the sole backlog plan-link edit were checked unchanged before publication.
   - Observed effect: publication paused for a second human approval although the reviewed preparation change was unchanged.
   - Inference: qualified one-off; requesting approval for the concrete change scope plus safe reconciliation can avoid a SHA-only authorization becoming stale. This differs from ODF-262's permission-only UI probes.
+
+## DD-366 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
+
+A dashboard launch plants an open first-landing expectation whose landing
+context targets trunk (`main`). Story-branch increment publication auto-resolves
+that expectation and refuses because the publish target is the story branch, not
+trunk. Fresh delivery commits then stops; resume without landing context accepts
+the story-branch candidate.
+
+### Occurrences
+- Execution: SEED-166#handle-stale-worktree-bundles; plan at before-cleanup `d3bfd15b60526de1430ca12da7c3acb1a12447ee:.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
+  - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31`, through execution-complete publish)
+  - Tool: Cursor
+  - Open Dough release: 0.3.74
+  - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` — each `execution-increment-delivery.mjs fresh` commit succeeded then refused with “Publication does not match the supplied landing context”; open first-landing expectation keyed by workspace+branch named landing-context.json targeting `refs/heads/main`; `execution-increment-resume.mjs resume` of the same candidate then accepted on the story branch without supplying `--landing-context`
+  - Observed effect: every story-branch fresh publish interrupted on trunk-targeted landing retain; resume without landing context accepted the candidate
+  - Inference: distinct from ODF-251 (second worktree for trunk corrections). Planted trunk first-landing expectation and story-branch publish target collide on the same launch workspace; auto-resolve should not apply trunk landing to execution-branch increments

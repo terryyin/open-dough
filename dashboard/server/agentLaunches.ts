@@ -51,6 +51,10 @@ import {
   sessionPolicies,
 } from "./launchCatalog.ts";
 import { machineFolder, projectFolder } from "./projectFolders.ts";
+import {
+  applyPreparedWorktreeUpdate,
+  prepareWorktreeUpdate,
+} from "./worktreeUpdateRetry.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -183,6 +187,21 @@ export class AgentLaunches {
   // rules; an earlier start still running here must finish first.
   continueAttempt(source: PublishedSource, id: string): Promise<Acceptance> {
     return this.admission.run(() => this.continueRequest(source, id));
+  }
+
+  // Applies the verified release updater to the attempt's launch worktree,
+  // then continues that same attempt. A refused update does not launch.
+  updateWorktreeAndRetry(
+    source: PublishedSource,
+    id: string,
+  ): Promise<Acceptance> {
+    return this.admission.run(async () => {
+      const { attempts } = await this.owner.attempts();
+      const prepared = await prepareWorktreeUpdate(source, id, attempts);
+      if (prepared.kind !== "ready") return prepared;
+      const refused = await applyPreparedWorktreeUpdate(prepared);
+      return refused ?? this.continueRequest(source, id);
+    });
   }
 
   private continueRequest(

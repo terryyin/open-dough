@@ -213,6 +213,20 @@ nothing, and a later Start session chooses its workspace afresh. A
 conversation whose first input is unconfirmed is recovered by the same
 continuation with no start run.
 
+When the launch workspace is already known, Start or Continue checks that
+workspace's selected-host Open Dough installation for the helpers this launch
+will consume before further publication or native launch. Compatibility is
+capability completeness in that workspace, not a VERSION match with the main
+checkout. An older install that already has the needed helpers proceeds without
+fetching release support. Missing required helpers fail with a definite
+actionable pre-launch explanation that preserves any kept assignment and
+start, never an uncaught helper-copy error or an uncertain-session claim.
+Startup recovery then offers **Update worktree and retry**: the existing
+whole-payload release updater (`open-dough-release.sh apply`) runs for that
+exact worktree into both native skill roots, without automatic `--force`, then
+Continue-equivalent resume reuses the retained start. A refused or failed
+update does not launch.
+
 When a successful attempt-store write prunes a settled attempt past its 30-day
 retention, it also removes that attempt's kept session start. A refused or failed
 write removes neither. Current and unsettled attempts retain their starts, and a

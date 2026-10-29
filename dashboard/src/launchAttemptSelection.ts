@@ -26,11 +26,19 @@ export const sessionStartRetained = (
   attempt?.outcome?.kind === "failed" &&
   attempt.outcome.sessionStartKept === true;
 
+// Incomplete launch-workspace Open Dough support: Update worktree and retry
+// or Continue after the developer restores the install.
+export const worktreeUpdateNeeded = (
+  attempt: Pick<AttemptObservation, "outcome"> | undefined,
+): boolean =>
+  attempt?.outcome?.kind === "failed" &&
+  attempt.outcome.worktreeUpdateNeeded === true;
+
 // Whether an accepted attempt needs reconciliation: unsettled while no
 // server runs it, uncertain session or publication, a required receipt that
-// failed, or a definite failure with an established session start kept.
-// Elapsed time never settles it; recheck, continuation, or completed session
-// evidence does.
+// failed, a definite failure with an established session start kept, or
+// incomplete worktree install recovery. Elapsed time never settles it;
+// recheck, continuation, update-and-retry, or completed session evidence does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   if (attempt.completion?.outcome === "completed") return false;
   return attempt.outcome === undefined
@@ -38,7 +46,8 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
     : attempt.outcome.kind === "uncertain" ||
         attempt.publication.kind === "unknown" ||
         publicationRecordingStopped(attempt) ||
-        sessionStartRetained(attempt);
+        sessionStartRetained(attempt) ||
+        worktreeUpdateNeeded(attempt);
 }
 
 export const laterAttempt = (

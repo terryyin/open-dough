@@ -1,8 +1,5 @@
-// Local admission for launch, continuation, reconciliation, verification,
-// recovery and session actions. Delete/attach/native Done need a folder;
-// Done/read marks need only a session. Story reviews use the review workspace.
-// Reads cover attempts, sessions, reports, hosts, story reviews and held Cursor
-// sessions; only terminal admission reads natives.
+// Local admission for launch, continuation, update-worktree, reconciliation,
+// verification, recovery and session actions.
 
 import {
   landingEndpoint,
@@ -42,6 +39,7 @@ import {
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
   agentReconciledEndpoint,
+  agentUpdateWorktreeEndpoint,
   agentVerifyEndpoint,
   attemptRequestSchema,
   launchKindName,
@@ -96,10 +94,8 @@ export type Admitted =
       readonly request: AgentLaunchRequest;
     }
   | {
-      // A continuation, answered once the kept attempt is accepted again, a
-      // note that a settled attempt a page found reconciled with published
-      // state, or a verification of an uncertain launch.
-      readonly kind: "continue" | "reconciled" | "verify";
+      // Continue, reconcile, verify, or update-worktree-and-retry one attempt.
+      readonly kind: "continue" | "reconciled" | "verify" | "update-worktree";
       readonly source: PublishedSource;
       readonly attempt: string;
     }
@@ -137,7 +133,7 @@ export type Admitted =
 // A request about one of the project's kept attempts.
 async function attemptRequest(
   req: IncomingMessage,
-  kind: "continue" | "reconciled" | "verify",
+  kind: "continue" | "reconciled" | "verify" | "update-worktree",
 ): Promise<Admitted> {
   const parsed = attemptRequestSchema.safeParse(await jsonBody(req));
   if (!parsed.success) {
@@ -194,6 +190,10 @@ const postRequests = new Map<
   [agentContinueEndpoint, (req) => attemptRequest(req, "continue")],
   [agentReconciledEndpoint, (req) => attemptRequest(req, "reconciled")],
   [agentVerifyEndpoint, (req) => attemptRequest(req, "verify")],
+  [
+    agentUpdateWorktreeEndpoint,
+    (req) => attemptRequest(req, "update-worktree"),
+  ],
 ]);
 
 // The reads only a GET may make with exactly their parameters, by path.

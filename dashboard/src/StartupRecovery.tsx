@@ -1,19 +1,7 @@
-// Startup recovery: the selected project's startups that need the developer
-// (`./startupRecoveries.ts`), beside the project's own actions and outside
-// every story's protected frame, so a startup whose story moved or left the
-// published snapshot stays reachable. Each says statically what this
-// machine knows of it -- when it was accepted, its publication receipt, its
-// outcome -- and offers Recheck, which reads this machine's evidence and
-// published state afresh, first settling a story launch that may or may not
-// have started from its host's own session listing when it can, and, for an
-// accepted attempt that needs reconciliation, Continue, which asks the local service to run that same
-// attempt again under the existing recovery rules. A continuation that was
-// not accepted says why, with the attempt kept as it was. When this
-// machine's kept attempts cannot be read, the section says an earlier
-// startup may still be unresolved. Answers are shown as they were formed:
-// each says what is known and what to check, true wherever it is shown, and
-// leaves the action to the control beside it; this section adds only its own
-// native check and buttons.
+// Startup recovery outside the story frame (`./startupRecoveries.ts`): known
+// facts, Recheck, Continue, and Update worktree and retry for incomplete
+// install. Unaccepted answers keep the attempt; unread attempts may still
+// leave an earlier startup unresolved.
 
 import { useId } from "react";
 import {
@@ -84,14 +72,24 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
 function RecoveryEntry({
   item,
   onContinue,
+  onUpdateWorktree,
   onRecheck,
 }: {
   readonly item: StartupRecoveryItem;
   readonly onContinue: (attempt: AttemptObservation) => void;
+  readonly onUpdateWorktree: (attempt: AttemptObservation) => void;
   readonly onRecheck: (attempt?: AttemptObservation) => void;
 }) {
   const id = useId();
-  const { request, cause, attempt, problem, answer, continuing } = item;
+  const {
+    request,
+    cause,
+    attempt,
+    problem,
+    answer,
+    continuing,
+    offersWorktreeUpdate,
+  } = item;
   const subject = subjectOf(request);
   const named = startName(request.workflow);
   const continues =
@@ -99,7 +97,8 @@ function RecoveryEntry({
   const nativeCheckAdvice =
     continues &&
     !publicationRecordingStopped(attempt) &&
-    !sessionStartRetained(attempt)
+    !sessionStartRetained(attempt) &&
+    !offersWorktreeUpdate
       ? hostDescription(request.host).nativeCheckAdvice
       : undefined;
   return (
@@ -148,6 +147,18 @@ function RecoveryEntry({
         >
           Recheck
         </button>
+        {continues && offersWorktreeUpdate && (
+          <button
+            type="button"
+            aria-label={`Update worktree and retry ${named} of ${subject}`}
+            disabled={continuing}
+            onClick={() => {
+              onUpdateWorktree(attempt);
+            }}
+          >
+            {continuing ? "Updating…" : "Update worktree and retry"}
+          </button>
+        )}
         {continues && (
           <button
             type="button"
@@ -218,6 +229,7 @@ export function StartupRecovery({
           key={item.key}
           item={item}
           onContinue={recoveries.continueStartup}
+          onUpdateWorktree={recoveries.updateWorktreeAndRetry}
           onRecheck={recoveries.recheckStartups}
         />
       ))}
