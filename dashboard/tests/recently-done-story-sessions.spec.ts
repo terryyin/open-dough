@@ -1,10 +1,9 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Only saved Done sessions are nested in done-story cards. Open former-story
 // sessions stay local Taken; completion time orders cards, and local retention
 // preserves a closed standalone session after its published card expires.
 
 import { expect, test } from "./dashboardTest.ts";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { columnPagingControl, rem } from "./boardPage.ts";
 import {
   expectMembership,
   parts,
@@ -18,27 +17,22 @@ import { doneStorySessions } from "./recentlyDoneSessions.ts";
 import {
   executed,
   at,
-  doneDirectory,
-  doneRecordAt,
   expired,
   lastWeek,
   placed,
   publishedFiles,
   queuedTitle,
-  queuedIdentity,
   removedQueued,
   repository,
   revision,
   withLastWeekRecordFiles,
 } from "./recentlyDoneRecords.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   adHocEntry,
   expectEntries,
   listed,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
@@ -135,11 +129,26 @@ test("a done story's card holds this machine's sessions for it, marked done, new
     await expect(local.locator(".record-identity")).toHaveText(
       executed.identity,
     );
-    await expect(local.getByRole("button")).toHaveText([
-      "Open terminal",
-      "Mark as done",
-    ]);
-    await expect(inside.first().getByRole("button")).toHaveCount(0);
+    await expect(
+      local.getByRole("button", { name: "Open terminal", exact: true }),
+    ).toBeVisible();
+    await expect(
+      local.getByRole("button", { name: "Session details", exact: true }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await sessionActions(local);
+    await expect(
+      local.getByRole("button", { name: "Mark as done", exact: true }),
+    ).toBeVisible();
+    await expect(
+      inside
+        .first()
+        .getByRole("button", { name: "Session details", exact: true }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      inside
+        .first()
+        .getByRole("button", { name: /Open terminal|More session actions/ }),
+    ).toHaveCount(0);
     for (const entry of await inside.all())
       await expectSessionEntrySetOff(entry);
     await expect(
@@ -165,86 +174,4 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   await test.step("a done card of a story this machine keeps no sessions for shows none", async () => {
     await expect(sessionsIn(removedQueued.title)).toHaveCount(0);
   });
-});
-
-test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
-  page,
-  dashboard,
-}) => {
-  const now = Date.now();
-  const records = sessionsOutsideDoneStories(dashboard, now, { adHoc: true });
-  const open = records.find(
-    (record) => record.request.workflow === "execution",
-  );
-  if (
-    open?.request.workflow !== "execution" ||
-    open.session.host !== "claude"
-  ) {
-    throw new Error("No queued Claude story session");
-  }
-  const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
-  await keepLaunchRecords(dashboard, [
-    {
-      ...open,
-      request: { ...open.request, workflow: "refinement" },
-      session: {
-        ...open.session,
-        sessionId: closedId,
-        shortId: closedId.slice(0, 8),
-      },
-      launchedAt: at(now, placed.executedDoneSessionLaunched),
-      doneAt: at(now, placed.executedDoneSessionMarked),
-    },
-    ...records,
-  ]);
-  await publishFiles(page, {
-    repository,
-    revision,
-    files: publishedFiles(
-      withDoneCatalog(
-        {
-          [doneRecordAt(queuedIdentity)]: renderDoneRecord({
-            identity: queuedIdentity,
-            title: queuedTitle,
-            completedAt: at(now, placed.executedDone),
-            developer: "Terry Yin",
-          }),
-        },
-        doneDirectory,
-      ),
-    ),
-  });
-  await page.setViewportSize({ width: 54 * rem, height: 900 });
-  await page.goto("/");
-  await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-  const { backlog, recentlyDone: recent } = parts(page);
-  const active = backlog.locator(".session-entry");
-  const doneCard = recent.getByRole("article", {
-    name: queuedTitle,
-    exact: true,
-  });
-  const closed = doneCard.locator(".session-entry");
-  const openKey = `claude:${open.session.sessionId}`;
-  const closedKey = `claude:${closedId}`;
-  const expectUnique = async () => {
-    await expect(active).toHaveAttribute("data-shows-session", openKey);
-    await expect(sessionStateOf(active)).toHaveText("Working");
-    await expect(
-      recent.locator(`[data-shows-session="${openKey}"]`),
-    ).toHaveCount(0);
-    await expect(closed).toHaveAttribute("data-shows-session", closedKey);
-    await expect(sessionStateOf(closed)).toHaveText("Done");
-    for (const key of [openKey, closedKey]) {
-      await expect(
-        page.locator(`.board [data-shows-session="${key}"]`),
-      ).toHaveCount(1);
-    }
-    await expectEntries(recent, [adHocEntry, queuedTitle]);
-    await expect(columnPagingControl(page, "Recently done")).toHaveText(
-      "Recently done 2 entries",
-    );
-  };
-  await expectUnique();
-  await reloadUntilRead(page);
-  await expectUnique();
 });

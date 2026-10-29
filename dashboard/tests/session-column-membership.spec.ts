@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
@@ -181,9 +182,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   renameSync(folder, `${folder}.away`);
   await markDoneAnyway(active);
   await expect(active).toContainText("The session could not be marked done.");
-  await expect(
-    active.getByRole("button", { name: "Mark as done" }),
-  ).toBeFocused();
+  await expect(await sessionAction(active, "Mark as done")).toBeFocused();
   expect(
     (await savedLocalSessionRecords(dashboard))[0]?.doneAt,
   ).toBeUndefined();
@@ -236,7 +235,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   const entry = localEntries(page);
   await expect(sessionStateOf(entry)).toContainText("State unknown");
   await showColumn(page, "Taken");
-  await entry.getByRole("button", { name: "Delete record…" }).click();
+  await (await sessionAction(entry, "Delete record…")).click();
   await entry
     .getByRole("button", { name: "Delete record", exact: true })
     .click();

@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // A launched Cursor session's entry reads the screen the runner holds as
 // the shared normalized activities: a proved clarifying question reads
 // Needs input with the question text, the follow-up prompt after a
@@ -109,7 +110,9 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
   await reloadUntilRead(page);
   await expectNormalizedReading(recent, "Ready for review", true);
   await expect(
-    recent.getByRole("button", { name: "Delete record…" }),
+    (await sessionActions(recent)).getByRole("button", {
+      name: "Delete record…",
+    }),
   ).toHaveCount(0);
   const again = await projectedSessions(page);
   expect(again.hostOperations.cursor).toEqual({

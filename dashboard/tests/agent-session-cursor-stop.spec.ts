@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Stop on a held Cursor session, at the real page/server boundary with
 // the fake Cursor runner: a confirmed stop ends the held client through
 // the runner and reads stopped with the record un-done; an unconfirmed
@@ -43,15 +44,13 @@ workingCursorTest(
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
-    await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
+    await expect(await sessionAction(entry, "Stop")).toHaveCount(1);
     // Mark as done stays a separate action; Stop is not it. An active
     // unreported session now also offers the local Mark as done (slice 3),
     // independently of Stop.
-    await expect(
-      entry.getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(1);
+    await expect(await sessionAction(entry, "Mark as done")).toHaveCount(1);
 
-    await entry.getByRole("button", { name: "Stop" }).click();
+    await (await sessionAction(entry, "Stop")).click();
 
     await expect(entry).toContainText("Session stopped.");
     await expect
@@ -90,9 +89,9 @@ workingCursorTest(
     );
     try {
       await expect(again).toContainText(cursorRunnerSentence("unreachable"));
-      await expect(again.getByRole("button", { name: "Stop" })).toHaveCount(1);
+      await expect(await sessionAction(again, "Stop")).toHaveCount(1);
 
-      await again.getByRole("button", { name: "Stop" }).click();
+      await (await sessionAction(again, "Stop")).click();
 
       const record = await expectRetainedUnconfirmed(
         again,
@@ -127,7 +126,7 @@ workingCursorTest(
 
     const recent = await markLocallyDone(page, entry);
     expect(keptRecord(dashboard.home).doneAt).toBeDefined();
-    await expect(recent.getByRole("button", { name: "Stop" })).toHaveCount(1);
+    await expect(await sessionAction(recent, "Stop")).toHaveCount(1);
 
     const { entry: again, release } = await entryWithRunnerUnreachable(
       page,
@@ -136,9 +135,9 @@ workingCursorTest(
     );
     try {
       await expect(again).toContainText(cursorRunnerSentence("unreachable"));
-      await expect(again.getByRole("button", { name: "Stop" })).toHaveCount(1);
+      await expect(await sessionAction(again, "Stop")).toHaveCount(1);
 
-      await again.getByRole("button", { name: "Stop" }).click();
+      await (await sessionAction(again, "Stop")).click();
 
       const record = await expectRetainedUnconfirmed(
         again,
@@ -177,7 +176,7 @@ workingCursorTest(
 
       gate.hold();
       try {
-        await entry.getByRole("button", { name: "Stop" }).click();
+        await (await sessionAction(entry, "Stop")).click();
         // The held client's signal log proves the hangup reached it; the
         // runner keeping this same session again (its keep answer, as
         // recovery asks for) then lands before the held confirmation
@@ -221,7 +220,7 @@ workingCursorTest(
       parts(page).taken,
     );
     try {
-      await again.getByRole("button", { name: "Stop" }).click();
+      await (await sessionAction(again, "Stop")).click();
       await expect(again).toContainText("Stop unconfirmed");
       expect(keptRecord(dashboard.home).stopUnconfirmed).toContain(
         "Stop unconfirmed",
@@ -231,7 +230,7 @@ workingCursorTest(
       await release();
       await again.getByRole("button", { name: "Recover" }).click();
       await expect(again).toContainText("Working", { timeout: 30_000 });
-      await again.getByRole("button", { name: "Stop" }).click();
+      await (await sessionAction(again, "Stop")).click();
       await expect(again).toContainText("Session stopped.");
       const record = keptRecord(dashboard.home);
       expect(record.session.sessionId).toBe(cursor.sessionId);

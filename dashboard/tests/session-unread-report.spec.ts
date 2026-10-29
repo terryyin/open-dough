@@ -1,7 +1,7 @@
-// Reports have separate marks/messages; native activity owns state and place.
-// Read collapses without closing; Done confirms unfinished work before closing.
-// Terminal confirmation: agent-terminal-done-report.spec.ts; message controls:
-// session-unread-report-message.spec.ts. Real launch/report/store/page, fake hosts/GitHub.
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
+// Reports have separate marks/messages; activity owns state/place. Read keeps open;
+// Done confirms unfinished work. Terminal: agent-terminal-done-report.spec.ts;
+// messages: session-unread-report-message.spec.ts. Real page/server, synthetic hosts/GitHub.
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
@@ -178,9 +178,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expectCollapsed(messageA, "Completed with attention");
   await expectSessionsSidebarSessionEntryShown(rowA, "Working", "working");
   await expect(cardA.locator(".session-state")).toHaveText("Working");
-  await expect(
-    entryA.getByRole("button", { name: "Mark as done" }),
-  ).toBeVisible();
+  await expect(await sessionAction(entryA, "Mark as done")).toBeVisible();
   expect(await sidebarTitles(page)).toEqual([titleB, titleA]);
   await expect(cardB.locator(".story-card-unread-reports")).toHaveText(
     "1 unread report",

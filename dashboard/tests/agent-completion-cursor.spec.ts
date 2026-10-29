@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../src/launchOutcome.ts";
 import type { submitCompletion } from "../server/completionReporting.ts";
 import { execFile } from "node:child_process";
@@ -119,6 +120,7 @@ test("Cursor installed report offers local Done without a native stop capability
   const listed = storyCardSessions(card);
   // Mark as done is offered beside the message, read or not; neither control
   // takes the other's place.
+  await sessionActions(card);
   await expect(markAsDone(card)).toBeVisible();
   await part.markRead.click();
   // Reading leaves the session open on its card with its existing Mark as done.

@@ -18,7 +18,6 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Scan and operate compact session entries](seeds/SEED-169-compact-session-entry.md#compact-session-entry) — SEED-169#compact-session-entry ([plan](slice-plans/371-compact-session-entry/PLAN.md))
 - [Expose Codex observer identity](seeds/SEED-010-learn-from-execution-retrospectives.md#expose-codex-observer-identity) — SEED-010#expose-codex-observer-identity ([plan](slice-plans/372-codex-observer-identity/PLAN.md))
 - [Decide whether to keep, simplify, or change consumer tracing](seeds/SEED-170-consumer-tracing-evaluation.md#evaluate-consumer-tracing) — SEED-170#evaluate-consumer-tracing
 

@@ -31,7 +31,7 @@ import {
 } from "./agentLaunch.ts";
 import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import { SessionList } from "./SessionEntry.tsx";
+import { SessionList } from "./SessionLists.tsx";
 import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,

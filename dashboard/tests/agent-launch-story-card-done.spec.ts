@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Mark as done on a session its story's card lists, on the committed
 // story-columns origin (./launchJourney.ts), through the same page operation as
 // the terminal's (./agent-terminal-done.spec.ts): on a session Claude
@@ -86,7 +87,9 @@ test.describe("marking a card's session done", () => {
         "Claude Code rename failed: The session is no longer running, so it was not renamed.",
       );
       await expect(
-        entry.getByRole("button", { name: "Mark as done" }),
+        (await sessionActions(entry)).getByRole("button", {
+          name: "Mark as done",
+        }),
       ).toBeEnabled();
       await expect(
         entry.getByRole("button", { name: "Open terminal" }),
@@ -129,7 +132,9 @@ test.describe("marking a card's session done", () => {
     await expect(entry).toHaveCount(1);
     await expect(recent).toHaveCount(0);
     await expect(
-      entry.getByRole("button", { name: "Mark as done" }),
+      (await sessionActions(entry)).getByRole("button", {
+        name: "Mark as done",
+      }),
     ).toBeEnabled();
     expect(dashboard.claudeStopCalls()).toEqual([]);
   });

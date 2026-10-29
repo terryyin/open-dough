@@ -26,6 +26,9 @@ identity, attribution, reports and native terminal owner remain intact. A story
 returning to an active list takes its open sessions back inside its card.
 Adding, closing or reopening a local entry creates no published Take or completion.
 
+[Session entries](AGENT-LAUNCH-SESSION-ENTRIES.md) describes the shared compact
+scan, disclosures, attention and original attribution.
+
 Recently done combines published done stories by completion time and saved Done
 sessions by launch time. A done-story card holds only its marked-done sessions,
 newest first, with the same state and actions; later launches do not move the
@@ -98,14 +101,6 @@ reads **Feedback maintenance** instead of its instruction, and Open Dough's
 project row says beside Start session while feedback maintenance runs or stays
 due ([Feedback maintenance](FEEDBACK-MAINTENANCE.md#where-it-stands)). Only dashboard-recorded sessions appear and the
 selected project's records alone determine its column entries.
-
-An assigned session shows its original agent and human credit at the saved
-allocation revision, beside its native host and requested model (or the model
-recorded at that assignment). This session attribution remains after assignment
-release and is separate from the story's current Preparing or Taken owner.
-Later allocations, including reuse of the same agent name, cannot replace it.
-Legacy records without allocation evidence and unreadable historical records
-keep their known launch facts and explicitly show “Human developer unknown.”
 
 Host adapters normalize native state for the shared cards, Recently done,
 sidebar/counts and alerts; observations are never persisted. Host descriptions

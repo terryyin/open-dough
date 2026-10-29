@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Deleting the record of the session the page's one terminal shows
 // (./agent-terminal.spec.ts), on the committed story-columns origin
 // (./launchJourney.ts): while the listing cannot be read the session is State
@@ -65,7 +66,11 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
 
-    await entry.getByRole("button", { name: "Delete record…" }).click();
+    await (
+      await sessionActions(entry)
+    )
+      .getByRole("button", { name: "Delete record…" })
+      .click();
     await entry
       .getByRole("button", { name: "Delete record", exact: true })
       .click();

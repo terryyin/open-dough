@@ -1,3 +1,5 @@
+@import "./session-entry.css";
+
 /* Launch actions and session entries; dialogs: ./launch-dialog.css,
    Recently done: ./recently-done.css. A noted Start keeps its accent, dashed
    edge and tooltip (./icon-control.css); quiet gray means disabled. */
@@ -19,7 +21,7 @@
 }
 
 .start-launch-button,
-.launch-open button {
+.launch-open button:not(.frame-button) {
   font: inherit;
   color: var(--accent);
   background: var(--raised-surface);
@@ -46,7 +48,7 @@
 }
 
 .start-launch-button:disabled,
-.launch-open button:disabled {
+.launch-open button:not(.frame-button):disabled {
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;
@@ -91,16 +93,8 @@
   margin-top: 0.35rem;
 }
 
-.session-entry {
-  border: 1px dashed var(--edge);
-  border-radius: 0.35rem;
-  padding: 0.5rem 0.8rem;
-  background: var(--surface);
-  font-size: 0.9rem;
-}
-
-/* A done story: a published fact, so a solid edge, unlike the dashed edge of
-   a session kept on this machine. */
+/* A done story is a published fact, distinct from the local Session entries
+   it may hold. */
 .done-story {
   display: grid;
   gap: 0.25rem;
@@ -119,10 +113,9 @@
   font-weight: normal;
 }
 
-/* A session the developer is needed at: its state's words say why, and a
-   solid, heavier edge marks the entry without relying on color. */
+/* Attention keeps a stronger edge as well as explicit state words. */
 .session-entry.needs-attention {
-  border-style: solid;
+  border-color: var(--edge);
   border-left-width: 4px;
 }
 

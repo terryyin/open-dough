@@ -22,7 +22,8 @@ import {
   type Listed,
   type RecentlyDoneView,
 } from "./recentlyDoneView.ts";
-import { SessionEntry, SessionList } from "./SessionEntry.tsx";
+import { SessionEntry } from "./SessionEntry.tsx";
+import { SessionList } from "./SessionLists.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import "./agent-launch.css";
 import "./recently-done.css";

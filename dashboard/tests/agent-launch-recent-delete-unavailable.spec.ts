@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Delete record… on an entry that reads Session unavailable, on its active
 // card or in Recently done after its story completes
 // (./agent-launch-recent-delete.spec.ts covers State unknown and keyboard
@@ -86,7 +87,9 @@ test.describe("deleting an unavailable session's record from its current home", 
     for (const entry of [unavailable, becomesKnown]) {
       await expect(sessionStateOf(entry)).toHaveText("Session unavailable");
       await expect(
-        entry.getByRole("button", { name: "Delete record…" }),
+        (await sessionActions(entry)).getByRole("button", {
+          name: "Delete record…",
+        }),
       ).toBeVisible();
     }
     await expect(sidebar.entries).toHaveCount(2);
@@ -98,7 +101,9 @@ test.describe("deleting an unavailable session's record from its current home", 
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
       await showColumn(page, "Taken");
-      await becomesKnown
+      await (
+        await sessionActions(becomesKnown)
+      )
         .getByRole("button", { name: "Delete record…" })
         .click();
       await becomesKnown
@@ -117,7 +122,11 @@ test.describe("deleting an unavailable session's record from its current home", 
 
     await test.step("an unavailable active session's record is deleted from its card and the sidebar", async () => {
       await showColumn(page, "Taken");
-      await unavailable.getByRole("button", { name: "Delete record…" }).click();
+      await (
+        await sessionActions(unavailable)
+      )
+        .getByRole("button", { name: "Delete record…" })
+        .click();
       await unavailable
         .getByRole("button", { name: "Delete record", exact: true })
         .click();

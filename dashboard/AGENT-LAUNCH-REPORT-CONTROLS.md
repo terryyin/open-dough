@@ -4,7 +4,7 @@ A session with an unread completion/attention report offers **Mark as read** in
 its entry's message part, on its card or in Recently done
 ([explicit completion](AGENT-LAUNCH-COMPLETION.md)); it keeps the report read
 and leaves the session open.
-**Mark as done**, its own control beside it, closes a reported session as the
+**Mark as done**, its own control under **More session actions**, closes a reported session as the
 [terminal controls](AGENT-LAUNCH-TERMINALS.md) describe, read or not; an unread
 report alone is not asked about. Cursor, which has no native stop operation,
 records local Done only, also after its workspace disappears.

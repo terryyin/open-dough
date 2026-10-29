@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
 import path from "node:path";
 import {
@@ -106,9 +107,9 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(
     codex.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(1);
-  await expect(codex.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    1,
-  );
+  await expect(
+    (await sessionActions(codex)).getByRole("button", { name: "Mark as done" }),
+  ).toHaveCount(1);
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
     [
       {

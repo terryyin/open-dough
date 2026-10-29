@@ -56,6 +56,9 @@ test("retired Cursor workspace opens retained report without opening terminal an
     "1 session needs attention",
   );
   await expect(entry).toContainText("saved workspace is missing");
+  await expect(
+    entry.getByText(workspaceMissing, { exact: true }),
+  ).toBeVisible();
   await entry.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel.locator(".final-report-text")).toHaveText(report);

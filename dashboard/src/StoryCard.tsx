@@ -115,6 +115,11 @@ export function StoryCard({
           <StoryCardPreparationFacts
             preparation={entry.preparation}
             eligibility={eligibility}
+            executionOpen={storyCardSessionsOf(
+              launches.launched,
+              sourceId,
+              entry.identity,
+            ).some((record) => record.request.workflow === "execution")}
           />
           <StoryCardDependencies
             sourceId={sourceId}

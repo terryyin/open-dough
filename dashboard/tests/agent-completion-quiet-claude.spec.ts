@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // A Claude Code session's quiet completion renames it once its receipt is
 // sent (../server/doneMarks.ts): the receipt answers at once with the local
 // Done mark pending, shown as ordinary text, and the rename waits for Claude
@@ -70,7 +71,10 @@ test.describe("within a wait the session outlasts", () => {
     await expect(recent.getByText(pending)).toBeVisible();
     await expect(recent.locator(".launch-problem")).not.toContainText(pending);
     await expect(
-      recent.getByRole("button", { name: "Mark as done", exact: true }),
+      (await sessionActions(recent)).getByRole("button", {
+        name: "Mark as done",
+        exact: true,
+      }),
     ).toBeVisible();
     expect(dashboard.claudeAttaches()).toEqual([]);
 

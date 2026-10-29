@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // A card's Delete record… that is overtaken, refused, or fails says so and
 // never brings a deleted entry back (the delete itself is
 // ./agent-launch-story-card-delete.spec.ts). Once the listing is readable again the
@@ -76,7 +77,9 @@ async function unknownSession(
     session,
     pace,
     stored: () => readFileSync(storedFile, "utf8"),
-    deleteButton: entry.getByRole("button", { name: "Delete record…" }),
+    deleteButton: (await sessionActions(entry)).getByRole("button", {
+      name: "Delete record…",
+    }),
     confirm: entry.getByRole("button", { name: "Delete record", exact: true }),
     keep: entry.getByRole("button", { name: "Keep" }),
     status: entry.getByRole("status"),
@@ -154,7 +157,11 @@ test("an unwritable record file reports its first failure in the persistent card
       return true;
     }),
   ).toBe(true);
-  await entry.getByRole("button", { name: "Delete record…" }).click();
+  await (
+    await sessionActions(entry)
+  )
+    .getByRole("button", { name: "Delete record…" })
+    .click();
   const directory = path.join(dashboard.home, ".open-dough", "dashboard");
   chmodSync(directory, 0o500);
   try {

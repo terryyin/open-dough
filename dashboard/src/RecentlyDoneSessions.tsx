@@ -19,7 +19,7 @@ import {
 } from "react";
 import { doneSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { SessionList } from "./SessionEntry.tsx";
+import { SessionList } from "./SessionLists.tsx";
 import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,

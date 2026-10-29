@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Observations of sessions launched from active story cards. The launch
 // crosses the real page/boundary; expectations remember the returned native
 // identity and check one column entry through published membership changes.
@@ -61,7 +62,9 @@ export function storyCardSessionListing(
           entry.getByRole("button", { name: "Open terminal" }),
         ).toBeVisible();
         await expect(
-          entry.getByRole("button", { name: "Mark as done" }),
+          (await sessionActions(entry)).getByRole("button", {
+            name: "Mark as done",
+          }),
         ).toBeVisible();
         await expectUnique(key);
       }

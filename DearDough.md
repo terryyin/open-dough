@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 367. Removed numbers are never reused.
+- Highest allocated local number: 368. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -615,3 +615,17 @@ cleanup attribution were needed before usable proof could continue.
   - Evidence: coordinator/implement_origin_preparation conversation; diagnostic runners12117/17810 ended143 after denied ps teardown; slice1-proof.md, slice1-quiescence.json and aborted-owned-paths.json in `/private/tmp/cheap-isolated-fixtures-167`; final escalated guard runs ended0.
   - Observed effect: two attempts supplied no complete pass; owned processes required termination and four generic temporary directories were retained because ownership was uncertain.
   - Inference: carry the known runtime wrapper in each proof handoff before launch; an omitted permission boundary can invalidate teardown evidence even when test bodies run. No duration saving is inferred.
+
+## DD-368 — A CI log excerpt hides an earlier failed test in the same job
+
+The default CI diagnostic keeps lines around GitHub error markers. With the quiet dashboard reporter, the process-exit marker follows only the last test failure; an earlier failure can be omitted without a complete failed-test inventory. This differs from ODF-221's same-cause sibling repair omission: here the first diagnosis did not expose the sibling failure at all.
+
+### Occurrences
+
+- Execution: SEED-169#compact-session-entry; first implementation `c036dbd73a6f58949356b3b7de497085642bd1fc`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown; installed diagnostic at `c036dbd73a6f58949356b3b7de497085642bd1fc:.agents/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs`
+  - Evidence: [run 40817756668, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40817756668/job/123262746829), 2026-10-29 UTC logs, has FAIL lines for agent-launch-attention.spec.ts and sessions-sidebar-navigation-cases.spec.ts. The diagnostic excerpt showed only navigation. After its repair `76d61616d6e74866024a3091a2ec7040d2b9791e`, [run 40819519249, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40819519249/job/123268443339) retained only the unchanged attention failure. Full logs were read through the same CI GitHub source to verify both inventories.
+  - Observed effect: the coordinator published the navigation-only repair before discovering that readiness comparison had already failed in the first job; another CI cycle repeated that known-but-unseen failure.
+  - Inference: bounded per-failure inventory before repair publication could have avoided at least that extra cycle; retain bounded excerpts without treating a tail as the complete failed-test list.

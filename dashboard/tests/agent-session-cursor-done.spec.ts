@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Mark as done on a Cursor session is a local dashboard acknowledgement
 // only (slice 3): at the real page/server boundary with the fake Cursor
 // runner, marking an active unreported working session moves it to
@@ -40,7 +41,9 @@ workingCursorTest(
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
-    await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
+    await expect(
+      (await sessionActions(entry)).getByRole("button", { name: "Stop" }),
+    ).toHaveCount(1);
     await expect(markAsDone(entry)).toHaveCount(1);
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
@@ -112,9 +115,15 @@ workingCursorTest(
     // it is, not a termination claim, and Stop stays available.
     await expectNormalizedReading(recent, "Working", false);
     await expect(recent).toContainText(localDoneWording);
-    await expect(recent.getByRole("button", { name: "Stop" })).toHaveCount(1);
+    await expect(
+      (await sessionActions(recent)).getByRole("button", { name: "Stop" }),
+    ).toHaveCount(1);
 
-    await recent.getByRole("button", { name: "Stop" }).click();
+    await (
+      await sessionActions(recent)
+    )
+      .getByRole("button", { name: "Stop" })
+      .click();
 
     await expect(recent).toContainText("Session stopped.");
     await expect

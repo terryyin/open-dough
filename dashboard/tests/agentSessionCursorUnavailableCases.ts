@@ -1,3 +1,4 @@
+import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Cases registered by ./agent-session-cursor.spec.ts.
 
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
@@ -89,7 +90,9 @@ test("a recorded session the runner does not hold shows the agent is not running
   );
   await expect(again).not.toHaveClass(/needs-attention/);
   await expect(
-    again.getByRole("button", { name: "Delete record…" }),
+    (await sessionActions(again)).getByRole("button", {
+      name: "Delete record…",
+    }),
   ).toHaveCount(1);
   const answer = await projectedSessions(page);
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({

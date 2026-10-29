@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "identity": "SEED-169#compact-session-entry",
-  "mode": "story-branch",
-  "branch": "codex/compact-session-card",
-  "host": "codex"
-}

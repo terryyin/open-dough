@@ -115,6 +115,8 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     page,
     dashboard,
   }) => {
+    // A short desktop window keeps this entry below the fold with compact sessions.
+    await page.setViewportSize({ width: 1280, height: 600 });
     const { show } = await openNavigationJourney(
       page,
       dashboard,
@@ -127,7 +129,6 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
         workflow: "refinement",
       })
     ).sessionId;
-    // Story C is done; its open session remains a local Taken entry.
     await show(columnsJourney.completed);
     const { button, entry } = sessionsSidebarParts(page);
     const { recentlyDone, board } = parts(page);
@@ -149,7 +150,6 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const revealed = (await revealsOf(page)).length;
 
     await entry(notRefinedStory).click();
-
     await expect(panel.getByRole("heading")).toHaveText(notRefinedStory);
     await expect
       .poll(() => attachesOf(dashboard, doneStorySession))

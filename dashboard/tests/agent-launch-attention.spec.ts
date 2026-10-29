@@ -37,7 +37,8 @@ test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 const one = "1 session needs attention";
 
-// A card's published story facts once ready, excluding sessions and attention.
+// Published story facts exclude local session UI and the conditional Ready scan;
+// compact-session-entry.spec.ts observes its canonical assessment and visibility.
 const publishedFactsOf = async (card: Locator) => {
   let facts: string | null = null;
   await expect
@@ -52,10 +53,10 @@ const publishedFactsOf = async (card: Locator) => {
         )
           return null;
         const copy = element.cloneNode(true) as HTMLElement;
-        const counted = copy.querySelectorAll(
-          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason",
+        const localPresentation = copy.querySelectorAll(
+          ".story-card-sessions, .story-card-attention, .story-card-session-open-reason, .story-card-preparation .badge-ready",
         );
-        for (const part of counted) part.remove();
+        for (const part of localPresentation) part.remove();
         return copy.textContent;
       });
       return facts;

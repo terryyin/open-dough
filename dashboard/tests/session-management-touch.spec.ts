@@ -1,3 +1,4 @@
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Exact touch actions on real submitted reports and dashboard records.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
@@ -84,8 +85,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await expect(panel.locator(".side-panel-names code")).toHaveText(
         intended.sessionId,
       );
-      // Stacked panels are ordinary page content above the selected card.
-      // Scroll before reading output: xterm pauses rendering offscreen.
+      // Scroll stacked panels before reading: xterm pauses offscreen rendering.
       // Header taps never scroll a control into view.
       await panel.scrollIntoViewIfNeeded();
       await expect(panel.locator(".xterm-rows")).toContainText(
@@ -147,18 +147,24 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await message.heading.scrollIntoViewIfNeeded();
       await tapWhereShown(message.heading);
       await expect(message.text).toHaveText(attention);
+      const moreActions = entryB.getByRole("button", {
+        name: "More session actions",
+        exact: true,
+      });
+      await moreActions.scrollIntoViewIfNeeded();
+      await tapWhereShown(moreActions);
       await markAsDone(entryB).scrollIntoViewIfNeeded();
       await tapWhereShown(markAsDone(entryB));
       const question = doneQuestion(entryB);
       await expect(question).toContainText(
         "This session reported unfinished work.",
       );
-      await question
-        .getByRole("button", { name: "Keep open", exact: true })
-        .scrollIntoViewIfNeeded();
-      await tapWhereShown(
-        question.getByRole("button", { name: "Keep open", exact: true }),
-      );
+      const keepOpen = question.getByRole("button", {
+        name: "Keep open",
+        exact: true,
+      });
+      await keepOpen.scrollIntoViewIfNeeded();
+      await tapWhereShown(keepOpen);
       await expect(markAsDone(entryB)).toBeFocused();
       expect((await recordOf(dashboard, intended.sessionId))?.reportRead).toBe(
         read?.reportRead,
@@ -171,10 +177,10 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       const shortId = shortIdOf(dashboard, intended.sessionId);
       await markAsDone(entryB).scrollIntoViewIfNeeded();
       await tapWhereShown(markAsDone(entryB));
-      const confirmDone = doneQuestion(entryB).getByRole("button", {
-        name: "Mark as done",
-        exact: true,
-      });
+      const confirmDone = await sessionAction(
+        doneQuestion(entryB),
+        "Mark as done",
+      );
       await confirmDone.scrollIntoViewIfNeeded();
       await tapWhereShown(confirmDone);
       await expect(entryB).toHaveCount(0);
@@ -188,8 +194,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
         expect.objectContaining({ argv: ["stop", shortId] }),
       ]);
 
-      // Delete remains unavailable for ordinary working work. Once its native
-      // session is unavailable, deletion forgets only this dashboard record.
+      // Unavailable native state permits forgetting the local record; working does not.
       const entryA = storyCardSessions(
         parts(page).taken.getByRole("article", {
           name: "Story A",
@@ -204,10 +209,7 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       await reloadUntilRead(page);
       await expectSettledPage(page);
       await expect(sessionStateOf(entryA)).toHaveText("Session unavailable");
-      const deleteRecord = entryA.getByRole("button", {
-        name: "Delete record…",
-        exact: true,
-      });
+      const deleteRecord = await sessionAction(entryA, "Delete record…");
       await deleteRecord.scrollIntoViewIfNeeded();
       await tapWhereShown(deleteRecord);
       const deleteQuestion = entryA.getByRole("group", {

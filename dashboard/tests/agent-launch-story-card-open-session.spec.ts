@@ -1,11 +1,8 @@
-// While a story's card lists an open session, every Start on that card is
-// disabled and described why, on the committed story-columns origin
-// (./launchJourney.ts, ./storyColumnsPage.ts): both workflows, a Taken card's
-// kept-start Start execution, Mark as done and Cursor Delete record return the
-// Starts without a reload, another story's Starts stay, and a dialog opened
-// before another page launched answers Start with the session-open refusal
-// beside the action. The page's own dashboard server launches the synthetic
-// `claude` (./fixtures/fake-claude); the real one is never reached.
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
+// Open-session cards disable both Starts and explain why. Mark as done and
+// Cursor Delete record return them without reload; another card stays usable.
+// Taken kept starts and already-open launch dialogs enforce the same refusal.
+// Uses the committed columns origin and synthetic Claude, without a real host.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -127,7 +124,7 @@ test.describe("a story's card while its session is open", () => {
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
       await expectBlocked(readyStory);
       const entry = storyCardSessions(card(readyStory)).first();
-      await entry.getByRole("button", { name: "Delete record…" }).click();
+      await (await sessionAction(entry, "Delete record…")).click();
       await entry
         .getByRole("button", { name: "Delete record", exact: true })
         .click();
