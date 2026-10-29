@@ -1,0 +1,21 @@
+{
+  "mapping_withheld_from_assessor": true,
+  "substantive_content_unchanged": true,
+  "redactions": {
+    "x": {
+      "removed_lines": [
+        58,
+        64
+      ],
+      "reason": "Only arm clock/write timestamps withheld; no substantive judgment/proof text changed"
+    },
+    "y": {
+      "removed_lines": [
+        58,
+        64
+      ],
+      "reason": "Only arm clock/write timestamps withheld; no substantive judgment/proof text changed"
+    }
+  },
+  "format_can_leak": "Neutral X/Y only; wording/tool descriptions may imply a format; imperfect masking disclosed"
+}

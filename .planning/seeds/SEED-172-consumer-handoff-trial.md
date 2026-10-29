@@ -16,7 +16,7 @@ scope: bounded
 
 **Identity:** SEED-172#trial-compact-consumer-handoff
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/374-consumer-handoff-trial/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3fdba5e985dfd6666e790817d22a277609ee9859d4824bdda28c201d8e37d9c9","plan":"496179de4f682407e33207e10e139306ecc4a7804ea96949579bbca1d8e2f401"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/374-consumer-handoff-trial/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3fdba5e985dfd6666e790817d22a277609ee9859d4824bdda28c201d8e37d9c9","plan":"fdfc9403ef19027c5da68a56892deab1a059183112277f37ad5f9131661683de"}}
 ```
 
 **Goal:** Give Open Dough's maintainer a bounded prospective comparison of the

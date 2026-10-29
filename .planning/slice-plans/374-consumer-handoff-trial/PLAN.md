@@ -73,17 +73,22 @@ Reused proof keeps actual provenance and limitations. The replay C measures this
 new reconstruction only, not the original owner's unrecorded historical effort.
 P_A and P_B each include all reading, drafting, grouping, validation and writing.
 Run them separately; A is complete without the new navigator, B adds the navigator.
+If B reuses A's prepared wrapper, P_B_total includes BOTH native tasks; record
+P_B_task separately. Do not gift B the prerequisite A preparation or double-charge
+it to the trial budget. This attribution was clarified before any review arm.
 Any new fact noticed during presentation preparation must enter shared evidence
 before either arm starts. Record and time common amendments and affected packet
 updates; count them, never give B private evidence or free preparation.
 
-Controller work uses this active session's elapsed interval minus the UNION of
-native child task intervals; waiting on children is not charged twice. Start/end
-additional active sessions explicitly; days awaiting ordinary changes are not
-agent work. If coordinator also works during a child interval, record that active
-interval separately. During replay stages, coordinator only waits/reports status.
-Producer, presentation, audit and review tasks run sequentially for clear timing.
-Source/refactor task time and mechanical delivery remain separate controller costs.
+Controller cost uses active-session elapsed minus the union of explicit native
+blocking wait_agent call/output intervals, plus all native child tasks once.
+This conservatively charges root reasoning/tools and any concurrent activity;
+it is an observed elapsed proxy, not CPU time. It replaces the earlier idealized
+child-interval subtraction because the root also checked data during C. Native
+active intervals already include controller-overlap.json; never add it twice.
+Record additional active sessions explicitly; days awaiting ordinary changes are
+not agent work. budget.json retains raw elapsed/wait/child components and unknowns.
+Producer, presentation, audit and review tasks remain sequential for clear timing.
 
 ## Replay and prospective intake
 
@@ -129,7 +134,7 @@ B disposition or inspected equivalent proof. Compare purpose sets, not counts al
 Report M/positive audited denominator, initial genuine omissions for gap detection,
 unknowns, stage/severity and actual decision. No population-rate/significance claim.
 
-R=native complete review task elapsed. T_A=C+P_A+R_A, T_B=C+P_B+R_B; include timed
+R=native complete review task elapsed. T_A=C+P_A+R_A, T_B=C+P_B_total+R_B; include timed
 amendments in their actual owners. C measured once, credited to both; B's extra
 prep is never free. Report human interruptions/minutes, tool/reread work, union
 proof/test/CI/rework and maintenance costs separately when actually observed.
@@ -157,32 +162,28 @@ No claim that these were prospective outcomes or that corrected reviewers ran.
 
 ### 2. A fully timed replay verifies the revised observation method
 Type: Behavior
-Status: planned
+Status: done
 Fresh producer freezes I0/H0 and complete shared record; separately timed A/B
 presentation tasks preserve all facts/rows. Fresh12min auditor freezes before
 coin-ordered fresh reviews. Native receipts establish full C/P_A/P_B/R_A/R_B,
 masked purpose-level scoring and cost arithmetic. Prove exact population/fact
 identity and retained immutable input hashes. Replay remains outside cohort.
 
-### 3. The prospective sample and later effects are observed
+### 3. The stopped trial receives a reproducible decision
 Type: Behavior
 Status: planned
-Activate intake after replay; enrol first four eligible measured ordinary changes
-within14days/remaining budget and check each integrated change for7days.
-Proof: all screens, independent references, four retained attempts at most,
-complete per-case measurements/dispositions and explicit later-effect gaps.
-A cap/timeout is a valid inconclusive stop, never a reason to replace a case.
-
-### 4. The maintainer receives a reproducible decision
-Type: Behavior
-Status: planned
-Apply predeclared gates to prospective data; keep replay/v1 separate. Publish
-reproducible medians/totals, costs, limitations and keep/revise/rollout/inconclusive
-advice at ODF-150 without occurrence inflation or automatic retirement/adoption.
+Apply the already frozen B-only miss/lost-lead stop: do not activate prospective
+recruitment. Record zero cohort cases and no later exposure, preserve the replay
+and v1 separately, apply all benefit/quality gates, and publish the bounded
+negative result/limits at ODF-150 without occurrence inflation or adoption.
+Proof: symmetric18-purpose scoring, native task arithmetic, L=1 and current
+practice retained; explicit unperformed four-case/7-day claims. The planned cohort
+and final decision share one proof loop after this quality stop; prior3/4 are
+consolidated, with no threshold change or replacement case.
 
 ## Readiness and resume
 
-Four boundaries retained; slice2 is the permitted early observation of the revised
+Three boundaries after quality-stop consolidation; slice2 is the permitted observation of the revised
 host/timing method. No product architecture or runtime contract changes; reuse
 ADR0010's prospective basis and cost/unknown requirements. Existing PFE unchanged.
 Owned checkout /Users/terryyin/git/open-dough/.worktrees/consumer-handoff-trial,
@@ -204,9 +205,20 @@ Disposition: proved by slice 1: CALIBRATION-SCORING.md and corrected prospective
 ### G2. First prospective audit exceeded its cap before a timely reference
 Reported: slice 2 — "Auditor declared freeze252.119s after dispatch, above the four-minute cap; interrupted partial/late result is unaccepted and neither review arm started."
 Story clause: "Missing timing, an unaudited case or insufficient recruitment remains inconclusive; it is not recorded as zero cost or a successful trial."
-Disposition: receiving slice 4
+Disposition: receiving slice 3
 
 ### G3. Original tracing and variant preparation timing are unavailable
 Reported: slice 2 — "I0, original C and full P_A/P_B lack reliable measurements; tiny file-write durations omit drafting and do not establish mechanism cost."
 Story clause: "measuring missed consumers, useful discoveries and review effort before deciding whether to change the mechanism."
-Disposition: receiving slice 4
+Disposition: receiving slice 3
+
+### G4. Quality stop precludes the prospective cohort
+Reported: slice 3 — "The compact replay lost the baseline asset-filter purpose and had a candidate-only missed purpose; the preregistered quality rule stops recruitment at zero prospective cases."
+Story clause: "A compact summary is quicker to read but hides an earlier relevant lead: reject it despite time saved."
+Disposition: excluded "A compact summary is quicker to read but hides an earlier relevant lead: reject it despite time saved."
+Commitment: 6, 14, 15, 30, 42
+
+### G5. Controller cost description and measured proxy differed
+Reported: slice 2 — "Refactor found PLAN subtracting all child intervals while budget.json subtracts explicit blocking wait intervals and counts concurrent root work."
+Story clause: "The version-2 120-minute budget includes its replay and controller work; retain version-1 costs separately."
+Disposition: proved by slice 2: PLAN timing contract now explicitly uses native blocking-wait subtraction; v2/budget.json retains all components, includes concurrent reasoning/tools, and never adds the earlier overlap bound twice.

@@ -1,0 +1,16 @@
+{
+  "session_start": "2026-10-29T07:10:31+00:00",
+  "snapshot": "2026-10-29T08:21:02.219075+00:00",
+  "session_elapsed_seconds": 4231.219075,
+  "explicit_blocking_child_wait_seconds": 1053.82,
+  "wait_count": 25,
+  "dangling_waits": 0,
+  "controller_proxy_seconds": 3177.3990750000003,
+  "summed_child_native_seconds": 2089.727,
+  "trial_task_seconds": 5267.126075,
+  "remaining_seconds_to_120min": 1932.8739249999999,
+  "final_scoring_reserve_seconds": 480,
+  "definition": "Controller observed elapsed outside explicit native wait_agent call/output intervals, plus all native child tasks once; concurrent root reasoning/tools count; manual overlap interval is included, not added twice. This proxy includes root tool/queue time, not CPU or money.",
+  "human_minutes": "unknown; no experimental human requests or manual work solicited",
+  "v1_costs": "separate, unknown where not measured"
+}

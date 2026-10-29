@@ -20,5 +20,94 @@
     "launch_line": 2341,
     "return_line": 2370,
     "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_c",
+    "role": "C",
+    "dispatch": "2026-10-29T07:26:33.770Z",
+    "return": "2026-10-29T07:34:02.133Z",
+    "elapsed_seconds": 448.363,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2413,
+    "return_line": 2509,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_pa",
+    "role": "P_A",
+    "dispatch": "2026-10-29T07:35:45.731Z",
+    "return": "2026-10-29T07:37:22.740Z",
+    "elapsed_seconds": 97.009,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2523,
+    "return_line": 2545,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_pb",
+    "role": "P_B",
+    "dispatch": "2026-10-29T07:37:56.404Z",
+    "return": "2026-10-29T07:39:23.001Z",
+    "elapsed_seconds": 86.597,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2553,
+    "return_line": 2577,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_audit",
+    "role": "independent-audit",
+    "dispatch": "2026-10-29T07:42:33.866Z",
+    "return": "2026-10-29T07:48:45.585Z",
+    "elapsed_seconds": 371.719,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2602,
+    "return_line": 2654,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_review_x",
+    "role": "R_B",
+    "dispatch": "2026-10-29T07:51:33.568Z",
+    "return": "2026-10-29T07:57:26.542Z",
+    "elapsed_seconds": 352.974,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2679,
+    "return_line": 2736,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_review_y",
+    "role": "R_A",
+    "dispatch": "2026-10-29T07:58:06.522Z",
+    "return": "2026-10-29T08:04:25.752Z",
+    "elapsed_seconds": 379.23,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2748,
+    "return_line": 2801,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
+  },
+  {
+    "task": "trial_v2_audit",
+    "role": "independent-scoring",
+    "dispatch": "2026-10-29T08:08:44.712Z",
+    "return": "2026-10-29T08:12:42.981Z",
+    "elapsed_seconds": 238.269,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2834,
+    "return_line": 2867,
+    "basis": "native parent dispatch to native FINAL_ANSWER",
+    "phase": 2
+  },
+  {
+    "task": "trial_v2_result_refactor",
+    "role": "result-refactor-overhead",
+    "dispatch": "2026-10-29T08:24:31.060Z",
+    "return": "2026-10-29T08:25:39.918Z",
+    "elapsed_seconds": 68.858,
+    "source_log": "/Users/terryyin/.codex/sessions/2026/10/29/rollout-2026-10-29T11-05-41-01a1859e-d3e3-7c23-8604-f8c32d3210d7.jsonl",
+    "launch_line": 2948,
+    "return_line": 2968,
+    "basis": "native parent dispatch to native FINAL_ANSWER"
   }
 ]
