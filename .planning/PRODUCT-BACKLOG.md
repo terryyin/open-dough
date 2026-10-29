@@ -22,3 +22,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Handle stale worktree bundles before dashboard agent launches](seeds/SEED-166-dashboard-worktree-bundles.md#handle-stale-worktree-bundles) — SEED-166#handle-stale-worktree-bundles
