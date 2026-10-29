@@ -7,6 +7,7 @@
 **Date:** 2026-09-06
 
 **Revised:** 2026-10-27, at Terry Yin's direction, to reference the dashboard UI concepts.
+2026-10-29, at Terry Yin's direction, to define scope limits and required restrictions.
 
 **Decision makers:** Terry Yin
 
@@ -73,6 +74,19 @@ project using it:
   delivers one observable Behavior or makes a Structure change immediately
   enabling the next Behavior slice. Use the same term throughout planning,
   refinement, and execution; splitting a slice produces smaller slices.
+- **Scope limit:** A boundary on what an increment undertakes to solve, deliver
+  and verify, used to control development investment. It identifies work not
+  undertaken now; it does not, by itself, require the product to prevent other
+  cases.
+- **Required restriction:** A product requirement that limits or prevents
+  behavior for an independently justified product need. Its reason comes from
+  the intended product behavior, rather than the boundaries of a particular
+  increment.
+
+A scope limit does not establish a required restriction. Acceptance examples,
+existing implementation limitations and tests do not, by themselves, establish
+required restrictions either. A capability may remain unimplemented without
+making its prevention a product requirement.
 
 The `dough-` naming convention applies to Open Dough skills across their
 lifecycle stages; internal skills need no such prefix. Rule naming remains
