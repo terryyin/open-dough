@@ -18,7 +18,5 @@ cost of the feedback process itself.
 
 ## Taken
 
-- [Refresh dashboard timing weights and rebalance CI](seeds/SEED-173-dashboard-ci-balance.md#dashboard-ci-balance) — SEED-173#dashboard-ci-balance ([plan](slice-plans/375-dashboard-ci-balance/PLAN.md))
-
 ## Backlog list
 
