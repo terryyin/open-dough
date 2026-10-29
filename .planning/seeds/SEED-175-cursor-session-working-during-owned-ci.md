@@ -22,6 +22,13 @@ mailbox `watch-tP5dqG` was owned by that conversation
 composer as ready for review unless an unfinished subagent transcript says
 otherwise, so owned CI never kept the session **Working**.
 
+The same idle reading showed on "Validate IBKR gateway ask data before live
+entry replacement" (`39365b69-73a9-456e-8778-e7b97a2dad87`) while that
+execution was supposed to wait for the NYSE open. That wait is a different
+kind of evidence. This story takes only CI, which the mailbox already
+records. It does not invent a registry the agent must write, and it does not
+treat an unarmed deadline as pending work.
+
 <a id="keep-cursor-session-working-while-its-ci-runs"></a>
 
 ### Keep a Cursor session Working while its CI is still running
@@ -38,19 +45,27 @@ that Cursor conversation still owns a fresh non-terminal CI revision. Once
 that CI is terminal and the composer is idle, the session reads **Ready for
 review** again.
 
-**Scope:** Extend the follow-up-prompt reading in the Cursor session
-observation. After a confirmed first instruction, an idle composer stays
-**Working** when a CI mailbox owned by this conversation has a fresh pending
-revision: the mailbox's own pending or queue observation within its freshness
-window. Ownership is the mailbox owner claim for this repository, host
-`cursor`, and this conversation. Keep the existing unfinished-subagent
-reading. Read only the mailbox the worker has already written.
+**Scope:** In the follow-up-prompt reading, after a confirmed first
+instruction, ask whether this conversation still owns fresh open background
+work, and answer that question for CI only. Read the mailbox the worker has
+already written. An idle composer stays **Working** when that mailbox's owner
+claim is this repository, host `cursor`, and this conversation, and
+`freshPendingRevision` still reports a pending attempt or queue observation
+inside its freshness window. Keep the existing unfinished-subagent reading.
+A screen that already shows the live stop hint stays **Working** without
+consulting the mailbox.
 
-**Scope limits:** A live worker process is not evidence; this execution's
-worker stayed up for the whole run, including while the agent was idle. A
-missing, unreadable, or stale mailbox does not establish **Working**. Another
-conversation's CI on the same repository does not change this session. Do not
-start a worker or poll the CI provider from the dashboard. Do not change
+**Scope limits:** Do not add a registry the agent writes, and do not copy CI
+into a second record beside the mailbox. A live worker process is not
+evidence; this execution's worker stayed up for the whole run, including
+while the agent was idle. A missing, unreadable, or stale mailbox does not
+establish **Working**. Another conversation's CI on the same repository does
+not change this session. A child-owned mailbox is not this conversation's
+claim. Do not start a worker or poll the CI provider from the dashboard. Do
+not treat a parent transcript that lacks `turn_ended` as pending work. Do not
+implement timer leases or mark a session **Working** from a wall-clock
+deadline: the IBKR session recomputed its next wait at 16:23 and never
+re-armed it, so that deadline is not owned pending work. Do not change
 **Ready for review** to mean wrap-up is unfinished: after owned CI is
 terminal, an idle composer stays **Ready for review** even when the plan says
 execution is complete and awaiting wrap-up.
@@ -69,6 +84,9 @@ execution is complete and awaiting wrap-up.
    revision is terminal, reads **Ready for review**.
 5. Pending CI owned by a different conversation on the same repository leaves
    this idle session **Ready for review**.
+6. The IBKR session, idle at the follow-up prompt after computing a next wait
+   and not arming it, stays **Ready for review**. The market-open deadline
+   alone does not make it **Working**.
 
 ## Breadcrumbs
 
@@ -81,4 +99,8 @@ execution is complete and awaiting wrap-up.
 - Mailbox owner file matched `observerOwner` for `/Users/terryyin/git/pygardon/.git`,
   host `cursor`, and session `ae8d2091-5757-4962-b22a-011937f5e8e3`. Coverage
   for `423b18053` was `pending` with `queue.state` `running` until 17:49, then
-  `success`.
+  `success`. Worker pid 51450 remained alive after that success.
+- Design decision the same day: one owned-pending read, with CI as an adapter
+  over the existing mailbox. Subagent transcripts stay their own adapter. A
+  timer lease, if it is ever built, is a separate story and is written by the
+  blocking tool when a wait is armed, not by a deadline the model intends.
