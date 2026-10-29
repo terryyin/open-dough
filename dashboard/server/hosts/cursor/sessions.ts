@@ -4,13 +4,14 @@
 // host boundary, into the shared normalized activities: a proved
 // clarifying-question screen reads waiting, the follow-up prompt after a
 // confirmed first instruction reads review unless belonging unfinished
-// subagent transcripts map it to working, a working screen (including the
-// live stop hint) reads working, and a follow-up prompt before any confirmed
-// instruction reads awaiting-instruction. A workspace-trust screen and any
-// screen no rule proves keep the runner label as an unknown reading, which
-// never alerts. When the runner is not running, or cannot be reached, every
-// recorded Cursor session says so and shows no screen label. An unfinished
-// session the runner does not hold says the agent is not running. A finished
+// subagent transcripts or this conversation's fresh owned pending CI map it
+// to working, a working screen (including the live stop hint) reads working,
+// and a follow-up prompt before any confirmed instruction reads
+// awaiting-instruction. A workspace-trust screen and any screen no rule
+// proves keep the runner label as an unknown reading, which never alerts.
+// When the runner is not running, or cannot be reached, every recorded
+// Cursor session says so and shows no screen label. An unfinished session
+// the runner does not hold says the agent is not running. A finished
 // session the runner does not hold gets no observation, so the card keeps
 // the host's unknown wording.
 import { homedir } from "node:os";
@@ -31,6 +32,7 @@ import {
   cursorWaitingQuestion,
   showsCursorWaitingQuestion,
 } from "./idleScreen.ts";
+import { hasOwnedFreshPendingCi, mailboxRoot } from "./ownedPendingCi.ts";
 import { hasUnfinishedBelongingSubagent } from "./unfinishedSubagents.ts";
 
 export async function observeCursorSessions(
@@ -58,11 +60,14 @@ export async function observeCursorSessions(
 
 // Classifies one held Cursor session into a shared activity. Tests supply a
 // temporary home so belonging subagent transcripts can be staged under
-// ~/.cursor/projects without a live runner.
+// ~/.cursor/projects without a live runner, and a temporary mailbox storage
+// root so owned CI coverage can be staged without the shared observer
+// directory.
 export function observeHeldCursorSession(
   record: LaunchRecord,
   held: HeldCursorSession,
   home = homedir(),
+  mailboxStorage = mailboxRoot,
 ): SessionObservation {
   // A trust screen labels as waiting for an answer, but it is not the
   // session asking the developer a question.
@@ -78,11 +83,14 @@ export function observeHeldCursorSession(
       record.session.host === "cursor"
         ? record.session.continuation.workspace
         : undefined;
-    if (
-      workspace !== undefined &&
-      hasUnfinishedBelongingSubagent(home, workspace, record.session.sessionId)
-    ) {
-      return available(record, "working");
+    if (workspace !== undefined) {
+      const sessionId = record.session.sessionId;
+      if (hasUnfinishedBelongingSubagent(home, workspace, sessionId)) {
+        return available(record, "working");
+      }
+      if (hasOwnedFreshPendingCi(mailboxStorage, workspace, sessionId)) {
+        return available(record, "working");
+      }
     }
     return available(record, "review");
   }
