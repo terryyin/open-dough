@@ -102,7 +102,7 @@ call counts. No broader clock/fixture/tier changes are authorized.
 ## Story obligations
 
 ### G1. Combined hosted performance and final coverage await the candidate
-Reported: slice 2 — "The final candidate has not yet run the complete hosted suite; additional helper speedup remains unproved by the 24-case local comparison."
+Reported: slice 2 — "The helper candidate passed all twelve dashboard shards, but the complete workflow found an unrelated owner-record observation race. Repair CI and repeated hosted performance remain pending."
 Story clause: "Compare normal local execution and full hosted CI on named baseline and candidate revisions"
 Disposition: return
 
@@ -131,3 +131,30 @@ and the implementation return. Dashboard typecheck and whitespace check passed.
 Refinement was not needed: the two slices own distinct measured costs and
 preserve one suite and its existing proof. No remaining concern outside the
 bounded scheduling probe above was identified.
+
+## Candidate CI and bounded repair
+
+Helper candidate `930974d6b285dc16c8f3350a0cbe84216ca0a861`, hosted run
+40796911428, passed all twelve dashboard shards: max job 233s, max suite
+199.296s, job-start spread 1s. It selected 1,727 cases in 573 files: all
+1,721 original selections exactly once, six added guards, and the same four
+platform skips (1,723 passed). There were no retries or unexpected verdicts.
+The phone header step measured 21.401s versus scheduling-only 26.811s, but
+additional helper attribution awaits repeated observation. Raw reports,
+metrics and coverage equality are under /private/tmp/dashboard-ci-time-164.
+
+The overall workflow failed test (2/3): unchanged
+`github-request-owner-unresponsive.test.mjs` read `owner.1.json` after real
+replacement removed it. Fresh repair agent reproduced the exact ENOENT
+through actual `claimedRecord` replacement after observation's directory
+snapshot. The fixture now tolerates only that missing-record read; malformed
+JSON and other filesystem errors still fail. The new 0.1s regression and
+unresponsive-owner scenario passed three consecutive focused runs, then all
+15 owner/login/lifecycle/teardown consumer files passed. All 47 consumer
+trace paths have dispositions. Independent refactor review found no edits;
+files are 188/63 lines and whitespace passes. Allocation preview predicts
+541.2s per Node share against a 750s ceiling. No installed managed copy changed.
+Retained clean repair boundary:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-XAjufX/record.json`.
+Publish the repair through the same branch/observer, restore this clean boundary,
+and measure a successful complete workflow before completion.
