@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-171#production-policy-ci-time",
+  "title": "Reduce repeated full-app policy builds without losing protection",
+  "completedAt": "2026-10-29T07:15:50.761Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "codex"
+}

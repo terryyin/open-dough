@@ -13,6 +13,14 @@ import {
   type ProductionUpdateJourney,
 } from "./productionUpdateJourney.ts";
 
+// Workflow repairs and docs stay excluded, so recovery must retain the failed
+// application's paths. Extra conflicts with the original dirty local policy.
+const publishedPolicy = (workflow: string) =>
+  workflow.replace(
+    pushExclusions,
+    `${pushExclusions}      - "extra/**"\n      - ".github/**"\n`,
+  );
+
 export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
   test("npm watcher skips excluded-only main ranges, builds accumulated and mixed ranges once at the latest commit, and follows the published CI policy over a different local workflow", async () => {
     test.setTimeout(150_000);
@@ -36,11 +44,14 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     await page.reload();
     await expect(page).toHaveTitle("MAIN C");
 
-    // An application commit (with documentation) then a documentation-only
-    // commit reach main together: the whole range qualifies and builds the
-    // latest commit once.
+    // The published policy and application, then documentation alone, reach
+    // main together. Their whole range builds the latest commit exactly once.
     const application = await fixture.commit(
-      { ...fixture.markerChanges("MAIN E"), "docs/e.md": "# E\n" },
+      {
+        ...fixture.markerChanges("MAIN E"),
+        "docs/e.md": "# E\n",
+        [ciWorkflowPath]: publishedPolicy(state.workflow),
+      },
       "Application E",
     );
     const e = await fixture.commit({ "docs/e-notes.md": "# E\n" }, "Notes E");
@@ -54,22 +65,6 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     );
     expect((await journey.work()).preparing).toBe(before.preparing + 1);
 
-    // F changes the published push exclusions within a mixed update.
-    const policy = state.workflow.replace(
-      pushExclusions,
-      '    paths-ignore:\n      - ".planning/**"\n      - "extra/**"\n',
-    );
-    const f = await fixture.publish(
-      {
-        [ciWorkflowPath]: policy,
-        "docs/policy.md": "# Policy\n",
-        ...fixture.markerChanges("MAIN F"),
-      },
-      "Policy F",
-    );
-    await journey.replacedBy(f);
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN F");
     // The development checkout keeps a different, uncommitted workflow.
     await writeFile(
       path.join(fixture.development, ciWorkflowPath),
@@ -80,20 +75,13 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     const g = await fixture.publish({ "extra/g.md": "# G\n" }, "Extra G");
     await settledSkip(watcher, g);
     expect(watcher.output()).toContain(
-      `every change since ${f} is excluded by its CI push policy.`,
+      `every change since ${e} is excluded by its CI push policy.`,
     );
     expect(await journey.work()).toEqual(beforeG);
     expect(processRunning(state.served.pid)).toBe(true);
 
-    // F's published policy no longer excludes docs/, so H qualifies.
-    const h = await fixture.publish({ "docs/h.md": "# H\n" }, "Document H");
-    await journey.replacedBy(h);
-    expect(watcher.output()).not.toContain(`Skipping production update ${h}`);
-    expect(await builtCommitPrefixes(fixture.home)).toEqual(
-      prefixesOf(state.built),
-    );
     await page.reload();
-    await expect(page).toHaveTitle("MAIN F");
+    await expect(page).toHaveTitle("MAIN E");
   });
 
   test("npm watcher keeps its baseline through an unsupported published policy and failed builds, then compares from the next successful activation", async () => {
@@ -106,7 +94,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     const before = await journey.work();
     const p = await fixture.publish(
       {
-        [ciWorkflowPath]: state.workflow.replace(
+        [ciWorkflowPath]: publishedPolicy(state.workflow).replace(
           "  push:\n",
           "  push:\n    # P\n",
         ),
@@ -123,11 +111,15 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     expect(await journey.work()).toEqual(before);
     expect(processRunning(state.served.pid)).toBe(true);
     await page.reload();
-    await expect(page).toHaveTitle("MAIN F");
+    await expect(page).toHaveTitle("MAIN E");
 
-    // A valid Q appears: the range to Q still holds P's application change.
+    // Q repairs only ignored workflow/docs paths. Only retained P application
+    // paths can qualify this range; advancing the baseline on P would skip Q.
     const q = await fixture.publish(
-      { [ciWorkflowPath]: state.workflow, "docs/q.md": "# Q\n" },
+      {
+        [ciWorkflowPath]: publishedPolicy(state.workflow),
+        "docs/q.md": "# Q\n",
+      },
       "Valid policy Q",
     );
     const atQ = await journey.replacedBy(q);
@@ -151,6 +143,8 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       .toContain(`Production update failed for ${s}: `);
     expect(watcher.output()).toContain(`Keeping ${q} at ${state.served.url}`);
     expect(processRunning(atQ.pid)).toBe(true);
+    await page.reload();
+    await expect(page).toHaveTitle("MAIN P");
     await rm(buildFault);
     await journey.replacedBy(s);
     expect(watcher.output()).not.toContain(`Skipping production update ${s}`);
@@ -172,5 +166,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     );
     expect(await journey.work()).toEqual(beforeT);
     expect(processRunning(state.served.pid)).toBe(true);
+    await page.reload();
+    await expect(page).toHaveTitle("MAIN R");
   });
 }
