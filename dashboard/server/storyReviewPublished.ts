@@ -15,6 +15,10 @@ import {
   doneRecordDirectoryOf,
 } from "./recordsBesideBacklog.ts";
 import { completedStoryCommits, trunkLess } from "./storyPublishedCommits.ts";
+import {
+  publishedStoryAgents,
+  publishedStoryEvidence,
+} from "./storyPublishedEvidence.ts";
 import { listedFrom } from "./storyReviewComparison.ts";
 
 export async function publishedStoryReview(
@@ -65,11 +69,6 @@ export async function publishedStoryReview(
       return unavailable(
         "The published completion record is unreadable or names another story.",
       );
-    const agent: unknown = record.agent;
-    if (typeof agent !== "string")
-      return unavailable(
-        "The published completion record names no execution agent. Its historical changes cannot be attributed safely.",
-      );
     // Path history fixes the completion, even after trunk advances or the
     // original execution branch is deleted. Never substitute today's trunk.
     const completion = await git(
@@ -89,8 +88,40 @@ export async function publishedStoryReview(
       return unavailable(
         "This revision is not the story's published completion.",
       );
+    const story = {
+      identity,
+      profileDirectory: agentProfileDirectoryOf(source),
+    };
+    const recordedAgent: unknown = record.agent;
+    let agent = typeof recordedAgent === "string" ? recordedAgent : undefined;
+    if (agent === undefined) {
+      if ((await git("rev-parse", "--is-shallow-repository")) === "true")
+        return unavailable(
+          "Published execution claim history is shallow, so a unique execution agent cannot be recovered safely.",
+        );
+      const claiming: string[] = [];
+      for (const candidate of await publishedStoryAgents(
+        story,
+        completion,
+        call,
+      )) {
+        if (
+          (await publishedStoryEvidence(story, completion, call, candidate))
+            .claims.length > 0
+        )
+          claiming.push(candidate);
+      }
+      const [recovered] = claiming;
+      if (claiming.length !== 1 || recovered === undefined)
+        return unavailable(
+          claiming.length > 1
+            ? "Published claim history names multiple execution agents, so this completion cannot be attributed safely."
+            : "The published completion record names no execution agent, and published execution claim history does not identify one.",
+        );
+      agent = recovered;
+    }
     const evidence = await completedStoryCommits(
-      { identity, profileDirectory: agentProfileDirectoryOf(source) },
+      story,
       completion,
       agent,
       call,
@@ -102,6 +133,9 @@ export async function publishedStoryReview(
         "This machine's Git cannot separate this story's published changes from other work.",
       );
     const tree = await git("rev-parse", `${completion}^{tree}`);
+    // A resolved integration file includes both writers, regardless of whether
+    // reversing single-parent story commits could otherwise hide that file.
+    const mixed = new Map([...less.inseparable, ...evidence.resolutions]);
     return {
       kind: "published",
       completion,
@@ -111,13 +145,7 @@ export async function publishedStoryReview(
       target: source.ref,
       baseline: less.tree,
       tree,
-      files: await listedFrom(
-        less.tree,
-        tree,
-        less.inseparable,
-        completion,
-        call,
-      ),
+      files: await listedFrom(less.tree, tree, mixed, completion, call),
     };
   } catch (error) {
     return unavailable(

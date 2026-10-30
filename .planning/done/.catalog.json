@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-184_recover-completed-review-agent.json",
+      "identity": "SEED-184#recover-completed-review-agent",
+      "completedAt": "2026-10-30T04:39:53.888Z",
+      "blob": "6ee2732fc60f7e01cb325ecbf0b6985232800dd3"
+    },
+    {
       "fileName": "SEED-183_claude-done-rename-titled-composer.json",
       "identity": "SEED-183#claude-done-rename-titled-composer",
       "completedAt": "2026-10-30T04:26:21.745Z",

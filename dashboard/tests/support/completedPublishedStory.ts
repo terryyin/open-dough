@@ -2,13 +2,16 @@
 // No dashboard launch or comparison is supplied by this setup.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { readFileSync, rmSync } from "node:fs";
+import { rmSync } from "node:fs";
 import {
   agentIdentity,
   agentNameOf,
   renderAgentProfile,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import {
+  publishCompletedStory,
+  resolveStoryConflict,
+} from "./completedStoryPublication.ts";
 import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { randomUUID } from "node:crypto";
@@ -22,11 +25,18 @@ export async function completedPublishedStory(
   mode: "trunk" | "story-branch" = "trunk",
   variant?:
     | "takeover"
+    | "returned"
+    | "returned-takeover"
     | "missing-agent"
+    | "own-conflict"
+    | "own-conflict-extra"
+    | "completion-conflict"
     | "ambiguous-merge"
     | "inseparable"
     | "unrelated-merge",
 ) {
+  const ownConflict =
+    variant === "own-conflict" || variant === "own-conflict-extra";
   writeAt(origin.project, "shared.txt", lines("line"));
   commitAll(origin.project, "initial shared file");
   push(origin.project);
@@ -56,7 +66,9 @@ export async function completedPublishedStory(
   writeAt(
     origin.project,
     "shared.txt",
-    shared.replace("line 11\n", "other last\n"),
+    shared
+      .replace("line 11\n", "other last\n")
+      .replace("line 0\n", ownConflict ? "trunk first\n" : "line 0\n"),
   );
   commitAll(origin.project, "another writer interleaves");
   if (variant === "unrelated-merge") {
@@ -66,34 +78,36 @@ export async function completedPublishedStory(
     git(origin.project, "checkout", "--quiet", "main");
     writeAt(origin.project, "unrelated.txt", "other trunk\n");
     commitAll(origin.project, "another story's trunk work");
-    try {
-      execFileSync(
-        "git",
-        ["merge", "--quiet", "--no-ff", "--no-edit", "unrelated"],
-        { cwd: origin.project, stdio: "pipe" },
-      );
-      throw new Error("Expected unrelated story's conflict");
-    } catch (error) {
-      if (
-        !git(origin.project, "diff", "--name-only", "--diff-filter=U").includes(
-          "unrelated.txt",
-        )
-      )
-        throw error;
-    }
-    writeAt(origin.project, "unrelated.txt", "other story's resolution\n");
-    commitAll(origin.project, "resolve another story's conflict");
+    resolveStoryConflict(
+      origin.project,
+      ["merge", "--quiet", "--no-ff", "--no-edit", "unrelated"],
+      "unrelated.txt",
+      "other story's resolution\n",
+      "resolve another story's conflict",
+    );
     git(origin.project, "branch", "--delete", "--force", "unrelated");
   }
   push(origin.project);
   git(workspace, "fetch", "--quiet", "origin", "main");
-  git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
-  if (variant === "ambiguous-merge") {
+  if (ownConflict) {
+    resolveStoryConflict(
+      workspace,
+      ["merge", "--quiet", "--no-edit", "origin/main"],
+      "shared.txt",
+      lines("line")
+        .replace("line 0\n", "resolved story and trunk\n")
+        .replace("line 11\n", "other last\n"),
+      "resolve story integration conflict",
+    );
+  } else {
+    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
+  }
+  if (variant === "ambiguous-merge" || variant === "own-conflict-extra") {
     writeAt(workspace, "merge-resolution.txt", "unattributed resolution\n");
     git(workspace, "add", "--all");
     git(workspace, "commit", "--quiet", "--amend", "--no-edit");
   }
-  if (variant === "takeover") {
+  if (variant === "takeover" || variant === "returned-takeover") {
     const previous = agentIdentity(agentNameOf(start.agent) ?? "Yui");
     const name = start.agent === "Yui-chan" ? "Akiho" : "Yui";
     const next = agentIdentity(name);
@@ -124,58 +138,37 @@ export async function completedPublishedStory(
     git(workspace, "fetch", "--quiet", "origin", "main");
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   }
-  execFileSync(
-    process.execPath,
-    [
-      path.join(
-        workspace,
-        ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-      ),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      queuedIdentity,
-    ],
-    { cwd: workspace },
-  );
-  if (variant === "missing-agent") {
-    const record = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
-    const facts = JSON.parse(
-      readFileSync(path.join(workspace, record), "utf8"),
-    ) as Record<string, unknown>;
-    delete facts["agent"];
-    delete facts["host"];
-    delete facts["model"];
-    writeAt(workspace, record, JSON.stringify(facts));
-  }
-  commitAll(workspace, "complete the story through CLI");
-  let completion = git(workspace, "rev-parse", "HEAD");
-  if (mode === "trunk") push(workspace);
-  else {
-    git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
-    pull(origin.project);
-    writeAt(
-      origin.project,
-      "integration-other.txt",
-      "another change before integration\n",
+  if (variant === "returned" || variant === "returned-takeover") {
+    execFileSync(
+      process.execPath,
+      [
+        path.join(
+          workspace,
+          ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
+        ),
+        "place",
+        "--identity",
+        queuedIdentity,
+        "--return",
+        "--position",
+        "first",
+      ],
+      { cwd: workspace },
     );
-    commitAll(origin.project, "trunk advances before story integration");
-    git(origin.project, "fetch", "--quiet", "origin", branch);
-    git(
-      origin.project,
-      "merge",
-      "--quiet",
-      "--no-ff",
-      "--no-edit",
-      `origin/${branch}`,
+    const owner = agentIdentity(
+      agentNameOf(git(workspace, "config", "--worktree", "author.name")) ??
+        "Yui",
     );
-    push(origin.project);
-    completion = git(origin.project, "rev-parse", "HEAD");
-    git(origin.project, "push", "--quiet", "--delete", "origin", branch);
+    rmSync(path.join(workspace, ".planning", owner.path));
+    commitAll(workspace, "return the story and release its execution profile");
   }
-  git(origin.project, "worktree", "remove", "--force", workspace);
-  git(origin.project, "branch", "--delete", "--force", branch);
+  const completion = publishCompletedStory(origin, {
+    workspace,
+    branch,
+    mode,
+    missingAgent: variant === "missing-agent",
+    completionConflict: variant === "completion-conflict",
+  });
   return { completion, agent: start.agent, workspace, branch };
 }
 

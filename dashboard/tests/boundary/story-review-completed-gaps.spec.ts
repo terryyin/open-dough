@@ -112,7 +112,7 @@ test("an unusable local captured run falls back to published completion while it
   });
 });
 
-test("an unreadable workspace preserves active captured gaps and completed review explains the published attribution gap", async ({
+test("an unreadable workspace preserves active captured gaps and completed review recovers the published owner", async ({
   request,
   dashboard,
   origin,
@@ -140,11 +140,11 @@ test("an unreadable workspace preserves active captured gaps and completed revie
   );
   expect(historical.status()).toBe(200);
   expect(await historical.json()).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringContaining("names no execution agent"),
+    kind: "published",
+    agent: story.agent,
   });
   expect(await historical.json()).not.toHaveProperty("selectedRun");
-  expect(await historical.json()).not.toHaveProperty("files");
+  expect(await historical.json()).toHaveProperty("files");
   const absent = { source: "open-dough", identity: "SEED-B#b" };
   expect(
     (await get(request, dashboard, storyReviewEndpoint, absent)).status(),
@@ -162,7 +162,7 @@ test("an unreadable workspace preserves active captured gaps and completed revie
 });
 
 for (const variant of ["missing-agent", "ambiguous-merge"] as const) {
-  test(`${variant} explains incomplete evidence without a successful empty comparison`, async ({
+  test(`${variant} recovers a unique claim or explains the remaining attribution gap`, async ({
     request,
     dashboard,
     origin,
@@ -175,17 +175,16 @@ for (const variant of ["missing-agent", "ambiguous-merge"] as const) {
       completed,
     );
     expect(response.status()).toBe(200);
-    expect(await response.json()).toEqual(
-      expect.objectContaining({
+    if (variant === "missing-agent") {
+      expect(await response.json()).toMatchObject({ kind: "published" });
+      expect(await response.json()).toHaveProperty("files");
+    } else {
+      expect(await response.json()).toMatchObject({
         kind: "unavailable",
-        explanation: expect.stringMatching(
-          variant === "missing-agent"
-            ? /names no execution agent/
-            : /merge resolutions/,
-        ),
-      }),
-    );
-    expect(await response.json()).not.toHaveProperty("files");
+        explanation: expect.stringMatching(/merge resolutions/),
+      });
+      expect(await response.json()).not.toHaveProperty("files");
+    }
   });
 }
 

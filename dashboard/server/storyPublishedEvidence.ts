@@ -5,6 +5,7 @@ import {
   agentNameOf,
   agentProfileDirectory,
   parseAgentProfileFile,
+  profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { runGit, type GitCall } from "./gitRunner.ts";
 
@@ -24,6 +25,36 @@ export function namesExecutionClaim(
 export interface ReviewedStory {
   readonly identity: string;
   readonly profileDirectory: string;
+}
+
+// Profiles whose published path history mentions this story, bounded at the
+// completion. Their authored execution claims still need validation below.
+export async function publishedStoryAgents(
+  story: ReviewedStory,
+  completion: string,
+  call: GitCall,
+): Promise<string[]> {
+  const escaped = story.identity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const files = (
+    await runGit(
+      [
+        "log",
+        "--full-history",
+        "--format=",
+        "--name-only",
+        `-G${escaped}`,
+        completion,
+        "--",
+        story.profileDirectory,
+      ],
+      call,
+    )
+  ).stdout.split("\n");
+  const agents = files.flatMap((file) => {
+    const name = profileAgentName(file.split("/").at(-1) ?? "");
+    return name === undefined ? [] : [agentIdentity(name).agent];
+  });
+  return [...new Set(agents)];
 }
 
 // A published story commit and the first parent it is taken out against.
