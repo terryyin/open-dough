@@ -54,8 +54,8 @@ async function preparedStoryA(trunk) {
   return { workspace, announced };
 }
 
-// What must stay untouched: the workspace's commits, index, and draft, and
-// the remote trunk still holding the assignment.
+// What must stay untouched by a keep: the workspace's commits, index, draft,
+// and the remote trunk's current assignment state.
 async function untouched(trunk, workspace, profile) {
   return {
     workspace: await snapshot(workspace, [seedA, planA]),
@@ -124,16 +124,21 @@ test("keeping a preparation whose story was Taken, then completed, stops for the
   await git(execution.workspace, "commit", "--quiet", "-am", "close story A");
   await git(execution.workspace, "push", "--quiet", "origin", "HEAD:main");
   const completed = await remoteTip(trunk);
-  assert.deepEqual((await remoteChanges(trunk, completed)).sort(), [
-    `D\t${executionProfile}`,
-    `M\t${backlogFile}`,
-  ]);
+  assert.deepEqual(
+    (await remoteChanges(trunk, completed)).sort(),
+    [
+      `D\t${executionProfile}`,
+      `D\t${announced.profile}`,
+      `M\t${backlogFile}`,
+    ].sort(),
+  );
   assertStopped(await releasePreparation(workspace, identityA), announced, {
     place: "absent",
   });
   assert.deepEqual(await untouched(trunk, workspace, announced.profile), {
     ...kept,
     remote: completed,
+    assignment: null,
   });
 });
 

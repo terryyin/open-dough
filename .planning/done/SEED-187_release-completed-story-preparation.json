@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-187#release-completed-story-preparation",
+  "title": "Release every assignment when its story completes",
+  "completedAt": "2026-10-30T06:12:15.600Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "codex"
+}

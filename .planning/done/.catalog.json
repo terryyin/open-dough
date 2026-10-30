@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-187_release-completed-story-preparation.json",
+      "identity": "SEED-187#release-completed-story-preparation",
+      "completedAt": "2026-10-30T06:12:15.600Z",
+      "blob": "e3814bc01f7ce6fce3107134923c66f481b06681"
+    },
+    {
       "fileName": "SEED-186_document-dashboard-product-intent.json",
       "identity": "SEED-186#document-dashboard-product-intent",
       "completedAt": "2026-10-30T05:54:36.063Z",

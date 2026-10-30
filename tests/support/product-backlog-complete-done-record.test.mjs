@@ -32,8 +32,19 @@ import {
 const readRecord = (project, fileName) =>
   JSON.parse(readFileSync(join(doneDirectory(project), fileName), "utf8"));
 
-test("complete on a Taken entry with an execution profile writes its done record beside the released profile", async (t) => {
+test("complete credits the execution agent even when a released preparation profile sorts first", async (t) => {
   const project = gitWorkspace(scratchProject(t));
+  projectFile(
+    project,
+    agentIdentity("Ai").path,
+    renderAgentProfile({
+      name: "Ai",
+      identity: takenStory,
+      activity: "preparation",
+      host: "cursor",
+      model: "preparation-model",
+    }),
+  );
   projectFile(
     project,
     agentIdentity("Akiho").path,
@@ -58,6 +69,10 @@ test("complete on a Taken entry with an execution profile writes its done record
     existsSync(join(project.directory, ".planning/agents/akiho-chan.json")),
     false,
   );
+  assert.equal(
+    existsSync(join(project.directory, ".planning/agents/ai-chan.json")),
+    false,
+  );
   const fileName = "SEED-008_script-product-backlog-list-updates.json";
   assert.deepEqual(doneFiles(project), [catalogFile, fileName]);
   assert.deepEqual(readRecord(project, fileName), {
@@ -76,8 +91,19 @@ test("complete on a Taken entry with an execution profile writes its done record
   );
 });
 
-test("complete on a queued entry without a profile records the developer and no agent", async (t) => {
+test("complete on a queued entry with only a preparation profile releases it without recording execution credit", async (t) => {
   const project = gitWorkspace(scratchProject(t));
+  projectFile(
+    project,
+    agentIdentity("Ai").path,
+    renderAgentProfile({
+      name: "Ai",
+      identity: trunkQueue,
+      activity: "preparation",
+      host: "cursor",
+      model: "preparation-model",
+    }),
+  );
 
   const result = await run(
     project,
@@ -85,6 +111,10 @@ test("complete on a queued entry without a profile records the developer and no 
     at(completedAt),
   );
   assert.equal(result.code, 0, result.stderr);
+  assert.equal(
+    existsSync(join(project.directory, ".planning/agents/ai-chan.json")),
+    false,
+  );
   assert.deepEqual(
     readRecord(project, "SEED-008_same-machine-merge-queue.json"),
     {

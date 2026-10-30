@@ -65,9 +65,13 @@ file.
   as co-author still belongs to the assignment its published profile names.
 - **Resume and release.** Resume keeps the profile and restores the
   workspace's authorship from it. Completing the Taken entry through
-  `product-backlog complete` deletes its execution profile in the same change,
-  releasing the name. A preparation assignment is released when its kept
-  result lands (the landing removes the profile beside the result), when its
+  `product-backlog complete` deletes every readable execution or preparation
+  profile naming that identity in the same change, releasing those names.
+  The done record credits the execution agent, when recorded; preparation
+  profiles do not supply execution credit. Other work's profiles and
+  unreadable profiles remain untouched. A preparation assignment is also
+  released when its kept result lands (the landing removes the profile beside
+  the result), when its
   workspace explicitly abandons the preparation, or, when that workspace is
   lost, when a developer confirms that one exact allocation is abandoned and
   the release is addressed by profile path and allocation. A release of an
