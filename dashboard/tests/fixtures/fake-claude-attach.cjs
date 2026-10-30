@@ -44,7 +44,7 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
   const showPrompt = () => {
     ready = true;
     process.stdout.write(
-      "──────────────────── Claude Code ─\r\n" +
+      " Claude Code ─\r\n" +
         "❯\u00a0\r\n" +
         "──────────────────────────────────\r\n\u001b[?25h",
     );

@@ -19,9 +19,9 @@ cost of the feedback process itself.
 ## Taken
 
 - [Collapse redundant dashboard touch viewport matrices](seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests) — SEED-180#optimize-dashboard-touch-viewport-tests ([plan](slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md))
-- [Claude Code done rename recognizes a titled composer](seeds/SEED-183-claude-done-rename-titled-composer.md#claude-done-rename-titled-composer) — SEED-183#claude-done-rename-titled-composer
 - [Recover completed-review agents from published claims](seeds/SEED-184-recover-completed-review-agent.md#recover-completed-review-agent) — SEED-184#recover-completed-review-agent
 
 ## Backlog list
 
 - [Standardize Test Optimization Candidates under the planning folder](seeds/SEED-182-standardize-test-optimization-candidates.md#standardize-test-optimization-candidates) — SEED-182#standardize-test-optimization-candidates
+- [CI time budget holds under runner variance](seeds/SEED-185-stable-ci-time-budget.md#stable-ci-time-budget) — SEED-185#stable-ci-time-budget
