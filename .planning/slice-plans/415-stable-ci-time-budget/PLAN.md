@@ -98,10 +98,12 @@ is restated for values at recorded speed.
 ### 3. Refreshing a duration list keeps its speed unit
 
 Type: Behavior
-Status: planned
-Proof: a refresh case in `tests/support/test-shares.test.mjs`, the deal's
+Status: done
+Proof: a refresh case in `tests/support/duration-list.test.mjs`, the deal's
 recorded-runs test unchanged, and the focused command plus
 `tests/support/share-deal-recorded-runs.test.mjs`.
+Accepted (uncommitted, pre-delivery): focused command + duration-list tests
+exit 0; 1.3× refresh writes list-speed seconds with `(runner factor 1.3)`.
 
 Behavior: an existing duration list and times files from a run 1.3× slower →
 `node scripts/test-shares.mjs refresh --list … --source …` → every written

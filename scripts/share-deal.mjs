@@ -17,7 +17,10 @@
 
 import {
   bytewise,
+  collectLongestSeconds,
+  formatListText,
   formatSeconds,
+  newDurationListHeader,
   readInput,
   TestSharesError,
 } from "./duration-list.mjs";
@@ -106,6 +109,26 @@ export function formatRunnerFactorLine(recorded, observed) {
   const { factor, available } = runnerFactor(recorded, observed);
   const label = available ? formatFactor(factor) : "unavailable";
   return `${factor}\t${label}\n`;
+}
+
+// Refresh text at the existing list's speed so a refresh neither tightens nor
+// loosens the budget; a new list or no measurable common job stays observed.
+export function refreshListText(existing, times, source) {
+  const observed = collectLongestSeconds(times);
+  const { factor, available } = existing
+    ? runnerFactor(existing.seconds, observed)
+    : { factor: 1, available: false };
+  const seconds = available
+    ? new Map([...observed].map(([label, value]) => [label, value / factor]))
+    : observed;
+  const note = available
+    ? `runner factor ${formatFactor(factor)}`
+    : "runner factor unavailable";
+  return formatListText(
+    existing?.header ?? newDurationListHeader,
+    `${source} (${note})`,
+    seconds,
+  );
 }
 
 // Deals the labels into shareCount shares by the recorded seconds. Returns

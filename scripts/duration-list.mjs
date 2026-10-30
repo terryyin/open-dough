@@ -85,22 +85,39 @@ export function formatTimes(entries) {
     .map(({ label, printed }) => `${printed}\t${label}`);
 }
 
-// The refreshed list text: the header lines (without any former `# Source:`
-// line) followed by `# Source: <source>`, then every job of the times files
-// in the times form.
-export function mergeTimes(times, { header, source }) {
+// Header written when refresh creates a list that did not exist yet.
+export const newDurationListHeader = [
+  "# Each job's seconds from one CI run, `<seconds><TAB><label>`, longest first.",
+  "# Jobs not listed are dealt as unrecorded at the median of these seconds.",
+];
+
+// Longest seconds per label across times files (the merge refresh and the
+// runner-factor comparison both need).
+export function collectLongestSeconds(times) {
   const merged = new Map();
   for (const { name, text } of times) {
     for (const [label, seconds] of parseDurationList(text, name).seconds) {
       recordLongest(merged, label, seconds);
     }
   }
+  return merged;
+}
+
+// Header lines (without any former `# Source:`) plus `# Source: <source>` and
+// the times form of `seconds`.
+export function formatListText(header, source, seconds) {
   const lines = [
     ...header.filter((line) => !line.startsWith("# Source:")),
     `# Source: ${source}`,
-    ...formatTimes(merged),
+    ...formatTimes(seconds),
   ];
   return `${lines.join("\n")}\n`;
+}
+
+// The refreshed list text: merge every times file, longest first, under the
+// given header and source line.
+export function mergeTimes(times, { header, source }) {
+  return formatListText(header, source, collectLongestSeconds(times));
 }
 
 const includePrefix = "# Include: ";

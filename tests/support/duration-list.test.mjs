@@ -40,7 +40,9 @@ test("refresh preserves indexed parts, merges every duration, and records new jo
       "# kept\n# Include: agents\n# Include: boundary\n# Source: old run\n1.0\tgeneral\n",
     agents: "# agent journeys\n# Source: old run\n2.0\tlaunch\n",
     boundary: "# boundary checks\n# Source: old run\n3.0\tread\n",
-    times: "4.0\tlaunch\n5.0\tread\n2.0\tgeneral\n6.0\tnew\n1.0\tnew\n",
+    // Same speed as the list (factor 1.0) so the part layout is what this
+    // case proves; scaling itself is covered below.
+    times: "2.0\tlaunch\n3.0\tread\n1.0\tgeneral\n6.0\tnew\n1.0\tnew\n",
   });
   assert.deepEqual(
     [...readDurationList(join(directory, "index")).seconds],
@@ -54,15 +56,15 @@ test("refresh preserves indexed parts, merges every duration, and records new jo
   const contents = (name) => readFileSync(join(directory, name), "utf8");
   assert.equal(
     contents("index"),
-    "# kept\n# Include: agents\n# Include: boundary\n# Source: new run\n6.0\tnew\n2.0\tgeneral\n",
+    "# kept\n# Include: agents\n# Include: boundary\n# Source: new run (runner factor 1.0)\n6.0\tnew\n1.0\tgeneral\n",
   );
   assert.equal(
     contents("agents"),
-    "# agent journeys\n# Source: new run\n4.0\tlaunch\n",
+    "# agent journeys\n# Source: new run (runner factor 1.0)\n2.0\tlaunch\n",
   );
   assert.equal(
     contents("boundary"),
-    "# boundary checks\n# Source: new run\n5.0\tread\n",
+    "# boundary checks\n# Source: new run (runner factor 1.0)\n3.0\tread\n",
   );
   const refreshed = [...readDurationList(join(directory, "index")).seconds];
   refresh(directory, "index");
@@ -78,17 +80,75 @@ test("ordinary and newly created single-file lists keep their TSV refresh form",
     times: "2.0\tjob\n3.0\tnew\n",
   });
   refresh(directory, "plain");
+  // Recorded job is below the measurable threshold, so the factor is
+  // unavailable and seconds stay as observed.
   assert.equal(
     readFileSync(join(directory, "plain"), "utf8"),
-    "# plain list\n# Source: new run\n3.0\tnew\n2.0\tjob\n",
+    "# plain list\n# Source: new run (runner factor unavailable)\n3.0\tnew\n2.0\tjob\n",
   );
   refresh(directory, "created");
+  assert.match(
+    readFileSync(join(directory, "created"), "utf8"),
+    /^# Source: new run \(runner factor unavailable\)$/m,
+  );
   assert.deepEqual(
     [...readDurationList(join(directory, "created")).seconds],
     [
       ["new", 3],
       ["job", 2],
     ],
+  );
+});
+
+test("refresh scales times to the existing list's speed and records the factor", (t) => {
+  const directory = fixture(t, {
+    list: "# list\n# Source: old\n10.0\tlong.sh\n5.0\tmid.sh\n1.0\ttiny.sh\n",
+    // Every job 1.3× the list: the written values stay at the list's speed.
+    times: "13.0\tlong.sh\n6.5\tmid.sh\n1.3\ttiny.sh\n2.6\tnew.sh\n",
+  });
+  refresh(directory, "list");
+  assert.equal(
+    readFileSync(join(directory, "list"), "utf8"),
+    [
+      "# list",
+      "# Source: new run (runner factor 1.3)",
+      "10.0\tlong.sh",
+      "5.0\tmid.sh",
+      "2.0\tnew.sh",
+      "1.0\ttiny.sh",
+      "",
+    ].join("\n"),
+  );
+
+  // A list that does not yet exist is written as observed.
+  refresh(directory, "created-scale");
+  assert.equal(
+    readFileSync(join(directory, "created-scale"), "utf8"),
+    [
+      "# Each job's seconds from one CI run, `<seconds><TAB><label>`, longest first.",
+      "# Jobs not listed are dealt as unrecorded at the median of these seconds.",
+      "# Source: new run (runner factor unavailable)",
+      "13.0\tlong.sh",
+      "6.5\tmid.sh",
+      "2.6\tnew.sh",
+      "1.3\ttiny.sh",
+      "",
+    ].join("\n"),
+  );
+
+  // No measurable common job: write as observed with the factor unavailable.
+  writeFileSync(join(directory, "tiny-only"), "# list\n1.0\ttiny.sh\n");
+  writeFileSync(join(directory, "times"), "1.3\ttiny.sh\n5.0\tother.sh\n");
+  refresh(directory, "tiny-only");
+  assert.equal(
+    readFileSync(join(directory, "tiny-only"), "utf8"),
+    [
+      "# list",
+      "# Source: new run (runner factor unavailable)",
+      "5.0\tother.sh",
+      "1.3\ttiny.sh",
+      "",
+    ].join("\n"),
   );
 });
 

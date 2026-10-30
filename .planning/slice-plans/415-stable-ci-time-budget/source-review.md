@@ -16,9 +16,9 @@ No plan, product, proof, or conversation inheritance.
 | 4.3 | A breach line names the time at recorded speed | slice 1 | observed: same; `%.1fs at recorded speed` / `%.1f at recorded speed` |
 | 5 | Both ceilings in `tests/time-budget` are recalibrated in that (recorded-list) unit from recent trunk CI with headroom. | slice 1 | observed: `tests/time-budget` `per-job-seconds=64` `total-job-seconds=694` with derivation comment |
 | 6 | Raising either ceiling stays a reviewed edit. | slice 1 | observed: `tests/time-budget` comment "Raising either number is a reviewed edit" |
-| 7 | Refreshing `tests/longest-first` keeps its speed unit: seconds from a run on a faster or slower runner are scaled to the existing list's speed. | slice 3 | |
-| 8 | On refresh, the factor is recorded in the source line. | slice 3 | |
-| 9 | A refresh neither tightens nor loosens the budget. | slice 3 | |
+| 7 | Refreshing `tests/longest-first` keeps its speed unit: seconds from a run on a faster or slower runner are scaled to the existing list's speed. | slice 3 | observed: `scripts/share-deal.mjs` `refreshListText` via `runnerFactor`; `tests/support/duration-list.test.mjs` 1.3× case writes list-speed seconds |
+| 8 | On refresh, the factor is recorded in the source line. | slice 3 | observed: `# Source: … (runner factor 1.3)` / `(runner factor unavailable)` |
+| 9 | A refresh neither tightens nor loosens the budget. | slice 3 | observed: same 1.3× case keeps recorded predictions at list speed; deal path unchanged under uniform scale |
 | 10.1 | `bash scripts/ci-test-times.sh` reports share totals at recorded speed | slice 2 | observed: `scripts/ci-test-times.sh` share-total lines; `tests/ci-test-times.sh` expect `share 1 total: … at recorded speed` |
 | 10.2 | `bash scripts/ci-test-times.sh` reports job times at recorded speed | slice 2 | observed: same; job lines `… s at recorded speed` |
 | 10.3 | `bash scripts/ci-test-times.sh` reports the runner factors it saw | slice 2 | observed: `(factors low-high)` on job and share lines |

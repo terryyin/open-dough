@@ -18,12 +18,12 @@ import {
   dealShares,
   formatPreview,
   formatRunnerFactorLine,
-  mergeTimes,
   parseDurationList,
   parseSplit,
   readDurationList,
   readInput,
   readTimeBudget,
+  refreshListText,
   shareLabels,
   TestSharesError,
   writeDurationList,
@@ -183,19 +183,16 @@ function refreshCommand(argv) {
       "FAIL: refresh needs --list <file>, --source <text> and at least one times file.",
     );
   }
-  const header = existsSync(options.list)
-    ? readDurationList(options.list).header
-    : [
-        "# Each job's seconds from one CI run, `<seconds><TAB><label>`, longest first.",
-        "# Jobs not listed are dealt as unrecorded at the median of these seconds.",
-      ];
+  const existing = existsSync(options.list)
+    ? readDurationList(options.list)
+    : null;
   const times = positional.map((name) => ({
     name,
     text: readInput(name),
   }));
   writeDurationList(
     options.list,
-    mergeTimes(times, { header, source: options.source }),
+    refreshListText(existing, times, options.source),
   );
 }
 
