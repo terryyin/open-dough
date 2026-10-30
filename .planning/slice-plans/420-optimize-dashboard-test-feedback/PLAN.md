@@ -83,11 +83,10 @@ recorded for later experiments.
 
 ### 2. Story-review HTTP admission moves to the boundary tier
 Type: Structure
-Status: planned
-Proof: Focused family command covering the admission specs (and the mark
-admission case) before and after, with replacement boundary proof established
-first; three consecutive focused passes (`strictStatus: "passed"`);
-`npm run typecheck:dashboard` when scripts/types change.
+Status: done
+Proof: Experiment undone — focused family wall did not improve (`12.6s` →
+`12.1–12.5s` over three passes; summed `.tsv` ~55s→~44s). No suite change.
+Recorded as rejected experiment / pending design candidate.
 
 Internal change: Specs that exercise review/mark/range/file-text/one-shot
 admission only through `page.request` (no UI assertions) — including
@@ -134,6 +133,7 @@ retained experiments; update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` and
 `docs/maintainer/dashboard-test-timings.md`; report before/after wall time and
 case counts, retained proof, rejected experiments, and remaining candidates.
 
+
 Behavior: Pre-condition — slices 2–3 decided (retain or undo). Trigger — re-run
 the ordinary local command under comparable conditions and write the candidate
 record. Postcondition — measured gain, no demonstrated gain, or incomplete
@@ -149,7 +149,12 @@ may still be listed in the candidate record without further experiments.
 
 ## Current decisions
 
-- **Slice 3 focused gain (pending delivery):** `final-report-touch.spec.ts`
+- **Slice 4 full-suite re-profile (pending delivery):** before
+  `7aa54d9c`/`baseline2` `durationMs` **640.3s**, 1,751 cases, start load
+  7.86/14.46/14.67 → end 21.98/21.57/19.16; after `f279f582` `durationMs`
+  **622.8s**, 1,750 cases, start load 5.55/6.27/9.76 → end 17.76/16.77/14.27;
+  both `strictStatus: "passed"`. `final-report-touch` times **51.4s → 23.0s**.
+- **Slice 3 focused gain (delivered):** `final-report-touch.spec.ts`
   before `34.3–34.6s` / 4 cases; after keeping 320 only `25.1–25.2s` / 3 cases
   (three passes). Keeping 240 alone left wall ≈34s.
 - **Slice 2 experiment rejected (2026-10-30):** moving HTTP-only
