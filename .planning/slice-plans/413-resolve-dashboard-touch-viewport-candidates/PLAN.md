@@ -171,14 +171,15 @@ Accepted 2026-10-30: four step trims applied with named owners; family still
 
 ### 6. Focused family and ordinary suite confirm the outcome
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice 2's focused command passes three consecutive times after the
 change under recorded load; `env -u NO_COLOR npm run test:dashboard` (or its
 ordinary proof-record form) passes once with its case count recorded.
-`docs/maintainer/dashboard-test-timings.md` gains before/after case counts,
-focused wall times, loads, the surviving-proof table, and comparison limits;
-`dashboard/tests/README.md` states the one-device rule for touch journeys if
-its wording does not already cover it. Retain when every removal has surviving
+`docs/maintainer/dashboard-test-timings.md` indexes before/after case counts
+and walls; `docs/maintainer/dashboard-touch-family-timings.md` holds loads,
+the surviving-proof table, and comparison limits; `dashboard/tests/README.md`
+states the one-device rule for touch journeys if its wording does not already
+cover it. Retain when every removal has surviving
 proof, the family and suite pass, and the focused wall is not worse; otherwise
 restore the affected cases and record the rejected or inconclusive result.
 
@@ -186,6 +187,13 @@ Behavior: Pre-condition — slices 3–5 applied. Trigger — comparable focused
 remeasurement and one ordinary suite run. Postcondition — the retained family
 has fewer cases with named surviving proof and recorded evidence, or the
 experiment is undone with its outcome recorded.
+
+Accepted 2026-10-30: RETAIN. After walls 32.647 / 33.074 / 31.827 s (21/12)
+vs before 37.551 / 35.696 / 36.279 s (36/14); suite green 1742
+(`/tmp/seed-180-slice6-proof/`); evidence indexed in
+`docs/maintainer/dashboard-test-timings.md` with full record in
+`docs/maintainer/dashboard-touch-family-timings.md`, and one-device rule in
+`dashboard/tests/README.md`.
 
 ## Current decisions
 

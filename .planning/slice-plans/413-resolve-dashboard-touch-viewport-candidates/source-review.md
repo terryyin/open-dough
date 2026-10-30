@@ -6,11 +6,11 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Reduce redundancy and the number of test cases in the dashboard touch test family while preserving behavioral coverage and confidence. | slice 6 | |
-| 2 | Each touch rule has one owner. | slice 6 | |
-| 3 | Local feedback on touch behavior is shorter. | slice 6 | |
-| 4 | Outcome (Terry, 2026-10-30): fewer cases and less repeated proof. | slice 6 | |
-| 5 | Evidence that the reduction took effect is a shorter focused-family wall time — not a suite-wall promise. | slice 6 | |
+| 1 | Reduce redundancy and the number of test cases in the dashboard touch test family while preserving behavioral coverage and confidence. | slice 6 | observed: 36→21 cases retained; family + suite green; surviving-proof table in `docs/maintainer/dashboard-touch-family-timings.md` (indexed from `dashboard-test-timings.md`) |
+| 2 | Each touch rule has one owner. | slice 6 | observed: one-device rule in `dashboard/tests/README.md`; fold/trim owners cited in touch-family timings surviving-proof table |
+| 3 | Local feedback on touch behavior is shorter. | slice 6 | observed: focused walls 32.647/33.074/31.827 s vs baseline 37.551/35.696/36.279 s (`/tmp/seed-180-slice6-proof/`) |
+| 4 | Outcome (Terry, 2026-10-30): fewer cases and less repeated proof. | slice 6 | observed: 15 removals retained; case count 21/12 |
+| 5 | Evidence that the reduction took effect is a shorter focused-family wall time — not a suite-wall promise. | slice 6 | observed: focused walls shorter; suite recorded as green check only (no suite-wall claim) |
 | 6 | The family is the fourteen specs under `dashboard/tests/` that use `touchLaunchPage.ts`. | slice 2 | observed: `/tmp/seed-180-slice2-baseline/list.txt` Total: 36 tests in 14 files |
 | 7a | Twelve of those specs loop the phone and tablet devices. | slice 3 | observed: after removals only `story-review-touch` still loops both devices; eleven former matrix specs are phone-only (`/tmp/seed-180-slice3-proof/list.txt`) |
 | 7b | Two of those specs select a phone. | slice 3 | observed: answer + recently-done remain phone-selected; eleven more now select phone via `find(... "phone")` |
@@ -30,33 +30,33 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 13a.8 | Rotation keeps a selection or reading place. | slice 5 | observed: assertion-free rotation trimmed from session-management; rotation deltas kept elsewhere (sidebar/owners) |
 | 14 | A touch step that repeats a rule a non-touch journey or boundary test owns leaves the touch journey. | slice 5 | observed: four trims applied with owner citations in diffs/comments |
 | 15 | The owner is cited in the plan's surviving-proof record. | slice 2 | observed: plan Removal/Surviving proof table reconciled; step-trim project write-failure citation → `system-settings-project-management.spec.ts` |
-| 16 | Measure the focused family's wall time over three consecutive passes before and after under recorded load, with the retained hosted per-test share as context. | slice 6 | |
+| 16 | Measure the focused family's wall time over three consecutive passes before and after under recorded load, with the retained hosted per-test share as context. | slice 6 | observed: before slice-2 baseline; after pass{1,2,3}.json walls under recorded loads in timings doc |
 | 16-before | Before measurement: three consecutive focused passes under recorded load (36 cases). | slice 2 | observed: `/tmp/seed-180-slice2-baseline/pass{2,3,4}.json` walls 37.551/35.696/36.279 s; metas record load before/after; revision `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` |
-| 17 | Run the ordinary `npm run test:dashboard` once after the change as a green check only, not as speedup evidence. | slice 6 | |
-| 18a | Record case counts before and after in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | |
-| 18b | Record focused wall times in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | |
-| 18c | Record surviving proof in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | |
-| 18d | Record comparison limits in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | |
-| 19 | When the family's placement rule changes, state it in `dashboard/tests/README.md`. | slice 6 | |
+| 17 | Run the ordinary `npm run test:dashboard` once after the change as a green check only, not as speedup evidence. | slice 6 | observed: `/tmp/seed-180-slice6-proof/suite.json` selectedCount=1742 strict passed |
+| 18a | Record case counts before and after in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | observed: index summary in `dashboard-test-timings.md`; full 36/14 → 21/12 in `dashboard-touch-family-timings.md` |
+| 18b | Record focused wall times in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | observed: walls summarized in index; before/after table in `dashboard-touch-family-timings.md` |
+| 18c | Record surviving proof in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | observed: Surviving proof (retained) table in `dashboard-touch-family-timings.md` |
+| 18d | Record comparison limits in `docs/maintainer/dashboard-test-timings.md`. | slice 6 | observed: Comparison limits subsection in `dashboard-touch-family-timings.md` |
+| 19 | When the family's placement rule changes, state it in `dashboard/tests/README.md`. | slice 6 | observed: one-device rule under Where a check goes |
 | 20 | No product behavior changes. | slice 2 | observed: owned change is planning-only (`.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md` and `source-review.md`) |
 | 21a | No retries. | slice 2 | observed: contaminated pass1 not retried as baseline; three clean passes under `env -u NO_COLOR -u FORCE_COLOR` |
 | 21b | No sleeps. | slice 2 | observed: no sleep/skip/focus markers added |
 | 21c | No skips. | slice 2 | observed: no sleep/skip/focus markers added |
 | 21d | No focus markers. | slice 2 | observed: no sleep/skip/focus markers added |
-| 22 | Every unique touch protection stays. | slice 6 | |
-| 22a.1 | Native touch input and terminal fitting at reduced height. | slice 6 | |
-| 22a.2 | Touch scrollback and the identity-header scroll. | slice 6 | |
-| 22a.3 | Rotation keeping a draft, selection, or reading position without a re-read. | slice 6 | |
-| 22a.4 | The Done-row coarse disclosure. | slice 6 | |
-| 22a.5 | The 430×932 band and the held progress answer in the start-session answer row. | slice 6 | |
+| 22 | Every unique touch protection stays. | slice 6 | observed: retained unique list in timings + family pass includes those cases |
+| 22a.1 | Native touch input and terminal fitting at reduced height. | slice 6 | observed: `agent-terminal-touch` phone case in after family (21) |
+| 22a.2 | Touch scrollback and the identity-header scroll. | slice 6 | observed: agent-terminal-touch kept; identity-header scroll cited as survivor |
+| 22a.3 | Rotation keeping a draft, selection, or reading position without a re-read. | slice 6 | observed: launch/settings/story-review touch cases remain in after family |
+| 22a.4 | The Done-row coarse disclosure. | slice 6 | observed: `recently-done-sessions-sidebar-touch` in after family |
+| 22a.5 | The 430×932 band and the held progress answer in the start-session answer row. | slice 6 | observed: answer-touch 430×932 + held cases in after family |
 | 22a.6 | A live terminal surviving a settings round trip with viewport changes (which may move into its non-touch owner as one step). | slice 4 | observed: viewport change while settings hide terminal in `system-settings.spec.ts`; file `system-settings-terminal-touch.spec.ts` removed; scratch fail/pass under `/tmp/seed-180-slice4-proof/viewport-scratch-*.json` |
-| 23 | Redundancy outside the touch family is a separate story. | slice 6 | |
-| 24 | Suite-wall speedup claims are out of scope. | slice 6 | |
+| 23 | Redundancy outside the touch family is a separate story. | slice 6 | observed: timings Comparison limits restates out of scope |
+| 24 | Suite-wall speedup claims are out of scope. | slice 6 | observed: suite recorded as green check only; no suite-wall claim |
 | E1 | Plain tablet repeat: `system-settings-look` tablet goes; phone + 420 px fit survive; same rule for other plain repeats. | slice 3 | observed: look phone + 420 px cases remain; tablet reading case gone; same phone-only pattern on other plain-repeat specs |
 | E2 | Branch-bearing device: `story-review-touch` tablet portrait stays unless equivalent touch proof is named. | slice 3 | observed: tablet review-by-touch case present in `/tmp/seed-180-slice3-proof/pass1.json` |
 | E3 | Pattern owner: settings write-failure owned by non-touch; touch keeps alert/rotation delta only. | slice 5 | observed: openai remove-failure/clear-on-leave and project Remove/Cancel trimmed; Add-fail touch delta retained |
 | E4 | Already owned elsewhere: `story-review-mark-touch` folds into `story-review-touch`; file goes. | slice 4 | observed: 44 px label tap + state through rotation in `story-review-touch.spec.ts`; file removed; family 21/12 (`/tmp/seed-180-slice4-proof/family.json`); label scratch fail/pass |
-| E5 | Measured outcome: before 36 cases / three walls; after fewer cases with named survivors, wall not worse, suite green once → retain; unnamed survivor stays. | slice 6 | |
+| E5 | Measured outcome: before 36 cases / three walls; after fewer cases with named survivors, wall not worse, suite green once → retain; unnamed survivor stays. | slice 6 | observed: RETAIN — walls shorter, suite green, surviving-proof table complete (`/tmp/seed-180-slice6-proof/INDEX.txt`) |
 | E5-before | Before: 36 cases in the family, focused wall over three passes under recorded load. | slice 2 | observed: list 36/14; three green walls recorded under `/tmp/seed-180-slice2-baseline/` |
 | E6 | Unique case stays: `recently-done-sessions-sidebar-touch` unchanged. | slice 3 | observed: file unmodified in slice 3 diff; case still in focused list |
 | Q-survive | Surviving proof for each removal is named before the removal. | slice 2 | observed: Removal/Surviving proof table confirmed; none struck at `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` |

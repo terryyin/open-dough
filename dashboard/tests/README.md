@@ -67,7 +67,12 @@ Put a check where it is cheapest to prove, and prove it once:
   a font reproduces a wrap. A presentation-only check, one with no state
   change of its own, joins the journey whose state change shows it or moves
   down a tier to the cheapest proof of the rule; a matrix of widths or fonts
-  over one static layout is not written.
+  over one static layout is not written. **Touch journeys use one device**
+  unless the other reaches an asserted CSS branch or arrangement the first
+  does not (for example `story-review-touch` keeps tablet portrait for the
+  side-by-side review body); phone portrait plus in-test rotation already
+  crosses the shared width and ≤480 px height branches.
+
 - **Siblings share read-only preconditions and assert deltas.** Publish inputs
   no test writes once per worker (`launchJourney`'s origin); use one fixture per
   serial file for state tests step through (`production-watcher*.spec.ts`'s watcher).
@@ -212,21 +217,9 @@ when every run passed.
 
 ## Measuring a run
 
-To retain the selection and results of a strict run as JSON, name
-`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; the [proof record guide](proof-record.md)
-says what the record holds and how to assess it with the command exit, and
-`--list` records the selection alone. Each attempt's `durationMs` is the
-test's own time: a worker fixture's publication, a serial file's `beforeAll`
-and `afterAll`, and the time between tests are not in it, so a change to
-shared setup shows in wall time and in the gaps between one test's end and
-the next's start on the same worker, not in the summed durations. A measured
-run omits `--reporter`: `--reporter=list` replaces the quiet reporter and
-no record is written. Record the load average before and after, and compare
-runs taken under different loads relatively. The separate shard timing artifact
-adds each executed `beforeAll`/`afterAll` hook once to those test durations, so
-allocation includes the serial files' shared setup and teardown without
-counting per-test fixtures twice. [Dashboard shards](shards.md) describes the
-early dispatch of serial production chains beside ordinary checks.
+Retain a strict JSON selection with `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; see
+[proof record](proof-record.md) for fields, wall versus `durationMs`, load
+comparison, and shard timing artifacts ([dashboard shards](shards.md)).
 
 ## No process outlives its run
 

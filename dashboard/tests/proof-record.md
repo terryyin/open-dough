@@ -56,3 +56,16 @@ Playwright configs cannot overwrite their outer run's requested record.
 Use a different path for every concurrent or later invocation. Keep the file
 as long as needed and remove its caller-owned directory after reading it:
 `rm -r "$proof_dir"`. There is no automatic archive or pruning policy.
+
+`--list` records the selection alone. Each attempt's `durationMs` is the
+test's own time: a worker fixture's publication, a serial file's `beforeAll`
+and `afterAll`, and the time between tests are not in it, so a change to
+shared setup shows in wall time and in the gaps between one test's end and
+the next's start on the same worker, not in the summed durations. A measured
+run omits `--reporter`: `--reporter=list` replaces the quiet reporter and
+no record is written. Record the load average before and after, and compare
+runs taken under different loads relatively. The separate shard timing artifact
+adds each executed `beforeAll`/`afterAll` hook once to those test durations, so
+allocation includes the serial files' shared setup and teardown without
+counting per-test fixtures twice. [Dashboard shards](shards.md) describes the
+early dispatch of serial production chains beside ordinary checks.
