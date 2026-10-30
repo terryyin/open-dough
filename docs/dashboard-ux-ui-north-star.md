@@ -1,11 +1,11 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for the three-perspective framing and delivered story dashboard.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for Development, Product intent, and Structure.
 
-Help a developer understand the project's changing work and inspect the evidence
-behind it. The delivered story dashboard combines published progress with
-separate local-session capabilities. Further design relates that work to the
-current product intents and implementation structure.
+Help a developer understand Development, the project's ongoing effort to shape
+the product, and inspect the evidence behind it. The current dashboard combines
+published story progress with separate local-session capabilities. Further
+design relates Development to Product intent and Structure.
 
 ## Authority and scope
 
@@ -42,10 +42,10 @@ it does not define a workflow state schema or authorize execution.
   complete navigation or animation system in the first increment.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
-- The story planning/execution perspective and local-session capabilities are
-  delivered. Additional product intent and structural perspectives remain
-  design direction. Their presentation and UX/UI are left for a separate
-  discussion.
+- The current dashboard presents Development through story planning, execution
+  progress, and local-session capabilities. Additional Product intent and
+  Structure perspectives remain design direction. Their presentation and
+  UX/UI are left for a separate discussion.
 
 **Design hypotheses:** The interaction, ordering, wording, and visual choices
 below remain revisable guidance alongside the linked implemented contracts.
@@ -58,6 +58,13 @@ and linked session guidance own its current operations. Existing navigation
 and interactions remain applicable. Broader spatial and animation hypotheses
 still need a concrete reading or orientation benefit before further implementation.
 
+The Development perspective encompasses exploration, decomposition, refinement,
+planning, execution, verification, integration, and learning. Story is its
+planning unit. Lasting results are assimilated into product intents and
+structure, while learning guides subsequent attempts. Existing Story cards and
+workflow controls present the work and evidence supported by the current
+dashboard.
+
 The Product intent perspective concerns the enduring, maintained definition of
 intended behavior: what the current product is meant to do and why. Each
 Product intent contains Purpose, its expected behavior and reason, and Proof,
@@ -68,13 +75,16 @@ and detailed requirements. Proof fields, interactions, layouts, and presentation
 states for the additional perspectives remain future UX/UI design work.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
-for story and slice meaning and [ADR 0002 — Software development lifecycle
-principles](adrs/0002-software-development-lifecycle-principles-accepted.md) for
+for Development, Story, and Slice meaning and
+[ADR 0002 — Software development lifecycle principles](adrs/0002-software-development-lifecycle-principles-accepted.md) for
 small valuable increments, clear domain concepts, and inexpensive change.
 Under [ADR 0000](adrs/0000-use-adrs-accepted.md), this temporary guide cannot
 override Accepted decisions. No exception is proposed.
 
-## Questions the story perspective should answer
+## Questions the Development perspective should answer
+
+The current dashboard answers these questions through stories and their
+recorded development work:
 
 1. Which stories are recorded, which are selected in the backlog, and which are Taken?
 2. What is each story trying to achieve, and what refinement, planning, and

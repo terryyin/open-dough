@@ -6,7 +6,7 @@
 
 **Source:** Terry Yin's direction in the project-visibility discussion.
 
-**Updated:** 2026-10-30, for the current three-perspective direction and enduring product intent.
+**Updated:** 2026-10-30, for Development, Product intent, and Structure.
 
 ## Purpose
 
@@ -31,18 +31,24 @@ the cross-task architectural boundaries, and the
 
 ## Three perspectives
 
-The dashboard has three independent but related dimensions: Story, Product
-intent, and Structure. These describe changing work, the current product,
-and implementation structure. The story perspective is delivered; the other
-two remain design direction. Their UX/UI remains a separate design discussion.
+The dashboard has three independent but related perspectives: Development,
+Product intent, and Structure. They describe the ongoing work of shaping the
+product, its current intended behavior, and its implementation organization.
+The current dashboard presents Development through stories, recorded progress,
+and local sessions. Product intent and Structure remain further design work.
 
-### User-story perspective: the project's dynamics
+### Development perspective: the project's ongoing work
 
-This perspective shows how ideas move through planning, learning, and execution
-to affect the product. Stories express intended changes or possibilities worth
-exploring. They can cross existing product and structural boundaries and evolve
-through refinement and execution. They are not the permanent definition of the
-product they change.
+Development is the continuous effort to shape the product through exploration,
+decomposition, refinement, planning, execution, verification, integration,
+and learning. This perspective shows the attempts being pursued, their progress,
+and the evidence of their outcomes. Lasting results are assimilated into the
+maintained product intents and structure; learning informs subsequent
+attempts, including when the product remains unchanged.
+
+A Story is a unit of planning within Development. It expresses an intended
+change or possibility worth exploring, can cross product intent and structural
+boundaries, and evolves through refinement and execution.
 
 The repository-backed backlog, Taken state, assignments, execution modes, and
 slice progress provide published evidence of that work. The delivered dashboard
@@ -94,12 +100,13 @@ This perspective describes the logical organization of the implementation.
 That organization maps to the domain model and connects it to packages,
 folders, files, and functions.
 
-Stories, product intents, and structure are independent related dimensions
-whose relationships can be many-to-many. One story can change several product
-intents and structural elements; one product intent can endure through many
-stories and involve several structural elements. Mapping and filtering could
-help reveal those relationships. Their recording, derivation, and navigation
-remain open design choices.
+Development, Product intent, and Structure are independent related perspectives.
+Development creates, changes, and maintains product intents and structure.
+Relationships can be many-to-many: one story can affect several product intents
+and structural elements; one product intent can endure through many stories and
+involve several structural elements. Mapping and filtering could help reveal
+those relationships. Their recording, derivation, and navigation remain open
+design choices.
 
 The architectural North Star may belong in this perspective. Its placement
 remains open; temporary architectural direction and implemented structure are
@@ -109,11 +116,11 @@ distinct information.
 
 ### Delivered scope and further direction
 
-The implemented dashboard provides the story planning and execution perspective,
-including its existing local-session capabilities. The maintained
+The implemented dashboard presents Development through story planning,
+execution progress, and its existing local-session capabilities. The maintained
 [dashboard guide](../dashboard/README.md) and
 [agent launch contract](../dashboard/AGENT-LAUNCH.md) describe those capabilities.
-The product intent and structural perspectives remain future design work.
+The Product intent and Structure perspectives remain future design work.
 Their meaning is useful now without making their implementation a prerequisite
 for the existing dashboard or committing to build all three.
 
@@ -181,7 +188,7 @@ explains how local evidence supplements an independently useful repository view.
 
 ## Incremental learning
 
-Use experience with the delivered story dashboard and development workflows
+Use experience with the delivered Development view and development workflows
 to learn which information helps people understand and direct work. Further
 perspectives and interactions should grow from those needs, following the
 just-in-time principle rather than completing a predetermined visual system.
@@ -194,11 +201,11 @@ The following choices remain open:
   which execution information is useful. Possible information includes duration,
   evidence, last-run time, revision, environment, coverage, freshness, and result.
   Its representation remains an open design choice.
-- How the product intent and structural perspectives should work in the UX/UI.
+- How the Product intent and Structure perspectives should work in the UX/UI.
   No new tabs, panels, layouts, interactions, or presentation states are chosen.
-- How relationships among stories, product intents, and structure would be
-  recorded or derived, including expected impact versus observed change, and
-  whether mapping or filtering would help.
+- How relationships among development work, its stories, product intents, and
+  structure would be recorded or derived, including expected impact versus
+  observed change, and whether mapping or filtering would help.
 - Whether and how architectural North Star artifacts belong in the structural
   perspective.
 - Whether to introduce a commit mailbox and timeout-based handover, including
@@ -212,9 +219,9 @@ collection, service, scheduler, or dashboard control mechanism.
 
 ## Relationship to existing work and decisions
 
-The [story dashboard](../dashboard/README.md) provides the current planning and
-execution view. Its published story records and local-session capabilities
-follow their maintained contracts. The
+The [dashboard](../dashboard/README.md) provides the current Development view.
+Its published story records and local-session capabilities follow their
+maintained contracts. The
 [delivery direction](dashboard-delivery-direction.md) explains the separation
 of published and machine-local evidence. Those capabilities remain available
 while another perspective is explored.

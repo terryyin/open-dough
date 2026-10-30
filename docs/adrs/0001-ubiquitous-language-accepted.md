@@ -65,11 +65,11 @@ project using it:
 - **Seed:** A captured product idea or concern, with its purpose and related
   stories. Each story has one canonical home within a seed and may cross
   concerns described by other seeds.
-- **Story (user story):** A romantic, speculative account of a possibility worth
-  pursuing for its user or learning value. It invites discussion, may be fuzzy
-  or incomplete, and may cross product intents and system boundaries. It evolves
-  through conversation and learning: planning input, not an enduring description
-  of what the system does.
+- **Story (user story):** A unit of planning that captures a romantic,
+  speculative account of a possibility worth pursuing for its user or learning
+  value. It invites discussion, may be fuzzy or incomplete, and may cross
+  product intents and system boundaries. It evolves through conversation and
+  learning: planning input, not an enduring description of what the system does.
 - **Slice:** A bounded unit of executable work within a selected story that
   delivers one observable Behavior or makes a Structure change immediately
   enabling the next Behavior slice. Use the same term throughout planning,
@@ -96,7 +96,11 @@ undecided.
 
 The dashboard relates changing work to the product it changes:
 
-- **Story** describes planning and learning toward a possible product change.
+- **Development** is the continuous effort to shape the product through
+  exploration, decomposition, refinement, planning, execution, verification,
+  integration, and learning.
+  - **Story** is a unit of planning within Development, expressing a possible
+    product change or learning outcome.
 - **Product intent** is the maintained definition of intended behavior: what
   the current product is meant to do and why. It evolves with the product and
   survives individual stories. Each Product intent contains two sub-concepts:
@@ -107,10 +111,12 @@ The dashboard relates changing work to the product it changes:
 - **Structure** describes the implementation's logical organization through its
   domain model, packages, folders, files, and functions.
 
-Story, Product intent, and Structure are independent related dimensions whose
-relationships can be many-to-many. The story perspective is delivered,
-including local sessions; the product intent and structural perspectives
-remain design work.
+Development, Product intent, and Structure are independent related perspectives.
+Development creates, changes, and maintains product intents and structure;
+learning informs further attempts. Relationships can be many-to-many, with
+stories connecting development work to the product it affects. The current
+dashboard presents Development through stories, recorded progress, and local
+sessions; the Product intent and Structure perspectives remain design work.
 [ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
 owns their cross-task relationships and state boundaries. The
 [requirements](../project-visibility-requirements.md#three-perspectives) own the

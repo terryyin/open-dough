@@ -36,7 +36,8 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 | Concept | Intended meaning |
 | --- | --- |
 | Project | The product and development work being observed, with its repository as the durable home of workflow records. |
-| Story | An intended change or possibility pursued for user or learning value. It may cross existing product and code boundaries, and can exist outside the backlog. |
+| Development | The continuous effort to shape the product through exploration, decomposition, refinement, planning, execution, verification, integration, and learning. |
+| Story | A unit of planning within Development, expressing an intended change or possibility pursued for user or learning value. It may cross existing product and code boundaries, and can exist outside the backlog. |
 | Product backlog | The selected, ordered work for the project. Membership is a workflow fact about a story, not the definition of a story. |
 | Taken story | Work claimed for execution, with a recorded developer assignment. Taken does not prove that an agent is currently running. |
 | Developer identity | A reusable name, distinct from a story, assignment, or AI session. |
@@ -49,10 +50,11 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 | Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
 | Optional default checkout | A developer's checkout that may be refreshed after remote trunk publication. Its presence, edits, and freshness are local operational facts, not workflow authority. |
 
-Stories describe attempts to change the product; product intents and structure
-describe the product that survives those stories. Story, Product intent, and
-Structure are independent related dimensions whose relationships can be
-many-to-many: a story can change several product intents and structural
+Development, Product intent, and Structure are independent related perspectives.
+Development creates, changes, and maintains the product. Its lasting results are
+assimilated into product intents and structure, while learning informs further
+attempts. Stories are units of planning within Development. Relationships can
+be many-to-many: a story can affect several product intents and structural
 elements, and a product intent can endure through many stories and span several
 structural elements. Mapping and filtering remain design possibilities.
 
@@ -137,7 +139,7 @@ of that local evidence.
 flowchart LR
     G["Git origin: records, branches, history"] --> V["Derived project view"]
     L["Local operational evidence"] -.-> V
-    V --> S["Story perspective: delivered"]
+    V --> D["Development perspective: current work view"]
     V -.-> I["Product intent perspective: design direction"]
     I --> P["Purpose"]
     I --> E["Proof"]
@@ -198,19 +200,19 @@ ownership and coordination proposal.
 
 ### Incremental scope
 
-The implemented dashboard provides the story planning and execution perspective,
-including local-session capabilities. Published progress remains independently
-readable from Git; local observations add information about this machine without
-becoming the authority for project state. The
+The implemented dashboard presents Development through story planning,
+execution progress, and local-session capabilities. Published progress remains
+independently readable from Git; local observations add information about this
+machine without becoming the authority for project state. The
 [dashboard guide](../../dashboard/README.md) and
 [agent launch contract](../../dashboard/AGENT-LAUNCH.md) own current capabilities.
 
-The product intent and structural perspectives remain design direction.
+The Product intent and Structure perspectives remain design direction.
 Their meaning constrains how we understand the product without requiring their
 machinery in advance. Their UX/UI, proof information, and architectural North
 Star placement remain open. Presentation and storage choices belong to that
-design work; current story-dashboard capabilities follow their delivered
-contracts.
+design work; capabilities of the current Development view follow their
+delivered contracts.
 
 ## Consequences
 
