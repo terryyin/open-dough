@@ -147,3 +147,14 @@ conditions; focused family gain retained. Raw proof under
 
 Slice 1 completed with a successful comparable baseline. Slices 2–4 are
 authorized under that premise. No blocking plan concern remains.
+
+## Execution complete
+
+Product advice: Measured local suite wall improved modestly (~751s → ~741s,
+1.3%) under like load after observing the non-owner change-wait against a short
+`DOUGH_CHANGE_WAIT_MS` bound; focused family ~38s → ~8s. Production default
+remains 30s. Remaining candidates (further `agent-launch*` poles, long
+production/attention journeys, touch matrices) stay in
+`docs/maintainer/dashboard-test-timings.md` for later triage or measured
+passes—SEED-178 may resolve dispositions without overlapping this retained
+change. No product correction from this pass.
