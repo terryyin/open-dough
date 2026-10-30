@@ -21,6 +21,7 @@ new_managed_files=(
   dough-slice-plan-refinement/SKILL.md
   dough-test-optimization/SKILL.md
   dough-test-optimization/references/optimization-tactics.md
+  dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
 )
 

@@ -1,6 +1,7 @@
 # Standardize the test optimization candidate record
 
 **Source:** [Selected story](../../seeds/SEED-182-standardize-test-optimization-candidates.md#standardize-test-optimization-candidates)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-182#standardize-test-optimization-candidates
 
 ## Goal and scope
@@ -46,10 +47,21 @@ No native-host (paid) run is part of this story.
 ### 1. An optimization pass writes and consults the standard record
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior-review walk of key examples 1 and 4, and the writer's half of
 example 5 (unreadable record stops the write), recorded here; the payload
 command above passes.
+
+Accepted proof (2026-10-30):
+- Walk 1: profile-only → findings → SKILL.md records in candidate record +
+  Verify/close write → missing file creates from template with heading,
+  Latest pass, pending slug fields, `None.` elsewhere.
+- Walk 4: baseline reads record, keeps accepted costs without treating them as
+  exclusions; Verify/close replaces only Latest pass.
+- Walk 5 writer: Unreadable or mismatched stops the write; never overwrite.
+- Payload: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+  tests/payload-declaration-links.sh tests/update-adds-new-payload-skill.sh`
+  exit 0.
 
 Behavior: a project with no record → a default or profile-only pass that ends
 with findings → the record exists at `.planning/TEST-OPTIMIZATION-CANDIDATES.md`
@@ -113,6 +125,62 @@ Changes: a short section in `src/skills/dough-story-wrap-up/SKILL.md`, after
 "Settle an existing follow-up plan", linking to `candidate-record.md` for the
 rules; update the optimization `SKILL.md` close text so it points at the
 record instead of "the established follow-up location".
+
+## Story obligations
+
+### G1. Resolve and wrap-up still lack the shared format link
+Reported: slice 1 — "optimization pass links the shared format; --resolve and wrap-up do not yet"
+Story clause: "One reference in the optimization skill defines its format and lifecycle; the optimization pass, `--resolve`, and story wrap-up link to that definition instead of restating it."
+Disposition: interim until slices 2, 3
+Commitment: 4, 23
+
+### G2. `--resolve` not yet required to read the standard record first
+Reported: slice 1 — "later passes read the record; --resolve still uses older generic wording"
+Story clause: "Later passes and `--resolve` read the record first, preserve recorded decisions, and move an accepted cost back to pending only with new evidence."
+Disposition: interim until slices 2
+Commitment: 19
+
+### G3. Transfer-and-cleanup journey incomplete until resolve and wrap-up
+Reported: slice 1 — "format defines transferred pointers; resolve transfer and wrap-up cleanup not yet implemented"
+Story clause: "A pending viewport-matrix entry has cheaper replacement proof. `--resolve` writes the obligation into a replacement plan → the entry moves to `## Transferred obligations` linking that plan. The original optimization plan is later deleted by wrap-up; a new pass still finds the transferred entry. When the replacement story is wrapped up with its work done, the entry is removed."
+Disposition: interim until slices 2, 3
+Commitment: E3
+
+### G4. Deferred automatic expiry of accepted costs
+Reported: slice 1 — "deferred promise: automatic expiry of accepted costs"
+Story clause: "Automatic expiry or periodic re-review of accepted costs."
+Disposition: excluded "Automatic expiry or periodic re-review of accepted costs."
+Commitment: D1
+
+### G5. Deferred pass history beyond Git
+Reported: slice 1 — "deferred promise: history of earlier passes beyond Git"
+Story clause: "A history of earlier passes beyond Git history."
+Disposition: excluded "A history of earlier passes beyond Git history."
+Commitment: D2
+
+### G6. Deferred validation or rewrite script
+Reported: slice 1 — "deferred promise: script that validates or rewrites the record"
+Story clause: "A script that validates or rewrites the record."
+Disposition: excluded "A script that validates or rewrites the record."
+Commitment: D3
+
+### G7. Story does not implement recorded candidates
+Reported: slice 1 — "safe stopping point excludes implementing recorded candidates"
+Story clause: "This story does not implement the recorded optimization candidates or introduce a new test-runner exclusion mechanism."
+Disposition: excluded "This story does not implement the recorded optimization candidates or introduce a new test-runner exclusion mechanism."
+Commitment: D4
+
+### G8. Story does not introduce exclusion mechanism
+Reported: slice 1 — "safe stopping point excludes new test-runner exclusion mechanism"
+Story clause: "This story does not implement the recorded optimization candidates or introduce a new test-runner exclusion mechanism."
+Disposition: excluded "This story does not implement the recorded optimization candidates or introduce a new test-runner exclusion mechanism."
+Commitment: D5
+
+### G9. No legacy migration in this story
+Reported: slice 1 — "explicit exclusion of migrating existing findings"
+Story clause: "Do not inspect, rewrite, relocate, or automatically migrate the existing findings or file structures in maintained projects as part of this story or its update rollout."
+Disposition: excluded "Do not inspect, rewrite, relocate, or automatically migrate the existing findings or file structures in maintained projects as part of this story or its update rollout."
+Commitment: X1
 
 ## Current decisions
 

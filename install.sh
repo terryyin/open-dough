@@ -286,6 +286,7 @@ managed_files=(
   dough-post-change-refactor/references/refactor-checks.md
   dough-test-optimization/SKILL.md
   dough-test-optimization/references/optimization-tactics.md
+  dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
   dough-manual-testing/SKILL.md
   dough-manual-testing/references/exploration-workspace.md
