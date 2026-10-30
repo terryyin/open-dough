@@ -19,9 +19,9 @@ No plan, product, proof, or conversation inheritance.
 | 7 | Refreshing `tests/longest-first` keeps its speed unit: seconds from a run on a faster or slower runner are scaled to the existing list's speed. | slice 3 | |
 | 8 | On refresh, the factor is recorded in the source line. | slice 3 | |
 | 9 | A refresh neither tightens nor loosens the budget. | slice 3 | |
-| 10.1 | `bash scripts/ci-test-times.sh` reports share totals at recorded speed | slice 2 | G1 |
-| 10.2 | `bash scripts/ci-test-times.sh` reports job times at recorded speed | slice 2 | G1 |
-| 10.3 | `bash scripts/ci-test-times.sh` reports the runner factors it saw | slice 2 | G1 |
-| 11 | The share preview's recorded-seconds predictions are directly comparable with the ceiling. | slice 2 | G1 |
+| 10.1 | `bash scripts/ci-test-times.sh` reports share totals at recorded speed | slice 2 | observed: `scripts/ci-test-times.sh` share-total lines; `tests/ci-test-times.sh` expect `share 1 total: … at recorded speed` |
+| 10.2 | `bash scripts/ci-test-times.sh` reports job times at recorded speed | slice 2 | observed: same; job lines `… s at recorded speed` |
+| 10.3 | `bash scripts/ci-test-times.sh` reports the runner factors it saw | slice 2 | observed: `(factors low-high)` on job and share lines |
+| 11 | The share preview's recorded-seconds predictions are directly comparable with the ceiling. | slice 2 | observed: `tests/time-budget.md` restated slice guidance for recorded-speed projection / same unit as ceilings |
 | 12 | A share with no measurable recorded job to estimate a factor is judged at factor 1 (as today). | slice 1 | observed: `scripts/share-deal.mjs` `runnerFactor` returns `{ factor: 1, available: false }`; `tests/test-runner-budget.sh` no-list unavailable cases |
 | 13 | When the factor is unavailable, the breach line says the factor was unavailable. | slice 1 | observed: `tests/test-runner-budget.sh` expect `factor unavailable` |

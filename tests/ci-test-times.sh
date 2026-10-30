@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # scripts/ci-test-times.sh reports recent trunk CI job times against the time
-# budget: each job's and each share total's range, headroom, spread, and a
-# wide or thin verdict; named jobs, including one without a recent timing; runs
-# without artifacts skipped and not counted; and the reason when no timings can
-# be read or the budget is malformed. A `gh` stand-in serves fixture runs, so
-# the check never reaches GitHub, and a substitute budget stands in for
-# tests/time-budget.
+# budget at recorded speed: each job's and each share total's range, the
+# runner factor range that share saw, headroom, spread, and a wide or thin
+# verdict; named jobs, including one without a recent timing; runs without
+# artifacts skipped and not counted; and the reason when no timings can be
+# read or the budget is malformed. A `gh` stand-in serves fixture runs and a
+# substitute `longest-first` stands beside the substitute budget, so the
+# check never reaches GitHub or the suite list.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -21,6 +22,16 @@ checks="${temporary_dir}/checks"
 fake="${temporary_dir}/gh"
 mkdir -p -- "${checks}" "${fake}/bin" "${fake}/runs"
 printf '# Substitute budget.\nper-job-seconds=71\ntotal-job-seconds=470\n' > "${checks}/time-budget"
+# Measurable recorded times for the fixture jobs; runner-factor medians use
+# these so the report divides observed times into recorded-speed units.
+cat > "${checks}/longest-first" << 'LIST'
+100.0	tests/filler.sh
+50.0	tests/thin.sh
+50.0	tests/edge.sh
+40.0	tests/git-publication-native.sh
+10.0	tests/other.sh
+5.0	tests/late.sh
+LIST
 
 # The stand-in logs its arguments, prints the `--jq` listing from fixture
 # `listing` (or fails with `list-error` when present), and downloads a run's
@@ -61,16 +72,15 @@ artifact() {
   done
 }
 
-# tests/filler.sh stands in for the rest of share 1, which totals 295.4, 387.4,
-# and 350.0. tests/edge.sh's headroom equals its spread, and it and
-# tests/late.sh ran in only some runs.
-artifact 101 1 206.9 tests/filler.sh 48.5 tests/thin.sh 40.0 tests/git-publication-native.sh
+# Share 1 factors 1.0 / 1.3 / 0.9; share 2 factors 1.0 / 1.2 / 0.8. At
+# recorded speed share 1 is 190.0–206.7 and thin.sh rises to 66.7 on the
+# concentrated run; share 2 is 15.0–60.0. Run 102 has no artifacts.
+artifact 101 1 100.0 tests/filler.sh 50.0 tests/thin.sh 40.0 tests/git-publication-native.sh
 artifact 101 2 50.0 tests/edge.sh 10.0 tests/other.sh
-artifact 103 1 274.8 tests/filler.sh 61.2 tests/thin.sh 51.4 tests/git-publication-native.sh
-artifact 103 2 60.5 tests/edge.sh 12.0 tests/other.sh
-artifact 104 1 250.0 tests/filler.sh 55.0 tests/thin.sh 45.0 tests/git-publication-native.sh
-artifact 104 2 11.0 tests/other.sh 5.0 tests/late.sh
-# Run 102 has no artifacts.
+artifact 103 1 130.0 tests/filler.sh 65.0 tests/thin.sh 52.0 tests/git-publication-native.sh
+artifact 103 2 60.0 tests/edge.sh 12.0 tests/other.sh
+artifact 104 1 90.0 tests/filler.sh 60.0 tests/thin.sh 36.0 tests/git-publication-native.sh
+artifact 104 2 8.0 tests/other.sh 4.0 tests/late.sh
 printf '%s\t%s\n' 101 2026-09-29T11:00:00Z 102 2026-09-28T11:00:00Z \
   103 2026-09-27T11:00:00Z 104 2026-09-26T11:00:00Z > "${fake}/listing"
 
@@ -89,26 +99,26 @@ run_times() {
 run_times all
 expect_report all 0 << REPORT
 Recent trunk CI timings: 3 successful ci.yml runs on main, 2026-09-26T11:00:00Z to 2026-09-29T11:00:00Z (1 without readable artifacts skipped).
-Ceilings (${checks}/time-budget): 71s per job, 470 job-seconds per share.
-tests/filler.sh: 206.9-274.8 s, ceiling 71, headroom -203.8, spread 67.9, thin: project from 274.8
-tests/thin.sh: 48.5-61.2 s, ceiling 71, headroom 9.8, spread 12.7, thin: project from 61.2
-tests/edge.sh: 50.0-60.5 s, ceiling 71, headroom 10.5, spread 10.5, wide
-tests/git-publication-native.sh: 40.0-51.4 s, ceiling 71, headroom 19.6, spread 11.4, wide
-tests/other.sh: 10.0-12.0 s, ceiling 71, headroom 59.0, spread 2.0, wide
-tests/late.sh: 5.0-5.0 s, ceiling 71, headroom 66.0, spread 0.0, wide
-share 1 total: 295.4-387.4 job-seconds, ceiling 470, headroom 82.6, spread 92.0, thin: project from 387.4
-share 2 total: 16.0-72.5 job-seconds, ceiling 470, headroom 397.5, spread 56.5, wide
+Ceilings (${checks}/time-budget): 71s per job, 470 job-seconds per share, at recorded speed.
+tests/filler.sh: 100.0-100.0 s at recorded speed (factors 0.9-1.3), ceiling 71, headroom -29.0, spread 0.0, thin: project from 100.0
+tests/thin.sh: 50.0-66.7 s at recorded speed (factors 0.9-1.3), ceiling 71, headroom 4.3, spread 16.7, thin: project from 66.7
+tests/edge.sh: 50.0-50.0 s at recorded speed (factors 1.0-1.2), ceiling 71, headroom 21.0, spread 0.0, wide
+tests/git-publication-native.sh: 40.0-40.0 s at recorded speed (factors 0.9-1.3), ceiling 71, headroom 31.0, spread 0.0, wide
+tests/other.sh: 10.0-10.0 s at recorded speed (factors 0.8-1.2), ceiling 71, headroom 61.0, spread 0.0, wide
+tests/late.sh: 5.0-5.0 s at recorded speed (factors 0.8-0.8), ceiling 71, headroom 66.0, spread 0.0, wide
+share 1 total: 190.0-206.7 job-seconds at recorded speed (factors 0.9-1.3), ceiling 470, headroom 263.3, spread 16.7, wide
+share 2 total: 15.0-60.0 job-seconds at recorded speed (factors 0.8-1.2), ceiling 470, headroom 410.0, spread 45.0, wide
 REPORT
 expect_in_log "${fake}/calls" -x -F -- "run list --workflow ci.yml --branch main --status success --limit 10 --json databaseId,createdAt --jq .[] | \"\(.databaseId)\t\(.createdAt)\""
 
 run_times named tests/git-publication-native.sh tests/absent.sh
 expect_report named 0 << REPORT
 Recent trunk CI timings: 3 successful ci.yml runs on main, 2026-09-26T11:00:00Z to 2026-09-29T11:00:00Z (1 without readable artifacts skipped).
-Ceilings (${checks}/time-budget): 71s per job, 470 job-seconds per share.
-tests/git-publication-native.sh: 40.0-51.4 s, ceiling 71, headroom 19.6, spread 11.4, wide
+Ceilings (${checks}/time-budget): 71s per job, 470 job-seconds per share, at recorded speed.
+tests/git-publication-native.sh: 40.0-40.0 s at recorded speed (factors 0.9-1.3), ceiling 71, headroom 31.0, spread 0.0, wide
 tests/absent.sh: no recent timing; its first CI run settles it.
-share 1 total: 295.4-387.4 job-seconds, ceiling 470, headroom 82.6, spread 92.0, thin: project from 387.4
-share 2 total: 16.0-72.5 job-seconds, ceiling 470, headroom 397.5, spread 56.5, wide
+share 1 total: 190.0-206.7 job-seconds at recorded speed (factors 0.9-1.3), ceiling 470, headroom 263.3, spread 16.7, wide
+share 2 total: 15.0-60.0 job-seconds at recorded speed (factors 0.8-1.2), ceiling 470, headroom 410.0, spread 45.0, wide
 REPORT
 
 printf '102\t2026-09-28T11:00:00Z\n' > "${fake}/listing"

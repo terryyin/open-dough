@@ -82,9 +82,11 @@ Slice 2 replaces it.
 ### 2. The trunk timing report speaks the check's unit
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/ci-test-times.sh` (its `gh` stand-in serves times plus a
 substitute `longest-first`) and the focused command.
+Accepted (uncommitted, pre-delivery): focused command exit 0; fixture
+totals 190.0–206.7 at recorded speed with factors 0.9–1.3; G1 proved.
 
 Behavior: retained trunk `test-times-<i>` artifacts → `bash
 scripts/ci-test-times.sh [job…]` → each job line and each share-total line
@@ -153,5 +155,4 @@ This review identified no remaining slice-specific concern.
 ### G1. Trunk timing report still speaks raw times (interim after slice 1)
 Reported: slice 1 — "`scripts/ci-test-times.sh` still compares raw recent times with ceilings now in recorded-speed units, so its headroom reads too small."
 Story clause: "`bash scripts/ci-test-times.sh` reports share totals and job times at recorded speed with the runner factors it saw"
-Disposition: interim until slices 2
-Commitment: 10.1, 10.2, 10.3, 11
+Disposition: proved by slice 2: `tests/ci-test-times.sh` expect_report job/share lines at recorded speed with factors; focused command exit 0

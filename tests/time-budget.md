@@ -27,23 +27,27 @@ A slice that adds test time reads its baseline from recent trunk CI with
 `bash scripts/ci-test-times.sh [job…]`, and its plan names that command rather
 than a copied CI number. Over the last 10 successful `ci.yml` runs on `main`
 whose `test-times-<i>` are still retained, it prints, for each job (only the
-named ones, when given) and each share total, the lowest–highest seconds, the
-ceiling, headroom (ceiling − highest), spread (highest − lowest), and a
-verdict:
+named ones, when given) and each share total, the lowest–highest seconds at
+recorded speed (each run's times divided by that share's runner factor), the
+factor range that share saw, the ceiling, headroom (ceiling − highest),
+spread (highest − lowest), and a verdict that judges those recorded-speed
+values:
 
 - `wide` (headroom at least the spread): push without local timing; the
   pushed revision's CI job settles the budget.
 - `thin`: run one paired A/B comparison of each changed job, before and after
   the change, under the current load rather than waiting for an idle machine,
-  and apply its ratio to the recent highest value the line names (61.2 s at a
-  ratio of 1.11 projects 67.9 s). A projection at or over the ceiling splits
-  the job in the same slice. A thin share total projects its recent highest
-  plus each changed job's increase: the ratio minus 1, times that job's recent
-  highest. When the change adds, removes or renames a test file, run the
-  allocation preview, `node scripts/test-shares.mjs preview --split-count 3`
-  ([test-shares.md](test-shares.md)): it prints each share's
-  predicted job-seconds and headroom to the total ceiling from recorded CI
-  seconds, and names the unrecorded jobs the deal assumes at the median.
+  and apply its ratio to the recent highest at recorded speed the line names
+  (66.7 s at a ratio of 1.11 projects 74.0 s). A projection at or over the
+  ceiling splits the job in the same slice. A thin share total projects its
+  recent highest at recorded speed plus each changed job's increase: the
+  ratio minus 1, times that job's recent highest at recorded speed. When the
+  change adds, removes or renames a test file, run the allocation preview,
+  `node scripts/test-shares.mjs preview --split-count 3`
+  ([test-shares.md](test-shares.md)): it prints each share's predicted
+  job-seconds and headroom to the total ceiling from recorded CI seconds
+  (the same unit as the ceiling and this report), and names the unrecorded
+  jobs the deal assumes at the median.
 
 A job with no recent timing, or `No recent trunk timings were found` with its
 reason, leaves the budget to CI. Either way the pushed revision's CI result is
