@@ -1,6 +1,7 @@
 # Reduce redundancy in the dashboard touch test family
 
 **Source:** [Selected implementation story](../../seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-180#optimize-dashboard-touch-viewport-tests
 
 ## Request and evidence
@@ -65,21 +66,24 @@ settings specs. The phone pair (390×844, 844×390) crosses every width branch
 
 | Removal | Surviving proof |
 | --- | --- |
-| Tablet cases of `agent-launch-dialog-touch`, `agent-launch-start-session-touch`, `session-management-touch`, `sessions-sidebar-touch`, `story-review-mark-touch`, `system-settings-project-management-touch`, `system-settings-terminal-touch`, `system-settings-look`, `system-settings-openai-recovery`, `system-settings-terminal-theme` (10) | Each spec's phone case asserts the same steps; the reduced-height step forces the ≤480 px branch on both devices; `system-settings-look` 420 px case owns the narrow settings fit |
-| Tablet case of `agent-terminal-touch` (1) | Phone case holds every assertion plus the identity-header scroll; 390 stacked and 844 split cover the same panel arrangements |
-| `844×390` launched and refused cases of `agent-launch-start-session-answer-touch` (2) | The `390×844` cases rotate into 844×390 and assert the row there |
-| `story-review-mark-touch` file (1 remaining case) | Rule owned by `story-review-uncommitted-check.spec.ts`; the 44 px label tap and the state kept through rotation fold into `story-review-touch` |
-| `system-settings-terminal-touch` file (1 remaining case) | Attachment survival owned by `system-settings.spec.ts` (terminal through settings), gaining one viewport-change step while settings hide the terminal; touch read, rotation, and Back owned by `system-settings-look` |
-| Step trims: `system-settings-openai-recovery` touch remove-failure and clear-on-leave blocks; `system-settings-project-management-touch` Remove failure and Cancel; `session-management-touch` sidebar Session details step and the assertion-free rotation; repeated Maximize/Restore pairs in `agent-terminal-touch` | Non-touch cases in the same files, `system-settings-openai.spec.ts`, `project-remove.spec.ts`, `sessions-sidebar-touch` (coarse details owner), and the first Maximize/Restore per arrangement |
+| Tablet cases of `agent-launch-dialog-touch`, `agent-launch-start-session-touch`, `session-management-touch`, `sessions-sidebar-touch`, `story-review-mark-touch`, `system-settings-project-management-touch`, `system-settings-terminal-touch`, `system-settings-look`, `system-settings-openai-recovery`, `system-settings-terminal-theme` (10) | Confirmed 2026-10-30: each spec's phone case runs the same body as tablet via `launchTouchViewports`; reduced-height steps still force the ≤480 px branch on phone; `system-settings-look` 420 px case still owns the narrow settings fit |
+| Tablet case of `agent-terminal-touch` (1) | Confirmed: phone case holds every shared assertion plus the phone-only identity-header scroll; 390 stacked and 844 landscape cover the panel arrangements tablet would repeat |
+| `844×390` launched and refused cases of `agent-launch-start-session-answer-touch` (2) | Confirmed: each `390×844` launched/refused case still rotates into 844×390 and asserts the row there before returning |
+| `story-review-mark-touch` file (1 remaining case) | Confirmed: rule still owned by `story-review-uncommitted-check.spec.ts`; the 44 px label tap and state through rotation still fold into `story-review-touch` (slice 4) |
+| `system-settings-terminal-touch` file (1 remaining case) | Confirmed: attachment survival still owned by `system-settings.spec.ts` (terminal through settings), gaining one viewport-change step while settings hide the terminal (slice 4); touch read, rotation, and Back still owned by `system-settings-look` |
+| Step trims: `system-settings-openai-recovery` touch remove-failure and clear-on-leave blocks; `system-settings-project-management-touch` Remove failure and Cancel; `session-management-touch` sidebar Session details step and the assertion-free rotation; repeated Maximize/Restore pairs in `agent-terminal-touch` | Confirmed with citation fix: openai remove-failure and clear-on-leave still owned by the non-touch case in the same file plus `system-settings-openai.spec.ts` (unsaved draft cleared on leave); project Remove/Add write-failure owned by `system-settings-project-management.spec.ts` (not only `project-remove.spec.ts`); Cancel dismissal owned by `project-remove.spec.ts`; Session details / choice-through-rotation owned by `sessions-sidebar-touch`; first Maximize/Restore per arrangement remains in `agent-terminal-touch` |
 
-Expected after: 21 cases in 12 files (15 removed). Kept as unique: the
-`story-review-touch` tablet case, the `430×932` and held cases of the answer
-spec, `recently-done-sessions-sidebar-touch`, and the refinement choices kept
-under resize in `agent-launch-dialog-touch`.
+No row struck: every planned removal still has a holding survivor at
+`bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3`. Expected after: 21 cases in 12
+files (15 removed). Kept as unique: the `story-review-touch` tablet case (body
+container ≥ 556 px / 34.75 rem side-by-side), the `430×932` and held cases of
+the answer spec, `recently-done-sessions-sidebar-touch`, and the refinement
+choices kept under resize in `agent-launch-dialog-touch`.
 
 ## Ordered slices
 
-Slice 1 belongs to the completed predecessor; slices 2–6 are unstarted.
+Slice 1 belongs to the completed predecessor; slice 2's baseline is recorded
+below; slices 3–6 remain unstarted.
 
 ### 1. Predecessor triage disposition evidence (SEED-178)
 Type: Structure
@@ -92,7 +96,7 @@ Enables: later authorized execution of slices 2–6.
 
 ### 2. Baseline and surviving-proof record
 Type: Structure
-Status: planned
+Status: done
 Proof: The literal focused command over the fourteen specs (`npx playwright
 test --config dashboard/playwright.config.ts <the fourteen files>` from the
 owned checkout, default workers) lists 36 cases and passes three consecutive
@@ -104,6 +108,14 @@ before slice 3.
 Internal change: a recorded before-state and a confirmed removal table.
 Enables: slice 3's removals and slice 6's comparison. Summed test seconds and
 case counts are not wall time.
+
+Baseline recorded 2026-10-30 at revision
+`bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` (outside Git under
+`/tmp/seed-180-slice2-baseline/`): `--list --reporter=line` → 36 tests in 14
+files; three consecutive focused passes with
+`env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=…` → walls
+37.551 s / 35.696 s / 36.279 s (proofs `pass2.json`–`pass4.json`). Removal
+table reconciled above; none struck.
 
 ### 3. Plain device and orientation repeats are removed
 Type: Structure
@@ -178,6 +190,17 @@ experiment is undone with its outcome recorded.
    plan are first in Backlog list at Terry's request.
 5. **Authority:** no Take or implementation during preparation; later explicit
    execution authorization is required.
+6. **Slice 2 baseline (2026-10-30, execution):** focused family before-state
+   locked at `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` — 36 cases / 14 files;
+   three consecutive green walls 37.551 / 35.696 / 36.279 s under loads ~9–13
+   with proofs outside Git at `/tmp/seed-180-slice2-baseline/pass{2,3,4}.json`.
+   Local agent shells that set both `NO_COLOR` and `FORCE_COLOR` must run the
+   focused command under `env -u NO_COLOR -u FORCE_COLOR` so the quiet reporter
+   does not fail on Node's conflict warning (all cases still passed). Quiet
+   reporter also swallows bare `--list`; use `--reporter=line` (or equivalent)
+   only to observe the listing. Removal table confirmed; none struck. Step-trim
+   survivor for project write-failure corrected to
+   `system-settings-project-management.spec.ts`.
 
 ## Decisive premises
 
@@ -187,11 +210,13 @@ experiment is undone with its outcome recorded.
   dashboard/tests/system-settings-look.spec.ts
   dashboard/tests/story-review-mark-touch.spec.ts --reporter=list` → 6 passed
   in 10.2 s at load 10.5; `--list` over the fourteen files → 36 tests in 14
-  files.
+  files. Slice 2 reconfirmed listing and three consecutive focused passes at
+  the published revision (see Current decisions §6).
 - **Classification:** each removal's survivor asserts the removed case's
   steps. Settled by reading every assertion of the fourteen specs and their
-  cited owners on 2026-10-30; slice 2 reconciles the table against the specs
-  at execution time before any removal.
+  cited owners on 2026-10-30; slice 2 reconciled the table against the specs
+  at execution time before any removal — none struck; project write-failure
+  survivor citation corrected as in Current decisions §6.
 
 ## Concern evidence
 
