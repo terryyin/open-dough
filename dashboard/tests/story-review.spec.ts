@@ -6,7 +6,8 @@
 // paths, deletions as removed lines, and images as having no textual diff.
 // Hiding files widens the unchanged diff. Command+Shift+Escape closes the Side
 // panel, returning to Review changes; Tab moves on. Refused requests are in
-// ./story-review-refusal.spec.ts.
+// ./story-review-refusal.spec.ts. Directional omitted-context expansion is in
+// ./story-review-diff-context.spec.ts.
 
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 import { parts } from "./dashboardPage.ts";
@@ -93,7 +94,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await expect(
     review
       .getByRole("region", { name: "Added fresh/new.txt" })
-      .getByRole("listitem"),
+      .locator("li.story-review-line"),
   ).toHaveText(["+untracked"]);
   // The context line reads every value in full, the read-only explanation
   // is the review's description, never a visible line.
@@ -119,7 +120,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // A file's diff: its hunks' lines, each marked +, -, or a space.
   const diffOf = (name: string) => review.getByRole("region", { name });
   const linesOf = (diff: ReturnType<typeof diffOf>, hunk: string) =>
-    diff.getByRole("list", { name: hunk }).getByRole("listitem");
+    diff.getByRole("list", { name: hunk }).locator("li.story-review-line");
   // Each line exactly, its leading marker and spacing included.
   const expectLines = async (
     diff: ReturnType<typeof diffOf>,
@@ -198,7 +199,9 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     // Each line's old and new numbers sit beside it, outside its text, and
     // assistive technology reads the code alone.
     const hunk = diff.getByRole("list", { name: "@@ -10,3 +10,4 @@" });
-    expect(await shownLineNumbers(hunk.getByRole("listitem"))).toEqual([
+    expect(
+      await shownLineNumbers(hunk.locator("li.story-review-line")),
+    ).toEqual([
       ["10", "10"],
       ["11", "11"],
       ["12", "12"],

@@ -73,7 +73,9 @@ test("a story's changed files show by name under their folders", async ({
     await expect(diff.getByRole("heading", { level: 3 })).toHaveText(
       "Deleted dashboard/server/c.ts",
     );
-    await expect(diff.getByRole("listitem").first()).toHaveText("-c 0");
+    await expect(diff.locator("li.story-review-line").first()).toHaveText(
+      "-c 0",
+    );
   });
 
   await test.step("each file's kind shows only in the style of its name", async () => {
@@ -147,7 +149,7 @@ test("a story's changed files show by name under their folders", async ({
     await expect(diff.getByRole("heading", { level: 3 })).toHaveText(
       "Added dashboard/src/a.tsx",
     );
-    await expect(diff.getByRole("listitem")).toHaveText(["+added"]);
+    await expect(diff.locator("li.story-review-line")).toHaveText(["+added"]);
     await files
       .getByRole("button", { name: "Renamed old/a.ts → new/a.ts" })
       .press("Enter");

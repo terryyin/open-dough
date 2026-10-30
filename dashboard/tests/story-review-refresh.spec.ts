@@ -54,10 +54,11 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const select = (name: string) =>
     review.getByRole("button", { name, exact: true }).press("Enter");
   const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
-  const diffLines = () => diff.getByRole("listitem").allTextContents();
+  const codeLines = () => diff.locator("li.story-review-line");
+  const diffLines = () => codeLines().allTextContents();
   const edit = "+edited after the review opened";
   await select("Modified unstaged.txt");
-  await expect(diff.getByRole("listitem")).toHaveCount(12);
+  await expect(codeLines()).toHaveCount(12);
   const openedLines = await diffLines();
   expect(openedLines).toContain("-unstaged 5");
 
@@ -80,7 +81,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
       review.getByRole("region", { name: "Modified staged.txt" }),
     ).toContainText("+more");
     await select("Modified unstaged.txt");
-    await expect(diff.getByRole("listitem")).toHaveCount(12);
+    await expect(codeLines()).toHaveCount(12);
     expect(await diffLines()).toEqual(openedLines);
     expect(await diffLines()).not.toContain(edit);
     await expect.poll(() => treeRows(opened)).toEqual(listed);

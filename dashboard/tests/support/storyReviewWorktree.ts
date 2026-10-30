@@ -214,3 +214,33 @@ export const observed = (workspace: string) => ({
   status: git(workspace, "status", "--porcelain=v1", "--ignored"),
   staged: git(workspace, "diff", "--cached", "--name-status"),
 });
+
+// A long file whose default printed diff omits unchanged lines before,
+// between, and after two distant edits — for directional gutter expansion.
+export const expandContextFile = "expand-context.txt";
+
+export function expandContextLines(word: string, count: number) {
+  return [...Array(count).keys()]
+    .map((line) => `${word} ${String(line + 1)}\n`)
+    .join("");
+}
+
+// Story A's worktree with one modified file that prints two separated hunks
+// and trailing omitted lines under Git's default context.
+export function expandContextWorktree(origin: StartOrigin) {
+  const project = origin.project;
+  writeFileSync(
+    path.join(project, expandContextFile),
+    expandContextLines("line", 160),
+  );
+  commitAll(project, "expand context trunk");
+  git(project, "push", "--quiet", "origin", "main");
+
+  const workspace = addStoryWorktree(project);
+  const edited = expandContextLines("line", 160)
+    .replace("line 54\n", "changed fifty-four\n")
+    .replace("line 127\n", "changed one-twenty-seven\n");
+  writeFileSync(path.join(workspace, expandContextFile), edited);
+  commitAll(workspace, "two distant edits");
+  return { workspace };
+}

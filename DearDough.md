@@ -21,6 +21,18 @@ Former local code: DD-089. Native execution can implement the requested outcome 
 
 Former local code: DD-057. A host-terminated refactor agent leaves changes without a report, requiring recovery from the actual diff and unresolved proof. [Evidence and current response](docs/maintainer/findings/ODF-059.md).
 
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-059.md). This execution adds an occurrence under that established code; no new code or mapping is allocated.
+
+### Occurrences
+
+- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
+  - Timestamp: unknown (2026-10-30; after slice-1 acceptance near `5c73925b` 14:40:51+08:00 and before resumed refactor Task that reported at ~14:39–14:50 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L28 — “Resuming from the interrupted post-change refactor after slice 1 acceptance.” First refactor Task `a87536cb-6351-4c1d-9147-e23fe34639b9` (started 14:33 +08) ends after reading the skill and opening `git status`/`git diff` with no return; resumed Task `152e2811-3bad-4346-84e9-dc6a00f7ac76` completed `AdmittedFileDiff` → `AdmittedReviewedFile` rename/cohesion with no product behavior change.
+  - Observed effect: one aborted post-change refactor with essentially no edits; one replacement refactor Task before slice-1 delivery; no work lost.
+  - Inference: qualified recurrence of host-interrupted refactor without return (ODF-059). Empty-tree case made reconstruction cheap; host termination cause unestablished here. Distinct from ODF-229 (implementation Task) on the same execution.
+
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. Cursor’s first managed delivery lacks conversation/generation identity, requiring a manual observer start and registration. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
@@ -201,6 +213,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Observed effect: two transport-ended observers on this execution; coordinator continued without claiming CI success; tip observation remains pending/possibly gapped relative to those dead mailboxes.
   - Inference: qualified recurrence of ODF-121 transient-transport ending (gh timeout and unreachable); distinct from eight-hour budget expiry (ODF-259) and from wrong-`--repo` 404 (ODF-256).
 
+- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
+  - Timestamp: unknown (2026-10-30; during slice-2 acceptance before tip publish `c9ada8b1` 15:13:13+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: plan 416 Accepted proof note — “CI observer reported `CI_MONITOR_UNAVAILABLE` (gh failed) during slice 2 acceptance — lost coverage noted once”; coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` wrote that note into `.planning/slice-plans/416-expand-dashboard-diff-context/PLAN.md`. Later observer `/tmp/dough-ci-501/watch-XRpiZS` retains tip `c9ada8b1181558efb5f2d6d075fee2ad3ff3a171` as `pending`; the unavailable event payload itself is not in that mailbox.
+  - Observed effect: lost observation coverage noted once mid-slice-2; coordinator continued without claiming CI success; tip CI remains pending under a later observer.
+  - Inference: qualified recurrence of ODF-121 transient-transport ending (`gh failed`); exact `gh`/TLS error text unrecovered from the dead observer; distinct from eight-hour budget expiry (ODF-259) and wrong-`--repo` 404 (ODF-256).
+
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
 Former local code: DD-262. A focused proof overrides a configured reporter that owns failure policy, making local passing assertions insufficient evidence for the project’s actual verdict. [Evidence and current response](docs/maintainer/findings/ODF-226.md).
@@ -241,6 +261,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator transcript `5473d3e9-6f21-4fad-9a6f-c38bde1e1b81` — first slice-2 Task (“Slice 2 agent-launch optimize”) interrupted with no return; coordinator followed interrupted-delegation recovery, found clean working tree at `692d9032`, then launched fresh Task “Slice 2 optimize retry” which delivered `a1703fdd`.
   - Observed effect: one aborted implementation Task with no product edits; full recovery + fresh agent before acceptance; no work lost or dual-writer conflict.
   - Inference: qualified recurrence of interrupted Cursor implementation without return; empty-tree case made reconstruction cheap but still required a replacement writer. Host termination cause (watchdog vs other) is unestablished here.
+
+- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
+  - Timestamp: unknown (2026-10-30; after slice-2 Task start ~14:42 +08 and before repair Task `68cac5fa` at 14:55 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L43–L48 — interrupted slice-2 delegation left substantial uncommitted work; interrupted-delegation recovery; focused proof then failed scroll preservation; delegated repair Task `68cac5fa-79f3-4b9a-985b-493c6431566f`. Interrupted implementer `65ee0ea4-d220-4b05-83e4-e9df676660e4` ends mid-tool-use (consumer-trace / git status) with no proof return.
+  - Observed effect: one aborted implementation Task with uncommitted product/test edits; coordinator re-established proof from the checkout, then one repair round (detached-node scroll adjust plus Playwright `scrollIntoView` measurement pollution) before acceptance; no dual-writer publish.
+  - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed focused proof before a replacement writer. Host termination cause unestablished. Distinct from ODF-059 refactor interrupt on the same execution.
 
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 
@@ -717,3 +745,21 @@ whitespace, so the first guarded fresh delivery failed at `git diff --check`
   - Evidence: fresh `preparation-failed` / `operation: "staged whitespace"` naming `docs/maintainer/dashboard-installed-start-fixture-timings.md:83` and `docs/maintainer/dashboard-touch-family-timings.md:73`; repair stripped trailing blank EOF; retry published `2f800b3f`. Distinct from DD-363 (hard-break trailing spaces on source-review lines). Code renumbered from colliding DD-369 at trunk merge.
   - Observed effect: one refused preparation after status mutation; mechanical EOF fix and second guarded delivery succeeded
   - Inference: new Markdown created under the file-size split needs an EOF whitespace check before staging; format alone does not catch it
+
+## DD-371 — Delivery typecheck first catches exactOptionalPropertyTypes after green proof
+
+Focused Playwright proof and post-change refactor returned green, yet the
+first slice-2 delivery/commit failed on TypeScript
+`exactOptionalPropertyTypes` when an optional prop was passed as an explicit
+`undefined` instead of omitted. A one-line conditional spread fixed it; retry
+published. Local code was DD-370 on the story branch; renumbered to DD-371 at
+trunk merge where DD-370 already named the Markdown EOF finding.
+
+### Occurrences
+- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
+  - Timestamp: unknown (2026-10-30; after green slice-2 proof/refactor and before tip `c9ada8b1` 15:13:13+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L56–L58 — “Fixing the TypeScript exactOptionalPropertyTypes error that blocked the commit, then retrying delivery”; edited `dashboard/src/StoryReviewFileDiff.tsx` from `textProblem={…}` (could be `undefined`) to conditional `{...(cond ? { textProblem } : {})}`; republished as `c9ada8b1`. Distinct from ODF-329 (ESLint/formatter under a lint-forbidden brief).
+  - Observed effect: one failed delivery attempt and one coordinator type fix before successful publish; no product behavior change beyond satisfying the typecheck gate.
+  - Inference: qualified one-off that delivery/commit typecheck was the first gate for this optional-prop shape after green journey proof. Implementer/refactor briefs that forbid independent lint/typecheck leave that class of defect to the delivery hook; no claim that a earlier read-only `tsc` would have been cheaper than the observed retry.

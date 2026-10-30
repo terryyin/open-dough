@@ -120,3 +120,60 @@
 .story-review-removed {
   background: color-mix(in srgb, var(--problem) 14%, transparent);
 }
+
+/* Directional load-more controls in the line-number gutter for omitted
+   unchanged context between printed hunks. */
+.story-review-hunk-block {
+  display: contents;
+}
+
+.story-review-expand {
+  display: grid;
+  grid-template-areas: "old new code";
+  grid-template-columns:
+    calc(var(--line-number-digits, 1) * 1ch)
+    calc(var(--line-number-digits, 1) * 1ch)
+    auto;
+  column-gap: 1ch;
+  padding: 0.15rem 0.5rem;
+  background: color-mix(in srgb, var(--quiet) 8%, transparent);
+}
+
+.story-review-expand-controls {
+  grid-area: old / old / new / new;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
+}
+
+.story-review-expand-controls button {
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+  min-height: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.2rem;
+  background: var(--surface, transparent);
+  color: var(--quiet);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.story-review-expand-controls button:hover,
+.story-review-expand-controls button:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.story-review-context-problem {
+  margin: 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--problem);
+  font-size: 0.85rem;
+}
+
+.story-review-context-problem button {
+  margin-left: 0.35rem;
+}

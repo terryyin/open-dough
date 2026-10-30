@@ -32,10 +32,11 @@ import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 import { projectFolder } from "./projectFolders.ts";
 
-export interface AdmittedFileDiff {
-  readonly kind: "story-review-file";
+// One admitted comparison identity for printed diff or revision file text.
+export interface AdmittedReviewedFile {
+  readonly kind: "story-review-file" | "story-review-file-text";
   readonly repository: string;
-  // The tree the file diff compares from.
+  // The tree the comparison reads from.
   readonly baseline: string;
   readonly tree: string;
   readonly path: string;
@@ -58,7 +59,7 @@ const reviewedPathSchema = z
   .min(1)
   .refine((path) => !path.includes("\0"));
 
-const fileDiffQuerySchema = z.object({
+const reviewedFileQuerySchema = z.object({
   baseline: objectIdSchema,
   tree: objectIdSchema,
   path: reviewedPathSchema,
@@ -111,7 +112,11 @@ export async function rangeRequest(
   return { kind: "story-review-range", established, ...query.data };
 }
 
-export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
+async function admitReviewedFile(
+  url: URL,
+  kind: AdmittedReviewedFile["kind"],
+  label: "file diff" | "file text",
+): Promise<AdmittedReviewedFile> {
   requireExactQuery(
     url,
     [
@@ -124,15 +129,15 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
       ...(url.searchParams.has("completion") ? ["completion"] : []),
       ...(url.searchParams.has("oldPath") ? ["oldPath"] : []),
     ],
-    "file diff",
+    label,
   );
-  const query = fileDiffQuerySchema.safeParse(
+  const query = reviewedFileQuerySchema.safeParse(
     Object.fromEntries(url.searchParams),
   );
   if (!query.success)
     throw new RefusedRequest(
       400,
-      "The file diff names a malformed object or path.",
+      `The ${label} names a malformed object or path.`,
     );
   const { baseline, tree, path, oldPath } = query.data;
   let repository: string;
@@ -186,13 +191,21 @@ export async function fileDiffRequest(url: URL): Promise<AdmittedFileDiff> {
     repository = (await queriedWorkspace(url)).established.workspace;
   }
   return {
-    kind: "story-review-file",
+    kind,
     repository,
     baseline,
     tree,
     path,
     ...(oldPath === undefined ? {} : { oldPath }),
   };
+}
+
+export async function fileDiffRequest(url: URL): Promise<AdmittedReviewedFile> {
+  return admitReviewedFile(url, "story-review-file", "file diff");
+}
+
+export async function fileTextRequest(url: URL): Promise<AdmittedReviewedFile> {
+  return admitReviewedFile(url, "story-review-file-text", "file text");
 }
 
 export async function markReviewedRequest(

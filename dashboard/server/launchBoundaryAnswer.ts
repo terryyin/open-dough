@@ -27,6 +27,7 @@ import { finalReportResponse } from "./finalReportResponse.ts";
 import { stopRecordedSession } from "./sessionStop.ts";
 import {
   storyReviewFileResponse,
+  storyReviewFileTextResponse,
   storyReviewResponse,
 } from "./storyReviewSnapshot.ts";
 import { markReviewedResponse } from "./storyReviewMarks.ts";
@@ -127,6 +128,8 @@ export async function answer(
         return await storyReviewResponse(request, res);
       case "story-review-file":
         return await storyReviewFileResponse(request, res);
+      case "story-review-file-text":
+        return await storyReviewFileTextResponse(request, res);
       case "story-review-range":
         return await storyReviewRangeResponse(request, res);
       case "story-review-mark":

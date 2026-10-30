@@ -20,6 +20,7 @@ import type { FinalReportRead } from "../src/finalReportContract.ts";
 import type {
   MarkReviewedAnswer,
   ReviewedFileDiff,
+  ReviewedFileText,
   StoryReview,
   ReviewRange,
 } from "../src/storyReviewContract.ts";
@@ -44,6 +45,7 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: StoryReview }
   | { readonly status: number; readonly body: ReviewRange }
   | { readonly status: number; readonly body: ReviewedFileDiff }
+  | { readonly status: number; readonly body: ReviewedFileText }
   | { readonly status: number; readonly body: MarkReviewedAnswer }
   | { readonly status: number; readonly body: RunningCursorSessions }
   | { readonly status: number; readonly body: Acceptance }

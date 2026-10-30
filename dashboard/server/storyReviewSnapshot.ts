@@ -86,4 +86,7 @@ export async function storyReviewResponse(
   return { status: 200, body: { ...body, ...choices } };
 }
 
-export { storyReviewFileResponse } from "./storyReviewFileResponse.ts";
+export {
+  storyReviewFileResponse,
+  storyReviewFileTextResponse,
+} from "./storyReviewFileResponse.ts";
