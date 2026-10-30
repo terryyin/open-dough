@@ -84,7 +84,7 @@ Enables: slice 2's expansion from that text.
 
 ### 2. Directional gutter controls reveal twenty-line omitted context
 Type: Behavior
-Status: planned
+Status: done
 Proof: The outside-in table above through the focused Playwright command (and
 any paired expand-only sibling kept in that command). Discriminating check:
 with expansion disabled in a scratch edit, the new expand assertions fail
@@ -128,6 +128,20 @@ proof:
   setup: storyWorktree + keepLaunchRecord; snapshot supplies baseline/tree/files
   result: pass
 ```
+
+### Slice 2
+```
+proof:
+  command: env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/story-review.spec.ts dashboard/tests/story-review-diff-context.spec.ts
+  covers: directional 20-line gutter expand before/between/after; exhaust without duplicates; markers/numbers; scroll place; failed text read + retry; first-paint default hunks
+  boundary: Side panel story-review file diff presentation + file-text splice
+  observations:
+    - story-review-diff-context.spec.ts: upward before first 31–50; between bidirectional close without dupes; trailing to EOF; remainder chunks; mid-viewport scroll <4px; text 500 + Retry
+    - story-review.spec.ts: existing first-paint / file listing still green
+  setup: expandContextWorktree + keepLaunchRecord; hasTouch for tap
+  result: pass
+```
+Note: CI observer reported `CI_MONITOR_UNAVAILABLE` (gh failed) during slice 2 acceptance — lost coverage noted once; continue without promised notifications.
 
 ## Decisive premises
 

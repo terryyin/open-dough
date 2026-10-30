@@ -6,7 +6,8 @@
 // paths, deletions as removed lines, and images as having no textual diff.
 // Hiding files widens the unchanged diff. Command+Shift+Escape closes the Side
 // panel, returning to Review changes; Tab moves on. Refused requests are in
-// ./story-review-refusal.spec.ts.
+// ./story-review-refusal.spec.ts. Directional omitted-context expansion is in
+// ./story-review-diff-context.spec.ts.
 
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 import { parts } from "./dashboardPage.ts";
