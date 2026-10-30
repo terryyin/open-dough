@@ -5,8 +5,8 @@ import {
   agentNameOf,
   profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { objectIdSchema } from "../src/storyReviewContract.ts";
-import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
+import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
+import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import {
   publishedStoryEvidence,
   type PublishedCommit,
@@ -99,19 +99,19 @@ export async function completedStoryCommits(
         explanation:
           "Published execution history contains a merge whose story changes cannot be attributed safely.",
       };
-    let automatic: string;
+    let automatic: string | undefined;
     try {
-      automatic =
-        (
-          await runGit(["merge-tree", "--write-tree", ...parents], call)
-        ).stdout.split("\n")[0] ?? "";
+      automatic = mergeTreeOutput(
+        (await runGit(["merge-tree", "--write-tree", ...parents], call)).stdout,
+      )?.tree;
     } catch (error) {
-      // A conflicted automatic merge still prints its tree first. That tree
-      // identifies which paths the recorded resolution changed.
-      automatic =
-        error instanceof GitFailure ? (error.stdout.split("\n")[0] ?? "") : "";
+      if (call.signal?.aborted === true) throw error;
+      // A conflicted merge exits 1 with a tree, possibly after driver output.
+      automatic = gitExitedOne(error)
+        ? mergeTreeOutput(error.stdout)?.tree
+        : undefined;
     }
-    if (!objectIdSchema.safeParse(automatic).success)
+    if (automatic === undefined)
       return {
         explanation:
           "Published execution history contains a merge whose resolution evidence could not be read.",

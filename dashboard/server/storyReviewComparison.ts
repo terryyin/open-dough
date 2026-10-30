@@ -12,27 +12,19 @@
 // story edit or the resolution restores that tree's original content.
 
 import {
-  objectIdSchema,
   type MarkUncomparable,
   type RestatedComparison,
   type ReviewedFile,
   type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
-import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
+import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
+import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import {
   baselinesDiffer,
   reviewPointObjects,
   type ReviewPoint,
 } from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
-
-// Git exited 1: the merge has conflicts, having printed its result, or a
-// quiet `rev-parse --verify` found no such object.
-const exitedOne = (error: unknown): error is GitFailure =>
-  error instanceof GitFailure &&
-  error.cause instanceof Error &&
-  "code" in error.cause &&
-  error.cause.code === 1;
 
 // Whether the repository holds the point's tree and its baseline: a commit,
 // or for a from point, which a mark can supply, a tree as well.
@@ -47,34 +39,13 @@ async function holdsPoint(
     }
     return true;
   } catch (error) {
-    if (exitedOne(error)) return false;
+    if (gitExitedOne(error)) return false;
     throw error;
   }
 }
 
 // The from tree restated on the to baseline, and the paths Git could not
 // merge; undefined when Git could not restate it at all.
-function restatementFrom(stdout: string) {
-  const fields = stdout.split("\0");
-  for (const [index, field] of fields.entries()) {
-    // Drivers may print lines before Git's tree. Once found, only NULs
-    // separate paths: a conflicted filename can itself contain newlines.
-    const tree = field
-      .split("\n")
-      .find((part) => objectIdSchema.safeParse(part).success);
-    if (tree === undefined) {
-      continue;
-    }
-    const paths = fields.slice(index + 1);
-    const end = paths.indexOf("");
-    return {
-      tree,
-      inseparable: new Set(end === -1 ? paths : paths.slice(0, end)),
-    };
-  }
-  return undefined;
-}
-
 export async function restatedPoint(
   from: ReviewPoint,
   baseline: string,
@@ -97,13 +68,13 @@ export async function restatedPoint(
   ).catch((error: unknown) => {
     if (call.signal?.aborted === true) throw error;
     // A conflicted merge exits 1 with a tree, possibly after driver output.
-    if (exitedOne(error)) {
+    if (gitExitedOne(error)) {
       return error;
     }
     return undefined;
   });
   if (output === undefined) return undefined;
-  return restatementFrom(output.stdout);
+  return mergeTreeOutput(output.stdout);
 }
 
 const byPath = (a: ReviewedFile, b: ReviewedFile) =>

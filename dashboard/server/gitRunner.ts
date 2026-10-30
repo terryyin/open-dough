@@ -31,6 +31,13 @@ export class GitFailure extends Error {
   }
 }
 
+// Git uses exit 1 for ordinary negative results, including merge conflicts.
+export const gitExitedOne = (error: unknown): error is GitFailure =>
+  error instanceof GitFailure &&
+  error.cause instanceof Error &&
+  "code" in error.cause &&
+  error.cause.code === 1;
+
 // The last line Git printed about a failure, or its own message.
 export function gitProblem(error: unknown): string {
   const said =
