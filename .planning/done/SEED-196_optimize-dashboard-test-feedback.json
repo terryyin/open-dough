@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-196#optimize-dashboard-test-feedback",
+  "title": "Reduce dashboard test feedback time with measured optimization (top 40%)",
+  "completedAt": "2026-10-30T15:58:19.588Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "cursor",
+  "model": "composer"
+}
