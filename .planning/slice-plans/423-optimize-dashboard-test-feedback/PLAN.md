@@ -149,7 +149,7 @@ Hypothesis supported at focused family wall (about 0.7s average).
 
 ### 5. Recent-delete asserts placement deltas without replaying dialog mechanics
 Type: Structure
-Status: planned
+Status: done
 Proof: Not attempted. After slices 2–3 rejects and slice 4's modest retain,
 inspection of `agent-launch-recent-delete.spec.ts` shows only a single Keep
 focus check amid launch-heavy placement steps; dialog overlap cannot
