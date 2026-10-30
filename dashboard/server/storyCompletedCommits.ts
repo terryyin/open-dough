@@ -1,14 +1,11 @@
 // A completion attributes every recorded owner and refuses merge-resolution
 // gaps before returning the story's commits in published history order.
-import {
-  agentIdentity,
-  agentNameOf,
-  profileAgentName,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import {
   publishedStoryEvidence,
+  publishedStoryAgents,
   type PublishedCommit,
   type ReviewedStory,
 } from "./storyPublishedEvidence.ts";
@@ -21,43 +18,31 @@ export async function completedStoryCommits(
   completion: string,
   agent: string,
   call: GitCall,
-): Promise<{ commits: PublishedCommit[] } | { explanation: string }> {
+): Promise<
+  | { commits: PublishedCommit[]; resolutions: ReadonlyMap<string, string> }
+  | { explanation: string }
+> {
   const evidence = await publishedStoryEvidence(story, completion, call, agent);
   if (evidence.claims.length === 0 || evidence.commits.length === 0)
     return {
       explanation:
         "Published execution history does not establish a complete claim and its attributed commits for this completion.",
     };
-  const escaped = story.identity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const changedProfiles = (
-    await runGit(
-      [
-        "log",
-        "--full-history",
-        "--format=",
-        "--name-only",
-        `-G${escaped}`,
-        completion,
-        "--",
-        story.profileDirectory,
-      ],
-      call,
-    )
-  ).stdout
-    .split("\n")
-    .filter(Boolean);
   const expected = agentNameOf(agent);
   const commits = [...evidence.commits];
   const claims = [...evidence.claims];
   const owningMerges = new Set(evidence.merges);
-  for (const file of new Set(changedProfiles)) {
-    const name = profileAgentName(file.split("/").at(-1) ?? "");
-    if (name === undefined || name === expected) continue;
+  for (const otherAgent of await publishedStoryAgents(
+    story,
+    completion,
+    call,
+  )) {
+    if (agentNameOf(otherAgent) === expected) continue;
     const other = await publishedStoryEvidence(
       story,
       completion,
       call,
-      agentIdentity(name).agent,
+      otherAgent,
     );
     if (other.commits.length > 0 && other.claims.length === 0)
       return {
@@ -92,6 +77,7 @@ export async function completedStoryCommits(
     .split("\n")
     .filter(Boolean);
   let storyPaths: Set<string> | undefined;
+  const resolutions = new Map<string, string>();
   for (const line of merges) {
     const [merge = "", ...parents] = line.split(" ");
     if (parents.length !== 2)
@@ -99,16 +85,21 @@ export async function completedStoryCommits(
         explanation:
           "Published execution history contains a merge whose story changes cannot be attributed safely.",
       };
-    let automatic: string | undefined;
+    let automatic: ReturnType<typeof mergeTreeOutput>;
     try {
       automatic = mergeTreeOutput(
-        (await runGit(["merge-tree", "--write-tree", ...parents], call)).stdout,
-      )?.tree;
+        (
+          await runGit(
+            ["merge-tree", "--write-tree", "--name-only", "-z", ...parents],
+            call,
+          )
+        ).stdout,
+      );
     } catch (error) {
       if (call.signal?.aborted === true) throw error;
       // A conflicted merge exits 1 with a tree, possibly after driver output.
       automatic = gitExitedOne(error)
-        ? mergeTreeOutput(error.stdout)?.tree
+        ? mergeTreeOutput(error.stdout)
         : undefined;
     }
     if (automatic === undefined)
@@ -119,12 +110,23 @@ export async function completedStoryCommits(
     const actual = (
       await runGit(["rev-parse", `${merge}^{tree}`], call)
     ).stdout.trim();
-    if (automatic === actual) continue;
-    if (owningMerges.has(merge) || merge === completion)
-      return {
-        explanation:
-          "Published execution history contains merge resolutions whose story changes cannot be attributed safely.",
-      };
+    if (automatic.tree === actual) continue;
+    const resolved = (
+      await runGit(["diff", "--name-only", "-z", automatic.tree, actual], call)
+    ).stdout
+      .split("\0")
+      .filter(Boolean);
+    if (owningMerges.has(merge) || merge === completion) {
+      if (resolved.some((file) => !automatic.inseparable.has(file)))
+        return {
+          explanation:
+            "Published execution history contains merge resolutions whose story changes cannot be attributed safely.",
+        };
+      // The pre-claim tree includes neither writer's later contribution. Show
+      // the whole resolved file from there, explicitly marked as mixed work.
+      for (const file of resolved) resolutions.set(file, before);
+      continue;
+    }
     if (storyPaths === undefined) {
       const paths = await Promise.all(
         commits.map(async ({ parent, commit }) =>
@@ -148,9 +150,6 @@ export async function completedStoryCommits(
       );
       storyPaths = new Set(paths.flat());
     }
-    const resolved = (
-      await runGit(["diff", "--name-only", "-z", automatic, actual], call)
-    ).stdout.split("\0");
     const affectedPaths = storyPaths;
     if (resolved.some((file) => affectedPaths.has(file)))
       return {
@@ -165,6 +164,7 @@ export async function completedStoryCommits(
     .trim()
     .split("\n");
   return {
+    resolutions,
     commits: ordered.flatMap((revision) => {
       const commit = byRevision.get(revision);
       return commit === undefined ? [] : [commit];

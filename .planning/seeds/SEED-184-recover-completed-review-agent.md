@@ -15,7 +15,10 @@
 when published claim history identifies that agent unambiguously.
 
 **Scope:** Add a safe historical-agent fallback to published completed-story
-review, preserving existing attribution and merge-resolution checks. Do not
+review. Preserve existing attribution safeguards, with the explicit human-approved
+exception that genuine conflicted own/completion integrations show their resolved
+files as “includes trunk's changes”; keep other files attributed normally and
+refuse edits outside Git's conflict paths. Do not
 rewrite historical done records. Verify the reported SEED-178 review through
 the running production dashboard after integration and deployment.
 
@@ -30,3 +33,6 @@ the running production dashboard after integration and deployment.
   and refusals for unsafe merge resolutions.
 - SEED-178#resolve-dashboard-test-optimization-candidates returns a published
   review with changed files from production, and its file diffs are readable.
+
+**Human amendment:** Show SEED-178's manually resolved shared timings document
+with “includes trunk's changes”; keep other files attributed normally.

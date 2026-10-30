@@ -8,24 +8,25 @@ stories completed in a terminal or on another machine with no local launch.
 When no readable workspace or usable captured landing exists, **Published
 completion** shows a fixed comparison reconstructed from the configured
 project's published Git history. The done record's path history identifies the
-completion revision; its recorded agent and all discoverable historical owning
-agents' execution profiles attribute the story commits. The existing published
-commit rule removes those commits from that fixed revision, leaving other
-stories' interleaved changes out. This works after the story branch and
-workspace are deleted and remains fixed as trunk advances. It uses the same
-file browser and literal file diffs, without launch or marking semantics.
+completion revision. Its recorded agent identifies the execution owner. Without
+one, recovery requires exactly one valid authored execution claim owner at or
+before that completion; preparation-only, missing, shallow, or multiple-owner
+history supplies no guess. That owner and all discoverable historical owners'
+profiles attribute the story commits. The published commit rule removes those
+commits from the fixed revision, leaving other stories' interleaved changes out.
+This survives branch and workspace deletion and stays fixed as trunk advances,
+using the same file browser and literal diffs without launch or marking semantics.
 
-A completion with missing agent or claim history, unreadable Git objects, or
-unresolvable merge attribution explains that evidence gap instead of guessing
-or showing an empty successful comparison. Clean merges are checked against
-Git's automatic merge tree; additional merge resolutions need attribution
-that the historical profiles do not supply. Files whose story changes are
-inseparable from another writer's changes retain the existing explicit
-“includes trunk's changes” explanation and their own declared comparison base.
-Other stories' merge resolutions leave the comparison available when their
-resolution paths do not affect this story. The executing agent's own merges,
-the completion integration, and resolutions affecting attributed story paths
-must have enough evidence to separate their changes.
+A completion with no recoverable agent, incomplete claims, unreadable Git objects,
+or unresolvable merge attribution explains the gap instead of guessing or showing
+an empty successful comparison. Clean merges are checked against Git's automatic
+merge tree. Resolutions in the owner's or completion integrations confined to Git's
+actual conflict paths show those files with “includes trunk's changes”, compared
+from before the execution claims; other files keep normal story attribution.
+Edits outside those conflict paths still refuse the comparison. Inseparable
+changes retain that mixed-work explanation and their own declared comparison base.
+Other stories' resolutions leave the comparison available unless they affect this
+story's attributed paths, which still require evidence to separate their changes.
 Historical file requests must match the configured project, exact story,
 completion revision, comparison objects, and a literal listed file. Opening
 and Refresh fetch published history; selecting a historical file validates
