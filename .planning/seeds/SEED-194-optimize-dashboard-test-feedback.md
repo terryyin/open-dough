@@ -26,7 +26,7 @@ current suite.
 
 **Identity:** SEED-194#optimize-dashboard-test-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/421-optimize-dashboard-test-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"99c8a5158dcdaa920e939fb5edc38f353f820969036c34def269d5cfaa660a7c","plan":"7d13f1c3b62791a17b948cd55a66688a6df4c0db5bb5cb55336019aa17824b82"}}
 ```
 
 **Beneficiary:** A developer running the dashboard tests during local work.
