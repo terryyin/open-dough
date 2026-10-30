@@ -14,21 +14,14 @@ import {
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import { finalReportEndpoint } from "../src/finalReportContract.ts";
+import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
 import {
-  storyReviewEndpoint,
-  storyReviewFileEndpoint,
-  storyReviewMarkEndpoint,
-  storyReviewRangeEndpoint,
-} from "../src/storyReviewContract.ts";
-import {
-  fileDiffRequest,
   markReviewedRequest,
-  storyReviewRequest,
-  rangeRequest,
-  type AdmittedFileDiff,
+  type AdmittedReviewedFile,
   type AdmittedStoryReview,
   type AdmittedStoryReviewRange,
 } from "./storyReviewAdmission.ts";
+import { storyReviewExactReads } from "./storyReviewExactReads.ts";
 import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
@@ -84,7 +77,7 @@ export type Admitted =
   | AdmittedFinalReport
   | AdmittedStoryReview
   | AdmittedStoryReviewRange
-  | AdmittedFileDiff
+  | AdmittedReviewedFile
   | AdmittedStoryReviewMark
   | AdmittedChanged
   | {
@@ -200,9 +193,7 @@ const postRequests = new Map<
 const exactReads = new Map<string, (url: URL) => Admitted | Promise<Admitted>>([
   [agentChangedEndpoint, changedRequest],
   [finalReportEndpoint, finalReportRequest],
-  [storyReviewEndpoint, storyReviewRequest],
-  [storyReviewFileEndpoint, fileDiffRequest],
-  [storyReviewRangeEndpoint, rangeRequest],
+  ...storyReviewExactReads,
 ]);
 
 // Every path whose requests this boundary admits or refuses.

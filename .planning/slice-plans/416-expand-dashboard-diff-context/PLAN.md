@@ -1,6 +1,7 @@
 # Expand dashboard diff context from the line-number gutter
 
 **Source:** [Selected story](../../seeds/SEED-189-dashboard-diff-context-expansion.md#expand-dashboard-diff-context)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-189#expand-dashboard-diff-context
 
 ## Goal and scope
@@ -69,7 +70,7 @@ when the Structure slice adds them.
 
 ### 1. Review can read admitted file text at the comparison trees
 Type: Structure
-Status: planned
+Status: done
 Proof: An admission/boundary check: the same admitted `baseline`, `tree`,
 `path` (and `oldPath` when renamed) that serve today's printed diff can return
 the file's text at those trees (or a typed unavailable explanation). Focused
@@ -105,6 +106,28 @@ the printed diff readable and offers retry.
   reprinted `git diff -U…`.
 - First paint keeps Git's default printed context; this story does not raise
   `-U`.
+- Slice 1 serves file text on sibling `GET /__agent-launch/review/file/text`
+  under the same `admitReviewedFile` identity as printed diff (`AdmittedReviewedFile`),
+  returning `{ kind: "text", baseline, tree }` (null when absent) or
+  `{ kind: "unavailable", explanation }`. Do not route through published remote
+  reads.
+
+## Accepted proof (reuse)
+
+### Slice 1
+```
+proof:
+  command: env -u FORCE_COLOR -u NO_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/story-review-file-text-admission.spec.ts
+  covers: admitted file text at comparison trees; printed-diff regression; malformed refusal
+  boundary: dashboard launch review /review/file/text vs /review/file
+  observations:
+    - modified/renamed/added/deleted: kind text matches git show at baseline+tree (null when absent)
+    - image.png: kind unavailable (no textual content)
+    - same query on /review/file: kind diff unchanged before/after text reads
+    - malformed baseline/tree/extra workspace → 400
+  setup: storyWorktree + keepLaunchRecord; snapshot supplies baseline/tree/files
+  result: pass
+```
 
 ## Decisive premises
 

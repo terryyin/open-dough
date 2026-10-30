@@ -26,6 +26,9 @@ export const storyReviewEndpoint = "/__agent-launch/review";
 // (and old path for a rename), so any file diff the page opens reads the
 // same observation as the file list.
 export const storyReviewFileEndpoint = "/__agent-launch/review/file";
+// The same admitted comparison's file text at its *from* and snapshot trees,
+// for expanding omitted unified-diff context without a second identity.
+export const storyReviewFileTextEndpoint = "/__agent-launch/review/file/text";
 export const storyReviewRangeEndpoint = "/__agent-launch/review/range";
 // Where a same-origin POST marks the snapshot shown as reviewed.
 export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
@@ -222,3 +225,16 @@ export const reviewedFileDiffSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
 ]);
 export type ReviewedFileDiff = z.infer<typeof reviewedFileDiffSchema>;
+
+// File text at the same comparison trees the printed diff uses: `baseline` at
+// the *from* path (`oldPath` when renamed), `tree` at `path`; null when that
+// side has no file. Unavailable when the text cannot be read as text.
+export const reviewedFileTextSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("text"),
+    baseline: z.string().nullable(),
+    tree: z.string().nullable(),
+  }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type ReviewedFileText = z.infer<typeof reviewedFileTextSchema>;

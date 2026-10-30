@@ -9,7 +9,7 @@ import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
-import type { AdmittedFileDiff } from "./storyReviewAdmission.ts";
+import type { AdmittedReviewedFile } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 // A named run is admitted only from this source and story's retained records.
 export async function queriedRun(url: URL) {
@@ -64,7 +64,7 @@ export async function reviewedRunFile(
     tree,
     path,
     oldPath,
-  }: Pick<AdmittedFileDiff, "baseline" | "tree" | "path" | "oldPath">,
+  }: Pick<AdmittedReviewedFile, "baseline" | "tree" | "path" | "oldPath">,
 ) {
   const { run } = await queriedRun(url);
   if (run === undefined) throw new RefusedRequest(404, "No landed run.");
