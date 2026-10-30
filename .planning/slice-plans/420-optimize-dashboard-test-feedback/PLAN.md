@@ -199,3 +199,11 @@ may still be listed in the candidate record without further experiments.
 - High concurrent suite load can flake `story-review-touch` close-to-count; do
   not treat a failed full-suite run as baseline. Prefer settled start load and
   record load averages with every comparison.
+
+## Execution complete
+
+Product advice: Measured local dashboard suite feedback improved modestly
+(`durationMs` 640.3s → 622.8s) by collapsing `final-report-touch` short-phone
+proof to height 320. Keep pending the story-review HTTP admission boundary
+placement until a wall-improving approach exists; do not reopen accepted
+necessary costs without new evidence.
