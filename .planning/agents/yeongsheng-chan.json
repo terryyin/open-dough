@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-195#optimize-dashboard-test-feedback",
+  "mode": "story-branch",
+  "branch": "cursor/optimize-dashboard-test-feedback-seed-195",
+  "host": "cursor",
+  "model": "composer"
+}
