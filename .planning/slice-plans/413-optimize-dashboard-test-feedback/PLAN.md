@@ -76,12 +76,12 @@ deferred to slice 4.
 
 ### 3. Further dominant-family cost is reduced only when still warranted
 Type: Structure
-Status: planned
+Status: done
 Proof: After slice 2 reassessment, no second experiment has a comparable
 removable wall-clock cost without deeper family redesign. Remaining candidates
 (further `agent-launch*` poles, long production/attention journeys, touch
-matrices) stay recorded for later passes. Skip further experiments before the
-comparable full-suite re-profile; mark this slice done when recording that skip.
+matrices) stay recorded for later passes. Skipped before the comparable
+full-suite re-profile.
 
 ### 4. Selected local suite confirms the measured outcome
 Type: Behavior
