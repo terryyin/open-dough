@@ -175,3 +175,12 @@ updated; rejected experiments named.
 - Dropping one of two near-identical Codex story workflows did not move
   focused family wall while longer catalog/effort siblings still run; fewer
   cases alone is not a wall claim.
+
+## Execution complete
+
+Product advice: Measured local dashboard suite feedback improved modestly
+(`durationMs` 679.6s → 657.2s) by collapsing the Claude launch-dialog model
+kind matrix to one offers-Model layout journey and one Default journey.
+Keep pending story-review HTTP admission boundary placement and the Codex
+discovered-model story-workflow collapse until a wall-improving approach
+exists; do not reopen accepted necessary costs without new evidence.
