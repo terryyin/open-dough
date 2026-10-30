@@ -34,6 +34,7 @@ export const test = base.extend<{ machine: string; server: DashboardServer }>({
       machine,
       projectFolders: ["open-dough"],
       alertCheckMs,
+      doneRenameWaitMs: 100,
     });
     await use(server);
     await server.close();

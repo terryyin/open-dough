@@ -46,6 +46,7 @@ test.describe("the machine's sessions, each joined with its state", () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough", "pygardon"],
+      doneRenameWaitMs: 100,
     });
     storeFile = path.join(
       server.home,

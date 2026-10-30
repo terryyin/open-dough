@@ -37,6 +37,7 @@ test("a report arriving unread raises one notification in its own words, apart f
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30_000,
     alertCheckMs,
+    doneRenameWaitMs: 100,
   });
   try {
     const reported = await launchedStory(

@@ -49,6 +49,7 @@ test.describe("deleting a recorded session's record", () => {
       mode: "boundary",
       machine,
       projectFolders: ["open-dough", "pygardon"],
+      doneRenameWaitMs: 100,
     });
   });
 

@@ -63,6 +63,7 @@ test.describe("reopening a session marked done through its terminal", () => {
       mode: "boundary",
       machine,
       projectFolders: ["open-dough"],
+      doneRenameWaitMs: 100,
     });
 
   test.beforeAll(async () => {

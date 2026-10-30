@@ -47,6 +47,7 @@ test.describe("an open story session on this machine", () => {
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
+      doneRenameWaitMs: 100,
     });
     push = origin.holdPushes();
     // These cases need Takes to publish so settled launches can prove acceptance

@@ -27,6 +27,7 @@ test.describe("refusing a done request", () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough", "pygardon"],
+      doneRenameWaitMs: 100,
     });
   });
 

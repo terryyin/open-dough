@@ -1,6 +1,7 @@
 # Reduce dashboard test feedback time with measured optimization
 
 **Source:** [Selected story](../../seeds/SEED-191-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-191#optimize-dashboard-test-feedback
 
 ## Goal and scope
@@ -80,17 +81,8 @@ recorded for later experiments.
 
 ### 2. Read-only story-columns origin is shared per worker and non-subject Claude done-rename waits are bounded
 Type: Structure
-Status: planned
-Proof: Focused baseline and after timings on representative
-`publishStoryColumnsJourney` and `closeOpenSessions` specs under like workers;
-cache the read-only `StoryColumnsJourney` per worker process in
-`dashboard/tests/launchJourney.ts` (removing transient working trees after
-publishing `completed` and removing the bare origin on worker exit) and set
-short `doneRenameWaitMs` / `DOUGH_DONE_RENAME_WAIT_MS` on boundary and journey
-specs where `closeOpenSessions` or setup `markDone` closes busy Claude sessions
-outside rename-wait tests (`boundary/agent-launch-done-rename-wait.spec.ts` and
-production defaults remain unchanged). Verify all affected cases pass with
-`strictStatus: "passed"`.
+Status: done
+Proof: Focused Family A (`publishStoryColumnsJourney`, `--workers=1`, 4 specs, 15 cases): `durationMs` fell from **51,755.8 ms** (**51.8 s**, summed `.tsv` **46.2 s**) to **38,671.3 ms** / **41,203.9 ms** / **38,505.3 ms** (**38.5–41.2 s**, summed `.tsv` **34.4–36.8 s**) over 3 consecutive passes (`strictStatus: "passed"`). Focused Family B (non-subject `doneRenameWaitMs: 100`, default 8 workers, 15 specs, 83 cases): `durationMs` fell from **48,826.0 ms** (**48.8 s**, summed `.tsv` **272.3 s**) to **22,620.2 ms** / **22,766.4 ms** / **21,463.3 ms** (**21.5–22.8 s**, summed `.tsv` **101.8–109.0 s**) over 3 consecutive passes (`strictStatus: "passed"`). `npm run typecheck:dashboard` passed. `boundary/agent-launch-done-rename-wait.spec.ts` and production defaults remain unchanged. Raw proofs under `/tmp/SEED-191-optimize-dashboard-test-feedback/slice2-*`.
 
 Internal change: Eliminate 36 of 44 per-file `publishStoryColumnsJourney()`
 rebuilds in an 8-worker suite run (615.0s of `beforeAll` hook time in baseline)
