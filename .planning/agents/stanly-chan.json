@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-185#align-refresh-guidance",
+  "mode": "story-branch",
+  "branch": "cursor/align-duration-list-refresh-guidance-with-record",
+  "host": "cursor",
+  "model": "auto"
+}

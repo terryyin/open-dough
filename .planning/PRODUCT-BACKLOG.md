@@ -19,8 +19,8 @@ cost of the feedback process itself.
 ## Taken
 
 - [Load more diff context from the line-number gutter](seeds/SEED-189-dashboard-diff-context-expansion.md#expand-dashboard-diff-context) — SEED-189#expand-dashboard-diff-context ([plan](slice-plans/416-expand-dashboard-diff-context/PLAN.md))
+- [Align duration-list refresh guidance with recorded-speed scaling](seeds/SEED-185-stable-ci-time-budget.md#align-refresh-guidance) — SEED-185#align-refresh-guidance ([plan](slice-plans/417-align-refresh-guidance/PLAN.md))
 
 ## Backlog list
 
 - [Starting another Cursor session leaves already-running agents running](seeds/SEED-190-keep-running-cursor-sessions.md#keep-running-cursor-sessions) — SEED-190#keep-running-cursor-sessions
-- [Align duration-list refresh guidance with recorded-speed scaling](seeds/SEED-185-stable-ci-time-budget.md#align-refresh-guidance) — SEED-185#align-refresh-guidance
