@@ -208,6 +208,10 @@ for (const damage of [
     expect(added.filter(({ method }) => !discovery.has(method))).toEqual([]);
     expect(stored(dashboard.home)).toEqual([]);
     if (damage === "missing-script") writeFileSync(script, installedBytes);
+    // One representative damage case proves an unrelated queued story still
+    // launches without replacing the retained damaged preparation; the other
+    // damage cases stop after their refusal and preservation assertions.
+    if (damage !== "workspace") return;
     const independent = await launch(dashboard, {
       ...request,
       identity: otherQueuedIdentity,

@@ -1,6 +1,7 @@
 # Reduce dashboard test feedback time with measured optimization (top 20%)
 
 **Source:** [Selected story](../../seeds/SEED-195-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-195#optimize-dashboard-test-feedback
 
 ## Goal and scope
@@ -105,31 +106,26 @@ for later experiments.
 
 ### 2. Codex retained-retry damage matrix drops repeated independent-launch proof
 Type: Structure
-Status: planned
-Proof: Focused before/after on
-`boundary/agent-launch-preparation-codex-retry.spec.ts` with three consecutive
-passes each; all remaining damage refusals still pass; exactly one case retains
-the unrelated Story-B independent launch; journey
-`agent-launch-preparation-codex-retry.spec.ts` still passes.
+Status: done
+Proof: Focused `boundary/agent-launch-preparation-codex-retry.spec.ts` before
+**14.6–16.5s** / 10 cases → after **9.5–10.9s** / 10 cases over three
+consecutive passes each; journey `agent-launch-preparation-codex-retry.spec.ts`
+still passed. Evidence under `/tmp/SEED-195-optimize-dashboard-test-feedback/slice2/`.
 
-Internal change: Keep every distinct damage refusal. Move the shared
-“other queued story still launches without replacing retained preparation”
-assertion so only one representative damage case runs it (expected: `workspace`).
-Remove that trailing independent launch from the other nine cases.
+Internal change: Kept every distinct damage refusal. Only the `workspace`
+damage case still runs the unrelated Story-B independent launch; the other
+nine stop after refusal and preservation assertions.
 
 Hypothesis: the independent Story-B launch is repeated proof of one behavior
-already shown once; removing nine copies should cut focused wall and suite
-file cost in the top-20% band without losing unique damage protection.
-Measure and retain only if focused wall improves over three passes.
+already shown once. **Supported** by focused wall improvement.
 
 ### 3. Host start-progress page proof collapses to one representative host
 Type: Structure
 Status: planned
 Proof: Focused before/after on `agent-launch-start-phases.spec.ts` with three
 consecutive passes; surviving host journey plus the kept-store case; sibling
-Codex start/readiness proof (`agent-launch-start-codex.spec.ts` and/or
-preparation-phases) still covers the dropped host's distinguishing message
-path, or a cheap boundary replacement is added before removal.
+Codex start/readiness proof still covers the dropped host's distinguishing
+message path, or a cheap boundary replacement is added before removal.
 
 Internal change: Keep one host's initiating/observing page journey (expected:
 `claude`) and the store “kept, never running” case. Drop the duplicate host
@@ -173,4 +169,8 @@ record current.
 
 ## Learnings
 
-None yet beyond Slice 1 baseline and top-20% ranking.
+- Codex retained-retry damage cases share an independent Story-B launch that
+  is safe to prove once; focused wall dropped ~5s.
+- Removing one of two host start-progress journeys in
+  `agent-launch-start-phases.spec.ts` does not move focused wall while the
+  remaining Claude journey and store case dominate; leave both hosts.
