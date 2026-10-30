@@ -8,9 +8,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
+  backlogCli,
   backlogFile,
   createPreparationTrunk,
   createWorkspace,
+  exec,
+  git,
   identityC,
   lsRemoteSha,
   profileOf,
@@ -125,4 +128,32 @@ test("a landing accepted with its response lost is recognized on rerun: the rele
   assert.deepEqual(await landings(trunk), [message]);
   assert.equal(await remoteFile(trunk, landed, backlogFile), queue);
   assert.deepEqual(await remoteProfileNames(trunk), []);
+
+  // A later completion does not turn this already-landed result into a
+  // retained-draft stop: its assignment ended with the preparation landing.
+  await git(
+    trunk.integration,
+    "pull",
+    "--quiet",
+    "--ff-only",
+    "origin",
+    "main",
+  );
+  await exec(
+    process.execPath,
+    [backlogCli, "complete", "--identity", identityC],
+    {
+      cwd: trunk.integration,
+    },
+  );
+  await git(trunk.integration, "commit", "--quiet", "-am", "complete story C");
+  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
+  const afterCompletion = await releasePreparation(workspace, identityC);
+  assert.equal(
+    afterCompletion.code,
+    0,
+    JSON.stringify(afterCompletion.receipt),
+  );
+  assert.equal(afterCompletion.receipt.status, "already-released");
+  assert.equal(afterCompletion.receipt.endedBy, landed);
 });
