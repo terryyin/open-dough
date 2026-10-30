@@ -208,3 +208,15 @@ remaining candidates preserved for wrap-up.
 - In this top-40% pass, removing a boundary-answerable journey tail or one
   overlapping gaps variant did not move focused wall while remaining setup
   dominated. Sibling-delta removal of a Recover click path did.
+
+## Execution complete
+
+Product advice: retrospective skipped. Within the top-40% local dashboard cost
+band, accepted necessary costs and launch/setup-heavy journeys still dominate.
+Sibling-delta removal of a Recover preamble from
+`cursor-session-scope-noninterference` produced a modest focused-family gain
+without a like-conditions suite-wall claim. Journey-once Landed-runs trimming
+and gaps `ambiguous-merge` collapse did not move focused wall; keep them
+pending only for wall-improving approaches (for example shared setup), not
+assertion-only drops. Prefer quieter baseline/re-profile pairs before claiming
+suite-wall improvement on this host.
