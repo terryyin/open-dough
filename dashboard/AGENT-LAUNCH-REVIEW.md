@@ -145,7 +145,15 @@ the old file, the new file, or both, counted from its hunk's header
 (`src/unifiedDiff.ts`); Git's no-newline note takes none. The numbers are
 generated beside the line, outside its text, so copying code leaves them
 behind and assistive technology reads the code alone. Binary and
-mode-only changes say they have no textual diff. The review explains a
+mode-only changes say they have no textual diff. Where the printed hunks omit
+unchanged lines before, between, or after a change, directional controls in the
+line-number gutter load twenty more preceding or following lines at a time from
+the same admitted comparison's file text (`/review/file/text`), without raising
+Git's default hunk context or reprinting a larger unified diff; expansion is
+presentation state for that open file only
+(`src/diffContextExpansion.ts`, `src/StoryReviewDiffLines.tsx`). When that text
+cannot be read, the printed diff stays and the failure offers Retry. The review
+explains a
 workspace with no changes and a trunk that cannot be
 fetched; it never lists files against an unfetched baseline. Requests name
 only the project, the work identity and, for a file diff, the snapshot's
