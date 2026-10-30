@@ -150,11 +150,13 @@ preserved, or the experiment is undone and recorded as rejected.
      integrated coverage.
   3. Touch viewport matrices → **this replacement plan** holds the obligation.
 - Implementation of this plan is not authorized by resolve triage; a later
-  instruction must authorize execution. Before implementation, coordinate
-  scope with SEED-177#optimize-dashboard-test-feedback to avoid overlapping
-  work.
+  Take must authorize execution. Before implementation, coordinate scope with
+  SEED-177#optimize-dashboard-test-feedback to avoid overlapping work.
 - SEED-177 remains a separate Taken claim; do not treat this plan as that
   claim's work.
+- 2026-10-30: after resolve triage finished, the developer returned this
+  story and plan to the top of **Backlog list** for later execution rather
+  than wrapping up the unfinished experiment slices.
 
 ## Learnings
 
