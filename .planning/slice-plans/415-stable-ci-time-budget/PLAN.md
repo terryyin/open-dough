@@ -50,7 +50,7 @@ slice 3 because the refresh touches the list reader the deal uses).
 ### 1. A CI split judges its budget at recorded runner speed
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the four `tests/test-runner-budget.sh` cases above, a unit case for the
 factor rule in `tests/support/share-deal.test.mjs` (median over measurable
 recorded jobs; none measurable → unavailable; `formatRunnerFactorLine`), the
