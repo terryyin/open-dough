@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [CI time budget holds under runner variance](seeds/SEED-185-stable-ci-time-budget.md#stable-ci-time-budget) — SEED-185#stable-ci-time-budget
