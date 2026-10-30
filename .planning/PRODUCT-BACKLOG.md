@@ -20,6 +20,7 @@ cost of the feedback process itself.
 
 - [Load more diff context from the line-number gutter](seeds/SEED-189-dashboard-diff-context-expansion.md#expand-dashboard-diff-context) — SEED-189#expand-dashboard-diff-context ([plan](slice-plans/416-expand-dashboard-diff-context/PLAN.md))
 - [Starting another Cursor session leaves already-running agents running](seeds/SEED-190-keep-running-cursor-sessions.md#keep-running-cursor-sessions) — SEED-190#keep-running-cursor-sessions ([plan](slice-plans/418-keep-running-cursor-sessions/PLAN.md))
+- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-191-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-191#optimize-dashboard-test-feedback
 
 ## Backlog list
 
