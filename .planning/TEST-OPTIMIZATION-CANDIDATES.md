@@ -28,7 +28,7 @@
   started under quieter 1-minute load; treat suite-wall delta as directional
   with the focused-family evidence. No product behavior changed.
 - **Evidence:** [SEED-193 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-193-2026-10-30).
-  Plan at `.planning/slice-plans/420-optimize-dashboard-test-feedback/PLAN.md`.
+  Plan recoverable at `88b46686cb6035e7173d434441308d17c529e2c1:.planning/slice-plans/420-optimize-dashboard-test-feedback/PLAN.md`.
   Raw records under `/tmp/SEED-193-optimize-dashboard-test-feedback/` on the
   measurement host; their continued availability is not assumed.
 
