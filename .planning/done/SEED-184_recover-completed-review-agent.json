@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-184#recover-completed-review-agent",
+  "title": "Recover completed-review agents from published claims",
+  "completedAt": "2026-10-30T04:39:53.888Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "codex",
+  "model": "gpt-6"
+}
