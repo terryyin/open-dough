@@ -153,6 +153,11 @@ themselves establish every affected behavior or all required regression proof.
 Intent remains the maintained view of the product beyond the story's lifetime.
 The story scope is a lens on that view, not a separate definition of Intent.
 
+The [product intent review memorandum](product-intent-review-memorandum.md)
+records the longer-term roles of tests, domain models and types, and
+specifications, together with the current focus on reviewing the intent
+distilled from a newly developed story.
+
 ## Questions the Development perspective should answer
 
 The current dashboard answers these questions through stories and their
