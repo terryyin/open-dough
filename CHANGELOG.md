@@ -1,3 +1,16 @@
+## 0.3.78 - 2026-10-30
+
+- Keep test optimization findings in one project candidate record, with a latest-pass summary, pending candidates, accepted necessary costs, applied profile-only exclusions, and transferred obligations. Preserve decisions across later passes and story cleanup; acceptance alone excludes no tests.
+- Recover a completed story's execution agent from a unique published claim when its completion record omits the agent. Show resolved integration files as mixed work while retaining refusals for shallow, ambiguous, or unsafe attribution.
+- Recognize Claude Code's titled composer when privately attaching to rename a completed dashboard session, while retaining readiness checks for the cursor, prompt, and composer rules.
+- Document the dashboard's current product intent and its Developer, Story, and Agent perspectives, including session, assignment, review, and completion behavior.
+
+The Promoted installation payload updates test-optimization and story-wrap-up guidance and adds `dough-test-optimization/references/candidate-record.md`. No payload paths are removed. This release and its rollout do not inspect, migrate, or rewrite existing project findings. Dashboard code, documentation, tests, planning work, and maintainer records remain source functionality; guidance outside the installer declaration remains Proposed. Active CI-budget, touch-viewport, assignment-cleanup, product-intent vocabulary, and diff-context work is outside this release's completed changes.
+
+Validation: the owning guidance story's representative behavior reviews cover record creation, later-pass preservation, each resolution disposition, missing/empty/unreadable handling, and transfer through cleanup. All 15 focused release checks passed, covering payload links and additions, both native roots, payload comparison, host hooks, latest-release pinning, ordinary-update refusal and no-write behavior, retired-file removal, replacement failure, force recovery, self-installation, and finalization. Release self-installation, full lint, and dashboard typecheck passed. Hosted CI passed integrated source revision `84d56f780c877629c649e6937dedfe9d64b30834` (run `41011219616`), including the dashboard checks; subsequent source changes through `e4ff5febd4d7a3c98522430ed8f6424ba61a8689` affect planning records only.
+
+Under ADR 0005, unchanged Codex, Cursor, and Claude Code discovery, installation, hook registration, and host ownership mechanisms reuse their existing integration evidence. The conventional guidance change uses its representative authoring review and deterministic new-payload/update proof. Dashboard corrections use their owning boundary checks and integrated CI; the Claude composer case also retains its observed native screen as the regression input. These are reused and deterministic checks, not fresh native-host acceptance. No new native exception is claimed; earlier outstanding requirements retain their owners and remain pending.
+
 ## 0.3.77 - 2026-10-30
 
 - Keep backlog and done-catalog merge drivers usable after the registering worktree is retired. Resolve installed drivers in the checkout performing the merge, quote executable and file paths, and retain explicit external runtime locations.
