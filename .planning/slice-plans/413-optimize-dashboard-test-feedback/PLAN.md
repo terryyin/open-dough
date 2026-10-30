@@ -62,23 +62,26 @@ recorded for later experiments.
 
 ### 2. Non-owner change-wait bound is observed without a wall-clock 30s sleep
 Type: Structure
-Status: planned
-Proof: Focused baseline of
-`dashboard/tests/boundary/agent-launch-change-wait.spec.ts` under like workers;
-smallest change wiring `changeWaitMs` through `configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000)`
-and shortening only that boundary test's server env; three consecutive focused
-passes; focused after timing; retain only if comparable full-suite re-profile
-(slice 4) supports a wall-time gain. Surviving proof: non-owner still consumes
-the configured bound (`changed: false` and elapsed ≥ bound − tolerance) rather
-than waking at once; production default remains 30s when unset.
+Status: done
+Proof: Focused before under `--workers=1`: wall **38.63 s**, non-owner attempt
+**33.1 s**. Wired `changeWaitMs` through
+`configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000)` and set that env to **500** only
+on the two servers in
+`dashboard/tests/boundary/agent-launch-change-wait.spec.ts`. Three consecutive
+focused passes after: wall **10.57 / 7.70 / 7.41 s**, non-owner attempt
+**~3.6 s**, all `strictStatus: passed`. Surviving proof: `changed: false` and
+elapsed ≥ configured bound; production default unchanged when unset. Raw proofs
+under `/tmp/SEED-177-optimize-dashboard-test-feedback/slice2/`. Suite wall claim
+deferred to slice 4.
 
 ### 3. Further dominant-family cost is reduced only when still warranted
 Type: Structure
 Status: planned
-Proof: After slice 2's focused result and reassessment, pick at most one next
-family from Remaining candidates with a credible local-wall hypothesis.
-Focused before/after + surviving proof; undo on regression or no focused gain.
-Skip with recorded finding when no credible next experiment remains.
+Proof: After slice 2 reassessment, no second experiment has a comparable
+removable wall-clock cost without deeper family redesign. Remaining candidates
+(further `agent-launch*` poles, long production/attention journeys, touch
+matrices) stay recorded for later passes. Skip further experiments before the
+comparable full-suite re-profile; mark this slice done when recording that skip.
 
 ### 4. Selected local suite confirms the measured outcome
 Type: Behavior
@@ -116,7 +119,16 @@ improvement, no demonstrated gain, or incomplete measurement.
   so the boundary proves “consumes the bound” against a short configured bound
   without changing the production default of 30 s.
 
-### Remaining candidates (after slice 2 reassessment)
+### Slice 2 focused result and reassessment
+
+- Focused change-wait family wall **38.63 s → ~7–10 s** (three consecutive
+  passes). Non-owner case **33.1 s → ~3.6 s**.
+- Retained: `DOUGH_CHANGE_WAIT_MS` via `configuredLimit`; boundary test observes
+  a 500 ms bound. Product default remains 30 s.
+- No second credible micro-experiment before suite re-profile; slice 3 skipped
+  with Remaining candidates retained below.
+
+### Remaining candidates (after slice 2)
 
 1. Further journey→boundary moves inside unique multi-step `agent-launch*` poles
    (`ad-hoc-terminal`; remaining second-server cost), per dashboard tier guidance.
