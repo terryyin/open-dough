@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-187#release-completed-story-preparation",
+  "mode": "story-branch",
+  "branch": "codex/completed-story-assignment-cleanup",
+  "host": "codex"
+}
