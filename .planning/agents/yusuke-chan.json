@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-189#expand-dashboard-diff-context",
+  "mode": "story-branch",
+  "branch": "cursor/load-more-diff-context-from-the-line-number-gutt",
+  "host": "cursor",
+  "model": "auto"
+}
