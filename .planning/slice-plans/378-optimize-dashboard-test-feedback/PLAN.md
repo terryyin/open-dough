@@ -79,11 +79,17 @@ Enables: Slice 3's full-suite confirmation of the selected local wait.
 
 ### 3. Selected local suite confirms the measured outcome
 Type: Behavior
-Status: planned
-Proof: Re-run `env -u NO_COLOR npm run test:dashboard` under conditions
-comparable to slice 1's green baseline, with a proof record. Report before/after
-wall time and executed case count, retained behavioral proof, rejected
-experiments, delivered commits, and remaining candidates.
+Status: done
+Proof: Re-ran `env -u NO_COLOR npm run test:dashboard` at `3149bf64` with proof
+records. Suite stayed green: `selectedCount` **1754** (+1 boundary case),
+`strictStatus: "passed"`. The `agent-launch-second-server` journey fell from
+**64.6 s** (baseline) to **51.2–52.5 s** across after runs. Focused family wall
+**67.8→53.4 s** (−14.4 s) with three consecutive passes. Full-suite wall under
+available host conditions was **not** comparable (baseline load ~5; after runs
+had 5-minute load 12–40 from concurrent pygardon research) and ranged
+**696–971 s** — no suite-wall speedup claimed. Retained on focused + case
+evidence and correct journey/boundary tiering. Raw proofs
+`/tmp/SEED-176-baseline-after` and `/tmp/SEED-176-baseline-after2`.
 
 ## Current decisions
 
@@ -92,17 +98,16 @@ experiments, delivered commits, and remaining candidates.
 Chromium overlay scrollbars ignored `scrollbar-gutter: stable`. Product CSS
 keeps a classic WebKit track on `.board-scroll` (`838e533a`).
 
-### Slice 2 hypothesis (retained pending slice 3)
+### Slice 2–3 outcome (retained)
 
-Non-owner change-wait is a server bound, not a page journey. Moving it to
-boundary shortens the journey critical path while the 30 s bound still runs
-cheaper in parallel at the boundary tier. Focused wall gain supports retain;
-suite confirmation is slice 3.
+Non-owner change-wait moved to boundary. Focused wall and second-server case
+duration improved; suite wall comparison inconclusive under unlike host load —
+no suite-wall speedup claimed. Board-scroll Column-fit fix remains.
 
-### Remaining candidates (after this pass)
+### Remaining candidates
 
-1. Further unique multi-step `agent-launch*` poles (ad-hoc-terminal, second-server
-   remaining cost after the wait move).
+1. Further unique multi-step `agent-launch*` poles (ad-hoc-terminal; remaining
+   second-server cost).
 2. Long single journeys (`agent-completion-attention`, production-watcher chains)
    only with surviving proof and measured wall-time gain.
 3. Touch viewport matrices that only repeat layout branches already proved once.
@@ -111,5 +116,5 @@ suite confirmation is slice 3.
 
 ## Plan concern review
 
-Green baseline unblocked after the board-scroll fix. Slice 2's experiment is
-measured at focused scope; slice 3 owns full-suite confirmation.
+Green baseline unblocked after the board-scroll fix. Slice 2 retained on focused
+and case evidence; slice 3 records green suite and the suite-wall limitation.
