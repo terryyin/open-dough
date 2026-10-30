@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-183#claude-done-rename-titled-composer",
+  "title": "Claude Code done rename recognizes a titled composer",
+  "completedAt": "2026-10-30T04:26:21.745Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
