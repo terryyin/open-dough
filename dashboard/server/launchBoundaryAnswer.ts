@@ -36,8 +36,11 @@ import {
   terminalHandoffAttach,
   terminalHandoffHeader,
 } from "../src/agentTerminal.ts";
+import { configuredLimit } from "./configuredLimit.ts";
 
-const changeWaitMs = 30_000;
+// How long a wait for an attempt observation to change lasts. A test may
+// shorten it through `DOUGH_CHANGE_WAIT_MS`; production stays at 30 seconds.
+const changeWaitMs = () => configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000);
 
 async function markedDone(
   { source, record, folder }: Extract<Admitted, { readonly kind: "done" }>,
@@ -160,7 +163,7 @@ export async function answer(
           status: 200,
           body: await launches.changed(
             request.attempt,
-            changeWaitMs,
+            changeWaitMs(),
             request.seen,
           ),
         };

@@ -4,9 +4,10 @@
 // told while nothing waited -- here the worker's move from the start to the
 // session launch -- is answered at once instead of being missed until the
 // attempt settles, and a wait naming the current count answers at the next
-// change. A non-owner that has nothing new to tell consumes the existing
-// 30-second bound instead of waking at once. What the page says from those
-// answers is ../agent-launch-start-story-card.spec.ts and
+// change. A non-owner that has nothing new to tell consumes the configured
+// change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
+// of waking at once. What the page says from those answers is
+// ../agent-launch-start-story-card.spec.ts and
 // ../agent-launch-second-server.spec.ts.
 
 import { expect, test } from "../support/pageTest.ts";
@@ -84,7 +85,12 @@ test("a wait naming the changes its asker saw answers at once a change told whil
   }
 });
 
-test("a non-owner with nothing new to tell consumes the existing 30-second change bound", async () => {
+// Observe the bound without waiting out production's 30 seconds: the server
+// under test shortens `DOUGH_CHANGE_WAIT_MS` the same way other dashboard
+// timeouts are shortened for tests.
+const observedChangeWaitMs = 500;
+
+test("a non-owner with nothing new to tell consumes the configured change bound", async () => {
   test.setTimeout(120_000);
   const origin = await startOrigin();
   const push = origin.holdPushes();
@@ -96,7 +102,10 @@ test("a non-owner with nothing new to tell consumes the existing 30-second chang
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 60_000,
-      extraEnv: { DOUGH_START_TIMEOUT_MS: "10000" },
+      extraEnv: {
+        DOUGH_START_TIMEOUT_MS: "10000",
+        DOUGH_CHANGE_WAIT_MS: String(observedChangeWaitMs),
+      },
     });
     owner.claudeScenario("held");
     const { attempt: accepted } = JSON.parse(
@@ -109,7 +118,10 @@ test("a non-owner with nothing new to tell consumes the existing 30-second chang
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 60_000,
-      extraEnv: { DOUGH_START_TIMEOUT_MS: "10000" },
+      extraEnv: {
+        DOUGH_START_TIMEOUT_MS: "10000",
+        DOUGH_CHANGE_WAIT_MS: String(observedChangeWaitMs),
+      },
     });
     const [live] = await attempts(observer);
     expect(live).toMatchObject({
@@ -122,7 +134,7 @@ test("a non-owner with nothing new to tell consumes the existing 30-second chang
     expect(await changedBody(observer, accepted.id)).toMatchObject({
       changed: false,
     });
-    expect(Date.now() - began).toBeGreaterThanOrEqual(29_000);
+    expect(Date.now() - began).toBeGreaterThanOrEqual(observedChangeWaitMs);
   } finally {
     push.release();
     await observer?.close();

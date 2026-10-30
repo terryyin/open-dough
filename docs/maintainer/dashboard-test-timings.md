@@ -236,3 +236,27 @@ comparable load.
    only with surviving proof and measured wall-time gain.
 3. Touch viewport matrices that only repeat layout branches already proved once
    at the boundary tier.
+
+## Local `npm run test:dashboard` pass (SEED-177, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's Mac host.
+
+| Revision | Role | Wall (`durationMs`) | Cases | Load (1m/5m/15m at start) | Notes |
+| --- | --- | ---: | ---: | --- | --- |
+| `3060f8f5` | Green baseline (admit) | 751.0s | 1754 | 5.18 / 4.98 / 6.77 | `strictStatus: passed` |
+| `a047236b` | After `DOUGH_CHANGE_WAIT_MS` bound observation | 741.4s | 1754 | 4.79 / 7.04 / 10.55 | Modest suite-wall gain |
+
+Boundary `agent-launch-change-wait` non-owner case: **34.6s → 3.9s**. Focused
+family wall (`--workers=1`): **38.63s → 7.41–10.57s** (three consecutive
+passes). Retained: `configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000)` with the
+boundary test observing a 500 ms bound; production default remains 30 s.
+Full-suite wall ≈ **9.6 s (1.3%)** shorter under comparable load.
+
+### Remaining candidates
+
+1. Further unique multi-step `agent-launch*` poles (`ad-hoc-terminal`; remaining
+   second-server cost).
+2. Long single journeys (`agent-completion-attention`, production-watcher chains)
+   only with surviving proof and measured wall-time gain.
+3. Touch viewport matrices that only repeat layout branches already proved once
+   at the boundary tier.
