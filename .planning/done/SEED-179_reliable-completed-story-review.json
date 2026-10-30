@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-179#reliable-completed-story-review",
+  "title": "Repair completed-story review and merge-driver lifetime",
+  "completedAt": "2026-10-30T01:09:42.381Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "codex",
+  "model": "gpt-6"
+}

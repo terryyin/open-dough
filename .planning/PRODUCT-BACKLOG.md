@@ -20,7 +20,6 @@ cost of the feedback process itself.
 
 - [Reduce dashboard test feedback time with measured optimization](seeds/SEED-177-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-177#optimize-dashboard-test-feedback
 - [Resolve recorded dashboard test optimization candidates](seeds/SEED-178-resolve-dashboard-test-optimization-candidates.md#resolve-dashboard-test-optimization-candidates) — SEED-178#resolve-dashboard-test-optimization-candidates
-- [Repair completed-story review and merge-driver lifetime](seeds/SEED-179-reliable-completed-story-review.md#reliable-completed-story-review) — SEED-179#reliable-completed-story-review
 
 ## Backlog list
 
