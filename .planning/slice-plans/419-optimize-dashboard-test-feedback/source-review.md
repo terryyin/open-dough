@@ -10,49 +10,49 @@ to read no other project files and change nothing.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1a | Shorten the developer's local wait for trustworthy dashboard test results (or satisfy the story by demonstrating and recording the absence of worthwhile improvement within scope; see `8a` and `10c.1`–`10c.3`). | slice 4 | |
-| 1b | Preserve behavioral coverage across the dashboard test suite. | slice 4 | |
-| 1c | Preserve confidence in trustworthy local dashboard test results. | slice 4 | |
+| 1a | Shorten the developer's local wait for trustworthy dashboard test results (or satisfy the story by demonstrating and recording the absence of worthwhile improvement within scope; see `8a` and `10c.1`–`10c.3`). | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (`durationMs` 950.8s -> 554.3s, -396.5s / -41.7%) |
+| 1b | Preserve behavioral coverage across the dashboard test suite. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (1,747 passed, 0 skipped, replacement boundary proof in `boundary/session-instruction-voice-boundary.spec.ts`) |
+| 1c | Preserve confidence in trustworthy local dashboard test results. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (`strictStatus: "passed"`, 3 consecutive passes per focused family) |
 | 2a | Run measured test optimization against the ordinary local command `npm run test:dashboard`. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (`npm run test:dashboard` with proof record and spec times) |
 | 2b.1 | Cover browser journeys. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (`selectedCount: 1751` covering browser journeys) |
 | 2b.2 | Cover boundary tests. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (`selectedCount: 1751` covering `boundary/*.spec.ts`) |
 | 2b.3 | Cover shared setup used by browser journeys and boundary tests. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline and Dominant-cost shape (`publishStoryColumnsJourney` and `closeOpenSessions`) |
 | 3a | Profile `npm run test:dashboard` execution before choosing optimization experiments. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (`/tmp/SEED-191-optimize-dashboard-test-feedback/baseline-proof.json` and `baseline-times.tsv`) |
 | 3b | Investigate related test families across the dashboard suite. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Dominant-cost shape and family analysis (Families 1, 2, and 3) |
-| 3c | Retain only changes supported by comparable wall-time measurements under like runner conditions. | slice 4 | |
+| 3c | Retain only changes supported by comparable wall-time measurements under like runner conditions. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (focused and full-suite before/after measurements) |
 | 4a.1 | Follow the project's dashboard test guidance when simplifying tests. | slice 2 | observed: dashboard/tests/launchJourney.ts (worker-shared read-only StoryColumnsJourney) and dashboard/tests/boundary/agent-launch-*.spec.ts (doneRenameWaitMs: 100 on non-subject shared cleanup) |
 | 4a.2 | Follow the project's dashboard test guidance when moving proof between test tiers. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts and dashboard/tests/session-instruction-voice-provider-failures.spec.ts |
 | 5a.1 | Establish replacement proof before removing any test cases. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts (`slice3-boundary-replacement.json` verified before removing 6 journey cases) |
 | 5a.2 | Establish replacement proof before narrowing any test cases. | slice 3 | observed: dashboard/tests/session-instruction-voice.spec.ts (retains UI `saveVoiceKey`) and dashboard/tests/support/voicePage.ts (`seedVoiceKey`) |
-| 6a | Re-run the same local command (`npm run test:dashboard`) under comparable runner conditions after experiments. | slice 4 | |
-| 6b.1 | Report baseline ("before") wall time. | slice 4 | |
-| 6b.2 | Report post-experiment ("after") wall time under comparable conditions. | slice 4 | |
-| 6b.3 | Report baseline ("before") executed case count. | slice 4 | |
-| 6b.4 | Report post-experiment ("after") executed case count. | slice 4 | |
-| 6b.5 | Report retained behavioral proof (including replacement or surviving tier proof for simplified, narrowed, or removed cases). | slice 4 | |
-| 6b.6 | Report rejected experiments. | slice 4 | |
-| 6b.7 | Report remaining optimization candidates. | slice 4 | |
-| 7a.1 | Update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` with the latest-pass summary. | slice 4 | |
-| 7a.2 | Update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` with the current candidate state. | slice 4 | |
-| 7a.3 | Remove from `.planning/TEST-OPTIMIZATION-CANDIDATES.md` any transferred obligation whose receiving story has already closed with its work done. | slice 4 | |
-| 8a | Treat a demonstrated absence of worthwhile improvement within scope as satisfying the story when the supporting evidence (profiling, experiment measurements, rejected experiments, and remaining candidates) is recorded. | slice 4 | |
-| 9a | Do not change product behavior to make tests faster. | slice 4 | |
-| 9b | Do not expand into non-dashboard test suites. | slice 4 | |
-| 9c.1 | Do not claim speedup from fewer test cases or fewer lines of code alone. | slice 4 | |
-| 9c.2 | Do not claim speedup from focused timings without a comparable full local re-run of `npm run test:dashboard`. | slice 4 | |
-| 9c.3 | Do not claim speedup from CI-only allocation changes that leave the selected local `npm run test:dashboard` wait unchanged. | slice 4 | |
+| 6a | Re-run the same local command (`npm run test:dashboard`) under comparable runner conditions after experiments. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (`after-proof.json` and `after-times.tsv` at `b374ab6b`) |
+| 6b.1 | Report baseline ("before") wall time. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (`950.8s` `durationMs` / `951.4s` outer wall) |
+| 6b.2 | Report post-experiment ("after") wall time under comparable conditions. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (`554.3s` `durationMs` / `554.7s` outer wall) |
+| 6b.3 | Report baseline ("before") executed case count. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (`1,751` cases, `0` skipped) |
+| 6b.4 | Report post-experiment ("after") executed case count. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (`1,747` cases / `1,745` on baseline set, `0` skipped) |
+| 6b.5 | Report retained behavioral proof (including replacement or surviving tier proof for simplified, narrowed, or removed cases). | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass and docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 |
+| 6b.6 | Report rejected experiments. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass ("no experiments were rejected") |
+| 6b.7 | Report remaining optimization candidates. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md (`Pending candidates: None.` and `Accepted necessary costs`) |
+| 7a.1 | Update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` with the latest-pass summary. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md lines 3-45 (`## Latest pass`) |
+| 7a.2 | Update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` with the current candidate state. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md lines 47-116 |
+| 7a.3 | Remove from `.planning/TEST-OPTIMIZATION-CANDIDATES.md` any transferred obligation whose receiving story has already closed with its work done. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md lines 113-116 (`## Transferred obligations` -> `None.`) |
+| 8a | Treat a demonstrated absence of worthwhile improvement within scope as satisfying the story when the supporting evidence (profiling, experiment measurements, rejected experiments, and remaining candidates) is recorded. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (measured gain achieved; alternative preserved in plan/story) |
+| 9a | Do not change product behavior to make tests faster. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (only `dashboard/tests/` and maintainer/planning docs changed) |
+| 9b | Do not expand into non-dashboard test suites. | slice 4 | observed: docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30 (all test edits stay under `dashboard/tests/`) |
+| 9c.1 | Do not claim speedup from fewer test cases or fewer lines of code alone. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (speedup claimed from measured `durationMs` 950.8s -> 554.3s and focused timings) |
+| 9c.2 | Do not claim speedup from focused timings without a comparable full local re-run of `npm run test:dashboard`. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (full local `npm run test:dashboard` re-run recorded at `b374ab6b`) |
+| 9c.3 | Do not claim speedup from CI-only allocation changes that leave the selected local `npm run test:dashboard` wait unchanged. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (no CI-only allocation changes; local `npm run test:dashboard` wait improved by 396.5s) |
 | 10a.1 | Record the baseline revision before running experiments. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (`7225da81df32e6fc59debf9b2943f3166335c9f5`) |
 | 10a.2 | Run baseline `npm run test:dashboard` under explicitly named runner conditions. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (16 CPUs, 48 GiB RAM, 8 workers, `NO_COLOR` unset, start load 9.93/11.35/10.54) |
 | 10a.3 | Record baseline wall time and executed case count. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (wall 951.39s / `durationMs` 950.75s, `selectedCount: 1751`) |
-| 10a.4 | When experiments are retained, verify `npm run test:dashboard` finishes sooner under comparable runner conditions. | slice 4 | |
-| 10a.5 | Preserve behavioral coverage in the resulting suite. | slice 4 | |
+| 10a.4 | When experiments are retained, verify `npm run test:dashboard` finishes sooner under comparable runner conditions. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (`950.8s -> 554.3s`) |
+| 10a.5 | Preserve behavioral coverage in the resulting suite. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass and `boundary/session-instruction-voice-boundary.spec.ts` |
 | 10a.6 | Ensure replacement proof is in place for any removed cases. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts lines 135-209 and dashboard/tests/session-instruction-voice-provider-failures.spec.ts lines 17-51 |
-| 10b.1 | Undo or leave out any experiment that fails to improve comparable `npm run test:dashboard` wall time. | slice 4 | |
-| 10b.2 | Undo or leave out any experiment that weakens behavioral coverage or confidence. | slice 4 | |
-| 10b.3 | Name each undone or omitted experiment under rejected experiments in the report. | slice 4 | |
-| 10c.1 | Leave the dashboard test suite unchanged when no worthwhile saving is found within scope. | slice 4 | |
-| 10c.2 | Record the no-worthwhile-saving outcome and its measurements in the report. | slice 4 | |
-| 10c.3 | Record the remaining candidates in the report (and `.planning/TEST-OPTIMIZATION-CANDIDATES.md`). | slice 4 | |
+| 10b.1 | Undo or leave out any experiment that fails to improve comparable `npm run test:dashboard` wall time. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (all 3 experiments improved both focused and full-suite wall time) |
+| 10b.2 | Undo or leave out any experiment that weakens behavioral coverage or confidence. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (all retained experiments preserve coverage and pass 3 consecutive focused runs + full suite) |
+| 10b.3 | Name each undone or omitted experiment under rejected experiments in the report. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass ("no experiments were rejected") |
+| 10c.1 | Leave the dashboard test suite unchanged when no worthwhile saving is found within scope. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (worthwhile 396.5s saving found and measured) |
+| 10c.2 | Record the no-worthwhile-saving outcome and its measurements in the report. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (measured gain outcome and measurements recorded) |
+| 10c.3 | Record the remaining candidates in the report (and `.planning/TEST-OPTIMIZATION-CANDIDATES.md`). | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md (`Pending candidates` and `Accepted necessary costs`) |
 | 10d.1 | Move or drop the redundant journey proof in accordance with the project's dashboard test guidance. | slice 3 | observed: dashboard/tests/session-instruction-voice-provider-failures.spec.ts (6 redundant per-status journey cases moved to boundary) |
 | 10d.2 | Retain proof of the behavior in the cheaper surviving boundary check. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts lines 135-209 (8 upstream error variants and non-empty bytes) |
-| 10d.3 | Keep the change if comparable local `npm run test:dashboard` wall time improves, or reject (undo/leave out and report) the change if local suite wall time does not improve. | slice 4 | |
+| 10d.3 | Keep the change if comparable local `npm run test:dashboard` wall time improves, or reject (undo/leave out and report) the change if local suite wall time does not improve. | slice 4 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md Latest pass (retained after full-suite `durationMs` improved 950.8s -> 554.3s and voice spec sum improved 90.7s -> 42.8s) |

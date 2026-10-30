@@ -4,28 +4,45 @@
 
 - **Command / scope:** `npm run test:dashboard`, the full local dashboard
   suite with eight default workers on the developer's 16-CPU / 48-GiB Mac.
-  Both runs unset `NO_COLOR` and write a separate
-  `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`.
-- **Revision:** `3060f8f592f7ff17b944c1dfc034aa64b0442aae` before;
-  `a047236bd230a5759b2d1c5d4917fa24770b5587` after
-  (SEED-177, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 751.0s / 741.4s;
-  executed cases 1,754 / 1,754, with no skipped cases. Both strict runs passed.
-- **Outcome:** measured gain — approximately 9.6s (1.3%) shorter full-suite
-  wall time. The change-wait boundary case fell from 34.6s to 3.9s; focused
-  family wall with one worker fell from 38.63s to 7.41–10.57s over three
-  consecutive passes. The test observes a configured 500ms bound; the
-  production default remains 30s.
-- **Limits:** one full-suite before/after pair under comparable recorded load
-  (start averages 5.18 / 4.98 / 6.77 before, 4.79 / 7.04 / 10.55 after).
-  This is a modest local observation, not a guaranteed saving or a CI claim.
-  Migration on 2026-10-30 carries forward this latest measured pass and the
-  accepted SEED-178 triage decisions; it runs no new profile or experiment.
-- **Evidence:** [SEED-177 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-177-2026-10-30).
-  The original plan and literal proof-record commands are recoverable at
-  `feafb526:.planning/slice-plans/413-optimize-dashboard-test-feedback/PLAN.md`.
+  Both runs unset `NO_COLOR` and write separate
+  `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
+- **Revision:** `7225da81df32e6fc59debf9b2943f3166335c9f5` before;
+  `b374ab6b45a38046e61138715ad8a42586572d8b` after
+  (SEED-191, 2026-10-30).
+- **Before / after:** recorded wall (`durationMs`) 950.8s / 554.3s (outer wall
+  951.4s / 554.7s); summed attempt durations 6,508.3s / 4,080.8s; summed spec
+  durations (including `beforeAll`/`afterAll` hooks) 7,283.5s / 4,283.3s;
+  executed cases 1,751 / 1,747 (`1,751 → 1,745` on the baseline set from `-6`
+  redundant voice provider-failure browser journeys replaced by boundary
+  assertions, plus `+2` diff-context cases merged from `0154843a` SEED-189),
+  with 0 skipped cases. Both strict runs passed.
+- **Outcome:** measured gain — 396.5s (41.7%) shorter full-suite `durationMs`
+  and 3,000.2s (41.2%) lower summed spec time across three retained family
+  improvements: (1) worker-scoped caching of the read-only
+  `publishStoryColumnsJourney()` origin in `dashboard/tests/launchJourney.ts`
+  (focused 4 specs / 15 cases at `--workers=1`: 51.8s → 38.5–41.2s; full-suite
+  44-spec shared hook time: 615.0s → 87.8s), (2) `doneRenameWaitMs: 100` for
+  non-subject Claude `markDone` / `closeOpenSessions` cleanup while preserving
+  `boundary/agent-launch-done-rename-wait.spec.ts` and the 5,000ms production
+  default (focused 15 specs / 83 cases: 48.8s → 21.5–22.8s, summed spec time
+  272.3s → 101.8–109.0s; full-suite 15 specs: 251.8s → 64.4s), and (3) moving
+  6 upstream OpenAI status/payload variants (`401`, `429`, `500`, `200` empty,
+  `200` malformed, socket error; all 8 variants + `bytes > 0` proved in
+  `boundary/session-instruction-voice-boundary.spec.ts`) out of browser
+  journeys while seeding non-settings voice specs via `seedVoiceKey` and
+  preserving the refusal retry, `deadline`, and `saveVoiceKey(page)` UI
+  settings journeys (focused 7 voice specs: 16.1s → 13.1–13.2s, summed spec
+  time 65.9s → 45.0–45.6s, `provider-failures` 21.1s → 5.5–5.8s).
+- **Limits:** one full-suite before/after pair on the local host (start load
+  averages 9.93 / 11.35 / 10.54 before vs 4.62 / 4.81 / 6.19 after; end load
+  averages 56.08 / 54.43 / 39.26 before vs 20.86 / 16.95 / 12.41 after), backed
+  by three consecutive passes per focused family under comparable load. Higher
+  baseline load partly reflected 36 redundant per-file Git fixture builds per
+  suite run; exact full-suite wall savings vary with host load. No product
+  behavior changed and no experiments were rejected.
+- **Evidence:** [SEED-191 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30).
   Raw records were retained outside Git under
-  `/tmp/SEED-177-optimize-dashboard-test-feedback/` on the measurement host;
+  `/tmp/SEED-191-optimize-dashboard-test-feedback/` on the measurement host;
   their continued availability is not assumed.
 
 ## Pending candidates
@@ -96,35 +113,4 @@ None.
 
 ## Transferred obligations
 
-### touch-viewport-matrices
-
-- **Locations / scope:** the fourteen dashboard specs using
-  `dashboard/tests/touchLaunchPage.ts`, including settings reading, OpenAI
-  recovery, and terminal-theme matrices; 36 cases at refinement.
-- **Observed cost:** hosted run 40796911428 at `930974d6` recorded 237 of
-  7,460 summed test-seconds in the 24 matrix cases (3.2%), and 322s in the
-  full family (4.3%). Two green local suite baselines under like load differed
-  by 150s, more than the family's whole cost. Summed case durations are not
-  wall time; no suite-wall saving is established.
-- **Unique protection:** native touch input and terminal fitting at reduced
-  height, touch scrollback, rotation preserving drafts/selections/reading
-  position, coarse Done-row disclosure, the 430×932 answer-row band and held
-  progress answer, tablet side-by-side review, and a live terminal through a
-  settings round trip with viewport changes.
-- **Alternatives attempted:** resolve-only triage created a replacement plan
-  without profiling or implementing removals. Refinement classified actual
-  layout branches and named surviving proof; a shared viewport helper alone
-  does not establish redundancy.
-- **Disposition / rationale:** transferred obligation —
-  [SEED-180](seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)
-  and [plan 413](slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
-  own implementation and verification. The story is Taken; this pointer does
-  not claim its work is implemented. Its selected outcome is fewer redundant
-  cases with preserved proof and comparable focused-family timing; the
-  ordinary suite is a green check, with suite-wall claims outside scope.
-- **Date:** 2026-10-30
-- **Evidence / follow-up:** [plan 413's surviving-proof table and ordered work](slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md#family-and-surviving-proof);
-  completed SEED-178 triage at `d6bf4531` / `03424649`, separated from the
-  implementation story at `fd5303c0`. Keep this entry until the receiving work
-  closes; remove completed obligations then and return any unfinished part
-  to Pending candidates.
+None.

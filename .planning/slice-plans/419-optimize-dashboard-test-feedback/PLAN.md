@@ -100,15 +100,8 @@ enabling the suite re-profile in slice 4.
 
 ### 4. Selected local suite confirms the measured outcome and updates the candidate record
 Type: Behavior
-Status: planned
-Proof: Re-run
-`env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/SEED-191-optimize-dashboard-test-feedback/after-proof.json OPEN_DOUGH_DASHBOARD_TIMES=/tmp/SEED-191-optimize-dashboard-test-feedback/after-times.tsv npm run test:dashboard`
-under default 8 workers and comparable load. Compare wall time and executed case
-count (including replacement boundary assertions); update
-`docs/maintainer/dashboard-test-timings.md` and
-`.planning/TEST-OPTIMIZATION-CANDIDATES.md` (`## Latest pass`, removing the
-completed `touch-viewport-matrices` transferred obligation, and preserving
-`## Accepted necessary costs` and remaining candidates).
+Status: done
+Proof: Re-ran `env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/SEED-191-optimize-dashboard-test-feedback/after-proof.json OPEN_DOUGH_DASHBOARD_TIMES=/tmp/SEED-191-optimize-dashboard-test-feedback/after-times.tsv npm run test:dashboard` at `b374ab6b45a38046e61138715ad8a42586572d8b` under default 8 workers. Recorded `durationMs` fell from **950,751.1 ms** (**950.8 s**, outer wall **951.4 s**) to **554,265.8 ms** (**554.3 s**, outer wall **554.7 s**) — a **396.5 s (41.7%)** reduction (`selectedCount: 1,747`, `1,747` passed, `0` skipped, `strictStatus: "passed"`; `1,751 → 1,745` on the baseline set after `-6` voice browser cases replaced by boundary proof, plus `+2` diff-context cases merged from `0154843a`). Summed test attempt duration fell from **6,508.3 s to 4,080.8 s** (**−37.3%**), summed spec duration from **7,283.5 s to 4,283.3 s** (**−41.2%**), and shared `beforeAll`/`afterAll` hook overhead from **775.2 s to 202.5 s** (**−73.9%**). Updated `docs/maintainer/dashboard-test-timings.md` and `.planning/TEST-OPTIMIZATION-CANDIDATES.md` (`## Latest pass`, removing the completed `touch-viewport-matrices` transferred obligation, and preserving `## Accepted necessary costs`).
 
 Behavior: Pre-condition — slices 2 and 3 verified on their focused families.
 Trigger — run the full local dashboard suite under comparable conditions and
