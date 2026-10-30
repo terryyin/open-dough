@@ -4,6 +4,10 @@ Measured on 2026-10-29 for early serial deployment scheduling, shared-hook
 weights, and fewer browser observation round trips. Timings are observations
 from a small sample of shared runners, not a guaranteed saving per run.
 
+Current findings and their dispositions are maintained in
+[Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
+This document retains measurement evidence.
+
 ## Comparable workload
 
 The hosted workflow is `.github/workflows/ci.yml`, on `ubuntu-24.04`, with
@@ -228,34 +232,11 @@ clear of Chromium overlay scrollbars via a 15px WebKit scrollbar track on
 `.board-scroll`. Full-suite wall speedup was **not** demonstrated under
 comparable load.
 
-### Remaining candidates
-
 ### Resolved (2026-10-30 resolve)
 
-- **Necessary cost (accepted):** further unique multi-step `agent-launch*` poles
-  (`ad-hoc-terminal`; remaining `agent-launch-second-server` cost after the
-  SEED-176 change-wait boundary move). Dual-preview page protection and
-  immediate terminal-attachment journeys are the protected behavior; cheaper
-  boundary moves for those poles are already landed. No project
-  profile-exclusion mechanism; none invented.
-- **Long journeys (`agent-completion-attention`, production-watcher chains):**
-  retain unique integrated protection. Removing redundant variants or moving
-  detailed checks to boundary tests requires replacement proof and separately
-  authorized scope. Where cross-step protection cannot be preserved more
-  cheaply, record necessary cost. SEED-177 has closed without those moves.
-  This resolves the coverage decision without blanket authorization to weaken
-  integrated coverage.
-- **Replacement plan:** touch viewport matrices that only repeat layout
-  branches — obligation in
-  [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
-  ([implementation story SEED-180](../../.planning/seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)).
-  Redundancy is a hypothesis: classify actual layout branches and unique
-  touch/rotation interactions before removing cases. Related settings reading,
-  OpenAI recovery, and terminal-theme matrices also require review; a shared
-  viewport helper alone proves no redundancy. SEED-177 is complete, so its work
-  is historical context rather than a pending coordination claim. The
-  implementation remains queued; completed resolve-only triage does not
-  authorize it.
+The accepted costs and transferred obligation now live in
+[Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md#accepted-necessary-costs).
+This heading remains as a forwarding link for existing story and plan references.
 
 ## Local `npm run test:dashboard` pass (SEED-177, 2026-10-30)
 
@@ -272,7 +253,5 @@ passes). Retained: `configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000)` with the
 boundary test observing a 500 ms bound; production default remains 30 s.
 Full-suite wall ≈ **9.6 s (1.3%)** shorter under comparable load.
 
-### Remaining candidates
-
-None beyond the 2026-10-30 resolve dispositions above; SEED-177's bound
-observation does not reopen them.
+SEED-177's bound observation does not reopen the decisions preserved in
+[Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
