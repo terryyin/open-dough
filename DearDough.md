@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 368. Removed numbers are never reused.
+- Highest allocated local number: 369. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -667,3 +667,19 @@ The default CI diagnostic keeps lines around GitHub error markers. With the quie
   - Evidence: [run 40817756668, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40817756668/job/123262746829), 2026-10-29 UTC logs, has FAIL lines for agent-launch-attention.spec.ts and sessions-sidebar-navigation-cases.spec.ts. The diagnostic excerpt showed only navigation. After its repair `76d61616d6e74866024a3091a2ec7040d2b9791e`, [run 40819519249, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40819519249/job/123268443339) retained only the unchanged attention failure. Full logs were read through the same CI GitHub source to verify both inventories.
   - Observed effect: the coordinator published the navigation-only repair before discovering that readiness comparison had already failed in the first job; another CI cycle repeated that known-but-unseen failure.
   - Inference: bounded per-failure inventory before repair publication could have avoided at least that extra cycle; retain bounded excerpts without treating a tail as the complete failed-test list.
+
+## DD-369 — New Markdown docs with trailing blank EOF fail staged whitespace
+
+Post-change refactor extracted new maintainer timing Markdown files that ended
+with an extra blank line. Selective format does not rewrite that Markdown
+whitespace, so the first guarded fresh delivery failed at `git diff --check`
+(`new blank line at EOF`) after the plan status mutation.
+
+### Occurrences
+- Execution: SEED-180#optimize-dashboard-touch-viewport-tests; plan 413; completion commit pending after slice 6; first related implementation `483f66b483a9046e0c790bc12bcc57489aa2a503`
+  - Timestamp: 2026-10-30T14:11:00+08:00 (approx.; first slice-6 fresh delivery refused before accepted `2f800b3f`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.76
+  - Evidence: fresh `preparation-failed` / `operation: "staged whitespace"` naming `docs/maintainer/dashboard-installed-start-fixture-timings.md:83` and `docs/maintainer/dashboard-touch-family-timings.md:73`; repair stripped trailing blank EOF; retry published `2f800b3f`. Distinct from DD-363 (hard-break trailing spaces on source-review lines).
+  - Observed effect: one refused preparation after status mutation; mechanical EOF fix and second guarded delivery succeeded
+  - Inference: new Markdown created under the file-size split needs an EOF whitespace check before staging; format alone does not catch it
