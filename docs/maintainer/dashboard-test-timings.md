@@ -209,3 +209,30 @@ provide the reproducible workload, subject to artifact retention.
 
 Subsequent reduction of repeated production-watcher policy builds is measured
 in [production policy test timings](production-policy-test-timings.md).
+
+## Local `npm run test:dashboard` pass (2026-10-29 / 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's Mac host.
+
+| Revision | Role | Wall (`durationMs`) | Cases | Load (1m/5m/15m at start) | Notes |
+| --- | --- | ---: | ---: | --- | --- |
+| `838e533a` | Green baseline (board-scroll Column-fit fix) | 597.8s | 1753 | 5.30 / 4.58 / 3.98 | `strictStatus: passed` |
+| `3149bf64` | After journey/boundary wait move | 970.8s | 1754 | 10.02 / 8.52 / 8.19 | Unlike load; no suite-wall claim |
+| `3149bf64` | Second after run | 695.5s | 1754 | 6.46 / 26.67 / 29.19 | Contended (pygardon research); no suite-wall claim |
+
+`agent-launch-second-server` case duration: **64.6s → 52.5s / 51.2s**. Focused
+family wall (journey + boundary change-wait) measured **67.8s → 53.4s** with
+three consecutive passes. Retained: move non-owner 30s change-wait into
+`dashboard/tests/boundary/agent-launch-change-wait.spec.ts`; keep Column-fit
+clear of Chromium overlay scrollbars via a 15px WebKit scrollbar track on
+`.board-scroll`. Full-suite wall speedup was **not** demonstrated under
+comparable load.
+
+### Remaining candidates
+
+1. Further unique multi-step `agent-launch*` poles (`ad-hoc-terminal`; remaining
+   second-server cost after the wait move).
+2. Long single journeys (`agent-completion-attention`, production-watcher chains)
+   only with surviving proof and measured wall-time gain.
+3. Touch viewport matrices that only repeat layout branches already proved once
+   at the boundary tier.
