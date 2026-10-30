@@ -25,7 +25,7 @@ already closed earlier passes; this is a fresh pass against the current suite.
 
 **Identity:** SEED-193#optimize-dashboard-test-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/420-optimize-dashboard-test-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3a0ed0cbd6384191d83f870db40db2b23249305d6e565eb07ba3ff42153b93a","plan":"6eb8060fa46ad5c517f80f0cd8cb364be1038fcf54584fb102f362cf75df8069"}}
 ```
 
 **Beneficiary:** A developer running the dashboard tests during local work.
