@@ -121,7 +121,7 @@ published-path work dominates.
 
 ### 3. Gaps boundary drops ambiguous-merge already owned by driver
 Type: Structure
-Status: planned
+Status: done
 Proof: Focused before 10.34–11.18s / after 9.48–11.51s over three passes —
 inconclusive / no clear focused wall gain; change undone. Driver and
 conflicts siblings stayed green while the trial edit was present. Raw under
