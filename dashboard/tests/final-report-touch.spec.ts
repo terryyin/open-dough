@@ -31,7 +31,9 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
-for (const height of [320, 240]) {
+// One short-phone height: wrap and ≤480 survival; resize loop still visits 240.
+{
+  const height = 320;
   test.describe(`short phone ${height}`, () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
     test("reads the question and touches each full choice, retaining identity through resize and rotation", async ({

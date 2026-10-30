@@ -108,7 +108,7 @@ server. Boundary mode is the project's cheaper tier for server-answer variants
 
 ### 3. Final-report short-phone touch proof collapses to one height
 Type: Structure
-Status: planned
+Status: done
 Proof: Focused `final-report-touch.spec.ts` before/after (three consecutive
 passes); surviving short-phone case still asserts multi-line name wrap and
 identity through the resize/rotation loop that includes 240 px height; tablet
@@ -149,6 +149,15 @@ may still be listed in the candidate record without further experiments.
 
 ## Current decisions
 
+- **Slice 3 focused gain (pending delivery):** `final-report-touch.spec.ts`
+  before `34.3–34.6s` / 4 cases; after keeping 320 only `25.1–25.2s` / 3 cases
+  (three passes). Keeping 240 alone left wall ≈34s.
+- **Slice 2 experiment rejected (2026-10-30):** moving HTTP-only
+  story-review admission specs to `serverMode: "boundary"` did not improve
+  focused family wall (`12.6s` → `12.1–12.5s` over three passes; summed `.tsv`
+  ~55s→~44s). Changes undone; no coverage change. Remains a pending design
+  candidate without a measured local-wall claim.
+
 - **Baseline (Slice 1):** Green local baseline at revision
   `7aa54d9cab78872586c59aca08b9de72dd4bca7f`: `durationMs` **640.3s**, outer
   wall **640.74s**, **1,751** cases, 0 skipped, `strictStatus: "passed"`,
@@ -174,6 +183,13 @@ may still be listed in the candidate record without further experiments.
   passed 3/3 under lower contention.
 
 ## Learnings
+
+- Slice 2 admission→boundary move: summed spec time fell without focused-wall
+  gain under default workers; undo per plan. HTTP admission placement remains a
+  pending design candidate without a measured local-wall claim.
+- Slice 3: drop the slower short-phone height (240), keep 320 — the resize loop
+  still visits 240, and 320 was already the cheaper critical-path case when both
+  ran in parallel.
 
 - High concurrent suite load can flake `story-review-touch` close-to-count; do
   not treat a failed full-suite run as baseline. Prefer settled start load and
