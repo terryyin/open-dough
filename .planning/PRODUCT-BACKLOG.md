@@ -19,7 +19,7 @@ cost of the feedback process itself.
 ## Taken
 
 - [Starting another Cursor session leaves already-running agents running](seeds/SEED-190-keep-running-cursor-sessions.md#keep-running-cursor-sessions) — SEED-190#keep-running-cursor-sessions ([plan](slice-plans/418-keep-running-cursor-sessions/PLAN.md))
-- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-191-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-191#optimize-dashboard-test-feedback
+- [Reduce dashboard test feedback time with measured optimization](seeds/SEED-191-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-191#optimize-dashboard-test-feedback ([plan](slice-plans/419-optimize-dashboard-test-feedback/PLAN.md))
 
 ## Backlog list
 
