@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 368. Removed numbers are never reused.
+- Highest allocated local number: 369. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -667,3 +667,19 @@ The default CI diagnostic keeps lines around GitHub error markers. With the quie
   - Evidence: [run 40817756668, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40817756668/job/123262746829), 2026-10-29 UTC logs, has FAIL lines for agent-launch-attention.spec.ts and sessions-sidebar-navigation-cases.spec.ts. The diagnostic excerpt showed only navigation. After its repair `76d61616d6e74866024a3091a2ec7040d2b9791e`, [run 40819519249, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40819519249/job/123268443339) retained only the unchanged attention failure. Full logs were read through the same CI GitHub source to verify both inventories.
   - Observed effect: the coordinator published the navigation-only repair before discovering that readiness comparison had already failed in the first job; another CI cycle repeated that known-but-unseen failure.
   - Inference: bounded per-failure inventory before repair publication could have avoided at least that extra cycle; retain bounded excerpts without treating a tail as the complete failed-test list.
+
+## DD-369 — Source-review put obligation IDs in the Slice column
+
+Coordinator-authored `source-review.md` placed disposing obligation ids in the
+Commitments table's Slice column, and the first Story obligations `Reported`
+lines lacked the required `slice N — "…"` quote shape. `story-obligations.mjs
+check` refused until both were rewritten to the consuming reader's shapes.
+
+### Occurrences
+- Execution: SEED-182#standardize-test-optimization-candidates / plan 414, first implementation `ca65ffdfc73dc0adfabbf917abc6989fc8831793`
+  - Timestamp: unknown (2026-10-30; source-review and obligation acceptance before `ca65ffdf` at 12:45:07+08:00)
+  - Tool: Cursor
+  - Open Dough release: modified; revision `e46170ee1d19e03290ff7cbcbf68932bcc5cb20c` Take base; VERSION 0.3.77
+  - Evidence: coordinator transcript `9235c917-6cb2-43bc-88ee-d439f170ed9a` — first Write of `source-review.md` row 4 used `| … | G1 | |` (obligation id in Slice); first Story obligations block used multi-line `Reported: slice 1 acceptance — …` without the quoted form; after inspecting reader-expected shapes, rewritten with `|  | G1 |` and `Reported: slice 1 — "…"`, then check passed before publish `ca65ffdf`. Spent plan/source-review recoverable at before-cleanup `e53e4aa5975b71eaf9e584040fc5910fbfc81692:.planning/slice-plans/414-standardize-test-optimization-candidates/`
+  - Observed effect: one local repair round on planning records before the first accepted increment; no product rework and no incorrect slice completion published
+  - Inference: qualified recurrence of writing to a consuming reader's format without exercising it first (same class as the plan-layout ODF-074 occurrence on plan 372). Checking `story-obligation-source-review` / Reported shapes before the first write would avoid the repair; no escaping product defect claimed
