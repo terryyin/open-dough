@@ -82,10 +82,12 @@ Storage and presentation remain separate design choices.
 
 ##### Interpreting verification evidence
 
-Duration, supporting evidence, and when verification last ran are exploratory
-considerations. Revision, environment, coverage, freshness, and result may help
-interpret an observation. Their scope, representation, collection, and display
-remain open design questions.
+The [initial Intent workspace](dashboard-ux-ui-north-star.md#initial-intent-workspace)
+selects test-file browsing, switchable side-by-side or tabbed Purpose/Proof,
+last-validation and duration observations, hierarchical group statistics, and
+story-scoped inspection. Revision, environment, coverage, freshness, and result
+help interpret available observations. Proof collection, revision matching, and
+exact aggregation remain open design questions.
 
 A passing check supports the claim it actually observed under its conditions.
 A pass on an older revision must be assessed for relevance to the current
@@ -197,15 +199,18 @@ just-in-time principle rather than completing a predetermined visual system.
 
 The following choices remain open:
 
-- How Purpose and Proof within a Product intent should be represented, and
-  which execution information is useful. Possible information includes duration,
-  evidence, last-run time, revision, environment, coverage, freshness, and result.
-  Its representation remains an open design choice.
-- How the Product intent and Structure perspectives should work in the UX/UI.
-  No new tabs, panels, layouts, interactions, or presentation states are chosen.
+- How each project identifies its test locations and how proof observations
+  are collected, matched to source revisions, and aggregated. The selected
+  [initial Intent UX/UI](dashboard-ux-ui-north-star.md#initial-intent-workspace)
+  owns the file browser, Purpose/Proof layout switch, runtime information,
+  hierarchy, and story-scope direction; those choices are settled for design,
+  while their implementation remains future work.
+- Whether Start session belongs only in Development or remains visible as a
+  project-level action across perspectives. Structure is deferred from the
+  initial UI; its later UX/UI remains separate design work.
 - How relationships among development work, its stories, product intents, and
-  structure would be recorded or derived, including expected impact versus
-  observed change, and whether mapping or filtering would help.
+  structure are recorded or derived beyond the initial changed-test-file lens,
+  including expected impact versus observed change and semantic mappings.
 - Whether and how architectural North Star artifacts belong in the structural
   perspective.
 - Whether to introduce a commit mailbox and timeout-based handover, including

@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for Development, Product intent, and Structure.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for the initial Intent browser and switchable Purpose/Proof layouts.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -33,7 +33,7 @@ it does not define a workflow state schema or authorize execution.
 - Stories can exist outside the backlog. Expose recorded backlog membership,
   Taken, refinement, planning, assignment, execution mode, and slice completion
   without inventing missing metadata. Taken does not establish live activity.
-- The primary experience is an animated Board with connected Columns
+- The primary Development experience is an animated Board with connected Columns
   of work, not just a list or table. Zoom out to understand the whole and zoom
   in to inspect a story. Canvas is optional; this is an experience direction,
   not a rendering-technology choice.
@@ -43,11 +43,11 @@ it does not define a workflow state schema or authorize execution.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
 - The current dashboard presents Development through story planning, execution
-  progress, and local-session capabilities. Additional Product intent and
-  Structure perspectives remain design direction. Their presentation and
-  UX/UI are left for a separate discussion.
+  progress, and local-session capabilities. The initial Intent workspace follows
+  the selected direction below; Structure is deferred from the initial UI.
+  These decisions describe proposed UX/UI, not delivered capabilities.
 
-**Design hypotheses:** The interaction, ordering, wording, and visual choices
+**Design hypotheses:** Other interaction, ordering, wording, and visual choices
 below remain revisable guidance alongside the linked implemented contracts.
 Revise them when real use shows a clearer or smaller solution; do not treat them as additional user commitments.
 
@@ -71,8 +71,9 @@ Product intent contains Purpose, its expected behavior and reason, and Proof,
 its executable verification and supporting evidence. Maintained verification
 procedures are distinct from observations of particular runs. Follow the
 [shared vocabulary](adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
-and detailed requirements. Proof fields, interactions, layouts, and presentation
-states for the additional perspectives remain future UX/UI design work.
+and detailed requirements. The initial Intent workspace below records the
+selected browsing, Purpose/Proof, and story-scope direction. Further proof
+collection and representation details remain open.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
 for Development, Story, and Slice meaning and
@@ -80,6 +81,77 @@ for Development, Story, and Slice meaning and
 small valuable increments, clear domain concepts, and inexpensive change.
 Under [ADR 0000](adrs/0000-use-adrs-accepted.md), this temporary guide cannot
 override Accepted decisions. No exception is proposed.
+
+## Initial Intent workspace
+
+**Decision:** Terry Yin, 2026-10-30. Combine the Split workspace and Tabbed
+reader mockups into one Intent workspace with two selectable layouts. This is
+UX/UI direction, not a story, executable plan, or implementation record.
+
+### Perspective boundaries and shared frame
+
+- Present Development and Intent in the initial perspective navigation. Defer
+  Structure; omit it from this initial UI rather than reserving a disabled tab.
+- Near-future direction comes from the product backlog and belongs in
+  Development. Keep it with that perspective rather than repeating it in Intent.
+- Start session relates to Development, but its final placement is undecided.
+  It may remain there or be a project-level action visible across perspectives.
+  The chosen Purpose/Proof layout does not settle that placement.
+- Keep the existing project selection and shared dashboard frame. Ground the
+  frame and any depicted Development controls in the existing dashboard, and
+  use real project content. Distinguish proposed Intent UI from implemented
+  behavior. Reproducing all Development card details is unnecessary here.
+
+### Test locations and browsing
+
+Each project identifies where its test files are. The initial Intent workspace
+provides a file browser with their folder hierarchy, similar to Review changes.
+Readers can expand folders, select a test file, and read its source. A file
+browser is a useful first increment without requiring runtime proof collection
+or a separate catalogue of authored intent objects.
+
+The initial Purpose view is the static test-source file. Show actual source,
+including its maintained descriptions of expected behavior, rather than
+inventing a generated purpose narrative. The mechanism for identifying test
+locations remains open.
+
+### Purpose and Proof layouts
+
+Keep Purpose and Proof as two views of the same selection. Support both:
+
+- **Side by side:** source and execution evidence remain visible together.
+- **Tabs:** Purpose and Proof share the reader area, with a tab to switch views.
+
+Place a layout-switch button next to the Purpose/Proof controls so the reader
+can move between these modes in the same workspace. Preserve the selected file
+and story scope when switching. The initial default and exact button treatment
+remain design details; choosing a mode does not change the underlying evidence.
+Keep both views readable and operable at narrow widths and with keyboard use.
+
+### Runtime proof and hierarchy
+
+Proof includes available execution observations, such as when validation last
+ran and how long it took. A hierarchical report lets a folder or group show
+statistics for its contained tests as well as individual-file observations.
+
+Associate observations with their actual run, revision, and scope. Distinguish
+run wall time from summed case durations when tests run concurrently. Keep
+missing or historical evidence explicit; a folder must not appear validated
+merely because some children have results. Mockups use real files and observed
+results, or show that a result is unavailable, rather than fabricating values.
+Collection, storage, revision matching, and exact aggregation rules remain open.
+
+### Story-scoped Intent
+
+Allow Intent to show the whole project or be scoped to a selected story,
+including a completed story, so readers can inspect its impact on tests. Reuse
+available source comparisons to show changed files and their changes, alongside
+applicable proof. State the compared revisions and the scope of each result.
+
+File changes provide an initial view of observed impact; they do not by
+themselves establish every affected behavior or all required regression proof.
+Intent remains the maintained view of the product beyond the story's lifetime.
+The story scope is a lens on that view, not a separate definition of Intent.
 
 ## Questions the Development perspective should answer
 
