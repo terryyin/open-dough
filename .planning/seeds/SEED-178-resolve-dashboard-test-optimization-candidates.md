@@ -25,7 +25,7 @@ list.
 
 **Identity:** SEED-178#resolve-dashboard-test-optimization-candidates
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md"}
 ```
 
 **Beneficiary:** A developer deciding what to do with recorded dashboard test

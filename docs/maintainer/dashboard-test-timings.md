@@ -230,12 +230,26 @@ comparable load.
 
 ### Remaining candidates
 
-1. Further unique multi-step `agent-launch*` poles (`ad-hoc-terminal`; remaining
-   second-server cost after the wait move).
-2. Long single journeys (`agent-completion-attention`, production-watcher chains)
-   only with surviving proof and measured wall-time gain.
-3. Touch viewport matrices that only repeat layout branches already proved once
-   at the boundary tier.
+### Resolved (2026-10-30 resolve)
+
+- **Necessary cost (accepted):** further unique multi-step `agent-launch*` poles
+  (`ad-hoc-terminal`; remaining `agent-launch-second-server` cost after the
+  SEED-176 change-wait boundary move). Dual-preview page protection and
+  immediate terminal-attachment journeys are the protected behavior; cheaper
+  boundary moves for those poles are already landed. No project
+  profile-exclusion mechanism; none invented.
+- **Long journeys (`agent-completion-attention`, production-watcher chains):**
+  retain unique integrated protection. SEED-177 may remove redundant variants
+  or move detailed checks to boundary tests after establishing replacement
+  proof. Where cross-step protection cannot be preserved more cheaply, record
+  necessary cost. This resolves the coverage decision without blanket
+  authorization to weaken integrated coverage.
+- **Replacement plan:** touch viewport matrices that only repeat layout
+  branches — obligation in
+  [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
+  (SEED-178). Plan stays available for later authorized execution; coordinate
+  scope with SEED-177 before implementation to avoid overlapping work.
+  Resolve-only triage does not authorize implementation.
 
 ## Local `npm run test:dashboard` pass (SEED-177, 2026-10-30)
 
@@ -254,9 +268,5 @@ Full-suite wall ≈ **9.6 s (1.3%)** shorter under comparable load.
 
 ### Remaining candidates
 
-1. Further unique multi-step `agent-launch*` poles (`ad-hoc-terminal`; remaining
-   second-server cost).
-2. Long single journeys (`agent-completion-attention`, production-watcher chains)
-   only with surviving proof and measured wall-time gain.
-3. Touch viewport matrices that only repeat layout branches already proved once
-   at the boundary tier.
+None beyond the 2026-10-30 resolve dispositions above; SEED-177's bound
+observation does not reopen them.
