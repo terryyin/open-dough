@@ -4,16 +4,21 @@
 # Reads the `test-times-<share>` artifacts of the last 10 successful ci.yml
 # runs on main through `gh` (read-only; it starts no test run) and the ceilings
 # from `${OPEN_DOUGH_TEST_DIR:-tests}/time-budget` through
-# scripts/time-budget.bash. Runs whose artifacts cannot be downloaded (past CI's
-# seven-day retention) are skipped and not counted. For each job, and for each
-# share's total, it prints the recent lowest-highest seconds, the ceiling,
-# headroom (ceiling - highest), spread (highest - lowest), and a verdict:
-# `wide` when headroom is at least the spread, otherwise `thin` naming the
-# recent highest value to project a paired local ratio from. Named jobs (as the
-# times files name them, such as tests/install.sh) restrict the job lines;
-# share totals always appear. With no names, every job appears, highest first.
-# Exits 0 after a report; with no readable runs, or when `gh` fails, it says
-# why and exits 1. See tests/time-budget.md for how a slice uses the verdict.
+# scripts/time-budget.bash. Each share's runner factor comes from
+# `node scripts/test-shares.mjs runner-factor` against
+# `${OPEN_DOUGH_TEST_DIR:-tests}/longest-first`; times are divided by that
+# factor so the report speaks recorded-speed units with the factor range each
+# share saw. Runs whose artifacts cannot be downloaded (past CI's seven-day
+# retention) are skipped and not counted. For each job, and for each share's
+# total, it prints the recent lowest-highest seconds at recorded speed, the
+# factor range, the ceiling, headroom (ceiling - highest), spread (highest -
+# lowest), and a verdict: `wide` when headroom is at least the spread,
+# otherwise `thin` naming the recent highest value to project a paired local
+# ratio from. Named jobs (as the times files name them, such as
+# tests/install.sh) restrict the job lines; share totals always appear. With
+# no names, every job appears, highest first. Exits 0 after a report; with no
+# readable runs, or when `gh` fails, it says why and exits 1. See
+# tests/time-budget.md for how a slice uses the verdict.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -25,7 +30,9 @@ source "${source_dir}/scripts/time-budget.bash"
 # shellcheck source=scripts/gh-message.bash
 source "${source_dir}/scripts/gh-message.bash"
 
-budget="${OPEN_DOUGH_TEST_DIR:-tests}/time-budget"
+test_dir="${OPEN_DOUGH_TEST_DIR:-tests}"
+budget="${test_dir}/time-budget"
+list="${test_dir}/longest-first"
 read_time_budget "${budget}" || exit 1
 # The sourced reader sets both ceilings.
 readonly per_job_seconds total_job_seconds
@@ -46,7 +53,8 @@ if ! runs=$(gh run list --workflow ci.yml --branch main --status success --limit
 fi
 [[ -n ${runs} ]] || no_timings 'gh listed no successful ci.yml runs on main.'
 
-# One `<run>\t<share>\t<seconds>\t<job>` line per job time across the runs used.
+# One `<run>\t<share>\t<seconds-at-recorded>\t<job>\t<factor>\t<factor-label>`
+# line per job time across the runs used.
 times="${work_dir}/times"
 : > "${times}"
 used=0 skipped=0 newest='' oldest='' last_error=''
@@ -62,8 +70,19 @@ while IFS=$'\t' read -r run created; do
     [[ -f ${file} ]] || continue
     share=${file%/test-times.txt}
     share=${share##*/test-times-}
-    awk -F '\t' -v run="${run}" -v share="${share}" \
-      'NF >= 2 { print run "\t" share "\t" $1 "\t" $2 }' "${file}" >> "${times}"
+    factor_line=$(node "${source_dir}/scripts/test-shares.mjs" runner-factor \
+      --list "${list}" "${file}")
+    IFS=$'\t' read -r factor factor_label <<< "${factor_line}"
+    awk -F '\t' \
+      -v run="${run}" \
+      -v share="${share}" \
+      -v factor="${factor}" \
+      -v factor_label="${factor_label}" '
+      NF >= 2 {
+        printf "%s\t%s\t%s\t%s\t%s\t%s\n",
+          run, share, $1 / factor, $2, factor, factor_label
+      }
+    ' "${file}" >> "${times}"
     found=1
   done
   if ((found == 0)); then
@@ -80,12 +99,13 @@ done <<< "${runs}"
 printf 'Recent trunk CI timings: %s successful ci.yml runs on main, %s to %s' \
   "${used}" "${oldest}" "${newest}"
 ((skipped == 0)) || printf ' (%s without readable artifacts skipped)' "${skipped}"
-printf '.\nCeilings (%s): %ss per job, %s job-seconds per share.\n' \
+printf '.\nCeilings (%s): %ss per job, %s job-seconds per share, at recorded speed.\n' \
   "${budget}" "${per_job_seconds}" "${total_job_seconds}"
 
-# Prints `<name>: <low>-<high> <unit>, ceiling, headroom, spread, verdict` for
-# each `<name>\t<low>\t<high>` line on stdin, or `<name>: no recent timing`
-# for a line without numbers.
+# Prints `<name>: <low>-<high> <unit> at recorded speed (factors …), ceiling,
+# headroom, spread, verdict` for each
+# `<name>\t<low>\t<high>\t<factor-low-label>\t<factor-high-label>` line on
+# stdin, or `<name>: no recent timing` for a line without numbers.
 report() {
   awk -F '\t' -v ceiling="$1" -v unit="$2" '
     NF < 3 {
@@ -95,20 +115,62 @@ report() {
     {
       headroom = sprintf("%.1f", ceiling - $3)
       spread = sprintf("%.1f", $3 - $2)
-      printf "%s: %.1f-%.1f %s, ceiling %s, headroom %s, spread %s, ", \
-        $1, $2, $3, unit, ceiling, headroom, spread
+      printf "%s: %.1f-%.1f %s at recorded speed (factors %s-%s), ceiling %s, headroom %s, spread %s, ", \
+        $1, $2, $3, unit, $4, $5, ceiling, headroom, spread
       if (headroom + 0 >= spread + 0) print "wide"
       else printf "thin: project from %.1f\n", $3
     }
   '
 }
 
-# Each job's `<job>\t<low>\t<high>`, highest first.
-awk -F '\t' '
-  !($4 in high) || $3 + 0 > high[$4] { high[$4] = $3 + 0 }
-  !($4 in low) || $3 + 0 < low[$4] { low[$4] = $3 + 0 }
-  END { for (job in high) printf "%s\t%s\t%s\n", job, low[job], high[job] }
-' "${times}" | sort -t $'\t' -k3,3gr -k1,1 > "${work_dir}/jobs"
+# One pass over recorded-speed times: each job's and each share total's
+# `<name>\t<low>\t<high>\t<factor-low-label>\t<factor-high-label>`. Job factor
+# labels come from the runs that held the job; share labels from every run
+# that share saw.
+: > "${work_dir}/jobs.raw"
+: > "${work_dir}/shares.raw"
+awk -F '\t' \
+  -v jobs_out="${work_dir}/jobs.raw" \
+  -v shares_out="${work_dir}/shares.raw" '
+  function track_factor(key, factor, label) {
+    if (!(key in f_low) || factor < f_low[key]) {
+      f_low[key] = factor
+      f_low_label[key] = label
+    }
+    if (!(key in f_high) || factor > f_high[key]) {
+      f_high[key] = factor
+      f_high_label[key] = label
+    }
+  }
+  {
+    job = $4
+    share = $2
+    seconds = $3 + 0
+    factor = $5 + 0
+    if (!(job in j_high) || seconds > j_high[job]) j_high[job] = seconds
+    if (!(job in j_low) || seconds < j_low[job]) j_low[job] = seconds
+    track_factor("j:" job, factor, $6)
+    total[share, $1] += seconds
+    track_factor("s:" share, factor, $6)
+  }
+  END {
+    for (job in j_high)
+      printf "%s\t%s\t%s\t%s\t%s\n",
+        job, j_low[job], j_high[job],
+        f_low_label["j:" job], f_high_label["j:" job] > jobs_out
+    for (key in total) {
+      split(key, part, SUBSEP)
+      share = part[1]
+      if (!(share in s_high) || total[key] > s_high[share]) s_high[share] = total[key]
+      if (!(share in s_low) || total[key] < s_low[share]) s_low[share] = total[key]
+    }
+    for (share in s_high)
+      printf "share %s total\t%s\t%s\t%s\t%s\n",
+        share, s_low[share], s_high[share],
+        f_low_label["s:" share], f_high_label["s:" share] > shares_out
+  }
+' "${times}"
+sort -t $'\t' -k3,3gr -k1,1 "${work_dir}/jobs.raw" > "${work_dir}/jobs"
 
 if (($# == 0)); then
   report "${per_job_seconds}" s < "${work_dir}/jobs"
@@ -119,16 +181,4 @@ else
   ' "${work_dir}/jobs" - | report "${per_job_seconds}" s
 fi
 
-# Each share's `share <i> total\t<low>\t<high>` over its runs' summed times.
-awk -F '\t' '
-  { total[$2, $1] += $3 }
-  END {
-    for (key in total) {
-      split(key, part, SUBSEP)
-      share = part[1]
-      if (!(share in high) || total[key] > high[share]) high[share] = total[key]
-      if (!(share in low) || total[key] < low[share]) low[share] = total[key]
-    }
-    for (share in high) printf "share %s total\t%s\t%s\n", share, low[share], high[share]
-  }
-' "${times}" | sort -t $'\t' -k1,1 | report "${total_job_seconds}" job-seconds
+sort -t $'\t' -k1,1 "${work_dir}/shares.raw" | report "${total_job_seconds}" job-seconds

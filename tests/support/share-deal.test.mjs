@@ -6,9 +6,11 @@ import { test } from "node:test";
 import {
   dealShares,
   formatPreview,
+  formatRunnerFactorLine,
   formatSeconds,
   mergeTimes,
   parseDurationList,
+  runnerFactor,
   shareLabels,
   TestSharesError,
 } from "../../scripts/share-deal.mjs";
@@ -105,6 +107,67 @@ test("a list line that is not <seconds><TAB><label> fails naming the file, line 
       ["b", 3],
     ],
   );
+});
+
+test("runner factor is the median over measurable recorded jobs, else unavailable", () => {
+  const recorded = new Map([
+    ["a", 10],
+    ["b", 10],
+    ["c", 10],
+    ["tiny", 1.5],
+  ]);
+  assert.deepEqual(
+    runnerFactor(
+      recorded,
+      new Map([
+        ["a", 20],
+        ["b", 30],
+        ["c", 40],
+        ["tiny", 15],
+      ]),
+    ),
+    { factor: 3, available: true },
+  );
+  assert.equal(
+    formatRunnerFactorLine(
+      recorded,
+      new Map([
+        ["a", 20],
+        ["b", 30],
+        ["c", 40],
+        ["tiny", 15],
+      ]),
+    ),
+    "3\t3.0\n",
+  );
+  // Even count: mean of the two middle ratios; sub-threshold recorded ignored.
+  assert.deepEqual(
+    runnerFactor(
+      recorded,
+      new Map([
+        ["a", 20],
+        ["b", 40],
+        ["tiny", 100],
+      ]),
+    ),
+    { factor: 3, available: true },
+  );
+  assert.deepEqual(runnerFactor(recorded, new Map([["tiny", 10]])), {
+    factor: 1,
+    available: false,
+  });
+  assert.equal(
+    formatRunnerFactorLine(recorded, new Map([["tiny", 10]])),
+    "1\tunavailable\n",
+  );
+  assert.deepEqual(runnerFactor(new Map(), new Map([["only", 5]])), {
+    factor: 1,
+    available: false,
+  });
+  assert.deepEqual(runnerFactor(recorded, new Map([["unrecorded", 50]])), {
+    factor: 1,
+    available: false,
+  });
 });
 
 test("refresh merges times files into a list, longest first, keeping every job and the header", () => {

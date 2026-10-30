@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-185#stable-ci-time-budget",
+  "title": "CI time budget holds under runner variance",
+  "completedAt": "2026-10-30T06:35:39.616Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "cursor",
+  "model": "auto"
+}
