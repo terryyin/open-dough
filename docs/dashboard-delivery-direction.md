@@ -34,7 +34,7 @@ The remote Git view remains independently useful, with local information
 supplementing published progress.
 
 These stages describe the intended order of capability development. They do
-not commit to building the feature or structural perspectives, or make the
+not commit to building the product intent or structural perspectives, or make the
 exploratory mailbox and takeover mechanism prerequisites for Stage 1.
 
 ### Initial application constraints

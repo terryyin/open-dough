@@ -35,7 +35,7 @@ Taken owners and Preparing from that profile's presence. The agent roster is
 one more view of that snapshot, and a commission's human developer is the
 committer of the commit that added its profile's current allocation; avatar
 images, like every GitHub read, come through the local boundary and never
-become assignment evidence. Keep later feature,
+become assignment evidence. Keep later product intent,
 structure, and local operational models out until their selected behavior needs
 them.
 UI choices stay in the separate

@@ -59,7 +59,8 @@ Inspect story → identity, assignment records, evidence, source links
 Do not hide already-readable entry information just to create a zoom interaction.
 The first story can use ordinary layout, wrapping, and scrolling; if a small
 focus or fit control materially helps, add it within that reading journey.
-Do not prebuild a viewport framework for future feature or structural views.
+Do not prebuild a viewport framework for future product intent or structural
+views.
 
 As later stories deliver richer evidence, focused work can expose purpose,
 assignment/mode, independent refinement/planning facts, and named slices with

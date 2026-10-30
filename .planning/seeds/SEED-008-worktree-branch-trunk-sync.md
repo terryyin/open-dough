@@ -42,7 +42,7 @@ The behavior has been released since 0.3.27, so this is retroactive acceptance.
 - **Claude resume: fresh pass (2026-09-24).** Claude Code `2.1.281`, candidate
   `7581b2b`, `publication/startup-resume`. The trace shows only an inspecting
   `--help` before a single startup call returning `resumed` with
-  `created: false`, then setup and command, then the first feature edit. The
+  `created: false`, then setup and command, then the first implementation edit. The
   fixture origin holds base, exactly one pre-created claim, and the independent
   advance; no claim was pushed again. Human and selected-source bytes were
   preserved and the local refresh was deferred. Run output and the fixture were

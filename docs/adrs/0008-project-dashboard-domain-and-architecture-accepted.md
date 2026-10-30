@@ -14,10 +14,9 @@ UI concept definitions and acceptance on 2026-10-27.
 ## Context
 
 Continuous trunk integration makes project progress harder to understand through
-story branches alone. Stories can remain unfinished while their increments are
-already integrated, and multiple developers can be progressing different work.
-Open Dough should provide a graphical view that helps a developer understand
-the project's work and progress.
+story branches alone. Unfinished stories can already have increments integrated,
+while multiple developers progress different work. A graphical view should help
+developers understand the project's work and progress.
 
 The [project visibility requirements](../project-visibility-requirements.md)
 retain the detailed behavior, examples, and exploratory ideas. This decision
@@ -45,33 +44,33 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 | Launch workflow | What a dashboard launch starts on one work item, such as execution or refinement: the skill it runs. A launch is local evidence and never settles or moves a story. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
-| Feature | The existing concept for external behavior users care about, with maintained definition, design, and automated verification. Its intended meaning is the current product's behavioral expectation, not every observed implementation behavior or proof that a particular user's goal has been satisfied. The name of this enduring account remains open under ADR 0001. |
+| Product intent | The maintained definition of intended behavior: what the current product is meant to do and why. It evolves with the product and survives individual stories. Each Product intent contains Purpose and Proof. |
 | Structure | The logical organization of the product's implementation, expressed through its domain model and mapped to packages, folders, files, and functions. |
 | Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
 | Optional default checkout | A developer's checkout that may be refreshed after remote trunk publication. Its presence, edits, and freshness are local operational facts, not workflow authority. |
 
-Stories describe attempts to change the product; the maintained account of its
-intended behavior and structure survives those stories. These are independent
-related dimensions, not a containment hierarchy. There is no required
-one-to-one mapping: a story can change several intentions and structural
-elements, and an intention can endure through many stories and span several
-structural elements. Mapping and filtering are possibilities, not a selected
-mechanism.
+Stories describe attempts to change the product; product intents and structure
+describe the product that survives those stories. Story, Product intent, and
+Structure are independent related dimensions whose relationships can be
+many-to-many: a story can change several product intents and structural
+elements, and a product intent can endure through many stories and span several
+structural elements. Mapping and filtering remain design possibilities.
 
-The intended-behavior account describes the current product and evolves with
-intentional changes. A regression supplies evidence against fulfillment of an
-expectation; it does not silently redefine the expectation. Completing and
-removing planning records must leave lasting product knowledge in its maintained
-home, following [ADR 0000](./0000-use-adrs-accepted.md). Future wishes remain
-separate from the current baseline.
+Product intents describe the current product and evolve with intentional
+changes. A regression supplies evidence against fulfillment while the product
+intent remains the expectation to evaluate. Completing and removing planning
+records must leave lasting product knowledge in its maintained home, following
+[ADR 0000](./0000-use-adrs-accepted.md). Future possibilities stay in planning.
 
 [ADR 0001](./0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
-records the shared vocabulary and provisional naming. Purpose and proof are
-proposed aspects of intended behavior, with maintained verification procedures
-distinct from particular observed results. This conceptual distinction does not
-choose separate stores, files, services, or a proof schema. Detailed semantics,
-evidence considerations, and open design choices belong in the
-[requirements](../project-visibility-requirements.md#intended-behavior-perspective-the-current-product).
+records the shared vocabulary. Each Product intent contains **Purpose**, the
+expected behavior and why it matters, and **Proof**, executable verification
+and supporting evidence. Proof distinguishes maintained procedures from
+particular observed results.
+
+Storage, proof representation, and presentation remain design choices.
+Detailed semantics, evidence considerations, and open questions belong in the
+[requirements](../project-visibility-requirements.md#product-intent-perspective-the-current-product).
 
 Derive Preparing from an active preparation assignment; keep refinement,
 planning, and readiness as independent story facts. One AI session may carry
@@ -139,7 +138,9 @@ flowchart LR
     G["Git origin: records, branches, history"] --> V["Derived project view"]
     L["Local operational evidence"] -.-> V
     V --> S["Story perspective: delivered"]
-    V -.-> F["Intended-behavior perspective: design direction"]
+    V -.-> I["Product intent perspective: design direction"]
+    I --> P["Purpose"]
+    I --> E["Proof"]
     V -.-> A["Structural perspective: design direction"]
 ```
 
@@ -204,12 +205,12 @@ becoming the authority for project state. The
 [dashboard guide](../../dashboard/README.md) and
 [agent launch contract](../../dashboard/AGENT-LAUNCH.md) own current capabilities.
 
-The intended-behavior and structural perspectives remain design direction.
+The product intent and structural perspectives remain design direction.
 Their meaning constrains how we understand the product without requiring their
-machinery in advance. Their UX/UI, the final intended-behavior name, proof
-information, and architectural North Star placement remain open. These
-perspectives do not prescribe three panes or a new storage model, and the
-original delivery stages do not restrict existing story-dashboard capabilities.
+machinery in advance. Their UX/UI, proof information, and architectural North
+Star placement remain open. Presentation and storage choices belong to that
+design work; current story-dashboard capabilities follow their delivered
+contracts.
 
 ## Consequences
 
@@ -217,9 +218,9 @@ original delivery stages do not restrict existing story-dashboard capabilities.
   progress, and the first useful view does not depend on local monitoring.
 - Remote visibility is limited to published evidence. Taken work and an old
   update cannot establish that an agent is currently running or has stopped.
-- New perspectives require sufficient evidence for their claims. Existing
-  story records do not establish a maintained intent inventory or proof model
-  by declaration; those choices need their own design and implementation work.
+- New perspectives require sufficient evidence for their claims. A maintained
+  product intent inventory and Proof model need their own design and
+  implementation work.
 - Story identity, developer assignment, execution mode, and workspace ownership
   remain distinguishable, avoiding accidental coupling to a temporary branch,
   recycled name, or default checkout.
@@ -229,7 +230,7 @@ original delivery stages do not restrict existing story-dashboard capabilities.
 
 ## Open design and related decisions
 
-Intended-behavior naming, purpose/proof representation, cross-perspective
+Purpose and Proof representation within Product intent, cross-perspective
 relationships and UX/UI, architectural North Star placement, and possible
 assignment messaging and takeover remain open in the
 [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
