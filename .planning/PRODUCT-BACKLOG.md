@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Standardize Test Optimization Candidates under the planning folder](seeds/SEED-182-standardize-test-optimization-candidates.md#standardize-test-optimization-candidates) — SEED-182#standardize-test-optimization-candidates
