@@ -1,3 +1,17 @@
+## 0.3.77 - 2026-10-30
+
+- Keep backlog and done-catalog merge drivers usable after the registering worktree is retired. Resolve installed drivers in the checkout performing the merge, quote executable and file paths, and retain explicit external runtime locations.
+- Read completed-story review trees even when a successful merge driver prints before Git's tree ID, while preserving conflict attribution and interruption handling.
+- Keep an idle Cursor follow-up Working while its own conversation has fresh pending CI. Read mailbox ownership and revision facts without starting or changing an observer.
+- Hide repeated host and model facts on assigned story cards while keeping model details available, and keep Board Column fit clear of overlay scrollbars.
+- Reduce redundant production-policy builds and move detailed retained-retry and non-owner change-wait variants to boundary tests while preserving integrated journeys. Observe the configured change-wait bound with the production default unchanged.
+
+The Promoted installation payload updates the shared merge-driver registration runtime only. No payload paths are added or removed. Dashboard changes, test fixtures, performance measurements, completed investigations and maintainer records remain source functionality; guidance outside the installer declaration remains Proposed. The consumer-handoff trial rejected its compact candidate, so it contributes no payload change. Further touch-viewport optimization remains separate active work and is outside this release.
+
+Validation: the owning repair's representative behavior review and real linked-worktree Git regression verify both drivers after retirement, including paths containing spaces and apostrophes. All 16 focused release/driver check files passed, covering declared payload links, both native roots, payload comparison, hooks, update refusal and no-write behavior, retired payload removal, pinning, and finalization. Release self-installation, full lint and dashboard typecheck passed. Hosted CI passed integrated source revision `d7ba2328b061efb569b1a5cc0035a2e820de5e84` (run `40985525496`), including dashboard browser checks; subsequent commits through release source `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` change planning and maintainer records only. Recorded local suite measurements retain their load and coverage limitations; no general suite-speed guarantee is claimed.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code discovery, installation, hook registration and host ownership mechanisms reuse their existing integration evidence. The merge-driver correction uses shared Git behavior with real installed-runtime/linked-worktree proof; dashboard corrections use their owning boundary and browser checks. These are deterministic and reused checks, not fresh native-host acceptance. No new native exception is claimed; earlier outstanding requirements retain their existing owners and remain pending.
+
 ## 0.3.76 - 2026-10-29
 
 - Expose a Codex observer's complete identity when it arrives after the initial tool yield. Report `starting` until that receipt is available, deliver one late `CI_OBSERVER_READY` before failure notifications, and retain truthful terminal state, exact ownership and acknowledgment behavior. Use plain pipes for the machine stream.
