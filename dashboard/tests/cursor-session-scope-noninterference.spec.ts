@@ -1,25 +1,20 @@
 import { sessionAction } from "./support/sessionEntryDisclosure.ts";
-// Non-interference across scoped Cursor sessions and scope lifetime
-// (plan 329 slice 4): overlapping chosen-model launches keep separate
-// scopes and models with the shared configuration untouched; a
-// deliberate shared-default change between launch and resume survives
-// the resume and is what a subsequent Default launch follows; and
-// deleting a scoped session's launch record removes exactly its scope
-// while the shared configuration and saved conversation stay untouched.
+// Non-interference across scoped Cursor sessions and scope lifetime:
+// overlapping chosen-model launches keep separate scopes and models with
+// the shared configuration untouched; a subsequent Default launch follows
+// a deliberate new shared default without creating a scope while a stopped
+// scoped session keeps its recorded scope (Recover through that default
+// change stays in cursor-session-scope-continuation.spec.ts); and deleting
+// a scoped session's launch record removes exactly its scope while the
+// shared configuration and saved conversation stay untouched.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-import {
-  expectContinuationThroughScope,
-  recordedScope,
-} from "./support/cursorScopeAssertions.ts";
-import {
-  expectNormalizedReading,
-  expectReadingWithoutScreenLabel,
-} from "./support/cursorSessionReading.ts";
+import { recordedScope } from "./support/cursorScopeAssertions.ts";
+import { expectReadingWithoutScreenLabel } from "./support/cursorSessionReading.ts";
 import {
   agentNotRunningLabel,
   endHeldClient,
@@ -146,13 +141,17 @@ test("two overlapping chosen-model launches keep separate scopes and models, wit
   expect(cursor.sharedConfig()).toBe(sharedBefore);
 });
 
-test("a deliberate default change survives a scoped resume, and a subsequent Default launch follows the new default", async ({
+test("a subsequent Default launch follows a deliberate new shared default while a stopped scoped session keeps its scope", async ({
   page,
   dashboard,
   origin,
   cursor,
 }) => {
   test.setTimeout(120_000);
+  // Scoped Recover through a deliberate default change is proved in
+  // cursor-session-scope-continuation.spec.ts; this case asserts only that
+  // a later Default launch follows the new shared default without creating
+  // a scope, leaving the first session's recorded scope alone.
   await startScopedCursorExecution(page, origin, cursor, "gpt-5.2");
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
@@ -161,14 +160,10 @@ test("a deliberate default change survives a scoped resume, and a subsequent Def
   cursor.changeSharedModel("composer-2.5");
   const sharedAfterChange = cursor.sharedConfig();
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
-  await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
-  const attachesBefore = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Recover" }).click();
-  await expectNormalizedReading(entry, "Ready for review", true);
-  await expect.poll(() => cursor.attaches().length).toBe(attachesBefore + 1);
-  expectContinuationThroughScope(cursor.attaches().at(-1), scope);
-  expect(cursor.sharedConfig()).toBe(sharedAfterChange);
+  await expectReadingWithoutScreenLabel(
+    parts(page).taken.locator(".session-entry"),
+    agentNotRunningLabel,
+  );
   expect(JSON.parse(cursor.configIn(scope)) as unknown).toMatchObject({
     model: "gpt-5.2",
   });

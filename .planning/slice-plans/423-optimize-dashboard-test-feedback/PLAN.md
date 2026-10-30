@@ -135,7 +135,7 @@ saving to retain.
 
 ### 4. Scoped Cursor noninterference stops replaying Recover+scope preamble
 Type: Structure
-Status: planned
+Status: done
 Proof: Focused before 15.14–16.18s / after 14.04–15.47s over three passes
 (cleanup recheck 13.37s); continuation still green. Retained. Raw under
 `/tmp/SEED-196-optimize-dashboard-test-feedback/slice4/`.
