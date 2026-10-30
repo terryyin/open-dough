@@ -269,3 +269,34 @@ retained (resize loop still visits 240; wrap and ≤480 survival remain).
   (`5.55` vs `7.86`); focused three-pass evidence anchors the family claim.
   No product behavior changed. Raw records:
   `/tmp/SEED-193-optimize-dashboard-test-feedback/`.
+
+## Local `npm run test:dashboard` pass (SEED-194, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's 16-CPU / 48-GiB
+Mac host (`npm run test:dashboard`, eight default workers, `NO_COLOR` and
+`FORCE_COLOR` unset).
+
+| Revision | Role | Wall (`durationMs`) | Cases | Summed attempts / specs | Load (1m/5m/15m start → end) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `02ddad60` | Green baseline (admit) | 679.6s (680.10s wall) | 1,750 | 4,958.5s / 5,207.2s | 6.53 / 5.26 / 5.15 → 43.44 / 35.64 / 22.34 |
+| `276ef912` | After Slices 2–3 | 657.2s (657.90s wall) | 1,746 | 4,797.1s / 5,064.9s | 8.70 / 14.82 / 17.30 → 30.23 / 26.65 / 23.62 |
+
+Case delta (`1,750 → 1,746`, all passed, `0` skipped, `strictStatus: "passed"`):
+`−4` Claude launch-dialog model kind-matrix journeys (execution/session
+offers-Model; refinement/execution Default-without-`--model`).
+
+- **Family (`agent-launch-model` kind matrix, Slice 2):** Focused file wall
+  fell from **13.3–16.4s** (11 cases) to **10.0–11.7s** (7 cases) over three
+  consecutive passes. Retained refinement offers-Model+Opus (layout), session
+  Default-without-`--model`, Cancel/Escape dismiss across kinds, reopen
+  Default, Tab order, and refused launch. Boundary
+  `agent-launch-model-boundary.spec.ts` unchanged. Full-suite file `.tsv`
+  **20.1s → 17.8s**.
+- **Rejected (Slice 3):** Collapsing Codex discovered-model story workflows
+  to `execution` + `ad-hoc` did not improve focused family wall
+  (**10.2–12.1s / 13 → 11.0–11.6s / 12**); undone and listed under Pending
+  candidates.
+- **Comparison limits:** After suite started under higher multi-minute load
+  (`14.82` / `17.30` vs `5.26` / `5.15`); focused three-pass evidence anchors
+  the retained family. No product behavior changed. Raw records:
+  `/tmp/SEED-194-optimize-dashboard-test-feedback/`.

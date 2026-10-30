@@ -4,33 +4,34 @@
 
 - **Command / scope:** `npm run test:dashboard`, the full local dashboard
   suite with eight default workers on the developer's 16-CPU / 48-GiB Mac.
-  Both runs unset `NO_COLOR` and write separate
+  Both runs unset `NO_COLOR` and `FORCE_COLOR` and write separate
   `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
-- **Revision:** `7aa54d9cab78872586c59aca08b9de72dd4bca7f` before (green
-  baseline after admit); `f279f58261f9c395bd8daa2fff20dd95a87a651c` after
-  (SEED-193, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 640.3s / 622.8s (outer wall
-  640.74s / ≈622.8s); summed attempt durations 4,704.8s / 4,593.2s; summed
-  spec durations (including hooks) 4,946.6s / 4,823.0s; executed cases
-  1,751 / 1,750 (`−1` redundant `final-report-touch` short-phone 240 height),
+- **Revision:** `02ddad60e3694cd7986ef443876cc9d8a6bcc3a3` before (green
+  baseline after admit); `276ef912c2c49083acc8a85a766ab2a5d33ec677` after
+  (SEED-194, 2026-10-30).
+- **Before / after:** recorded wall (`durationMs`) 679.6s / 657.2s (outer wall
+  680.10s / 657.90s); summed attempt durations 4,958.5s / 4,797.1s; summed
+  spec durations (including hooks) 5,207.2s / 5,064.9s; executed cases
+  1,750 / 1,746 (`−4` Claude launch-dialog model kind-matrix journeys),
   with 0 skipped cases. Both strict runs passed.
-- **Outcome:** measured gain — 17.5s (2.7%) shorter full-suite `durationMs`
-  and 111.6s lower summed attempt time from collapsing
-  `final-report-touch.spec.ts` short-phone matrix to height **320** only
-  (focused family 34.3–34.6s / 4 cases → 25.1–25.2s / 3 cases over three
-  passes; full-suite file times 51.4s → 23.0s). Rejected: moving HTTP-only
-  story-review admission specs to boundary (focused wall 12.6s → 12.1–12.5s,
-  no retained change).
+- **Outcome:** measured gain — 22.4s (3.3%) shorter full-suite `durationMs`
+  and 161.4s lower summed attempt time from collapsing
+  `agent-launch-model.spec.ts` kind matrix to one offers-Model layout journey
+  plus one Default-without-`--model` journey (focused file 13.3–16.4s / 11
+  cases → 10.0–11.7s / 7 cases over three passes). Rejected: collapsing Codex
+  discovered-model story workflows (`execution`/`refinement`/`ad-hoc`) to two
+  journeys (focused family wall 10.2–12.1s / 13 → 11.0–11.6s / 12; undone).
 - **Limits:** one full-suite before/after pair on the local host (start load
-  averages 7.86 / 14.46 / 14.67 before vs 5.55 / 6.27 / 9.76 after; end load
-  averages 21.98 / 21.57 / 19.16 before vs 17.76 / 16.77 / 14.27 after), backed
+  averages 6.53 / 5.26 / 5.15 before vs 8.70 / 14.82 / 17.30 after; end load
+  averages 43.44 / 35.64 / 22.34 before vs 30.23 / 26.65 / 23.62 after), backed
   by three consecutive focused passes for the retained family. After run
-  started under quieter 1-minute load; treat suite-wall delta as directional
+  started under higher multi-minute load; treat suite-wall delta as directional
   with the focused-family evidence. No product behavior changed.
-- **Evidence:** [SEED-193 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-193-2026-10-30).
-  Plan recoverable at `88b46686cb6035e7173d434441308d17c529e2c1:.planning/slice-plans/420-optimize-dashboard-test-feedback/PLAN.md`.
-  Raw records under `/tmp/SEED-193-optimize-dashboard-test-feedback/` on the
-  measurement host; their continued availability is not assumed.
+- **Evidence:** [SEED-194 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-194-2026-10-30).
+  Plan at `.planning/slice-plans/421-optimize-dashboard-test-feedback/PLAN.md`
+  until wrap-up cleanup. Raw records under
+  `/tmp/SEED-194-optimize-dashboard-test-feedback/` on the measurement host;
+  their continued availability is not assumed.
 
 ## Pending candidates
 
@@ -55,6 +56,25 @@
 - **Date:** 2026-10-30
 - **Evidence / follow-up:** SEED-193 slice 2 focused proofs under
   `/tmp/SEED-193-optimize-dashboard-test-feedback/slice2-*`.
+
+### codex-discovered-model-story-workflow-collapse
+
+- **Locations / scope:** `agent-launch-codex-model.spec.ts` workflows
+  `execution`, `refinement`, and `ad-hoc` (catalog/effort imported cases
+  unchanged).
+- **Observed cost:** focused family wall ≈10.2–12.1s (13 cases) under default
+  workers on the SEED-194 host (2026-10-30); full-suite file `.tsv` ≈41.5s.
+- **Unique protection:** discovered-model dialog → native creation for story
+  and ad-hoc shapes; boundary already owns creation/refusal variants.
+- **Alternatives attempted:** keep `execution` + `ad-hoc` only; focused wall
+  11.0–11.6s / 12 cases over three passes — no wall gain; undone.
+- **Disposition / rationale:** pending — page-path equivalence remains
+  plausible but dropping one story workflow does not move focused wall while
+  longer catalog/effort siblings dominate; reopen only with a wall-improving
+  approach (for example shared setup across the family).
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-194 slice 3 under
+  `/tmp/SEED-194-optimize-dashboard-test-feedback/slice3-*`.
 
 
 ## Accepted necessary costs

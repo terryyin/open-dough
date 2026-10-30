@@ -129,12 +129,16 @@ only if a different approach appears.
 
 ### 4. Full local suite re-profile and candidate record update
 Type: Behavior
-Status: planned
-Proof: Comparable full `npm run test:dashboard` with proof/times records under
-`/tmp/SEED-194-optimize-dashboard-test-feedback/`; updated
-`.planning/TEST-OPTIMIZATION-CANDIDATES.md` Latest pass and pending/accepted
-sections; measurement evidence appended to
-`docs/maintainer/dashboard-test-timings.md`.
+Status: done
+Proof: Full suite at `276ef912c2c49083acc8a85a766ab2a5d33ec677`:
+`durationMs` **657.2s** (657.90s wall), **1,746** cases, 0 skipped,
+`strictStatus: "passed"`, summed attempts **4,797.1s**, summed `.tsv`
+**5,064.9s**, start load 8.70 / 14.82 / 17.30 → end 30.23 / 26.65 / 23.62.
+Baseline comparison: **679.6s / 1,750** → **657.2s / 1,746** (−22.4s wall,
+−4 kind-matrix cases). Updated
+`.planning/TEST-OPTIMIZATION-CANDIDATES.md` and
+`docs/maintainer/dashboard-test-timings.md`. Evidence under
+`/tmp/SEED-194-optimize-dashboard-test-feedback/after-*`.
 
 Behavior: Pre-condition — retained experiments delivered (or none retained).
 Trigger — re-run the ordinary local command under like conditions.
