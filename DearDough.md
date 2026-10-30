@@ -392,6 +392,16 @@ Former local code: DD-322. Slice 2 offered a separate Stop from the host `stop` 
 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
+
+### Occurrences
+- Execution: SEED-186#document-dashboard-product-intent / plan 416, first implementation `85e1d6caeca4b573fb7daae6ae0c67dc378bcd2a`
+  - Timestamp: unknown (2026-10-30 Codex execution; before execution-complete handoff)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `cba3aa43858318729018af6ab75f13a98e63c13a`
+  - Evidence: dashboard launch `4939d524-d621-4b33-b7a2-32fc33d6105b`, coordinator startup tool results reported truncation at 12,177 and 14,937 original tokens while batching source/setup/ADR/publication reads; later calls retrieved ADR 0008 and ADR 0002 passages separately. This execution's retrospective repeated the same issue in a 12,453-token combined finding-history read.
+  - Observed effect: required or selected passages were omitted from oversized responses, followed by narrower retrieval; no elapsed or total token saving is measured.
+  - Inference: recurrence under existing boundary/targeted-retrieval guidance. Per-command token settings did not bound the aggregate functions.exec result; inspect aggregate size and retrieve only decision-relevant sections.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323. An implementation agent probing a new macOS notification identity ended the
@@ -683,3 +693,11 @@ check` refused until both were rewritten to the consuming reader's shapes.
   - Evidence: coordinator transcript `9235c917-6cb2-43bc-88ee-d439f170ed9a` — first Write of `source-review.md` row 4 used `| … | G1 | |` (obligation id in Slice); first Story obligations block used multi-line `Reported: slice 1 acceptance — …` without the quoted form; after inspecting reader-expected shapes, rewritten with `|  | G1 |` and `Reported: slice 1 — "…"`, then check passed before publish `ca65ffdf`. Spent plan/source-review recoverable at before-cleanup `e53e4aa5975b71eaf9e584040fc5910fbfc81692:.planning/slice-plans/414-standardize-test-optimization-candidates/`
   - Observed effect: one local repair round on planning records before the first accepted increment; no product rework and no incorrect slice completion published
   - Inference: qualified recurrence of writing to a consuming reader's format without exercising it first (same class as the plan-layout ODF-074 occurrence on plan 372). Checking `story-obligation-source-review` / Reported shapes before the first write would avoid the repair; no escaping product defect claimed
+
+- Execution: SEED-186#document-dashboard-product-intent / plan 416, first implementation `85e1d6caeca4b573fb7daae6ae0c67dc378bcd2a`
+  - Timestamp: unknown (2026-10-30 Codex execution; before execution-complete handoff)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `cba3aa43858318729018af6ab75f13a98e63c13a`
+  - Evidence: same launch, first G1 write in plan 416 used unquoted `Reported: slice 1 — implementation consumer inspection...`; `story-obligations.mjs check --slice 1` returned `malformed-reported`. The coordinator added the required quoted form; the next check accepted 1 obligation and 225 commitments before implementation publication. The final record is retained at `85e1d6ca:.planning/slice-plans/416-dashboard-product-intent-documentation/PLAN.md#story-obligations`.
+  - Observed effect: one local planning-record repair and repeat check; no product rework or incorrectly published completion.
+  - Inference: recurrence of the Reported-shape part of DD-369, not its Slice-column error. Use the supplied record shape at first write; the refusal successfully prevented accepting malformed evidence.
