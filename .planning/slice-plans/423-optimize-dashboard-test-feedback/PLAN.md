@@ -1,6 +1,7 @@
 # Reduce dashboard test feedback time with measured optimization (top 40%)
 
 **Source:** [Selected story](../../seeds/SEED-196-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-196#optimize-dashboard-test-feedback
 
 ## Goal and scope
@@ -104,79 +105,59 @@ for later experiments.
 
 ### 2. Completed-review journey drops the unusable-capture Landed-runs tail
 Type: Structure
-Status: planned
-Proof: Focused before/after on `story-review-completed.spec.ts` with three
-consecutive passes each; journey still opens published completion, shows
-literal file diffs, and survives trunk advance refresh; gaps boundary
-(`boundary/story-review-completed-gaps.spec.ts`) still proves unusable
-capture + explicit Landed-runs choice.
+Status: done
+Proof: Focused before 9.69–10.00s / after 11.07–11.51s over three passes —
+no focused wall gain; change undone. Gaps boundary still owns the unusable
+capture / Landed-runs gap. Raw under
+`/tmp/SEED-196-optimize-dashboard-test-feedback/slice2/`.
 
-Internal change: End the journey after the published-completion refresh and
-file-diff observations. Remove the trailing
-`keepUnusableCompletedCapture` + Landed runs radio + gap-copy assertions.
+Internal change: Tried ending the journey after published-completion refresh
+and file diffs; removed trailing `keepUnusableCompletedCapture` + Landed runs
+assertions; restored after measurement.
 
-Hypothesis: that tail repeats a server-answer variant the gaps boundary
-already owns; dropping it shortens the focused journey without losing unique
-page-path proof.
-
-Experiment loop: hypothesize → focused baseline → smallest change → verify →
-measure → retain or undo → reassess remaining gap before the next experiment.
+Hypothesis rejected: journey-once / boundary-variants placement is still
+plausible, but dropping the tail did not shorten focused wall while remaining
+published-path work dominates.
 
 ### 3. Gaps boundary drops ambiguous-merge already owned by driver
 Type: Structure
 Status: planned
-Proof: Focused before/after on `boundary/story-review-completed-gaps.spec.ts`
-with three consecutive passes; remaining gap singles and `missing-agent`
-loop case still pass; `boundary/story-review-completed-driver.spec.ts` and
-`boundary/story-review-completed-conflicts.spec.ts` still pass.
+Proof: Focused before 10.34–11.18s / after 9.48–11.51s over three passes —
+inconclusive / no clear focused wall gain; change undone. Driver and
+conflicts siblings stayed green while the trial edit was present. Raw under
+`/tmp/SEED-196-optimize-dashboard-test-feedback/slice3/`.
 
-Internal change: Keep the gaps loop case `missing-agent` only; remove the
-`ambiguous-merge` iteration whose unavailable explanation is already asserted
-under the driver matrix.
+Internal change: Tried keeping gaps loop `missing-agent` only; restored the
+`ambiguous-merge` iteration after measurement.
 
-Hypothesis: one fewer heavy Git setup in the gaps file reduces focused wall
-while driver/conflicts retain ambiguous-merge protection.
-
-Experiment loop: same as Slice 2. If focused wall does not improve, undo and
-record as a pending or rejected finding.
+Hypothesis rejected for wall: overlapping ranges; no supported focused
+saving to retain.
 
 ### 4. Scoped Cursor noninterference stops replaying Recover+scope preamble
 Type: Structure
 Status: planned
-Proof: Focused before/after on
-`cursor-session-scope-noninterference.spec.ts` with three consecutive
-passes; continuation (`cursor-session-scope-continuation.spec.ts`) still
-proves Recover through scope; remaining noninterference cases (dual scope,
-delete scope) still pass.
+Proof: Focused before 15.14–16.18s / after 14.04–15.47s over three passes
+(cleanup recheck 13.37s); continuation still green. Retained. Raw under
+`/tmp/SEED-196-optimize-dashboard-test-feedback/slice4/`.
 
-Internal change: In the deliberate-default-change case, assert only the
-subsequent Default-launch / shared-default delta without repeating the full
-held-client → Recover → scoped-resume preamble already covered by
-continuation.
+Internal change: Default-launch case no longer clicks Recover or asserts
+scoped resume; continuation keeps Recover-through-default-change proof;
+noninterference asserts stopped scoped session keeps its scope and Default
+launch follows the new shared default.
 
-Hypothesis: sibling-delta structure removes duplicated Recover work from the
-focused family wall.
-
-Experiment loop: same as Slice 2.
+Hypothesis supported at focused family wall (about 0.7s average).
 
 ### 5. Recent-delete asserts placement deltas without replaying dialog mechanics
 Type: Structure
 Status: planned
-Proof: Focused before/after on `agent-launch-recent-delete.spec.ts` with
-three consecutive passes; `agent-launch-story-card-delete.spec.ts` still
-proves Keep/Escape/confirm dialog behavior; recent-delete still proves
-Recently done / sidebar / focus placement.
+Proof: Not attempted. After slices 2–3 rejects and slice 4's modest retain,
+inspection of `agent-launch-recent-delete.spec.ts` shows only a single Keep
+focus check amid launch-heavy placement steps; dialog overlap cannot
+plausibly move suite wall. Recorded under Current decisions.
 
-Internal change: Rely on story-card-delete for dialog Keep/Escape semantics;
-keep recent-delete assertions for Recently done layout, neighbouring-entry
-focus, sidebar offering none, and Working/Done denial.
+Internal change: none.
 
-Hypothesis: removing duplicated dialog steps shortens focused wall while
-placement proof survives.
-
-Experiment loop: same as Slice 2. At each decisive checkpoint whose remaining
-experiments cannot plausibly close a stated remaining-gap target, record the
-decision in Current decisions before dispatching another dependent experiment.
+Hypothesis withdrawn at decisive checkpoint before dispatch.
 
 ### 6. Full local suite re-profile and candidate record update
 Type: Behavior
@@ -201,7 +182,24 @@ remaining candidates preserved for wrap-up.
   without a new wall-improving approach.
 - Prefer README-aligned sibling-delta and journey-once / boundary-variants
   cuts over host collapses or tier moves already rejected.
+- Slice 2 checkpoint (2026-10-30): completed-review journey tail trim failed
+  focused wall (9.69–10.00s → 11.07–11.51s); undone. Remaining strategy still
+  targets duplicated Recover and dialog/setup overlap in the top-40% band.
+- Slice 3 checkpoint (2026-10-30): gaps `ambiguous-merge` drop inconclusive
+  (10.34–11.18s → 9.48–11.51s); undone. Record pending
+  `story-review-completed-gaps-ambiguous-merge-collapse` only if a later
+  wall-improving approach appears.
+- Slice 4 retained (2026-10-30): noninterference Recover preamble removal
+  improved focused wall ~15.5s → ~14.8s; continuation coverage preserved.
+- Slice 5 decisive checkpoint (2026-10-30): remaining recent-delete dialog
+  delta cannot plausibly close suite-wall gap (launch setup dominates; only
+  one Keep-focus overlap). Skip the experiment; proceed to full re-profile
+  with the retained slice 4 change. Pending
+  `agent-launch-recent-delete-dialog-delta` only if a wall-improving approach
+  appears.
 
 ## Learnings
 
-None yet.
+- In this top-40% pass, removing a boundary-answerable journey tail or one
+  overlapping gaps variant did not move focused wall while remaining setup
+  dominated. Sibling-delta removal of a Recover click path did.
