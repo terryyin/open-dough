@@ -230,9 +230,21 @@ comparable load.
 
 ### Remaining candidates
 
-1. Further unique multi-step `agent-launch*` poles (`ad-hoc-terminal`; remaining
-   second-server cost after the wait move).
-2. Long single journeys (`agent-completion-attention`, production-watcher chains)
-   only with surviving proof and measured wall-time gain.
-3. Touch viewport matrices that only repeat layout branches already proved once
-   at the boundary tier.
+1. Long single journeys (`agent-completion-attention`, production-watcher chains)
+   only with surviving proof and measured wall-time gain — **human decision
+   pending** (2026-10-30 resolve): whether thinner integrated coverage is an
+   acceptable confidence trade-off for local wall time. SEED-177 is already
+   Taken for measured dashboard test optimization.
+
+### Resolved (2026-10-30 resolve)
+
+- **Necessary cost:** further unique multi-step `agent-launch*` poles
+  (`ad-hoc-terminal`; remaining `agent-launch-second-server` cost after the
+  SEED-176 change-wait boundary move). Dual-preview page protection and
+  immediate terminal-attachment journeys are the protected behavior; cheaper
+  boundary moves for those poles are already landed. No project
+  profile-exclusion mechanism; none invented.
+- **Replacement plan:** touch viewport matrices that only repeat layout
+  branches — obligation in
+  [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
+  (SEED-178). Implementation not authorized by resolve-only triage.
