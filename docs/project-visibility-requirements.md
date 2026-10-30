@@ -6,7 +6,7 @@
 
 **Source:** Terry Yin's direction in the project-visibility discussion.
 
-**Updated:** 2026-10-30, for the current three-perspective direction and enduring intended behavior.
+**Updated:** 2026-10-30, for the current three-perspective direction and enduring product intent.
 
 ## Purpose
 
@@ -31,11 +31,10 @@ the cross-task architectural boundaries, and the
 
 ## Three perspectives
 
-The dashboard has three independent but related dimensions: changing work,
-the current product's intended behavior, and implementation structure. The
-story perspective is delivered; the other two remain design direction. These
-are conceptual perspectives, not a requirement for three panes or any other
-presentation. Their UX/UI remains a separate design discussion.
+The dashboard has three independent but related dimensions: Story, Product
+intent, and Structure. These describe changing work, the current product,
+and implementation structure. The story perspective is delivered; the other
+two remain design direction. Their UX/UI remains a separate design discussion.
 
 ### User-story perspective: the project's dynamics
 
@@ -51,55 +50,43 @@ also exposes local sessions, with their operational evidence kept distinct from
 published story facts. Completing a story and cleaning up its planning records
 does not remove the product's maintained definition or verification.
 
-### Intended-behavior perspective: the current product
+### Product intent perspective: the current product
 
-This perspective describes what the current product is meant to do and why.
-Its account endures beyond the stories that introduce or change behavior,
-while being maintained for the product's current revision. Enduring does not
-mean frozen: an intentional product change updates the account. A regression
-is contrary evidence about fulfillment of an expectation, not a reason to
-silently delete that expectation. Accidental implementation behavior is not
-automatically intended behavior, and future wishes do not belong in the
-current baseline.
+Product intent is the maintained definition of intended behavior: what the
+current product is meant to do and why. Product intents endure beyond the
+stories that introduce or change them and describe the product at its current
+revision. An intentional product change updates the relevant product intents.
+A regression supplies contrary evidence about fulfillment while the product
+intent remains the expectation to evaluate. The current account contains
+adopted expectations; future possibilities stay in planning.
 
-The existing **Feature** concept names external behavior users care about,
-with maintained definition, design, and automated verification. This direction
-clarifies its enduring intended meaning without completing a product-wide
-rename. The best name remains open: **feature**, **intent**, **intention**, or
-**product intent**. “Product intent is the maintained definition of what the
-current product is meant to do and why” is a working explanation. Product
-specification and behavioral contract are other suggested formulations, not
-selected replacements. A defined capability does not itself establish that
-a particular user's goal has been achieved.
+Each Product intent contains two sub-concepts: Purpose and Proof.
 
-#### Purpose and proof
+#### Purpose
 
-Purpose and proof are proposed aspects of this account:
+Purpose expresses the expected behavior and why it matters: the maintained
+descriptive part of a Product intent.
 
-- **Purpose** expresses the expected behavior and why it matters: the
-  maintained descriptive side.
-- **Proof** concerns executable verification and evidence of whether the
-  implementation fulfills that expectation. Verification procedures can be
-  maintained artifacts; the results of particular executions are observations.
+#### Proof
 
-This conceptual distinction selects no separate stores, catalogs, files,
-or services.
+Proof concerns executable verification and evidence of whether the
+implementation fulfills a Product intent. Verification procedures are
+maintained artifacts; the results of particular executions are observations.
+Storage and presentation remain separate design choices.
 
-#### Interpreting verification evidence
+##### Interpreting verification evidence
 
 Duration, supporting evidence, and when verification last ran are exploratory
 considerations. Revision, environment, coverage, freshness, and result may help
-interpret an observation. Their scope remains open: they are not mandatory
-fields, a finalized state model, or a promise to collect and display them.
+interpret an observation. Their scope, representation, collection, and display
+remain open design questions.
 
-A passing check supports the claim it actually observed under its conditions;
-it does not establish universal correctness. A pass on an older revision must
-be assessed for relevance to the current product. An absent result is missing
-evidence, not a passing or failing result. Missing, stale, partial, and conflicting
-evidence remain distinguishable rather than collapsing into a single verdict.
-A check's runtime describes verification cost; it does not by itself measure
-the product's performance. A slow verification run alone therefore does not
-establish a product performance defect.
+A passing check supports the claim it actually observed under its conditions.
+A pass on an older revision must be assessed for relevance to the current
+product. An absent result communicates missing evidence. Missing, stale,
+partial, and conflicting evidence remain distinguishable. A check's runtime
+describes verification cost; evaluating the product's performance requires
+observations of that product behavior.
 
 ### Structural perspective: the product's architecture
 
@@ -107,12 +94,12 @@ This perspective describes the logical organization of the implementation.
 That organization maps to the domain model and connects it to packages,
 folders, files, and functions.
 
-Stories, intended behavior, and structure are independent related dimensions,
-without a required one-to-one mapping or containment hierarchy. One story can
-change several intentions and structural elements; one intention can endure
-through many stories and involve several structural elements. Mapping and
-filtering could help reveal those relationships, but no recording, derivation,
-or navigation mechanism has been selected.
+Stories, product intents, and structure are independent related dimensions
+whose relationships can be many-to-many. One story can change several product
+intents and structural elements; one product intent can endure through many
+stories and involve several structural elements. Mapping and filtering could
+help reveal those relationships. Their recording, derivation, and navigation
+remain open design choices.
 
 The architectural North Star may belong in this perspective. Its placement
 remains open; temporary architectural direction and implemented structure are
@@ -126,7 +113,7 @@ The implemented dashboard provides the story planning and execution perspective,
 including its existing local-session capabilities. The maintained
 [dashboard guide](../dashboard/README.md) and
 [agent launch contract](../dashboard/AGENT-LAUNCH.md) describe those capabilities.
-The intended-behavior and structural perspectives remain future design work.
+The product intent and structural perspectives remain future design work.
 Their meaning is useful now without making their implementation a prerequisite
 for the existing dashboard or committing to build all three.
 
@@ -203,14 +190,13 @@ just-in-time principle rather than completing a predetermined visual system.
 
 The following choices remain open:
 
-- Which name best communicates the enduring intended-behavior account, while
-  preserving its relationship to the existing Feature concept.
-- How purpose and proof should be represented, and which execution information
-  is useful. Duration, evidence, last-run time, revision, environment, coverage,
-  freshness, and result are considerations, not a selected schema.
-- How the intended-behavior and structural perspectives should work in the UX/UI.
+- How Purpose and Proof within a Product intent should be represented, and
+  which execution information is useful. Possible information includes duration,
+  evidence, last-run time, revision, environment, coverage, freshness, and result.
+  Its representation remains an open design choice.
+- How the product intent and structural perspectives should work in the UX/UI.
   No new tabs, panels, layouts, interactions, or presentation states are chosen.
-- How relationships among stories, intended behavior, and structure would be
+- How relationships among stories, product intents, and structure would be
   recorded or derived, including expected impact versus observed change, and
   whether mapping or filtering would help.
 - Whether and how architectural North Star artifacts belong in the structural
@@ -228,11 +214,10 @@ collection, service, scheduler, or dashboard control mechanism.
 
 The [story dashboard](../dashboard/README.md) provides the current planning and
 execution view. Its published story records and local-session capabilities
-follow their maintained contracts; the original remote-only delivery boundary
-does not restrict today's product. The
+follow their maintained contracts. The
 [delivery direction](dashboard-delivery-direction.md) explains the separation
-of published and machine-local evidence, not a requirement to remove delivered
-capabilities while exploring another perspective.
+of published and machine-local evidence. Those capabilities remain available
+while another perspective is explored.
 
 The [product backlog](../.planning/PRODUCT-BACKLOG.md) owns work priority.
 Owned workspaces remain independent of the default checkout, whose refresh is

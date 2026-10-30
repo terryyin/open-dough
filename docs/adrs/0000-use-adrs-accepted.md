@@ -24,9 +24,9 @@ guidance but are not imposed on projects using it.
 1. Record high-level architectural choices with product-wide impact that agents
    working across most development tasks need to know, as numbered Markdown
    files under `docs/adrs/`. Cost of reversal or repeated discussion can justify
-   recording such a choice, but does not make a feature-local design an ADR.
-   Keep feature behavior, command interfaces, and implementation design with
-   that feature's documentation or planning records.
+   recording such a choice, but does not make a design for one product intent
+   an ADR. Keep product intent details, command interfaces, and implementation
+   design with that product intent's documentation or planning records.
 2. Follow the human advice process and naming conventions in the
    [ADR README](./README.md). Decision makers consult affected and interested
    people, make the decision, and communicate the outcome.
@@ -42,9 +42,9 @@ guidance but are not imposed on projects using it.
 6. Keep temporary North Star direction separate from durable decisions. It
    cannot override Accepted ADRs. Before removing temporary direction or
    planning records, preserve any still-needed rules: product-wide
-   architectural decisions in ADRs, and feature-local behavior and design in
-   maintained feature documentation. Follow the existing human decision
-   process when an ADR change is needed.
+   architectural decisions in ADRs, and individual product intent details and
+   design in maintained product intent documentation. Follow the existing human
+   decision process when an ADR change is needed.
 
 ## Consequences
 

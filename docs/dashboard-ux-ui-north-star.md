@@ -5,13 +5,13 @@
 Help a developer understand the project's changing work and inspect the evidence
 behind it. The delivered story dashboard combines published progress with
 separate local-session capabilities. Further design relates that work to the
-current product's intended behavior and implementation structure.
+current product intents and implementation structure.
 
 ## Authority and scope
 
 The [project visibility requirements](project-visibility-requirements.md#three-perspectives)
-own the detailed three-perspective direction, purpose/proof exploration, and
-open choices. [Accepted ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+own the detailed three-perspective direction, Product intent's Purpose and
+Proof, and open choices. [Accepted ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 defines the dashboard domain, UI concepts, and architectural boundaries. This
 guide follows those definitions and supplies temporary interface direction;
 it does not define a workflow state schema or authorize execution.
@@ -43,9 +43,9 @@ it does not define a workflow state schema or authorize execution.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
 - The story planning/execution perspective and local-session capabilities are
-  delivered. Additional intended-behavior and structural perspectives remain
-  design direction. They require no particular panes or presentation, and their
-  UX/UI is left for a separate discussion.
+  delivered. Additional product intent and structural perspectives remain
+  design direction. Their presentation and UX/UI are left for a separate
+  discussion.
 
 **Design hypotheses:** The interaction, ordering, wording, and visual choices
 below remain revisable guidance alongside the linked implemented contracts.
@@ -55,19 +55,17 @@ The [current dashboard](../dashboard/README.md) provides Backlog, Taken, and
 Recently done, story and assignment detail, recorded slice progress, and local
 session navigation. The [agent launch contract](../dashboard/AGENT-LAUNCH.md)
 and linked session guidance own its current operations. Existing navigation
-and interactions remain applicable; the original first-Board scope does not
-restrict them. Broader spatial and animation hypotheses still need a concrete
-reading or orientation benefit before further implementation.
+and interactions remain applicable. Broader spatial and animation hypotheses
+still need a concrete reading or orientation benefit before further implementation.
 
-The second perspective concerns the enduring, maintained definition of what
-the current product is meant to do and why. The existing Feature concept relates
-to this meaning; “product intent” is a working formulation and the name remains
-open. Purpose and proof are proposed descriptive and verification aspects, with
-maintained procedures distinct from observations of particular runs. Follow the
+The Product intent perspective concerns the enduring, maintained definition of
+intended behavior: what the current product is meant to do and why. Each
+Product intent contains Purpose, its expected behavior and reason, and Proof,
+its executable verification and supporting evidence. Maintained verification
+procedures are distinct from observations of particular runs. Follow the
 [shared vocabulary](adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
-and detailed requirements rather than treating those provisional terms as new
-UI labels. This guide selects no proof fields, new interactions, layouts, or
-presentation states for either additional perspective.
+and detailed requirements. Proof fields, interactions, layouts, and presentation
+states for the additional perspectives remain future UX/UI design work.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
 for story and slice meaning and [ADR 0002 — Software development lifecycle

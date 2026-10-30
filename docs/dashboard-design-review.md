@@ -36,8 +36,8 @@ Where the relevant facts are available, also review:
   access. Decoration does not compete with story understanding.
 
 The [requirements](project-visibility-requirements.md#three-perspectives) own
-the intended-behavior and structural direction, including purpose/proof and
-open terminology. Their new UX/UI, further local worktree/lock observation, and
+the product intent and structural direction, including Purpose and Proof within
+each Product intent. Their new UX/UI, further local worktree/lock observation, and
 possible agent communication and takeover remain separate design work. Preserve
 existing local-session capabilities and the delivered Recently done view:
 published done-story records and local session disposition retain their

@@ -43,8 +43,8 @@ imposed on projects using it or required runtime dependencies.
 - **Have the ability to change direction at extremely low cost.** This goal
   reinforces the first: learning has limited value if acting on it requires
   abandoning a large investment or undertaking expensive rework. Building
-  infrastructure ahead of the features that demonstrate its value can commit
-  effort to a direction that later learning challenges. Our current approach
+  infrastructure ahead of the product intents that demonstrate its value can
+  commit effort to a direction that later learning challenges. Our current approach
   includes just-in-time work: make commitments and build supporting capabilities
   when the value being delivered needs them. Fast feedback from unit tests,
   end-to-end tests, and other relevant checks supports inexpensive changes.

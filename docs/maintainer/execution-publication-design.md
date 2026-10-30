@@ -57,8 +57,9 @@ mechanical and native evidence; [0006](../adrs/0006-write-skills-for-executing-a
 requires one authoritative rule and concise agent instructions. Follow
 [maintainer guidance](../../AGENTS.md) for eventual source changes.
 
-**ADR conclusion:** No feature-specific ADR is needed. Existing decisions already
-constrain this design. The clarification to ADR 0000 records Terry's product-wide
+**ADR conclusion:** No ADR specific to this product intent is needed. Existing
+decisions already constrain this design. The clarification to ADR 0000 records
+Terry's product-wide
 ADR scope rule. [ADR 0009](../adrs/0009-git-branching-and-integration.md) remains the
 Proposed home of the global remote-integration direction; command design does
 not belong there. This review does not accept it or change Story Branch timing.

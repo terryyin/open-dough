@@ -67,7 +67,7 @@ project using it:
   concerns described by other seeds.
 - **Story (user story):** A romantic, speculative account of a possibility worth
   pursuing for its user or learning value. It invites discussion, may be fuzzy
-  or incomplete, and may cross features and system boundaries. It evolves
+  or incomplete, and may cross product intents and system boundaries. It evolves
   through conversation and learning: planning input, not an enduring description
   of what the system does.
 - **Slice:** A bounded unit of executable work within a selected story that
@@ -96,28 +96,25 @@ undecided.
 
 The dashboard relates changing work to the product it changes:
 
-- **Story** describes planning and learning toward a change. Its completion and
-  cleanup do not make it the enduring definition of the product.
-- **Intended behavior** describes what the current product is meant to do and
-  why, maintained as the product changes and surviving individual stories.
-  The existing **Feature** concept relates to this account of external behavior.
-  **Product intent** is a working explanation, not a selected replacement name;
-  feature, intent, intention, and product intent remain open terminology.
-- **Purpose and proof** are proposed aspects of that account: the expected
-  behavior and its reason, and executable verification with supporting evidence.
-  A maintained verification procedure and an observed execution result are
-  distinct. This distinction selects no storage or presentation model.
+- **Story** describes planning and learning toward a possible product change.
+- **Product intent** is the maintained definition of intended behavior: what
+  the current product is meant to do and why. It evolves with the product and
+  survives individual stories. Each Product intent contains two sub-concepts:
+  - **Purpose** expresses the expected behavior and why it matters.
+  - **Proof** provides executable verification and supporting evidence.
+    Maintained verification procedures and observed execution results are
+    distinct parts of Proof.
 - **Structure** describes the implementation's logical organization through its
   domain model, packages, folders, files, and functions.
 
-These are independent related dimensions, without required one-to-one mappings
-or a containment hierarchy. The story perspective is delivered, including local
-sessions; the intended-behavior and structural perspectives remain design work.
+Story, Product intent, and Structure are independent related dimensions whose
+relationships can be many-to-many. The story perspective is delivered,
+including local sessions; the product intent and structural perspectives
+remain design work.
 [ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
 owns their cross-task relationships and state boundaries. The
 [requirements](../project-visibility-requirements.md#three-perspectives) own the
-detailed meaning, examples, and open choices. Recording these distinctions
-neither finalizes a name nor requires a rename across product or code.
+detailed meaning, examples, and open design choices.
 
 ### Dashboard UI vocabulary
 

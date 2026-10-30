@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-188_product-intent-vocabulary.json",
+      "identity": "SEED-188#product-intent-vocabulary",
+      "completedAt": "2026-10-30T06:36:49.760Z",
+      "blob": "a5d105702336de0a187a4aef02f4aa1ab401b40b"
+    },
+    {
       "fileName": "SEED-185_stable-ci-time-budget.json",
       "identity": "SEED-185#stable-ci-time-budget",
       "completedAt": "2026-10-30T06:35:39.616Z",
