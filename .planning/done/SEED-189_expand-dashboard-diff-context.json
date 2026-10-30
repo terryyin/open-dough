@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-189#expand-dashboard-diff-context",
+  "title": "Load more diff context from the line-number gutter",
+  "completedAt": "2026-10-30T07:31:51.759Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "auto"
+}
