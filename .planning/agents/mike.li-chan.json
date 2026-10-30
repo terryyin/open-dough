@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mike.li-chan",
-  "email": "mike.li-chan@example.org",
-  "identity": "SEED-188#product-intent-vocabulary",
-  "mode": "story-branch",
-  "branch": "codex/product-intent-vocabulary",
-  "host": "codex"
-}

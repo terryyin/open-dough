@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-188#product-intent-vocabulary",
+  "title": "Use Product intent as the single maintained concept",
+  "completedAt": "2026-10-30T06:36:49.760Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "codex"
+}
