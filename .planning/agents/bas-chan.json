@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-190#keep-running-cursor-sessions",
+  "mode": "story-branch",
+  "branch": "cursor/starting-another-cursor-session-leaves-already-r",
+  "host": "cursor",
+  "model": "auto"
+}
