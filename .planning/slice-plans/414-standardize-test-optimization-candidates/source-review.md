@@ -42,25 +42,25 @@ other project files and change nothing.
 | 11.7 | Finding field: needed human decision (when one is pending) | slice 1 | observed: candidate-record.md labeled fields |
 | 11.8 | Finding field: links to evidence or follow-up work | slice 1 | observed: candidate-record.md labeled fields |
 | 12 | An empty section holds exactly `None.` | slice 1 | observed: candidate-record.md empty-section rule + template |
-| 13 | A record with every finding section at `None.` is an explicit empty record. | slice 2 | |
+| 13 | A record with every finding section at `None.` is an explicit empty record. | slice 2 | observed: resolving-candidates.md empty finding sections report |
 | 14 | A missing record means no pass has recorded findings in this project. | slice 1 | observed: candidate-record.md Missing file |
-| 15 | `--resolve` reports a missing record without creating the file. | slice 2 | |
+| 15 | `--resolve` reports a missing record without creating the file. | slice 2 | observed: resolving-candidates.md missing-file report without create |
 | 16 | A pass that records a summary or finding creates the record from the defined format; it needs no pre-existing file. | slice 1 | observed: candidate-record.md Missing file + SKILL.md Verify and close |
 | 17 | A record that cannot be read or does not match the format stops the write and is reported; it is never overwritten or guessed at. | slice 1 | observed: candidate-record.md Unreadable or mismatched + SKILL.md writes via reference |
 | 18 | Every pass that ends with findings — default or profile-only — writes its latest-pass summary and its candidates to the record, not only to its plan. | slice 1 | observed: SKILL.md profile-only + Verify and close |
-| 19 | Later passes and `--resolve` read the record first, preserve recorded decisions, and move an accepted cost back to pending only with new evidence. |  | G2 |
-| 20 | `--resolve` moves each resolved entry to its disposition section (accepted cost, applied exclusion, or transferred obligation) or keeps it pending with its human decision. | slice 2 | |
+| 19 | Later passes and `--resolve` read the record first, preserve recorded decisions, and move an accepted cost back to pending only with new evidence. | slice 2 | observed: resolving-candidates.md read first + preserve decisions; SKILL.md later-pass baseline |
+| 20 | `--resolve` moves each resolved entry to its disposition section (accepted cost, applied exclusion, or transferred obligation) or keeps it pending with its human decision. | slice 2 | observed: resolving-candidates.md disposition outcomes |
 | 21 | Wrap-up, before deleting a spent plan, moves any optimization finding that exists only in that plan into the record. | slice 3 | |
 | 22 | When the closing story or plan is the receiver of a transferred obligation, wrap-up removes that entry once its work is done, or returns any unfinished part to pending candidates. | slice 3 | |
 | 23 | The record format and lifecycle have one owner: a reference under the optimization skill. The optimization skill, its `--resolve` reference, and story wrap-up link to it. |  | G1 |
 | 24 | The file and guidance are useful on their own (safe stopping point). | slice 1 | observed: candidate-record.md + SKILL.md write/consult path without requiring resolve/wrap-up |
 | E1 | New pass, no record → creates record with latest-pass summary, pending finding with labeled fields, `None.` in other finding sections. | slice 1 | observed: behavior-review walk in plan slice 1 proof |
-| E2 | Resolve to accepted cost → same slug moves to Accepted necessary costs; test still runs; no Profile-only exclusions without a mechanism. | slice 2 | |
+| E2 | Resolve to accepted cost → same slug moves to Accepted necessary costs; test still runs; no Profile-only exclusions without a mechanism. | slice 2 | observed: behavior-review walk in plan slice 2 proof; resolving-candidates.md Accepted necessary cost |
 | E3 | Resolve to replacement plan, then clean up → transferred entry links plan; survives wrap-up of original; removed when replacement story wraps with work done. |  | G3 |
 | E4 | Later pass consults accepted-cost entry and does not re-propose without new evidence; summary replaces Latest pass. | slice 1 | observed: behavior-review walk in plan slice 1 proof; SKILL.md baseline + Verify and close |
-| E5.1 | All finding sections `None.` → `--resolve` reports an empty record. | slice 2 | |
-| E5.2 | No file → `--resolve` reports that no findings have been recorded. | slice 2 | |
-| E5.3 | Mismatched heading or sections → stops and reports without editing. | slice 1 | observed: candidate-record.md Unreadable or mismatched (writer half; resolve reporting remains slice 2 via E5.1–E5.2 / 15) |
+| E5.1 | All finding sections `None.` → `--resolve` reports an empty record. | slice 2 | observed: resolving-candidates.md empty-record report |
+| E5.2 | No file → `--resolve` reports that no findings have been recorded. | slice 2 | observed: resolving-candidates.md missing-file report |
+| E5.3 | Mismatched heading or sections → stops and reports without editing. | slice 1 | observed: candidate-record.md Unreadable or mismatched; resolving-candidates.md defers stop-without-edits to that reference |
 | D1 | Automatic expiry or periodic re-review of accepted costs is deferred. |  | G4 |
 | D2 | A history of earlier passes beyond Git history is deferred. |  | G5 |
 | D3 | A script that validates or rewrites the record is deferred. |  | G6 |

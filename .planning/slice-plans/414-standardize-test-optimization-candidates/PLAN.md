@@ -89,9 +89,19 @@ Changes:
 ### 2. `--resolve` records each disposition in the standard record
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior-review walk of key examples 2, 3 (through the transfer), and
 5 (empty, missing, unreadable reports), recorded here.
+
+Accepted proof (2026-10-30):
+- Walk 2: pending unique journey → Accepted necessary costs, same slug;
+  Profile-only exclusions unchanged without a mechanism; acceptance excludes
+  nothing.
+- Walk 3 transfer: cheaper proof → write replacement plan → Transferred
+  obligations with plan link; cleanup half remains slice 3.
+- Walk 5: missing → report no findings, no create; all `None.` → empty
+  record report; unreadable/mismatched → stop without edits.
+- Payload declaration paths unchanged; not re-run.
 
 Behavior: pending entries in the record → `--resolve` → each entry, same slug,
 moves to `## Accepted necessary costs`, `## Profile-only exclusions` (only
@@ -128,22 +138,21 @@ record instead of "the established follow-up location".
 
 ## Story obligations
 
-### G1. Resolve and wrap-up still lack the shared format link
-Reported: slice 1 — "optimization pass links the shared format; --resolve and wrap-up do not yet"
+### G1. Wrap-up still lacks the shared format link
+Reported: slice 2 — "resolve now links candidate-record.md; wrap-up does not yet"
 Story clause: "One reference in the optimization skill defines its format and lifecycle; the optimization pass, `--resolve`, and story wrap-up link to that definition instead of restating it."
-Disposition: interim until slices 2, 3
+Disposition: interim until slices 3
 Commitment: 4, 23
 
 ### G2. `--resolve` not yet required to read the standard record first
 Reported: slice 1 — "later passes read the record; --resolve still uses older generic wording"
 Story clause: "Later passes and `--resolve` read the record first, preserve recorded decisions, and move an accepted cost back to pending only with new evidence."
-Disposition: interim until slices 2
-Commitment: 19
+Disposition: proved by slice 2: resolving-candidates.md read-first and preserve-decisions rules
 
-### G3. Transfer-and-cleanup journey incomplete until resolve and wrap-up
-Reported: slice 1 — "format defines transferred pointers; resolve transfer and wrap-up cleanup not yet implemented"
+### G3. Transfer-and-cleanup journey incomplete until wrap-up
+Reported: slice 2 — "resolve transfers to Transferred obligations; wrap-up cleanup not yet implemented"
 Story clause: "A pending viewport-matrix entry has cheaper replacement proof. `--resolve` writes the obligation into a replacement plan → the entry moves to `## Transferred obligations` linking that plan. The original optimization plan is later deleted by wrap-up; a new pass still finds the transferred entry. When the replacement story is wrapped up with its work done, the entry is removed."
-Disposition: interim until slices 2, 3
+Disposition: interim until slices 3
 Commitment: E3
 
 ### G4. Deferred automatic expiry of accepted costs
@@ -212,7 +221,6 @@ Commitment: X1
 
 Slice-plan refinement did not run: each slice owns one consumer's behavior and
 one review walk, sharing the format slice 1 introduces, and no cumulative
-design concern was found. Remaining concern: none. Interim behavior: between
-slices 1 and 2, `--resolve` still reads the record through its older generic
-wording, which already accepts "the project's candidate record"; slice 2
-replaces it.
+design concern was found. Remaining concern: none. Interim behavior: after
+slices 1 and 2, wrap-up still lacks the shared format link and the
+transfer-cleanup half (G1, G3); slice 3 owns those.
