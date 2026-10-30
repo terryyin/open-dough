@@ -25,7 +25,7 @@ list.
 
 **Identity:** SEED-178#resolve-dashboard-test-optimization-candidates
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 **Beneficiary:** A developer deciding what to do with recorded dashboard test
@@ -60,3 +60,15 @@ recorded candidates.
    entry is removed once that plan holds the obligation.
 3. A candidate that needs a product, architecture, or confidence trade-off
    stays pending with the concrete trade-off cited for a human decision.
+
+## Completion evidence
+
+All three candidate decisions are settled in
+[dashboard test timings](../../docs/maintainer/dashboard-test-timings.md#resolved-2026-10-30-resolve):
+necessary-cost launch poles retained, unique integrated long-journey protection
+retained, and touch-matrix replacement transferred to
+[SEED-180](SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)
+with plan 413. No profile, optimization, or new measurement was performed by
+this triage. `d6bf4531` recorded the dispositions and `03424649` their
+acceptance. Terry requested separation and triage wrap-up on 2026-10-30;
+future implementation is explicitly not authorized by that request.

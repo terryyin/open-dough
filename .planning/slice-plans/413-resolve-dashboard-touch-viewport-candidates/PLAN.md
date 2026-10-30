@@ -1,61 +1,65 @@
 # Collapse redundant dashboard touch viewport matrices
 
-**Source:** [Selected story](../../seeds/SEED-178-resolve-dashboard-test-optimization-candidates.md#resolve-dashboard-test-optimization-candidates)
-**Identity:** SEED-178#resolve-dashboard-test-optimization-candidates
+**Source:** [Selected implementation story](../../seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)
+**Identity:** SEED-180#optimize-dashboard-touch-viewport-tests
 
 ## Request and evidence
 
-Resolve-only triage of remaining candidates recorded under
-[Local `npm run test:dashboard` pass](../../../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-2026-10-29--2026-10-30)
-after SEED-176. No new profile or baseline was run in this pass. Reused
-evidence: SEED-176 baseline at `838e533a` (~597.8 s wall, 1753 cases);
-post-wait-move focused family improvement for `agent-launch-second-server`;
-full-suite wall speedup not demonstrated under comparable load. Candidate 3
-named touch viewport matrices that only repeat layout branches already proved
-once.
+Completed resolve-only triage of the candidates in
+[dashboard test timings](../../../docs/maintainer/dashboard-test-timings.md#resolved-2026-10-30-resolve)
+created this replacement plan without profiling or implementing optimizations.
+`d6bf4531` recorded dispositions; `03424649` recorded human acceptance and
+cleared Remaining candidates. SEED-178's triage source is recoverable at
+`0136acf88f0f639d368ad94d54d04279a067de34`,
+`.planning/seeds/SEED-178-resolve-dashboard-test-optimization-candidates.md`.
+Terry requested triage closure and transfer to a separate implementation story
+on 2026-10-30, explicitly without execution.
+
+SEED-176 baseline at `838e533a` (~597.8 s wall, 1753 cases) and its focused
+second-server improvement are historical evidence; comparable full-suite
+speedup was not established in that pass. SEED-177 subsequently closed at
+`221b95d6`, recording its change-wait improvement and 751.0 s to 741.4 s
+suite observation. Neither supplies this experiment's comparable before/after
+pair. The touch-matrix redundancy and saving remain hypotheses.
 
 ## Goal and scope
 
-Preserve behavioral coverage while removing redundant phone/tablet (and nested
-landscape) repeats of the same touch interaction when dashboard test guidance
-already requires one proof per CSS branch / unique state change. Plan cheaper
-replacement/removal and verification; do not implement in the resolve pass.
+Shorten ordinary local dashboard test feedback while preserving coverage and
+confidence. Classify repeated phone/tablet and landscape touch journeys;
+remove only redundant repeats after establishing surviving proof. Measure the
+focused family and ordinary `npm run test:dashboard` before and after under
+comparable conditions, including replacement proof cost. Retain a credible
+worthwhile saving that justifies maintenance cost under
+[ADR 0010: Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+A supported no-change result also satisfies the story; undo ineffective or
+inconclusive experiment edits.
 
-**Exclusions:** Product behavior changes. Profiling or optimizing in resolve.
-Thinning unique multi-step `agent-launch*` poles already dispositioned as
-necessary-cost. Thinning `agent-completion-attention` / production-watcher
-chains while their confidence trade-off remains a human decision. Claiming
-speedup from fewer cases alone without comparable wall-time proof at execution.
-
-## Developer outcome
-
-After authorized execution of this plan, redundant touch viewport matrix cases
-are gone or narrowed with surviving proof named, and a comparable local
-measurement shows whether the selected `npm run test:dashboard` wait improved.
+**Exclusions:** Product behavior changes; non-touch optimization; thinning the
+necessary-cost `agent-launch*` poles, `agent-completion-attention`, or
+production-watcher chains; invented profile exclusions; speedup claims from
+case count or focused timings alone. No profiling or implementation until a
+later developer instruction authorizes execution. Queue priority and readiness
+do not supply that authority.
 
 ## Preserved promises
 
-- Layout rules remain proved once per genuine CSS / container branch.
-- Touch journeys that own a unique state change (rotation preserving draft,
-  session choice, settings recovery, terminal attachment) keep one
-  representative integrated proof of that change.
-- No focus/only markers; no retries/sleeps/skips to mask flakes.
-
-## Baseline (resolve-only handling)
-
-Comparable ordinary-local baseline for the touch family and, before delivery,
-for `npm run test:dashboard` under ADR 0010 like conditions is a **prerequisite
-slice for later execution**. Do not run it during resolve. Reuse SEED-176
-suite evidence only as historical context; execution must establish its own
-comparable before/after pair.
+- Prove layout rules once per genuine CSS/container branch, following
+  [dashboard test guidance](../../../dashboard/tests/README.md#where-a-check-goes).
+- Retain representative integrated proof of every unique touch state change,
+  including rotation preserving drafts, session choices, settings recovery,
+  terminal attachment, native input, and fitting.
+- Establish replacement boundary proof before narrowing detailed journey proof;
+  boundary assertions alone cannot prove native touch or cross-step integration.
+- No focus/only markers; no retries, sleeps, or skips to mask flakes.
 
 ## Family analysis
 
 **Responsibility:** touch interaction proof across launch/settings/session/
-terminal surfaces that currently loop `launchTouchViewports` (phone + tablet
-portrait, often with nested landscape rotation).
+terminal surfaces using `launchTouchViewports`. Each repeated viewport can
+repeat a preview-server journey; sharing the helper does not establish that
+its coverage is redundant.
 
-**Members (matrix consumers):**
+**Matrix consumers to classify (under `dashboard/tests/`):**
 `agent-launch-dialog-touch.spec.ts`,
 `agent-launch-start-session-touch.spec.ts`,
 `agent-terminal-touch.spec.ts`,
@@ -64,113 +68,110 @@ portrait, often with nested landscape rotation).
 `story-review-touch.spec.ts`,
 `story-review-mark-touch.spec.ts`,
 `system-settings-project-management-touch.spec.ts`,
-`system-settings-terminal-touch.spec.ts`.
+`system-settings-terminal-touch.spec.ts`,
+`system-settings-look.spec.ts`,
+`system-settings-openai-recovery.spec.ts`,
+`system-settings-terminal-theme.spec.ts`.
 
-**Shared cost:** each extra viewport repeats full preview-server journey setup
-for the same interaction. Guidance:
-[Where a check goes](../../../dashboard/tests/README.md#where-a-check-goes) —
-prove a layout rule once per CSS branch; do not write a matrix of widths over
-one static layout.
+The last three are related matrix consumers omitted from the original list.
+`agent-launch-start-session-answer-touch.spec.ts` and
+`recently-done-sessions-sidebar-touch.spec.ts` already select a phone rather
+than looping the matrix; inspect them as possible surviving proof, not removal
+targets. Do not narrow the shared `launchTouchViewports` helper globally.
 
-**Hypothesis:** several phone/tablet pairs only re-hit the same branch; keeping
-one representative per genuine branch (plus rotation where rotation is the
-state change) removes redundant cases without losing fault detection or
-user-value clarity.
+**Hypothesis:** some phone/tablet repeats may exercise the same layout branch
+and interaction. Phone widths 390/844 and tablet widths 768/1024 across rotation
+can also cross distinct branches; retain those distinctions and every unique
+state change. Classification and measurement must settle the hypothesis before
+any saving is claimed.
 
 ## Ordered slices
 
-### 1. Recorded candidates are dispositioned without profiling
+Original numbering and completed triage evidence are retained. Slice 1 belongs
+to the completed predecessor; all implementation slices (2–4) are unstarted.
+
+### 1. Predecessor triage disposition evidence (SEED-178)
 Type: Structure
 Status: done
-Proof: `docs/maintainer/dashboard-test-timings.md` Remaining candidates lists
-only the pending long-journey human decision; necessary-cost and this plan's
-replacement obligation are recorded under Resolved (2026-10-30 resolve); this
-plan's Current decisions name all three dispositions. No profile or baseline
-command was run in resolve.
+Proof: `d6bf4531` and `03424649`, plus the maintained timing record, establish
+all three accepted dispositions with no pending coverage decision. No profile
+or baseline command ran during resolve. The touch replacement obligation is
+now owned by SEED-180, not by the completed triage mission.
 
-Enables: Later authorized execution of touch-matrix replacement slices.
+Enables: Later authorized execution of slices 2–4; this is predecessor evidence,
+not implementation delivered by SEED-180.
 
-### 2. Comparable touch-family and suite baselines are recorded
+### 2. Touch classification and comparable baselines are recorded
 Type: Behavior
 Status: planned
-Proof: Under ADR 0010 like conditions, record wall time and case counts for
-(a) the focused touch-matrix family command covering the members above and
-(b) `env -u NO_COLOR npm run test:dashboard` (or the project's ordinary local
-proof-record form). Name revision, workers, load, and raw proof path outside
-Git.
+Proof: Classify each matrix consumer against actual CSS/container branches and
+unique state-changing interactions; record the survivor for every proposed
+removal. Record the literal focused-family command covering those consumers,
+its wall time/case count, and the baseline for
+`env -u NO_COLOR npm run test:dashboard` (or its ordinary proof-record form).
+Name revision, workers, filters, load, environment/cache conditions, and raw
+proof path outside Git. This is the bounded probe for the redundancy/cost
+hypothesis. If no credible worthwhile experiment remains, record the supported
+no-change outcome and finish without removing cases. Establish the result worth
+keeping before experimentation; repeat doubtful comparisons or record them as
+inconclusive. Summed test time and case count are not suite wall time.
 
-Behavior: Pre-condition — authorized execution checkout ready.
-Trigger — run the focused family and ordinary local suite for baseline.
-Postcondition — comparable baseline facts are recorded in this plan before any
-case removal.
+Behavior: Pre-condition — later execution authorization and an owned checkout.
+Trigger — inspect the family and measure focused and ordinary local baselines.
+Postcondition — classification, surviving proof, comparable baseline facts,
+and keep criteria are recorded before removal, or a supported no-change result
+ends the experiment.
 
-### 3. Redundant touch viewport repeats are classified and collapsed
+### 3. Evidenced redundant touch viewport repeats are collapsed
 Type: Structure
 Status: planned
-Proof: For each matrix consumer, cite whether phone vs tablet (and nested
-landscape) exercises a distinct CSS branch or unique state-changing
-interaction; keep one representative per genuine branch; remove or narrow
-redundant repeats; name surviving proof for each removed case (sibling journey
-or boundary). Focused family tests pass.
+Proof: Apply slice 2's classification; retain one representative per genuine
+branch and every unique state-changing interaction. Establish replacement
+proof before narrowing a case, naming the surviving sibling journey or boundary
+for each removal. Focused family tests pass. If asynchronous/input
+synchronization changes, require three consecutive focused passes; repetition
+alone proves no speedup. Stop a disputed confidence trade-off for the human
+rather than weakening protection.
 
 Enables: Slice 4's measured confirmation.
 
-Behavior: Pre-condition — Slice 2 baseline recorded; classification written in
-Current decisions or Learnings.
-Trigger — edit the matrix consumers to drop redundant viewports only.
-Postcondition — every removed case has a named surviving proof; unique
-interaction poles remain.
+Behavior: Pre-condition — slice 2 supports a credible bounded experiment.
+Trigger — remove or narrow only evidenced redundant viewport repeats.
+Postcondition — each removal has surviving proof; unique interactions remain.
 
 ### 4. Focused family and ordinary local suite confirm the outcome
 Type: Behavior
 Status: planned
-Proof: Re-run the Slice 2 focused family command and `npm run test:dashboard`
-under comparable conditions. Retain only when wall time improves (or record
-rejected experiment and undo). Update
-`docs/maintainer/dashboard-test-timings.md` with before/after facts.
+Proof: Re-run slice 2's focused-family and ordinary local commands under
+comparable conditions, including replacement proof cost. Retain only a credible
+wall-time gain that justifies maintenance cost. Otherwise undo experiment edits
+and record the rejected or inconclusive result. Update
+`docs/maintainer/dashboard-test-timings.md` with before/after facts, case counts,
+surviving proof, comparison limits, and the actual measured/no-change outcome.
+A failed re-profile leaves measurement incomplete; CI or focused timings do not
+replace it.
 
-Behavior: Pre-condition — Slice 3 edits in place with surviving proof named.
-Trigger — comparable focused and full local re-measurement.
-Postcondition — retained change shows measured local improvement with coverage
-preserved, or the experiment is undone and recorded as rejected.
+Behavior: Pre-condition — slice 3's experiment has surviving proof.
+Trigger — comparable focused and ordinary local remeasurement.
+Postcondition — retained change shows worthwhile local improvement with
+coverage preserved, or the experiment is undone and its outcome recorded.
 
 ## Current decisions
 
-- Resolve dispositions for the three Remaining candidates (2026-10-30;
-  human acceptance recorded the same day):
-  1. `agent-launch*` poles (`ad-hoc-terminal`; remaining second-server cost) →
-     **necessary-cost** (accepted). Unique dual-preview UI protection and
-     immediate terminal-attachment journeys remain the protected behavior. No
-     project profile-exclusion mechanism; none invented.
-  2. Long journeys (`agent-completion-attention`, production-watcher chains) →
-     **retain unique integrated protection**. SEED-177 may remove redundant
-     variants or move detailed checks to boundary tests after establishing
-     replacement proof. Where cross-step protection cannot be preserved more
-     cheaply, record necessary cost. No blanket authorization to weaken
-     integrated coverage.
-  3. Touch viewport matrices → **this replacement plan** holds the obligation.
-- Implementation of this plan is not authorized by resolve triage; a later
-  Take must authorize execution. Before implementation, coordinate scope with
-  SEED-177#optimize-dashboard-test-feedback to avoid overlapping work.
-- SEED-177 remains a separate Taken claim; do not treat this plan as that
-  claim's work.
-- 2026-10-30: after resolve triage finished, the developer returned this
-  story and plan to the top of **Backlog list** for later execution rather
-  than wrapping up the unfinished experiment slices.
-
-## Learnings
-
-- SEED-176 already moved non-owner change-wait out of `agent-launch-second-server`;
-  remaining second-server duration is dominated by starting a second preview
-  and proving page protection across reload/project switch — not a repeated
-  bound the boundary tier still owns.
-- Nine journey specs loop `launchTouchViewports`; that is the concrete family
-  for candidate 3.
-- Push `d6bf4531` (and follow-up `03424649`) change only `.planning/**` and
-  `docs/**`, which `ci.yml` `paths-ignore`s, so GitHub scheduled no run on
-  `cursor/run-dough-test-optimization-resolve`. Against successful ancestor
-  push CI at `d87af036` on `main`
-  ([run 40978941756](https://github.com/terryyin/open-dough/actions/runs/40978941756)),
-  path applicability classifies those revisions `not_required`. Branch-scoped
-  observer discovery found no local runs, so completion timed out as
-  `undiscovered` rather than recording that `not_required` basis automatically.
+1. **Necessary-cost launch poles (accepted):** retain unique dual-preview page
+   protection and immediate terminal-attachment journeys after the prior
+   change-wait boundary move. No profile-exclusion mechanism exists; none is
+   invented. This disposition does not declare all agent-launch cost inherent.
+2. **Long journeys (accepted):** retain unique integrated completion and
+   production-watcher protection. Any later removal of redundant variants or
+   detail move needs replacement proof and separately authorized scope; unique
+   cross-step protection stays. SEED-177 closed without those moves. These
+   journeys are outside this touch-only story.
+3. **Touch matrices:** this implementation plan owns classification, possible
+   replacement/removal, and measurement; redundancy is not yet established.
+4. **Ownership and priority:** SEED-178 triage is complete. SEED-180 and this
+   plan are first in Backlog list at Terry's request. SEED-177 is completed
+   historical context, not an outstanding coordination dependency. Reconcile
+   with current tests before measuring; do not reopen that completed claim.
+5. **Authority:** no Take, profile, or implementation during this wrap-up;
+   later explicit execution authorization is required.

@@ -239,17 +239,23 @@ comparable load.
   boundary moves for those poles are already landed. No project
   profile-exclusion mechanism; none invented.
 - **Long journeys (`agent-completion-attention`, production-watcher chains):**
-  retain unique integrated protection. SEED-177 may remove redundant variants
-  or move detailed checks to boundary tests after establishing replacement
-  proof. Where cross-step protection cannot be preserved more cheaply, record
-  necessary cost. This resolves the coverage decision without blanket
-  authorization to weaken integrated coverage.
+  retain unique integrated protection. Removing redundant variants or moving
+  detailed checks to boundary tests requires replacement proof and separately
+  authorized scope. Where cross-step protection cannot be preserved more
+  cheaply, record necessary cost. SEED-177 has closed without those moves.
+  This resolves the coverage decision without blanket authorization to weaken
+  integrated coverage.
 - **Replacement plan:** touch viewport matrices that only repeat layout
   branches — obligation in
   [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
-  (SEED-178). Plan stays available for later authorized execution; coordinate
-  scope with SEED-177 before implementation to avoid overlapping work.
-  Resolve-only triage does not authorize implementation.
+  ([implementation story SEED-180](../../.planning/seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)).
+  Redundancy is a hypothesis: classify actual layout branches and unique
+  touch/rotation interactions before removing cases. Related settings reading,
+  OpenAI recovery, and terminal-theme matrices also require review; a shared
+  viewport helper alone proves no redundancy. SEED-177 is complete, so its work
+  is historical context rather than a pending coordination claim. The
+  implementation remains queued; completed resolve-only triage does not
+  authorize it.
 
 ## Local `npm run test:dashboard` pass (SEED-177, 2026-10-30)
 

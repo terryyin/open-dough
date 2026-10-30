@@ -20,4 +20,5 @@ cost of the feedback process itself.
 
 ## Backlog list
 
-- [Resolve recorded dashboard test optimization candidates](seeds/SEED-178-resolve-dashboard-test-optimization-candidates.md#resolve-dashboard-test-optimization-candidates) — SEED-178#resolve-dashboard-test-optimization-candidates ([plan](slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md))
+- [Collapse redundant dashboard touch viewport matrices](seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests) — SEED-180#optimize-dashboard-touch-viewport-tests
+- [Resolve recorded dashboard test optimization candidates](seeds/SEED-178-resolve-dashboard-test-optimization-candidates.md#resolve-dashboard-test-optimization-candidates) — SEED-178#resolve-dashboard-test-optimization-candidates
