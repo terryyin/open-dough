@@ -90,3 +90,7 @@ outcome. This review identified no remaining slice-specific concern.
 - Finding: after slice 3, `tests/test-shares.md` and `dashboard/tests/shards.md`
   still teach "keeping the seconds" while `refreshListText` scales to list
   speed and records the factor; implementer gap note in slice-3 handoff.
+
+## Execution complete
+
+Product advice: no change
