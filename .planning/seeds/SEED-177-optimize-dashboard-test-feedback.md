@@ -25,7 +25,7 @@ closed measured passes; this is a fresh pass against the current suite.
 
 **Identity:** SEED-177#optimize-dashboard-test-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/413-optimize-dashboard-test-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e68749894d9c864c3211cb7fcdf8de31502528178926d2991782273a37da461c","plan":"0b86f542d8e07d4f28242e35d0b9eafc0d689d6b19c2110b38acd392b2377435"}}
 ```
 
 **Beneficiary:** A developer running the dashboard tests during local work.
