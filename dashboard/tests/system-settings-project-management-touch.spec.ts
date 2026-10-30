@@ -18,7 +18,7 @@ const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
 test.describe(`${name} project settings editing`, () => {
   test.use({ viewport: portrait, hasTouch: true });
-  test("touch edits at reduced height, cancels without writes, and retries a real failed save with the exact draft", async ({
+  test("touch edits at reduced height and retries a real failed save with the exact draft", async ({
     page,
   }) => {
     const server = await fixture.start("preview");
@@ -76,18 +76,7 @@ test.describe(`${name} project settings editing`, () => {
         .locator(".launch-dialog-body")
         .evaluate((element) => element.scrollWidth <= element.clientWidth),
     ).toBe(true);
-    await tapWhereShown(
-      dialog.getByRole("button", { name: "Cancel", exact: true }),
-    );
-    await expect(dialog).toBeHidden();
-    await expect(addProject).toBeFocused();
-    expect(readFileSync(file, "utf8")).toBe(predecessor);
-
-    await page.setViewportSize(portrait);
-    await tapWhereShown(addProject);
-    await url.fill(repository);
-    await local.fill(checkout);
-    await page.setViewportSize({ width: portrait.width, height: 320 });
+    // Cancel: project-remove.spec.ts. Remove write-failure: system-settings-project-management.spec.ts
     await local.scrollIntoViewIfNeeded();
     await tapWhereShown(local);
     await expect(local).toBeFocused();
@@ -121,7 +110,6 @@ test.describe(`${name} project settings editing`, () => {
       localPath: checkout,
       ref: "release+stable",
     });
-    const afterAdd = readFileSync(file, "utf8");
     const row = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { name: "Sample App", exact: true }),
     });
@@ -135,24 +123,6 @@ test.describe(`${name} project settings editing`, () => {
       exact: true,
     });
     await tapWhereShown(removeProject);
-    await tapWhereShown(
-      removal.getByRole("button", { name: "Cancel", exact: true }),
-    );
-    await expect(removal).toBeHidden();
-    await expect(removeProject).toBeFocused();
-    expect(readFileSync(file, "utf8")).toBe(afterAdd);
-    await tapWhereShown(removeProject);
-    chmodSync(path.dirname(file), 0o500);
-    try {
-      await tapWhereShown(
-        removal.getByRole("button", { name: "Remove", exact: true }),
-      );
-      await expect(removal.getByRole("alert")).toBeVisible();
-      await readSetting(removal.getByRole("alert"));
-      expect(readFileSync(file, "utf8")).toBe(afterAdd);
-    } finally {
-      chmodSync(path.dirname(file), 0o700);
-    }
     await tapWhereShown(
       removal.getByRole("button", { name: "Remove", exact: true }),
     );

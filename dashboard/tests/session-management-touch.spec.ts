@@ -35,7 +35,7 @@ const recordOf = async (
     (record) => record.session.sessionId === id,
   );
 
-const { name, portrait, landscape } = phoneLaunchTouchViewport;
+const { name, portrait } = phoneLaunchTouchViewport;
 
 test.describe(`${name} session management`, () => {
   // Immediate card reveal keeps an offscreen terminal from painting first.
@@ -65,17 +65,7 @@ test.describe(`${name} session management`, () => {
     await expectSettledPage(page);
     const sidebar = sessionsSidebarParts(page);
     await tapWhereShown(sidebar.button);
-    const row = sidebar.entries.filter({ hasText: "Story B" });
-    await expect(
-      row.locator("summary", { hasText: "Session details" }),
-    ).toBeVisible();
-    await tapWhereShown(row.locator("summary", { hasText: "Session details" }));
-    await expect(
-      row
-        .locator(".sessions-sidebar-session-entry-facts")
-        .getByText("Unread report: Unfinished work", { exact: true }),
-    ).toBeVisible();
-    await tapWhereShown(row.locator("summary", { hasText: "Session details" }));
+    // Coarse Session details: sessions-sidebar-touch
     await sidebar.entry("Story B").scrollIntoViewIfNeeded();
     await tapWhereShown(sidebar.entry("Story B"));
     const panel = page.getByRole("region", { name: "Terminal" });
@@ -140,10 +130,7 @@ test.describe(`${name} session management`, () => {
     expect(read?.reportRead).toBe(read?.completion?.receipt);
     expect(read?.doneAt).toBeUndefined();
     expect(dashboard.claudeStopCalls()).toEqual([]);
-    await page.setViewportSize(landscape);
-    await message.heading.scrollIntoViewIfNeeded();
-    await tapWhereShown(message.heading);
-    await expect(message.text).toHaveText(attention);
+    // Choice-through-rotation: sessions-sidebar-touch
     const moreActions = entryB.getByRole("button", {
       name: "More session actions",
       exact: true,

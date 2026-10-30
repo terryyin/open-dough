@@ -182,10 +182,7 @@ test.describe(`${name} terminal input`, () => {
       expect(sent).toEqual(inputBeforeScroll);
       expect(attaches()[0]?.lines).toEqual(linesBeforeScroll);
       await assertIdentity();
-      await tapWhereShown(control("Maximize"));
-      await expectFittedInput(panel, sizes);
-      await tapWhereShown(control("Restore"));
-      await expectFittedInput(panel, sizes);
+      // Maximize/Restore already owned for this reduced-height arrangement above
       await focusByTouch(panel);
       await page.keyboard.type("after scrolling");
       await page.keyboard.press("Enter");

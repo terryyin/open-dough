@@ -3,7 +3,6 @@ import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 import { apiKey, save, status } from "./support/openAISettingsPage.ts";
-import { back, settings } from "./support/systemSettingsPage.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import { readSetting } from "./support/settingsTouchPage.ts";
@@ -83,33 +82,15 @@ test.describe(`${name} OpenAI settings recovery`, () => {
     await expect(apiKey(page)).toHaveValue("");
     const replaced = readFileSync(fixture.credentialFile, "utf8");
     expect(JSON.parse(replaced)).toEqual({ apiKey: draft });
+    // Remove-failure and clear-on-leave: non-touch case below + system-settings-openai.spec.ts
     const remove = page.getByRole("button", {
       name: "Remove API key",
       exact: true,
     });
-    chmodSync(fixture.credentialDirectory, 0o500);
-    try {
-      await tapWhereShown(remove);
-      await expect(page.getByRole("alert")).toContainText(
-        "could not be removed",
-      );
-      expect(readFileSync(fixture.credentialFile, "utf8")).toBe(replaced);
-      await expect(status(page)).toHaveText("API key: Configured");
-    } finally {
-      chmodSync(fixture.credentialDirectory, 0o700);
-    }
-    await readSetting(page.getByRole("alert"));
     await apiKey(page).scrollIntoViewIfNeeded();
     await tapWhereShown(remove);
     await expect(status(page)).toHaveText("API key: Not configured");
     expect(existsSync(fixture.credentialFile)).toBe(false);
-    // Leaving settings intentionally clears an unsaved key, as on desktop.
-    await readSetting(apiKey(page));
-    await tapWhereShown(apiKey(page));
-    await apiKey(page).pressSequentially("sk-synthetic-cancelled");
-    await tapWhereShown(back(page));
-    await tapWhereShown(settings(page));
-    await expect(apiKey(page)).toHaveValue("");
     expect(readFileSync(projects, "utf8")).toBe(beforeProjects);
     expect(
       existsSync(

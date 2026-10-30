@@ -158,12 +158,16 @@ viewport moved steps fail under scratch edits and pass restored.
 
 ### 5. Repeated steps leave the touch journeys
 Type: Structure
-Status: planned
+Status: done
 Proof: The step trims in the table are applied; each trimmed step's owner is
 cited in the commit. The touched specs and their named owners pass. Case count
 stays 21.
 
 Internal change: touch journeys keep only their touch delta. Enables slice 6.
+
+Accepted 2026-10-30: four step trims applied with named owners; family still
+21/12; touched specs + owners green
+(`/tmp/seed-180-slice5-proof/touched-owners.json`).
 
 ### 6. Focused family and ordinary suite confirm the outcome
 Type: Behavior

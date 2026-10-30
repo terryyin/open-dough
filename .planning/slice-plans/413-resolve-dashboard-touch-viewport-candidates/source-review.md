@@ -18,17 +18,17 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 9 | The phone pair (390×844, 844×390) already crosses every width branch (400, 480, 640, 800 px) and the ≤480 px height branch. | slice 3 | observed: phone-only journeys still start portrait and rotate / reduce height in-test |
 | 10a | Tablet adds the side-by-side story review body at 768 portrait. | slice 3 | observed: `story-review-touch` tablet case kept in focused list |
 | 10b | Tablet adds the wide-and-tall landscape. | slice 3 | observed: `story-review-touch` still loops `launchTouchViewports` (tablet landscape retained with that loop) |
-| 11 | One owner per pattern at the cheapest tier. | slice 5 | |
-| 12 | Other journeys keep only their own delta. | slice 5 | |
-| 13a.1 | A draft survives rotation and reduced height and can be edited there. | slice 5 | |
-| 13a.2 | Cancel sends or writes nothing and focus returns. | slice 5 | |
-| 13a.3 | A failed local write keeps the predecessor bytes and Retry resubmits the exact draft. | slice 5 | |
-| 13a.4 | Touch reads settings groups and returns after rotation. | slice 5 | |
-| 13a.5 | Coarse Session details read without hover. | slice 5 | |
-| 13a.6 | Open a session by tap; Close detaches only. | slice 5 | |
-| 13a.7 | Maximize/Restore keeps fit or reading position. | slice 5 | |
-| 13a.8 | Rotation keeps a selection or reading place. | slice 5 | |
-| 14 | A touch step that repeats a rule a non-touch journey or boundary test owns leaves the touch journey. | slice 5 | |
+| 11 | One owner per pattern at the cheapest tier. | slice 5 | observed: step trims cite non-touch / sibling owners; touch keeps delta only (`/tmp/seed-180-slice5-proof/touched-owners.json`) |
+| 12 | Other journeys keep only their own delta. | slice 5 | observed: four touch specs trimmed; case count stays 21 (`list.txt`) |
+| 13a.1 | A draft survives rotation and reduced height and can be edited there. | slice 5 | observed: openai + project-management touch still cover draft through reduced height/rotation |
+| 13a.2 | Cancel sends or writes nothing and focus returns. | slice 5 | observed: Cancel trimmed from project-management-touch; owner `project-remove.spec.ts` in proof |
+| 13a.3 | A failed local write keeps the predecessor bytes and Retry resubmits the exact draft. | slice 5 | observed: openai non-touch + `system-settings-project-management.spec.ts` own write-failure; touch keeps Add-fail alert/rotation |
+| 13a.4 | Touch reads settings groups and returns after rotation. | slice 5 | observed: unchanged in `system-settings-look` (not trimmed this slice); family list still includes it |
+| 13a.5 | Coarse Session details read without hover. | slice 5 | observed: Session details trimmed from session-management-touch; `sessions-sidebar-touch` in proof |
+| 13a.6 | Open a session by tap; Close detaches only. | slice 5 | observed: session-management-touch still opens by tap; Close path retained |
+| 13a.7 | Maximize/Restore keeps fit or reading position. | slice 5 | observed: repeated Max/Restore after scroll removed; first pair per arrangement kept in agent-terminal-touch |
+| 13a.8 | Rotation keeps a selection or reading place. | slice 5 | observed: assertion-free rotation trimmed from session-management; rotation deltas kept elsewhere (sidebar/owners) |
+| 14 | A touch step that repeats a rule a non-touch journey or boundary test owns leaves the touch journey. | slice 5 | observed: four trims applied with owner citations in diffs/comments |
 | 15 | The owner is cited in the plan's surviving-proof record. | slice 2 | observed: plan Removal/Surviving proof table reconciled; step-trim project write-failure citation → `system-settings-project-management.spec.ts` |
 | 16 | Measure the focused family's wall time over three consecutive passes before and after under recorded load, with the retained hosted per-test share as context. | slice 6 | |
 | 16-before | Before measurement: three consecutive focused passes under recorded load (36 cases). | slice 2 | observed: `/tmp/seed-180-slice2-baseline/pass{2,3,4}.json` walls 37.551/35.696/36.279 s; metas record load before/after; revision `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` |
@@ -54,7 +54,7 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 24 | Suite-wall speedup claims are out of scope. | slice 6 | |
 | E1 | Plain tablet repeat: `system-settings-look` tablet goes; phone + 420 px fit survive; same rule for other plain repeats. | slice 3 | observed: look phone + 420 px cases remain; tablet reading case gone; same phone-only pattern on other plain-repeat specs |
 | E2 | Branch-bearing device: `story-review-touch` tablet portrait stays unless equivalent touch proof is named. | slice 3 | observed: tablet review-by-touch case present in `/tmp/seed-180-slice3-proof/pass1.json` |
-| E3 | Pattern owner: settings write-failure owned by non-touch; touch keeps alert/rotation delta only. | slice 5 | |
+| E3 | Pattern owner: settings write-failure owned by non-touch; touch keeps alert/rotation delta only. | slice 5 | observed: openai remove-failure/clear-on-leave and project Remove/Cancel trimmed; Add-fail touch delta retained |
 | E4 | Already owned elsewhere: `story-review-mark-touch` folds into `story-review-touch`; file goes. | slice 4 | observed: 44 px label tap + state through rotation in `story-review-touch.spec.ts`; file removed; family 21/12 (`/tmp/seed-180-slice4-proof/family.json`); label scratch fail/pass |
 | E5 | Measured outcome: before 36 cases / three walls; after fewer cases with named survivors, wall not worse, suite green once → retain; unnamed survivor stays. | slice 6 | |
 | E5-before | Before: 36 cases in the family, focused wall over three passes under recorded load. | slice 2 | observed: list 36/14; three green walls recorded under `/tmp/seed-180-slice2-baseline/` |
