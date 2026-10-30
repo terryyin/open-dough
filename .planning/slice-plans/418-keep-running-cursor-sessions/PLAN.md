@@ -150,3 +150,13 @@ stops only that session. A runner that has already exited is not revived.
   cumulative special-case design or sizing concern within the understood
   outcome.
 - Remaining slice-specific concerns: none.
+
+## Execution complete
+
+Product advice: Aggregate delivery matches the story — same-build helper
+repair reuses the answering runner so held agents survive the next Cursor
+session after production checkout retirement; observation leave-alone and
+stale-buildId replace stay intact; stop-one-of-several and dead-runner cases
+are covered. Aligns with ADR 0008; no product correction or backlog change
+recommended. Conclusions remain conditional on unresolved CI for
+`0921f1f71ab86f870b8adf8d686cb7889256e900`.
