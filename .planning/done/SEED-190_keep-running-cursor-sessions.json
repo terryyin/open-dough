@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-190#keep-running-cursor-sessions",
+  "title": "Starting another Cursor session leaves already-running agents running",
+  "completedAt": "2026-10-30T08:12:35.416Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "cursor",
+  "model": "auto"
+}
