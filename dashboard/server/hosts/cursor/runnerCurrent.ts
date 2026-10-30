@@ -1,14 +1,15 @@
 // The current-runner guarantee for new Cursor work (see
 // ./runnerProcess.ts for start-if-absent): a runner already accepting is
-// reused only when it proves it runs the current build and its terminal
-// helper is still on disk, in its recorded address and on the wire. An
-// accepting runner with absent or differing proof is stopped and replaced
-// first, once under the start lock. An accepting process that does not
-// answer the protocol is left alone and
-// this answers false, so new work fails as unreachable and starts no
-// agent. Observation and startup never replace.
-import { existsSync } from "node:fs";
+// reused when it proves it runs the current build. Matching build proof
+// with a missing or drifted terminal helper is repaired from this
+// install when possible so held clients stay up; only absent or
+// differing build proof stops and replaces the runner, once under the
+// start lock. An accepting process that does not answer the protocol is
+// left alone and this answers false, so new work fails as unreachable
+// and starts no agent. Observation and startup never replace.
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import http from "node:http";
+import path from "node:path";
 import { homedir } from "node:os";
 import { computeRunnerBuildId, runnerEntryPath } from "./runnerBuild.ts";
 import { cursorRunnerSpawnHelper } from "./runnerSpawnHelper.ts";
@@ -23,7 +24,11 @@ import {
   stopCursorRunner,
   takeStartLock,
 } from "./runnerProcess.ts";
-import { readCursorRunnerAddress } from "./runnerPaths.ts";
+import {
+  readCursorRunnerAddress,
+  writeCursorRunnerAddress,
+  type CursorRunnerAddress,
+} from "./runnerPaths.ts";
 import { cursorRunnerSessionsResult } from "./runnerProtocol.ts";
 
 const pendingCurrentStarts = new Map<string, Promise<boolean>>();
@@ -82,8 +87,9 @@ function probeRunnerProof(port: number): Promise<RunnerProofProbe> {
 
 // True only for an accepting runner whose recorded and wire proof both
 // match the build this dashboard would start now, and whose terminal
-// helper is the same path on both and still on disk. Null when the
-// accepting process does not answer the protocol at all.
+// helper is ready (or repaired from this install onto the path that
+// runner still executes). Null when the accepting process does not
+// answer the protocol at all.
 async function acceptingRunnerIsCurrent(
   home: string,
   currentBuildId: string,
@@ -92,14 +98,16 @@ async function acceptingRunnerIsCurrent(
   if (port === undefined) return false;
   const probe = await probeRunnerProof(port);
   if (!probe.answered) return null;
+  if (probe.buildId !== currentBuildId) return false;
   const address = readCursorRunnerAddress(home);
-  const recordedHelper =
-    address === undefined ? undefined : address.spawnHelper;
-  return (
-    address?.buildId === currentBuildId &&
-    probe.buildId === currentBuildId &&
-    spawnHelperReady(recordedHelper, probe.spawnHelper)
-  );
+  if (address === undefined || address.buildId !== currentBuildId) {
+    return false;
+  }
+  if (spawnHelperReady(address.spawnHelper, probe.spawnHelper)) return true;
+  // Same build, helper proof missing or drifted: restore a usable helper
+  // for this answering runner instead of stopping it and hanging up every
+  // client it still holds.
+  return repairSpawnHelperProof(home, address, probe.spawnHelper);
 }
 
 // A platform whose node-pty ships no separate helper is current when the
@@ -117,6 +125,40 @@ function spawnHelperReady(
   return (
     recorded !== undefined && recorded === reported && existsSync(recorded)
   );
+}
+
+// Puts the helper file back where this same-build runner still executes it
+// (the wire path), using this install's helper as the source when the
+// retired checkout removed that file, and republishes the recorded address
+// so recorded and wire agree. Returns whether helper proof is then ready.
+function repairSpawnHelperProof(
+  home: string,
+  address: CursorRunnerAddress,
+  reported: string | undefined,
+): boolean {
+  const installed = cursorRunnerSpawnHelper();
+  if (installed === undefined) {
+    return spawnHelperReady(address.spawnHelper, reported);
+  }
+  if (reported === undefined) return false;
+  if (!existsSync(reported)) {
+    try {
+      mkdirSync(path.dirname(reported), { recursive: true });
+      copyFileSync(installed, reported);
+    } catch {
+      return false;
+    }
+  }
+  if (!existsSync(reported)) return false;
+  if (address.spawnHelper !== reported) {
+    try {
+      writeCursorRunnerAddress(home, { ...address, spawnHelper: reported });
+    } catch {
+      return false;
+    }
+  }
+  const refreshed = readCursorRunnerAddress(home);
+  return spawnHelperReady(refreshed?.spawnHelper, reported);
 }
 
 async function ensureCurrentCursorRunnerOnce(home: string): Promise<boolean> {

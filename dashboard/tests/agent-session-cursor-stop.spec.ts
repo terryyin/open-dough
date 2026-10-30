@@ -5,7 +5,8 @@ import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // stop retains its explanation naming the remaining state, preserves
 // reopen/recovery, and blocks a replacement session in the same
 // workspace until an explicit override carrying the competing-writer
-// risk.
+// risk. Stopping one of several held sessions lives in
+// ./agent-session-cursor-stop-several.spec.ts.
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";

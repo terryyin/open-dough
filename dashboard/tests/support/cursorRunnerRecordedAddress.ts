@@ -1,7 +1,8 @@
 // Manipulation of the runner address recorded in a proof home: writing
-// an address outright, turning its recorded build proof stale, and
-// leaving it stale while the runner it names is killed.
-import { mkdirSync, writeFileSync } from "node:fs";
+// an address outright, turning its recorded build or helper proof stale,
+// publishing a retired-checkout helper for wire proof, and leaving the
+// address stale while the runner it names is killed.
+import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import type net from "node:net";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
@@ -10,6 +11,10 @@ import {
   readCursorRunnerAddress,
   type CursorRunnerAddress,
 } from "../../server/hosts/cursor/runnerPaths.ts";
+import {
+  cursorRunnerSpawnHelper,
+  cursorRunnerSpawnHelperProofVariable,
+} from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { processRunning } from "./processGroup.ts";
 import type { RunnerProofFixture } from "./cursorRunnerProof.ts";
 
@@ -21,6 +26,46 @@ export function writeRunnerAddress(
     recursive: true,
   });
   writeFileSync(cursorRunnerAddressFile(fixture.home), JSON.stringify(address));
+}
+
+function patchRecordedAddress(
+  home: string,
+  patch: Partial<CursorRunnerAddress>,
+): void {
+  const address = readCursorRunnerAddress(home);
+  if (address === undefined) throw new Error("No runner address to tamper.");
+  writeFileSync(
+    cursorRunnerAddressFile(home),
+    JSON.stringify({ ...address, ...patch }),
+  );
+}
+
+// Production retirement deletes the checkout that held the live runner's
+// helper. Publish a copy under the fixture as the wire proof path so the
+// real install helper stays available as repair's copy source.
+export function publishRetiredCheckoutHelper(
+  fixture: RunnerProofFixture,
+): string {
+  const installed = cursorRunnerSpawnHelper();
+  if (installed === undefined) {
+    throw new Error(
+      "this install's node-pty ships no separate terminal helper",
+    );
+  }
+  const retired = path.join(
+    fixture.root,
+    "retired-checkout",
+    "prebuilds",
+    "spawn-helper",
+  );
+  mkdirSync(path.dirname(retired), { recursive: true });
+  copyFileSync(installed, retired);
+  process.env[cursorRunnerSpawnHelperProofVariable] = retired;
+  return retired;
+}
+
+export function clearRetiredCheckoutHelperProof(): void {
+  Reflect.deleteProperty(process.env, cursorRunnerSpawnHelperProofVariable);
 }
 
 // The machine-restart shape: the runner is gone (killed as power loss
@@ -67,12 +112,17 @@ export async function listenOnReleasedRunnerPort(
 }
 
 export function makeRecordedRunnerProofStale(home: string): void {
-  const address = readCursorRunnerAddress(home);
-  if (address === undefined) throw new Error("No runner address to tamper.");
-  writeFileSync(
-    cursorRunnerAddressFile(home),
-    JSON.stringify({ ...address, buildId: "stale-build" }),
-  );
+  patchRecordedAddress(home, { buildId: "stale-build" });
+}
+
+// Same-build helper drift: recorded spawnHelper names a path that is not
+// on disk (as after a retired deployment checkout), while the answering
+// runner's wire proof and buildId stay current.
+export function makeRecordedHelperProofMissing(
+  home: string,
+  missingHelper: string,
+): void {
+  patchRecordedAddress(home, { spawnHelper: missingHelper });
 }
 
 export function tamperRecordedProof(fixture: RunnerProofFixture): void {

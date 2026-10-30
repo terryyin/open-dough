@@ -1,7 +1,7 @@
 // Where this machine's Cursor runner accepts connections. The address file
 // lives with the launch records, under HOME, so every dashboard server on
 // this machine finds the same runner. The runner itself binds 127.0.0.1.
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -50,4 +50,18 @@ export function readCursorRunnerAddress(
   } catch {
     return undefined;
   }
+}
+
+// Publishes the machine-local runner address atomically so a concurrent
+// reader never sees a partial write (same shape the runner process uses
+// when it first listens).
+export function writeCursorRunnerAddress(
+  home: string,
+  address: CursorRunnerAddress,
+): void {
+  const file = cursorRunnerAddressFile(home);
+  mkdirSync(path.dirname(file), { recursive: true });
+  const temporary = `${file}.${String(process.pid)}.tmp`;
+  writeFileSync(temporary, JSON.stringify(address));
+  renameSync(temporary, file);
 }

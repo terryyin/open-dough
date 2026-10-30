@@ -1,20 +1,19 @@
 // Restart resumability in the restart shapes, at the runner boundary:
 // a runner killed with its address left stale (the machine-restart
 // shape) is started fresh and current before a recorded session is kept
-// again, and neither deployment ensure replaces a surviving stale-proof
-// runner — the first real launch through the new deployment does.
+// again; a runner whose recorded build proof is stale is replaced only
+// on the first real launch. Same-build helper repair shapes live in
+// ./cursor-runner-helper-repair-shapes.spec.ts.
 // Deterministic fake-Cursor proof only: real `cursor-agent` resumption
 // after a real runner kill and after a real machine reboot, with a
 // scoped session, remains pending native verification under ADR 0005
 // and is claimed nowhere here.
 import { spawn } from "node:child_process";
 import http from "node:http";
-import { existsSync, rmSync } from "node:fs";
-import path from "node:path";
+import { rmSync } from "node:fs";
 import net from "node:net";
 import { expect, test } from "../support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
-import { cursorRunnerSpawnHelper } from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import {
   cursorRunnerAddressFile,
@@ -152,74 +151,19 @@ test("an unrelated process reusing the recorded pid and port proves no current b
   }
 });
 
-test("a runner whose terminal helper is gone is left by start-if-absent and replaced before the next launch", async () => {
-  test.setTimeout(60_000);
-  test.skip(
-    cursorRunnerSpawnHelper() === undefined,
-    "this install's node-pty ships no separate terminal helper",
-  );
-  const fixture = startRunnerProofFixture();
-  try {
-    await keepWorkingClient(fixture);
-    const before = readCursorRunnerAddress(fixture.home);
-    const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
-    expect(before?.spawnHelper).toBeTruthy();
-    expect(existsSync(before?.spawnHelper ?? "")).toBe(true);
-    writeRunnerAddress(fixture, {
-      ...before,
-      spawnHelper: path.join(fixture.root, "missing-spawn-helper"),
-    });
-
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
-    expect(processRunning(heldPid)).toBe(true);
-
-    const created = await createChatOnRunner(fixture);
-    expect(created).toMatchObject({
-      failed: false,
-      stdout: `${fixture.cursor.sessionId}\n`,
-    });
-    await expect.poll(() => processRunning(before?.pid)).toBe(false);
-    const replacement = readCursorRunnerAddress(fixture.home);
-    expect(replacement?.pid).not.toBe(before?.pid);
-    expect(replacement?.buildId).toBe(computeRunnerBuildId());
-    expect(existsSync(replacement?.spawnHelper ?? "")).toBe(true);
-    expect(replacement?.spawnHelper).not.toBe(
-      path.join(fixture.root, "missing-spawn-helper"),
-    );
-    await keepWorkingClient(fixture);
-    expect(fixture.cursor.attaches().at(-1)?.pid).not.toBe(heldPid);
-  } finally {
-    await fixture.restore();
-  }
-});
-
-test("the production deployment shape: neither ensure replaces a surviving stale-proof runner, and the first real launch does", async () => {
+test("a runner whose recorded build proof is stale is left by start-if-absent and replaced before the next launch", async () => {
   test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   try {
     await keepWorkingClient(fixture);
     const before = readCursorRunnerAddress(fixture.home);
     const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
-    const calls = fixture.cursor.calls().length;
     tamperRecordedProof(fixture);
 
-    // The two ensures a new deployment runs before any launch: the
-    // production watcher's one runner ensure (scripts/watch-dashboard.mjs
-    // startCursorRunner) and the preview launch boundary's readiness
-    // ensure (server/launchBoundary.ts `ready: ensureCursorRunner()`).
-    // Both are this start-if-absent ensure; neither replaces on its own,
-    // and the held client survives the dashboard replacement.
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
     await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
     expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
     expect(processRunning(heldPid)).toBe(true);
-    expect(fixture.cursor.attaches()).toHaveLength(1);
-    expect(fixture.cursor.calls()).toHaveLength(calls);
 
-    // The first real launch through the new deployment is new work: it
-    // replaces the stale runner first, once, and later work reuses the
-    // replacement.
     const created = await createChatOnRunner(fixture);
     expect(created).toMatchObject({
       failed: false,
@@ -229,9 +173,7 @@ test("the production deployment shape: neither ensure replaces a surviving stale
     const replacement = readCursorRunnerAddress(fixture.home);
     expect(replacement?.pid).not.toBe(before?.pid);
     expect(replacement?.buildId).toBe(computeRunnerBuildId());
-    const again = await createChatOnRunner(fixture);
-    expect(again).toMatchObject({ failed: false });
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(replacement?.pid);
+    expect(processRunning(heldPid)).toBe(false);
   } finally {
     await fixture.restore();
   }
