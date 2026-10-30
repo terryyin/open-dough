@@ -243,3 +243,16 @@ proof remain applicable. `git diff --check` passed; no runtime tests were needed
 Its 19 consumer dispositions are in `/tmp/seed186-refactor-consumer-dispositions.md`.
 Source freshness: unchanged at trunk `cba3aa43858318729018af6ab75f13a98e63c13a`.
 Story obligations check: pass, 1 proved obligation and 225 observed commitments.
+
+## Human closure disposition
+
+Terry directed: "ok. wrap up and I will ask another agent to fix it."
+This authorizes closing the documentation story despite known CI run
+41009881980 attempt 1 failing at `338e63af98ed972eb4de5badc1730e64ea3fc4fb`.
+`dashboard (1/12)` exhausted the 30-second test budget in
+`dashboard/tests/agent-launch-story-card-sessions.spec.ts:59` at step 191.
+The runtime/test was unchanged; repair is Terry's separate-agent follow-up.
+No repair or passing CI verdict is claimed. Observer `/tmp/dough-ci-501/watch-S3Vh5X`
+was stopped with no unread events and its PID exited. Documentation proof and
+retrospective remain accepted. DearDough's 703-line maintenance warning was reported.
+All lasting meaning is in the five maintained docs; no North Star topic is spent.
