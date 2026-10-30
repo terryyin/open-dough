@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-177#optimize-dashboard-test-feedback",
+  "mode": "story-branch",
+  "branch": "cursor/dough-test-optimization-dashboard-test",
+  "host": "cursor",
+  "model": "auto"
+}
