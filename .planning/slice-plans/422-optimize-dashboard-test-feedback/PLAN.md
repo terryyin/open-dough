@@ -121,20 +121,18 @@ already shown once. **Supported** by focused wall improvement.
 
 ### 3. Host start-progress page proof collapses to one representative host
 Type: Structure
-Status: planned
-Proof: Focused before/after on `agent-launch-start-phases.spec.ts` with three
-consecutive passes; surviving host journey plus the kept-store case; sibling
-Codex start/readiness proof still covers the dropped host's distinguishing
-message path, or a cheap boundary replacement is added before removal.
-
-Internal change: Keep one host's initiating/observing page journey (expected:
-`claude`) and the store “kept, never running” case. Drop the duplicate host
-page journey only when surviving proof already owns that host's readiness
-wording on the native/page path.
+Status: done
+Proof: Experiment **undone** — focused file wall did not improve
+(`9.20–9.77s` / 3 cases → `9.14–9.38s` / 2 cases over three passes each;
+siblings `agent-launch-start-codex.spec.ts` and
+`agent-launch-preparation-phases.spec.ts` still passed). Dropping the Codex
+execution start-progress journey removed one case but left focused wall flat
+under default workers. Spec restored; no suite change retained. Evidence under
+`/tmp/SEED-195-optimize-dashboard-test-feedback/slice3/`.
 
 Hypothesis: dashboard guidance wants one representative page journey; host
-argv/message variants belong with cheaper sibling or boundary proof. Measure
-and retain only if focused wall improves.
+argv/message variants belong with cheaper sibling or boundary proof.
+**Unsupported** for this family under focused wall measurement.
 
 ### 4. Full local suite re-profile and candidate record update
 Type: Behavior
