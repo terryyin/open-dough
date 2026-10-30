@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Understand the dashboard's three perspectives and enduring product intent from maintained documentation](seeds/SEED-186-dashboard-product-intent-documentation.md#document-dashboard-product-intent) — SEED-186#document-dashboard-product-intent
