@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-190#keep-running-cursor-sessions",
-  "host": "cursor",
-  "model": "auto"
-}

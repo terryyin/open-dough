@@ -42,7 +42,7 @@ Assumption: Recover is not a substitute for an agent that was still running.
 
 **Identity:** SEED-190#keep-running-cursor-sessions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/418-keep-running-cursor-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"69f68eb457299a2094901e7fa82475490846980d6c3a11f3ebf3d50e5b3589a4","plan":"cc575432c7777c40fcc02706cc4d8189486e2ca6b179520ce7a51dfc693a5d86"}}
 ```
 
 **Goal:** Terry can start another Cursor session from the dashboard, including
@@ -93,31 +93,67 @@ running keep running.
   Their transcripts stopped by 14:12:43. Five ended on an assistant message.
   The pytest session had already finished a turn at 13:19 and was then hung
   up with the rest.
-- Evidence: `ensureCurrentCursorRunner` stops an answering runner whose
-  published terminal helper is no longer on disk, then starts another.
-  `stopCursorRunner` sends SIGTERM. The runner's SIGTERM handler hangs up
-  every held client with SIGHUP. The production watcher deletes the retired
-  checkout and does not signal the runner. `dashboard/server` is identical
-  between the retired checkout `4715c76a` and `84d56f780c87`, so this was
-  not a new runner build. The `4715c76a` checkout is gone. The runner started
-  for the refinement session published a helper under `84d56f780c87`, and
-  that file was already gone after the next production update. The current
-  replacement proof expects the hung-up sessions to read "The agent is not
-  running." That specified result is the defect.
-- Gaps: the previous runner's address file was not read before it was
-  replaced, so its recorded build id and helper path were not captured at
-  the moment of the stop. The cause is the code path together with the
-  process timeline, the deleted checkout, and the identical runner code.
+- Evidence (code, verified in this refinement):
+  - `spawnHelperReady` in `dashboard/server/hosts/cursor/runnerCurrent.ts`
+    treats an answering runner as not current when its recorded
+    `spawnHelper` path is missing from disk, even when address and wire
+    `buildId` both match the dashboard that would start now.
+  - `ensureCurrentCursorRunner` then `stopCursorRunner`s that runner and
+    spawns a replacement. Observation and `ensureCursorRunner`
+    (start-if-absent) do not replace.
+  - `stopCursorRunner` sends SIGTERM. The runner's SIGTERM handler calls
+    `attachments.close()`, which hangs up every held client.
+  - `scripts/watch-dashboard.mjs` retires the old deployment checkout and
+    calls only `ensureCursorRunner`; the update alone does not hang up
+    held agents. The next new Cursor work path goes through
+    `currentCursorRunnerPort` / `ensureCurrentCursorRunner` and does.
+  - `dashboard/tests/cursor-runner-replacement.spec.ts` and
+    `dashboard/tests/boundary/cursor-runner-restart-shapes.spec.ts`
+    specify that a third launch / first real launch replaces a stale-proof
+    runner and that held sessions then read as not running. That specified
+    result is the defect relative to this story.
+- Evidence (incident timeline, from the 2026-10-30 report; not re-read from
+  the retired checkouts in this refinement): the production update deleted
+  the checkout that held the previous helper; the replacement hung up the
+  earlier agents. The report said `dashboard/server` was identical between
+  those two deployments. That sameness is not required for the mechanism:
+  a missing helper alone fails `spawnHelperReady`.
+- Live observation during this refinement (2026-10-30): the machine's
+  `cursor-runner.json` named a live runner whose `spawnHelper` under
+  deployment `2cb0dade4a53-KDjOnC` was still on disk. The helper-gone
+  recurrence condition was not present at that moment; the next production
+  retirement of that checkout would recreate it.
+- Gaps: the previous runner's address was not captured at the moment of the
+  14:13 stop. The mechanism does not depend on that capture.
 - Acceptance examples: the three key examples above.
 
 **Architecture:**
 
+- Responsibilities implicated: `ensureCurrentCursorRunner` currently couples
+  "this dashboard can open a new Cursor terminal on the current install" with
+  "stop the answering runner and hang up every client it still holds" whenever
+  recorded helper proof fails, including helper-gone after checkout
+  retirement. The production watcher owns deleting retired deployment
+  checkouts without signaling the runner. Holding and hanging up clients
+  stays with the machine-local Cursor runner.
+- Qualities: continuity of already-held Cursor agents across a production
+  dashboard update and a later new-session start; ability for new Cursor
+  work to use a current install's terminal helper.
 - Relevant Accepted decision:
   [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  names the Sessions sidebar and its Running Cursor sessions section. It
-  does not require a new session, or retirement of a dashboard checkout, to
-  stop agents the runner already holds.
-- No conflict with Accepted ADRs.
+  names the Sessions sidebar and its Running Cursor sessions section, and
+  keeps machine-local session evidence separate from published workflow
+  authority. It does not require a new session, or retirement of a
+  dashboard checkout, to stop agents the runner already holds.
+- [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md) and
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  were consulted for vocabulary and lifecycle framing; neither constrains
+  this runner-replacement choice. Proposed ADR 0007 and ADR 0009 bind
+  nothing here.
+- No conflict with Accepted ADRs. How new work gets a usable helper without
+  hanging up held agents remains an implementation choice inside the story
+  (leave the answering runner, migrate clients, or another shape that meets
+  the examples); this section records the concern, not an ADR proposal.
 
 ## Ordering and Scope Reduction
 
@@ -132,8 +168,10 @@ the agents already held is an implementation choice inside the story.
 ## When to Surface
 
 Terry reported this on 2026-10-30, after it had already happened more than
-once. The same condition is in place again: the live runner's helper file
-is gone, so the next new Cursor session would stop the agent it still holds.
+once. The code path remains: a production retirement that deletes the live
+runner's helper, followed by a new Cursor session start, hangs up agents
+that runner still holds. At refinement observation time the current helper
+was still on disk; the next matching retirement recreates the condition.
 
 ## Breadcrumbs
 
