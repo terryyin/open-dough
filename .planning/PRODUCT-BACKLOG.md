@@ -25,3 +25,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Load more diff context from the line-number gutter](seeds/SEED-189-dashboard-diff-context-expansion.md#expand-dashboard-diff-context) — SEED-189#expand-dashboard-diff-context
