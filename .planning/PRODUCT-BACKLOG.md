@@ -19,7 +19,6 @@ cost of the feedback process itself.
 ## Taken
 
 - [Collapse redundant dashboard touch viewport matrices](seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests) — SEED-180#optimize-dashboard-touch-viewport-tests ([plan](slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md))
-- [CI time budget holds under runner variance](seeds/SEED-185-stable-ci-time-budget.md#stable-ci-time-budget) — SEED-185#stable-ci-time-budget ([plan](slice-plans/415-stable-ci-time-budget/PLAN.md))
 
 ## Backlog list
 

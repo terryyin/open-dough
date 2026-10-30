@@ -11,7 +11,7 @@ times are divided by the run's factor against the existing list, and the
 the seconds" wording is removed from the Node suite and dashboard shard guides.
 
 **Exclusions:** refresh/deal/budget code and ceilings (already delivered by
-SEED-185#stable-ci-time-budget); rewriting on-disk list headers; new refresh
+SEED-185#stable-ci-time-budget at before-cleanup `1bc270042dab3a1bb94c11cf31bdf82adaf8c402`); rewriting on-disk list headers; new refresh
 behavior.
 
 **Assumptions:** none beyond the current checkout's delivered `refreshListText`.
