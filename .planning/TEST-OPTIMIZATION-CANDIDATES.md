@@ -4,40 +4,34 @@
 
 - **Command / scope:** `npm run test:dashboard`, the full local dashboard
   suite with eight default workers on the developer's 16-CPU / 48-GiB Mac,
-  investigating the top 20% of suite cost by recorded duration contribution.
+  investigating the top 40% of suite cost by recorded duration contribution.
   Both runs unset `NO_COLOR` and `FORCE_COLOR` and write separate
   `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
-- **Revision:** `bb8924b803309e101c8a8f5fb7117c0f72c442aa` before (green
-  baseline after admit); `45cc3fba8446a3efae06f3d187bbf38f7b56fcd3` after
-  (SEED-195, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 670.0s / 665.8s (outer wall
-  670.51s / 666.30s); summed attempt durations 4,882.2s / 4,898.9s; executed
+- **Revision:** `2c84e5210fb41c1a2143944901cca1bdc32a7956` before (green
+  baseline after admit); `4dbd44741b736353c9a8e869b30f542c5e5b5265` after
+  (SEED-196, 2026-10-30).
+- **Before / after:** recorded wall (`durationMs`) 844.1s / 779.5s (outer wall
+  844.94s / 780.08s); summed attempt durations 6,138.2s / 5,736.1s; executed
   cases 1,746 / 1,746, with 0 skipped cases. Both strict runs passed. Focused
-  `boundary/agent-launch-preparation-codex-retry.spec.ts` wall 14.6–16.5s →
-  9.5–10.9s over three passes; full-suite file `.tsv` for that file 56.2s →
-  39.0s (before from the contemporaneous Slice 1 ranking; after from the
-  re-profile artifact).
-- **Outcome:** measured gain — 4.1s (0.6%) shorter full-suite `durationMs`
-  with strong focused-family evidence from collapsing repeated independent
-  Story-B launches among Codex retained-retry damage cases (ten refusals
-  retained; independent launch kept once on `workspace`). Rejected: collapsing
-  `agent-launch-start-phases` Codex host journey (focused wall 9.20–9.77s /
-  3 → 9.14–9.38s / 2; undone).
-- **Limits:** one full-suite before/after pair on the local host (start load
-  averages 5.86 / 5.38 / 8.73 before vs 6.87 / 11.42 / 14.47 after; end load
-  averages 19.94 / 22.37 / 18.81 before vs 22.81 / 23.19 / 20.18 after), backed
-  by three consecutive focused passes for the retained family. After run
-  started under higher multi-minute load; suite-wall delta is modest and
-  directional with the focused-family evidence. The baseline
-  `OPEN_DOUGH_DASHBOARD_TIMES` file was later overwritten by focused runs that
-  inherited that environment variable; wall and proof JSON remain
-  authoritative, and the before file cost for the retained family was taken
-  from the Slice 1 ranking written before that overwrite. No product behavior
-  changed.
-- **Evidence:** [SEED-195 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-195-2026-10-30).
-  Plan recoverable at the story-branch tip for SEED-195
-  (`.planning/slice-plans/422-optimize-dashboard-test-feedback/PLAN.md`). Raw
-  records under `/tmp/SEED-195-optimize-dashboard-test-feedback/` on the
+  `cursor-session-scope-noninterference.spec.ts` wall 15.14–16.18s →
+  14.04–15.47s over three passes (cleanup recheck 13.37s); full-suite file
+  `.tsv` for that file 43.4s → 42.6s. Rejected: completed-review journey
+  Landed-runs tail trim (9.69–10.00s → 11.07–11.51s; undone) and gaps
+  `ambiguous-merge` drop (10.34–11.18s → 9.48–11.51s; undone). Skipped:
+  recent-delete dialog delta after decisive checkpoint.
+- **Outcome:** no demonstrated gain — suite-wall comparison is unlike
+  (baseline end load ~35 vs after start load ~11–13); the large suite delta
+  cannot be attributed to the retained change. Focused-family evidence
+  supports a modest sibling-delta retain (Recover preamble removed from
+  noninterference Default-launch case; continuation keeps Recover-through-
+  default-change proof).
+- **Limits:** one full-suite before/after pair with unlike multi-minute load;
+  lean on three consecutive focused passes for the retained family. No product
+  behavior changed.
+- **Evidence:** [SEED-196 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-196-2026-10-30).
+  Plan recoverable at the story-branch tip for SEED-196
+  (`.planning/slice-plans/423-optimize-dashboard-test-feedback/PLAN.md`). Raw
+  records under `/tmp/SEED-196-optimize-dashboard-test-feedback/` on the
   measurement host; their continued availability is not assumed.
 
 ## Pending candidates
@@ -106,6 +100,55 @@
 - **Evidence / follow-up:** SEED-195 slice 3 under
   `/tmp/SEED-195-optimize-dashboard-test-feedback/slice3-*`.
 
+### story-review-completed-journey-landed-runs-tail
+
+- **Locations / scope:** `story-review-completed.spec.ts` trailing
+  `keepUnusableCompletedCapture` + Landed runs radio + gap copy; gaps boundary
+  already owns the same server-answer variant.
+- **Observed cost:** focused journey wall ≈9.69–10.00s (1 case) under default
+  workers on the SEED-196 host (2026-10-30).
+- **Unique protection:** page path for published completion after trunk
+  advance and literal file diffs; Landed-runs gap UI is the overlapping tail.
+- **Alternatives attempted:** end journey before unusable-capture / Landed
+  runs; focused wall 11.07–11.51s — no wall gain; undone.
+- **Disposition / rationale:** pending — journey-once / boundary-variants
+  placement remains plausible; reopen only with a wall-improving approach.
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-196 slice 2 under
+  `/tmp/SEED-196-optimize-dashboard-test-feedback/slice2-*`.
+
+### story-review-completed-gaps-ambiguous-merge-collapse
+
+- **Locations / scope:** `boundary/story-review-completed-gaps.spec.ts` loop
+  case `ambiguous-merge`; driver/conflicts already assert related unavailable
+  merge explanations.
+- **Observed cost:** focused gaps file wall ≈10.34–11.18s under default
+  workers on the SEED-196 host (2026-10-30).
+- **Unique protection:** gaps-tier missing-agent recovery plus ambiguous-merge
+  unavailable explanation beside other gap singles.
+- **Alternatives attempted:** keep `missing-agent` only; focused wall
+  9.48–11.51s — inconclusive; undone.
+- **Disposition / rationale:** pending — overlap remains plausible; reopen
+  only with a wall-improving approach.
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-196 slice 3 under
+  `/tmp/SEED-196-optimize-dashboard-test-feedback/slice3-*`.
+
+### agent-launch-recent-delete-dialog-delta
+
+- **Locations / scope:** `agent-launch-recent-delete.spec.ts` Keep-focus /
+  ask-first overlap with `agent-launch-story-card-delete.spec.ts`.
+- **Observed cost:** full-suite file `.tsv` ≈26.8s on the SEED-196 baseline;
+  launch-heavy placement steps dominate; only one Keep-focus overlap found.
+- **Unique protection:** Recently done / sidebar / neighbouring-entry focus
+  placement after delete.
+- **Alternatives attempted:** none in SEED-196 — decisive checkpoint skipped
+  the experiment as not plausible for suite wall.
+- **Disposition / rationale:** pending — sibling-delta structure remains
+  plausible; reopen only with a wall-improving approach (for example shared
+  launch setup), not dialog-only trimming.
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-196 slice 5 checkpoint in plan 423.
 
 ## Accepted necessary costs
 

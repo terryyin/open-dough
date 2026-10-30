@@ -330,3 +330,36 @@ Case count unchanged (`1,746` passed, `0` skipped, `strictStatus: "passed"`).
   (`11.42` / `14.47` vs `5.38` / `8.73`); suite-wall delta is modest (4.1s).
   Focused three-pass evidence anchors the retained family. No product behavior
   changed. Raw records: `/tmp/SEED-195-optimize-dashboard-test-feedback/`.
+
+## Local `npm run test:dashboard` pass (SEED-196, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's 16-CPU / 48-GiB
+Mac host (`npm run test:dashboard`, eight default workers, `NO_COLOR` and
+`FORCE_COLOR` unset). Scope: top 40% of suite cost by recorded duration
+contribution, following related families.
+
+| Revision | Role | Wall (`durationMs`) | Cases | Summed attempts / specs | Load (1m/5m/15m start → end) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `2c84e521` | Green baseline (admit) | 844.1s (844.94s wall) | 1,746 | 6,138.2s / 6,469.4s | 5.37 / 4.35 / 6.26 → 34.99 / 36.03 / 26.95 |
+| `4dbd4474` | After Slices 2–5 | 779.5s (780.08s wall) | 1,746 | 5,736.1s / 6,046.9s | 11.19 / 12.95 / 16.49 → 24.11 / 27.16 / 24.46 |
+
+Case count unchanged (`1,746` passed, `0` skipped, `strictStatus: "passed"`).
+
+- **Family (scoped Cursor noninterference Recover preamble, Slice 4):** Focused
+  `cursor-session-scope-noninterference.spec.ts` wall fell from
+  **15.14–16.18s** (3 cases) to **14.04–15.47s** over three consecutive
+  passes (cleanup recheck **13.37s**). Continuation
+  `cursor-session-scope-continuation.spec.ts` still proved Recover through a
+  deliberate default change. Full-suite file `.tsv` **43.4s → 42.6s**.
+- **Rejected (Slice 2):** Completed-review journey Landed-runs tail trim did
+  not improve focused wall (**9.69–10.00s → 11.07–11.51s**); undone.
+- **Rejected (Slice 3):** Gaps `ambiguous-merge` drop was inconclusive
+  (**10.34–11.18s → 9.48–11.51s**); undone.
+- **Skipped (Slice 5):** Recent-delete dialog delta withdrawn at decisive
+  checkpoint (launch setup dominates; only one Keep-focus overlap).
+- **Comparison limits:** Baseline ended under extreme load (`~35` 1-minute);
+  after started quieter (`~11–13`) but still contended. Suite-wall delta
+  (~64.6s) is **not** a like-conditions claim and is not attributed to the
+  retained change. Focused three-pass evidence anchors the modest family
+  retain. No product behavior changed. Raw records:
+  `/tmp/SEED-196-optimize-dashboard-test-feedback/`.

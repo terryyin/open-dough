@@ -161,11 +161,16 @@ Hypothesis withdrawn at decisive checkpoint before dispatch.
 
 ### 6. Full local suite re-profile and candidate record update
 Type: Behavior
-Status: planned
-Proof: Re-run `npm run test:dashboard` under comparable conditions with fresh
-proof/times paths; update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` Latest
-pass and any moved pending/accepted/transferred entries; append a SEED-196
-section to `docs/maintainer/dashboard-test-timings.md`.
+Status: done
+Proof: Re-ran `npm run test:dashboard` at `4dbd4474` with fresh proof/times.
+`durationMs` 844.1s → 779.5s (outer wall 844.94s → 780.08s); cases 1,746 /
+1,746; both `strictStatus: "passed"`. Start load before `5.37 / 4.35 / 6.26`
+→ end `34.99 / 36.03 / 26.95`; after start `11.19 / 12.95 / 16.49` → end
+`24.11 / 27.16 / 24.46`. Suite-wall delta is **not** a like-conditions claim
+(baseline far more contended). Focused retained family evidence anchors the
+pass. Updated `.planning/TEST-OPTIMIZATION-CANDIDATES.md` and
+`docs/maintainer/dashboard-test-timings.md`. Raw under
+`/tmp/SEED-196-optimize-dashboard-test-feedback/`.
 
 Behavior: Pre-condition — retained experiments delivered (or none retained).
 Trigger — full local re-profile and candidate-record write.
