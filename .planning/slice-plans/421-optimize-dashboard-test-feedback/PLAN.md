@@ -1,6 +1,7 @@
 # Reduce dashboard test feedback time with measured optimization
 
 **Source:** [Selected story](../../seeds/SEED-194-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-194#optimize-dashboard-test-feedback
 
 ## Goal and scope
@@ -92,27 +93,22 @@ recorded for later experiments.
 
 ### 2. Claude launch-dialog model kind matrix collapses to representative journeys
 Type: Structure
-Status: planned
-Proof: Focused before/after on `agent-launch-model.spec.ts` (three consecutive
-passes); surviving cases still prove Model placement after the instruction,
-Default-without-`--model`, dismiss/reopen, Tab order, and refused launch;
-`boundary/agent-launch-model-boundary.spec.ts` continues to own chosen-model
-and no-model argv variants across request kinds.
+Status: done
+Proof: Focused `agent-launch-model.spec.ts` before **13.3–16.4s / 11 cases** →
+after **10.0–11.7s / 7 cases** over three consecutive passes each; boundary
+`agent-launch-model-boundary.spec.ts` passed. Retained refinement
+offers-Model+Opus (layout), session Default-without-`--model`, Cancel/Escape
+dismiss across kinds, reopen Default, Tab order, and refused launch. Dropped
+redundant execution/session offers-Model and refinement/execution Default
+matrix cases. Evidence under `/tmp/SEED-194-optimize-dashboard-test-feedback/slice2/`.
 
-Internal change: `agent-launch-model.spec.ts` currently repeats “offers Model
-and choosing X starts with `--model`” and “Default starts without `--model`”
-across refinement, execution, and session dialog kinds (~6 of 11 cases,
-~11.2s of the file's ~20.1s attempt sum). Keep one representative kind for
-each of those two behaviors (prefer the kind that uniquely shows layout
-relative to the instruction field). Retain Cancel/Escape dismiss, reopen on
-Default, Tab order, and refused-launch journeys. Do not weaken boundary model
-argv coverage. Measure focused file wall and summed attempt time; undo if
-coverage weakens or comparable focused wall does not improve.
+Internal change: Collapsed the kind matrix as hypothesized; boundary argv
+coverage unchanged.
 
 Hypothesis: dashboard guidance puts page-shape once on the journey tier and
 server-answer / argv variants on the boundary; the kind matrix repeats the
 same dialog shape while the boundary already asserts `--model` / no-model
-across story and ad-hoc requests.
+across story and ad-hoc requests. **Supported** by focused wall improvement.
 
 ### 3. Codex discovered-model story workflows collapse to one page journey
 Type: Structure
@@ -157,6 +153,9 @@ updated; rejected experiments named.
   `durationMs` 679.6s, 1,750 cases, start load 6.53 / 5.26 / 5.15, default 8
   workers, `NO_COLOR`/`FORCE_COLOR` unset. Evidence:
   `/tmp/SEED-194-optimize-dashboard-test-feedback/baseline-proof.json`.
+- Slice 2 retained: Claude model kind matrix collapsed; focused wall
+  **13.3–16.4s → 10.0–11.7s** (11 → 7 cases). Full-suite effect still owed to
+  slice 4.
 - Do not reopen accepted necessary costs (`agent-launch-poles`,
   `long-integrated-journeys`) without new evidence.
 - Do not retry SEED-193's story-review HTTP admission boundary move unless a
@@ -169,4 +168,7 @@ updated; rejected experiments named.
 
 ## Learnings
 
-None yet.
+- Claude launch-dialog model kind matrix was redundant with
+  `boundary/agent-launch-model-boundary.spec.ts` for argv variants; one
+  offers-Model layout journey plus one Default journey retained the page
+  proof at lower focused cost.

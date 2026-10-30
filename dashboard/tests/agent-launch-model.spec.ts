@@ -1,8 +1,10 @@
 // Choosing the model in a launch dialog, on the committed origin of
-// ./agent-launch-story-card.spec.ts (./launchJourney.ts): every launch dialog offers
-// Model beside Host after its instruction field, on Default at each opening, and a chosen
-// model reaches the synthetic `claude` (./fixtures/fake-claude) as `--model`.
-// The real `claude` is never reached. How the launch boundary takes a model is
+// ./agent-launch-story-card.spec.ts (./launchJourney.ts): one representative
+// dialog offers Model beside Host after its instruction field on Default, and a
+// chosen model reaches the synthetic `claude` (./fixtures/fake-claude) as
+// `--model`; another proves Default starts without `--model`. Dismiss/reopen
+// still walks every dialog kind. The real `claude` is never reached. How the
+// launch boundary takes a model across request kinds is
 // ./boundary/agent-launch-model-boundary.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
@@ -54,60 +56,52 @@ const modelArgs = (argv: readonly string[]) => {
   return at === -1 ? [] : argv.slice(at, at + 2);
 };
 
-for (const [kind, model, alias, name] of [
-  ["refinement", "Opus", "opus", "Refinement"],
-  ["execution", "Opus", "opus", "Execution"],
-  ["session", "Sonnet", "sonnet", "Ad hoc"],
-] as const) {
-  test(`the ${kind} dialog offers Model after the instruction on Default, and choosing ${model} starts the session with --model ${alias}`, async ({
-    page,
-    dashboard,
-    launchJourney,
-  }) => {
-    dashboard.claudeScenario("launched");
-    const { [kind]: action } = await actions(page, launchJourney);
+test("the refinement dialog offers Model after the instruction on Default, and choosing Opus starts the session with --model opus", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  dashboard.claudeScenario("launched");
+  const { refinement: action } = await actions(page, launchJourney);
 
-    await action.open();
-    const select = modelOf(action.dialog);
-    await expect(select).toBeVisible();
-    await expect(select.locator("option")).toHaveText(choices);
-    await expect(select).toHaveValue("");
-    const [field, choice] = await Promise.all([
-      action.dialog.getByRole("textbox").boundingBox(),
-      select.boundingBox(),
-    ]);
-    if (!field || !choice) throw new Error("not laid out");
-    expect(choice.y).toBeGreaterThanOrEqual(field.y + field.height);
+  await action.open();
+  const select = modelOf(action.dialog);
+  await expect(select).toBeVisible();
+  await expect(select.locator("option")).toHaveText(choices);
+  await expect(select).toHaveValue("");
+  const [field, choice] = await Promise.all([
+    action.dialog.getByRole("textbox").boundingBox(),
+    select.boundingBox(),
+  ]);
+  if (!field || !choice) throw new Error("not laid out");
+  expect(choice.y).toBeGreaterThanOrEqual(field.y + field.height);
 
-    await select.selectOption({ label: model });
-    await action.dialog.getByRole("button", { name: "Start" }).click();
+  await select.selectOption({ label: "Opus" });
+  await action.dialog.getByRole("button", { name: "Start" }).click();
 
-    await expect(action.dialog).toBeHidden();
-    await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-    const [call] = dashboard.claudeLaunchCalls();
-    expect(call?.argv[1]).toBe("--name");
-    expect(call?.argv[2]).toContain(name);
-    expect(modelArgs(call?.argv ?? [])).toEqual(["--model", alias]);
-  });
-}
+  await expect(action.dialog).toBeHidden();
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  const [call] = dashboard.claudeLaunchCalls();
+  expect(call?.argv[1]).toBe("--name");
+  expect(call?.argv[2]).toContain("Refinement");
+  expect(modelArgs(call?.argv ?? [])).toEqual(["--model", "opus"]);
+});
 
-for (const kind of ["refinement", "execution", "session"] as const) {
-  test(`the ${kind} dialog left on Default starts the session without --model`, async ({
-    page,
-    dashboard,
-    launchJourney,
-  }) => {
-    dashboard.claudeScenario("launched");
-    const { [kind]: action } = await actions(page, launchJourney);
+test("the session dialog left on Default starts the session without --model", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  dashboard.claudeScenario("launched");
+  const { session: action } = await actions(page, launchJourney);
 
-    await action.open();
-    await action.dialog.getByRole("button", { name: "Start" }).click();
+  await action.open();
+  await action.dialog.getByRole("button", { name: "Start" }).click();
 
-    await expect(action.dialog).toBeHidden();
-    await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-    expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
-  });
-}
+  await expect(action.dialog).toBeHidden();
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
+});
 
 for (const dismiss of ["Cancel", "Escape"] as const) {
   test(`Fable chosen then ${dismiss} starts nothing, and every dialog opens again on Default`, async ({
