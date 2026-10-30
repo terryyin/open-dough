@@ -23,3 +23,4 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Align duration-list refresh guidance with recorded-speed scaling](seeds/SEED-185-stable-ci-time-budget.md#align-refresh-guidance) — SEED-185#align-refresh-guidance
