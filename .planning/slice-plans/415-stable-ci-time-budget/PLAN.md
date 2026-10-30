@@ -158,3 +158,9 @@ This review identified no remaining slice-specific concern.
 Reported: slice 1 — "`scripts/ci-test-times.sh` still compares raw recent times with ceilings now in recorded-speed units, so its headroom reads too small."
 Story clause: "`bash scripts/ci-test-times.sh` reports share totals and job times at recorded speed with the runner factors it saw"
 Disposition: proved by slice 2: `tests/ci-test-times.sh` expect_report job/share lines at recorded speed with factors; focused command exit 0
+
+## Execution complete
+
+Product advice: Keep the planned correction SEED-185#align-refresh-guidance
+(plan 417) available for wrap-up disposition so contributor docs match refresh
+scaling; otherwise no new feature backlog item from this delivery.
