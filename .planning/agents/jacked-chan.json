@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-184#recover-completed-review-agent",
+  "mode": "story-branch",
+  "branch": "codex/recover-completed-review-agent",
+  "host": "codex",
+  "model": "gpt-6"
+}
