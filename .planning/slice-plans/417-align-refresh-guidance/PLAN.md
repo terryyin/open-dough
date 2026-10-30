@@ -1,6 +1,7 @@
 # Align duration-list refresh guidance with recorded-speed scaling
 
 **Source:** [Selected correction](../../seeds/SEED-185-stable-ci-time-budget.md#align-refresh-guidance)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-185#align-refresh-guidance
 
 ## Goal and scope
@@ -34,7 +35,7 @@ PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/duration-list.te
 ### 1. Refresh guides describe recorded-speed scaling
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: both guides' refresh sections as above; the focused command exit 0.
 
 Behavior: a contributor opens `tests/test-shares.md` or
@@ -43,11 +44,27 @@ seconds are scaled to the existing list's runner speed and that the `# Source:`
 line records the factor (or unavailable), and no longer says the refresh keeps
 raw observed seconds.
 
+Accepted proof (coordinator):
+- Guide inspection: `tests/test-shares.md` and `dashboard/tests/shards.md`
+  state list-speed scaling and `# Source:` factor/unavailable; neither contains
+  "keeping the seconds".
+- Command:
+  `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/duration-list.test.mjs tests/support/test-shares.test.mjs tests/support/share-deal-recorded-runs.test.mjs`
+  → exit 0.
+- Source review commitments J1, 1–5, E1.1–E1.2, X1–X6 observed in
+  [source-review.md](./source-review.md).
+
 ## Current decisions
 
 - One prose fix across the two contributor guides that still teach the refresh
   command; no code change unless a guide cites a header claim the default
   `newDurationListHeader` must also carry (prefer correcting the guide only).
+
+## Learnings
+
+- Contributor guides and on-disk list header comments can diverge; correcting
+  only the guides leaves header comments stale until a later, in-scope refresh
+  rewrites them (excluded by this correction).
 
 ## Decisive premises
 
