@@ -1,24 +1,27 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-02, for blocking dependencies inside story cards.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for the three-perspective framing and delivered story dashboard.
 
-Help a developer understand the project's published story progress, then inspect
-the evidence behind it. The first useful experience should be small enough to
-use and revise before expanding the dashboard's scope.
+Help a developer understand the project's changing work and inspect the evidence
+behind it. The delivered story dashboard combines published progress with
+separate local-session capabilities. Further design relates that work to the
+current product's intended behavior and implementation structure.
 
 ## Authority and scope
 
-The [project visibility requirements](project-visibility-requirements.md) supply
-the product direction. [Accepted ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+The [project visibility requirements](project-visibility-requirements.md#three-perspectives)
+own the detailed three-perspective direction, purpose/proof exploration, and
+open choices. [Accepted ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 defines the dashboard domain, UI concepts, and architectural boundaries. This
 guide follows those definitions and supplies temporary interface direction;
 it does not define a workflow state schema or authorize execution.
 
 **Firm user direction**, including the latest discussion constraints:
 
-- Begin with stories using only committed state published to Git origin,
-  including relevant remote branches and history. No developer clone, unpushed
-  changes, local locks, or live agent sessions are required sources.
+- Keep published story progress readable from committed state on Git origin,
+  including relevant remote branches and history. A developer clone, unpushed
+  changes, local locks, and live agent sessions are not required sources for
+  those published facts. Local session evidence supplements them separately.
 - Observe one configured project at a time. Keep the existing selector and local
   launch. Add and remove projects through **System settings → Projects** using a GitHub URL and
   local checkout path, saved separately for built production and live development
@@ -39,23 +42,32 @@ it does not define a workflow state schema or authorize execution.
   complete navigation or animation system in the first increment.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
-- Same-machine coordination and local evidence come later. Feature and
-  structural perspectives are independent future possibilities, not initial
-  implementation scope or required panes.
+- The story planning/execution perspective and local-session capabilities are
+  delivered. Additional intended-behavior and structural perspectives remain
+  design direction. They require no particular panes or presentation, and their
+  UX/UI is left for a separate discussion.
 
 **Design hypotheses:** The interaction, ordering, wording, and visual choices
-below are an initial design recommendation. Revise them when real use shows a
-clearer or smaller solution; do not treat them as additional user commitments.
+below remain revisable guidance alongside the linked implemented contracts.
+Revise them when real use shows a clearer or smaller solution; do not treat them as additional user commitments.
 
-[The first Board](../dashboard/README.md)
-selects the published direction, connected Backlog and Taken Columns, readable
-entry facts, source links, and refresh/read states.
-It omits fetched story/plan detail, outside-backlog discovery, and
-owner/mode/readiness/slice facts. A connected Board belongs in this
-story. General pan/zoom, multiple detail levels, and animated card travel are
-not prerequisites: add the smallest navigation or motion only when it solves
-a reading or orientation problem in this scope. A readable Board with ordinary
-scrolling and source links is a valid first increment of this direction.
+The [current dashboard](../dashboard/README.md) provides Backlog, Taken, and
+Recently done, story and assignment detail, recorded slice progress, and local
+session navigation. The [agent launch contract](../dashboard/AGENT-LAUNCH.md)
+and linked session guidance own its current operations. Existing navigation
+and interactions remain applicable; the original first-Board scope does not
+restrict them. Broader spatial and animation hypotheses still need a concrete
+reading or orientation benefit before further implementation.
+
+The second perspective concerns the enduring, maintained definition of what
+the current product is meant to do and why. The existing Feature concept relates
+to this meaning; “product intent” is a working formulation and the name remains
+open. Purpose and proof are proposed descriptive and verification aspects, with
+maintained procedures distinct from observations of particular runs. Follow the
+[shared vocabulary](adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
+and detailed requirements rather than treating those provisional terms as new
+UI labels. This guide selects no proof fields, new interactions, layouts, or
+presentation states for either additional perspective.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
 for story and slice meaning and [ADR 0002 — Software development lifecycle
@@ -74,10 +86,11 @@ override Accepted decisions. No exception is proposed.
 
 Do not require readers to interpret raw Git history to answer the ordinary questions.
 Make the underlying records available when they need to verify an answer. Keep the
-interaction observational: browse, inspect, and follow source links. A Backlog
-card's **Start execution** and **Start refinement** ask Claude Code on this machine to
-execute or refine the story and change no published fact. Assignment and reprioritization
-stay outside this design. Zoom must not invent facts to answer these questions.
+reading experience grounded in observed evidence: browse, inspect, and follow
+source links. Local launch actions start the selected agent workflow under the
+[launch contract](../dashboard/AGENT-LAUNCH.md), including its explicit Take and
+workspace handoff where supported. Session presence never establishes published
+story progress by itself. Zoom must not invent facts to answer these questions.
 
 ## Board and spatial navigation
 
@@ -93,8 +106,8 @@ help preserve orientation. When an automatic check reads a new snapshot,
 motion can explain observed placement or order changes for the same identity between the
 previous and new snapshots. Start with a small transition if it clarifies that
 change; continuous card travel between Columns and an animation engine are not
-first-story acceptance criteria. Apply the new facts as one coherent snapshot;
-the transition illustrates that change, not an intermediate authoritative state.
+prerequisites for further useful story reading. Apply the new facts as one
+coherent snapshot; the transition illustrates that change, not an intermediate authoritative state.
 Source links and controls remain usable.
 
 Do not animate a story traversing Columns it was never observed in, infer a
@@ -162,8 +175,10 @@ Use consistent distinctions:
   failure, keep it visibly dated and label it as such. Never silently present
   cached evidence as a successful current fetch.
 
-State once, near the source summary or its explanation: “Only published changes
-are visible. Current agent activity is unknown.” Avoid repetitive warnings on
+For published story progress, explain once near its source summary that only
+published changes are visible and those records do not establish current agent
+activity. Qualify local session observations by their own source and meaning,
+as the launch and session contracts describe. Avoid repetitive warnings on
 every story. A missing or deleted branch, a removed plan, or an old commit does
 not by itself prove completion, abandonment, failure, or stopped execution.
 History can explain a record's removal; show a historical fact as historical.

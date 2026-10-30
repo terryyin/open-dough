@@ -5,12 +5,14 @@ and carry the same authority and scope.
 
 ## Focused review and revision
 
-Review the first usable experience against these examples, using actual records
-when available. These are design review criteria, not an executable slice plan:
+Review the story experience against these examples, using actual records when
+available. The [current dashboard](../dashboard/README.md) and its maintained
+contracts define delivered capabilities. These are review criteria, not an
+executable slice plan:
 
-- The first story opens connected Backlog and Taken Columns. A reader can
-  understand their relationship, read each entry and follow its source links.
-  Normal scrolling or reflow is enough until a real navigation need appears.
+- The Board presents Backlog, Taken, and Recently done. A reader can understand
+  their relationship, read each entry, and follow its source links through the
+  existing navigation.
 - A published queue-to-Taken change places that one card correctly on successful
   refresh, with no duplicate or invented live status. Any animation clarifies
   this result and respects reduced motion. Failed refresh leaves membership intact.
@@ -18,7 +20,7 @@ when available. These are design review criteria, not an executable slice plan:
   access to evidence and refresh. If zoom/focus is added, a reader can return
   to the whole Board without losing orientation.
 
-As later stories add the relevant facts, also review:
+Where the relevant facts are available, also review:
 
 - A reader locates a Taken story, explains its intended outcome, identifies the
   recorded developer/mode, and reaches evidence for a completed slice.
@@ -33,12 +35,14 @@ As later stories add the relevant facts, also review:
 - Keyboard and narrow-screen use preserve the Board-to-detail path and source
   access. Decoration does not compete with story understanding.
 
-Defer local worktree/lock activity, agent communication and takeover, feature
-and structural views, and a recently finished stories view. Features would mean
-maintained, test-protected external behavior; structure would map domain
-organization to code. Neither is a one-to-one story mapping. A finished view
-would first explore Git history rather than restore a maintained completion
-list. Do not reserve disabled navigation or empty panes for these possibilities.
+The [requirements](project-visibility-requirements.md#three-perspectives) own
+the intended-behavior and structural direction, including purpose/proof and
+open terminology. Their new UX/UI, further local worktree/lock observation, and
+possible agent communication and takeover remain separate design work. Preserve
+existing local-session capabilities and the delivered Recently done view:
+published done-story records and local session disposition retain their
+distinct meanings under the [current dashboard](../dashboard/README.md). Do not
+reserve disabled navigation or empty panes for unbuilt perspectives.
 
 Revisit this guide during development when a real record, prototype review, or
 user observation changes a design assumption. Update the relevant hypothesis
