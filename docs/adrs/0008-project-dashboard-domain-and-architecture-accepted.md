@@ -32,8 +32,6 @@ proposes a strongly typed stack; its tool choices are not accepted by this ADR.
 
 ## Decision
 
-The following defines the dashboard's domain and architectural boundaries.
-
 ### Domain concepts and relationships
 
 | Concept | Intended meaning |
@@ -47,16 +45,33 @@ The following defines the dashboard's domain and architectural boundaries.
 | Launch workflow | What a dashboard launch starts on one work item, such as execution or refinement: the skill it runs. A launch is local evidence and never settles or moves a story. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
-| Feature | Implemented external behavior that users care about, with maintained definition and design, protected by automated tests. It describes capability rather than a promise that a particular user's goal has been satisfied. |
+| Feature | The existing concept for external behavior users care about, with maintained definition, design, and automated verification. Its intended meaning is the current product's behavioral expectation, not every observed implementation behavior or proof that a particular user's goal has been satisfied. The name of this enduring account remains open under ADR 0001. |
 | Structure | The logical organization of the product's implementation, expressed through its domain model and mapped to packages, folders, files, and functions. |
 | Local workspace | An owned checkout in which a developer prepares changes and publishes to an authorized remote destination. Several worktrees can share one local repository. |
 | Optional default checkout | A developer's checkout that may be refreshed after remote trunk publication. Its presence, edits, and freshness are local operational facts, not workflow authority. |
 
-A story changes the product; features and structure remain descriptions of the
-product after the story is complete. These are three related dimensions, not
-a containment hierarchy. There is no required one-to-one mapping between a
-story, a feature, and a structural element. Story-based filtering can expose
-relevant features and structure without assigning each exclusively to a story.
+Stories describe attempts to change the product; the maintained account of its
+intended behavior and structure survives those stories. These are independent
+related dimensions, not a containment hierarchy. There is no required
+one-to-one mapping: a story can change several intentions and structural
+elements, and an intention can endure through many stories and span several
+structural elements. Mapping and filtering are possibilities, not a selected
+mechanism.
+
+The intended-behavior account describes the current product and evolves with
+intentional changes. A regression supplies evidence against fulfillment of an
+expectation; it does not silently redefine the expectation. Completing and
+removing planning records must leave lasting product knowledge in its maintained
+home, following [ADR 0000](./0000-use-adrs-accepted.md). Future wishes remain
+separate from the current baseline.
+
+[ADR 0001](./0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
+records the shared vocabulary and provisional naming. Purpose and proof are
+proposed aspects of intended behavior, with maintained verification procedures
+distinct from particular observed results. This conceptual distinction does not
+choose separate stores, files, services, or a proof schema. Detailed semantics,
+evidence considerations, and open design choices belong in the
+[requirements](../project-visibility-requirements.md#intended-behavior-perspective-the-current-product).
 
 Derive Preparing from an active preparation assignment; keep refinement,
 planning, and readiness as independent story facts. One AI session may carry
@@ -101,7 +116,7 @@ Project configuration is machine-local operational state, separate from the
 observed repositories' workflow records. There is no application/server
 database; optional browser storage is disposable.
 
-The initial source is Git state published to origin, including relevant branch
+Published progress comes from Git state on origin, including relevant branch
 contents and history. A reader must not need a developer's clone, unpushed
 commits, agent conversation, or temporary runtime files to show published
 progress. Fetching or caching remote Git data is compatible with this boundary.
@@ -112,19 +127,20 @@ origin so the reader can locate published progress. Trunk Mode needs no remote
 story-branch field. Local branch and worktree locations belong to the local
 operational view rather than required remote backlog metadata.
 
-Machine-local evidence later supplements this view with owned-workspace activity
-and optional default-checkout refresh outcomes. Missing observation means local
-activity is unknown; an observed absence of a default checkout is a normal
+Machine-local session evidence supplements the published view without owning
+its workflow facts. Owned-workspace activity and optional default-checkout
+refresh outcomes remain separate local operational concerns. Missing observation
+means local activity is unknown; an observed absence of a default checkout is a normal
 condition, not blocked work. Published progress remains visible independently
 of that local evidence.
 
 ```mermaid
 flowchart LR
     G["Git origin: records, branches, history"] --> V["Derived project view"]
-    L["Local workspace and refresh evidence: later"] -.-> V
-    V --> S["Story perspective: first"]
-    V -.-> F["Feature perspective: later possibility"]
-    V -.-> A["Structural perspective: later possibility"]
+    L["Local operational evidence"] -.-> V
+    V --> S["Story perspective: delivered"]
+    V -.-> F["Intended-behavior perspective: design direction"]
+    V -.-> A["Structural perspective: design direction"]
 ```
 
 These are logical responsibilities and information flows, not prescribed
@@ -139,9 +155,9 @@ persisted state, a dependency between stories, or a mandatory linear lifecycle.
 Story identity and source evidence remain stable independently of card placement.
 
 Viewport position, zoom, focused work, and animation are presentation state,
-separate from published project facts and later machine-local operational
-evidence. Losing them loses no project progress. Motion can explain a change
-between observed snapshots; it cannot establish unobserved activity. This
+separate from published project facts and machine-local operational evidence.
+Losing them loses no project progress. Motion can explain a change between
+observed snapshots; it cannot establish unobserved activity. This
 intention does not prescribe canvas, a graph library, or stored layout data.
 Build these interactions just in time for the selected story's reading goal;
 the visual direction does not justify advance navigation infrastructure.
@@ -181,15 +197,19 @@ ownership and coordination proposal.
 
 ### Incremental scope
 
-1. Deliver the story perspective from published Git state alone, treating
-   developers as using independent machines. This describes the available
-   evidence, not a requirement for physically separate machines.
-2. Add local operational visibility for multiple agents sharing a repository
-   through owned worktrees, including optional checkout refresh outcomes.
+The implemented dashboard provides the story planning and execution perspective,
+including local-session capabilities. Published progress remains independently
+readable from Git; local observations add information about this machine without
+becoming the authority for project state. The
+[dashboard guide](../../dashboard/README.md) and
+[agent launch contract](../../dashboard/AGENT-LAUNCH.md) own current capabilities.
 
-Feature and structural perspectives remain future possibilities, not
-prerequisites for either stage. Their domain distinctions should stay clear
-without building their machinery in advance.
+The intended-behavior and structural perspectives remain design direction.
+Their meaning constrains how we understand the product without requiring their
+machinery in advance. Their UX/UI, the final intended-behavior name, proof
+information, and architectural North Star placement remain open. These
+perspectives do not prescribe three panes or a new storage model, and the
+original delivery stages do not restrict existing story-dashboard capabilities.
 
 ## Consequences
 
@@ -197,9 +217,9 @@ without building their machinery in advance.
   progress, and the first useful view does not depend on local monitoring.
 - Remote visibility is limited to published evidence. Taken work and an old
   update cannot establish that an agent is currently running or has stopped.
-- Existing records will need sufficient consistent meaning for observation.
-  Exact field formats and workflow changes need their own implementation work;
-  this decision does not make today's records sufficient by declaration.
+- New perspectives require sufficient evidence for their claims. Existing
+  story records do not establish a maintained intent inventory or proof model
+  by declaration; those choices need their own design and implementation work.
 - Story identity, developer assignment, execution mode, and workspace ownership
   remain distinguishable, avoiding accidental coupling to a temporary branch,
   recycled name, or default checkout.
@@ -209,9 +229,12 @@ without building their machinery in advance.
 
 ## Open design and related decisions
 
-Record formats, assignment messaging and takeover, North Star
-placement, and detailed stage layout remain open in the [requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
-No GUI framework, daemon, database, schema, or distributed scheduler is selected.
+Intended-behavior naming, purpose/proof representation, cross-perspective
+relationships and UX/UI, architectural North Star placement, and possible
+assignment messaging and takeover remain open in the
+[requirements](../project-visibility-requirements.md#questions-retained-for-later-design).
+This direction selects no new GUI framework, daemon, database, schema, or
+distributed scheduler.
 
 This decision builds on
 [ADR 0001 — Ubiquitous language](./0001-ubiquitous-language-accepted.md),

@@ -1,6 +1,7 @@
 # Keep the dashboard's three-perspective design current in its maintained documents
 
 **Source:** [Selected documentation story](../../seeds/SEED-186-dashboard-product-intent-documentation.md#document-dashboard-product-intent)
+**Source review:** [Independent original-source commitments](source-review.md)
 **Identity:** SEED-186#document-dashboard-product-intent
 
 ## Goal and scope
@@ -81,7 +82,7 @@ normal workflow.
 ### 1. A fresh reader understands the current three-perspective direction without the conversation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: all source key examples and the ownership table above, affected
 link/anchor checks, and `git diff --check`.
 
@@ -141,4 +142,95 @@ support this approach; no technical probe is necessary.
 
 ## Learnings
 
-None affecting the plan beyond the inspected existing context above.
+The North Star's linked design-review criteria still deferred Recently done
+and instructed against maintained completion records. Consumer inspection found
+that this directly contradicted the delivered story perspective and ADR 0008's
+repository-owned done records. The source authorizes directly implicated
+documentation consistency fixes, so slice 1 also corrects that narrow companion
+without adding UX decisions or broadening into a documentation audit.
+
+## Story obligations
+
+### G1. Linked review criteria retain obsolete delivered-scope restrictions
+Reported: slice 1 — "Implementation consumer inspection found docs/dashboard-design-review.md still deferring a recently finished stories view and preferring Git history over a maintained completion list; coordinator confirmed these active criteria conflict with the current dashboard and ADR 0008."
+Story clause: "Necessary links and directly implicated documentation consistency fixes belong to this outcome"
+Disposition: proved by slice 1: `docs/dashboard-design-review.md#focused-review-and-revision` now preserves Recently done and repository done records, links current dashboard and requirements, and retains evidence/accessibility examples; coordinator inspected its entry from the North Star and aggregate diff. `python3 /tmp/seed186-check-links.py` passes all 111 affected local links/anchors.
+
+## Execution context
+
+- Authorized execution: 2026-10-30, SEED-186#document-dashboard-product-intent;
+  Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+  `ruuf-chan`. In-scope planning authority is retained; no numeric slice budget
+  or exception is configured. One cohesive documentation proof loop applies.
+- Originating and execution checkout (established, reused):
+  `/Users/terryyin/git/open-dough/.worktrees/understand-the-dashboard-s-three-perspectives-an`,
+  branch `codex/understand-the-dashboard-s-three-perspectives-an`.
+  Optional integration/default checkout: `/Users/terryyin/git/open-dough`.
+  Authorized integration target: `origin`, `refs/heads/main`;
+  increments publish to the named execution branch.
+- Starting revision: `f62aea18f818fff2a51a4bde33ae374cb533fd51`.
+  Established accepted claim and first increment base:
+  `cba3aa43858318729018af6ab75f13a98e63c13a` on `origin/main`.
+  No second claim was made. Claim CI is unobserved by this coordinator.
+- Checkout setup: `npm ci` passed with unchanged `package-lock.json`;
+  `npm exec -- prettier --check package.json` passed. Runtime is the
+  same-checkout `.agents/skills/dough-execute-plan` installation. The
+  `.githooks/pre-commit` hook checks staged lint and only typechecks when
+  script files are staged; selective formatting is `npm run format`.
+- CI: GitHub Actions `terryyin/open-dough`, verified workflow `ci.yml` (`CI`),
+  observing `codex/understand-the-dashboard-s-three-perspectives-an`.
+  Coordinator `seed186-ruuf-chan`, directory `/tmp/dough-ci-501/watch-S3Vh5X`,
+  PID `56334`, stream session `8876`, yielded cell `10`; checkout as above.
+  Documentation and planning paths are ignored by the workflow; the observer
+  determines the applicable validation basis.
+- Slice 1 delegated to `/root/document_intent`; source-only commitments
+  independently requested from `/root/source_commitments` with no inherited
+  conversation and only the selected seed as input.
+
+
+## Accepted slice 1 proof
+
+Implementation returned from `/root/document_intent` with five uncommitted
+product documents; all writers idle. Setup: none for documentation reading.
+Boundary: maintained documents consumed by Terry and general-purpose agents.
+The coordinator compared the unchanged source, independent source-only return,
+plan, actual document text and aggregate diff. Per-commitment observations and
+all six trigger/journey examples are retained in `source-review.md`.
+
+- Examples 1 and 2: requirements `Three perspectives`, `Intended-behavior
+  perspective`, and `Purpose and proof` explain all three dimensions, current
+  enduring meaning, cleanup, intentional revision, and regression.
+- Example 3: `Interpreting verification evidence` distinguishes an old pass,
+  absent results, evidence limits, and check runtime from product performance.
+- Example 4: ADR 0001 `Dashboard product concepts` leads through ADR 0008's
+  relationships and state authority to requirements; terminology stays open.
+- Example 5: North Star `Authority and scope` preserves delivered story/local
+  session behavior and leaves additional-perspective UX unselected.
+- Example 6: aggregate five-document review establishes coherent current
+  understanding and owner links. G1's directly linked inconsistency is fixed.
+- `python3 /tmp/seed186-check-links.py`: pass, 111 affected local links/anchors,
+  including 30 inbound. The temporary script inspects local Markdown targets
+  and generated/explicit heading anchors; no network or application behavior.
+- `git diff --check`: pass. `git diff --name-only` and
+  `git diff --stat -- docs/`: only the five documented product files plus
+  coordinator-owned execution records. No application/installation suite is
+  applicable; no generator trigger changed.
+- Consumer trace command:
+  `node .agents/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout /Users/terryyin/git/open-dough/.worktrees/understand-the-dashboard-s-three-perspectives-an --base cba3aa43858318729018af6ab75f13a98e63c13a --term 'Feature perspective' --term 'product intent' --term 'first Board' --term 'local evidence come later' --term 'recently finished stories view' > /tmp/seed186-consumer-trace.md`.
+  The complete dispositions are `/tmp/seed186-consumer-dispositions.md`;
+  the five-owned-path trace/dispositions are
+  `/tmp/seed186-owned-consumer-trace.md` and
+  `/tmp/seed186-owned-consumer-dispositions.md` (33 consumers).
+  Linked documentation received consistency/authority and anchor inspection.
+  Source-navigation tests assert unchanged URL/path/#decision resolution rather
+  than prose; coordinator inspected their assertions and fixture. Historical
+  fixtures and generic substring matches do not consume changed semantics.
+  No runtime product consumer is affected. No uncovered promise remains.
+
+Independent refactor `/root/refactor_docs` returned `## REFACTOR COMPLETE`.
+Only repeated prose in requirements and ADR 0008 was removed; coordinator read
+`/tmp/seed186-refactor-only.diff`. All headings, links, authority and semantic
+proof remain applicable. `git diff --check` passed; no runtime tests were needed.
+Its 19 consumer dispositions are in `/tmp/seed186-refactor-consumer-dispositions.md`.
+Source freshness: unchanged at trunk `cba3aa43858318729018af6ab75f13a98e63c13a`.
+Story obligations check: pass, 1 proved obligation and 225 observed commitments.

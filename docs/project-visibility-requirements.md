@@ -6,7 +6,7 @@
 
 **Source:** Terry Yin's direction in the project-visibility discussion.
 
-**Updated:** 2026-10-02, to distinguish shared solutions from blocking story dependencies.
+**Updated:** 2026-10-30, for the current three-perspective direction and enduring intended behavior.
 
 ## Purpose
 
@@ -21,65 +21,114 @@ for shared design, reconciliation, and exceptional blocking sequences. The
 dashboard should make necessary waits understandable without presenting
 ordinary internal dependencies as barriers to parallel work.
 
-The dashboard will develop incrementally. This document captures its intended
-perspectives, sources of state, and local maintenance requirement, without
-prescribing a complete dashboard or its implementation.
+The dashboard develops incrementally. This document owns the detailed account
+of its three perspectives, sources of state, and open design questions.
+[ADR 0001](adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
+supplies the shared vocabulary,
+[ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+the cross-task architectural boundaries, and the
+[UX/UI North Star](dashboard-ux-ui-north-star.md) the current interface direction.
 
 ## Three perspectives
 
-The longer-term idea is a dashboard with three independent but related
-dimensions: user stories, features, and structure. These might appear as panes,
-panels, or separate views; the physical layout is not decided.
+The dashboard has three independent but related dimensions: changing work,
+the current product's intended behavior, and implementation structure. The
+story perspective is delivered; the other two remain design direction. These
+are conceptual perspectives, not a requirement for three panes or any other
+presentation. Their UX/UI remains a separate design discussion.
 
 ### User-story perspective: the project's dynamics
 
-This perspective shows how ideas move through development and eventually become
-assimilated into the product. It explains the project's changing work rather
-than serving as a catalog of its implemented capabilities.
+This perspective shows how ideas move through planning, learning, and execution
+to affect the product. Stories express intended changes or possibilities worth
+exploring. They can cross existing product and structural boundaries and evolve
+through refinement and execution. They are not the permanent definition of the
+product they change.
 
-Stories express intended changes. As ideas, they do not yet have the settled
-design and boundaries of implemented behavior. A story can cross several
-features and areas of the code; it need not fit within one existing product or
-structural boundary. This distinction does not remove the existing disciplines
-of story refinement and execution.
+The repository-backed backlog, Taken state, assignments, execution modes, and
+slice progress provide published evidence of that work. The delivered dashboard
+also exposes local sessions, with their operational evidence kept distinct from
+published story facts. Completing a story and cleaning up its planning records
+does not remove the product's maintained definition or verification.
 
-The repository-backed backlog, Taken state, execution modes, and completed
-slices described below provide the initial basis for this perspective.
+### Intended-behavior perspective: the current product
 
-### Feature perspective: the product's implemented behavior
+This perspective describes what the current product is meant to do and why.
+Its account endures beyond the stories that introduce or change behavior,
+while being maintained for the product's current revision. Enduring does not
+mean frozen: an intentional product change updates the account. A regression
+is contrary evidence about fulfillment of an expectation, not a reason to
+silently delete that expectation. Accidental implementation behavior is not
+automatically intended behavior, and future wishes do not belong in the
+current baseline.
 
-Features represent external behavior that users care about. They are already
-implemented, well defined, designed, maintained, and protected by automated
-tests. A feature describes a product capability; it is not itself a promise
-that a particular user need has been satisfied or a story's desired outcome
-achieved.
+The existing **Feature** concept names external behavior users care about,
+with maintained definition, design, and automated verification. This direction
+clarifies its enduring intended meaning without completing a product-wide
+rename. The best name remains open: **feature**, **intent**, **intention**, or
+**product intent**. “Product intent is the maintained definition of what the
+current product is meant to do and why” is a working explanation. Product
+specification and behavioral contract are other suggested formulations, not
+selected replacements. A defined capability does not itself establish that
+a particular user's goal has been achieved.
 
-This perspective shows the product's existing behavioral capabilities. Filtering
-by a story should reveal the features involved in, or expected to be affected
-by, that story. Features and stories are distinct concepts, with no required
-one-to-one correspondence.
+#### Purpose and proof
+
+Purpose and proof are proposed aspects of this account:
+
+- **Purpose** expresses the expected behavior and why it matters: the
+  maintained descriptive side.
+- **Proof** concerns executable verification and evidence of whether the
+  implementation fulfills that expectation. Verification procedures can be
+  maintained artifacts; the results of particular executions are observations.
+
+This conceptual distinction selects no separate stores, catalogs, files,
+or services.
+
+#### Interpreting verification evidence
+
+Duration, supporting evidence, and when verification last ran are exploratory
+considerations. Revision, environment, coverage, freshness, and result may help
+interpret an observation. Their scope remains open: they are not mandatory
+fields, a finalized state model, or a promise to collect and display them.
+
+A passing check supports the claim it actually observed under its conditions;
+it does not establish universal correctness. A pass on an older revision must
+be assessed for relevance to the current product. An absent result is missing
+evidence, not a passing or failing result. Missing, stale, partial, and conflicting
+evidence remain distinguishable rather than collapsing into a single verdict.
+A check's runtime describes verification cost; it does not by itself measure
+the product's performance. A slow verification run alone therefore does not
+establish a product performance defect.
 
 ### Structural perspective: the product's architecture
 
-This perspective shows how the code is organized logically. The logical
-organization should map directly to the domain model and connect that model
-to code packaging, folders, files, and functions.
+This perspective describes the logical organization of the implementation.
+That organization maps to the domain model and connects it to packages,
+folders, files, and functions.
 
-Structure is a dimension independent of features and stories. Neither features
-nor stories have a required one-to-one mapping to structural elements. A
-story-based filter should bring the relevant parts of the structure into view,
-helping the developer understand the architectural context of that work.
+Stories, intended behavior, and structure are independent related dimensions,
+without a required one-to-one mapping or containment hierarchy. One story can
+change several intentions and structural elements; one intention can endure
+through many stories and involve several structural elements. Mapping and
+filtering could help reveal those relationships, but no recording, derivation,
+or navigation mechanism has been selected.
 
-The architectural North Star artifact may also belong in this perspective.
-That placement remains tentative; temporary architectural direction and the
-structure already implemented are distinct information.
+The architectural North Star may belong in this perspective. Its placement
+remains open; temporary architectural direction and implemented structure are
+distinct information.
 
-### Initial scope
+<a id="initial-scope"></a>
 
-Start with the user-story perspective, potentially keeping it as the only
-implemented perspective for the foreseeable work. The feature and structural
-perspectives preserve the broader idea for later exploration; they are not
-prerequisites for the first useful view or commitments to build all three.
+### Delivered scope and further direction
+
+The implemented dashboard provides the story planning and execution perspective,
+including its existing local-session capabilities. The maintained
+[dashboard guide](../dashboard/README.md) and
+[agent launch contract](../dashboard/AGENT-LAUNCH.md) describe those capabilities.
+The intended-behavior and structural perspectives remain future design work.
+Their meaning is useful now without making their implementation a prerequisite
+for the existing dashboard or committing to build all three.
 
 ### Board and zoom
 
@@ -90,16 +139,14 @@ required. Terry explicitly clarified that this UX ambition must follow the
 just-in-time principle: build interactions to support the current story's goal,
 not to complete the visual concept ahead of a need.
 
-Initially, existing backlog evidence supports **Backlog** and **Taken**
-regions, containing Story cards in their recorded order. Zoom exposes the title, identity, membership,
-priority where recorded, and source links already in the snapshot. It does not
-require adding metadata or interpreting story/plan contents in the first story.
-Richer Columns and detail follow when their evidence and semantics are selected.
-The first story requires a readable connected Board and access to each
-entry's evidence. Ordinary layout, wrapping, and scrolling can serve that goal;
-general pan/zoom, multiple detail levels, and animated card travel are not
-prerequisites. Add the smallest navigation or transition only when it improves
-reading or orientation with this story's actual data.
+The delivered Board presents Backlog, Taken, and Recently done, with Story
+cards and local Session entries as defined by
+[ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
+Published records support membership, order, source links, and the available
+story, assignment, and slice facts. Local sessions retain their own evidence.
+The current [navigation guidance](dashboard-navigation.md) owns the interactions
+that make this information readable. Broader zoom and animation hypotheses
+remain subject to the selected reading need and available evidence.
 
 Motion should explain navigation and changes between successfully retrieved
 snapshots, such as the same work becoming Taken. It must not imply continuous
@@ -147,67 +194,57 @@ explains how local evidence supplements an independently useful repository view.
 
 ## Incremental learning
 
-Terry intends to experiment more with Trunk Mode using one agent before
-introducing parallel execution. Those journeys can help mature the lifecycle
-and reveal what information is useful to display. This is a learning direction,
-not a requirement to build the entire dashboard before parallel work begins.
+Use experience with the delivered story dashboard and development workflows
+to learn which information helps people understand and direct work. Further
+perspectives and interactions should grow from those needs, following the
+just-in-time principle rather than completing a predetermined visual system.
 
 ## Questions retained for later design
 
-The following considerations arose in discussion but are not settled design
-decisions:
+The following choices remain open:
 
-- How to distinguish recorded progress from live activity. A Taken entry alone
-  does not establish that an agent is currently running.
-- How to show freshness and missing evidence. A remote view cannot see
-  unpublished local changes, and unavailable local state does not mean idle.
-- How existing backlog and plan records expose sufficient information without
-  introducing a duplicate status representation that can drift.
-- How the dashboard accesses local evidence, and how later story facts expand
-  the Board view without imposing a false linear lifecycle.
-- How story-to-feature and story-to-structure relationships would be recorded
-  or derived, including the distinction between expected impact and observed
-  changes, if those later perspectives are pursued.
-- Whether and how North Star artifacts belong in the structural perspective.
-- The Taken-item field format and how mode, developer assignment, and origin
-  branch information are kept consistent through execution and closure.
-- How circular name allocation avoids simultaneous claims and distinguishes
-  separate assignments when names are reused.
+- Which name best communicates the enduring intended-behavior account, while
+  preserving its relationship to the existing Feature concept.
+- How purpose and proof should be represented, and which execution information
+  is useful. Duration, evidence, last-run time, revision, environment, coverage,
+  freshness, and result are considerations, not a selected schema.
+- How the intended-behavior and structural perspectives should work in the UX/UI.
+  No new tabs, panels, layouts, interactions, or presentation states are chosen.
+- How relationships among stories, intended behavior, and structure would be
+  recorded or derived, including expected impact versus observed change, and
+  whether mapping or filtering would help.
+- Whether and how architectural North Star artifacts belong in the structural
+  perspective.
 - Whether to introduce a commit mailbox and timeout-based handover, including
   how to transfer ownership safely when the former agent might still be active.
 
-No GUI technology, state schema, lock protocol, background service, distributed
-scheduler, or dashboard control interface is selected by this document.
+Further design must preserve the distinction between published progress and
+local activity, missing and negative evidence, and observed facts and derived
+views. Existing workflow and launch contracts own the implemented record and
+session semantics. This document selects no new storage schema, proof
+collection, service, scheduler, or dashboard control mechanism.
 
 ## Relationship to existing work and decisions
 
-The remote-only [story dashboard](../dashboard/README.md) precedes
-same-machine visibility. Its Board uses existing backlog membership and
-links; new entry metadata and persisted story states remain outside it.
-It begins the Board direction with readable entry facts from the same
-snapshot rather than fetched story/plan detail. The broader zoom and animation
-ambition does not expand this outcome into a general navigation system.
-Its required setup includes one Playwright behavioral suite connected to current
-CI, alongside type checking, lint, and a production build.
+The [story dashboard](../dashboard/README.md) provides the current planning and
+execution view. Its published story records and local-session capabilities
+follow their maintained contracts; the original remote-only delivery boundary
+does not restrict today's product. The
+[delivery direction](dashboard-delivery-direction.md) explains the separation
+of published and machine-local evidence, not a requirement to remove delivered
+capabilities while exploring another perspective.
 
-The [product backlog](../.planning/PRODUCT-BACKLOG.md) retains the near-future
-direction of parallel story execution through trunk-based development in
-separate worktrees. Owned workspaces are independent of the default checkout, and its refresh is
-optional. Installed execute-plan
-publication and default-checkout maintenance guidance apply the shared remote
-publication contract to implemented workflows.
-These requirements supply refinement context; the backlog owns priority and
-execution records own delivery evidence.
+The [product backlog](../.planning/PRODUCT-BACKLOG.md) owns work priority.
+Owned workspaces remain independent of the default checkout, whose refresh is
+optional. Installed execution and default-checkout maintenance guidance apply
+the shared remote publication contract to implemented workflows.
+These requirements supply refinement context; execution records own delivery evidence.
 
 [ADR 0002 — Software development lifecycle principles](adrs/0002-software-development-lifecycle-principles-accepted.md)
-supports learning through small valuable increments and decentralized
-coordination through continuous integration. The incremental exploration here
-follows that direction.
+supports small valuable increments, incremental learning, and decentralized
+coordination through continuous integration.
 
-The domain concepts and architectural boundaries are defined in
-[Accepted ADR 0008 — Project dashboard domain and architecture](adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-Detailed requirements and exploratory ideas stay here.
-Under
-[ADR 0000 — Use Architectural Decision Records](adrs/0000-use-adrs-accepted.md),
-architectural acceptance remains a separate human-owned process. This document
-does not accept or supersede an ADR.
+Detailed requirements stay here; domain concepts and architectural boundaries
+belong in [Accepted ADR 0008 — Project dashboard domain and architecture](adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+[ADR 0000 — Use Architectural Decision Records](adrs/0000-use-adrs-accepted.md)
+reserves architectural acceptance to humans. This document accepts or supersedes no ADR.
