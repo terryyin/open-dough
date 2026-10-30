@@ -100,9 +100,9 @@ test("example 1: the added 1.0 s file alone changes share membership", () => {
   assert.deepEqual(predicted(afterDeal), ["598.0", "596.0", "596.0"]);
   // The after run's seconds summed per predicted share (the plan's
   // reconstruction, with another order among equal-second jobs, measured
-  // 599.2 / 599.5 / 596.6 for the same sum). Every share keeps over 100
-  // job-seconds of headroom under the budget's ceiling, where the positional
-  // deal measured 711.1 on share 3.
+  // 599.2 / 599.5 / 596.6 for the same sum). Every share stays under the
+  // budget's total ceiling (heaviest headroom 694 − 602.0 = 92), where the
+  // positional deal measured 711.1 on share 3.
   const totals = measured(afterDeal, after);
   assert.deepEqual(totals, ["602.0", "597.1", "596.2"]);
   assert.equal(
@@ -110,7 +110,7 @@ test("example 1: the added 1.0 s file alone changes share membership", () => {
     "1795.3",
   );
   for (const total of totals) {
-    assert.ok(Number(total) <= ceiling - 100, total);
+    assert.ok(Number(total) <= ceiling, total);
   }
 });
 

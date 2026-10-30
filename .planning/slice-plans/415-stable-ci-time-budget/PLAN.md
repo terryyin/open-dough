@@ -1,6 +1,7 @@
 # CI time budget holds under runner variance
 
 **Source:** [Selected story](../../seeds/SEED-185-stable-ci-time-budget.md#stable-ci-time-budget)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-185#stable-ci-time-budget
 
 ## Goal and scope
@@ -52,8 +53,13 @@ Type: Behavior
 Status: planned
 Proof: the four `tests/test-runner-budget.sh` cases above, a unit case for the
 factor rule in `tests/support/share-deal.test.mjs` (median over measurable
-recorded jobs; none measurable → unavailable), the focused command, and the
-recalibration observation recorded below.
+recorded jobs; none measurable → unavailable; `formatRunnerFactorLine`), the
+focused command, and the recalibration observation recorded below.
+Accepted (uncommitted, pre-delivery): `PATH=/opt/homebrew/bin:$PATH bash
+scripts/test.sh tests/test-runner-budget.sh tests/ci-test-times.sh
+tests/support/test-shares.test.mjs tests/support/share-deal.test.mjs` exit 0;
+ceilings `per-job-seconds=64` `total-job-seconds=694` from max recorded-speed
+total 577.5 and max job 52.7 on retained artifacts.
 
 Behavior: a CI run (`CI=true`) of a split share whose test directory holds a
 `time-budget` and a `longest-first` → the runner finishes → each job's time and
@@ -113,6 +119,9 @@ named-part lists, whose deal is unchanged by a uniform scale.
 - Ceilings are 1.2× the highest recent value at recorded speed: about twice
   the observed spread at recorded speed (41.6 on the total), replacing the
   former 1.5× raw margin that runner variance consumed.
+- Recalibration recompute (slice 1): max job at recorded speed was 52.7 (not
+  the plan sketch's 49.0) → per-job ceiling 64; total ceiling 694 unchanged
+  from the sketch. `formatRunnerFactorLine` owns the factor/label tab line.
 
 ## Decisive premises
 
@@ -138,3 +147,11 @@ named-part lists, whose deal is unchanged by a uniform scale.
 Slice-plan refinement was not needed: each slice has one proof loop and the
 only interim (slice 1's report headroom) is named with its replacing slice.
 This review identified no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Trunk timing report still speaks raw times (interim after slice 1)
+Reported: slice 1 — "`scripts/ci-test-times.sh` still compares raw recent times with ceilings now in recorded-speed units, so its headroom reads too small."
+Story clause: "`bash scripts/ci-test-times.sh` reports share totals and job times at recorded speed with the runner factors it saw"
+Disposition: interim until slices 2
+Commitment: 10.1, 10.2, 10.3, 11

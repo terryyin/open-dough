@@ -1,30 +1,15 @@
 #!/usr/bin/env node
-// scripts/test-shares.mjs is the command surface of scripts/share-deal.mjs,
-// which deals a test suite's jobs into CI shares by their recorded durations.
-// scripts/test-jobs.sh runs `share` for the Node runner's share; a contributor
-// runs `preview` and `refresh` (tests/test-shares.md).
+// Command surface of scripts/share-deal.mjs (tests/test-shares.md).
+// scripts/test-jobs.sh runs `share`; contributors run `preview` and `refresh`.
+// `runner-factor` prints `<factor><TAB><label>` for scripts/test-budget.sh.
 //
 //   share   [--list FILE] [--split i/n]      labels on stdin, NUL-separated
 //                                            (or one per line); prints the
-//                                            share's labels NUL-separated,
-//                                            in start order
+//                                            share's labels NUL-separated
 //   preview --split-count N [--list FILE] [--budget FILE] [--labels FILE]
 //           [--test-dir DIR | --spec-dir DIR]
-//                                            each share's predicted total,
-//                                            the unrecorded jobs with the
-//                                            assumed seconds and share, and
-//                                            headroom to the budget's
-//                                            total-job-seconds when there is
-//                                            one; labels from FILE, from the
-//                                            dashboard spec files under DIR
-//                                            (--spec-dir, no budget), or
-//                                            from scripts/test-jobs.sh over
-//                                            DIR (default tests)
 //   refresh --list FILE --source TEXT TIMES...
-//                                            merges the times files into
-//                                            FILE, longest first, keeping
-//                                            seconds and FILE's header with
-//                                            `# Source: TEXT` as its last line
+//   runner-factor [--list FILE] TIMES
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -32,7 +17,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   dealShares,
   formatPreview,
+  formatRunnerFactorLine,
   mergeTimes,
+  parseDurationList,
   parseSplit,
   readDurationList,
   readInput,
@@ -212,10 +199,29 @@ function refreshCommand(argv) {
   );
 }
 
+function runnerFactorCommand(argv) {
+  const { options, positional } = parseArguments(argv, ["list"]);
+  if (positional.length !== 1) {
+    throw new TestSharesError(
+      "FAIL: runner-factor needs one times file and optional --list <file>.",
+    );
+  }
+  const recorded =
+    options.list === undefined || !existsSync(options.list)
+      ? new Map()
+      : readDurationList(options.list).seconds;
+  const observed = parseDurationList(
+    readInput(positional[0]),
+    positional[0],
+  ).seconds;
+  process.stdout.write(formatRunnerFactorLine(recorded, observed));
+}
+
 const commands = {
   share: shareCommand,
   preview: previewCommand,
   refresh: refreshCommand,
+  "runner-factor": runnerFactorCommand,
 };
 
 async function main(argv) {

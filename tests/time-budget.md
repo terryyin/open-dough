@@ -2,17 +2,21 @@
 
 The suite's time budget lives in `tests/time-budget`: a per-job ceiling
 (`per-job-seconds`) and a total ceiling over one run's jobs
-(`total-job-seconds`), set from CI's `test-times-<i>` with headroom. The
-ceilings are calibrated to CI's runner, so only after a CI run (`CI=true`) of
-the whole suite or a split share does the runner compare that run's job times
-with them (`scripts/test-budget.sh`); elsewhere it prints no budget report and
-the exit status comes only from the checks. Within budget it prints nothing. A
-breach fails the run and prints, after any failure reports, one line per job
+(`total-job-seconds`), set from CI's `test-times-<i>` at the recorded list's
+runner speed with headroom. The ceilings are in that unit, so only after a CI
+run (`CI=true`) of the whole suite or a split share does the runner compare
+that run's job times divided by the share's runner factor with them
+(`scripts/test-budget.sh`); elsewhere it prints no budget report and the exit
+status comes only from the checks. The factor is the median, over jobs
+recorded in `tests/longest-first` with a measurable recorded time (at least
+2 s), of observed/recorded seconds; without a measurable recorded job it is 1
+and the breach line says it was unavailable. Within budget it prints nothing.
+A breach fails the run and prints, after any failure reports, one line per job
 over the per-job ceiling and one for a total over the total ceiling:
 
 ```text
-OVER BUDGET: tests/install.sh took 78.4s; the per-job ceiling is <per-job-seconds>s (tests/time-budget).
-OVER BUDGET: all jobs took 482.4 job-seconds; the total ceiling is <total-job-seconds> (tests/time-budget).
+OVER BUDGET: tests/install.sh took 78.4s observed (factor 1.2, 65.3s at recorded speed); the per-job ceiling is <per-job-seconds>s (tests/time-budget).
+OVER BUDGET: all jobs took 720.0 job-seconds observed (factor 1.2, 600.0 at recorded speed); the total ceiling is <total-job-seconds> (tests/time-budget).
 ```
 
 Fix the slow job rather than the number: raising a ceiling is an explicit,

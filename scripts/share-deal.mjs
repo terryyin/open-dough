@@ -66,6 +66,48 @@ function median(values) {
     : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
+// Recorded seconds at or above this count toward the runner-factor median;
+// shorter jobs are noise against timer resolution.
+export const measurableRecordedSeconds = 2;
+
+// Formats a runner factor for breach lines: at least one decimal, up to three.
+export function formatFactor(value) {
+  const rounded = Math.round(value * 1000) / 1000;
+  if (Number.isInteger(rounded)) {
+    return rounded.toFixed(1);
+  }
+  return String(rounded);
+}
+
+// A share's runner factor: the median, over jobs recorded with measurable
+// time, of observed/recorded seconds. With no such job, the factor is 1 and
+// available is false (the breach line says unavailable).
+export function runnerFactor(recorded, observed) {
+  const ratios = [];
+  for (const [label, observedSeconds] of observed) {
+    const recordedSeconds = recorded.get(label);
+    if (
+      recordedSeconds !== undefined &&
+      recordedSeconds >= measurableRecordedSeconds
+    ) {
+      ratios.push(observedSeconds / recordedSeconds);
+    }
+  }
+  const factor = median(ratios);
+  if (factor === undefined) {
+    return { factor: 1, available: false };
+  }
+  return { factor, available: true };
+}
+
+// `<factor><TAB><label>` for scripts/test-budget.sh: label is `unavailable`
+// or the formatted factor.
+export function formatRunnerFactorLine(recorded, observed) {
+  const { factor, available } = runnerFactor(recorded, observed);
+  const label = available ? formatFactor(factor) : "unavailable";
+  return `${factor}\t${label}\n`;
+}
+
 // Deals the labels into shareCount shares by the recorded seconds. Returns
 // the shares in index order, each with its jobs in start order and its
 // predicted total, beside the recorded and unrecorded counts and the
