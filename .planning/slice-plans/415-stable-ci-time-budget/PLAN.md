@@ -159,6 +159,8 @@ Reported: slice 1 — "`scripts/ci-test-times.sh` still compares raw recent time
 Story clause: "`bash scripts/ci-test-times.sh` reports share totals and job times at recorded speed with the runner factors it saw"
 Disposition: proved by slice 2: `tests/ci-test-times.sh` expect_report job/share lines at recorded speed with factors; focused command exit 0
 
+
+CI repair (after execution-complete): `dashboard/tests/agent-launch-story-card-sessions.spec.ts` per-test `setTimeout(120_000)` so the multi-reload journey is not cut at Playwright's default 30s (sibling open-session pattern).
 ## Execution complete
 
 Product advice: Keep the planned correction SEED-185#align-refresh-guidance
