@@ -197,13 +197,15 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // The browser scrolled the focus into view while its column was hidden, so
   // within the Board as long as the shown Columns were: now that the column
   // has its length, the focus is brought the rest of the way, as little as
-  // shows it.
+  // shows it. Wait until the row rests too: during a slide the target still
+  // lies off to the side, and a nearest scroll then can miss the vertical
+  // move and never run again once the held focus target is cleared.
   useLayoutEffect(() => {
     const target = focused.current;
     const moved = row.current;
     if (target === undefined || moved === null) return;
     const column = columnHolding(moved, target);
-    if (column !== undefined && hidden.includes(column)) return;
+    if (column !== undefined && (hidden.includes(column) || sliding)) return;
     focused.current = undefined;
     if (target !== document.activeElement) return;
     target.scrollIntoView({ block: "nearest", inline: "nearest" });

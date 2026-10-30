@@ -1,7 +1,9 @@
 // Sessions a replaced runner held: observation of a stale-proof runner
-// starts or replaces nothing, a third launch replaces it, and its held
-// sessions then stand as resumable launch records — Recover on the scoped
-// one resumes the same chat under its recorded scope on the replacement.
+// starts or replaces nothing, a third launch replaces it when recorded
+// build proof differs, and its held sessions then stand as resumable
+// launch records — Recover on the scoped one resumes the same chat under
+// its recorded scope on the replacement. Same-build helper-proof survival
+// lives in ./cursor-runner-helper-survival.spec.ts.
 import type { Page } from "@playwright/test";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "./dashboardPage.ts";

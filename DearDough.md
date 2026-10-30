@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 370. Removed numbers are never reused.
+- Highest allocated local number: 372. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -730,6 +730,14 @@ check` refused until both were rewritten to the consuming reader's shapes.
   - Observed effect: one local planning-record repair and repeat check; no product rework or incorrectly published completion.
   - Inference: recurrence of the Reported-shape part of DD-369, not its Slice-column error. Use the supplied record shape at first write; the refusal successfully prevented accepting malformed evidence.
 
+- Execution: SEED-190#keep-running-cursor-sessions / plan 418, first related implementation `0921f1f71ab86f870b8adf8d686cb7889256e900`
+  - Timestamp: unknown (2026-10-30; coordinator source-review writes between source-only return ~15:23+08:00 and obligation re-check before resume ~15:25+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `51bb7763-bed4-4bd1-a5fa-bf7e58d7132b` — first `source-review.md` Write placed commitment ids `8`/`9`/`10` in the Slice column for exclusions; rewrite placed obligation ids `G3`/`G4`/`G5` there (`| … | G3 | G3 |`); StrReplace rewrote those rows to `| … | slice 1 | G3 |` (and G4/G5) and quoted the matching Story obligations `Reported:` lines before `story-obligations.mjs` check accepted and increment `0921f1f7` published
+  - Observed effect: local planning-record repair before acceptance; no product rework and no incorrect slice completion published
+  - Inference: Slice-column recurrence of DD-369 (same class as the SEED-182 occurrence). Checking the consuming reader's Slice/`Reported` shapes before the first write would avoid the repair round
+
 ## DD-370 — New Markdown docs with trailing blank EOF fail staged whitespace
 
 Post-change refactor extracted new maintainer timing Markdown files that ended
@@ -763,3 +771,23 @@ trunk merge where DD-370 already named the Markdown EOF finding.
   - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L56–L58 — “Fixing the TypeScript exactOptionalPropertyTypes error that blocked the commit, then retrying delivery”; edited `dashboard/src/StoryReviewFileDiff.tsx` from `textProblem={…}` (could be `undefined`) to conditional `{...(cond ? { textProblem } : {})}`; republished as `c9ada8b1`. Distinct from ODF-329 (ESLint/formatter under a lint-forbidden brief).
   - Observed effect: one failed delivery attempt and one coordinator type fix before successful publish; no product behavior change beyond satisfying the typecheck gate.
   - Inference: qualified one-off that delivery/commit typecheck was the first gate for this optional-prop shape after green journey proof. Implementer/refactor briefs that forbid independent lint/typecheck leave that class of defect to the delivery hook; no claim that a earlier read-only `tsc` would have been cheaper than the observed retry.
+
+## DD-372 — First-pass helper-gone proof used address drift instead of a deleted wire helper
+
+A Behavior return claimed same-build survival after “helper gone” while focused
+proofs only drifted the recorded `spawnHelper` path and left the answering
+runner’s wire helper file on disk; copy-from-install onto a missing wire path
+and an explicit stop-one-of-several were self-reported gaps. Source-only review
+returned those obligations and a second implementation pass added wire-delete /
+production-retirement fixtures and stop-several proof before delivery. Local
+code was DD-371 on the story branch; renumbered to DD-372 at trunk merge where
+DD-371 already named the typecheck finding.
+
+### Occurrences
+- Execution: SEED-190#keep-running-cursor-sessions / plan 418, first related implementation `0921f1f71ab86f870b8adf8d686cb7889256e900`
+  - Timestamp: unknown (2026-10-30; first implementer return before source-only review ~15:23+08:00; G1/G2 resume from ~15:25+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: implementer subagent `601f21c0-cc39-46fd-a4b7-263994c68126` first return Gaps (“Copy-from-install onto a missing wire helper path has no separate focused assertion (address-drift repair is what the specs hit)”; stop-one-session not freshly asserted); coordinator source-review/`PLAN.md` obligations G1/G2; resume closed wire-delete via `OPEN_DOUGH_CURSOR_SPAWN_HELPER_PROOF` and stop-several before publish `0921f1f7`. Distinct from ODF-314 (omitted named plan proof rows that then exposed a product defect) and ODF-187 (plan-prescribed nondiscriminating observation): here the story/plan helper-gone condition was substituted by a weaker fixture that still exercised repair.
+  - Observed effect: one extra implementation round before acceptance; wire-delete and stop-several entered focused proof; no escaped product defect
+  - Inference: qualified. Source-review comparison to the story’s deleted-checkout example was the decisive catch; preferring the production retirement fixture (delete the wire helper the runner still reports) on the first pass would avoid the resume. No measured token or duration saving claimed.

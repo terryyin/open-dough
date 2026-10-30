@@ -87,21 +87,17 @@ export function cursorProofSession(
 
 export async function keepWorkingClient(
   fixture: RunnerProofFixture,
+  sessionId = fixture.cursor.sessionId,
 ): Promise<void> {
   const kept = await keepCursorClient(
     {
       command: "cursor-agent",
-      args: [
-        "--workspace",
-        fixture.workspace,
-        "--resume",
-        fixture.cursor.sessionId,
-      ],
+      args: ["--workspace", fixture.workspace, "--resume", sessionId],
       cwd: fixture.workspace,
       cols: 80,
       rows: 24,
       sourceId: "open-dough",
-      session: cursorProofSession(fixture),
+      session: cursorProofSession(fixture, sessionId),
       instruction: "",
     },
     fixture.home,
