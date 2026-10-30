@@ -172,17 +172,13 @@ comparable load.
   This resolves the coverage decision without blanket authorization to weaken
   integrated coverage.
 - **Replacement plan:** touch viewport matrices that only repeat layout
-  branches — obligation in
-  [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
-  ([implementation story SEED-180](../../.planning/seeds/SEED-180-optimize-dashboard-touch-viewport-tests.md#optimize-dashboard-touch-viewport-tests)).
-  Redundancy is a hypothesis: classify actual layout branches and unique
-  touch/rotation interactions before removing cases. Related settings reading,
-  OpenAI recovery, and terminal-theme matrices also require review; a shared
-  viewport helper alone proves no redundancy. SEED-177 is complete, so its work
-  is historical context rather than a pending coordination claim. The
-  reduction was retained 2026-10-30
-  ([touch-family timings](dashboard-touch-family-timings.md)); resolve-only
-  triage did not itself authorize that work.
+  branches. Redundancy was classified and the reduction retained 2026-10-30
+  ([touch-family timings](dashboard-touch-family-timings.md)); spent plan and
+  story history recover from before-cleanup
+  `025b24e71325b524898f9a3a6b645cf3f519a0be`. Related settings reading, OpenAI
+  recovery, and terminal-theme matrices also require review; a shared viewport
+  helper alone proves no redundancy. SEED-177 is complete, so its work is
+  historical context rather than a pending coordination claim.
 
 ## Local touch-family reduction (SEED-180, 2026-10-30)
 
