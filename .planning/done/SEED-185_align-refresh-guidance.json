@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-185#align-refresh-guidance",
+  "title": "Align duration-list refresh guidance with recorded-speed scaling",
+  "completedAt": "2026-10-30T07:07:34.342Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "cursor",
+  "model": "auto"
+}

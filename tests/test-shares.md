@@ -54,7 +54,9 @@ share's predicted job-seconds with its headroom to `total-job-seconds` in
 `tests/time-budget`, then every unrecorded job with its share and the assumed
 seconds. The predictions use recorded CI seconds, never local timing. A high
 unrecorded count means the list is stale; refresh it from a recent `main` run's
-artifacts, every job, keeping the seconds (the list header repeats this):
+artifacts, every job. Observed seconds are scaled to the existing list's runner
+speed (divided by the run's factor against that list); when the list does not
+yet exist or no measurable common job is available, times stay as observed:
 
 ```sh
 gh run download RUN_ID -p 'test-times-*' -D DIR
@@ -62,7 +64,8 @@ node scripts/test-shares.mjs refresh --list tests/longest-first \
   --source 'run RUN_ID at REVISION, DATE' DIR/test-times-*/test-times.txt
 ```
 
-The refresh keeps the header and records the source in its `# Source:` line.
+The refresh keeps the header and records the source in its `# Source:` line,
+naming the runner factor or that it was unavailable.
 `OPEN_DOUGH_TEST_DIR=<dir>` and `--test-dir <dir>` preview a substitute
 directory with its own list and budget; `--spec-dir <dir>` previews the
 dashboard's spec files under that directory instead, with no budget
