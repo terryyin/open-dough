@@ -4,6 +4,7 @@ import { tapWhereShown } from "../pageLayout.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import { expect } from "./preparationPage.ts";
 import { contextValues, fileBrowser } from "./reviewContextLine.ts";
+import { uncommittedCheck, uncommittedLabel } from "./storyReviewMark.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
 // Adjacent React text nodes carry the marker and the file's original text.
@@ -178,4 +179,32 @@ export async function visibleShortCodeLine(code: Locator) {
       text: shown?.textContent,
     };
   });
+}
+
+// Tap the uncommitted-check label off; that state survives a viewport restore.
+export async function leaveUncommittedOutByTouchLabel(
+  page: Page,
+  review: Locator,
+  browser: Locator,
+  portrait: { width: number; height: number },
+) {
+  const all = review
+    .getByRole("radiogroup", { name: "Comparison" })
+    .locator("label", { hasText: "All changes" });
+  const uncommitted = uncommittedCheck(review);
+  const label = uncommittedLabel(review);
+  await tapWhereShown(
+    review.getByRole("button", { name: "Show files", exact: true }),
+  );
+  await reachReviewControl(review, all);
+  await tapWhereShown(all);
+  await expect(uncommitted).toBeChecked();
+  await label.scrollIntoViewIfNeeded();
+  await tapWhereShown(label);
+  await expect(uncommitted).not.toBeChecked();
+  await expect(
+    browser.getByRole("list", { name: "63 changed files" }),
+  ).toBeVisible();
+  await page.setViewportSize(portrait);
+  await expect(uncommitted).not.toBeChecked();
 }

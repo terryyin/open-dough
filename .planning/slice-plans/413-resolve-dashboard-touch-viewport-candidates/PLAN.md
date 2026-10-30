@@ -138,7 +138,7 @@ tests in 14 files; focused family green
 
 ### 4. Two files fold into their owners
 Type: Structure
-Status: planned
+Status: done
 Proof: `story-review-mark-touch.spec.ts` is removed after `story-review-touch`
 gains one tap on the "Include uncommitted changes" label (44 px target, state
 kept through rotation). `system-settings-terminal-touch.spec.ts` is removed
@@ -151,6 +151,10 @@ restored.
 
 Internal change: two single-rule files become steps in their owners.
 Enables slice 5.
+
+Accepted 2026-10-30: both files removed; owners pass; focused family
+21 tests in 12 files (`/tmp/seed-180-slice4-proof/family.json`); label and
+viewport moved steps fail under scratch edits and pass restored.
 
 ### 5. Repeated steps leave the touch journeys
 Type: Structure

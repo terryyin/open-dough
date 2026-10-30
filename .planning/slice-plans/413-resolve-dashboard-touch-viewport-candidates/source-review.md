@@ -49,13 +49,13 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 22a.3 | Rotation keeping a draft, selection, or reading position without a re-read. | slice 6 | |
 | 22a.4 | The Done-row coarse disclosure. | slice 6 | |
 | 22a.5 | The 430×932 band and the held progress answer in the start-session answer row. | slice 6 | |
-| 22a.6 | A live terminal surviving a settings round trip with viewport changes (which may move into its non-touch owner as one step). | slice 4 | |
+| 22a.6 | A live terminal surviving a settings round trip with viewport changes (which may move into its non-touch owner as one step). | slice 4 | observed: viewport change while settings hide terminal in `system-settings.spec.ts`; file `system-settings-terminal-touch.spec.ts` removed; scratch fail/pass under `/tmp/seed-180-slice4-proof/viewport-scratch-*.json` |
 | 23 | Redundancy outside the touch family is a separate story. | slice 6 | |
 | 24 | Suite-wall speedup claims are out of scope. | slice 6 | |
 | E1 | Plain tablet repeat: `system-settings-look` tablet goes; phone + 420 px fit survive; same rule for other plain repeats. | slice 3 | observed: look phone + 420 px cases remain; tablet reading case gone; same phone-only pattern on other plain-repeat specs |
 | E2 | Branch-bearing device: `story-review-touch` tablet portrait stays unless equivalent touch proof is named. | slice 3 | observed: tablet review-by-touch case present in `/tmp/seed-180-slice3-proof/pass1.json` |
 | E3 | Pattern owner: settings write-failure owned by non-touch; touch keeps alert/rotation delta only. | slice 5 | |
-| E4 | Already owned elsewhere: `story-review-mark-touch` folds into `story-review-touch`; file goes. | slice 4 | |
+| E4 | Already owned elsewhere: `story-review-mark-touch` folds into `story-review-touch`; file goes. | slice 4 | observed: 44 px label tap + state through rotation in `story-review-touch.spec.ts`; file removed; family 21/12 (`/tmp/seed-180-slice4-proof/family.json`); label scratch fail/pass |
 | E5 | Measured outcome: before 36 cases / three walls; after fewer cases with named survivors, wall not worse, suite green once → retain; unnamed survivor stays. | slice 6 | |
 | E5-before | Before: 36 cases in the family, focused wall over three passes under recorded load. | slice 2 | observed: list 36/14; three green walls recorded under `/tmp/seed-180-slice2-baseline/` |
 | E6 | Unique case stays: `recently-done-sessions-sidebar-touch` unchanged. | slice 3 | observed: file unmodified in slice 3 diff; case still in focused list |

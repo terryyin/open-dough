@@ -38,6 +38,10 @@ export const comparison = (review: Locator) =>
 export const uncommittedCheck = (review: Locator) =>
   review.getByRole("checkbox", { name: "Include uncommitted changes" });
 
+// The visible label is the touch tap target for that check.
+export const uncommittedLabel = (review: Locator) =>
+  review.locator("label", { hasText: "Include uncommitted changes" });
+
 export const uncommittedLeftOut =
   "Uncommitted changes are left out. Mark reviewed still marks the whole snapshot.";
 
