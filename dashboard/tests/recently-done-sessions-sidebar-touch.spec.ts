@@ -8,7 +8,7 @@ import {
   showThreeProjectPage,
 } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expect, test } from "./support/cursorStart.ts";
-import { launchTouchViewports } from "./touchLaunchPage.ts";
+import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],
@@ -16,10 +16,7 @@ test.use({
 });
 
 test.describe("touch Session details for Done entries", () => {
-  const phone = launchTouchViewports[0]?.portrait ?? {
-    width: 390,
-    height: 844,
-  };
+  const phone = phoneLaunchTouchViewport.portrait;
   test.use({ viewport: phone, hasTouch: true });
 
   test("Session details identifies completion, not launch age", async ({

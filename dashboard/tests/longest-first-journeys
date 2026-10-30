@@ -127,7 +127,6 @@
 14.8	story-review-panes.spec.ts
 14.7	cursor-sessions-sidebar-resize.spec.ts
 14.7	taken-agent-profile.spec.ts
-14.6	story-review-mark-touch.spec.ts
 14.6	story-review-story-branch-landed.spec.ts
 14.6	transient-recovery-lifecycle.spec.ts
 14.5	transient-read-recovery.spec.ts
@@ -148,7 +147,6 @@
 12.9	system-settings-project-management-touch.spec.ts
 12.6	board-height.spec.ts
 12.6	unchanged-assignment-credit.spec.ts
-12.3	system-settings-terminal-touch.spec.ts
 12.2	authenticated-read-owner-failures.spec.ts
 12.2	sessions-sidebar-navigation.spec.ts
 12.2	side-panel-content-switching.spec.ts

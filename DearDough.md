@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 369. Removed numbers are never reused.
+- Highest allocated local number: 370. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -701,3 +701,19 @@ check` refused until both were rewritten to the consuming reader's shapes.
   - Evidence: same launch, first G1 write in plan 416 used unquoted `Reported: slice 1 — implementation consumer inspection...`; `story-obligations.mjs check --slice 1` returned `malformed-reported`. The coordinator added the required quoted form; the next check accepted 1 obligation and 225 commitments before implementation publication. The final record is retained at `85e1d6ca:.planning/slice-plans/416-dashboard-product-intent-documentation/PLAN.md#story-obligations`.
   - Observed effect: one local planning-record repair and repeat check; no product rework or incorrectly published completion.
   - Inference: recurrence of the Reported-shape part of DD-369, not its Slice-column error. Use the supplied record shape at first write; the refusal successfully prevented accepting malformed evidence.
+
+## DD-370 — New Markdown docs with trailing blank EOF fail staged whitespace
+
+Post-change refactor extracted new maintainer timing Markdown files that ended
+with an extra blank line. Selective format does not rewrite that Markdown
+whitespace, so the first guarded fresh delivery failed at `git diff --check`
+(`new blank line at EOF`) after the plan status mutation.
+
+### Occurrences
+- Execution: SEED-180#optimize-dashboard-touch-viewport-tests; plan 413; first related implementation `483f66b483a9046e0c790bc12bcc57489aa2a503`
+  - Timestamp: 2026-10-30T14:11:00+08:00 (approx.; first slice-6 fresh delivery refused before accepted `2f800b3f`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.76
+  - Evidence: fresh `preparation-failed` / `operation: "staged whitespace"` naming `docs/maintainer/dashboard-installed-start-fixture-timings.md:83` and `docs/maintainer/dashboard-touch-family-timings.md:73`; repair stripped trailing blank EOF; retry published `2f800b3f`. Distinct from DD-363 (hard-break trailing spaces on source-review lines). Code renumbered from colliding DD-369 at trunk merge.
+  - Observed effect: one refused preparation after status mutation; mechanical EOF fix and second guarded delivery succeeded
+  - Inference: new Markdown created under the file-size split needs an EOF whitespace check before staging; format alone does not catch it

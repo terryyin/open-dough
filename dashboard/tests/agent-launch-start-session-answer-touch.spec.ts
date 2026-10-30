@@ -18,13 +18,12 @@ import {
   expectNoSidewaysScrollIn,
   tapWhereShown,
 } from "./pageLayout.ts";
-import { launchTouchViewports } from "./touchLaunchPage.ts";
+import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import { lettersBrokenApart } from "./wholeWords.ts";
 
 type Viewport = { readonly width: number; readonly height: number };
 
-const phone = launchTouchViewports.find(({ name }) => name === "phone");
-if (phone === undefined) throw new Error("no phone touch viewport");
+const phone = phoneLaunchTouchViewport;
 const largePhone = { width: 430, height: 932 };
 const rotated = ({ width, height }: Viewport) => ({
   width: height,
@@ -194,7 +193,7 @@ test.describe("390×844 touch, held", () => {
   });
 });
 
-for (const viewport of [phone.portrait, largePhone, phone.landscape]) {
+for (const viewport of [phone.portrait, largePhone]) {
   for (const { scenario, words, answer } of answers) {
     test.describe(`${viewport.width}×${viewport.height} touch, ${scenario}`, () => {
       test.use({ viewport, hasTouch: true });

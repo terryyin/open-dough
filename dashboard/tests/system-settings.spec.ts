@@ -158,6 +158,11 @@ test("opening settings preserves one running native session and its attached ter
   await expect(
     page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeVisible();
+  // Viewport changes while settings hide the terminal; touch read, rotation,
+  // and Back stay owned by system-settings-look.
+  await page.setViewportSize({ width: 390, height: 320 });
+  await page.setViewportSize({ width: 844, height: 390 });
+  expect(page.viewportSize()).toEqual({ width: 844, height: 390 });
   expect(server.claudeAttaches()).toHaveLength(1);
   expect(processRunning(attach.pid)).toBe(true);
   await page.locator("body").click({ position: { x: 2, y: 2 } });
@@ -167,6 +172,7 @@ test("opening settings preserves one running native session and its attached ter
   await page.keyboard.press("Meta+Shift+Escape");
   await page.keyboard.press("Meta+b");
   await back(page).click();
+  await page.setViewportSize({ width: 1280, height: 720 });
   await expect(terminal).toBeVisible();
   await expect(rows).toContainText("echo before settings");
   await expect(
