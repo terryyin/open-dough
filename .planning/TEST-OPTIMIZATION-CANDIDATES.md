@@ -6,50 +6,56 @@
   suite with eight default workers on the developer's 16-CPU / 48-GiB Mac.
   Both runs unset `NO_COLOR` and write separate
   `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
-- **Revision:** `7225da81df32e6fc59debf9b2943f3166335c9f5` before;
-  `b374ab6b45a38046e61138715ad8a42586572d8b` after
-  (SEED-191, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 950.8s / 554.3s (outer wall
-  951.4s / 554.7s); summed attempt durations 6,508.3s / 4,080.8s; summed spec
-  durations (including `beforeAll`/`afterAll` hooks) 7,283.5s / 4,283.3s;
-  executed cases 1,751 / 1,747 (`1,751 → 1,745` on the baseline set from `-6`
-  redundant voice provider-failure browser journeys replaced by boundary
-  assertions, plus `+2` diff-context cases merged from `0154843a` SEED-189),
+- **Revision:** `7aa54d9cab78872586c59aca08b9de72dd4bca7f` before (green
+  baseline after admit); `f279f58261f9c395bd8daa2fff20dd95a87a651c` after
+  (SEED-193, 2026-10-30).
+- **Before / after:** recorded wall (`durationMs`) 640.3s / 622.8s (outer wall
+  640.74s / ≈622.8s); summed attempt durations 4,704.8s / 4,593.2s; summed
+  spec durations (including hooks) 4,946.6s / 4,823.0s; executed cases
+  1,751 / 1,750 (`−1` redundant `final-report-touch` short-phone 240 height),
   with 0 skipped cases. Both strict runs passed.
-- **Outcome:** measured gain — 396.5s (41.7%) shorter full-suite `durationMs`
-  and 3,000.2s (41.2%) lower summed spec time across three retained family
-  improvements: (1) worker-scoped caching of the read-only
-  `publishStoryColumnsJourney()` origin in `dashboard/tests/launchJourney.ts`
-  (focused 4 specs / 15 cases at `--workers=1`: 51.8s → 38.5–41.2s; full-suite
-  44-spec shared hook time: 615.0s → 87.8s), (2) `doneRenameWaitMs: 100` for
-  non-subject Claude `markDone` / `closeOpenSessions` cleanup while preserving
-  `boundary/agent-launch-done-rename-wait.spec.ts` and the 5,000ms production
-  default (focused 15 specs / 83 cases: 48.8s → 21.5–22.8s, summed spec time
-  272.3s → 101.8–109.0s; full-suite 15 specs: 251.8s → 64.4s), and (3) moving
-  6 upstream OpenAI status/payload variants (`401`, `429`, `500`, `200` empty,
-  `200` malformed, socket error; all 8 variants + `bytes > 0` proved in
-  `boundary/session-instruction-voice-boundary.spec.ts`) out of browser
-  journeys while seeding non-settings voice specs via `seedVoiceKey` and
-  preserving the refusal retry, `deadline`, and `saveVoiceKey(page)` UI
-  settings journeys (focused 7 voice specs: 16.1s → 13.1–13.2s, summed spec
-  time 65.9s → 45.0–45.6s, `provider-failures` 21.1s → 5.5–5.8s).
+- **Outcome:** measured gain — 17.5s (2.7%) shorter full-suite `durationMs`
+  and 111.6s lower summed attempt time from collapsing
+  `final-report-touch.spec.ts` short-phone matrix to height **320** only
+  (focused family 34.3–34.6s / 4 cases → 25.1–25.2s / 3 cases over three
+  passes; full-suite file times 51.4s → 23.0s). Rejected: moving HTTP-only
+  story-review admission specs to boundary (focused wall 12.6s → 12.1–12.5s,
+  no retained change).
 - **Limits:** one full-suite before/after pair on the local host (start load
-  averages 9.93 / 11.35 / 10.54 before vs 4.62 / 4.81 / 6.19 after; end load
-  averages 56.08 / 54.43 / 39.26 before vs 20.86 / 16.95 / 12.41 after), backed
-  by three consecutive passes per focused family under comparable load. Higher
-  baseline load partly reflected 36 redundant per-file Git fixture builds per
-  suite run; exact full-suite wall savings vary with host load. No product
-  behavior changed and no experiments were rejected.
-- **Evidence:** [SEED-191 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30).
-  The original plan and source review are recoverable at
-  `0bb810742a61e7ded6b51989b26a5eb9df8f8a43:.planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md`.
-  Raw records were retained outside Git under
-  `/tmp/SEED-191-optimize-dashboard-test-feedback/` on the measurement host;
-  their continued availability is not assumed.
+  averages 7.86 / 14.46 / 14.67 before vs 5.55 / 6.27 / 9.76 after; end load
+  averages 21.98 / 21.57 / 19.16 before vs 17.76 / 16.77 / 14.27 after), backed
+  by three consecutive focused passes for the retained family. After run
+  started under quieter 1-minute load; treat suite-wall delta as directional
+  with the focused-family evidence. No product behavior changed.
+- **Evidence:** [SEED-193 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-193-2026-10-30).
+  Plan at `.planning/slice-plans/420-optimize-dashboard-test-feedback/PLAN.md`.
+  Raw records under `/tmp/SEED-193-optimize-dashboard-test-feedback/` on the
+  measurement host; their continued availability is not assumed.
 
 ## Pending candidates
 
-None.
+### story-review-http-admission-boundary-placement
+
+- **Locations / scope:** HTTP-only journey-tier specs
+  `story-review-refusal.spec.ts`, `story-review-commit-admission.spec.ts`,
+  `story-review-file-text-admission.spec.ts`,
+  `story-review-one-shot-admission.spec.ts`, and the mark-request admission
+  case in `story-review-mark.spec.ts`.
+- **Observed cost:** focused family wall ≈12.6s (10 cases); summed `.tsv`
+  ≈55s under default workers on the SEED-193 host (2026-10-30).
+- **Unique protection:** server admission refusals and read-only workspace
+  guarantees for review/mark/range/file-text/one-shot endpoints.
+- **Alternatives attempted:** move to `serverMode: "boundary"` (and
+  `boundary/` homes) with `request` fixture; focused wall 12.1–12.5s over
+  three passes — no meaningful wall gain; undone.
+- **Disposition / rationale:** pending — design/placement still matches
+  dashboard guidance (server-answer variants belong at boundary) but lacks a
+  measured local-suite-wall claim; reopen only with a wall-improving approach
+  or an explicitly authorized design-only change.
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-193 slice 2 focused proofs under
+  `/tmp/SEED-193-optimize-dashboard-test-feedback/slice2-*`.
+
 
 ## Accepted necessary costs
 

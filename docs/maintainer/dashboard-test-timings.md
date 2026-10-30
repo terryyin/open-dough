@@ -242,3 +242,30 @@ diff-context cases merged from trunk (`0154843a`, SEED-189). Shared
   focused passes isolate each family's direct gain. No product behavior changed
   and no experiments were rejected. Raw records:
   `/tmp/SEED-191-optimize-dashboard-test-feedback/`.
+
+## Local `npm run test:dashboard` pass (SEED-193, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's 16-CPU / 48-GiB
+Mac host (`npm run test:dashboard`, eight default workers, `NO_COLOR` unset).
+
+| Revision | Role | Wall (`durationMs`) | Cases | Summed attempts / specs | Load (1m/5m/15m start → end) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `7aa54d9c` | Green baseline (admit) | 640.3s (640.74s wall) | 1,751 | 4,704.8s / 4,946.6s | 7.86 / 14.46 / 14.67 → 21.98 / 21.57 / 19.16 |
+| `f279f582` | After Slice 3 | 622.8s | 1,750 | 4,593.2s / 4,823.0s | 5.55 / 6.27 / 9.76 → 17.76 / 16.77 / 14.27 |
+
+Case delta (`1,751 → 1,750`, all passed, `0` skipped, `strictStatus: "passed"`):
+`−1` redundant `final-report-touch` short-phone **240** height journey; **320**
+retained (resize loop still visits 240; wrap and ≤480 survival remain).
+
+- **Family (`final-report-touch` short-phone collapse, Slice 3):** Focused
+  file wall fell from **34.3–34.6s** (4 cases) to **25.1–25.2s** (3 cases)
+  over three consecutive passes when keeping **320** and dropping **240**.
+  Keeping **240** alone left focused wall ≈**34s** (240 remained critical).
+  Full-suite `final-report-touch.spec.ts` times fell from **51.4s to 23.0s**.
+- **Rejected (Slice 2):** Moving HTTP-only story-review admission specs to
+  boundary did not improve focused wall (**12.6s → 12.1–12.5s**); undone and
+  listed under Pending candidates.
+- **Comparison limits:** After suite started under quieter 1-minute load
+  (`5.55` vs `7.86`); focused three-pass evidence anchors the family claim.
+  No product behavior changed. Raw records:
+  `/tmp/SEED-193-optimize-dashboard-test-feedback/`.

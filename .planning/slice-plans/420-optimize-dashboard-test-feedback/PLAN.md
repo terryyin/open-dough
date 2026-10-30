@@ -126,7 +126,7 @@ CSS branch.
 
 ### 4. Full local suite is re-profiled and candidates are recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: Comparable full `npm run test:dashboard` with
 `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` after
 retained experiments; update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` and
