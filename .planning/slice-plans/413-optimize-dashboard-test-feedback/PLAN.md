@@ -85,11 +85,16 @@ full-suite re-profile.
 
 ### 4. Selected local suite confirms the measured outcome
 Type: Behavior
-Status: planned
-Proof: Re-run the same ordinary local command under conditions comparable to
-slice 1's baseline (default workers, proof record, load noted). Compare wall
-time and case count; include replacement tests' cost. Report measured
-improvement, no demonstrated gain, or incomplete measurement.
+Status: done
+Proof: Re-ran
+`env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/SEED-177-optimize-dashboard-test-feedback/slice4/proof.json npm run test:dashboard`
+at revision `a047236b` under default 8 workers. Load at start ~4.79 / 7.04 /
+10.55 (comparable to baseline ~5.18 / 4.98 / 6.77). Wall real **741.72 s**
+(`durationMs` ≈ **741.4 s**) vs baseline **751.87 s** / **751.0 s**;
+`selectedCount` **1754**; `strictStatus: passed`. Change-wait non-owner attempt
+**34.6 s → 3.9 s**. Modest suite-wall gain ≈ **9.6 s (1.3%)** under like
+conditions; focused family gain retained. Raw proof under
+`/tmp/SEED-177-optimize-dashboard-test-feedback/slice4/`.
 
 ## Current decisions
 
