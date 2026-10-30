@@ -17,129 +17,146 @@ import { markDoneAnyway } from "./support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-test("a compact session discloses technical details and secondary actions without hiding attention or terminal access", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  dashboard.claudeScenario("launched");
-  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  await start(readyStory).click();
-  await dialog
-    .getByRole("combobox", { name: "Model" })
-    .selectOption({ label: "Sonnet" });
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  const entry = storyCardSessions(card(readyStory));
-  await expect(sessionStateOf(entry)).toHaveText("Working");
-  const id = await sessionNamedBy(entry);
-  const details = entry.getByRole("button", {
-    name: "Session details",
-    exact: true,
-  });
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(entry.getByText(`Session ${id}`, { exact: true })).toBeHidden();
-  await expect(
-    entry.getByText("Model: Sonnet (requested)", { exact: true }),
-  ).toBeVisible();
-  await expect(entry.getByText("Claude Code", { exact: true })).toBeVisible();
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeHidden();
-  await card(readyStory)
-    .getByRole("button", { name: "Inspect story", exact: true })
-    .click();
-  await expect(card(readyStory).getByText(/^Assessment: Ready/)).toBeVisible();
-  await card(readyStory)
-    .getByRole("button", { name: "Hide detail", exact: true })
-    .click();
-  await expect(
-    entry.getByRole("button", { name: "Open terminal", exact: true }),
-  ).toBeVisible();
-  await expect(
-    entry.getByRole("button", { name: "Mark as done", exact: true }),
-  ).toBeHidden();
+test.describe(() => {
+  test.use({ extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "100" } });
 
-  await details.focus();
-  await page.keyboard.press("Enter");
-  await expect(details).toHaveAttribute("aria-expanded", "true");
-  await expect(entry.getByText(`Session ${id}`, { exact: true })).toBeVisible();
-  await page.keyboard.press("Space");
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(details).toBeFocused();
+  test("a compact session discloses technical details and secondary actions without hiding attention or terminal access", async ({
+    page,
+    dashboard,
+    launchJourney,
+  }) => {
+    dashboard.claudeScenario("launched");
+    const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
+    await expect(
+      card(readyStory).getByText("Ready for execution", { exact: true }),
+    ).toBeVisible();
+    await start(readyStory).click();
+    await dialog
+      .getByRole("combobox", { name: "Model" })
+      .selectOption({ label: "Sonnet" });
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    const entry = storyCardSessions(card(readyStory));
+    await expect(sessionStateOf(entry)).toHaveText("Working");
+    const id = await sessionNamedBy(entry);
+    const details = entry.getByRole("button", {
+      name: "Session details",
+      exact: true,
+    });
+    await expect(details).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      entry.getByText(`Session ${id}`, { exact: true }),
+    ).toBeHidden();
+    await expect(
+      entry.getByText("Model: Sonnet (requested)", { exact: true }),
+    ).toBeVisible();
+    await expect(entry.getByText("Claude Code", { exact: true })).toBeVisible();
+    await expect(
+      card(readyStory).getByText("Ready for execution", { exact: true }),
+    ).toBeHidden();
+    await card(readyStory)
+      .getByRole("button", { name: "Inspect story", exact: true })
+      .click();
+    await expect(
+      card(readyStory).getByText(/^Assessment: Ready/),
+    ).toBeVisible();
+    await card(readyStory)
+      .getByRole("button", { name: "Hide detail", exact: true })
+      .click();
+    await expect(
+      entry.getByRole("button", { name: "Open terminal", exact: true }),
+    ).toBeVisible();
+    await expect(
+      entry.getByRole("button", { name: "Mark as done", exact: true }),
+    ).toBeHidden();
 
-  const open = entry.getByRole("button", {
-    name: "Open terminal",
-    exact: true,
-  });
-  await open.click();
-  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-  await terminal.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(open).toBeFocused();
+    await details.focus();
+    await page.keyboard.press("Enter");
+    await expect(details).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      entry.getByText(`Session ${id}`, { exact: true }),
+    ).toBeVisible();
+    await page.keyboard.press("Space");
+    await expect(details).toHaveAttribute("aria-expanded", "false");
+    await expect(details).toBeFocused();
 
-  const actions = entry.getByRole("button", {
-    name: "More session actions",
-    exact: true,
-  });
-  await actions.focus();
-  await page.keyboard.press("Enter");
-  await expect(actions).toHaveAttribute("aria-expanded", "true");
-  await page.keyboard.press("Escape");
-  await expect(actions).toHaveAttribute("aria-expanded", "false");
-  await expect(actions).toBeFocused();
-  await page.keyboard.press("Space");
-  await entry
-    .getByRole("button", { name: "Mark as done", exact: true })
-    .click();
-  const keep = entry.getByRole("button", { name: "Keep open", exact: true });
-  await expect(keep).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(
-    entry.getByRole("button", { name: "Mark as done", exact: true }),
-  ).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(actions).toHaveAttribute("aria-expanded", "false");
-  await expect(actions).toBeFocused();
+    const open = entry.getByRole("button", {
+      name: "Open terminal",
+      exact: true,
+    });
+    await open.click();
+    const terminal = page.getByRole("region", {
+      name: "Terminal",
+      exact: true,
+    });
+    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await terminal.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(open).toBeFocused();
 
-  dashboard.claudeSessionBecomes(
-    id,
-    "blocked",
-    "Review the migration before continuing.",
-  );
-  await reloadUntilRead(page);
-  await expect(sessionStateOf(entry)).toHaveText(
-    "Needs input: Review the migration before continuing.",
-  );
-  await expect(details).toHaveAttribute("aria-expanded", "false");
-  await expect(open).toBeVisible();
-  await page.setViewportSize({ width: 360, height: 800 });
-  await details.click();
-  await expect(entry.getByText(`Session ${id}`, { exact: true })).toBeVisible();
-  const bounds = await entry.boundingBox();
-  if (bounds === null) throw new Error("The session entry is not laid out.");
-  expect(bounds.width).toBeLessThanOrEqual(360);
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth),
-  ).toBeLessThanOrEqual(360);
-  await expect(parts(page).recentlyDone.locator(".session-entry")).toHaveCount(
-    0,
-  );
-  await markDoneAnyway(entry);
-  await expect(entry).toHaveCount(0);
-  await expect(
-    card(readyStory).getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  const inspect = card(readyStory).getByRole("button", {
-    name: "Inspect story",
-    exact: true,
+    const actions = entry.getByRole("button", {
+      name: "More session actions",
+      exact: true,
+    });
+    await actions.focus();
+    await page.keyboard.press("Enter");
+    await expect(actions).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Escape");
+    await expect(actions).toHaveAttribute("aria-expanded", "false");
+    await expect(actions).toBeFocused();
+    await page.keyboard.press("Space");
+    await entry
+      .getByRole("button", { name: "Mark as done", exact: true })
+      .click();
+    const keep = entry.getByRole("button", { name: "Keep open", exact: true });
+    await expect(keep).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(
+      entry.getByRole("button", { name: "Mark as done", exact: true }),
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(actions).toHaveAttribute("aria-expanded", "false");
+    await expect(actions).toBeFocused();
+
+    dashboard.claudeSessionBecomes(
+      id,
+      "blocked",
+      "Review the migration before continuing.",
+    );
+    await reloadUntilRead(page);
+    await expect(sessionStateOf(entry)).toHaveText(
+      "Needs input: Review the migration before continuing.",
+    );
+    await expect(details).toHaveAttribute("aria-expanded", "false");
+    await expect(open).toBeVisible();
+    await page.setViewportSize({ width: 360, height: 800 });
+    await details.click();
+    await expect(
+      entry.getByText(`Session ${id}`, { exact: true }),
+    ).toBeVisible();
+    const bounds = await entry.boundingBox();
+    if (bounds === null) throw new Error("The session entry is not laid out.");
+    expect(bounds.width).toBeLessThanOrEqual(360);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(360);
+    await expect(
+      parts(page).recentlyDone.locator(".session-entry"),
+    ).toHaveCount(0);
+    await markDoneAnyway(entry);
+    await expect(entry).toHaveCount(0);
+    await expect(
+      card(readyStory).getByText("Ready for execution", { exact: true }),
+    ).toBeVisible();
+    const inspect = card(readyStory).getByRole("button", {
+      name: "Inspect story",
+      exact: true,
+    });
+    await inspect.focus();
+    await inspect.click();
+    await expect(
+      card(readyStory).getByText(/^Assessment: Ready/),
+    ).toBeVisible();
   });
-  await inspect.focus();
-  await inspect.click();
-  await expect(card(readyStory).getByText(/^Assessment: Ready/)).toBeVisible();
 });
 
 workingCursorTest(

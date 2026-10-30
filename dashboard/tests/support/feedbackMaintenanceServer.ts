@@ -71,6 +71,7 @@ export function serverOn(
     launchTimeoutMs: 30_000,
     alertCheckMs: 100,
     maintenanceCheckMs,
+    doneRenameWaitMs: 100,
   });
 }
 

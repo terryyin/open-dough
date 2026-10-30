@@ -35,6 +35,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
     server = await startDashboardServer({
       mode: "boundary",
       projectFolders: ["open-dough"],
+      doneRenameWaitMs: 100,
     });
   });
 

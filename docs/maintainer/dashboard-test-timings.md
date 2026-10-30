@@ -192,3 +192,53 @@ Full-suite wall ≈ **9.6 s (1.3%)** shorter under comparable load.
 
 SEED-177's bound observation does not reopen the decisions preserved in
 [Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
+
+## Local `npm run test:dashboard` pass (SEED-191, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's 16-CPU / 48-GiB
+Mac host (`npm run test:dashboard`, eight default workers, `NO_COLOR` unset).
+
+| Revision | Role | Wall (`durationMs`) | Cases | Summed attempts / specs | Load (1m/5m/15m start → end) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `7225da81` | Green baseline (admit) | 950.8s (951.4s wall) | 1,751 | 6,508.3s / 7,283.5s | 9.93 / 11.35 / 10.54 → 56.08 / 54.43 / 39.26 |
+| `b374ab6b` | After Slices 2–3 | 554.3s (554.7s wall) | 1,747 | 4,080.8s / 4,283.3s | 4.62 / 4.81 / 6.19 → 20.86 / 16.95 / 12.41 |
+
+Case delta (`1,751 → 1,747` selected, or `1,751 → 1,745` on the baseline set;
+all passed, `0` skipped, `strictStatus: "passed"`): `-6` redundant voice
+provider-failure browser journeys replaced by boundary assertions in
+`boundary/session-instruction-voice-boundary.spec.ts`, plus `+2` story-review
+diff-context cases merged from trunk (`0154843a`, SEED-189). Shared
+`beforeAll`/`afterAll` hook overhead fell from **775.2s to 202.5s** (**−572.7s**).
+
+- **Family 1 (`publishStoryColumnsJourney` worker cache, Slice 2):** Caching the
+  read-only 4-commit origin once per worker in `dashboard/tests/launchJourney.ts`
+  reduced the 4-spec / 15-case focused family (`--workers=1`) from **51.8s**
+  (summed `.tsv` **46.2s**) to **38.5–41.2s** (**34.4–36.8s**) over three
+  consecutive passes. Across all 44 `publishStoryColumnsJourney` specs in the
+  full suite, summed spec time fell from **1,031.7s to 376.0s** and shared hook
+  overhead fell from **615.0s to 87.8s** (**−527.2s**).
+- **Family 2 (non-subject Claude `doneRenameWaitMs: 100`, Slice 2):** Bounding
+  non-subject `markDone` / `closeOpenSessions` waits reduced the 15-spec /
+  83-case focused family (8 workers) from **48.8s** (summed `.tsv` **272.3s**)
+  to **21.5–22.8s** (**101.8–109.0s**) over three passes. In the full suite, the
+  8 `closeOpenSessions` boundary specs fell from **155.5s to 23.4s** and all 15
+  specs fell from **251.8s to 64.4s**. `boundary/agent-launch-done-rename-wait.spec.ts`
+  and the 5,000ms production default remain unchanged.
+- **Family 3 (voice dictation boundary move + direct credential seed, Slice 3):**
+  `boundary/session-instruction-voice-boundary.spec.ts` proves all 8 upstream
+  error variants (`401`, `403`, `429`, `500`, `200` empty, `200` malformed,
+  `200` oversized, socket disconnect) plus `bytes > 0`;
+  `session-instruction-voice-provider-failures.spec.ts` retains the refusal
+  retry (`bytes > 0`, `recovered`, retry, `typedStart`) and `deadline` journeys;
+  `session-instruction-voice.spec.ts` retains `saveVoiceKey(page)` UI settings
+  round-trip and missing-key refusal while non-settings voice specs use
+  `seedVoiceKey`. Focused 7-spec wall fell from **16.1s** (summed `.tsv`
+  **65.9s**, 26 cases) to **13.1–13.2s** (**45.0–45.6s**, 20 cases) over three
+  passes (`provider-failures` **21.1s → 5.5–5.8s**; full-suite voice specs
+  **90.7s → 42.8s**).
+- **Comparison limits:** Baseline started under somewhat higher load (`9.93` vs
+  `4.62` 1m) and reached higher peak contention (`56.08` vs `20.86`) partly from
+  36 redundant per-file Git fixture builds competing with 8 workers; controlled
+  focused passes isolate each family's direct gain. No product behavior changed
+  and no experiments were rejected. Raw records:
+  `/tmp/SEED-191-optimize-dashboard-test-feedback/`.

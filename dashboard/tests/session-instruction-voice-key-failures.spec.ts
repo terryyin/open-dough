@@ -41,7 +41,7 @@ test("missing saved key never consumes an environment key and permits typed Star
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, launchJourney, false);
+  const dialog = await openVoiceDraft(page, dashboard, launchJourney, false);
   await dialog.getByRole("button", { name: "Record", exact: true }).click();
   await recovered(
     page,
@@ -65,7 +65,7 @@ test("the same running server consumes a replacement afresh, and removal during 
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, launchJourney);
+  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
   await recordClip(page, dialog);
   await expect(startSessionField(dialog)).toHaveValue(
     `${originalDraft}\n\nDo not implement yet`,
@@ -124,7 +124,7 @@ test("unreadable saved key before or during capture preserves the draft and supp
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, launchJourney);
+  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
   const file = path.join(
     dashboard.home,
     ".open-dough/dashboard/credentials/openai.json",

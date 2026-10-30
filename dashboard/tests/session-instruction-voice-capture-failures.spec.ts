@@ -21,7 +21,7 @@ for (const failure of ["permission", "device", "format"] as const) {
     provider,
     launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, launchJourney);
+    const dialog = await openVoiceDraft(page, dashboard, launchJourney);
     await page.evaluate((kind) => {
       const get = navigator.mediaDevices.getUserMedia.bind(
         navigator.mediaDevices,

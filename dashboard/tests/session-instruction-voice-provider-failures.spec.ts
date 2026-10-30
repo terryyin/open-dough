@@ -8,69 +8,11 @@ import {
   voiceBrowserOptions,
   originalDraft,
 } from "./support/voiceRecovery.ts";
-import {
-  instructionProblems,
-  instructionTranscriptionFailed,
-} from "../src/instructionTranscription.ts";
+import { instructionProblems } from "../src/instructionTranscription.ts";
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
-
-for (const failure of [
-  {
-    name: "authentication refusal",
-    status: 401,
-    body: "private-provider-diagnostic",
-    message: instructionProblems.authentication,
-  },
-  {
-    name: "rate limit",
-    status: 429,
-    body: "private-provider-diagnostic",
-    message: instructionProblems.rateLimit,
-  },
-  {
-    name: "upstream failure",
-    status: 500,
-    body: "private-provider-diagnostic",
-    message: instructionTranscriptionFailed,
-  },
-  {
-    name: "empty transcript",
-    status: 200,
-    body: JSON.stringify({ text: " " }),
-    message: instructionProblems.empty,
-  },
-  {
-    name: "malformed reply",
-    status: 200,
-    body: "private-provider-diagnostic",
-    message: instructionProblems.empty,
-  },
-  {
-    name: "socket failure",
-    status: 0,
-    body: "",
-    message: instructionProblems.network,
-  },
-]) {
-  test(`${failure.name} preserves the draft, releases capture and permits typed Start without reopening`, async ({
-    page,
-    dashboard,
-    provider,
-    launchJourney,
-  }) => {
-    const dialog = await openVoiceDraft(page, launchJourney);
-    if (failure.status === 0) provider.failNetwork();
-    else provider.reply(failure.status, failure.body);
-    await recordClip(page, dialog);
-    await recovered(page, dashboard, provider, dialog, failure.message, 1);
-    expect(provider.calls[0]?.bytes).toBeGreaterThan(0);
-    await typedStart(dashboard, dialog);
-    expect(provider.calls).toHaveLength(1);
-  });
-}
 
 test("explicit retry after refusal appends once without failed text, then editable text reaches Start", async ({
   page,
@@ -78,7 +20,7 @@ test("explicit retry after refusal appends once without failed text, then editab
   provider,
   launchJourney,
 }) => {
-  const dialog = await openVoiceDraft(page, launchJourney);
+  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
   provider.reply(
     403,
     JSON.stringify({
@@ -95,6 +37,7 @@ test("explicit retry after refusal appends once without failed text, then editab
     instructionProblems.authentication,
     1,
   );
+  expect(provider.calls[0]?.bytes).toBeGreaterThan(0);
   provider.setText("Fresh retry only");
   await recordClip(page, dialog);
   await expect(startSessionField(dialog)).toHaveValue(
@@ -115,7 +58,7 @@ test.describe("deadline", () => {
     provider,
     launchJourney,
   }) => {
-    const dialog = await openVoiceDraft(page, launchJourney);
+    const dialog = await openVoiceDraft(page, dashboard, launchJourney);
     provider.hold();
     await recordClip(page, dialog);
     await recovered(

@@ -7,6 +7,8 @@
 // journey is read-only once published, so ./support/pageTest.ts publishes it
 // once per worker as the `launchJourney` fixture.
 
+import { rmSync } from "node:fs";
+import { join } from "node:path";
 import {
   identityB,
   startCliResult,
@@ -82,8 +84,11 @@ export type StoryColumnsJourney = {
 
 // The origin whose stories move through the board: queued, then Story B under a
 // published preparation assignment, then Story B taken, then Story C
-// completed out of the backlog.
-export async function publishStoryColumnsJourney(): Promise<StoryColumnsJourney> {
+// completed out of the backlog. It is read-only once published, so each worker
+// builds it once and removes the bare origin at exit.
+let storyColumnsJourney: Promise<StoryColumnsJourney> | undefined;
+
+async function buildStoryColumnsJourney(): Promise<StoryColumnsJourney> {
   const trunk = await createPreparationTrunk();
   try {
     const queued = await remoteMain(trunk);
@@ -113,9 +118,23 @@ export async function publishStoryColumnsJourney(): Promise<StoryColumnsJourney>
     await git(integration, "push", "--quiet", "origin", "HEAD:main");
     const completed = await remoteMain(trunk);
 
+    for (const workingTree of [
+      "integration",
+      "prep-b-prepare",
+      "start-trunk",
+    ]) {
+      rmSync(join(trunk.fixture, workingTree), {
+        recursive: true,
+        force: true,
+      });
+    }
+    process.once("exit", () => {
+      rmSync(trunk.fixture, { recursive: true, force: true });
+    });
+
     return {
       origin: trunk.origin,
-      cleanup: trunk.cleanup,
+      cleanup: () => Promise.resolve(),
       queued,
       preparing,
       taken,
@@ -125,4 +144,12 @@ export async function publishStoryColumnsJourney(): Promise<StoryColumnsJourney>
     await trunk.cleanup();
     throw error;
   }
+}
+
+export function publishStoryColumnsJourney(): Promise<StoryColumnsJourney> {
+  storyColumnsJourney ??= buildStoryColumnsJourney().catch((error: unknown) => {
+    storyColumnsJourney = undefined;
+    throw error;
+  });
+  return storyColumnsJourney;
 }

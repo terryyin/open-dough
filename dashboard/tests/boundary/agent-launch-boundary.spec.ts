@@ -38,6 +38,7 @@ test.describe(`agent launch boundary`, () => {
       mode: "boundary",
       projectFolders: ["open-dough", "pygardon"],
       launchTimeoutMs: launchWaitMs,
+      doneRenameWaitMs: 100,
     });
   });
 

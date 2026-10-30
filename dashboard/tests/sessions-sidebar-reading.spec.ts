@@ -25,7 +25,10 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { columnPagingControl, showColumn } from "./boardPage.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
+test.use({
+  projectFolders: ["open-dough", "doughnut"],
+  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "100" },
+});
 
 test.describe("the Sessions sidebar's reading", () => {
   let columnsJourney: StoryColumnsJourney;

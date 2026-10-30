@@ -1,9 +1,22 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { apiKey, save, status } from "./openAISettingsPage.ts";
 import { settings, back } from "./systemSettingsPage.ts";
 
 export const voiceKey = "synthetic-saved-voice-key";
+
+export function seedVoiceKey(home: string) {
+  const credential = path.join(
+    home,
+    ".open-dough/dashboard/credentials/openai.json",
+  );
+  mkdirSync(path.dirname(credential), { recursive: true, mode: 0o700 });
+  writeFileSync(credential, `${JSON.stringify({ apiKey: voiceKey })}\n`, {
+    mode: 0o600,
+  });
+}
 
 export async function saveVoiceKey(page: Page) {
   await settings(page).click();

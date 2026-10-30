@@ -36,6 +36,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
       mode: "boundary",
       projectFolders: ["open-dough"],
       codex: true,
+      doneRenameWaitMs: 100,
     });
   });
 
