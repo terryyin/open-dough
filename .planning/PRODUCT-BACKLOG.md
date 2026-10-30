@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Reduce dashboard test feedback time with measured optimization (top 20%)](seeds/SEED-195-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-195#optimize-dashboard-test-feedback ([plan](slice-plans/422-optimize-dashboard-test-feedback/PLAN.md))
-
 ## Backlog list
 
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
