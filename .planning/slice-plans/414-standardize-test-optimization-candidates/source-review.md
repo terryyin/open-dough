@@ -13,10 +13,10 @@ other project files and change nothing.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer or agent running test optimization, resolving its recorded findings, or closing a story that touched them finds, writes, and interprets every finding in one standard project record. | slice 3 | |
-| 2 | Accepted slow-test costs and transferred obligations survive plan cleanup, so a later pass consults earlier decisions instead of rediscovering them from a spent plan or a conversation. | slice 3 | |
+| 1 | A developer or agent running test optimization, resolving its recorded findings, or closing a story that touched them finds, writes, and interprets every finding in one standard project record. | slice 3 | observed: candidate-record.md + SKILL.md + resolving-candidates.md + wrap-up Keep test optimization candidates |
+| 2 | Accepted slow-test costs and transferred obligations survive plan cleanup, so a later pass consults earlier decisions instead of rediscovering them from a spent plan or a conversation. | slice 3 | observed: wrap-up Keep test optimization candidates; candidate-record.md never-delete |
 | 3 | The record is the project's `.planning/TEST-OPTIMIZATION-CANDIDATES.md`, headed exactly `# Test Optimization Candidates`. | slice 1 | observed: src/skills/dough-test-optimization/references/candidate-record.md path and heading |
-| 4 | One reference in the optimization skill defines its format and lifecycle; the optimization pass, `--resolve`, and story wrap-up link to that definition instead of restating it. |  | G1 |
+| 4 | One reference in the optimization skill defines its format and lifecycle; the optimization pass, `--resolve`, and story wrap-up link to that definition instead of restating it. | slice 3 | observed: candidate-record.md owner; SKILL.md, resolving-candidates.md, wrap-up SKILL.md all link |
 | 5 | The record is a problem list with a discharge summary, not a history log. | slice 1 | observed: candidate-record.md opening paragraphs |
 | 6.1 | Section `## Latest pass` — the most recent pass only, replaced by the next one | slice 1 | observed: candidate-record.md Sections |
 | 6.2 | Section `## Pending candidates` — proposed changes not yet implemented or decided, including those awaiting a named human decision | slice 1 | observed: candidate-record.md Sections |
@@ -50,13 +50,13 @@ other project files and change nothing.
 | 18 | Every pass that ends with findings — default or profile-only — writes its latest-pass summary and its candidates to the record, not only to its plan. | slice 1 | observed: SKILL.md profile-only + Verify and close |
 | 19 | Later passes and `--resolve` read the record first, preserve recorded decisions, and move an accepted cost back to pending only with new evidence. | slice 2 | observed: resolving-candidates.md read first + preserve decisions; SKILL.md later-pass baseline |
 | 20 | `--resolve` moves each resolved entry to its disposition section (accepted cost, applied exclusion, or transferred obligation) or keeps it pending with its human decision. | slice 2 | observed: resolving-candidates.md disposition outcomes |
-| 21 | Wrap-up, before deleting a spent plan, moves any optimization finding that exists only in that plan into the record. | slice 3 | |
-| 22 | When the closing story or plan is the receiver of a transferred obligation, wrap-up removes that entry once its work is done, or returns any unfinished part to pending candidates. | slice 3 | |
-| 23 | The record format and lifecycle have one owner: a reference under the optimization skill. The optimization skill, its `--resolve` reference, and story wrap-up link to it. |  | G1 |
+| 21 | Wrap-up, before deleting a spent plan, moves any optimization finding that exists only in that plan into the record. | slice 3 | observed: candidate-record.md Lifecycle plan-only findings; wrap-up Keep test optimization candidates trigger |
+| 22 | When the closing story or plan is the receiver of a transferred obligation, wrap-up removes that entry once its work is done, or returns any unfinished part to pending candidates. | slice 3 | observed: candidate-record.md Lifecycle receiver close; wrap-up Keep test optimization candidates trigger |
+| 23 | The record format and lifecycle have one owner: a reference under the optimization skill. The optimization skill, its `--resolve` reference, and story wrap-up link to it. | slice 3 | observed: candidate-record.md; three consumers link |
 | 24 | The file and guidance are useful on their own (safe stopping point). | slice 1 | observed: candidate-record.md + SKILL.md write/consult path without requiring resolve/wrap-up |
 | E1 | New pass, no record → creates record with latest-pass summary, pending finding with labeled fields, `None.` in other finding sections. | slice 1 | observed: behavior-review walk in plan slice 1 proof |
 | E2 | Resolve to accepted cost → same slug moves to Accepted necessary costs; test still runs; no Profile-only exclusions without a mechanism. | slice 2 | observed: behavior-review walk in plan slice 2 proof; resolving-candidates.md Accepted necessary cost |
-| E3 | Resolve to replacement plan, then clean up → transferred entry links plan; survives wrap-up of original; removed when replacement story wraps with work done. |  | G3 |
+| E3 | Resolve to replacement plan, then clean up → transferred entry links plan; survives wrap-up of original; removed when replacement story wraps with work done. | slice 3 | observed: behavior-review walk in plan slice 3 proof; resolving-candidates transfer + wrap-up cleanup |
 | E4 | Later pass consults accepted-cost entry and does not re-propose without new evidence; summary replaces Latest pass. | slice 1 | observed: behavior-review walk in plan slice 1 proof; SKILL.md baseline + Verify and close |
 | E5.1 | All finding sections `None.` → `--resolve` reports an empty record. | slice 2 | observed: resolving-candidates.md empty-record report |
 | E5.2 | No file → `--resolve` reports that no findings have been recorded. | slice 2 | observed: resolving-candidates.md missing-file report |

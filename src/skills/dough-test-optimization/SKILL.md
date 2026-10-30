@@ -163,6 +163,6 @@ Write the latest-pass summary and remaining candidates to the
 profile-only pass that ends with findings, following that reference for create,
 replace, and preservation rules. Retain the plan and evidence for retrospective
 and [story wrap-up](../dough-story-wrap-up/SKILL.md); unresolved candidates must
-be resolved or transferred to the established follow-up location before cleanup.
+be resolved or transferred in that record before cleanup.
 Emit `## TEST OPTIMIZATION COMPLETE` only when the pass's planned work,
 verification, measurement, and delivery are complete, stating its actual outcome.

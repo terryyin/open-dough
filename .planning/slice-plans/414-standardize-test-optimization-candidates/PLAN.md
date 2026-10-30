@@ -119,11 +119,19 @@ standard sections and `None.`
 ### 3. Wrap-up keeps findings across plan cleanup
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior-review walk of key example 3's cleanup half: the original
 plan's wrap-up leaves the transferred entry for a later pass, and the
 replacement story's wrap-up removes it when its work is done or returns an
 unfinished part to pending; the payload command above passes.
+
+Accepted proof (2026-10-30):
+- Walk 3 cleanup: non-receiver wrap-up leaves Transferred obligations; receiver
+  wrap-up removes entry when done or returns unfinished to Pending; record
+  never deleted as spent history.
+- Payload: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+  tests/payload-declaration-links.sh tests/update-adds-new-payload-skill.sh`
+  exit 0.
 
 Behavior: a story whose plan holds optimization findings, or which receives a
 transferred obligation, is wrapped up → before the before-cleanup commit,
@@ -141,8 +149,7 @@ record instead of "the established follow-up location".
 ### G1. Wrap-up still lacks the shared format link
 Reported: slice 2 — "resolve now links candidate-record.md; wrap-up does not yet"
 Story clause: "One reference in the optimization skill defines its format and lifecycle; the optimization pass, `--resolve`, and story wrap-up link to that definition instead of restating it."
-Disposition: interim until slices 3
-Commitment: 4, 23
+Disposition: proved by slice 3: dough-story-wrap-up Keep test optimization candidates links candidate-record.md
 
 ### G2. `--resolve` not yet required to read the standard record first
 Reported: slice 1 — "later passes read the record; --resolve still uses older generic wording"
@@ -152,8 +159,7 @@ Disposition: proved by slice 2: resolving-candidates.md read-first and preserve-
 ### G3. Transfer-and-cleanup journey incomplete until wrap-up
 Reported: slice 2 — "resolve transfers to Transferred obligations; wrap-up cleanup not yet implemented"
 Story clause: "A pending viewport-matrix entry has cheaper replacement proof. `--resolve` writes the obligation into a replacement plan → the entry moves to `## Transferred obligations` linking that plan. The original optimization plan is later deleted by wrap-up; a new pass still finds the transferred entry. When the replacement story is wrapped up with its work done, the entry is removed."
-Disposition: interim until slices 3
-Commitment: E3
+Disposition: proved by slice 3: wrap-up Keep test optimization candidates cleanup half + resolving-candidates transfer
 
 ### G4. Deferred automatic expiry of accepted costs
 Reported: slice 1 — "deferred promise: automatic expiry of accepted costs"
@@ -221,6 +227,4 @@ Commitment: X1
 
 Slice-plan refinement did not run: each slice owns one consumer's behavior and
 one review walk, sharing the format slice 1 introduces, and no cumulative
-design concern was found. Remaining concern: none. Interim behavior: after
-slices 1 and 2, wrap-up still lacks the shared format link and the
-transfer-cleanup half (G1, G3); slice 3 owns those.
+design concern was found. Remaining concern: none.

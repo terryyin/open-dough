@@ -56,10 +56,11 @@ labeled fields:
   Replace only `## Latest pass`. Move an accepted cost back to pending only
   with new evidence.
 - **Lifecycle:** pending → accepted necessary cost, profile-only exclusion, or
-  transferred obligation (or stay pending with its human decision). When the
-  receiver of a transferred obligation closes with its work done, remove that
-  entry; return any unfinished part to pending. Do not delete this record as
-  spent history.
+  transferred obligation (or stay pending with its human decision). Before a
+  spent plan is deleted, move any finding that exists only in that plan into
+  this record. When the receiver of a transferred obligation closes with its
+  work done, remove that entry; return any unfinished part to pending. Do not
+  delete this record as spent history.
 
 ## Compact template
 
