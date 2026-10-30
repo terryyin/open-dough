@@ -91,20 +91,8 @@ and ~30 five-second `waitForIdle` timeouts in `closeOpenSessions` / setup
 
 ### 3. Voice dictation upstream error variants move to the boundary and non-settings journeys seed credentials directly
 Type: Structure
-Status: planned
-Proof: Focused baseline of `boundary/session-instruction-voice-boundary.spec.ts`
-and `session-instruction-voice*.spec.ts`; first extend
-`boundary/session-instruction-voice-boundary.spec.ts` to cover all upstream
-provider failure mappings (`401`, `403`, `429`, `500`, `200` empty, `200`
-malformed, `200` oversized, and socket disconnect) and `bytes > 0`; then remove
-the 6 redundant per-status browser journeys in
-`session-instruction-voice-provider-failures.spec.ts` while retaining the
-refusal-retry-start journey (`explicit retry after refusal appends once without
-failed text, then editable text reaches Start`, including `bytes > 0` check) and
-the `deadline` journey; and seed the saved OpenAI key directly on disk for the 5
-non-settings voice journey specs while keeping `saveVoiceKey(page)` and the
-missing-key settings round-trip in `session-instruction-voice.spec.ts`. Verify
-three consecutive focused passes and faster focused family wall time.
+Status: done
+Proof: Focused Voice family (7 specs): first extended `dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts` to assert exact status and `{ error }` payloads for all 8 upstream provider failure variants (`401`, `403`, `429`, `500`, `200` empty, `200` malformed, `200` oversized, and socket disconnect) plus `bytes > 0` (`3,841.9 ms`, `strictStatus: "passed"`); then removed the 6 redundant per-status browser journeys in `dashboard/tests/session-instruction-voice-provider-failures.spec.ts` while retaining the explicit refusal-retry-start journey (`bytes > 0`, `recovered`, retry, `typedStart`) and the `deadline` journey, and seeded saved OpenAI credentials directly via `seedVoiceKey` across non-settings voice specs while keeping `saveVoiceKey(page)` and the missing-key settings round-trip in `session-instruction-voice.spec.ts`. Three consecutive focused passes: `durationMs` fell from **16,059.8 ms** (**16.1 s**, summed `.tsv` **65.9 s**, 26 cases) to **13,187.8 ms** / **13,114.4 ms** / **13,086.6 ms** (**13.1–13.2 s**, summed `.tsv` **45.0–45.6 s**, 20 cases), with `session-instruction-voice-provider-failures.spec.ts` dropping from **21.1 s** to **5.5–5.8 s** (`strictStatus: "passed"`). Raw proofs under `/tmp/SEED-191-optimize-dashboard-test-feedback/slice3-*`.
 
 Internal change: Replace 6 repeated browser journeys and 14 incidental System
 settings UI round-trips with boundary coverage and direct credential seeding,

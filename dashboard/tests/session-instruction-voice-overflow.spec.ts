@@ -10,7 +10,7 @@ import { notRefinedStory, notRefinedIdentity } from "./launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
-  saveVoiceKey,
+  seedVoiceKey,
 } from "./support/voicePage.ts";
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
@@ -26,7 +26,7 @@ test("exactly 4,000 combined characters, including the separator, append ordinar
   launchJourney,
 }) => {
   const { start, dialog } = await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   dashboard.claudeScenario("launched");
   await start(notRefinedStory).click();
   const field = dialog.getByRole("textbox", { name: "Instruction (optional)" });
@@ -55,7 +55,7 @@ test("one character over retains both drafts; keyboard shortening adds once and 
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   dashboard.claudeScenario("launched");
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -122,7 +122,7 @@ test("the complete transcript beyond 4,000 remains editable; keyboard discard an
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
   const field = startSessionField(dialog);

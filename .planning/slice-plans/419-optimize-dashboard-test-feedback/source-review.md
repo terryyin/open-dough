@@ -21,9 +21,9 @@ to read no other project files and change nothing.
 | 3b | Investigate related test families across the dashboard suite. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Dominant-cost shape and family analysis (Families 1, 2, and 3) |
 | 3c | Retain only changes supported by comparable wall-time measurements under like runner conditions. | slice 4 | |
 | 4a.1 | Follow the project's dashboard test guidance when simplifying tests. | slice 2 | observed: dashboard/tests/launchJourney.ts (worker-shared read-only StoryColumnsJourney) and dashboard/tests/boundary/agent-launch-*.spec.ts (doneRenameWaitMs: 100 on non-subject shared cleanup) |
-| 4a.2 | Follow the project's dashboard test guidance when moving proof between test tiers. | slice 3 | |
-| 5a.1 | Establish replacement proof before removing any test cases. | slice 3 | |
-| 5a.2 | Establish replacement proof before narrowing any test cases. | slice 3 | |
+| 4a.2 | Follow the project's dashboard test guidance when moving proof between test tiers. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts and dashboard/tests/session-instruction-voice-provider-failures.spec.ts |
+| 5a.1 | Establish replacement proof before removing any test cases. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts (`slice3-boundary-replacement.json` verified before removing 6 journey cases) |
+| 5a.2 | Establish replacement proof before narrowing any test cases. | slice 3 | observed: dashboard/tests/session-instruction-voice.spec.ts (retains UI `saveVoiceKey`) and dashboard/tests/support/voicePage.ts (`seedVoiceKey`) |
 | 6a | Re-run the same local command (`npm run test:dashboard`) under comparable runner conditions after experiments. | slice 4 | |
 | 6b.1 | Report baseline ("before") wall time. | slice 4 | |
 | 6b.2 | Report post-experiment ("after") wall time under comparable conditions. | slice 4 | |
@@ -46,13 +46,13 @@ to read no other project files and change nothing.
 | 10a.3 | Record baseline wall time and executed case count. | slice 1 | observed: .planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md Slice 1 baseline (wall 951.39s / `durationMs` 950.75s, `selectedCount: 1751`) |
 | 10a.4 | When experiments are retained, verify `npm run test:dashboard` finishes sooner under comparable runner conditions. | slice 4 | |
 | 10a.5 | Preserve behavioral coverage in the resulting suite. | slice 4 | |
-| 10a.6 | Ensure replacement proof is in place for any removed cases. | slice 3 | |
+| 10a.6 | Ensure replacement proof is in place for any removed cases. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts lines 135-209 and dashboard/tests/session-instruction-voice-provider-failures.spec.ts lines 17-51 |
 | 10b.1 | Undo or leave out any experiment that fails to improve comparable `npm run test:dashboard` wall time. | slice 4 | |
 | 10b.2 | Undo or leave out any experiment that weakens behavioral coverage or confidence. | slice 4 | |
 | 10b.3 | Name each undone or omitted experiment under rejected experiments in the report. | slice 4 | |
 | 10c.1 | Leave the dashboard test suite unchanged when no worthwhile saving is found within scope. | slice 4 | |
 | 10c.2 | Record the no-worthwhile-saving outcome and its measurements in the report. | slice 4 | |
 | 10c.3 | Record the remaining candidates in the report (and `.planning/TEST-OPTIMIZATION-CANDIDATES.md`). | slice 4 | |
-| 10d.1 | Move or drop the redundant journey proof in accordance with the project's dashboard test guidance. | slice 3 | |
-| 10d.2 | Retain proof of the behavior in the cheaper surviving boundary check. | slice 3 | |
+| 10d.1 | Move or drop the redundant journey proof in accordance with the project's dashboard test guidance. | slice 3 | observed: dashboard/tests/session-instruction-voice-provider-failures.spec.ts (6 redundant per-status journey cases moved to boundary) |
+| 10d.2 | Retain proof of the behavior in the cheaper surviving boundary check. | slice 3 | observed: dashboard/tests/boundary/session-instruction-voice-boundary.spec.ts lines 135-209 (8 upstream error variants and non-empty bytes) |
 | 10d.3 | Keep the change if comparable local `npm run test:dashboard` wall time improves, or reject (undo/leave out and report) the change if local suite wall time does not improve. | slice 4 | |

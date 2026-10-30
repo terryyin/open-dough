@@ -1,14 +1,15 @@
 import { expect, test } from "../support/pageTest.ts";
-import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { startDashboardServer } from "../support/dashboardServer.ts";
 import { voiceProvider } from "../support/voiceProvider.ts";
 import { abandonedRequest, rawRequest } from "../support/rawHttp.ts";
 import {
   instructionAudioLimitBytes,
+  instructionProblems,
   instructionTranscriptionEndpoint,
+  instructionTranscriptionFailed,
 } from "../../src/instructionTranscription.ts";
-import { voiceKey } from "../support/voicePage.ts";
+import { seedVoiceKey, voiceKey } from "../support/voicePage.ts";
 
 test("the audio boundary refuses foreign origins, method, media, empty and oversized bodies before provider contact", async () => {
   const provider = await voiceProvider();
@@ -69,12 +70,7 @@ test("the audio boundary refuses foreign origins, method, media, empty and overs
 
 test("disconnect and server shutdown abort held upstream work", async () => {
   const provider = await voiceProvider();
-  const credential = path.join(
-    provider.machine,
-    "home/.open-dough/dashboard/credentials/openai.json",
-  );
-  mkdirSync(path.dirname(credential), { recursive: true });
-  writeFileSync(credential, JSON.stringify({ apiKey: voiceKey }));
+  seedVoiceKey(path.join(provider.machine, "home"));
   const server = await startDashboardServer({
     mode: "boundary",
     machine: provider.machine,
@@ -115,12 +111,7 @@ test("disconnect and server shutdown abort held upstream work", async () => {
 
 test("provider text is validated and response bounds and errors never expose provider diagnostics or keys", async () => {
   const provider = await voiceProvider();
-  const credential = path.join(
-    provider.machine,
-    "home/.open-dough/dashboard/credentials/openai.json",
-  );
-  mkdirSync(path.dirname(credential), { recursive: true });
-  writeFileSync(credential, JSON.stringify({ apiKey: voiceKey }));
+  seedVoiceKey(path.join(provider.machine, "home"));
   const server = await startDashboardServer({
     mode: "boundary",
     machine: provider.machine,
@@ -133,17 +124,47 @@ test("provider text is validated and response bounds and errors never expose pro
   };
   try {
     for (const reply of [
-      { status: 200, body: JSON.stringify({ text: "  " }), expected: 502 },
-      { status: 200, body: "malformed-provider-body", expected: 503 },
       {
-        status: 200,
-        body: JSON.stringify({ text: "x".repeat(256 * 1024) }),
-        expected: 503,
+        status: 401,
+        body: "private-provider-diagnostic",
+        expected: 502,
+        error: instructionProblems.authentication,
+      },
+      {
+        status: 403,
+        body: "private-provider-diagnostic",
+        expected: 502,
+        error: instructionProblems.authentication,
+      },
+      {
+        status: 429,
+        body: "private-provider-diagnostic",
+        expected: 502,
+        error: instructionProblems.rateLimit,
       },
       {
         status: 500,
         body: `raw-provider-diagnostic ${voiceKey}`,
         expected: 502,
+        error: instructionTranscriptionFailed,
+      },
+      {
+        status: 200,
+        body: JSON.stringify({ text: "  " }),
+        expected: 502,
+        error: instructionProblems.empty,
+      },
+      {
+        status: 200,
+        body: "malformed-provider-body",
+        expected: 503,
+        error: instructionProblems.empty,
+      },
+      {
+        status: 200,
+        body: JSON.stringify({ text: "x".repeat(256 * 1024) }),
+        expected: 503,
+        error: instructionTranscriptionFailed,
       },
     ]) {
       provider.reply(reply.status, reply.body);
@@ -155,12 +176,28 @@ test("provider text is validated and response bounds and errors never expose pro
       });
       expect(response.status).toBe(reply.expected);
       expect(response.body).not.toContain(voiceKey);
+      expect(response.body).not.toContain("private-provider-diagnostic");
       expect(response.body).not.toContain("raw-provider-diagnostic");
       expect(response.body).not.toContain("malformed-provider-body");
-      expect(JSON.parse(response.body)).toHaveProperty("error");
+      expect(JSON.parse(response.body)).toEqual({ error: reply.error });
     }
-    expect(provider.calls).toHaveLength(4);
+    provider.failNetwork();
+    const networkResponse = await rawRequest({
+      url,
+      method: "POST",
+      headers,
+      body: "nonempty audio",
+    });
+    expect(networkResponse.status).toBe(503);
+    expect(JSON.parse(networkResponse.body)).toEqual({
+      error: instructionProblems.network,
+    });
+    expect(provider.calls).toHaveLength(8);
+    for (const call of provider.calls) {
+      expect(call.bytes).toBeGreaterThan(0);
+    }
     expect(server.output()).not.toContain(voiceKey);
+    expect(server.output()).not.toContain("private-provider-diagnostic");
     expect(server.output()).not.toContain("raw-provider-diagnostic");
   } finally {
     await server.close();

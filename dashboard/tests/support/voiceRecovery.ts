@@ -11,7 +11,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { saveVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
+import { seedVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
 
 export const originalDraft = "Keep this work local";
 // Every voice journey takes this one object: `launchOptions` is a
@@ -30,11 +30,12 @@ export const voiceBrowserOptions = {
 
 export async function openVoiceDraft(
   page: Page,
+  dashboard: DashboardServer,
   journey: LaunchJourney,
   configure = true,
 ) {
+  if (configure) seedVoiceKey(dashboard.home);
   await openTakenBacklog(page, journey);
-  if (configure) await saveVoiceKey(page);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   await startSessionField(dialog).fill(originalDraft);

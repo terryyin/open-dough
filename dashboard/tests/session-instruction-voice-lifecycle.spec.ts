@@ -9,7 +9,7 @@ import {
 import {
   observeMicrophone,
   recordClip,
-  saveVoiceKey,
+  seedVoiceKey,
   stoppedTracks,
 } from "./support/voicePage.ts";
 test.use(voiceBrowserOptions);
@@ -24,7 +24,7 @@ test("held provider result is aborted on Cancel; reopening stays empty and micro
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   provider.hold();
   const action = startSession(page, "Open Dough");
   await action.click();
@@ -57,7 +57,7 @@ test("Escape stops active capture; a late permission grant after dismissal canno
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
   await action.click();
@@ -106,7 +106,7 @@ test("unexpected real microphone track end preserves typed text and makes no tra
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   await startSessionField(dialog).fill("Keep this work local");
@@ -137,7 +137,7 @@ test("a completed real response delivered after Cancel cannot populate the next 
   launchJourney,
 }) => {
   await openTakenBacklog(page, launchJourney);
-  await saveVoiceKey(page);
+  seedVoiceKey(dashboard.home);
   await page.evaluate(() => {
     (
       window as unknown as { voiceDelivery: { hold: boolean } }
