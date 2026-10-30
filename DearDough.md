@@ -534,7 +534,7 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
-- Execution: SEED-191#optimize-dashboard-test-feedback / plan 419, first implementation `544f6790543f810c9f1d946712600d1271a1ec65`
+- Execution: SEED-191#optimize-dashboard-test-feedback / plan 419 (`0bb810742a61e7ded6b51989b26a5eb9df8f8a43:.planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md`), first implementation `544f6790543f810c9f1d946712600d1271a1ec65`
   - Timestamp: 2026-10-30T16:39:28+08:00 (first slice 2 fresh delivery attempt before accepted `544f6790` at 16:40:04+08:00)
   - Tool: Cursor
   - Model: gemini-4-argon

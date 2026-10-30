@@ -41,6 +41,8 @@
   suite run; exact full-suite wall savings vary with host load. No product
   behavior changed and no experiments were rejected.
 - **Evidence:** [SEED-191 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-191-2026-10-30).
+  The original plan and source review are recoverable at
+  `0bb810742a61e7ded6b51989b26a5eb9df8f8a43:.planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md`.
   Raw records were retained outside Git under
   `/tmp/SEED-191-optimize-dashboard-test-feedback/` on the measurement host;
   their continued availability is not assumed.
