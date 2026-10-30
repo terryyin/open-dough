@@ -136,11 +136,13 @@ argv/message variants belong with cheaper sibling or boundary proof.
 
 ### 4. Full local suite re-profile and candidate record update
 Type: Behavior
-Status: planned
-Proof: Full `npm run test:dashboard` under comparable conditions with proof
-and times records; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` Latest pass
-replaced; `docs/maintainer/dashboard-test-timings.md` SEED-195 section added;
-rejected experiments and remaining candidates recorded.
+Status: done
+Proof: Full `npm run test:dashboard` at `45cc3fba` under comparable conditions:
+`durationMs` 665.8s (666.30s wall), 1,746 passed, `strictStatus: "passed"`;
+start load `6.87 / 11.42 / 14.47`. Compared with baseline `bb8924b8`
+(`670.0s` / 1,746). Updated `.planning/TEST-OPTIMIZATION-CANDIDATES.md` and
+`docs/maintainer/dashboard-test-timings.md` SEED-195 section; pending
+`agent-launch-start-phases-host-collapse` recorded.
 
 Behavior: Pre-condition — retained or rejected experiment outcomes recorded.
 Trigger — re-run the ordinary local command and write the candidate/timings

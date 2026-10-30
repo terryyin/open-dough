@@ -3,34 +3,42 @@
 ## Latest pass
 
 - **Command / scope:** `npm run test:dashboard`, the full local dashboard
-  suite with eight default workers on the developer's 16-CPU / 48-GiB Mac.
+  suite with eight default workers on the developer's 16-CPU / 48-GiB Mac,
+  investigating the top 20% of suite cost by recorded duration contribution.
   Both runs unset `NO_COLOR` and `FORCE_COLOR` and write separate
   `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
-- **Revision:** `02ddad60e3694cd7986ef443876cc9d8a6bcc3a3` before (green
-  baseline after admit); `276ef912c2c49083acc8a85a766ab2a5d33ec677` after
-  (SEED-194, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 679.6s / 657.2s (outer wall
-  680.10s / 657.90s); summed attempt durations 4,958.5s / 4,797.1s; summed
-  spec durations (including hooks) 5,207.2s / 5,064.9s; executed cases
-  1,750 / 1,746 (`−4` Claude launch-dialog model kind-matrix journeys),
-  with 0 skipped cases. Both strict runs passed.
-- **Outcome:** measured gain — 22.4s (3.3%) shorter full-suite `durationMs`
-  and 161.4s lower summed attempt time from collapsing
-  `agent-launch-model.spec.ts` kind matrix to one offers-Model layout journey
-  plus one Default-without-`--model` journey (focused file 13.3–16.4s / 11
-  cases → 10.0–11.7s / 7 cases over three passes). Rejected: collapsing Codex
-  discovered-model story workflows (`execution`/`refinement`/`ad-hoc`) to two
-  journeys (focused family wall 10.2–12.1s / 13 → 11.0–11.6s / 12; undone).
+- **Revision:** `bb8924b803309e101c8a8f5fb7117c0f72c442aa` before (green
+  baseline after admit); `45cc3fba8446a3efae06f3d187bbf38f7b56fcd3` after
+  (SEED-195, 2026-10-30).
+- **Before / after:** recorded wall (`durationMs`) 670.0s / 665.8s (outer wall
+  670.51s / 666.30s); summed attempt durations 4,882.2s / 4,898.9s; executed
+  cases 1,746 / 1,746, with 0 skipped cases. Both strict runs passed. Focused
+  `boundary/agent-launch-preparation-codex-retry.spec.ts` wall 14.6–16.5s →
+  9.5–10.9s over three passes; full-suite file `.tsv` for that file 56.2s →
+  39.0s (before from the contemporaneous Slice 1 ranking; after from the
+  re-profile artifact).
+- **Outcome:** measured gain — 4.1s (0.6%) shorter full-suite `durationMs`
+  with strong focused-family evidence from collapsing repeated independent
+  Story-B launches among Codex retained-retry damage cases (ten refusals
+  retained; independent launch kept once on `workspace`). Rejected: collapsing
+  `agent-launch-start-phases` Codex host journey (focused wall 9.20–9.77s /
+  3 → 9.14–9.38s / 2; undone).
 - **Limits:** one full-suite before/after pair on the local host (start load
-  averages 6.53 / 5.26 / 5.15 before vs 8.70 / 14.82 / 17.30 after; end load
-  averages 43.44 / 35.64 / 22.34 before vs 30.23 / 26.65 / 23.62 after), backed
+  averages 5.86 / 5.38 / 8.73 before vs 6.87 / 11.42 / 14.47 after; end load
+  averages 19.94 / 22.37 / 18.81 before vs 22.81 / 23.19 / 20.18 after), backed
   by three consecutive focused passes for the retained family. After run
-  started under higher multi-minute load; treat suite-wall delta as directional
-  with the focused-family evidence. No product behavior changed.
-- **Evidence:** [SEED-194 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-194-2026-10-30).
-  Plan recoverable at `a668c0f1fbe068ced25e26e8294db6b3da6ebb60:.planning/slice-plans/421-optimize-dashboard-test-feedback/PLAN.md`. Raw records under
-  `/tmp/SEED-194-optimize-dashboard-test-feedback/` on the measurement host;
-  their continued availability is not assumed.
+  started under higher multi-minute load; suite-wall delta is modest and
+  directional with the focused-family evidence. The baseline
+  `OPEN_DOUGH_DASHBOARD_TIMES` file was later overwritten by focused runs that
+  inherited that environment variable; wall and proof JSON remain
+  authoritative, and the before file cost for the retained family was taken
+  from the Slice 1 ranking written before that overwrite. No product behavior
+  changed.
+- **Evidence:** [SEED-195 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-195-2026-10-30).
+  Plan recoverable at the story-branch tip for SEED-195
+  (`.planning/slice-plans/422-optimize-dashboard-test-feedback/PLAN.md`). Raw
+  records under `/tmp/SEED-195-optimize-dashboard-test-feedback/` on the
+  measurement host; their continued availability is not assumed.
 
 ## Pending candidates
 
@@ -74,6 +82,29 @@
 - **Date:** 2026-10-30
 - **Evidence / follow-up:** SEED-194 slice 3 under
   `/tmp/SEED-194-optimize-dashboard-test-feedback/slice3-*`.
+
+### agent-launch-start-phases-host-collapse
+
+- **Locations / scope:** `agent-launch-start-phases.spec.ts` Claude and Codex
+  initiating/observing execution page journeys (store “kept, never running”
+  case unchanged).
+- **Observed cost:** focused file wall ≈9.20–9.77s (3 cases) under default
+  workers on the SEED-195 host (2026-10-30); full-suite file `.tsv` ≈28.9s in
+  the top-20% band.
+- **Unique protection:** initiating/observing pages show the actual host
+  throughout execution progress, including host-specific readiness wording on
+  Claude argv / Codex `turn/start`.
+- **Alternatives attempted:** keep Claude page journey only; focused wall
+  9.14–9.38s / 2 cases over three passes — no wall gain; undone. Sibling
+  Codex coverage in `agent-launch-start-codex.spec.ts` and
+  `agent-launch-preparation-phases.spec.ts` remained green.
+- **Disposition / rationale:** pending — host duplication remains plausible
+  under dashboard guidance but dropping one host does not move focused wall
+  while the remaining journey and store case dominate; reopen only with a
+  wall-improving approach.
+- **Date:** 2026-10-30
+- **Evidence / follow-up:** SEED-195 slice 3 under
+  `/tmp/SEED-195-optimize-dashboard-test-feedback/slice3-*`.
 
 
 ## Accepted necessary costs

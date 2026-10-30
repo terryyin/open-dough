@@ -300,3 +300,33 @@ offers-Model; refinement/execution Default-without-`--model`).
   (`14.82` / `17.30` vs `5.26` / `5.15`); focused three-pass evidence anchors
   the retained family. No product behavior changed. Raw records:
   `/tmp/SEED-194-optimize-dashboard-test-feedback/`.
+
+## Local `npm run test:dashboard` pass (SEED-195, 2026-10-30)
+
+Measured under ADR 0010 like-conditions rules on the developer's 16-CPU / 48-GiB
+Mac host (`npm run test:dashboard`, eight default workers, `NO_COLOR` and
+`FORCE_COLOR` unset). Scope: top 20% of suite cost by recorded duration
+contribution, following related families.
+
+| Revision | Role | Wall (`durationMs`) | Cases | Summed attempts / specs | Load (1m/5m/15m start → end) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `bb8924b8` | Green baseline (admit) | 670.0s (670.51s wall) | 1,746 | 4,882.2s / 5,141.0s | 5.86 / 5.38 / 8.73 → 19.94 / 22.37 / 18.81 |
+| `45cc3fba` | After Slices 2–3 | 665.8s (666.30s wall) | 1,746 | 4,898.9s / 5,150.7s | 6.87 / 11.42 / 14.47 → 22.81 / 23.19 / 20.18 |
+
+Case count unchanged (`1,746` passed, `0` skipped, `strictStatus: "passed"`).
+
+- **Family (Codex retained-retry independent-launch dedupe, Slice 2):** Focused
+  `boundary/agent-launch-preparation-codex-retry.spec.ts` wall fell from
+  **14.6–16.5s** (10 cases) to **9.5–10.9s** (10 cases) over three consecutive
+  passes. All ten damage refusals retained; only the `workspace` case still
+  launches unrelated Story B. Journey
+  `agent-launch-preparation-codex-retry.spec.ts` still passed. Full-suite file
+  `.tsv` **56.2s → 39.0s** (before from Slice 1 ranking written before a later
+  focused run overwrote the baseline times artifact).
+- **Rejected (Slice 3):** Collapsing `agent-launch-start-phases` to one host
+  did not improve focused wall (**9.20–9.77s / 3 → 9.14–9.38s / 2**); undone and
+  listed under Pending candidates.
+- **Comparison limits:** After suite started under higher multi-minute load
+  (`11.42` / `14.47` vs `5.38` / `8.73`); suite-wall delta is modest (4.1s).
+  Focused three-pass evidence anchors the retained family. No product behavior
+  changed. Raw records: `/tmp/SEED-195-optimize-dashboard-test-feedback/`.
