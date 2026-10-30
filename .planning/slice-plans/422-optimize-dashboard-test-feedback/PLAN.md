@@ -174,3 +174,13 @@ record current.
 - Removing one of two host start-progress journeys in
   `agent-launch-start-phases.spec.ts` does not move focused wall while the
   remaining Claude journey and store case dominate; leave both hosts.
+
+## Execution complete
+
+Product advice: Measured local dashboard suite feedback improved modestly
+(`durationMs` 670.0s → 665.8s) in a top-20% cost pass by collapsing repeated
+independent Story-B launches among Codex retained-retry damage cases (focused
+boundary wall 14.6–16.5s → 9.5–10.9s). Keep pending story-review HTTP admission
+boundary placement, Codex discovered-model workflow collapse, and
+agent-launch-start-phases host collapse until a wall-improving approach exists;
+do not reopen accepted necessary costs without new evidence.
