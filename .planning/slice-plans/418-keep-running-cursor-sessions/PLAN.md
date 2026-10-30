@@ -143,6 +143,10 @@ stops only that session. A runner that has already exited is not revived.
   `OPEN_DOUGH_CURSOR_SPAWN_HELPER_PROOF` so the wire path can be deleted without
   removing this install’s real node-pty helper (repair’s copy source). The
   runner caches the published path at process start.
+- CI repair (run 41022008901 on `aded040f`): board-paging Shift+Tab into a
+  height-hidden Backlog card scrolled while the column page row was still
+  sliding; restorative `scrollIntoView` now waits for `!sliding` in
+  `columnPaging.ts`.
 
 ## Concern evidence
 
