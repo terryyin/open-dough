@@ -118,3 +118,15 @@ no suite-wall speedup claimed. Board-scroll Column-fit fix remains.
 
 Green baseline unblocked after the board-scroll fix. Slice 2 retained on focused
 and case evidence; slice 3 records green suite and the suite-wall limitation.
+
+## Execution complete
+
+Product advice: no change
+
+Retained the boundary wait move and board-scroll Column-fit fix. Focused family
+wall and `agent-launch-second-server` case duration improved; full-suite wall
+comparison was inconclusive under unlike host load, so no suite-wall speedup is
+claimed. Remaining candidates stay for a later measured pass (further
+`agent-launch*` poles; long journeys only with surviving proof; touch viewport
+matrices that only repeat boundary-covered layout). No process findings met the
+recording bar for this run.
