@@ -108,6 +108,10 @@ Trigger — run the full local dashboard suite under comparable conditions and
 record the outcome. Postcondition — measured before/after comparison and updated
 candidate record are committed.
 
+## Execution complete
+
+Product advice: no change — the retained dashboard test optimizations (worker-scoped story-columns origin cache, bounded non-subject Claude done-rename waits, and voice dictation boundary/credential setup) reduced local `npm run test:dashboard` wall time from 950.8s to 554.3s (−396.5s / −41.7%) while preserving behavioral coverage; accepted necessary costs remain recorded in `.planning/TEST-OPTIMIZATION-CANDIDATES.md` and no new product backlog story is warranted.
+
 ## Current decisions
 
 ### Slice 1 baseline (successful)

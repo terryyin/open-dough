@@ -534,6 +534,14 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
+- Execution: SEED-191#optimize-dashboard-test-feedback / plan 419, first implementation `544f6790543f810c9f1d946712600d1271a1ec65`
+  - Timestamp: 2026-10-30T16:39:28+08:00 (first slice 2 fresh delivery attempt before accepted `544f6790` at 16:40:04+08:00)
+  - Tool: Cursor
+  - Model: gemini-4-argon
+  - Open Dough release: modified; revision `7225da81df32e6fc59debf9b2943f3166335c9f5`; base 0.3.77
+  - Evidence: coordinator transcript `08443b87-04c2-43dc-88a7-1a9d6107338c` — first `execution-increment-delivery.mjs fresh` for slice 2 passed `["node","scripts/lint.mjs","--fix"]` in `formatting`, which returned `preparation-failed` (`eslint: not found on PATH ... prettier: not found on PATH`); retry with `["npm","run","format"]` succeeded (`544f6790`).
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+  - Inference: recurrence of ODF-356 when reading `"format": "node scripts/lint.mjs --fix"` from `package.json` without wrapping it in `npm run format` so `node_modules/.bin` is on PATH.
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
