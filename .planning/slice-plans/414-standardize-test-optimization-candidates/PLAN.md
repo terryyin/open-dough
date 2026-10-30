@@ -144,6 +144,11 @@ Changes: a short section in `src/skills/dough-story-wrap-up/SKILL.md`, after
 rules; update the optimization `SKILL.md` close text so it points at the
 record instead of "the established follow-up location".
 
+## Execution complete
+
+Product advice: no change. Deferred promises and the explicit migration exclusion
+remain out of scope; no backlog recommendation from this execution.
+
 ## Story obligations
 
 ### G1. Wrap-up still lacks the shared format link
