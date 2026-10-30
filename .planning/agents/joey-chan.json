@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-185#stable-ci-time-budget",
+  "mode": "story-branch",
+  "branch": "cursor/ci-time-budget-holds-under-runner-variance",
+  "host": "cursor",
+  "model": "auto"
+}
