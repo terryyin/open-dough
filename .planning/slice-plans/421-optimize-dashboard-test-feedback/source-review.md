@@ -33,7 +33,7 @@ context. Its numbered commitments are allocated below.
 | 12a.1 | Remove any transferred obligation whose receiving story has already closed with its work done | slice 4 | |
 | 13 | Preserve accepted necessary costs unless new evidence supports reopening them | slice 2 | observed: agent-launch-poles and long-integrated-journeys untouched in slice 2 diff |
 | E1 | Baseline then retained experiments finish sooner under comparable conditions with coverage preserved | slice 4 | |
-| E2 | An experiment that fails to improve wall time or weakens coverage is undone or left out and reported | slice 3 | |
+| E2 | An experiment that fails to improve wall time or weakens coverage is undone or left out and reported | slice 3 | observed: Codex workflow collapse undone; slice3 before/after proofs show no focused wall gain |
 | E3 | No worthwhile saving leaves the suite unchanged with measurements recorded | slice 4 | |
 | E4 | A journey that only repeats a boundary-answerable variant is moved or dropped per guidance with surviving cheaper proof | slice 2 | observed: agent-launch-model.spec.ts kind matrix collapsed; boundary argv coverage retained |
 | X1 | Do not change product behavior to make tests faster | slice 2 | observed: diff touches only dashboard/tests/agent-launch-model.spec.ts and planning records |

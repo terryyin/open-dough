@@ -112,26 +112,20 @@ across story and ad-hoc requests. **Supported** by focused wall improvement.
 
 ### 3. Codex discovered-model story workflows collapse to one page journey
 Type: Structure
-Status: planned
-Proof: Focused before/after on the `agent-launch-codex-model` family
-(`agent-launch-codex-model.spec.ts` plus its imported catalog/effort case
-files) over three consecutive passes; one story workflow plus ad-hoc remain
-when those are the distinct page shapes; boundary
-`agent-launch-codex-model-boundary` (and effort cases) retain creation and
-refusal variants.
+Status: done
+Proof: Experiment **undone** — focused family wall did not improve
+(`10.2–12.1s` / 13 cases → `11.0–11.6s` / 12 cases over three passes each;
+boundary still passed). Dropping the redundant `refinement` story workflow
+removed ~6s of attempt time but did not shorten comparable focused wall under
+default workers (catalog/effort siblings dominate). No suite change retained.
+Evidence under `/tmp/SEED-194-optimize-dashboard-test-feedback/slice3/`.
 
-Internal change: `agent-launch-codex-model.spec.ts` runs nearly identical
-discovered-model dialog → start journeys for `execution`, `refinement`, and
-`ad-hoc` (~14.9s attempts; execution ≈ refinement ≈ 6.2–6.5s each). Keep one
-story workflow (execution or refinement) that still proves model/effort choice
-before preparation and native creation, plus the distinct ad-hoc blank-input
-path. Drop the redundant second story workflow. Leave catalog and effort
-dialog/workspace cases unless a focused measurement shows a separate cheap
-win. Undo if coverage weakens or focused wall does not improve.
+Internal change: Temporarily kept `execution` + `ad-hoc` only; restored the
+three-workflow matrix after measurement.
 
 Hypothesis: execution and refinement share the same dialog and native-creation
-page path; their distinguishing preparation vs start records are already
-exercised elsewhere and by the boundary's model-only creation cases.
+page path. **Rejected for wall gain** under like focused conditions; pending
+only if a different approach appears.
 
 ### 4. Full local suite re-profile and candidate record update
 Type: Behavior
@@ -156,6 +150,8 @@ updated; rejected experiments named.
 - Slice 2 retained: Claude model kind matrix collapsed; focused wall
   **13.3–16.4s → 10.0–11.7s** (11 → 7 cases). Full-suite effect still owed to
   slice 4.
+- Slice 3 rejected: Codex story-workflow collapse showed no focused wall
+  gain; change undone.
 - Do not reopen accepted necessary costs (`agent-launch-poles`,
   `long-integrated-journeys`) without new evidence.
 - Do not retry SEED-193's story-review HTTP admission boundary move unless a
@@ -172,3 +168,6 @@ updated; rejected experiments named.
   `boundary/agent-launch-model-boundary.spec.ts` for argv variants; one
   offers-Model layout journey plus one Default journey retained the page
   proof at lower focused cost.
+- Dropping one of two near-identical Codex story workflows did not move
+  focused family wall while longer catalog/effort siblings still run; fewer
+  cases alone is not a wall claim.
