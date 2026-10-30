@@ -24,4 +24,5 @@ cost of the feedback process itself.
 
 ## Backlog list
 
+- [Starting another Cursor session leaves already-running agents running](seeds/SEED-190-keep-running-cursor-sessions.md#keep-running-cursor-sessions) — SEED-190#keep-running-cursor-sessions
 - [Align duration-list refresh guidance with recorded-speed scaling](seeds/SEED-185-stable-ci-time-budget.md#align-refresh-guidance) — SEED-185#align-refresh-guidance
