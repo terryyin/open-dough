@@ -136,19 +136,23 @@ preserved, or the experiment is undone and recorded as rejected.
 
 ## Current decisions
 
-- Resolve dispositions for the three Remaining candidates (2026-10-30):
+- Resolve dispositions for the three Remaining candidates (2026-10-30;
+  human acceptance recorded the same day):
   1. `agent-launch*` poles (`ad-hoc-terminal`; remaining second-server cost) →
-     **necessary-cost** after SEED-176's change-wait boundary move; unique
-     dual-preview UI protection and immediate terminal-attachment journeys
-     remain the protected behavior. No project profile-exclusion mechanism;
-     none invented.
+     **necessary-cost** (accepted). Unique dual-preview UI protection and
+     immediate terminal-attachment journeys remain the protected behavior. No
+     project profile-exclusion mechanism; none invented.
   2. Long journeys (`agent-completion-attention`, production-watcher chains) →
-     **human decision** pending: whether to authorize thinner integrated
-     coverage for local wall time. SEED-177#optimize-dashboard-test-feedback is
-     already Taken for a measured optimization pass on the same suite.
+     **retain unique integrated protection**. SEED-177 may remove redundant
+     variants or move detailed checks to boundary tests after establishing
+     replacement proof. Where cross-step protection cannot be preserved more
+     cheaply, record necessary cost. No blanket authorization to weaken
+     integrated coverage.
   3. Touch viewport matrices → **this replacement plan** holds the obligation.
-- Implementation of this plan is not authorized by resolve-only triage; a later
-  instruction must authorize execution.
+- Implementation of this plan is not authorized by resolve triage; a later
+  instruction must authorize execution. Before implementation, coordinate
+  scope with SEED-177#optimize-dashboard-test-feedback to avoid overlapping
+  work.
 - SEED-177 remains a separate Taken claim; do not treat this plan as that
   claim's work.
 

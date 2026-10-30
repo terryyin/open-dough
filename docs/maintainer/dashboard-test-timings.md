@@ -230,21 +230,23 @@ comparable load.
 
 ### Remaining candidates
 
-1. Long single journeys (`agent-completion-attention`, production-watcher chains)
-   only with surviving proof and measured wall-time gain — **human decision
-   pending** (2026-10-30 resolve): whether thinner integrated coverage is an
-   acceptable confidence trade-off for local wall time. SEED-177 is already
-   Taken for measured dashboard test optimization.
-
 ### Resolved (2026-10-30 resolve)
 
-- **Necessary cost:** further unique multi-step `agent-launch*` poles
+- **Necessary cost (accepted):** further unique multi-step `agent-launch*` poles
   (`ad-hoc-terminal`; remaining `agent-launch-second-server` cost after the
   SEED-176 change-wait boundary move). Dual-preview page protection and
   immediate terminal-attachment journeys are the protected behavior; cheaper
   boundary moves for those poles are already landed. No project
   profile-exclusion mechanism; none invented.
+- **Long journeys (`agent-completion-attention`, production-watcher chains):**
+  retain unique integrated protection. SEED-177 may remove redundant variants
+  or move detailed checks to boundary tests after establishing replacement
+  proof. Where cross-step protection cannot be preserved more cheaply, record
+  necessary cost. This resolves the coverage decision without blanket
+  authorization to weaken integrated coverage.
 - **Replacement plan:** touch viewport matrices that only repeat layout
   branches — obligation in
   [slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md](../../.planning/slice-plans/413-resolve-dashboard-touch-viewport-candidates/PLAN.md)
-  (SEED-178). Implementation not authorized by resolve-only triage.
+  (SEED-178). Plan stays available for later authorized execution; coordinate
+  scope with SEED-177 before implementation to avoid overlapping work.
+  Resolve-only triage does not authorize implementation.
