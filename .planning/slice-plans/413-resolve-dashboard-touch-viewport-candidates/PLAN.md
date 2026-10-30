@@ -164,3 +164,11 @@ preserved, or the experiment is undone and recorded as rejected.
   bound the boundary tier still owns.
 - Nine journey specs loop `launchTouchViewports`; that is the concrete family
   for candidate 3.
+- Push `d6bf4531` (and follow-up `03424649`) change only `.planning/**` and
+  `docs/**`, which `ci.yml` `paths-ignore`s, so GitHub scheduled no run on
+  `cursor/run-dough-test-optimization-resolve`. Against successful ancestor
+  push CI at `d87af036` on `main`
+  ([run 40978941756](https://github.com/terryyin/open-dough/actions/runs/40978941756)),
+  path applicability classifies those revisions `not_required`. Branch-scoped
+  observer discovery found no local runs, so completion timed out as
+  `undiscovered` rather than recording that `not_required` basis automatically.
