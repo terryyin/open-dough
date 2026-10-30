@@ -19,7 +19,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
 } from "./pageLayout.ts";
-import { launchTouchViewports } from "./touchLaunchPage.ts";
+import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import { expectProductMark } from "./productMark.ts";
 import { readSetting } from "./support/settingsTouchPage.ts";
 
@@ -111,73 +111,71 @@ test("settings and its project dialogs fit a 420 pixel window without sideways s
   await expectNoSidewaysScrollAndWholeText(page);
 });
 
-for (const { name, portrait, landscape } of launchTouchViewports) {
-  test.describe(`${name} settings reading`, () => {
-    test.use({ viewport: portrait, hasTouch: true });
-    test("touch reads host-local groups and returns from the last group after rotation", async ({
-      page,
-    }) => {
-      const server = await fixture.start("preview");
-      await page.goto(`${server.baseURL}/?project=doughnut&view=roster`);
-      await tapWhereShown(settings(page));
-      await expect(
-        page.getByRole("heading", { name: "System settings", exact: true }),
-      ).toBeFocused();
-      await expectProductMark(page.getByRole("main"));
-      const projects = page.getByRole("region", {
-        name: "Projects",
-        exact: true,
-      });
-      const first = projects.getByRole("listitem").first();
-      for (const fact of await first.locator("h3, dt, dd").all())
-        await readSetting(fact);
-      const configured = JSON.parse(
-        readFileSync(fixture.configurationFile("preview"), "utf8"),
-      ) as { label: string; repository: string; localPath: string }[];
-      await expect(first.getByRole("heading", { level: 3 })).toHaveText(
-        configured[0]?.label ?? "",
-      );
-      await expect(first.locator("dd")).toHaveText([
-        configured[0]?.repository ?? "",
-        configured[0]?.localPath ?? "",
-      ]);
-      await expect(
-        projects.getByText(
-          "Configure projects for this dashboard on this machine.",
-        ),
-      ).toBeVisible();
-      const openai = page.getByRole("region", { name: "OpenAI", exact: true });
-      await readSetting(openai.getByRole("status"));
-      await expect(openai.getByRole("status")).toHaveText(
-        "API key: Not configured",
-      );
-      const theme = page.getByRole("region", {
-        name: "Terminal theme",
-        exact: true,
-      });
-      await readSetting(theme.getByRole("heading", { level: 2 }));
-      await readSetting(theme.locator(".settings-note:not([role='status'])"));
-      await readSetting(theme.getByRole("figure").locator("pre"));
-      await expect(theme.getByRole("figure")).toContainText(
-        "All checks passed.",
-      );
-      await expectNoSidewaysScrollAndWholeText(page);
-      for (const view of [landscape, portrait]) {
-        await page.setViewportSize(view);
-        await readSetting(theme.getByRole("heading", { level: 2 }));
-        await expectNoSidewaysScrollAndWholeText(page);
-      }
-      // Back is the settings view's Close. Its current target stays reachable
-      // while reading the final group; tapping it must not scroll the page first.
-      await tapWhereShown(back(page));
-      await expect(
-        page.getByRole("heading", { name: "Agent roster", exact: true }),
-      ).toBeVisible();
-      await expect(
-        page.getByRole("radio", { name: "Doughnut", exact: true }),
-      ).toBeChecked();
-      await expect(settings(page)).toBeFocused();
-      expect(server.claudeCalls()).toEqual([]);
+const { name, portrait, landscape } = phoneLaunchTouchViewport;
+
+test.describe(`${name} settings reading`, () => {
+  test.use({ viewport: portrait, hasTouch: true });
+  test("touch reads host-local groups and returns from the last group after rotation", async ({
+    page,
+  }) => {
+    const server = await fixture.start("preview");
+    await page.goto(`${server.baseURL}/?project=doughnut&view=roster`);
+    await tapWhereShown(settings(page));
+    await expect(
+      page.getByRole("heading", { name: "System settings", exact: true }),
+    ).toBeFocused();
+    await expectProductMark(page.getByRole("main"));
+    const projects = page.getByRole("region", {
+      name: "Projects",
+      exact: true,
     });
+    const first = projects.getByRole("listitem").first();
+    for (const fact of await first.locator("h3, dt, dd").all())
+      await readSetting(fact);
+    const configured = JSON.parse(
+      readFileSync(fixture.configurationFile("preview"), "utf8"),
+    ) as { label: string; repository: string; localPath: string }[];
+    await expect(first.getByRole("heading", { level: 3 })).toHaveText(
+      configured[0]?.label ?? "",
+    );
+    await expect(first.locator("dd")).toHaveText([
+      configured[0]?.repository ?? "",
+      configured[0]?.localPath ?? "",
+    ]);
+    await expect(
+      projects.getByText(
+        "Configure projects for this dashboard on this machine.",
+      ),
+    ).toBeVisible();
+    const openai = page.getByRole("region", { name: "OpenAI", exact: true });
+    await readSetting(openai.getByRole("status"));
+    await expect(openai.getByRole("status")).toHaveText(
+      "API key: Not configured",
+    );
+    const theme = page.getByRole("region", {
+      name: "Terminal theme",
+      exact: true,
+    });
+    await readSetting(theme.getByRole("heading", { level: 2 }));
+    await readSetting(theme.locator(".settings-note:not([role='status'])"));
+    await readSetting(theme.getByRole("figure").locator("pre"));
+    await expect(theme.getByRole("figure")).toContainText("All checks passed.");
+    await expectNoSidewaysScrollAndWholeText(page);
+    for (const view of [landscape, portrait]) {
+      await page.setViewportSize(view);
+      await readSetting(theme.getByRole("heading", { level: 2 }));
+      await expectNoSidewaysScrollAndWholeText(page);
+    }
+    // Back is the settings view's Close. Its current target stays reachable
+    // while reading the final group; tapping it must not scroll the page first.
+    await tapWhereShown(back(page));
+    await expect(
+      page.getByRole("heading", { name: "Agent roster", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("radio", { name: "Doughnut", exact: true }),
+    ).toBeChecked();
+    await expect(settings(page)).toBeFocused();
+    expect(server.claudeCalls()).toEqual([]);
   });
-}
+});

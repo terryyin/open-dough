@@ -12,12 +12,12 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 4 | Outcome (Terry, 2026-10-30): fewer cases and less repeated proof. | slice 6 | |
 | 5 | Evidence that the reduction took effect is a shorter focused-family wall time — not a suite-wall promise. | slice 6 | |
 | 6 | The family is the fourteen specs under `dashboard/tests/` that use `touchLaunchPage.ts`. | slice 2 | observed: `/tmp/seed-180-slice2-baseline/list.txt` Total: 36 tests in 14 files |
-| 7a | Twelve of those specs loop the phone and tablet devices. | slice 3 | |
-| 7b | Two of those specs select a phone. | slice 3 | |
-| 8 | Run each journey on one device unless the other device reaches an asserted CSS branch or arrangement the first does not. | slice 3 | |
-| 9 | The phone pair (390×844, 844×390) already crosses every width branch (400, 480, 640, 800 px) and the ≤480 px height branch. | slice 3 | |
-| 10a | Tablet adds the side-by-side story review body at 768 portrait. | slice 3 | |
-| 10b | Tablet adds the wide-and-tall landscape. | slice 3 | |
+| 7a | Twelve of those specs loop the phone and tablet devices. | slice 3 | observed: after removals only `story-review-touch` still loops both devices; eleven former matrix specs are phone-only (`/tmp/seed-180-slice3-proof/list.txt`) |
+| 7b | Two of those specs select a phone. | slice 3 | observed: answer + recently-done remain phone-selected; eleven more now select phone via `find(... "phone")` |
+| 8 | Run each journey on one device unless the other device reaches an asserted CSS branch or arrangement the first does not. | slice 3 | observed: tablet retained only for `story-review-touch`; thirteen device/orientation removals applied |
+| 9 | The phone pair (390×844, 844×390) already crosses every width branch (400, 480, 640, 800 px) and the ≤480 px height branch. | slice 3 | observed: phone-only journeys still start portrait and rotate / reduce height in-test |
+| 10a | Tablet adds the side-by-side story review body at 768 portrait. | slice 3 | observed: `story-review-touch` tablet case kept in focused list |
+| 10b | Tablet adds the wide-and-tall landscape. | slice 3 | observed: `story-review-touch` still loops `launchTouchViewports` (tablet landscape retained with that loop) |
 | 11 | One owner per pattern at the cheapest tier. | slice 5 | |
 | 12 | Other journeys keep only their own delta. | slice 5 | |
 | 13a.1 | A draft survives rotation and reduced height and can be edited there. | slice 5 | |
@@ -52,11 +52,11 @@ Launch: fresh general-purpose reviewer, source-only (no plan, product, proof, or
 | 22a.6 | A live terminal surviving a settings round trip with viewport changes (which may move into its non-touch owner as one step). | slice 4 | |
 | 23 | Redundancy outside the touch family is a separate story. | slice 6 | |
 | 24 | Suite-wall speedup claims are out of scope. | slice 6 | |
-| E1 | Plain tablet repeat: `system-settings-look` tablet goes; phone + 420 px fit survive; same rule for other plain repeats. | slice 3 | |
-| E2 | Branch-bearing device: `story-review-touch` tablet portrait stays unless equivalent touch proof is named. | slice 3 | |
+| E1 | Plain tablet repeat: `system-settings-look` tablet goes; phone + 420 px fit survive; same rule for other plain repeats. | slice 3 | observed: look phone + 420 px cases remain; tablet reading case gone; same phone-only pattern on other plain-repeat specs |
+| E2 | Branch-bearing device: `story-review-touch` tablet portrait stays unless equivalent touch proof is named. | slice 3 | observed: tablet review-by-touch case present in `/tmp/seed-180-slice3-proof/pass1.json` |
 | E3 | Pattern owner: settings write-failure owned by non-touch; touch keeps alert/rotation delta only. | slice 5 | |
 | E4 | Already owned elsewhere: `story-review-mark-touch` folds into `story-review-touch`; file goes. | slice 4 | |
 | E5 | Measured outcome: before 36 cases / three walls; after fewer cases with named survivors, wall not worse, suite green once → retain; unnamed survivor stays. | slice 6 | |
 | E5-before | Before: 36 cases in the family, focused wall over three passes under recorded load. | slice 2 | observed: list 36/14; three green walls recorded under `/tmp/seed-180-slice2-baseline/` |
-| E6 | Unique case stays: `recently-done-sessions-sidebar-touch` unchanged. | slice 3 | |
+| E6 | Unique case stays: `recently-done-sessions-sidebar-touch` unchanged. | slice 3 | observed: file unmodified in slice 3 diff; case still in focused list |
 | Q-survive | Surviving proof for each removal is named before the removal. | slice 2 | observed: Removal/Surviving proof table confirmed; none struck at `bf6a6c6581bc9d9fc9c677376b8b9ddd166b65a3` |

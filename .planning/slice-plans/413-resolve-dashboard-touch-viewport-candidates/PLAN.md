@@ -119,7 +119,7 @@ table reconciled above; none struck.
 
 ### 3. Plain device and orientation repeats are removed
 Type: Structure
-Status: planned
+Status: done
 Proof: The thirteen device and orientation removals from the table (ten tablet
 cases, the terminal tablet case, the two 844×390 answer cases) are applied by
 selecting the phone device in each spec rather than looping the matrix
@@ -130,6 +130,11 @@ passes.
 
 Internal change: one device per journey where the other adds no asserted
 branch. Unchanged external behavior; enables slice 4.
+
+Accepted 2026-10-30: thirteen removals applied; `--list --reporter=line` → 23
+tests in 14 files; focused family green
+(`/tmp/seed-180-slice3-proof/pass1.json`, strict passed). Only
+`story-review-touch` still loops tablet.
 
 ### 4. Two files fold into their owners
 Type: Structure

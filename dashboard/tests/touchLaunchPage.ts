@@ -1,16 +1,20 @@
 import type { Locator } from "@playwright/test";
 
+export const phoneLaunchTouchViewport = {
+  name: "phone",
+  portrait: { width: 390, height: 844 },
+  landscape: { width: 844, height: 390 },
+};
+
+export const tabletLaunchTouchViewport = {
+  name: "tablet",
+  portrait: { width: 768, height: 1024 },
+  landscape: { width: 1024, height: 768 },
+};
+
 export const launchTouchViewports = [
-  {
-    name: "phone",
-    portrait: { width: 390, height: 844 },
-    landscape: { width: 844, height: 390 },
-  },
-  {
-    name: "tablet",
-    portrait: { width: 768, height: 1024 },
-    landscape: { width: 1024, height: 768 },
-  },
+  phoneLaunchTouchViewport,
+  tabletLaunchTouchViewport,
 ];
 
 // A touch chooses the caret. Enter and typed text must preserve the draft on
