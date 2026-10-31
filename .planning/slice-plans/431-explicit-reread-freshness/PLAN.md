@@ -151,7 +151,7 @@ Commitment: 10.6
   then page, each with one proof loop and no cumulative special-case design.
 - Remaining slice-specific concerns: none.
 
-- CI repair: Start session unmarked-poll assertion under paused clock uses `page.clock.runFor(checkIntervalMs)` (not `fastForward`).
+- CI repair: Start session journey proves unmarked pre-switch polls and a fresh Host-switch header without racing a post-switch timer under the paused clock; story-launch journey still proves Option B without waiting for the poll.
 
 ## Execution complete
 
