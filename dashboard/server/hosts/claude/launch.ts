@@ -25,6 +25,7 @@ import {
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { claudeSessions, startClaudeInBackground } from "./runtime.ts";
 import type { ProjectFolder } from "../../projectFolders.ts";
+import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 import type {
   EstablishedHandoff,
@@ -34,7 +35,7 @@ import type {
 
 // The workflow's skill on the work item's identity, its policy's flags and
 // the options selected (`launchArguments`),
-// then the established start, reporting context and developer instruction, each
+// then the established start, reporting context and developer part, each
 // after a blank line. An unattached session's first input is the hosts' shared
 // one (`../../unattachedInput.ts`); a blank session has no instruction.
 function claudeInstruction(
@@ -44,7 +45,7 @@ function claudeInstruction(
   if (request.workflow === "ad-hoc") {
     return unattachedInput(request, established?.formatted);
   }
-  const own = request.instruction?.trim();
+  const own = developerPart(request);
   const skill = [
     skillInvocation("claude", launchWorkflows[request.workflow].skill),
     ...launchArguments(request),

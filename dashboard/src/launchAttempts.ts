@@ -140,6 +140,8 @@ export function useLaunchAttempts({
           ...requestedChoices(choices),
         },
         onLaunched,
+        false,
+        choices.images,
       ),
     [launch],
   );
@@ -160,6 +162,7 @@ export function useLaunchAttempts({
         },
         onLaunched,
         choices.host === "cursor",
+        choices.images,
       ),
     [launch],
   );

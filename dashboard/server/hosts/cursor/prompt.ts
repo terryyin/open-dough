@@ -7,6 +7,7 @@ import {
 } from "../../../src/agentLaunch.ts";
 import { skillInvocation } from "../../../src/hostDescription.ts";
 import type { EstablishedHandoff } from "../../hostLaunch.ts";
+import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 
 export function cursorPrompt(
@@ -16,7 +17,7 @@ export function cursorPrompt(
   if (request.workflow === "ad-hoc") {
     return unattachedInput(request, handoff?.formatted);
   }
-  const own = request.instruction?.trim();
+  const own = developerPart(request);
   const skill = [
     skillInvocation("cursor", launchWorkflows[request.workflow].skill),
     ...launchArguments(request),

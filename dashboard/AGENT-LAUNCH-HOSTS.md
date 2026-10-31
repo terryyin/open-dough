@@ -73,7 +73,8 @@ record; every process that runs the session inherits that scope, so Cursor's mod
 scope and never in the shared configuration, and deleting the launch record removes the scope. The dialog says
 the choice applies to this session only. A blank ad hoc start with a chosen model is refused before
 `create-chat`, because no Cursor run would apply it. Skills are read from `.agents/skills`, and the prompt sigil
-is `/`.
+is `/`. Its first prompt uses the same developer part as Claude and Codex (typed text plus any
+attached-images path list from `developerPart`).
 
 Common workflow, records, actions and presentation do not call another host's private helpers. Shared wording
 reads the host description, and alerts consume native observation meaning. Identity is host plus the opaque
@@ -142,7 +143,8 @@ marked done. Stored records need no migration.
 
 Claude runs `claude --bg --name '<project> · <kind> · <title>'` in the project or
 established workspace. Its prompt is `/<skill> <identity> <flags>`, the installed
-handoff when present, then optional instruction, separated by blank lines.
+handoff when present, then the developer's part (typed text and any attached-images
+path list from `developerPart`), separated by blank lines.
 It confirms through `claude agents --json --all`; an unreadable/unconfirmed
 answer is uncertain. Missing CLI, refusal and untrusted folder are explained
 without exposing raw stderr; timeout never establishes absence.
@@ -173,13 +175,14 @@ configuration, changes continuation arguments, or adds an effort agent profile
 fact. Its returned `thread.id` is the
 conversation ID, never the initialization/session ID. The common store awaits
 durable identity before `turn/start`. First input contains `$<skill> <identity> <flags>`,
-the installed handoff, optional instruction and native skill input identifying
+the installed handoff, the developer's part (typed text and any attached-images
+path list) and native skill input identifying
 the workspace's `.agents/skills/<skill>/SKILL.md`. An ad hoc first input has no
 skill line or skill input on any host: when its launch established a session
 (`server/unattachedStart.ts`), it is the installed formatter's
-"Established session" block, the reporting context, then the optional text;
-otherwise the optional text and its reporting context, and nothing when that
-text is blank (`server/unattachedInput.ts`).
+"Established session" block, the reporting context, then the developer's part;
+otherwise the developer's part and its reporting context, and nothing when that
+part is blank (`server/unattachedInput.ts`, via `developerPart`).
 
 Creation refusal submits no input, keeps preparation and reports a validated, bounded
 native error message without dumping error data. A daemon whose working directory was

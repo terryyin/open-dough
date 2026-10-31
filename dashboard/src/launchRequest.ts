@@ -30,11 +30,19 @@ const oneLine = z
 // What either kind of request carries beside its subject: the developer's own
 // instruction, the model asked for, and the flags selected from the skill's
 // options, if any. Which flags exist is the project's installed definition.
+// Attachment claim ids are transient Start uploads; absolute attachment paths
+// are recorded after admission. Neither field carries image bytes.
+const launchAttachmentPathLimit = 4_096;
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
   model: launchModelSchema.optional(),
   effort: launchSettingSchema.optional(),
   options: z.array(oneLine).max(launchOptionLimit).optional(),
+  attachmentClaims: z.array(z.uuid()).max(5).optional(),
+  attachments: z
+    .array(z.string().min(1).max(launchAttachmentPathLimit))
+    .max(5)
+    .optional(),
 };
 
 // A session's policy as the shared definition spells its three choices
@@ -149,14 +157,16 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
-// A request as it is kept: without the transient confirmation of existing
-// changes.
+// A request as it is kept: without transient confirmation of existing changes
+// or attachment claim ids (bytes stay out of JSON stores; paths are set only
+// after admission materializes claims).
 export function withoutConfirmation(
   request: AgentLaunchRequest,
 ): AgentLaunchRequest {
   const kept = { ...request };
   delete kept.existingChanges;
   delete kept.overrideStopUnconfirmed;
+  delete kept.attachmentClaims;
   return kept;
 }
 
@@ -202,10 +212,18 @@ export type ReportingContext = z.infer<typeof reportingContextSchema>;
 
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
   storyLaunchRequestSchema
-    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
+    .omit({
+      existingChanges: true,
+      overrideStopUnconfirmed: true,
+      attachmentClaims: true,
+    })
     .extend({ reporting: reportingContextSchema.optional() }),
   adHocLaunchRequestSchema
-    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
+    .omit({
+      existingChanges: true,
+      overrideStopUnconfirmed: true,
+      attachmentClaims: true,
+    })
     .extend({
       title: oneLine,
       reporting: reportingContextSchema.optional(),

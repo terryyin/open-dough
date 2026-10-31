@@ -10,6 +10,7 @@ import {
 import { feedbackMaintenanceSkill } from "../../../src/feedbackMaintenanceSetting.ts";
 import { skillInvocation } from "../../../src/hostDescription.ts";
 import type { EstablishedLaunch } from "../../hostLaunch.ts";
+import { developerPart } from "../../../src/launchAttachments.ts";
 import { unattachedInput } from "../../unattachedInput.ts";
 // The installed skill a first input names as its own structured item: a
 // story's workflow skill, or the feedback maintenance cycle's for the ad hoc
@@ -29,7 +30,7 @@ export function codexInput(
   established?: EstablishedLaunch,
   saved?: string,
 ) {
-  const own = request.instruction?.trim();
+  const own = developerPart(request);
   const skill = inputSkill(request);
   const text =
     saved ??

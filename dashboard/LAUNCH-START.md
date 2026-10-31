@@ -139,6 +139,12 @@ the Backlog card.
 
 ### Start session
 
+The shared launch dialog's Attach images control is the same on Start session
+as on story starts: images leave the browser only with Start, are copied under
+`~/.open-dough/dashboard/launch-attachments/<attempt>/` (never into a
+repository or workspace), and appear in the first input as the shared
+developer-part path list after the typed text. See [Agent launch](AGENT-LAUNCH.md).
+
 The project row's Start session offers the same Session group with two
 choices and no Tracking: Workspace (Isolated workspace or Default main) and
 After checks (Wait for review or Automatically land), in the story dialogs'

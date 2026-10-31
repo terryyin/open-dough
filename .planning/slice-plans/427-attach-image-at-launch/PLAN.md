@@ -2,6 +2,7 @@
 
 **Identity:** SEED-204#attach-image-at-launch
 **Source:** [Refined story](../../seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -126,8 +127,12 @@ removed; no native CLI round run.
 ### 2. A Start session with picked images sends their copied paths
 
 Type: Behavior
-Status: planned
-Proof: new Playwright spec beside `agent-launch-ad-hoc.spec.ts` (fake Claude)
+Status: done
+Proof: accepted — `dashboard/tests/agent-launch-ad-hoc-attachments.spec.ts`
+(attach two, remove Image 1, Start → fake Claude argv + copied bytes under test
+HOME `launch-attachments`); `dashboard/tests/boundary/developer-part.spec.ts`.
+Shared foundation: `LaunchAttachments` in `LaunchDialog`, bounded raw-body
+claims, materialize after admit, `developerPart` in all four composers.
 
 Behavior: the Start session dialog with text "Why is this card clipped?" →
 the developer chooses Attach images, picks two PNGs, removes Image 1, presses
@@ -202,6 +207,26 @@ list alone, and the label is the time, as for blank text. A Cursor start with
 a chosen model and only an image is admitted (`src/unattachedSession.ts`
 counts images as input). Two ad hoc requests with the
 same text and different images are different launches; identical ones match.
+
+## Story obligations
+
+### G1. Dropping files onto the dialog
+Reported: slice 2 — "Dropping files onto the dialog is out of scope for now."
+Story clause: "Dropping files onto the dialog."
+Disposition: excluded "Dropping files onto the dialog."
+Commitment: X1
+
+### G2. Non-image attachments and attaching to a running session
+Reported: slice 2 — "Non-image attachments, and attaching images to an already running session."
+Story clause: "Non-image attachments, and attaching images to an already running session."
+Disposition: excluded "Non-image attachments, and attaching images to an already running session."
+Commitment: X2, X3
+
+### G3. Showing attachments in history or the Sessions sidebar
+Reported: slice 2 — "Showing attachments in session history or the Sessions sidebar."
+Story clause: "Showing attachments in session history or the Sessions sidebar."
+Disposition: excluded "Showing attachments in session history or the Sessions sidebar."
+Commitment: X4, X5
 
 ## Current decisions
 
