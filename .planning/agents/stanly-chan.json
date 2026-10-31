@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-206#explicit-reread-freshness",
+  "mode": "story-branch",
+  "branch": "cursor/make-explicit-dashboard-re-reads-observe-fresh-e",
+  "host": "cursor",
+  "model": "auto"
+}
