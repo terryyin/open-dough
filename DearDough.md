@@ -230,6 +230,15 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Observed effect: no owned CI failure from this miss (caught locally by the wider suite before publish); extra repair loop on phone-width selection consumers already in the suite.
   - Inference: qualified recurrence of focused/owning-surface proof missing indirect callers of the changed project-selection contract once the tab radios hide at ≤400px.
 
+- Execution: SEED-192#browse-test-purpose / plan 429 / first related implementation `ab73ddd47574e48447445e385c6fe5d91194fc68`
+  - Timestamp: 2026-10-31T15:16:34Z (CI failure run 41214067769 on slice-2 SHA `2b74f403`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.79
+  - Evidence: slice 2 accepted proof named `intent-gherkin-browse.spec.ts`, `boundary/authenticated-read-intent-locations.spec.ts`, and frame not-configured consumers; it added `pathContainedInIntentLocations` on `file-at` admission. Existing `boundary/authenticated-read-boundary.spec.ts` committed-last cases still asserted unchanged `ghCalls().length` on unreachable refusals. CI failed that call-count on `2b74f403`, then again on `9c6bf664` and `16e8ffc4` (same cause). Repair `75cf1785` (run 41253114575 green) allows the pinned settings read and extracts `authenticated-read-committed-last.spec.ts`. Coordinator transcript `04bc7742-683e-41b1-995f-2fdbc6947449` L122–L133; repair Task `dd709676-9080-447c-a3db-adcfbeb6cea6`. Same delivery also typechecked a missed `tree` exhaustiveness consumer in `revisionReuseOrigin.ts` before slice-2 publish.
+  - Observed effect: three owned CI failures of one admission call-count contract across slices 2–4; one expectation/spec-split repair before slice 5 close; slice-5 plan work stashed and restored around the repair.
+  - Inference: recurrence of focused Intent/admission proof missing an existing boundary call-count consumer of the shared `file-at` refusal path after local owner proof passed (ODF-150).
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. Repair quiescence checks only writers, so stashing an interrupted agent’s checkout while read-only tests still observe it invalidates the proof. [Evidence and current response](docs/maintainer/findings/ODF-225.md).

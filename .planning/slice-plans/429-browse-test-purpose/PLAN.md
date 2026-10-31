@@ -240,3 +240,7 @@ Reported: slice 1 — "any Proof collection"
 Story clause: "any Proof collection"
 Disposition: excluded "any Proof collection"
 Commitment: 22.7, 40
+
+## Execution complete
+
+Product advice: Intent delivers the Gherkin pilot: project-owned `intent.locations`, pinned browse/read through the authenticated boundary, shared path-bearing tree, on-demand Shiki styling, and distinct unusable/settings states. Terry’s 2026-11-01 judgment keeps location discovery manual in each item repo’s `.planning/open-dough.json`—aligned with deferred auto-detection. No product correction. Direction stays with published Purpose reading (ADR 0008). Next queued story `browse-configured-test-source` can extend the same kind table, trees listing, and `SourceLines` grammar path; no backlog change from this review.
