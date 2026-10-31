@@ -213,13 +213,21 @@ Experiment loop: same as Slice 2.
 
 ### 5. Combine passed-over worktree exclusions in story-review-trunk-worktree-ambiguity
 Type: Structure
-Status: planned
-Proof: Focused before/after on `story-review-trunk-worktree-ambiguity.spec.ts`
-with three consecutive passes; the combined test still proves that an earlier
-worktree before the claim, a worktree on another story's claim, and a worktree
-at an earlier agent's unpublished claim are all passed over in favor of the
-publishing agent's worktree, and the two-worktrees ambiguity refusal case
-still passes.
+Status: done
+Proof: Focused default-worker 3-pass before/after on
+`story-review-trunk-worktree-ambiguity.spec.ts` (`slice5-before-1..3.json` 3/3
+passed vs `slice5-after-1..3.json` 2/2 passed, `strictStatus: "passed"`) and
+`--workers=1` serial before/after (`slice5-before-w1.json` 3/3 passed vs
+`slice5-after-w1.json` 2/2 passed): default-worker `.tsv` spec-seconds
+`14.4s / 17.4s / 46.2s` (mean `26.00s`, median `17.40s`; passed-over pair
+`10.16s / 12.26s / 32.00s`, mean `18.14s`) → `16.3s / 23.8s / 25.0s` (mean
+`21.70s`, `−4.30s`; combined passed-over case `8.85s / 13.60s / 13.95s`, mean
+`12.13s`, `−6.01s`); `--workers=1` serial `durationMs` `41.29s` (`.tsv` `30.2s`;
+passed-over pair `18.87s`) → `31.80s` (`−9.49s` / `−23.0%`; `.tsv` `19.2s`,
+`−11.0s` / `−36.4%`; combined passed-over case `12.87s`, `−6.01s`). The combined
+test plants `earlier`, `closed-b`, and `earlier-agent` worktrees in one journey
+before `expectStoryWorktreeReviewedAlone`, and the two-worktrees ambiguity
+refusal case still passes.
 
 Internal change: In `dashboard/tests/story-review-trunk-worktree-ambiguity.spec.ts`,
 plant the earlier agent's unpublished claim worktree (`earlier-agent`) beside
