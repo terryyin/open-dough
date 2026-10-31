@@ -147,6 +147,7 @@ Development/Intent frame work.
   [project choices](../../dashboard/src/ProjectSelect.tsx),
   [read status](../../dashboard/src/PublishedReadStatus.tsx), and
   [project arrow navigation](../../dashboard/src/projectKeyboardNavigation.ts).
-- [Header journeys](../../dashboard/tests/dashboard-header.spec.ts) and
-  [shared observation assertions](../../dashboard/tests/dashboardPage.ts).
+- [Header journeys](../../dashboard/tests/dashboard-header.spec.ts),
+  [compact header journeys](../../dashboard/tests/dashboard-header-compact.spec.ts),
+  and [shared observation assertions](../../dashboard/tests/dashboardPage.ts).
 - [Maintained navigation behavior](../../docs/dashboard-navigation.md).

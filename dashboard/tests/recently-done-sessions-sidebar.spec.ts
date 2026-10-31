@@ -3,6 +3,7 @@
 // and opening through PageFrame. Room sharing, reopen, Board/final-report
 // destinations, and older paging live beside this file.
 import { standaloneSessionName, parts } from "./dashboardPage.ts";
+import { browserLocaleString } from "./browserLocale.ts";
 import {
   doneRecord,
   keepProjectLaunchRecords,
@@ -125,7 +126,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expectRowShows(shown.openEntries.first(), openTitle, "4m");
     await expectTooltipLine(
       shown.openEntries.first(),
-      `Launched ${new Date(stillOpen.launchedAt).toLocaleString()}`,
+      `Launched ${await browserLocaleString(page, stillOpen.launchedAt)}`,
     );
   });
 
@@ -144,7 +145,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expectRowShows(shown.entries.nth(1), middleTitle, "5m");
     await expectTooltipLine(
       shown.entries.first(),
-      `Completed ${new Date(newestDoneAt).toLocaleString()}`,
+      `Completed ${await browserLocaleString(page, newestDoneAt)}`,
     );
     // Desktop keeps completion identity in the tooltip; touch disclosure is
     // the coarse-input path below.

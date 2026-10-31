@@ -11,6 +11,7 @@ import {
 } from "./pageRequestNotes.ts";
 
 export * from "./dashboardParts.ts";
+export * from "./projectChoice.ts";
 
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, System settings, Start session, the badge legend, each Backlog

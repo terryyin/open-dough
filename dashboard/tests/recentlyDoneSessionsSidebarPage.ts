@@ -6,7 +6,7 @@ import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { recentlyDoneSessionsInitialLimit } from "../src/agentLaunch.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { parts } from "./dashboardPage.ts";
+import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box } from "./pageLayout.ts";
 import {
@@ -164,7 +164,7 @@ export async function publishSiblingProjects(page: Page) {
 export async function showThreeProjectPage(page: Page, origin: StartOrigin) {
   await publishSiblingProjects(page);
   await showPage(page, origin);
-  await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
+  await chooseProject(page, "Pygardon");
   await expect(parts(page).backlog).toContainText("A Pygardon story");
 }
 

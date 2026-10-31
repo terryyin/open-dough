@@ -38,6 +38,73 @@
   align-self: center;
 }
 
+/* Compact title select (./ProjectSelect.tsx): shown where the tab list no
+   longer fits; hidden on wider columns so the plain heading owns the name. */
+.banner .project-title-select {
+  display: none;
+  position: relative;
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 0;
+  max-width: 100%;
+  align-self: center;
+}
+
+.banner .project-title-select-button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 calc(var(--space-4) + 0.35em) 0 var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  background-image: linear-gradient(45deg, transparent 50%, var(--text) 50%),
+    linear-gradient(135deg, var(--text) 50%, transparent 50%);
+  background-position:
+    calc(100% - 0.85em) 55%,
+    calc(100% - 0.55em) 55%;
+  background-size: 0.3em 0.3em;
+  background-repeat: no-repeat;
+  font: inherit;
+  font-size: inherit;
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.01em;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.banner .project-title-select-list {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.banner .project-title-select-list [role="option"] {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.banner .project-title-select-list [role="option"][aria-selected="true"] {
+  font-weight: var(--weight-strong);
+}
+
+.banner .project-title-select-list [role="option"][data-active="true"] {
+  background: var(--hover);
+}
+
 .banner .project-select {
   grid-column: 4;
   grid-row: 1;
@@ -61,7 +128,8 @@
 
   /* The mark, the name and System settings share the first row;
      Sessions starts the second, below the mark, before the project choices. */
-  .banner .project-title {
+  .banner .project-title,
+  .banner .project-title-select {
     grid-column: 2 / 5;
     font-size: var(--text-md);
   }
@@ -81,11 +149,28 @@
   .project-action-target { display: none; }
 }
 
-/* The narrowest column, as at high browser zoom, wraps the project choices
-   onto a second line (./project-select.css); tighter edges keep the pinned
-   banner short. */
+/* Where the tab list wraps off one banner line (./project-select.css), the
+   title becomes the one project selector and the separate tabs are not shown. */
 @container page (max-width: 400px) {
   .banner {
     padding-block: var(--space-1);
+  }
+
+  .banner .project-title {
+    display: none;
+  }
+
+  .banner .project-select {
+    display: none;
+  }
+
+  .banner .project-title-select {
+    display: block;
+    width: 100%;
+  }
+
+  .banner .project-title-select-button {
+    min-height: var(--control-size);
+    font-size: var(--text-md);
   }
 }

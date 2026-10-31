@@ -57,7 +57,7 @@ Settled in this preparation checkout
 | --- | --- | --- |
 | Journeys prove which revision was read through the surviving read status or failure alert, with product unchanged (story example 6) | Slice 1 | Every changed spec passes in focused runs (`npx playwright test --config dashboard/playwright.config.ts <files> --reporter=list`); `grep` finds no `parts(page).source` revision/time reads outside the header journey |
 | Wide screen: plain level-1 title, tabs switch projects (example 1); disclosure and its exclusive support are gone | Slice 2 | `dashboard-header.spec.ts` wide journey; typecheck and build; full dashboard suite green |
-| Narrow screen: title is the dropdown selector by touch and keyboard, Escape keeps the project, resize keeps selection, arrow cycling focuses the shown control (examples 2–5) | Slice 3 | `dashboard-header.spec.ts` phone-width journeys (touch context and keyboard), plus resize; full dashboard suite and `npm test` green |
+| Narrow screen: title is the dropdown selector by touch and keyboard, Escape keeps the project, resize keeps selection, arrow cycling focuses the shown control (examples 2–5) | Slice 3 | `dashboard-header-compact.spec.ts` phone-width journeys (touch context and keyboard), plus resize; full dashboard suite and `npm test` green |
 
 ## Ordered slices
 
@@ -109,7 +109,7 @@ or pass on focused retry (session/sidebar flakes).
 
 ### 3. Compact project selector on narrow screens
 Type: Behavior
-Status: planned
+Status: done
 Proof: phone-width header journeys for examples 2–5; full
 `npm run test:dashboard` and `npm test`.
 
@@ -122,6 +122,13 @@ with the matching tab and narrowing restores the dropdown, and page-wide arrow
 cycling's focus fallback lands on whichever project control is shown. Choose
 the breakpoint where the tabs stop fitting the banner. Update navigation
 documentation for the responsive selector and touch/keyboard use.
+
+Accepted proof (reuse): listbox-styled compact title at ≤400px;
+`dashboard-header-compact.spec.ts` examples 2–5 + related phone callers
+(`chooseProject` / `expectProjectChoice` / `shownProjectControl`);
+typecheck/build; focused touched suite green. Full dashboard 1740/1750 with
+residual `production-watcher-updates` ECONNREFUSED infra flake; `npm test`
+green when observer env does not pollute managed-delivery gap tests.
 
 ## Story obligations
 

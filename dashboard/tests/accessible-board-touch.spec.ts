@@ -9,7 +9,13 @@ import {
   queuedTitles,
   revision,
 } from "./accessibleBoard.ts";
-import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  chooseProject,
+  expectMembership,
+  expectProjectChoice,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
 import { columnPagingControl, expectView, wheelTo } from "./boardPage.ts";
 import {
   commitAnswer,
@@ -50,16 +56,12 @@ test.describe("touch reading", () => {
       "nerds-odd-e/doughnut",
     );
     await openUntilRead(page);
-    const { project, taken, recentlyDone } = parts(page);
-    await tapWhereShown(
-      project.getByRole("radio", { name: "Doughnut", exact: true }),
-    );
+    const { taken, recentlyDone } = parts(page);
+    await chooseProject(page, "Doughnut");
     await expect(parts(page).backlog).toContainText(
       "No Backlog entries are recorded.",
     );
-    await tapWhereShown(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    );
+    await chooseProject(page, "Open Dough");
     await expect(parts(page).backlog.getByRole("article")).toHaveCount(3);
     await tapWhereShown(columnPagingControl(page, "Taken"));
     await expectView(
@@ -119,9 +121,7 @@ test.describe("touch reading", () => {
       ["Backlog 3 entries", "Recently done 2 entries"],
       [".owner-mark"],
     );
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Open Dough");
   });
 
   test("an open session's disabled Start reason is readable without hover and does not start another session", async ({

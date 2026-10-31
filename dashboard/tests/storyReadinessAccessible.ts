@@ -1,7 +1,6 @@
 // Accessibility observations for story readiness: keyboard detail, identity
-// focus across a newly read snapshot, narrow/zoomed reading, badge text and
-// contrast, reduced-motion settling, and polite announcements. Fixtures remain
-// CLI-committed Git bytes.
+// focus across a newly read snapshot, narrow/zoomed reading, badge contrast,
+// reduced-motion settling, and polite announcements. CLI-committed fixtures.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
@@ -16,7 +15,12 @@ import {
   passTimeUntilCheckedAfterSettled,
 } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  shortRevision,
+  parts,
+  shownProjectControl,
+} from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
@@ -187,11 +191,11 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
 
   const restore = origin.answerWith("main", noConnection);
   await passTimeUntilCheckedAfterSettled(page, 502);
-  const { problem, projectTitle } = parts(page);
+  const { problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await problem.scrollIntoViewIfNeeded();
   await expect(problem).toBeInViewport();
-  await expect(projectTitle).toBeVisible();
+  await expect(shownProjectControl(page)).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
   restore();
   await passTimeUntilCheckedAfterSettled(page);

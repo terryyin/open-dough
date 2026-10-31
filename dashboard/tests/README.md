@@ -61,8 +61,9 @@ Put a check where it is cheapest to prove, and prove it once:
   both environments, and `frame-board-look`'s frame with no project
   configured, a state only development starts in.
 - **A layout rule is proved once per CSS branch**, in the journey whose
-  state change is observed at that width (`dashboard-header.spec.ts` runs
-  one journey per container branch of `banner.css`; `side-panel-width*.spec.ts`
+  state change is observed at that width (`dashboard-header.spec.ts` and
+  `dashboard-header-compact.spec.ts` run one journey per container branch of
+  `banner.css`; `side-panel-width*.spec.ts`
   prove the panel's query from each side once), and a font case only where
   a font reproduces a wrap. A presentation-only check, one with no state
   change of its own, joins the journey whose state change shows it or moves

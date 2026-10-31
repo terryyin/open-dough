@@ -1,14 +1,14 @@
 // The pinned banner in each of its page-column layouts (../src/banner.css,
 // ../src/project-select.css): one row on a column wider than 800 CSS pixels,
 // ending with System settings; two rows up to 800, Sessions starting the
-// second before the project choices; and, up to 400, the choices wrapped onto
-// their own line, with the wider Verdana installed on the banner to reproduce
-// the Linux first-row wrap. One journey per layout walks the keyboard back
-// up a long page: the banner stays pinned and short, Open Dough's mark leads
-// it whole and uncovered, each choice reads on one line, nothing is cut
-// short, and no focused control is hidden under it. A project switch in the
-// banner is the last test: the mark stays Open Dough's while the plain title
-// and Board become the newly selected project's.
+// second before the project choices; and, at or under 400, the compact title
+// select instead of the wrapping tab list. One journey per layout walks the
+// keyboard back up a long page: the banner stays pinned and short, Open
+// Dough's mark leads it whole and uncovered, nothing is cut short, and no
+// focused control is hidden under it. Wider layouts also check each choice
+// reads on one line. A project switch in the banner is a later test: the mark
+// stays Open Dough's while the plain title and Board become the newly selected
+// project's. Phone-width compact journeys live in dashboard-header-compact.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -18,7 +18,12 @@ import {
   revision,
 } from "./accessibleBoard.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
-import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
+import {
+  parts,
+  expectCompactProjectSelect,
+  expectMembership,
+  expectSettledPage,
+} from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { expectProductMark } from "./productMark.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
@@ -32,9 +37,9 @@ import { settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 const layouts = [
-  { width: 1280, height: 800, rows: 1 },
-  { width: 700, height: 720, rows: 2 },
-  { ...zoomedWindow, rows: 2, fontFamily: "Verdana" },
+  { width: 1280, height: 800, rows: 1, compact: false },
+  { width: 700, height: 720, rows: 2, compact: false },
+  { ...zoomedWindow, rows: 2, fontFamily: "Verdana", compact: true },
 ] as const;
 
 for (const viewport of layouts) {
@@ -56,7 +61,8 @@ for (const viewport of layouts) {
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, projectTitle, backlog } = parts(page);
+    const { banner, project, projectCompact, projectTitle, backlog } =
+      parts(page);
     // The last card's last control.
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
@@ -68,8 +74,12 @@ for (const viewport of layouts) {
     await expectSettledPage(page, undefined, { timeout: 15_000 });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
-    await expect(projectTitle).toBeInViewport({ ratio: 1 });
-    for (const control of [project, settings(page)]) {
+    const titleControl = viewport.compact ? projectCompact : projectTitle;
+    await expect(titleControl).toBeInViewport({ ratio: 1 });
+    for (const control of [
+      viewport.compact ? projectCompact : project,
+      settings(page),
+    ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     await expectProductMark(banner);
@@ -80,16 +90,20 @@ for (const viewport of layouts) {
     const pinned = await box(banner);
     expect(pinned.y).toBe(0);
     expect(pinned.height).toBeLessThan(viewport.height / 2);
-    expect(
-      await project.locator(".project-choice span").evaluateAll((choices) =>
-        choices.map((choice) => {
-          const text = document.createRange();
-          text.selectNodeContents(choice);
-          return text.getClientRects().length;
-        }),
-      ),
-    ).toEqual([1, 1, 1, 1]);
-    await expect(projectTitle).toHaveText("Open Dough");
+    if (viewport.compact) {
+      await expectCompactProjectSelect(page, "Open Dough");
+    } else {
+      expect(
+        await project.locator(".project-choice span").evaluateAll((choices) =>
+          choices.map((choice) => {
+            const text = document.createRange();
+            text.selectNodeContents(choice);
+            return text.getClientRects().length;
+          }),
+        ),
+      ).toEqual([1, 1, 1, 1]);
+      await expect(projectTitle).toHaveText("Open Dough");
+    }
     await expectFrameIconControl(
       sessionsSidebarParts(page).button,
       "Sessions",
@@ -115,9 +129,11 @@ for (const viewport of layouts) {
         );
         for (const middle of middles)
           expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
-        const controls = banner.locator(
-          "button, input, select, textarea, summary, a[href], [tabindex]",
-        );
+        const controls = banner
+          .locator(
+            "button, input, select, textarea, summary, a[href], [tabindex]",
+          )
+          .filter({ visible: true });
         await expect(controls.last()).toHaveAccessibleName("System settings");
         // The mark leads the banner but is no keyboard stop: going back
         // from the first control leaves the banner.

@@ -6,7 +6,11 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { completionReport } from "./completionReport.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  selectedProjectId,
+} from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
@@ -65,9 +69,7 @@ export async function openUnfinishedReport(
     };
   };
   const underlying = async () => ({
-    project: await parts(page)
-      .project.getByRole("radio", { checked: true })
-      .getAttribute("value"),
+    project: await selectedProjectId(page),
     storyDetails: await parts(page)
       .board.getByRole("region", { name: /^Detail for / })
       .count(),

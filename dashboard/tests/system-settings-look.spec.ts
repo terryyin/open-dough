@@ -21,6 +21,7 @@ import {
 } from "./pageLayout.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import { expectProductMark } from "./productMark.ts";
+import { expectProjectChoice } from "./dashboardPage.ts";
 import { readSetting } from "./support/settingsTouchPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -172,9 +173,7 @@ test.describe(`${name} settings reading`, () => {
     await expect(
       page.getByRole("heading", { name: "Agent roster", exact: true }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("radio", { name: "Doughnut", exact: true }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Doughnut");
     await expect(settings(page)).toBeFocused();
     expect(server.claudeCalls()).toEqual([]);
   });
