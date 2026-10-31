@@ -43,9 +43,9 @@
   and `after-times.tsv` remain from the post-reboot re-profile. No product
   behavior changed.
 - **Evidence:** [SEED-197 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-197-2026-10-31).
-  Plan recoverable on the story branch at
-  `.planning/slice-plans/424-optimize-dashboard-test-feedback/PLAN.md`. Raw
-  post-reboot records under `/tmp/SEED-197-optimize-dashboard-test-feedback/`
+  Plan recoverable at the before-cleanup commit
+  `7b9777c78c127519d78fe1423080851bd2476b72:.planning/slice-plans/424-optimize-dashboard-test-feedback/PLAN.md`.
+  Raw post-reboot records under `/tmp/SEED-197-optimize-dashboard-test-feedback/`
   on the measurement host; their continued availability is not assumed.
 
 ## Pending candidates
