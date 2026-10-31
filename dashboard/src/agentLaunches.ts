@@ -91,6 +91,9 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const [offersReading, setOffersReading] = useState(false);
   const [requested, setRequested] = useState(0);
   const lastRequested = useRef(0);
+  // The next asked read must observe evidence begun after it; only
+  // `rereadOffers` (Host switch) sets this. Regular polls stay unmarked.
+  const freshAsk = useRef(false);
   const reread = useCallback(() => {
     setRequested((value) => value + 1);
   }, []);
@@ -123,34 +126,38 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       const askedAt = Date.now();
       asks.current += 1;
       const ask = asks.current;
-      void readMachineSessionsSince(heldRevision.current, unwanted.signal).then(
-        (answered) => {
-          if (!current) return;
-          if (answered !== undefined && "unchanged" in answered) {
-            // What the page holds still stands: only this ask answered it.
-            setSessions((current) => ({ ...current, answeredAsk: ask }));
-          } else if (answered !== undefined) {
-            const { records, revision, ...facts } = answered;
-            heldRevision.current = revision;
-            const kept = records.filter(
-              (record) =>
-                (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
-                askedAt,
-            );
-            setSessions((current) => ({
-              known: replaced(kept, current.known, current.read ? askedAt : 0),
-              read: true,
-              answeredAsk: ask,
-              ...facts,
-            }));
-          }
-          setOffersReading(false);
-          everRead.current = true;
-          settleRevealed();
-          setReadsSettled((settled) => settled + 1);
-          setSettledFor(projects);
-        },
-      );
+      const fresh = freshAsk.current;
+      freshAsk.current = false;
+      void readMachineSessionsSince(
+        heldRevision.current,
+        unwanted.signal,
+        fresh ? { fresh: true } : undefined,
+      ).then((answered) => {
+        if (!current) return;
+        if (answered !== undefined && "unchanged" in answered) {
+          // What the page holds still stands: only this ask answered it.
+          setSessions((current) => ({ ...current, answeredAsk: ask }));
+        } else if (answered !== undefined) {
+          const { records, revision, ...facts } = answered;
+          heldRevision.current = revision;
+          const kept = records.filter(
+            (record) =>
+              (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
+              askedAt,
+          );
+          setSessions((current) => ({
+            known: replaced(kept, current.known, current.read ? askedAt : 0),
+            read: true,
+            answeredAsk: ask,
+            ...facts,
+          }));
+        }
+        setOffersReading(false);
+        everRead.current = true;
+        settleRevealed();
+        setReadsSettled((settled) => settled + 1);
+        setSettledFor(projects);
+      });
     };
     if (
       visibility === "revealed" ||
@@ -191,6 +198,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   return {
     rereadOffers: () => {
       setOffersReading(true);
+      freshAsk.current = true;
       reread();
     },
     records: readAnswered ? configuredKnown : undefined,

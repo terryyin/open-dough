@@ -39,7 +39,7 @@ export const stored = (home: string): LaunchRecord[] =>
       ),
     ) as Record<string, LaunchRecord[]>
   )["open-dough"] ?? [];
-export function codexSkill(home: string, flag?: string) {
+export function codexSkill(home: string, flag?: string, label?: string) {
   const root = path.join(
     home,
     "git",
@@ -61,8 +61,8 @@ export function codexSkill(home: string, flag?: string) {
         options: [
           {
             flag,
-            label: "Codex option",
-            summary: "Selected in Codex.",
+            label: label ?? "Codex option",
+            summary: label === undefined ? "Selected in Codex." : `${label}.`,
             instruction: "Investigate.",
           },
         ],

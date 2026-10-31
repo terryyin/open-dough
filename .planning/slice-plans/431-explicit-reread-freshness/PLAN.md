@@ -87,11 +87,13 @@ overlapping. Observation contract lives in
 
 ### 2. Switching the dialog's Host shows fresh offers
 Type: Behavior
-Status: planned
-Proof: new page journey (story launch dialog and Start session dialog) with
-`sessionsReuseMs: 60_000`; `agent-launch-options-exclusive.spec.ts` and the
-held-revision journey `agent-launch-held-revision-after-action.spec.ts` stay
-green; run the consumer trace for the changed read helper.
+Status: done
+Proof: `dashboard/tests/agent-launch-host-switch-fresh.spec.ts` with
+`DOUGH_SESSIONS_REUSE_MS=60000`; `agent-launch-options-exclusive.spec.ts` and
+`agent-launch-held-revision-after-action.spec.ts` stay green; consumer-trace
+for the changed read helper; `npm run typecheck:dashboard`.
+Accepted: host-switch journeys (2 passed), exclusive + held-revision (8),
+typecheck; `rereadOffers` marks `sessionsFreshHeader`, polls unmarked.
 
 Behavior: A page has read offers; the project's installed Codex options then
 change → the developer switches the dialog's Host to Codex → the dialog shows

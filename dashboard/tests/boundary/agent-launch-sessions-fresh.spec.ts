@@ -3,8 +3,6 @@
 // window, changing the project's installed Codex options yields a new revision
 // carrying those offers, while an ordinary ask holding the prior revision is
 // still answered unchanged from the settled observation.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import {
   sessionsFreshHeader,
   sessionsRevisionHeader,
@@ -55,32 +53,6 @@ function codexFlags(answer: Answer): string[] {
     );
 }
 
-function writeCodexOption(home: string, flag: string) {
-  writeFileSync(
-    path.join(
-      home,
-      "git",
-      "open-dough",
-      ".agents",
-      "skills",
-      "dough-story-refinement",
-      "references",
-      "refinement-options.json",
-    ),
-    JSON.stringify({
-      command: "dough-story-refinement",
-      options: [
-        {
-          flag,
-          label: "Codex option",
-          summary: "Selected in Codex.",
-          instruction: "Investigate.",
-        },
-      ],
-    }),
-  );
-}
-
 test("a fresh sessions ask observes changed Codex options while an ordinary held ask stays unchanged", async ({
   machine,
   dashboard: closed,
@@ -99,7 +71,7 @@ test("a fresh sessions ask observes changed Codex options while an ordinary held
     expect(codexFlags(first)).toContain("--option-a");
     expect(codexFlags(first)).not.toContain("--option-b");
 
-    writeCodexOption(dashboard.home, "--option-b");
+    codexSkill(dashboard.home, "--option-b");
 
     const ordinary = await ask(dashboard, { held });
     expect(ordinary).toEqual({ revision: held, unchanged: true });
