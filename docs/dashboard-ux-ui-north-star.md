@@ -43,8 +43,9 @@ it does not define a workflow state schema or authorize execution.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
 - The current dashboard presents Development through story planning, execution
-  progress, and local-session capabilities. The initial Intent workspace follows
-  the selected direction below; Structure is deferred from the initial UI.
+  progress, and local-session capabilities, beside a forthcoming
+  [Intent perspective](dashboard-navigation.md#development-and-intent). The
+  Intent workspace follows the selected direction below; Structure is deferred.
   These decisions describe proposed UX/UI, not delivered capabilities.
 
 **Design hypotheses:** Other interaction, ordering, wording, and visual choices
@@ -88,19 +89,12 @@ override Accepted decisions. No exception is proposed.
 reader mockups into one Intent workspace with two selectable layouts. This is
 UX/UI direction, not a story, executable plan, or implementation record.
 
-### Perspective boundaries and shared frame
+### Start session placement
 
-- Present Development and Intent in the initial perspective navigation. Defer
-  Structure; omit it from this initial UI rather than reserving a disabled tab.
-- Near-future direction comes from the product backlog and belongs in
-  Development. Keep it with that perspective rather than repeating it in Intent.
-- Start session relates to Development, but its final placement is undecided.
-  It may remain there or be a project-level action visible across perspectives.
-  The chosen Purpose/Proof layout does not settle that placement.
-- Keep the existing project selection and shared dashboard frame. Ground the
-  frame and any depicted Development controls in the existing dashboard, and
-  use real project content. Distinguish proposed Intent UI from implemented
-  behavior. Reproducing all Development card details is unnecessary here.
+The [Development and Intent frame](dashboard-navigation.md#development-and-intent)
+keeps Start session in Development. Its final placement is undecided: it may
+remain there or be a project-level action visible across perspectives. The
+chosen Purpose/Proof layout does not settle that placement.
 
 ### Test locations and browsing
 
