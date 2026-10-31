@@ -82,7 +82,12 @@ test("a planned story added to an existing seed carries its plan and only its ow
   );
   assert.equal(
     readFileSync(join(trunk.integration, seedPath), "utf8"),
-    drafted,
+    local.replace("Execute A.", "Local sibling draft."),
+  );
+  assert.equal(
+    (await git(trunk.integration, "status", "--porcelain", "--", planPath))
+      .stdout,
+    "",
   );
   const state = readStoryState(published, link, { planSource: plan });
   assert.deepEqual(
@@ -134,7 +139,7 @@ test("an unlisted story already on trunk is admitted with its locally recorded f
   assert.equal(readStoryState(published, link).status, "recorded");
   assert.equal(
     readFileSync(join(trunk.integration, seedPath), "utf8"),
-    drafted,
+    unrecorded.replace("Execute B.", "Local sibling draft."),
   );
 });
 

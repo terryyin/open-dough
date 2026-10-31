@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-201#reconcile-published-admission-drafts",
+  "title": "Reconcile published admission drafts without losing local edits",
+  "completedAt": "2026-10-31T03:23:45.940Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "codex",
+  "model": "gpt-6"
+}
