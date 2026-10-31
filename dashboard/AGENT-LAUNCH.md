@@ -158,8 +158,10 @@ evidence, and Codex and Cursor continuation.
 
 ## History, observation and navigation
 
-Machine records, native-state observation, alerts and the Sessions sidebar are
-described in [session history, observation and navigation](AGENT-LAUNCH-HISTORY.md).
+Machine records, the Sessions sidebar and navigation are described in
+[session history, observation and navigation](AGENT-LAUNCH-HISTORY.md);
+shared observation, fresh re-reads and alerts are in
+[machine-session observation](AGENT-LAUNCH-OBSERVATION.md).
 These remain local evidence, independent of published story facts.
 
 ## Embedded terminals and local record actions

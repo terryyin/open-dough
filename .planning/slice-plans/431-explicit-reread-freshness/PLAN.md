@@ -2,6 +2,7 @@
 
 **Identity:** SEED-206#explicit-reread-freshness
 **Source:** [Make explicit dashboard re-reads observe fresh evidence](../../seeds/SEED-206-explicit-reread-freshness.md#explicit-reread-freshness)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -36,7 +37,7 @@ retryable failures, and independent departure.
 | Preserved unchanged answers, bounded waits, retryable failures, independent departure | Slice 1 | Existing `shared-observation.spec.ts` cases, `tests/boundary/agent-launch-sessions-unchanged.spec.ts`, `agent-launch-codex-observation-sharing.spec.ts`, `agent-launch-codex-observation-wait.spec.ts` stay green; the fresh path's bound and departure share the same waiter code |
 | Story launch dialog Host switch shows fresh offers without waiting for the next poll | Slice 2 | Page journey patterned on `agent-launch-options-exclusive.spec.ts` with `sessionsReuseMs: 60_000`: page reads offers, installed Codex options change, Host switched to Codex, dialog shows B's option before 15 seconds |
 | Start session dialog Host switch takes the same fresh path | Slice 2 | Same journey shape from the project actions Start session dialog, or a request observation showing its Host switch sends the fresh marker and the dialog renders the fresh answer |
-| Observation contract documented | Slice 1 | `dashboard/AGENT-LAUNCH-HISTORY.md` observation paragraph names the fresh re-read rule |
+| Observation contract documented | Slice 1 | `dashboard/AGENT-LAUNCH-OBSERVATION.md` observation paragraph names the fresh re-read rule |
 
 ## Existing solutions (PFE)
 
@@ -67,11 +68,13 @@ No premise needs a probe before `ready`.
 
 ### 1. A fresh sessions read is answered only by an observation begun after it
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/shared-observation.spec.ts`
-plus the new boundary HTTP spec, `agent-launch-sessions-unchanged.spec.ts`,
+plus `agent-launch-sessions-fresh.spec.ts`, `agent-launch-sessions-unchanged.spec.ts`,
 `agent-launch-codex-observation-sharing.spec.ts` and
 `agent-launch-codex-observation-wait.spec.ts`; `npm run typecheck:dashboard`.
+Accepted: those five Playwright boundary files (12 passed) and typecheck after
+implementation and post-change refactor; HTTP marker `x-open-dough-sessions-fresh`.
 
 Behavior: After a full sessions answer under a 60-second reuse window, the
 project's installed Codex options change → a sessions request marked fresh
@@ -79,8 +82,8 @@ project's installed Codex options change → a sessions request marked fresh
 holding the old revision is still answered unchanged. A fresh request
 arriving while an observation runs waits for it and is answered by the next
 one, shared with other fresh requests that arrived meanwhile, never
-overlapping. Update the observation paragraph in
-`dashboard/AGENT-LAUNCH-HISTORY.md`.
+overlapping. Observation contract lives in
+`dashboard/AGENT-LAUNCH-OBSERVATION.md` (linked from HISTORY).
 
 ### 2. Switching the dialog's Host shows fresh offers
 Type: Behavior
@@ -99,6 +102,46 @@ the changed option once its re-read completes, without waiting for the next
 
 - Freshness is a property of the demand (started at or after arrival), not a
   new key part; ordinary demands keep the one-second reuse.
+- Freshness uses a monotonic observation generation so same-millisecond
+  pre-arrival runs are not treated as fresh (`Date.now()` alone is insufficient).
+
+## Story obligations
+
+### G1. Observation expiry deferred
+Reported: slice 1 — "Observation expiry"
+Story clause: "Observation expiry"
+Disposition: excluded "Observation expiry"
+Commitment: 10.1
+
+### G2. Lower settled heap deferred
+Reported: slice 1 — "lower settled heap"
+Story clause: "lower settled heap"
+Disposition: excluded "lower settled heap"
+Commitment: 10.2
+
+### G3. GitHub request sharing deferred
+Reported: slice 1 — "changes to GitHub request sharing"
+Story clause: "changes to GitHub request sharing"
+Disposition: excluded "changes to GitHub request sharing"
+Commitment: 10.3
+
+### G4. Story-specific session reads deferred
+Reported: slice 1 — "story-specific session reads"
+Story clause: "story-specific session reads"
+Disposition: excluded "story-specific session reads"
+Commitment: 10.4
+
+### G5. General refresh framework deferred
+Reported: slice 1 — "a general refresh framework"
+Story clause: "a general refresh framework"
+Disposition: excluded "a general refresh framework"
+Commitment: 10.5
+
+### G6. Fresh reads for other actions deferred
+Reported: slice 1 — "fresh reads for actions other than the dialogs' Host switch"
+Story clause: "fresh reads for actions other than the dialogs' Host switch"
+Disposition: excluded "fresh reads for actions other than the dialogs' Host switch"
+Commitment: 10.6
 
 ## Plan review
 

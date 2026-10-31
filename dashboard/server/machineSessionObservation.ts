@@ -9,7 +9,10 @@
 // unchanged while it still stands. A demand within a second
 // of a settled observation, or while one runs, is answered by it, so the
 // saved-session services refresh and each host's native listing run once for
-// all of them. An observation stands only for the project catalog and the
+// all of them. A fresh demand is answered only by an observation begun after
+// it arrived: it skips that settled reuse and waits out a running observation
+// begun earlier, then shares one suitable observation with other fresh demand.
+// An observation stands only for the project catalog and the
 // machine-document revision (`./machineJsonStore.ts`) it began under: a
 // catalog change, or any process changing a machine document, makes the next
 // demand observe afresh. Native session and installation changes are seen at
@@ -132,11 +135,17 @@ export class MachineSessionObservation {
 
   // The shared observation, or a retryable refusal past the read wait. A
   // waiter whose `signal` ends is refused too; nobody hears that answer.
-  async observed(signal: AbortSignal): Promise<ObservedMachineSessions> {
+  // When `fresh`, only an observation begun after this demand arrived may
+  // answer it.
+  async observed(
+    signal: AbortSignal,
+    fresh = false,
+  ): Promise<ObservedMachineSessions> {
     const demanded = await this.shared.demand(
       [configuredProjects(), await machineDocumentsRevision()],
       waitMs(),
       signal,
+      fresh,
     );
     if (demanded.kind === "observed") return demanded.value;
     throw new RefusedRequest(503, unanswered);
@@ -144,9 +153,11 @@ export class MachineSessionObservation {
 
   // The serialized answer for a viewer, whose wait ends when it leaves: only
   // that it is unchanged when the viewer holds this observation's revision.
+  // When `fresh`, the answer comes from an observation begun after this ask.
   async answerFor(
     res: ServerResponse,
     held: string | undefined,
+    fresh = false,
   ): Promise<string> {
     const departed = new AbortController();
     const leave = () => {
@@ -154,7 +165,7 @@ export class MachineSessionObservation {
     };
     res.on("close", leave);
     try {
-      const observed = await this.observed(departed.signal);
+      const observed = await this.observed(departed.signal, fresh);
       return observed.revision === held
         ? observed.unchanged
         : observed.serialized;

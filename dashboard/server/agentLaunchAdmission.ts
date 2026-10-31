@@ -40,7 +40,6 @@ import {
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
-import { sessionsRevisionHeader } from "../src/machineSessionsRevision.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { agentReadEndpoint } from "../src/readMark.ts";
 import { agentRecoverEndpoint } from "../src/sessionRecovery.ts";
@@ -69,10 +68,10 @@ import {
   finalReportRequest,
   type AdmittedFinalReport,
 } from "./finalReportAdmission.ts";
+import { sessionsRequest, type AdmittedSessions } from "./sessionsAdmission.ts";
 
 export type Admitted =
-  // `held`: the revision of the sessions answer the viewer holds, if any.
-  | { readonly kind: "sessions"; readonly held: string | undefined }
+  | AdmittedSessions
   | { readonly kind: "drain" }
   | { readonly kind: "cursor-sessions" }
   | AdmittedHostOptions
@@ -237,11 +236,7 @@ export async function admitted(
   if (url.pathname === cursorRunnerSessionsEndpoint) {
     return { kind: "cursor-sessions" };
   }
-  const held = req.headers[sessionsRevisionHeader];
-  return {
-    kind: "sessions",
-    held: typeof held === "string" ? held : undefined,
-  };
+  return sessionsRequest(req);
 }
 
 export { admittedAttach } from "./terminalAdmission.ts";

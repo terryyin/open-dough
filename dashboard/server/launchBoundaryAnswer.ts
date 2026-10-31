@@ -135,7 +135,11 @@ export async function answer(
       case "sessions":
         return {
           status: 200,
-          serialized: await sessions.answerFor(res, request.held),
+          serialized: await sessions.answerFor(
+            res,
+            request.held,
+            request.fresh,
+          ),
         };
       case "changed":
         return {

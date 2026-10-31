@@ -28,7 +28,7 @@ The original `SEED-202#bounded-dashboard-refresh` remains closed. On
 2026-10-31 Terry accepted its retained memory tradeoff: the recorded probe
 settled at 51 MiB for one, three and eight viewers, compared with 22 MiB
 before the change. No observation-expiry story is requested. The maintained
-[observation contract](../../dashboard/AGENT-LAUNCH-HISTORY.md) records that
+[observation contract](../../dashboard/AGENT-LAUNCH-OBSERVATION.md) records that
 decision; the original measurement is recoverable at
 `dc397ada:.planning/slice-plans/426-bounded-dashboard-refresh/PLAN.md`.
 

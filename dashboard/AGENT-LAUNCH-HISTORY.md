@@ -1,8 +1,9 @@
 # Dashboard session history, observation and navigation
 
 The [agent launch contract](AGENT-LAUNCH.md#history-observation-and-navigation)
-links here for local records, native-state observation, alerts and the Sessions
-sidebar.
+links here for local records and the Sessions sidebar.
+[Machine-session observation](AGENT-LAUNCH-OBSERVATION.md) covers shared reads,
+fresh re-reads, alerts and retention.
 
 Machine records live outside repositories in
 `~/.open-dough/dashboard/agent-launches.json`. Dev/preview servers consult the
@@ -164,39 +165,9 @@ A done mark suppresses attention, showing Working while working, Done otherwise.
 Native structured waiting must be supplied by the configured tool/policy; a
 never-policy run does not establish approval parity.
 
-The page reads machine records on load, while visible every 15 seconds, and
-when visible again. Every page's read and the server's notification watch join
-one shared machine-session observation. A read that arrives while one runs, or
-within a second after one settled under the same project catalog and machine
-documents, is answered by it. Each answer leads with its observation's
-revision, and a page that sends the revision of its last full answer
-(`x-open-dough-sessions-revision`) is told only that it is unchanged. A read
-not answered within 30 seconds gets a retryable 503 and the page keeps what it
-shows. A hidden or departing page ends only its own wait. Running Cursor
-sessions reads join the one runner read in flight, with no reuse once it
-settles. Attention counts share each entry's reading. The server
-also watches independently every 15 seconds, notifying macOS with Glass when an
-unmarked session enters an alerting native reading, and once, as “Unread report:
-<completion label>”, when its report arrives, whatever the native reading; its
-first read quietly baselines existing waits and reviews. Each host-qualified session's
-input and ready-for-review alerts stay handled across unknown, unreadable, incomplete, unrecognized,
-unavailable and omitted observations, including changed summaries. Only observed
-available working allows its next input alert, even with identical wording.
-Review alerts rearm when confirmed known activity changes the displayed review
-meaning; unavailable or unknown activity cannot establish that change.
-An answer/work/new-question cycle missed entirely between successful reads may
-stay quiet. Alert history is local to the server run and never replaces the
-current observation shown on the page. Unknown never alerts;
-unavailable/unrecognized may. Each server has its own alert baseline.
-
-The one-second reuse window limits how old an answer may be, not how long
-the server retains it. Each server may keep one parsed copy per machine
-document and the latest shared observation until replacement. Terry accepted
-this memory tradeoff on 2026-10-31 and kept `SEED-202#bounded-dashboard-refresh`
-closed: its recorded probe settled at 51 MiB for one, three and eight viewers,
-compared with 22 MiB before the change. The additional working set consists of
-the parsed documents and latest observation; returning to the earlier heap
-baseline or expiring the observation after one second is not required.
+[Machine-session observation](AGENT-LAUNCH-OBSERVATION.md) covers shared page and
+notification reads, explicit fresh re-reads, unchanged answers, waits, alerts
+and the one-second reuse retention tradeoff.
 
 Open Dough's notification sender shows its icon and name. Explicitly prepare it
 with `npm run setup-notifier:dashboard` at
