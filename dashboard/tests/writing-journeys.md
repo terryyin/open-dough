@@ -85,10 +85,11 @@ declaration covers the other scope. The fixture's copy and `git add` take about 
 alone and 13 to 20 when eight workers build it at once. The production journeys
 (`production-watcher*.spec.ts`) build that fixture and start the real
 watcher once per file, in `beforeAll` of a serial file, and each test steps
-the shared watcher to its next state and asserts the delta it observes in
-the watcher's own output (`support/productionWatcher.ts`: an activation or
-replacement, a settled skip, a check after an activation, recorded builds),
-never a fixed wait; `afterAll` stops the watcher and cleans the fixture up.
+the shared watcher to its next state and asserts the delta it observes
+(`support/productionWatcher.ts`: reported activations, replacements and skips,
+recorded builds, or successful Git reads recorded through fixture-local Trace2
+events). Routine checks remain quiet; the tests never use a fixed wait.
+`afterAll` stops the watcher and cleans the fixture up.
 In a serial file a failing test skips the file's later tests, and a test
 that ends the watcher hands the next one a restart at current main. A
 precondition that every test only reads is shared wider: the launch

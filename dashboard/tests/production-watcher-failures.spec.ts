@@ -168,11 +168,8 @@ test("an unavailable origin keeps production and checks resume when it returns; 
     `Keeping ${servedCommit} at ${served.url}`,
   );
   await rename(`${fixture.origin}.unavailable`, fixture.origin);
-  const checked = new RegExp(`Checked published main: ${servedCommit}\\.`, "g");
-  const checks = outputCount(watcher, checked);
-  await expect
-    .poll(() => outputCount(watcher, checked))
-    .toBeGreaterThan(checks);
+  const checks = watcher.checks();
+  await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks);
   if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
   process.kill(-watcher.child.pid, "SIGHUP");
   // The watcher stops without a failure. npm's own exit for a hung-up
