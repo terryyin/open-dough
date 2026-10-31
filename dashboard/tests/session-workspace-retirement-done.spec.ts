@@ -52,12 +52,13 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   const records = stored(dashboard.home);
   const first = records[0];
   if (first === undefined) throw new Error("Missing record");
+  const concurrentDoneAt = new Date(Date.now() - 60_000).toISOString();
   save(dashboard.home, [
     ...records,
     {
       ...first,
       session: { ...first.session, sessionId: "concurrent-record" },
-      doneAt: "2026-10-01T00:00:00Z",
+      doneAt: concurrentDoneAt,
     },
   ]);
   await markDoneAnyway(panel);
@@ -79,7 +80,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
     stored(dashboard.home).find(
       (record) => record.session.sessionId === "concurrent-record",
     )?.doneAt,
-  ).toBe("2026-10-01T00:00:00Z");
+  ).toBe(concurrentDoneAt);
   expect(existsSync(workspace)).toBe(false);
   // Explicit marking owns native rename/stop, unlike report observation.
   expect(

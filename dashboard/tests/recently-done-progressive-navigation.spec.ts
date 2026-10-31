@@ -129,10 +129,12 @@ test("Mark as done in its terminal closes the panel and lands on entry 27 once e
   await expectThroughDestination(view.github, view.recent);
 });
 
-test("marking the session done on its Taken entry while its terminal shows closes the terminal and, with Recently done paged out of view, lands on entry 27 there", async ({
+test("marking the session done in its covering terminal, with Recently done paged out of view, closes the panel and lands on entry 27 there", async ({
   page,
   dashboard,
 }) => {
+  // One Board column (40rem). Opening the terminal covers the page column, so
+  // Taken is not the reading surface; Mark as done is on the terminal.
   await page.setViewportSize({ width: 40 * rem, height: 800 });
   const view = await openedWithHeldStory(page, dashboard);
   const terminal = terminalOf(page);
@@ -143,7 +145,7 @@ test("marking the session done on its Taken entry while its terminal shows close
     .click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   await expect(view.recent).not.toBeInViewport();
-  await view.markedDone(destination);
+  await view.markedDone(destination, terminal);
   await expect(terminal).toHaveCount(0);
   await expectThroughDestinationPending(
     view.github,

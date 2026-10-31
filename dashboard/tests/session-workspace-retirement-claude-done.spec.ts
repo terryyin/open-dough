@@ -38,7 +38,7 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
 }) => {
   const { record } = await recorded(dashboard);
   dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
-  record.doneAt = "2026-10-01T00:00:00Z";
+  record.doneAt = new Date(Date.now() - 60_000).toISOString();
   record.doneProblem = "Local done mark retained. Claude Code rename failed.";
   save(dashboard.home, [record]);
   await page.route(
@@ -97,7 +97,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
       const { record, workspace } = await recorded(dashboard);
       dashboard.claudeSessionBecomes(record.session.sessionId, "done-live");
       rmSync(workspace, { recursive: true });
-      record.doneAt = "2026-10-01T00:00:00Z";
+      record.doneAt = new Date(Date.now() - 60_000).toISOString();
       record.doneProblem = `Local done mark retained. Claude Code rename failed: ${oldProblem}`;
       save(dashboard.home, [record]);
       const doneName = `done-${record.session.name}`;

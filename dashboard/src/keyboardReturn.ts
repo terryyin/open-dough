@@ -9,6 +9,7 @@
 // and only while the panel shows what it showed when asked.
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
+import { keepInView } from "./pageMovement.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
 
 export type KeyboardReturn<Shown> = {
@@ -34,18 +35,24 @@ export function useKeyboardReturn<Shown>(
       shown.current?.request !== returning.shows
     )
       return undefined;
-    const give = (element: HTMLElement | null | undefined) => {
+    let stopKeeping: (() => void) | undefined;
+    const give = (
+      element: HTMLElement | null | undefined,
+      // The opener still on the Board already has keepInView on its reading
+      // edge (covering→Close). A home reached after Mark as done may be a
+      // newly revealed Recently done entry that still needs bringing in.
+      bringHomeIntoView: boolean,
+    ) => {
       returned.current = returning;
-      // keepInView already set the Board reading place; a default focus scroll
-      // would move to the control (session entry, Sessions) instead of the
-      // card's reading edge — especially after covering→Close.
-      element?.focus({ preventScroll: true });
+      if (element === null || element === undefined) return;
+      element.focus({ preventScroll: true });
+      if (bringHomeIntoView) stopKeeping = keepInView(element);
     };
     // A control the page no longer shows, as in a hidden sidebar, cannot
     // take the keyboard.
     if (returning.control.getClientRects().length > 0) {
-      give(returning.control);
-      return undefined;
+      give(returning.control, false);
+      return () => stopKeeping?.();
     }
     const { session, demand } = returning;
     if (session !== undefined && demand === undefined) {
@@ -58,8 +65,11 @@ export function useKeyboardReturn<Shown>(
         setReturning(undefined);
       });
     }
-    give(answer === "superseded" ? undefined : returning.home?.());
-    return undefined;
+    give(
+      answer === "superseded" ? undefined : returning.home?.(),
+      answer !== "superseded",
+    );
+    return () => stopKeeping?.();
   }, [returning, range.destination]);
   return setReturning;
 }
