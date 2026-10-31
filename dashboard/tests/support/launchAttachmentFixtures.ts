@@ -44,6 +44,34 @@ export async function pickImagesInDialog(
   await (await chooser).setFiles(files);
 }
 
+/** Paste image bytes into the instruction field (empty name → pasted.png). */
+export async function pasteImageInField(
+  field: Locator,
+  bytes: Buffer,
+  options: { readonly name?: string; readonly type?: string } = {},
+): Promise<void> {
+  await field.evaluate(
+    (el, payload: { base64: string; name: string; type: string }) => {
+      const binary = atob(payload.base64);
+      const data = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        data[i] = binary.charCodeAt(i);
+      }
+      const file = new File([data], payload.name, { type: payload.type });
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", { value: transfer });
+      el.dispatchEvent(event);
+    },
+    {
+      base64: bytes.toString("base64"),
+      name: options.name ?? "",
+      type: options.type ?? "image/png",
+    },
+  );
+}
+
 export function expectCopiedAttachmentPath(
   attachedPath: string,
   home: string,

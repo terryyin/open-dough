@@ -153,8 +153,9 @@ list. Adds no per-host branch; fixes any composer slice 2 missed.
 ### 4. Pasting an image into the instruction field attaches it
 
 Type: Behavior
-Status: planned
-Proof: Playwright paste into the field
+Status: done
+Proof: accepted — agent-launch-ad-hoc-attachments-paste.spec.ts (image paste →
+pasted.png list + argv path; text paste unchanged)
 
 Behavior: clipboard holds an image → paste into the instruction field → it is
 listed as the next numbered image (named `pasted.png` when the clipboard gives

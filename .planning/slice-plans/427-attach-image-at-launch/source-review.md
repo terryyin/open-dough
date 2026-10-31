@@ -20,8 +20,8 @@ the early native host-readability probe is waived (2026-10-31).
 | 4b.3 | Same limits across those entry points. | slice 5 | |
 | 4c | There is no per-dialog variant of the attachment capability. | slice 2 | observed: LaunchDialog.tsx mounts one LaunchAttachments; no per-dialog variant |
 | 5a | Images can be added by an Attach images control that opens a file picker and allows several files at once. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts filechooser setFiles two PNGs |
-| 5b | Images can be added by pasting an image into the instruction field. | slice 4 | |
-| 5c | Pasted text keeps its normal behavior (paste of non-image text is unchanged). | slice 4 | |
+| 5b | Images can be added by pasting an image into the instruction field. | slice 4 | observed: agent-launch-ad-hoc-attachments-paste.spec.ts paste image → Image 1 · pasted.png |
+| 5c | Pasted text keeps its normal behavior (paste of non-image text is unchanged). | slice 4 | observed: agent-launch-ad-hoc-attachments-paste.spec.ts text paste inserts text; no attachment list |
 | 6a | Attached images show in the dialog as a numbered list in the form "Image N · \<filename\>". | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts Image 1 · card-a.png / Image 2 · card-b.png |
 | 6b | Each listed attachment includes a small preview. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts list.locator(img) count |
 | 6c | Each listed attachment has Remove. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts Remove Image N buttons |
@@ -70,7 +70,7 @@ the early native host-readability probe is waived (2026-10-31).
 | 21 | Image bytes must not be written into the JSON stores. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts JSON.stringify(request) without iVBOR; attachments are paths |
 | 22 | The early native host-readability probe is waived (developer, 2026-10-31). | slice 1 | observed: plan slice 1 Proof waived; Current decisions record skip |
 | 23 | The premise that hosts can open absolute paths under `launch-attachments` is retained without that probe. | slice 1 | observed: plan Current decisions retain premise |
-| E1 | Start session with text "Why is this card clipped?" and a pasted screenshot → first input is that text followed by Attached images path list. | slice 4 | |
+| E1 | Start session with text "Why is this card clipped?" and a pasted screenshot → first input is that text followed by Attached images path list. | slice 4 | observed: agent-launch-ad-hoc-attachments-paste.spec.ts text + pasted screenshot → Attached images 1-pasted.png in argv |
 | E2 | Start refinement with two picked mockups and no text → skill line, preparation handoff, then numbered paths. | slice 3 | observed: agent-launch-story-attachments.spec.ts two mockups no text → skill/handoff/reporting then numbered paths |
 | E3 | Attach two images, remove Image 1, then Start → one path is sent, numbered 1. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts remove Image 1 → single 1-card-b.png path numbered 1 |
 | E4 | Pick a PDF and a 14 MB PNG → refused with typed reasons; text and other attachments remain. | slice 5 | |

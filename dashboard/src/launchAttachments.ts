@@ -23,6 +23,47 @@ export const launchAttachmentUnsupportedType =
 export const launchAttachmentTooMany = "At most 5 images";
 export const launchAttachmentEmpty = "The image is empty.";
 
+// Filename stems for each accepted type (no leading dot). Paste naming and
+// claim sanitization both use this map.
+export const launchAttachmentExtensionFor: Record<
+  (typeof launchAttachmentTypes)[number],
+  string
+> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/gif": "gif",
+  "image/webp": "webp",
+};
+
+// Clipboard screenshots often arrive as a File with an empty name. Keep a
+// supplied name; otherwise use pasted.<type> (pasted.png for PNG).
+function namedPasteAttachment(file: File): File {
+  if (file.name.trim() !== "") return file;
+  const ext =
+    launchAttachmentExtensionFor[
+      file.type as (typeof launchAttachmentTypes)[number]
+    ];
+  return new File([file], `pasted.${ext}`, { type: file.type });
+}
+
+// Image files from a paste. Empty when the clipboard holds only text (or no
+// accepted image), so the field's ordinary text paste stays unchanged.
+export function imageFilesFromPaste(
+  clipboardData: DataTransfer | null | undefined,
+): File[] {
+  if (clipboardData === null || clipboardData === undefined) return [];
+  const files: File[] = [];
+  for (const item of clipboardData.items) {
+    if (item.kind !== "file") continue;
+    if (!(launchAttachmentTypes as readonly string[]).includes(item.type)) {
+      continue;
+    }
+    const file = item.getAsFile();
+    if (file !== null) files.push(namedPasteAttachment(file));
+  }
+  return files;
+}
+
 // The developer's part of the first input: typed text with its exact bytes
 // when the field is not blank after trim, then a blank line and the
 // attached-images path list when the request names any. The list is not

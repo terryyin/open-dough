@@ -14,6 +14,7 @@ import {
   LaunchAttachments,
   useLaunchAttachments,
 } from "./LaunchAttachmentControls.tsx";
+import { imageFilesFromPaste } from "./launchAttachments.ts";
 import type { LaunchDialogProps } from "./LaunchDialogProps.ts";
 import "./agent-launch.css";
 import "./launch-dialog.css";
@@ -138,6 +139,13 @@ export function LaunchDialog({
               maxLength={launchInstructionLimit}
               rows={4}
               readOnly={dictation.busy}
+              onPaste={(event) => {
+                const files = imageFilesFromPaste(event.clipboardData);
+                if (files.length === 0) return;
+                event.preventDefault();
+                if (dictation.busy || submitting) return;
+                attachments.addFiles(files);
+              }}
             />
             {dictation.controls}
             <LaunchAttachments

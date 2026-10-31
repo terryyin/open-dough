@@ -36,8 +36,10 @@ modal when the local service has accepted it, before the start or session ends;
 [startup handoff](#startup-handoff-and-reconciliation) follows it from there.
 
 The shared launch dialog also offers Attach images: a file picker that accepts
-several PNG, JPEG, GIF or WebP files at once. Attached images show as a
-numbered list (`Image N · <filename>`) with a small preview and Remove;
+several PNG, JPEG, GIF or WebP files at once, and pasting an image into the
+instruction field adds it the same way (named `pasted.png` when the clipboard
+gives no name). Pasting text keeps its ordinary insert. Attached images show
+as a numbered list (`Image N · <filename>`) with a small preview and Remove;
 removing renumbers the rest. Image bytes stay in the browser until Start, when
 each file is posted as its own bounded raw body (same style as dictation audio,
 never through the 32 KB JSON launch body). After admission the server copies

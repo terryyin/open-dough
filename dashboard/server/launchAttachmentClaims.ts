@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
+  launchAttachmentExtensionFor,
   launchAttachmentLimitBytes,
   launchAttachmentMaxCount,
   launchAttachmentTooLarge,
@@ -31,22 +32,16 @@ type ClaimMeta = {
   readonly type: (typeof launchAttachmentTypes)[number];
 };
 
-const extensionFor: Record<(typeof launchAttachmentTypes)[number], string> = {
-  "image/png": ".png",
-  "image/jpeg": ".jpg",
-  "image/gif": ".gif",
-  "image/webp": ".webp",
-};
-
 function sanitizeName(name: string, type: ClaimMeta["type"]): string {
+  const extension = `.${launchAttachmentExtensionFor[type]}`;
   const base = path
     .basename(name)
     .replace(/[^\w.\-()+ ]+/g, "_")
     .trim();
-  const fallback = `image${extensionFor[type]}`;
+  const fallback = `image${extension}`;
   if (base === "" || base === "." || base === "..") return fallback;
   const hasExtension = /\.[A-Za-z0-9]+$/.test(base);
-  return hasExtension ? base : `${base}${extensionFor[type]}`;
+  return hasExtension ? base : `${base}${extension}`;
 }
 
 export function claimLaunchAttachment(
