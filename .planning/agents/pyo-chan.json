@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "pyo-chan",
-  "email": "pyo-chan@example.org",
-  "identity": "SEED-202#bounded-dashboard-refresh",
-  "mode": "story-branch",
-  "branch": "claude/keep-dashboard-refresh-work-bounded-across-viewe",
-  "host": "claude"
-}

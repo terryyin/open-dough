@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-202#bounded-dashboard-refresh",
+  "title": "Keep dashboard refresh work bounded across viewers",
+  "completedAt": "2026-10-31T12:01:22.246Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "claude"
+}

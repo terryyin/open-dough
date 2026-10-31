@@ -6,8 +6,8 @@
 ## Provenance and findings
 
 This correction comes from the execution retrospective of
-`SEED-202#bounded-dashboard-refresh`, plan
-[426](../426-bounded-dashboard-refresh/PLAN.md). The reviewed commits are
+`SEED-202#bounded-dashboard-refresh`, plan 426 (recoverable at
+`dc397adab49fbb7b2002be45161c80a6bd1b0a21:.planning/slice-plans/426-bounded-dashboard-refresh/PLAN.md`). The reviewed commits are
 `bd5a9094`, `218b8d92`, `2d8118db` and `e01504b0`, plus the CI repair
 `d4190ce4`. A fresh reviewer read the net `7ad60a6f..e01504b0` dashboard diff
 against that story. These findings stood at `e01504b0`:
