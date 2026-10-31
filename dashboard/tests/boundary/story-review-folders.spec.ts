@@ -1,19 +1,24 @@
-// A story review arranges its changed files under their folders
-// (../../src/reviewFileTree.ts): files nest under each folder of their path,
-// root files sit at the top level, single-folder chains are one folder, a
-// rename sits at its new path only, each folder counts its files at any
-// depth, and folders come before files in name order whatever the input order.
+// Path-bearing items arrange under their folders (../../src/reviewFileTree.ts):
+// files nest under each folder of their path, root files sit at the top level,
+// single-folder chains are one folder, a rename sits at its new path only,
+// each folder counts its files at any depth, and folders come before files in
+// name order whatever the input order. Review changes coverage uses
+// ReviewedFile; a path-only item uses the same arrangement.
 
 import { expect, test } from "../support/pageTest.ts";
 import {
   reviewFileTree,
-  type ReviewTreeNode,
+  type PathBearing,
+  type PathTreeNode,
 } from "../../src/reviewFileTree.ts";
 import type { ReviewedFile } from "../../src/storyReviewContract.ts";
 
 // Each node as `name (count)` for a folder or `name` for a file, its rows
 // indented beneath it.
-const outline = (nodes: readonly ReviewTreeNode[], depth = 0): string[] =>
+const outline = <T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+  depth = 0,
+): string[] =>
   nodes.flatMap((node) => {
     const indent = "  ".repeat(depth);
     return node.kind === "folder"
@@ -99,4 +104,11 @@ test("the same files arrange the same way in any order", () => {
   const arranged = reviewFileTree(files);
   expect(reviewFileTree([...files].reverse())).toEqual(arranged);
   expect(reviewFileTree([])).toEqual([]);
+});
+
+test("a path-only item arranges like a reviewed file at the same path", () => {
+  const paths: readonly PathBearing[] = files.map(({ path }) => ({ path }));
+  expect(outline(reviewFileTree(paths))).toEqual(
+    outline(reviewFileTree(files)),
+  );
 });

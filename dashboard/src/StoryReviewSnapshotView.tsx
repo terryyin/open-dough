@@ -38,6 +38,8 @@ import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
   changedFiles,
+  changedFileWords,
+  FileRow,
   FileTree,
   includesTrunkWords,
   kindWords,
@@ -204,6 +206,8 @@ export function SnapshotView({
             });
           }}
           idPrefix={browserId}
+          renderFile={(row) => <FileRow {...row} />}
+          fileCountWords={changedFileWords}
         />
       </section>
       <section className="story-review-diff" aria-labelledby={diffHeadingId}>

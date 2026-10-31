@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#browse-test-purpose
 **Source:** [Browse a project's test source in Intent](../../seeds/SEED-192-review-product-intent.md#browse-test-purpose)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -77,13 +78,21 @@ the existing frame journeys publish no settings file, so their Intent shows
 
 ### 1. One file tree for review and Intent
 Type: Structure
-Status: planned
+Status: done
 Proof: The story-review file-browser specs stay green, and so do the unit checks of `reviewFileTree`.
 
 The internal change makes `reviewFileTree` arrange any item that has a `path`,
 and makes `FileTree` render a caller-supplied file row and count wording.
 Review changes passes its existing row and "changed files" wording, so its
 behavior is unchanged. This enables slice 2's Intent tree without a copy.
+
+Accepted: `reviewFileTree` / `reviewFileOrder` are generic over `PathBearing`;
+tree nodes are `Path*Node`; `FileTree` takes `renderFile` and `fileCountWords`;
+Review changes wires `FileRow` and `changedFileWords`. Focused proof:
+`boundary/story-review-folders.spec.ts` (5), `story-review-file-moves`,
+`story-review-comparison`, `story-review-tree`, `story-review-tree-collapse`,
+`story-review-line-counts`. Learning: dashboard Playwright paths are relative
+to `dashboard/tests`.
 
 ### 2. Browse and read configured Gherkin source
 Type: Behavior
@@ -146,3 +155,59 @@ Slices 2–4 extend one model, the configured location and its kind, rather
 than adding recognizers. Slice 1 is the only preparation, and it sits
 immediately before the Behavior it enables. This review found no remaining
 slice-specific concern.
+
+## Story obligations
+
+### G1. Other source kinds and file-selection patterns deferred
+Reported: slice 1 — "Other source kinds and file-selection patterns"
+Story clause: "Other source kinds and file-selection patterns"
+Disposition: excluded "Other source kinds and file-selection patterns"
+Commitment: 20, 31, 32
+
+### G2. Review changes diff syntax styling deferred
+Reported: slice 1 — "Syntax styling in Review changes diffs; the styling ability is chosen so it can serve them later."
+Story clause: "Syntax styling in Review changes diffs; the styling ability is chosen so it can serve them later."
+Disposition: excluded "Syntax styling in Review changes diffs; the styling ability is chosen so it can serve them later."
+Commitment: 21, 33
+
+### G3. Links or URLs to a selected file deferred
+Reported: slice 1 — "Links or URLs to a selected file (owned by the optimization-candidate story)"
+Story clause: "Links or URLs to a selected file (owned by the optimization-candidate story)"
+Disposition: excluded "Links or URLs to a selected file (owned by the optimization-candidate story)"
+Commitment: 22.1, 34
+
+### G4. Scenario parsing or outline deferred
+Reported: slice 1 — "scenario parsing or outline"
+Story clause: "scenario parsing or outline"
+Disposition: excluded "scenario parsing or outline"
+Commitment: 22.2, 35
+
+### G5. Search deferred
+Reported: slice 1 — "search"
+Story clause: "search"
+Disposition: excluded "search"
+Commitment: 22.3, 36
+
+### G6. Automatic location detection deferred
+Reported: slice 1 — "automatic location detection"
+Story clause: "automatic location detection"
+Disposition: excluded "automatic location detection"
+Commitment: 22.4, 37
+
+### G7. Settings editor deferred
+Reported: slice 1 — "a settings editor"
+Story clause: "a settings editor"
+Disposition: excluded "a settings editor"
+Commitment: 22.5, 38
+
+### G8. Purpose/Proof layout switching deferred
+Reported: slice 1 — "Purpose/Proof layout switching"
+Story clause: "Purpose/Proof layout switching"
+Disposition: excluded "Purpose/Proof layout switching"
+Commitment: 22.6, 39
+
+### G9. Proof collection deferred
+Reported: slice 1 — "any Proof collection"
+Story clause: "any Proof collection"
+Disposition: excluded "any Proof collection"
+Commitment: 22.7, 40
