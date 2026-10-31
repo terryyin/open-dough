@@ -14,7 +14,9 @@
 // read as the preview does, by ./serving-modes.spec.ts. Which requests it refuses before
 // launching `gh` is covered in ./authenticated-read-refusal.spec.ts, and
 // which commit added an agent profile in
-// ./authenticated-read-profile-addition.spec.ts; which backlog a membership
+// ./authenticated-read-profile-addition.spec.ts; when a reachable record was
+// last committed, and refusal without asking for an unreachable path, in
+// ./authenticated-read-committed-last.spec.ts; which backlog a membership
 // read or a read at a known revision answers, and when it asks GitHub for it,
 // in ./authenticated-read-revision-backlog.spec.ts; its
 // subprocess lifecycle -- cancellation on disconnect, timeout, and shutdown
@@ -38,7 +40,6 @@ import {
   publishes,
 } from "../support/fakeGitHub.ts";
 import { notLoggedIn } from "../originAnswers.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { rawRequest } from "../support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -150,100 +151,5 @@ test.describe("authenticated read boundary (development environment)", () => {
         `repos/${knownRepository}/contents/.planning/seeds/SEED-boundary.md?ref=${revision}`,
       ],
     ]);
-  });
-
-  test("answers when a reachable record was last committed, pinned once per revision and path, and refuses an agent profile or an unreached path before asking GitHub", async () => {
-    const revision = "ef".repeat(20);
-    const seedPath = ".planning/seeds/SEED-clock.md";
-    const profilePath = ".planning/agents/yui-chan.json";
-    const updatedAt = "2026-09-23T08:30:00Z";
-    const backlogTaken = `# Product backlog
-
-## Taken
-
-- [Clock story](seeds/SEED-clock.md#story) — SEED-clock#story
-
-## Backlog list
-`;
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        backlog: backlogTaken,
-        files: {
-          ".planning/PRODUCT-BACKLOG.md": backlogTaken,
-          [seedPath]: "# Seed\n\n**Identity:** SEED-clock#story\n",
-          [profilePath]: renderAgentProfile({
-            name: "Yui",
-            identity: "SEED-clock#story",
-            mode: "trunk",
-            branch: "origin/main",
-            host: undefined,
-            model: undefined,
-          }),
-        },
-        committed: {
-          [seedPath]: new Date(updatedAt),
-          [profilePath]: new Date(updatedAt),
-        },
-      }),
-    );
-    const read = (query: string) =>
-      rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}${query}`,
-        headers: { Origin: server.origin },
-      });
-    // The membership and the canonical record are read first, as the page
-    // reads them, so the records deciding reachability are already pinned.
-    expect((await read("")).status).toBe(200);
-    expect(
-      (await read(`&revision=${revision}&path=${encodeURIComponent(seedPath)}`))
-        .status,
-    ).toBe(200);
-
-    const commitTime = `&revision=${revision}&path=${encodeURIComponent(seedPath)}&committed=last`;
-    let callsBefore = server.ghCalls().length;
-    const answered = await read(commitTime);
-    expect(answered.status).toBe(200);
-    expect(JSON.parse(answered.body)).toEqual({
-      revision,
-      path: seedPath,
-      committedAt: "2026-09-23T08:30:00.000Z",
-    });
-    // The pinned backlog authorizes the path; the commit list is asked at the
-    // pinned revision for that one path.
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "--include",
-        `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(seedPath)}&per_page=1`,
-        "--jq",
-        ".[0].commit.committer.date",
-      ],
-    ]);
-
-    callsBefore = server.ghCalls().length;
-    expect((await read(commitTime)).status).toBe(200);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-
-    // A listed agent profile's Take is its addition (`committed=added`),
-    // never its last commit.
-    const profileCommitTime = await read(
-      `&revision=${revision}&path=${encodeURIComponent(profilePath)}&committed=last`,
-    );
-    expect(profileCommitTime.status).toBe(404);
-    expect(JSON.parse(profileCommitTime.body)).toEqual({
-      error: "That path is not reachable from this source revision.",
-    });
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-
-    const unreached = await read(
-      `&revision=${revision}&path=${encodeURIComponent(".planning/secrets/not-in-backlog.md")}&committed=last`,
-    );
-    expect(unreached.status).toBe(404);
-    expect(JSON.parse(unreached.body)).toEqual({
-      error: "That path is not reachable from this source revision.",
-    });
-    expect(server.ghCalls()).toHaveLength(callsBefore);
   });
 });
