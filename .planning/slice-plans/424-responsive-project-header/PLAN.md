@@ -177,3 +177,8 @@ use the settled Board-content fallback above.
 Product advice: Reasoned no-change. Deferred promises stay deferred. Near-future
 Intent/Proof frame is orthogonal; SEED-199 already covers the next mobile
 header/sessions step. No backlog edit.
+
+CI disposition: run 41189249981 on `a2fe577f` failed only `dashboard (3/12)` at
+Install npm dependencies with `npm source stalled: acquisition deadline
+exceeded`; the other 15 jobs succeeded. Affirmative infrastructure evidence —
+ignored without a product repair. Slice 3 product tip `c5927db4` was fully green.
