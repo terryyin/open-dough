@@ -606,6 +606,14 @@ Distinct executions, original timestamps/releases/tools, observed effects and qu
   - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
   - Inference: recurrence of ODF-356 when reading `"format": "node scripts/lint.mjs --fix"` from `package.json` without wrapping it in `npm run format` so `node_modules/.bin` is on PATH.
 
+- Execution: SEED-206#explicit-reread-freshness / plan 431, first implementation `2010301f933b951b34e37c6538c957658a545080`
+  - Timestamp: 2026-10-31T23:00:00+08:00 (approx.; first slice 1 fresh delivery refused before accepted `2010301f`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: coordinator session for plan 431 — first `execution-increment-delivery.mjs fresh` for slice 1 passed `["node","scripts/lint.mjs","--fix"]` in `formatting`, which returned `preparation-failed` (`eslint: not found on PATH` / `prettier: not found on PATH`); retry with `["npm","run","format"]` published `2010301f`.
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
+  - Inference: recurrence of ODF-356; prefer `npm run format` as the selective formatter operation so `node_modules/.bin` is on PATH.
+
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
 ## ODF-357 — Preparation observations recorded results their own commands contradict
@@ -814,6 +822,14 @@ check` refused until both were rewritten to the consuming reader's shapes.
   - Evidence: coordinator transcript `51bb7763-bed4-4bd1-a5fa-bf7e58d7132b` — first `source-review.md` Write placed commitment ids `8`/`9`/`10` in the Slice column for exclusions; rewrite placed obligation ids `G3`/`G4`/`G5` there (`| … | G3 | G3 |`); StrReplace rewrote those rows to `| … | slice 1 | G3 |` (and G4/G5) and quoted the matching Story obligations `Reported:` lines before `story-obligations.mjs` check accepted and increment `0921f1f7` published
   - Observed effect: local planning-record repair before acceptance; no product rework and no incorrect slice completion published
   - Inference: Slice-column recurrence of DD-369 (same class as the SEED-182 occurrence). Checking the consuming reader's Slice/`Reported` shapes before the first write would avoid the repair round
+
+- Execution: SEED-206#explicit-reread-freshness / plan 431, first implementation `2010301f933b951b34e37c6538c957658a545080`
+  - Timestamp: 2026-10-31T22:55:00+08:00 (approx.; source-review / obligation check before slice 1 delivery)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: coordinator session for plan 431 — first `source-review.md` deferred rows used `| … | G1 | G1 |` (obligation id in Slice) and Story obligations `Reported: source review — …` without `slice N — "…"`; `story-obligations.mjs check --slice 1` returned `malformed-commitment` / `malformed-reported`; rewrite to empty Slice + obligation in Observation and `Reported: slice 1 — "…"` then check passed before `2010301f`.
+  - Observed effect: one local planning-record repair before the first accepted increment; no product rework and no incorrect slice completion published
+  - Inference: Slice-column and Reported-shape recurrence of DD-369. Exercise the consuming reader's shapes before the first write.
 
 ## DD-370 — New Markdown docs with trailing blank EOF fail staged whitespace
 

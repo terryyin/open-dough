@@ -150,3 +150,11 @@ Commitment: 10.6
 - Slice-plan refinement: not needed — two Behavior slices, server boundary
   then page, each with one proof loop and no cumulative special-case design.
 - Remaining slice-specific concerns: none.
+
+## Execution complete
+
+Product advice: no change — Host-switch re-reads observe post-change offers
+under the long reuse window without a new product follow-up; deferred expiry
+and other-action freshness remain excluded. Process: recorded recurrence
+occurrences on ODF-356 (direct formatter PATH) and DD-369 (source-review
+Slice/`Reported` shapes); DearDough at 947 lines (500-line threshold warning).
