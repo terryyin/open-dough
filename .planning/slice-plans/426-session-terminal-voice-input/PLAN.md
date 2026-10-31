@@ -2,6 +2,7 @@
 
 **Identity:** SEED-200#session-terminal-voice-input
 **Source:** [Refined story](../../seeds/SEED-200-session-terminal-voice-input.md#session-terminal-voice-input)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -20,53 +21,7 @@ header it delivers without changing either story's promises.
 
 ## Design and reuse
 
-Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-the session remains Side panel content; voice is local session input, not a
-workflow or launch record. [ADR 0000 — Use ADRs](../../../docs/adrs/0000-use-adrs-accepted.md)
-keeps this feature-local design in its source and maintained terminal
-documentation. No ADR conflict or new decision was found. The existing
-[UX/UI North Star](../../../docs/dashboard-ux-ui-north-star.md#visual-and-accessibility-direction)
-supports compact, named, touch-reachable controls and textual feedback; no new
-temporary architecture topic is warranted.
-
-PFE found suitable current owners:
-
-- Reuse `useInstructionRecording` and `/__instruction-transcription` directly.
-  The hook owns capture, explicit Stop, supported audio, configuration checks,
-  safe errors, resource release, cancellation, and successful-text delivery.
-  Its callback already separates that work from the destination. Preserve
-  `useLaunchInstruction` as the launch adapter with its separator, limit,
-  overflow review, and settings-return draft. Do not copy it into the terminal.
-- Extend `useAttachedTerminal` with a small insertion operation on its current
-  live attachment, using xterm's input event and the existing socket message
-  path. Check that this attachment can offer input and report an unsent result
-  instead of silently dropping it. Focus the terminal after accepted input.
-  A local offer is not a native delivery acknowledgment. Do not open a second
-  socket, simulate DOM keys, reconstruct a native composer, or inspect CLI
-  prompt text to implement ordinary dictation.
-- Keep destination-specific state in the keyed `Terminal` view, outside the
-  attachment effect and retry counter. An attachment retry must not clear a
-  retained result; unmounting the view must clear it. A disposed sender must
-  never target a later attachment or another session. Keep this integration
-  small; a shared recorder rename is optional only if these two current
-  consumers need it.
-- Normalize transcript line breaks to spaces and remove terminal controls
-  before offering input. Use plain text, without launch blank lines, synthetic
-  Enter, or bracketed-paste escape sequences. Retain complete words and
-  punctuation; do not import the launch-only 4,000-character limit. If
-  normalization leaves no usable text, reuse empty-transcript recovery.
-- Use the existing `IconButton` and header actions. Microphone precedes Mark
-  as done where available and remains with the actions otherwise; its name
-  changes to Stop during recording. Announce permission/recording/transcribing
-  state and safe problems in the panel without making Close or ordinary
-  typing unavailable. A pending result cannot be overwritten by a new capture.
-  Keep idle status quiet; existing terminal status consumers expect no
-  connection/error notice on a healthy idle attachment.
-
-The common rule is one capture/transcription operation with destination-owned
-insertion and recovery. The borrowed document-import mechanism separates
-conversion from insertion; its terminal-specific limit is that control input
-can act immediately and a send has no receipt. No import framework is needed.
+See [supporting execution evidence](execution-evidence.md#design-and-reuse).
 
 ## Outside-in proof
 
@@ -79,7 +34,7 @@ stand-in for the product behavior being proved.
 | Source promise / example                                                                                                                   | Owner      | Observable proof                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phone microphone before Mark as done, compact header, touch and Close reachable (1, 2)                                                     | Slice 1    | New `session-terminal-voice.spec.ts`: one phone touch journey records/stops, measures visible controls and terminal input room at reduced height, and closes normally; use the delivered SEED-199 arrangement when present                                                                                                                                                                                                      |
-| Desktop keyboard control, feedback, existing input, focus, exactly one insertion, edit then explicit Enter (1, 2)                          | Slice 1    | Same spec's desktop journey: type prefix, record a real clip, observe one transcript input frame and the native composer, assert no submitted native line before Enter, edit, then assert the final native line after Enter; keyboard starts/stops the named control. Extend the existing Cursor terminal-page journey's no-Mark-as-done case to assert that its microphone remains reachable, without repeating the voice flow |
+| Desktop keyboard control, feedback, existing input, focus, exactly one insertion, edit then explicit Enter (1, 2)                          | Slice 1    | Same spec's desktop journey: type prefix, record a real clip, observe one transcript input frame and the native composer, assert no submitted native line before Enter, edit, then assert the final native line after Enter; keyboard starts/stops the named control. Extend the existing Cursor terminal-page journey to assert that its microphone remains reachable, without repeating the voice flow; current Cursor capability includes local Mark as done, and Terminal renders microphone independently of that conditional |
 | No Enter/control actions; launch separators and 4,000-character limit stay destination-specific (3)                                        | Slice 1    | Focused variants at the text-normalization boundary, plus a browser transcript containing a line break/control and a result longer than 4,000 characters reaching the native input without an automatic submit; existing launch voice/overflow proof remains green                                                                                                                                                              |
 | Missing key, permission refusal, unavailable recording, empty speech, failed transcription; safe guidance, typing and explicit retry (4)   | Slice 1    | New `session-terminal-voice-lifecycle.spec.ts` reaches terminal feedback with the existing failure fixtures; prove a representative failed provider request then successful explicit retry and typed input. Reuse the existing launch failure/boundary variants for unchanged shared classifications; do not duplicate the provider matrix                                                                                      |
 | Close, switching A→B, Mark as done that closes, pending permission, active capture, held request, already completed late result (5)        | Slice 1    | Same new lifecycle spec: observe stopped tracks/abort, then grant/deliver late and inspect B/reopened A plus input frames. Cover Close/reopen, switch, and successful Done through their actual page actions, without claiming unmount alone proves all three                                                                                                                                                                   |
@@ -92,7 +47,7 @@ stand-in for the product behavior being proved.
 ### 1. Dictate into the current terminal without submitting
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an open terminal contains editable input → the developer records
 and stops from its header → one safe transcript enters through the existing
@@ -196,67 +151,7 @@ Do not stop another session's processes.
 
 ## Decisive premises and observations
 
-All observations below were in the preparation checkout
-`/Users/terryyin/git/open-dough/.worktrees/dictate-text-into-the-session-terminal-from-its`
-at product revision `2fa92b730b50b1b0327977a5a45c42fea245af15` (planning-only
-edits do not alter these product paths). Sources and asserted outcomes were
-inspected before selection. No physical-phone or paid-provider observation is
-claimed; the source reuses the existing supported-capture contract and
-unsupported-browser guidance.
-
-- Shared capture-to-destination and current terminal-input routes: the literal
-  baseline command in the source's Investigation evidence passed all three
-  tests. Assertions reached real recording, synthetic-provider transcription,
-  appended field content, and the native terminal's `echo yes, go on` result.
-- Proof discrimination: scratch suppression of `append(answer.text)` and
-  `send({ input })`, running the baseline specs with
-  `--grep 'two real clips|a card or standalone' --max-failures=2`, failed at
-  those two corresponding observations. Both product files were restored
-  byte-for-byte before any record write. This validates existing proof routes,
-  not the new terminal-voice behavior that the slices must introduce.
-- xterm input semantics: a local Chromium probe loaded the installed
-  `node_modules/@xterm/xterm/lib/xterm.js`, opened a terminal, observed `onData`,
-  and called `input('spoken text')`, `paste('first\nsecond')`, then enabled
-  mode 2004 and pasted again. The observed packets were exactly
-  `spoken text`, `first\rsecond`, and `\u001b[200~first\rsecond\u001b[201~`.
-  Therefore use plain normalized text through input, not multiline paste.
-- Cancellation/reconnect proof routes: `env -u NO_COLOR -u FORCE_COLOR
-npm run test:dashboard -- session-instruction-voice-lifecycle.spec.ts
-agent-terminal-lifetime.spec.ts --workers=1` passed five tests in 22.5s.
-  The observations reached provider abort and released tracks, late permission
-  and already-completed response isolation, unexpected track end, and native
-  input after real server disconnection/reconnect. Inspected setup/observation
-  locations are those specs plus `support/voicePage.ts` and
-  `support/voiceProvider.ts`. These are current reusable routes; the slices
-  still own the new terminal-voice integration assertions.
-
-Literal xterm observation command (exit 0 and the three packets above):
-
-```sh
-node --input-type=module <<'NODE'
-import { chromium } from '@playwright/test';
-const browser = await chromium.launch();
-try {
-  const page = await browser.newPage();
-  await page.setContent('<div id="terminal" style="width:800px;height:400px"></div>');
-  await page.addScriptTag({ path: 'node_modules/@xterm/xterm/lib/xterm.js' });
-  const result = await page.evaluate(async () => {
-    const term = new window.Terminal();
-    term.open(document.getElementById('terminal'));
-    const observed = [];
-    term.onData(data => observed.push(data));
-    term.input('spoken text');
-    term.paste('first\nsecond');
-    await new Promise(resolve => term.write('\x1b[?2004h', resolve));
-    term.paste('first\nsecond');
-    term.dispose();
-    return observed;
-  });
-  console.log(JSON.stringify(result));
-  if (JSON.stringify(result) !== JSON.stringify(['spoken text','first\rsecond','\x1b[200~first\rsecond\x1b[201~'])) throw new Error('Unexpected xterm input');
-} finally { await browser.close(); }
-NODE
-```
+See [supporting execution evidence](execution-evidence.md#decisive-premises-and-observations).
 
 ## Current decisions and plan review
 
@@ -270,3 +165,58 @@ NODE
   named safe interim behavior rather than adding another representation.
 - No remaining slice-specific concern was identified in this preparation;
   the final readiness record is bound to this plan and its refined source.
+
+## Execution context
+
+- Established execution: `SEED-200#session-terminal-voice-input`, publisher
+  `dashboard-territory.local-open-dough`, agent `d.kanai-chan`.
+- Mode: Story Branch; owned/reused execution checkout
+  `/Users/terryyin/git/open-dough/.worktrees/dictate-text-into-the-session-terminal-from-its`,
+  branch `codex/dictate-text-into-the-session-terminal-from-its`. Default integration
+  checkout: `/Users/terryyin/git/open-dough`; authorized remote/trunk: `origin/main`.
+- Starting revision: `c1e02872a5627aaa6319c1b7d79c82cf3d335823`. Claim published
+  on `origin/main`: `d3a51816132a8daf82d80384b04b1ff5f4124c61`; initial candidate
+  and previously published execution base are that same SHA. Claim CI is unobserved.
+- Checkout setup: locked `npm ci` and `npm run typecheck:dashboard` passed.
+  Selective formatter: `npm run format`; pre-commit is check-only staged lint
+  plus dashboard typecheck when scripts are staged.
+- Replanning: preserve existing planned-work authority; no numeric slice limit
+  supplied. Reassess an expanded transport or changed promise before continuing.
+- CI: GitHub Actions `ci.yml` (verified active workflow ID 351271804, name CI),
+  push coverage of `terryyin/open-dough`, target
+  `codex/dictate-text-into-the-session-terminal-from-its`. Codex coordinator
+  `seed200-kanai`; observer `/tmp/dough-ci-501/watch-M6Cudd`, PID 8917,
+  stream session 90318, yielded cell `g20:11`, checkout as above.
+- First selected slice: 1; story-obligation listing accepted with no entries.
+  Use one worker for focused browser proof on the shared host; reconsider current
+  contention before heavy verification, preserving other sessions' processes.
+
+## Story obligations
+
+### G1. Keyboard access from native input
+Reported: slice 1 — "acceptance discovery: xterm consumes Tab/Shift+Tab; focusing a header button in test setup would not establish the source's keyboard journey from terminal focus."
+Story clause: "keep it usable with touch and keyboard at narrow and desktop widths"
+Disposition: proved by slice 1: session-terminal-voice.spec.ts actual native input → Alt+F10 → Session actions → Tab → named microphone/Stop Enter/Space; input aria-describedby and existing native Tab/Escape assertions
+
+### G2. Interim retained result cannot yet insert
+Reported: slice 1 — "acceptance discovery: interim feedback retains full text with Discard but explicitly says insertion after reconnect is not available yet."
+Story clause: "offer explicit Insert after reconnect plus Discard"
+Disposition: interim until slices 2
+
+### G3. Phone journey must retain edit and submit proof
+Reported: slice 1 — "acceptance discovery: the initial phone journey records/stops and measures layout, but only the desktop journey observes existing native input, focus, no submit, editing, and explicit Enter."
+Story clause: "Edit it, then press Enter → the session receives the edited instruction"
+Disposition: proved by slice 1: session-terminal-voice.spec.ts phone journey observes touch-focused Review prefix, one offered transcript, native focus/no submitted line, Backspace/edit, then exact edited native line after Enter
+
+## Execution decisions
+
+- Keyboard investigation: existing xterm consumes native Tab/Shift+Tab; existing
+  page shortcuts either retain terminal focus or close the view. Add a local
+  Alt+F10 path to session actions, followed by ordinary Tab navigation, as the
+  minimum implementation of keyboard access. Preserve native Tab and Escape;
+  prove the complete path from native input and document discovery/help. This
+  selects a routine interaction within the source promise, not a source change.
+
+## Slice 1 accepted evidence
+
+See [supporting execution evidence](execution-evidence.md#slice-1-accepted-evidence).

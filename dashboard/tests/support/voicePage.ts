@@ -152,3 +152,54 @@ export function stoppedTracks(page: Page) {
     );
   });
 }
+
+export async function holdMicrophonePermission(page: Page) {
+  await page.evaluate(() => {
+    (
+      window as unknown as { voiceObservation: { holdPermission: boolean } }
+    ).voiceObservation.holdPermission = true;
+  });
+  return {
+    requested: () =>
+      page.waitForFunction(() =>
+        Boolean(
+          (window as unknown as { voiceObservation: { grant?: () => void } })
+            .voiceObservation.grant,
+        ),
+      ),
+    grant: () =>
+      page.evaluate(() => {
+        (
+          window as unknown as { voiceObservation: { grant?: () => void } }
+        ).voiceObservation.grant?.();
+      }),
+  };
+}
+
+export async function holdCompletedVoiceResponse(page: Page) {
+  await page.evaluate(() => {
+    (
+      window as unknown as { voiceDelivery: { hold: boolean } }
+    ).voiceDelivery.hold = true;
+  });
+  return {
+    ready: () =>
+      page.waitForFunction(
+        () =>
+          (window as unknown as { voiceDelivery: { ready: boolean } })
+            .voiceDelivery.ready,
+      ),
+    release: async () => {
+      await page.evaluate(() => {
+        (
+          window as unknown as { voiceDelivery: { release?: () => void } }
+        ).voiceDelivery.release?.();
+      });
+      await page.waitForFunction(
+        () =>
+          (window as unknown as { voiceDelivery: { consumed: boolean } })
+            .voiceDelivery.consumed,
+      );
+    },
+  };
+}

@@ -11,6 +11,8 @@ import {
   recordClip,
   seedVoiceKey,
   stoppedTracks,
+  holdMicrophonePermission,
+  holdCompletedVoiceResponse,
 } from "./support/voicePage.ts";
 test.use(voiceBrowserOptions);
 test.beforeEach(async ({ page }) => {
@@ -66,19 +68,10 @@ test("Escape stops active capture; a late permission grant after dismissal canno
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
-  await page.evaluate(() => {
-    (
-      window as unknown as { voiceObservation: { holdPermission: boolean } }
-    ).voiceObservation.holdPermission = true;
-  });
+  const permission = await holdMicrophonePermission(page);
   await action.click();
   await dialog.getByRole("button", { name: "Record", exact: true }).click();
-  await page.waitForFunction(() =>
-    Boolean(
-      (window as unknown as { voiceObservation: { grant?: () => void } })
-        .voiceObservation.grant,
-    ),
-  );
+  await permission.requested();
   await expect(dialog.getByRole("status")).toHaveText(
     "Waiting for microphone permission…",
   );
@@ -88,11 +81,7 @@ test("Escape stops active capture; a late permission grant after dismissal canno
   await expect(startSessionField(dialog)).toHaveAttribute("readonly", "");
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await action.click();
-  await page.evaluate(() => {
-    (
-      window as unknown as { voiceObservation: { grant?: () => void } }
-    ).voiceObservation.grant?.();
-  });
+  await permission.grant();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   await expect(startSessionField(dialog)).toHaveValue("");
   expect(provider.calls).toHaveLength(0);
@@ -138,34 +127,17 @@ test("a completed real response delivered after Cancel cannot populate the next 
 }) => {
   await openTakenBacklog(page, launchJourney);
   seedVoiceKey(dashboard.home);
-  await page.evaluate(() => {
-    (
-      window as unknown as { voiceDelivery: { hold: boolean } }
-    ).voiceDelivery.hold = true;
-  });
+  const delivery = await holdCompletedVoiceResponse(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
   await action.click();
   await startSessionField(dialog).fill("Discard the first draft");
   await recordClip(page, dialog);
-  await page.waitForFunction(
-    () =>
-      (window as unknown as { voiceDelivery: { ready: boolean } }).voiceDelivery
-        .ready,
-  );
+  await delivery.ready();
   expect(provider.calls).toHaveLength(1);
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await action.click();
-  await page.evaluate(() => {
-    (
-      window as unknown as { voiceDelivery: { release?: () => void } }
-    ).voiceDelivery.release?.();
-  });
-  await page.waitForFunction(
-    () =>
-      (window as unknown as { voiceDelivery: { consumed: boolean } })
-        .voiceDelivery.consumed,
-  );
+  await delivery.release();
   await expect(startSessionField(dialog)).toHaveValue("");
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),

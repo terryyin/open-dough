@@ -117,6 +117,27 @@ Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
 Shown entries/cards are outlined and Sessions sidebar Session entry current; closing clears them.
 
+The terminal header offers **Dictate into terminal** immediately before Mark as
+done, or with the other actions when Done is unavailable. The microphone becomes
+**Stop recording** during capture. From terminal input, **Alt+F10** focuses the
+session actions; Tab reaches the microphone, and Enter or Space activates it.
+Ordinary Tab, Shift+Tab and Escape still belong to the native terminal. Permission, recording and transcription state
+are announced in the panel; Close and ordinary typing remain available. Recording
+uses the same configured OpenAI access and safe recovery guidance as launch
+instruction dictation. A completed transcript is offered once through the current
+terminal's normal input path, then focus returns there. Existing input remains;
+line breaks become spaces and terminal controls are removed. Dictation sends no
+Enter and has no launch-field separator or 4,000-character limit. Edit and press
+Enter deliberately to submit. A local offer is not a native delivery receipt and
+is never replayed automatically.
+
+Capture and pending results belong to the open session view. Close, switching
+sessions and a successful Mark as done that closes it cancel capture and pending
+requests, including late permission or transcript delivery. A result that cannot
+be offered to its attachment stays visible in full with **Discard transcript**;
+settle it before another recording. Insertion after reconnect is not available
+in this intermediate increment. Closing or switching discards the result.
+
 On touch screens, tap the terminal to focus its ordinary input, edit with the
 browser keyboard and submit with Enter. The terminal keeps its own scrollback;
 scroll within it to read earlier output. With reduced visible height, a long

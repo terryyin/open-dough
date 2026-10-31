@@ -64,6 +64,9 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   // The started session's terminal opens beside the page, which then shows
   // one column.
   await expect(panel).toHaveCount(1);
+  await expect(
+    panel.getByRole("button", { name: "Dictate into terminal", exact: true }),
+  ).toBeVisible();
   await showColumn(page, "Taken");
   await open.click();
   await expect(rows).toContainText("ctrl+c to stop");

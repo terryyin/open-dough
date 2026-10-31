@@ -20,6 +20,12 @@
     max-height: 30dvh;
     overflow-y: auto;
   }
+
+  /* The native ID remains readable as a whole within the scrolling identity,
+     even beside four header actions. */
+  .terminal-identity .side-panel-names code {
+    display: block;
+  }
 }
 
 /* The half-height stacked panel still leaves a touch input target when the
@@ -101,4 +107,29 @@
 .terminal-identity > .agent-portrait:hover::after,
 .terminal-identity > .agent-portrait.portrait-gesture-blend:hover::before {
   transform: none;
+}
+
+/* A retained result stays readable without consuming the terminal's input. */
+.terminal-status:has(.terminal-transcript) {
+  max-height: 35%;
+  overflow-y: auto;
+}
+
+.terminal-transcript {
+  width: 100%;
+}
+
+.terminal-transcript textarea {
+  display: block;
+  width: 100%;
+}
+
+/* Four session actions keep their touch targets without spending extra
+   title room on gaps between them. */
+.terminal-identity + .side-panel-actions {
+  gap: 0;
+}
+
+.side-panel:has(> .terminal-screen) > .side-panel-header {
+  column-gap: var(--space-1);
 }

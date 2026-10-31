@@ -13,6 +13,12 @@ import {
 } from "./instructionTranscription.ts";
 
 type Phase = "ready" | "permission" | "recording" | "transcribing";
+const recordingStatus = {
+  ready: undefined,
+  permission: "Waiting for microphone permission…",
+  recording: "Recording… Stop recording when you are finished.",
+  transcribing: "Transcribing…",
+};
 type Operation = {
   controller: AbortController;
   stream?: MediaStream;
@@ -206,6 +212,7 @@ export function useInstructionRecording(append: (text: string) => void) {
   };
   return {
     phase,
+    status: recordingStatus[phase],
     busy: phase !== "ready",
     problem,
     setupRequired,

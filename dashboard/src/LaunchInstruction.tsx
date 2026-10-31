@@ -85,15 +85,10 @@ export function useLaunchInstruction(
           Stop recording
         </button>
         <p role="status">
-          {recording.phase === "permission"
-            ? "Waiting for microphone permission…"
-            : recording.phase === "recording"
-              ? "Recording… Stop recording when you are finished."
-              : recording.phase === "transcribing"
-                ? "Transcribing…"
-                : reviewing
-                  ? "Review or discard the transcript before Start."
-                  : "Dictate, then review or edit the text before Start."}
+          {recording.status ??
+            (reviewing
+              ? "Review or discard the transcript before Start."
+              : "Dictate, then review or edit the text before Start.")}
         </p>
         {recording.problem && <p role="alert">{recording.problem}</p>}
         {recording.setupRequired && openSettings && (
