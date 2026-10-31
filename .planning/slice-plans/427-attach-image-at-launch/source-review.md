@@ -13,8 +13,8 @@ the early native host-readability probe is waived (2026-10-31).
 | 2 | The started session's first input names each image's local file path so the agent can open it without the developer saving or typing paths first. | slice 7 | |
 | 3 | There is one attachment capability in the shared launch dialog (`LaunchDialog`). | slice 2 | observed: dashboard/src/LaunchAttachmentControls.tsx + LaunchDialog.tsx; agent-launch-ad-hoc-attachments.spec.ts Attach images control |
 | 4a.1 | Start session gains that capability identically. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts Start session dialog uses shared Attach images |
-| 4a.2 | Start execution gains that capability identically. | slice 3 | |
-| 4a.3 | Start refinement gains that capability identically. | slice 3 | |
+| 4a.2 | Start execution gains that capability identically. | slice 3 | observed: agent-launch-story-attachments.spec.ts Start execution dialog Attach images |
+| 4a.3 | Start refinement gains that capability identically. | slice 3 | observed: agent-launch-story-attachments.spec.ts Start refinement dialog Attach images |
 | 4b.1 | Same wording across those entry points. | slice 2 | observed: LaunchAttachmentControls.tsx shared wording Attach images / Image N · name |
 | 4b.2 | Same controls across those entry points. | slice 2 | observed: LaunchAttachmentControls.tsx shared picker, list, Remove controls in LaunchDialog |
 | 4b.3 | Same limits across those entry points. | slice 5 | |
@@ -38,9 +38,9 @@ the early native host-readability probe is waived (2026-10-31).
 | 8c | After the developer's text, the server appends an "Attached images" list of numbered absolute paths. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts prompt Attached images: 1. <path>; developer-part.spec.ts |
 | 8d | That appended list is not counted in the 4,000 character instruction limit. | slice 2 | observed: dashboard/src/launchAttachments.ts developerPart composes list outside instruction field; developer-part.spec.ts |
 | 8e.1 | The same first input (text plus attached-images path list) reaches Claude Code. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts fake Claude argv ends with Attached images list |
-| 8e.2 | The same first input reaches Codex. | slice 3 | |
-| 8e.3 | The same first input reaches Cursor. | slice 3 | |
-| 8f | That includes a story start's handoff. | slice 3 | |
+| 8e.2 | The same first input reaches Codex. | slice 3 | observed: agent-launch-ad-hoc-attachments-codex.spec.ts turn/start text ends with Attached images path |
+| 8e.3 | The same first input reaches Cursor. | slice 3 | observed: agent-launch-ad-hoc-attachments-cursor.spec.ts prompt developer part ends with Attached images path |
+| 8f | That includes a story start's handoff. | slice 3 | observed: agent-launch-story-attachments.spec.ts refinement argv includes handoff then Attached images list |
 | 8g | That includes an ad hoc session's established-session block. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts ad hoc Start session; unattachedInput.ts uses developerPart |
 | 9a | Copied images are kept with their launch attempt. | slice 6 | |
 | 9b | Those images are removed when that settled attempt is pruned after 30 days. | slice 6 | |
@@ -71,7 +71,7 @@ the early native host-readability probe is waived (2026-10-31).
 | 22 | The early native host-readability probe is waived (developer, 2026-10-31). | slice 1 | observed: plan slice 1 Proof waived; Current decisions record skip |
 | 23 | The premise that hosts can open absolute paths under `launch-attachments` is retained without that probe. | slice 1 | observed: plan Current decisions retain premise |
 | E1 | Start session with text "Why is this card clipped?" and a pasted screenshot → first input is that text followed by Attached images path list. | slice 4 | |
-| E2 | Start refinement with two picked mockups and no text → skill line, preparation handoff, then numbered paths. | slice 3 | |
+| E2 | Start refinement with two picked mockups and no text → skill line, preparation handoff, then numbered paths. | slice 3 | observed: agent-launch-story-attachments.spec.ts two mockups no text → skill/handoff/reporting then numbered paths |
 | E3 | Attach two images, remove Image 1, then Start → one path is sent, numbered 1. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts remove Image 1 → single 1-card-b.png path numbered 1 |
 | E4 | Pick a PDF and a 14 MB PNG → refused with typed reasons; text and other attachments remain. | slice 5 | |
 | E5 | Attach an image, press Cancel → nothing uploaded; reopening shows no attachment. | slice 6 | |

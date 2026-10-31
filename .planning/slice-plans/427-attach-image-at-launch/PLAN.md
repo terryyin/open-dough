@@ -20,9 +20,9 @@ Exclusions (deferred in the source): dropping files onto the dialog,
 non-image files, attaching to a running session, and showing attachments in
 history or the Sessions sidebar.
 
-Useful stopping points: after slice 2, an ad hoc Claude Code session can be
-started with picked images. After slice 3, every workflow and host receives
-them. Later slices add paste, refusals, lifecycle and images-only starts.
+Useful stops: after slice 2, ad hoc Claude starts with picked images; after
+slice 3, every workflow and host receives them. Later: paste, refusals,
+lifecycle, images-only.
 
 ## Design and reuse
 
@@ -82,28 +82,20 @@ Every slice updates the launch documentation it changes
 
 ## Decisive premises
 
-- **Fake-host route observes the first input.** Consuming operation: the dialog
-  submits through the real boundary and fake Claude records argv. Observation
-  (2026-10-31, this workspace, after `node scripts/setup-native.mjs npm` and
-  `browser`): `npx playwright test --config dashboard/playwright.config.ts
+- **Fake-host route observes the first input.** Dialog → real boundary → fake
+  Claude argv. Observed 2026-10-31 (`setup-native` npm+browser):
+  `npx playwright test --config dashboard/playwright.config.ts
   dashboard/tests/agent-launch-ad-hoc.spec.ts -g "starting with text sends it"
-  --reporter=list` → 1 passed; it asserts the instruction in fake Claude's argv
-  through `expectNamedAdHocCall`. The test `HOME` is isolated
-  (`dashboard.home`), and `machineDashboardPath` resolves through `HOME`, so
-  the attachment folder can be checked under it.
-- **Where the developer's text is read.** Consuming operations: first-input
-  composition, blank detection, label and identity. Observation (2026-10-31):
-  `grep -rn "\.instruction\b" dashboard/server dashboard/src` lists the four
-  composers above; `src/unattachedSession.ts` (whether an ad hoc request has
-  input, which slice 7 must extend to images); `server/hostLaunch.ts` (label);
-  `src/launchRequest.ts` `sameLaunch` (identity, slice 7); and readers of the
-  already-composed saved first input (Cursor `recoveryReplacement.ts`,
-  `unconfirmedReplacement.ts`, Codex `recovery.ts`), which carry the list
-  unchanged because it is part of the composed text. Slice 3's per-host proofs
-  observe the result on every host, so a missed composer fails there.
-- **Hosts can read the copied file.** Only a paid native run can settle it, so
-  slice 1 is an early developer-operated probe whose failure stops slices 2–7
-  and changes where files are kept.
+  --reporter=list` → 1 passed via `expectNamedAdHocCall`. Isolated
+  `dashboard.home` / `machineDashboardPath` so attachment folders are checkable.
+- **Where the developer's text is read.** Observed 2026-10-31:
+  `grep -rn "\.instruction\b" dashboard/server dashboard/src` → four composers;
+  also `src/unattachedSession.ts` (ad hoc input; slice 7), `server/hostLaunch.ts`
+  (label), `sameLaunch` (identity, slice 7), and saved-input readers (Cursor
+  `recoveryReplacement.ts` / `unconfirmedReplacement.ts`, Codex `recovery.ts`)
+  which keep the composed list. Slice 3 per-host proofs catch a missed composer.
+- **Hosts can read the copied file.** Paid native only; slice 1's waived probe
+  failure would have stopped slices 2–7 and moved the keep location.
 
 ## Slices
 
@@ -147,8 +139,10 @@ all four composers, and the recorded request holding paths only.
 ### 3. Story starts and every host receive the same list
 
 Type: Behavior
-Status: planned
-Proof: story refinement start spec (Claude); ad hoc Codex and Cursor specs
+Status: done
+Proof: accepted — agent-launch-story-attachments.spec.ts;
+agent-launch-ad-hoc-attachments-codex.spec.ts;
+agent-launch-ad-hoc-attachments-cursor.spec.ts. No composer code change.
 
 Behavior: a Start refinement dialog with two picked images and no text →
 Start → the first input is the skill line, the established preparation
@@ -241,14 +235,12 @@ Commitment: X4, X5
 
 ## Plan review
 
-Slice-plan refinement was not needed: each slice has one outcome and one
-proof loop, and slices 3–7 extend slice 2's single rule (developer part = text
-plus list) rather than adding recognizers. No remaining slice-specific concern
-beyond slice 1's probe, which bounds the one unobserved premise.
+No slice-plan refinement: each slice has one outcome and one proof loop;
+slices 3–7 extend slice 2's developer-part rule. Only slice 1's waived probe
+bounds an unobserved premise.
 
 ## Local verification
 
-Run each slice's named specs with `--reporter=list` and the focused unit
-tests through `bash scripts/test.sh <paths>`. Before publishing, run the full
-`npm test` and the dashboard suite, since slice 2 changes the shared first
-input of every launch path.
+Run each slice's named specs (`--reporter=list`) and focused unit tests via
+`bash scripts/test.sh <paths>`. Before publishing, run `npm test` and the
+dashboard suite (slice 2 changes every launch's first input).
