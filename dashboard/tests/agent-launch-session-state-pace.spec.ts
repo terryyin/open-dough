@@ -18,8 +18,11 @@ import {
   sessionNamedBy,
   standaloneSessionName,
 } from "./dashboardPage.ts";
-import { openTakenBacklog } from "./launchStoryCardPage.ts";
-import { notRefinedStory, readyStory, takenStory } from "./launchJourney.ts";
+import {
+  openTakenBacklog,
+  takenBacklogStories,
+} from "./launchStoryCardPage.ts";
+import { readyStory } from "./launchJourney.ts";
 import {
   expectNotReloaded,
   expectSessionShown,
@@ -28,16 +31,12 @@ import {
 } from "./sessionStatePace.ts";
 import { attentionLaunches } from "./sessionAttentionCases.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { attempts } from "./agentLaunchBoundary.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 const unknownShown =
   "State unknown: Claude Code's session list could not be read";
-// Session state never moves a story: origin alone places each one.
-const membership = {
-  taken: [takenStory],
-  backlog: [readyStory, notRefinedStory],
-};
 
 test("each active card entry shows why its session needs attention, or that it does not, within one pace without a reload", async ({
   page,
@@ -45,7 +44,7 @@ test("each active card entry shows why its session needs attention, or that it d
   launchJourney,
 }) => {
   await pausePageClockAt(page, new Date());
-  const { passOnePace } = await watchRecordReads(page);
+  const { passOnePace, answeredDuring } = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog, refine, refinementDialog } =
     await openTakenBacklog(page, launchJourney);
@@ -105,8 +104,21 @@ test("each active card entry shows why its session needs attention, or that it d
     await passOnePace();
   };
 
+  await test.step("a pace with nothing changed keeps every entry from an unchanged answer to the revision the page holds", async () => {
+    // Once every start is noted reconciled, a pace reads that last write.
+    const reconciled = async () =>
+      (await attempts(dashboard)).every(({ reconciledAt }) => reconciledAt);
+    await expect.poll(reconciled).toBe(true);
+    await passOnePace();
+    expect(await answeredDuring()).toEqual({ held: true, unchanged: true });
+    for (const index of attentionLaunches.keys())
+      await expectSessionShown(entryAt(index), "Working", false);
+  });
+
   await test.step("blocked with a reason, or done with its process running, shows within one pace", async () => {
-    await change(0);
+    // The page held the earlier revision, and was answered in full.
+    const answered = await answeredDuring(() => change(0));
+    expect(answered).toEqual({ held: true, unchanged: false });
     await expectChanged(0);
   });
 
@@ -135,7 +147,7 @@ test("each active card entry shows why its session needs attention, or that it d
 
   await expectNotReloaded(page);
   await expect(recent.locator(".session-entry")).toHaveCount(0);
-  await expectMembership(page, membership);
+  await expectMembership(page, takenBacklogStories);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(attentionLaunches.length);
 });
 
@@ -234,5 +246,5 @@ test("a session's attention stays through opening and closing its terminal, clea
   });
 
   await expectNotReloaded(page);
-  await expectMembership(page, membership);
+  await expectMembership(page, takenBacklogStories);
 });

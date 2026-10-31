@@ -3,7 +3,8 @@
 // asks the launch owner to accept a launch, or to continue a kept attempt
 // that needs reconciliation, or to note that a settled attempt reconciled with
 // published state, or to verify an uncertain launch, and a GET of the
-// machine's sessions; requests about one recorded session are
+// Cursor runner's sessions; the GET of the machine's sessions is
+// `./machineSessionsReads.ts`, requests about one recorded session are
 // `./sessionRecordRequests.ts`, and the wait for an accepted attempt to change
 // is `./attemptChangeWaits.ts`. A launch request answers
 // once the owner accepted it, or with what was answered before anything was
@@ -16,16 +17,13 @@ import { z } from "zod";
 import {
   acceptanceSchema,
   agentAcceptEndpoint,
-  agentLaunchEndpoint,
   agentContinueEndpoint,
   agentReconciledEndpoint,
   agentUpdateWorktreeEndpoint,
   agentVerifyEndpoint,
-  launchRecordsSchema,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
-  type MachineAnswer,
   type VerifiedAnswer,
   verifiedAnswerSchema,
 } from "./agentLaunch.ts";
@@ -207,25 +205,6 @@ export async function requestLaunchVerification(
       : unanswered("answered in a shape this dashboard does not understand");
   } catch {
     return unanswered("could not be reached");
-  }
-}
-
-// The machine's sessions: the launch records this machine keeps for every
-// project, each naming its project, oldest first within it, with its
-// session's current state, and whether the server can alert, or undefined
-// when no trustworthy answer came.
-export async function readMachineSessions(
-  signal?: AbortSignal,
-): Promise<MachineAnswer | undefined> {
-  try {
-    const response = await fetch(agentLaunchEndpoint, {
-      signal: signal ?? null,
-    });
-    if (!response.ok) return undefined;
-    const answer = launchRecordsSchema.safeParse(await response.json());
-    return answer.success ? answer.data : undefined;
-  } catch {
-    return undefined;
   }
 }
 

@@ -220,7 +220,7 @@ Learnings:
 
 ### 3. A viewer holding the current observation receives an unchanged answer
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary spec (example 3), body size under 1 KB when unchanged; the
 existing session-list UI journeys green with the poll sending its revision;
 `FeedbackMaintenanceSettings` and `launchRecordActions` reads (no revision)
@@ -230,6 +230,29 @@ Behavior: The page's poll sends the revision of its last full answer. A
 matching revision → `{unchanged: true, revision}`, and the page keeps its
 records and facts while counting the read as settled. A differing or absent
 revision → the full shared body with its revision.
+
+Accepted proof (2026-10-31): `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts --reporter=list`
+→ 1 passed. A held revision is answered `{revision, unchanged: true}` under
+1 KiB. No revision, or an older one, gets the full body, which leads with its
+revision (the SHA-256 of the rest). A Done mark changes the revision.
+`dashboard/tests/agent-launch-session-state-pace.spec.ts --repeat-each=3`
+→ 6 passed. A quiet pace's answer is unchanged, with every entry kept, and a
+changed state comes back in full. The readers that send no revision
+(`agent-terminal-done-reopen`, the `feedback-maintenance` specs) still get full
+answers. Before the refactor, the whole `dashboard/tests/boundary` directory
+(884), 146 UI journeys, and 53 specs that intercept sessions passed.
+
+Learnings:
+- The page sends its revision in the `x-open-dough-sessions-revision` header.
+  A query string would stop `**/__agent-launch` route globs from matching.
+- Unchanged answers need quiet machine documents. The page's own
+  `reconciledAt` writes after a start make the next poll or two full.
+- Equal attempt content can serialize in a different key order, depending on
+  whether it came from memory or was re-read. That costs an extra full answer,
+  never a stale one.
+- CI run `41191328229` on slice 2 failed only `test (1/3)` and
+  `dashboard (2/12)`, both at the npm install stall that hit slice 1's run. Every
+  other job passed, `lint` included.
 
 ### 4. Cursor held-session reads share one runner read, and final cost is measured
 Type: Behavior

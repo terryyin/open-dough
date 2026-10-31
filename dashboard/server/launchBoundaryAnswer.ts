@@ -133,7 +133,10 @@ export async function answer(
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
       case "sessions":
-        return { status: 200, serialized: await sessions.answerFor(res) };
+        return {
+          status: 200,
+          serialized: await sessions.answerFor(res, request.held),
+        };
       case "changed":
         return {
           status: 200,

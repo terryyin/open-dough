@@ -82,6 +82,13 @@ export const groupedOptions = {
   ],
 };
 
+// Where origin places the launch journey's stories; session state never
+// moves one.
+export const takenBacklogStories = {
+  taken: [takenStory],
+  backlog: [readyStory, notRefinedStory],
+};
+
 export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
   await publishCommittedOrigin(page, {
     repoDir: journey.origin,
@@ -90,10 +97,7 @@ export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
   });
   await page.goto("/");
   const { backlog, taken } = parts(page);
-  await expectSettledPage(page, {
-    taken: [takenStory],
-    backlog: [readyStory, notRefinedStory],
-  });
+  await expectSettledPage(page, takenBacklogStories);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   return {
     card,

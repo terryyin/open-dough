@@ -4,7 +4,9 @@
 // (`./sharedObservation.ts`): every catalog project's launch records with each
 // session's state, the launch attempts, creations, catalog facts, starts,
 // alerts availability, and workspaces, serialized once per observation with
-// the SHA-256 of that serialization as its revision. A demand within a second
+// the SHA-256 of that serialization as its revision, which the answer
+// carries. A viewer naming the revision it holds is answered only that it is
+// unchanged while it still stands. A demand within a second
 // of a settled observation, or while one runs, is answered by it, so the
 // saved-session services refresh and each host's native listing run once for
 // all of them. An observation stands only for the project catalog and the
@@ -72,8 +74,10 @@ type MachineSessionsBody = {
 
 export type ObservedMachineSessions = {
   readonly records: readonly LaunchWithState[];
-  // The whole sessions answer, as sent.
+  // The whole sessions answer with its revision, as sent.
   readonly serialized: string;
+  // The answer to a viewer already holding this revision, as sent.
+  readonly unchanged: string;
   readonly revision: string;
 };
 
@@ -127,9 +131,16 @@ async function observeMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  const serialized = JSON.stringify(body);
-  const revision = createHash("sha256").update(serialized).digest("hex");
-  return { records, serialized, revision };
+  const serializedBody = JSON.stringify(body);
+  const revision = createHash("sha256").update(serializedBody).digest("hex");
+  const leadingRevision = `{"revision":${JSON.stringify(revision)}`;
+  return {
+    records,
+    // The body as serialized, led by its revision, without serializing again.
+    serialized: `${leadingRevision},${serializedBody.slice(1)}`,
+    unchanged: `${leadingRevision},"unchanged":true}`,
+    revision,
+  };
 }
 
 export class MachineSessionObservation {
@@ -162,15 +173,22 @@ export class MachineSessionObservation {
     throw new RefusedRequest(503, unanswered);
   }
 
-  // The serialized answer for a viewer, whose wait ends when it leaves.
-  async answerFor(res: ServerResponse): Promise<string> {
+  // The serialized answer for a viewer, whose wait ends when it leaves: only
+  // that it is unchanged when the viewer holds this observation's revision.
+  async answerFor(
+    res: ServerResponse,
+    held: string | undefined,
+  ): Promise<string> {
     const departed = new AbortController();
     const leave = () => {
       departed.abort();
     };
     res.on("close", leave);
     try {
-      return (await this.observed(departed.signal)).serialized;
+      const observed = await this.observed(departed.signal);
+      return observed.revision === held
+        ? observed.unchanged
+        : observed.serialized;
     } finally {
       res.off("close", leave);
     }

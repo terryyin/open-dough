@@ -13,8 +13,9 @@ export async function addProjectOnPage(page: Page) {
         response.status() !== 200
       )
         return false;
-      const answer = (await response.json()) as MachineAnswer;
-      return answer.definitions.some(
+      // An answer that the page's held sessions are unchanged names none.
+      const answer = (await response.json()) as Partial<MachineAnswer>;
+      return (answer.definitions ?? []).some(
         (definition) => definition.source === "sample-app",
       );
     },

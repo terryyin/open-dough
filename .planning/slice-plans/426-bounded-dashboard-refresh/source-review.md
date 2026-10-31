@@ -43,10 +43,10 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | 2.4 | Running Cursor sessions reads join one running held-session read | slice 4 |  |
 | 2.5 | Running Cursor held-session reads have no settled reuse | slice 4 |  |
 | 2.6 | Running Cursor sessions reads keep the list's current live cadence | slice 4 |  |
-| 3.1 | A `/sessions` answer carries the revision of the observation it reports | slice 3 |  |
-| 3.2 | A viewer that sends the revision it already holds receives a small unchanged answer instead of the full records and attempts | slice 3 |  |
-| 3.3 | A viewer with no revision receives the full answer | slice 3 |  |
-| 3.4 | A viewer with an older revision receives the full answer | slice 3 |  |
+| 3.1 | A `/sessions` answer carries the revision of the observation it reports | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" revisionOf: body leads with its revision = SHA-256 of the rest, before and after the Done mark |
+| 3.2 | A viewer that sends the revision it already holds receives a small unchanged answer instead of the full records and attempts | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" held revision → {revision, unchanged: true}; dashboard/tests/agent-launch-session-state-pace.spec.ts step "a pace with nothing changed keeps every entry from an unchanged answer…" |
+| 3.3 | A viewer with no revision receives the full answer | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" no header → body identical to the first full answer; agent-terminal-done-reopen.spec.ts and feedback-maintenance specs (no-revision readers) green |
+| 3.4 | A viewer with an older revision receives the full answer | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" "an-older-revision" → full body; dashboard/tests/agent-launch-session-state-pace.spec.ts step "blocked with a reason…" held stale revision → full answer |
 | 4.1 | At most one running observation exists for machine sessions | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation"; dashboard/server/sharedObservation.ts one running promise per kind |
 | 4.2 | At most one running observation exists for Cursor held sessions | slice 4 |  |
 | 4.3 | Retained shared data is one parsed copy per machine document | slice 1 | observed: machineJsonStore.ts heldDocuments Map, one entry per file path |
@@ -63,7 +63,7 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | R1 | For a fixed set of projects, sessions, and source data, extra viewers must not create separate retained observation datasets | slice 4 |  |
 | R2 | For a fixed set of projects, sessions, and source data, extra viewers must not create unlimited observation work | slice 4 |  |
 | R3 | The story bounds the shared work behind connections and full answers | slice 4 |  |
-| R4 | Repeated unchanged answers are small | slice 3 |  |
+| R4 | Repeated unchanged answers are small | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" three repeated unchanged asks each < 1,024 bytes |
 | R5 | Individual connections and full answers still cost memory | slice 4 |  |
 | E1.T | Eight viewers and the notification observer request machine sessions at the same moment against unchanged documents | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" |
 | E1.R1 | Each receives the same records and attempts | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" (all 8 bodies byte-identical) |
@@ -74,11 +74,11 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | E2.R1 | B receives A's observation without a new one | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts 400 ms ask gives the same body, no new calls |
 | E2.T2 | Viewer C asks 1.5 s after it settled | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts settled-reuse test setup |
 | E2.R2 | A fresh observation runs for C | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts 1.5 s ask doubles the counts and shows the changed native state |
-| E3.T1 | A viewer holds revision *r*; nothing changed by its next 15-second refresh | slice 3 |  |
-| E3.R1 | It receives an unchanged answer of a few hundred bytes instead of about 9 MB | slice 3 |  |
-| E3.T2 | A session's state changed | slice 3 |  |
-| E3.R2 | The observation's revision differs | slice 3 |  |
-| E3.R3 | The viewer receives the full answer | slice 3 |  |
+| E3.T1 | A viewer holds revision *r*; nothing changed by its next 15-second refresh | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" setup holding the first answer's revision; dashboard/tests/agent-launch-session-state-pace.spec.ts quiet pace setup |
+| E3.R1 | It receives an unchanged answer of a few hundred bytes instead of about 9 MB | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" unchanged answer < 1,024 bytes (fixture size; real ~9 MB body measured in slice 4); dashboard/tests/agent-launch-session-state-pace.spec.ts unchanged answer < 1,024 bytes with every entry still Working |
+| E3.T2 | A session's state changed | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" markDone setup |
+| E3.R2 | The observation's revision differs | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" revision after the Done mark differs |
+| E3.R3 | The viewer receives the full answer | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" full body returns with the record doneAt, then its new revision is answered unchanged |
 | E4.T1 | A second dashboard process records a launch, atomically replacing the launch-record file | slice 1 | observed: dashboard/tests/boundary/agent-launch-records-replaced.spec.ts cross-server launch test setup |
 | E4.R1 | This process's next read, at most 1 second plus one observation later, includes the new record | slice 2 | observed: dashboard/tests/boundary/agent-launch-records-replaced.spec.ts cross-server read passes through the shared observation (document identity in its key makes it immediate) |
 | E4.T2 | A replacement is not valid JSON or fails the schema | slice 1 | observed: dashboard/tests/boundary/agent-launch-records-replaced.spec.ts unreadable same-size replacement setup |
