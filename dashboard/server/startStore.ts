@@ -11,7 +11,7 @@
 // instead of choosing new ones, so the script answers `existing` or
 // `resumed`, never a second claim or workspace. The record is removed when
 // the session launch succeeds, or when the start could not have published
-// anything. Local evidence only, never a story fact. The file is read afresh,
+// anything. Local evidence only, never a story fact. The file is read,
 // replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 

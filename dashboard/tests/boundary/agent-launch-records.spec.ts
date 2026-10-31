@@ -7,7 +7,8 @@
 // unreadable copy is already beside it. Each test owns a fresh machine
 // directory holding HOME and the synthetic `claude`'s (../fixtures/fake-claude)
 // state; the real one is never reached. What one launch answers and keeps is
-// ./agent-launch-boundary.spec.ts.
+// ./agent-launch-boundary.spec.ts; what a server answers after the store it
+// already read is replaced is ./agent-launch-records-replaced.spec.ts.
 
 import {
   mkdtempSync,

@@ -10,7 +10,7 @@
 // story with published commits is such a tree too, so the mark points
 // `refs/open-dough/reviewed-baseline/<identity>` at its baseline the same
 // way, whichever kind it is. Local evidence only, never a
-// story fact. The file is read afresh, replaced atomically, and moved aside
+// story fact. The file is read, replaced atomically, and moved aside
 // when unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";

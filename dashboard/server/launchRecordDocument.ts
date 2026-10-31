@@ -2,13 +2,13 @@
 // launch boundary (`./agentLaunches.ts`) in one file outside every repository:
 // `~/.open-dough/dashboard/agent-launches.json`, resolved through `HOME` like
 // `./projectFolders.ts`. One JSON document holds each catalog project's
-// records by project id. Every read and write reads the file afresh, so each
+// records by project id. Every read and write consults the file, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
 // launch. A write adds a launch, sets or clears a kept session's done time,
 // or deletes a kept session.
 // A record not marked done is kept however long ago it was launched. A record
 // marked done more than `launchRetentionDays` before a read is not answered,
-// and a write drops it. The file is read afresh, replaced atomically, and
+// and a write drops it. The file is read, replaced atomically, and
 // moved aside when unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";

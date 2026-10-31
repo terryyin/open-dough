@@ -2,6 +2,7 @@
 
 **Identity:** SEED-202#bounded-dashboard-refresh
 **Source:** [Refined story](../../seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -152,7 +153,7 @@ temporarily (same `package-lock.json`, removed afterwards):
 
 ### 1. Each machine document is parsed at most once while unchanged
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cross-process replacement and unreadable-replacement boundary
 cases (example 4), plus `agent-launch-records.spec.ts`,
 `launch-attempt-retention.spec.ts`, and `agent-launch-preparation-store-failure.spec.ts`
@@ -163,6 +164,21 @@ reads within or across refreshes → one parse each, with identical answers.
 A replacement by any process is observed on the next read. An invalid
 replacement is answered unreadable and never served from the earlier parse.
 The write path keeps its lock and atomic replacement.
+
+Accepted proof (2026-10-31): `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/agent-launch-records.spec.ts dashboard/tests/boundary/agent-launch-records-replaced.spec.ts dashboard/tests/boundary/machine-json-reuse.spec.ts --reporter=list`
+→ 12 passed (cross-server read and same-size unreadable replacement in
+`agent-launch-records-replaced.spec.ts`; parse counts through a schema
+`superRefine` counter in `machine-json-reuse.spec.ts`). The whole
+`dashboard/tests/boundary` directory passed (876) before the test-only
+refactor. Scratch probe on this machine's real documents: the first refresh
+parses 2 documents, unchanged refreshes 0, a renamed replacement 1 (was 4 per
+refresh).
+
+Learnings: held documents are deep-frozen, so a mutating reader throws instead
+of corrupting other readers' answers; none was found. A file modified less
+than 1 s ago is parsed but not held, because Linux file times are coarse and a
+freed inode can be reused, so two quick same-size writes could otherwise share
+an identity. Slice 2's settled-reuse window absorbs those extra parses.
 
 ### 2. Viewers and the notification observer share one machine-session observation
 Type: Behavior
