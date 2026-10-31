@@ -149,8 +149,8 @@
   .project-action-target { display: none; }
 }
 
-/* Where the tab list wraps off one banner line (./project-select.css), the
-   title becomes the one project selector and the separate tabs are not shown. */
+/* At the compact project breakpoint (./project-select.css max-width: 400px),
+   the title is the one project selector; separate tabs are not shown. */
 @container page (max-width: 400px) {
   .banner {
     padding-block: var(--space-1);
