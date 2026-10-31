@@ -113,7 +113,10 @@ test.describe(`${name} terminal input`, () => {
         const headerSwipe = -(await box(identity)).height / 2;
         const scrollHeaderUntilShown = async (reading: TouchReading) => {
           let shown = await reading.evaluate((sample) => sample());
-          for (let stroke = 0; stroke < 12 && !shown; stroke += 1) {
+          while (!shown) {
+            const before = await identity.evaluate(
+              (element) => element.scrollTop,
+            );
             await scrollByTouch(
               page,
               identity,
@@ -122,6 +125,14 @@ test.describe(`${name} terminal input`, () => {
               reading,
             );
             shown = await readAfterTouchFrame(reading);
+            if (!shown) {
+              // Native touch slop consumes part of each short header stroke.
+              // Continue while scrolling advances, rather than assuming a
+              // fixed number of strokes has traversed the wrapped identity.
+              expect(
+                await identity.evaluate((element) => element.scrollTop),
+              ).toBeGreaterThan(before);
+            }
           }
         };
         const titleReading = await titleWordsReading(

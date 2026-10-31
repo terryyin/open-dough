@@ -16,6 +16,7 @@ import {
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
+import { focusByTouch } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
@@ -119,15 +120,28 @@ test.describe(`${name} session discovery`, () => {
     await entry(intended.title).scrollIntoViewIfNeeded();
     await tapWhereShown(entry(intended.title));
     const panel = page.getByRole("region", { name: "Terminal" });
+    await panel.scrollIntoViewIfNeeded();
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       intended.title,
     );
     await expect(panel.locator(".side-panel-names code")).toHaveText(
       record.session.sessionId,
     );
-    await expect(panel.locator(".xterm-rows")).toContainText(
-      `attached ${record.session.sessionId.slice(0, 8)}`,
-    );
+    // The reduced landscape terminal can scroll its startup banner above the
+    // visible rows. Continue in the visible composer and observe the native
+    // session that receives the input instead.
+    await expect(panel.locator(".xterm-rows")).toContainText("❯");
+    await focusByTouch(panel);
+    await page.keyboard.type("continue intended session");
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(() =>
+        dashboard
+          .claudeAttaches()
+          .filter(({ id }) => id === record.session.sessionId.slice(0, 8))
+          .map(({ lines }) => lines),
+      )
+      .toEqual([["continue intended session"]]);
     await expect(
       parts(page).project.getByRole("radio", {
         name: "Doughnut",

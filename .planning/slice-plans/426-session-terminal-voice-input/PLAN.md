@@ -3,6 +3,7 @@
 **Identity:** SEED-200#session-terminal-voice-input
 **Source:** [Refined story](../../seeds/SEED-200-session-terminal-voice-input.md#session-terminal-voice-input)
 **Source review:** [Independent source review](source-review.md)
+**CI repair evidence:** [First increment repair](ci-repair-evidence.md)
 
 ## Goal and scope
 

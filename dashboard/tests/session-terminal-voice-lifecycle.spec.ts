@@ -89,7 +89,10 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
   await stopTerminalClip(page, panel);
   await expect(panel.getByRole("status")).toBeEmpty();
   await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
-  await expect(panel.locator(".xterm-rows")).toContainText("typed retry");
+  // Native resize notices can appear between typed text and the transcript.
+  // The submitted line below observes their exact combination.
+  await expect(panel.locator(".xterm-rows")).toContainText("typed");
+  await expect(panel.locator(".xterm-rows")).toContainText("retry");
   await page.keyboard.press("Enter");
   await expect
     .poll(() => dashboard.claudeAttaches().at(-1)?.lines)
