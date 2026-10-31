@@ -248,3 +248,11 @@ bounds an unobserved premise.
 Run each slice's named specs (`--reporter=list`) and focused unit tests via
 `bash scripts/test.sh <paths>`. Before publishing, run `npm test` and the
 dashboard suite (slice 2 changes every launch's first input).
+
+## Execution complete
+
+Product advice: reasoned no-change to near-future direction. Keep deferred
+exclusions deferred. Retained risk from waived slice 1: if a host cannot read
+`~/.open-dough/dashboard/launch-attachments/`, stop and replan keep location.
+Optional hardening (not a broken key-example path): abandon staging claim dirs
+if Start fails mid-upload before accept.
