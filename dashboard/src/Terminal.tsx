@@ -33,6 +33,7 @@ import {
 import { CircleCheck } from "lucide-react";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import { SidePanelControls } from "./SidePanelControls.tsx";
+import { SidePanelTitle } from "./SidePanelTitle.tsx";
 import "@xterm/xterm/css/xterm.css";
 import { PanelDivider } from "./PanelDivider.tsx";
 import "./agent-launch.css";
@@ -167,10 +168,8 @@ export function Terminal({
             <AgentPortrait name={agentName} label={agent} />
           )}
           <div ref={names} className="side-panel-names">
-            <h2>{title}</h2>
-            <p className="quiet">
-              {name} session <code>{record.session.sessionId}</code>
-            </p>
+            <SidePanelTitle title={title} />
+            <p className="quiet">{name} session</p>
           </div>
         </div>
         <div className="side-panel-actions">

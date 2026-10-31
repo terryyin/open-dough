@@ -56,29 +56,25 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         underlying,
         reading,
       } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
-      await expect(panel.getByRole("heading")).toHaveText(title);
-      await expect(panel.locator(".side-panel-names code")).toHaveText(
-        sessionId,
+      await expect(
+        panel.getByRole("heading", { name: title }),
+      ).toHaveAccessibleName(title);
+      await expect(panel.locator(".side-panel-names p")).toHaveText(
+        / session$/,
       );
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       await resizeUntilArranged(panel, { width: 390, height });
       const names = panel.locator(".side-panel-names");
+      const titleToggle = names.getByRole("button", {
+        name: title,
+        exact: true,
+      });
       expect(
-        await names
-          .getByRole("heading")
-          .evaluate(
-            (element) =>
-              element.getBoundingClientRect().height >
-              Number.parseFloat(getComputedStyle(element).lineHeight) * 2,
-          ),
-      ).toBe(true);
-      expect(
-        await names
-          .locator("code")
-          .evaluate(
-            (element) =>
-              element.getBoundingClientRect().height >
-              Number.parseFloat(getComputedStyle(element).lineHeight),
-          ),
+        await titleToggle.evaluate(
+          (element) =>
+            getComputedStyle(element).whiteSpace === "nowrap" &&
+            element.scrollWidth > element.clientWidth,
+        ),
       ).toBe(true);
       const initial = state();
       await expect(reading).toHaveText("Ready for review");
@@ -102,10 +98,10 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       ]) {
         await resizeUntilArranged(panel, view);
         await expect(question).toHaveCount(1);
-        await expect(panel.getByRole("heading")).toHaveText(title);
-        await expect(panel.locator(".side-panel-names code")).toHaveText(
-          sessionId,
-        );
+        await expect(
+          panel.getByRole("heading", { name: title }),
+        ).toHaveAccessibleName(title);
+        await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
         await readReportByTouch(panel, question.getByRole("paragraph").first());
         for (const name of ["Mark as done", "Keep open"]) {
           await readReportByTouch(panel, choice(name));

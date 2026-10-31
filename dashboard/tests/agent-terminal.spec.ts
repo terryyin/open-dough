@@ -126,7 +126,10 @@ test.describe("the terminal beside the page", () => {
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,
       );
-      await expect(panel).toContainText(`Execution session ${first}`);
+      await expect(panel.locator(".side-panel-names p")).toHaveText(
+        "Execution session",
+      );
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       // The page, showing Backlog, stays on the left, and the terminal is to
@@ -170,7 +173,10 @@ test.describe("the terminal beside the page", () => {
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         readyStory,
       );
-      await expect(panel).toContainText(`Execution session ${second}`);
+      await expect(panel.locator(".side-panel-names p")).toHaveText(
+        "Execution session",
+      );
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(rows).not.toContainText("echo yes, go on");
       await expect.poll(() => attachesEnded(first)).toBe(true);

@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { SidePanelControls } from "./SidePanelControls.tsx";
+import { SidePanelTitle } from "./SidePanelTitle.tsx";
 import type * as Review from "./storyReviewContract.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
 import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
@@ -111,7 +112,7 @@ export function StoryReview({
       <PanelDivider />
       <header className="side-panel-header">
         <div className="side-panel-names">
-          <h2 id={headingId}>{title}</h2>
+          <SidePanelTitle title={title} id={headingId} />
           <p className="quiet">
             Story review <code>{identity}</code>
           </p>

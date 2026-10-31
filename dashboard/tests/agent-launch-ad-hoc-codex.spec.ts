@@ -80,7 +80,9 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await expect(recent.getByRole("heading")).toHaveText(label);
     await expect(panel.getByRole("heading")).toHaveText(label);
-    await expect(panel).toContainText(`Ad hoc session ${native.threadId}`);
+    await expect(panel.locator(".side-panel-names p")).toHaveText(
+      "Ad hoc session",
+    );
     await expect(recent).toContainText(
       blank ? "Opened without an instruction" : "First input accepted",
     );

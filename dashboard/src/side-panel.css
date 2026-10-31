@@ -107,6 +107,48 @@
   line-height: 1.35;
 }
 
+/* Truncating title with disclosure (`./SidePanelTitle.tsx`): one ellipsis
+   line by default; activating the toggle wraps the full title. Touch gets
+   a control-sized activation surface so the title remains tappable. */
+.side-panel-title-toggle {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.side-panel-title-expanded .side-panel-title-toggle {
+  overflow: visible;
+  white-space: normal;
+  text-overflow: unset;
+}
+
+@media (any-pointer: coarse) {
+  .side-panel-title-toggle {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-size);
+  }
+
+  .side-panel-title-expanded .side-panel-title-toggle {
+    align-items: flex-start;
+  }
+}
+
 .side-panel-names p {
   font-size: var(--text-xs);
   color: var(--quiet);

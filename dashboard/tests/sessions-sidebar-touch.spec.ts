@@ -122,9 +122,8 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       intended.title,
     );
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      record.session.sessionId,
-    );
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     await expect(panel.locator(".xterm-rows")).toContainText(
       `attached ${record.session.sessionId.slice(0, 8)}`,
     );
@@ -138,9 +137,8 @@ test.describe(`${name} session discovery`, () => {
     // Selection at landscape width leaves the beside-page sidebar open;
     // rotation preserves that choice when it becomes an overlay.
     await expect(sidebar).toBeVisible();
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      record.session.sessionId,
-    );
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     expect(
       dashboard
         .claudeAttaches()

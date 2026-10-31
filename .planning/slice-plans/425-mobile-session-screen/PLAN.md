@@ -2,6 +2,7 @@
 
 **Identity:** SEED-199#mobile-session-screen
 **Source:** [Refined story](../../seeds/SEED-199-mobile-session-screen.md#mobile-session-screen)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -127,12 +128,15 @@ then read the Board" step instead of each copying it.
 
 ### 1. Compact panel header on every width
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal-touch.spec.ts` (phone) and `agent-terminal-maximize.spec.ts` (desktop) header assertions; title disclosure by tap and keyboard; affected header consumers listed under Decisive premises updated and passing.
 
 Behavior: a session open in the Side panel at any width → read the header →
 one truncated title line and "<Workflow> session" without the UUID; activating
 the title shows it in full; the heading's accessible name is the full title.
+
+Accepted proof (slice 1):
+`npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/agent-terminal-touch.spec.ts dashboard/tests/agent-terminal-maximize.spec.ts dashboard/tests/agent-terminal.spec.ts dashboard/tests/agent-terminal-avatar.spec.ts dashboard/tests/session-management-touch.spec.ts dashboard/tests/sessions-sidebar-touch.spec.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts dashboard/tests/agent-launch-ad-hoc-codex.spec.ts dashboard/tests/frame-sessions-look.spec.ts dashboard/tests/final-report-touch.spec.ts dashboard/tests/final-report-touch-divider.spec.ts dashboard/tests/story-review.spec.ts` → 20 passed. Shared `SidePanelTitle` disclosure; Terminal second line `{name} session` without UUID. Refactor removed dead `touchTerminalPage` title/session helpers; maximize spec under 250 lines. Learnings: coarse-pointer title toggle needs `--control-size` min-height; ellipsis titles need look-spec `cutByDesign`.
 
 ### 2. The Side panel occupies the screen where no split fits
 Type: Behavior
@@ -145,6 +149,26 @@ room (the whole viewport on a narrow window), the Board and banner are hidden
 and unreachable, no Maximize/Restore is offered, and Close returns to the
 unchanged Board context; widening restores the developer's split width and
 Maximize choice.
+
+## Story obligations
+
+### G1. Unrelated dashboard-header and story-review changes
+Reported: slice 1 — "Unrelated dashboard-header and story-review changes remain outside this story."
+Story clause: "Unrelated dashboard-header and story-review changes remain outside this story."
+Disposition: excluded "Unrelated dashboard-header and story-review changes remain outside this story."
+Commitment: Q3
+
+### G2. Browser Back while a session occupies the screen
+Reported: slice 1 — "Browser Back while a session occupies the screen keeps today's history behavior; making Back close the panel is not promised."
+Story clause: "Browser Back while a session occupies the screen keeps today's history behavior; making Back close the panel is not promised."
+Disposition: excluded "Browser Back while a session occupies the screen keeps today's history behavior; making Back close the panel is not promised."
+Commitment: X1
+
+### G3. Overlaying on-screen keyboard without page resize
+Reported: slice 1 — "An on-screen keyboard that overlays the page without resizing it (iOS Safari's default) is not separately tracked through the visual viewport."
+Story clause: "An on-screen keyboard that overlays the page without resizing it (iOS Safari's default) is not separately tracked through the visual viewport."
+Disposition: excluded "An on-screen keyboard that overlays the page without resizing it (iOS Safari's default) is not separately tracked through the visual viewport."
+Commitment: X2
 
 ## Plan review
 

@@ -69,9 +69,8 @@ test.describe(`${name} session management`, () => {
     await sidebar.entry("Story B").scrollIntoViewIfNeeded();
     await tapWhereShown(sidebar.entry("Story B"));
     const panel = page.getByRole("region", { name: "Terminal" });
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      intended.sessionId,
-    );
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     // Scroll stacked panels before reading: xterm pauses offscreen rendering.
     // Header taps never scroll a control into view.
     await panel.scrollIntoViewIfNeeded();
@@ -90,9 +89,8 @@ test.describe(`${name} session management`, () => {
       panelQuestion.getByRole("button", { name: "Keep open", exact: true }),
     );
     await expect(panelQuestion).toHaveCount(0);
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      intended.sessionId,
-    );
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     expect(dashboard.claudeStopCalls()).toEqual([]);
     expect(
       (await recordOf(dashboard, intended.sessionId))?.doneAt,

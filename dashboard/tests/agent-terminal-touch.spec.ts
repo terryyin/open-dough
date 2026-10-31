@@ -18,11 +18,6 @@ import {
   focusByTouch,
   noteTerminalTraffic,
   scrollByTouch,
-  titleWordsShown,
-  titleWordsReading,
-  sessionReading,
-  readAfterTouchFrame,
-  type TouchReading,
 } from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -63,9 +58,10 @@ test.describe(`${name} terminal input`, () => {
       panel.getByRole("button", { name: label, exact: true });
     const attaches = () => dashboard.claudeAttaches();
     const assertIdentity = async (count = 1) => {
-      await expect(panel.locator(".side-panel-names code")).toHaveText(
-        native.sessionId,
+      await expect(panel.locator(".side-panel-names p")).toHaveText(
+        "Execution session",
       );
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       expect(attaches()).toHaveLength(count);
       expect(attaches().every(({ id }) => id === native.shortId)).toBe(true);
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
@@ -75,9 +71,34 @@ test.describe(`${name} terminal input`, () => {
     await panel.scrollIntoViewIfNeeded();
     await expect(rows).toContainText(`attached ${native.shortId}`);
     await expect(rows).toContainText("Claude Code");
-    const heading = panel.getByRole("heading", { level: 2 });
-    await expect(heading).toHaveText(title);
-    expect(await titleWordsShown(heading, 0, title.length)).toBe(true);
+    const heading = panel.getByRole("heading", { level: 2, name: title });
+    const titleToggle = panel.getByRole("button", { name: title, exact: true });
+    await expect(heading).toHaveAccessibleName(title);
+    await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
+    expect(
+      await titleToggle.evaluate(
+        (element) =>
+          getComputedStyle(element).whiteSpace === "nowrap" &&
+          element.scrollWidth > element.clientWidth,
+      ),
+    ).toBe(true);
+    if (name === "phone") {
+      await tapWhereShown(titleToggle);
+      await expect(titleToggle).toHaveAttribute("aria-expanded", "true");
+      await expect(heading).toHaveAccessibleName(title);
+      expect(
+        await titleToggle.evaluate((element) => {
+          const line = Number.parseFloat(getComputedStyle(element).lineHeight);
+          return (
+            getComputedStyle(element).whiteSpace === "normal" &&
+            element.scrollHeight > line * 1.5
+          );
+        }),
+      ).toBe(true);
+      await tapWhereShown(titleToggle);
+      await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
+      await expect(heading).toHaveAccessibleName(title);
+    }
     await expectFittedInput(panel, sizes);
     await focusByTouch(panel);
     await page.keyboard.type("carry onX");
@@ -101,54 +122,17 @@ test.describe(`${name} terminal input`, () => {
         .toEqual(["carry on please"]);
       expect(sent.join("")).toBe("carry onX\u007f please\r");
       await expect(rows).toContainText("echo carry on please");
-      const identity = panel.locator(".terminal-identity");
       if (name === "phone") {
+        await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
+        await expect(heading).toHaveAccessibleName(title);
+        await expect(control("Close")).toBeVisible();
         expect(
-          await identity.evaluate(
-            (element) => element.scrollHeight > element.clientHeight,
+          await titleToggle.evaluate(
+            (element) =>
+              getComputedStyle(element).whiteSpace === "nowrap" &&
+              element.scrollWidth > element.clientWidth,
           ),
         ).toBe(true);
-        expect(await titleWordsShown(heading, 0, 28)).toBe(true);
-        // Observe within native strokes to retain narrow reading positions.
-        const headerSwipe = -(await box(identity)).height / 2;
-        const scrollHeaderUntilShown = async (reading: TouchReading) => {
-          let shown = await reading.evaluate((sample) => sample());
-          for (let stroke = 0; stroke < 12 && !shown; stroke += 1) {
-            await scrollByTouch(
-              page,
-              identity,
-              headerSwipe,
-              "vertical",
-              reading,
-            );
-            shown = await readAfterTouchFrame(reading);
-          }
-        };
-        const titleReading = await titleWordsReading(
-          heading,
-          title.length - 20,
-          title.length,
-        );
-        try {
-          await scrollHeaderUntilShown(titleReading);
-        } finally {
-          await titleReading.dispose();
-        }
-        await expect
-          .poll(() => titleWordsShown(heading, title.length - 20, title.length))
-          .toBe(true);
-        // Read the whole wrapped session inside the header and window.
-        const session = panel.locator(".side-panel-names code");
-        expect((await box(session)).height).toBeLessThanOrEqual(
-          (await box(identity)).height,
-        );
-        const reading = await sessionReading(session);
-        try {
-          await scrollHeaderUntilShown(reading);
-        } finally {
-          await reading.dispose();
-        }
-        await expect(session).toBeInViewport({ ratio: 1 });
       }
       await assertIdentity();
       await tapWhereShown(control("Maximize"));

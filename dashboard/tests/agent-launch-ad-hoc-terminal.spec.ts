@@ -121,7 +121,9 @@ for (const text of ["why is the CI slow on main?", ""]) {
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       title ?? "",
     );
-    await expect(panel).toContainText(`Ad hoc session ${sessionId}`);
+    await expect(panel.locator(".side-panel-names p")).toHaveText(
+      "Ad hoc session",
+    );
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
     await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
     await page.keyboard.type("hello there");

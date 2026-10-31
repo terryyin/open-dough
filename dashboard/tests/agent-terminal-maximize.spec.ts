@@ -41,10 +41,8 @@ function expectCovers(
   found: { x: number; y: number; width: number; height: number },
   room: { x: number; y: number; width: number; height: number },
 ) {
-  expect(found.x).toBeCloseTo(room.x, 0);
-  expect(found.y).toBeCloseTo(room.y, 0);
-  expect(found.width).toBeCloseTo(room.width, 0);
-  expect(found.height).toBeCloseTo(room.height, 0);
+  for (const key of ["x", "y", "width", "height"] as const)
+    expect(found[key]).toBeCloseTo(room[key], 0);
 }
 
 test.describe("maximizing the terminal", () => {
@@ -163,10 +161,26 @@ test.describe("maximizing the terminal", () => {
       };
       expectCovers(await box(panel), besideSidebar);
       await sidebar.entry(readyStory).click();
-      await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-        readyStory,
+      const heading = panel.getByRole("heading", {
+        level: 2,
+        name: readyStory,
+      });
+      const titleToggle = panel.getByRole("button", {
+        name: readyStory,
+        exact: true,
+      });
+      await expect(heading).toHaveAccessibleName(readyStory);
+      await expect(panel.locator(".side-panel-names p")).toHaveText(
+        "Execution session",
       );
-      await expect(panel).toContainText(`Execution session ${second}`);
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
+      await titleToggle.focus();
+      await page.keyboard.press("Enter");
+      await expect(titleToggle).toHaveAttribute("aria-expanded", "true");
+      await expect(heading).toHaveAccessibleName(readyStory);
+      await page.keyboard.press("Enter");
+      await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(control("Restore")).toHaveCount(0);
