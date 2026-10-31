@@ -2,6 +2,7 @@
 
 **Identity:** SEED-202#consistent-shared-refresh
 **Source:** [Correction story](../../seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Provenance and findings
 
@@ -62,7 +63,7 @@ fix. If a premise does not reproduce, that slice stops and reports it.
 
 ### 1. A viewer holds a revision only for the state it shows
 Type: Behavior
-Status: planned
+Status: done
 Proof: the finding 1 and 2 UI specs; `agent-launch-session-state-pace.spec.ts`,
 the `feedback-maintenance*` specs and `agent-terminal-done-reopen.spec.ts`
 green.
@@ -96,6 +97,23 @@ includes that record.
 - Finding 1's fix clears the held revision rather than adopting each action's
   answer as a new revision. That costs one full answer after an action, the
   same as before the shared observation.
+
+## Learnings
+
+- Clearing `heldRevision` in `setRecords`/`setFacts` covers mark, read, stop,
+  recover, delete, and `readSession` without touching each action.
+
+## Accepted proof
+
+### Slice 1
+
+- Finding 1: `dashboard/tests/agent-launch-held-revision-after-action.spec.ts`
+  — after Mark as done then restore store to A, next poll
+  `{ held: false, unchanged: false }` and page shows Working.
+- Finding 2: `dashboard/tests/system-settings-feedback-maintenance-unchanged.spec.ts`
+  — second settings check held+unchanged under 1 KiB; maintenance line stable.
+- Regressions: `agent-launch-session-state-pace`, `agent-terminal-done-reopen`,
+  `feedback-maintenance*`, `system-settings-feedback-maintenance`.
 
 ## Plan review
 
