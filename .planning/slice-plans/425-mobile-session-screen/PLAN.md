@@ -152,6 +152,10 @@ Maximize choice.
 
 Accepted proof (slice 2): owners `agent-terminal-touch`, `side-panel-width-covering`, `agent-terminal-maximize` pass serially; consumers updated (close-then-read Board / covering). Arrangement renamed to `covering`; PageFrame uses maximized layout while panel open; title-toggle keeps control-size min-height without negative margin (CI clip fix). Pre-existing retirement attach/claude/done failures still reported, not owned. Covering CI repair: board-reading, sessions-sidebar, sessions-sidebar-touch, recently-done-sessions-sidebar-reopen close-then-observe under covering.
 
+## Execution complete
+
+Product advice: Reasoned no-change to backlog or direction. Deferred iOS overlay-keyboard cursor visibility remains a post-delivery phone observation, not a planned correction. Pending CI on the latest covering repair revision does not change that advice.
+
 ## Story obligations
 
 ### G1. Unrelated dashboard-header and story-review changes
