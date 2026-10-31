@@ -63,7 +63,6 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -115,7 +114,6 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -124,7 +122,6 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   await expectProblemAndNoSnapshot(
     other,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(other);
@@ -212,7 +209,6 @@ test("an ordinary transient failure does not hold back another project's reads",
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);

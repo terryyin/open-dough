@@ -126,7 +126,6 @@ test("switching project cancels the unresolved recovery wait", async ({
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);

@@ -40,7 +40,7 @@ test("accessible Board reflows long published work for a narrow window and page 
     backlog: { revision, answer: rawFileAnswer(longBacklog) },
   });
   await openUntilRead(page);
-  const { backlog, taken, recentlyDone, direction, directionToggle, source } =
+  const { backlog, taken, recentlyDone, direction, directionToggle } =
     parts(page);
   const longCard = taken.getByRole("article", { name: longTitle });
   await expect(longCard).toBeVisible();
@@ -102,13 +102,10 @@ test("accessible Board reflows long published work for a narrow window and page 
     await expectInside(longCard, taken);
   });
 
-  await test.step("source evidence and direction stay reachable", async () => {
+  await test.step("direction stays reachable", async () => {
     await expect(parts(page).readRevision).toContainText(
       shortRevision(revision),
     );
-    await parts(page).sourceEvidence.click();
-    await expectInside(source.getByText("terryyin/open-dough"), source);
-    await parts(page).sourceEvidence.click();
     await openDirection(page);
     await expect(direction).toContainText("Derive it solely from Git state");
   });
@@ -137,7 +134,7 @@ test("accessible Board keeps empty groups readable in a narrow window", async ({
     backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
   });
   await openUntilRead(page);
-  const { backlog, taken, direction, directionText, source } = parts(page);
+  const { backlog, taken, direction, directionText } = parts(page);
 
   await expect(
     backlog.getByText("No Backlog entries are recorded."),
@@ -151,9 +148,6 @@ test("accessible Board keeps empty groups readable in a narrow window", async ({
     direction.getByText("No near-future direction is recorded."),
   ).toBeVisible();
   await expect(parts(page).readRevision).toContainText(shortRevision(revision));
-  await parts(page).sourceEvidence.click();
-  await expectInside(source.getByText("terryyin/open-dough"), source);
-  await parts(page).sourceEvidence.click();
   await expectNoSidewaysScrollAndWholeText(page);
 });
 
@@ -165,7 +159,7 @@ test("accessible Board keeps a read problem and the retained work reachable in a
   origin.push(revision, longBacklog);
   await pausePageClock(page);
   await openUntilRead(page);
-  const { board, source, problem } = parts(page);
+  const { board, problem } = parts(page);
   await expect(board.getByRole("article")).toHaveCount(5);
 
   const missing = "f".repeat(40);
@@ -178,7 +172,7 @@ test("accessible Board keeps a read problem and the retained work reachable in a
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   );
   await expectNoSidewaysScrollAndWholeText(page);
-  await expectStackedInOrder([source, problem, board]);
+  await expectStackedInOrder([problem, board]);
   await expect(problem.locator("time")).toHaveCount(2);
   await expect(problem).toContainText(
     "What is shown is the earlier snapshot, retrieved at",

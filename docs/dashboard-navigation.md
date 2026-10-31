@@ -111,7 +111,7 @@ it from the browser, except inside an open modal dialog or System settings,
 and with no panel it does nothing. Closing returns the keyboard to the control
 that opened the panel, or to its story's card when that control is gone. Command+Escape is not used: Chrome and Safari on macOS never
 deliver it to the page.
-Show the selected project's name as the banner's Source evidence disclosure.
+Show the selected project's name as the banner's plain level-1 heading.
 Show the three project choices as tab-shaped radio controls, with the selected
 project highlighted. Unmodified Left and Right arrow keys cycle the three
 projects page-wide in displayed catalog order (Open Dough, Doughnut, Pygardon),
@@ -124,14 +124,12 @@ survive the switch keep focus, and when focused project content disappears,
 focus moves to the selected project radio. Editable fields, other
 arrow-operated controls, already-handled key events, modified shortcuts, and
 an open modal help dialog keep their own keyboard behavior and do not change
-the project. Keep repository/ref, full source revision, and retrieval time
-available through the Source evidence disclosure, so detailed metadata does not
-fill the viewport at browser zoom. End the banner with the **System settings**
+the project. End the banner with the **System settings**
 gear at the far right. Every icon-only control in the banner shows its name,
 and its shortcut where it has one, in a tooltip when hovered or focused. Keep
-readable loading and source problems near the source context. Make the header
-wrap without covering focused content or consuming the usable reading area at
-narrow widths or browser zoom.
+readable loading and source problems near the selected project's work. Make the
+header wrap without covering focused content or consuming the usable reading
+area at narrow widths or browser zoom.
 
 The global **System settings** gear opens a dedicated machine configuration
 view, including when no projects are configured. Its **Projects** section lists

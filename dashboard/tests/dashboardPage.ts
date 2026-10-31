@@ -186,15 +186,16 @@ export const controlsBesideSessions = (page: Page) =>
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem, the way to read
-// again (`recovery`), and nothing that only a snapshot could say. The problem
-// is looked for once no read of the published work is on its way.
+// again (`recovery`), and nothing that only a snapshot could say. The banner's
+// plain title still names the selected project. The problem is looked for once
+// no read of the published work is on its way.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
-  repository = "terryyin/open-dough",
   recovery = "Reload the page to read again.",
+  projectLabel = "Open Dough",
 ) {
-  const { board, source, problem } = parts(page);
+  const { board, problem, projectTitle } = parts(page);
   await untilPublishedWorkRead(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText(problemText);
@@ -209,8 +210,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  await expect(source).toContainText(repository);
-  await expect(source).not.toContainText(/Revision|Retrieved/);
+  await expect(projectTitle).toHaveText(projectLabel);
 }
 
 // Expand through the actual control before claiming direction is readable.

@@ -103,7 +103,7 @@ test("project selection shows each project's own Board, and returning to a proje
   );
 
   await page.goto("/");
-  const { project, source, direction, readRevision } = parts(page);
+  const { project, projectTitle, direction, readRevision } = parts(page);
 
   await test.step("Open Dough is the default selection, read once, and Doughnut is not requested", async () => {
     await expect(
@@ -114,7 +114,7 @@ test("project selection shows each project's own Board, and returning to a proje
     await expect(direction).toContainText(
       "Show Open Dough's own published direction",
     );
-    await expect(source).toContainText(openDoughRepository);
+    await expect(projectTitle).toHaveText("Open Dough");
     await expect(readRevision).toContainText(shortRevision(revisionOpenDough));
     expect(openDoughRequests).toHaveLength(2);
     expect(doughnutRequests).toHaveLength(0);
@@ -127,7 +127,7 @@ test("project selection shows each project's own Board, and returning to a proje
     await expect(direction).toContainText(
       "Show Doughnut's own published direction",
     );
-    await expect(source).toContainText(doughnutRepository);
+    await expect(projectTitle).toHaveText("Doughnut");
     await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
     await expect(page.locator("body")).not.toContainText(openDoughTakenTitle);
     await expect(page.locator("body")).not.toContainText(openDoughSharedTitle);
@@ -212,7 +212,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
 
   await page.goto("/");
   await expectMembership(page, titlesOfOpenDough);
-  const { project, backlog, taken, direction, source, readRevision } =
+  const { project, backlog, taken, direction, projectTitle, readRevision } =
     parts(page);
 
   await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -225,7 +225,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
   await expect(direction).toContainText(
     "No near-future direction is recorded.",
   );
-  await expect(source).toContainText(doughnutRepository);
+  await expect(projectTitle).toHaveText("Doughnut");
   await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(page.locator("body")).not.toContainText(openDoughSharedTitle);

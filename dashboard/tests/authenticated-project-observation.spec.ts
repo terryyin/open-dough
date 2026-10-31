@@ -76,14 +76,14 @@ test("authenticated project observation: each catalog project opens and reloads 
   const {
     project: selector,
     direction,
-    source,
+    projectTitle,
     problem,
     readRevision,
   } = parts(page);
 
   for (const published of projects) {
     const calls = observed.get(published.repository) ?? [];
-    await test.step(`${published.label} renders its own backlog, detail, and source evidence read through local gh`, async () => {
+    await test.step(`${published.label} renders its own backlog and detail read through local gh`, async () => {
       await selector
         .getByRole("radio", { name: published.label, exact: true })
         .check();
@@ -93,7 +93,7 @@ test("authenticated project observation: each catalog project opens and reloads 
       });
       await openDirection(page);
       await expect(direction).toContainText(published.direction);
-      await expect(source).toContainText(published.repository);
+      await expect(projectTitle).toHaveText(published.label);
       await expect(readRevision).toContainText(
         shortRevision(published.revision),
       );

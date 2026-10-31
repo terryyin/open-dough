@@ -65,9 +65,6 @@ export async function openUnfinishedReport(
     };
   };
   const underlying = async () => ({
-    sourceOpen: await parts(page).sourceEvidence.evaluateAll((summaries) =>
-      summaries.map((summary) => summary.closest("details")?.open),
-    ),
     project: await parts(page)
       .project.getByRole("radio", { checked: true })
       .getAttribute("value"),

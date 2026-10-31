@@ -81,7 +81,7 @@ product edits.
 
 ### 2. Plain project title on wide screens
 Type: Behavior
-Status: planned
+Status: done
 Proof: wide-screen header journey (example 1); typecheck; build; full
 `npm run test:dashboard`.
 
@@ -96,6 +96,16 @@ revision check) without negated replacements, and update the read-status
 comment and `shortRevision`'s comment that cite the source evidence. Update
 [navigation documentation](../../../docs/dashboard-navigation.md) to drop the
 disclosure and its metadata promise.
+
+Accepted proof (reuse): plain `h1.project-title`; header journey + typecheck +
+build + touched-spec batch green; full suite 1732 passed with residuals that
+also fail on clean HEAD (`production-watcher-failures` leftover deployments)
+or pass on focused retry (session/sidebar flakes).
+
+Accepted proof (reuse): plain `h1.project-title`; header journey + typecheck +
+build + touched-spec batch green; full suite 1732 passed with residuals that
+also fail on clean HEAD (`production-watcher-failures` leftover deployments)
+or pass on focused retry (session/sidebar flakes).
 
 ### 3. Compact project selector on narrow screens
 Type: Behavior

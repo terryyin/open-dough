@@ -8,9 +8,11 @@ export function parts(page: Page) {
   const board = page.getByRole("region", { name: "Board" });
   const status = page.getByRole("status").and(page.locator(".read-status"));
   const direction = page.getByRole("region", { name: "Near-future direction" });
+  const banner = page.getByRole("banner");
   return {
-    banner: page.getByRole("banner"),
-    sourceEvidence: page.getByLabel(/^Source evidence for /),
+    banner,
+    // The selected project's plain level-1 name in the banner.
+    projectTitle: banner.getByRole("heading", { level: 1 }),
     project: page.getByRole("radiogroup", { name: "Project" }),
     board,
     backlog: board.getByRole("region", { name: "Backlog", exact: true }),
@@ -29,7 +31,6 @@ export function parts(page: Page) {
       name: "Recently done",
       exact: true,
     }),
-    source: page.getByRole("region", { name: "Published Git state" }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is
     // spoken; it says what the latest read is doing or what it read.

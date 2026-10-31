@@ -90,7 +90,6 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
   await expectProblemAndNoSnapshot(
     other,
     `main of ${repository} was not asked of GitHub.`,
-    repository,
     "This page reads the published work then, or when it is next seen.",
   );
   const asked = github.calls.length;

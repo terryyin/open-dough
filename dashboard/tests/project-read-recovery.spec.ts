@@ -109,7 +109,8 @@ test.describe("project read recovery", () => {
       await expectProblemAndNoSnapshot(
         page,
         "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
-        pygardonRepository,
+        undefined,
+        "Pygardon",
       );
     });
 

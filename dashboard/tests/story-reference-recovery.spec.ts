@@ -132,7 +132,7 @@ test("leaving during a pending reference prevents the delayed read from moving f
   await project.click();
   await expect(project).toBeChecked();
   release();
-  await expect(parts(page).source).toContainText("terryyin/pygardon");
+  await expect(parts(page).projectTitle).toHaveText("Pygardon");
   await expect(notice).toBeEmpty();
   await expect(page.getByRole("region", { name: /^Detail for/ })).toHaveCount(
     0,

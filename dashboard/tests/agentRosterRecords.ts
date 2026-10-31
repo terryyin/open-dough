@@ -205,6 +205,7 @@ export async function expectDirectRosterFailure(page: Page) {
   await expectProblemAndNoSnapshot(
     page,
     backlogUnreadable,
-    pygardon.repository,
+    undefined,
+    "Pygardon",
   );
 }

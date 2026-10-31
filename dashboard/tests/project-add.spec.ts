@@ -41,8 +41,8 @@ test("Add selects, reads the repository's default branch, launches in its config
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await addProjectOnPage(page);
-  const { source, readRevision } = parts(page);
-  await expect(source).toContainText(addedRepository);
+  const { projectTitle, readRevision } = parts(page);
+  await expect(projectTitle).toHaveText("Sample App");
   await expect(readRevision).toContainText(shortRevision(addedRevision));
   expect(server.ghCalls()).toContainEqual([
     "api",

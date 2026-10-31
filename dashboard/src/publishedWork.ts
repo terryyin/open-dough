@@ -90,8 +90,8 @@ export type PublishedWorkProgress = (
   answered: PublishedWork,
 ) => void;
 
-// A revision as it is said inside a sentence. The source evidence and every
-// pinned link keep the whole revision.
+// A revision as it is said inside a sentence. Pinned links keep the whole
+// revision.
 export function shortRevision(revision: string): string {
   return revision.slice(0, 7);
 }

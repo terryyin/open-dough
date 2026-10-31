@@ -97,7 +97,7 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
   }) => {
     await publishOrigin(page, origin);
     await page.goto("/");
-    await expectProblemAndNoSnapshot(page, problem, undefined, recovery);
+    await expectProblemAndNoSnapshot(page, problem, recovery);
     if (recovery?.includes("asks GitHub nothing until")) {
       await expect(parts(page).problem).toContainText(
         "This page reads the published work then, or when it is next seen.",
@@ -170,12 +170,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
   const unreachable =
     "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.";
   const recoversOnItsOwn = "This page reads the published work at";
-  await expectProblemAndNoSnapshot(
-    page,
-    unreachable,
-    undefined,
-    recoversOnItsOwn,
-  );
+  await expectProblemAndNoSnapshot(page, unreachable, recoversOnItsOwn);
   await expect(problem.locator("time").nth(0)).toHaveAttribute(
     "datetime",
     firstFailure.toISOString(),
@@ -188,12 +183,7 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
       "datetime",
       secondFailure.toISOString(),
     );
-    await expectProblemAndNoSnapshot(
-      page,
-      unreachable,
-      undefined,
-      recoversOnItsOwn,
-    );
+    await expectProblemAndNoSnapshot(page, unreachable, recoversOnItsOwn);
   });
 
   reconnect();

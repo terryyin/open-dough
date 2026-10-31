@@ -63,7 +63,6 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     taken,
     recentlyDone,
     direction,
-    source,
     status,
     reading,
     readRevision,
@@ -147,7 +146,7 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     await expectSideBySideInOrder([backlog, taken, recentlyDone]);
   });
 
-  await test.step("direction and source evidence sit outside the Board", async () => {
+  await test.step("direction sits outside the Board", async () => {
     await openDirection(page);
     await expect(direction).toContainText(
       "Give developers visibility into a project's published work.",
@@ -155,8 +154,6 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     await expect(direction).toContainText(
       "Derive it solely from Git state published to origin.",
     );
-    await expect(source).toContainText("terryyin/open-dough");
-    await expect(source).toContainText("main");
     await expect(readRevision).toContainText(shortRevision(revision));
     await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",

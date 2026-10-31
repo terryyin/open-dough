@@ -189,8 +189,8 @@ export async function whileTheLimitStands(
     await expectProblemAndNoSnapshot(
       page,
       doughnutWithheld,
-      doughnutRepository,
       "This page reads the published work then, or when it is next seen.",
+      "Doughnut",
     );
     expect(await noticedResumeTime(page)).toBe(resumesAt);
     expect(sent).toEqual([]);
@@ -201,8 +201,8 @@ export async function whileTheLimitStands(
     await expectProblemAndNoSnapshot(
       page,
       doughnutWithheld,
-      doughnutRepository,
       "This page reads the published work then, or when it is next seen.",
+      "Doughnut",
     );
     await expectSameResumeTime(page, resumesAt, refusedAt);
     expect(sent).toHaveLength(1);

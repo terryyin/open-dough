@@ -63,7 +63,6 @@ test("recovery discovering a new revision replaces the snapshot with current fac
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);

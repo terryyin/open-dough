@@ -187,11 +187,11 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
 
   const restore = origin.answerWith("main", noConnection);
   await passTimeUntilCheckedAfterSettled(page, 502);
-  const { problem, source } = parts(page);
+  const { problem, projectTitle } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await problem.scrollIntoViewIfNeeded();
   await expect(problem).toBeInViewport();
-  await expect(source).toBeVisible();
+  await expect(projectTitle).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page);
   restore();
   await passTimeUntilCheckedAfterSettled(page);

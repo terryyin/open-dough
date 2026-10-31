@@ -1,8 +1,7 @@
 /* The pinned banner: one row on a wide page column. Open Dough's mark
-   (./product-mark.css), Sessions, the project's name opening its source
-   evidence, the project choices, and System settings at the far end. Every
-   control is one control height, and the icon controls share one look
-   (./icon-control.css). */
+   (./product-mark.css), Sessions, the project's plain title, the project
+   choices, and System settings at the far end. Every control is one control
+   height, and the icon controls share one look (./icon-control.css). */
 .banner {
   flex-shrink: 0;
   z-index: 5;
@@ -28,10 +27,15 @@
   grid-row: 1;
 }
 
-.banner .source {
+.banner .project-title {
   grid-column: 3;
   grid-row: 1;
   min-width: 0;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.01em;
+  align-self: center;
 }
 
 .banner .project-select {
@@ -46,28 +50,6 @@
   grid-row: 1;
 }
 
-.source-evidence {
-  min-width: 0;
-  font-size: var(--text-sm);
-}
-
-.source-evidence summary h1 {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-strong);
-  letter-spacing: -0.01em;
-}
-
-.source-evidence-body {
-  max-height: calc(100dvh - 9rem);
-  overflow-y: auto;
-  margin-top: var(--space-1);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  scroll-padding-block: var(--focus-ring-clearance);
-}
-
 /* A narrow page column (./side-panel.css), whether the window is narrow
    or the Sessions sidebar or the side panel shares it, takes a second row. */
 @container page (max-width: 800px) {
@@ -79,12 +61,9 @@
 
   /* The mark, the name and System settings share the first row;
      Sessions starts the second, below the mark, before the project choices. */
-  .banner .source {
+  .banner .project-title {
     grid-column: 2 / 5;
-  }
-
-  .banner .source:has(.source-evidence[open]) {
-    grid-column: 2 / -1;
+    font-size: var(--text-md);
   }
 
   .banner .sessions-toggle-group {
@@ -99,8 +78,6 @@
     margin-right: 0;
   }
 
-  .source-evidence summary h1 { font-size: var(--text-md); }
-
   .project-action-target { display: none; }
 }
 
@@ -111,23 +88,4 @@
   .banner {
     padding-block: var(--space-1);
   }
-}
-
-.source dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
-}
-
-.source dt,
-.source dd {
-  display: inline;
-}
-
-.source dt {
-  margin-right: 0.4rem;
-}
-
-.source-note {
-  margin-top: 0.25rem;
 }

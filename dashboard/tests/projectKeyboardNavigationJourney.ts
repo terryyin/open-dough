@@ -58,7 +58,7 @@ export async function expectSelectedProject(
     readonly checkDirection?: boolean;
   } = {},
 ): Promise<void> {
-  const { project, source, direction, readRevision } = parts(page);
+  const { project, projectTitle, direction, readRevision } = parts(page);
   await expect(
     project.getByRole("radio", { name: published.label, exact: true }),
   ).toBeChecked();
@@ -70,7 +70,7 @@ export async function expectSelectedProject(
     await openDirection(page);
     await expect(direction).toContainText(published.direction);
   }
-  await expect(source).toContainText(published.repository);
+  await expect(projectTitle).toHaveText(published.label);
   await expect(readRevision).toContainText(shortRevision(published.revision));
   for (const other of projects.filter((entry) => entry !== published)) {
     await expect(page.locator("body")).not.toContainText(other.taken);
