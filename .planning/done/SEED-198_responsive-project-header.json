@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-198#responsive-project-header",
+  "title": "Simplify the project header and use a dropdown on narrow screens",
+  "completedAt": "2026-10-31T10:08:28.523Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "cursor",
+  "model": "auto"
+}

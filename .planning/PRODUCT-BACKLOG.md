@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Reduce dashboard test feedback time with measured optimization](seeds/SEED-197-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-197#optimize-dashboard-test-feedback
-- [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header ([plan](slice-plans/424-responsive-project-header/PLAN.md))
 
 ## Backlog list
 
