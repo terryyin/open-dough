@@ -12,9 +12,7 @@ stay as current and correct as today. The source owns the complete scope,
 decisions (1 s settled reuse, join-in-flight Cursor reads, unchanged answers,
 bounded wait with a retryable answer), deferred promises, and key examples.
 
-Exclusions: GitHub revision-check sharing (sibling story
-`SEED-202#shared-github-revision-checks`). This plan gives no shared-observation
-promise to story-specific reads (`stateOf`, recorded lookups, verification);
+Exclusions: This plan gives no shared-observation promise to story-specific reads (`stateOf`, recorded lookups, verification);
 they get the document reuse for free. Terminal streams and browser-side
 retention are also out of scope.
 
