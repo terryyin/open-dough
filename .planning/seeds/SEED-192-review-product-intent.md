@@ -36,6 +36,9 @@ The preceding discussion establishes these inputs:
 
 - The initial usable Intent increment can be a test-file browser. Each project
   identifies its test locations; the reader follows their folder structure.
+- The next increment lists all recorded hard-to-resolve optimization candidates
+  and accepted slow tests. Selecting a listed test reuses the first increment's
+  test-source navigation. Terry requested this at priority 2 on 2026-10-31.
 - Purpose initially means actual static test source. Proof adds observed
   execution information. The selected UX supports side-by-side and tabbed
   layouts, with an adjacent switch that preserves the selection and story scope.
@@ -127,8 +130,10 @@ approach has been selected.
 - **Value / learning:** Delivers the first usable Intent perspective and tests
   whether this entry point helps developers locate expressions of behavior.
 - **Boundary:** Includes project test-location identification and the usable
-  browser in the existing frame. Runtime proof collection and generated intent
-  narratives belong to later outcomes. The test-location mechanism is open.
+  browser in the existing frame. Its test-file selection is also the navigation
+  reused by the candidate links in the next story. Runtime proof collection and
+  generated intent narratives belong to later outcomes. The test-location
+  mechanism is open.
 - **Effort hypothesis:** Unbanded; comparatively lower, medium confidence.
   Assumes the existing source-reading and folder-review capabilities can inform
   the work; selecting test locations across projects is the main uncertainty.
@@ -138,9 +143,49 @@ approach has been selected.
   Empty, unavailable, or unreadable source must be distinguishable from an empty
   or fully reviewed intent set.
 
+<a id="review-test-optimization-candidates"></a>
+
+### 2. Review test optimization candidates and accepted slow tests
+
+**Identity:** SEED-192#review-test-optimization-candidates
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer can see which tests remain hard to optimize and
+  which slow tests have an accepted cost, then inspect the tests behind those
+  decisions without leaving Intent.
+- **Evaluation:** For the selected project's maintained Test Optimization
+  Candidates record, list every pending candidate and every accepted necessary
+  cost in clearly labelled groups. Show the recorded test locations, observed
+  cost and date, and disposition rationale, with access to recorded evidence.
+  Selecting a test location opens that project's actual test source through
+  the first story's browser. A family spanning multiple files links each file;
+  use an identified case location when available. An unavailable or moved target
+  explains the gap rather than opening an unrelated test.
+- **Value / learning:** Makes unresolved optimization work and deliberate
+  decisions to retain slow protection reviewable together. Tests whether direct
+  access to the protected behavior helps developers understand those decisions.
+- **Boundary:** Read the maintained record, such as Open Dough's
+  [Test Optimization Candidates](../TEST-OPTIMIZATION-CANDIDATES.md), and reuse
+  the first story's source reader and test selection. Include all recorded
+  pending and accepted entries, regardless of their observed duration or whether
+  a runtime report is available. Accepted costs remain visible with their
+  rationale; acceptance does not imply skipping or excluding those tests.
+  Profiling, test changes, and disposition changes belong to separate work.
+- **Effort hypothesis:** Unbanded; comparatively lower, medium confidence.
+  Assumes the first story supplies test-source navigation. Resolving recorded
+  locations and presenting missing targets truthfully need refinement.
+- **Product prerequisites:** A maintained candidate record and the test-source
+  navigation delivered by the first story. Reusing that navigation belongs in
+  this story's implementation; no separate navigation mechanism is needed.
+- **Safe stopping point:** The complete recorded list and its test links are
+  useful without runtime Proof or automated assessment. Distinguish an absent
+  or unreadable record from a readable record with no entries in either group.
+
 <a id="review-story-intent-impact"></a>
 
-### 2. Review a story's impact on test intent
+### 3. Review a story's impact on test intent
 
 **Identity:** SEED-192#review-story-intent-impact
 ```json dough-story-state
@@ -168,7 +213,7 @@ approach has been selected.
 
 <a id="read-observed-test-proof"></a>
 
-### 3. Read observed proof alongside test purpose
+### 4. Read observed proof alongside test purpose
 
 **Identity:** SEED-192#read-observed-test-proof
 ```json dough-story-state
@@ -199,7 +244,7 @@ approach has been selected.
 
 <a id="assess-story-intent-protection"></a>
 
-### 4. Review how well a story's intent is protected
+### 5. Review how well a story's intent is protected
 
 **Identity:** SEED-192#assess-story-intent-protection
 ```json dough-story-state
@@ -234,7 +279,7 @@ approach has been selected.
 
 <a id="assess-story-test-complexity"></a>
 
-### 5. Review complexity introduced by a story's tests
+### 6. Review complexity introduced by a story's tests
 
 **Identity:** SEED-192#assess-story-test-complexity
 ```json dough-story-state
@@ -265,7 +310,7 @@ approach has been selected.
 
 <a id="inspect-hierarchical-proof-cost"></a>
 
-### 6. Find expensive proof in the test hierarchy
+### 7. Find expensive proof in the test hierarchy
 
 **Identity:** SEED-192#inspect-hierarchical-proof-cost
 ```json dough-story-state
@@ -295,17 +340,21 @@ approach has been selected.
 
 ## Ordering and Scope Reduction
 
-Queue the six stories above in that order. The backlog was empty when this
-preparation began; unrelated dormant candidates remain in their existing seeds.
+Queue the seven stories above in that order. Terry added the candidate view at
+priority 2 on 2026-10-31; the original six stories retain their relative order.
+The backlog was empty when the initial decomposition began; unrelated dormant
+candidates remain in their existing seeds.
 
 1. The browser is the usable first increment Terry explicitly described.
-2. Story scope brings that browser to the selected near-future question.
-3. Real Proof makes the review concrete and exposes cost before judging it.
-4. The protection case tests the most consequential uncertainty before richer
+2. The candidate view makes recorded unresolved and accepted test costs visible,
+   with links into that browser, before adding runtime reporting.
+3. Story scope brings that browser to the selected near-future question.
+4. Real Proof makes the review concrete and exposes cost before judging it.
+5. The protection case tests the most consequential uncertainty before richer
    aggregation or generalized AI automation.
-5. The complexity case tests the other judgment dimension separately from
+6. The complexity case tests the other judgment dimension separately from
    protection and raw execution cost.
-6. Folder summaries extend evidence that can already be read for selected tests.
+7. Folder summaries extend evidence that can already be read for selected tests.
 
 This is a value and learning order, not a dependency chain. The existing editor,
 Review changes, and report workflow can support the assessment cases earlier if
@@ -346,6 +395,9 @@ story remains subject to the learning from earlier delivery and assessment.
   Purpose/Proof layouts, proof timing and hierarchy, and the longer-term
   three forms of intent expression; followed by acceptance and landing of the
   near-future direction and a request for this decomposition.
+- Terry's 2026-10-31 request: queue the test optimization candidate view at
+  priority 2, including hard-to-resolve and accepted slow tests, with links
+  reusing the first story's test browser.
 - [Product backlog](../PRODUCT-BACKLOG.md).
 - [Product intent review memorandum](../../docs/product-intent-review-memorandum.md).
 - [Initial Intent UX/UI direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace).
