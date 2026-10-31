@@ -33,11 +33,11 @@ intent introduced or affected by a newly developed story.
 - [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame ([plan](slice-plans/424-development-intent-frame/PLAN.md))
 - [Use the full mobile screen for sessions and simplify their header](seeds/SEED-199-mobile-session-screen.md#mobile-session-screen) — SEED-199#mobile-session-screen ([plan](slice-plans/425-mobile-session-screen/PLAN.md))
 - [Keep dashboard polling quiet](seeds/SEED-203-quiet-dashboard-polling.md#quiet-dashboard-polling) — SEED-203#quiet-dashboard-polling
+- [Keep dashboard refresh work bounded across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh) — SEED-202#bounded-dashboard-refresh ([plan](slice-plans/426-bounded-dashboard-refresh/PLAN.md))
 
 ## Backlog list
 
 - [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch
-- [Keep dashboard refresh work bounded across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh) — SEED-202#bounded-dashboard-refresh
 - [Share GitHub revision checks across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#shared-github-revision-checks) — SEED-202#shared-github-revision-checks
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
