@@ -39,9 +39,12 @@ decision; the original measurement is recoverable at
 ### Make explicit dashboard re-reads observe fresh evidence
 
 **Identity:** SEED-206#explicit-reread-freshness
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/431-explicit-reread-freshness/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a7a96d3869ef1e9f5f898ad272fe6e9ffa68ef630393eacd3b264322667c4b5","plan":"8d2e5534cdb272a5b7e6c8a91d653941cc917d45c66483ec202a1843b5553c4f"}}
+```
 
-**Beneficiary:** A developer changing a launch host in a story launch or
-Start session dialog and waiting for its updated offers.
+**Beneficiary:** A developer switching the Host selection in a story launch
+or Start session dialog and waiting for its updated offers.
 
 **Goal:** The explicit machine-session re-read after the change returns
 offers based on evidence obtained after that change, without waiting for the
@@ -50,7 +53,11 @@ next regular poll or multiplying observations across viewers.
 **Scope:**
 
 - Apply the freshness promise to the explicit launch-offer re-read used by
-  both launch dialogs after a host change.
+  both launch dialogs after a Host selection change. Offers (options
+  definitions, establishing hosts, session policies) come from each
+  project's installed skill files, which the observation's reuse key
+  (project catalog and machine documents) does not cover; a re-read
+  therefore names its own freshness rather than relying on a key change.
 - A settled observation predating that change cannot answer the re-read,
   even while it is inside the one-second reuse window.
 - An observation already running before the change cannot supply stale
@@ -64,20 +71,24 @@ next regular poll or multiplying observations across viewers.
 
 **Key examples:**
 
-1. An observation reports offers A. A host change requires offers B, and its
-   explicit re-read arrives 400 ms after that observation settled. The
-   completed re-read shows B without waiting for the next 15-second poll.
-2. An observation that captured A is held in flight. The host changes to B
-   and an explicit re-read arrives. Releasing the old observation does not
+1. An observation reports Codex offers A. The project's installed Codex
+   options then change to B, and the developer switches the dialog's Host to
+   Codex 400 ms after that observation settled. The completed re-read shows
+   B without waiting for the next 15-second poll.
+2. An observation that captured A is held in flight. The installed options
+   change to B and the developer's Host switch sends an explicit re-read. Releasing the old observation does not
    complete that re-read with A; fresh evidence yields B, with no overlapping
    observations.
-3. Several viewers explicitly re-read for the same host change. They receive
+3. Several viewers explicitly re-read at about the same time after the same
+   installed change. They receive
    B from one suitable shared observation. Ordinary polls still share their
    work and receive small unchanged answers when appropriate.
 
 **Deferred promises:** Observation expiry, lower settled heap, changes to
-GitHub request sharing, story-specific session reads, and a general refresh
-framework. Implementation and proof selection await refinement and planning.
+GitHub request sharing, story-specific session reads, a general refresh
+framework, and fresh reads for actions other than the dialogs' Host switch.
+
+**Plan:** [431-explicit-reread-freshness](../slice-plans/431-explicit-reread-freshness/PLAN.md)
 
 **Starting points:** `dashboard/src/agentLaunches.ts` (`rereadOffers`),
 `StartLaunch.tsx`, `StartSession.tsx`, `machineSessionsReads.ts`, and
