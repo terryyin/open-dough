@@ -25,6 +25,8 @@ import {
   scrollTopOf,
 } from "./reviewPanes.ts";
 import {
+  chooseCommitsByTouch,
+  chooseLargeChangesCommitByTouch,
   codePartGeometry,
   leaveUncommittedOutByTouchLabel,
   readCodePartByTouch,
@@ -85,19 +87,7 @@ export async function chooseComparisonAndKeepContextThroughTouch(
   await reachReviewControl(review, folder);
   await tapWhereShown(folder);
   await expect(folder).toHaveAttribute("aria-expanded", "true");
-  await reachReviewControl(review, commits);
-  await tapWhereShown(commits);
-  await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
-  ).toBeChecked();
-  await expect(
-    review.getByRole("region", { name: "Story commits" }),
-  ).toBeVisible();
-  const commit = review
-    .getByRole("region", { name: "Story commits" })
-    .getByRole("button", { name: /large changes/ });
-  await commit.scrollIntoViewIfNeeded();
-  await tapWhereShown(commit);
+  await chooseLargeChangesCommitByTouch(review, browser);
   await reachReviewControl(review, all);
   await tapWhereShown(all);
   await expect(
@@ -220,11 +210,7 @@ export async function chooseComparisonAndKeepContextThroughTouch(
     browser.getByRole("button", { name: `Added ${longB}` }),
   ).toHaveAttribute("aria-pressed", "true");
   // Hidden files: explicit Commits and its reading place survive rotation.
-  await reachReviewControl(review, commits);
-  await tapWhereShown(commits);
-  await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
-  ).toBeChecked();
+  await chooseCommitsByTouch(review);
   await expect(reviewFeedback(review)).toHaveText(
     "Review refreshed: 64 changed files in the chosen range.",
   );
@@ -242,7 +228,7 @@ export async function chooseComparisonAndKeepContextThroughTouch(
   expect(await scrollTopOf(nextCode)).toBe(nextAt);
   expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
   expect(await pageFits(page)).toBe(true);
-  await leaveUncommittedOutByTouchLabel(page, review, browser, portrait);
+  await leaveUncommittedOutByTouchLabel(review, browser, portrait);
   await tapWhereShown(control(review, "Close"));
   await expect(review).toHaveCount(0);
   await expect(action).toBeFocused();

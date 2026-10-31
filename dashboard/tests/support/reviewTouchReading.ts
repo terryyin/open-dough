@@ -1,9 +1,11 @@
 // Observe actual text inside the code pane and reach it with native movement.
 import type { Locator, Page } from "@playwright/test";
 import { tapWhereShown } from "../pageLayout.ts";
+import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import { expect } from "./preparationPage.ts";
 import { contextValues, fileBrowser } from "./reviewContextLine.ts";
+import { chooseCommit } from "./storyReviewCommitChoice.ts";
 import { uncommittedCheck, uncommittedLabel } from "./storyReviewMark.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
@@ -181,9 +183,39 @@ export async function visibleShortCodeLine(code: Locator) {
   });
 }
 
+// Tap the Commits comparison and confirm it is the chosen one.
+export async function chooseCommitsByTouch(review: Locator) {
+  const comparison = review.getByRole("radiogroup", { name: "Comparison" });
+  const commits = comparison.locator("label", { hasText: "Commits" });
+  await reachReviewControl(review, commits);
+  await tapWhereShown(commits);
+  await expect(
+    comparison.getByRole("radio", { name: "Commits", exact: true }),
+  ).toBeChecked();
+}
+
+// Choose Commits, then by touch the commit whose range holds every changed
+// file, once the anchored range's answer has moved the list.
+export async function chooseLargeChangesCommitByTouch(
+  review: Locator,
+  browser: Locator,
+) {
+  await chooseCommitsByTouch(review);
+  const commits = review.getByRole("region", { name: "Story commits" });
+  await expect(commits).toBeVisible();
+  const commit = commits.getByRole("button", { name: /large changes/ });
+  await chooseCommit(review, commit, async (row) => {
+    await row.scrollIntoViewIfNeeded();
+    await tapWhereShown(row);
+  });
+  await expect(commit).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    browser.getByRole("list", { name: "64 changed files" }),
+  ).toBeVisible();
+}
+
 // Tap the uncommitted-check label off; that state survives a viewport restore.
 export async function leaveUncommittedOutByTouchLabel(
-  page: Page,
   review: Locator,
   browser: Locator,
   portrait: { width: number; height: number },
@@ -205,6 +237,6 @@ export async function leaveUncommittedOutByTouchLabel(
   await expect(
     browser.getByRole("list", { name: "63 changed files" }),
   ).toBeVisible();
-  await page.setViewportSize(portrait);
+  await resizeUntilArranged(review, portrait);
   await expect(uncommitted).not.toBeChecked();
 }
