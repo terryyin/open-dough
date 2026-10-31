@@ -96,12 +96,15 @@ export function keepInView(element: Element): () => void {
   // Focus elsewhere on the Board (as when Inspect receives the keyboard after
   // Mark as done homed here) ends keeping: otherwise showColumnHolding keeps
   // pulling this part back and the new focus can stay clipped in a hidden
-  // column. Pointer and keys inside the Side panel (including Close) are not
-  // the developer's Board move; keep following layout until they leave the
-  // panel or scroll the Board, so covering→Close still lands on the reading
-  // place.
+  // column. Focus returned to banner chrome (Sessions after Close) is not a
+  // Board move; keep following layout through covering→Close so the reading
+  // place lands. Pointer and keys inside the Side panel (including Close) are
+  // likewise not the developer's Board move.
   const inSidePanel = (target: EventTarget | null) =>
     target instanceof Element && target.closest(".side-panel") !== null;
+  const onBoard = (target: EventTarget | null) =>
+    target instanceof Element &&
+    target.closest(".board-scroll, .roster-scroll") !== null;
   let stopOwn = () => {};
   const stopKeeping = () => {
     stopSettling();
@@ -115,7 +118,7 @@ export function keepInView(element: Element): () => void {
   const focusMoved = (event: FocusEvent) => {
     const next = event.target;
     if (next instanceof Node && element.contains(next)) return;
-    if (inSidePanel(next)) return;
+    if (inSidePanel(next) || !onBoard(next)) return;
     end();
   };
   window.addEventListener("focusin", focusMoved, true);
