@@ -203,37 +203,3 @@ test("successful Mark as done closes the terminal and cancels its active capture
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   expect(provider.calls).toHaveLength(0);
 });
-
-test("an unavailable attachment retains the full completed transcript and Discard sends nothing", async ({
-  page,
-  dashboard,
-  provider,
-  launchJourney,
-}) => {
-  seedVoiceKey(dashboard.home);
-  const transcript = "retain all these words ".repeat(210).trim();
-  provider.setText(transcript);
-  const { sent } = noteTerminalTraffic(page);
-  const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-  const delivery = await holdCompletedVoiceResponse(page);
-  await beginTerminalClip(page, panel);
-  await stopTerminalClip(page, panel);
-  await delivery.ready();
-  await dashboard.close();
-  await expect(panel.getByRole("status")).toContainText(
-    "Disconnected from the session",
-  );
-  await delivery.release();
-  const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
-  await expect(retained).toHaveValue(transcript);
-  await expect(
-    panel.getByRole("button", { name: "Dictate into terminal" }),
-  ).toBeDisabled();
-  expect(sent).toEqual([]);
-  await panel.getByRole("button", { name: "Discard transcript" }).click();
-  await expect(retained).toHaveCount(0);
-  await expect(
-    panel.getByRole("button", { name: "Dictate into terminal" }),
-  ).toBeEnabled();
-  expect(sent).toEqual([]);
-});

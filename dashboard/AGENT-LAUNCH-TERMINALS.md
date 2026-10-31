@@ -134,9 +134,11 @@ is never replayed automatically.
 Capture and pending results belong to the open session view. Close, switching
 sessions and a successful Mark as done that closes it cancel capture and pending
 requests, including late permission or transcript delivery. A result that cannot
-be offered to its attachment stays visible in full with **Discard transcript**;
-settle it before another recording. Insertion after reconnect is not available
-in this intermediate increment. Closing or switching discards the result.
+be offered to its attachment stays visible in full. **Insert transcript** offers
+it once to this session and focuses terminal input; an unavailable attachment
+keeps the text for another deliberate attempt. **Discard transcript** sends
+nothing. Settle it before recording again; closing or switching discards it.
+Reconnect leaves unsent text pending and never resends text already offered.
 
 On touch screens, tap the terminal to focus its ordinary input, edit with the
 browser keyboard and submit with Enter. The terminal keeps its own scrollback;

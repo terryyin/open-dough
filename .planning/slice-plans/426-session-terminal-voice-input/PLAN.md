@@ -4,6 +4,7 @@
 **Source:** [Refined story](../../seeds/SEED-200-session-terminal-voice-input.md#session-terminal-voice-input)
 **Source review:** [Independent source review](source-review.md)
 **CI repair evidence:** [First increment repair](ci-repair-evidence.md)
+**Slice 2 evidence:** [Recovery acceptance](slice-2-evidence.md)
 
 ## Goal and scope
 
@@ -93,7 +94,7 @@ stop and reassess that premise rather than growing this slice.
 ### 2. Insert a retained transcript deliberately after reconnect
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a completed transcript could not be offered to the current
 attachment → the developer reconnects → the complete text remains pending
@@ -206,7 +207,7 @@ Disposition: proved by slice 1: session-terminal-voice.spec.ts actual native inp
 ### G2. Interim retained result cannot yet insert
 Reported: slice 1 — "acceptance discovery: interim feedback retains full text with Discard but explicitly says insertion after reconnect is not available yet."
 Story clause: "offer explicit Insert after reconnect plus Discard"
-Disposition: interim until slices 2
+Disposition: proved by slice 2: session-terminal-voice-recovery.spec.ts actual disconnect/held completed response, failed unavailable Insert retention, explicit same-session Insert after reconnect, no automatic/repeated frame, Discard and Close/switch clearing
 
 ### G3. Phone journey must retain edit and submit proof
 Reported: slice 1 — "acceptance discovery: the initial phone journey records/stops and measures layout, but only the desktop journey observes existing native input, focus, no submit, editing, and explicit Enter."
@@ -225,3 +226,16 @@ Disposition: proved by slice 1: session-terminal-voice.spec.ts phone journey obs
 ## Slice 1 accepted evidence
 
 See [supporting execution evidence](execution-evidence.md#slice-1-accepted-evidence).
+
+## Published increments
+
+Target: `origin/codex/dictate-text-into-the-session-terminal-from-its`; same
+observer `/tmp/dough-ci-501/watch-M6Cudd` reused for each accepted revision.
+
+- Slice1: `e352b41c20dc7dfb9655353a2a15cc5b967939f1`; suffix base `d3a51816132a8daf82d80384b04b1ff5f4124c61`.
+- CI dates/observations: `f999ae22a2d56f467953a434f7536587c5cebf54`; suffix base `e352b41c20dc7dfb9655353a2a15cc5b967939f1`.
+- CI geometry: `d1919b368e687df9233334face13f9f1789f6f3a`; suffix base `f999ae22a2d56f467953a434f7536587c5cebf54`.
+
+Current candidate and slice2 previously published base: `d1919b368e687df9233334face13f9f1789f6f3a`.
+Both sanctioned CI stash restores returned resumed/applied and dropped only their
+recorded OIDs; final recovery code/proof and coordinator records restored cleanly.

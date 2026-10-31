@@ -101,3 +101,14 @@ proof, preserved exact native assertions, and complete39-consumer trace at
 unchanged). Whitespace passed; formatter-projected maximum test length247.
 No semantic proof was invalidated. Source freshness returned unchanged at d3a51816;
 119-commitment/3-obligation slice1 check accepted.
+
+## Repair publication and later infrastructure event
+
+Accepted f999ae22a2d56f467953a434f7536587c5cebf54 on the story branch,
+suffixBase e352b41c, same observer reused. Sanctioned restore returned
+resumed/applied and dropped only saved OID521352ce; slice2 resumed unchanged.
+Later run41168021650 attempt1 dashboard7/12 job124439701837 failed at Install
+npm dependencies before tests: explicit npm source acquisition45s deadline
+exceeded (diagnostic `/tmp/seed200-ci-repair-diagnostic.json`). Affirmative
+infrastructure disposition, no pause or product repair. Further jobs need
+separate classification; this is no claim that its tests passed.

@@ -53,8 +53,8 @@ export function useTerminalDictation(insert: (text: string) => boolean) {
         {pending !== undefined && (
           <div className="terminal-transcript">
             <p>
-              The transcript was not inserted. You can read or discard it here;
-              insertion after reconnect is not available yet.
+              The transcript was not inserted. Reconnect, then insert it here or
+              discard it. Nothing is inserted automatically.
             </p>
             <label>
               Unsent transcript
@@ -65,6 +65,15 @@ export function useTerminalDictation(insert: (text: string) => boolean) {
                 value={pending}
               />
             </label>
+            <button
+              type="button"
+              className="frame-button"
+              onClick={() => {
+                if (insert(pending)) setPending(undefined);
+              }}
+            >
+              Insert transcript
+            </button>
             <button
               type="button"
               className="frame-button"

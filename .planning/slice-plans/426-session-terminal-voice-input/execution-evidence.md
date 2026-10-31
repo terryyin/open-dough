@@ -197,3 +197,13 @@ voice helpers and browser journeys are exercised. One sequential worker was
 selected with increased shared-host contention acknowledged (load31–36, ~99% CPU),
 and no other owned heavy verification or interference with other sessions.
 All changed files remain <=250 after formatting preview; largest is248.
+
+## CI disposition — first increment
+
+Run 41166733510 attempt 1 at e352b41c, dashboard (5/12), job124435808877:
+failed step Install npm dependencies before checks. Installed diagnostic reports
+`Infrastructure setup: npm source stalled: acquisition deadline exceeded. Restore
+source connectivity and rerun setup before running checks.` This is affirmative
+source-acquisition infrastructure evidence accounting for this delivered failure;
+ignore that attempt for product repair, preserve its failure, and continue without
+a pause or a rerun-until-green. Any later failed job requires separate triage.
