@@ -29,6 +29,7 @@ import {
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
 import { queuedIdentity } from "./support/startOrigin.ts";
+import { retainedDoneAt } from "./machineLaunchRecords.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 // Cursor repaints a while after Enter on a paste chip, so a continuation's
@@ -188,7 +189,7 @@ test("done and completed sessions offer no Recover", async ({
   writeFileSync(
     file,
     JSON.stringify({
-      "open-dough": [{ ...record, doneAt: "2026-10-01T00:00:00.000Z" }],
+      "open-dough": [{ ...record, doneAt: retainedDoneAt() }],
     }),
   );
   await reloadUntilRead(page);

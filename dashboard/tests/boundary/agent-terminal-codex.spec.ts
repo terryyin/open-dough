@@ -31,6 +31,7 @@ import {
 } from "../support/launchEnvironment.ts";
 
 import { startDashboardServer } from "../support/dashboardServer.ts";
+import { retainedDoneAt } from "../machineLaunchRecords.ts";
 const test = base.extend({
   dashboard: async ({ github, machine, codexProtocol }, use) => {
     const start = deploymentLikeStart(path.join(machine ?? "", "deployment"));
@@ -169,7 +170,7 @@ test.describe(`Codex native terminal boundary`, () => {
     >;
     const record = stored(dashboard.home)[0];
     if (record === undefined) throw new Error("Missing saved record");
-    const doneAt = "2026-10-01T00:00:00Z";
+    const doneAt = retainedDoneAt();
     state["open-dough"] = [
       { ...record, doneAt },
       {

@@ -12,6 +12,7 @@ import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { codexAttaches } from "./support/codexTerminal.ts";
 import { report, save, retained } from "./support/retainedReport.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
+import { retainedDoneAt } from "./machineLaunchRecords.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -52,12 +53,13 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   const records = stored(dashboard.home);
   const first = records[0];
   if (first === undefined) throw new Error("Missing record");
+  const concurrentDoneAt = retainedDoneAt();
   save(dashboard.home, [
     ...records,
     {
       ...first,
       session: { ...first.session, sessionId: "concurrent-record" },
-      doneAt: "2026-10-01T00:00:00Z",
+      doneAt: concurrentDoneAt,
     },
   ]);
   await markDoneAnyway(panel);
@@ -79,7 +81,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
     stored(dashboard.home).find(
       (record) => record.session.sessionId === "concurrent-record",
     )?.doneAt,
-  ).toBe("2026-10-01T00:00:00Z");
+  ).toBe(concurrentDoneAt);
   expect(existsSync(workspace)).toBe(false);
   // Explicit marking owns native rename/stop, unlike report observation.
   expect(

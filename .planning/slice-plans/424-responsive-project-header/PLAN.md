@@ -135,6 +135,10 @@ Commitment: X4
 
 ## Current decisions
 
+- CI repair after slice 1: Recently done fixtures now use clock-relative
+  `retainedDoneAt()` so Done marks stay inside the 30-day launch retention
+  window (calendar-fixed 2026-10-01 dates had aged out).
+
 - A native `<select>` presented as the title is the default candidate for the
   compact selector: it gives the platform touch picker and keyboard behavior and
   is already exempt from page-wide arrow cycling. Execution may choose another

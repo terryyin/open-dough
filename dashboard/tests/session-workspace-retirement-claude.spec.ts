@@ -25,6 +25,7 @@ import {
   save,
   storeFile,
 } from "./support/retainedReport.ts";
+import { retainedDoneAt } from "./machineLaunchRecords.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import { markAsDone, markDone } from "./support/markDone.ts";
 import { workspaceMissing } from "../src/sessionAccess.ts";
@@ -132,7 +133,7 @@ for (const context of ["preparation", "start"] as const) {
       };
       delete record.preparation;
     }
-    const doneAt = "2026-10-01T00:00:00Z";
+    const doneAt = retainedDoneAt();
     record.doneAt = doneAt;
     record.reportRead = record.completion?.receipt;
     save(dashboard.home, [record]);

@@ -16,6 +16,7 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { retainedDoneAt } from "./machineLaunchRecords.ts";
 import { report, storeFile, save, retained } from "./support/retainedReport.ts";
 import {
   codexAttaches,
@@ -42,7 +43,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const { record, workspace } = await retained(dashboard, native);
     mkdirSync(workspace);
     const originalDirectory = realpathSync(workspace);
-    const doneAt = loss === "missing" ? undefined : "2026-10-01T00:00:00Z";
+    const doneAt = loss === "missing" ? undefined : retainedDoneAt();
     save(dashboard.home, [{ ...record, doneAt }]);
     const baseline = readFileSync(storeFile(dashboard.home), "utf8");
     const since = native.calls.length;
