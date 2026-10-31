@@ -313,6 +313,15 @@ Learnings:
   `bash scripts/test.sh tests/native-setup.sh` failed before the fix and
   passes after it. A local `node scripts/setup-native.mjs npm` took 1.48 s.
 
+- CI repair (run `41196698263`, `dashboard (2/12)`,
+  `session-terminal-voice-lifecycle.spec.ts`): after a reload, the helper's
+  unwaited `isVisible()` read a kept-open Sessions sidebar as closed and then
+  clicked it shut. A delayed project read made this fail 3 of 3 times at both
+  `7ad60a6f` and HEAD, so the race predates this story. The new
+  `openSessionsSidebar` helper (`dashboard/tests/sessionsSidebarPage.ts`)
+  decides by `aria-expanded`, and every such guard now uses it. Lifecycle ×20
+  gave 80 passed, the voice family 88 passed, and the edited callers 51 passed.
+
 ## Current decisions
 
 - Settled reuse window: 1 s for the machine-session observation. Cursor

@@ -12,6 +12,7 @@ import { notRefinedStory } from "./launchJourney.ts";
 import { storyCardSessions, parts, sessionStateOf } from "./dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
+  openSessionsSidebar,
   sessionsSidebarParts,
 } from "./sessionsSidebarPage.ts";
 import { test, expect } from "./support/codexLaunch.ts";
@@ -206,7 +207,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
   expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(dashboard.home) }]);
   await reloadUntilRead(page);
   await expect(sidebar.button).toBeVisible();
-  if (!(await sidebar.sidebar.isVisible())) await sidebar.button.click();
+  await openSessionsSidebar(page);
   await check();
   const responses = await states(dashboard);
   expect(

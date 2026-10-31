@@ -3,7 +3,10 @@ import { expect } from "@playwright/test";
 import { launched } from "../agentTerminalBoundary.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  openSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
 
@@ -21,9 +24,8 @@ export async function openTerminalVoice(
   await openTakenBacklog(page, journey);
   const panel = page.getByRole("region", { name: "Terminal", exact: true });
   const open = async (title = "Voice session A") => {
-    const sidebar = sessionsSidebarParts(page);
-    if (!(await sidebar.sidebar.isVisible())) await sidebar.button.click();
-    await sidebar.entry(title).click();
+    await openSessionsSidebar(page);
+    await sessionsSidebarParts(page).entry(title).click();
     await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(title);
   };

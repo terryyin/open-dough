@@ -29,7 +29,10 @@ import {
   storiesThrough,
 } from "./recentlyDoneProgressiveJourney.ts";
 import { recordReveals, revealsOf } from "./sessionNavigationJourney.ts";
-import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import {
+  openSessionsSidebar,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "./support/cursorStart.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
@@ -181,7 +184,7 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   });
   const row = region.getByRole("button", { name: /Open Dough/ });
   const choose = async () => {
-    if (!(await sidebar.isVisible())) await button.click();
+    await openSessionsSidebar(page);
     if ((await row.count()) === 0) {
       await region
         .getByRole("button", { name: "Running Cursor sessions" })

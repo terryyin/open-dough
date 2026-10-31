@@ -18,6 +18,7 @@ import {
 import { readyStory } from "./launchJourney.ts";
 import {
   expectTooltipLine,
+  openSessionsSidebar,
   sessionsSidebarParts,
   sessionsSidebarSessionEntryTooltipOf,
 } from "./sessionsSidebarPage.ts";
@@ -61,7 +62,7 @@ for (const [model, words] of [
     dashboard.claudeScenario("launched");
     const { card, start } = await openTakenBacklog(page, launchJourney);
     const { recentlyDone } = parts(page);
-    const { button, sidebar } = sessionsSidebarParts(page);
+    const { sidebar } = sessionsSidebarParts(page);
 
     await start(readyStory).click();
     await startWith(page, model);
@@ -69,9 +70,7 @@ for (const [model, words] of [
     const entry = storyCardSessions(card(readyStory));
     const expectWords = async () => {
       await expect(recentlyDone.getByRole("article")).toHaveCount(0);
-      if ((await button.getAttribute("aria-expanded")) !== "true") {
-        await button.click();
-      }
+      await openSessionsSidebar(page);
       await expect(entry).toHaveCount(1);
       await expect(entry).toContainText("Execution");
       if (words === undefined) {
@@ -109,7 +108,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
   const { taken, recentlyDone } = parts(page);
-  const { button, sidebar } = sessionsSidebarParts(page);
+  const { sidebar } = sessionsSidebarParts(page);
 
   await startSession(page, "Open Dough").click();
   await expect(startSessionDialog(page, "Open Dough")).toBeVisible();
@@ -117,9 +116,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   await closeTerminal(page);
 
   const expectWords = async () => {
-    if ((await button.getAttribute("aria-expanded")) !== "true") {
-      await button.click();
-    }
+    await openSessionsSidebar(page);
     const entry = taken.locator(".session-entry");
     await expect(entry).toHaveCount(1);
     await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);

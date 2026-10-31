@@ -23,6 +23,7 @@ import {
 } from "./recentlyDoneSessionsSidebarPage.ts";
 import { wheelToEnd } from "./runningCursorSessionsPage.ts";
 import { holdSessionReads, watchRecordReads } from "./sessionStatePace.ts";
+import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
 import { expect, test } from "./support/cursorStart.ts";
 
 test.use({
@@ -131,7 +132,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
       }),
     ).toBeVisible();
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
-    if (!(await shown.sidebar.isVisible())) await shown.button.click();
+    await openSessionsSidebar(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true")
       await shown.header.click();
     await expect(shown.entries).toHaveCount(45);
@@ -191,7 +192,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   await test.step("reload restores the initial newest-20 range", async () => {
     await page.reload();
     await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
-    if (!(await shown.sidebar.isVisible())) await shown.button.click();
+    await openSessionsSidebar(page);
     await expect(shown.header).toHaveAttribute("aria-expanded", "false");
     await shown.header.click();
     await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);

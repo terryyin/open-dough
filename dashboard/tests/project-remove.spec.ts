@@ -6,6 +6,7 @@ import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
 import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
+import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
   fixture = projectAddMachine();
@@ -164,9 +165,7 @@ test("removing a configured project retains its checkout and records, hides sess
   await expect(recent).toContainText("Retained sample session", {
     timeout: 5_000,
   });
-  const sessions = page.getByRole("button", { name: "Sessions", exact: true });
-  if ((await sessions.getAttribute("aria-expanded")) !== "true")
-    await sessions.click();
+  await openSessionsSidebar(page);
   await expect(sidebar).toContainText("Retained sample session", {
     timeout: 5_000,
   });
