@@ -47,16 +47,14 @@ export async function expectProjectChoice(
   ).toBeChecked();
 }
 
-// Compact title select at the wrap width: plain heading and tabs are gone,
-// the title control names the project, and Escape leaves the list without a
-// choice while keeping focus on the control.
+// Compact title select at the wrap width: tabs are gone, the title control
+// names the project, and Escape leaves the list without a choice while
+// keeping focus on the control.
 export async function expectCompactProjectSelect(
   page: Page,
   label: string,
 ): Promise<void> {
-  const { project, projectCompact, projectCompactList, projectTitle } =
-    parts(page);
-  await expect(projectTitle).toHaveCount(0);
+  const { project, projectCompact, projectCompactList } = parts(page);
   await expect(project).toHaveCount(0);
   await expect(projectCompact).toBeVisible();
   await expect(projectCompact).toHaveText(label);

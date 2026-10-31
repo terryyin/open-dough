@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Use the Open Dough mark as the sidebar toggle and drop the repeated project title](seeds/SEED-205-compact-dashboard-banner.md#logo-sidebar-toggle) — SEED-205#logo-sidebar-toggle ([plan](slice-plans/430-logo-sidebar-toggle/PLAN.md))
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose ([plan](slice-plans/429-browse-test-purpose/PLAN.md))
 
 ## Backlog list

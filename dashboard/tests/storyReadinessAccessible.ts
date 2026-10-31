@@ -23,7 +23,10 @@ import {
 } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
 import { noConnection } from "./originAnswers.ts";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import {
   plannedBlocked,
@@ -186,7 +189,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await parts(page).preparationHelp.click();
   const legend = page.getByRole("dialog", { name: "Preparation badges" });
   await expect(legend).toBeVisible();
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", noConnection);
@@ -196,7 +199,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await problem.scrollIntoViewIfNeeded();
   await expect(problem).toBeInViewport();
   await expect(shownProjectControl(page)).toBeVisible();
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   restore();
   await passTimeUntilCheckedAfterSettled(page);
   await expect(problem).toHaveCount(0);

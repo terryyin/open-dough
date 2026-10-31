@@ -25,6 +25,7 @@ import {
   rawFileAnswer,
 } from "./publishedOrigin.ts";
 import {
+  compactProjectSelectCut,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
@@ -33,6 +34,8 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import { doneRecordFiles, executed } from "./recentlyDoneRecords.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
 import { openSessionStartReason } from "../src/agentLaunch.ts";
+
+const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;
 
 test.describe("touch reading", () => {
   test.use({ hasTouch: true });
@@ -68,7 +71,7 @@ test.describe("touch reading", () => {
       page,
       ["Taken"],
       ["Backlog 3 entries", "Recently done 2 entries"],
-      [".owner-mark"],
+      phoneWholeTextCut,
     );
     const card = taken.getByRole("article", { name: longTitle });
     const title = card.getByRole("heading", { level: 3 });
@@ -91,7 +94,7 @@ test.describe("touch reading", () => {
       await expect(text).toBeInViewport({ ratio: 1 });
       await expectInside(text, card);
     }
-    await expectNoSidewaysScrollAndWholeText(page, [".owner-mark"]);
+    await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
     for (const size of [
       { width: 844, height: 390 },
       { width: 768, height: 1024 },
@@ -102,7 +105,7 @@ test.describe("touch reading", () => {
       await expect(
         card.getByRole("button", { name: "Hide detail" }),
       ).toHaveAttribute("aria-expanded", "true");
-      await expectNoSidewaysScrollAndWholeText(page, [".owner-mark"]);
+      await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
     }
     const hide = card.getByRole("button", { name: "Hide detail" });
     await hide.scrollIntoViewIfNeeded();
@@ -113,13 +116,13 @@ test.describe("touch reading", () => {
     await expect(
       recentlyDone.getByRole("article", { name: executed.title, exact: true }),
     ).toBeVisible();
-    await expectNoSidewaysScrollAndWholeText(page, [".owner-mark"]);
+    await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
     await tapWhereShown(columnPagingControl(page, "Taken"));
     await expectView(
       page,
       ["Taken"],
       ["Backlog 3 entries", "Recently done 2 entries"],
-      [".owner-mark"],
+      phoneWholeTextCut,
     );
     await expectProjectChoice(page, "Open Dough");
   });
@@ -168,7 +171,7 @@ test.describe("touch reading", () => {
         card.getByRole("button", { name }),
       ).toHaveAccessibleDescription(new RegExp(openSessionStartReason));
     }
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 
@@ -189,6 +192,7 @@ test.describe("touch reading", () => {
       page,
       ["Taken"],
       [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
+      compactProjectSelectCut,
     );
     await page.setViewportSize({ width: 1024, height: 768 });
     await expectView(
@@ -199,7 +203,12 @@ test.describe("touch reading", () => {
     await tapWhereShown(columnPagingControl(page, "Backlog"));
     await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
     await page.setViewportSize({ width: 390, height: 844 });
-    await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectView(
+      page,
+      ["Backlog"],
+      ["Taken 1 entry"],
+      compactProjectSelectCut,
+    );
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   });
 });

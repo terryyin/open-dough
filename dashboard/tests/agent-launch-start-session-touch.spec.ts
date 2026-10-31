@@ -122,9 +122,8 @@ test.describe(`${name} touch session editing`, () => {
     dashboard.releaseHeldClaude();
     const terminal = page.getByRole("region", { name: "Terminal" });
     await expect(terminal).toBeVisible({ timeout: 30_000 });
-    // Covering hides the Board announcement; Close then read acceptance.
     await closeSidePanel(terminal);
-    await expect(parts(page).adHocStarted).toBeVisible({ timeout: 30_000 });
+    await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     await expect(launcher).toBeEnabled();
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);

@@ -10,6 +10,7 @@ import {
   wide,
 } from "./cursorSessionsSidebarResizePage.ts";
 import {
+  compactProjectSelectCut,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
@@ -100,6 +101,7 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     // Entry titles are cut by design (./sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
       ".sessions-sidebar-session-entry-title",
+      ...compactProjectSelectCut,
     ]);
     await expectEveryControlReachable(shown.sidebar);
     await header.scrollIntoViewIfNeeded();

@@ -26,6 +26,12 @@
   cursor: pointer;
 }
 
+/* Marks sit beside the labels; slightly tighter than project tabs so the
+   pair still fits the phone one-line banner (./banner.css ≤400px). */
+.perspective-choice {
+  padding-inline: var(--space-2);
+}
+
 :is(.project-choice, .perspective-choice) input {
   appearance: none;
   position: absolute;
@@ -47,6 +53,18 @@
   position: relative;
   pointer-events: none;
   white-space: nowrap;
+}
+
+.perspective-choice span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.perspective-choice .perspective-mark {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
 }
 
 :is(.project-choice, .perspective-choice) input:checked {

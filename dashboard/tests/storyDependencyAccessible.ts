@@ -5,7 +5,10 @@ import {
   expectReadableContrast,
   zoomedWindow,
 } from "./accessibleReading.ts";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import {
   suppliers,
   reason,
@@ -51,7 +54,7 @@ export async function expectDependencyAccessibly(
   expect((await summary.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   await expectReadableContrast(summary);
   await page.setViewportSize(zoomedWindow);
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   await summary.scrollIntoViewIfNeeded();
   await expect(summary).toBeInViewport({ ratio: 1 });
   await page.keyboard.press("Space");

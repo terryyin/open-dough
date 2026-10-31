@@ -7,15 +7,16 @@ import "./project-select.css";
 // shortcut recognize the same control group.
 export const projectRadioName = "project";
 
-// Compact title control at the banner's wrap width (`banner.css`); page-wide
+// Compact project control at the banner's wrap width (`banner.css`); page-wide
 // arrow cycling focuses this when it is the shown project control.
 export const projectCompactSelectClass = "project-title-select";
 
 // Which project this dashboard observes, chosen from the configured list.
 // Selecting one is the only effect this control has: what happens when the
 // selection changes belongs to the caller, not here. Wide layouts use the
-// tab-shaped radios; at the wrap width the title button opens a listbox so
-// touch and keyboard (including Escape) share one accessible pattern.
+// tab-shaped radios; at the wrap width the compact button opens a listbox so
+// touch and keyboard (including Escape) share one accessible pattern. The
+// selected control is also the banner's project name.
 export function ProjectSelect({
   source,
   onSelect,

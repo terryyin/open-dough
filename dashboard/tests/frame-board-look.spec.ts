@@ -21,7 +21,10 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { openDirection, parts } from "./dashboardPage.ts";
 import { expectDecorativeIcon } from "./frameIconControl.ts";
 import { expectProductMark } from "./productMark.ts";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import {
   emptyBacklog,
   publishMovingOrigin,
@@ -75,10 +78,10 @@ test("the row below the banner and the Board read clearly in the frame's look", 
 
   for (const size of [narrowWindow, zoomedWindow]) {
     await page.setViewportSize(size);
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   }
   await openDirection(page);
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
 test("an empty column and a failed read are said in the frame's look, whole in a narrow window", async ({
@@ -103,9 +106,9 @@ test("an empty column and a failed read are said in the frame's look, whole in a
   await expectDecorativeIcon(heading);
   for (const text of await problem.locator("h2, p").all())
     await expectReadableContrast(text);
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   await page.setViewportSize(zoomedWindow);
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
 machineTest(

@@ -2,10 +2,11 @@
 // dashboard's frame owes a developer, whichever control it is. It is named; a
 // tooltip next to it says that name (and its shortcut, where it has one) when
 // the control is hovered and when it holds keyboard focus, without being
-// announced again; its icon is a Lucide glyph hidden from assistive
-// technology, drawn at the frame's one control and icon size; the icon stands
-// out at least 3:1 from what is behind it; and keyboard focus draws an outline
-// that stands out at least 3:1 from what is around the control.
+// announced again; its visual is either a Lucide glyph or (Sessions) the
+// product mark, hidden from assistive technology, drawn at the frame's one
+// control size; a Lucide icon stands out at least 3:1 from what is behind it;
+// and keyboard focus draws an outline that stands out at least 3:1 from what
+// is around the control.
 //
 // The check ends with the control holding keyboard focus and the pointer
 // resting off every control.
@@ -19,10 +20,28 @@ import {
   expectReadableContrast,
 } from "./accessibleReading.ts";
 import { box } from "./pageLayout.ts";
+import { expectSessionsProductMark } from "./productMark.ts";
 
-// The frame's one control size and icon size, in CSS pixels.
-const frameControlSize = 40;
+// Default frame control and icon sizes in CSS pixels; coarse pointers raise
+// --control-size (../src/styles.css), so the check reads the live value.
+const defaultFrameControlSize = 40;
 const frameIconSize = 20;
+// Product mark size inside Sessions (../src/product-mark.css).
+const productMarkSize = 32;
+
+async function frameControlSizePx(control: Locator): Promise<number> {
+  return control.evaluate(() => {
+    const raw = getComputedStyle(document.documentElement)
+      .getPropertyValue("--control-size")
+      .trim();
+    const probe = document.createElement("div");
+    probe.style.width = raw;
+    document.body.appendChild(probe);
+    const px = probe.getBoundingClientRect().width;
+    probe.remove();
+    return px || 40;
+  });
+}
 
 // A Lucide glyph a control or heading leads with, hidden from assistive
 // technology so that only its words are announced.
@@ -46,20 +65,31 @@ export async function expectFrameIconControl(
   const page = control.page();
   const restOffControls = () => page.mouse.move(0, 0);
   const tip = tooltipOf(control, tooltip);
-  const icon = control.locator("svg");
+  const productMark = control.locator("img.product-mark");
+  const usesProductMark = (await productMark.count()) > 0;
+  const icon = usesProductMark ? productMark : control.locator("svg");
 
   await expect(control).toHaveAccessibleName(name);
-  await expectDecorativeIcon(control);
+  if (usesProductMark) {
+    await expectSessionsProductMark(control);
+  } else {
+    await expectDecorativeIcon(control);
+  }
+  const frameControlSize =
+    (await frameControlSizePx(control)) || defaultFrameControlSize;
   const [controlBox, iconBox] = await Promise.all([box(control), box(icon)]);
   expect(controlBox.width, `${name} width`).toBeCloseTo(frameControlSize, 0);
   expect(controlBox.height, `${name} height`).toBeCloseTo(frameControlSize, 0);
-  expect(iconBox.width, `${name} icon width`).toBeCloseTo(frameIconSize, 0);
-  expect(iconBox.height, `${name} icon height`).toBeCloseTo(frameIconSize, 0);
+  const expectedIcon = usesProductMark ? productMarkSize : frameIconSize;
+  expect(iconBox.width, `${name} icon width`).toBeCloseTo(expectedIcon, 0);
+  expect(iconBox.height, `${name} icon height`).toBeCloseTo(expectedIcon, 0);
 
   await restOffControls();
   await control.blur();
   await expect(tip).toBeHidden();
-  await expectReadableContrast(icon, 3);
+  if (!usesProductMark) {
+    await expectReadableContrast(icon, 3);
+  }
 
   await control.hover();
   await expect(tip).toBeVisible();

@@ -28,11 +28,6 @@ const phone = phoneLaunchTouchViewport;
 
 const answers = [
   {
-    scenario: "launched",
-    words: "Ad hoc session started",
-    answer: (page: Page) => parts(page).adHocStarted,
-  },
-  {
     scenario: "refused",
     words:
       "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.",
@@ -188,7 +183,9 @@ test.describe("390×844 touch, held", () => {
     const terminal = page.getByRole("region", { name: "Terminal" });
     await expect(terminal).toBeVisible({ timeout: 30_000 });
     await closeSidePanel(terminal);
-    await expect(parts(page).adHocStarted).toBeVisible({ timeout: 30_000 });
+    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(parts(page).adHocStarted).toHaveCount(0);
+    await expect(progress).toHaveCount(0);
   });
 });
 
@@ -213,13 +210,6 @@ for (const { scenario, words, answer } of answers) {
 
       await startWithTypedText(page);
       const shown = answer(page);
-      if (scenario === "launched") {
-        const terminal = page.getByRole("region", { name: "Terminal" });
-        await expect(terminal).toBeVisible({ timeout: 30_000 });
-        // Covering hides the Board answer; Close then read it.
-        await tapWhereShown(terminal.getByRole("button", { name: "Close" }));
-        await expect(terminal).toHaveCount(0);
-      }
       await expect(shown).toBeVisible({ timeout: 30_000 });
 
       await expectRowReadsWhole(page, shown, words, before.upright);

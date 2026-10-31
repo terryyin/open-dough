@@ -5,6 +5,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
 import { parts, shortRevision } from "./dashboardParts.ts";
+import { expectProjectChoice } from "./projectChoice.ts";
 import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
@@ -186,17 +187,16 @@ export const controlsBesideSessions = (page: Page) =>
     .and(page.locator(":not([aria-label='System settings'])"))
     .filter({ hasNotText: /^Start session$/ });
 
-// A failed read with no earlier snapshot shows the problem, the way to read
-// again (`recovery`), and nothing that only a snapshot could say. The banner's
-// plain title still names the selected project. The problem is looked for once
-// no read of the published work is on its way.
+// A failed read with no earlier snapshot shows the problem, recovery, and
+// nothing only a snapshot could say. The project selector still names the
+// selected project. Look once no published-work read is on its way.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
   recovery = "Reload the page to read again.",
   projectLabel = "Open Dough",
 ) {
-  const { board, problem, projectTitle } = parts(page);
+  const { board, problem } = parts(page);
   await untilPublishedWorkRead(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText(problemText);
@@ -211,7 +211,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  await expect(projectTitle).toHaveText(projectLabel);
+  await expectProjectChoice(page, projectLabel);
 }
 
 // Expand through the actual control before claiming direction is readable.

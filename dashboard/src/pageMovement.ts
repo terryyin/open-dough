@@ -12,7 +12,8 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 // where it is; a Board Column that hides it shows first. It keeps the
 // part's beginning in view while the page changes size around it, as when
 // facts read after the stories lengthen the cards above it, until the developer
-// scrolls, points, or types, or the returned stop is called.
+// scrolls, points, types, moves the keyboard elsewhere on the Board, or the
+// returned stop is called.
 export function keepInView(element: Element): () => void {
   const content = element.closest(".board-row") ?? element;
   const region = element.closest(".board-scroll, .roster-scroll");
@@ -92,21 +93,37 @@ export function keepInView(element: Element): () => void {
   });
   resized.observe(content);
   if (region) resized.observe(region);
+  // Focus elsewhere on the Board (as when Inspect receives the keyboard after
+  // Mark as done homed here) ends keeping: otherwise showColumnHolding keeps
+  // pulling this part back and the new focus can stay clipped in a hidden
+  // column. Focus returned to banner chrome (Sessions after Close) is not a
+  // Board move; keep following layout through covering→Close so the reading
+  // place lands. Pointer and keys inside the Side panel (including Close) are
+  // likewise not the developer's Board move.
+  const inSidePanel = (target: EventTarget | null) =>
+    target instanceof Element && target.closest(".side-panel") !== null;
+  const onBoard = (target: EventTarget | null) =>
+    target instanceof Element &&
+    target.closest(".board-scroll, .roster-scroll") !== null;
+  let stopOwn = () => {};
   const stopKeeping = () => {
     stopSettling();
     resized.disconnect();
+    window.removeEventListener("focusin", focusMoved, true);
   };
-  // Pointer and keys inside the Side panel (including Close) are not the
-  // developer's Board move; keep following layout until they leave the panel
-  // or scroll the Board, so covering→Close still lands on the reading place.
-  const stop = untilOwnMove(stopKeeping, (event) => {
-    const target = event.target;
-    return target instanceof Element && target.closest(".side-panel") !== null;
-  });
-  return () => {
+  const end = () => {
+    stopOwn();
     stopKeeping();
-    stop();
   };
+  const focusMoved = (event: FocusEvent) => {
+    const next = event.target;
+    if (next instanceof Node && element.contains(next)) return;
+    if (inSidePanel(next) || !onBoard(next)) return;
+    end();
+  };
+  window.addEventListener("focusin", focusMoved, true);
+  stopOwn = untilOwnMove(stopKeeping, (event) => inSidePanel(event.target));
+  return end;
 }
 
 // Calls `moved` once the developer scrolls, points, or types, unless the

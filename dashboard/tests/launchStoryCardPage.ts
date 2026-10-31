@@ -142,15 +142,23 @@ export const startSessionField = (dialog: Locator) =>
 export const instructionField = (dialog: Locator) =>
   dialog.getByRole("textbox", { name: "Instruction (optional)" });
 
-// The session a Start session dialog started, as local Taken lists it
-// once the start answered. A read during the start may already list the
-// session, still without the start's outcome, so this waits for the answer's
-// announcement, as long as the start itself may (./support/launchWait.ts).
+// After an ad-hoc Start finishes local startup, the project actions row shows
+// neither progress nor a success log. Waits as long as the start itself may
+// (./support/launchWait.ts).
+export async function expectQuietAdHocActionsRow(page: Page): Promise<void> {
+  await expect(
+    parts(page).projectActions.getByText("Local startup in progress."),
+  ).toHaveCount(0, { timeout: launchWaitMs });
+  await expect(parts(page).adHocStarted).toHaveCount(0);
+}
+
+// The session a Start session dialog started, as local Taken lists it once
+// startup progress has cleared. A read during the start may already list the
+// session while Local startup is still in progress, so this waits for that
+// quiet settlement, as long as the start itself may.
 export async function startedSession(page: Page): Promise<Locator> {
-  await expect(parts(page).adHocStarted).toBeVisible({
-    timeout: launchWaitMs,
-  });
+  await expectQuietAdHocActionsRow(page);
   const recent = parts(page).taken.locator(".session-entry");
-  await expect(recent).toHaveCount(1);
+  await expect(recent).toHaveCount(1, { timeout: launchWaitMs });
   return recent;
 }

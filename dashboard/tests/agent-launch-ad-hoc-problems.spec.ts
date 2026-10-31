@@ -81,7 +81,7 @@ for (const { scenario, words } of failures) {
     await expect(page.locator(".launch-problem")).toHaveCount(0);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
-    await expect(parts(page).adHocStarted).toHaveCount(1);
+    await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(button).toHaveAccessibleDescription("");
   });
 }

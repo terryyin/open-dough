@@ -14,6 +14,7 @@ import {
   chooseProject,
   expectMembership,
   expectProblemAndNoSnapshot,
+  expectProjectChoice,
   openDirection,
   parts,
   rosterParts,
@@ -23,8 +24,13 @@ import {
   expectAddress,
   expectForthcomingIntent,
 } from "./intentPerspectivePage.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import { expectPerspectiveMeaningMarks } from "./perspectiveMarks.ts";
 import {
   doughnutProject,
   openDoughProject,
@@ -44,7 +50,7 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
   await page.setViewportSize({ width: 1280, height: 800 });
   await publishCatalogProjects(page);
   await openUntilRead(page);
-  const { development, intentChoice, project, projectTitle, readRevision } =
+  const { development, intentChoice, perspective, project, readRevision } =
     parts(page);
   const radio = (label: string) =>
     project.getByRole("radio", { name: label, exact: true });
@@ -58,18 +64,26 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
   await expect(parts(page).direction).toContainText(openDoughProject.direction);
   const before = await historyLength(page);
 
+  await test.step("each perspective keeps its name and shows a distinct decorative meaning mark", async () => {
+    await expectPerspectiveMeaningMarks({
+      development,
+      intentChoice,
+      perspective,
+    });
+  });
+
   await test.step("choosing Intent keeps Open Dough selected and says Intent is forthcoming", async () => {
     await intentChoice.click();
     await expectForthcomingIntent(page, "Open Dough");
     await expect(radio("Open Dough")).toBeChecked();
-    await expect(projectTitle).toHaveText("Open Dough");
+    await expectProjectChoice(page, "Open Dough");
     expect(await historyLength(page)).toBe(before + 1);
     expectAddress(page, { project: null, perspective: "intent" });
   });
 
   await test.step("choosing Doughnut keeps Intent, with the same forthcoming content", async () => {
     await radio("Doughnut").check();
-    await expect(projectTitle).toHaveText("Doughnut");
+    await expectProjectChoice(page, "Doughnut");
     await expectForthcomingIntent(page, "Doughnut");
     // The published read status still names what was read of Doughnut.
     await expect(readRevision).toContainText(
@@ -199,7 +213,8 @@ test("at a phone width the perspective stays reachable under the compact title, 
   ]);
   expect(banner.height).toBeLessThan(portrait.height / 2);
   expect(message.y).toBeGreaterThanOrEqual(banner.y + banner.height);
-  await expectNoSidewaysScrollAndWholeText(page);
+  // Compact project select may ellipsis on the one-line phone banner.
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
 test("with the published read failed, Intent still says only that its content is forthcoming, and Development keeps the read problem", async ({

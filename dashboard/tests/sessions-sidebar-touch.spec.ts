@@ -9,6 +9,7 @@ import {
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
+  compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   pageColumnProjectValue,
   tapWhereShown,
@@ -106,6 +107,7 @@ test.describe(`${name} session discovery`, () => {
     await expectNoSidewaysScrollAndWholeText(page, [
       ".sessions-sidebar-session-entry-title",
       ".sessions-toggle-group",
+      ...compactProjectSelectCut,
     ]);
     await page.setViewportSize(landscape);
     await expect(details).toBeVisible();

@@ -11,8 +11,6 @@ export function parts(page: Page) {
   const banner = page.getByRole("banner");
   return {
     banner,
-    // The selected project's plain level-1 name in the banner (wider columns).
-    projectTitle: banner.getByRole("heading", { level: 1 }),
     // Compact title control where the tab list no longer fits the banner.
     projectCompact: banner.getByRole("button", { name: "Project" }),
     projectCompactList: banner.getByRole("listbox", { name: "Project" }),
@@ -54,9 +52,8 @@ export function parts(page: Page) {
     // That status only while it says a read is under way.
     reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
-    // What Start session announces once its ad hoc session has started, in a
-    // log: an implicitly polite live region that is neither the read status
-    // nor the published-read notice.
+    // Former actions-row success log for a started ad hoc session. Absent
+    // after a quiet successful Start; kept so journeys can assert that.
     adHocStarted: page
       .getByRole("log")
       .filter({ hasText: "Ad hoc session started" }),

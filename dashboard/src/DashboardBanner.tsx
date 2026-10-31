@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef } from "react";
 import { Settings } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
-import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { PerspectiveSelect } from "./PerspectiveSelect.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
@@ -38,14 +37,12 @@ export function DashboardBanner({
 
   return (
     <header className="banner" ref={banner}>
-      <ProductMark />
       <SessionsButton />
       <PerspectiveSelect
         perspective={perspective}
         onSelect={onSelectPerspective}
       />
       <ProjectSelect source={source} onSelect={onSelect} />
-      <h1 className="project-title">{source.label}</h1>
       <SettingsGear onOpen={onOpenSettings} />
     </header>
   );

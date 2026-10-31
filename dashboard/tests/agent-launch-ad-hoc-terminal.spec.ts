@@ -1,15 +1,19 @@
 // A confirmed ad hoc launch opens its session in the page's terminal at once,
 // on the committed origin of ./agent-launch-story-card.spec.ts (./launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
-// session" and the session id, what is typed reaches the session, a polite
-// status says it started, the session's entry and Sessions sidebar Session entry show it, and
-// the Board does not scroll. Close detaches only and returns the keyboard to
-// Start session. The synthetic `claude` (./fixtures/fake-claude) echoes what
-// is typed; the real one is never reached.
+// session" and the session id, what is typed reaches the session, the project
+// actions row stays quiet (no success log), the session's entry and Sessions
+// sidebar Session entry show it, and the Board does not scroll. Close detaches
+// only and returns the keyboard to Start session. The synthetic `claude`
+// (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { openTakenBacklog, startSessionField } from "./launchStoryCardPage.ts";
+import {
+  expectQuietAdHocActionsRow,
+  openTakenBacklog,
+  startSessionField,
+} from "./launchStoryCardPage.ts";
 import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
@@ -71,7 +75,7 @@ async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
   await expect(entry).toHaveCount(1, { timeout: 20_000 });
   const sessionId = await sessionNamedBy(entry);
   await expect(
-    page.getByText("Starting a session in Open Dough"),
+    parts(page).projectActions.getByText("Local startup in progress."),
   ).toBeVisible();
   const openTerminal = entry.getByRole("button", { name: "Open terminal" });
   await openTerminal.click();
@@ -134,7 +138,7 @@ for (const text of ["why is the CI slow on main?", ""]) {
     await page.keyboard.press("Enter");
     await expect(rows).toContainText("echo hello there");
 
-    await expect(parts(page).adHocStarted).toBeVisible();
+    await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(entry).toContainText("Shown in terminal");
     expect(
       await page
@@ -178,8 +182,8 @@ test("a terminal the developer closed while its session started stays closed onc
   const attaches = dashboard.claudeAttaches().length;
 
   release();
-  await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
-  // The announcement and a presentation would come in the same render.
+  await expectQuietAdHocActionsRow(page);
+  // Progress cleared without a presentation: the developer already closed it.
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
   expect(dashboard.claudeAttaches()).toHaveLength(attaches);
@@ -216,7 +220,7 @@ test("a terminal the developer reopened while its session started stays open, at
   const attaches = dashboard.claudeAttaches().length;
 
   release();
-  await expect(parts(page).adHocStarted).toBeVisible({ timeout: 20_000 });
+  await expectQuietAdHocActionsRow(page);
   await expect(panel).toHaveCount(1);
   await expect(rows).toHaveText(shown ?? "");
   // Nothing attached the session again.

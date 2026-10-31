@@ -5,7 +5,10 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
-import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import { expectMark } from "./agentPortrait.ts";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin.ts";
 import {
@@ -238,6 +241,6 @@ test("a queued card shows Preparing and its developer from published assignments
     // At 320px, as with 400% browser zoom, both developers stay readable.
     await page.setViewportSize(zoomedWindow);
     await card(storyA).scrollIntoViewIfNeeded();
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   });
 });
