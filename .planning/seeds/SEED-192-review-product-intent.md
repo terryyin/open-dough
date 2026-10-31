@@ -253,26 +253,155 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#browse-test-purpose
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/429-browse-test-purpose/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d0ff7df40bb2d34902871150c8672d1bfe40c93bdd438bd399f7de3bbdba0190","plan":"29686745ed6008f433843a06dcfe8b8029e181a9cf0d420268c43c580a29702c"}}
 ```
 
-- **For / why:** A developer can locate and read real Cucumber features in the
-  selected project's Intent perspective.
-- **Evaluation:** With explicit configured Gherkin locations in Doughnut and
-  Pygardon, expand nested folders, choose a `.feature` file, and read its actual
-  source and revision. Changing project changes the configuration and content.
-- **Value / learning:** Tests explicit typed locations on two real projects and
-  supplies the first usable Purpose reader without waiting for Proof.
-- **Boundary:** Narrow the original broad browser identity to the Cucumber pilot.
-  Include project-owned settings and end-to-end publication/read behavior for the
-  examples. No auto-detection, scenario parsing, or test execution is required.
-  The initial Proof state truthfully says evidence is unavailable.
-- **Effort hypothesis:** Unbanded; middle, medium confidence. A published nested
-  tree and exact source read are needed; a reusable reader is not yet delivered.
-- **Product prerequisites:** Readable projects and configured roots. The frame
-  outcome is needed at integration, not a separately recorded start blocker.
-- **Safe stopping point:** A useful read-only Gherkin browser; missing settings,
-  empty roots, unsupported configuration, and read failures stay distinguishable.
+Refined 2026-10-31 with Terry's direction: keep this story to Gherkin, keep the
+implementation cohesive with the existing file tree and source reads (one model,
+no duplicate or translation layer), and render source with syntax styling from
+an evaluated library that can later serve TypeScript, Python, Java, and others.
+
+#### Goal
+
+A developer reviewing Doughnut's or Pygardon's product intent can open Intent,
+find a Cucumber feature in the project's configured Gherkin locations, and
+read its exact published source, styled for reading, without opening an editor.
+This tests whether explicit project-owned locations make real test source easy
+to find, and replaces the frame's forthcoming notice with the first Purpose
+reader. Usefulness compared with the editor workflow stays Terry's judgment.
+
+#### Scope
+
+Required behavior:
+
+- **Project-owned locations.** A project lists its intent locations in its
+  repository's `.planning/open-dough.json`, each a repository folder and an
+  explicit source kind. This story supports the `gherkin` kind, whose files are
+  `.feature` files. Execution adds Gherkin locations to Doughnut
+  (`e2e_test/features`) and Pygardon (`e2e_test/features`,
+  `e2e_test/packaged/features`) and publishes them on their trunks.
+- **Published, pinned reading.** Intent reads the configuration, folder
+  contents, and file text at the one revision the dashboard already observes
+  for the selected project, and names that revision beside the source. No local
+  checkout or running session is needed.
+- **Browse.** Each location shows its nested folders and Gherkin files in a
+  collapsible tree arranged as Review changes arranges its files. Files outside
+  the kind, such as Doughnut's tracked snapshot PNGs, are not listed.
+- **Read.** Selecting a file shows its whole exact text with line numbers and
+  Gherkin syntax styling. Styling only aids reading: copying the text yields the
+  source, and nothing depends on color to be understood.
+- **Proof.** The selected file's Proof truthfully says no Proof is available yet.
+- **Distinct states.** No configured locations, a location with no Gherkin files
+  at the revision, an unsupported kind, and a failed read each say what happened
+  and name the setting or location involved; a failed read can be retried.
+- **Project change** shows the newly selected project's locations and source.
+
+Deferred promises (not undertaken here; nothing prevents them):
+
+- Other source kinds and file-selection patterns
+  ([browse-configured-test-source](#browse-configured-test-source)).
+- Syntax styling in Review changes diffs; the styling ability is chosen so it
+  can serve them later.
+- Links or URLs to a selected file (owned by the optimization-candidate story),
+  scenario parsing or outline, search, automatic location detection, a settings
+  editor, Purpose/Proof layout switching, and any Proof collection.
+
+Required restrictions:
+
+- Reads stay limited to paths inside the configured locations of the observed
+  revision's configuration: the local read boundary is not an open repository
+  proxy, as for every existing published read.
+
+Boundary assumptions:
+
+- The dashboard has no dark appearance today, so one light styling theme
+  suffices.
+- Terry authorizes the configuration commits to Doughnut and Pygardon as part
+  of this story's publication and evaluation.
+
+#### Key examples
+
+1. **Find and read a feature.** Doughnut publishes a `gherkin` location at
+   `e2e_test/features` → the developer opens Intent, expands `recall`, and
+   selects a feature → its exact text appears with line numbers, `Feature:`,
+   `Scenario:`, and step keywords styled distinctly, and the revision shown is
+   the one the dashboard observes for Doughnut. The `recall/__image_snapshots__`
+   PNG files are not listed.
+2. **Several locations.** Pygardon publishes two `gherkin` locations → Intent
+   shows both, each with its own tree; choosing a packaged feature shows its
+   text.
+3. **Project change.** Intent shows a Doughnut feature → the developer selects
+   Pygardon → Doughnut's tree and text are replaced by Pygardon's locations,
+   with nothing selected until a file is chosen.
+4. **Not configured.** Open Dough's published `.planning/open-dough.json` has no
+   intent locations → Intent says no intent locations are configured and names
+   the setting and file to add them to; it shows no empty tree.
+5. **Empty or missing location.** A configured location holds no `.feature`
+   files at the revision, or does not exist → that location says so by path;
+   other locations still browse.
+6. **Unsupported kind.** A location names kind `typescript` → that location
+   says the kind is not yet supported, naming it; other locations still browse.
+7. **Read failure.** Reading a selected file fails → the source pane says it
+   could not be read and offers retry; the tree stays usable.
+8. **No Proof yet.** With a file selected → Proof says no Proof is available for
+   it yet, without implying a pass, failure, or absence of tests.
+
+#### Architecture
+
+Applicable Accepted decisions: [ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md)
+(Purpose is test source; Proof stays distinct),
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+(reuse suitable existing solutions), and
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+(project facts come from published repository records; machine registration
+stays local). No conflict found; no ADR change proposed.
+
+- **One configuration model.** The intent locations are a new key in the
+  existing lenient `.planning/open-dough.json` project settings. The source kind
+  is the domain term the reader uses directly: it selects both the listed files
+  (`gherkin` → `.feature`) and the styling grammar, which uses the same language
+  name, so there is no separate mapping layer. A later Proof runner stays a
+  separate setting; Gherkin does not imply Cucumber.js.
+- **One read path.** Configuration, listing, and text go through the existing
+  local authenticated read boundary at a pinned revision, reusing its `gh`
+  reads, failure meanings, pinned-text memo, and browser file cache. The new
+  admission rule mirrors the existing reachability rule: a path is readable
+  when that revision's configured locations contain it, instead of when its
+  backlog records name it. A folder's nested listing is one new read beside the
+  existing single-folder listing; story review's local `git` reads are not used.
+- **One tree.** Review changes' folder arrangement (folder chains compacted,
+  folders before files, stable order, collapse/expand rows) becomes shared by
+  both browsers over a path-bearing item, so Intent does not copy it. Each
+  browser keeps its own row content and counts wording (changed files versus
+  feature files).
+- **Source styling ability.** Review changes has no syntax styling today, so this
+  story introduces it once, as a source-lines view that both Intent and, later,
+  Review changes can use. Candidates compared on 2026-10-31 by a scratch probe
+  outside this repository:
+  - **Shiki 4.5.0 (recommended).** TextMate grammars, the same family as
+    GitHub and VS Code, so Gherkin, TypeScript, Python, Java, and shell are all
+    available. Its JavaScript regex engine needs no WebAssembly, grammars and the
+    theme load on demand (Gherkin grammar about 12 KB, TypeScript about 188 KB),
+    and `codeToTokens` returns per-line colored tokens that React renders
+    directly beside line numbers, without injected HTML. Probe: a 170-line
+    Doughnut feature tokenized in about 22 ms with `Feature`, step keywords,
+    and quoted strings distinguished.
+  - **highlight.js 11.12.0.** Small and synchronous with Gherkin support, but
+    it returns an HTML string, so per-line rendering needs injected markup or
+    splitting multi-line spans; its regex grammars are less faithful.
+  - **Prism 1.30.0 / refractor 5.0.0.** Gherkin supported and refractor gives a
+    tree rather than HTML, but its grammars are older and less complete, and
+    refractor's last release was in March 2025.
+  - **starry-night 3.11.0.** GitHub's grammars as a tree, but it needs
+    WebAssembly Oniguruma, a larger load than Shiki's JavaScript engine.
+  - **CodeMirror or Monaco.** Editors; far more than a read-only view needs.
+  - **GitHub's own page.** A link to the file on GitHub renders it styled with
+    no new dependency, but leaves the dashboard and cannot sit beside Proof.
+- **Borrowed mechanism.** GitHub Linguist lets a repository declare, in
+  `.gitattributes`, which language a path holds; that declaration selects both
+  classification and highlighting. The intent location's kind plays the same
+  role. The analogy stops at detection: Linguist guesses by extension first,
+  while this story uses only explicit declarations.
 
 
 <a id="browse-configured-test-source"></a>
