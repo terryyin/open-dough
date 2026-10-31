@@ -6,7 +6,7 @@ import {
   passTimeUntilCheckedAfterSettled,
 } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { commitPaths, recordState } from "./storyReadinessCli.ts";
 import {
@@ -46,7 +46,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   const releaseSeed = origin.hold(`.planning/${seedRelative}`);
   await plan.focus();
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(fresh);
+  await expect(parts(page).readRevision).toContainText(shortRevision(fresh));
   await expect(plan).toBeVisible();
   await expect(plan).toBeFocused();
   releaseSeed();

@@ -1,6 +1,7 @@
 # Simplify the project header and use a dropdown on narrow screens
 
 **Source:** [Selected story](../../seeds/SEED-198-responsive-project-header.md#responsive-project-header)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-198#responsive-project-header
 
 ## Goal and scope
@@ -62,7 +63,7 @@ Settled in this preparation checkout
 
 ### 1. Published-read evidence at the surviving read status
 Type: Structure
-Status: planned
+Status: done
 Proof: focused runs of each changed spec pass; product code unchanged.
 
 Change: add `parts(page)` accessors for the read status's announced revision and
@@ -71,6 +72,12 @@ every journey assertion and `retrievedAt` read that uses the source panel only
 as read evidence to those accessors, asserting `shortRevision` forms. Leave the
 header journey's disclosure-specific assertions for slice 2 to delete.
 Enables slice 2 by leaving the disclosure without surviving-behavior consumers.
+
+Accepted proof (reuse): `parts(page).readRevision` / `retrievedAt` re-export
+product `shortRevision`; focused Playwright on changed specs (101) plus helper
+consumers and accessible-board(+scroll) after split; residual source
+revision/time reads only in `dashboard-header.spec.ts`; no `dashboard/src`
+product edits.
 
 ### 2. Plain project title on wide screens
 Type: Behavior
@@ -105,6 +112,26 @@ with the matching tab and narrowing restores the dropdown, and page-wide arrow
 cycling's focus fallback lands on whichever project control is shown. Choose
 the breakpoint where the tabs stop fitting the banner. Update navigation
 documentation for the responsive selector and touch/keyboard use.
+
+## Story obligations
+
+### G1. Deferred: making the read result visible elsewhere
+Reported: slice 1 — "Deferred: making the read result visible elsewhere"
+Story clause: "Making the read result visible elsewhere"
+Disposition: excluded "Making the read result visible elsewhere"
+Commitment: X2
+
+### G2. Deferred: project search or grouping in the selector
+Reported: slice 1 — "Deferred: project search or grouping in the selector"
+Story clause: "project search or grouping in the selector"
+Disposition: excluded "project search or grouping in the selector"
+Commitment: X3
+
+### G3. Deferred: moving other banner controls beyond compact fit
+Reported: slice 1 — "Deferred: moving other banner controls beyond compact fit"
+Story clause: "moving other banner controls (Sessions, System settings, product mark) beyond what the compact layout needs to fit"
+Disposition: excluded "moving other banner controls (Sessions, System settings, product mark) beyond what the compact layout needs to fit"
+Commitment: X4
 
 ## Current decisions
 

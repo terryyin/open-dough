@@ -6,7 +6,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
@@ -62,7 +62,7 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
       [unusable]: { revision: "f7".repeat(20), files: trunk.files },
     },
   });
-  const { source } = parts(page);
+  const { readRevision } = parts(page);
   await expect(progress).toContainText(
     `The recorded branch ${unusable} has a name this dashboard cannot use, so its slice progress cannot be read. Trunk's copy is not its progress.`,
   );
@@ -79,7 +79,7 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
     origin.moveTrunk({ ...onUnusable, revision: trunkMoved });
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
-    await expect(source).toContainText(trunkMoved);
+    await expect(readRevision).toContainText(shortRevision(trunkMoved));
     await expect(progress).toContainText(
       `The recorded branch ${unusable} has a name this dashboard cannot use`,
     );

@@ -65,8 +65,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   // About twenty seconds of it are GitHub's waits passing by the real clock.
   test.setTimeout(90_000);
   const origin = await openSettledAtA(page);
-  const { source, problem } = parts(page);
-  const retrievedAt = source.locator("time");
+  const { problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
   const restoreMain = origin.answerWith(
@@ -101,8 +100,8 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
       retrievedA,
     );
     await expectMembership(page, titlesOfA);
-    await expect(source).toContainText(revisionA);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
+    // Failed rate-limited check: status names no revision; problem keeps the
+    // earlier retrieval time (nth(1) above) and Board membership proves A.
   });
 
   await test.step("no check, and no gh call, before the directed time -- not even when the page is seen again", async () => {
@@ -150,7 +149,10 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     ).toBe(0);
     expect(callsSince(page, quietFrom)).toEqual([]);
     await expectMembership(page, titlesOfA);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
+    await expect(problem.locator("time").nth(1)).toHaveAttribute(
+      "datetime",
+      retrievedA,
+    );
   });
 
   await test.step("restored access, the check at the directed time reads B and clears the failure", async () => {

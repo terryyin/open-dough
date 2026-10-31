@@ -3,7 +3,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
@@ -16,7 +16,7 @@ import { publishMovingOrigin } from "./publishedOrigin.ts";
 export async function selectSettledDoughnut(page: Page) {
   const origin = await publishMovingOrigin(page, doughnutRepository);
   origin.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
-  const { project, backlog, source } = parts(page);
+  const { project, backlog, readRevision } = parts(page);
   // This fixture has no assignments or Taken plans, so its profile and done
   // catalog responses finish every independent read beside preparation. Observe them
   // before selecting: preparation alone can finish before either request has
@@ -39,7 +39,7 @@ export async function selectSettledDoughnut(page: Page) {
   for (const response of await independentReads)
     expect(response.ok()).toBe(true);
   await expectSettledPage(page, { taken: [], backlog: [doughnutSharedTitle] });
-  await expect(source).toContainText(revisionDoughnut);
+  await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
   const card = backlog.getByRole("article", { name: doughnutSharedTitle });
   await card.getByRole("button", { name: "Inspect story" }).click();
   const link = card.getByRole("link", { name: /^Canonical record/ });
@@ -47,6 +47,6 @@ export async function selectSettledDoughnut(page: Page) {
   return {
     card,
     link,
-    retrievedAt: await source.locator("time").getAttribute("datetime"),
+    retrievedAt: await parts(page).retrievedAt.getAttribute("datetime"),
   };
 }

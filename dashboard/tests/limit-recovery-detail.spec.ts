@@ -6,7 +6,7 @@
 // another reason keeps its gap.
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import {
   checksAskedWhilePassing,
@@ -59,7 +59,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   const limitSeenAt = answers.lift();
-  const { backlog, source, problem } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const withheldCard = backlog.getByRole("article", { name: withheldTitle });
   const plannedCard = backlog.getByRole("article", { name: plannedTitle });
   const unreachableCard = backlog.getByRole("article", {
@@ -86,7 +86,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     await setPageVisibility(page, "visible");
     await page.clock.runFor(1);
     await expectSettledPage(page, titlesBesideUnreachable);
-    await expect(source).toContainText(revision);
+    await expect(readRevision).toContainText(shortRevision(revision));
     await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
       "Not recorded",
     );

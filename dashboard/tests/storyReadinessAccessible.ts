@@ -16,7 +16,7 @@ import {
   passTimeUntilCheckedAfterSettled,
 } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
@@ -90,7 +90,9 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   // focus is restored once that snapshot replaces the shown one.
   await queuedPlan.focus();
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(keptRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(keptRevision),
+  );
 
   await expectMembership(page, {
     taken: [plannedReady.title],

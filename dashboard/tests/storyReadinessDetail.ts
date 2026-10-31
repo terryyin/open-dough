@@ -4,6 +4,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import type { CommittedOrigin } from "./committedOrigin.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   plannedReady,
   planless,
@@ -46,7 +47,6 @@ export async function expectReadyDetailZeroComplete(
 export async function expectReadyDetailTwoCompleteAfterPublish(
   page: Page,
   taken: Locator,
-  source: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishTwoSlicesDone: (repo: ReadinessRepo) => string,
@@ -56,7 +56,9 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
   origin.requests.splice(0, origin.requests.length);
 
   await reloadUntilRead(page);
-  await expect(source).toContainText(nextRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(nextRevision),
+  );
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
   const detail = readyCard.getByRole("region", {

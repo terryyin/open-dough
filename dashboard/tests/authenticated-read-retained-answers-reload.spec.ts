@@ -22,12 +22,12 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
     project.serve(github);
     await page.goto("/");
     await expectSettledPage(page);
-    const { board, source } = parts(page);
+    const { board } = parts(page);
     // What the cards say, however the browser lays it out.
     const said = async () =>
       ((await board.textContent()) ?? "").replace(/\s+/g, " ");
     const cards = await said();
-    const retrievedAt = await source.locator("time").getAttribute("datetime");
+    const retrievedAt = await parts(page).retrievedAt.getAttribute("datetime");
     expect(github.calls.map(described)).toContain(`content ${backlogPath}@a5`);
 
     const before = github.calls.length;
@@ -36,7 +36,7 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
       await page.reload();
       await expectSettledPage(page);
       expect(await said()).toBe(cards);
-      await expect(source.locator("time")).not.toHaveAttribute(
+      await expect(parts(page).retrievedAt).not.toHaveAttribute(
         "datetime",
         retrievedAt ?? "",
       );

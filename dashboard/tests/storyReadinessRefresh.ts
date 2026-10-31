@@ -10,7 +10,7 @@ import {
 } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import {
   externalPlan,
@@ -26,7 +26,6 @@ import { reloadUntilRead } from "./pageRequestNotes.ts";
 
 export async function expectFailedCheckKeepsPriorRevision(
   page: Page,
-  source: Locator,
   problem: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
@@ -40,7 +39,7 @@ export async function expectFailedCheckKeepsPriorRevision(
   await passTimeUntilCheckedAfterSettled(page, 502);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("earlier snapshot");
-  await expect(source).toContainText(retainedRevision);
+  // Failed check: status names no revision; Board links prove the retained one.
 
   await expect(
     taken
@@ -71,7 +70,9 @@ export async function expectFailedCheckKeepsPriorRevision(
   const afterFail = origin.requests.length;
   await reloadUntilRead(page);
   await expect(problem).toHaveCount(0);
-  await expect(source).toContainText(retainedRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(retainedRevision),
+  );
   await expect.poll(() => origin.requests.length).toBeGreaterThan(afterFail);
 }
 
@@ -87,7 +88,9 @@ export async function expectProjectSwitchRejectsLateHeldRead(
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
   });
-  await expect(parts(page).source).toContainText(openDough.revision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(openDough.revision),
+  );
 
   const releaseMain = openDoughOrigin.hold("main");
   await page.reload();
@@ -103,11 +106,11 @@ export async function expectProjectSwitchRejectsLateHeldRead(
       externalPlan.title,
     ],
   });
-  const { source, backlog } = parts(page);
-  await expect(source).toContainText(doughnut.revision);
+  const { backlog, readRevision } = parts(page);
+  await expect(readRevision).toContainText(shortRevision(doughnut.revision));
 
   releaseMain();
-  await expect(source).toContainText(doughnut.revision);
+  await expect(readRevision).toContainText(shortRevision(doughnut.revision));
   await expect(page.getByText(plannedReady.title)).toHaveCount(0);
   await expect(
     backlog.getByRole("article", { name: planless.title }),

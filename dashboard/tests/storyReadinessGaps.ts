@@ -7,7 +7,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { passTimeUntilCheckedAfterSettled } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
 import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
@@ -24,7 +24,6 @@ export async function expectChangedReviewAfterContentChange(
   page: Page,
   taken: Locator,
   backlog: Locator,
-  source: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishAssessedContentChange: (repo: ReadinessRepo) => string,
@@ -36,8 +35,12 @@ export async function expectChangedReviewAfterContentChange(
 
   await passTimeUntilCheckedAfterSettled(page);
   await expectSettledPage(page);
-  await expect(source).toContainText(nextRevision);
-  await expect(source).not.toContainText(priorRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(nextRevision),
+  );
+  await expect(parts(page).readRevision).not.toContainText(
+    shortRevision(priorRevision),
+  );
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
   const blockedCard = backlog.getByRole("article", {
@@ -96,7 +99,6 @@ export async function expectChangedReviewAfterContentChange(
 export async function expectPlanAssociationConflict(
   page: Page,
   taken: Locator,
-  source: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
   publishConflictingPlanAssociation: (repo: ReadinessRepo) => string,
@@ -107,7 +109,9 @@ export async function expectPlanAssociationConflict(
 
   await passTimeUntilCheckedAfterSettled(page);
   await expectSettledPage(page);
-  await expect(source).toContainText(nextRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(nextRevision),
+  );
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
   await expect(
@@ -152,7 +156,6 @@ export async function expectPlanAssociationConflict(
 export async function expectFailedPlanKeepsSupportedFacts(
   page: Page,
   backlog: Locator,
-  source: Locator,
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
@@ -177,7 +180,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
 
   await passTimeUntilCheckedAfterSettled(page);
   await expectSettledPage(page);
-  await expect(source).toContainText(next);
+  await expect(parts(page).readRevision).toContainText(shortRevision(next));
 
   const blockedCard = backlog.getByRole("article", {
     name: plannedBlocked.title,

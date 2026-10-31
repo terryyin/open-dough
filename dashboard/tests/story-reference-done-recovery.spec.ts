@@ -1,7 +1,7 @@
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { test } from "./storyDependencyFixture.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
 import { recordsAsked, settle } from "./recentlyDoneProgressivePage.ts";
@@ -184,7 +184,9 @@ for (const observation of ["unavailable", "failed"] as const) {
     } else {
       const healed = await publishDoneReferences(origin);
       await passTimeUntilChecked(page);
-      await expect(parts(page).source).toContainText(healed);
+      await expect(parts(page).readRevision).toContainText(
+        shortRevision(healed),
+      );
     }
     await expect(recent.locator(".column-count")).toHaveText("35 entries");
     await expect(recent.locator(":scope > ol > li > article")).toHaveCount(10);

@@ -5,7 +5,7 @@
 import { inspectedDetail } from "./storyCardControls.ts";
 import { expectView, rem, showColumn } from "./boardPage.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { openedSettled } from "./branchRefreshJourney.ts";
 import {
@@ -55,7 +55,7 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   await passTimeUntilChecked(page);
   await expect(progress).toContainText("7 of 12 slices recorded complete");
   await expect(detail.locator(".progress-source")).toContainText(
-    `From branch story/example at ${movedHead.slice(0, 7)}; not in trunk.`,
+    `From branch story/example at ${shortRevision(movedHead)}; not in trunk.`,
   );
   await expect(progress).toContainText("Current slice started 2 min ago");
   await expect(
@@ -65,7 +65,7 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
     "SEED-092#on-branch",
   );
   await expect(link).toHaveAttribute("href", pinned);
-  await expect(parts(page).source).toContainText(revision);
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   await expectVisibleReadingFocus(page, link);
   await expectView(page, ["Taken", "Recently done"], ["Backlog 0 entries"]);
   expect(errors).toEqual([]);

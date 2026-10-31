@@ -8,7 +8,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  expectSettledPage,
+  shortRevision,
+  parts,
+} from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
@@ -84,7 +89,9 @@ async function untilBShownWhileHeld(
   origin: MovingOrigin,
   held: string,
 ) {
-  await expect(parts(page).source).toContainText(revisionB);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionB),
+  );
   await expect
     .poll(() => contentReads(origin.requests))
     .toContain(`${held}?ref=${revisionB}`);
@@ -114,7 +121,9 @@ test("an unchanged revision keeps every card's content and place while it is rea
       before.map(({ text }) => text),
     );
     expect(await placeholders()).toEqual([]);
-    await expect(parts(page).source).toContainText(revisionB);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revisionB),
+    );
   });
 });
 
@@ -227,6 +236,8 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
     releaseDashboard();
     releaseSync();
     await expectSettledPage(page, titlesOfB);
-    await expect(parts(page).source).toContainText(revisionB);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revisionB),
+    );
   });
 });

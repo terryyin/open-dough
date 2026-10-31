@@ -9,6 +9,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
+  shortRevision,
   parts,
 } from "./dashboardPage.ts";
 import { isContent, limiting } from "./limitedReadingJourney.ts";
@@ -110,7 +111,9 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
     for (const tab of tabs) {
       await expectSettledPage(tab, titles);
       await expect(parts(tab).problem).toHaveCount(0);
-      await expect(parts(tab).source).toContainText(revision);
+      await expect(parts(tab).readRevision).toContainText(
+        shortRevision(revision),
+      );
       const card = parts(tab).backlog.getByRole("article", {
         name: withheldTitle,
       });

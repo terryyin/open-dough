@@ -10,6 +10,7 @@
 
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   expectSettledPage,
@@ -46,8 +47,8 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, status, problem, taken, backlog, notice } = parts(page);
-  const retrievedAt = source.locator("time");
+  const { status, problem, taken, backlog, notice, retrievedAt, readRevision } =
+    parts(page);
   const retrievedA = await retrievedAt.getAttribute("datetime");
   const settledAt = githubFor(page).calls.length;
 
@@ -67,7 +68,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
 
   await test.step("an unchanged answer, 304 included, leaves the snapshot, its revision, and its retrieval time as they were", async () => {
     await expectMembership(page, titlesOfA);
-    await expect(source).toContainText(revisionA);
+    await expect(readRevision).toContainText(shortRevision(revisionA));
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
     await expect(status).toHaveText(
@@ -148,7 +149,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, problem } = parts(page);
+  const { problem, readRevision } = parts(page);
   await inspectDashboardStory(page);
   const beforeB = githubFor(page).calls.length;
   origin.push(revisionB, backlogB, recordsAt("B"));
@@ -186,7 +187,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
       taken: [],
       backlog: ["Publish shared backlog claims"],
     });
-    await expect(source).toContainText(revisionC);
+    await expect(readRevision).toContainText(shortRevision(revisionC));
     const reads = contentReads(callsSince(page, beforeC));
     expect(reads.every((read) => read.endsWith(`?ref=${revisionC}`))).toBe(
       true,

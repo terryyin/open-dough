@@ -12,6 +12,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
+  shortRevision,
   parts,
   rosterParts,
 } from "./dashboardPage.ts";
@@ -83,7 +84,9 @@ test("assignments keep their agents, credited humans, and portraits on cards and
   await passTimeUntilChecked(page);
 
   await test.step("while B's account of what changed is held, every credit and portrait stays as shown", async () => {
-    await expect(parts(page).source).toContainText(toB.at.revision);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(toB.at.revision),
+    );
     expect(await cardCredits(page)).toEqual(before.cards);
     expect(await credits(page)).toEqual(before);
     await expect(page.getByText("Reading human developer…")).toHaveCount(0);
@@ -115,7 +118,9 @@ test("an inspection open at A keeps its purpose while B is read", async ({
 
   await test.step("while B's record is held, the inspection keeps A's purpose and focus", async () => {
     await expectMembership(page, titlesOfB);
-    await expect(parts(page).source).toContainText(revisionB);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revisionB),
+    );
     await expect
       .poll(() => contentReads(origin.requests))
       .toContain(`${syncRecord}?ref=${revisionB}`);

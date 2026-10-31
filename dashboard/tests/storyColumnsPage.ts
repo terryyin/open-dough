@@ -6,7 +6,7 @@
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
@@ -36,7 +36,7 @@ export async function openStoryColumnsJourney(
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   await openUntilRead(page);
-  const { backlog, source } = parts(page);
+  const { backlog, readRevision } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const action = (title: string, workflow: Workflow) =>
     card(title).getByRole("button", { name: `Start ${workflow}` });
@@ -54,7 +54,7 @@ export async function openStoryColumnsJourney(
         await setPageVisibility(page, "visible");
       }
       await untilPublishedWorkRead(page);
-      await expect(source).toContainText(revision);
+      await expect(readRevision).toContainText(shortRevision(revision));
       await settled();
     },
     // Launches the workflow from the story's card, confirming its dialog, and

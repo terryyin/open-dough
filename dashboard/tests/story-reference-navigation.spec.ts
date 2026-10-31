@@ -1,6 +1,6 @@
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   test,
@@ -90,7 +90,9 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   );
   const refreshed = await publishDependencies(origin);
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(refreshed);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(refreshed),
+  );
   await expect(
     supplier.getByRole("button", { name: "Inspect story" }),
   ).toBeVisible();

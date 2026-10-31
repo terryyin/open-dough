@@ -6,7 +6,7 @@
 
 import { callsSince, contentReads, headsChecks } from "./autoRefreshJourney.ts";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   filesBesideUnreachable,
   opened,
@@ -85,7 +85,7 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
     return published(call);
   });
   await page.goto("/");
-  const { backlog, problem, source } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   await expectSettledPage(page, {
     ...titlesBesideUnreachable,
     backlog: [...titlesBesideUnreachable.backlog, terminalTitle],
@@ -103,7 +103,7 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
   await expect(terminalCard).toContainText(unreachableGap);
   await expect(plannedCard).toBeVisible();
   await expect(plannedCard).not.toContainText("Reading preparation…");
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   await expect(problem).toContainText(detailRecovery);
   await untilPageReadsAnswered(page);
   await expectDetailRecoveryNotice(page);
@@ -112,7 +112,7 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
   await test.step("successful facts stay shown while recovery waits", async () => {
     await expect(plannedCard).toBeVisible();
     await expect(withheldCard).not.toContainText("Reading preparation…");
-    await expect(source).toContainText(revision);
+    await expect(readRevision).toContainText(shortRevision(revision));
   });
 
   await test.step("due recovery heals the temporary seed, keeps the terminal gap, and does not re-ask the terminal path", async () => {

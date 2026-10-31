@@ -12,7 +12,7 @@ import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test as base } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import {
   builtDashboardDir,
@@ -74,7 +74,7 @@ export async function reachKeptStart(
     repository: "terryyin/open-dough",
   });
   await openUntilRead(page);
-  const { backlog, taken, source } = parts(page);
+  const { backlog, taken, readRevision } = parts(page);
   const backlogCard = backlog.getByRole("article", { name: "Story A" });
   const takenStoryCard = taken.getByRole("article", { name: "Story A" });
   const otherTakenCard = taken.getByRole("article", { name: "Story B" });
@@ -111,7 +111,7 @@ export async function reachKeptStart(
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   published.advanceTo(revision);
   await reloadUntilRead(page);
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   await expect(takenStoryCard).toBeVisible();
   await expect(backlog.getByRole("article", { name: "Story A" })).toHaveCount(
     0,

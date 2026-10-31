@@ -4,7 +4,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
 import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
@@ -106,9 +106,9 @@ export async function expectSettledAt(
   revision: string,
   backlogTitles = [queuedTitle],
 ) {
-  const { source, taken } = parts(page);
+  const { taken, readRevision } = parts(page);
   await untilPublishedWorkRead(page);
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   await expectMembership(page, { taken: [takenTitle], backlog: backlogTitles });
   const card = taken.getByRole("article", { name: takenTitle });
   await expect(

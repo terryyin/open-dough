@@ -34,6 +34,13 @@ export function parts(page: Page) {
     // The read status is always on the page, so that a change of its text is
     // spoken; it says what the latest read is doing or what it read.
     status,
+    // After a successful read, the status announces the short revision (first
+    // 7 characters). Use `problem` after failures instead; while a read is
+    // held or only a standing rate limit is shown, the status names no
+    // revision.
+    readRevision: status,
+    // Retrieval <time> the status announces with that successful read.
+    retrievedAt: status.locator("time"),
     // That status only while it says a read is under way.
     reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
@@ -45,6 +52,9 @@ export function parts(page: Page) {
       .filter({ hasText: "Ad hoc session started" }),
   };
 }
+
+// Short revision form the product says in a sentence (status, alerts, progress).
+export { shortRevision } from "../src/publishedWork.ts";
 
 // A standalone session entry, named for its launch's workflow and title.
 export const standaloneSessionName = (workflow: string, title: string) =>

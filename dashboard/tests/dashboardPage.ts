@@ -4,7 +4,7 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
-import { parts } from "./dashboardParts.ts";
+import { parts, shortRevision } from "./dashboardParts.ts";
 import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
@@ -147,11 +147,19 @@ export async function expectWholeSnapshot(
   },
   otherRevisions: string[],
 ) {
-  const { board, source } = parts(page);
+  const { board, readRevision, retrievedAt } = parts(page);
   await expectMembership(page, shown.titles);
-  await expect(source).toContainText(shown.revision);
+  // Successful reads announce the short revision; failure and in-flight
+  // moments name none there, so Board detail links prove the shown snapshot.
+  if (
+    (await readRevision.textContent())?.includes(
+      "Published work read at revision",
+    )
+  ) {
+    await expect(readRevision).toContainText(shortRevision(shown.revision));
+  }
   if (shown.retrievedAt) {
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(retrievedAt).toHaveAttribute(
       "datetime",
       shown.retrievedAt.toISOString(),
     );
@@ -163,7 +171,7 @@ export async function expectWholeSnapshot(
   ).toBeVisible();
   for (const other of otherRevisions) {
     await expect(page.locator("body")).not.toContainText(other);
-    await expect(page.locator("body")).not.toContainText(other.slice(0, 7));
+    await expect(page.locator("body")).not.toContainText(shortRevision(other));
     await expect(board.locator(`a[href*="${other}"]`)).toHaveCount(0);
   }
 }

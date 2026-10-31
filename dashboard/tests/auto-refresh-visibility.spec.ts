@@ -8,6 +8,7 @@
 
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   expectSettledPage,
@@ -46,8 +47,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, problem, backlog, notice } = parts(page);
-  const retrievedAt = source.locator("time");
+  const { problem, backlog, notice, retrievedAt, readRevision } = parts(page);
   const retrievedA = await retrievedAt.getAttribute("datetime");
   // The schedule is running: one ordinary check has been answered.
   await passTimeUntilChecked(page);
@@ -96,7 +96,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     expect(calls.map(({ argv }) => argv)).toEqual([headsCheckArgv(revisionA)]);
     expect(contentReads(calls)).toEqual([]);
     await expectMembership(page, titlesOfA);
-    await expect(source).toContainText(revisionA);
+    await expect(readRevision).toContainText(shortRevision(revisionA));
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
     await expect(queueLink).toBeFocused();
@@ -148,7 +148,7 @@ test("auto refresh: a page seen again while a read is under way checks once that
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source } = parts(page);
+  const { readRevision } = parts(page);
   const releaseB = origin.hold(revisionB);
   origin.push(revisionB, backlogB, recordsAt("B"));
   const beforeB = githubFor(page).calls.length;
@@ -165,7 +165,7 @@ test("auto refresh: a page seen again while a read is under way checks once that
   await untilPageRequestsAnswered(page);
   const beforeSeen = githubFor(page).calls.length;
   await checkedAtOnce(page);
-  await expect(source).toContainText(revisionC);
+  await expect(readRevision).toContainText(shortRevision(revisionC));
   expect(
     headsChecks(callsSince(page, beforeSeen)).map(({ argv }) => argv),
   ).toEqual([headsCheckArgv(revisionB)]);

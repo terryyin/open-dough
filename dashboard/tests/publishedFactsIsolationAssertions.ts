@@ -3,7 +3,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor } from "./dashboardTest.ts";
-import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
+import {
+  shortRevision,
+  expectMembership,
+  parts,
+  rosterParts,
+} from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import {
   contentReads,
@@ -76,12 +81,12 @@ export async function expectCurrentFacts(
   carriedFrom?: PublishedFacts,
 ) {
   const { taken, queued } = factStoryCards(page, facts);
-  const { source, problem, status, recentlyDone } = parts(page);
+  const { problem, status, recentlyDone, readRevision } = parts(page);
   await expectMembership(page, facts.membership);
-  await expect(source).toContainText(facts.revision);
+  await expect(readRevision).toContainText(shortRevision(facts.revision));
   await expect(status).toHaveText(
     new RegExp(
-      `^Published work read at revision ${facts.revision.slice(0, 7)}, retrieved `,
+      `^Published work read at revision ${shortRevision(facts.revision)}, retrieved `,
     ),
   );
   await expect(problem).toHaveCount(0);
@@ -178,8 +183,8 @@ export async function expectNoEarlierAssignments(
   page: Page,
   earlier: PublishedFacts,
 ) {
-  const { taken, backlog, source } = parts(page);
-  await expect(source).not.toContainText(earlier.revision);
+  const { taken, backlog, readRevision } = parts(page);
+  await expect(readRevision).not.toContainText(shortRevision(earlier.revision));
   await expect(taken).not.toContainText(`${earlier.owner}-chan`);
   await expect(backlog).not.toContainText(`${earlier.preparer}-chan`);
   await expect(backlog).not.toContainText(earlier.queuedTitle);
@@ -189,7 +194,7 @@ export async function expectCurrentRoster(page: Page, facts: PublishedFacts) {
   const { opener, roster, member, back } = rosterParts(page);
   await opener(`${facts.owner}-chan`).click();
   await expect(roster).toContainText(
-    `profiles published at revision ${facts.revision.slice(0, 7)}`,
+    `profiles published at revision ${shortRevision(facts.revision)}`,
   );
   await expect(member(`${facts.owner}-chan`)).toContainText(takenTitle);
   await expect(member(`${facts.owner}-chan`)).toContainText(

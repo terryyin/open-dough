@@ -1,6 +1,7 @@
 // One serial production chain proves replacement, durable start completion,
 // shared machine records, published reads, policy decisions and shutdown.
 import { expect, test } from "./support/pageTest.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { processRunning } from "./support/processGroup.ts";
 import {
@@ -178,9 +179,7 @@ test("the served commit's page and boundaries read the backlog at the revision m
   const { hosts, page } = state;
   const { github, claude } = hosts;
   // C's own page has read the backlog at the revision main names.
-  await expect(
-    page.getByRole("region", { name: "Published Git state" }),
-  ).toContainText(revision);
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   const callsBefore = github.calls.length;
   const read = await request.get(
     `${state.served.url}/__authenticated-read?source=open-dough`,

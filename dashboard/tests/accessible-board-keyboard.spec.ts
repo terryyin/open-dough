@@ -4,7 +4,7 @@ import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
 } from "./accessibleReading.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, parts, shortRevision } from "./dashboardPage.ts";
 import { enabledStoryCardLaunchActions } from "./storyCardControls.ts";
 import {
   pathsRead,
@@ -146,13 +146,12 @@ test("accessible Board announces reading, the read result, and a failure while f
 }) => {
   await pausePageClock(page);
   const origin = await openAtA(page);
-  const { source, status, notice, problem } = parts(page);
-  const retrievedA =
-    (await source.locator("time").getAttribute("datetime")) ?? "";
+  const { status, notice, problem, retrievedAt } = parts(page);
+  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
 
   await test.step("both polite regions are offered before they have anything new to say", async () => {
     await expect(status).toContainText(
-      `Published work read at revision ${revisionA.slice(0, 7)}, retrieved `,
+      `Published work read at revision ${shortRevision(revisionA)}, retrieved `,
     );
     await expect(notice).toBeEmpty();
     expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
@@ -195,15 +194,12 @@ test("accessible Board announces reading, the read result, and a failure while f
     await expectMembership(page, titlesOfB);
     await expect(status).toHaveText(
       new RegExp(
-        `^Published work read at revision ${revisionB.slice(0, 7)}, retrieved [^.]+\\.$`,
+        `^Published work read at revision ${shortRevision(revisionB)}, retrieved [^.]+\\.$`,
       ),
     );
-    const retrievedB = await source.locator("time").getAttribute("datetime");
+    const retrievedB = await retrievedAt.getAttribute("datetime");
     expect(retrievedB).not.toBe(retrievedA);
-    await expect(status.locator("time")).toHaveAttribute(
-      "datetime",
-      retrievedB ?? "",
-    );
+    await expect(retrievedAt).toHaveAttribute("datetime", retrievedB ?? "");
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
     await expect(notice).toBeEmpty();

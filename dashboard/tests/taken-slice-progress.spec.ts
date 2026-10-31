@@ -7,7 +7,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
@@ -127,7 +127,7 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
 
   await page.goto("/");
 
-  const { taken, backlog: queue, source } = parts(page);
+  const { taken, backlog: queue, readRevision } = parts(page);
   await expectMembership(page, {
     taken: [counted, planless, unreadable],
     backlog: [queued],
@@ -190,7 +190,7 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
       publishedAt(revisionB, ["done", "done", "planned"]),
     );
     await reloadUntilRead(page);
-    await expect(source).toContainText(revisionB);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
     const bar = card(counted).getByRole("img", {
       name: "2 of 3 slices recorded complete",
     });

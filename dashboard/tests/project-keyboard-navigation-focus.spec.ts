@@ -2,7 +2,7 @@
 // read cannot leak into the destination project's observation.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import {
   pathsRead,
@@ -37,7 +37,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
 
   await page.goto("/");
   await expectSelectedProject(page, openDoughProject);
-  const { banner, project, backlog, source } = parts(page);
+  const { banner, project, backlog, readRevision } = parts(page);
   const settings = banner.getByRole("button", {
     name: "System settings",
     exact: true,
@@ -96,7 +96,9 @@ test("focus stays useful across switches and held previous reads stay isolated",
       taken: [],
       backlog: ["Open Dough after held switch"],
     });
-    await expect(source).toContainText(nextOpenDoughRevision);
+    await expect(readRevision).toContainText(
+      shortRevision(nextOpenDoughRevision),
+    );
     await expect(page.locator("body")).not.toContainText(doughnutProject.taken);
     await expect(page.locator("body")).not.toContainText(
       doughnutProject.queued,
@@ -106,7 +108,9 @@ test("focus stays useful across switches and held previous reads stay isolated",
     await expect(page.locator("body")).not.toContainText(
       doughnutProject.queued,
     );
-    await expect(source).toContainText(nextOpenDoughRevision);
+    await expect(readRevision).toContainText(
+      shortRevision(nextOpenDoughRevision),
+    );
     expect(doughnutRefReads()).toBe(heldRead);
   });
 });

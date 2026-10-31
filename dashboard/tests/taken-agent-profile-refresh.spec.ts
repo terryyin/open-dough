@@ -3,7 +3,7 @@
 // publishes the files; the page decides everything shown.
 
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   defaultRepository as repository,
   publishFiles,
@@ -37,11 +37,11 @@ test("a project without agent profiles still loads, and a reload shows a profile
 
   await openUntilRead(page);
 
-  const { taken, source, problem } = parts(page);
+  const { taken, problem, readRevision } = parts(page);
   const card = taken.getByRole("article", { name: trunkStory });
 
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
-    await expect(source).toContainText(revisionA);
+    await expect(readRevision).toContainText(shortRevision(revisionA));
     await expect(card).toContainText("Owner not recorded");
     await expect(card.locator(".agent-portrait")).toHaveCount(0);
     await expect(card.locator("img")).toHaveCount(0);
@@ -65,7 +65,7 @@ test("a project without agent profiles still loads, and a reload shows a profile
       },
     });
     await reloadUntilRead(page);
-    await expect(source).toContainText(revisionB);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
     await expect(card).not.toContainText("Owner not recorded");
     await expectPortrait(card, "Akiho-chan", {
       atlas: 1,

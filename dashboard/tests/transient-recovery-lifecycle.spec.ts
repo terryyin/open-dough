@@ -10,6 +10,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
+  shortRevision,
   parts,
 } from "./dashboardPage.ts";
 import {
@@ -96,7 +97,9 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
     expect(mainReads(origin)).toBe(2);
     await inspectDashboardStory(page);
     await expectSettledPage(page, titlesOfA);
-    await expect(parts(page).source).toContainText(revisionA);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revisionA),
+    );
     await expect(parts(page).problem).toHaveCount(0);
   });
 });
@@ -223,6 +226,8 @@ test("an ordinary transient failure does not hold back another project's reads",
     backlog: [doughnutSharedTitle],
   });
   await expect(parts(page).problem).toHaveCount(0);
-  await expect(parts(page).source).toContainText(revisionDoughnut);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionDoughnut),
+  );
   expect(pathsRead(doughnut).some((path) => path === "main")).toBe(true);
 });

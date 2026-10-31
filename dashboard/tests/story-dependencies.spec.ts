@@ -2,7 +2,7 @@ import { writePlanning } from "./storyReadinessCli.ts";
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import { expectDependencyAccessibly } from "./storyDependencyAccessible.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
 import {
@@ -101,7 +101,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   const one = await publishDependencies(origin);
   await card.focus();
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(one);
+  await expect(parts(page).readRevision).toContainText(shortRevision(one));
   await expect(card).toBeFocused();
   await expect(summary).toHaveText("Dependencies · 1 blocking");
   await expect(execution).toBeDisabled();
@@ -122,7 +122,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   recordDependency(origin, 1, "satisfied", revision);
   const both = await publishDependencies(origin);
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(both);
+  await expect(parts(page).readRevision).toContainText(shortRevision(both));
   await expect(summary).toHaveText("Dependencies · 0 blocking");
   await expect(execution).toBeEnabled();
   await expect(execution).toHaveAccessibleDescription(/Not assessed as ready/);
@@ -209,7 +209,9 @@ test("malformed and unreadable dependency facts block execution without blocking
   const unreadRevision = await publishDependencies(origin);
   published.answerWith(".planning/seeds/A.md", notFoundAnswer());
   await reloadUntilRead(page);
-  await expect(parts(page).source).toContainText(unreadRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(unreadRevision),
+  );
   await expect(card.locator(".dependency-problem")).not.toContainText(
     "not valid JSON",
   );
