@@ -84,7 +84,7 @@ this server's write count and the identity of each machine document.
 
 ### 3. Cursor joiners share only reads of the same documents
 Type: Behavior
-Status: planned
+Status: done
 Proof: the finding 3 boundary spec; `cursor-runner-sessions*.spec.ts` and
 `cursor-session-classification.spec.ts` green.
 
@@ -102,6 +102,9 @@ includes that record.
 
 - Clearing `heldRevision` in `setRecords`/`setFacts` covers mark, read, stop,
   recover, delete, and `readSession` without touching each action.
+- Finding 3's inferred “not running” label miss did not reproduce with the
+  current runner-then-records ordering; the story's own-read promise did, and
+  keying held Cursor reads on the store revision is what stops join-across-write.
 
 ## Accepted proof
 
@@ -123,6 +126,14 @@ includes that record.
   `agent-launch-records-replaced`, `agent-launch-codex-observation-sharing`.
 - Store owns `machineDocumentsRevision()` (`machineDocumentsRevision.ts`,
   re-exported from `machineJsonStore.ts`); observation keys on it.
+
+### Slice 3
+
+- Boundary: `dashboard/tests/boundary/cursor-held-sessions-revision.spec.ts`
+  — write during held read → own runner read (`before + 2`) and working label;
+  overlapping asks under unchanged documents still share one runner read.
+- Regressions: `cursor-runner-sessions*.spec.ts`,
+  `cursor-session-classification.spec.ts`.
 
 ## Plan review
 
