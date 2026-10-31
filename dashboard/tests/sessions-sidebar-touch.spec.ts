@@ -16,7 +16,6 @@ import {
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
-import {} from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
