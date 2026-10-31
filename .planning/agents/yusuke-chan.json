@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-192#browse-test-purpose",
+  "mode": "story-branch",
+  "branch": "cursor/browse-a-project-s-test-source-in-intent",
+  "host": "cursor",
+  "model": "auto"
+}
