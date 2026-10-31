@@ -47,6 +47,12 @@ export type GhRequest =
       readonly revision: string;
     }
   | {
+      readonly kind: "tree";
+      readonly repository: string;
+      readonly path: string;
+      readonly revision: string;
+    }
+  | {
       readonly kind: "commit-list";
       readonly repository: string;
       readonly path: string;
@@ -177,6 +183,30 @@ export function parseRequest(argv: readonly string[]): GhRequest {
     return isRawMediaType(accept)
       ? { kind: "content", ...read, mediaType: accept }
       : { kind: "listing", ...read };
+  }
+  // Intent's nested location listing: `git/trees/<revision>:<path>?recursive=1`.
+  const tree = /^repos\/([^/]+\/[^/]+)\/git\/trees\/([^?]+)\?(.*)$/.exec(
+    endpoint,
+  );
+  if (tree?.[1] !== undefined && tree[2] !== undefined) {
+    const query = new URLSearchParams(tree[3] ?? "");
+    if (query.get("recursive") === "1") {
+      let decoded: string;
+      try {
+        decoded = decodeURIComponent(tree[2]);
+      } catch {
+        return { kind: "unknown" };
+      }
+      const colon = decoded.indexOf(":");
+      if (colon > 0) {
+        return {
+          kind: "tree",
+          repository: tree[1],
+          revision: decoded.slice(0, colon),
+          path: decoded.slice(colon + 1),
+        };
+      }
+    }
   }
   return { kind: "unknown" };
 }

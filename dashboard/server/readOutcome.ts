@@ -72,6 +72,19 @@ type Answer =
       readonly accepted: string;
       readonly contained: boolean;
     }
+  // Intent locations at a revision (`./intentLocationsRead.ts`): null when
+  // the project has no configured locations; otherwise each location and the
+  // files its kind lists.
+  | {
+      readonly revision: string;
+      readonly locations:
+        | null
+        | readonly {
+            readonly path: string;
+            readonly kind: string;
+            readonly files: readonly string[];
+          }[];
+    }
   // A path read at a branch head: null when that head does not have it.
   | {
       readonly revision: string;

@@ -15,6 +15,7 @@ import {
 import {
   directoryListingAnswer,
   listedFiles,
+  treeListingAnswer,
   unansweredFile,
 } from "./listingAnswers.ts";
 import {
@@ -204,6 +205,9 @@ export function publishMovingFiles(
           ...(at.unanswered ?? []).map(unansweredFile),
         ]),
       );
+    }
+    if (request.kind === "tree") {
+      return Promise.resolve(treeListingAnswer(request.path, at.files));
     }
     if (at.unanswered?.includes(request.path) === true) {
       return Promise.resolve(noConnection);

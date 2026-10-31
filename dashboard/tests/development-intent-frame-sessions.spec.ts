@@ -9,7 +9,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   expectAddress,
-  expectForthcomingIntent,
+  expectNotConfiguredIntent,
 } from "./intentPerspectivePage.ts";
 import {
   publishStoryColumnsJourney,
@@ -101,7 +101,9 @@ test.describe("with the three catalog projects' sessions", () => {
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo before intent");
       await intentChoice.click();
-      await expect(intent).toContainText("Intent for Pygardon is forthcoming.");
+      await expect(intent).toContainText(
+        "No intent locations are configured for Pygardon.",
+      );
       await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
       await expect(rows).toContainText("echo before intent");
       await panel.locator(".xterm-helper-textarea").focus();
@@ -160,7 +162,7 @@ test.describe("with a session to open", () => {
         .filter(({ id }) => id === sessionId.slice(0, 8));
     // Development, Intent, then Development again, as history entries.
     await intentChoice.click();
-    await expectForthcomingIntent(page, "Open Dough");
+    await expectNotConfiguredIntent(page, "Open Dough");
     await development.click();
     await expect(parts(page).intent).toHaveCount(0);
 
@@ -203,7 +205,7 @@ test.describe("with a session to open", () => {
 
     await test.step("Close shows Open Dough's Intent, as the address names", async () => {
       await closeSidePanel(panel);
-      await expectForthcomingIntent(page, "Open Dough");
+      await expectNotConfiguredIntent(page, "Open Dough");
       expectAddress(page, { project: null, perspective: "intent" });
       expect(attaches()).toHaveLength(1);
     });

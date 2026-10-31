@@ -7,7 +7,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   expectAddress,
-  expectForthcomingIntent,
+  expectNotConfiguredIntent,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -37,7 +37,7 @@ test("perspective keys choose a perspective without choosing another project, an
     await expect(development).toHaveCSS("outline-style", "solid");
     await page.keyboard.press("ArrowRight");
     await expect(intentChoice).toBeFocused();
-    await expectForthcomingIntent(page, "Open Dough");
+    await expectNotConfiguredIntent(page, "Open Dough");
     await expect(intentChoice).toHaveCSS("outline-style", "solid");
     await expect(radio("Open Dough")).toBeChecked();
     expectAddress(page, { project: null, perspective: "intent" });
@@ -57,15 +57,15 @@ test("perspective keys choose a perspective without choosing another project, an
       .getByRole("button", { name: "Inspect story" });
     await inspect.focus();
     await page.goBack();
-    await expectForthcomingIntent(page, "Open Dough");
+    await expectNotConfiguredIntent(page, "Open Dough");
     await expect(intentChoice).toBeFocused();
   });
 
   await test.step("a page-wide arrow from Intent's content chooses Doughnut and keeps Intent", async () => {
-    await intent.getByText("is forthcoming").click();
+    await intent.getByText("No intent locations are configured").click();
     await page.keyboard.press("ArrowRight");
     await expect(radio("Doughnut")).toBeChecked();
     await expect(radio("Doughnut")).toBeFocused();
-    await expectForthcomingIntent(page, "Doughnut");
+    await expectNotConfiguredIntent(page, "Doughnut");
   });
 });

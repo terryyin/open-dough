@@ -96,8 +96,8 @@ to `dashboard/tests`.
 
 ### 2. Browse and read configured Gherkin source
 Type: Behavior
-Status: planned
-Proof: The new Intent journey spec, the boundary refusal spec, and the updated frame journeys, which run the consumers of `expectForthcomingIntent`: `development-intent-frame*.spec.ts`, `dashboard-header.spec.ts`, `side-panel-content-replacement.spec.ts`, `agent-completion-recovery.spec.ts`, `one-shot-landing-recovery.spec.ts`. The consumer trace also covers `IntentPerspective` text, the read-boundary request kinds, and `GITHUB-REQUESTS.md`.
+Status: done
+Proof: The new Intent journey spec, the boundary refusal spec, and the updated frame journeys, which run the consumers of `expectNotConfiguredIntent`: `development-intent-frame*.spec.ts`, `side-panel-content-replacement.spec.ts`. The consumer trace also covers `IntentPerspective` text, the read-boundary request kinds, and `GITHUB-REQUESTS.md`.
 
 Behavior: A project publishes Gherkin locations, and the developer opens
 Intent. The developer expands nested folders and selects a `.feature` file. Its
@@ -110,6 +110,14 @@ fake-origin trees answer, Intent's tree and source pane, and updates to
 `docs/dashboard-navigation.md#development-and-intent`,
 `dashboard/PROJECT-CONFIGURATION.md` (the setting), and
 `dashboard/GITHUB-REQUESTS.md` (when Intent reads).
+
+Accepted: Intent locations via trees + `file-at` admission;
+`IntentLocationTree` / plain `IntentSourceLines`; not-configured via
+`expectNotConfiguredIntent`. Focused proof: `intent-gherkin-browse.spec.ts`,
+`boundary/authenticated-read-intent-locations.spec.ts`,
+`development-intent-frame*.spec.ts`, `side-panel-content-replacement.spec.ts`
+(13). Learning: serial boundary cases need distinct pin revisions when settings
+change under a shared PinnedTexts memo.
 
 ### 3. Distinguish unusable locations and failed reads
 Type: Behavior

@@ -168,7 +168,9 @@ export function ConfiguredDashboard({
                     />
                   </main>
                 )}
-                {showsIntent && <IntentPerspective source={source} />}
+                {showsIntent && (
+                  <IntentPerspective source={source} work={work} />
+                )}
                 {showsRoster && (
                   <main>
                     <AgentRoster

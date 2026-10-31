@@ -10,15 +10,15 @@
 // recorded there name now; `agents=profiles` and `committed=added` read the
 // published agent profiles (`./authenticatedProfileRead.ts`), and
 // `done=catalog` and `done=bodies` the published done catalog and the
-// records it lists (`./authenticatedDoneRead.ts`);
-// `branch` asks
-// about a story branch recorded at that revision
-// (`./authenticatedBranchRead.ts`). Every read makes the
-// same one request (`./authenticatedGet.ts`). No extra header or
+// records it lists (`./authenticatedDoneRead.ts`); `intent=locations` the
+// Intent locations configured in project settings
+// (`./authenticatedIntentRead.ts`); `branch` asks about a story branch
+// recorded at that revision (`./authenticatedBranchRead.ts`). Every read
+// makes the same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
-// answers this endpoint, so the request is same-origin by construction, and the endpoint's own Origin/Host check
-// (`../server/localOrigin.ts`) does the rest. There is no direct browser path
-// to GitHub.
+// answers this endpoint, so the request is same-origin by construction, and
+// the endpoint's own Origin/Host check (`../server/localOrigin.ts`) does the
+// rest. There is no direct browser path to GitHub.
 //
 // The local server resolves the ref and reads the backlog (or a
 // reachability-checked record) through the launching person's own `gh`

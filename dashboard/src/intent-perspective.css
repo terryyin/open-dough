@@ -1,7 +1,8 @@
-/* The Intent perspective's forthcoming content (./IntentPerspective.tsx):
-   readable prose below the page header, within the page's own margins. */
+/* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
+   Purpose locations beside source and Proof. */
+
 .intent-perspective {
-  max-width: 42rem;
+  max-width: 72rem;
 }
 
 .intent-perspective h2 {
@@ -9,11 +10,49 @@
   font-size: var(--text-lg);
 }
 
-.intent-perspective p {
+.intent-perspective h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
+.intent-not-configured {
+  max-width: 42rem;
   margin: var(--space-2) 0 0;
   line-height: 1.5;
 }
 
-.intent-forthcoming {
-  font-weight: var(--weight-strong);
+.intent-browser {
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-3);
+}
+
+.intent-locations {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.intent-location-kind {
+  color: var(--quiet);
+  font-weight: 400;
+  font-size: var(--text-sm);
+}
+
+.intent-reading {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.intent-purpose,
+.intent-proof {
+  min-width: 0;
+}
+
+@media (max-width: 52rem) {
+  .intent-browser {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -27,6 +27,7 @@ export function readsBesideChecks(calls: readonly GhCall[]): string[] {
       switch (request.kind) {
         case "content":
         case "listing":
+        case "tree":
         case "commit-list":
           return `${request.kind} ${request.path}@${request.revision}`;
         case "branch":

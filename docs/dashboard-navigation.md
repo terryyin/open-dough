@@ -250,19 +250,23 @@ hypothesis, whole-Board reading and later zoom/pan guidance.
 
 Development is the first-visit default perspective: the stories or agent
 roster, near-future direction, Start session and published-state
-qualifications. Intent replaces that content with a forthcoming-content
-statement for the selected project. It says that this dashboard does not read
-the project's tests yet, so it shows no count, result or claim that tests or
-Proof are absent, whatever the published read did; the read status keeps its
-own meaning. Structure, source browsing and Purpose/Proof readers are not
-offered yet. The perspective is disposable presentation state on the URL
-(`perspective=intent`), independent of Development's stories/roster view, which
-Intent keeps to return to. Choosing a perspective adds one history entry and
-never selects another project; changing projects keeps the perspective, and
-Back/Forward, reload and System settings restore it. Story URLs, story
-references and choosing a Sessions sidebar entry open Development's stories,
-including from the same project's Intent. Changing perspective neither starts,
-stops, completes nor reattaches a session: the mounted Board, Sessions sidebar
-and Side panel (terminal, final report or story review) stay as they were, and
-a covering panel stays open. When the change hides the content holding the
-keyboard, the keyboard moves to the selected perspective's choice.
+qualifications. Intent replaces that content with the project's Purpose and
+Proof reading surface. When the selected project's
+`.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
+Intent lists each location's nested `.feature` files in a collapsible tree,
+reads a selected file's exact published text with line numbers at the
+observed revision, and says no Proof is available for it yet. When that
+setting is absent, Intent says no intent locations are configured and names
+the setting and file; it shows no empty tree. Structure and Purpose/Proof
+layout switching are not offered yet. The perspective is disposable
+presentation state on the URL (`perspective=intent`), independent of
+Development's stories/roster view, which Intent keeps to return to. Choosing
+a perspective adds one history entry and never selects another project;
+changing projects keeps the perspective, and Back/Forward, reload and System
+settings restore it. Story URLs, story references and choosing a Sessions
+sidebar entry open Development's stories, including from the same project's
+Intent. Changing perspective neither starts, stops, completes nor reattaches
+a session: the mounted Board, Sessions sidebar and Side panel (terminal,
+final report or story review) stay as they were, and a covering panel stays
+open. When the change hides the content holding the keyboard, the keyboard
+moves to the selected perspective's choice.

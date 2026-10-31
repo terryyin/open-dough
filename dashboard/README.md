@@ -54,10 +54,11 @@ shorter, the Board stops at their bottom instead, without returning to the top.
 The banner keeps **Project** choices reachable above the Board's own scroll region.
 The selected project's name is the banner's plain level-1 heading, with the
 **Development** and **Intent** perspective choices beside it. Development, the
-first-visit default, shows the Board described here; Intent says only that its
-content for the selected project is forthcoming, claiming nothing about the
-project's tests. Project changes, history, reload and System settings keep the
-perspective; choosing a session opens Development
+first-visit default, shows the Board described here; Intent reads Purpose from
+configured Gherkin locations in the project's `.planning/open-dough.json`, or
+says none are configured, and does not claim that tests or Proof are absent.
+Project changes, history, reload and System settings keep the perspective;
+choosing a session opens Development
 ([dashboard navigation](../docs/dashboard-navigation.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the

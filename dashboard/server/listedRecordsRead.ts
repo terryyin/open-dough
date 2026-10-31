@@ -70,6 +70,9 @@ const listedKinds = Object.keys(listedReads) as ListedRecordsRead["kind"][];
 export const listedReadParameters = [
   ...listedKinds.map((kind) => listedReads[kind].parameter),
   "done",
+  // Intent locations (`./intentLocationsRead.ts`) share the refusal set so a
+  // listed or done read never mixes with an Intent read.
+  "intent",
 ];
 
 // The listed read a request names, undefined when it names none.
