@@ -74,7 +74,7 @@ revision and keeps its state on an unchanged answer.
 
 ### 2. One machine-document revision owned by the store
 Type: Structure
-Status: planned
+Status: done
 Proof: the slice 2 shared-observation specs, `agent-launch-sessions-unchanged`
 and `agent-launch-records-replaced` green; the store revision unit check.
 
@@ -114,6 +114,15 @@ includes that record.
   — second settings check held+unchanged under 1 KiB; maintenance line stable.
 - Regressions: `agent-launch-session-state-pace`, `agent-terminal-done-reopen`,
   `feedback-maintenance*`, `system-settings-feedback-maintenance`.
+
+### Slice 2
+
+- Unit: `dashboard/tests/boundary/machine-json-revision.spec.ts` — revision
+  changes on this server's write and on rename replacement.
+- Regressions: `machine-json-reuse`, `agent-launch-sessions-unchanged`,
+  `agent-launch-records-replaced`, `agent-launch-codex-observation-sharing`.
+- Store owns `machineDocumentsRevision()` (`machineDocumentsRevision.ts`,
+  re-exported from `machineJsonStore.ts`); observation keys on it.
 
 ## Plan review
 

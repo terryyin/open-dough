@@ -22,8 +22,9 @@
 | 6.2 | The settings view's feedback-maintenance refresh keeps its state on an unchanged answer. | slice 1 | observed: early return when `"unchanged" in answer`; spec keeps maintenance line text |
 | 7 | A shared Cursor held-session read is joined only under the same machine documents it started from. | slice 3 | |
 | 8 | A reader whose launch record was written after the read began gets its own read. | slice 3 | |
-| 9 | One machine-document revision keys both shared observations. | slice 2 | |
-| 9q | That revision is owned by the machine document store. | slice 2 | |
+| 9 | One machine-document revision keys both shared observations. | slice 2 | observed: `machineSessionObservation.ts` demands `[configuredProjects(), await machineDocumentsRevision()]`; Cursor join still on slice 3 |
+| 9q | That revision is owned by the machine document store. | slice 2 | observed: store-owned `machineDocumentsRevision()` in `machineDocumentsRevision.ts`, re-exported from `machineJsonStore.ts`; observation-local identity/`machineJsonReplacements` removed; `machine-json-revision.spec.ts` |
+
 | T1 | Page changes sessions or facts outside the poll → stops holding the poll's revision → next poll receives the full answer. | slice 1 | observed: same as 4 and 5 via held-revision-after-action journey |
 | T2 | Settings feedback-maintenance refresh: send held revision; on unchanged answer, keep state. | slice 1 | observed: same as 6.1 and 6.2 |
 | T3 | Settings machine-session refresh stays small when nothing changed. | slice 1 | observed: same as 3 |
