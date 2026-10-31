@@ -41,11 +41,16 @@ test.describe("beside the side panel", () => {
     const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
     const terminal = page.getByRole("region", { name: "Terminal" });
     const { taken } = parts(page);
-    // The view, beside a terminal whose screen scrolls on its own.
+    // The view, beside a terminal whose screen scrolls on its own; the panel
+    // header title truncates by design with disclosure (./SidePanelTitle.tsx).
     const expectShown = (
       shown: readonly ColumnName[],
       controls: readonly string[],
-    ) => expectView(page, shown, controls, scrollsOnItsOwn);
+    ) =>
+      expectView(page, shown, controls, [
+        ...scrollsOnItsOwn,
+        ".side-panel-title-toggle",
+      ]);
     await recordSlides(page);
 
     await test.step("a 108rem Board shows all three and no column paging control", async () => {

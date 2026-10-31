@@ -7,6 +7,7 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../src/storyReviewContract.ts";
+import { expectCovering } from "./sidePanelWidthPage.ts";
 
 test("delayed run and file responses leave the later run selected through narrow layout and panel controls", async ({
   page,
@@ -87,6 +88,7 @@ test("delayed run and file responses leave the later run selected through narrow
   ]);
   await page.setViewportSize({ width: 420, height: 900 });
   await expect(select).toHaveValue(first.key);
+  await expectCovering(review);
   const files = review.getByRole("list", {
     name: "1 changed file",
     exact: true,
@@ -103,9 +105,7 @@ test("delayed run and file responses leave the later run selected through narrow
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(420);
-  await review.getByRole("button", { name: "Maximize", exact: true }).click();
   await expect(select).toHaveValue(first.key);
-  await review.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",
   ]);

@@ -20,10 +20,29 @@ export function keepInView(element: Element): () => void {
     window.addEventListener("scroll", progressed, true);
     window.addEventListener("scrollend", settled, true);
     showColumnHolding(element);
-    element.scrollIntoView({
-      block: "start",
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-    });
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
+    const regionEl = element.closest<HTMLElement>(
+      ".board-scroll, .roster-scroll",
+    );
+    if (
+      regionEl !== null &&
+      document.querySelector(".page-maximized") !== null
+    ) {
+      // While maximized/covering, prefer scrollTop so the reading edge is set
+      // even when scrollIntoView is unreliable against the hidden page column.
+      const at = element.getBoundingClientRect();
+      const bounds = readingBounds(element);
+      const margin =
+        Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
+      const top = Math.max(
+        0,
+        regionEl.scrollTop + (at.top - bounds.top - margin),
+      );
+      regionEl.scrollTop = top;
+      element.scrollIntoView({ block: "nearest", behavior: "auto" });
+    } else {
+      element.scrollIntoView({ block: "start", behavior });
+    }
     progressed();
   };
   // The page's size as the part was brought into view; only a change from it
@@ -77,7 +96,13 @@ export function keepInView(element: Element): () => void {
     stopSettling();
     resized.disconnect();
   };
-  const stop = untilOwnMove(stopKeeping);
+  // Pointer and keys inside the Side panel (including Close) are not the
+  // developer's Board move; keep following layout until they leave the panel
+  // or scroll the Board, so covering→Close still lands on the reading place.
+  const stop = untilOwnMove(stopKeeping, (event) => {
+    const target = event.target;
+    return target instanceof Element && target.closest(".side-panel") !== null;
+  });
   return () => {
     stopKeeping();
     stop();

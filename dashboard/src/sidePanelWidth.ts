@@ -7,9 +7,9 @@
 // the panel takes half the room. What the panel takes is derived from that
 // preference and the room the page and the panel share, beside the sidebar
 // when it is open: neither becomes narrower than its usable minimum. Where
-// that room cannot hold both, or the window is narrow, the panel stacks above
-// the page and offers no divider. A limit the room sets never changes the
-// preference, so more room recovers it.
+// that room cannot hold both, or the window is narrow, the panel covers the
+// page column (shown maximized) and offers no divider. A limit the room sets
+// never changes the preference, so more room recovers it.
 
 import {
   createContext,
@@ -24,7 +24,7 @@ import { flushSync } from "react-dom";
 import { shareOfRoom, sizeWithin, usePreferredSize } from "./sharedRoom.ts";
 
 // The frame's narrow window, where the Sessions sidebar overlays the page
-// (`./sessions-sidebar.css`) and the panel stacks above it.
+// (`./sessions-sidebar.css`) and the panel covers the page column.
 const narrowWindow = "(max-width: 800px)";
 
 // Each side's usable minimum, in rem: the narrowest width the page reflows to
@@ -37,7 +37,7 @@ const pageMinimum = 20;
 const keyStep = 2;
 
 type SidePanelLayout =
-  | { readonly arrangement: "stacked" }
+  | { readonly arrangement: "covering" }
   | {
       readonly arrangement: "split";
       readonly width: number;
@@ -62,7 +62,7 @@ function sidePanelLayout(
     otherFloor: pageMinimum * rem,
     step: keyStep * rem,
   });
-  if (narrow || share === undefined) return { arrangement: "stacked" };
+  if (narrow || share === undefined) return { arrangement: "covering" };
   const { size: width, minimum, maximum, step } = share;
   return { arrangement: "split", width, minimum, maximum, step };
 }
@@ -117,19 +117,19 @@ type PanelDividerState = Extract<SidePanelLayout, { arrangement: "split" }> & {
   readonly choose: (width: number) => void;
 };
 
-// Whether the panel stacks above the page, and otherwise its divider.
+// Whether the panel covers the page column, and otherwise its divider.
 export function useSidePanelWidth(
   frame: RefObject<HTMLElement | null>,
   shown: boolean,
   sessionsSidebarOpen: boolean,
-): { stacked: boolean; divider: PanelDividerState | undefined } {
+): { covering: boolean; divider: PanelDividerState | undefined } {
   const [preferred, prefer] = usePreferredSize(preferredWidthKey);
   const narrow = useSyncExternalStore(watchNarrow, () => narrowQuery().matches);
   const room = useRoom(frame, shown, sessionsSidebarOpen);
   const layout: SidePanelLayout | undefined =
     room === undefined
       ? narrow
-        ? { arrangement: "stacked" }
+        ? { arrangement: "covering" }
         : undefined
       : sidePanelLayout(room.width, preferred, room.rem, narrow);
   const split = layout?.arrangement === "split" ? layout : undefined;
@@ -144,7 +144,7 @@ export function useSidePanelWidth(
     [minimum, maximum, prefer],
   );
   return {
-    stacked: layout?.arrangement === "stacked",
+    covering: layout?.arrangement === "covering",
     divider: split && { ...split, choose },
   };
 }

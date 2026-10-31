@@ -34,6 +34,8 @@ import {
   sessionsSidebarParts,
 } from "./sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import { closeSidePanel } from "./pageLayout.ts";
+import { expectCovering } from "./sidePanelWidthPage.ts";
 
 test.setTimeout(120_000);
 
@@ -54,8 +56,7 @@ async function startAndClose(page: Page, project: string, text: string) {
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toHaveCount(1);
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  await panel.getByRole("button", { name: "Close" }).click();
-  await expect(panel).toHaveCount(0);
+  await closeSidePanel(panel);
 }
 
 const localOf = (page: Page, text: string) =>
@@ -241,9 +242,9 @@ test("with Open Dough already shown, its Sessions sidebar Session entry brings i
   await button.click();
   await expect(local).not.toBeInViewport();
   await entry(text).click();
-  // The single column beside the sidebar and terminal moves to Taken.
-  await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
-
+  const panel = page.getByRole("region", { name: "Terminal" });
+  await expectCovering(panel);
+  await expect(panel.getByRole("heading", { level: 2 })).toContainText(text);
+  await closeSidePanel(panel); // covering hides Board marks; then check reveal
   await expect(local).toBeInViewport();
-  await expect(local.getByText("Shown in terminal")).toBeVisible();
 });

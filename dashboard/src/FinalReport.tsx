@@ -22,6 +22,7 @@ import {
   sidePanelCloseShortcutLabel,
   useSidePanelCloseShortcut,
 } from "./SidePanelControls.tsx";
+import { SidePanelTitle } from "./SidePanelTitle.tsx";
 import {
   doneAnswers,
   markDoneUnresolved,
@@ -104,10 +105,8 @@ export function FinalReport({
       <div className="final-report-scroll">
         <header className="side-panel-header">
           <div className="side-panel-names">
-            <h2>{title}</h2>
-            <p>
-              {name} session <code>{record.session.sessionId}</code>
-            </p>
+            <SidePanelTitle title={title} />
+            <p>{name} session</p>
           </div>
           <div className="side-panel-actions">
             {marksRecordDone(hostOperations, record) &&

@@ -184,6 +184,13 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: plan slice 3 accepted proof named `story-branch-landing-capture.spec.ts` / later-publication twin plus unit coverage; CI run 40704491019 job `dashboard (3/12)` failed `story-branch-retained-landing.spec.ts:43` (ZodError requiring `landing` on second integrate). Repair `804e7d7f` asserts `already-accepted` without a landing field after expectation clear. Coordinator transcript `3fc700d8-1e3b-486e-82de-cd7b0c5e26e7` stashed slice 4 for that repair.
   - Observed effect: one owned CI failure and one assertion repair before slice 4 delivery; the sibling retained-landing journey was not in the slice's focused proof.
   - Inference: recurrence of focused-neighbor selection missing an existing consumer of the same second-integrate / no-landing contract after open-expectation clear.
+- Execution: SEED-199#mobile-session-screen / plan 425 / first related implementation `eaa0237881d704ee46711d8bc4fb188401b6ec94`
+  - Timestamp: 2026-10-31T13:07:38+08:00 (repair commit `a8ff15c2`; CI run 41165181622 attempt 1 on slice-1 SHA `eaa02378`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: plan Decisive premises listed header-UUID consumers (`agent-terminal*`, touch/session-management/sidebar) and slice-1 accepted proof included `final-report-touch*` but not `session-workspace-retirement.spec.ts` or board-paging / stacking look specs. CI failed Final-report UUID asserts and `expectNoSidewaysScrollAndWholeText` ellipsis reads. Repair `a8ff15c2` updated those consumers and added title-toggle negative margin; coordinator transcript `363e0b94-67d5-49d4-b77d-48deec743aed` stashed in-progress slice 2 for the repair, then removed the clipping margin during slice-2 acceptance (`533e9750`).
+  - Observed effect: one owned CI repair commit before slice 2 delivery, plus follow-on title-toggle CSS correction after the repair’s margin clipped expanded titles; slice-2 work was stashed and restored around the repair.
+  - Inference: recurrence of focused consumer selection missing existing Final-report header and look-spec consumers of the same compact-header contract after local owner proof passed.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 

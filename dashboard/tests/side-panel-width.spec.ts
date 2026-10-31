@@ -1,21 +1,17 @@
 // The Side panel keeps one preferred width chosen through its Panel divider.
 // Both sides retain usable minima. The terminal stays attached and fits; a story
 // review keeps its snapshot/file. Content changes, close/reopen, Sessions sidebar
-// and Maximize/Restore reuse that width. Insufficient room stacks the panel.
+// and Maximize/Restore reuse that width. Insufficient room covers the page.
 // Geometry observes the rendered page; only the synthetic Claude is reached.
 
 import { expectFocusedAndIndicated } from "./accessibleReading.ts";
 import { storyCardSessions } from "./dashboardPage.ts";
-import {
-  box,
-  expectSideBySideInOrder,
-  expectStackedInOrder,
-  pressWhereShown,
-} from "./pageLayout.ts";
+import { box, expectSideBySideInOrder, pressWhereShown } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   control,
   dragDivider,
+  expectCovering,
   expectDividerSays,
   expectStillHolds,
   expectWidth,
@@ -231,13 +227,12 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     expect(attaches()).toHaveLength(2);
   });
 
-  await test.step("beside the open sidebar, a window too narrow for a usable split stacks the panel with no divider, and more room recovers the width", async () => {
+  await test.step("beside the open sidebar, a window too narrow for a usable split covers the page column with no divider, and more room recovers the width", async () => {
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeVisible();
     await page.setViewportSize({ width: 900, height: 900 });
-    await expect(divider).toHaveCount(0);
+    await expectCovering(terminal);
     await expectSideBySideInOrder([sidebar.sidebar, terminal]);
-    await expectStackedInOrder([terminal, page.locator(".page-column")]);
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
     await page.setViewportSize(wideWindow);
     await expectWidth(terminal, kept);

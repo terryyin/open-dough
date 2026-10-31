@@ -118,16 +118,15 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await expect(shown.sidebar).toBeHidden();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
-  // Overlay hide makes role queries miss the list; reopen briefly to observe
-  // Done cleared into the open list, then close the overlay again.
+  // Covering hides the banner Sessions control while the panel is open; Close
+  // first, then reopen the overlay to observe Done cleared into the open list.
+  await panel.getByRole("button", { name: "Close" }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(shown.button).toBeFocused();
   await shown.button.click();
+  await expect(shown.sidebar).toBeVisible();
   await expect(shown.entry(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
   ).toHaveCount(1);
-  await shown.button.click();
-  await expect(shown.sidebar).toBeHidden();
-  await panel.getByRole("button", { name: "Close" }).click();
-  await expect(panel).toHaveCount(0);
-  await expect(shown.button).toBeFocused();
 });

@@ -103,12 +103,19 @@ printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.62.0"}}}' > 
 refuse check-lock-change check healthy 'Playwright prerequisite mismatch: locked 1.62.0, installed 1.63.0'
 [[ ! -e ${temporary_dir}/source-call ]]
 printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.63.0"}}}' > "${temporary_dir}/package-lock.json"
-(cd -- "${temporary_dir}" && SOURCE_BEHAVIOR=healthy "${node}" "${script}" check) > "${temporary_dir}/healthy-check.log" 2>&1
+# Success paths must not inherit CI's shared setup deadline from GITHUB_ENV;
+# that wall clock expires while later suite shards still run this fixture.
+healthy_deadline=$("${node}" -e 'console.log(Date.now()+180000)')
+(cd -- "${temporary_dir}" && OPEN_DOUGH_SETUP_DEADLINE_MS="${healthy_deadline}" \
+  SOURCE_BEHAVIOR=healthy "${node}" "${script}" check) \
+  > "${temporary_dir}/healthy-check.log" 2>&1
 expect_in_log "${temporary_dir}/healthy-check.log" -F -- 'Native prerequisites: Chromium fixture-locked-browser'
 
 # Successful calls use the locked CLI and npm's explicitly bounded fetches.
 for stage in npm browser; do
+  healthy_deadline=$("${node}" -e 'console.log(Date.now()+180000)')
   (cd -- "${temporary_dir}" && PATH="${temporary_dir}/bin" \
+    OPEN_DOUGH_SETUP_DEADLINE_MS="${healthy_deadline}" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_BEHAVIOR=healthy \
     "${node}" "${script}" "${stage}") > "${temporary_dir}/healthy-${stage}.log" 2>&1
   expect_in_log "${temporary_dir}/healthy-${stage}.log" -F -- "${stage} acquisition complete"
@@ -141,7 +148,9 @@ fi
 # Neither an interrupted source nor its descendant may keep writing afterward.
 for signal in INT TERM; do
   rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/late-write" "${temporary_dir}/child-ready"
+  interrupt_deadline=$("${node}" -e 'console.log(Date.now()+180000)')
   (cd -- "${temporary_dir}" && exec env PATH="${temporary_dir}/bin" \
+    OPEN_DOUGH_SETUP_DEADLINE_MS="${interrupt_deadline}" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_BEHAVIOR=interrupted \
     LATE_WRITE="${temporary_dir}/late-write" CHILD_READY="${temporary_dir}/child-ready" \
     "${node}" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &

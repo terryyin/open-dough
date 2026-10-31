@@ -188,7 +188,9 @@ test("done and completed sessions offer no Recover", async ({
   writeFileSync(
     file,
     JSON.stringify({
-      "open-dough": [{ ...record, doneAt: new Date().toISOString() }],
+      "open-dough": [
+        { ...record, doneAt: new Date(Date.now() - 60_000).toISOString() },
+      ],
     }),
   );
   await reloadUntilRead(page);

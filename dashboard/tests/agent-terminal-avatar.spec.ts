@@ -101,7 +101,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   // The rows as an ad hoc session without an agent shows them.
   const expectRowsUnchanged = async () => {
     await expect(heading).toHaveText(title);
-    await expect(sessionRow).toHaveText(`Ad hoc session ${sessionId}`);
+    await expect(sessionRow).toHaveText("Ad hoc session");
   };
 
   // Gives the session's record what it establishes, then opens its terminal
@@ -168,7 +168,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expect(panel.getByRole("img")).toHaveCount(1);
     await expect(panel.locator("img")).toHaveCount(0);
     await expect(panel.locator(".terminal-identity")).toHaveText(
-      `${title}Ad hoc session ${sessionId}`,
+      `${title}Ad hoc session`,
     );
   });
 

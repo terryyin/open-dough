@@ -100,7 +100,8 @@ hook/trust UI remains interactive, and a completed composer frame with visible
 cursor confirms attachment. Refusal preserves done intent; successful original-ID
 attachment clears it. Claude retains its immediate admitted-attachment behavior.
 
-One page terminal shows story/workflow/session with Mark as done where
+One page terminal shows a truncated story title with disclosure, the workflow
+label as "<Workflow> session" without the session UUID, and Mark as done where
 supported, Maximize/Restore and Close; the panel's frame and these controls are
 shared with the [story review](AGENT-LAUNCH-REVIEW.md), which occupies
 the same panel exclusively, as does a final report.

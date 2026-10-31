@@ -9,7 +9,6 @@ import {
   standaloneSessionName,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
-import { expectReadingTop } from "./readingPlace.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
   notRefinedIdentity,
@@ -32,6 +31,8 @@ import {
   removedStory,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
+import { closeSidePanel } from "./pageLayout.ts";
+import { expectCovering } from "./sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -176,38 +177,32 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const { sidebar, button, entry } = sessionsSidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    // The card is taller than the stacked Board: reveal its readable top.
+    // Narrow covering: Close restores the full Board before Board assertions.
     await page.setViewportSize({ width: 700, height: 900 });
     await button.click();
     await expect(sidebar).toBeVisible();
 
     await entry(pygardonStory.title).click();
     await expect(sidebar).toBeHidden();
-    await expect(button).toHaveAttribute("aria-expanded", "false");
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
     await expect
       .poll(() => attachesOf(dashboard, sessions.pygardon))
       .toHaveLength(1);
-    const pygardonStoryCard = parts(page).backlog.getByRole("article", {
-      name: pygardonStory.title,
-    });
-    await expect(
-      pygardonStoryCard.getByText("Shown in terminal"),
-    ).toBeVisible();
-    await expect.poll(async () => (await revealsOf(page)).length).not.toBe(0);
-    // Once settled, every reveal has reached its reading place without motion.
-    await expectReadingTop(pygardonStoryCard);
-    await expectRevealsSince(page, 0, pygardonStory.title, "auto");
-    // With enough Board room for the same card, it still shows whole.
-    await page.setViewportSize({ width: 700, height: 1600 });
-    await expectWhollyInView(page, pygardonStory.title);
+    await expectCovering(panel);
     await expect(
       panel.evaluate((element) => element.contains(document.activeElement)),
     ).resolves.toBe(true);
-
-    await panel.getByRole("button", { name: "Close" }).click();
-    await expect(panel).toHaveCount(0);
+    await expect.poll(async () => (await revealsOf(page)).length).not.toBe(0);
+    await expectRevealsSince(page, 0, pygardonStory.title, "auto");
+    // Covering hides the Board; Close, then the restored full Board shows the
+    // card (wholly — it fits once the half-height stack is gone).
+    await closeSidePanel(panel);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
     await expect(button).toBeFocused();
+    await expectWhollyInView(page, pygardonStory.title);
+    // With enough Board room for the same card, it still shows whole.
+    await page.setViewportSize({ width: 700, height: 1600 });
+    await expectWhollyInView(page, pygardonStory.title);
   });
   test("a pick whose project's stories are left before they are read never scrolls the page to its card", async ({
     page,
@@ -218,7 +213,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       dashboard,
       columnsJourney,
     );
-    const { button, entry } = sessionsSidebarParts(page);
+    const { sidebar, button, entry } = sessionsSidebarParts(page);
     const { project, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const showProject = (name: string) =>
@@ -228,6 +223,10 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const release = holdPygardonStories();
     await entry(pygardonStory.title).click();
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
+    // Sidebar still open beside the panel can cover the page column; close it
+    // so project radios stay reachable while the session stays open.
+    if (await sidebar.isVisible()) await button.click();
+    await expect(sidebar).toBeHidden();
     await showProject("Doughnut");
     await expectMembership(page, {
       taken: [],

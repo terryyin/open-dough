@@ -63,12 +63,17 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       const revealed = (await revealsOf(page)).length;
       await entry(readyStory).click();
       await expect(panel.getByRole("heading")).toHaveText(readyStory);
-      // The sidebar's entries are cut by design, read whole by their tooltip.
+      // The sidebar's entries and panel header title truncate by design
+      // (./SidePanelTitle.tsx); read whole by tooltip / disclosure.
       await expectView(
         page,
         ["Backlog"],
         ["Taken 1 entry"],
-        [...scrollsOnItsOwn, ".sessions-sidebar-session-entry-title"],
+        [
+          ...scrollsOnItsOwn,
+          ".sessions-sidebar-session-entry-title",
+          ".side-panel-title-toggle",
+        ],
       );
       await expect(card(readyStory)).toBeInViewport();
       await expectRevealsSince(page, revealed, readyStory, "smooth");

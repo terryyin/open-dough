@@ -38,7 +38,7 @@ export const panelDivider = (within: Page | Locator) =>
   within.getByRole("separator", { name: "Panel divider", exact: true });
 
 // Resizes the window and waits for the page to arrange the panel for it:
-// stacked above the page in a window up to 800px wide (side-panel.css),
+// covering the page column in a window up to 800px wide (side-panel.css),
 // beside the page with its resize divider otherwise. The page arranges on the
 // frame after the resize, so a measurement taken, or a finger placed, before
 // that frame would take the previous arrangement's places in the new window.
@@ -50,6 +50,64 @@ export async function resizeUntilArranged(
   const divider = panelDivider(panel);
   if (view.width > 800) await expect(divider).toBeVisible();
   else await expect(divider).toHaveCount(0);
+}
+
+// Whether the open panel covers the page column (no usable split).
+export async function expectCovering(panel: Locator) {
+  await expect
+    .poll(() =>
+      panel.evaluate(
+        (element) =>
+          element.parentElement?.classList.contains("page-covering") === true &&
+          element.parentElement.classList.contains("page-maximized"),
+      ),
+    )
+    .toBe(true);
+  await expect(control(panel, "Maximize")).toHaveCount(0);
+  await expect(control(panel, "Restore")).toHaveCount(0);
+  await expect(panelDivider(panel)).toHaveCount(0);
+}
+
+// Narrow-window covering: the panel fills the viewport and hides banner/Board.
+export async function expectCoveringFillsWindow(
+  panel: Locator,
+  pageParts: { readonly banner: Locator; readonly board: Locator },
+) {
+  await expectCovering(panel);
+  const viewport = await panel.page().evaluate(() => ({
+    width: document.documentElement.clientWidth,
+    height: window.innerHeight,
+  }));
+  const shown = await box(panel);
+  expect(shown.width).toBeCloseTo(viewport.width, 0);
+  expect(shown.height).toBeCloseTo(viewport.height, 0);
+  await expect(pageParts.banner).toBeHidden();
+  await expect(pageParts.board).toBeHidden();
+}
+
+// Tab and tap stay on the covering panel; the Board is not reachable behind it.
+export async function expectBoardUnreachableBehindCovering(
+  panel: Locator,
+  board: Locator,
+) {
+  await control(panel, "Close").focus();
+  await panel.page().keyboard.press("Tab");
+  await expect(board).toBeHidden();
+  expect(
+    await panel.page().evaluate(() => {
+      const active = document.activeElement;
+      return active !== null && active.closest(".side-panel") !== null;
+    }),
+  ).toBe(true);
+  expect(
+    await panel.page().evaluate(() => {
+      const target = document.elementFromPoint(
+        window.innerWidth / 2,
+        window.innerHeight * 0.75,
+      );
+      return target?.closest(".side-panel") !== null;
+    }),
+  ).toBe(true);
 }
 
 // The page column and the panel, side by side, as shown.

@@ -9,6 +9,7 @@ import {
 } from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  closeSidePanel,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
@@ -119,6 +120,10 @@ test.describe(`${name} touch session editing`, () => {
         ?.split("\n\nDashboard reporting context:")[0],
     ).toBe(draft);
     dashboard.releaseHeldClaude();
+    const terminal = page.getByRole("region", { name: "Terminal" });
+    await expect(terminal).toBeVisible({ timeout: 30_000 });
+    // Covering hides the Board announcement; Close then read acceptance.
+    await closeSidePanel(terminal);
     await expect(parts(page).adHocStarted).toBeVisible({ timeout: 30_000 });
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     await expect(launcher).toBeEnabled();

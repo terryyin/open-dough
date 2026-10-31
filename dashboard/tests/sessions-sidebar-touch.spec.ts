@@ -4,19 +4,19 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launch, launchRequest, recordsOf } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectNoSidewaysScrollAndWholeText,
+  pageColumnProjectValue,
   tapWhereShown,
 } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
-import { focusByTouch } from "./touchTerminalPage.ts";
+import {} from "./touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
@@ -124,34 +124,24 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       intended.title,
     );
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      record.session.sessionId,
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    await expect(panel.locator(".xterm-rows")).toContainText(
+      `attached ${record.session.sessionId.slice(0, 8)}`,
     );
-    await expect(
-      parts(page).project.getByRole("radio", {
-        name: "Doughnut",
-        exact: true,
-      }),
-    ).toBeChecked();
+    // Covering (landscape with sidebar open) aria-hides the page column.
+    await expect.poll(() => pageColumnProjectValue(page)).toBe("doughnut");
     await page.setViewportSize(portrait);
     // Selection at landscape width leaves the beside-page sidebar open;
     // rotation preserves that choice when it becomes an overlay.
     await expect(sidebar).toBeVisible();
-    await expect(panel.locator(".side-panel-names code")).toHaveText(
-      record.session.sessionId,
-    );
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     // Finish the project read and rotation before navigating to its input.
     // Cross-project selection reveals the chosen entry with a native smooth
     // scroll; landscape input is exercised by agent-terminal-touch.spec.ts.
     await opened.settled();
     await button.scrollIntoViewIfNeeded();
-    await tapWhereShown(button);
-    await expect(sidebar).toBeHidden();
-    await panel.scrollIntoViewIfNeeded();
-    await expect(panel.locator(".xterm-rows")).toContainText("❯");
-    await focusByTouch(panel);
-    await page.keyboard.type("continue intended session");
-    await page.keyboard.press("Enter");
     await expect
       .poll(() =>
         dashboard

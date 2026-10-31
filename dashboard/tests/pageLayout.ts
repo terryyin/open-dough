@@ -163,3 +163,25 @@ export async function pressWhereShown(control: Locator) {
   const { x, y, width, height } = await box(control);
   await control.page().mouse.click(x + width / 2, y + height / 2);
 }
+
+// Checked project radio value. Covering aria-hides the page column, so role
+// queries miss it; native radios stay reachable through this CSS path
+// (./support/reportTouchJourney.ts).
+export async function pageColumnProjectValue(
+  page: Page,
+): Promise<string | null> {
+  return page
+    .locator(".page-column input[type='radio']:checked")
+    .getAttribute("value");
+}
+
+// After Close, the Board (and banner) are readable again; use this when a
+// journey opened a covering panel and still needs Board assertions.
+// Covering also aria-hides preparation text, so wait for it to finish in the
+// restored tree before Board reads.
+export async function closeSidePanel(panel: Locator) {
+  const page = panel.page();
+  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+}

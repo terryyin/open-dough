@@ -5,10 +5,7 @@ import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
-import {
-  openUnfinishedReport,
-  sessionId,
-} from "./support/reportTouchJourney.ts";
+import { openUnfinishedReport } from "./support/reportTouchJourney.ts";
 import { readReportByTouch } from "./support/reportTouchPage.ts";
 import { passive } from "./support/retainedReport.ts";
 import { box } from "./pageLayout.ts";
@@ -77,9 +74,7 @@ for (const { name, viewport, lines } of [
       await divider.focus();
       await page.keyboard.press("ArrowRight");
       await expectWidth(panel, width + 20 - keyStep);
-      await expect(panel.locator(".side-panel-names code")).toHaveText(
-        sessionId,
-      );
+      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       await expect(reportText).toHaveText(text);
       expect(state()).toEqual(initial);
       passive(native, since);

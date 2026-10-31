@@ -101,10 +101,10 @@ Assimilate, do not duplicate, its header:
   reintroduce the banner's disclosure-only `focusin` re-measure or source panel
   styles that SEED-198 deletes.
 
-[SEED-199](../../seeds/SEED-199-mobile-session-screen.md) (mobile session
-screen) is likewise not a prerequisite. An active mobile full-screen session
-may cover the dashboard under that story's contract; perspective changes must
-not close it or create a competing view.
+The delivered mobile session screen covering (see
+[dashboard navigation](../../../docs/dashboard-navigation.md)) is likewise not
+a prerequisite. An active covering Side panel may hide the dashboard under that
+contract; perspective changes must not close it or create a competing view.
 
 ## Outside-in proof ownership
 

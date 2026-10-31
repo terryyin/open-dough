@@ -42,7 +42,10 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const { record, workspace } = await retained(dashboard, native);
     mkdirSync(workspace);
     const originalDirectory = realpathSync(workspace);
-    const doneAt = loss === "missing" ? undefined : new Date().toISOString();
+    const doneAt =
+      loss === "missing"
+        ? undefined
+        : new Date(Date.now() - 60_000).toISOString();
     save(dashboard.home, [{ ...record, doneAt }]);
     const baseline = readFileSync(storeFile(dashboard.home), "utf8");
     const since = native.calls.length;
@@ -86,7 +89,8 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     expect(read.searchParams.get("host")).toBe("codex");
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(report);
-    await expect(panel).toContainText(record.session.sessionId);
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     await expect(panel).toContainText(
       loss === "unknown"
         ? "saved workspace availability could not be established"

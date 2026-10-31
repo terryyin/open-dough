@@ -67,7 +67,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   >;
   state["open-dough"] = stored(dashboard.home).map((record) => ({
     ...record,
-    doneAt: new Date().toISOString(),
+    doneAt: new Date(Date.now() - 60_000).toISOString(),
   }));
   writeFileSync(file, JSON.stringify(state));
   const { card } = await settledAfterBoundaryLaunch(page);
@@ -199,7 +199,7 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   >;
   state["open-dough"] = stored(dashboard.home).map((record) => ({
     ...record,
-    doneAt: new Date().toISOString(),
+    doneAt: new Date(Date.now() - 60_000).toISOString(),
   }));
   writeFileSync(file, JSON.stringify(state));
   await settledAfterBoundaryLaunch(page);

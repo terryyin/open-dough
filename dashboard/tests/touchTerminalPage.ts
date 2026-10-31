@@ -52,12 +52,8 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
         const rowHeight =
           element.querySelector(".xterm-rows > div")?.getBoundingClientRect()
             .height ?? 0;
-        const stacked =
-          panel?.parentElement?.classList.contains("page-stacked");
-        const maximized =
-          panel?.parentElement?.classList.contains("page-maximized");
-        const panelHeight =
-          innerHeight * (stacked === true && maximized !== true ? 0.5 : 1);
+        // Covering and split both pin the panel at the viewport height.
+        const panelHeight = innerHeight;
         return {
           rows: element.querySelectorAll(".xterm-rows > div").length,
           fits:
@@ -85,61 +81,4 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
 export async function focusByTouch(panel: Locator) {
   await tapWhereShown(panel.locator(".xterm-screen"));
   await expect(panel.locator("textarea")).toBeFocused();
-}
-
-export function titleWordsReading(
-  heading: Locator,
-  start: number,
-  end: number,
-) {
-  return heading.evaluateHandle(
-    (element, { start, end }) =>
-      () => {
-        if (!element.isConnected) return false;
-        const text = element.firstChild;
-        const identity = element
-          .closest(".terminal-identity")
-          ?.getBoundingClientRect();
-        if (text === null || identity === undefined) return false;
-        const words = document.createRange();
-        words.setStart(text, start);
-        words.setEnd(text, end);
-        return Array.from(words.getClientRects()).every(
-          (shown) =>
-            shown.top >= identity.top &&
-            shown.bottom <= identity.bottom + 1 &&
-            shown.left >= identity.left &&
-            shown.right <= identity.right + 1,
-        );
-      },
-    { start, end },
-  );
-}
-
-export async function titleWordsShown(
-  heading: Locator,
-  start: number,
-  end: number,
-) {
-  const reading = await titleWordsReading(heading, start, end);
-  try {
-    return await reading.evaluate((sample) => sample());
-  } finally {
-    await reading.dispose();
-  }
-}
-
-export function sessionReading(session: Locator) {
-  return session.evaluateHandle((element) => () => {
-    if (!element.isConnected) return false;
-    const identity = element
-      .closest(".terminal-identity")
-      ?.getBoundingClientRect();
-    const shown = element.getBoundingClientRect();
-    return (
-      identity !== undefined &&
-      shown.top >= Math.max(identity.top, 0) &&
-      shown.bottom <= Math.min(identity.bottom, innerHeight)
-    );
-  });
 }

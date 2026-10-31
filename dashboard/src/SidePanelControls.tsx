@@ -23,23 +23,29 @@ export function SidePanelControls({
   maximized,
   onMaximize,
   onClose,
+  offerMaximize = true,
 }: {
   // Whether the panel takes the page column's room, and how it asks to
   // change that.
   readonly maximized: boolean;
   readonly onMaximize: (maximized: boolean) => void;
   readonly onClose: () => void;
+  // False while the panel covers the page (no usable split): Maximize/Restore
+  // is not offered there.
+  readonly offerMaximize?: boolean;
 }) {
   useSidePanelCloseShortcut(onClose);
   return (
     <>
-      <IconButton
-        label={maximized ? "Restore" : "Maximize"}
-        icon={maximized ? Minimize2 : Maximize2}
-        onClick={() => {
-          onMaximize(!maximized);
-        }}
-      />
+      {offerMaximize && (
+        <IconButton
+          label={maximized ? "Restore" : "Maximize"}
+          icon={maximized ? Minimize2 : Maximize2}
+          onClick={() => {
+            onMaximize(!maximized);
+          }}
+        />
+      )}
       <IconButton
         label="Close"
         shortcut={sidePanelCloseShortcutLabel}

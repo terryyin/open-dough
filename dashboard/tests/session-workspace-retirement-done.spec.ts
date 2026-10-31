@@ -52,7 +52,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   const records = stored(dashboard.home);
   const first = records[0];
   if (first === undefined) throw new Error("Missing record");
-  const concurrentDoneAt = new Date().toISOString();
+  const concurrentDoneAt = new Date(Date.now() - 60_000).toISOString();
   save(dashboard.home, [
     ...records,
     {

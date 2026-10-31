@@ -2,8 +2,9 @@
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
 // and both fit a narrow and a zoomed window without sideways scrolling. An
-// entry's title is cut by design (./sessions-sidebar-row.spec.ts), and the
-// terminal's own screen is its contents, not this look's. The page's own
+// entry's title is cut by design (./sessions-sidebar-row.spec.ts), the panel
+// header title truncates by design with disclosure (./SidePanelTitle.tsx), and
+// the terminal's own screen is its contents, not this look's. The page's own
 // dashboard server attaches the synthetic `claude` (./fixtures/fake-claude).
 
 import { expect, test } from "./dashboardTest.ts";
@@ -29,6 +30,7 @@ const work = {
   title: `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`,
 };
 const cutTitles = ".sessions-sidebar-session-entry-title";
+const panelTitle = ".side-panel-title-toggle";
 const terminalScreen = ".terminal-screen";
 
 test.describe("the Sessions sidebar and terminal in the frame's look", () => {
@@ -73,20 +75,23 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
 
     await test.step("the terminal header's words and icon controls read clearly and keep their names", async () => {
       await entry(work.title).click();
-      await settled();
+      // Covering hides the Board; do not wait on Board settlement here.
       await expect(panel.locator(".xterm-rows")).toContainText(
         `attached ${sessionId.slice(0, 8)}`,
       );
       await expectReadableContrast(
         panel.getByRole("heading", { level: 2, name: work.title }),
       );
-      await expectReadableContrast(panel.getByText(/^Execution session /));
+      await expectReadableContrast(panel.getByText(/^Execution session$/));
       await expectFrameIconControl(control("Mark as done"), "Mark as done");
-      await expectFrameIconControl(control("Maximize"), "Maximize");
       await expectFrameIconControl(control("Close"), "Close", "Close (⌘⇧Esc)");
+      // Narrow covering offers no Maximize; Close remains the route back.
+      await expect(control("Maximize")).toHaveCount(0);
+      await expect(control("Restore")).toHaveCount(0);
       for (const size of [narrowWindow, zoomedWindow]) {
         await page.setViewportSize(size);
         await expect(control("Close")).toBeVisible();
+        await expect(control("Maximize")).toHaveCount(0);
         // The terminal refits its own screen to the narrower window shortly
         // after the window narrows; the frame is checked once it has.
         await expect
@@ -100,6 +105,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           .toBe(true);
         await expectNoSidewaysScrollAndWholeText(page, [
           cutTitles,
+          panelTitle,
           terminalScreen,
         ]);
       }
