@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header ([plan](slice-plans/424-responsive-project-header/PLAN.md))
 - [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame ([plan](slice-plans/424-development-intent-frame/PLAN.md))
 - [Keep dashboard refresh work bounded across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh) — SEED-202#bounded-dashboard-refresh ([plan](slice-plans/426-bounded-dashboard-refresh/PLAN.md))
+- [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch ([plan](slice-plans/427-attach-image-at-launch/PLAN.md))
 
 ## Backlog list
 
-- [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
