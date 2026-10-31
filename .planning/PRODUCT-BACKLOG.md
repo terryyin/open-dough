@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Reduce dashboard test feedback time with measured optimization](seeds/SEED-197-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-197#optimize-dashboard-test-feedback
 - [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header ([plan](slice-plans/424-responsive-project-header/PLAN.md))
+- [Reconcile published admission drafts without losing local edits](seeds/SEED-201-reconcile-published-admission-drafts.md#reconcile-published-admission-drafts) — SEED-201#reconcile-published-admission-drafts
 
 ## Backlog list
 
