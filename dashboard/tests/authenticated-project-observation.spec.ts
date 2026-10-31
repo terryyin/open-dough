@@ -15,6 +15,7 @@ import { expect, test } from "./dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
+  expectProjectChoice,
   expectSettledPage,
   openDirection,
   parts,
@@ -73,13 +74,7 @@ test("authenticated project observation: each catalog project opens and reloads 
     );
   }
   await page.goto(server.baseURL);
-  const {
-    project: selector,
-    direction,
-    projectTitle,
-    problem,
-    readRevision,
-  } = parts(page);
+  const { project: selector, direction, problem, readRevision } = parts(page);
 
   for (const published of projects) {
     const calls = observed.get(published.repository) ?? [];
@@ -93,7 +88,7 @@ test("authenticated project observation: each catalog project opens and reloads 
       });
       await openDirection(page);
       await expect(direction).toContainText(published.direction);
-      await expect(projectTitle).toHaveText(published.label);
+      await expectProjectChoice(page, published.label);
       await expect(readRevision).toContainText(
         shortRevision(published.revision),
       );

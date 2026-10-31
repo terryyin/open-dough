@@ -2,6 +2,7 @@
 
 **Identity:** SEED-205#logo-sidebar-toggle
 **Source:** [Use the Open Dough mark as the sidebar toggle and drop the repeated project title](../../seeds/SEED-205-compact-dashboard-banner.md#logo-sidebar-toggle)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -69,10 +70,14 @@ No premise needs an unpaid probe before `ready`.
 
 ### 1. The mark toggles Sessions and the banner drops the duplicate title
 Type: Behavior
-Status: planned
-Proof: phone and wide banner layout specs; Sessions look / toggle journeys;
-passive-mark specs on unconfigured and System settings; focused helper updates
-green.
+Status: done
+Proof: Accepted — `npx playwright test --config dashboard/playwright.config.ts`
+`dashboard-header.spec.ts` `dashboard-header-compact.spec.ts`
+`frame-sessions-look.spec.ts` `frame-board-look.spec.ts`
+`system-settings-look.spec.ts` `sessions-sidebar.spec.ts` (plus related
+sidebar substring matches) green after mark-as-Sessions, no H1/panel icon,
+phone one-line membership, passive `expectProductMark`. Refactor reused
+`IconButton` with optional `visual` for the mark.
 
 Behavior: On a configured project, the banner's Open Dough mark is the Sessions
 toggle (accessible name Sessions, ⌘B, expanded state, attention count, prior
@@ -101,12 +106,30 @@ Behavior: After Start session successfully starts an ad-hoc session, the project
 actions row shows neither "Ad hoc session started" nor an empty success log.
 Startup progress and launch problem answers beside the button remain.
 
+## Story obligations
+
+### G1. Structure mark is design cue only
+Reported: slice 1 — "Structure mark metaphor recorded as design cue only; not shipped."
+Story clause: "Offering a Structure perspective choice or shipping a Structure mark."
+Disposition: excluded "Offering a Structure perspective choice or shipping a Structure mark."
+Commitment: 11a.3
+
 ## Current decisions
 
 - Perspective marks keep visible labels in this story (icon-only narrow layout
   deferred).
 - Sessions uses the product mark as its visual; it does not keep a second
   Lucide panel icon beside the mark.
+- Phone ≤400px keeps one banner row by shrinking/ellipsis on the compact
+  project select; labelled perspectives stay on that row (icon-only still
+  deferred).
+
+## Learnings
+
+- `IconButton` optional `visual` avoids duplicating tooltip/frame control
+  markup when Sessions hosts `ProductMark` instead of a Lucide glyph.
+- Coarse pointer raises `--control-size`; frame-control size checks should
+  read the live CSS variable.
 
 ## Plan review
 

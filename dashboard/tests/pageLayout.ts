@@ -111,6 +111,10 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
 })()`;
 
+// Compact project select may truncate on the phone one-line banner
+// (../src/banner.css ≤400px); pass as cut-by-design to whole-text checks.
+export const compactProjectSelectCut = [".project-title-select"] as const;
+
 // The page fits the window and its text is read whole, apart from parts that
 // are cut by design and read whole elsewhere, such as a Sessions sidebar
 // entry's title, or a terminal's own scrolling screen. The page is measured

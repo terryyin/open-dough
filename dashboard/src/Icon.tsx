@@ -1,11 +1,12 @@
-// The frame's icons, icon-only controls and styled tooltip. Every icon is a
-// Lucide glyph drawn at the shared icon size and stroke, and hidden from
-// assistive technology: the control around it carries the name. An icon-only
-// control shows that name, and its shortcut where it has one, in the styled
-// tooltip when it is hovered or holds keyboard focus; a labelled button can
-// show its description there the same way. The tooltip is hidden from
-// assistive technology too, so its words are announced once, as the control's
-// name or as the description that refers to them.
+// The frame's icons, icon-only controls and styled tooltip. A Lucide glyph is
+// drawn at the shared icon size and stroke; Sessions may host the product mark
+// instead. Either visual is hidden from assistive technology: the control
+// around it carries the name. An icon-only control shows that name, and its
+// shortcut where it has one, in the styled tooltip when it is hovered or holds
+// keyboard focus; a labelled button can show its description there the same
+// way. The tooltip is hidden from assistive technology too, so its words are
+// announced once, as the control's name or as the description that refers to
+// them.
 
 import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import type { LucideIcon } from "lucide-react";
@@ -43,6 +44,7 @@ export function IconButton({
   label,
   shortcut,
   icon,
+  visual,
   align = "center",
   className,
   groupClassName,
@@ -53,7 +55,10 @@ export function IconButton({
   readonly label: string;
   // The keyboard shortcut the tooltip adds after the name, such as "⌘B".
   readonly shortcut?: string;
-  readonly icon: LucideIcon;
+  // Lucide glyph, or omit when `visual` supplies the control's look.
+  readonly icon?: LucideIcon;
+  // Non-Lucide visual (Sessions' product mark) instead of a Lucide glyph.
+  readonly visual?: ReactNode;
   // Which edge of the control the tooltip lines up with, so a control at
   // either end of the window keeps its tooltip inside the window.
   readonly align?: "start" | "center" | "end";
@@ -79,7 +84,7 @@ export function IconButton({
         className={className ? `icon-button ${className}` : "icon-button"}
         {...button}
       >
-        <Icon icon={icon} />
+        {visual ?? (icon ? <Icon icon={icon} /> : null)}
       </button>
       <FrameTooltip>{shortcut ? `${label} (${shortcut})` : label}</FrameTooltip>
       {children}

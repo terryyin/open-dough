@@ -29,8 +29,8 @@ import {
   type Alerts,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { PanelLeft } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
+import { ProductMark } from "./ProductMark.tsx";
 import { SessionList } from "./SessionLists.tsx";
 import {
   SessionsSidebarSessionEntry,
@@ -130,11 +130,13 @@ export function SessionsButton() {
   const { open, toggle, records } = useSessionsSidebarContext();
   const sessions = openSessionsOf(records) ?? [];
   const count = attentionCount(sessions);
+  // Product mark visual; tooltip, ⌘B, expanded state, attention badge, and
+  // open background stay the frame Sessions contract via IconButton.
   return (
     <IconButton
       label="Sessions"
       shortcut="⌘B"
-      icon={PanelLeft}
+      visual={<ProductMark decorative />}
       align="start"
       className="sessions-toggle"
       groupClassName="sessions-toggle-group"

@@ -140,7 +140,7 @@ test.describe("the Sessions sidebar", () => {
     await test.step("Sessions in the banner opens the sidebar, closed at first, on every project's sessions newest first", async () => {
       await expect(button).toHaveText("");
       await expect(badge).toHaveCount(0);
-      await expect(button.locator("svg")).toBeVisible();
+      await expect(button.locator("img.product-mark")).toBeVisible();
       await expect(button).toHaveAttribute("aria-expanded", "false");
       await expect(sidebar).toBeHidden();
       await button.click();

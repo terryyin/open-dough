@@ -1,17 +1,27 @@
 // Compact title select on a phone-width column (../src/banner.css ≤400px):
-// touch and keyboard choose a project, Escape leaves the selection, resize
-// keeps it across plain title and compact control, and page-wide arrow
-// cycling focuses the shown compact title control.
+// one-line banner with mark-as-Sessions toggle, labelled perspective, compact
+// project select (may truncate), and settings; touch and keyboard choose a
+// project, Escape leaves the selection, resize keeps it across tab radios and
+// compact control, and page-wide arrow cycling focuses the shown compact title
+// control. No separate panel icon or level-1 project title.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
   expectMembership,
+  expectProjectChoice,
   parts,
 } from "./dashboardPage.ts";
-import { expectProductMark } from "./productMark.ts";
-import { box } from "./pageLayout.ts";
+import { expectFrameIconControl } from "./frameIconControl.ts";
+import {
+  box,
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+  expectSideBySideInOrder,
+} from "./pageLayout.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { settings } from "./support/systemSettingsPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import {
   doughnutProject,
@@ -26,21 +36,36 @@ test.describe("compact project title select on a phone-width column", () => {
   test.describe("touch", () => {
     test.use({ viewport: portrait, hasTouch: true });
 
-    test("title is the dropdown selector; choosing Doughnut updates title and Board", async ({
+    test("one-line banner: mark-as-Sessions, perspective, project select, settings", async ({
       page,
     }) => {
       await publishCatalogProjects(page);
       await page.goto("/");
-      const { banner, projectCompact } = parts(page);
+      const { banner, projectCompact, perspective } = parts(page);
+      const sessions = sessionsSidebarParts(page).button;
       await expectCompactProjectSelect(page, "Open Dough");
       await expectMembership(page, {
         taken: [openDoughProject.taken],
         backlog: [openDoughProject.queued],
       });
-      await expectProductMark(banner);
+      await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
+      await expect(banner.locator("svg.lucide-panel-left")).toHaveCount(0);
+      await expect(
+        banner.getByRole("img", { name: "Open Dough", exact: true }),
+      ).toHaveCount(0);
+      await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
+      const gear = settings(page);
+      const inOrder = [sessions, perspective, projectCompact, gear];
+      await expectSideBySideInOrder(inOrder);
+      const middles = (await Promise.all(inOrder.map(box))).map(
+        ({ y, height }) => y + height / 2,
+      );
+      for (const middle of middles)
+        expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
       expect(await box(banner).then((pinned) => pinned.height)).toBeLessThan(
         portrait.height / 2,
       );
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 
       await chooseProject(page, "Doughnut");
       await expect(projectCompact).toHaveText("Doughnut");
@@ -49,6 +74,8 @@ test.describe("compact project title select on a phone-width column", () => {
         backlog: [doughnutProject.queued],
       });
       await expect(parts(page).project).toHaveCount(0);
+      await expectSideBySideInOrder(inOrder);
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     });
   });
 
@@ -96,12 +123,12 @@ test.describe("compact project title select on a phone-width column", () => {
       });
     });
 
-    test("resizing keeps Doughnut across plain title and compact select", async ({
+    test("resizing keeps Doughnut across tab radios and compact select", async ({
       page,
     }) => {
       await publishCatalogProjects(page);
       await page.goto("/");
-      const { projectCompact, project, projectTitle } = parts(page);
+      const { projectCompact, project, banner } = parts(page);
       await expect(projectCompact).toHaveText("Open Dough");
       await chooseProject(page, "Doughnut");
       await expect(projectCompact).toHaveText("Doughnut");
@@ -112,11 +139,11 @@ test.describe("compact project title select on a phone-width column", () => {
 
       await page.setViewportSize({ width: 1280, height: 800 });
       await expect(projectCompact).toHaveCount(0);
-      await expect(projectTitle).toHaveText("Doughnut");
+      await expectProjectChoice(page, "Doughnut");
       await expect(
         project.getByRole("radio", { name: "Doughnut", exact: true }),
       ).toBeChecked();
-      await expect(projectTitle).toBeVisible();
+      await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
 
       await page.setViewportSize(portrait);
       await expectCompactProjectSelect(page, "Doughnut");

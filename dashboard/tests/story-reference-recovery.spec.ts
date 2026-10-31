@@ -1,6 +1,6 @@
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice, parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   test,
@@ -132,7 +132,7 @@ test("leaving during a pending reference prevents the delayed read from moving f
   await project.click();
   await expect(project).toBeChecked();
   release();
-  await expect(parts(page).projectTitle).toHaveText("Pygardon");
+  await expectProjectChoice(page, "Pygardon");
   await expect(notice).toBeEmpty();
   await expect(page.getByRole("region", { name: /^Detail for/ })).toHaveCount(
     0,

@@ -185,9 +185,9 @@
   cursor: pointer;
 }
 
-/* The Sessions button is a frame icon control (./icon-control.css); open, it
-   is marked in the accent, and its count of sessions needing the developer
-   sits on its corner. */
+/* The Sessions button is a frame icon control (./icon-control.css) whose
+   visual is the product mark; open, it is marked in the accent, and its count
+   of sessions needing the developer sits on its corner. */
 .sessions-toggle[aria-expanded="true"] {
   color: var(--accent);
   background: var(--accent-soft);

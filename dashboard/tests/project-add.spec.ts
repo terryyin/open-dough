@@ -17,7 +17,7 @@ import {
   startSessionField,
 } from "./launchStoryCardPage.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
-import { shortRevision, parts } from "./dashboardPage.ts";
+import { expectProjectChoice, shortRevision, parts } from "./dashboardPage.ts";
 import {
   projectAddMachine,
   addedRepository,
@@ -41,8 +41,8 @@ test("Add selects, reads the repository's default branch, launches in its config
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await addProjectOnPage(page);
-  const { projectTitle, readRevision } = parts(page);
-  await expect(projectTitle).toHaveText("Sample App");
+  const { readRevision } = parts(page);
+  await expectProjectChoice(page, "Sample App");
   await expect(readRevision).toContainText(shortRevision(addedRevision));
   expect(server.ghCalls()).toContainEqual([
     "api",

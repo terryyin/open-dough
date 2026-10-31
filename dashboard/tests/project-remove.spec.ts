@@ -4,7 +4,7 @@ import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice, parts } from "./dashboardPage.ts";
 import { seedStore, storeFile } from "./machineLaunchRecords.ts";
 import { openUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
 import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
@@ -228,7 +228,7 @@ test("removing the first project selects its next neighbor and reads that projec
   await expect(
     page.getByRole("button", { name: "System settings", exact: true }),
   ).toBeFocused();
-  await expect(parts(page).projectTitle).toHaveText("Doughnut");
+  await expectProjectChoice(page, "Doughnut");
   await expect
     .poll(() => server.ghCalls(), { timeout: 5_000 })
     .toContainEqual([

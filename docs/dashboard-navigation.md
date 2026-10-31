@@ -117,25 +117,24 @@ it from the browser, except inside an open modal dialog or System settings,
 and with no panel it does nothing. Closing returns the keyboard to the control
 that opened the panel, or to its story's card when that control is gone. Command+Escape is not used: Chrome and Safari on macOS never
 deliver it to the page.
-Show the selected project's name as the banner's plain level-1 heading on
-columns wide enough for the project choices. Beside it, a **Perspective** radio
-group offers **Development** and **Intent** of the selected project. The banner
-keeps one row while the title, the perspective and the project choices fit
-(a page column wider than 900 CSS pixels); below that the perspective stays
-beside the title and the project choices take a second row after Sessions.
-Show the configured projects as
+The Open Dough mark is the banner's **Sessions** toggle. The project selector
+names the selected project. Beside it, a **Perspective** radio group offers
+**Development** and **Intent** of the selected project. The banner keeps one row
+while Sessions, the perspective and the project choices fit (a page column wider
+than 900 CSS pixels); below that Sessions and the perspective stay on the first
+row and the project choices take a second row. Show the configured projects as
 tab-shaped radio controls, with the selected project highlighted. Where those
-tabs no longer fit the banner (the page column at or under 400 CSS pixels), the
-heading is replaced by one dropdown-styled title control that shows the current
-project name; the separate tab list is not shown, and the perspective takes its
-place beside Sessions in the second row. Opening that control — by
-touch or keyboard — offers the configured projects with the current one
-indicated; choosing one uses the same project selection, URL history, and
-published-data read as a tab choice and updates the title. Dismissing without a
-choice (Escape, or canceling the platform picker) leaves the project unchanged
-and keeps focus on the title control. Resizing across that breakpoint keeps the
-selected project and shows the matching plain heading with its tab, or the
-compact title control, as the column width allows.
+tabs no longer fit the banner (the page column at or under 400 CSS pixels), one
+dropdown-styled compact project control shows the current project name on the
+same one-line row as Sessions, perspective, and System settings; the separate
+tab list is not shown, and the compact control may truncate so the page does not
+scroll sideways. Opening that control — by touch or keyboard — offers the
+configured projects with the current one indicated; choosing one uses the same
+project selection, URL history, and published-data read as a tab choice and
+updates the control. Dismissing without a choice (Escape, or canceling the
+platform picker) leaves the project unchanged and keeps focus on the compact
+control. Resizing across that breakpoint keeps the selected project and shows
+the matching tab radios or the compact control, as the column width allows.
 Unmodified Left and Right arrow keys cycle the configured projects page-wide in
 displayed catalog order (Open Dough, Doughnut, Pygardon, …), wrapping at both
 ends, while browsing stories or the agent roster; each step uses the same

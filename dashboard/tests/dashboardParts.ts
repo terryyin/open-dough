@@ -11,8 +11,6 @@ export function parts(page: Page) {
   const banner = page.getByRole("banner");
   return {
     banner,
-    // The selected project's plain level-1 name in the banner (wider columns).
-    projectTitle: banner.getByRole("heading", { level: 1 }),
     // Compact title control where the tab list no longer fits the banner.
     projectCompact: banner.getByRole("button", { name: "Project" }),
     projectCompactList: banner.getByRole("listbox", { name: "Project" }),

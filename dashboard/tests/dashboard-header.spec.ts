@@ -1,16 +1,15 @@
 // The pinned banner in each of its page-column layouts (../src/banner.css,
 // ../src/project-select.css): one row on a column wider than 900 CSS pixels,
-// the Development and Intent choices beside the plain title, ending with
-// System settings; two rows up to 900, the perspective still beside the
-// title and Sessions starting the second before the project choices; and, at
-// or under 400, the compact title select instead of the wrapping tab list,
-// the perspective then beside Sessions in the second row. One journey per layout walks the
-// keyboard back up a long page: the banner stays pinned and short, Open
-// Dough's mark leads it whole and uncovered, nothing is cut short, and no
+// Sessions (Open Dough mark as its visual), perspective, project choices, and
+// System settings; two rows up to 900, with project choices on the second; and
+// at or under 400, one row with the compact title select. One journey per
+// layout walks the keyboard back up a long page: the banner stays pinned and
+// short, the mark-as-Sessions toggle leads it, nothing is cut short, and no
 // focused control is hidden under it. Wider layouts also check each choice
 // reads on one line. A project switch in the banner is a later test: the mark
-// stays Open Dough's while the plain title and Board become the newly selected
-// project's. Phone-width compact journeys live in dashboard-header-compact.spec.ts.
+// stays Open Dough's while the project selector and Board become the newly
+// selected project's. Phone-width compact journeys live in
+// dashboard-header-compact.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -24,13 +23,14 @@ import {
   parts,
   expectCompactProjectSelect,
   expectMembership,
+  expectProjectChoice,
   expectSettledPage,
 } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
-import { expectProductMark } from "./productMark.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   box,
+  compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
 } from "./pageLayout.ts";
@@ -41,7 +41,7 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 const layouts = [
   { width: 1280, height: 800, rows: 1, compact: false },
   { width: 700, height: 720, rows: 2, compact: false },
-  { ...zoomedWindow, rows: 2, fontFamily: "Verdana", compact: true },
+  { ...zoomedWindow, rows: 1, fontFamily: "Verdana", compact: true },
 ] as const;
 
 for (const viewport of layouts) {
@@ -63,14 +63,9 @@ for (const viewport of layouts) {
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const {
-      banner,
-      project,
-      projectCompact,
-      projectTitle,
-      backlog,
-      perspective,
-    } = parts(page);
+    const { banner, project, projectCompact, backlog, perspective } =
+      parts(page);
+    const sessions = sessionsSidebarParts(page).button;
     // The last card's last control.
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
@@ -82,7 +77,7 @@ for (const viewport of layouts) {
     await expectSettledPage(page, undefined, { timeout: 15_000 });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
-    const titleControl = viewport.compact ? projectCompact : projectTitle;
+    const titleControl = viewport.compact ? projectCompact : project;
     await expect(titleControl).toBeInViewport({ ratio: 1 });
     for (const control of [
       viewport.compact ? projectCompact : project,
@@ -91,8 +86,13 @@ for (const viewport of layouts) {
     ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
-    await expectProductMark(banner);
-    // The page keeps itself up to date; the banner offers no read control.
+    // Configured banner: mark is Sessions, not a passive product image; no
+    // separate panel icon and no level-1 project title.
+    await expect(
+      banner.getByRole("img", { name: "Open Dough", exact: true }),
+    ).toHaveCount(0);
+    await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
+    await expect(banner.locator("svg.lucide-panel-left")).toHaveCount(0);
     await expect(
       banner.getByRole("button", { name: /^(Refresh|Retry)$/ }),
     ).toHaveCount(0);
@@ -111,28 +111,20 @@ for (const viewport of layouts) {
           }),
         ),
       ).toEqual([1, 1, 1, 1]);
-      await expect(projectTitle).toHaveText("Open Dough");
+      await expectProjectChoice(page, "Open Dough");
     }
-    await expectFrameIconControl(
-      sessionsSidebarParts(page).button,
-      "Sessions",
-      "Sessions (⌘B)",
-    );
+    await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
     await expectFrameIconControl(settings(page), "System settings");
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(
+      page,
+      viewport.compact ? [...compactProjectSelectCut] : [],
+    );
 
     if (viewport.rows === 1) {
-      await test.step("the wide column lays the banner out in one row, from Open Dough's mark to System settings", async () => {
+      await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
         const gear = settings(page);
-        const mark = banner.getByRole("img", { name: "Open Dough" });
-        const inOrder = [
-          mark,
-          sessionsSidebarParts(page).button,
-          projectTitle,
-          perspective,
-          project,
-          gear,
-        ];
+        const projectName = viewport.compact ? projectCompact : project;
+        const inOrder = [sessions, perspective, projectName, gear];
         await expectSideBySideInOrder(inOrder);
         const middles = (await Promise.all(inOrder.map(box))).map(
           ({ y, height }) => y + height / 2,
@@ -145,8 +137,7 @@ for (const viewport of layouts) {
           )
           .filter({ visible: true });
         await expect(controls.last()).toHaveAccessibleName("System settings");
-        // The mark leads the banner but is no keyboard stop: going back
-        // from the first control leaves the banner.
+        // Sessions (mark) leads the banner as the first keyboard stop.
         await expect(controls.first()).toHaveAccessibleName("Sessions");
         await controls.first().focus();
         await page.keyboard.press("Shift+Tab");
@@ -161,26 +152,15 @@ for (const viewport of layouts) {
     }
 
     if (viewport.rows === 2) {
-      await test.step("the perspective keeps one row with the title, or with Sessions below the compact title", async () => {
+      await test.step("Sessions and perspective share the first row; project choices the second", async () => {
         const middle = ({ y, height }: { y: number; height: number }) =>
           y + height / 2;
         const choices = await box(perspective);
-        const sessions = await box(sessionsSidebarParts(page).button);
-        if (viewport.compact) {
-          const title = await box(projectCompact);
-          expect(choices.y).toBeGreaterThanOrEqual(title.y + title.height);
-          expect(middle(choices)).toBeCloseTo(middle(sessions), 0);
-          expect(choices.x).toBeGreaterThanOrEqual(sessions.x + sessions.width);
-        } else {
-          const title = await box(projectTitle);
-          await expectSideBySideInOrder([
-            projectTitle,
-            perspective,
-            settings(page),
-          ]);
-          expect(middle(choices)).toBeCloseTo(middle(title), 0);
-          expect(choices.y + choices.height).toBeLessThanOrEqual(sessions.y);
-        }
+        const sessionsBox = await box(sessions);
+        const projectBox = await box(project);
+        await expectSideBySideInOrder([sessions, perspective, settings(page)]);
+        expect(middle(choices)).toBeCloseTo(middle(sessionsBox), 0);
+        expect(projectBox.y).toBeGreaterThanOrEqual(choices.y + choices.height);
       });
     }
 
@@ -212,9 +192,14 @@ test("banner project selection reads the selected project's actual published wor
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
   await openUntilRead(page);
-  const { banner, project, projectTitle } = parts(page);
-  await expect(projectTitle).toHaveText("Open Dough");
-  await expectProductMark(banner);
+  const { banner, project } = parts(page);
+  await expectProjectChoice(page, "Open Dough");
+  await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
+  await expectFrameIconControl(
+    sessionsSidebarParts(page).button,
+    "Sessions",
+    "Sessions (⌘B)",
+  );
   const openDoughChoice = project.getByRole("radio", {
     name: "Open Dough",
     exact: true,
@@ -232,9 +217,13 @@ test("banner project selection reads the selected project's actual published wor
     taken: [],
     backlog: ["Doughnut's next story"],
   });
-  // Open Dough stays the product; the heading names the selected project.
-  await expectProductMark(banner);
-  await expect(projectTitle).toHaveText("Doughnut");
+  // Open Dough stays the product mark on Sessions; the selector names the project.
+  await expectFrameIconControl(
+    sessionsSidebarParts(page).button,
+    "Sessions",
+    "Sessions (⌘B)",
+  );
+  await expectProjectChoice(page, "Doughnut");
   expect(openDough.requests).toHaveLength(2);
   expect(doughnut.requests).toHaveLength(2);
 });

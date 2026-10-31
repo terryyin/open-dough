@@ -15,7 +15,11 @@ import {
   zoomedWindow,
 } from "./accessibleReading.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -68,7 +72,10 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
       for (const size of [narrowWindow, zoomedWindow]) {
         await page.setViewportSize(size);
         await expect(sidebar).toBeVisible();
-        await expectNoSidewaysScrollAndWholeText(page, [cutTitles]);
+        await expectNoSidewaysScrollAndWholeText(page, [
+          cutTitles,
+          ...compactProjectSelectCut,
+        ]);
       }
       await page.setViewportSize(narrowWindow);
     });
@@ -107,6 +114,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           cutTitles,
           panelTitle,
           terminalScreen,
+          ...compactProjectSelectCut,
         ]);
       }
     });

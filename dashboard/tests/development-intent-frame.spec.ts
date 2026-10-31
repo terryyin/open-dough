@@ -14,6 +14,7 @@ import {
   chooseProject,
   expectMembership,
   expectProblemAndNoSnapshot,
+  expectProjectChoice,
   openDirection,
   parts,
   rosterParts,
@@ -44,8 +45,7 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
   await page.setViewportSize({ width: 1280, height: 800 });
   await publishCatalogProjects(page);
   await openUntilRead(page);
-  const { development, intentChoice, project, projectTitle, readRevision } =
-    parts(page);
+  const { development, intentChoice, project, readRevision } = parts(page);
   const radio = (label: string) =>
     project.getByRole("radio", { name: label, exact: true });
   // Development is the first-visit default, with its stories and direction.
@@ -62,14 +62,14 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
     await intentChoice.click();
     await expectForthcomingIntent(page, "Open Dough");
     await expect(radio("Open Dough")).toBeChecked();
-    await expect(projectTitle).toHaveText("Open Dough");
+    await expectProjectChoice(page, "Open Dough");
     expect(await historyLength(page)).toBe(before + 1);
     expectAddress(page, { project: null, perspective: "intent" });
   });
 
   await test.step("choosing Doughnut keeps Intent, with the same forthcoming content", async () => {
     await radio("Doughnut").check();
-    await expect(projectTitle).toHaveText("Doughnut");
+    await expectProjectChoice(page, "Doughnut");
     await expectForthcomingIntent(page, "Doughnut");
     // The published read status still names what was read of Doughnut.
     await expect(readRevision).toContainText(
