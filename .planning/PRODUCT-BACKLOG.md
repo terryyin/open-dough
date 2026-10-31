@@ -31,12 +31,12 @@ intent introduced or affected by a newly developed story.
 - [Reduce dashboard test feedback time with measured optimization](seeds/SEED-197-optimize-dashboard-test-feedback.md#optimize-dashboard-test-feedback) — SEED-197#optimize-dashboard-test-feedback
 - [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header ([plan](slice-plans/424-responsive-project-header/PLAN.md))
 - [Reconcile published admission drafts without losing local edits](seeds/SEED-201-reconcile-published-admission-drafts.md#reconcile-published-admission-drafts) — SEED-201#reconcile-published-admission-drafts
+- [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame ([plan](slice-plans/424-development-intent-frame/PLAN.md))
 
 ## Backlog list
 
 - [Use the full mobile screen for sessions and simplify their header](seeds/SEED-199-mobile-session-screen.md#mobile-session-screen) — SEED-199#mobile-session-screen
 - [Dictate text into the session terminal from its header](seeds/SEED-200-session-terminal-voice-input.md#session-terminal-voice-input) — SEED-200#session-terminal-voice-input
-- [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-192#open-development-intent-frame",
+  "mode": "story-branch",
+  "branch": "claude/experience-the-development-and-intent-frame",
+  "host": "claude",
+  "model": "opus"
+}
