@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 373. Removed numbers are never reused.
+- Highest allocated local number: 374. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -848,3 +848,22 @@ the repair scope; long raw logs need not enter coordinator context.
   - Evidence: installed `ci-github-diagnostic.mjs::failedLogExcerpt` keeps at most80 lines and favors the latest error tail. Short diagnostics for jobs124435809061 and124435809098 omitted actual failures in `boundary/agent-terminal-codex.spec.ts` and `cursor-session-recovery.spec.ts`; a subsequent full seven-job `FAIL:` inventory recovered thirteen failed tests before repair publication. Inventory and disposition are retained in `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/ci-repair-evidence.md`.
   - Observed effect: initial bounded repair selection covered four stale-date specs; reading complete failure identities added two already-failing specs and one additional focused selection. No failure was silently accepted and the combined repair was published once.
   - Inference: tool-output completeness issue, distinct from ODF-221's repair leaving a known same-cause sibling until a later run. Consider returning every failed test identity alongside bounded diagnostic excerpts; token/time savings are unmeasured.
+
+## DD-374 — Delegation brief softened the project's failing-test policy to "fix or report"
+
+The coordinator's implementation brief told the agent that a locally failing or
+flaky test was "a defect to fix or report". This project's policy is to fix
+such tests so local and CI results match, even when the failure predates the
+change. The agent reported an intermittent regression-suite failure that was
+already on trunk and left it unfixed, so the coordinator had to send it back
+for a second round.
+
+### Occurrences
+- Execution: SEED-192#open-development-intent-frame; first implementation `9913a6d40006e3de9980ab8d97e0e2f3197b5f0d`
+  - Timestamp: 2026-10-31 (Asia/Singapore; exact time unknown)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: slice 1 implementation return listed `sessions-sidebar-navigation-cases.spec.ts` "a story on no card…" as failing 1 in 4 on clean `22eb4b3e` and "did not fix it". A coordinator follow-up then found the cause (a reveal-count test race with keep-in-view after a Side panel press) and fixed it (`revealsAtClick`, 8 of 8 passing repeated); see PLAN.md Current decisions in the same commit.
+  - Observed effect: one extra delegation round (about 5 minutes, 9 tool uses). The fix landed in the same increment.
+  - Inference: the coordinator's wording, not the shared guidance, caused this; delegation already says a discovered failure keeps the project's failure policy. Pass the project's policy verbatim instead of paraphrasing it.

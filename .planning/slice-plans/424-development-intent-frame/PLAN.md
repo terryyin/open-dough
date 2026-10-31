@@ -279,3 +279,14 @@ Disposition: proved by slice 1: App.tsx:31 builds the settings URL from the curr
 - Slice-plan refinement was not needed: the source, proof ownership and single
   behavior boundary are aligned, without speculative Structure or independent
   outcomes. No remaining slice-specific concern was identified in this review.
+
+## Execution complete
+
+Product advice: no backlog change. The frame's value still depends on Terry
+trying it, as the story says: browser proof shows navigation is preserved, not
+that the distinction is understandable. Terry's hands-on review of
+Development → Intent → Development, including a session and settings, should
+come before `SEED-192#browse-test-purpose` starts adding reader cost. At wrap-up,
+assimilate the now-built "Perspective boundaries and shared frame" direction
+from the North Star into maintained docs. Keep its later reader, Purpose/Proof
+and story-scope direction for the sibling stories.
