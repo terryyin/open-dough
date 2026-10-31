@@ -61,13 +61,50 @@ existing Development destinations retaining their domain meaning. The frame,
 route and session behavior form one proof loop, so there is no preparatory
 Structure slice or separate routing/UI/testing delivery.
 
-Concurrent preparation visible at `origin/main` revision `b7356dd6` adds
-SEED-198 (responsive project header) and SEED-199 (mobile session screen).
-Neither is a prerequisite. Reconcile with their delivered behavior if it lands
-first: this story preserves the current project-selection operation and panel
-lifecycle rather than freezing tab geometry or the old stacked mobile layout.
-An active mobile full-screen session may cover the dashboard under that story's
-contract; perspective changes must not close it or create a competing view.
+### Build on the simplified project header
+
+[SEED-198](../../seeds/SEED-198-responsive-project-header.md#responsive-project-header)
+was Taken and executing on 2026-10-31 (its slice 1, journey evidence
+migration, was in progress in its own worktree). It redesigns the same banner
+this story extends, so this plan takes its delivered header as the base rather
+than the banner observed below. It is not a recorded prerequisite: both
+stories stand alone, and SEED-198 records that shared-frame work reconciles its
+header without a blocking dependency. Expect SEED-198 to land first. At
+execution start, rebase onto trunk and recheck the banner: if SEED-198 has
+landed, apply the rules below to its header; if it is still unlanded, report
+that to Terry before changing the banner instead of designing the perspective
+control a second time against the disclosure layout.
+
+Assimilate, do not duplicate, its header:
+
+- The banner's level-1 heading stays the plain project name on wide screens and
+  SEED-198's single title selector at narrow widths. The perspective control is
+  its own banner item beside the project control, not a third project-selection
+  form and not part of `ProjectSelect`. Intent content uses lower heading levels.
+- Keep one compact-header rule. SEED-198 switches layouts where the project tabs
+  stop fitting the banner; with the perspective control present, that point is
+  where the tabs plus the perspective control stop fitting. Adjust that one
+  breakpoint, rather than adding a second competing one. The compact header must
+  still fit a phone width without a multi-row project list; the perspective
+  control may take its own row there if one row cannot hold it, but no tab row
+  returns.
+- Use the existing arrow exemption in `projectKeyboardNavigation.ts` (a
+  `radiogroup`/`tablist` target already keeps its own arrows) for the
+  perspective control. Reuse SEED-198's generalized focus fallback ("whichever
+  project control is shown") when focused content disappears; do not add a
+  second fallback path for project cycling.
+- New and changed journeys read published-read evidence through the
+  `parts(page)` read-status/failure accessors SEED-198 introduces, not the
+  deleted source panel. Extend `dashboard-header.spec.ts` for the perspective
+  control's place and geometry in both layouts instead of a separate header spec.
+- Edit `docs/dashboard-navigation.md` on top of SEED-198's header text. Do not
+  reintroduce the banner's disclosure-only `focusin` re-measure or source panel
+  styles that SEED-198 deletes.
+
+[SEED-199](../../seeds/SEED-199-mobile-session-screen.md) (mobile session
+screen) is likewise not a prerequisite. An active mobile full-screen session
+may cover the dashboard under that story's contract; perspective changes must
+not close it or create a competing view.
 
 ## Outside-in proof ownership
 
@@ -82,7 +119,7 @@ imitating route, session or settings behavior inside the new test setup.
 | Settings returns to the selected project and perspective with usable focus | Extend the new round trip through actual System settings and Back. Preserve `system-settings.spec.ts`, including the direct settings/reload and project-management cases; retain the existing no-project journey. |
 | Session selection from Intent opens its project's Development stories | Extend `sessions-sidebar-navigation.spec.ts` or reuse its setup in a new journey: actual session selection, project and perspective transition, terminal text, focus, current marks and card reveal when available. Observe the same-project early-return case too. Existing story/notification destinations remain Development destinations. |
 | Terminal, report and review remain visible with their context | New perspective round trips with each existing panel content kind at its actual owner. For terminal, observe typed content and one live attachment, not merely a panel heading. Reuse the existing settings attachment observer and real synthetic-host fixture; report/review selections must remain the same on return. |
-| Keyboard and narrow-screen operation, without unintended project selection or hidden focus | One representative keyboard journey and a responsive journey at the actual CSS branches: selected perspective stays clear, controls/message remain reachable, the project does not change from perspective keys, focus remains visible, and no unintended horizontal page scroll appears. Preserve header, Board reading and Side panel behavior. |
+| Keyboard and narrow-screen operation, without unintended project selection or hidden focus | One representative keyboard journey and a responsive journey at the actual CSS branches of SEED-198's header: selected perspective stays clear beside the plain title (wide) and the title selector (compact), controls/message remain reachable, choosing a project from the compact title in Intent keeps Intent, the project does not change from perspective keys, focus remains visible, and no unintended horizontal page scroll appears. Preserve SEED-198's header journeys, Board reading and Side panel behavior. |
 | Useful Development and truthful published facts | Retain direction disclosure, Board/detail and current published-read recovery observations. Preserve empty-project settings access. No new Intent test reader or report fixture substitutes for the current Development data path. |
 
 ## Observed premises
@@ -130,7 +167,9 @@ env -u NO_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/frame-preparation-termina
 
 All scratch source edits were restored byte-for-byte to HEAD before this plan
 was written. These observations establish the reusable current behavior and
-discriminating observers. New Intent acceptance remains work for slice 1.
+discriminating observers. The selected tests' header and published-read
+assertions predate SEED-198; after it lands, rerun the same four journeys on
+the rebased trunk as the execution baseline. New Intent acceptance remains work for slice 1.
 
 The local host had 16 logical CPUs, 48 GiB RAM, reported 34% memory free and
 load averages 8.39/10.78/11.85 before the baseline. Competing work was not fully
@@ -163,10 +202,13 @@ the North Star's later reader/Proof direction remains needed by sibling stories.
 Do not implement later source or report machinery. No intermediate broken
 navigation state is a delivery boundary.
 
-Trace the actual diff's consumers before accepting proof. Known enclosing
+Trace the actual diff's consumers before accepting proof, on the header that
+SEED-198 delivered. Known enclosing
 observers include `dashboardPage.ts`'s total-button count (used by
 `read-failure.spec.ts` and `auto-refresh-recovery.spec.ts`),
-`dashboard-header.spec.ts`'s control order and geometry, `board-scroll.spec.ts`'s
+`dashboard-header.spec.ts`'s control order, geometry and wide/compact project
+selector journeys, `project-keyboard-navigation-focus.spec.ts`'s focus
+fallback, `board-scroll.spec.ts`'s
 banner/scroll relationship, and `sessionsSidebarPage.ts`'s single visible main
 and panel geometry. Reconcile them with the intended frame behavior; do not
 weaken surviving promises merely to accept new controls.
@@ -195,6 +237,8 @@ local gate is inferred from CI configuration.
 - No formal blocking dependency, unobserved decisive current-state premise or
   human scope decision remains. The new behavior is acceptance work, not a
   claimed preparation observation.
+- SEED-198's header is the expected base, handled by the execution-start
+  recheck above rather than a recorded dependency.
 - One Behavior slice retains one cohesive navigation model and proof loop.
   No numeric slice target or calibrated effort band is supplied, so none is
   invented. Implementation, proof and cleanup are included in this bounded slice.

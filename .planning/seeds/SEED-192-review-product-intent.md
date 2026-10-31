@@ -253,7 +253,7 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#open-development-intent-frame
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/424-development-intent-frame/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"457833d5d12fa286df4cc218f720f06fdec5ff0b8d2390961c5009f4d5182ad4","plan":"60e09f45f8f381088b770be75b496930abc567780af8533fb808eeb600d7e3ee"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/424-development-intent-frame/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"457833d5d12fa286df4cc218f720f06fdec5ff0b8d2390961c5009f4d5182ad4","plan":"cea825afd0866c2ab821ac098cb4834e038557d3873d9592296864c0b4fa71f3"}}
 ```
 
 **Goal.** Terry, working in the existing dashboard, can experience Development
