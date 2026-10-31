@@ -246,11 +246,22 @@ decision in Current decisions before dispatching another dependent experiment.
 
 ### 6. Full local suite re-profile and candidate record update
 Type: Behavior
-Status: planned
-Proof: Re-run `npm run test:dashboard` under comparable conditions with fresh
-proof/times paths; update `.planning/TEST-OPTIMIZATION-CANDIDATES.md` Latest
-pass and any moved pending/accepted/transferred entries; append a SEED-197
-section to `docs/maintainer/dashboard-test-timings.md`.
+Status: done
+Proof: Full re-profile of `npm run test:dashboard` at `125edc37d04f8c2062c25b1dd7c9a4309a8917a4`
+(`/tmp/SEED-197-optimize-dashboard-test-feedback/after-proof.json` and
+`after-times.tsv`): `selectedCount=1,742` (`1,742` passed, `0` skipped,
+`strictStatus: "passed"`, `−4` redundant cases vs baseline `1,746`),
+`durationMs=615.3s` (outer wall `615.90s`) vs baseline `1,060.4s` (`1,061.10s`
+outer wall at `f351073d` / `a8ab552d`), summed attempts `7,835.3s → 4,456.8s`,
+summed `.tsv` `8,203.6s → 4,689.9s`, start → end load
+`10.69 / 28.37 / 17.23 → 27.35 / 20.88 / 18.40` (vs baseline
+`6.39 / 10.61 / 11.81 → 34.12 / 44.10 / 36.70`). Updated
+`.planning/TEST-OPTIMIZATION-CANDIDATES.md` (`231` lines) with the SEED-197
+Latest pass summary while preserving all 6 pending candidates and both accepted
+necessary costs; updated `docs/maintainer/dashboard-test-timings.md` (`249`
+lines) with the SEED-197 pass and extracted earlier local passes
+(SEED-191..SEED-196) into `docs/maintainer/dashboard-local-test-timings.md`
+(`178` lines).
 
 Behavior: Pre-condition — retained experiments delivered (or none retained).
 Trigger — full local re-profile and candidate-record write.
@@ -272,5 +283,15 @@ remaining candidates preserved for wrap-up.
   dashboard test specs crossed the 30-day `launchRetentionDays` cutoff in
   `dashboard/server/launchRecordDocument.ts`, causing `withinRetention` to drop
   seeded done records on read/write and failing 10 tests (including three 30s
-  timeouts). Slice 1 repairs those 7 test fixtures to relative timestamps
-  before capturing the clean green baseline.
+  timeouts), and delayed macOS FSEvents creation notifications on fresh
+  `publishedMainFixture(true)` checkouts restarted the Vite dev server mid-HMR
+  assertion in `production-watcher.spec.ts`. Slice 1 repaired those test
+  fixtures (`noFseventsPreload.cjs` + relative `doneAt`) before capturing the
+  clean green baseline.
+- Across Slices 2–5, all four targeted top-40% families (`publishPreparingJourney`
+  worker caching, `story-review-since-trunk` empty-diff printing-driver drop,
+  `agent-launch-start-session-answer-touch` `430×932` drop, and
+  `story-review-trunk-worktree-ambiguity` passed-over worktree combination)
+  produced consistent focused and `--workers=1` serial speedups and reduced
+  full-suite file `.tsv` times (`84.4s → 38.8s`, `63.3s → 27.5s`,
+  `29.9s → 8.6s`, and `29.9s → 13.5s`).

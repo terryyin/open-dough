@@ -7,32 +7,46 @@
   investigating the top 40% of suite cost by recorded duration contribution.
   Both runs unset `NO_COLOR` and `FORCE_COLOR` and write separate
   `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES` records.
-- **Revision:** `2c84e5210fb41c1a2143944901cca1bdc32a7956` before (green
-  baseline after admit); `4dbd44741b736353c9a8e869b30f542c5e5b5265` after
-  (SEED-196, 2026-10-30).
-- **Before / after:** recorded wall (`durationMs`) 844.1s / 779.5s (outer wall
-  844.94s / 780.08s); summed attempt durations 6,138.2s / 5,736.1s; executed
-  cases 1,746 / 1,746, with 0 skipped cases. Both strict runs passed. Focused
-  `cursor-session-scope-noninterference.spec.ts` wall 15.14–16.18s →
-  14.04–15.47s over three passes (cleanup recheck 13.37s); full-suite file
-  `.tsv` for that file 43.4s → 42.6s. Rejected: completed-review journey
-  Landed-runs tail trim (9.69–10.00s → 11.07–11.51s; undone) and gaps
-  `ambiguous-merge` drop (10.34–11.18s → 9.48–11.51s; undone). Skipped:
-  recent-delete dialog delta after decisive checkpoint.
-- **Outcome:** no demonstrated gain — suite-wall comparison is unlike
-  (baseline end load ~35 vs after start load ~11–13); the large suite delta
-  cannot be attributed to the retained change. Focused-family evidence
-  supports a modest sibling-delta retain (Recover preamble removed from
-  noninterference Default-launch case; continuation keeps Recover-through-
-  default-change proof).
-- **Limits:** one full-suite before/after pair with unlike multi-minute load;
-  lean on three consecutive focused passes for the retained family. No product
+- **Revision:** `f351073d060ba25620d0c0a861b5b4c5cc9710d6` claim /
+  `a8ab552db260cfef8d7a9667826cedbb2736601f` green baseline after Slice 1
+  `doneAt` and `noFseventsPreload.cjs` fixture repairs;
+  `125edc37d04f8c2062c25b1dd7c9a4309a8917a4` after Slices 2–5 (SEED-197,
+  2026-10-31).
+- **Before / after:** recorded wall (`durationMs`) 1,060.4s / 615.3s (outer
+  wall 1,061.10s / 615.90s); summed attempt durations 7,835.3s / 4,456.8s;
+  summed `.tsv` 8,203.6s / 4,689.9s; executed cases 1,746 / 1,742 (−4
+  redundant cases), with 0 skipped cases and `strictStatus: "passed"` on both
+  strict runs. Retained 4 families (`0` rejected experiments): (1) Slice 2
+  worker-cached `publishPreparingJourney` + precomputed `reuseRefiner`
+  (`--workers=1` `durationMs` median 32.88s → 30.77s, summed `.tsv` mean
+  30.07s → 25.83s, `session-attribution.spec.ts` mean 15.23s → 6.90s /
+  post-refactor 5.59s; suite pair `.tsv` 84.4s → 38.8s); (2) Slice 3
+  `story-review-since-trunk.spec.ts` empty-diff printing-driver drop (7 → 6
+  cases; focused `.tsv` mean 36.67s → 33.40s, `--workers=1` `durationMs`
+  26.12s → mean 24.25s; suite `.tsv` 63.3s → 27.5s); (3) Slice 4
+  `agent-launch-start-session-answer-touch.spec.ts` duplicate 430×932 drop
+  (5 → 3 cases; focused `.tsv` mean 45.63s → 19.47s, `--workers=1`
+  `durationMs` 34.94s → 22.84s; suite `.tsv` 29.9s → 8.6s); (4) Slice 5
+  `story-review-trunk-worktree-ambiguity.spec.ts` combined passed-over
+  worktrees (3 → 2 cases; focused `.tsv` mean 26.00s → 21.70s, `--workers=1`
+  `durationMs` 41.29s → 31.80s; suite `.tsv` 29.9s → 13.5s).
+- **Outcome:** measured gain — the four retained families demonstrate clear
+  focused and `--workers=1` serial wall reductions while the whole-suite wall
+  delta (1,060.4s → 615.3s, −445.1s) is qualified by unlike host load
+  (pre-reboot end load 34.12 / 44.10 / 36.70 vs post-reboot end load
+  27.35 / 20.88 / 18.40), so causal attribution rests on the controlled
+  focused/serial measurements rather than the raw suite-wall delta alone.
+- **Limits:** one full-suite before/after pair across a machine reboot and
+  unlike multi-minute load (34.12 / 44.10 / 36.70 at baseline end vs
+  27.35 / 20.88 / 18.40 after); pre-reboot `/tmp` artifacts were cleared by
+  the reboot while `/tmp/SEED-197-optimize-dashboard-test-feedback/after-proof.json`
+  and `after-times.tsv` remain from the post-reboot re-profile. No product
   behavior changed.
-- **Evidence:** [SEED-196 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-196-2026-10-30).
-  Plan recoverable at the story-branch tip for SEED-196
-  (`.planning/slice-plans/423-optimize-dashboard-test-feedback/PLAN.md`). Raw
-  records under `/tmp/SEED-196-optimize-dashboard-test-feedback/` on the
-  measurement host; their continued availability is not assumed.
+- **Evidence:** [SEED-197 measurements](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-197-2026-10-31).
+  Plan recoverable on the story branch at
+  `.planning/slice-plans/424-optimize-dashboard-test-feedback/PLAN.md`. Raw
+  post-reboot records under `/tmp/SEED-197-optimize-dashboard-test-feedback/`
+  on the measurement host; their continued availability is not assumed.
 
 ## Pending candidates
 
