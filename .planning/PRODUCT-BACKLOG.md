@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch
 - [Keep dashboard refresh work bounded across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh) — SEED-202#bounded-dashboard-refresh
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
