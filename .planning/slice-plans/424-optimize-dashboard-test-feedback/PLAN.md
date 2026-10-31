@@ -295,6 +295,13 @@ remaining candidates preserved for wrap-up.
   produced consistent focused and `--workers=1` serial speedups and reduced
   full-suite file `.tsv` times (`84.4s → 38.8s`, `63.3s → 27.5s`,
   `29.9s → 8.6s`, and `29.9s → 13.5s`).
+- CI and flake repair before wrap-up: added `untilPageReadsAnswered(page)` after
+  `reloadUntilRead(page)` in `dashboard/tests/storyReadinessDetail.ts` (`3/3`
+  consecutive passes of `story-readiness.spec.ts`), aligned the 7 `doneAt` specs
+  with `origin/main` (`new Date().toISOString()`, `24/24` passed), and added
+  `NPM_CONFIG_AUDIT=false` / `NPM_CONFIG_FUND=false` to `scripts/setup-native.mjs`
+  with a 500-iteration `child-ready` poll in `tests/native-setup.sh` so `npm ci`
+  in CI does not stall for 45s on audit/funding endpoints.
 
 ## Execution complete
 

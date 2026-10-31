@@ -94,7 +94,12 @@ console.log(
 const child = spawn(command, args, {
   stdio: "inherit",
   detached: true,
-  env: { ...process.env, PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: "20000" },
+  env: {
+    ...process.env,
+    NPM_CONFIG_AUDIT: "false",
+    NPM_CONFIG_FUND: "false",
+    PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: "20000",
+  },
 });
 let timedOut = false;
 let interruption;

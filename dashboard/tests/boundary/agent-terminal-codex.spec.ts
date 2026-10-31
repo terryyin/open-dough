@@ -169,7 +169,7 @@ test.describe(`Codex native terminal boundary`, () => {
     >;
     const record = stored(dashboard.home)[0];
     if (record === undefined) throw new Error("Missing saved record");
-    const doneAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const doneAt = new Date().toISOString();
     state["open-dough"] = [
       { ...record, doneAt },
       {

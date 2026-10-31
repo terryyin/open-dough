@@ -42,10 +42,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const { record, workspace } = await retained(dashboard, native);
     mkdirSync(workspace);
     const originalDirectory = realpathSync(workspace);
-    const doneAt =
-      loss === "missing"
-        ? undefined
-        : new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const doneAt = loss === "missing" ? undefined : new Date().toISOString();
     save(dashboard.home, [{ ...record, doneAt }]);
     const baseline = readFileSync(storeFile(dashboard.home), "utf8");
     const since = native.calls.length;

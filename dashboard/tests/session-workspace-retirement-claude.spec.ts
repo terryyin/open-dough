@@ -132,7 +132,7 @@ for (const context of ["preparation", "start"] as const) {
       };
       delete record.preparation;
     }
-    const doneAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const doneAt = new Date().toISOString();
     record.doneAt = doneAt;
     record.reportRead = record.completion?.receipt;
     save(dashboard.home, [record]);
