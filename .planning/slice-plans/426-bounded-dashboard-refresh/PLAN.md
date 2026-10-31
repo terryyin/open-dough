@@ -338,3 +338,18 @@ launch-record and attempt read goes through the reused parse. So before the
 final publication, run the whole dashboard suite (`npm run test:dashboard`)
 and `npm test` on the final state, not only the focused specs. Each slice
 otherwise runs its focused specs through the project's test runner.
+
+## Execution complete
+
+Product advice:
+- Correction [SEED-202#consistent-shared-refresh](../428-consistent-shared-refresh/PLAN.md)
+  is planned and ready. It covers four things: a page can be told "unchanged"
+  while showing a state changed outside the poll; the settings view still
+  downloads the full answer; Cursor joiners can miss a just-written record;
+  and file identity is defined in two places. The independent outcome review
+  found these. Recommend queueing it first, since finding 1 can leave a page
+  stale indefinitely.
+- Consider letting an explicit re-read (offers after a host change) skip
+  settled reuse while still joining a running observation. Today it can get
+  a result up to 1 s old and then wait 15 s. This is within the story's
+  decided 1 s window, so it is advice, not a correction.

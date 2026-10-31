@@ -278,6 +278,28 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
   - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
 
+## Hosted CI npm install stalls at its acquisition deadline (repaired)
+
+<a id="dd-374"></a>
+
+### DD-374 — `setup-native.mjs npm` exceeded its 45 s deadline on hosted runners with a warm npm cache
+
+Two consecutive CI runs failed one or two jobs each at "Install npm dependencies":
+`Infrastructure setup: npm source stalled: acquisition deadline exceeded`.
+The cache restore had succeeded first. Every other job in those runs passed. The
+failure is classified as infrastructure, but it recurs. A failed job leaves
+that revision's lint or shard unobserved until a later push, and the observer
+reports the run as a failure.
+
+- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
+  - Timestamp: 2026-10-31T09:20:54Z (run 41188326936, `lint` and `dashboard (8/12)`); 2026-10-31T10:05:36Z (run 41191328229, `test (1/3)` and `dashboard (2/12)`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: `ci-github-diagnostic.mjs failure` excerpts for both runs show the cache restored (~46 MB) and then the 45 s acquisition deadline exceeded. `gh run view` showed all other jobs succeeding.
+  - Observed effect: two CI-failure notifications, each classified and ignored as infrastructure. Lint for `bd5a9094` and three shards were covered only by the next revision.
+  - Inference: repaired in the same execution. Over the last 60 runs, the install step took a median of 4 s on 2026-10-30 and 38 s on 2026-10-31. The npm summary lines put the time in `npm audit` ("audited 136 packages in 29s/33s/45s"), not acquisition. `d4190ce4` runs `npm ci --no-audit --no-fund`, keeping the 45 s stall bound. The hosted outcome after the fix is not yet observed.
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)

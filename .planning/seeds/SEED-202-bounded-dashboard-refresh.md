@@ -189,3 +189,33 @@ spends under one API host and login.
 **Premise to observe:** Whether conditional `304` answers still spend a
 meaningful share of this machine's request allowance or owner turns at three or
 more viewers. If they do not, this story may be dropped.
+
+<a id="consistent-shared-refresh"></a>
+
+### Keep shared refresh answers consistent with what each viewer shows
+
+**Identity:** SEED-202#consistent-shared-refresh
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/428-consistent-shared-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b68e7f8efbdfe407e21f449f9154a386652e1bce5bf9c0b8ab9e7e0fa0cd206","plan":"da8e51ba420cd090c892d6e1b6db3ee0e855df6765ce733672feb97dfaa0d965"}}
+```
+
+**Goal:** A correction to [Keep dashboard refresh work bounded across
+viewers](#bounded-dashboard-refresh). Developers viewing the dashboard get
+unchanged answers and shared Cursor reads only when what their view already
+shows matches the answer they would receive. The settings view's machine-session
+refresh stays small when nothing changed.
+
+**Scope:**
+
+- A page that changes its sessions or facts outside the poll stops holding the
+  poll's revision. Such changes come from an action's answer, a session
+  re-read, or a mark. Its next poll then receives the full answer.
+- The settings view's feedback-maintenance refresh sends the revision it holds
+  and keeps its state on an unchanged answer.
+- A shared Cursor held-session read is joined only under the same machine
+  documents it started from. A reader whose launch record was written after
+  the read began gets its own read.
+- One machine-document revision, owned by the machine document store, keys
+  both shared observations.
+- The dashboard's session-history documentation describes identity-checked
+  reads, the shared observation, unchanged answers, and the retryable answer.

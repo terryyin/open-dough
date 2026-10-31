@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 373. Removed numbers are never reused.
+- Highest allocated local number: 375. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -825,3 +825,22 @@ the repair scope; long raw logs need not enter coordinator context.
   - Evidence: installed `ci-github-diagnostic.mjs::failedLogExcerpt` keeps at most80 lines and favors the latest error tail. Short diagnostics for jobs124435809061 and124435809098 omitted actual failures in `boundary/agent-terminal-codex.spec.ts` and `cursor-session-recovery.spec.ts`; a subsequent full seven-job `FAIL:` inventory recovered thirteen failed tests before repair publication. Inventory and disposition are retained in `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/ci-repair-evidence.md`.
   - Observed effect: initial bounded repair selection covered four stale-date specs; reading complete failure identities added two already-failing specs and one additional focused selection. No failure was silently accepted and the combined repair was published once.
   - Inference: tool-output completeness issue, distinct from ODF-221's repair leaving a known same-cause sibling until a later run. Consider returning every failed test identity alongside bounded diagnostic excerpts; token/time savings are unmeasured.
+
+## DD-375 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
+
+When trunk amends the selected story during execution, the accept-proof rule
+requires a fresh source-only review, replacing `source-review.md` and
+re-allocating every id. An amendment that only deletes an exclusion sentence,
+pointing at a sibling story that was dropped, changes no promise. The fresh
+reviewer still numbers the commitments differently, so every row and every
+earlier observation has to be remapped by hand.
+
+### Occurrences
+- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
+  - Timestamp: 2026-10-31T17:56:08+08:00 (trunk amendment `82a35ccf`, found at slice 2's source-freshness check)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79 (installed guidance in the execution checkout)
+  - Evidence: `source-freshness.mjs check` returned `amended` for the story. The change removed two lines of its Deferred promises (the sibling-story deferral). The second reviewer's ids differed from the first's (89 → 87 rows; for example `1.10.1`→`1.9`, `4.4.1`+`4.4.3`→`4.6`, `R5`→`X6`). Replacement record: `.planning/slice-plans/426-bounded-dashboard-refresh/source-review.md` at `218b8d92`.
+  - Observed effect: one extra reviewer run (about 43k subagent tokens), a hand-written id remap carrying slice 1–2 observations, and one failed remap attempt, all before slice 2 could be delivered. No commitment changed.
+  - Inference: for an amendment that only removes or narrows an exclusion, keeping the existing review and settling the affected row would avoid the remap. Asking reviewers for stable ids would also reduce it. Neither is measured.
