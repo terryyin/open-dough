@@ -2,7 +2,7 @@
 // launch attempt is admitted, then move into `launch-attachments/<attempt>/`.
 // Nothing here writes into a repository or workspace (ADR 0008).
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -20,6 +20,10 @@ import {
 } from "../src/launchRequest.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+
+function contentDigest(bytes: Buffer): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
 
 const claimsRoot = (...segments: string[]) =>
   machineDashboardPath("launch-attachment-claims", ...segments);
@@ -89,14 +93,46 @@ export function removeLaunchAttachments(attemptId: string): void {
   rmSync(attachmentsRoot(attemptId), { recursive: true, force: true });
 }
 
+type MaterializedAttachments = {
+  readonly paths: string[];
+  readonly digests: string[];
+};
+
+// Content digests of claimed image bytes, in claim order, so sameLaunch can
+// match a wire request to a retained attempt before claims are consumed.
+export function withClaimAttachmentDigests(
+  request: AgentLaunchRequest,
+): AgentLaunchRequest {
+  if (
+    request.attachmentDigests !== undefined ||
+    request.attachmentClaims === undefined ||
+    request.attachmentClaims.length === 0
+  ) {
+    return request;
+  }
+  const digests: string[] = [];
+  for (const id of request.attachmentClaims) {
+    try {
+      digests.push(
+        contentDigest(readFileSync(path.join(claimsRoot(id), "bytes"))),
+      );
+    } catch {
+      throw new RefusedRequest(400, "An attached image could not be read.");
+    }
+  }
+  return { ...request, attachmentDigests: digests };
+}
+
 // Moves claimed images into the attempt's folder and answers their absolute
-// paths in order. Claims are consumed; a failure leaves neither partial folder
-// nor remaining claims for the ones already moved.
+// paths and content digests in order. Claims are consumed; a failure leaves
+// neither partial folder nor remaining claims for the ones already moved.
 export function materializeLaunchAttachments(
   attemptId: string,
   claims: readonly string[] | undefined,
-): string[] {
-  if (claims === undefined || claims.length === 0) return [];
+): MaterializedAttachments {
+  if (claims === undefined || claims.length === 0) {
+    return { paths: [], digests: [] };
+  }
   if (claims.length > launchAttachmentMaxCount) {
     abandonAttachmentClaims(claims);
     throw new RefusedRequest(400, launchAttachmentTooMany);
@@ -109,6 +145,7 @@ export function materializeLaunchAttachments(
   const directory = attachmentsRoot(attemptId);
   mkdirSync(directory, { recursive: true });
   const paths: string[] = [];
+  const digests: string[] = [];
   try {
     for (const [index, id] of claims.entries()) {
       const claimDirectory = claimsRoot(id);
@@ -127,18 +164,20 @@ export function materializeLaunchAttachments(
       writeFileSync(destination, bytes);
       rmSync(claimDirectory, { recursive: true, force: true });
       paths.push(destination);
+      digests.push(contentDigest(bytes));
     }
   } catch (error) {
     rmSync(directory, { recursive: true, force: true });
     abandonAttachmentClaims(claims);
     throw error;
   }
-  return paths;
+  return { paths, digests };
 }
 
 // After an attempt id is chosen: refuse a wire request that already names
-// paths, materialize claim ids into absolute paths, and answer the kept
-// request (paths only; never claim ids or image bytes).
+// paths, materialize claim ids into absolute paths and content digests, and
+// answer the kept request (paths and digests only; never claim ids or image
+// bytes).
 export function recordedRequestWithMaterializedAttachments(
   attemptId: string,
   request: AgentLaunchRequest,
@@ -149,11 +188,16 @@ export function recordedRequestWithMaterializedAttachments(
   }
   const base = withoutConfirmation(request);
   try {
-    const attachments = materializeLaunchAttachments(
+    const { paths, digests } = materializeLaunchAttachments(
       attemptId,
       request.attachmentClaims,
     );
-    return attachments.length === 0 ? base : { ...base, attachments };
+    if (paths.length === 0) {
+      const kept = { ...base };
+      delete kept.attachmentDigests;
+      return kept;
+    }
+    return { ...base, attachments: paths, attachmentDigests: digests };
   } catch (error) {
     removeLaunchAttachments(attemptId);
     throw error;

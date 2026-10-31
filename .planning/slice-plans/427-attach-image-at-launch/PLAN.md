@@ -196,8 +196,9 @@ Behavior:
 ### 7. An images-only start is a start with input
 
 Type: Behavior
-Status: planned
-Proof: ad hoc Claude and Cursor specs; `sameLaunch` unit proof
+Status: done
+Proof: accepted — images-only Claude/Cursor ad-hoc specs; sameLaunch digests in
+agent-launch-matching-rules.spec.ts
 
 Behavior: Start session with no text and one image → the first input is the
 list alone, and the label is the time, as for blank text. A Cursor start with

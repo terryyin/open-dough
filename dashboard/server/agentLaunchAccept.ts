@@ -11,7 +11,10 @@ import {
 } from "../src/agentLaunch.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { answerWithoutAttachmentClaims } from "./launchAttachmentClaims.ts";
+import {
+  answerWithoutAttachmentClaims,
+  withClaimAttachmentDigests,
+} from "./launchAttachmentClaims.ts";
 import type { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
 import {
   preAcceptanceAnswer,
@@ -27,16 +30,19 @@ export async function acceptLaunchRequest(
   continueRequest: (id: string) => Promise<Acceptance>,
   reportingOrigin?: string,
 ): Promise<Acceptance> {
-  const claims = request.attachmentClaims;
+  // Digests from claim bytes identify images before claims are consumed, so
+  // sameLaunch matches a wire Start to a retained attempt by content.
+  const identified = withClaimAttachmentDigests(request);
+  const claims = identified.attachmentClaims;
   // A matching live launch is answered before its evidence can be mistaken
   // for a retry. Settled recoverable session starts reuse locked continuation.
-  const submitted = owner.submitted(request);
+  const submitted = owner.submitted(identified);
   if (submitted !== undefined)
     return answerWithoutAttachmentClaims(claims, () => submitted);
-  if (request.workflow === "ad-hoc") {
+  if (identified.workflow === "ad-hoc") {
     const { attempts } = await owner.attempts();
     const retained = attempts
-      .filter((attempt) => sameLaunch(attempt.request, request))
+      .filter((attempt) => sameLaunch(attempt.request, identified))
       .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
     if (retained !== undefined && needsReconciliation(retained)) {
       return answerWithoutAttachmentClaims(claims, () =>
@@ -44,11 +50,11 @@ export async function acceptLaunchRequest(
       );
     }
   }
-  const blocked = await replacementWriterBlock(source, request);
+  const blocked = await replacementWriterBlock(source, identified);
   if (blocked !== undefined)
     return answerWithoutAttachmentClaims(claims, () => blocked);
-  const answer = await preAcceptanceAnswer(source, request);
+  const answer = await preAcceptanceAnswer(source, identified);
   if (answer !== undefined)
     return answerWithoutAttachmentClaims(claims, () => answer);
-  return owner.accept(request, run, reportingOrigin);
+  return owner.accept(identified, run, reportingOrigin);
 }

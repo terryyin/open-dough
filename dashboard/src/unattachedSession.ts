@@ -15,6 +15,7 @@ import {
 type UnattachedChoices = {
   readonly policy?: UnattachedSessionPolicy | undefined;
   readonly instruction?: string | undefined;
+  readonly attachments?: readonly string[] | undefined;
 };
 
 // Whether the policy is the one no selection makes: the default checkout,
@@ -33,11 +34,15 @@ export function establishesSession(request: UnattachedChoices): boolean {
   return !isDefaultUnattachedPolicy(unattachedPolicyOf(request));
 }
 
-// Whether an unattached launch sends a first input: the developer's text, or
-// the block of the session it establishes. One that sends none stays a blank
-// native launch.
+// Whether an unattached launch sends a first input: the developer's text, any
+// attached images (their path list alone when text is blank), or the block of
+// the session it establishes. One that sends none stays a blank native launch.
 export function sendsFirstInput(request: UnattachedChoices): boolean {
-  return Boolean(request.instruction?.trim()) || establishesSession(request);
+  return (
+    Boolean(request.instruction?.trim()) ||
+    (request.attachments?.length ?? 0) > 0 ||
+    establishesSession(request)
+  );
 }
 
 // What an unattached session's start established, as the installed start

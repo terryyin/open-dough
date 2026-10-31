@@ -2,6 +2,7 @@
 // Claude's prompt ends with the remaining path under the test HOME's
 // launch-attachments folder, and that file holds the picked bytes.
 
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -87,4 +88,59 @@ test("attaching two images, removing Image 1, then Start sends the remaining cop
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(JSON.stringify(record?.request)).not.toMatch(/iVBOR/);
   expect(record?.request).not.toHaveProperty("attachmentClaims");
+});
+
+test("Start session with no text and one image sends the list alone and labels by time", async ({
+  page,
+  dashboard,
+  launchJourney,
+}, testInfo) => {
+  dashboard.claudeScenario("launched");
+  await openJourney(page, launchJourney);
+
+  const picked = writePickedImages(testInfo, [
+    { name: "card.png", bytes: pngA },
+  ]);
+
+  const dialog = startSessionDialog(page, "Open Dough");
+  await startSession(page, "Open Dough").click();
+  await expect(startSessionField(dialog)).toHaveValue("");
+  await pickImagesInDialog(page, dialog, picked);
+  await expect(
+    dialog
+      .getByRole("list", { name: "Attached images" })
+      .getByText("Image 1 · card.png"),
+  ).toBeVisible();
+
+  await dialog.getByRole("button", { name: "Start" }).click();
+  await expect(dialog).toBeHidden();
+
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  const [call] = dashboard.claudeLaunchCalls();
+  const prompt = call?.argv.at(-1) ?? "";
+  const expectedPrefix = "Attached images:\n1. ";
+  expect(prompt.startsWith(expectedPrefix)).toBe(true);
+  const [attachedPath, ...rest] = prompt
+    .slice(expectedPrefix.length)
+    .split("\n\n");
+  expect(rest).toEqual([]);
+  expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
+  expect(readFileSync(attachedPath ?? "")).toEqual(pngA);
+
+  await expect
+    .poll(async () => {
+      const [record] = (await recordsOf(
+        dashboard,
+        "open-dough",
+      )) as LaunchRecord[];
+      return record?.request.title;
+    })
+    .toMatch(/^\d{1,2} \w{3}, \d\d:\d\d$/);
+  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(call?.argv[2]).toBe(`Open Dough · Ad hoc · ${record?.request.title}`);
+  expect(record?.request.attachments).toEqual([attachedPath]);
+  expect(record?.request.attachmentDigests).toEqual([
+    createHash("sha256").update(pngA).digest("hex"),
+  ]);
+  expect(record?.request).not.toHaveProperty("instruction");
 });

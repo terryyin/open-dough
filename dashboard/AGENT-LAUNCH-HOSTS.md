@@ -72,7 +72,8 @@ chosen model runs in a session-scoped Cursor configuration cloned from the devel
 record; every process that runs the session inherits that scope, so Cursor's model persistence lands in the
 scope and never in the shared configuration, and deleting the launch record removes the scope. The dialog says
 the choice applies to this session only. A blank ad hoc start with a chosen model is refused before
-`create-chat`, because no Cursor run would apply it. Skills are read from `.agents/skills`, and the prompt sigil
+`create-chat`, because no Cursor run would apply it; an images-only start is not blank
+(`src/unattachedSession.ts` counts images as input) and is admitted with that model. Skills are read from `.agents/skills`, and the prompt sigil
 is `/`. Its first prompt uses the same developer part as Claude and Codex (typed text plus any
 attached-images path list from `developerPart`).
 

@@ -9,8 +9,8 @@ the early native host-readability probe is waived (2026-10-31).
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer starting any dashboard session can attach one or more images in the launch dialog. | slice 7 | |
-| 2 | The started session's first input names each image's local file path so the agent can open it without the developer saving or typing paths first. | slice 7 | |
+| 1 | A developer starting any dashboard session can attach one or more images in the launch dialog. | slice 7 | observed: LaunchDialog Attach images across slices 2–7; goal completed with images-only admission |
+| 2 | The started session's first input names each image's local file path so the agent can open it without the developer saving or typing paths first. | slice 7 | observed: all host attachment specs name absolute paths in first input |
 | 3 | There is one attachment capability in the shared launch dialog (`LaunchDialog`). | slice 2 | observed: dashboard/src/LaunchAttachmentControls.tsx + LaunchDialog.tsx; agent-launch-ad-hoc-attachments.spec.ts Attach images control |
 | 4a.1 | Start session gains that capability identically. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts Start session dialog uses shared Attach images |
 | 4a.2 | Start execution gains that capability identically. | slice 3 | observed: agent-launch-story-attachments.spec.ts Start execution dialog Attach images |
@@ -59,9 +59,9 @@ the early native host-readability probe is waived (2026-10-31).
 | 11f | On refusal, other (accepted) images remain. | slice 5 | observed: refusal dialog spec keeps other accepted images |
 | 11g | On refusal, other dialog choices remain. | slice 5 | observed: refusal dialog spec keeps Session choices |
 | 12 | The dashboard overrides no host permission: if a host asks before reading a file outside its workspace, the developer answers as usual. | slice 1 | observed: waived native probe (developer 2026-10-31); premise retained in plan Current decisions |
-| 13 | A blank instruction with images is not a blank start: its first input is the image list. | slice 7 | |
-| 14 | A Cursor start with a chosen model and only images is therefore allowed. | slice 7 | |
-| 15 | An ad hoc launch's identity includes its images (by content), so the same text with different images is a different session. | slice 7 | |
+| 13 | A blank instruction with images is not a blank start: its first input is the image list. | slice 7 | observed: agent-launch-ad-hoc-attachments.spec.ts images-only → list alone |
+| 14 | A Cursor start with a chosen model and only images is therefore allowed. | slice 7 | observed: agent-launch-ad-hoc-attachments-cursor.spec.ts model + image only admitted |
+| 15 | An ad hoc launch's identity includes its images (by content), so the same text with different images is a different session. | slice 7 | observed: agent-launch-matching-rules.spec.ts sameLaunch digests |
 | 16 | Attachments are machine-local operational evidence of a launch (ADR 0008). | slice 2 | observed: launch path under machine dashboard home; AGENT-LAUNCH.md / ADR 0008 docs |
 | 17 | Attachment files live under the dashboard's machine directory `~/.open-dough/dashboard/launch-attachments/<launch attempt>/`. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts …/launch-attachments/<attempt>/1-card-b.png |
 | 18 | Attachment files never live in a repository or workspace. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts path under dashboard.home machine dir, not workspace |

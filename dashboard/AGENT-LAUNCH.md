@@ -61,8 +61,11 @@ write prunes that settled attempt past its 30-day retention, which also removes
 the folder; a refused or failed write removes none. The first input's developer
 part is the typed text, then a blank line and an `Attached images:` numbered
 path list (`src/launchAttachments.ts` `developerPart`); that list is not
-counted in the 4,000-character instruction limit. Launch records, attempts and
-start stores never hold image bytes.
+counted in the 4,000-character instruction limit. A blank instruction with
+images is not a blank start: the developer part is the list alone, and the
+session label is still the launch time. Launch records, attempts and start
+stores never hold image bytes; they keep absolute paths and content digests
+that identify an ad hoc launch's images.
 
 The same instruction field offers Record and Stop recording. Configure general
 OpenAI access in System settings → OpenAI first; no environment-key fallback
@@ -120,7 +123,8 @@ unreadable-list Retry and the same recheck before `create-chat`. A chosen id
 goes as `--model` on that first terminal client only, never into the stored
 resume command, and the choice applies to this session only. A blank ad hoc
 Cursor start with a chosen model is refused, because no Cursor run would apply
-it. Cursor's Reasoning effort selector stays visible: Default and Auto disable
+it; an images-only start is not blank and is admitted with that model.
+Cursor's Reasoning effort selector stays visible: Default and Auto disable
 it with a hint to choose a specific model; models with listed effort variants
 enable their supported choices. Models without variants keep it disabled with
 an explanation. Returning to a model without selectable effort clears any prior

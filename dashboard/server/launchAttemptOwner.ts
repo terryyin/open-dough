@@ -66,8 +66,8 @@ export class LaunchAttemptOwner {
   // before `run` has any side effect, then `run` goes on whatever happens to
   // the caller. A request that cannot be kept starts nothing. Attachment
   // claims become absolute paths under launch-attachments/<attempt>/ only
-  // once this attempt id is chosen; the kept request holds those paths, never
-  // image bytes.
+  // once this attempt id is chosen; the kept request holds those paths and
+  // content digests, never image bytes.
   async accept(
     request: AgentLaunchRequest,
     run: AttemptRun,

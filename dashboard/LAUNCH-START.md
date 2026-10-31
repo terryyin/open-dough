@@ -239,11 +239,10 @@ files, and a late script result cannot recreate a pruned start. This removes
 machine records; the Git workspace and branch remain available.
 
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
-project, host and instruction with its Workspace and After checks choices, a
-request naming none having the default ones. A Start session repeating all of
-them resumes its retained established start or recovers a kept conversation whose
-first input is unconfirmed; one whose choices differ starts a new session in its own place and leaves that
-conversation and its workspace to their own continuation.
+project, host, instruction, Workspace and After checks choices, and image
+content digests (none when absent). Repeating them resumes a retained start or
+recovers unconfirmed first input; differing choices or images start elsewhere
+and leave that conversation and workspace to continue on their own.
 
 ### Existing changes in default main
 
