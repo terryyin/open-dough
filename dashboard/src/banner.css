@@ -177,10 +177,22 @@
     grid-column: 2;
     grid-row: 1;
     justify-self: start;
+    min-width: 0;
+    padding: 2px;
   }
 
   .banner .perspective-choice {
-    padding-inline: var(--space-1);
+    padding-inline: 2px;
+    font-size: var(--text-xs);
+  }
+
+  .banner .perspective-choice span {
+    gap: 2px;
+  }
+
+  .banner .perspective-choice .perspective-mark {
+    width: 0.75rem;
+    height: 0.75rem;
   }
 
   .banner .project-title-select {

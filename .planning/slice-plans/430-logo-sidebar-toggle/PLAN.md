@@ -87,9 +87,10 @@ System settings views keep a passive Open Dough mark that is not a control.
 
 ### 2. Development and Intent show their meaning marks
 Type: Behavior
-Status: planned
-Proof: perspective frame / development-intent journeys; each choice shows its
-decorative SVG and keeps its accessible name; the two marks differ.
+Status: done
+Proof: Accepted — `development-intent-frame.spec.ts` (plus keyboard/header
+compact) green: each radio keeps its name, two distinct decorative SVGs,
+no Structure; phone one-line with compact cut still holds.
 
 Behavior: Each Development and Intent perspective choice shows its custom SVG
 mark beside its label. The marks encode this product's meanings (work in flight

@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type ComponentType } from "react";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
+import { DevelopmentMark, IntentMark } from "./PerspectiveMarks.tsx";
 import "./project-select.css";
 
 const perspectiveRadioName = "perspective";
@@ -7,15 +8,17 @@ const perspectiveRadioName = "perspective";
 const perspectives: readonly {
   readonly id: DashboardPerspective;
   readonly label: string;
+  readonly Mark: ComponentType;
 }[] = [
-  { id: "development", label: "Development" },
-  { id: "intent", label: "Intent" },
+  { id: "development", label: "Development", Mark: DevelopmentMark },
+  { id: "intent", label: "Intent", Mark: IntentMark },
 ];
 
 // Which perspective the page shows of the selected project. Native radios
 // keep their own arrow keys, so page-wide project cycling leaves them alone
 // (./projectKeyboardNavigation.ts) and choosing a perspective never selects
-// another project.
+// another project. Each choice shows its meaning mark beside its label;
+// Structure is not offered.
 export function PerspectiveSelect({
   perspective,
   onSelect,
@@ -40,7 +43,10 @@ export function PerspectiveSelect({
               onSelect(option.id);
             }}
           />
-          <span>{option.label}</span>
+          <span>
+            <option.Mark />
+            {option.label}
+          </span>
         </label>
       ))}
     </div>

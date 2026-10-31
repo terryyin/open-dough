@@ -30,6 +30,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import { expectPerspectiveMeaningMarks } from "./perspectiveMarks.ts";
 import {
   doughnutProject,
   openDoughProject,
@@ -49,7 +50,8 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
   await page.setViewportSize({ width: 1280, height: 800 });
   await publishCatalogProjects(page);
   await openUntilRead(page);
-  const { development, intentChoice, project, readRevision } = parts(page);
+  const { development, intentChoice, perspective, project, readRevision } =
+    parts(page);
   const radio = (label: string) =>
     project.getByRole("radio", { name: label, exact: true });
   // Development is the first-visit default, with its stories and direction.
@@ -61,6 +63,14 @@ test("Intent keeps the selected project and says its content is forthcoming; pro
   await openDirection(page);
   await expect(parts(page).direction).toContainText(openDoughProject.direction);
   const before = await historyLength(page);
+
+  await test.step("each perspective keeps its name and shows a distinct decorative meaning mark", async () => {
+    await expectPerspectiveMeaningMarks({
+      development,
+      intentChoice,
+      perspective,
+    });
+  });
 
   await test.step("choosing Intent keeps Open Dough selected and says Intent is forthcoming", async () => {
     await intentChoice.click();
@@ -203,6 +213,7 @@ test("at a phone width the perspective stays reachable under the compact title, 
   ]);
   expect(banner.height).toBeLessThan(portrait.height / 2);
   expect(message.y).toBeGreaterThanOrEqual(banner.y + banner.height);
+  // Compact project select may ellipsis on the one-line phone banner.
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
