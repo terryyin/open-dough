@@ -6,12 +6,9 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { completionReport } from "./completionReport.ts";
-import {
-  storyCardSessions,
-  parts,
-  selectedProjectId,
-} from "../dashboardPage.ts";
+import { storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
+import { pageColumnProjectValue } from "../pageLayout.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
 export const title =
@@ -70,10 +67,15 @@ export async function openUnfinishedReport(
   };
   // Native radios / details stay queryable via CSS while covering aria-hides the column.
   const underlying = async () => ({
-    project: await selectedProjectId(page),
-    storyDetails: await parts(page)
-      .board.getByRole("region", { name: /^Detail for / })
-      .count(),
+    project: await pageColumnProjectValue(page),
+    storyDetails: await page
+      .locator(".page-column .board [role='region']")
+      .evaluateAll(
+        (regions) =>
+          regions.filter((region) =>
+            /^Detail for /.test(region.getAttribute("aria-label") ?? ""),
+          ).length,
+      ),
   });
   return {
     record,

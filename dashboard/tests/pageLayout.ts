@@ -164,15 +164,22 @@ export async function pressWhereShown(control: Locator) {
   await control.page().mouse.click(x + width / 2, y + height / 2);
 }
 
-// Checked project radio value. Covering aria-hides the page column, so role
-// queries miss it; native radios stay reachable through this CSS path
+// Selected project id under the page column. Covering aria-hides the column,
+// so role queries miss it; CSS still reaches the checked radio, or at the
+// compact wrap width the title button's data-project-id
 // (./support/reportTouchJourney.ts).
 export async function pageColumnProjectValue(
   page: Page,
 ): Promise<string | null> {
-  return page
-    .locator(".page-column input[type='radio']:checked")
-    .getAttribute("value");
+  return page.locator(".page-column").evaluate((column) => {
+    const checked = column.querySelector("input[type='radio']:checked");
+    if (checked instanceof HTMLInputElement) return checked.value;
+    return (
+      column
+        .querySelector(".project-title-select-button")
+        ?.getAttribute("data-project-id") ?? null
+    );
+  });
 }
 
 // After Close, the Board (and banner) are readable again; use this when a
