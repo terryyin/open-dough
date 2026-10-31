@@ -157,7 +157,7 @@ discriminating scratch reported by implementer. Intent guidance extracted to
 
 ### 5. Publish Gherkin locations in Doughnut and Pygardon
 Type: Behavior
-Status: planned
+Status: done
 Proof: A real-project observation with retained revisions, then Terry's evaluation.
 
 Behavior: Doughnut's trunk publishes `e2e_test/features`, and Pygardon's
@@ -167,6 +167,15 @@ publishes `e2e_test/features` and `e2e_test/packaged/features`, each as
 Each project's change is a settings-only commit made in a fresh worktree of
 that project and pushed to its trunk without force. Pushing these commits is
 the outward step Terry authorized for this story.
+
+Published (settings-only, no force): Doughnut `6454e7b2b516c119876b25e3663bfc7891a15178`,
+Pygardon `9c5d72e587f7438e7ddcfcffeea04c13931ddcfe`. Real-project observation
+retained in `dashboard/test-results/intent-real-project-observation/report-refined.json`
+(gitignored): Doughnut `recall/accidental_match_scheduling.feature` at `6454e7b`
+styled, PNGs omitted; Pygardon both locations, packaged `origin_attach.feature`
+at `9c5d72e` styled. Terry 2026-11-01: location discovery stays manual in each
+client project's `.planning/open-dough.json` (item repos) — matches story;
+evaluation accepted.
 
 ## Concern evidence
 
