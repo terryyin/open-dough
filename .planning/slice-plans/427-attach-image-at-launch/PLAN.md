@@ -64,7 +64,7 @@ PFE:
 
 | Promise (source) | Owning slice | Observable proof |
 | --- | --- | --- |
-| A host can open an image at an absolute path outside its workspace | 1 | Developer-operated round per host (below) |
+| A host can open an image at an absolute path outside its workspace | 1 | Waived by developer (2026-10-31); premise retained without native round |
 | Picked images reach the first input as numbered paths to copied files | 2 | Playwright ad hoc spec with fake Claude: argv prompt ends with the list; each file's bytes equal the picked file |
 | Remove renumbers and sends only the rest | 2 | Same spec: attach two, remove Image 1, Start |
 | Same dialog control in story starts; same list on Codex and Cursor | 3 | Story refinement spec (handoff then list) and ad hoc Codex and Cursor specs reading their first input |
@@ -109,8 +109,9 @@ Every slice updates the launch documentation it changes
 ### 1. Each host can open an image outside its workspace
 
 Type: Behavior (early probe, developer-operated, paid)
-Status: planned
-Proof: one round per host, all requested together
+Status: done
+Proof: waived — developer skipped the native host round (2026-10-31); remaining
+slices keep the machine-local `launch-attachments` location under ADR 0008
 
 Behavior: a PNG at `~/.open-dough/dashboard/launch-attachments/probe/1-probe.png`
 → the developer starts Claude Code, Codex and Cursor in a project worktree with
@@ -119,7 +120,8 @@ after its usual permission question. Steps the developer performs: copy any
 screenshot to that path, run each host's CLI in an Open Dough worktree, answer
 any permission prompt, and report what each host said. A host that cannot
 read it stops slices 2–7 for replanning (for example a location the host can
-read). Remove the probe folder afterwards.
+read). Remove the probe folder afterwards. Waived in place: probe folder
+removed; no native CLI round run.
 
 ### 2. A Start session with picked images sends their copied paths
 
@@ -207,6 +209,10 @@ same text and different images are different launches; identical ones match.
   attempt until it is pruned (Terry, 2026-10-31, in the source).
 - The list is server-composed, after the developer's text, not counted in the
   4,000-character limit, and identical for every host.
+- Slice 1 native host probe skipped by developer (2026-10-31). Hosts are
+  assumed able to open absolute paths under
+  `~/.open-dough/dashboard/launch-attachments/`; if a later host cannot, stop
+  and replan the keep location.
 
 ## Plan review
 
