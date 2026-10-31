@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-200#session-terminal-voice-input",
+  "mode": "story-branch",
+  "branch": "codex/dictate-text-into-the-session-terminal-from-its",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
