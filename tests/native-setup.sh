@@ -143,7 +143,8 @@ for signal in INT TERM; do
     LATE_WRITE="${temporary_dir}/late-write" CHILD_READY="${temporary_dir}/child-ready" \
     "${node}" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &
   setup_pid=$!
-  for ((attempt = 0; attempt < 100; attempt++)); do
+  # ≤5s: node→setup→stub→descendant can exceed the old 1s poll under CI load.
+  for ((attempt = 0; attempt < 500; attempt++)); do
     [[ -e ${temporary_dir}/child-ready ]] && break
     sleep 0.01
   done
