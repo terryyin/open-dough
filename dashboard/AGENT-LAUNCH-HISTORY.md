@@ -5,10 +5,14 @@ links here for local records, native-state observation, alerts and the Sessions
 sidebar.
 
 Machine records live outside repositories in
-`~/.open-dough/dashboard/agent-launches.json`. Dev/preview servers read the file
-afresh and serialize the complete read-and-replace operation across dashboard
-processes, so concurrent launches and done marks preserve both updates.
-Replacement is atomic. Unclosed records remain indefinitely; done records expire after 30 days. Unreadable files are preserved on reads and moved
+`~/.open-dough/dashboard/agent-launches.json`. Dev/preview servers consult the
+file on every read. While its inode, modification time and size are unchanged
+(and it was modified at least a second ago), a server answers the frozen
+document it last parsed, so any process's replacement is seen on the next read
+and an unreadable replacement is never answered from an earlier parse. Writes
+parse afresh under a lock that serializes the complete read-and-replace
+operation across dashboard processes, so concurrent launches and done marks
+preserve both updates. Replacement is atomic. Unclosed records remain indefinitely; done records expire after 30 days. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
 Cards list all unclosed sessions for their project/story newest first. An open
@@ -161,7 +165,16 @@ Native structured waiting must be supplied by the configured tool/policy; a
 never-policy run does not establish approval parity.
 
 The page reads machine records on load, while visible every 15 seconds, and
-when visible again. Attention counts share each entry's reading. The server
+when visible again. Every page's read and the server's notification watch join
+one shared machine-session observation. A read that arrives while one runs, or
+within a second after one settled under the same project catalog and machine
+documents, is answered by it. Each answer leads with its observation's
+revision, and a page that sends the revision of its last full answer
+(`x-open-dough-sessions-revision`) is told only that it is unchanged. A read
+not answered within 30 seconds gets a retryable 503 and the page keeps what it
+shows. A hidden or departing page ends only its own wait. Running Cursor
+sessions reads join the one runner read in flight, with no reuse once it
+settles. Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
 unmarked session enters an alerting native reading, and once, as “Unread report:
 <completion label>”, when its report arrives, whatever the native reading; its

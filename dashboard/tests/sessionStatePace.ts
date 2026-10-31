@@ -7,9 +7,10 @@
 // What an entry shows of its session is `expectSessionShown`: its state's
 // words and whether its solid edge says the developer is needed there.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator, Page, Response } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
+import { sessionsRevisionHeader } from "../src/machineSessionsRevision.ts";
 import { expect } from "./dashboardTest.ts";
 import { sessionStateOf } from "./dashboardPage.ts";
 import { givePageItsTurns } from "./pageRequestNotes.ts";
@@ -83,23 +84,56 @@ async function untilRecordReadsAnswered(page: Page): Promise<void> {
 
 // Counts the page's records reads, and lets exactly one steady pace of page
 // time pass once every earlier read is answered: no records read is asked a
-// moment before it, and one is asked and answered once it has passed. Call
-// it before the page opens.
+// moment before it, and one is asked and answered once it has passed; and
+// tells what the one read asked during a pace, one by default, sent and was
+// answered (`answeredDuring`). Call it before the page opens.
 export async function watchRecordReads(page: Page) {
   await noteRecordReadsInPage(page);
-  return {
-    passOnePace: async () => {
-      await untilRecordReadsAnswered(page);
-      const before = await recordReadsAsked(page);
-      await page.clock.runFor(checkIntervalMs - 1);
-      await givePageItsTurns(page);
-      expect(await recordReadsAsked(page)).toBe(before);
-      await page.clock.runFor(1);
-      await givePageItsTurns(page);
-      expect(await recordReadsAsked(page)).toBe(before + 1);
-      await untilRecordReadsAnswered(page);
-    },
+  const passOnePace = async () => {
+    await untilRecordReadsAnswered(page);
+    const before = await recordReadsAsked(page);
+    await page.clock.runFor(checkIntervalMs - 1);
+    await givePageItsTurns(page);
+    expect(await recordReadsAsked(page)).toBe(before);
+    await page.clock.runFor(1);
+    await givePageItsTurns(page);
+    expect(await recordReadsAsked(page)).toBe(before + 1);
+    await untilRecordReadsAnswered(page);
   };
+  return {
+    passOnePace,
+    answeredDuring: (pace = passOnePace) => answeredDuring(page, pace),
+  };
+}
+
+// What the one read of the machine's sessions the page asks during `pace`
+// sent and was answered: whether it named the revision the page held, and
+// whether the answer said only that it is unchanged.
+async function answeredDuring(page: Page, pace: () => Promise<void>) {
+  const answers: { readonly held: boolean; readonly unchanged: boolean }[] = [];
+  const noted = async (response: Response) => {
+    const request = response.request();
+    if (
+      request.method() !== "GET" ||
+      new URL(request.url()).pathname !== agentLaunchEndpoint
+    )
+      return;
+    const answer = (await response.json()) as { unchanged?: true };
+    answers.push({
+      held: request.headers()[sessionsRevisionHeader] !== undefined,
+      unchanged: answer.unchanged === true,
+    });
+  };
+  page.on("response", noted);
+  try {
+    await pace();
+    await expect.poll(() => answers.length).toBe(1);
+  } finally {
+    page.off("response", noted);
+  }
+  const [answered] = answers;
+  if (answered === undefined) throw new Error("No sessions answer");
+  return answered;
 }
 
 // Holds the page's reads of the machine's sessions unanswered until

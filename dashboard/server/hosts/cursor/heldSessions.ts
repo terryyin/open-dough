@@ -1,12 +1,18 @@
 // Joins the sessions the Cursor runner holds with their launch records. The
 // runner is not started. A runner that is not running, or cannot be reached,
-// answers no sessions. The record stays the session identity.
+// answers no sessions. The record stays the session identity. Every reader on
+// this server (the Running Cursor sessions list, session admission, and Cursor
+// session observation) joins the one read running for its home, so
+// overlapping asks share one runner read; a settled read answers nobody later,
+// so the next ask reads the runner again.
 import { homedir } from "node:os";
 import type { CursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 import type { LaunchRecord } from "../../../src/launchRecord.ts";
 import type { RunningCursorSessions } from "../../../src/cursorRunnerSessions.ts";
 import { sessionKey } from "../../../src/sessionReference.ts";
+import { readWaitLimitMs } from "../../../src/authenticatedReadRules.ts";
 import { keptRecordsByProject } from "../../launchRecordStore.ts";
+import { SharedObservation } from "../../sharedObservation.ts";
 import { readCursorRunnerSessions } from "./runnerClient.ts";
 
 // One held client with the evidence session observation classifies: its
@@ -25,8 +31,27 @@ export type HeldCursorSessions = {
   readonly sessions: readonly HeldCursorSession[];
 };
 
+// The read now running answers whoever asks while it runs; none is reused.
+// One not answered within the read wait says the runner cannot be reached,
+// as a silent runner does; a failed one fails each reader it was answering.
+const sharedRead = new SharedObservation(
+  ([home]: readonly [string]) => readHeldCursorSessions(home),
+  () => 0,
+);
+// Nobody abandons this read early: each reader waits for its answer.
+const staying = new AbortController().signal;
+
 export async function heldCursorSessionEvidence(
   home = homedir(),
+): Promise<HeldCursorSessions> {
+  const demanded = await sharedRead.demand([home], readWaitLimitMs, staying);
+  return demanded.kind === "observed"
+    ? demanded.value
+    : { runner: "unreachable", sessions: [] };
+}
+
+async function readHeldCursorSessions(
+  home: string,
 ): Promise<HeldCursorSessions> {
   const read = await readCursorRunnerSessions(home);
   if (read.kind !== "running") return { runner: read.kind, sessions: [] };

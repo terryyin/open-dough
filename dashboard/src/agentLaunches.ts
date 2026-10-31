@@ -3,16 +3,9 @@ import { sessionKey } from "./sessionReference.ts";
 // Machine sessions and this page's launch attempts have one browser owner.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  Alerts,
-  KeptStart,
-  MachineAnswer,
-  RunningStart,
-  LaunchWithState,
-  LaunchWorkflow,
-} from "./agentLaunch.ts";
+import type { Alerts, MachineAnswer, LaunchWithState } from "./agentLaunch.ts";
 import { replaced } from "./sessionRecords.ts";
-import { readMachineSessions } from "./agentLaunchClient.ts";
+import { readMachineSessionsSince } from "./machineSessionsReads.ts";
 import { useLaunchAttempts, type LaunchAttempts } from "./launchAttempts.ts";
 import type { PublishedShown } from "./startupReconciliation.ts";
 import {
@@ -22,44 +15,12 @@ import {
 import { launchOffers, type LaunchOffers } from "./launchOffers.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
+import type { ReadSessions } from "./readSessions.ts";
 
 export type MachineSessions = ReadSessions &
   LaunchOffers &
   LaunchAttempts &
   LaunchRecordActions;
-
-// The machine's sessions and what their latest read said.
-type ReadSessions = {
-  readonly rereadOffers: () => void;
-  readonly creations: MachineAnswer["creations"];
-  readonly hostOperations: MachineAnswer["hostOperations"];
-  // Records oldest first per project, with latest observations; unread until supplied.
-  readonly records: readonly LaunchWithState[] | undefined;
-  // Worktrees local Git found holding a story's claim at the latest read.
-  readonly workspaces: MachineAnswer["workspaces"];
-  // Whether a read asked after the latest change of the project list has
-  // ended, answered or not: until then what is known predates the list.
-  readonly sessionsSettled: boolean;
-  // Alert capability at the latest read; unread until supplied.
-  readonly alerts: Alerts | undefined;
-  // Where feedback maintenance stood at the latest read, if this dashboard
-  // checks it.
-  readonly feedbackMaintenance: MachineAnswer["feedbackMaintenance"];
-  // A kept start without a session, if present at the latest read.
-  keptStartOf(
-    sourceId: string,
-    identity: string,
-    workflow: LaunchWorkflow,
-  ): KeptStart | undefined;
-  // The currently running start, with its actual host, whichever page requested it.
-  runningStartOf(
-    sourceId: string,
-    identity: string,
-    workflow: LaunchWorkflow,
-  ): RunningStart | undefined;
-  // Records shown on cards, including this page’s launches before the first read.
-  readonly launched: readonly LaunchWithState[];
-};
 
 // What a read of the machine's sessions says besides their records.
 type ReadFacts = Omit<MachineAnswer, "records">;
@@ -117,6 +78,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
   const everRead = useRef(false);
+  // The revision of the latest full answer this page's reads took.
+  const heldRevision = useRef<string | undefined>(undefined);
   // How many reads were asked so far.
   const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
@@ -150,32 +113,41 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   useEffect(() => {
     if (visibility === "hidden") return;
     let current = true;
+    // A read this effect no longer wants, such as once the page is hidden,
+    // stops waiting; other viewers' observation goes on.
+    const unwanted = new AbortController();
     const read = () => {
       const askedAt = Date.now();
       asks.current += 1;
       const ask = asks.current;
-      void readMachineSessions().then((answered) => {
-        if (!current) return;
-        if (answered !== undefined) {
-          const { records, ...facts } = answered;
-          const kept = records.filter(
-            (record) =>
-              (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
-              askedAt,
-          );
-          setSessions((current) => ({
-            known: replaced(kept, current.known, current.read ? askedAt : 0),
-            read: true,
-            answeredAsk: ask,
-            ...facts,
-          }));
-        }
-        setOffersReading(false);
-        everRead.current = true;
-        settleRevealed();
-        setReadsSettled((settled) => settled + 1);
-        setSettledFor(projects);
-      });
+      void readMachineSessionsSince(heldRevision.current, unwanted.signal).then(
+        (answered) => {
+          if (!current) return;
+          if (answered !== undefined && "unchanged" in answered) {
+            // What the page holds still stands: only this ask answered it.
+            setSessions((current) => ({ ...current, answeredAsk: ask }));
+          } else if (answered !== undefined) {
+            const { records, revision, ...facts } = answered;
+            heldRevision.current = revision;
+            const kept = records.filter(
+              (record) =>
+                (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
+                askedAt,
+            );
+            setSessions((current) => ({
+              known: replaced(kept, current.known, current.read ? askedAt : 0),
+              read: true,
+              answeredAsk: ask,
+              ...facts,
+            }));
+          }
+          setOffersReading(false);
+          everRead.current = true;
+          settleRevealed();
+          setReadsSettled((settled) => settled + 1);
+          setSettledFor(projects);
+        },
+      );
     };
     if (
       visibility === "revealed" ||
@@ -188,12 +160,14 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       read();
       return () => {
         current = false;
+        unwanted.abort();
       };
     }
     const waiting = setTimeout(read, checkIntervalMs);
     return () => {
       current = false;
       clearTimeout(waiting);
+      unwanted.abort();
     };
   }, [visibility, readsSettled, settleRevealed, requested, projects]);
 

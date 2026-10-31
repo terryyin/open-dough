@@ -6,7 +6,7 @@
 // (`./feedbackMaintenanceState.ts`). The setting itself is described in
 // `../FEEDBACK-MAINTENANCE.md`.
 import { useEffect, useState } from "react";
-import { readMachineSessions } from "./agentLaunchClient.ts";
+import { readMachineSessions } from "./machineSessionsReads.ts";
 import {
   maintenanceStatusText,
   type FeedbackMaintenanceState,

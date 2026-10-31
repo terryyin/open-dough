@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
 
 export async function browserLocaleString(
   page: Page,
-  iso: string,
+  at: string | number,
 ): Promise<string> {
-  return page.evaluate((value) => new Date(value).toLocaleString(), iso);
+  return page.evaluate((value) => new Date(value).toLocaleString(), at);
 }

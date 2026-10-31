@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 374. Removed numbers are never reused.
+- Highest allocated local number: 376. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -55,7 +55,6 @@ Distinct executions, original timestamps/releases/tools, observed effects and qu
   - Observed effect: three local repair rounds after implementation; the strict delivery check failed closed and no incorrect slice completion was published.
   - Inference: qualified recurrence of an unverified consuming-operation premise: another active plan's layout was treated as a usable template without exercising the reader that later consumes it. Checking that reader before readiness could catch the mismatch earlier; no escaping product defect or measured duration saving is claimed.
 
-
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -86,7 +85,6 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Observed effect: three of six mandatory refactor agents edited nothing after reading the accepted slice diffs
   - Inference: same fixed per-slice refactor cost as ODF-141; mixed payoff on a six-behavior bounded-memory plan
 
-
 - Execution: SEED-173#dashboard-ci-balance; first implementation `874ef52c0e99857feefde9b4058673c83029d875`, restored result `783d6bda38ab381e686bfb63500b97970dc8817f`
   - Timestamp: unknown (2026-10-29 execution conversation)
   - Tool: Codex
@@ -94,7 +92,6 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Evidence: fresh `/root/refactor_ci_weights` and `/root/refactor_rejected_allocation` returns both report `none — already clean`, no edits/tests, approximately ten and seven active minutes respectively; the latter independently checked all four restored weight files against the baseline. Recoverable plan: `783d6bda38ab381e686bfb63500b97970dc8817f:.planning/slice-plans/375-dashboard-ci-balance/PLAN.md`.
   - Observed effect: two independent refactor handoffs made no changes on one data-only experiment and its explicit rejection; accepted proof remained applicable.
   - Inference: qualified recurrence of fixed review cost on small accepted changes. Durations are agent estimates, not stopwatch/token totals, and confirming restoration and proof boundaries may add confidence; no claim that either review was valueless or that skipping it would produce a measured saving.
-
 
 - Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
   - Timestamp: unknown (2026-10-31 execution conversation)
@@ -452,8 +449,8 @@ Former local code: DD-322. Slice 2 offered a separate Stop from the host `stop` 
 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
-
 ### Occurrences
+
 - Execution: SEED-186#document-dashboard-product-intent / plan 416, first implementation `85e1d6caeca4b573fb7daae6ae0c67dc378bcd2a`
   - Timestamp: unknown (2026-10-30 Codex execution; before execution-complete handoff)
   - Tool: Codex
@@ -566,6 +563,7 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 ### Occurrences
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
+
 - Execution: SEED-191#optimize-dashboard-test-feedback / plan 419 (`0bb810742a61e7ded6b51989b26a5eb9df8f8a43:.planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md`), first implementation `544f6790543f810c9f1d946712600d1271a1ec65`
   - Timestamp: 2026-10-30T16:39:28+08:00 (first slice 2 fresh delivery attempt before accepted `544f6790` at 16:40:04+08:00)
   - Tool: Cursor
@@ -660,6 +658,7 @@ that the fresh-delivery preparation refused; selective `npm run format` does not
 cover Markdown, so the defect reached the first guarded delivery.
 
 ### Occurrences
+
 - Execution: SEED-157#check-stalled-delegated-verification; plan and source-review recoverable at before-cleanup `e8e841c8e15d23db9f8d9e4d86923d134294992b` (`.planning/slice-plans/363-check-stalled-delegated-verification/`); first related implementation commit `cd30010f9044cf703596a58e98a494e610cc6f2d`
   - Timestamp: unknown (2026-10-28; first fresh-delivery attempt before accepted `cd30010` at 16:19:23+08:00)
   - Tool: Cursor
@@ -675,6 +674,7 @@ the reviewer returned incomplete commitments and a second complete-seed launch
 was required before acceptance.
 
 ### Occurrences
+
 - Execution: SEED-158#publish-awaiting-hosted-proof
   - Timestamp: 2026-10-28T16:22:00+08:00
   - Tool: Cursor
@@ -691,6 +691,7 @@ SHA while retaining the reviewed story, plan and backlog link. Automatic
 approval review required another human approval before publication.
 
 ### Occurrences
+
 - Execution: SEED-164#dashboard-ci-time; first implementation `7eda0986bafe78cbf6088df514bb6b088edf9333`
   - Timestamp: unknown
   - Tool: Codex
@@ -708,6 +709,7 @@ trunk. Fresh delivery commits then stops; resume without landing context accepts
 the story-branch candidate.
 
 ### Occurrences
+
 - Execution: SEED-166#handle-stale-worktree-bundles; plan at before-cleanup `d3bfd15b60526de1430ca12da7c3acb1a12447ee:.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
   - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31`, through execution-complete publish)
   - Tool: Cursor
@@ -724,6 +726,7 @@ hung in teardown when process inspection was denied; precise termination and
 cleanup attribution were needed before usable proof could continue.
 
 ### Occurrences
+
 - Execution: SEED-167#cheap-isolated-fixtures; first implementation `8c55a30c56d324100cc44cbb105123aa8ebfc823`
   - Timestamp: unknown (2026-10-29, Asia/Singapore; slice-1 diagnostic attempts)
   - Tool: Codex
@@ -754,6 +757,7 @@ lines lacked the required `slice N — "…"` quote shape. `story-obligations.mj
 check` refused until both were rewritten to the consuming reader's shapes.
 
 ### Occurrences
+
 - Execution: SEED-182#standardize-test-optimization-candidates / plan 414, first implementation `ca65ffdfc73dc0adfabbf917abc6989fc8831793`
   - Timestamp: unknown (2026-10-30; source-review and obligation acceptance before `ca65ffdf` at 12:45:07+08:00)
   - Tool: Cursor
@@ -786,6 +790,7 @@ whitespace, so the first guarded fresh delivery failed at `git diff --check`
 (`new blank line at EOF`) after the plan status mutation.
 
 ### Occurrences
+
 - Execution: SEED-180#optimize-dashboard-touch-viewport-tests; plan 413; first related implementation `483f66b483a9046e0c790bc12bcc57489aa2a503`
   - Timestamp: 2026-10-30T14:11:00+08:00 (approx.; first slice-6 fresh delivery refused before accepted `2f800b3f`)
   - Tool: Cursor
@@ -804,6 +809,7 @@ published. Local code was DD-370 on the story branch; renumbered to DD-371 at
 trunk merge where DD-370 already named the Markdown EOF finding.
 
 ### Occurrences
+
 - Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
   - Timestamp: unknown (2026-10-30; after green slice-2 proof/refactor and before tip `c9ada8b1` 15:13:13+08:00)
   - Tool: Cursor
@@ -824,6 +830,7 @@ code was DD-371 on the story branch; renumbered to DD-372 at trunk merge where
 DD-371 already named the typecheck finding.
 
 ### Occurrences
+
 - Execution: SEED-190#keep-running-cursor-sessions / plan 418, first related implementation `0921f1f71ab86f870b8adf8d686cb7889256e900`
   - Timestamp: unknown (2026-10-30; first implementer return before source-only review ~15:23+08:00; G1/G2 resume from ~15:25+08:00)
   - Tool: Cursor
@@ -841,6 +848,7 @@ the same attempt. A complete failure-name summary is needed before selecting
 the repair scope; long raw logs need not enter coordinator context.
 
 ### Occurrences
+
 - Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
   - Timestamp: unknown (2026-10-31 CI repair, run 41166733510 attempt 1)
   - Tool: Codex
@@ -859,6 +867,7 @@ already on trunk and left it unfixed, so the coordinator had to send it back
 for a second round.
 
 ### Occurrences
+
 - Execution: SEED-192#open-development-intent-frame; first implementation `9913a6d40006e3de9980ab8d97e0e2f3197b5f0d`
   - Timestamp: 2026-10-31 (Asia/Singapore; exact time unknown)
   - Tool: Claude Code
@@ -867,3 +876,23 @@ for a second round.
   - Evidence: slice 1 implementation return listed `sessions-sidebar-navigation-cases.spec.ts` "a story on no card…" as failing 1 in 4 on clean `22eb4b3e` and "did not fix it". A coordinator follow-up then found the cause (a reveal-count test race with keep-in-view after a Side panel press) and fixed it (`revealsAtClick`, 8 of 8 passing repeated); see `72ce39b109d5352b43dd093c68b9257b564a1bdc:.planning/slice-plans/424-development-intent-frame/PLAN.md` Current decisions.
   - Observed effect: one extra delegation round (about 5 minutes, 9 tool uses). The fix landed in the same increment.
   - Inference: the coordinator's wording, not the shared guidance, caused this; delegation already says a discovered failure keeps the project's failure policy. Pass the project's policy verbatim instead of paraphrasing it.
+
+## DD-375 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
+
+When trunk amends the selected story during execution, the accept-proof rule
+requires a fresh source-only review, replacing `source-review.md` and
+re-allocating every id. An amendment that only deletes an exclusion sentence,
+pointing at a sibling story that was dropped, changes no promise. The fresh
+reviewer still numbers the commitments differently, so every row and every
+earlier observation has to be remapped by hand.
+
+### Occurrences
+
+- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
+  - Timestamp: 2026-10-31T17:56:08+08:00 (trunk amendment `82a35ccf`, found at slice 2's source-freshness check)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79 (installed guidance in the execution checkout)
+  - Evidence: `source-freshness.mjs check` returned `amended` for the story. The change removed two lines of its Deferred promises (the sibling-story deferral). The second reviewer's ids differed from the first's (89 → 87 rows; for example `1.10.1`→`1.9`, `4.4.1`+`4.4.3`→`4.6`, `R5`→`X6`). Replacement record: `.planning/slice-plans/426-bounded-dashboard-refresh/source-review.md` at `218b8d92`.
+  - Observed effect: one extra reviewer run (about 43k subagent tokens), a hand-written id remap carrying slice 1–2 observations, and one failed remap attempt, all before slice 2 could be delivered. No commitment changed.
+  - Inference: for an amendment that only removes or narrows an exclusion, keeping the existing review and settling the affected row would avoid the remap. Asking reviewers for stable ids would also reduce it. Neither is measured.

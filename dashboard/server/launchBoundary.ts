@@ -23,7 +23,9 @@
 // same-origin GET answers the machine's
 // sessions: every catalog project's launch records, each naming its project,
 // with each session's current state, and the launch attempts accepted with
-// their receipts and outcomes, and whether those kept could be read. A
+// their receipts and outcomes, and whether those kept could be read, from one
+// observation every viewer and the notification observer share
+// (`./machineSessionObservation.ts`), or a retryable 503 past its read wait. A
 // same-origin GET of `/__agent-launch/cursor-sessions` reads whether the
 // Cursor runner is running and which sessions it holds, and starts nothing.
 // A same-origin POST to
@@ -62,6 +64,7 @@ import { answer } from "./launchBoundaryAnswer.ts";
 import { installRecordRemovalDispatch } from "./launchRecordRemoval.ts";
 import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { SessionAlerts } from "./sessionAlerts.ts";
+import { MachineSessionObservation } from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
 import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 
@@ -78,17 +81,24 @@ export function installAgentLaunchMiddleware(
   );
   const doneMarks = new NativeDoneMarks(terminals);
   const launches: AgentLaunches = new AgentLaunches(doneMarks);
-  const alerts = new SessionAlerts(launches, () => dashboardOrigin(httpServer));
   const maintenance = new FeedbackMaintenanceCheck(launches, () =>
     dashboardOrigin(httpServer),
   );
+  // Every viewer and the notification observer share one observation. It
+  // reads the alerts' availability only while observing, after construction.
+  const sessions: MachineSessionObservation = new MachineSessionObservation(
+    launches,
+    () => alerts.availability(),
+    maintenance,
+  );
+  const alerts = new SessionAlerts(sessions, () => dashboardOrigin(httpServer));
   middlewares.use((req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (!launchBoundaryPaths.has(url.pathname)) {
       next();
       return;
     }
-    void answer(req, url, res, launches, doneMarks, alerts, maintenance).then(
+    void answer(req, url, res, launches, doneMarks, sessions).then(
       (outcome) => {
         respondToLaunch(res, outcome);
       },

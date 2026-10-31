@@ -11,7 +11,11 @@ import {
   recentlyDoneParts,
   showThreeProjectPage,
 } from "./recentlyDoneSessionsSidebarPage.ts";
-import { expectRowShows, expectTooltipLine } from "./sessionsSidebarPage.ts";
+import {
+  expectRowShows,
+  expectTooltipLine,
+  openSessionsSidebar,
+} from "./sessionsSidebarPage.ts";
 import { pausePageClockAt } from "./dashboardTest.ts";
 import { expect, test } from "./support/cursorStart.ts";
 
@@ -182,7 +186,7 @@ test("finds and opens the newest completed sessions across projects from a colla
   });
 
   await test.step("an unavailable Done entry keeps its destination without inventing a terminal", async () => {
-    if (!(await shown.sidebar.isVisible())) await shown.button.click();
+    await openSessionsSidebar(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true")
       await shown.header.click();
     const attaches = dashboard.claudeAttaches().length;
@@ -197,7 +201,7 @@ test("finds and opens the newest completed sessions across projects from a colla
   await test.step("reload starts the section collapsed again", async () => {
     await page.reload();
     await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
-    if (!(await shown.sidebar.isVisible())) await shown.button.click();
+    await openSessionsSidebar(page);
     await expect(shown.header).toHaveAttribute("aria-expanded", "false");
     await expect(shown.body).toHaveCount(0);
   });

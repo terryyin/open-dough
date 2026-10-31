@@ -131,6 +131,7 @@ DD-243 remains the same finding; its later occurrences are
 ### DD-319 — The shell formatter turned hyphenated associative-array keys into arithmetic after proof had passed
 
 ### Occurrences
+
 - Execution: SEED-010#schedule-proof-after-refactoring / plan 323, first implementation `788d817296adfc0b23a672489619b3ea8bbaf52a`
   - Timestamp: unknown (2026-10-20, before the slice commit at 2026-10-20T11:04:50+09:00)
   - Tool: Claude Code
@@ -147,6 +148,7 @@ DD-243 remains the same finding; its later occurrences are
 ### DD-320 — A replay fixture stated conditions the historical occurrences lacked, so its first paid run could not reach their boundary
 
 ### Occurrences
+
 - Execution: SEED-010#schedule-proof-after-refactoring / plan 323, first implementation `788d817296adfc0b23a672489619b3ea8bbaf52a`
   - Timestamp: 2026-10-20 (first native run started 2026-10-20T01:57:21Z)
   - Tool: Claude Code
@@ -252,6 +254,7 @@ historical 134 GB remains unknown.
 Former local code: DD-339 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision.
 
 ### Occurrences
+
 - Execution: SEED-010#accept-source-promises-after-plan-drift (plan 354, first implementation commit d9b6b8352fc71d18d9c2424e61311beed98f9e96)
   - Timestamp: unknown (2026-10-25, slice 3)
   - Tool: Claude Code
@@ -268,6 +271,7 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
 ### DD-347 — `source-freshness.md` has under 10 bytes left in the "Before finishing or stopping" read-budget row
 
 ### Occurrences
+
 - Execution: SEED-010#source-freshness-for-planless-and-reamended-work (plan 357, first implementation commit cc6d397915db451e64772b3ee70f9cf46d8cbd63)
   - Timestamp: unknown (2026-10-26, slices 1 and 2)
   - Tool: Claude Code
@@ -277,6 +281,28 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Observed effect: wording churn in sentences the slices did not otherwise change, and an agent-reported constraint carried into the next delegation.
   - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
   - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
+
+## Hosted CI npm install stalls at its acquisition deadline (repaired)
+
+<a id="dd-376"></a>
+
+### DD-376 — `setup-native.mjs npm` exceeded its 45 s deadline on hosted runners with a warm npm cache
+
+Two consecutive CI runs failed one or two jobs each at "Install npm dependencies":
+`Infrastructure setup: npm source stalled: acquisition deadline exceeded`.
+The cache restore had succeeded first. Every other job in those runs passed. The
+failure is classified as infrastructure, but it recurs. A failed job leaves
+that revision's lint or shard unobserved until a later push, and the observer
+reports the run as a failure.
+
+- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
+  - Timestamp: 2026-10-31T09:20:54Z (run 41188326936, `lint` and `dashboard (8/12)`); 2026-10-31T10:05:36Z (run 41191328229, `test (1/3)` and `dashboard (2/12)`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: `ci-github-diagnostic.mjs failure` excerpts for both runs show the cache restored (~46 MB) and then the 45 s acquisition deadline exceeded. `gh run view` showed all other jobs succeeding.
+  - Observed effect: two CI-failure notifications, each classified and ignored as infrastructure. Lint for `bd5a9094` and three shards were covered only by the next revision.
+  - Inference: repaired in the same execution. Over the last 60 runs, the install step took a median of 4 s on 2026-10-30 and 38 s on 2026-10-31. The npm summary lines put the time in `npm audit` ("audited 136 packages in 29s/33s/45s"), not acquisition. The story branch repaired it at `d4190ce4` with `--no-audit --no-fund`. Trunk independently set `NPM_CONFIG_AUDIT=false NPM_CONFIG_FUND=false` (`7b9777c7`), and the integration kept trunk's form. Both keep the 45 s stall bound. The hosted outcome on trunk is not yet observed.
 
 ## Review and recovery
 

@@ -31,6 +31,7 @@ import { expectSessionShown } from "./sessionStatePace.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
   expectTooltipLine,
+  openSessionsSidebar,
   sessionsSidebarParts,
 } from "./sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
@@ -134,9 +135,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 
     await page.reload();
     await expectMembership(page, openDoughStories);
-    if ((await button.getAttribute("aria-expanded")) !== "true") {
-      await button.click();
-    }
+    await openSessionsSidebar(page);
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await expect(sessionStateOf(active)).not.toHaveText("Done");

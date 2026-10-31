@@ -1,9 +1,16 @@
 // The discipline of a JSON document this machine keeps in one file outside
 // every repository, shared by each store of the local launch boundary
-// (`./launchRecordStore.ts`). Every read reads the file afresh, so each
+// (`./launchRecordStore.ts`). Every read consults the file, so each
 // dashboard server on this machine -- dev and preview alike -- sees every
-// write. A directory lock beside the file serializes each read-modify-write
-// across dashboard processes, and replacement remains atomic for readers.
+// write on its next read. While the file keeps its identity (inode,
+// modification time, and size), a read answers the document this server last
+// parsed from it instead of parsing it again; that held document is shared by
+// every reader and frozen, so no reader can change what another is answered.
+// A file modified too recently for its identity to be trusted is parsed afresh
+// (Linux file times can be coarser than successive writes, and a replacement
+// may reuse a freed inode). A read under the write lock always parses afresh.
+// A directory lock beside the file serializes each read-modify-write across
+// dashboard processes, and replacement remains atomic for readers.
 // Lock waits are bounded; an abandoned lock is never removed automatically.
 // A missing file holds the empty document. A file that does not parse, or does
 // not match the document's schema, is unreadable: a read answers it as such
@@ -13,13 +20,15 @@
 // so nothing is silently lost.
 
 import { randomUUID } from "node:crypto";
+import type { BigIntStats } from "node:fs";
 import {
   access,
   mkdir,
-  readFile,
+  open,
   rename,
   rm,
   rmdir,
+  stat,
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
@@ -38,26 +47,117 @@ export type MachineJsonStore<T> = {
   readonly empty: T;
 };
 
-export async function readMachineJson<T>(
+// The document each file last parsed to, by file path, with the identity the
+// file had when it was read.
+type HeldDocument = {
+  readonly ino: bigint;
+  readonly mtimeNs: bigint;
+  readonly size: bigint;
+  readonly document: unknown;
+};
+
+const heldDocuments = new Map<string, HeldDocument>();
+
+// How many documents this server replaced so far, so a derived observation
+// can tell it predates one of this server's own writes.
+let replacements = 0;
+
+export function machineJsonReplacements(): number {
+  return replacements;
+}
+
+// How long after a file's modification its identity is trusted to tell it
+// apart from a later replacement.
+const settledIdentityNs = 1_000_000_000n;
+
+function sameIdentity(held: HeldDocument, stats: BigIntStats): boolean {
+  return (
+    held.ino === stats.ino &&
+    held.mtimeNs === stats.mtimeNs &&
+    held.size === stats.size
+  );
+}
+
+function settled(stats: BigIntStats): boolean {
+  const nowNs = BigInt(Date.now()) * 1_000_000n;
+  return nowNs - stats.mtimeNs >= settledIdentityNs;
+}
+
+function frozen<T>(value: T): T {
+  if (typeof value === "object" && value !== null && !Object.isFrozen(value)) {
+    for (const entry of Object.values(value)) frozen(entry);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+// Reads, parses, and validates the file; `stats` is the identity of the very
+// file whose text was read.
+async function parsedMachineJson<T>(
   store: MachineJsonStore<T>,
-): Promise<StoreRead<T>> {
+): Promise<{ read: StoreRead<T>; stats?: BigIntStats }> {
   let text: string;
+  let stats: BigIntStats;
   try {
-    text = await readFile(store.file, "utf8");
+    const handle = await open(store.file, "r");
+    try {
+      stats = await handle.stat({ bigint: true });
+      text = await handle.readFile("utf8");
+    } finally {
+      await handle.close();
+    }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return { kind: "document", document: store.empty };
+      return { read: { kind: "document", document: store.empty } };
     }
-    return { kind: "unreadable" };
+    return { read: { kind: "unreadable" } };
   }
   try {
     const parsed = store.schema.safeParse(JSON.parse(text));
     return parsed.success
-      ? { kind: "document", document: parsed.data }
-      : { kind: "unreadable" };
+      ? { read: { kind: "document", document: parsed.data }, stats }
+      : { read: { kind: "unreadable" } };
   } catch {
-    return { kind: "unreadable" };
+    return { read: { kind: "unreadable" } };
   }
+}
+
+// The document as the file holds it now. An unchanged file answers the
+// document held from its last parse, frozen and shared with every reader.
+export async function readMachineJson<T>(
+  store: MachineJsonStore<T>,
+): Promise<StoreRead<T>> {
+  const held = heldDocuments.get(store.file);
+  if (held !== undefined) {
+    try {
+      if (sameIdentity(held, await stat(store.file, { bigint: true }))) {
+        return { kind: "document", document: held.document as T };
+      }
+    } catch {
+      // Answered below as the file is now.
+    }
+  }
+  heldDocuments.delete(store.file);
+  const { read, stats } = await parsedMachineJson(store);
+  if (read.kind === "unreadable" || stats === undefined) return read;
+  const document = frozen(read.document);
+  if (settled(stats)) {
+    heldDocuments.set(store.file, {
+      ino: stats.ino,
+      mtimeNs: stats.mtimeNs,
+      size: stats.size,
+      document,
+    });
+  }
+  return { kind: "document", document };
+}
+
+// The document as the file holds it now, parsed afresh and shared with no
+// other reader, for a read under the write lock.
+async function authoritativeMachineJson<T>(
+  store: MachineJsonStore<T>,
+): Promise<StoreRead<T>> {
+  return (await parsedMachineJson(store)).read;
 }
 
 // Where an unreadable file moves aside without replacing an earlier copy.
@@ -112,7 +212,7 @@ export async function replaceMachineJson<T>(
   await acquireWriteLock(lock);
   const temporary = `${file}.${randomUUID()}.tmp`;
   try {
-    const read = await readMachineJson(store);
+    const read = await authoritativeMachineJson(store);
     let stored = store.empty;
     if (read.kind === "unreadable") {
       await rename(file, await unreadableCopy(file));
@@ -123,6 +223,7 @@ export async function replaceMachineJson<T>(
     if (next === leaveMachineJson) return;
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
     await rename(temporary, file);
+    replacements += 1;
   } finally {
     try {
       await rm(temporary, { force: true });
@@ -142,7 +243,7 @@ export async function readMachineJsonLocked<T, R>(
   const lock = `${store.file}.lock`;
   await acquireWriteLock(lock);
   try {
-    return await observe(await readMachineJson(store));
+    return await observe(await authoritativeMachineJson(store));
   } finally {
     await rmdir(lock);
   }

@@ -138,11 +138,11 @@ test("deleting an unreadable saved record while another passive read is pending 
     holdRead: true,
   });
   save(dashboard, [record(dashboard, native, "held")]);
-  // One hourly-alert baseline can join held HTTP reads; deletion sees refusal.
+  // Both held HTTP reads share one observation; deletion sees refusal.
   const pending = Promise.all([states(dashboard), states(dashboard)]);
   const readCount = () =>
     native.calls.filter((c) => c.method === "thread/read").length;
-  await expect.poll(readCount).toBeGreaterThanOrEqual(2);
+  await expect.poll(readCount).toBeGreaterThanOrEqual(1);
   native.observations.set("held", {
     status: { type: "idle" },
     turns: [],

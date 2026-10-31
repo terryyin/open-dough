@@ -38,11 +38,15 @@ async function withholdLaunchOutcomes(page: Page) {
     });
     const body = (await response.json()) as {
       attempts?: Record<string, unknown>[];
+      revision?: string;
     };
     for (const attempt of body.attempts ?? []) {
       delete attempt["outcome"];
       delete attempt["settledAt"];
     }
+    // The withheld answer is not the observation it was taken from, so the
+    // page holds no revision and every read is answered in full.
+    delete body.revision;
     await route.fulfill({ response, json: body });
   });
   return () => {

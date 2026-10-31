@@ -34,6 +34,15 @@ export function sessionsSidebarParts(page: Page) {
   };
 }
 
+// Opens the Sessions sidebar unless it is already open. The button's state
+// waits for the page to render, which a reload's kept open sidebar may not
+// have done yet.
+export async function openSessionsSidebar(page: Page): Promise<void> {
+  const { button } = sessionsSidebarParts(page);
+  if ((await button.getAttribute("aria-expanded")) !== "true")
+    await button.click();
+}
+
 // How a Sessions sidebar Session entry's left border says its session's state: needing input,
 // solid thick red; ready for review, solid thick green; failed or stopped,
 // dashed red; working, thin blue; done, thin grey; unknown, unlisted, or not

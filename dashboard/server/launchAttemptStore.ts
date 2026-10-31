@@ -10,7 +10,7 @@
 // is dropped `launchRetentionDays` after it settled; an unsettled one is kept
 // until it settles. A continued attempt is the same attempt run again. This
 // server's writes are made one at a time, so attempts accepted together are
-// all kept; the file is read afresh, replaced atomically, and moved aside when
+// all kept; the file is read, replaced atomically, and moved aside when
 // unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";

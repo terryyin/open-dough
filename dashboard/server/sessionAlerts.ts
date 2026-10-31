@@ -2,7 +2,8 @@ import { sessionKey } from "../src/sessionReference.ts";
 // The macOS notification for a session that needs the developer, for the
 // local launch boundary (`./launchBoundary.ts`), which starts it with the
 // boundary and stops it with the same cleanup. One loop, never overlapping,
-// reads the machine's sessions (`./agentLaunches.ts`) every few seconds and
+// reads the machine's shared sessions observation
+// (`./machineSessionObservation.ts`) every few seconds and
 // remembers each session's last native reading and unread report
 // (`../src/sessionShown.ts`), per server run. The first read quietly baselines
 // existing waits; later sessions alert when they first need input. A handled
@@ -31,7 +32,7 @@ import {
   alertUnreadReport,
   sessionShown,
 } from "../src/sessionShown.ts";
-import type { AgentLaunches } from "./agentLaunches.ts";
+import type { MachineSessionObservation } from "./machineSessionObservation.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import { repeatUntilStopped } from "./repeatingCheck.ts";
 import { dashboardDestinationPath } from "../src/dashboardDestination.ts";
@@ -92,7 +93,10 @@ export class SessionAlerts {
   private readonly probing: Promise<void>;
 
   constructor(
-    private readonly launches: Pick<AgentLaunches, "machineSessions">,
+    private readonly sessions: Pick<
+      MachineSessionObservation,
+      "machineSessions"
+    >,
     private readonly origin: () => string | undefined,
   ) {
     this.probing = this.probe();
@@ -154,7 +158,7 @@ export class SessionAlerts {
   }
 
   private async poll(signal: AbortSignal): Promise<void> {
-    const sessions = await this.launches.machineSessions();
+    const sessions = await this.sessions.machineSessions(signal);
     const before = this.lastAlerting;
     const now = sessions.map((session) => {
       const { tone } = sessionShown(session);

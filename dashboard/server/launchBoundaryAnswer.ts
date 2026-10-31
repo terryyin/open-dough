@@ -14,15 +14,12 @@ import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { recoverCursorSession } from "./hosts/cursor/recover.ts";
-import { hostOperations } from "./launchHosts.ts";
 import { notifyRecordRemoved } from "./launchRecordRemoval.ts";
 import { deleteRecord, setRecordReportRead } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { localWorkspaces } from "./localWorkspaces.ts";
 import { launchHostOptionsResponse } from "./launchHostOptionsResponse.ts";
 import { noSuchSession } from "./sessionAdmission.ts";
-import { SessionAlerts } from "./sessionAlerts.ts";
-import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
+import type { MachineSessionObservation } from "./machineSessionObservation.ts";
 import { finalReportResponse } from "./finalReportResponse.ts";
 import { stopRecordedSession } from "./sessionStop.ts";
 import {
@@ -105,8 +102,7 @@ export async function answer(
   res: ServerResponse,
   launches: AgentLaunches,
   doneMarks: NativeDoneMarks,
-  alerts: SessionAlerts,
-  maintenance: Pick<FeedbackMaintenanceCheck, "state">,
+  sessions: MachineSessionObservation,
 ): Promise<AgentLaunchAnswer> {
   try {
     if (url.pathname === landingPrepareEndpoint)
@@ -136,31 +132,11 @@ export async function answer(
         return await markReviewedResponse(request);
       case "cursor-sessions":
         return { status: 200, body: await heldCursorSessions() };
-      case "sessions": {
-        const { attempts, readable } = await launches.attempts();
-        const records = await launches.machineSessions();
-        const feedbackMaintenance = maintenance.state(records, attempts);
+      case "sessions":
         return {
           status: 200,
-          body: {
-            records,
-            ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),
-            attempts,
-            attemptsReadable: readable,
-            hostOperations: hostOperations(),
-            creations: await launches.creations(),
-            alerts: alerts.availability(),
-            establishing: await launches.establishingProjects(),
-            establishingPreparation: await launches.establishingPreparation(),
-            keptStarts: await launches.keptStarts(),
-            starts: launches.runningStarts(),
-            definitions: await launches.offeredDefinitions(),
-            establishingHosts: await launches.establishingHosts(),
-            sessionPolicies: await launches.sessionPolicies(),
-            workspaces: await localWorkspaces(),
-          },
+          serialized: await sessions.answerFor(res, request.held),
         };
-      }
       case "changed":
         return {
           status: 200,
