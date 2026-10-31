@@ -78,6 +78,9 @@ test("at a narrow window the panel stacks above the page with no divider, and a 
       ...scrollsOnItsOwn,
       // The sidebar's entries are cut by design, read whole by their tooltip.
       ".sessions-sidebar-session-entry-title",
+      // The panel header title truncates by design with disclosure
+      // (./SidePanelTitle.tsx), read whole once activated.
+      ".side-panel-title-toggle",
       // The review's context line is shortened by design, read whole by
       // its name and once activated.
       ".story-review-context-values",

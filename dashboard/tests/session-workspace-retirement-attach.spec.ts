@@ -86,7 +86,8 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     expect(read.searchParams.get("host")).toBe("codex");
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(report);
-    await expect(panel).toContainText(record.session.sessionId);
+    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
+    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     await expect(panel).toContainText(
       loss === "unknown"
         ? "saved workspace availability could not be established"

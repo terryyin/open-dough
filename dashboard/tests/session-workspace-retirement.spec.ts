@@ -52,7 +52,10 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(panel.locator(".final-report-body")).toBeFocused();
   await expect(entry).toContainText("Shown in final report");
   await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
-  await expect(panel).toContainText(record.session.sessionId);
+  await expect(panel.locator(".side-panel-names p")).toHaveText(
+    "Refinement session",
+  );
+  await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
   expect(await page.evaluate(() => "reportExecuted" in window)).toBe(false);
   await page.keyboard.press("Meta+Shift+Escape");
   await expect(panel).toHaveCount(0);
@@ -169,7 +172,10 @@ test("changing or closing selection cancels a held report and never shows its te
   });
   await second.getByRole("button", { name: "Read final report" }).click();
   const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel).toContainText(next.session.sessionId);
+  await expect(panel.locator(".side-panel-names p")).toHaveText(
+    "Refinement session",
+  );
+  await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
   await expect(panel.locator(".final-report-text")).toHaveText(
     "Second conversation's own result",
   );

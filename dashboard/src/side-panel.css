@@ -141,11 +141,15 @@
   .side-panel-title-toggle {
     display: flex;
     align-items: center;
+    /* Keep a control-sized tap surface without lengthening the header stack
+       the review/terminal body shares (1lh of title text). */
     min-height: var(--control-size);
+    margin-block: calc((1lh - var(--control-size)) / 2);
   }
 
   .side-panel-title-expanded .side-panel-title-toggle {
     align-items: flex-start;
+    margin-block: 0;
   }
 }
 
