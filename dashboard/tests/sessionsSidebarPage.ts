@@ -2,7 +2,7 @@
 // entries show.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
+import { expectCovering, resizeUntilArranged } from "./sidePanelWidthPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { columnPagingControl, pagingRoom } from "./boardPage.ts";
 import { box, expectSideBySideInOrder } from "./pageLayout.ts";
@@ -185,10 +185,12 @@ export async function expectSessionsSidebarLayout(
   await expect(sidebar).toBeVisible();
 
   await resizeUntilArranged(panel, { width: 700, height: view.height });
+  // Covering aria-hides and opacifies the page column; the sidebar still
+  // overlays from the left and receives the hit test over that column.
+  await expectCovering(panel);
+  await expect(parts(page).banner).toBeHidden();
   const overlay = await box(sidebar);
-  const beside = await box(main);
   expect(overlay.x).toBe(0);
-  expect(beside.x).toBeLessThan(overlay.x + overlay.width);
   const center = {
     x: overlay.x + overlay.width / 2,
     y: overlay.y + overlay.height / 2,

@@ -8,6 +8,7 @@ import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { completionReport } from "./completionReport.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
+import { pageColumnProjectValue } from "../pageLayout.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
 export const title =
@@ -71,9 +72,7 @@ export async function openUnfinishedReport(
       .evaluateAll((summaries) =>
         summaries.map((summary) => summary.closest("details")?.open),
       ),
-    project: await page
-      .locator(".page-column input[type='radio']:checked")
-      .getAttribute("value"),
+    project: await pageColumnProjectValue(page),
     storyDetails: await page
       .locator(".page-column .board [role='region']")
       .evaluateAll(

@@ -37,10 +37,8 @@ for (const height of [800, 900, 1600]) {
     const panel = page.getByRole("region", { name: "Terminal", exact: true });
     await expect(panel.locator("textarea")).toBeFocused();
     await expectCovering(panel);
-    // Covering aria-hides the Board (preparation text too); Close first, wait
-    // for preparation to finish in the restored tree, then read the Board.
+    // Covering hides the Board; Close first, then read the revealed card.
     await closeSidePanel(panel);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
     const card = parts(page).backlog.getByRole("article", {
       name: pygardonStory.title,
       exact: true,

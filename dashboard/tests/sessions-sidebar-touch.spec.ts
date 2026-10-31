@@ -4,13 +4,13 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { launch, launchRequest, recordsOf } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
 import {
   expectNoSidewaysScrollAndWholeText,
+  pageColumnProjectValue,
   tapWhereShown,
 } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
@@ -127,12 +127,8 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.locator(".xterm-rows")).toContainText(
       `attached ${record.session.sessionId.slice(0, 8)}`,
     );
-    await expect(
-      parts(page).project.getByRole("radio", {
-        name: "Doughnut",
-        exact: true,
-      }),
-    ).toBeChecked();
+    // Covering (landscape with sidebar open) aria-hides the page column.
+    await expect.poll(() => pageColumnProjectValue(page)).toBe("doughnut");
     await page.setViewportSize(portrait);
     // Selection at landscape width leaves the beside-page sidebar open;
     // rotation preserves that choice when it becomes an overlay.

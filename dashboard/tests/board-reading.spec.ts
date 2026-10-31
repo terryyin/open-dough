@@ -7,9 +7,11 @@ import {
   revision,
 } from "./accessibleBoard.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { closeSidePanel } from "./pageLayout.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { expectReadingTop } from "./readingPlace.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { expectCovering } from "./sidePanelWidthPage.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -113,11 +115,20 @@ for (const viewport of [
       exact: true,
     });
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-    await expectReadingTop(card);
-    expect((await card.boundingBox())?.height).toBeGreaterThan(
-      await boardScroll(page).evaluate((region) => region.clientHeight),
-    );
-    await expect(terminal.locator("textarea")).toBeFocused();
+    // Covering hides the Board; Close first, then read the revealed card
+    // (./board-session-reading.spec.ts). Beside, the Board stays readable.
+    if (viewport.width <= 800) {
+      await expectCovering(terminal);
+      await closeSidePanel(terminal);
+      await expectReadingTop(card);
+    } else {
+      await expect(terminal.locator("textarea")).toBeFocused();
+      await expectReadingTop(card);
+      // Short beside window: the card still exceeds the Board's room.
+      expect((await card.boundingBox())?.height).toBeGreaterThan(
+        await boardScroll(page).evaluate((region) => region.clientHeight),
+      );
+    }
     expect(await page.evaluate(() => scrollY)).toBe(0);
   });
 }
