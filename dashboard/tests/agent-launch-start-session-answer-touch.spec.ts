@@ -13,6 +13,7 @@ import {
 import { parts } from "./dashboardPage.ts";
 import {
   box,
+  closeSidePanel,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollIn,
@@ -189,6 +190,9 @@ test.describe("390×844 touch, held", () => {
     );
 
     dashboard.releaseHeldClaude();
+    const terminal = page.getByRole("region", { name: "Terminal" });
+    await expect(terminal).toBeVisible({ timeout: 30_000 });
+    await closeSidePanel(terminal);
     await expect(parts(page).adHocStarted).toBeVisible({ timeout: 30_000 });
   });
 });
@@ -216,12 +220,14 @@ for (const viewport of [phone.portrait, largePhone]) {
 
         await startWithTypedText(page);
         const shown = answer(page);
-        await expect(shown).toBeVisible({ timeout: 30_000 });
         if (scenario === "launched") {
           const terminal = page.getByRole("region", { name: "Terminal" });
+          await expect(terminal).toBeVisible({ timeout: 30_000 });
+          // Covering hides the Board answer; Close then read it.
           await tapWhereShown(terminal.getByRole("button", { name: "Close" }));
           await expect(terminal).toHaveCount(0);
         }
+        await expect(shown).toBeVisible({ timeout: 30_000 });
 
         await expectRowReadsWhole(page, shown, words, before.upright);
         await expectDirectionOpensBeneath(page, shown, words);

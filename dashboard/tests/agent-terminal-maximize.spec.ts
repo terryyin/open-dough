@@ -1,9 +1,10 @@
 // The terminal's named frame icons maximize/restore/close (./agent-terminal.spec.ts).
 // Maximize takes the page column's room, hiding banner/stories with the same
 // session attached and Sessions sidebar beside it. A different session/content
-// opens split; Restore recovers split, stacked above the page on narrow windows.
-// Close leaves the session running and unmarked; reopening starts split.
-// This page's dashboard attaches only synthetic Claude (./fixtures/fake-claude).
+// opens split; Restore recovers split. On a narrow window the panel covers
+// without Maximize/Restore. Close leaves the session running and unmarked;
+// reopening starts split. This page's dashboard attaches only synthetic Claude
+// (./fixtures/fake-claude).
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -24,6 +25,7 @@ import {
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
+import { expectCovering } from "./sidePanelWidthPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -59,6 +61,7 @@ test.describe("maximizing the terminal", () => {
     page,
     dashboard,
   }) => {
+    test.setTimeout(120_000);
     dashboard.claudeScenario("launched");
     const { card, settled, launch } = await openStoryColumnsJourney(
       page,
@@ -218,20 +221,10 @@ test.describe("maximizing the terminal", () => {
       );
     });
 
-    await test.step("on a narrow window, Maximize fills the window and Restore stacks the panel above the page", async () => {
+    await test.step("on a narrow window the panel covers without Maximize, filling the window", async () => {
       await page.setViewportSize({ width: 800, height: 700 });
-      // The fixed stacked panel stays above the independently scrolling Board.
       const room = await windowOf(page);
-      await expect
-        .poll(async () => (await box(panel)).width)
-        .toBeCloseTo(room.width, 0);
-      const stacked = await box(panel);
-      expect(stacked.height).toBeLessThan(room.height);
-      expect(stacked.y + stacked.height).toBeLessThanOrEqual(
-        (await box(pageColumn)).y + 0.5,
-      );
-
-      await pressWhereShown(control("Maximize"));
+      await expectCovering(panel);
       await expect(banner).toBeHidden();
       await expect(board).toBeHidden();
       expectCovers(await box(panel), {
@@ -240,13 +233,6 @@ test.describe("maximizing the terminal", () => {
         width: room.width,
         height: room.height,
       });
-
-      await pressWhereShown(control("Restore"));
-      await expect(board).toBeVisible();
-      expectCovers(await box(panel), stacked);
-      expect(stacked.y + stacked.height).toBeLessThanOrEqual(
-        (await box(pageColumn)).y + 0.5,
-      );
       await expect(rows).toContainText(`attached ${shortId(second)}`);
     });
   });

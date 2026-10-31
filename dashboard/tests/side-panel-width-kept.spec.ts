@@ -14,6 +14,7 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   control,
   dragDivider,
+  expectCovering,
   expectDividerSays,
   expectWidth,
   keyStep,
@@ -130,12 +131,12 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
     expect(await keptWidth(page)).toBe(String(chosen));
   });
 
-  await test.step("reloaded in a narrow window the panel stacks with no divider", async () => {
+  await test.step("reloaded in a narrow window the panel covers with no divider or Maximize", async () => {
     await page.setViewportSize({ width: 760, height: wideWindow.height });
     await page.reload();
     const review = await openStoryReview(page);
     await expect(review).toBeVisible();
-    await expect(panelDivider(page)).toHaveCount(0);
+    await expectCovering(review);
     expect(await keptWidth(page)).toBe(String(chosen));
   });
 

@@ -162,7 +162,7 @@
 11.1	limited-reading-profile-history.spec.ts
 11.1	system-settings-project-management.spec.ts
 11.0	story-review-trunk-own-flagged.spec.ts
-10.7	side-panel-width-stacking.spec.ts
+10.7	side-panel-width-covering.spec.ts
 10.5	board-paging-sessions-sidebar.spec.ts
 10.5	system-settings-openai-recovery.spec.ts
 10.3	limited-reading-check.spec.ts

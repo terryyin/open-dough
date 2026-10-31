@@ -26,11 +26,14 @@ export function StoryReview({
   request,
   maximized,
   onMaximize,
+  offerMaximize,
   onClose,
 }: {
   readonly request: StoryReviewRequest;
   readonly maximized: boolean;
   readonly onMaximize: (maximized: boolean) => void;
+  // False while covering: Maximize/Restore is not offered.
+  readonly offerMaximize: boolean;
   readonly onClose: () => void;
 }) {
   const { source, identity, title } = request;
@@ -131,6 +134,7 @@ export function StoryReview({
           <SidePanelControls
             maximized={maximized}
             onMaximize={onMaximize}
+            offerMaximize={offerMaximize}
             onClose={onClose}
           />
         </div>

@@ -37,8 +37,9 @@ until the developer moves.
 Keep one Board with an always-visible banner above its own scroll region.
 The Board scrollbar sits at the Board's edge, left of the Panel divider when
 side by side. Scrolling the Board leaves the banner, Sessions sidebar, and
-Side panel in place. Stacked, the Side panel takes the upper half of the
-viewport and the banner and Board share the lower half. Column headings and
+Side panel in place. Where no usable split fits, the Side panel covers the
+page column (the whole viewport on a narrow window), with the banner and Board
+hidden behind it until Close. Column headings and
 hidden-column paging controls stay within the Board's scrolling viewport.
 The agent roster scrolls in its own region when it replaces the Board.
 Side panel content uses its terminal, final report, or story review scrollbars;
@@ -102,9 +103,10 @@ unusable value, the panel starts at half the room and still resizes for the
 page's lifetime. A width the room or Maximize imposes never replaces it.
 Neither the Side panel nor the Board becomes narrower than 20rem, measured in
 the room beside the open sidebar; where that room cannot
-hold both, or the window is 800px wide or narrower, the panel stacks above
-the Board and offers no Panel divider, as it does while maximized, and more room
-recovers the preferred width. Command+Shift+Escape closes
+hold both, or the window is 800px wide or narrower, the panel covers the page
+column through the maximized layout and offers no Panel divider or
+Maximize/Restore (Close returns to the Board); the developer's Maximize choice
+and preferred width are unchanged, so more room recovers them. Command+Shift+Escape closes
 the panel as its Close control does, page-wide and from inside the terminal,
 maximized or not, where plain Escape still goes to the session; the page takes
 it from the browser, except inside an open modal dialog or System settings,

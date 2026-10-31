@@ -163,3 +163,10 @@ export async function pressWhereShown(control: Locator) {
   const { x, y, width, height } = await box(control);
   await control.page().mouse.click(x + width / 2, y + height / 2);
 }
+
+// After Close, the Board (and banner) are readable again; use this when a
+// journey opened a covering panel and still needs Board assertions.
+export async function closeSidePanel(panel: Locator) {
+  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(panel).toHaveCount(0);
+}

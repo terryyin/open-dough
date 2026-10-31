@@ -86,11 +86,16 @@ export function PageFrame({
   const { terminal, finalReport, storyReview, maximized, markSessionDone } =
     sidePanel;
   const frame = useRef<HTMLDivElement>(null);
-  const { stacked, divider } = useSidePanelWidth(
+  // Covering uses the maximized layout without overwriting the stored choice.
+  // Only while a panel is shown — otherwise a narrow window would hide the Board.
+  const panelOpen = sidePanel.shown !== undefined;
+  const { covering, divider } = useSidePanelWidth(
     frame,
-    sidePanel.shown !== undefined,
+    panelOpen,
     sidebar.open,
   );
+  const shownMaximized = panelOpen && (maximized || covering);
+  const offerMaximize = !covering;
   const attached = useCallback<SessionOperation<void>>(
     ({ record }) => {
       if (record.doneAt !== undefined) {
@@ -124,15 +129,15 @@ export function PageFrame({
   return (
     <SessionsOnPage value={sidePanel.sessions}>
       <StoryReviewsOnPage value={sidePanel.openStoryReview}>
-        <PanelDividerOnPage value={maximized ? undefined : divider}>
+        <PanelDividerOnPage value={shownMaximized ? undefined : divider}>
           <div
             ref={frame}
             className={
               [
                 sidebar.open && "page-with-sessions-sidebar",
-                sidePanel.shown !== undefined && "page-split",
-                sidePanel.shown !== undefined && stacked && "page-stacked",
-                maximized && "page-maximized",
+                panelOpen && "page-split",
+                panelOpen && covering && "page-covering",
+                shownMaximized && "page-maximized",
               ]
                 .filter(Boolean)
                 .join(" ") || undefined
@@ -147,7 +152,12 @@ export function PageFrame({
             <SessionsSidebar {...sidebar} onOpen={goToSession} />
             <SessionsSidebarOnPage value={sidebar}>
               <RecentlyDoneRangeOnPage value={range}>
-                <div className="page-column">{children}</div>
+                <div
+                  className="page-column"
+                  aria-hidden={shownMaximized ? true : undefined}
+                >
+                  {children}
+                </div>
               </RecentlyDoneRangeOnPage>
             </SessionsSidebarOnPage>
             {finalReport && (
@@ -169,6 +179,7 @@ export function PageFrame({
                 onAttached={attached}
                 maximized={maximized}
                 onMaximize={sidePanel.maximize}
+                offerMaximize={offerMaximize}
                 onClose={() => {
                   sidePanel.close(terminal);
                 }}
@@ -185,6 +196,7 @@ export function PageFrame({
                 request={storyReview}
                 maximized={maximized}
                 onMaximize={sidePanel.maximize}
+                offerMaximize={offerMaximize}
                 onClose={() => {
                   sidePanel.close(storyReview);
                 }}

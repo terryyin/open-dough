@@ -9,8 +9,14 @@ import {
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { parts } from "./dashboardPage.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
-import { resizeUntilArranged } from "./sidePanelWidthPage.ts";
+import {
+  expectBoardUnreachableBehindCovering,
+  expectCovering,
+  expectCoveringFillsWindow,
+  resizeUntilArranged,
+} from "./sidePanelWidthPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import { processRunning } from "./support/processGroup.ts";
 import {
@@ -37,7 +43,7 @@ const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
 test.describe(`${name} terminal input`, () => {
   test.use({ viewport: portrait, hasTouch: true });
-  test("touch continues the same session through editing, reduced height, rotation, maximize and close/reopen", async ({
+  test("touch continues the same session through covering, editing, reduced height, rotation and close/reopen", async ({
     page,
     dashboard,
   }) => {
@@ -47,10 +53,12 @@ test.describe(`${name} terminal input`, () => {
     });
     const opened = await openStoryColumnsJourney(page, journey);
     await opened.settled();
+    const { banner, board } = parts(page);
     const sidebar = sessionsSidebarParts(page);
     await tapWhereShown(sidebar.button);
     const opener = sidebar.entry(title);
     const { sent, sizes } = noteTerminalTraffic(page);
+    const boardScroll = page.locator(".board-scroll");
     await tapWhereShown(opener);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
@@ -67,10 +75,16 @@ test.describe(`${name} terminal input`, () => {
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     };
-    // Reveal the stacked terminal after ordinary Session entry navigation.
-    await panel.scrollIntoViewIfNeeded();
     await expect(rows).toContainText(`attached ${native.shortId}`);
     await expect(rows).toContainText("Claude Code");
+    await expectCoveringFillsWindow(panel, { banner, board });
+    // Reveal may move the Board; Close must return that same place (E3).
+    const scrollWhileCovering = await boardScroll.evaluate(
+      (element) => element.scrollTop,
+    );
+    await expect(control("Mark as done")).toBeVisible();
+    await expect(control("Close")).toBeVisible();
+    await expectBoardUnreachableBehindCovering(panel, board);
     const heading = panel.getByRole("heading", { level: 2, name: title });
     const titleToggle = panel.getByRole("button", { name: title, exact: true });
     await expect(heading).toHaveAccessibleName(title);
@@ -107,6 +121,8 @@ test.describe(`${name} terminal input`, () => {
 
     await test.step("a moderately reduced height keeps fitted input", async () => {
       await page.setViewportSize({ width: portrait.width, height: 400 });
+      await expectCovering(panel);
+      await expect(control("Close")).toBeVisible();
       await expectFittedInput(panel, sizes);
       await focusByTouch(panel);
       await assertIdentity();
@@ -114,6 +130,7 @@ test.describe(`${name} terminal input`, () => {
 
     await test.step("reducing visible height retains the input, fitted output and pinned controls without another attachment", async () => {
       await page.setViewportSize({ width: portrait.width, height: 240 });
+      await expectCovering(panel);
       await expectFittedInput(panel, sizes);
       await focusByTouch(panel);
       await page.keyboard.press("Enter");
@@ -135,12 +152,7 @@ test.describe(`${name} terminal input`, () => {
         ).toBe(true);
       }
       await assertIdentity();
-      await tapWhereShown(control("Maximize"));
-      await expectFittedInput(panel, sizes);
       expect((await box(panel)).height).toBeCloseTo(240, 0);
-      await tapWhereShown(control("Restore"));
-      await expectFittedInput(panel, sizes);
-      await assertIdentity();
     });
 
     await test.step("touch scroll reads earlier PTY output and returns to the input without hiding the controls", async () => {
@@ -166,7 +178,6 @@ test.describe(`${name} terminal input`, () => {
       expect(sent).toEqual(inputBeforeScroll);
       expect(attaches()[0]?.lines).toEqual(linesBeforeScroll);
       await assertIdentity();
-      // Maximize/Restore already owned for this reduced-height arrangement above
       await focusByTouch(panel);
       await page.keyboard.type("after scrolling");
       await page.keyboard.press("Enter");
@@ -177,23 +188,28 @@ test.describe(`${name} terminal input`, () => {
     await test.step("landscape and portrait keep the same attachment and support more input", async () => {
       for (const view of [landscape, portrait]) {
         await resizeUntilArranged(panel, view);
+        // Portrait (≤800) covers; phone landscape (844) has a usable split.
+        if (view.width <= 800) await expectCovering(panel);
+        else await expect(control("Maximize")).toBeVisible();
+        await expect(control("Close")).toBeVisible();
         await expectFittedInput(panel, sizes);
         await focusByTouch(panel);
         await page.keyboard.type(`follow up ${view.width}`);
         await page.keyboard.press("Enter");
         await expect(rows).toContainText(`echo follow up ${view.width}`);
-        await tapWhereShown(control("Maximize"));
-        await expectFittedInput(panel, sizes);
-        await tapWhereShown(control("Restore"));
-        await expectFittedInput(panel, sizes);
         await assertIdentity();
       }
     });
 
-    await test.step("Close detaches only; reopening targets that same native session", async () => {
+    await test.step("Close detaches only; Board scroll returns; reopening targets that same native session", async () => {
       await tapWhereShown(control("Close"));
       await expect(panel).toHaveCount(0);
       await expect(sidebar.button).toBeFocused();
+      await expect(banner).toBeVisible();
+      await expect(board).toBeVisible();
+      expect(await boardScroll.evaluate((element) => element.scrollTop)).toBe(
+        scrollWhileCovering,
+      );
       await expect.poll(() => attaches()[0]?.endedBy).toBe("SIGHUP");
       await expect
         .poll(() => processRunning(attaches()[0]?.pid ?? 0))
@@ -206,8 +222,8 @@ test.describe(`${name} terminal input`, () => {
       expect(record).not.toHaveProperty("doneAt");
       await tapWhereShown(sidebar.button);
       await tapWhereShown(opener);
-      await panel.scrollIntoViewIfNeeded();
       await expect(rows).toContainText(`attached ${native.shortId}`);
+      await expectCovering(panel);
       await expectFittedInput(panel, sizes);
       await focusByTouch(panel);
       await page.keyboard.type("same session reopened");

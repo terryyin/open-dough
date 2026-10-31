@@ -3,7 +3,7 @@
 // while it holds the keyboard, with Left, which widens the panel, and Right,
 // which narrows it. Both change the one preferred width within the same
 // bounds, and it says the panel's current width. While the panel is maximized
-// or stacked above the page there is no divider.
+// or covering the page column there is no divider.
 
 import { ResizeDivider } from "./ResizeDivider.tsx";
 import { usePanelDivider } from "./sidePanelWidth.ts";

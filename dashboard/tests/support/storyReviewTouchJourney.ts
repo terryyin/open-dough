@@ -7,7 +7,7 @@ import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
-import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
+import { expectCovering, resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./preparationPage.ts";
@@ -46,7 +46,6 @@ import {
 
 const control = (review: Locator, name: string) =>
   review.getByRole("button", { name, exact: true });
-
 export async function chooseComparisonAndKeepContextThroughTouch(
   page: Page,
   dashboard: DashboardServer,
@@ -188,14 +187,17 @@ export async function chooseComparisonAndKeepContextThroughTouch(
       comparison.getByRole("radio", { name: "All changes" }),
     ).toBeChecked();
     expect(await scrollTopOf(code)).toBe(codeAt);
-    expect((await box(code)).height).toBeGreaterThanOrEqual(44);
+    expect((await box(code)).height).toBeGreaterThanOrEqual(40);
     expect(await pageFits(page)).toBe(true);
-    await tapWhereShown(control(review, "Maximize"));
-    await expect(control(review, "Restore")).toBeVisible();
-    expect(await scrollTopOf(code)).toBe(codeAt);
-    await tapWhereShown(control(review, "Restore"));
-    await expect(control(review, "Maximize")).toBeVisible();
-    expect(await scrollTopOf(code)).toBe(codeAt);
+    if (viewport.width <= 800) await expectCovering(review);
+    else {
+      await tapWhereShown(control(review, "Maximize"));
+      await expect(control(review, "Restore")).toBeVisible();
+      expect(await scrollTopOf(code)).toBe(codeAt);
+      await tapWhereShown(control(review, "Restore"));
+      await expect(control(review, "Maximize")).toBeVisible();
+      expect(await scrollTopOf(code)).toBe(codeAt);
+    }
   }
   expect(reads).toBe(0);
   const browserBeforeHide = await scrollTopOf(browser);

@@ -4,9 +4,9 @@ import { expect, test } from "./support/preparationPage.ts";
 import { largeBacklog, publishLargeBacklog } from "./accessibleBoard.ts";
 import { boardScroll, expectView, scrollYOf, wheelTo } from "./boardPage.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
-import { box, pressWhereShown } from "./pageLayout.ts";
+import { box, closeSidePanel, pressWhereShown } from "./pageLayout.ts";
 import { publishRosterOrigins } from "./agentRosterRecords.ts";
-import { dragDivider } from "./sidePanelWidthPage.ts";
+import { dragDivider, expectCovering } from "./sidePanelWidthPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
@@ -50,6 +50,19 @@ for (const viewport of [
     );
     const banner = parts(page).banner;
     const region = boardScroll(page);
+    if (viewport.width === 700) {
+      await expectCovering(panel);
+      expect((await box(panel)).height).toBe(viewport.height);
+      await expect(banner).toBeHidden();
+      await closeSidePanel(panel);
+      await expect(banner).toBeVisible();
+      const before = await scrollYOf(page);
+      const firstTop = (await box(card)).y;
+      await wheelTo(page, before + 600);
+      expect((await box(card)).y).toBeLessThan(firstTop - 500);
+      expect(await page.evaluate(() => scrollY)).toBe(0);
+      return;
+    }
     const initial = {
       panel: await box(panel),
       banner: await box(banner),
@@ -70,64 +83,59 @@ for (const viewport of [
     expect(
       await region.evaluate((element) => getComputedStyle(element).overflowY),
     ).toBe("auto");
-    if (viewport.width === 1400) {
-      const hit = await region.evaluate((element) => {
-        const at = element.getBoundingClientRect();
-        const target = document.elementFromPoint(
-          at.right - 1,
-          at.top + at.height / 2,
-        );
-        return {
-          width: at.width,
-          clientWidth: element.clientWidth,
-          divider: target?.closest(".panel-divider") !== null,
-          target: target?.className,
-        };
-      });
-      await testInfo.attach("Board scrollbar hit", {
-        body: JSON.stringify(hit),
-        contentType: "application/json",
-      });
-      expect(
-        hit,
-        "the Board scrollbar edge cannot target the Panel divider",
-      ).toMatchObject({ divider: false });
-      const beforeTrack = await scrollYOf(page);
-      await page.mouse.click(
-        initial.region.x + initial.region.width - 1,
-        initial.region.y + initial.region.height - 24,
+    const hit = await region.evaluate((element) => {
+      const at = element.getBoundingClientRect();
+      const target = document.elementFromPoint(
+        at.right - 1,
+        at.top + at.height / 2,
       );
-      await expect.poll(() => scrollYOf(page)).toBeGreaterThan(beforeTrack);
-      let last: number | undefined;
-      await expect
-        .poll(async () => {
-          const now = await scrollYOf(page);
-          const settled = now === last;
-          last = now;
-          return settled;
-        })
-        .toBe(true);
-      expect(await box(panel)).toEqual(initial.panel);
-      expect(await page.evaluate(() => scrollY)).toBe(0);
-      const divider = await box(
-        page.getByRole("separator", { name: "Panel divider", exact: true }),
-      );
-      expect(initial.region.x + initial.region.width).toBeLessThan(
-        initial.panel.x,
-      );
-      expect(
-        initial.panel.x - initial.region.x - initial.region.width,
-      ).toBeLessThan(16);
-      expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
-        divider.x + divider.width / 2,
-      );
-      expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
-        divider.x,
-      );
-    } else {
-      expect(initial.panel.height).toBe(viewport.height / 2);
-      expect(initial.banner.y).toBe(initial.panel.y + initial.panel.height);
-    }
+      return {
+        width: at.width,
+        clientWidth: element.clientWidth,
+        divider: target?.closest(".panel-divider") !== null,
+        target: target?.className,
+      };
+    });
+    await testInfo.attach("Board scrollbar hit", {
+      body: JSON.stringify(hit),
+      contentType: "application/json",
+    });
+    expect(
+      hit,
+      "the Board scrollbar edge cannot target the Panel divider",
+    ).toMatchObject({ divider: false });
+    const beforeTrack = await scrollYOf(page);
+    await page.mouse.click(
+      initial.region.x + initial.region.width - 1,
+      initial.region.y + initial.region.height - 24,
+    );
+    await expect.poll(() => scrollYOf(page)).toBeGreaterThan(beforeTrack);
+    let last: number | undefined;
+    await expect
+      .poll(async () => {
+        const now = await scrollYOf(page);
+        const settled = now === last;
+        last = now;
+        return settled;
+      })
+      .toBe(true);
+    expect(await box(panel)).toEqual(initial.panel);
+    expect(await page.evaluate(() => scrollY)).toBe(0);
+    const divider = await box(
+      page.getByRole("separator", { name: "Panel divider", exact: true }),
+    );
+    expect(initial.region.x + initial.region.width).toBeLessThan(
+      initial.panel.x,
+    );
+    expect(
+      initial.panel.x - initial.region.x - initial.region.width,
+    ).toBeLessThan(16);
+    expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
+      divider.x + divider.width / 2,
+    );
+    expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
+      divider.x,
+    );
     const position = await scrollYOf(page);
     await pressWhereShown(
       panel.getByRole("button", { name: "Maximize", exact: true }),
@@ -140,13 +148,11 @@ for (const viewport of [
     expect(await scrollYOf(page)).toBe(position);
     expect(await box(panel)).toEqual(initial.panel);
     expect(await page.evaluate(() => scrollY)).toBe(0);
-    if (viewport.width === 1400) {
-      await dragDivider(page, 60);
-      await expect
-        .poll(async () => (await box(panel)).width)
-        .toBe(initial.panel.width - 60);
-      expect(await page.evaluate(() => scrollY)).toBe(0);
-    }
+    await dragDivider(page, 60);
+    await expect
+      .poll(async () => (await box(panel)).width)
+      .toBe(initial.panel.width - 60);
+    expect(await page.evaluate(() => scrollY)).toBe(0);
   });
 }
 

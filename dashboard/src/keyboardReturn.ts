@@ -36,7 +36,10 @@ export function useKeyboardReturn<Shown>(
       return undefined;
     const give = (element: HTMLElement | null | undefined) => {
       returned.current = returning;
-      element?.focus();
+      // keepInView already set the Board reading place; a default focus scroll
+      // would move to the control (session entry, Sessions) instead of the
+      // card's reading edge — especially after covering→Close.
+      element?.focus({ preventScroll: true });
     };
     // A control the page no longer shows, as in a hidden sidebar, cannot
     // take the keyboard.

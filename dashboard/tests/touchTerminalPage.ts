@@ -52,12 +52,8 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
         const rowHeight =
           element.querySelector(".xterm-rows > div")?.getBoundingClientRect()
             .height ?? 0;
-        const stacked =
-          panel?.parentElement?.classList.contains("page-stacked");
-        const maximized =
-          panel?.parentElement?.classList.contains("page-maximized");
-        const panelHeight =
-          innerHeight * (stacked === true && maximized !== true ? 0.5 : 1);
+        // Covering and split both pin the panel at the viewport height.
+        const panelHeight = innerHeight;
         return {
           rows: element.querySelectorAll(".xterm-rows > div").length,
           fits:

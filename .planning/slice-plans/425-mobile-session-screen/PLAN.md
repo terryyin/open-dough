@@ -70,8 +70,8 @@ dashboard under this story.
 | 2 type, reduce height, rotate | Slice 2 | the same spec's existing editing, 400/240px height and landscape steps, now with the panel covering, header and Close in view |
 | 3 Close returns context; session keeps running; reopen | Slice 2 | the same spec's close/reopen step plus a Board scroll position assertion and focus on the opener |
 | 4 desktop header, divider, Maximize/Restore | Slices 1, 2 | `agent-terminal-maximize.spec.ts` desktop cases with an added header assertion (no UUID, workflow label) |
-| 5 narrow and widen keep chosen width and Maximize choice | Slice 2 | rewritten `side-panel-width-stacking.spec.ts` for terminal and story review: narrow covers without Maximize; widening restores width; a maximized panel stays maximized with Restore |
-| 6 sidebar open, no usable room | Slice 2 | the stacking spec's sidebar case at 880px (880 − 288px sidebar = 592px < two 320px minimums): the panel takes the page column beside the sidebar without Maximize |
+| 5 narrow and widen keep chosen width and Maximize choice | Slice 2 | rewritten `side-panel-width-covering.spec.ts` for terminal and story review: narrow covers without Maximize; widening restores width; a maximized panel stays maximized with Restore |
+| 6 sidebar open, no usable room | Slice 2 | the covering spec's sidebar case at 880px (880 − 288px sidebar = 592px < two 320px minimums): the panel takes the page column beside the sidebar without Maximize |
 | Title disclosure | Slice 1 | touch spec: tapping the title expands it to its full text, and the heading's accessible name is the full title throughout |
 
 ## Decisive premises
@@ -80,7 +80,7 @@ Observed 2026-10-31 in this preparation's worktree
 (`claude/use-the-full-mobile-screen-for-sessions-and-simp` at `ad6e6e34`),
 Node 24.21.0, after `node scripts/setup-native.mjs npm|browser|check`.
 
-1. **Proof route.** `npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/agent-terminal-touch.spec.ts dashboard/tests/side-panel-width-stacking.spec.ts dashboard/tests/agent-terminal-maximize.spec.ts`
+1. **Proof route.** `npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/agent-terminal-touch.spec.ts dashboard/tests/side-panel-width-covering.spec.ts dashboard/tests/agent-terminal-maximize.spec.ts`
    → 3 passed (45 s) unchanged. The owning specs run locally, and today's
    narrow Maximize already fills the window (maximize spec's narrow case).
 2. **Consumers of the change.** Scratch edit, reverted before recording:
@@ -100,7 +100,7 @@ Node 24.21.0, after `node scripts/setup-native.mjs npm|browser|check`.
      `final-report-touch`, `frame-sessions-look`,
      `sessions-sidebar-navigation-cases` (narrow case), `side-panel-width`,
      `story-review-one-shot-choice-races`, `story-review-touch`, plus the
-     owners `side-panel-width-stacking`, `side-panel-width-kept`,
+     owners `side-panel-width-covering`, `side-panel-width-kept`,
      `agent-terminal-touch` and `agent-terminal-maximize`. They read or
      operate the Board, banner or sidebar while a panel is open at a narrow
      width, or measure the half-height stack. The new promise hides the Board
@@ -140,8 +140,8 @@ Accepted proof (slice 1):
 
 ### 2. The Side panel occupies the screen where no split fits
 Type: Behavior
-Status: planned
-Proof: rewritten `side-panel-width-stacking.spec.ts`, updated `agent-terminal-touch.spec.ts` and `agent-terminal-maximize.spec.ts` narrow case, other consumers under Decisive premises updated and passing; `docs/dashboard-navigation.md` describes covering instead of stacking.
+Status: done
+Proof: rewritten `side-panel-width-covering.spec.ts`, updated `agent-terminal-touch.spec.ts` and `agent-terminal-maximize.spec.ts` narrow case, other consumers under Decisive premises updated and passing; `docs/dashboard-navigation.md` describes covering instead of stacking.
 
 Behavior: a window 800px or narrower, or too little room beside the open
 sidebar → open a session or story review → the panel takes the page column's
@@ -149,6 +149,8 @@ room (the whole viewport on a narrow window), the Board and banner are hidden
 and unreachable, no Maximize/Restore is offered, and Close returns to the
 unchanged Board context; widening restores the developer's split width and
 Maximize choice.
+
+Accepted proof (slice 2): owners `agent-terminal-touch`, `side-panel-width-covering`, `agent-terminal-maximize` pass serially; consumers updated (close-then-read Board / covering). Arrangement renamed to `covering`; PageFrame uses maximized layout while panel open; title-toggle keeps control-size min-height without negative margin (CI clip fix). Pre-existing retirement attach/claude/done failures still reported, not owned.
 
 ## Story obligations
 

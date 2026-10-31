@@ -168,5 +168,5 @@ later dashboard navigation work.
   [panel width](../../dashboard/src/sidePanelWidth.ts).
 - [Touch session journey](../../dashboard/tests/agent-terminal-touch.spec.ts),
   [maximize journey](../../dashboard/tests/agent-terminal-maximize.spec.ts), and
-  [stacked panel journey](../../dashboard/tests/side-panel-width-stacking.spec.ts).
+  [covering panel journey](../../dashboard/tests/side-panel-width-covering.spec.ts).
 - [Maintained navigation behavior](../../docs/dashboard-navigation.md).

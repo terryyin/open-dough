@@ -93,6 +93,7 @@ export function Terminal({
   onAttached,
   maximized,
   onMaximize,
+  offerMaximize,
   onClose,
   onMarkDone,
   onWorkspaceUnavailable,
@@ -109,6 +110,8 @@ export function Terminal({
   // change that.
   readonly maximized: boolean;
   readonly onMaximize: (maximized: boolean) => void;
+  // False while covering: Maximize/Restore is not offered.
+  readonly offerMaximize: boolean;
   readonly onClose: () => void;
   // Answers whether the session was marked done; the panel closes if it was.
   readonly onMarkDone: MarkSessionDone;
@@ -190,6 +193,7 @@ export function Terminal({
           <SidePanelControls
             maximized={maximized}
             onMaximize={onMaximize}
+            offerMaximize={offerMaximize}
             onClose={onClose}
           />
         </div>

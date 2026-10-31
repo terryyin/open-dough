@@ -5,9 +5,9 @@
    (`--side-panel-width`, ./sidePanelWidth.ts), or half the room until then,
    right of the Sessions sidebar's column (./sessions-sidebar.css) while it is
    open. Where the room holds no usable split, as on a narrow window, the
-   panel is stacked above the page. Maximized, the panel takes the page
-   column's room, the page with its banner hidden behind it, pinned to the
-   window's height in either arrangement. */
+   panel covers the page column through the maximized layout. Maximized (by
+   choice or covering), the panel takes the page column's room, the page with
+   its banner hidden behind it, pinned to the window's height. */
 
 .page-split {
   --panel-divider-room: 0.4rem;
@@ -33,18 +33,29 @@
 }
 
 /* Keep each region scrollbar left of the Panel divider's hit area. */
-.page-split:not(.page-stacked) > .page-column > .board-scroll,
-.page-split:not(.page-stacked) > .page-column > .roster-scroll {
+.page-split:not(.page-covering):not(.page-maximized)
+  > .page-column
+  > .board-scroll,
+.page-split:not(.page-covering):not(.page-maximized)
+  > .page-column
+  > .roster-scroll {
   margin-inline-end: var(--panel-divider-room);
 }
 
 /* Maximized, the panel spans the page's column and its own, and the page
    keeps its width, place, and scroll behind it, unseen, so Restore shows it
-   as it was. */
+   as it was. Opacity (not visibility:hidden) keeps scrollIntoView able to
+   reveal a card while covering, so Close returns that reading place;
+   pointer-events and aria-hidden on the column (PageFrame) block interaction
+   and a11y. */
 .page-maximized > .page-column {
   grid-row: 1;
   grid-column: -3;
-  visibility: hidden;
+  /* Opacity (not visibility:hidden): Board reveal can scroll while covering,
+     and scrollTop survives when the panel closes. Panel paint covers it;
+     pointer-events block interaction. */
+  opacity: 0;
+  pointer-events: none;
 }
 
 .page-maximized > .side-panel {
@@ -138,18 +149,17 @@
 }
 
 @media (any-pointer: coarse) {
+  /* Grow the tap surface inside the header flow. A negative margin pulled the
+     control outside an overflow clip and failed touch reachability; lengthening
+     the title line by the control size keeps both tap size and an unclipped hit. */
   .side-panel-title-toggle {
     display: flex;
     align-items: center;
-    /* Keep a control-sized tap surface without lengthening the header stack
-       the review/terminal body shares (1lh of title text). */
     min-height: var(--control-size);
-    margin-block: calc((1lh - var(--control-size)) / 2);
   }
 
   .side-panel-title-expanded .side-panel-title-toggle {
     align-items: flex-start;
-    margin-block: 0;
   }
 }
 
@@ -169,57 +179,45 @@
   gap: var(--space-1);
 }
 
-/* Stacked: the panel above the page in the page's column. */
-.page-split.page-stacked {
-  --stacked-panel-height: 50dvh;
-
+/* Covering: no usable split — full-width page column behind the panel (via
+   maximized), so Board reveal can still scroll; panel fills the column. */
+.page-split.page-covering {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: var(--stacked-panel-height) var(--stacked-panel-height);
 }
 
-.page-stacked > .side-panel {
-  --side-panel-height: var(--stacked-panel-height);
-
+.page-covering > .side-panel {
   grid-row: 1;
   grid-column: -2;
-  position: static;
   border-left: none;
-  border-bottom: 1px solid var(--line);
 }
 
-.page-stacked > .page-column {
-  height: var(--stacked-panel-height);
-  grid-row: 2;
+.page-covering > .page-column {
+  grid-row: 1;
   grid-column: -2;
 }
 
-/* Stacked beside the open sidebar, the panel sits above the page right of
-   it; on a narrow window the sidebar overlays the page instead. */
-.page-with-sessions-sidebar.page-split.page-stacked {
+.page-with-sessions-sidebar.page-split.page-covering {
   grid-template-columns: 18rem minmax(0, 1fr);
 }
 
-.page-with-sessions-sidebar.page-stacked > .sessions-sidebar {
-  grid-row: 1 / span 2;
+.page-with-sessions-sidebar.page-covering > .sessions-sidebar {
+  grid-row: 1;
 }
 
 @media (max-width: 800px) {
-  .page-with-sessions-sidebar.page-split.page-stacked {
+  .page-with-sessions-sidebar.page-split.page-covering {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.page-stacked.page-maximized {
-  grid-template-rows: 100dvh;
+.page-covering.page-maximized > .page-column {
+  grid-column: -2;
 }
 
-.page-stacked.page-maximized > .page-column {
-  grid-row: 1;
-}
-
-.page-stacked.page-maximized > .side-panel {
+.page-covering.page-maximized > .side-panel {
   --side-panel-height: 100dvh;
 
+  grid-column: -2;
   position: sticky;
 }
 
