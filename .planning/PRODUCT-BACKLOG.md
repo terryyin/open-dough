@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Keep shared refresh answers consistent with what each viewer shows](seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh) — SEED-202#consistent-shared-refresh ([plan](slice-plans/428-consistent-shared-refresh/PLAN.md))
-
 ## Backlog list
 
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
