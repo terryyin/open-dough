@@ -139,3 +139,7 @@ includes that record.
 
 Each slice has one outcome and its own proof loop. Slice 3 uses slice 2's
 revision. No slice changes a promise of the source story.
+
+## Execution complete
+
+Product advice: no change. No correction; wrap-up can close when CI settles.
