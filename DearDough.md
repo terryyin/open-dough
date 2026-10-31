@@ -55,6 +55,15 @@ Distinct executions, original timestamps/releases/tools, observed effects and qu
   - Observed effect: three local repair rounds after implementation; the strict delivery check failed closed and no incorrect slice completion was published.
   - Inference: qualified recurrence of an unverified consuming-operation premise: another active plan's layout was treated as a usable template without exercising the reader that later consumes it. Checking that reader before readiness could catch the mismatch earlier; no escaping product defect or measured duration saving is claimed.
 
+- Execution: SEED-202#consistent-shared-refresh / plan 428 / first related implementation `bd970ab3f9ce756d9a98681b7b846c70e8dd001a`
+  - Timestamp: unknown (2026-10-31; slice 3 implementation before delivery `81abccbdb4b779a875820e26c78c73ef5e878c55` 20:49:24+08:00)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.79
+  - Evidence: plan 428 Decisive premises and Finding 3 (`e01504b0` code read) inferred Cursor joiners could be labeled not running; slice 3 agent `8fdf20cc-39ae-4e66-9f88-a617aad90e21` and coordinator `0f28130b-4f06-4d23-a62a-b0a5632293f8` L43 — label miss did not reproduce under runner-then-records; own-read promise did; Learnings and `cursor-held-sessions-revision.spec.ts` record revision-key own-read proof.
+  - Observed effect: no product rework of the planned revision-key fix; investigation cost while separating the unreproduced label symptom from the story's own-read obligation; plan learning updated; slice delivered on the verified promise.
+  - Inference: qualified recurrence of an unverified host-state premise entering the plan from a prior code read without exercising the current join path; checking that path at planning time would have dropped the label claim earlier. No claim that the revision-key fix was unnecessary.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. A replay resolves the named readiness seam without exercising the rest of the slice's promised journey, leaving a later operation to force a scope stop. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -108,6 +117,15 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Evidence: coordinator transcript `9b247773-9b4c-456b-9be3-4f21c7043f14`; mandatory per-slice `dough-post-change-refactor` Tasks after slices 1–7 and the dialog CI repair. Slice 1 Task `38f1be28-c09d-44b3-8e9b-376e9f53bfc2` reported `none — already clean` on the waived-probe plan-only diff; later slice/repair passes edited product or tests (for example slice 5 retired unused `launchAttachmentAccept`, CI-repair refactor dropped dead CSS positioning).
   - Observed effect: one of the mandatory refactor agents edited nothing after reading an accepted plan-only change; other passes on this seven-slice story made useful cohesion edits.
   - Inference: qualified recurrence of fixed per-slice refactor cost (ODF-141) with mixed payoff; durations unmeasured; no claim that omitting the clean pass would have saved a known token or wall-time total.
+
+- Execution: SEED-202#consistent-shared-refresh / plan 428 / first related implementation `bd970ab3f9ce756d9a98681b7b846c70e8dd001a`
+  - Timestamp: unknown (2026-10-31; three post-slice refactor Tasks before deliveries `bd970ab3`, `1bdb3420`, `81abccbd`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.79
+  - Evidence: coordinator transcript `0f28130b-4f06-4d23-a62a-b0a5632293f8`; mandatory `dough-post-change-refactor` Tasks `c1e687fe-b4ed-469e-8ccc-74d432795d8e` (slice 1) and `076fa213-15fe-4165-8237-85ada14f1818` (slice 3) returned `none — already clean`; slice 2 Task `ed47a427-669b-42ce-babe-01f8e1b61b34` extracted `machineDocumentsRevision.ts` for the 250-line file-size gate.
+  - Observed effect: two of three mandatory refactor agents edited nothing after reading accepted slice diffs; one paid off on file size in the same store subsystem.
+  - Inference: qualified recurrence of fixed per-slice refactor cost (ODF-141) with mixed payoff on a three-slice correction; durations/tokens unmeasured; no claim that omitting either clean pass would have saved a known total.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 

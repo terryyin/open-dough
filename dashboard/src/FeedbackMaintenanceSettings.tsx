@@ -5,8 +5,8 @@
 // last automatic launch's outcome from the machine's sessions answer
 // (`./feedbackMaintenanceState.ts`). The setting itself is described in
 // `../FEEDBACK-MAINTENANCE.md`.
-import { useEffect, useState } from "react";
-import { readMachineSessions } from "./machineSessionsReads.ts";
+import { useEffect, useRef, useState } from "react";
+import { readMachineSessionsSince } from "./machineSessionsReads.ts";
 import {
   maintenanceStatusText,
   type FeedbackMaintenanceState,
@@ -72,12 +72,18 @@ function useMaintenanceState(
   setting: FeedbackMaintenanceSetting | undefined,
 ): FeedbackMaintenanceState | undefined {
   const [state, setState] = useState<FeedbackMaintenanceState>();
+  // The revision of the latest full answer this check took.
+  const heldRevision = useRef<string | undefined>(undefined);
   useEffect(() => {
     let current = true;
+    heldRevision.current = undefined;
     const read = () => {
-      void readMachineSessions().then((answer) => {
-        if (current && answer !== undefined)
-          setState(answer.feedbackMaintenance);
+      void readMachineSessionsSince(heldRevision.current).then((answer) => {
+        if (!current || answer === undefined) return;
+        if ("unchanged" in answer) return;
+        if (answer.revision !== undefined)
+          heldRevision.current = answer.revision;
+        setState(answer.feedbackMaintenance);
       });
     };
     read();

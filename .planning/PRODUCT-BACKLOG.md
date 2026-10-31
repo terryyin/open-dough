@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Keep shared refresh answers consistent with what each viewer shows](seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh) — SEED-202#consistent-shared-refresh ([plan](slice-plans/428-consistent-shared-refresh/PLAN.md))
-
 ## Backlog list
 
 - [Use the Open Dough mark as the sidebar toggle and drop the repeated project title](seeds/SEED-205-compact-dashboard-banner.md#logo-sidebar-toggle) — SEED-205#logo-sidebar-toggle

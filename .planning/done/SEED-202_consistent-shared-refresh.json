@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-202#consistent-shared-refresh",
+  "title": "Keep shared refresh answers consistent with what each viewer shows",
+  "completedAt": "2026-10-31T13:01:38.807Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "cursor",
+  "model": "auto"
+}

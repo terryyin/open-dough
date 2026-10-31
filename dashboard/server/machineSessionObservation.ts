@@ -10,16 +10,15 @@
 // of a settled observation, or while one runs, is answered by it, so the
 // saved-session services refresh and each host's native listing run once for
 // all of them. An observation stands only for the project catalog and the
-// machine documents it began under: a catalog change, or any process changing
-// a machine document, makes the next demand observe afresh. Native
-// session and installation changes are seen at most a second plus one
-// observation later. Each waiter waits at most the read wait, then is told to
-// ask again; one leaving never ends the observation for the others.
+// machine-document revision (`./machineJsonStore.ts`) it began under: a
+// catalog change, or any process changing a machine document, makes the next
+// demand observe afresh. Native session and installation changes are seen at
+// most a second plus one observation later. Each waiter waits at most the read
+// wait, then is told to ask again; one leaving never ends the observation for
+// the others.
 
 import { createHash } from "node:crypto";
-import { readdir, stat } from "node:fs/promises";
 import type { ServerResponse } from "node:http";
-import path from "node:path";
 import type {
   Alerts,
   AttemptObservation,
@@ -37,8 +36,7 @@ import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { hostOperations } from "./launchHosts.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { machineDashboardDirectory } from "./machineHome.ts";
-import { machineJsonReplacements } from "./machineJsonStore.ts";
+import { machineDocumentsRevision } from "./machineJsonStore.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { SharedObservation } from "./sharedObservation.ts";
 
@@ -80,31 +78,6 @@ export type ObservedMachineSessions = {
   readonly unchanged: string;
   readonly revision: string;
 };
-
-// Every machine document as its file stands now: any process replacing,
-// adding, removing, or rewriting one changes it.
-async function machineDocumentsIdentity(): Promise<string> {
-  const folder = machineDashboardDirectory();
-  let names: string[];
-  try {
-    names = (await readdir(folder)).filter((name) => name.endsWith(".json"));
-  } catch {
-    return "absent";
-  }
-  const files = await Promise.all(
-    names.sort().map(async (name) => {
-      try {
-        const { ino, mtimeNs, size } = await stat(path.join(folder, name), {
-          bigint: true,
-        });
-        return `${name}:${ino}:${mtimeNs}:${size}`;
-      } catch {
-        return `${name}:absent`;
-      }
-    }),
-  );
-  return files.join("|");
-}
 
 async function observeMachineSessions(
   launches: AgentLaunches,
@@ -161,11 +134,7 @@ export class MachineSessionObservation {
   // waiter whose `signal` ends is refused too; nobody hears that answer.
   async observed(signal: AbortSignal): Promise<ObservedMachineSessions> {
     const demanded = await this.shared.demand(
-      [
-        configuredProjects(),
-        machineJsonReplacements(),
-        await machineDocumentsIdentity(),
-      ],
+      [configuredProjects(), await machineDocumentsRevision()],
       waitMs(),
       signal,
     );

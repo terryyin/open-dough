@@ -66,20 +66,23 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     attemptsReadable,
     answeredAsk,
   } = sessions;
-  const setRecords = useCallback(
-    (
-      change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
-    ) => {
-      setSessions((current) => ({ ...current, known: change(current.known) }));
-    },
-    [],
-  );
   // Reads predating deletion must not restore the deleted record.
   const deletedAt = useRef(new Map<string, number>());
   const { visibility, settleRevealed } = usePageVisibility();
   const everRead = useRef(false);
   // The revision of the latest full answer this page's reads took.
   const heldRevision = useRef<string | undefined>(undefined);
+  const setRecords = useCallback(
+    (
+      change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
+    ) => {
+      // An action changed what the page shows outside the poll: the held
+      // revision no longer matches this view, so the next poll asks in full.
+      heldRevision.current = undefined;
+      setSessions((current) => ({ ...current, known: change(current.known) }));
+    },
+    [],
+  );
   // How many reads were asked so far.
   const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
@@ -172,6 +175,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   }, [visibility, readsSettled, settleRevealed, requested, projects]);
 
   const setFacts = useCallback((facts: ReadFacts) => {
+    // Same as setRecords: facts from an action are not the poll's revision.
+    heldRevision.current = undefined;
     setSessions((current) => ({ ...current, ...facts }));
   }, []);
   const recordActions = useLaunchRecordActions({

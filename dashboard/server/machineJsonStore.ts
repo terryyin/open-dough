@@ -34,6 +34,9 @@ import {
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import type { ZodType } from "zod";
+import { recordMachineJsonReplacement } from "./machineDocumentsRevision.ts";
+
+export { machineDocumentsRevision } from "./machineDocumentsRevision.ts";
 
 export type StoreRead<T> =
   | { readonly kind: "document"; readonly document: T }
@@ -57,14 +60,6 @@ type HeldDocument = {
 };
 
 const heldDocuments = new Map<string, HeldDocument>();
-
-// How many documents this server replaced so far, so a derived observation
-// can tell it predates one of this server's own writes.
-let replacements = 0;
-
-export function machineJsonReplacements(): number {
-  return replacements;
-}
 
 // How long after a file's modification its identity is trusted to tell it
 // apart from a later replacement.
@@ -223,7 +218,7 @@ export async function replaceMachineJson<T>(
     if (next === leaveMachineJson) return;
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
     await rename(temporary, file);
-    replacements += 1;
+    recordMachineJsonReplacement();
   } finally {
     try {
       await rm(temporary, { force: true });

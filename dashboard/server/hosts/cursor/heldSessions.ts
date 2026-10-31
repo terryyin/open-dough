@@ -2,9 +2,10 @@
 // runner is not started. A runner that is not running, or cannot be reached,
 // answers no sessions. The record stays the session identity. Every reader on
 // this server (the Running Cursor sessions list, session admission, and Cursor
-// session observation) joins the one read running for its home, so
-// overlapping asks share one runner read; a settled read answers nobody later,
-// so the next ask reads the runner again.
+// session observation) joins the one read running for its home and the current
+// machine-document revision, so overlapping asks under unchanged documents
+// share one runner read; a settled read answers nobody later, so the next ask
+// reads the runner again.
 import { homedir } from "node:os";
 import type { CursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 import type { LaunchRecord } from "../../../src/launchRecord.ts";
@@ -12,6 +13,7 @@ import type { RunningCursorSessions } from "../../../src/cursorRunnerSessions.ts
 import { sessionKey } from "../../../src/sessionReference.ts";
 import { readWaitLimitMs } from "../../../src/authenticatedReadRules.ts";
 import { keptRecordsByProject } from "../../launchRecordStore.ts";
+import { machineDocumentsRevision } from "../../machineJsonStore.ts";
 import { SharedObservation } from "../../sharedObservation.ts";
 import { readCursorRunnerSessions } from "./runnerClient.ts";
 
@@ -31,11 +33,13 @@ export type HeldCursorSessions = {
   readonly sessions: readonly HeldCursorSession[];
 };
 
-// The read now running answers whoever asks while it runs; none is reused.
+// The read now running answers whoever asks while it runs under the same
+// home and machine-document revision; none is reused. A reader after a
+// launch-record write demands under the new revision and gets its own read.
 // One not answered within the read wait says the runner cannot be reached,
 // as a silent runner does; a failed one fails each reader it was answering.
 const sharedRead = new SharedObservation(
-  ([home]: readonly [string]) => readHeldCursorSessions(home),
+  ([home]: readonly [string, string]) => readHeldCursorSessions(home),
   () => 0,
 );
 // Nobody abandons this read early: each reader waits for its answer.
@@ -44,7 +48,11 @@ const staying = new AbortController().signal;
 export async function heldCursorSessionEvidence(
   home = homedir(),
 ): Promise<HeldCursorSessions> {
-  const demanded = await sharedRead.demand([home], readWaitLimitMs, staying);
+  const demanded = await sharedRead.demand(
+    [home, await machineDocumentsRevision()],
+    readWaitLimitMs,
+    staying,
+  );
   return demanded.kind === "observed"
     ? demanded.value
     : { runner: "unreachable", sessions: [] };
