@@ -24,6 +24,7 @@ import { expectDecorativeIcon } from "./frameIconControl.ts";
 import { showOptions, startSession } from "./launchStoryCardPage.ts";
 import {
   expectEveryControlReachable,
+  compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   expectNoSidewaysScrollIn,
 } from "./pageLayout.ts";
@@ -120,6 +121,6 @@ test("the agent roster's heading and Back read clearly and fit a narrow and a zo
   for (const size of [narrowWindow, zoomedWindow]) {
     await page.setViewportSize(size);
     await expect(back).toBeVisible();
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   }
 });

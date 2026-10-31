@@ -17,6 +17,10 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 export const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
 export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;
 
+// Sessions decorative .product-mark (alt="") is not injected content.
+export const injectedMarkup =
+  "img:not([alt='Open Dough']):not(.product-mark), script:not([src])";
+
 // Every entry follows the one recorded-link rule: a canonical link, and
 // optionally the plan the entry is taken with. Targets avoid ")" because the
 // published entry syntax ends a target there.

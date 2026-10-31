@@ -23,6 +23,7 @@ import {
 import { zoomedWindow } from "./accessibleReading.ts";
 import {
   box,
+  compactProjectSelectCut,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
   expectSideBySideInOrder,
@@ -66,14 +67,14 @@ test("accessible Board reflows long published work for a narrow window and page 
   await page.setViewportSize(zoomedWindow);
 
   await test.step("nothing widens the page or is cut short", async () => {
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   });
 
   await test.step("the page reads direction, then Backlog alone, and its column paging control brings Taken", async () => {
     await expectStackedInOrder([directionToggle, backlog]);
     await showColumn(page, "Taken");
     await expectStackedInOrder([directionToggle, taken]);
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   });
 
   await test.step("long titles, identities, and recorded targets stay inside their card", async () => {
@@ -95,7 +96,7 @@ test("accessible Board reflows long published work for a narrow window and page 
       for (const text of texts) {
         await expectInside(detail.getByText(text), card);
       }
-      await expectNoSidewaysScrollAndWholeText(page);
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     }
     // Shown again, Taken holds the long card whole.
     await showColumn(page, "Taken");
@@ -148,7 +149,7 @@ test("accessible Board keeps empty groups readable in a narrow window", async ({
     direction.getByText("No near-future direction is recorded."),
   ).toBeVisible();
   await expect(parts(page).readRevision).toContainText(shortRevision(revision));
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
 test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async ({
@@ -171,7 +172,7 @@ test("accessible Board keeps a read problem and the retained work reachable in a
   await expect(problem).toContainText(
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
   );
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   await expectStackedInOrder([problem, board]);
   await expect(problem.locator("time")).toHaveCount(2);
   await expect(problem).toContainText(

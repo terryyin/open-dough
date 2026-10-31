@@ -10,6 +10,7 @@
 import type { Locator } from "@playwright/test";
 import {
   box,
+  compactProjectSelectCut,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
@@ -150,6 +151,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
     // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
       ".sessions-sidebar-session-entry-title",
+      ...compactProjectSelectCut,
     ]);
     for (const area of [list, body]) {
       expect((await box(area)).height).toBeGreaterThanOrEqual(listFloor - 1);

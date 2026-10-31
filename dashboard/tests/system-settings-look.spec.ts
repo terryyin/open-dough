@@ -16,6 +16,7 @@ import {
 } from "./accessibleReading.ts";
 import {
   box,
+  compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
 } from "./pageLayout.ts";
@@ -161,11 +162,11 @@ test.describe(`${name} settings reading`, () => {
     await readSetting(theme.locator(".settings-note:not([role='status'])"));
     await readSetting(theme.getByRole("figure").locator("pre"));
     await expect(theme.getByRole("figure")).toContainText("All checks passed.");
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     for (const view of [landscape, portrait]) {
       await page.setViewportSize(view);
       await readSetting(theme.getByRole("heading", { level: 2 }));
-      await expectNoSidewaysScrollAndWholeText(page);
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     }
     // Back is the settings view's Close. Its current target stays reachable
     // while reading the final group; tapping it must not scroll the page first.

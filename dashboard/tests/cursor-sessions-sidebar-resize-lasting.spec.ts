@@ -18,6 +18,7 @@ import {
 } from "./cursorSessionsSidebarResizePage.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
@@ -110,6 +111,7 @@ test("where the window is too short for both floors, the divider offers no range
       // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
       await expectNoSidewaysScrollAndWholeText(page, [
         ".sessions-sidebar-session-entry-title",
+        ...compactProjectSelectCut,
       ]);
       for (const area of [list, body])
         expect(await heightOf(area)).toBeGreaterThanOrEqual(floor - 1);

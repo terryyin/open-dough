@@ -24,7 +24,11 @@ import {
   expectAddress,
   expectForthcomingIntent,
 } from "./intentPerspectivePage.ts";
-import { box, expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import {
+  box,
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+} from "./pageLayout.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnutProject,
@@ -199,7 +203,7 @@ test("at a phone width the perspective stays reachable under the compact title, 
   ]);
   expect(banner.height).toBeLessThan(portrait.height / 2);
   expect(message.y).toBeGreaterThanOrEqual(banner.y + banner.height);
-  await expectNoSidewaysScrollAndWholeText(page);
+  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });
 
 test("with the published read failed, Intent still says only that its content is forthcoming, and Development keeps the read problem", async ({

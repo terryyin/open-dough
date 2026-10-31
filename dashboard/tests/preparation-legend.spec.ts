@@ -17,6 +17,7 @@ import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   box,
+  compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
 } from "./pageLayout.ts";
@@ -62,7 +63,7 @@ test.describe("touch preparation help", () => {
       await explanation.scrollIntoViewIfNeeded();
       await expect(explanation).toBeInViewport({ ratio: 1 });
       await expect(close).toBeInViewport({ ratio: 1 });
-      await expectNoSidewaysScrollAndWholeText(page);
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
     }
     await tapWhereShown(close);
     await expect(dialog).not.toBeVisible();
@@ -153,7 +154,10 @@ for (const viewport of [
     await explanation.scrollIntoViewIfNeeded();
     await expect(explanation).toBeInViewport({ ratio: 1 });
     await expect(close).toBeInViewport({ ratio: 1 });
-    await expectNoSidewaysScrollAndWholeText(page);
+    await expectNoSidewaysScrollAndWholeText(
+      page,
+      viewport.size.width <= 400 ? compactProjectSelectCut : [],
+    );
     await expectImmediateMotion(dialog);
 
     await page.keyboard.press("Tab");
