@@ -43,15 +43,19 @@ export function focusedStoryCard(): FocusedStoryCard | undefined {
   return work && focused ? { ...work, visible: inView(focused) } : undefined;
 }
 
+// Scroll offsets snap to whole pixels while layout keeps fractions, so a
+// control just brought to a reading edge can measure a fraction past it.
+const edgeSlack = 1;
+
 function inView(element: Element): boolean {
   const at = element.getBoundingClientRect();
   const bounds = readingBounds(element);
   return (
     at.height > 0 &&
-    at.top >= bounds.top &&
-    at.bottom <= bounds.bottom &&
-    at.left >= bounds.left &&
-    at.right <= bounds.right
+    at.top >= bounds.top - edgeSlack &&
+    at.bottom <= bounds.bottom + edgeSlack &&
+    at.left >= bounds.left - edgeSlack &&
+    at.right <= bounds.right + edgeSlack
   );
 }
 

@@ -267,6 +267,12 @@ Disposition: proved by slice 1: App.tsx:31 builds the settings URL from the curr
   sidebar case was a test race with the product's deliberate keep-in-view after
   a Side panel press; it now counts reveals from the entry press
   (`revealsAtClick`), 8 of 8 passing repeated.
+- CI repair of slice 1 (runs 41196159364, 41196250164, `published-facts-reading`):
+  at 864×500 the new two-row header shrank the Board region, so the paging strip
+  overflowed the window at rest, and a 0.03 px scroll overshoot made a revealed
+  focused link count as scrolled away. The strip's height now allows the page
+  header's usual 8rem, and `storyCardFocus.ts` `inView` allows 1 px of edge slack.
+  The slice's local selection missed this spec; 38 viewport and focus specs passed.
 - Preparation authorizes no execution or Take. No planless authority is claimed.
 - No formal blocking dependency, unobserved decisive current-state premise or
   human scope decision remains. The new behavior is acceptance work, not a

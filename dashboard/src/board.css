@@ -122,7 +122,10 @@
 
 /* A column paging control (./ColumnPagingControl.tsx): a slim, tall strip in its side's
    room, kept in sight below the banner while the Board scrolls, naming the
-   hidden column top to bottom beside an arrow toward it. */
+   hidden column top to bottom beside an arrow toward it. In a short Board
+   region it stays whole in sight at rest too: below the page header's usual
+   room (the read status line and the project actions, about 7.25rem above
+   the Board), not only once pinned at the top. */
 .column-paging-control {
   position: sticky;
   top: var(--space-2);
@@ -135,7 +138,7 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  min-height: min(20rem, calc(100cqh - 1rem));
+  min-height: min(20rem, calc(100cqh - 8rem));
   padding: var(--space-2) 0;
   border: 1px solid var(--line);
   font: inherit;
