@@ -43,7 +43,11 @@ hidden behind it until Close. Column headings and
 hidden-column paging controls stay within the Board's scrolling viewport.
 The agent roster scrolls in its own region when it replaces the Board.
 Side panel content uses its terminal, final report, or story review scrollbars;
-each Sessions sidebar list has its own scrollbar.
+each Sessions sidebar list has its own scrollbar. The panel header keeps the
+story title on one truncated line with a touch-reachable disclosure for the
+full title, and a second line that names the workflow (for example
+"Refinement session") without the session UUID; session identifiers stay on
+Sessions sidebar entries and other existing session details.
 Start the banner with a **Sessions** button that opens and closes the Sessions
 sidebar, which lists the open agent sessions of every project beside the page
 ([Agent launch](../dashboard/AGENT-LAUNCH.md)). Command+B toggles it
