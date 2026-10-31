@@ -1,7 +1,7 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, and Intent's
-// forthcoming content in place of Development's.
+// not-configured content when the project publishes no intent locations.
 
 import { expect, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
@@ -24,10 +24,10 @@ export function expectAddress(
 }
 
 // Intent shown for this project in place of Development's content: the
-// selected project and perspective are clear, and the content says it is
-// forthcoming without a count, a result, a claim that tests or Proof are
-// absent, or a Structure destination.
-export async function expectForthcomingIntent(page: Page, label: string) {
+// selected project and perspective are clear, and the content says no intent
+// locations are configured, naming the setting and file, without a claim that
+// tests or Proof are absent, or a Structure destination.
+export async function expectNotConfiguredIntent(page: Page, label: string) {
   const { board, development, direction, intent, intentChoice, perspective } =
     parts(page);
   await expect(perspective.getByRole("radio")).toHaveCount(2);
@@ -37,14 +37,12 @@ export async function expectForthcomingIntent(page: Page, label: string) {
   await expect(intentChoice).toBeChecked();
   await expect(development).not.toBeChecked();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveText("Intent");
-  await expect(intent).toContainText(`Intent for ${label} is forthcoming.`);
   await expect(intent).toContainText(
-    `This dashboard does not read ${label}'s tests yet`,
+    `No intent locations are configured for ${label}.`,
   );
-  await expect(intent).toContainText(
-    "Stories, sessions and near-future direction stay in Development.",
-  );
-  await expect(intent).not.toContainText(/\d/);
+  await expect(intent).toContainText("intent.locations");
+  await expect(intent).toContainText(".planning/open-dough.json");
+  await expect(intent.getByRole("list")).toHaveCount(0);
   await expect(intent).not.toContainText(
     /no (tests|proof)|(tests|proof) (are|is) (absent|missing)|passed|failed/i,
   );

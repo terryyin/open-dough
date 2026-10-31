@@ -15,7 +15,11 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
-import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
+import {
+  directoryListingAnswer,
+  listedFiles,
+  treeListingAnswer,
+} from "./listingAnswers.ts";
 import {
   commitAnswerIn,
   commitListIn,
@@ -222,11 +226,15 @@ export function answerFrom(
     }
     case "content":
     case "listing":
+    case "tree":
     case "commit-list": {
       const files = published.revisions.get(request.revision);
       if (files === undefined) return noConnection;
       if (request.kind === "listing") {
         return directoryListingAnswer(request.path, listedFiles(files));
+      }
+      if (request.kind === "tree") {
+        return treeListingAnswer(request.path, files);
       }
       if (request.kind === "commit-list") {
         const history = published.histories?.get(request.revision);

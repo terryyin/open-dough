@@ -4,6 +4,10 @@
 // `./listedRecordsRead.ts`, `./doneCatalogRead.ts`, and `./containmentRead.ts`.
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
+import type {
+  IntentLocation,
+  IntentSettingsProblem,
+} from "./intentLocationsSettings.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
 
 // What a successful read answers, as the browser reader
@@ -71,6 +75,16 @@ type Answer =
       readonly revision: string;
       readonly accepted: string;
       readonly contained: boolean;
+    }
+  // Intent locations at a revision (`./intentLocationsRead.ts`): null when
+  // the project has no configured locations or the settings are unusable;
+  // otherwise each location and the files its kind lists (or that location's
+  // problem). `settingsProblem` distinguishes malformed and unreadable
+  // settings from absence.
+  | {
+      readonly revision: string;
+      readonly locations: null | readonly IntentLocation[];
+      readonly settingsProblem?: IntentSettingsProblem;
     }
   // A path read at a branch head: null when that head does not have it.
   | {

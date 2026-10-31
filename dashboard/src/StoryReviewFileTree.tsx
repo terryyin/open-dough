@@ -1,14 +1,15 @@
-// A story review's file browser rows (`./reviewFileTree.ts`) as its panel
-// shows them (`./StoryReviewSnapshotView.tsx`): each folder a disclosure that
-// collapses and expands, a collapsed folder telling how many changed files it
-// holds, and each file by its name, its kind told by the name's style alone.
-// A file's control is named, and titled, by its kind and full path in words;
-// a file that includes trunk's changes says so in its row and its name.
-// A file whose diff adds or removes lines shows how many beside its name,
-// and its control is described by them in words.
+// Shared folder disclosure rows (`./reviewFileTree.ts`) and Review changes'
+// file row: each folder a disclosure that collapses and expands, a collapsed
+// folder telling how many files it holds in caller-supplied words, and each
+// file rendered by the caller. Review changes supplies its FileRow and
+// "changed files" wording (`./StoryReviewSnapshotView.tsx`). A file's control
+// is named, and titled, by its kind and full path in words; a file that
+// includes trunk's changes says so in its row and its name. A file whose
+// diff adds or removes lines shows how many beside its name, and its control
+// is described by them in words.
 
-import { useId } from "react";
-import type { ReviewTreeNode } from "./reviewFileTree.ts";
+import { type ReactNode, useId } from "react";
+import type { PathBearing, PathTreeNode } from "./reviewFileTree.ts";
 import type { ReviewedFile } from "./storyReviewContract.ts";
 import "./story-review-files.css";
 
@@ -29,7 +30,7 @@ const reviewedFileWords = (file: ReviewedFile) =>
     file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
   }${file.includesTrunkFrom === undefined ? "" : `, ${includesTrunkWords}`}`;
 
-const changedFileWords = (count: number) =>
+export const changedFileWords = (count: number) =>
   count === 1 ? "changed file" : "changed files";
 
 // How many files a snapshot lists, in words.
@@ -41,7 +42,7 @@ const lineWords = (count: number, change: string) =>
 
 // A file's control: its name, and its line counts when its diff adds or
 // removes any, which describe the control in words.
-function FileRow({
+export function FileRow({
   file,
   name,
   selected,
@@ -93,9 +94,9 @@ function FileRow({
 
 // The browser's rows under one folder, or the top level: a folder's
 // disclosure above its own rows, hidden while it is collapsed, or a file's
-// control. A collapsed folder's row shows its count; the words after the
-// number are read aloud only.
-export function FileTree({
+// control from the caller. A collapsed folder's row shows its count; the
+// words after the number are read aloud only.
+export function FileTree<T extends PathBearing>({
   nodes,
   selectedPath,
   onSelect,
@@ -105,8 +106,10 @@ export function FileTree({
   label,
   id,
   hidden,
+  renderFile,
+  fileCountWords,
 }: {
-  readonly nodes: readonly ReviewTreeNode[];
+  readonly nodes: readonly PathTreeNode<T>[];
   readonly selectedPath: string;
   readonly onSelect: (path: string) => void;
   readonly collapsed: ReadonlySet<string>;
@@ -115,6 +118,13 @@ export function FileTree({
   readonly label?: string;
   readonly id?: string;
   readonly hidden?: boolean;
+  readonly renderFile: (row: {
+    readonly file: T;
+    readonly name: string;
+    readonly selected: boolean;
+    readonly onSelect: (path: string) => void;
+  }) => ReactNode;
+  readonly fileCountWords: (count: number) => string;
 }) {
   return (
     <ul aria-label={label} id={id} hidden={hidden}>
@@ -122,12 +132,12 @@ export function FileTree({
         if (node.kind === "file")
           return (
             <li key={`file:${node.file.path}`}>
-              <FileRow
-                file={node.file}
-                name={node.name}
-                selected={selectedPath === node.file.path}
-                onSelect={onSelect}
-              />
+              {renderFile({
+                file: node.file,
+                name: node.name,
+                selected: selectedPath === node.file.path,
+                onSelect,
+              })}
             </li>
           );
         const folderCollapsed = collapsed.has(node.path);
@@ -151,7 +161,7 @@ export function FileTree({
                     {node.fileCount}
                     <span className="visually-hidden">
                       {" "}
-                      {changedFileWords(node.fileCount)}
+                      {fileCountWords(node.fileCount)}
                     </span>
                   </span>
                 </>
@@ -166,6 +176,8 @@ export function FileTree({
               idPrefix={idPrefix}
               id={rowsId}
               hidden={folderCollapsed}
+              renderFile={renderFile}
+              fileCountWords={fileCountWords}
             />
           </li>
         );

@@ -245,23 +245,4 @@ keep ordinary source navigation; repository files retain their pinned revisions.
 See [spatial-reading direction](dashboard-spatial-reading.md) for the layout
 hypothesis, whole-Board reading and later zoom/pan guidance.
 
-## Development and Intent
-
-Development is the first-visit default perspective: the stories or agent
-roster, near-future direction, Start session and published-state
-qualifications. Intent replaces that content with a forthcoming-content
-statement for the selected project. It says that this dashboard does not read
-the project's tests yet, so it shows no count, result or claim that tests or
-Proof are absent, whatever the published read did; the read status keeps its
-own meaning. Structure, source browsing and Purpose/Proof readers are not
-offered yet. The perspective is disposable presentation state on the URL
-(`perspective=intent`), independent of Development's stories/roster view, which
-Intent keeps to return to. Choosing a perspective adds one history entry and
-never selects another project; changing projects keeps the perspective, and
-Back/Forward, reload and System settings restore it. Story URLs, story
-references and choosing a Sessions sidebar entry open Development's stories,
-including from the same project's Intent. Changing perspective neither starts,
-stops, completes nor reattaches a session: the mounted Board, Sessions sidebar
-and Side panel (terminal, final report or story review) stay as they were, and
-a covering panel stays open. When the change hides the content holding the
-keyboard, the keyboard moves to the selected perspective's choice.
+See [Development and Intent](dashboard-development-intent.md#development-and-intent) for the perspective frame and Intent source reading.

@@ -10,6 +10,7 @@ import {
   readRepositoryFileViaGh,
   type ListedFile,
 } from "./ghContents.ts";
+import { listRepositoryTreeViaGh, type TreeEntry } from "./ghTrees.ts";
 import { lastCommitTimeViaGh } from "./ghCommitTime.ts";
 import {
   commitChangeOf,
@@ -66,6 +67,25 @@ export class PinnedTexts extends PinnedMemo {
         signal,
         () =>
           listRepositoryDirectoryViaGh(
+            source.repository,
+            directory,
+            revision,
+            signal,
+          ),
+      );
+  }
+
+  // A nested Git tree under a location path at a commit, remembered under
+  // the path with a trailing NUL and `tree`, which no file path ever has.
+  treeLister(source: PublishedSource, revision: string, signal: AbortSignal) {
+    return (directory: string): Promise<readonly TreeEntry[]> =>
+      this.recalledOrUnchangedJson(
+        source,
+        revision,
+        `${directory}\0tree`,
+        signal,
+        () =>
+          listRepositoryTreeViaGh(
             source.repository,
             directory,
             revision,

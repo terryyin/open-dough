@@ -6,8 +6,9 @@
 // performed in `./performedBranchRead.ts`, revision checks in
 // `./performedRevisionCheck.ts`, the records listed beside the backlog in
 // `./listedRecordsRead.ts`, the done catalog and the records it lists in
-// `./doneCatalogRead.ts`, containment in `./containmentRead.ts`; what
-// a read comes to is `./readOutcome.ts`.
+// `./doneCatalogRead.ts`, Intent locations in `./intentLocationsRead.ts`,
+// containment in `./containmentRead.ts`; failure naming in
+// `./readingRequestedRead.ts`; what a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
@@ -27,27 +28,19 @@ import {
 } from "./readDiagnostics.ts";
 import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
+import { performListedRecordsRead } from "./listedRecordsRead.ts";
+import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import {
-  performListedRecordsRead,
-  readingListedRecordsOf,
-} from "./listedRecordsRead.ts";
-import {
-  performDoneCatalogRead,
-  readingDoneCatalogOf,
-} from "./doneCatalogRead.ts";
+  pathContainedInIntentLocations,
+  performIntentLocationsRead,
+} from "./intentLocationsRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
+import { readingOf } from "./readingRequestedRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  readingAdditionAt,
-  readingBranchHeadOf,
-  readingContainmentAt,
-  readingLastCommitAt,
-  readingPathAt,
-  readingRefOf,
-} from "../src/authenticatedReadRules.ts";
+import { readingPathAt } from "../src/authenticatedReadRules.ts";
 
 export type Boundary = {
   readonly tracked: Set<AbortController>;
@@ -56,35 +49,6 @@ export type Boundary = {
   readonly branches: BranchHeads;
   readonly avatars: AvatarImages;
 };
-
-// What a read failure names as being read when the request was made.
-function readingOf(source: PublishedSource, read: RequestedRead): string {
-  switch (read.kind) {
-    case "ref":
-    case "revision-check":
-      return readingRefOf(source);
-    case "branch-head-at":
-      return readingBranchHeadOf(read.branch, source.repository);
-    case "commit-time-at":
-      return readingLastCommitAt(
-        read.path,
-        read.onBranch?.head ?? read.revision,
-      );
-    case "file-at":
-      return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
-    case "agent-profiles-at":
-      return readingListedRecordsOf(source, read);
-    case "done-catalog-at":
-    case "done-bodies-at":
-      return readingDoneCatalogOf(source, read);
-    case "addition-at":
-      return readingAdditionAt(read.path, read.revision);
-    case "backlog-at":
-      return readingPathAt(source.backlogPath, read.revision);
-    case "containment-at":
-      return readingContainmentAt(read.accepted, read.revision);
-  }
-}
 
 // Performs one allowed read with its `gh` calls tracked, and words any
 // failure for this source and what was being read when it failed.
@@ -152,6 +116,14 @@ export async function perform(
                 signal,
                 naming,
               );
+            case "intent-locations-at":
+              return await performIntentLocationsRead(
+                pinned,
+                source,
+                read,
+                signal,
+                naming,
+              );
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,
@@ -203,7 +175,8 @@ export async function perform(
                   revision,
                   path,
                   readPinned,
-                ))
+                )) &&
+                !(await pathContainedInIntentLocations(path, readPinned))
               ) {
                 return unreachable;
               }

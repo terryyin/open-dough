@@ -236,7 +236,9 @@ test("a review and a final report stay shown with their selection while the page
       .click();
     await expect(report).toContainText(storyBReport);
     await intentChoice.click();
-    await expect(intent).toContainText("is forthcoming.");
+    await expect(intent).toContainText(
+      "No intent locations are configured for Open Dough.",
+    );
     await expect(report).toContainText(storyBReport);
     await expect(items).toHaveCount(1);
     await development.click();

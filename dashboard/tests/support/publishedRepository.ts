@@ -7,7 +7,11 @@ import {
   noConnection,
   rawFileAnswer,
 } from "../originAnswers.ts";
-import { directoryListingAnswer, listedFiles } from "../listingAnswers.ts";
+import {
+  directoryListingAnswer,
+  listedFiles,
+  treeListingAnswer,
+} from "../listingAnswers.ts";
 import {
   commitAnswerIn,
   commitListIn,
@@ -72,6 +76,11 @@ export function publishes(published: {
           request.path,
           listedFiles(published.files ?? {}),
         ),
+      );
+    }
+    if (request.kind === "tree") {
+      return Promise.resolve(
+        treeListingAnswer(request.path, published.files ?? {}),
       );
     }
     return Promise.resolve({

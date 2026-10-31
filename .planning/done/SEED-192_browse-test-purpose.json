@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#browse-test-purpose",
+  "title": "Browse a project's test source in Intent",
+  "completedAt": "2026-10-31T23:46:21.659Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "auto"
+}

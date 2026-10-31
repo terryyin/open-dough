@@ -58,3 +58,40 @@ export function directoryListingAnswer(
     ),
   };
 }
+
+// GitHub's recursive Git trees answer for `directory` among the repository's
+// `files`, each blob path relative to that directory, or its not-found answer
+// when no file lies under it.
+export function treeListingAnswer(
+  directory: string,
+  files: Readonly<Record<string, string>>,
+): RawAnswer {
+  const prefix = `${directory}/`;
+  const tree = Object.entries(files).flatMap(([path, content]) => {
+    if (!path.startsWith(prefix)) return [];
+    const relative = path.slice(prefix.length);
+    if (relative.length === 0) return [];
+    return [
+      {
+        path: relative,
+        mode: "100644",
+        type: "blob",
+        sha: gitBlobSha(content),
+        size: Buffer.byteLength(content, "utf8"),
+      },
+    ];
+  });
+  if (tree.length === 0) {
+    return notFoundAnswer();
+  }
+  return {
+    status: 200,
+    contentType: "application/json; charset=utf-8",
+    body: JSON.stringify({
+      sha: "0".repeat(40),
+      url: "",
+      tree,
+      truncated: false,
+    }),
+  };
+}

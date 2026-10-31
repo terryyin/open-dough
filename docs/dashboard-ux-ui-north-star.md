@@ -44,7 +44,7 @@ it does not define a workflow state schema or authorize execution.
   branch; Trunk Mode publishes progress on trunk.
 - The current dashboard presents Development through story planning, execution
   progress, and local-session capabilities, beside a forthcoming
-  [Intent perspective](dashboard-navigation.md#development-and-intent). The
+  [Intent perspective](dashboard-development-intent.md#development-and-intent). The
   Intent workspace follows the selected direction below; Structure is deferred.
   These decisions describe proposed UX/UI, not delivered capabilities.
 
@@ -91,7 +91,7 @@ UX/UI direction, not a story, executable plan, or implementation record.
 
 ### Start session placement
 
-The [Development and Intent frame](dashboard-navigation.md#development-and-intent)
+The [Development and Intent frame](dashboard-development-intent.md#development-and-intent)
 keeps Start session in Development. Its final placement is undecided: it may
 remain there or be a project-level action visible across perspectives. The
 chosen Purpose/Proof layout does not settle that placement.

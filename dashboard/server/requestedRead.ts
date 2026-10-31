@@ -1,20 +1,13 @@
 // Which read a request to the local authenticated read boundary
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
-// the ref resolved afresh, with the backlog at the commit it names; only
-// whether the ref still names the revision already shown (`since`), and which
-// heads the story branches recorded at that revision name now (`watch`); the
-// backlog at an already
-// resolved revision; one repository path at a pinned revision; when one repository
-// path was last committed at a pinned revision (`committed=last`); which
-// commit added one agent profile's current allocation, when, and who
-// committed it, at a pinned revision (`committed=added`); the records
-// published beside the backlog at a pinned revision
-// (`./listedRecordsRead.ts`), or the done catalog there and the records it
-// lists (`./doneCatalogRead.ts`); which commit a story branch recorded at a pinned revision names now (`branch`);
-// or one path, or its last commit, at a head of that branch (`branch` and
-// `head`); or whether a pinned revision contains an accepted one
-// (`contains`, `./containmentRead.ts`). Malformed or mixed parameters are
-// refused here (`./refusedParameters.ts`), before any `gh` call.
+// the ref resolved afresh with its backlog; a revision check (`since`,
+// `watch`); the backlog or one path at a pinned revision; last commit or
+// profile addition (`committed`); listed records (`./listedRecordsRead.ts`);
+// the done catalog (`./doneCatalogRead.ts`); Intent locations
+// (`./intentLocationsRead.ts`); a story branch head or path on it (`branch`,
+// `head`); or containment (`contains`, `./containmentRead.ts`). Malformed or
+// mixed parameters are refused here (`./refusedParameters.ts`) before any `gh`
+// call.
 
 import {
   commitShaPattern,
@@ -40,6 +33,10 @@ import {
   parseDoneCatalogRead,
   type DoneCatalogRead,
 } from "./doneCatalogRead.ts";
+import {
+  parseIntentLocationsRead,
+  type IntentLocationsRead,
+} from "./intentLocationsRead.ts";
 import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -58,6 +55,7 @@ export type RequestedRead =
   | { readonly kind: "backlog-at"; readonly revision: string }
   | ListedRecordsRead
   | DoneCatalogRead
+  | IntentLocationsRead
   | {
       readonly kind: "addition-at";
       readonly revision: string;
@@ -213,6 +211,10 @@ export function parseRequestedRead(
   const catalogRead = parseDoneCatalogRead(params);
   if (catalogRead !== undefined) {
     return catalogRead;
+  }
+  const intentRead = parseIntentLocationsRead(params);
+  if (intentRead !== undefined) {
+    return intentRead;
   }
   const listedRead = parseListedRecordsRead(params);
   if (listedRead !== undefined) {

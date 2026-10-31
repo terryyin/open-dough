@@ -55,10 +55,11 @@ The banner keeps **Project** choices reachable above the Board's own scroll regi
 The Open Dough mark is the **Sessions** toggle; the project selector names the
 selected project, with the **Development** and **Intent** perspective choices
 beside it. Development, the first-visit default, shows the Board described here;
-Intent says only that its content for the selected project is forthcoming,
-claiming nothing about the project's tests. Project changes, history, reload and
+Intent reads Purpose from configured Gherkin locations in the project's
+`.planning/open-dough.json`, or says none are configured, and does not claim
+that tests or Proof are absent. Project changes, history, reload and
 System settings keep the perspective; choosing a session opens Development
-([dashboard navigation](../docs/dashboard-navigation.md#development-and-intent)).
+([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the
 **Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction

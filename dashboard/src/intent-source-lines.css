@@ -1,0 +1,8 @@
+/* Intent source pane chrome around the shared source-lines view
+   (`./IntentSourceLines.tsx` → `./SourceLines.tsx`). */
+
+.intent-source-meta {
+  margin: 0 0 var(--space-2);
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
