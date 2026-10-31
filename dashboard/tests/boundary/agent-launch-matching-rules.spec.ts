@@ -59,6 +59,28 @@ test("ad hoc matching retains exact instruction including omitted and empty text
   expect(sameLaunch(blank, story)).toBe(false);
 });
 
+test("ad hoc matching includes attached image content digests", () => {
+  const digestA = "a".repeat(64);
+  const digestB = "b".repeat(64);
+  const base: AgentLaunchRequest = {
+    source: "open-dough",
+    host: "claude",
+    workflow: "ad-hoc",
+    instruction: "Why is this card clipped?",
+  };
+  const withA = { ...base, attachmentDigests: [digestA] };
+  const withB = { ...base, attachmentDigests: [digestB] };
+  const withBoth = { ...base, attachmentDigests: [digestA, digestB] };
+  expect(sameLaunch(withA, { ...withA })).toBe(true);
+  expect(sameLaunch(withA, { ...withA, attachments: ["/other/1-a.png"] })).toBe(
+    true,
+  );
+  expect(sameLaunch(withA, withB)).toBe(false);
+  expect(sameLaunch(withA, withBoth)).toBe(false);
+  expect(sameLaunch(withA, base)).toBe(false);
+  expect(sameLaunch(base, { ...base, attachmentDigests: [] })).toBe(true);
+});
+
 test("ad hoc matching includes the Workspace and After checks choices, the default ones when none are named", () => {
   const blank: AgentLaunchRequest = {
     source: "open-dough",

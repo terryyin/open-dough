@@ -4,24 +4,15 @@
 
 import { randomUUID } from "node:crypto";
 import {
-  rememberTerminalHandoff,
-  terminalHandoffRequested,
-} from "./terminalHandoff.ts";
-import {
-  withoutConfirmation,
   type Acceptance,
   type AgentLaunchRequest,
   type AttemptObservation,
-  type LaunchAttemptRecord,
-  type LaunchRecord,
   type ReconciledAnswer,
   type VerifiedAnswer,
 } from "../src/agentLaunch.ts";
 import {
   alreadySubmitted,
-  conflicting,
   unreadableEvidence,
-  unrecordedAcceptance,
   type Unaccepted,
 } from "./launchAttemptConflicts.ts";
 import { reconcileAttempt } from "./launchAttemptReconciliation.ts";
@@ -30,14 +21,15 @@ import {
   type LaunchVerifier,
 } from "./launchAttemptVerification.ts";
 import type { AttemptRun } from "./launchAttemptSettlement.ts";
-import { keepAttemptIf, keptAttempts } from "./launchAttemptStore.ts";
-import { readableRecordsByProject } from "./launchRecordStore.ts";
+import { keptAttempts } from "./launchAttemptStore.ts";
 import { OwnedAttempts } from "./ownedAttempts.ts";
+import { continueAttempt } from "./launchAttemptContinuation.ts";
+import { admitAttempt, conflictWithAttempts } from "./launchAttemptAdmit.ts";
 import {
-  continueAttempt,
-  continuationRecord,
-} from "./launchAttemptContinuation.ts";
-import { attemptWorker } from "./launchAttemptWorker.ts";
+  abandonAttachmentClaims,
+  recordedRequestWithMaterializedAttachments,
+  removeLaunchAttachments,
+} from "./launchAttachmentClaims.ts";
 
 export class LaunchAttemptOwner {
   private readonly owned = new OwnedAttempts();
@@ -72,30 +64,50 @@ export class LaunchAttemptOwner {
 
   // Accepts a request nothing else answered: its exact request is kept
   // before `run` has any side effect, then `run` goes on whatever happens to
-  // the caller. A request that cannot be kept starts nothing.
+  // the caller. A request that cannot be kept starts nothing. Attachment
+  // claims become absolute paths under launch-attachments/<attempt>/ only
+  // once this attempt id is chosen; the kept request holds those paths and
+  // content digests, never image bytes.
   async accept(
     request: AgentLaunchRequest,
     run: AttemptRun,
     reportingOrigin?: string,
   ): Promise<Acceptance> {
     const kept = await keptAttempts();
-    if (kept === undefined) return unreadableEvidence;
+    if (kept === undefined) {
+      abandonAttachmentClaims(request.attachmentClaims);
+      return unreadableEvidence;
+    }
     // Refuse live workers before waiting on their note; admission rechecks under lock.
-    const conflict = this.conflictWith(request, kept, new Map());
-    if (conflict !== undefined) return conflict;
-    return this.admit(
-      request,
-      {
-        id: randomUUID(),
-        request: withoutConfirmation(request),
-        acceptedAt: new Date().toISOString(),
-        ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
-        publication: {
-          kind: request.workflow === "ad-hoc" ? "none" : "unknown",
+    const conflict = conflictWithAttempts(this.owned, request, kept, new Map());
+    if (conflict !== undefined) {
+      abandonAttachmentClaims(request.attachmentClaims);
+      return conflict;
+    }
+    const id = randomUUID();
+    const recorded = recordedRequestWithMaterializedAttachments(id, request);
+    try {
+      const acceptance = await admitAttempt(
+        this.owned,
+        this.verifying,
+        request,
+        {
+          id,
+          request: recorded,
+          acceptedAt: new Date().toISOString(),
+          ...(reportingOrigin === undefined ? {} : { reportingOrigin }),
+          publication: {
+            kind: request.workflow === "ad-hoc" ? "none" : "unknown",
+          },
         },
-      },
-      run,
-    );
+        run,
+      );
+      if (acceptance.kind !== "accepted") removeLaunchAttachments(id);
+      return acceptance;
+    } catch (error) {
+      removeLaunchAttachments(id);
+      throw error;
+    }
   }
 
   // Continue first settles from its own launch record, otherwise readmits the
@@ -112,7 +124,15 @@ export class LaunchAttemptOwner {
       sourceId,
       id,
       before,
-      (attempt) => this.admit(attempt.request, attempt, run, id),
+      (attempt) =>
+        admitAttempt(
+          this.owned,
+          this.verifying,
+          attempt.request,
+          attempt,
+          run,
+          id,
+        ),
     );
   }
 
@@ -131,102 +151,6 @@ export class LaunchAttemptOwner {
     verify: LaunchVerifier,
   ): Promise<VerifiedAnswer> {
     return verifyAttempt(this.owned, this.verifying, sourceId, id, verify);
-  }
-
-  // What the request, or the continuation of the attempt `continued`, would
-  // duplicate among the attempts and open launch records this machine knows
-  // (`conflicting`). `excluding` omits that owned attempt during a locked keep.
-  private conflictWith(
-    request: AgentLaunchRequest,
-    kept: readonly LaunchAttemptRecord[],
-    records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
-    continued?: string,
-    excluding?: string,
-  ): Unaccepted | undefined {
-    const { unsettled, known } = this.owned.forConflict(
-      kept,
-      excluding,
-      continued,
-    );
-    return conflicting(request, unsettled, known, records, continued);
-  }
-
-  // Locked machine evidence admits one acceptance across servers, then local
-  // registration precedes effects. An attempt that cannot be kept starts nothing.
-  private async admit(
-    request: AgentLaunchRequest,
-    attempt: LaunchAttemptRecord,
-    run: AttemptRun,
-    continued?: string,
-  ): Promise<Acceptance> {
-    const attachTerminal = terminalHandoffRequested();
-    // The locked keep rechecks machine facts before local registration and effects.
-    const local = this.conflictWith(request, [], new Map(), continued);
-    if (local !== undefined) return local;
-    // Preparation runs in this server before spawn, and across the script's
-    // exit and the next worker note. Keep that worker before any effect.
-    const working = {
-      ...attempt,
-      worker: attemptWorker(request.workflow === "ad-hoc" ? "launch" : "start"),
-    };
-    let keptAttempt: LaunchAttemptRecord = working;
-    let refusal: Unaccepted | undefined;
-    try {
-      const recorded = await keepAttemptIf(working, async (machine) => {
-        const records = await readableRecordsByProject();
-        if (continued !== undefined) {
-          const selected = continuationRecord(
-            this.owned,
-            this.verifying,
-            request.source,
-            continued,
-            machine,
-            records,
-          );
-          if (!("attempt" in selected)) {
-            refusal = selected;
-            return false;
-          }
-          keptAttempt = selected.ownLaunch
-            ? selected.attempt
-            : {
-                ...selected.attempt,
-                worker: working.worker,
-                outcome: undefined,
-                settledAt: undefined,
-              };
-          if (selected.ownLaunch) return keptAttempt;
-        }
-        refusal = this.conflictWith(
-          request,
-          machine,
-          records,
-          continued,
-          attempt.id,
-        );
-        return refusal === undefined ? keptAttempt : false;
-      });
-      if (!recorded) {
-        return refusal ?? unrecordedAcceptance;
-      }
-    } catch {
-      return unrecordedAcceptance;
-    }
-    if (keptAttempt.outcome?.kind === "launched") {
-      this.owned.release(attempt.id);
-      return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
-    }
-    if (this.owned.closed)
-      return {
-        kind: "failed",
-        reason: "refused",
-        explanation:
-          "This dashboard stopped before admission finished. The attempt was kept for recovery; nothing was started or launched.",
-      };
-    const own = this.owned.own(request, keptAttempt);
-    rememberTerminalHandoff(attempt.id, attachTerminal);
-    this.owned.settle(own, run);
-    return { kind: "accepted", attempt: this.owned.observed(keptAttempt) };
   }
 
   // Waits for an owned attempt's next change, or none when it has changed

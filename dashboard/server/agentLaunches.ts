@@ -4,8 +4,6 @@
 // whatever happens to the caller. Origin alone decides every story fact.
 
 import {
-  needsReconciliation,
-  laterAttempt,
   type Acceptance,
   type AgentLaunchRequest,
   type ChangedAnswer,
@@ -16,7 +14,6 @@ import {
   type LaunchWithState,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
-import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { LaunchAdmission } from "./launchAdmission.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
@@ -32,11 +29,7 @@ import {
   type Recorded,
 } from "./recordedSessionLookup.ts";
 import { creationView } from "./launchCreation.ts";
-import {
-  preAcceptanceAnswer,
-  preContinuationAnswer,
-  replacementWriterBlock,
-} from "./launchPreAcceptance.ts";
+import { preContinuationAnswer } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
@@ -55,6 +48,7 @@ import {
   applyPreparedWorktreeUpdate,
   prepareWorktreeUpdate,
 } from "./worktreeUpdateRetry.ts";
+import { acceptLaunchRequest } from "./agentLaunchAccept.ts";
 
 // How long a launch verification waits for its host's session listing.
 const verifyWaitMs = 10_000;
@@ -151,35 +145,23 @@ export class AgentLaunches {
   }
 
   // Accepts a launch, answering once it is accepted; the launch goes on
-  // whatever happens to the caller.
+  // whatever happens to the caller. Attachment claims that never reach
+  // admission are abandoned so a refused or deferred Start leaves no files.
   accept(
     source: PublishedSource,
     request: AgentLaunchRequest,
     reportingOrigin?: string,
   ): Promise<Acceptance> {
-    return this.admission.run(async () => {
-      // A matching live launch is answered before its evidence can be mistaken
-      // for a retry. Settled recoverable session starts reuse locked continuation.
-      const submitted = this.owner.submitted(request);
-      if (submitted !== undefined) return submitted;
-      if (request.workflow === "ad-hoc") {
-        const { attempts } = await this.owner.attempts();
-        const retained = attempts
-          .filter((attempt) => sameLaunch(attempt.request, request))
-          .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
-        if (retained !== undefined && needsReconciliation(retained))
-          return this.continueRequest(source, retained.id);
-      }
-      const blocked = await replacementWriterBlock(source, request);
-      if (blocked !== undefined) return blocked;
-      const answer = await preAcceptanceAnswer(source, request);
-      if (answer !== undefined) return answer;
-      return this.owner.accept(
+    return this.admission.run(() =>
+      acceptLaunchRequest(
+        this.owner,
+        source,
         request,
         this.runAttempt(source),
+        (id) => this.continueRequest(source, id),
         reportingOrigin,
-      );
-    });
+      ),
+    );
   }
 
   // Continues the kept attempt through the same pre-launch checks and run.

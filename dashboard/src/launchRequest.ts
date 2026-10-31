@@ -30,11 +30,22 @@ const oneLine = z
 // What either kind of request carries beside its subject: the developer's own
 // instruction, the model asked for, and the flags selected from the skill's
 // options, if any. Which flags exist is the project's installed definition.
+// Attachment claim ids are transient Start uploads; absolute attachment paths
+// and content digests are recorded after admission. None of these fields
+// carries image bytes; digests identify an ad hoc launch's images.
+const launchAttachmentPathLimit = 4_096;
+const launchAttachmentDigest = z.string().regex(/^[0-9a-f]{64}$/);
 const launchOptions = {
   instruction: z.string().max(launchInstructionLimit).optional(),
   model: launchModelSchema.optional(),
   effort: launchSettingSchema.optional(),
   options: z.array(oneLine).max(launchOptionLimit).optional(),
+  attachmentClaims: z.array(z.uuid()).max(5).optional(),
+  attachments: z
+    .array(z.string().min(1).max(launchAttachmentPathLimit))
+    .max(5)
+    .optional(),
+  attachmentDigests: z.array(launchAttachmentDigest).max(5).optional(),
 };
 
 // A session's policy as the shared definition spells its three choices
@@ -149,22 +160,35 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
-// A request as it is kept: without the transient confirmation of existing
-// changes.
+// A request as it is kept: without transient confirmation of existing changes
+// or attachment claim ids (bytes stay out of JSON stores; paths are set only
+// after admission materializes claims).
 export function withoutConfirmation(
   request: AgentLaunchRequest,
 ): AgentLaunchRequest {
   const kept = { ...request };
   delete kept.existingChanges;
   delete kept.overrideStopUnconfirmed;
+  delete kept.attachmentClaims;
   return kept;
+}
+
+// Paths and claim ids are not identity; ordered content digests are.
+function sameAttachmentDigests(
+  a: AgentLaunchRequest | RecordedLaunchRequest,
+  b: AgentLaunchRequest | RecordedLaunchRequest,
+): boolean {
+  const left = a.attachmentDigests ?? [];
+  const right = b.attachmentDigests ?? [];
+  return left.length === right.length && left.every((d, i) => d === right[i]);
 }
 
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
 // An unattached launch's subject is its instruction with its Workspace and
-// After checks choices and the due date a feedback maintenance launch serves,
-// so one with other choices or for another due date is another launch.
+// After checks choices, the content digests of its images, and the due date a
+// feedback maintenance launch serves, so one with other choices, other images,
+// or for another due date is another launch.
 export function sameLaunch(
   a: AgentLaunchRequest | RecordedLaunchRequest,
   b: AgentLaunchRequest | RecordedLaunchRequest,
@@ -180,7 +204,8 @@ export function sameLaunch(
   return (
     a.instruction === b.instruction &&
     a.maintenance?.due === b.maintenance?.due &&
-    sameUnattachedPolicy(unattachedPolicyOf(a), unattachedPolicyOf(b))
+    sameUnattachedPolicy(unattachedPolicyOf(a), unattachedPolicyOf(b)) &&
+    sameAttachmentDigests(a, b)
   );
 }
 
@@ -202,10 +227,18 @@ export type ReportingContext = z.infer<typeof reportingContextSchema>;
 
 export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
   storyLaunchRequestSchema
-    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
+    .omit({
+      existingChanges: true,
+      overrideStopUnconfirmed: true,
+      attachmentClaims: true,
+    })
     .extend({ reporting: reportingContextSchema.optional() }),
   adHocLaunchRequestSchema
-    .omit({ existingChanges: true, overrideStopUnconfirmed: true })
+    .omit({
+      existingChanges: true,
+      overrideStopUnconfirmed: true,
+      attachmentClaims: true,
+    })
     .extend({
       title: oneLine,
       reporting: reportingContextSchema.optional(),

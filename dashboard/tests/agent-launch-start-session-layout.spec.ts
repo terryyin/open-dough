@@ -41,7 +41,7 @@ async function openStartSession(page: Page, origin: StartOrigin) {
   return startSessionDialog(page, "Open Dough");
 }
 
-test("the text comes first, then Host and Model, the Session group, Command details, Cancel and Start", async ({
+test("the text comes first, then Attach images, Host and Model, the Session group, Command details, Cancel and Start", async ({
   page,
   origin,
 }) => {
@@ -55,6 +55,7 @@ test("the text comes first, then Host and Model, the Session group, Command deta
   await expect(where).toBeHidden();
   for (const next of [
     dialog.getByRole("button", { name: "Record", exact: true }),
+    dialog.getByRole("button", { name: "Attach images" }),
     dialog.getByRole("combobox", { name: "Host" }),
     dialog.getByRole("combobox", { name: "Model" }),
     dialog.getByRole("radio", { name: "Default main" }),

@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch ([plan](slice-plans/427-attach-image-at-launch/PLAN.md))
-
 ## Backlog list
 
 - [Keep shared refresh answers consistent with what each viewer shows](seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh) — SEED-202#consistent-shared-refresh

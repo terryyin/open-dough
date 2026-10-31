@@ -101,6 +101,14 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Observed effect: two mandatory independent CI-repair refactor handoffs made no edits; the final slice pass changed only prose. The first slice's independent pass made useful attachment/status/helper refactors and renewed their affected proof.
   - Inference: qualified recurrence of fixed review overhead on small accepted repairs; durations are agent estimates, not measured wall/token totals. Proof correspondence adds confidence; no measured claim that omitting review would save the full estimates.
 
+- Execution: SEED-204#attach-image-at-launch / plan 427 / first related implementation `59c47d4c2183cbb908d645f649a37bbde063abb0`
+  - Timestamp: 2026-10-31T18:19:59+08:00 (slice 1 plan-only refactor before delivery `e26f8fb3`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: coordinator transcript `9b247773-9b4c-456b-9be3-4f21c7043f14`; mandatory per-slice `dough-post-change-refactor` Tasks after slices 1–7 and the dialog CI repair. Slice 1 Task `38f1be28-c09d-44b3-8e9b-376e9f53bfc2` reported `none — already clean` on the waived-probe plan-only diff; later slice/repair passes edited product or tests (for example slice 5 retired unused `launchAttachmentAccept`, CI-repair refactor dropped dead CSS positioning).
+  - Observed effect: one of the mandatory refactor agents edited nothing after reading an accepted plan-only change; other passes on this seven-slice story made useful cohesion edits.
+  - Inference: qualified recurrence of fixed per-slice refactor cost (ODF-141) with mixed payoff; durations unmeasured; no claim that omitting the clean pass would have saved a known token or wall-time total.
+
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
 Former local code: DD-215. After its call is interrupted, a delegated agent continues, commits and pushes its slice despite a no-commit delegation, leaving two writers in one checkout. [Evidence and current response](docs/maintainer/findings/ODF-204.md).
@@ -188,6 +196,13 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: plan Decisive premises listed header-UUID consumers (`agent-terminal*`, touch/session-management/sidebar) and slice-1 accepted proof included `final-report-touch*` but not `session-workspace-retirement.spec.ts` or board-paging / stacking look specs. CI failed Final-report UUID asserts and `expectNoSidewaysScrollAndWholeText` ellipsis reads. Repair `a8ff15c2` updated those consumers and added title-toggle negative margin; coordinator transcript `363e0b94-67d5-49d4-b77d-48deec743aed` stashed in-progress slice 2 for the repair, then removed the clipping margin during slice-2 acceptance (`533e9750`).
   - Observed effect: one owned CI repair commit before slice 2 delivery, plus follow-on title-toggle CSS correction after the repair’s margin clipped expanded titles; slice-2 work was stashed and restored around the repair.
   - Inference: recurrence of focused consumer selection missing existing Final-report header and look-spec consumers of the same compact-header contract after local owner proof passed.
+- Execution: SEED-204#attach-image-at-launch / plan 427 / first related implementation `59c47d4c2183cbb908d645f649a37bbde063abb0`
+  - Timestamp: 2026-10-31T10:45:36Z (CI failure run 41194050673 on slice-2 SHA `59c47d4c`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: slice 2 accepted proof named `agent-launch-ad-hoc-attachments.spec.ts` and `boundary/developer-part.spec.ts`. CI run 41194050673 failed existing launch-dialog layout/model consumers (tab order / sideways scroll) and exact instruction-byte expectations after Attach images changed `LaunchDialog` and `developerPart`. Repair `752504ff` hid the file input from tab order, constrained attachment layout overflow, and restored exact-byte `developerPart`. Coordinator transcript `9b247773-9b4c-456b-9be3-4f21c7043f14` stashed in-progress slice 3 around that repair. Distinct from later unrelated Recently-done WebSocket mock flake repair `305513aa` on slice-3 SHA.
+  - Observed effect: one owned CI failure and one dialog/first-input consumer repair before slice 3 delivery; layout and exact-byte consumers were outside the slice's focused attachment proof.
+  - Inference: recurrence of focused consumer selection missing existing LaunchDialog layout and `developerPart` byte consumers after local owner proof passed (ODF-150).
 
 - Execution: SEED-198#responsive-project-header / plan 424 / first related implementation `1554cd81d83386549eead40df7abdbc1bf00698b`
   - Timestamp: unknown (2026-10-31 Asia/Singapore; after slice-3 header proof green and during full `npm run test:dashboard`, before publish `c5927db4` 17:29 +08)

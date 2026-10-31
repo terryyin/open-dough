@@ -38,11 +38,14 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],
   });
+  // Route before navigation: Playwright's WebSocket mock is an init script and
+  // only patches pages loaded after registration. A post-load route lets the
+  // real attach win the race, clear Done, and flake this assertion.
+  await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
   await showThreeProjectPage(page, origin);
   const shown = recentlyDoneParts(page);
   await shown.button.click();
   await shown.header.click();
-  await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
   await shown.entry(title).click();
   await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
   await expect(shown.entry(title)).toHaveCount(1);

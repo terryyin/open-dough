@@ -35,6 +35,38 @@ sends nothing on Cancel/Escape. Start commits the request at once and closes the
 modal when the local service has accepted it, before the start or session ends;
 [startup handoff](#startup-handoff-and-reconciliation) follows it from there.
 
+The shared launch dialog also offers Attach images: a file picker that accepts
+several PNG, JPEG, GIF or WebP files at once, and pasting an image into the
+instruction field adds it the same way (named `pasted.png` when the clipboard
+gives no name). Pasting text keeps its ordinary insert. Attached images show
+as a numbered list (`Image N · <filename>`) with a small preview and Remove;
+removing renumbers the rest. A launch carries at most 5 images, each at most
+10 MB. A non-image, oversized, or sixth file is named in the dialog with its
+refusal reason (`Not an image (PNG, JPEG, GIF or WebP)`, `Larger than 10 MB…`,
+or `At most 5 images`); the instruction, other images and Session choices stay.
+The same limits apply on Start session, Start execution and Start refinement.
+Image bytes stay in the browser until Start, when each file is posted as its
+own bounded raw body (same style as dictation audio, never through the 32 KB
+JSON launch body). Cancel and Escape send nothing, including no images; a
+reopened dialog shows none. The attachment boundary refuses the same unsuitable
+cases before writing a claim. A launch the boundary does not accept abandons
+any claims and leaves no attempt attachment folder. Existing changes in default
+main keeps the images in the dialog through Back; Continue with existing
+changes sends them again and copies them once after admission. After admission
+the server copies them into
+`~/.open-dough/dashboard/launch-attachments/<attempt>/` and records only those
+absolute paths on the kept request. Those files stay with the attempt for
+recovery, Continue and a later resumed session until a successful attempt-store
+write prunes that settled attempt past its 30-day retention, which also removes
+the folder; a refused or failed write removes none. The first input's developer
+part is the typed text, then a blank line and an `Attached images:` numbered
+path list (`src/launchAttachments.ts` `developerPart`); that list is not
+counted in the 4,000-character instruction limit. A blank instruction with
+images is not a blank start: the developer part is the list alone, and the
+session label is still the launch time. Launch records, attempts and start
+stores never hold image bytes; they keep absolute paths and content digests
+that identify an ad hoc launch's images.
+
 The same instruction field offers Record and Stop recording. Configure general
 OpenAI access in System settings → OpenAI first; no environment-key fallback
 is used. Missing-key guidance opens those settings and returns to the same
@@ -91,7 +123,8 @@ unreadable-list Retry and the same recheck before `create-chat`. A chosen id
 goes as `--model` on that first terminal client only, never into the stored
 resume command, and the choice applies to this session only. A blank ad hoc
 Cursor start with a chosen model is refused, because no Cursor run would apply
-it. Cursor's Reasoning effort selector stays visible: Default and Auto disable
+it; an images-only start is not blank and is admitted with that model.
+Cursor's Reasoning effort selector stays visible: Default and Auto disable
 it with a hint to choose a specific model; models with listed effort variants
 enable their supported choices. Models without variants keep it disabled with
 an explanation. Returning to a model without selectable effort clears any prior

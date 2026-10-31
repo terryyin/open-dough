@@ -14,6 +14,7 @@ import type {
   LaunchWithState,
 } from "./agentLaunch.ts";
 import { requestAgentAcceptance } from "./agentLaunchClient.ts";
+import { withAttachmentClaims } from "./launchAttachmentClient.ts";
 import { useKeyedState } from "./keyedState.ts";
 import type { StartAnswer } from "./LaunchExistingChanges.tsx";
 import {
@@ -69,16 +70,28 @@ export function useAskedLaunches({
     }
   }, [pages, latest, records, setPage, answeredAsk]);
 
-  // Asks the local service to accept `request`, kept under `key`.
+  // Asks the local service to accept `request`, kept under `key`. Image files
+  // from the dialog are claimed first so the JSON accept names only claim ids.
   const launch = useCallback(
     async (
       key: string,
       request: AgentLaunchRequest,
       onLaunched: OnLaunched,
       attachTerminal = false,
+      images?: readonly File[],
     ): Promise<StartAnswer> => {
       setPage(key, { kind: "submitting", request });
-      const answer = await requestAgentAcceptance(request, attachTerminal);
+      let accepted: AgentLaunchRequest;
+      try {
+        accepted = await withAttachmentClaims(request, images);
+      } catch (error) {
+        setPage(key, {
+          kind: "failed",
+          explanation: `${error instanceof Error ? error.message : "An attached image could not be uploaded."} Nothing was launched.`,
+        });
+        return false;
+      }
+      const answer = await requestAgentAcceptance(accepted, attachTerminal);
       // Nothing started: the dialog asks the developer about the changes.
       if (
         answer.kind === "existing-changes" ||
@@ -88,7 +101,7 @@ export function useAskedLaunches({
         return answer;
       }
       reread();
-      setPage(key, answeredAttempt(answer, request, onLaunched, asksSoFar()));
+      setPage(key, answeredAttempt(answer, accepted, onLaunched, asksSoFar()));
       return answer.kind === "accepted";
     },
     [setPage, reread, asksSoFar],

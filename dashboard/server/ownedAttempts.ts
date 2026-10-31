@@ -13,7 +13,8 @@ import type {
   LaunchAttemptRecord,
 } from "../src/agentLaunch.ts";
 
-// An attempt this server accepted: its request as asked, what is kept of it,
+// An attempt this server accepted: the request the run uses (as kept after
+// admission, including materialized attachment paths), what is kept of it,
 // the controller that ends its waits, and how many changes of it this server
 // has told so far.
 export type OwnedAttempt = {

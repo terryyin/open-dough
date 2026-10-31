@@ -139,6 +139,10 @@ the Backlog card.
 
 ### Start session
 
+Start session shares story starts' Attach images (picker or paste into the
+instruction field), including the same type, size and count refusals; see
+[Agent launch](AGENT-LAUNCH.md).
+
 The project row's Start session offers the same Session group with two
 choices and no Tracking: Workspace (Isolated workspace or Default main) and
 After checks (Wait for review or Automatically land), in the story dialogs'
@@ -228,36 +232,19 @@ Continue-equivalent resume reuses the retained start. A refused or failed
 update does not launch.
 
 When a successful attempt-store write prunes a settled attempt past its 30-day
-retention, it also removes that attempt's kept session start. A refused or failed
-write removes neither. Current and unsettled attempts retain their starts, and a
-late script result cannot recreate a pruned start. This removes machine records;
-the Git workspace and branch remain available.
+retention, it also removes that attempt's kept session start and its
+`launch-attachments/<attempt>/` folder. A refused or failed write removes
+neither. Current and unsettled attempts retain their starts and attachment
+files, and a late script result cannot recreate a pruned start. This removes
+machine records; the Git workspace and branch remain available.
 
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
-project, host and instruction with its Workspace and After checks choices, a
-request naming none having the default ones. A Start session repeating all of
-them resumes its retained established start or recovers a kept conversation whose
-first input is unconfirmed; one whose choices differ starts a new session in its own place and leaves that
-conversation and its workspace to their own continuation.
+project, host, instruction, Workspace and After checks choices, and image
+content digests (none when absent). Repeating them resumes a retained start or
+recovers unconfirmed first input; differing choices or images start elsewhere
+and leave that conversation and workspace to continue on their own.
 
 ### Existing changes in default main
 
-Before a Default main start, the boundary reads the default checkout's
-`git status` (staged, changed, deleted and untracked paths; never content).
-The project row's Start session in Default main is such a start: its request
-carries the unattached policy of the shared definition (workspace and landing,
-no tracking), and one naming no policy runs in Default main and waits for
-review. An Isolated workspace session is not asked, and leaves the default
-checkout's changes as they are.
-Unless the request names the fingerprint of what it now observes, nothing starts
-and the dialog shows, in place of its choices, “Existing changes in default
-main”, the changed paths and count, “Continuing includes these changes in this
-session's result. When committed, all checkout changes are committed
-together.”, and “Wait for review remains selected” or “Automatically land
-remains selected; verified changes may land without another review.” The
-heading takes the keyboard. Back (or Escape) returns to the choices and text as
-they were, at Start; Continue with existing changes sends the same request with
-the fingerprint and never changes the landing. The fingerprint hashes HEAD, the
-status and each path's size and modification times, so content changed after
-the warning asks again. It is a local comparison, not a kept confirmation, and
-the record keeps no fingerprint. A clean checkout starts without a warning.
+Default main starts confirm unchanged checkout content through the dialog's
+Existing changes flow; see [Existing changes in default main](LAUNCH-EXISTING-CHANGES.md).

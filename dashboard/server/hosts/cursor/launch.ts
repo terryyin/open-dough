@@ -12,14 +12,15 @@
 // session with no instruction still keeps the id and starts no client. The
 // stored resume command never carries `--model`, and Default omits it. A
 // blank start with a chosen model is refused before create-chat: no run
-// would apply it. A chosen model first establishes its session
-// configuration scope (./sessionScope.ts), cloned from the developer's
-// current Cursor configuration and recorded on the continuation, and the
-// first client is kept with that scope; when the scope cannot be
-// established the launch is refused before create-chat rather than run
-// against the shared configuration. Default launches create no scope. No
-// worktree, trust, or approval flag is passed. When the runner cannot be
-// reached, no `cursor-agent` is started.
+// would apply it. An images-only start is not blank: its first prompt is the
+// attached-images list, so a chosen model is admitted. A chosen model first
+// establishes its session configuration scope (./sessionScope.ts), cloned
+// from the developer's current Cursor configuration and recorded on the
+// continuation, and the first client is kept with that scope; when the
+// scope cannot be established the launch is refused before create-chat
+// rather than run against the shared configuration. Default launches create
+// no scope. No worktree, trust, or approval flag is passed. When the runner
+// cannot be reached, no `cursor-agent` is started.
 
 import { z } from "zod";
 import { launchSubject } from "../../../src/agentLaunch.ts";

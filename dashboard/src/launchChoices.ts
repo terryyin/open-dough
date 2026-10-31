@@ -26,6 +26,9 @@ export type LaunchChoices = {
   // The developer explicitly accepted the competing-writer risk of an
   // unconfirmed stop in the same workspace.
   readonly overrideStopUnconfirmed?: boolean;
+  // Browser File objects kept until Start; uploaded as raw bodies, never
+  // placed in the JSON launch request.
+  readonly images?: readonly File[];
 };
 
 // The choices every request carries alike: the chosen host, trimmed text
