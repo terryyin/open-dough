@@ -295,3 +295,19 @@ remaining candidates preserved for wrap-up.
   produced consistent focused and `--workers=1` serial speedups and reduced
   full-suite file `.tsv` times (`84.4s → 38.8s`, `63.3s → 27.5s`,
   `29.9s → 8.6s`, and `29.9s → 13.5s`).
+
+## Execution complete
+
+Product advice: no change to product backlog priorities. Within the top-40%
+local dashboard cost band, caching `publishPreparingJourney()` per worker,
+dropping the duplicate printing-merge-driver empty-diff journey in
+`story-review-since-trunk.spec.ts`, dropping the duplicate `430×932` phone width
+in `agent-launch-start-session-answer-touch.spec.ts`, and combining the three
+passed-over worktree exclusions into one journey in
+`story-review-trunk-worktree-ambiguity.spec.ts` delivered consistent focused
+and `--workers=1` serial speedups while preserving all behavioral coverage
+(`1,746 → 1,742` cases, `0` skipped, `strictStatus: "passed"`). Slice 1's
+relative `doneAt` fixture repairs and `noFseventsPreload.cjs` dev-server
+watcher fix also removed calendar-expiry and macOS FSEvents flakiness. Existing
+`SEED-192` backlog stories already cover reviewing test complexity and
+hierarchical proof cost.
