@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-206_explicit-reread-freshness.json",
+      "identity": "SEED-206#explicit-reread-freshness",
+      "completedAt": "2026-10-31T15:49:41.750Z",
+      "blob": "b1c336b36027da9bf4427edbe1ce59513da0c1fc"
+    },
+    {
       "fileName": "SEED-202_consistent-shared-refresh.json",
       "identity": "SEED-202#consistent-shared-refresh",
       "completedAt": "2026-10-31T13:01:38.807Z",
