@@ -136,19 +136,6 @@ test.describe(`${name} session discovery`, () => {
     await expect(sidebar).toBeVisible();
     await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
     await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
-    // Finish the project read and rotation before navigating to its input.
-    // Cross-project selection reveals the chosen entry with a native smooth
-    // scroll; landscape input is exercised by agent-terminal-touch.spec.ts.
-    await opened.settled();
-    await button.scrollIntoViewIfNeeded();
-    await expect
-      .poll(() =>
-        dashboard
-          .claudeAttaches()
-          .filter(({ id }) => id === record.session.sessionId.slice(0, 8))
-          .map(({ lines }) => lines),
-      )
-      .toEqual([["continue intended session"]]);
     expect(
       dashboard
         .claudeAttaches()
