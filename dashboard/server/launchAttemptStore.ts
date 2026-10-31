@@ -29,6 +29,7 @@ import {
   type MachineJsonStore,
 } from "./machineJsonStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
+import { removeLaunchAttachments } from "./launchAttachmentClaims.ts";
 import { retainLandingSettlement } from "./launchLandingRecord.ts";
 import { removeSessionStart } from "./sessionStartStore.ts";
 import { record } from "./startRecording.ts";
@@ -77,7 +78,8 @@ let writing: Promise<unknown> = Promise.resolve();
 // attempts past retention first. `change` may be async so a caller can read
 // launch records under the same write lock that keeps a new attempt, and may
 // return `leaveMachineJson` so a refusal writes nothing. Only after a successful
-// replacement are the starts belonging to actually expired attempts removed.
+// replacement are the starts and launch-attachment folders belonging to
+// actually expired attempts removed.
 export function replaceAttempts(
   change: (
     kept: StoredAttempts,
@@ -113,6 +115,7 @@ export function replaceAttempts(
     });
     for (const { source, attempt } of expired) {
       await record(() => removeSessionStart(source, attempt));
+      removeLaunchAttachments(attempt);
     }
   });
   writing = write.catch(() => undefined);

@@ -1,8 +1,11 @@
-// Retention writes own kept-start expiry; refusal, replacement failure and a
-// restored attempt preserve its start. Late script evidence cannot recreate it.
+// Retention writes own kept-start expiry and removes that attempt's launch
+// attachment folder after a successful write; refusal, replacement failure and
+// a restored attempt preserve both. Late script evidence cannot recreate a
+// pruned start.
 import { randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -29,6 +32,7 @@ let home: string;
 let previousHome: string | undefined;
 let file: string;
 let startsFile: string;
+let attachmentsDir: string;
 let attempt: LaunchAttemptRecord;
 const session: EstablishedSession = {
   workspace: "/project/.worktrees/session",
@@ -67,6 +71,9 @@ test.beforeEach(() => {
     branch: session.branch,
     startedAt: expiredAt,
   };
+  attachmentsDir = path.join(directory, "launch-attachments", attempt.id);
+  mkdirSync(attachmentsDir, { recursive: true });
+  writeFileSync(path.join(attachmentsDir, "1-card.png"), "png-bytes");
   writeFileSync(file, JSON.stringify({ "open-dough": [attempt] }));
   writeFileSync(
     startsFile,
@@ -80,7 +87,7 @@ test.afterEach(() => {
   rmSync(home, { recursive: true, force: true });
 });
 
-test("refusal and an expired attempt restored by the write keep its start until an actual pruning replacement", async () => {
+test("refusal and an expired attempt restored by the write keep its start and attachment folder until an actual pruning replacement", async () => {
   const before = readFileSync(file, "utf8");
   const startsBefore = readFileSync(startsFile, "utf8");
   await replaceAttempts((kept) => {
@@ -89,12 +96,15 @@ test("refusal and an expired attempt restored by the write keep its start until 
   });
   expect(readFileSync(file, "utf8")).toBe(before);
   expect(readFileSync(startsFile, "utf8")).toBe(startsBefore);
+  expect(existsSync(path.join(attachmentsDir, "1-card.png"))).toBe(true);
 
   await replaceAttempts((kept) => ({ ...kept, "open-dough": [attempt] }));
   expect(await keptSessionStart("open-dough", attempt.id)).toEqual(start);
+  expect(existsSync(path.join(attachmentsDir, "1-card.png"))).toBe(true);
   await replaceAttempts((kept) => kept);
   expect(JSON.parse(readFileSync(file, "utf8"))).toEqual({ "open-dough": [] });
   expect(await keptSessionStart("open-dough", attempt.id)).toBeUndefined();
+  expect(existsSync(attachmentsDir)).toBe(false);
 
   // This is the late script-result operation, after retention removed its key.
   await keepEstablishedSession("open-dough", attempt.id, session);
@@ -103,7 +113,7 @@ test("refusal and an expired attempt restored by the write keep its start until 
   });
 });
 
-test("a failed attempt-file replacement leaves the expired attempt and its start unchanged", async () => {
+test("a failed attempt-file replacement leaves the expired attempt, its start, and its attachment folder unchanged", async () => {
   const before = readFileSync(file, "utf8");
   const startsBefore = readFileSync(startsFile, "utf8");
   const module = new URL("../../server/launchAttemptStore.ts", import.meta.url)
@@ -130,12 +140,20 @@ test("a failed attempt-file replacement leaves the expired attempt and its start
       "-e",
       script,
     ],
-    { env: { ...process.env, HOME: home } },
+    {
+      env: {
+        ...process.env,
+        HOME: home,
+        FORCE_COLOR: "0",
+        NO_COLOR: "1",
+      },
+    },
   );
   expect(stdout).toBe("");
-  expect(stderr).toBe("");
+  expect(stderr.replace(/^\(node:.*\n(?:.*\n)?/gm, "")).toBe("");
   expect(readFileSync(file, "utf8")).toBe(before);
   expect(readFileSync(startsFile, "utf8")).toBe(startsBefore);
+  expect(existsSync(path.join(attachmentsDir, "1-card.png"))).toBe(true);
 });
 
 test("reads an older kept session start without retaining its unread creation fact", async () => {

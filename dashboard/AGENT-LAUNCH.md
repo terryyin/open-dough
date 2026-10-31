@@ -47,14 +47,22 @@ or `At most 5 images`); the instruction, other images and Session choices stay.
 The same limits apply on Start session, Start execution and Start refinement.
 Image bytes stay in the browser until Start, when each file is posted as its
 own bounded raw body (same style as dictation audio, never through the 32 KB
-JSON launch body). The attachment boundary refuses the same unsuitable cases
-before writing a claim. After admission the server copies them into
+JSON launch body). Cancel and Escape send nothing, including no images; a
+reopened dialog shows none. The attachment boundary refuses the same unsuitable
+cases before writing a claim. A launch the boundary does not accept abandons
+any claims and leaves no attempt attachment folder. Existing changes in default
+main keeps the images in the dialog through Back; Continue with existing
+changes sends them again and copies them once after admission. After admission
+the server copies them into
 `~/.open-dough/dashboard/launch-attachments/<attempt>/` and records only those
-absolute paths on the kept request. The first input's developer part is the
-typed text, then a blank line and an `Attached images:` numbered path list
-(`src/launchAttachments.ts` `developerPart`); that list is not counted in the
-4,000-character instruction limit. Launch records, attempts and start stores
-never hold image bytes.
+absolute paths on the kept request. Those files stay with the attempt for
+recovery, Continue and a later resumed session until a successful attempt-store
+write prunes that settled attempt past its 30-day retention, which also removes
+the folder; a refused or failed write removes none. The first input's developer
+part is the typed text, then a blank line and an `Attached images:` numbered
+path list (`src/launchAttachments.ts` `developerPart`); that list is not
+counted in the 4,000-character instruction limit. Launch records, attempts and
+start stores never hold image bytes.
 
 The same instruction field offers Record and Stop recording. Configure general
 OpenAI access in System settings → OpenAI first; no environment-key fallback

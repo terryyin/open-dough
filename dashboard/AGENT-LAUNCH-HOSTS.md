@@ -194,8 +194,11 @@ confirmed by acceptance or matching saved intent in native history. Start reads/
 resumes the saved ID, verifies CWD and preserves original preparation/text.
 Empty, unrelated, unreadable or mismatched history never proves input rejected.
 Only durable no-submission/explicit-refusal evidence permits the saved input in
-that conversation. Store failure prevents submission and explains continuation.
-Confirmation clears pending acceptance explanations, including legacy stale uncertainty.
+that conversation, including any Attached images path list already composed into
+that saved instruction; the copied files under `launch-attachments/<attempt>/`
+remain while the attempt is retained. Store failure prevents submission and
+explains continuation. Confirmation clears pending acceptance explanations,
+including legacy stale uncertainty.
 Connection loss retains the command with a separate continuation notice. Neither fact
 claims live/story state; predecessor Claude records remain confirmed.
 Codex records retain the exact native continuation arguments, endpoint and

@@ -232,10 +232,11 @@ Continue-equivalent resume reuses the retained start. A refused or failed
 update does not launch.
 
 When a successful attempt-store write prunes a settled attempt past its 30-day
-retention, it also removes that attempt's kept session start. A refused or failed
-write removes neither. Current and unsettled attempts retain their starts, and a
-late script result cannot recreate a pruned start. This removes machine records;
-the Git workspace and branch remain available.
+retention, it also removes that attempt's kept session start and its
+`launch-attachments/<attempt>/` folder. A refused or failed write removes
+neither. Current and unsettled attempts retain their starts and attachment
+files, and a late script result cannot recreate a pruned start. This removes
+machine records; the Git workspace and branch remain available.
 
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
 project, host and instruction with its Workspace and After checks choices, a

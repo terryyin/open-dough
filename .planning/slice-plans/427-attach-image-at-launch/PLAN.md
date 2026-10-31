@@ -178,9 +178,9 @@ and starting nothing.
 ### 6. Attachments follow the launch's lifecycle
 
 Type: Behavior
-Status: planned
-Proof: Playwright specs for Cancel, existing changes and continuation; focused
-store proof for pruning
+Status: done
+Proof: accepted — cancel, existing-changes-attachments, continuation specs;
+launch-attempt-retention prune; attachment-boundary refused launch
 
 Behavior:
 

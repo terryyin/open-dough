@@ -27,12 +27,12 @@ the early native host-readability probe is waived (2026-10-31).
 | 6c | Each listed attachment has Remove. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts Remove Image N buttons |
 | 6d | Removing an image renumbers the remaining images. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts after Remove Image 1 shows Image 1 · card-b.png |
 | 6e | The developer may refer to attachments by number in the instruction text. | slice 2 | observed: LaunchAttachmentControls.tsx numbering enables referral by number; no dedicated text-reference assertion |
-| 7a | On Cancel, the dialog sends nothing (including no images), as today. | slice 6 | |
-| 7b | On Escape, the dialog sends nothing (including no images), as today. | slice 6 | |
+| 7a | On Cancel, the dialog sends nothing (including no images), as today. | slice 6 | observed: agent-launch-ad-hoc-attachments-cancel.spec.ts Cancel sends nothing |
+| 7b | On Escape, the dialog sends nothing (including no images), as today. | slice 6 | observed: agent-launch-ad-hoc-attachments-cancel.spec.ts Escape sends nothing |
 | 7c | Images reach the dashboard server only with Start (Terry, 2026-10-31). | slice 2 | observed: launchAttachmentClient uploads only from Start path; agent-launch-ad-hoc-attachments.spec.ts Start then paths |
-| 7d | A launch that is not accepted closes the dialog and discards its images, the same way it discards the instruction. | slice 6 | |
-| 7e | The existing-changes confirmation keeps the images in the dialog. | slice 6 | |
-| 7f | Continue (from that confirmation) sends the images again with the launch. | slice 6 | |
+| 7d | A launch that is not accepted closes the dialog and discards its images, the same way it discards the instruction. | slice 6 | observed: cancel/refusal specs discard draft; boundary leaves no folder |
+| 7e | The existing-changes confirmation keeps the images in the dialog. | slice 6 | observed: existing-changes-attachments.spec.ts Back keeps images |
+| 7f | Continue (from that confirmation) sends the images again with the launch. | slice 6 | observed: existing-changes-attachments.spec.ts Continue sends images once |
 | 8a | The server copies each image into a folder it owns for that launch. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts path under launch-attachments with copied bytes |
 | 8b | That folder is outside any workspace. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts attachments under dashboard.home/.open-dough/dashboard/launch-attachments |
 | 8c | After the developer's text, the server appends an "Attached images" list of numbered absolute paths. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts prompt Attached images: 1. <path>; developer-part.spec.ts |
@@ -42,11 +42,11 @@ the early native host-readability probe is waived (2026-10-31).
 | 8e.3 | The same first input reaches Cursor. | slice 3 | observed: agent-launch-ad-hoc-attachments-cursor.spec.ts prompt developer part ends with Attached images path |
 | 8f | That includes a story start's handoff. | slice 3 | observed: agent-launch-story-attachments.spec.ts refinement argv includes handoff then Attached images list |
 | 8g | That includes an ad hoc session's established-session block. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts ad hoc Start session; unattachedInput.ts uses developerPart |
-| 9a | Copied images are kept with their launch attempt. | slice 6 | |
-| 9b | Those images are removed when that settled attempt is pruned after 30 days. | slice 6 | |
-| 9c | Recovery can still find those files while the attempt is retained. | slice 6 | |
-| 9d | Continue can still find those files while the attempt is retained. | slice 6 | |
-| 9e | A later resumed session can still find those files while the attempt is retained (Terry, 2026-10-31). | slice 6 | |
+| 9a | Copied images are kept with their launch attempt. | slice 6 | observed: continuation + materialize keep files with attempt |
+| 9b | Those images are removed when that settled attempt is pruned after 30 days. | slice 6 | observed: launch-attempt-retention.spec.ts prune removes folder after 30 days |
+| 9c | Recovery can still find those files while the attempt is retained. | slice 6 | observed: agent-launch-ad-hoc-attachments-continuation.spec.ts recovery paths exist |
+| 9d | Continue can still find those files while the attempt is retained. | slice 6 | observed: existing-changes Continue finds retained files |
+| 9e | A later resumed session can still find those files while the attempt is retained (Terry, 2026-10-31). | slice 6 | observed: continuation spec retained paths after resume |
 | 10a | Images never enter launch records as bytes. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts request.attachments paths; JSON has no iVBOR |
 | 10b | Images never enter attempts as bytes. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts record.request.attachments paths only |
 | 10c | Images never enter start stores as bytes. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts no attachmentClaims on kept request; no image bytes in JSON |
@@ -74,9 +74,9 @@ the early native host-readability probe is waived (2026-10-31).
 | E2 | Start refinement with two picked mockups and no text → skill line, preparation handoff, then numbered paths. | slice 3 | observed: agent-launch-story-attachments.spec.ts two mockups no text → skill/handoff/reporting then numbered paths |
 | E3 | Attach two images, remove Image 1, then Start → one path is sent, numbered 1. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts remove Image 1 → single 1-card-b.png path numbered 1 |
 | E4 | Pick a PDF and a 14 MB PNG → refused with typed reasons; text and other attachments remain. | slice 5 | observed: agent-launch-ad-hoc-attachments-refusal.spec.ts PDF + 14 MB PNG refused; draft remains |
-| E5 | Attach an image, press Cancel → nothing uploaded; reopening shows no attachment. | slice 6 | |
-| E6 | Default main Existing changes → Back keeps images; Continue sends them. | slice 6 | |
-| E7 | Unconfirmed Codex first input continued from Startup recovery → same paths still exist. | slice 6 | |
+| E5 | Attach an image, press Cancel → nothing uploaded; reopening shows no attachment. | slice 6 | observed: cancel.spec.ts Attach then Cancel; reopen empty |
+| E6 | Default main Existing changes → Back keeps images; Continue sends them. | slice 6 | observed: existing-changes-attachments.spec.ts Back/Continue |
+| E7 | Unconfirmed Codex first input continued from Startup recovery → same paths still exist. | slice 6 | observed: continuation.spec.ts Codex unconfirmed Continue same paths |
 | X1 | Dropping files onto the dialog is out of scope for now. |  | G1 |
 | X2 | Non-image attachments are out of scope for now. |  | G2 |
 | X3 | Attaching images to an already running session is out of scope for now. |  | G2 |

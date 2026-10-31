@@ -1,7 +1,8 @@
 // Attachment boundary refusals: unsupported type, oversized body and too many
-// claims write no claim or attempt folder and start nothing.
+// claims write no claim or attempt folder and start nothing. A launch the
+// boundary refuses after claims are posted also leaves no attempt folder.
 
-import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
@@ -18,25 +19,27 @@ import {
 import {
   claimLaunchAttachment,
   materializeLaunchAttachments,
+  recordedRequestWithMaterializedAttachments,
 } from "../../server/launchAttachmentClaims.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { pngA } from "../support/launchAttachmentFixtures.ts";
+import {
+  launchAttachmentClaimsRoot,
+  launchAttachmentsRoot,
+  listedMachineDirs,
+  pngA,
+} from "../support/launchAttachmentFixtures.ts";
 
-function claimsRoot(home: string): string {
-  return path.join(
-    home,
-    ".open-dough",
-    "dashboard",
-    "launch-attachment-claims",
-  );
-}
-
-function attachmentsRoot(home: string): string {
-  return path.join(home, ".open-dough", "dashboard", "launch-attachments");
-}
-
-function listed(directory: string): string[] {
-  return existsSync(directory) ? readdirSync(directory).sort() : [];
+function withTempHome(prefix: string, run: (home: string) => void): void {
+  const previousHome = process.env["HOME"];
+  const home = mkdtempSync(path.join(tmpdir(), prefix));
+  process.env["HOME"] = home;
+  try {
+    run(home);
+  } finally {
+    if (previousHome === undefined) delete process.env["HOME"];
+    else process.env["HOME"] = previousHome;
+    rmSync(home, { recursive: true, force: true });
+  }
 }
 
 test("the attachment boundary refuses a PDF and an oversized PNG without writing a claim", async () => {
@@ -76,8 +79,10 @@ test("the attachment boundary refuses a PDF and an oversized PNG without writing
       expect(JSON.parse(response.body)).toEqual({ error: request.error });
       expect(response.headers["cache-control"]).toBe("no-store");
     }
-    expect(listed(claimsRoot(server.home))).toEqual([]);
-    expect(listed(attachmentsRoot(server.home))).toEqual([]);
+    expect(listedMachineDirs(launchAttachmentClaimsRoot(server.home))).toEqual(
+      [],
+    );
+    expect(listedMachineDirs(launchAttachmentsRoot(server.home))).toEqual([]);
     expect(server.claudeLaunchCalls()).toEqual([]);
   } finally {
     await server.close();
@@ -85,14 +90,11 @@ test("the attachment boundary refuses a PDF and an oversized PNG without writing
 });
 
 test("materialize refuses a sixth claim without writing an attempt folder", () => {
-  const previousHome = process.env["HOME"];
-  const home = mkdtempSync(path.join(tmpdir(), "dough-launch-attach-"));
-  process.env["HOME"] = home;
-  try {
+  withTempHome("dough-launch-attach-", (home) => {
     const claims = [...Array(6).keys()].map((index) =>
       claimLaunchAttachment(pngA, "image/png", `n${String(index)}.png`),
     );
-    expect(listed(claimsRoot(home))).toHaveLength(6);
+    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toHaveLength(6);
     const attemptId = "attempt-too-many";
     try {
       materializeLaunchAttachments(attemptId, claims);
@@ -104,11 +106,37 @@ test("materialize refuses a sixth claim without writing an attempt folder", () =
         message: launchAttachmentTooMany,
       });
     }
-    expect(listed(attachmentsRoot(home))).toEqual([]);
-    expect(listed(claimsRoot(home))).toEqual([]);
-  } finally {
-    if (previousHome === undefined) delete process.env["HOME"];
-    else process.env["HOME"] = previousHome;
-    rmSync(home, { recursive: true, force: true });
-  }
+    expect(listedMachineDirs(launchAttachmentsRoot(home))).toEqual([]);
+    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([]);
+  });
+});
+
+test("a refused launch abandons claims and writes no attachment folder", () => {
+  withTempHome("dough-launch-attach-refuse-", (home) => {
+    const claim = claimLaunchAttachment(pngA, "image/png", "card.png");
+    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([
+      claim,
+    ]);
+    // Wire paths are recorded only after admission; naming them on the request
+    // is refused and abandons the claims without creating an attempt folder.
+    try {
+      recordedRequestWithMaterializedAttachments("attempt-refused", {
+        source: "open-dough",
+        workflow: "ad-hoc",
+        host: "claude",
+        instruction: "Why is this card clipped?",
+        attachments: ["/tmp/not-allowed.png"],
+        attachmentClaims: [claim],
+      });
+      expect(false, "expected refusal").toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(RefusedRequest);
+      expect(error).toMatchObject({
+        status: 400,
+        message: "The launch request is malformed.",
+      });
+    }
+    expect(listedMachineDirs(launchAttachmentsRoot(home))).toEqual([]);
+    expect(listedMachineDirs(launchAttachmentClaimsRoot(home))).toEqual([]);
+  });
 });

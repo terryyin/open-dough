@@ -1,8 +1,8 @@
 // Shared picked-image fixtures and Attach images dialog helpers for launch
 // attachment journeys. One home for the tiny PNG bytes, the test HOME
-// launch-attachments root, and the picker flow.
+// launch-attachments and launch-attachment-claims roots, and the picker flow.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
@@ -32,6 +32,19 @@ export function writePickedImages(
 
 export function launchAttachmentsRoot(home: string): string {
   return path.join(home, ".open-dough", "dashboard", "launch-attachments");
+}
+
+export function launchAttachmentClaimsRoot(home: string): string {
+  return path.join(
+    home,
+    ".open-dough",
+    "dashboard",
+    "launch-attachment-claims",
+  );
+}
+
+export function listedMachineDirs(directory: string): string[] {
+  return existsSync(directory) ? readdirSync(directory).sort() : [];
 }
 
 export async function pickImagesInDialog(
