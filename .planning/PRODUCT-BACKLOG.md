@@ -28,9 +28,10 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
+- [Keep shared refresh answers consistent with what each viewer shows](seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh) — SEED-202#consistent-shared-refresh ([plan](slice-plans/428-consistent-shared-refresh/PLAN.md))
+
 ## Backlog list
 
-- [Keep shared refresh answers consistent with what each viewer shows](seeds/SEED-202-bounded-dashboard-refresh.md#consistent-shared-refresh) — SEED-202#consistent-shared-refresh
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
