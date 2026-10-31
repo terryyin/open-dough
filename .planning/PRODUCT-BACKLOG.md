@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Reconcile published admission drafts without losing local edits](seeds/SEED-201-reconcile-published-admission-drafts.md#reconcile-published-admission-drafts) — SEED-201#reconcile-published-admission-drafts
 - [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame ([plan](slice-plans/424-development-intent-frame/PLAN.md))
 - [Use the full mobile screen for sessions and simplify their header](seeds/SEED-199-mobile-session-screen.md#mobile-session-screen) — SEED-199#mobile-session-screen ([plan](slice-plans/425-mobile-session-screen/PLAN.md))
-- [Dictate text into the session terminal from its header](seeds/SEED-200-session-terminal-voice-input.md#session-terminal-voice-input) — SEED-200#session-terminal-voice-input ([plan](slice-plans/426-session-terminal-voice-input/PLAN.md))
 
 ## Backlog list
 

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-200#session-terminal-voice-input",
+  "title": "Dictate text into the session terminal from its header",
+  "completedAt": "2026-10-31T05:06:08.823Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
