@@ -7,6 +7,7 @@
 import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/launchRequest.ts";
 import { sessionsFreshHeader } from "../src/machineSessionsRevision.ts";
+import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   installRefinementSkill,
@@ -110,7 +111,7 @@ test("Start session Host switch takes the same fresh re-read; regular polls stay
     .toBe(true);
 
   const afterFresh = asks.length;
-  await page.clock.fastForward(15_000);
+  await page.clock.runFor(checkIntervalMs);
   await expect.poll(() => asks.length).toBeGreaterThan(afterFresh);
   expect(asks.slice(afterFresh).every((ask) => !ask.fresh)).toBe(true);
 });

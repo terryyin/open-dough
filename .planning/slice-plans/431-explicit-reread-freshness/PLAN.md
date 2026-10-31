@@ -151,6 +151,8 @@ Commitment: 10.6
   then page, each with one proof loop and no cumulative special-case design.
 - Remaining slice-specific concerns: none.
 
+- CI repair: Start session unmarked-poll assertion under paused clock uses `page.clock.runFor(checkIntervalMs)` (not `fastForward`).
+
 ## Execution complete
 
 Product advice: no change — Host-switch re-reads observe post-change offers
