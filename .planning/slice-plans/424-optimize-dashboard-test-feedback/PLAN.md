@@ -182,12 +182,22 @@ Experiment loop: same as Slice 2.
 
 ### 4. Drop redundant second phone width (430×932) in agent-launch-start-session-answer-touch
 Type: Structure
-Status: planned
-Proof: Focused before/after on
-`agent-launch-start-session-answer-touch.spec.ts` with three consecutive
-passes; 390×844 portrait and rotated 844×390 landscape still prove `held`,
-`launched`, and `refused` whole-word layout and `Near-future direction` opening
-beneath the row.
+Status: done
+Proof: Focused default-worker 3-pass before/after on
+`agent-launch-start-session-answer-touch.spec.ts` (`slice4-before-1..3.json` 5/5
+passed vs `slice4-after-1..3.json` 3/3 passed, `strictStatus: "passed"`),
+`--workers=1` serial before/after (`slice4-before-w1.json` 5/5 passed vs
+`slice4-after-w1.json` 3/3 passed), and post-refactor verification
+(`slice4-refactor-proof.json`, 3/3 passed): default-worker `.tsv` spec-seconds
+`61.5s / 31.7s / 43.7s` (mean `45.63s`, median `43.70s`; removed `430×932` cases
+`26.27s / 13.13s / 18.17s`, mean `19.19s`) → `20.2s / 24.5s / 13.7s` (mean
+`19.47s`, median `20.20s`, `−26.17s` mean / `−23.50s` median); default-worker
+`durationMs` `24.92s / 17.07s / 19.46s` (mean `20.48s`) →
+`24.42s / 20.39s / 16.10s` (mean `20.30s`); `--workers=1` serial `durationMs`
+`34.94s` (`.tsv` `21.8s`) → `22.84s` (`−12.10s`; `.tsv` `11.9s`, `−9.90s`).
+390×844 portrait (`phone.portrait`) and rotated 844×390 landscape
+(`phone.landscape`) still prove `held`, `launched`, and `refused` whole-word
+layout and `Near-future direction` opening beneath the row.
 
 Internal change: In `dashboard/tests/agent-launch-start-session-answer-touch.spec.ts`,
 keep the `phone.portrait` (390×844, rotating to 844×390) journeys for `held`,
