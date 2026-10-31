@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-203#quiet-dashboard-polling",
+  "title": "Keep dashboard polling quiet",
+  "completedAt": "2026-10-31T09:09:36.066Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "codex",
+  "model": "gpt-6"
+}
