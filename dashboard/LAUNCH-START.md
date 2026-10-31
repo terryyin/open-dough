@@ -140,7 +140,8 @@ the Backlog card.
 ### Start session
 
 Start session shares story starts' Attach images (picker or paste into the
-instruction field); see [Agent launch](AGENT-LAUNCH.md).
+instruction field), including the same type, size and count refusals; see
+[Agent launch](AGENT-LAUNCH.md).
 
 The project row's Start session offers the same Session group with two
 choices and no Tracking: Workspace (Isolated workspace or Default main) and

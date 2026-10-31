@@ -43,3 +43,21 @@
   border-radius: var(--radius-sm);
   background: var(--surface);
 }
+
+.launch-attachment-refusals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--danger, var(--text));
+}
+
+.launch-attachment-refusals > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

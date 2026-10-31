@@ -151,6 +151,7 @@ export function LaunchDialog({
             <LaunchAttachments
               id={id}
               items={attachments.items}
+              refusals={attachments.refusals}
               onAdd={attachments.addFiles}
               onRemove={attachments.removeAt}
               disabled={dictation.busy}

@@ -40,15 +40,21 @@ several PNG, JPEG, GIF or WebP files at once, and pasting an image into the
 instruction field adds it the same way (named `pasted.png` when the clipboard
 gives no name). Pasting text keeps its ordinary insert. Attached images show
 as a numbered list (`Image N · <filename>`) with a small preview and Remove;
-removing renumbers the rest. Image bytes stay in the browser until Start, when
-each file is posted as its own bounded raw body (same style as dictation audio,
-never through the 32 KB JSON launch body). After admission the server copies
-them into `~/.open-dough/dashboard/launch-attachments/<attempt>/` and records
-only those absolute paths on the kept request. The first input's developer part
-is the typed text, then a blank line and an `Attached images:` numbered path
-list (`src/launchAttachments.ts` `developerPart`); that list is not counted in
-the 4,000-character instruction limit. Launch records, attempts and start
-stores never hold image bytes.
+removing renumbers the rest. A launch carries at most 5 images, each at most
+10 MB. A non-image, oversized, or sixth file is named in the dialog with its
+refusal reason (`Not an image (PNG, JPEG, GIF or WebP)`, `Larger than 10 MB…`,
+or `At most 5 images`); the instruction, other images and Session choices stay.
+The same limits apply on Start session, Start execution and Start refinement.
+Image bytes stay in the browser until Start, when each file is posted as its
+own bounded raw body (same style as dictation audio, never through the 32 KB
+JSON launch body). The attachment boundary refuses the same unsuitable cases
+before writing a claim. After admission the server copies them into
+`~/.open-dough/dashboard/launch-attachments/<attempt>/` and records only those
+absolute paths on the kept request. The first input's developer part is the
+typed text, then a blank line and an `Attached images:` numbered path list
+(`src/launchAttachments.ts` `developerPart`); that list is not counted in the
+4,000-character instruction limit. Launch records, attempts and start stores
+never hold image bytes.
 
 The same instruction field offers Record and Stop recording. Configure general
 OpenAI access in System settings → OpenAI first; no environment-key fallback

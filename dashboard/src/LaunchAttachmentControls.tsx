@@ -1,10 +1,12 @@
 // Shared Attach images control for every launch dialog: picker, numbered list
 // with preview and Remove. Bytes stay in the browser until Start uploads them.
+// Unsuitable picks are named with a reason; accepted images and the rest of
+// the draft stay.
 
 import { useEffect, useId, useRef, useState } from "react";
 import {
-  launchAttachmentAccept,
-  launchAttachmentMaxCount,
+  partitionLaunchAttachments,
+  type LaunchAttachmentRefusal,
 } from "./launchAttachments.ts";
 import "./launch-attachments.css";
 
@@ -16,6 +18,9 @@ export type DraftAttachment = {
 
 export function useLaunchAttachments() {
   const [items, setItems] = useState<readonly DraftAttachment[]>([]);
+  const [refusals, setRefusals] = useState<readonly LaunchAttachmentRefusal[]>(
+    [],
+  );
   const itemsRef = useRef(items);
   itemsRef.current = items;
 
@@ -27,19 +32,21 @@ export function useLaunchAttachments() {
   );
 
   const addFiles = (files: readonly File[]) => {
-    setItems((current) => {
-      const room = launchAttachmentMaxCount - current.length;
-      if (room <= 0) return current;
-      const next = [
-        ...current,
-        ...files.slice(0, room).map((file) => ({
-          id: crypto.randomUUID(),
-          file,
-          preview: URL.createObjectURL(file),
-        })),
-      ];
-      return next;
-    });
+    const current = itemsRef.current;
+    const { accepted, refusals: nextRefusals } = partitionLaunchAttachments(
+      files,
+      current.length,
+    );
+    setRefusals(nextRefusals);
+    if (accepted.length === 0) return;
+    setItems([
+      ...current,
+      ...accepted.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+      })),
+    ]);
   };
 
   const removeAt = (index: number) => {
@@ -53,6 +60,7 @@ export function useLaunchAttachments() {
   return {
     items,
     files: items.map((item) => item.file),
+    refusals,
     addFiles,
     removeAt,
   };
@@ -61,12 +69,14 @@ export function useLaunchAttachments() {
 export function LaunchAttachments({
   id,
   items,
+  refusals = [],
   onAdd,
   onRemove,
   disabled = false,
 }: {
   readonly id: string;
   readonly items: readonly DraftAttachment[];
+  readonly refusals?: readonly LaunchAttachmentRefusal[];
   readonly onAdd: (files: readonly File[]) => void;
   readonly onRemove: (index: number) => void;
   readonly disabled?: boolean;
@@ -80,11 +90,10 @@ export function LaunchAttachments({
         ref={input}
         id={inputId}
         type="file"
-        accept={launchAttachmentAccept}
         multiple
         hidden
         tabIndex={-1}
-        disabled={disabled || items.length >= launchAttachmentMaxCount}
+        disabled={disabled}
         onChange={(event) => {
           const target = event.currentTarget;
           const list = target.files;
@@ -95,7 +104,7 @@ export function LaunchAttachments({
       <button
         type="button"
         className="frame-button"
-        disabled={disabled || items.length >= launchAttachmentMaxCount}
+        disabled={disabled}
         onClick={() => input.current?.click()}
       >
         Attach images
@@ -123,6 +132,19 @@ export function LaunchAttachments({
               >
                 Remove
               </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {refusals.length > 0 && (
+        <ul
+          className="launch-attachment-refusals"
+          aria-label="Refused images"
+          role="alert"
+        >
+          {refusals.map((refusal, index) => (
+            <li key={`${refusal.name}-${refusal.reason}-${String(index)}`}>
+              {`${refusal.name} · ${refusal.reason}`}
             </li>
           ))}
         </ul>

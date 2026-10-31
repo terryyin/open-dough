@@ -17,7 +17,7 @@ the early native host-readability probe is waived (2026-10-31).
 | 4a.3 | Start refinement gains that capability identically. | slice 3 | observed: agent-launch-story-attachments.spec.ts Start refinement dialog Attach images |
 | 4b.1 | Same wording across those entry points. | slice 2 | observed: LaunchAttachmentControls.tsx shared wording Attach images / Image N · name |
 | 4b.2 | Same controls across those entry points. | slice 2 | observed: LaunchAttachmentControls.tsx shared picker, list, Remove controls in LaunchDialog |
-| 4b.3 | Same limits across those entry points. | slice 5 | |
+| 4b.3 | Same limits across those entry points. | slice 5 | observed: shared limits in launchAttachments.ts; refusal dialog + boundary specs |
 | 4c | There is no per-dialog variant of the attachment capability. | slice 2 | observed: LaunchDialog.tsx mounts one LaunchAttachments; no per-dialog variant |
 | 5a | Images can be added by an Attach images control that opens a file picker and allows several files at once. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts filechooser setFiles two PNGs |
 | 5b | Images can be added by pasting an image into the instruction field. | slice 4 | observed: agent-launch-ad-hoc-attachments-paste.spec.ts paste image → Image 1 · pasted.png |
@@ -51,13 +51,13 @@ the early native host-readability probe is waived (2026-10-31).
 | 10b | Images never enter attempts as bytes. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts record.request.attachments paths only |
 | 10c | Images never enter start stores as bytes. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts no attachmentClaims on kept request; no image bytes in JSON |
 | 10d | Those records hold only the paths. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts attachments equal [attachedPath] |
-| 11a | Accepted types are PNG, JPEG, GIF, and WebP. | slice 5 | |
-| 11b | Each image is at most 10 MB. | slice 5 | |
-| 11c | A launch carries at most 5 images. | slice 5 | |
-| 11d | A refused file is named in the dialog with its refusal reason. | slice 5 | |
-| 11e | On refusal, the instruction remains. | slice 5 | |
-| 11f | On refusal, other (accepted) images remain. | slice 5 | |
-| 11g | On refusal, other dialog choices remain. | slice 5 | |
+| 11a | Accepted types are PNG, JPEG, GIF, and WebP. | slice 5 | observed: launch-attachment-refusals.spec.ts / dialog refuse non-image PDF |
+| 11b | Each image is at most 10 MB. | slice 5 | observed: refusal specs 14 MB PNG → Larger than 10 MB |
+| 11c | A launch carries at most 5 images. | slice 5 | observed: refusal specs sixth image → At most 5 images |
+| 11d | A refused file is named in the dialog with its refusal reason. | slice 5 | observed: agent-launch-ad-hoc-attachments-refusal.spec.ts name · reason alerts |
+| 11e | On refusal, the instruction remains. | slice 5 | observed: refusal dialog spec keeps instruction text |
+| 11f | On refusal, other (accepted) images remain. | slice 5 | observed: refusal dialog spec keeps other accepted images |
+| 11g | On refusal, other dialog choices remain. | slice 5 | observed: refusal dialog spec keeps Session choices |
 | 12 | The dashboard overrides no host permission: if a host asks before reading a file outside its workspace, the developer answers as usual. | slice 1 | observed: waived native probe (developer 2026-10-31); premise retained in plan Current decisions |
 | 13 | A blank instruction with images is not a blank start: its first input is the image list. | slice 7 | |
 | 14 | A Cursor start with a chosen model and only images is therefore allowed. | slice 7 | |
@@ -73,7 +73,7 @@ the early native host-readability probe is waived (2026-10-31).
 | E1 | Start session with text "Why is this card clipped?" and a pasted screenshot → first input is that text followed by Attached images path list. | slice 4 | observed: agent-launch-ad-hoc-attachments-paste.spec.ts text + pasted screenshot → Attached images 1-pasted.png in argv |
 | E2 | Start refinement with two picked mockups and no text → skill line, preparation handoff, then numbered paths. | slice 3 | observed: agent-launch-story-attachments.spec.ts two mockups no text → skill/handoff/reporting then numbered paths |
 | E3 | Attach two images, remove Image 1, then Start → one path is sent, numbered 1. | slice 2 | observed: agent-launch-ad-hoc-attachments.spec.ts remove Image 1 → single 1-card-b.png path numbered 1 |
-| E4 | Pick a PDF and a 14 MB PNG → refused with typed reasons; text and other attachments remain. | slice 5 | |
+| E4 | Pick a PDF and a 14 MB PNG → refused with typed reasons; text and other attachments remain. | slice 5 | observed: agent-launch-ad-hoc-attachments-refusal.spec.ts PDF + 14 MB PNG refused; draft remains |
 | E5 | Attach an image, press Cancel → nothing uploaded; reopening shows no attachment. | slice 6 | |
 | E6 | Default main Existing changes → Back keeps images; Continue sends them. | slice 6 | |
 | E7 | Unconfirmed Codex first input continued from Startup recovery → same paths still exist. | slice 6 | |

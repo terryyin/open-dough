@@ -14,14 +14,64 @@ export const launchAttachmentTypes = [
   "image/webp",
 ] as const;
 
-export const launchAttachmentAccept = launchAttachmentTypes.join(",");
-
 export const launchAttachmentTooLarge =
   "Larger than 10 MB. Choose a smaller image or omit it.";
 export const launchAttachmentUnsupportedType =
   "Not an image (PNG, JPEG, GIF or WebP).";
 export const launchAttachmentTooMany = "At most 5 images";
 export const launchAttachmentEmpty = "The image is empty.";
+
+export type LaunchAttachmentRefusal = {
+  readonly name: string;
+  readonly reason: string;
+};
+
+// Why one file cannot join the draft, or undefined when it can. Type and size
+// before count so a PDF or oversized file keeps its own reason even past the
+// fifth slot; a sixth accepted-type image is "At most 5 images".
+export function launchAttachmentRefusalFor(
+  file: { readonly name: string; readonly type: string; readonly size: number },
+  acceptedCount: number,
+): string | undefined {
+  if (!(launchAttachmentTypes as readonly string[]).includes(file.type)) {
+    return launchAttachmentUnsupportedType;
+  }
+  if (file.size > launchAttachmentLimitBytes) {
+    return launchAttachmentTooLarge;
+  }
+  if (acceptedCount >= launchAttachmentMaxCount) {
+    return launchAttachmentTooMany;
+  }
+  return undefined;
+}
+
+// Splits a picker or paste batch into files the draft can take and named
+// refusals for the rest. `alreadyAccepted` is how many images the dialog
+// already holds.
+export function partitionLaunchAttachments(
+  files: readonly File[],
+  alreadyAccepted: number,
+): {
+  readonly accepted: File[];
+  readonly refusals: LaunchAttachmentRefusal[];
+} {
+  const accepted: File[] = [];
+  const refusals: LaunchAttachmentRefusal[] = [];
+  let count = alreadyAccepted;
+  for (const file of files) {
+    const reason = launchAttachmentRefusalFor(file, count);
+    if (reason !== undefined) {
+      refusals.push({
+        name: file.name.trim() !== "" ? file.name : "image",
+        reason,
+      });
+      continue;
+    }
+    accepted.push(file);
+    count += 1;
+  }
+  return { accepted, refusals };
+}
 
 // Filename stems for each accepted type (no leading dot). Paste naming and
 // claim sanitization both use this map.

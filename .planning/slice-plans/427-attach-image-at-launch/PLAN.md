@@ -164,8 +164,10 @@ no name) and the text is unchanged; pasting text still inserts text.
 ### 5. Unsuitable images are refused with a reason, keeping the draft
 
 Type: Behavior
-Status: planned
-Proof: Playwright dialog spec; focused unit proof at the boundary
+Status: done
+Proof: accepted — agent-launch-ad-hoc-attachments-refusal.spec.ts;
+boundary/launch-attachment-boundary.spec.ts;
+boundary/launch-attachment-refusals.spec.ts
 
 Behavior: a PDF, a 14 MB PNG, and a sixth image → each is refused in the
 dialog with "Not an image (PNG, JPEG, GIF or WebP)", "Larger than 10 MB", or
