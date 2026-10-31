@@ -9,11 +9,15 @@
 }
 
 /* The badge legend: a quiet card over the page, like the frame's other
-   dialogs, with Close on a bar above its reading area. */
+   dialogs, with Close on a bar above its reading area. Center in the
+   viewport below the pinned banner (--banner-height from
+   DashboardBanner) so Close is not stacked on banner controls when the
+   zoomed window is short. */
 .preparation-legend-dialog {
   box-sizing: border-box;
   width: min(36rem, calc(100% - 1.5rem));
-  max-height: calc(100dvh - 1.5rem);
+  top: var(--banner-height, 0px);
+  max-height: calc(100dvh - var(--banner-height, 0px) - 1.5rem);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: 0;
