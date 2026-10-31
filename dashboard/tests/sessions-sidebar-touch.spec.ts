@@ -127,21 +127,6 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.locator(".side-panel-names code")).toHaveText(
       record.session.sessionId,
     );
-    // The reduced landscape terminal can scroll its startup banner above the
-    // visible rows. Continue in the visible composer and observe the native
-    // session that receives the input instead.
-    await expect(panel.locator(".xterm-rows")).toContainText("❯");
-    await focusByTouch(panel);
-    await page.keyboard.type("continue intended session");
-    await page.keyboard.press("Enter");
-    await expect
-      .poll(() =>
-        dashboard
-          .claudeAttaches()
-          .filter(({ id }) => id === record.session.sessionId.slice(0, 8))
-          .map(({ lines }) => lines),
-      )
-      .toEqual([["continue intended session"]]);
     await expect(
       parts(page).project.getByRole("radio", {
         name: "Doughnut",
@@ -155,6 +140,26 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.locator(".side-panel-names code")).toHaveText(
       record.session.sessionId,
     );
+    // Finish the project read and rotation before navigating to its input.
+    // Cross-project selection reveals the chosen entry with a native smooth
+    // scroll; landscape input is exercised by agent-terminal-touch.spec.ts.
+    await opened.settled();
+    await button.scrollIntoViewIfNeeded();
+    await tapWhereShown(button);
+    await expect(sidebar).toBeHidden();
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel.locator(".xterm-rows")).toContainText("❯");
+    await focusByTouch(panel);
+    await page.keyboard.type("continue intended session");
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(() =>
+        dashboard
+          .claudeAttaches()
+          .filter(({ id }) => id === record.session.sessionId.slice(0, 8))
+          .map(({ lines }) => lines),
+      )
+      .toEqual([["continue intended session"]]);
     expect(
       dashboard
         .claudeAttaches()

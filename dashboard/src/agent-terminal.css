@@ -21,6 +21,12 @@
     overflow-y: auto;
   }
 
+  /* Native scroll extents round to whole pixels. Leave a pixel after the
+     final line so its fractional line box can scroll wholly into view. */
+  .terminal-identity .side-panel-names {
+    padding-block-end: 1px;
+  }
+
   /* The native ID remains readable as a whole within the scrolling identity,
      even beside four header actions. */
   .terminal-identity .side-panel-names code {

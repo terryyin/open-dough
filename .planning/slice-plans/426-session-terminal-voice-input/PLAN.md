@@ -192,6 +192,10 @@ See [supporting execution evidence](execution-evidence.md#decisive-premises-and-
   Use one worker for focused browser proof on the shared host; reconsider current
   contention before heavy verification, preserving other sessions' processes.
 
+## Hosted touch continuation
+
+See [second-run geometry repair evidence](ci-geometry-evidence.md).
+
 ## Story obligations
 
 ### G1. Keyboard access from native input
