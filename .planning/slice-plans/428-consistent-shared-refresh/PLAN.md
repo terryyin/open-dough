@@ -33,9 +33,6 @@ against that story. These findings stood at `e01504b0`:
    (`machineDocumentsIdentity`, plus the `machineJsonReplacements()` counter)
    each define machine-document identity. The observation module knows the
    directory layout.
-5. **Documentation is out of date.** `dashboard/AGENT-LAUNCH-HISTORY.md`
-   (lines 8–9 and 163–165) still says servers read the file afresh, and does
-   not describe the shared observation.
 
 ## Preserved promises and constraints
 
@@ -54,7 +51,6 @@ within that story's decided window, so this correction does not change it.
 | 2 | Slice 1 | UI spec: with the settings view open on a quiet machine, a second check's sessions response is the unchanged answer (under 1 KiB) and the feedback-maintenance row stays shown. |
 | 4 | Slice 2 | Existing sharing, unchanged-answer and records-replaced specs stay green with one exported store revision. A unit check: the revision changes on this server's write and on another process's rename replacement. |
 | 3 | Slice 3 | Boundary spec using `cursorRunnerHeldReads.ts`: a Cursor record written while a held read is outstanding is labeled from a read that includes it, and overlapping asks under unchanged documents still share one runner read. |
-| 5 | Slice 3 | Documentation read against the code. |
 
 ## Decisive premises
 
@@ -85,7 +81,7 @@ Structure: `machineJsonStore.ts` exports one machine-document revision, made of
 this server's write count and the identity of each machine document.
 `machineSessionObservation.ts` keys on it, and its own identity code goes.
 
-### 3. Cursor joiners share only reads of the same documents, and docs match
+### 3. Cursor joiners share only reads of the same documents
 Type: Behavior
 Status: planned
 Proof: the finding 3 boundary spec; `cursor-runner-sessions*.spec.ts` and
@@ -93,8 +89,7 @@ Proof: the finding 3 boundary spec; `cursor-runner-sessions*.spec.ts` and
 
 Behavior: The shared Cursor held-session read is keyed by home and the store
 revision. A reader arriving after a launch-record write gets a read that
-includes that record. `AGENT-LAUNCH-HISTORY.md` describes the current read
-and refresh behavior.
+includes that record.
 
 ## Current decisions
 

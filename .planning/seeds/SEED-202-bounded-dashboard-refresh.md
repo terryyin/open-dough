@@ -196,7 +196,7 @@ more viewers. If they do not, this story may be dropped.
 
 **Identity:** SEED-202#consistent-shared-refresh
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/428-consistent-shared-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b68e7f8efbdfe407e21f449f9154a386652e1bce5bf9c0b8ab9e7e0fa0cd206","plan":"da8e51ba420cd090c892d6e1b6db3ee0e855df6765ce733672feb97dfaa0d965"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/428-consistent-shared-refresh/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"95d86b2e9bddd0bb5bdec6b55ca187eb904a6d236cf7387ae495cf65a75a7497","plan":"61889fd5174f0c2cf618112c4f7c1b140fb2065d2cc44273e0f927811dbdb710"}}
 ```
 
 **Goal:** A correction to [Keep dashboard refresh work bounded across
@@ -217,5 +217,3 @@ refresh stays small when nothing changed.
   the read began gets its own read.
 - One machine-document revision, owned by the machine document store, keys
   both shared observations.
-- The dashboard's session-history documentation describes identity-checked
-  reads, the shared observation, unchanged answers, and the retryable answer.
