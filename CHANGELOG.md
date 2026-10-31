@@ -1,3 +1,18 @@
+## 0.3.79 - 2026-10-31
+
+- Clear unchanged published admission drafts from the originating checkout after remote acceptance, then attempt normal refresh. Preserve unrelated files, sibling story edits, staged content, and subsequent content, mode, and separator edits through ordinary, repeated, and resumed admission.
+- Release both preparation and execution assignments when completing a story, while crediting only its execution agent in the done record. Preserve held preparation drafts when their story has already left the queue.
+- Use Product intent consistently in planning and review guidance, and keep executable proof tied to the source promises it protects.
+- Dashboard source adds terminal dictation with reconnect-safe insertion, expandable diff context, Development perspective naming, and continued Cursor work after a missing terminal helper. Retained test-family simplifications preserve their surviving journeys and measurement limitations; no general speedup is claimed.
+
+The Promoted installation payload updates existing execution, backlog, preparation, planning, retrospective, manual-testing, and wrap-up guidance/runtime files. No payload paths are added or removed. Dashboard code, tests, measurements, planning, and maintainer records remain source functionality; undeclared guidance remains Proposed. SEED-197's active optimization and separate fixture repair stay with their current owner; this release imports no work from that branch.
+
+Validation: the admission repair's representative review and six focused startup/recovery suites cover clean refresh, unrelated and sibling preservation, staged and later edits, refusal, continuation, and recovery. A Codex source-recovery invocation cleared the real leftover draft and left the default checkout clean. Existing assignment-completion and preparation-release regressions supply the other runtime changes' proof. All 15 focused release checks and the release self-installation check passed, covering declared payloads, both native roots, host hooks, byte comparison, latest-release pinning, ordinary refusal/no-write behavior, replacement failures, retired paths, force recovery, and release finalization.
+
+Under ADR 0005, unchanged Codex, Cursor, and Claude Code discovery, installation, hook registration, and host ownership mechanisms reuse their existing integration evidence. Shared runtime behavior uses its real Git/CLI regression proof; conventional guidance uses its representative authoring review. These are reused and deterministic checks, not fresh native-host acceptance. No new native exception is claimed; outstanding native requirements retain their owners.
+
+CI limitation: source revision `ee5badf2d0c0ffcc3322e8202471b87be78eac3f` has a failed hosted CI run (`41182720097`); this release does not claim a green hosted result. Terry explicitly authorized landing the admission repair despite unrelated CI failures on 2026-10-31. SEED-197's fixture repair remains with its current owner.
+
 ## 0.3.78 - 2026-10-30
 
 - Keep test optimization findings in one project candidate record, with a latest-pass summary, pending candidates, accepted necessary costs, applied profile-only exclusions, and transferred obligations. Preserve decisions across later passes and story cleanup; acceptance alone excludes no tests.
