@@ -183,3 +183,4 @@ Install npm dependencies with `npm source stalled: acquisition deadline
 exceeded`; the other 15 jobs succeeded. Affirmative infrastructure evidence —
 ignored without a product repair. Slice 3 product tip `c5927db4` was fully green.
 CI repair on `eb1ee3e3` (run 41189798727): `test (2/3)` and `dashboard (4/12)` were npm acquisition stalls (infrastructure); `test (3/3)` missed `child-ready` within the 1s interrupt poll — wait widened to 5s in `tests/native-setup.sh`.
+CI disposition: run 41190556182 on repair tip `d0c5bb86` failed only `dashboard (1/12)` and `test (3/3)` at Install npm dependencies with the same acquisition-stall message; ignored without a further product repair.
