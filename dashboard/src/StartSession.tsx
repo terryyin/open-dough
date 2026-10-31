@@ -86,7 +86,6 @@ export function StartSession({
     useCallback(() => progress.current, []),
   );
   const { presentTerminal } = usePageSessions();
-  const [announcement, setAnnouncement] = useState("");
 
   return (
     <>
@@ -98,17 +97,11 @@ export function StartSession({
         aria-label={`Start session in ${project}`}
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
-        onClick={() => {
-          setAnnouncement("");
-          openDialog();
-        }}
+        onClick={openDialog}
       >
         <Icon icon={SquareTerminal} />
         Start session
       </button>
-      <p role="log" className="quiet">
-        {announcement}
-      </p>
       {attempt?.kind === "starting" && (
         <p
           ref={progress}
@@ -167,7 +160,6 @@ export function StartSession({
                     launcher.current,
                   ),
                 });
-              setAnnouncement("Ad hoc session started");
             })
           }
           onClose={(accepted) => {

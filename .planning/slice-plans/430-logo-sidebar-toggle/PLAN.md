@@ -98,10 +98,10 @@ on the board; Purpose with verification). Structure is not offered.
 
 ### 3. A successful ad-hoc start leaves the action row quiet
 Type: Behavior
-Status: planned
-Proof: ad-hoc success journeys assert no "Ad hoc session started" log and no
-empty success log slot; problem journeys still show the launch answer; terminal
-presentation after success unchanged.
+Status: done
+Proof: Accepted — ad-hoc terminal/problems/touch/responsive specs assert
+adHocStarted absence after success with terminal/listing still present; problem
+answers and Starting a session… progress remain.
 
 Behavior: After Start session successfully starts an ad-hoc session, the project
 actions row shows neither "Ad hoc session started" nor an empty success log.
