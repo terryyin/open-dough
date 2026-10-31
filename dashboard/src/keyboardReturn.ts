@@ -65,9 +65,12 @@ export function useKeyboardReturn<Shown>(
         setReturning(undefined);
       });
     }
+    // keepInView only after a Recently done demand (Mark as done): ordinary
+    // Close may home to Sessions or a Board card whose reading place is
+    // already held, and scrolling the home would wipe that Board scroll.
     give(
       answer === "superseded" ? undefined : returning.home?.(),
-      answer !== "superseded",
+      demand !== undefined && answer !== "superseded",
     );
     return () => stopKeeping?.();
   }, [returning, range.destination]);
