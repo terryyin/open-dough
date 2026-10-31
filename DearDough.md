@@ -864,6 +864,6 @@ for a second round.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.79
-  - Evidence: slice 1 implementation return listed `sessions-sidebar-navigation-cases.spec.ts` "a story on no card…" as failing 1 in 4 on clean `22eb4b3e` and "did not fix it". A coordinator follow-up then found the cause (a reveal-count test race with keep-in-view after a Side panel press) and fixed it (`revealsAtClick`, 8 of 8 passing repeated); see PLAN.md Current decisions in the same commit.
+  - Evidence: slice 1 implementation return listed `sessions-sidebar-navigation-cases.spec.ts` "a story on no card…" as failing 1 in 4 on clean `22eb4b3e` and "did not fix it". A coordinator follow-up then found the cause (a reveal-count test race with keep-in-view after a Side panel press) and fixed it (`revealsAtClick`, 8 of 8 passing repeated); see `72ce39b109d5352b43dd093c68b9257b564a1bdc:.planning/slice-plans/424-development-intent-frame/PLAN.md` Current decisions.
   - Observed effect: one extra delegation round (about 5 minutes, 9 tool uses). The fix landed in the same increment.
   - Inference: the coordinator's wording, not the shared guidance, caused this; delegation already says a discovered failure keeps the project's failure policy. Pass the project's policy verbatim instead of paraphrasing it.
