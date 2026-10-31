@@ -107,6 +107,13 @@ Behavior: After Start session successfully starts an ad-hoc session, the project
 actions row shows neither "Ad hoc session started" nor an empty success log.
 Startup progress and launch problem answers beside the button remain.
 
+## Execution complete
+
+Product advice: No queue change. This banner story is complete pending CI;
+near-future Intent/Purpose+Proof work stays next and orthogonal. Keep Structure
+mark and icon-only narrow perspectives as deferred promises — do not promote
+them from this retrospective alone.
+
 ## Story obligations
 
 ### G1. Structure mark is design cue only

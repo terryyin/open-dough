@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 376. Removed numbers are never reused.
+- Highest allocated local number: 377. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -229,6 +229,13 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator transcript `5220567c-77df-404c-a6d2-7abf6ccb5d69` L90–L94 — focused header/touched proof green; full suite then failed phone-width journeys that still clicked hidden project radios; coordinator fixed callers onto `chooseProject` / `expectProjectChoice` / `shownProjectControl` before delivery. Published with those helpers in `c5927db4`.
   - Observed effect: no owned CI failure from this miss (caught locally by the wider suite before publish); extra repair loop on phone-width selection consumers already in the suite.
   - Inference: qualified recurrence of focused/owning-surface proof missing indirect callers of the changed project-selection contract once the tab radios hide at ≤400px.
+- Execution: SEED-205#logo-sidebar-toggle / plan 430 / first related implementation `63c7699e57ce9ec57112e30434df07e944d3eaea`
+  - Timestamp: 2026-10-31T23:13:50+08:00 (repair commit `539b192b`; CI run 41212447397 on slice-1 SHA `63c7699e`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: slice 1 accepted proof named banner/Sessions/passive-mark specs (`dashboard-header*`, `frame-sessions-look`, `frame-board-look`, `system-settings-look`, `sessions-sidebar`). CI failed many shards on `expectNoSidewaysScrollAndWholeText` without `compactProjectSelectCut` after designed compact-title truncation, and `source-navigation.spec.ts` treated Sessions' decorative `img.product-mark` (`alt=""`) as injected content. Repair `539b192b`. Later owned CI also failed `preparation-legend.spec.ts` at high zoom against banner geometry (repairs `d470063c`/`5f9ca93c`/`d62f0a66`; separate iterative-repair note DD-377). Coordinator transcript `1bca2eeb-150d-41d1-ab95-a929db66954e` stashed in-progress slice 2 for the truncation repair.
+  - Observed effect: one multi-shard owned CI failure and one consumer/locator repair before slice 2 resumed; later banner-geometry consumers of the same one-line banner change failed separately in prep-legend.
+  - Inference: recurrence of focused owning-surface proof missing page-wide whole-text and decorative-mark consumers of the changed compact banner contract after local owner proof passed (ODF-150).
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -929,3 +936,24 @@ earlier observation has to be remapped by hand.
   - Evidence: `source-freshness.mjs check` returned `amended` for the story. The change removed two lines of its Deferred promises (the sibling-story deferral). The second reviewer's ids differed from the first's (89 → 87 rows; for example `1.10.1`→`1.9`, `4.4.1`+`4.4.3`→`4.6`, `R5`→`X6`). Replacement record: `.planning/slice-plans/426-bounded-dashboard-refresh/source-review.md` at `218b8d92`.
   - Observed effect: one extra reviewer run (about 43k subagent tokens), a hand-written id remap carrying slice 1–2 observations, and one failed remap attempt, all before slice 2 could be delivered. No commitment changed.
   - Inference: for an amendment that only removes or narrows an exclusion, keeping the existing review and settling the affected row would avoid the remap. Asking reviewers for stable ids would also reduce it. Neither is measured.
+
+## DD-377 — CI layout repair iterates successive assertions without one full-journey check
+
+A CI repair for a banner-related dialog layout fixes the reported assertion
+(Close overlap, then content viewport ratio, then End scroll) without verifying
+the whole owned high-zoom journey in that pass, so the same dialog fails again
+on the next assertion and needs another repair.
+
+Distinct from ODF-221 (sibling specs sharing a race) and from ODF-150 (initial
+focused proof missing consumers): here the miss is inside cause-driven repair
+of one product surface across successive owned CI failures.
+
+### Occurrences
+
+- Execution: SEED-205#logo-sidebar-toggle / plan 430 / first related implementation `63c7699e57ce9ec57112e30434df07e944d3eaea`
+  - Timestamp: 2026-10-31T23:25:54+08:00 (first prep-legend repair `d470063c`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.79
+  - Evidence: after mark-as-Sessions banner change, owned CI failed `preparation-legend.spec.ts` three times in sequence — run 41213869876 (dialog not visible / Close over banner at 200% zoom) → `d470063c` pinned under `--banner-height`; run 41214826618 (explanation viewport ratio ~0.99 at 400% zoom) → `5f9ca93c` dropped vertical centering and flexed content; run 41216028080 (End leaves explanation ~0.93) → `d62f0a66` used near-full height and lighter bottom padding. Coordinator transcript `1bca2eeb-150d-41d1-ab95-a929db66954e` L67–L85; repair agents `b74c60f9`, `68aa0863`, `400716f4`.
+  - Observed effect: three owned CI repair commits and three repair agents on the same `preparation-legend.css` before Close-off-banner and End-to-last-line both held together.
+  - Inference: each repair matched the failing assertion rather than replaying the full zoomed prep-legend journey (open, Close clear of banner controls, scroll End shows last explanation) once; that single check would likely have collapsed the loop.
