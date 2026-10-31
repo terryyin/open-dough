@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-205_logo-sidebar-toggle.json",
+      "identity": "SEED-205#logo-sidebar-toggle",
+      "completedAt": "2026-10-31T16:24:23.944Z",
+      "blob": "c784bdf2646bb52134e3ab7877c4f4dba862f0e0"
+    },
+    {
       "fileName": "SEED-202_consistent-shared-refresh.json",
       "identity": "SEED-202#consistent-shared-refresh",
       "completedAt": "2026-10-31T13:01:38.807Z",
