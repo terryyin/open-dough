@@ -35,64 +35,101 @@ supporting code and tests Terry asked to delete.
 
 **Identity:** SEED-198#responsive-project-header
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/424-responsive-project-header/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d7e446f165a3646136c1f84d7302da2ead403566a65c134e6a56c6f3b9b5d51c","plan":"11ae422fc07b38f6f414e0584b0c41438054ab60b95e1d087abd16f42622bcee"}}
 ```
 
-**Beneficiary:** A developer using the dashboard on desktop or a narrow screen.
+**Beneficiary:** A developer using the dashboard on desktop or a narrow screen,
+by pointer, touch, or keyboard.
 
-**Goal:** Reclaim header space by removing the unwanted project-information
-disclosure and combining narrow-screen project selection with the active title.
+**Goal:** Reclaim header space and make project switching obvious: the project
+name identifies the project and, at narrow widths, is also the one control for
+choosing another project, instead of opening source information above several
+rows of project tabs.
 
-**Scope:**
+**Scope — required behavior:**
 
-- Remove the project title's source-information expansion completely: the
-  disclosure, its contents, and supporting state, handlers, styles, imports,
-  props, helpers, and documentation that become obsolete. On a wide screen the
-  project name is a plain title, with the existing tab-shaped project choices
-  retaining their current behavior.
-- Trace supporting reads through the frontend and server. Delete API calls,
-  endpoints, request handling, and data processing that exist solely for the
-  removed feature or become unused after removal. The current `SourceStatus`
-  renders the already-read `source` and `work`; no disclosure-specific API call
-  was found during initial inspection. Shared reads needed to populate and
-  refresh the Board remain necessary. Check actual consumers rather than
-  assuming that every source-related read belongs to the disclosure.
-- Delete the removed feature's tests, fixtures, helpers, and assertions when
-  they serve no surviving behavior. Do not replace them with negated assertions
-  that the disclosure, content, or calls are absent. Where a shared journey also
-  proves surviving published-read behavior, remove its obsolete portions and
-  observe that surviving behavior at its appropriate boundary.
-- At narrow widths, replace the separate project tabs with a dropdown opened
-  from the active project title. Show the current project's name in that control;
-  choosing another configured project updates the title and uses the existing
-  project-selection behavior. Opening it offers project choices, not the removed
-  information. Keep the wide-screen tabs.
-- Keep selection usable with touch and keyboard and ensure the compact header
-  fits narrow screens without the current multi-row tab list. Resizing between
-  layouts preserves the selected project and makes the appropriate control
-  reachable. Choose the layout breakpoint from available header space during
-  implementation rather than treating the screenshot's dimensions as a rule.
-- Update maintained header/navigation documentation and add positive proof for
-  the new responsive selection behavior.
+- Remove the project title's source-information disclosure completely: the
+  disclosure, its repository/ref/revision/retrieval content and note, and
+  supporting state, handlers, styles, imports, props, helpers, and
+  documentation that become obsolete. This includes banner behavior that exists
+  only for the disclosure, such as re-measuring the banner height after a
+  just-closed disclosure, and comments elsewhere that justify behavior by the
+  disclosure (for example the read status's reason for not showing its result).
+  `SourceStatus` renders only already-read `source` and `work`; it has no API
+  call, endpoint, or server processing of its own, so the shared Board read
+  stays.
+- On a wide screen the active project's name is a plain, non-interactive page
+  title, and the existing tab-shaped project choices keep their current
+  behavior.
+- At narrow widths, the active project's title is the project selector and the
+  separate tab list is not shown. It shows the current project's name, is
+  recognizable as a dropdown, and opening it offers the configured projects
+  with the current one indicated. Choosing a project uses the existing project
+  selection (URL, history, published read) and updates the title. Dismissing
+  without a choice leaves the project unchanged and returns focus to the
+  title control.
+- The compact selector works by touch and keyboard, and the compact header
+  fits a phone width without a multi-row project list. Resizing between layouts
+  keeps the selected project and leaves the appropriate control reachable. The
+  layout switches where the tabs no longer fit the header, not at the
+  screenshot's dimensions.
+- Page-wide Left/Right project cycling keeps working at narrow widths. Where it
+  currently moves focus to the selected project radio after focused content
+  disappears, it moves focus to whichever project control is shown.
+- Tests: delete the disclosure's own tests and assertions without negated
+  replacements. Many journeys use the disclosure's region only as evidence of
+  which revision the page has read (about 150 assertions, plus a retrieval
+  time). Move that surviving published-read evidence to a boundary that
+  remains: the always-present read status announces the read revision (short
+  form) and retrieval time, and failure and rate-limit alerts name the revision.
+  Update maintained navigation documentation and add positive proof of
+  responsive selection.
 
-**Evaluation:**
+**Scope — accepted consequence:** Sighted users no longer see the repository,
+ref, full revision, retrieval time, or the "only published changes are
+visible" note in the header; the read result remains spoken and problems
+remain visible. Terry requested this information's removal as unwanted.
 
-1. On a wide screen, Open Dough is a plain project title and the existing
-   tab-shaped choices switch to Doughnut through the established selection flow.
-2. On a phone-width screen with the screenshot's five configured projects, the
-   title shows Open Dough in one dropdown control. Activating it offers those
-   projects; choosing Doughnut updates the title and displays Doughnut's work.
-3. Keyboard and touch users can open the compact selector and choose a project.
-   Widening and narrowing the page retains that project and a usable selector.
-4. Review the aggregate change for deletion of the old feature and its exclusive
-   support throughout the stack, including obsolete tests. New automated checks
-   demonstrate useful selection behavior; they do not turn removed tests into
-   negation tests. Surviving Board publication and refresh behavior still has
-   meaningful proof.
+**Deferred promises:** Making the read result visible elsewhere, project search
+or grouping in the selector, and moving other banner controls (Sessions,
+System settings, product mark) beyond what the compact layout needs to fit.
 
-**Effort hypothesis:** M, medium confidence. The visible change is small, but
-the shared observation-test dependence on the source panel and the responsive
-keyboard/touch transition require bounded planning and verification.
+**Required restrictions:** None added. A single configured project, or any
+number of projects, is handled by the same selector rule.
+
+**Key examples:**
+
+1. Wide screen, five configured projects, Open Dough selected → page loads →
+   "Open Dough" is a plain heading that opens nothing; choosing the Doughnut tab
+   shows Doughnut in the title and Doughnut's work through the established
+   selection flow.
+2. Phone width (portrait), the same five projects → page loads → the header shows
+   "Open Dough" in one dropdown-styled title control and no row of project tabs;
+   tapping it offers the five projects with Open Dough indicated; tapping
+   Doughnut closes the choices, the title shows Doughnut, and the Board shows
+   Doughnut's work.
+3. Phone width, keyboard → focus the title control and open it → the projects
+   are offered; arrow keys or Tab reach Pygardon, Enter or Space selects it;
+   Escape instead closes the choices with Open Dough unchanged and focus on the
+   title control.
+4. Doughnut chosen at phone width → widen the page past the breakpoint → the
+   title is plain "Doughnut" with the Doughnut tab selected; narrowing again
+   shows the dropdown title "Doughnut".
+5. Phone width, focus on a story card in Open Dough → press Right Arrow →
+   Doughnut is selected; when the focused card disappears, focus lands on the
+   compact title control.
+6. A journey that previously read the new revision from the source panel →
+   the origin advances and the page rereads → the read status announces the new
+   short revision, and the journey asserts that instead.
+
+**Evaluation:** Review the aggregate change for deletion of the old feature and
+its exclusive support, including obsolete tests, without negation tests. New
+automated checks demonstrate examples 1–5; surviving publication and refresh
+journeys still prove which revision was read (example 6).
+
+**Effort hypothesis:** M, medium confidence. The visible change is small; the
+cost is migrating the published-read evidence across many journeys and the
+responsive keyboard/touch behavior.
 
 **Product prerequisites:** None established. Other shared-frame work can
 reconcile this header behavior without becoming a new blocking dependency.
@@ -107,7 +144,9 @@ Development/Intent frame work.
   deletion requirement and first-priority instruction for a new backlog story.
 - [Current banner](../../dashboard/src/DashboardBanner.tsx),
   [source disclosure](../../dashboard/src/SourceStatus.tsx), and
-  [project choices](../../dashboard/src/ProjectSelect.tsx).
+  [project choices](../../dashboard/src/ProjectSelect.tsx),
+  [read status](../../dashboard/src/PublishedReadStatus.tsx), and
+  [project arrow navigation](../../dashboard/src/projectKeyboardNavigation.ts).
 - [Header journeys](../../dashboard/tests/dashboard-header.spec.ts) and
   [shared observation assertions](../../dashboard/tests/dashboardPage.ts).
 - [Maintained navigation behavior](../../docs/dashboard-navigation.md).
