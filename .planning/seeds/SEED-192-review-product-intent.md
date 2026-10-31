@@ -242,7 +242,8 @@ No bands or time commitments are invented. Comparative hypotheses below are
 unbanded; confidence includes integration, verification, and cleanup. The new
 track has three source/frame outcomes and nine Proof/CI outcomes; four existing
 review candidates remain. Most uncertainty lies in the first Proof and CI cases.
-None is execution-ready or assigned a planned/planless approach.
+At decomposition, none had an execution approach or readiness assessment.
+Individual refinements and their recorded facts below carry current preparation.
 
 ## Story Decomposition
 
@@ -252,26 +253,142 @@ None is execution-ready or assigned a planned/planless approach.
 
 **Identity:** SEED-192#open-development-intent-frame
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/424-development-intent-frame/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"457833d5d12fa286df4cc218f720f06fdec5ff0b8d2390961c5009f4d5182ad4","plan":"60e09f45f8f381088b770be75b496930abc567780af8533fb808eeb600d7e3ee"}}
 ```
 
-- **For / why:** Terry can experience and judge the actual two-perspective frame
-  while retaining a useful Development dashboard.
-- **Evaluation:** Switch to Intent for a selected project, read an honest
-  forthcoming-content state, switch projects, and return to Development with
-  useful session and navigation context. Keyboard, narrow-screen, and settings
-  journeys remain usable; near-future direction stays in Development.
-- **Value / learning:** Validates the frame's orientation and feel before readers
-  or reports add cost. An implemented UI is the reviewable result.
-- **Boundary:** Perspective navigation and the empty Intent state; no source
-  browser, placeholder proof numbers, Structure tab, or advance report machinery.
-  Final Start session placement is not a prerequisite.
-- **Effort hypothesis:** Unbanded; lower-to-middle, medium confidence. Existing
-  route/session preservation makes this more than adding two decorative tabs.
-- **Product prerequisites:** The current dashboard; no story blocker established.
-- **Safe stopping point:** Development remains usable and the new perspective is
-  understandable even if content work stops. Empty means not yet provided, not
-  evidence that the project has no tests.
+**Goal.** Terry, working in the existing dashboard, can experience Development
+and Intent as two perspectives on the selected project and judge whether the
+frame is understandable while ordinary Development work remains useful. The
+implemented interface is the reviewable result. This learns about orientation
+and return journeys before source readers or report collection add cost; it
+does not establish that the future Intent reader improves product review.
+
+**Scope — required behavior.**
+
+- Make Development and Intent reachable in the existing shared dashboard frame,
+  with the selected project and active perspective clear. Preserve the existing
+  project selector; switching perspective alone does not select another project.
+- Intent explains that its content is forthcoming. It may explain Purpose and
+  Proof in ordinary language, without presenting an unimplemented reader or
+  claiming to have inspected the project's tests.
+- Return to useful Development navigation and the existing session context.
+  Development retains its stories, roster, published-state qualifications,
+  near-future direction and operations. Near-future direction stays there.
+  Perspective changes do not start, stop, complete or reattach a session.
+- System settings remains reachable and returns to the selected project's
+  prior perspective, with usable focus. Existing project-management recovery
+  and story destinations retain their meaning. Choosing a session from Intent
+  opens its Development context using the existing session operation and project
+  attribution.
+- Both perspectives and the shared navigation remain usable with a keyboard
+  and at narrow widths. Perspective keyboard interaction must not inadvertently
+  also change project; focus must not remain in content hidden by the switch.
+- Changing projects keeps the selected perspective; Development is the
+  first-visit default. An already open terminal, report or review stays visible
+  in the shared Side panel when changing perspectives.
+
+**Scope — deferred promises.** Source browsing and configuration, story-scoped
+Intent, Purpose/Proof layouts, observed Proof and history, Structure, and new
+report machinery belong to later work. Do not render a disabled Structure
+destination or invented Proof statistics in this increment. The final placement
+of Start session remains open in the parent direction; retaining its present
+Development placement is sufficient here. No new persisted workspace system or
+redesign of the Development Board is promised. These limits do not require
+rejecting cases that the existing dashboard naturally supports.
+
+**Required restrictions and their reasons.** Forthcoming content must not read
+as "no tests" or "no proof exists": this increment obtains no such evidence.
+Perspective selection is presentation state, never a project fact or evidence
+of session activity. These truthfulness constraints follow
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+
+**Key examples.**
+
+| Pre-condition | Trigger | Observable result |
+| --- | --- | --- |
+| A configured project's Development view is open | Choose Intent | The same project remains selected; Intent is identified and explains that content is forthcoming, without test counts or a claim that tests are absent. |
+| Intent is showing forthcoming content | Return to Development | The developer can resume the existing stories/roster and session journey; near-future direction remains in Development and the perspective switch has not created or ended a session. |
+| Intent is selected for one project | Choose another configured project | The new project is selected and Intent remains active, with the same honest forthcoming-content state. |
+| Intent is selected | Open System settings, then return | The selected project and Intent return with usable focus; the existing settings journey remains available. |
+| A session is listed in the shared Sessions sidebar while Intent is selected | Choose that session | Its project and Development stories appear, and the existing operation opens the session and reveals its card where available. |
+| Development has an open Side panel | Choose Intent, then return | The terminal, report or review remains visible in the shared frame and retains its context; a terminal is not reattached just because the perspective changes. |
+| The dashboard is narrow or the developer uses only a keyboard | Select perspectives, projects and settings, then return | Shared controls and the forthcoming message remain reachable and readable; selecting a perspective does not accidentally switch projects. |
+
+**Exploration, borrowing and challenge.** These compare the same frame-first
+goal; the earlier decision to build a real frame is retained.
+
+| Candidate | User effect and system consequence | Assessment |
+| --- | --- | --- |
+| Keep Development and explain future Intent in existing documentation or a disclosure | Cheapest explanation, with almost no new navigation; offers no real perspective round trip. | Fails Terry's selected experiential outcome. A disposable mockup was already rejected in the kept decomposition. |
+| Introduce a separately remembered workspace for each perspective | Each perspective restores its own content context under the selected project; this adds a workspace model and restoration behavior. | Credible, but adds commitments beyond the minimum orientation experiment. It could coexist with shared project selection; that alone does not justify it. |
+| Change the perspective on one selected project | Stable project identity and familiar shared controls help orientation; perspective remains disposable presentation state and Development retains its current responsibilities. | Selected by Terry with the navigation decisions below. |
+
+The borrowed mechanism is changing **map layers** while keeping the geographic
+area and landmarks fixed: the area maps to the selected project, the layer to
+the perspective, and the landmarks to the shared frame. It suggests preserving
+orientation, not a particular layout or component. Its limit matters:
+Development and Intent are independent perspectives, not interchangeable
+overlays. Selecting a story or session cannot manufacture corresponding Intent
+content or Proof. The analogy is a design candidate, not evidence of usefulness.
+
+The strongest doubt is a cosmetic switch that satisfies "two perspectives"
+while disrupting the developer's actual working context. Evaluate the full
+Development → Intent → Development journey, including a session and settings,
+against today's dashboard. Browser proof can establish preserved behavior;
+Terry's encounter with the implemented frame judges whether the distinction
+feels understandable. The result worth keeping is a clear distinction and a
+usable return without rebuilding the working context. No measured productivity
+gain, reader usefulness or intent protection is claimed by this frame alone,
+following [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Architecture.** The existing frame already separates project observation,
+Development navigation and local sessions. `ConfiguredDashboard` owns a stable
+`PageFrame`; settings hides the mounted dashboard, and session selection routes
+to that session's project and stories. Reuse these responsibilities rather than
+create another project or session authority. Perspective and Development's
+stories/roster selection are different concepts; settings, browser navigation
+and existing story destinations must remain coherent with both.
+
+This follows [ADR 0001 — Ubiquitous language](../../docs/adrs/0001-ubiquitous-language-accepted.md),
+[ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+Repository facts remain repository-owned; local sessions remain operational
+evidence; view state remains disposable. No backend store, Intent schema or
+report producer is required for the frame. Under
+[ADR 0000](../../docs/adrs/0000-use-adrs-accepted.md), this feature design belongs
+here, not in a new ADR. Index and relevant record statuses agree; no conflict,
+supersession or exception was found in this refinement.
+
+**Navigation decisions.** Terry selected all recommendations on 2026-10-31:
+session selection opens Development; project changes preserve perspective with
+Development as the first-visit default; the existing Side panel remains visible
+across perspectives. This preserves today's session-destination and panel
+continuity rules while adding one project-independent perspective selection.
+Separate per-project perspective memory and hiding the panel are unselected
+alternatives, not required rejection behavior. No human scope decision remains.
+
+**Evidence and limits.** Read-only inspection on 2026-10-31 at `c3d976f5`:
+[dashboard route](../../dashboard/src/dashboardRoute.ts),
+[configured dashboard](../../dashboard/src/ConfiguredDashboard.tsx),
+[shared frame](../../dashboard/src/PageFrame.tsx),
+[settings entry](../../dashboard/src/App.tsx), and
+[current dashboard contract](../../dashboard/README.md).
+Existing browser scenarios cover settings return, an attached terminal across
+settings, project history and cross-project session selection in
+`dashboard/tests/system-settings.spec.ts`,
+`dashboard/tests/project-keyboard-navigation.spec.ts` and
+`dashboard/tests/sessions-sidebar-navigation.spec.ts`. After installing the
+locked dependencies, four selected browser journeys passed. Temporary edits
+confirmed that their observers reject lost project/view routing, missing focus
+return and a destroyed terminal attachment; all scratch product edits were
+restored. The plan retains the literal commands and results. This establishes
+the current reuse and proof route, not future Intent behavior.
+
+**Effort hypothesis.** Unbanded; lower-to-middle, medium confidence. Navigation
+and session preservation make this more than two decorative controls. No formal
+blocking dependency is established. The safe stopping point is a useful
+Development dashboard and an understandable Intent perspective even if readers
+are never delivered.
 
 
 <a id="browse-test-purpose"></a>
