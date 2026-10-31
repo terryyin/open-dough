@@ -1,12 +1,13 @@
 // Observe the public production watcher through its own reported activations
 // and its default machine-home deployment checkouts.
 import { expect } from "@playwright/test";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { dashboardCommand } from "./dashboardCommand.ts";
 import { processRunning } from "./processGroup.ts";
 import { recordedBuilds } from "./productionBuildGate.ts";
 
-export type ProductionWatcher = ReturnType<typeof dashboardCommand>;
+export type ProductionWatcher = ReturnType<typeof startProductionWatcher>;
 // A preview the watcher reported serving: its URL and process.
 export type ProductionActivation = { url: string; pid: number };
 
@@ -15,13 +16,42 @@ export type ProductionActivation = { url: string; pid: number };
 export function startProductionWatcher(
   development: string,
   env: NodeJS.ProcessEnv,
-): ProductionWatcher {
-  return dashboardCommand(development, env, "watch:dashboard", [
-    "--port",
-    "0",
-    "--check-interval",
-    "500",
-  ]);
+) {
+  // Git's existing trace observes real successful reads without requiring the
+  // public watcher to print routine polling messages. The fixture removes the
+  // trace directory beside its development checkout on cleanup.
+  const trace = path.join(
+    mkdtempSync(path.join(path.dirname(development), "watcher-git-")),
+    "events.jsonl",
+  );
+  writeFileSync(trace, "");
+  const command = dashboardCommand(
+    development,
+    { ...env, GIT_TRACE2_EVENT: trace },
+    "watch:dashboard",
+    ["--port", "0", "--check-interval", "500"],
+  );
+  return {
+    ...command,
+    checks() {
+      const reads = new Set<string>();
+      let completed = 0;
+      // Only complete lines are parsed; Git may currently be appending one.
+      for (const line of readFileSync(trace, "utf8").split("\n").slice(0, -1)) {
+        const event = JSON.parse(line) as {
+          event: string;
+          sid: string;
+          name?: string;
+          code?: number;
+        };
+        if (event.event === "cmd_name" && event.name === "ls-remote")
+          reads.add(event.sid);
+        if (event.event === "exit" && event.code === 0 && reads.has(event.sid))
+          completed += 1;
+      }
+      return completed;
+    },
+  };
 }
 
 export function productionDeployments(home: string) {
@@ -81,11 +111,11 @@ export async function checkedAfterActivation(
   watcher: ProductionWatcher | undefined,
   commit: string,
 ) {
-  const activatedAt = watcher?.output().search(activationPattern(commit)) ?? -1;
-  expect(activatedAt).toBeGreaterThanOrEqual(0);
+  expect(watcher?.output()).toMatch(activationPattern(commit));
+  const checks = watcher?.checks() ?? 0;
   await expect
-    .poll(() => watcher?.output().slice(activatedAt) ?? "", { timeout: 60_000 })
-    .toContain(`Checked published main: ${commit}.`);
+    .poll(() => watcher?.checks() ?? 0, { timeout: 60_000 })
+    .toBeGreaterThan(checks);
 }
 
 export function outputCount(
@@ -118,9 +148,6 @@ export async function settledSkip(
   await expect
     .poll(() => watcher?.output() ?? "", { timeout: 60_000 })
     .toContain(`Skipping production update ${commit}: `);
-  const checked = new RegExp(`Checked published main: ${commit}\\.`, "g");
-  const checks = outputCount(watcher, checked);
-  await expect
-    .poll(() => outputCount(watcher, checked))
-    .toBeGreaterThan(checks + 1);
+  const checks = watcher?.checks() ?? 0;
+  await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks + 1);
 }

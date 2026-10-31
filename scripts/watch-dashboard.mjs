@@ -94,7 +94,6 @@ try {
         process.env,
         cancellation.signal,
       );
-      console.log(`Checked published main: ${latest.commit}.`);
       if (latest.commit === baseline.commit) continue;
       const range = `${baseline.commit}..${latest.commit}`;
       if (range === skippedRange) continue;

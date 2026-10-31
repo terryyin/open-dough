@@ -27,7 +27,7 @@ import type { Acceptance, MachineAnswer } from "../src/agentLaunch.ts";
 test.describe.configure({ mode: "serial" });
 const journey = productionUpdateJourney();
 
-test("repeated checks of unchanged main keep the same preview and build, which reads the shared launch record beside development", async ({
+test("repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development", async ({
   request,
 }) => {
   test.setTimeout(60_000);
@@ -41,12 +41,9 @@ test("repeated checks of unchanged main keep the same preview and build, which r
   state.shared = await writeSharedLaunchRecord(fixture.home);
   await journey.expectSharedRecord(request, state.developmentUrl);
   await journey.expectSharedRecord(request, state.served.url);
-  const checksBefore = journey.count(/Checked published main: /g);
-  await expect
-    .poll(() =>
-      journey.count(new RegExp(`Checked published main: ${state.a}\\.`, "g")),
-    )
-    .toBeGreaterThan(checksBefore + 2);
+  const checksBefore = watcher.checks();
+  await expect.poll(() => watcher.checks()).toBeGreaterThan(checksBefore + 2);
+  expect(watcher.output()).not.toContain("Checked published main:");
   expect(processRunning(state.served.pid)).toBe(true);
   expect(watcher.output().match(/preview PID \d+/g)).toEqual([
     `preview PID ${state.served.pid}`,
