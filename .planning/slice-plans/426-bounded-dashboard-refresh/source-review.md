@@ -16,16 +16,16 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| B1 | Beneficiary: developers viewing the same dashboard from several browsers or devices | slice 4 |  |
-| B2 | Beneficiary: every viewer of a machine whose launch and attempt documents have grown to several megabytes | slice 4 |  |
-| G1 | Serve every viewer's machine-session refresh from one bounded shared observation and reusable parsed machine documents | slice 4 |  |
-| G2 | Serve the Running Cursor sessions list from one bounded shared observation and reusable parsed machine documents | slice 4 |  |
-| G3 | Serve the notification observer from one bounded shared observation and reusable parsed machine documents | slice 4 |  |
-| G4 | Expensive observation stops multiplying with viewer count and refresh frequency | slice 4 |  |
-| G5 | Parsing stops multiplying with viewer count and refresh frequency | slice 4 |  |
-| G6 | Per-refresh answer bytes stop multiplying with viewer count and refresh frequency | slice 4 |  |
-| G7 | Session state stays as current as today | slice 4 |  |
-| G8 | Session state stays as correct as today | slice 4 |  |
+| B1 | Beneficiary: developers viewing the same dashboard from several browsers or devices | slice 4 | observed: PLAN.md slice 4 final measurement ×1/×3/×8 concurrent viewers share one observation (8 → 1 per cycle) and one runner read |
+| B2 | Beneficiary: every viewer of a machine whose launch and attempt documents have grown to several megabytes | slice 4 | observed: PLAN.md slice 4 final measurement on this machine's 5.4 MB / 5.2 MB documents: 0 parses per unchanged cycle (baseline 4/1 per viewer) |
+| G1 | Serve every viewer's machine-session refresh from one bounded shared observation and reusable parsed machine documents | slice 4 | observed: PLAN.md slice 4 final measurement 1 observation per cycle at ×1/×3/×8, 0 record parses; agent-launch-codex-observation-sharing.spec.ts |
+| G2 | Serve the Running Cursor sessions list from one bounded shared observation and reusable parsed machine documents | slice 4 | observed: dashboard/tests/cursor-runner-sessions-sharing.spec.ts one runner GET /sessions for three overlapping list asks; PLAN.md slice 4 final measurement held Cursor ×8 → 1 runner read, 0 record parses |
+| G3 | Serve the notification observer from one bounded shared observation and reusable parsed machine documents | slice 4 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts observer joins the viewers' observation (slice 2) |
+| G4 | Expensive observation stops multiplying with viewer count and refresh frequency | slice 4 | observed: PLAN.md slice 4 final measurement observations per cycle 1/3/8 → 1/1/1; 0 within the 1 s window |
+| G5 | Parsing stops multiplying with viewer count and refresh frequency | slice 4 | observed: PLAN.md slice 4 final measurement record/attempt parses per cycle 4/1, 12/3, 32/8 → 0/0 at every viewer count; 1 attempts parse after a replacement |
+| G6 | Per-refresh answer bytes stop multiplying with viewer count and refresh frequency | slice 4 | observed: PLAN.md slice 4 final measurement unchanged answer 96 B vs 9,234,824 B full answer per viewer |
+| G7 | Session state stays as current as today | slice 4 | observed: whole dashboard suite green on the final state (locale specs fixed separately); slices 1–3 freshness specs (next-read record visibility, 1 s native window) |
+| G8 | Session state stays as correct as today | slice 4 | observed: whole dashboard suite and npm test green on the final state; slice 1 unreadable-replacement specs |
 | 1.1 | Reuse the parsed, validated launch-record document while its underlying file is unchanged | slice 1 | observed: dashboard/tests/boundary/machine-json-reuse.spec.ts "parses an unchanged document once…"; scratch probe on real 5.4 MB records: 0 parses on unchanged refreshes |
 | 1.2 | Reuse the parsed, validated launch-attempt document while its underlying file is unchanged | slice 1 | observed: scratch probe on real 5.2 MB attempts: 0 parses on unchanged refreshes, 1 after rename |
 | 1.3 | Re-check file identity on every read | slice 1 | observed: dashboard/server/machineJsonStore.ts readMachineJson stat identity (ino, mtimeNs, size) on every read |
@@ -40,17 +40,17 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | 2.1 | Browser `/sessions` refreshes join one running observation | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" (8 GETs leave initialized/thread/read at [1,1]) |
 | 2.2 | The notification observer joins the same running observation | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" (observer starts the held observation; viewers join; later polls within the window add no calls) |
 | 2.3 | A result that settled at most 1 second earlier serves later demand | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "a settled observation serves asks within a second…" (400 ms ask adds no calls) |
-| 2.4 | Running Cursor sessions reads join one running held-session read | slice 4 |  |
-| 2.5 | Running Cursor held-session reads have no settled reuse | slice 4 |  |
-| 2.6 | Running Cursor sessions reads keep the list's current live cadence | slice 4 |  |
+| 2.4 | Running Cursor sessions reads join one running held-session read | slice 4 | observed: dashboard/tests/cursor-runner-sessions-sharing.spec.ts three overlapping list asks + one sessions ask while a runner read is held → exactly one runner read; fails 4 vs 7 with sharing bypassed |
+| 2.5 | Running Cursor held-session reads have no settled reuse | slice 4 | observed: dashboard/tests/cursor-runner-sessions-sharing.spec.ts the next ask after settle reads the runner again; PLAN.md slice 4 final measurement 1 runner read per cycle |
+| 2.6 | Running Cursor sessions reads keep the list's current live cadence | slice 4 | observed: dashboard/tests/cursor-runner-sessions-demand.spec.ts and cursor-runner-sessions.spec.ts green; no client cadence change |
 | 3.1 | A `/sessions` answer carries the revision of the observation it reports | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" revisionOf: body leads with its revision = SHA-256 of the rest, before and after the Done mark |
 | 3.2 | A viewer that sends the revision it already holds receives a small unchanged answer instead of the full records and attempts | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" held revision → {revision, unchanged: true}; dashboard/tests/agent-launch-session-state-pace.spec.ts step "a pace with nothing changed keeps every entry from an unchanged answer…" |
 | 3.3 | A viewer with no revision receives the full answer | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" no header → body identical to the first full answer; agent-terminal-done-reopen.spec.ts and feedback-maintenance specs (no-revision readers) green |
 | 3.4 | A viewer with an older revision receives the full answer | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" "an-older-revision" → full body; dashboard/tests/agent-launch-session-state-pace.spec.ts step "blocked with a reason…" held stale revision → full answer |
 | 4.1 | At most one running observation exists for machine sessions | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation"; dashboard/server/sharedObservation.ts one running promise per kind |
-| 4.2 | At most one running observation exists for Cursor held sessions | slice 4 |  |
+| 4.2 | At most one running observation exists for Cursor held sessions | slice 4 | observed: dashboard/server/hosts/cursor/heldSessions.ts one SharedObservation keyed by home; dashboard/tests/cursor-runner-sessions-sharing.spec.ts |
 | 4.3 | Retained shared data is one parsed copy per machine document | slice 1 | observed: machineJsonStore.ts heldDocuments Map, one entry per file path |
-| 4.4 | Retained shared data also holds the latest observation per kind, and nothing more | slice 4 |  |
+| 4.4 | Retained shared data also holds the latest observation per kind, and nothing more | slice 4 | observed: PLAN.md slice 4 final measurement retained-set inspection: heldDocuments (one per machine-JSON path, ~13.4 MiB), one settled observation per kind (machine sessions ~15–19 MiB, Cursor ~33 KB), nothing else |
 | 4.5 | A waiter whose shared observation exceeds the existing read-wait bound receives an explicit retryable answer | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts held past DOUGH_SESSIONS_WAIT_MS → both waiters 503 "Ask again." |
 | 4.6 | A departing viewer stops waiting without cancelling the shared observation for other viewers | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts abandoned request cut at 200 ms; dashboard/tests/boundary/shared-observation.spec.ts departed with no second start ; observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts remaining waiters answered after one departs, call counts unchanged |
 | 4.7 | A hidden viewer stops waiting without cancelling the shared observation for other viewers | slice 2 | observed: dashboard/tests/agent-launch-sessions-unanswered.spec.ts hidden page aborts its in-flight read (requestfailed); fails without the client signal ; observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts remaining waiters answered after one departs, call counts unchanged |
@@ -60,11 +60,11 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | 5.1 | The shared observation depends only on machine-local evidence | slice 2 | observed: dashboard/server/machineSessionObservation.ts key configuredProjects() and observedBody sources (code read) ; observed: machineSessionObservation.ts observedBody → AgentLaunches.machineSessions native listings; no GitHub read (code read) |
 | 5.2 | Machine-local evidence is the configured project catalog, the machine documents, and native host listings | slice 2 | observed: dashboard/server/machineSessionObservation.ts key configuredProjects() and observedBody sources (code read) ; observed: machineSessionObservation.ts key machineJsonReplacements() + machine document identities (code read) ; observed: machineSessionObservation.ts observedBody → AgentLaunches.machineSessions native listings; no GitHub read (code read) |
 | 5.3 | A project catalog change starts a new observation instead of reusing one from the earlier catalog | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "a project catalog change is observed afresh within the reuse window" |
-| R1 | For a fixed set of projects, sessions, and source data, extra viewers must not create separate retained observation datasets | slice 4 |  |
-| R2 | For a fixed set of projects, sessions, and source data, extra viewers must not create unlimited observation work | slice 4 |  |
-| R3 | The story bounds the shared work behind connections and full answers | slice 4 |  |
+| R1 | For a fixed set of projects, sessions, and source data, extra viewers must not create separate retained observation datasets | slice 4 | observed: PLAN.md slice 4 final measurement settled heap 51 MiB at ×1, ×3 and ×8 alike |
+| R2 | For a fixed set of projects, sessions, and source data, extra viewers must not create unlimited observation work | slice 4 | observed: PLAN.md slice 4 final measurement 1 observation and 1 runner read per cycle at every viewer count |
+| R3 | The story bounds the shared work behind connections and full answers | slice 4 | observed: PLAN.md slice 4 final measurement shared work constant across viewer counts; dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts waiters bounded |
 | R4 | Repeated unchanged answers are small | slice 3 | observed: dashboard/tests/boundary/agent-launch-sessions-unchanged.spec.ts "a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it" three repeated unchanged asks each < 1,024 bytes |
-| R5 | Individual connections and full answers still cost memory | slice 4 |  |
+| R5 | Individual connections and full answers still cost memory | slice 4 | observed: PLAN.md slice 4 final measurement peak heap still includes per-answer bytes (~70 MiB at ×8) |
 | E1.T | Eight viewers and the notification observer request machine sessions at the same moment against unchanged documents | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" |
 | E1.R1 | Each receives the same records and attempts | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" (all 8 bodies byte-identical) |
 | E1.R2 | The launch document is parsed at most once | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts "eight viewers and the notification observer share one held observation" one observation; within it slice 1 machine-json-reuse.spec.ts parses an unchanged document once |
@@ -88,18 +88,18 @@ as amended on trunk at `2a61a251`. No plan, return, product, or proof was suppli
 | E5.R2 | The remaining waiters get a retryable answer at the bound | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts remaining waiters get 503 at ≥ the bound |
 | E5.R3 | No second observation starts while the first still runs | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts ask during the run after a 503 joins (counts [2,2]) |
 | E5.R4 | The next refresh after it settles succeeds | slice 2 | observed: dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts ask after release succeeds |
-| E6.T | Running Cursor sessions are open in several browsers; three expanded lists poll at their live cadence | slice 4 |  |
-| E6.R1 | Overlapping asks share one runner read | slice 4 |  |
+| E6.T | Running Cursor sessions are open in several browsers; three expanded lists poll at their live cadence | slice 4 | observed: dashboard/tests/cursor-runner-sessions-sharing.spec.ts setup: three overlapping list asks while a runner read is held |
+| E6.R1 | Overlapping asks share one runner read | slice 4 | observed: dashboard/tests/cursor-runner-sessions-sharing.spec.ts exactly one forwarded runner read; identical list answers |
 | E6.R2 | Each read reuses the parsed launch-record document instead of parsing 5.4 MB again | slice 1 | observed: hosts/cursor/heldSessions.ts keptRecordsByProject → readStoredRecords → readMachineJson held parse |
-| E7.T | Repeated refresh cycles at one, three, and eight concurrent viewers on this machine's documents | slice 4 |  |
-| E7.R1 | Peak heap is no higher than the one-viewer baseline plus answer serialization | slice 4 |  |
-| E7.R2 | Heap settles back to the baseline | slice 4 |  |
-| E7.R3 | Parse counts are independent of viewer count | slice 4 |  |
-| E7.R4 | Observation counts are independent of viewer count | slice 4 |  |
+| E7.T | Repeated refresh cycles at one, three, and eight concurrent viewers on this machine's documents | slice 4 | observed: PLAN.md slice 4 final measurement repeated cycles at ×1/×3/×8 on this machine's documents, alternating baseline and final runs |
+| E7.R1 | Peak heap is no higher than the one-viewer baseline plus answer serialization | slice 4 | observed: PLAN.md slice 4 final measurement final peak ×8 70–71 MiB ≤ final ×1 75 MiB (baseline ×1 131–162 MiB, ×8 593–689 MiB) |
+| E7.R2 | Heap settles back to the baseline | slice 4 | observed: PLAN.md slice 4 final measurement settled heap after GC 51 MiB at ×1, ×3 and ×8, stable over 10 more windows; pre-change settled 22 MiB, the difference being the retained set scope 4.4 names |
+| E7.R3 | Parse counts are independent of viewer count | slice 4 | observed: PLAN.md slice 4 final measurement parses per cycle 0/0 at every viewer count |
+| E7.R4 | Observation counts are independent of viewer count | slice 4 | observed: PLAN.md slice 4 final measurement observations per cycle 1 at every viewer count |
 | X1 | Story-specific session reads (`stateOf`, recorded lookups, launch verification) may adopt the parsed-document reuse | slice 1 | observed: stateOf and recorded lookups read through readMachineJson, so they adopt the reuse |
-| X2 | Story-specific session reads get no shared-observation promise here | slice 4 |  |
-| X3 | Terminal-stream flow control remains a separate concern | slice 4 |  |
-| X4 | Browser-side retention remains a separate concern | slice 4 |  |
-| X5 | Other dashboard memory sources remain separate concerns | slice 4 |  |
-| X6 | Byte-for-byte constant total process memory for arbitrarily many simultaneous connections is not the claim | slice 4 |  |
-| X7 | Settled-result reuse (the 1-second window) applies to machine sessions only; Cursor held-session reads get none | slice 4 |  |
+| X2 | Story-specific session reads get no shared-observation promise here | slice 4 | observed: stateOf, recorded lookups and launch verification still read through AgentLaunches directly, not MachineSessionObservation (code read) |
+| X3 | Terminal-stream flow control remains a separate concern | slice 4 | observed: no terminal-stream change in the story diff |
+| X4 | Browser-side retention remains a separate concern | slice 4 | observed: no browser-side retention change beyond holding the last revision |
+| X5 | Other dashboard memory sources remain separate concerns | slice 4 | observed: FeedbackMaintenanceCheck keeps its own observation; no other memory source changed |
+| X6 | Byte-for-byte constant total process memory for arbitrarily many simultaneous connections is not the claim | slice 4 | observed: PLAN.md slice 4 final measurement peak heap still varies per answer; no constant-memory claim made |
+| X7 | Settled-result reuse (the 1-second window) applies to machine sessions only; Cursor held-session reads get none | slice 4 | observed: dashboard/server/hosts/cursor/heldSessions.ts reuse window 0; machineSessionObservation.ts 1 s |

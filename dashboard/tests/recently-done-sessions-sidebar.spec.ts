@@ -11,7 +11,7 @@ import {
   showThreeProjectPage,
 } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expectRowShows, expectTooltipLine } from "./sessionsSidebarPage.ts";
-import { pausePageClockAt } from "./dashboardTest.ts";
+import { pageTime, pausePageClockAt } from "./dashboardTest.ts";
 import { expect, test } from "./support/cursorStart.ts";
 
 test.use({
@@ -125,7 +125,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expectRowShows(shown.openEntries.first(), openTitle, "4m");
     await expectTooltipLine(
       shown.openEntries.first(),
-      `Launched ${new Date(stillOpen.launchedAt).toLocaleString()}`,
+      `Launched ${await pageTime(page, stillOpen.launchedAt)}`,
     );
   });
 
@@ -144,7 +144,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expectRowShows(shown.entries.nth(1), middleTitle, "5m");
     await expectTooltipLine(
       shown.entries.first(),
-      `Completed ${new Date(newestDoneAt).toLocaleString()}`,
+      `Completed ${await pageTime(page, newestDoneAt)}`,
     );
     // Desktop keeps completion identity in the tooltip; touch disclosure is
     // the coarse-input path below.

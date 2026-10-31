@@ -1,5 +1,6 @@
 // Coarse Session details for Done rows in Recently done sessions: completion
 // identity, not launch age.
+import { pageTime } from "./dashboardTest.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import {
   doneRecord,
@@ -56,8 +57,8 @@ test.describe("touch Session details for Done entries", () => {
     await expect(disclosure).toBeVisible();
     await tapWhereShown(disclosure);
     const details = row.locator(".sessions-sidebar-session-entry-facts");
-    const completedWords = `Completed ${new Date(doneAt).toLocaleString()}`;
-    const launchedWords = `Launched ${new Date(launchedAt).toLocaleString()}`;
+    const completedWords = `Completed ${await pageTime(page, doneAt)}`;
+    const launchedWords = `Launched ${await pageTime(page, launchedAt)}`;
     await expect(
       details.getByText(completedWords, { exact: true }),
     ).toBeVisible();

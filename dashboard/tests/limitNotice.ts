@@ -3,7 +3,7 @@
 // the limit withheld names.
 
 import type { Page } from "@playwright/test";
-import { expect } from "./dashboardTest.ts";
+import { expect, pageTime } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 
 // What the page says in the notice while the limit stands, before its time.
@@ -47,6 +47,5 @@ export async function failedAt(page: Page): Promise<number> {
 // How a gap the limit withheld says when the limit ends, in the page's
 // wording of that time.
 export async function limitedUntil(page: Page, at: number): Promise<string> {
-  const time = await page.evaluate((ms) => new Date(ms).toLocaleString(), at);
-  return `Limited until ${time}.`;
+  return `Limited until ${await pageTime(page, at)}.`;
 }

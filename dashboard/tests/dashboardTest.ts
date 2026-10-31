@@ -55,6 +55,12 @@ export async function pausePageClockAt(page: Page, at: Date): Promise<void> {
   await page.clock.pauseAt(at);
 }
 
+// How the page words time `at`: in the browser's locale, which need not be
+// Node's.
+export function pageTime(page: Page, at: string | number): Promise<string> {
+  return page.evaluate((time) => new Date(time).toLocaleString(), at);
+}
+
 // The fake GitHub answering the `gh` behind this page's dashboard.
 export function githubFor(page: Page): FakeGitHub {
   const github = githubServing.get(page.context());

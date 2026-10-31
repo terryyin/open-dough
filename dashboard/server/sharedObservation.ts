@@ -5,7 +5,8 @@
 // reuse window; a failed one keeps no result, so the next demand starts afresh.
 // Each demand names the inputs it must be observed under (`key`): a running or
 // settled observation under other inputs never answers it, and a demand that
-// finds one running waits for it to settle before starting its own.
+// finds one running waits for it to settle before starting its own; the
+// observation is made under those inputs.
 
 export type Demanded<T> =
   | { readonly kind: "observed"; readonly value: T }
@@ -14,18 +15,20 @@ export type Demanded<T> =
   // The waiter's own signal ended its wait.
   | { readonly kind: "departed" };
 
-type Running<T> = {
-  readonly key: readonly unknown[];
+type Key = readonly unknown[];
+
+type Running<T, K extends Key> = {
+  readonly key: K;
   readonly result: Promise<T>;
 };
 
-type Settled<T> = {
-  readonly key: readonly unknown[];
+type Settled<T, K extends Key> = {
+  readonly key: K;
   readonly at: number;
   readonly value: T;
 };
 
-function sameKey(a: readonly unknown[], b: readonly unknown[]): boolean {
+function sameKey(a: Key, b: Key): boolean {
   return a.length === b.length && a.every((part, index) => part === b[index]);
 }
 
@@ -63,12 +66,12 @@ function waited(
   });
 }
 
-export class SharedObservation<T> {
-  private running: Running<T> | undefined;
-  private settled: Settled<T> | undefined;
+export class SharedObservation<T, K extends Key = Key> {
+  private running: Running<T, K> | undefined;
+  private settled: Settled<T, K> | undefined;
 
   constructor(
-    private readonly observe: () => Promise<T>,
+    private readonly observe: (key: K) => Promise<T>,
     // How long a settled result serves later demand, read on each demand.
     private readonly reuseMs: () => number,
   ) {}
@@ -77,7 +80,7 @@ export class SharedObservation<T> {
   // running one, or a new one once none runs. Waits at most `waitMs` and
   // until `signal` ends. A failed observation rejects its own waiters.
   async demand(
-    key: readonly unknown[],
+    key: K,
     waitMs: number,
     signal: AbortSignal,
   ): Promise<Demanded<T>> {
@@ -98,8 +101,8 @@ export class SharedObservation<T> {
     }
   }
 
-  private start(key: readonly unknown[]): Running<T> {
-    const result = (async () => this.observe())();
+  private start(key: K): Running<T, K> {
+    const result = (async () => this.observe(key))();
     const running = { key, result };
     this.running = running;
     this.settled = undefined;

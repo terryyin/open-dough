@@ -7,6 +7,7 @@
 import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
+import { pageTime } from "./dashboardTest.ts";
 import { showColumn } from "./boardPage.ts";
 import { git, retireLaunchWorkspace } from "./support/launchLanding.ts";
 import { readReview, refreshReview } from "./support/launchLandingReview.ts";
@@ -95,11 +96,9 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   await landedRuns.check();
   const select = review.getByRole("listbox", { name: "Landed run" });
   await expect(select).toHaveValue(reporting.reference);
-  const launched = (at: string) =>
-    page.evaluate((time) => new Date(time).toLocaleString(), at);
   await expect(select.getByRole("option")).toHaveText([
-    `Execution — ${await launched(record.launchedAt)} — ${accepted.slice(0, 8)}`,
-    `Refinement — ${await launched(refinement.record.launchedAt)} — ${refinement.receipt.revision.slice(0, 8)}`,
+    `Execution — ${await pageTime(page, record.launchedAt)} — ${accepted.slice(0, 8)}`,
+    `Refinement — ${await pageTime(page, refinement.record.launchedAt)} — ${refinement.receipt.revision.slice(0, 8)}`,
   ]);
   await expect(
     review.getByRole("heading", { name: "Landed run", exact: true }),
@@ -157,7 +156,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     has: page.getByRole("heading", { name: "Landed run", exact: true }),
   });
   await expect(context.last()).toContainText(
-    `Execution launched ${await launched(record.launchedAt)}, delivered to origin/main.`,
+    `Execution launched ${await pageTime(page, record.launchedAt)}, delivered to origin/main.`,
   );
   await expect(context.last().locator("time")).toHaveAttribute(
     "datetime",

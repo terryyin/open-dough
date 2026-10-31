@@ -256,7 +256,7 @@ Learnings:
 
 ### 4. Cursor held-session reads share one runner read, and final cost is measured
 Type: Behavior
-Status: planned
+Status: done
 Proof: example 6 spec with `cursorRunnerHeldReads.ts`; the existing
 `cursor-runner-sessions*.spec.ts` and `cursor-session-classification.spec.ts`
 green; the example 7 measurement recorded here against the baseline.
@@ -266,6 +266,44 @@ session admission, and Cursor session observation → one runner `GET
 /sessions` and one parse (through slice 1) shared while it is outstanding.
 The next ask after it settles reads again, so the list's live cadence keeps
 current labels.
+
+Accepted proof (2026-10-31): `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/cursor-runner-sessions-sharing.spec.ts --reporter=list`
+→ 1 passed. Three overlapping list asks and a sessions ask, made while a runner
+read is held, forward exactly one runner `GET /sessions` and get identical
+lists. With sharing bypassed the spec fails (4 vs 7). The next ask after it
+settles reads again. All `*cursor*` specs plus the slice 2 sharing specs: 173
+passed. `bash scripts/test.sh` passed.
+
+Final measurement (scratch probes, not committed; this machine's real
+documents copied into a temp HOME, `initializeProjectConfiguration("production")`).
+Baseline runs at `7ad60a6f` and final runs alternated, at load averages
+2.5–4.9. Times are medians of cycles 2–3.
+
+| Asks | Baseline ms | Final ms | Baseline peak MiB | Final peak MiB | Parses per cycle (records/attempts) | Observations per cycle | Runner reads |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ×1 | 303–326 | 196–206 | 131–162 | 75 | 4/1 → 0/0 | 1 → 1 | 1 → 1 |
+| ×3 | 826–845 | 186–204 | 255–297 | 70–71 | 12/3 → 0/0 | 3 → 1 | 3 → 1 |
+| ×8 | 2,158–2,291 | 193–215 | 593–689 | 70–71 | 32/8 → 0/0 | 8 → 1 | 8 → 1 |
+| held Cursor ×1/×3/×8 | 27 / 69–77 / 181–217 | 2 / 2 / 2 | 69 / 88–90 / 157–230 | 51–52 | records 1/3/8 → 0 | — | 1/3/8 → 1 |
+
+- The unchanged answer is 96 B, against a 9,234,824 B full answer.
+- A replaced attempts document is parsed once at any viewer count.
+- Settled heap after GC is 51 MiB at every viewer count, stable over 10 more
+  windows. Before the change it was 22 MiB. The ~29 MiB difference is the retained
+  set that scope "Bounded admission" names: the held parsed documents
+  (~13.4 MiB) and the latest machine observation (~15–19 MiB).
+- Native host stores were absent from the temp HOME in both builds, so native
+  listing cost on real native data is not in these numbers.
+
+Learnings:
+- `SharedObservation` with a 0 reuse window gives join-in-flight-only
+  sharing. A stop's confirmation read still calls `readCursorRunnerSessions`
+  directly, so it never joins a read that started before the hangup.
+- The full dashboard suite failed locally only in the recently-done sidebar
+  specs. They build their expected time text with Node's locale (`en_SG`)
+  while Chromium renders `en_US`, and they fail the same way at `7ad60a6f`.
+  This increment fixes them. Three `story-reference-done` failures under load
+  (19.8) passed on a `--workers=2` rerun.
 
 ## Current decisions
 

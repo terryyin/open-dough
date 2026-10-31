@@ -27,6 +27,8 @@ export type HeldRunnerReads = {
   hold: () => void;
   // Forwards the sessions reads held so far, and every later one.
   release: () => void;
+  // How many `GET /sessions` reads have reached the stand-in, held or not.
+  sessionsReads: () => number;
   // Restores the runner's own address and closes the stand-in.
   close: () => Promise<void>;
 };
@@ -76,6 +78,7 @@ export async function holdRunnerSessionsReads(
   }
   const buildId = dashboardRunnerBuildId();
   let holding = false;
+  let sessionsReads = 0;
   const held: {
     request: http.IncomingMessage;
     response: http.ServerResponse;
@@ -130,6 +133,7 @@ export async function holdRunnerSessionsReads(
     request.pipe(upstream);
   };
   const standIn = http.createServer((request, response) => {
+    if (isSessionsRead(request)) sessionsReads += 1;
     if (holding && isSessionsRead(request)) {
       request.pause();
       held.push({ request, response });
@@ -186,6 +190,7 @@ export async function holdRunnerSessionsReads(
         request.resume();
       }
     },
+    sessionsReads: () => sessionsReads,
     close: () =>
       new Promise((resolve) => {
         writeFileSync(cursorRunnerAddressFile(home), JSON.stringify(real));
