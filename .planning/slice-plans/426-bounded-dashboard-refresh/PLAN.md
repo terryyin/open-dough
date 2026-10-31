@@ -305,6 +305,14 @@ Learnings:
   This increment fixes them. Three `story-reference-done` failures under load
   (19.8) passed on a `--workers=2` rerun.
 
+- CI repair after slice 4 (run `41195930489`, `dashboard (4/12)`): the npm
+  stage's 45 s bound was being spent by npm's advisory (audit) request.
+  Measured over the last 60 runs: the install step took a median of 4 s on
+  2026-10-30 and 38 s on 2026-10-31, with 38 stalls across branches and main.
+  `scripts/setup-native.mjs` now runs `npm ci --no-audit --no-fund`.
+  `bash scripts/test.sh tests/native-setup.sh` failed before the fix and
+  passes after it. A local `node scripts/setup-native.mjs npm` took 1.48 s.
+
 ## Current decisions
 
 - Settled reuse window: 1 s for the machine-session observation. Cursor

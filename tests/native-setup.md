@@ -20,7 +20,8 @@ node scripts/setup-native.mjs check
 ```
 
 The npm stage performs `npm ci` from `package-lock.json`, with zero fetch
-retries and a 20-second request timeout. The browser stage invokes that
+retries and a 20-second request timeout. It skips npm's audit request and
+funding notice, which acquire no packages. The browser stage invokes that
 installed Playwright's Chromium installer, with a 20-second connection timeout.
 Each acquisition has a 45-second total bound (including internal retries);
 CI also shares a 180-second deadline across its setup stages. No `npx` package

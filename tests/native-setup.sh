@@ -106,14 +106,16 @@ printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.63.0"}}}' > 
 (cd -- "${temporary_dir}" && SOURCE_BEHAVIOR=healthy "${node}" "${script}" check) > "${temporary_dir}/healthy-check.log" 2>&1
 expect_in_log "${temporary_dir}/healthy-check.log" -F -- 'Native prerequisites: Chromium fixture-locked-browser'
 
-# Successful calls use the locked CLI and npm's explicitly bounded fetches.
+# Successful calls use the locked CLI and npm's explicitly bounded fetches;
+# npm skips its advisory (audit) request and funding notice, which acquire no
+# packages and must not spend the stage bound.
 for stage in npm browser; do
   (cd -- "${temporary_dir}" && PATH="${temporary_dir}/bin" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_BEHAVIOR=healthy \
     "${node}" "${script}" "${stage}") > "${temporary_dir}/healthy-${stage}.log" 2>&1
   expect_in_log "${temporary_dir}/healthy-${stage}.log" -F -- "${stage} acquisition complete"
   case ${stage} in
-    npm) expect_in_log "${temporary_dir}/source-call" -Fx -- 'ci --fetch-retries=0 --fetch-timeout=20000' ;;
+    npm) expect_in_log "${temporary_dir}/source-call" -Fx -- 'ci --no-audit --no-fund --fetch-retries=0 --fetch-timeout=20000' ;;
     browser) expect_in_log "${temporary_dir}/source-call" -Fx -- 'install chromium' ;;
     *) exit 1 ;;
   esac

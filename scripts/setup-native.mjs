@@ -68,10 +68,19 @@ if (remaining <= 0) {
   fail(`${operation} deadline expired before launch`);
 }
 // Invoke the installed CLI directly: npx must never fetch an unlocked package.
+// npm acquires only the locked packages: its advisory (audit) request and
+// funding notice acquire nothing, and a slow advisory service would otherwise
+// spend the bound.
 const command = stage === "npm" ? "npm" : process.execPath;
 const args =
   stage === "npm"
-    ? ["ci", "--fetch-retries=0", "--fetch-timeout=20000"]
+    ? [
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--fetch-retries=0",
+        "--fetch-timeout=20000",
+      ]
     : stage === "browser"
       ? [resolve("node_modules/playwright/cli.js"), "install", "chromium"]
       : [
