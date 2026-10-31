@@ -148,12 +148,24 @@ measure → retain or undo → reassess remaining gap before the next experiment
 
 ### 3. Drop redundant printing-merge-driver no-changes journey in story-review-since-trunk
 Type: Structure
-Status: planned
-Proof: Focused before/after on `story-review-since-trunk.spec.ts` with three
-consecutive passes; `boundary/story-review-completed-driver.spec.ts` still
-passes; `story-review-since-trunk.spec.ts` still proves printing merge driver
-invocation and output stripping on the integrated-changes journey plus
-no-changes-beyond-trunk on the standard merge driver.
+Status: done
+Proof: Focused default-worker 3-pass before/after on
+`story-review-since-trunk.spec.ts` (`slice3-before-1..3.json` 7/7 passed vs
+`slice3-after-1..3.json` 6/6 passed, `strictStatus: "passed"`) plus boundary
+proof `boundary/story-review-completed-driver.spec.ts` (`slice3-driver-boundary.json`,
+3/3 passed) and `--workers=1` serial before/after (`slice3-before-w1.json` 7/7
+passed vs `slice3-after-w1.json`, `slice3-after-w1-2.json`,
+`slice3-after-w1-3.json` 6/6 passed): default-worker `.tsv` spec-seconds
+`40.2s / 34.5s / 35.3s` (mean `36.67s`, median `35.30s`; removed empty-diff
+printing-driver case `5.35s / 4.95s / 5.06s`, mean `5.12s`) → `36.0s / 30.8s / 33.4s`
+(mean `33.40s`, median `33.40s`, `−3.27s` mean / `−1.90s` median); `--workers=1`
+serial `durationMs` `26.12s` (`.tsv` `21.5s`) → `25.76s / 22.43s / 24.56s`
+(mean `24.25s`, median `24.56s`, `−1.87s` mean; `.tsv` `21.0s / 18.6s / 19.3s`,
+mean `19.63s`, `−1.87s` mean / `−2.20s` median). `story-review-since-trunk.spec.ts`
+still proves printing merge driver invocation and output stripping on the
+integrated-changes journey plus no-changes-beyond-trunk on the standard merge
+driver, and `support/storyReviewMergeDriver.ts` drops the unused `clean`
+parameter.
 
 Internal change: In `dashboard/tests/story-review-since-trunk.spec.ts`, run
 `after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds`

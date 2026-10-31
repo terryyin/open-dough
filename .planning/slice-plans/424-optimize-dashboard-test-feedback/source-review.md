@@ -28,8 +28,8 @@ slice context. Its numbered commitments are allocated below.
 | 5b | Retain only changes backed by comparable wall-time improvement under like runner conditions | slice 2 | observed: dashboard/tests/preparingJourney.ts retained after 3-pass focused improvement (session-attribution 15.23s → 6.90s, summed .tsv 30.07s → 25.83s, durationMs median 32.88s → 30.77s) |
 | 6a.1 | Follow the project's dashboard test guidance when simplifying tests | slice 2 | observed: dashboard/tests/preparingJourney.ts caches read-only precondition per worker matching publishStoryColumnsJourney in dashboard/tests/launchJourney.ts |
 | 6a.2 | Follow the project's dashboard test guidance when moving behavioral proof between test tiers | slice 2 | observed: dashboard/tests/preparingJourney.ts keeps both browser journeys intact while sharing read-only CLI origin setup |
-| 7a.1 | Establish replacement behavioral proof before removing any test case | slice 3 | |
-| 7a.2 | Establish replacement behavioral proof before narrowing any test case | slice 3 | |
+| 7a.1 | Establish replacement behavioral proof before removing any test case | slice 3 | observed: boundary/story-review-completed-driver.spec.ts (slice3-driver-boundary.json, 3/3 passed) and story-review-since-trunk.spec.ts:35-104 (printing merge driver on integrated-changes journey) verified before dropping empty-diff printing-driver loop iteration |
+| 7a.2 | Establish replacement behavioral proof before narrowing any test case | slice 3 | observed: story-review-since-trunk.spec.ts:139-163 retains standard empty-diff restatement while lines 35-104 and boundary/story-review-completed-driver.spec.ts retain printing merge driver proof |
 | 8a | Re-run the same local command (npm run test:dashboard) under comparable runner conditions after completing experiments | slice 6 | |
 | 8b.1 | Report before-and-after wall time for npm run test:dashboard | slice 6 | |
 | 8b.2 | Report before-and-after executed case count for npm run test:dashboard | slice 6 | |
@@ -62,5 +62,5 @@ slice context. Its numbered commitments are allocated below.
 | 14b | List each undone or excluded experiment under rejected experiments in the report | slice 6 | |
 | 15a.1 | Leave the test suite unchanged when profiling and credible experiments within the top-40% band yield no worthwhile wall-time saving | slice 6 | |
 | 15a.2 | Record the no-worthwhile-saving outcome in the report together with its measurements and remaining candidates | slice 6 | |
-| 16a.1 | Support moving or dropping a browser journey variant that duplicates what a boundary-tier check can answer (following dashboard test guidance), with the cheaper surviving check retaining the behavioral proof | slice 3 | |
+| 16a.1 | Support moving or dropping a browser journey variant that duplicates what a boundary-tier check can answer (following dashboard test guidance), with the cheaper surviving check retaining the behavioral proof | slice 3 | observed: dashboard/tests/story-review-since-trunk.spec.ts:139-163 drops redundant printing-driver empty-diff journey while boundary/story-review-completed-driver.spec.ts and story-review-since-trunk.spec.ts:35-104 retain printing-driver proof |
 | 16a.2 | Retain that tier-shift or journey-drop change when comparable local npm run test:dashboard wall time improves, or reject and undo it when local wall time does not improve | slice 6 | |
