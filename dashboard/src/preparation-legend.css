@@ -9,15 +9,16 @@
 }
 
 /* The badge legend: a quiet card over the page, like the frame's other
-   dialogs, with Close on a bar above its reading area. Center in the
-   viewport below the pinned banner (--banner-height from
-   DashboardBanner) so Close is not stacked on banner controls when the
-   zoomed window is short. */
+   dialogs, with Close on a bar above its reading area. Sit just below the
+   pinned banner (--banner-height from DashboardBanner) — not vertically
+   centered in leftover space — so Close stays off banner controls while the
+   reading area keeps enough height for its last line at high zoom. */
 .preparation-legend-dialog {
   box-sizing: border-box;
   width: min(36rem, calc(100% - 1.5rem));
-  top: var(--banner-height, 0px);
-  max-height: calc(100dvh - var(--banner-height, 0px) - 1.5rem);
+  top: calc(var(--banner-height, 0px) + var(--space-2));
+  max-height: calc(100dvh - var(--banner-height, 0px) - (2 * var(--space-2)));
+  margin: 0 auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: 0;
@@ -36,6 +37,7 @@
 }
 
 .preparation-legend-actions {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   padding: var(--space-2) var(--space-3);
@@ -44,6 +46,8 @@
 }
 
 .preparation-legend-content {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   padding: var(--space-4) var(--space-5);
 }
