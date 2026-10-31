@@ -137,4 +137,111 @@ test.describe("authenticated Intent locations read (development environment)", (
       ),
     ).toBe(true);
   });
+
+  test("marks empty, missing, and unsupported locations while listing usable ones", async () => {
+    const revision = revisionOf("a4");
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision,
+        backlog,
+        files: {
+          [settingsPath]: JSON.stringify({
+            intent: {
+              locations: [
+                { path: "e2e_test/features", kind: "gherkin" },
+                { path: "no_such_dir", kind: "gherkin" },
+                { path: "empty_features", kind: "gherkin" },
+                { path: "frontend/src", kind: "typescript" },
+              ],
+            },
+          }),
+          [featurePath]: featureText,
+          "empty_features/README.md": "# none\n",
+          "frontend/src/app.ts": "export {}\n",
+        },
+      }),
+    );
+    const response = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=locations`,
+      headers: { Origin: server.origin },
+    });
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({
+      revision,
+      locations: [
+        {
+          path: "e2e_test/features",
+          kind: "gherkin",
+          files: [featurePath],
+        },
+        {
+          path: "no_such_dir",
+          kind: "gherkin",
+          files: [],
+          problem: "no-features",
+        },
+        {
+          path: "empty_features",
+          kind: "gherkin",
+          files: [],
+          problem: "no-features",
+        },
+        {
+          path: "frontend/src",
+          kind: "typescript",
+          files: [],
+          problem: "unsupported-kind",
+        },
+      ],
+    });
+  });
+
+  test("answers malformed and unreadable settings distinctly from not-configured", async () => {
+    const malformedRevision = revisionOf("a5");
+    server.github.serve(
+      everyRepository,
+      publishes({
+        revision: malformedRevision,
+        backlog,
+        files: { [settingsPath]: "{not json\n" },
+      }),
+    );
+    const malformed = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${malformedRevision}&intent=locations`,
+      headers: { Origin: server.origin },
+    });
+    expect(malformed.status).toBe(200);
+    expect(JSON.parse(malformed.body)).toEqual({
+      revision: malformedRevision,
+      locations: null,
+      settingsProblem: "malformed",
+    });
+
+    const unreadableRevision = revisionOf("a6");
+    const published = publishes({
+      revision: unreadableRevision,
+      backlog,
+      files: { [settingsPath]: "{}\n" },
+    });
+    server.github.serve(everyRepository, async (call) => {
+      if (
+        call.request.kind === "content" &&
+        call.request.path === settingsPath
+      ) {
+        return { exitCode: 1, stderr: "connection reset" };
+      }
+      return published(call);
+    });
+    const unreadable = await rawRequest({
+      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${unreadableRevision}&intent=locations`,
+      headers: { Origin: server.origin },
+    });
+    expect(unreadable.status).toBe(200);
+    expect(JSON.parse(unreadable.body)).toEqual({
+      revision: unreadableRevision,
+      locations: null,
+      settingsProblem: "unreadable",
+    });
+  });
 });

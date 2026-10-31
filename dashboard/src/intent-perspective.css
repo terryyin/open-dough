@@ -15,10 +15,18 @@
   font-size: var(--text-md);
 }
 
-.intent-not-configured {
+.intent-not-configured,
+.intent-settings-problem,
+.intent-location-problem,
+.intent-file-problem {
   max-width: 42rem;
   margin: var(--space-2) 0 0;
   line-height: 1.5;
+}
+
+.intent-settings-problem button,
+.intent-file-problem button {
+  margin-left: var(--space-1);
 }
 
 .intent-browser {

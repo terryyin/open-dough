@@ -25,9 +25,9 @@ No plan, return, product, or proof was supplied.
 | 13 | Styling only aids reading: copying the text yields the source, and nothing depends on color to be understood. | slice 4 | |
 | 14 | The selected file’s Proof truthfully says no Proof is available yet. | slice 2 | observed: intent-gherkin-browse Proof region “No Proof is available for this file yet” |
 | 15.1 | Distinct state: no configured locations says what happened and names the setting or location involved. | slice 2 | observed: expectNotConfiguredIntent names intent.locations and .planning/open-dough.json |
-| 15.2 | Distinct state: a location with no Gherkin files at the revision says what happened and names the setting or location involved. | slice 3 | |
-| 15.3 | Distinct state: an unsupported kind says what happened and names the setting or location involved. | slice 3 | |
-| 15.4 | Distinct state: a failed read says what happened and names the setting or location involved; a failed read can be retried. | slice 3 | |
+| 15.2 | Distinct state: a location with no Gherkin files at the revision says what happened and names the setting or location involved. | slice 3 | observed: intent-gherkin-unusable empty/missing by path; boundary marks no-features |
+| 15.3 | Distinct state: an unsupported kind says what happened and names the setting or location involved. | slice 3 | observed: intent-gherkin-unusable “Kind typescript is not yet supported.” |
+| 15.4 | Distinct state: a failed read says what happened and names the setting or location involved; a failed read can be retried. | slice 3 | observed: intent-gherkin-unusable failed file-at alert + Retry |
 | 16 | Project change shows the newly selected project’s locations and source. | slice 2 | observed: intent-gherkin-browse Doughnut→Pygardon replaces trees/text |
 | 17 | Reads stay limited to paths inside the configured locations of the observed revision’s configuration: the local read boundary is not an open repository proxy. | slice 2 | observed: authenticated-read-intent-locations refuses file-at outside locations |
 | 18 | The dashboard has no dark appearance today, so one light styling theme suffices. | slice 4 | |
@@ -45,9 +45,9 @@ No plan, return, product, or proof was supplied.
 | 24 | Several locations: Pygardon two `gherkin` locations → both trees; packaged feature text. | slice 5 | |
 | 25 | Project change: Doughnut feature → select Pygardon → trees/text replaced; nothing selected until a file is chosen. | slice 2 | observed: intent-gherkin-browse project-change step |
 | 26 | Not configured: no intent locations → says so, names setting and file; no empty tree. | slice 2 | observed: expectNotConfiguredIntent; development-intent-frame*.spec.ts |
-| 27 | Empty or missing location: no `.feature` files or path missing → says so by path; other locations still browse. | slice 3 | |
-| 28 | Unsupported kind `typescript` → says kind not yet supported, naming it; other locations still browse. | slice 3 | |
-| 29 | Read failure → source pane says could not be read and offers retry; tree stays usable. | slice 3 | |
+| 27 | Empty or missing location: no `.feature` files or path missing → says so by path; other locations still browse. | slice 3 | observed: intent-gherkin-unusable; usable location still selects |
+| 28 | Unsupported kind `typescript` → says kind not yet supported, naming it; other locations still browse. | slice 3 | observed: intent-gherkin-unusable typescript step |
+| 29 | Read failure → source pane says could not be read and offers retry; tree stays usable. | slice 3 | observed: intent-gherkin-unusable Retry restores text |
 | 30 | No Proof yet: with a file selected → Proof says no Proof available yet, without implying pass, failure, or absence of tests. | slice 2 | observed: intent-gherkin-browse Proof region; not pass/fail/absence wording |
 | 31 | Other source kinds beyond `gherkin` are out of scope for this story. |  | G1 |
 | 32 | File-selection patterns other than those implied by configured Gherkin locations are out of scope. |  | G1 |
@@ -76,5 +76,6 @@ unchanged Review changes tree plus the shared arrangement API.
 | --- | --- | --- | --- |
 | 3, 5, 6, 8–11, 14, 15.1, 16, 17, 25, 26, 30, 41 | Intent browse/read without styling; not-configured; read restriction | Journey + boundary + frame specs green as listed in observations | slice 2 |
 | 12, 13, 23 styling | Styled keywords / copy | Deferred | slice 4 |
-| 15.2–15.4, 27–29 | Empty/missing, unsupported, failed read | Deferred | slice 3 |
+| 15.2–15.4, 27–29 | Empty/missing, unsupported, failed read | intent-gherkin-unusable + boundary settings/location problems | slice 3 |
+| settings unreadable/malformed | Distinct from not-configured | intent-gherkin-unusable settings test + boundary | slice 3 |
 | 1, 2, 7, 23–24 real projects | Trunk publication + evaluation | Deferred | slice 5 |

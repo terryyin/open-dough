@@ -41,8 +41,9 @@ Each project's repository may also publish Intent locations in
 `"intent": { "locations": [{ "path": "<folder>", "kind": "gherkin" }] }`.
 The kind selects which files Intent lists (`gherkin` → `.feature`) and, later,
 the syntax grammar of the same name. Absence of the `intent` key means Intent
-shows that no locations are configured. The dashboard reads that setting and
-the listed source at the same observed revision as the backlog; it does not
-edit the file.
+shows that no locations are configured. An unreadable settings file and
+malformed JSON are distinct from that absence. The dashboard reads that
+setting and the listed source at the same observed revision as the backlog; it
+does not edit the file.
 
 [Dashboard overview](README.md) describes project observation and navigation.

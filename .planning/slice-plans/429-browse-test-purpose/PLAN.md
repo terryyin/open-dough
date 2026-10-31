@@ -121,13 +121,19 @@ change under a shared PinnedTexts memo.
 
 ### 3. Distinguish unusable locations and failed reads
 Type: Behavior
-Status: planned
+Status: done
 Proof: Journey steps for examples 5–7 and for the settings-read failure, each also showing that other locations still browse.
 
 Behavior: A location is missing, holds no `.feature` files, names an
 unsupported kind, a file read fails, or the settings cannot be read or parsed.
 Intent shows that location's or file's own explanation, naming the path or
 kind, and offers retry for a failed read. The remaining locations stay usable.
+
+Accepted: `no-features` / `unsupported-kind` location problems; failed
+`file-at` with Retry; settings `unreadable` / `malformed` distinct from
+not-configured. Focused proof: `intent-gherkin-unusable.spec.ts`,
+`boundary/authenticated-read-intent-locations.spec.ts`,
+`intent-gherkin-browse.spec.ts`.
 
 ### 4. Style Gherkin source for reading
 Type: Behavior

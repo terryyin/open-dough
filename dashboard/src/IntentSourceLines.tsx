@@ -1,5 +1,5 @@
 // Exact published source text with line numbers for Intent Purpose reading
-// (`./IntentPerspective.tsx`). Styling arrives later; line numbers sit
+// (`./IntentBrowser.tsx`). Styling arrives later; line numbers sit
 // outside the selectable text so copying yields the source alone.
 
 import "./intent-source-lines.css";

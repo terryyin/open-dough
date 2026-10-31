@@ -255,10 +255,13 @@ Proof reading surface. When the selected project's
 `.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
 Intent lists each location's nested `.feature` files in a collapsible tree,
 reads a selected file's exact published text with line numbers at the
-observed revision, and says no Proof is available for it yet. When that
-setting is absent, Intent says no intent locations are configured and names
-the setting and file; it shows no empty tree. Structure and Purpose/Proof
-layout switching are not offered yet. The perspective is disposable
+observed revision, and says no Proof is available for it yet. A location that
+is missing, holds no `.feature` files, or names an unsupported kind says so
+by path or kind while other locations stay usable; a failed file read says so
+and offers retry. When that setting is absent, Intent says no intent locations
+are configured and names the setting and file; it shows no empty tree. An
+unreadable or malformed settings file is a distinct explanation from absence.
+Structure and Purpose/Proof layout switching are not offered yet. The perspective is disposable
 presentation state on the URL (`perspective=intent`), independent of
 Development's stories/roster view, which Intent keeps to return to. Choosing
 a perspective adds one history entry and never selects another project;
