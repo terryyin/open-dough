@@ -18,8 +18,9 @@ the existing actions, without requiring a new launch or a copy-and-paste step.
 
 ## Alternatives and Decision
 
-Queue one frontend story immediately after
-[the mobile-session story](SEED-199-mobile-session-screen.md#mobile-session-screen),
+Queue one frontend story immediately after the delivered mobile-session screen
+work (Side panel covering and compact header in
+[dashboard navigation](../../docs/dashboard-navigation.md)),
 as Terry requested. Existing launch-instruction dictation already records and
 transcribes speech through configured OpenAI access. Build on that capability
 where appropriate, with the open terminal as the text destination. Provider

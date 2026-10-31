@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-199_mobile-session-screen.json",
+      "identity": "SEED-199#mobile-session-screen",
+      "completedAt": "2026-10-31T09:23:04.147Z",
+      "blob": "360c55c7e045352098a199dee27f8db3620c5caf"
+    },
+    {
       "fileName": "SEED-196_optimize-dashboard-test-feedback.json",
       "identity": "SEED-196#optimize-dashboard-test-feedback",
       "completedAt": "2026-10-30T15:58:19.588Z",

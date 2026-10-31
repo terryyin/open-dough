@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-199#mobile-session-screen",
+  "title": "Use the full mobile screen for sessions and simplify their header",
+  "completedAt": "2026-10-31T09:23:04.147Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "cursor",
+  "model": "auto"
+}
