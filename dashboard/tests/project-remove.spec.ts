@@ -159,7 +159,7 @@ test("removing a configured project retains its checkout and records, hides sess
   await fixture.stop(server);
   server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
-  await expect(page.getByRole("radio")).toHaveCount(4);
+  await expect(parts(page).project.getByRole("radio")).toHaveCount(4);
   await expect(page.getByRole("radio", { name: "Sample App" })).toHaveCount(0);
   await addProjectOnPage(page);
   await expect(recent).toContainText("Retained sample session", {

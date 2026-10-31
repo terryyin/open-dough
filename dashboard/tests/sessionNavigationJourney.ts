@@ -9,15 +9,26 @@
 // attaches the synthetic `claude` (./fixtures/fake-claude). The page records
 // what it brings into view (`revealsOf`).
 
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { expect } from "./dashboardTest.ts";
 import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
-import { readyStory, type StoryColumnsJourney } from "./launchJourney.ts";
+import {
+  notRefinedStory,
+  readyStory,
+  takenStory,
+  type StoryColumnsJourney,
+} from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+
+// Open Dough's stories as the journey first shows them.
+export const openDoughStories = {
+  taken: [],
+  backlog: [takenStory, readyStory, notRefinedStory],
+};
 
 export const pygardonStory = {
   identity: "SEED-031#telegram-qr-diagnosis",
@@ -90,6 +101,46 @@ export const revealsOf = (page: Page) =>
       (window as unknown as { reveals: { name: string; behavior: string }[] })
         .reveals,
   );
+
+// How many entries the page's browser history holds.
+export const historyLength = (page: Page) =>
+  page.evaluate(() => history.length);
+
+// Whether the keyboard is inside the named region.
+export const keyboardInside = (page: Page, name: string) =>
+  page
+    .getByRole("region", { name })
+    .evaluate((element) => element.contains(document.activeElement));
+
+// Clicks `control` and returns how many reveals the page had made at its
+// pointer press, the developer's own move that ends an earlier part's keeping
+// in view (`keepInView`, ../src/pageMovement.ts): reveals after it belong to
+// what the click shows.
+export async function revealsAtClick(
+  page: Page,
+  control: Locator,
+): Promise<number> {
+  await page.evaluate(() => {
+    const at = window as unknown as {
+      reveals: unknown[];
+      revealsAtPress?: number;
+    };
+    delete at.revealsAtPress;
+    window.addEventListener(
+      "pointerdown",
+      () => {
+        at.revealsAtPress = at.reveals.length;
+      },
+      { capture: true, once: true },
+    );
+  });
+  await control.click();
+  const count = await page.evaluate(
+    () => (window as unknown as { revealsAtPress?: number }).revealsAtPress,
+  );
+  if (count === undefined) throw new Error("No pointer press was observed.");
+  return count;
+}
 
 // What the page brought into view after its first `since` reveals: at least
 // one, every one this part, this way.

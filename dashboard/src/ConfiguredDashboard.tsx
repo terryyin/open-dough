@@ -12,7 +12,8 @@ import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { StoryDestination } from "./StoryDestination.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
-import { parseRoute } from "./dashboardRoute.ts";
+import { IntentPerspective } from "./IntentPerspective.tsx";
+import { parseRoute } from "./dashboardRouteUrl.ts";
 import { useDashboardNavigation } from "./dashboardNavigation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { StoryReferenceNavigation } from "./storyNavigation.tsx";
@@ -59,6 +60,7 @@ export function ConfiguredDashboard({
   const {
     route,
     selectProject,
+    selectPerspective,
     showStories,
     openRoster,
     onBack,
@@ -76,13 +78,17 @@ export function ConfiguredDashboard({
     onDashboardReady({ source, select: selectProject });
   });
 
-  const showsRoster = route.view === "roster";
+  // Intent replaces Development's content and keeps its view to return to;
+  // the mounted Board, the Sessions sidebar and the Side panel stay.
+  const showsIntent = route.perspective === "intent";
+  const showsRoster = !showsIntent && route.view === "roster";
+  const showsBoard = !showsIntent && !showsRoster;
   return (
     <PageFrame
       sessions={launches}
       stories={{
         selected: source.id,
-        shown: showsRoster ? undefined : work?.source.id,
+        shown: showsBoard ? work?.source.id : undefined,
         show: showStories,
       }}
     >
@@ -94,16 +100,26 @@ export function ConfiguredDashboard({
         failure={readFailure}
         show={showStories}
         retry={readAfresh}
-        suspended={settingsOpen || showsRoster}
+        suspended={settingsOpen || !showsBoard}
       >
         {(storyNotice) => (
           <>
             <DashboardBanner
               source={source}
+              perspective={route.perspective}
               onOpenSettings={onOpenSettings}
               onSelect={selectProject}
+              onSelectPerspective={selectPerspective}
             />
-            <div className={showsRoster ? "roster-scroll" : "board-scroll"}>
+            <div
+              className={
+                showsIntent
+                  ? "intent-scroll"
+                  : showsRoster
+                    ? "roster-scroll"
+                    : "board-scroll"
+              }
+            >
               <div className="scroll-content">
                 <div className="page-header">
                   <StoryDestination
@@ -129,9 +145,9 @@ export function ConfiguredDashboard({
                     source={source}
                     work={work}
                     launches={launches}
-                    hidden={showsRoster}
+                    hidden={!showsBoard}
                   />
-                  {!showsRoster && (
+                  {showsBoard && (
                     <StartupRecovery
                       sourceId={source.id}
                       recoveries={launches}
@@ -143,7 +159,7 @@ export function ConfiguredDashboard({
                   />
                 </div>
                 {work && (
-                  <main hidden={showsRoster}>
+                  <main hidden={!showsBoard}>
                     <Board
                       sourceId={source.id}
                       work={work}
@@ -152,6 +168,7 @@ export function ConfiguredDashboard({
                     />
                   </main>
                 )}
+                {showsIntent && <IntentPerspective source={source} />}
                 {showsRoster && (
                   <main>
                     <AgentRoster

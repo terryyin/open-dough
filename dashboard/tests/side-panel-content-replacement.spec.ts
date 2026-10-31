@@ -179,3 +179,72 @@ test("a review, another story's review, and a final report replace each other in
     await expect(items).toHaveCount(1);
   });
 });
+
+test("a review and a final report stay shown with their selection while the page changes to Intent and back", async ({
+  page,
+  dashboard,
+  origin,
+  codexProtocol: native,
+}) => {
+  if (native === undefined) throw new Error("Missing native fixture");
+  const { workspace: workspaceA } = storyWorktree(origin);
+  const workspaceB = storyBWorktree(origin.project);
+  await keepLaunchRecords(dashboard, [
+    storyALaunchRecord(workspaceA),
+    storyBRetiredCodexRecord(workspaceB, native),
+  ]);
+  const reviewReads: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === storyReviewEndpoint)
+      reviewReads.push(url.searchParams.get("identity") ?? "");
+  });
+  const cardA = await openBacklog(page, origin);
+  const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
+  const { development, intent, intentChoice } = parts(page);
+  const items = sidePanelContents(page);
+  const review = page.getByRole("region", { name: "Story review" });
+  const report = page.getByRole("region", { name: "Final report" });
+
+  await test.step("the review keeps its story, selected file and snapshot", async () => {
+    await cardA.getByRole("button", { name: "Review changes" }).click();
+    const selected = review
+      .getByRole("list", { name: "7 changed files" })
+      .getByRole("button", { name: "Modified unstaged.txt" });
+    await selected.click();
+    await expect(selected).toHaveAttribute("aria-pressed", "true");
+    const reads = reviewReads.length;
+    for (const choice of [intentChoice, development]) {
+      await choice.click();
+      await expect(choice).toBeChecked();
+      await expect(review.getByRole("heading", { level: 2 })).toHaveText(
+        "Story A",
+      );
+      await expect(selected).toHaveAttribute("aria-pressed", "true");
+      await expect(
+        review.getByRole("region", { name: "Modified unstaged.txt" }),
+      ).toBeVisible();
+      await expect(items).toHaveCount(1);
+    }
+    await expect(intent).toHaveCount(0);
+    expect(reviewReads.length).toBe(reads);
+  });
+
+  await test.step("the final report keeps its session's report, still not done", async () => {
+    await storyCardSessions(cardB)
+      .getByRole("button", { name: "Read final report" })
+      .click();
+    await expect(report).toContainText(storyBReport);
+    await intentChoice.click();
+    await expect(intent).toContainText("is forthcoming.");
+    await expect(report).toContainText(storyBReport);
+    await expect(items).toHaveCount(1);
+    await development.click();
+    await expect(cardB).toBeVisible();
+    await expect(report).toContainText(storyBReport);
+    await expect(items).toHaveCount(1);
+    expect((await keptSession(dashboard, native.threadId)).doneAt).toBe(
+      undefined,
+    );
+  });
+});

@@ -179,9 +179,11 @@
   background: var(--hover);
 }
 
-/* The banner stays above the independently scrolling Board or agent roster. */
+/* The banner stays above the independently scrolling Board, agent roster,
+   or Intent perspective. */
 .board-scroll,
-.roster-scroll {
+.roster-scroll,
+.intent-scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;

@@ -1,0 +1,19 @@
+/* The Intent perspective's forthcoming content (./IntentPerspective.tsx):
+   readable prose below the page header, within the page's own margins. */
+.intent-perspective {
+  max-width: 42rem;
+}
+
+.intent-perspective h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.intent-perspective p {
+  margin: var(--space-2) 0 0;
+  line-height: 1.5;
+}
+
+.intent-forthcoming {
+  font-weight: var(--weight-strong);
+}

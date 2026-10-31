@@ -118,11 +118,17 @@ and with no panel it does nothing. Closing returns the keyboard to the control
 that opened the panel, or to its story's card when that control is gone. Command+Escape is not used: Chrome and Safari on macOS never
 deliver it to the page.
 Show the selected project's name as the banner's plain level-1 heading on
-columns wide enough for the project choices. Show the configured projects as
+columns wide enough for the project choices. Beside it, a **Perspective** radio
+group offers **Development** and **Intent** of the selected project. The banner
+keeps one row while the title, the perspective and the project choices fit
+(a page column wider than 900 CSS pixels); below that the perspective stays
+beside the title and the project choices take a second row after Sessions.
+Show the configured projects as
 tab-shaped radio controls, with the selected project highlighted. Where those
 tabs no longer fit the banner (the page column at or under 400 CSS pixels), the
 heading is replaced by one dropdown-styled title control that shows the current
-project name; the separate tab list is not shown. Opening that control — by
+project name; the separate tab list is not shown, and the perspective takes its
+place beside Sessions in the second row. Opening that control — by
 touch or keyboard — offers the configured projects with the current one
 indicated; choosing one uses the same project selection, URL history, and
 published-data read as a tab choice and updates the title. Dismissing without a
@@ -141,7 +147,8 @@ cycle. Elsewhere, the page-wide shortcut selects the adjacent project; controls
 that survive the switch keep focus, and when focused project content disappears,
 focus moves to whichever project control the banner is showing. Editable fields, other arrow-operated controls, already-handled key
 events, modified shortcuts, and an open modal help dialog keep their own
-keyboard behavior and do not change the project. End the banner with the
+keyboard behavior and do not change the project; the perspective radios are
+such a control, so their arrows change only the perspective. End the banner with the
 **System settings** gear at the far right. Every icon-only control in the banner
 shows its name, and its shortcut where it has one, in a tooltip when hovered or
 focused. Keep readable loading and source problems near the selected project's
@@ -156,7 +163,7 @@ banner retains selection and observation controls. Removing an unselected row
 preserves selection; removing the selected row selects its next neighbor or the
 first remaining project. Settings remains available after the last removal.
 **Back to dashboard** and browser Back/Forward restore the preceding valid
-project and story/roster view with useful focus. Opening settings preserves the
+project, perspective and story/roster view with useful focus. Opening settings preserves the
 mounted Sessions sidebar and terminal context. Project arrows leave settings
 controls and forms alone. Facts and actions wrap in reading order at narrow
 widths and browser zoom.
@@ -238,3 +245,24 @@ keep ordinary source navigation; repository files retain their pinned revisions.
 
 See [spatial-reading direction](dashboard-spatial-reading.md) for the layout
 hypothesis, whole-Board reading and later zoom/pan guidance.
+
+## Development and Intent
+
+Development is the first-visit default perspective: the stories or agent
+roster, near-future direction, Start session and published-state
+qualifications. Intent replaces that content with a forthcoming-content
+statement for the selected project. It says that this dashboard does not read
+the project's tests yet, so it shows no count, result or claim that tests or
+Proof are absent, whatever the published read did; the read status keeps its
+own meaning. Structure, source browsing and Purpose/Proof readers are not
+offered yet. The perspective is disposable presentation state on the URL
+(`perspective=intent`), independent of Development's stories/roster view, which
+Intent keeps to return to. Choosing a perspective adds one history entry and
+never selects another project; changing projects keeps the perspective, and
+Back/Forward, reload and System settings restore it. Story URLs, story
+references and choosing a Sessions sidebar entry open Development's stories,
+including from the same project's Intent. Changing perspective neither starts,
+stops, completes nor reattaches a session: the mounted Board, Sessions sidebar
+and Side panel (terminal, final report or story review) stay as they were, and
+a covering panel stays open. When the change hides the content holding the
+keyboard, the keyboard moves to the selected perspective's choice.

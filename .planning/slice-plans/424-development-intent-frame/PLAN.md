@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#open-development-intent-frame
 **Source:** [Refined story](../../seeds/SEED-192-review-product-intent.md#open-development-intent-frame)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -182,7 +183,7 @@ measurements say nothing about a later host or CI runner.
 ### 1. Move between Development and Intent while retaining working context
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The mapped built-page journeys observe the entire perspective round
 trip and its session/settings/keyboard conditions; focused existing consumers
 remain green, with no remount or unintended project transition.
@@ -231,8 +232,41 @@ apply the execution workflow's independent post-change refactor, affected proof,
 agent commit, delivery and asynchronous CI ownership. No additional all-suite
 local gate is inferred from CI configuration.
 
+## Story obligations
+
+### G1. Later Intent capabilities are not built here
+Reported: slice 1 — "I did not implement Structure, source browsing, Purpose/Proof layouts, readers or report machinery."
+Story clause: "Source browsing and configuration, story-scoped Intent, Purpose/Proof layouts, observed Proof and history, Structure, and new report machinery belong to later work."
+Disposition: excluded "belong to later work"
+Commitment: 12, 13, 14, 15, 16, 17
+
+### G2. Covering Side panel across a perspective change was unobserved
+Reported: slice 1 — "A covering Side panel staying open across a perspective change (only reachable by Back/Forward while covered) is stated in the docs but not separately observed"
+Story clause: "An already open terminal, report or review stays visible in the shared Side panel when changing perspectives."
+Disposition: proved by slice 1: development-intent-frame-sessions.spec.ts "a covering terminal at a phone width stays shown and attached while Back and Forward change the perspective beneath it…" observes, at 390×844 with expectCovering, the same heading and echoed text after Back to Intent, Forward and Back again, exactly one attach with no endedBy, and Intent's forthcoming content with perspective=intent after Close; the panel's content kind does not depend on the route, so the terminal represents report and review, which SPCR observes uncovered
+
+### G3. A long plain title wraps between about 401 and 430 pixels
+Reported: slice 1 — "between about 401 and 430px a long title wraps to two lines in row 1."
+Story clause: "Both perspectives and the shared navigation remain usable with a keyboard and at narrow widths."
+Disposition: no user cost "judge whether the frame is understandable while ordinary Development work remains useful": the wrapped title stays whole and readable beside the perspective control, nothing is cut off or hidden, and no control moves out of reach; DH and DIF observe no clipping or sideways scroll at 390 and 320 pixels.
+
+### G4. Back from a directly loaded settings URL in Intent was unobserved
+Reported: slice 1 — "Back from a directly loaded settings URL that carries `perspective=intent`, without a dashboard history entry, is not directly observed."
+Story clause: "System settings remains reachable and returns to the selected project's prior perspective, with usable focus."
+Disposition: proved by slice 1: App.tsx:31 builds the settings URL from the current query, keeping perspective=intent, and App.tsx:47 closes settings without history by restoring view and leaving perspective in place, so a direct load parses the same route as the observed reload case; development-intent-frame.spec.ts "System settings from Intent returns…" observes return to Intent with the gear focused after reloading settings
+
 ## Current decisions and concern evidence
 
+- Execution, 2026-10-31: SEED-198 landed (closed at `e87f1d19`) and SEED-199's
+  covering Side panel landed before slice 1, so the slice was built on trunk
+  `22eb4b3e`. The four baseline journeys passed there (strict verdict, 11.8 s).
+- Slice 1 learnings: the two-row header threshold moved from 800 to 900 pixels,
+  measured for title, perspective and four project tabs; the compact title stays
+  at 400 pixels with the perspective in its second row (G3). Route address and
+  parsing moved to `dashboardRouteUrl.ts`. The intermittent "a story on no card"
+  sidebar case was a test race with the product's deliberate keep-in-view after
+  a Side panel press; it now counts reveals from the entry press
+  (`revealsAtClick`), 8 of 8 passing repeated.
 - Preparation authorizes no execution or Take. No planless authority is claimed.
 - No formal blocking dependency, unobserved decisive current-state premise or
   human scope decision remains. The new behavior is acceptance work, not a

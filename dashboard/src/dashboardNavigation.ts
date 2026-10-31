@@ -3,6 +3,7 @@ import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import { isFromPortrait, useDashboardRoute } from "./dashboardRoute.ts";
 import { useStoryDestination } from "./StoryDestination.tsx";
 import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
+import { usePerspectiveFocus } from "./PerspectiveSelect.tsx";
 import type { useObservationAttempt } from "./observationAttempt.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -58,6 +59,7 @@ export function useDashboardNavigation({
   const {
     route,
     selectProject,
+    selectPerspective,
     openRoster: navigateToRoster,
     showStories,
   } = useDashboardRoute({
@@ -129,9 +131,12 @@ export function useDashboardNavigation({
     }
   }, [route.view, source.id, work]);
 
+  usePerspectiveFocus(route.perspective);
+
   return {
     route,
     selectProject,
+    selectPerspective,
     showStories,
     openRoster,
     onBack,

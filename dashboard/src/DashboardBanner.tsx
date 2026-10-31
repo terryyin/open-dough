@@ -4,17 +4,23 @@ import { IconButton } from "./Icon.tsx";
 import { keepHeight } from "./measuredHeight.ts";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
+import { PerspectiveSelect } from "./PerspectiveSelect.tsx";
+import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
 import { SessionsButton } from "./SessionsSidebar.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function DashboardBanner({
   source,
+  perspective,
   onOpenSettings,
   onSelect,
+  onSelectPerspective,
 }: {
   readonly source: PublishedSource;
+  readonly perspective: DashboardPerspective;
   readonly onOpenSettings: () => void;
   readonly onSelect: (next: PublishedSource) => void;
+  readonly onSelectPerspective: (next: DashboardPerspective) => void;
 }) {
   const banner = useRef<HTMLElement>(null);
 
@@ -34,6 +40,10 @@ export function DashboardBanner({
     <header className="banner" ref={banner}>
       <ProductMark />
       <SessionsButton />
+      <PerspectiveSelect
+        perspective={perspective}
+        onSelect={onSelectPerspective}
+      />
       <ProjectSelect source={source} onSelect={onSelect} />
       <h1 className="project-title">{source.label}</h1>
       <SettingsGear onOpen={onOpenSettings} />

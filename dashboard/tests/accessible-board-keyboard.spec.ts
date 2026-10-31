@@ -28,10 +28,10 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, directionToggle, backlog, taken } = parts(page);
+  const { project, development, directionToggle, backlog, taken } = parts(page);
 
-  // Reading order is the order of the page's source: Sessions, the project
-  // selector, System settings, then direction, Start session and the badge
+  // Reading order is the order of the page's source: Sessions, the
+  // perspective, the project selector, System settings, then direction, Start session and the badge
   // legend, then each card's controls by column (Backlog, then Taken): a
   // Backlog card's enabled launch actions, then Inspect. A card's recorded
   // links are in its detail, not its scan view. In a wide window Taken stands
@@ -62,6 +62,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   const selectedProject = project.getByRole("radio", { checked: true });
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
+    development,
     selectedProject,
     page.getByRole("button", { name: "System settings", exact: true }),
     directionToggle,
@@ -70,10 +71,10 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected project radio + System settings + Direction + Start
-  // session + Legend + two Backlog cards' enabled launch actions + four
-  // Inspect.
-  expect(stops).toHaveLength(6 + 2 + 4);
+  // Sessions + selected perspective radio + selected project radio + System
+  // settings + Direction + Start session + Legend + two Backlog cards' enabled
+  // launch actions + four Inspect.
+  expect(stops).toHaveLength(7 + 2 + 4);
 
   await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
     for (const stop of stops) {
@@ -162,11 +163,12 @@ test("accessible Board announces reading, the read result, and a failure while f
     ).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, then System settings.
+  // Sessions, the perspective, the project, then System settings.
   const settings = page.getByRole("button", {
     name: "System settings",
     exact: true,
   });
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");

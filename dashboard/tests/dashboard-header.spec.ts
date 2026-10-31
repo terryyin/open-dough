@@ -1,8 +1,10 @@
 // The pinned banner in each of its page-column layouts (../src/banner.css,
-// ../src/project-select.css): one row on a column wider than 800 CSS pixels,
-// ending with System settings; two rows up to 800, Sessions starting the
-// second before the project choices; and, at or under 400, the compact title
-// select instead of the wrapping tab list. One journey per layout walks the
+// ../src/project-select.css): one row on a column wider than 900 CSS pixels,
+// the Development and Intent choices beside the plain title, ending with
+// System settings; two rows up to 900, the perspective still beside the
+// title and Sessions starting the second before the project choices; and, at
+// or under 400, the compact title select instead of the wrapping tab list,
+// the perspective then beside Sessions in the second row. One journey per layout walks the
 // keyboard back up a long page: the banner stays pinned and short, Open
 // Dough's mark leads it whole and uncovered, nothing is cut short, and no
 // focused control is hidden under it. Wider layouts also check each choice
@@ -61,8 +63,14 @@ for (const viewport of layouts) {
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, projectCompact, projectTitle, backlog } =
-      parts(page);
+    const {
+      banner,
+      project,
+      projectCompact,
+      projectTitle,
+      backlog,
+      perspective,
+    } = parts(page);
     // The last card's last control.
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
@@ -78,6 +86,7 @@ for (const viewport of layouts) {
     await expect(titleControl).toBeInViewport({ ratio: 1 });
     for (const control of [
       viewport.compact ? projectCompact : project,
+      perspective,
       settings(page),
     ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
@@ -120,6 +129,7 @@ for (const viewport of layouts) {
           mark,
           sessionsSidebarParts(page).button,
           projectTitle,
+          perspective,
           project,
           gear,
         ];
@@ -146,6 +156,30 @@ for (const viewport of layouts) {
           all.map((element) => element.getBoundingClientRect().right),
         )) {
           expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
+        }
+      });
+    }
+
+    if (viewport.rows === 2) {
+      await test.step("the perspective keeps one row with the title, or with Sessions below the compact title", async () => {
+        const middle = ({ y, height }: { y: number; height: number }) =>
+          y + height / 2;
+        const choices = await box(perspective);
+        const sessions = await box(sessionsSidebarParts(page).button);
+        if (viewport.compact) {
+          const title = await box(projectCompact);
+          expect(choices.y).toBeGreaterThanOrEqual(title.y + title.height);
+          expect(middle(choices)).toBeCloseTo(middle(sessions), 0);
+          expect(choices.x).toBeGreaterThanOrEqual(sessions.x + sessions.width);
+        } else {
+          const title = await box(projectTitle);
+          await expectSideBySideInOrder([
+            projectTitle,
+            perspective,
+            settings(page),
+          ]);
+          expect(middle(choices)).toBeCloseTo(middle(title), 0);
+          expect(choices.y + choices.height).toBeLessThanOrEqual(sessions.y);
         }
       });
     }

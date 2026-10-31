@@ -52,7 +52,13 @@ the vertical position while the newly shown columns reach it; where they are
 shorter, the Board stops at their bottom instead, without returning to the top.
 
 The banner keeps **Project** choices reachable above the Board's own scroll region.
-The selected project's name is the banner's plain level-1 heading.
+The selected project's name is the banner's plain level-1 heading, with the
+**Development** and **Intent** perspective choices beside it. Development, the
+first-visit default, shows the Board described here; Intent says only that its
+content for the selected project is forthcoming, claiming nothing about the
+project's tests. Project changes, history, reload and System settings keep the
+perspective; choosing a session opens Development
+([dashboard navigation](../docs/dashboard-navigation.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the
 **Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction

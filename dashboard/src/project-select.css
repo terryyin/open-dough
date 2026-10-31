@@ -1,6 +1,8 @@
-/* The project choices: one segmented group, the selected project filled
-   in the accent. */
-.project-select {
+/* The project choices, and the perspective choices beside them
+   (./PerspectiveSelect.tsx): each one segmented group, the selected choice
+   filled in the accent. */
+.project-select,
+.perspective-select {
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
@@ -12,7 +14,7 @@
   background: var(--surface);
 }
 
-.project-choice {
+:is(.project-choice, .perspective-choice) {
   box-sizing: border-box;
   position: relative;
   display: grid;
@@ -24,7 +26,7 @@
   cursor: pointer;
 }
 
-.project-choice input {
+:is(.project-choice, .perspective-choice) input {
   appearance: none;
   position: absolute;
   inset: 0;
@@ -37,27 +39,28 @@
   cursor: pointer;
 }
 
-.project-choice:hover input {
+:is(.project-choice, .perspective-choice):hover input {
   background: var(--hover);
 }
 
-.project-choice span {
+:is(.project-choice, .perspective-choice) span {
   position: relative;
   pointer-events: none;
   white-space: nowrap;
 }
 
-.project-choice input:checked {
+:is(.project-choice, .perspective-choice) input:checked {
   background: var(--accent);
   box-shadow: var(--shadow-1);
 }
 
-.project-choice input:checked + span {
+:is(.project-choice, .perspective-choice) input:checked + span {
   color: var(--raised-surface);
 }
 
-/* In a narrow page column the choices share the banner's second row evenly. */
-@container page (max-width: 800px) {
+/* In a narrow page column (./banner.css) the project choices share the
+   banner's second row evenly. */
+@container page (max-width: 900px) {
   .project-choice {
     flex: 1;
     padding-inline: var(--space-1);
@@ -65,7 +68,7 @@
 }
 
 @media (any-pointer: coarse) {
-  .project-choice {
+  :is(.project-choice, .perspective-choice) {
     min-height: var(--control-size);
   }
 

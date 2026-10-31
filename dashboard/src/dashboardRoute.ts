@@ -1,95 +1,15 @@
-// Routing for dashboard project and view. Routes use query parameters on /
-// (?project=<id>&view=<stories|roster>) so they work without server path fallbacks.
+// Routing for the dashboard route (./dashboardRouteUrl.ts): one history entry
+// per navigation, and the route Back and Forward restore.
 
 import { useEffect, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
-import { firstProject, useProjects } from "./projectList.tsx";
+import { useProjects } from "./projectList.tsx";
 import {
-  storyDestinationOf,
-  type StoryDestination,
-} from "./dashboardDestination.ts";
-
-export type DashboardView = "stories" | "roster";
-
-export type DashboardRoute = {
-  readonly source: PublishedSource;
-  readonly view: DashboardView;
-  readonly story?: StoryDestination;
-};
-
-export function buildRouteUrl(
-  projectId: string,
-  view: DashboardView,
-  projects: readonly PublishedSource[],
-): string {
-  const defaultSource = firstProject(projects);
-  const params = new URLSearchParams();
-  if (projectId !== defaultSource.id || view === "roster") {
-    params.set("project", projectId);
-  }
-  if (view === "roster") {
-    params.set("view", "roster");
-  }
-  const query = params.toString();
-  return query ? `/?${query}` : "/";
-}
-
-export function parseRoute(
-  location: { search: string },
-  projects: readonly PublishedSource[],
-): {
-  readonly route: DashboardRoute;
-  readonly normalizedUrl: string | undefined;
-} {
-  const defaultSource = firstProject(projects);
-  const params = new URLSearchParams(location.search);
-  const projectParam = params.get("project");
-  const requestedView = params.get("view");
-  const story = storyDestinationOf(params);
-  // A story URL always names its project and stories view. Retain an unknown
-  // project verbatim so the page can explain that destination, never silently
-  // turn a notification into a different project's work.
-  if (story !== undefined) {
-    return {
-      route: {
-        source:
-          projects.find((source) => source.id === story.project) ??
-          defaultSource,
-        view: "stories",
-        story,
-      },
-      normalizedUrl: undefined,
-    };
-  }
-  const viewParam =
-    requestedView === "settings" ? params.get("returnView") : requestedView;
-
-  const validSource =
-    projectParam !== null
-      ? projects.find((project) => project.id === projectParam)
-      : defaultSource;
-  const isInvalidProject = projectParam !== null && validSource === undefined;
-
-  // An invalid project route resolves to the default project's stories and normalizes its URL.
-  if (isInvalidProject) {
-    return {
-      route: { source: defaultSource, view: "stories" },
-      normalizedUrl: buildRouteUrl(defaultSource.id, "stories", projects),
-    };
-  }
-
-  const source = validSource ?? defaultSource;
-  const view: DashboardView = viewParam === "roster" ? "roster" : "stories";
-  const isInvalidView =
-    viewParam !== null && viewParam !== "roster" && viewParam !== "stories";
-
-  return {
-    route: { source, view },
-    normalizedUrl: isInvalidView
-      ? buildRouteUrl(source.id, view, projects)
-      : undefined,
-  };
-}
+  buildRouteUrl,
+  parseRoute,
+  type DashboardPerspective,
+  type DashboardRoute,
+} from "./dashboardRouteUrl.ts";
 
 export function isFromPortrait(state: unknown): boolean {
   return (
@@ -121,47 +41,65 @@ export function useDashboardRoute({
   }
   const [route, setRoute] = useState<DashboardRoute>(initial.current.route);
   const settingsSelection = useRef<PublishedSource | undefined>(undefined);
+  // Shows a route as one new history entry.
+  const pushRoute = (
+    next: Omit<DashboardRoute, "story">,
+    state: unknown = null,
+  ) => {
+    window.history.pushState(state, "", buildRouteUrl(next, projects));
+    setRoute(next);
+  };
 
   const selectProject = (next: PublishedSource) => {
     if (next.id === sourceId && route.story === undefined) {
       return;
     }
-    const nextUrl = buildRouteUrl(next.id, route.view, projects);
-    if (!suspended) window.history.pushState(null, "", nextUrl);
+    const nextRoute = {
+      source: next,
+      view: route.view,
+      perspective: route.perspective,
+    };
+    if (!suspended) pushRoute(nextRoute);
     else {
       settingsSelection.current = next;
       const params = new URLSearchParams(window.location.search);
       params.set("project", next.id);
       params.delete("story");
       window.history.replaceState(window.history.state, "", `/?${params}`);
+      setRoute(nextRoute);
     }
-    setRoute({ source: next, view: route.view });
     selectSource(next);
   };
 
-  const openRoster = (source: PublishedSource) => {
-    setRoute({ source, view: "roster" });
-    const nextUrl = buildRouteUrl(source.id, "roster", projects);
-    window.history.pushState({ fromPortrait: true }, "", nextUrl);
+  // Shows the selected project in another perspective, as one history entry,
+  // keeping Development's view to return to.
+  const selectPerspective = (perspective: DashboardPerspective) => {
+    if (perspective === route.perspective || suspended) {
+      return;
+    }
+    pushRoute({ source: route.source, view: route.view, perspective });
   };
 
-  // Shows a project's stories, from either view and whichever project is
-  // selected, as one history entry, as the roster's Back does and a sidebar
-  // entry does; nothing when they are already shown.
+  const openRoster = (source: PublishedSource) => {
+    pushRoute(
+      { source, view: "roster", perspective: "development" },
+      { fromPortrait: true },
+    );
+  };
+
+  // Shows a project's Development stories, from either view or perspective
+  // and whichever project is selected, as one history entry, as the roster's
+  // Back does and a sidebar entry does; nothing when they are already shown.
   const showStories = (next: PublishedSource) => {
     if (
       next.id === sourceId &&
       route.view === "stories" &&
+      route.perspective === "development" &&
       route.story === undefined
     ) {
       return;
     }
-    window.history.pushState(
-      null,
-      "",
-      buildRouteUrl(next.id, "stories", projects),
-    );
-    setRoute({ source: next, view: "stories" });
+    pushRoute({ source: next, view: "stories", perspective: "development" });
     selectSource(next);
   };
 
@@ -177,7 +115,7 @@ export function useDashboardRoute({
       window.history.replaceState(
         null,
         "",
-        buildRouteUrl(savedSelection.id, route.view, projects),
+        buildRouteUrl({ ...route, source: savedSelection }, projects),
       );
     }
     settingsSelection.current = undefined;
@@ -220,6 +158,7 @@ export function useDashboardRoute({
   return {
     route,
     selectProject,
+    selectPerspective,
     openRoster,
     showStories,
   };

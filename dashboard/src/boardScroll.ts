@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-// The Board's scrolling viewport, below the banner. The agent roster uses
-// the same available room when it replaces the Board.
+// The Board's scrolling viewport, below the banner. The agent roster and the
+// Intent perspective use the same available room when they replace the Board.
 export const boardScrollRegion = () =>
   document.querySelector<HTMLElement>(".board-scroll");
 
@@ -19,7 +19,8 @@ export function readingBounds(element: Element) {
   };
 }
 
-// With no control focused, reading keys belong to the visible Board.
+// With no control focused, reading keys belong to the visible Board, roster
+// or Intent perspective.
 // Focus it before the browser's default action so native scrolling still
 // owns the key, just as when focus already lies inside this region.
 export function useBoardScrolling(suspended: boolean) {
@@ -54,7 +55,9 @@ export function useBoardScrolling(suspended: boolean) {
       )
         return;
       document
-        .querySelector<HTMLElement>(".board-scroll .board, .roster-scroll h2")
+        .querySelector<HTMLElement>(
+          ".board-scroll .board, .roster-scroll h2, .intent-scroll h2",
+        )
         ?.focus({ preventScroll: true });
     };
     window.addEventListener("keydown", read);

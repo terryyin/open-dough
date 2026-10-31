@@ -9,7 +9,6 @@
 // session. The page's own dashboard server launches and attaches the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
 import {
@@ -23,26 +22,17 @@ import { expectRoute } from "./agentRosterRecords.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   attachesOf,
+  expectRevealsSince,
+  historyLength,
+  keyboardInside,
+  openDoughStories,
   openNavigationJourney,
   pygardonBacklogTitles,
   pygardonStory,
-  expectRevealsSince,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
-
-const openDoughStories = {
-  taken: [],
-  backlog: [takenStory, readyStory, notRefinedStory],
-};
-
-const historyLength = (page: Page) => page.evaluate(() => history.length);
-
-const keyboardInside = (page: Page, name: string) =>
-  page
-    .getByRole("region", { name })
-    .evaluate((element) => element.contains(document.activeElement));
 
 test.describe("opening a Sessions sidebar Session entry", () => {
   let columnsJourney: StoryColumnsJourney;

@@ -1,7 +1,7 @@
 // A URL asks for one project's published identity. Resolution and reveal are
 // transient navigation; they never open a session or change membership.
 import { useLayoutEffect, useRef } from "react";
-import type { DashboardRoute } from "./dashboardRoute.ts";
+import type { DashboardRoute } from "./dashboardRouteUrl.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import type { useObservationAttempt } from "./observationAttempt.ts";
 import { activeStoryAt } from "./dashboardDestination.ts";

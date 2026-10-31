@@ -17,6 +17,12 @@ export function parts(page: Page) {
     projectCompact: banner.getByRole("button", { name: "Project" }),
     projectCompactList: banner.getByRole("listbox", { name: "Project" }),
     project: page.getByRole("radiogroup", { name: "Project" }),
+    // The banner's Development and Intent choices of the selected project.
+    perspective: page.getByRole("radiogroup", { name: "Perspective" }),
+    development: page.getByRole("radio", { name: "Development", exact: true }),
+    intentChoice: page.getByRole("radio", { name: "Intent", exact: true }),
+    // The Intent perspective's content, in place of Development's.
+    intent: page.getByRole("main", { name: "Intent", exact: true }),
     board,
     backlog: board.getByRole("region", { name: "Backlog", exact: true }),
     taken: board.getByRole("region", { name: "Taken", exact: true }),

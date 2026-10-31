@@ -38,7 +38,10 @@
   > .board-scroll,
 .page-split:not(.page-covering):not(.page-maximized)
   > .page-column
-  > .roster-scroll {
+  > .roster-scroll,
+.page-split:not(.page-covering):not(.page-maximized)
+  > .page-column
+  > .intent-scroll {
   margin-inline-end: var(--panel-divider-room);
 }
 

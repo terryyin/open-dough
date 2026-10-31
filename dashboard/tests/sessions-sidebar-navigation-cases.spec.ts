@@ -26,9 +26,11 @@ import {
   attachesOf,
   expectRevealsSince,
   expectWhollyInView,
+  keyboardInside,
   openNavigationJourney,
   pygardonStory,
   removedStory,
+  revealsAtClick,
   revealsOf,
 } from "./sessionNavigationJourney.ts";
 import { closeSidePanel } from "./pageLayout.ts";
@@ -95,8 +97,9 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
         "Session unavailable",
         "unsettled",
       );
-      const revealed = (await revealsOf(page)).length;
-      await entry(doughnutSharedTitle).click();
+      // The removed story's entry stays followed through its Close's resize
+      // until this press; only later reveals belong to Doughnut's card.
+      const revealed = await revealsAtClick(page, entry(doughnutSharedTitle));
       await expectMembership(page, {
         taken: [],
         backlog: [doughnutSharedTitle],
@@ -189,9 +192,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       .poll(() => attachesOf(dashboard, sessions.pygardon))
       .toHaveLength(1);
     await expectCovering(panel);
-    await expect(
-      panel.evaluate((element) => element.contains(document.activeElement)),
-    ).resolves.toBe(true);
+    expect(await keyboardInside(page, "Terminal")).toBe(true);
     await expect.poll(async () => (await revealsOf(page)).length).not.toBe(0);
     await expectRevealsSince(page, 0, pygardonStory.title, "auto");
     // Covering hides the Board; Close, then the restored full Board shows the

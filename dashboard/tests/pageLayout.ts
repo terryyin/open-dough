@@ -165,14 +165,16 @@ export async function pressWhereShown(control: Locator) {
 }
 
 // Selected project id under the page column. Covering aria-hides the column,
-// so role queries miss it; CSS still reaches the checked radio, or at the
+// so role queries miss it; CSS still reaches the checked project radio, or at the
 // compact wrap width the title button's data-project-id
 // (./support/reportTouchJourney.ts).
 export async function pageColumnProjectValue(
   page: Page,
 ): Promise<string | null> {
   return page.locator(".page-column").evaluate((column) => {
-    const checked = column.querySelector("input[type='radio']:checked");
+    const checked = column.querySelector(
+      "input[type='radio'][name='project']:checked",
+    );
     if (checked instanceof HTMLInputElement) return checked.value;
     return (
       column

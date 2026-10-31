@@ -116,7 +116,7 @@ test("Add in empty development leaves the production list on the same machine un
   const production = await fixture.start("preview");
   const productionPage = await page.context().newPage();
   await openUntilRead(productionPage, production.baseURL);
-  await expect(productionPage.getByRole("radio")).toHaveCount(4);
+  await expect(parts(productionPage).project.getByRole("radio")).toHaveCount(4);
   const productionFile = readFileSync(
     fixture.configurationFile("preview"),
     "utf8",
@@ -134,7 +134,7 @@ test("Add in empty development leaves the production list on the same machine un
     productionFile,
   );
   await reloadUntilRead(productionPage);
-  await expect(productionPage.getByRole("radio")).toHaveCount(4);
+  await expect(parts(productionPage).project.getByRole("radio")).toHaveCount(4);
   await expect(
     productionPage.getByRole("radio", { name: "Sample App" }),
   ).toHaveCount(0);
