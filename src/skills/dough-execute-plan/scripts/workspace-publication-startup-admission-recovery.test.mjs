@@ -3,6 +3,8 @@
 // remote trunk ends with one canonical story and one owned Taken claim, or
 // the start stops with its candidate preserved.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
@@ -54,6 +56,14 @@ test("an interrupted admission resumes its preserved candidate onto trunk that g
   );
   assert.deepEqual(resumed.receipt.admitted, [story.seedPath, story.planPath]);
   assert.equal(resumed.receipt.agent, "Yui-chan");
+  assert.equal(
+    readFileSync(join(trunk.integration, story.planPath), "utf8"),
+    "# Late plan\n\nRedrafted.\n",
+  );
+  assert.doesNotMatch(
+    readFileSync(join(trunk.integration, story.seedPath), "utf8"),
+    /SEED-A#late/,
+  );
   await git(resumed.workspace, "fetch", "origin");
   await assertPublishedAgent(resumed.workspace, "Yui", story.identity);
 });
@@ -119,8 +129,9 @@ test("an admission racing a sibling story on trunk is reconciled onto it", async
 
 // Races the late story's admission with `rival`, asserts that the start
 // stopped with its candidate preserved, the rival's trunk unchanged and the
-// drafts untouched, and returns the stop's receipt and that trunk tip.
-async function admissionStoppedBy(t, rival) {
+// drafts untouched unless a rival successfully admitted them, and returns the
+// stop's receipt and that trunk tip.
+async function admissionStoppedBy(t, rival, preserved = true) {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
@@ -136,7 +147,7 @@ async function admissionStoppedBy(t, rival) {
   );
   assert.equal(
     (await git(trunk.integration, "status", "--porcelain")).stdout,
-    drafted.stdout,
+    preserved ? drafted.stdout : "",
   );
   return { trunk, story, receipt, tip };
 }
@@ -147,6 +158,7 @@ test("a rival admission of the same story stops the admission with its candidate
     async (trunk, story) =>
       (await startProcess(trunk, "b", story.identity, story.args).result)
         .receipt.publishedSha,
+    false,
   );
   assert.equal(receipt.status, "conflict", JSON.stringify(receipt));
   assert.equal(receipt.ownership, "other");

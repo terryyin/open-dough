@@ -3,7 +3,7 @@
 // a declared plan), its Taken entry and the agent profile reach remote trunk
 // in one commit whose parent never listed the work.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
@@ -82,14 +82,14 @@ test("a new seed's unselected investigation is admitted to Taken with its story 
     await lsRemoteSha(trunk.origin, "refs/heads/exec/story-branch"),
     sha,
   );
-  // The default checkout keeps its draft and other edits; refresh defers.
+  // Only the redundant draft is withdrawn; unrelated edits defer refresh.
   assert.deepEqual(receipt.maintenance, {
     result: "deferred",
     reason: "pending-edit",
   });
   assert.equal(
-    readFileSync(join(trunk.integration, ".planning/seeds/N.md"), "utf8"),
-    seed,
+    existsSync(join(trunk.integration, ".planning/seeds/N.md")),
+    false,
   );
   assert.equal(
     readFileSync(join(trunk.integration, "unrelated.txt"), "utf8"),
@@ -97,6 +97,33 @@ test("a new seed's unselected investigation is admitted to Taken with its story 
   );
   assert.equal(await revParse(trunk.integration, "HEAD"), trunk.trunkSha);
   assert.equal(await revParse(workspace, "HEAD"), sha);
+});
+
+test("admitting a new seed from an otherwise clean default checkout refreshes it without a draft", async (t) => {
+  const trunk = await createQueuedTrunk();
+  t.after(trunk.cleanup);
+  const identity = "SEED-N#slow";
+  const link = "seeds/N.md#slow";
+  const path = ".planning/seeds/N.md";
+  const seed = withFacts(
+    storySection("slow", identity, "Slow tests", "Speed up tests."),
+    link,
+    identity,
+    "unselected",
+  );
+  writeDraft(trunk, path, seed);
+  const { receipt } = await startCliResult(
+    trunk,
+    "trunk",
+    admitArgs(identity, link, "Slow tests"),
+  );
+  assert.equal(receipt.status, "published", JSON.stringify(receipt));
+  assert.deepEqual(receipt.maintenance, { result: "advanced" });
+  assert.equal(
+    (await git(trunk.integration, "status", "--porcelain")).stdout,
+    "",
+  );
+  assert.equal(readFileSync(join(trunk.integration, path), "utf8"), seed);
 });
 
 // Publishes story SEED-B#tidy, unlisted, onto trunk; resolves to the
