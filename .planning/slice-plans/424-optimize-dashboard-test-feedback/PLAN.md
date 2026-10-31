@@ -116,10 +116,18 @@ facts plus top-40% family analysis are recorded for the experiment slices.
 
 ### 2. Cache read-only publishPreparingJourney per worker across preparing specs
 Type: Structure
-Status: planned
-Proof: Focused before/after on `session-attribution.spec.ts` and
-`backlog-preparing.spec.ts` (`--workers=1` and default workers) with three
-consecutive passes; all assertions in both specs remain intact.
+Status: done
+Proof: Focused 3-pass `--workers=1` before/after on `session-attribution.spec.ts`
+and `backlog-preparing.spec.ts` (`slice2-before-1..3.json` vs
+`slice2-after-1..3.json`, 2/2 passed each, `strictStatus: "passed"`):
+`durationMs` `32.88s / 36.35s / 32.72s` (mean `33.98s`, median `32.88s`) →
+`30.77s / 36.25s / 29.29s` (mean `32.10s`, median `30.77s`); summed `.tsv`
+`28.7s / 32.6s / 28.9s` (mean `30.07s`) → `26.0s / 27.0s / 24.5s` (mean
+`25.83s`, `−4.23s`); `session-attribution.spec.ts` `13.8s / 18.2s / 13.7s`
+(mean `15.23s`) → `7.6s / 6.6s / 6.5s` (mean `6.90s`, `−8.33s`); default-workers
+pass `slice2-after-default.json` `19.05s` (2/2 passed); post-refactor pass
+`slice2-refactor-proof.json` (2/2 passed, `session-attribution` `5.59s`). All
+assertions in both specs remain intact.
 
 Internal change: Cache the read-only bare origin and revisions in
 `dashboard/tests/preparingJourney.ts` per worker (cleaning up working-tree

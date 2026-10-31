@@ -24,10 +24,10 @@ slice context. Its numbered commitments are allocated below.
 | 4b.2 | Follow related test families across test tiers when they share behavioral responsibility with those top-40% contributors | slice 1 | observed: PLAN.md Slice 3 checks boundary/story-review-completed-driver.spec.ts alongside story-review-since-trunk.spec.ts |
 | 4b.3 | Follow related test families across files when they share setup cost with those top-40% contributors | slice 1 | observed: PLAN.md Slice 2 follows publishPreparingJourney() across session-attribution.spec.ts and backlog-preparing.spec.ts |
 | 4b.4 | Follow related test families across test tiers when they share setup cost with those top-40% contributors | slice 1 | observed: PLAN.md Slice 1–5 shared setup and boundary/journey inspection |
-| 5a | Evaluate candidate test changes using comparable wall-time measurements taken under like runner conditions | slice 2 | |
-| 5b | Retain only changes backed by comparable wall-time improvement under like runner conditions | slice 2 | |
-| 6a.1 | Follow the project's dashboard test guidance when simplifying tests | slice 2 | |
-| 6a.2 | Follow the project's dashboard test guidance when moving behavioral proof between test tiers | slice 2 | |
+| 5a | Evaluate candidate test changes using comparable wall-time measurements taken under like runner conditions | slice 2 | observed: /tmp/SEED-197-optimize-dashboard-test-feedback/slice2-before-1..3.json and slice2-after-1..3.json |
+| 5b | Retain only changes backed by comparable wall-time improvement under like runner conditions | slice 2 | observed: dashboard/tests/preparingJourney.ts retained after 3-pass focused improvement (session-attribution 15.23s → 6.90s, summed .tsv 30.07s → 25.83s, durationMs median 32.88s → 30.77s) |
+| 6a.1 | Follow the project's dashboard test guidance when simplifying tests | slice 2 | observed: dashboard/tests/preparingJourney.ts caches read-only precondition per worker matching publishStoryColumnsJourney in dashboard/tests/launchJourney.ts |
+| 6a.2 | Follow the project's dashboard test guidance when moving behavioral proof between test tiers | slice 2 | observed: dashboard/tests/preparingJourney.ts keeps both browser journeys intact while sharing read-only CLI origin setup |
 | 7a.1 | Establish replacement behavioral proof before removing any test case | slice 3 | |
 | 7a.2 | Establish replacement behavioral proof before narrowing any test case | slice 3 | |
 | 8a | Re-run the same local command (npm run test:dashboard) under comparable runner conditions after completing experiments | slice 6 | |
@@ -39,8 +39,8 @@ slice context. Its numbered commitments are allocated below.
 | 9a.1 | Update .planning/TEST-OPTIMIZATION-CANDIDATES.md with the latest-pass optimization summary | slice 6 | |
 | 9a.2 | Update .planning/TEST-OPTIMIZATION-CANDIDATES.md with the current candidate state | slice 6 | |
 | 9a.3 | Remove from .planning/TEST-OPTIMIZATION-CANDIDATES.md any transferred obligation whose receiving story has already closed with its work done | slice 6 | |
-| 10a | Preserve tests and journeys recorded as accepted necessary costs | slice 2 | |
-| 10b | Leave pending optimization candidates in place when no wall-time-improving approach is found | slice 2 | |
+| 10a | Preserve tests and journeys recorded as accepted necessary costs | slice 2 | observed: accepted necessary-cost specs untouched in Slice 2 |
+| 10b | Leave pending optimization candidates in place when no wall-time-improving approach is found | slice 2 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md pending candidates untouched in Slice 2 |
 | 11a.1 | Treat a demonstrated absence of worthwhile wall-time improvement as satisfying the story without forcing test changes | slice 6 | |
 | 11a.2 | Record the evidence demonstrating the absence of worthwhile improvement when no changes are retained | slice 6 | |
 | 12a | Do not change product behavior to make tests faster | slice 1 | observed: Slice 1 touched only dashboard/tests/* and .planning/* |
@@ -49,7 +49,7 @@ slice context. Its numbered commitments are allocated below.
 | 12c.2 | Do not claim speedup from fewer lines of test code alone | slice 6 | |
 | 12c.3 | Do not claim speedup from focused/isolated test timings without a comparable full local re-run of npm run test:dashboard | slice 6 | |
 | 12c.4 | Do not claim speedup from CI-only allocation or sharding changes that leave the local npm run test:dashboard wait unchanged | slice 6 | |
-| 12d | Do not thin journeys already recorded as accepted necessary costs unless new evidence supports reopening them | slice 2 | |
+| 12d | Do not thin journeys already recorded as accepted necessary costs unless new evidence supports reopening them | slice 2 | observed: accepted necessary-cost journeys untouched in Slice 2 |
 | 13a.1 | Record the git revision used for the baseline run of npm run test:dashboard | slice 1 | observed: PLAN.md Slice 1 revision f351073d060ba25620d0c0a861b5b4c5cc9710d6 |
 | 13a.2 | Record the named runner conditions used for the baseline run | slice 1 | observed: PLAN.md Slice 1 8 default local workers on 16-CPU / 48-GiB Mac, NO_COLOR and FORCE_COLOR unset |
 | 13a.3 | Record the baseline wall time of npm run test:dashboard | slice 1 | observed: PLAN.md Slice 1 1061.10s outer / 1060.4s durationMs |

@@ -4,7 +4,10 @@
 // model for landing. Each snapshot is the origin's main after one published
 // step; the browser journey serves those exact Git bytes. The fixture supplies
 // only the queued trunk and the owned workspaces, never a Preparing profile.
+// The journey is read-only once published, so each worker builds it once and
+// removes the bare origin at exit.
 
+import { rmSync } from "node:fs";
 import {
   identityA,
   identityB,
@@ -14,11 +17,12 @@ import {
   abandonPreparation,
   createPreparationTrunk,
   createWorkspace,
+  git,
   identityC,
+  linkC,
   lsRemoteSha,
   planStoryC,
   publishAssignment,
-  git,
   recorder,
   refineStoryC,
   releasePreparation,
@@ -117,13 +121,15 @@ const record = (workspace: string, ...facts: string[]) =>
     "--identity",
     identityC,
     "--link",
-    "seeds/C.md#c",
+    linkC,
     "--refinement",
     "refined",
     ...facts,
   );
 
-export async function publishPreparingJourney(): Promise<PreparingJourney> {
+let preparingJourney: Promise<PreparingJourney> | undefined;
+
+async function buildPreparingJourney(): Promise<PreparingJourney> {
   const trunk = await createPreparationTrunk();
   try {
     const queued = await remoteMain(trunk);
@@ -163,12 +169,7 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
     ];
     await record(planning.workspace, ...planned);
     const { basis } = JSON.parse(
-      await recorder(
-        planning.workspace,
-        "read-state",
-        "--link",
-        "seeds/C.md#c",
-      ),
+      await recorder(planning.workspace, "read-state", "--link", linkC),
     ) as { basis: { document: string; plan: string } };
     await record(
       planning.workspace,
@@ -188,9 +189,35 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
     const second = await start(trunk, "a-second", identityA);
     const conflicting = await remoteMain(trunk);
 
+    await git(trunk.integration, "config", "user.name", "Later Allocator");
+    await publishAssignment(trunk, agentNameOf(refining.agent), {
+      activity: "preparation",
+      identity: identityA,
+      host: "cursor",
+      model: "later-model",
+    });
+    const reused = await remoteMain(trunk);
+    await git(trunk.origin, "update-ref", "refs/heads/main", conflicting);
+
+    for (const tree of [
+      trunk.integration,
+      refining.workspace,
+      reconsidering.workspace,
+      planning.workspace,
+      first.workspace,
+      second.workspace,
+    ]) {
+      rmSync(tree, { recursive: true, force: true });
+    }
+    process.once("exit", () => {
+      rmSync(trunk.fixture, { recursive: true, force: true });
+    });
+
     return {
       origin: trunk.origin,
-      cleanup: trunk.cleanup,
+      cleanup: async () => {
+        await git(trunk.origin, "update-ref", "refs/heads/main", conflicting);
+      },
       queued,
       announced,
       refiningAllocation: refining.publication,
@@ -198,16 +225,7 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
       abandoned,
       plannedLanded,
       planningAnnounced,
-      reuseRefiner: async () => {
-        await git(trunk.integration, "config", "user.name", "Later Allocator");
-        await publishAssignment(trunk, agentNameOf(refining.agent), {
-          activity: "preparation",
-          identity: identityA,
-          host: "cursor",
-          model: "later-model",
-        });
-        return remoteMain(trunk);
-      },
+      reuseRefiner: () => Promise.resolve(reused),
       conflicting,
       preparers: {
         refining: refining.agent,
@@ -220,4 +238,12 @@ export async function publishPreparingJourney(): Promise<PreparingJourney> {
     await trunk.cleanup();
     throw error;
   }
+}
+
+export function publishPreparingJourney(): Promise<PreparingJourney> {
+  preparingJourney ??= buildPreparingJourney().catch((error: unknown) => {
+    preparingJourney = undefined;
+    throw error;
+  });
+  return preparingJourney;
 }
