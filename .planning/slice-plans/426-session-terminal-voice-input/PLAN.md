@@ -125,6 +125,11 @@ Sizing: one recoverable pending-result transition and proof loop, using the
 sender and capture adapter delivered in slice 1. No separate UI, test-only,
 or persistence slice is needed.
 
+## Execution complete
+
+Product advice: No additional product work recommended. Maintained normal,
+lifecycle and recovery journeys cover this intent while retaining launch behavior.
+
 ## Verification and delivery constraints
 
 Use the installed execution workflow when execution is explicitly requested;
@@ -236,6 +241,8 @@ observer `/tmp/dough-ci-501/watch-M6Cudd` reused for each accepted revision.
 - CI dates/observations: `f999ae22a2d56f467953a434f7536587c5cebf54`; suffix base `e352b41c20dc7dfb9655353a2a15cc5b967939f1`.
 - CI geometry: `d1919b368e687df9233334face13f9f1789f6f3a`; suffix base `f999ae22a2d56f467953a434f7536587c5cebf54`.
 
-Current candidate and slice2 previously published base: `d1919b368e687df9233334face13f9f1789f6f3a`.
+- Slice2: `6c2d87444ac11423c250b5a301452edd0c561b77`; suffix base `d1919b368e687df9233334face13f9f1789f6f3a`.
+
+Latest implementation and completion-record publication base: `6c2d87444ac11423c250b5a301452edd0c561b77`.
 Both sanctioned CI stash restores returned resumed/applied and dropped only their
 recorded OIDs; final recovery code/proof and coordinator records restored cleanly.

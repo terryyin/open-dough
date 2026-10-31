@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 372. Removed numbers are never reused.
+- Highest allocated local number: 373. Removed numbers are never reused.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
@@ -94,6 +94,15 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
   - Evidence: fresh `/root/refactor_ci_weights` and `/root/refactor_rejected_allocation` returns both report `none — already clean`, no edits/tests, approximately ten and seven active minutes respectively; the latter independently checked all four restored weight files against the baseline. Recoverable plan: `783d6bda38ab381e686bfb63500b97970dc8817f:.planning/slice-plans/375-dashboard-ci-balance/PLAN.md`.
   - Observed effect: two independent refactor handoffs made no changes on one data-only experiment and its explicit rejection; accepted proof remained applicable.
   - Inference: qualified recurrence of fixed review cost on small accepted changes. Durations are agent estimates, not stopwatch/token totals, and confirming restoration and proof boundaries may add confidence; no claim that either review was valueless or that skipping it would produce a measured saving.
+
+
+- Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
+  - Timestamp: unknown (2026-10-31 execution conversation)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: `/root/ci_refactor` and `/root/geometry_refactor` returned “none — already clean,” no edits/tests, estimating seven and ten active minutes; `/root/refactor_2` shortened one documentation line and estimated six minutes. Related acceptance records are recoverable at `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/`.
+  - Observed effect: two mandatory independent CI-repair refactor handoffs made no edits; the final slice pass changed only prose. The first slice's independent pass made useful attachment/status/helper refactors and renewed their affected proof.
+  - Inference: qualified recurrence of fixed review overhead on small accepted repairs; durations are agent estimates, not measured wall/token totals. Proof correspondence adds confidence; no measured claim that omitting review would save the full estimates.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
@@ -799,3 +808,20 @@ DD-371 already named the typecheck finding.
   - Evidence: implementer subagent `601f21c0-cc39-46fd-a4b7-263994c68126` first return Gaps (“Copy-from-install onto a missing wire helper path has no separate focused assertion (address-drift repair is what the specs hit)”; stop-one-session not freshly asserted); coordinator source-review/`PLAN.md` obligations G1/G2; resume closed wire-delete via `OPEN_DOUGH_CURSOR_SPAWN_HELPER_PROOF` and stop-several before publish `0921f1f7`. Distinct from ODF-314 (omitted named plan proof rows that then exposed a product defect) and ODF-187 (plan-prescribed nondiscriminating observation): here the story/plan helper-gone condition was substituted by a weaker fixture that still exercised repair.
   - Observed effect: one extra implementation round before acceptance; wire-delete and stop-several entered focused proof; no escaped product defect
   - Inference: qualified. Source-review comparison to the story’s deleted-checkout example was the decisive catch; preferring the production retirement fixture (delete the wire helper the runner still reports) on the first pass would avoid the resume. No measured token or duration saving claimed.
+
+## DD-373 — Bounded failed-job tails omit earlier failing test identities
+
+The CI diagnostic retains a bounded tail around GitHub error markers. When a
+job reports several failed tests before its final process-exit marker, that
+tail can expose only the last failure despite other tests already failing in
+the same attempt. A complete failure-name summary is needed before selecting
+the repair scope; long raw logs need not enter coordinator context.
+
+### Occurrences
+- Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
+  - Timestamp: unknown (2026-10-31 CI repair, run 41166733510 attempt 1)
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: installed `ci-github-diagnostic.mjs::failedLogExcerpt` keeps at most80 lines and favors the latest error tail. Short diagnostics for jobs124435809061 and124435809098 omitted actual failures in `boundary/agent-terminal-codex.spec.ts` and `cursor-session-recovery.spec.ts`; a subsequent full seven-job `FAIL:` inventory recovered thirteen failed tests before repair publication. Inventory and disposition are retained in `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/ci-repair-evidence.md`.
+  - Observed effect: initial bounded repair selection covered four stale-date specs; reading complete failure identities added two already-failing specs and one additional focused selection. No failure was silently accepted and the combined repair was published once.
+  - Inference: tool-output completeness issue, distinct from ODF-221's repair leaving a known same-cause sibling until a later run. Consider returning every failed test identity alongside bounded diagnostic excerpts; token/time savings are unmeasured.
