@@ -12,6 +12,8 @@ import type {
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { rawRequest } from "./rawHttp.ts";
+import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
 export function observationRecord(
   server: Pick<DashboardServer, "home">,
@@ -55,6 +57,22 @@ export async function observationStates(
   server: DashboardServer,
 ): Promise<LaunchWithState[]> {
   return (await machineSessions(server)) as LaunchWithState[];
+}
+// The machine's sessions ask, answered as sent: its status and exact body.
+export function sessionsRequest(server: DashboardServer): RawRequestOptions {
+  return {
+    url: `${server.baseURL}/__agent-launch`,
+    headers: { Origin: server.origin },
+  };
+}
+export function askSessions(server: DashboardServer): Promise<RawResponse> {
+  return rawRequest(sessionsRequest(server));
+}
+// Each record's session state in a sessions answer body.
+export function sessionStatesIn(body: string): unknown[] {
+  return (
+    JSON.parse(body) as { records: { sessionState: unknown }[] }
+  ).records.map(({ sessionState }) => sessionState);
 }
 export function observed(
   native: FakeCodex,

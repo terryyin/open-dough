@@ -58,6 +58,14 @@ type HeldDocument = {
 
 const heldDocuments = new Map<string, HeldDocument>();
 
+// How many documents this server replaced so far, so a derived observation
+// can tell it predates one of this server's own writes.
+let replacements = 0;
+
+export function machineJsonReplacements(): number {
+  return replacements;
+}
+
 // How long after a file's modification its identity is trusted to tell it
 // apart from a later replacement.
 const settledIdentityNs = 1_000_000_000n;
@@ -215,6 +223,7 @@ export async function replaceMachineJson<T>(
     if (next === leaveMachineJson) return;
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
     await rename(temporary, file);
+    replacements += 1;
   } finally {
     try {
       await rm(temporary, { force: true });

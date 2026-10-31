@@ -13,9 +13,7 @@ stay as current and correct as today. The source owns the complete scope,
 decisions (1 s settled reuse, join-in-flight Cursor reads, unchanged answers,
 bounded wait with a retryable answer), deferred promises, and key examples.
 
-Exclusions: GitHub revision-check sharing (sibling story
-`SEED-202#shared-github-revision-checks`). This plan gives no shared-observation
-promise to story-specific reads (`stateOf`, recorded lookups, verification);
+Exclusions: This plan gives no shared-observation promise to story-specific reads (`stateOf`, recorded lookups, verification);
 they get the document reuse for free. Terminal streams and browser-side
 retention are also out of scope.
 
@@ -182,7 +180,7 @@ an identity. Slice 2's settled-reuse window absorbs those extra parses.
 
 ### 2. Viewers and the notification observer share one machine-session observation
 Type: Behavior
-Status: planned
+Status: done
 Proof: new boundary spec for examples 1, 2, and 5 with the Codex native
 fixture's call counts and held reads; the existing `session-alerts-helper.spec.ts`
 and `agent-launch-session-listing.spec.ts` green; a UI check that a 503
@@ -195,6 +193,30 @@ Each waiter is bounded by the read wait, and past it receives a retryable
 503. A departing waiter leaves the observation running for the others. A
 project catalog change starts a new observation. The body is serialized once
 per observation.
+
+Accepted proof (2026-10-31): `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/agent-launch-codex-observation-sharing.spec.ts dashboard/tests/boundary/agent-launch-codex-observation-wait.spec.ts dashboard/tests/boundary/shared-observation.spec.ts dashboard/tests/boundary/agent-launch-codex-observation-status.spec.ts --reporter=list`
+→ 11 passed after refactoring; `dashboard/tests/agent-launch-sessions-unanswered.spec.ts`
+(503 keeps listed sessions; a hidden page aborts its read) passed. Before the
+test-only refactor, the whole `dashboard/tests/boundary` directory (882), 146 UI
+journeys over the session list and alerts, and `bash scripts/test.sh` passed.
+
+Learnings:
+- The observation key is the catalog array reference, this server's machine
+  document write count, and the identity of every `*.json` in the machine
+  folder. So record writes by any process stay visible on the next read, and
+  only native-session and installation facts take the 1 s window. Nothing in
+  the observation itself writes a machine document. Slice 4's measurement
+  confirms one observation per window on this machine.
+- The test harness defaults `DOUGH_SESSIONS_REUSE_MS` to 1 ms. Journeys that
+  freeze page time expect each pace to show a native change. Reuse specs pass
+  `sessionsReuseMs: 1_000`, and in-flight joining runs everywhere.
+- The latest settled observation, about 9 MB serialized on this machine, stays
+  in memory until the next demand. Slice 4's heap measurement includes it.
+- The first CI run on slice 1 (`41188326936`) failed only `lint` and
+  `dashboard (8/12)`. Both stopped at the npm install step with "npm source
+  stalled: acquisition deadline exceeded", which is infrastructure. Every other
+  job passed, including the shards with slice 1's specs. Slice 2's push reruns
+  them.
 
 ### 3. A viewer holding the current observation receives an unchanged answer
 Type: Behavior

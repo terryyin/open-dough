@@ -57,6 +57,12 @@ export type FakeClaudeOptions = {
   // How often the server reads the sessions to alert; an hour when unset, so
   // only a test about alerts sees the server read the sessions on its own.
   readonly alertCheckMs?: number | undefined;
+  // How long a settled sessions observation answers later reads
+  // (`../../server/machineSessionObservation.ts`); 1 ms when unset, so a read
+  // after a native or installation change observes it, as journeys that hold
+  // page time and alert polls expect. A spec about reuse sets the production
+  // second.
+  readonly sessionsReuseMs?: number | undefined;
   // How often the server checks whether feedback maintenance is due; an hour
   // when unset, so only a test about that check sees it after the first.
   readonly maintenanceCheckMs?: number | undefined;
@@ -162,6 +168,7 @@ export function installFakeClaude(
     env["DOUGH_LAUNCH_TIMEOUT_MS"] = String(options.launchTimeoutMs);
   }
   env["DOUGH_ALERT_CHECK_MS"] = String(options.alertCheckMs ?? 3_600_000);
+  env["DOUGH_SESSIONS_REUSE_MS"] = String(options.sessionsReuseMs ?? 1);
   env["DOUGH_MAINTENANCE_CHECK_MS"] = String(
     options.maintenanceCheckMs ?? 3_600_000,
   );

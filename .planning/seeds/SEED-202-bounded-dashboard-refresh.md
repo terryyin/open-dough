@@ -72,9 +72,7 @@ refresh frequency, while session state stays as current and correct as today.
   host listings. A project catalog change starts a new observation instead of
   reusing one from the earlier catalog.
 
-**Deferred promises:** Sharing GitHub-backed revision checks across viewers
-moves to [Share GitHub revision checks across viewers](#shared-github-revision-checks).
-Story-specific session reads (`stateOf`, recorded lookups, launch
+**Deferred promises:** Story-specific session reads (`stateOf`, recorded lookups, launch
 verification) may adopt the parsed-document reuse but get no shared-observation
 promise here. Terminal-stream flow control, browser-side retention, and other
 dashboard memory sources remain separate concerns.

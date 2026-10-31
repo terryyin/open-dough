@@ -3,17 +3,11 @@ import type { ServerResponse } from "node:http";
 import type {
   Acceptance,
   ChangedAnswer,
-  Alerts,
-  AttemptObservation,
-  KeptStart,
-  RunningStart,
-  OfferedDefinition,
   LaunchWithState,
   ReconciledAnswer,
   VerifiedAnswer,
 } from "../src/agentLaunch.ts";
 import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
-import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import type { RunningCursorSessions } from "../src/cursorRunnerSessions.ts";
 import type { RecoverSessionAnswer } from "../src/sessionRecovery.ts";
 import type { FinalReportRead } from "../src/finalReportContract.ts";
@@ -24,9 +18,6 @@ import type {
   StoryReview,
   ReviewRange,
 } from "../src/storyReviewContract.ts";
-import type { AgentLaunches } from "./agentLaunches.ts";
-import type { hostOperations } from "./launchHosts.ts";
-
 import type { LaunchHostOptions } from "../src/launchHostOptions.ts";
 
 import type { submitCompletion } from "./completionReporting.ts";
@@ -52,27 +43,8 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: ChangedAnswer }
   | { readonly status: number; readonly body: ReconciledAnswer }
   | { readonly status: number; readonly body: VerifiedAnswer }
-  | {
-      readonly status: number;
-      readonly body: {
-        records: readonly LaunchWithState[];
-        attempts: readonly AttemptObservation[];
-        attemptsReadable: boolean;
-        hostOperations: ReturnType<typeof hostOperations>;
-        creations: Awaited<ReturnType<AgentLaunches["creations"]>>;
-        alerts: Alerts;
-        establishing: readonly string[];
-        establishingPreparation: readonly string[];
-        keptStarts: readonly KeptStart[];
-        starts: readonly RunningStart[];
-        definitions: readonly OfferedDefinition[];
-        establishingHosts: Awaited<
-          ReturnType<AgentLaunches["establishingHosts"]>
-        >;
-        sessionPolicies: Awaited<ReturnType<AgentLaunches["sessionPolicies"]>>;
-        workspaces: readonly LocalWorkspace[];
-      };
-    }
+  // An answer serialized once and shared (`./machineSessionObservation.ts`).
+  | { readonly status: number; readonly serialized: string }
   | { readonly status: number; readonly body: { record: LaunchWithState } }
   | { readonly status: number; readonly body: DeleteRecordAnswer }
   | { readonly status: number; readonly body: RecoverSessionAnswer }
@@ -80,14 +52,16 @@ export type AgentLaunchAnswer =
 
 export function respondToLaunch(
   res: ServerResponse,
-  { status, body }: AgentLaunchAnswer,
+  answer: AgentLaunchAnswer,
 ): void {
   if (res.writableEnded || res.destroyed) {
     return;
   }
-  res.writeHead(status, {
+  res.writeHead(answer.status, {
     "Cache-Control": "no-store",
     "Content-Type": "application/json",
   });
-  res.end(JSON.stringify(body));
+  res.end(
+    "serialized" in answer ? answer.serialized : JSON.stringify(answer.body),
+  );
 }

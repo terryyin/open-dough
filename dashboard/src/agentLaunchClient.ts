@@ -214,11 +214,13 @@ export async function requestLaunchVerification(
 // project, each naming its project, oldest first within it, with its
 // session's current state, and whether the server can alert, or undefined
 // when no trustworthy answer came.
-export async function readMachineSessions(): Promise<
-  MachineAnswer | undefined
-> {
+export async function readMachineSessions(
+  signal?: AbortSignal,
+): Promise<MachineAnswer | undefined> {
   try {
-    const response = await fetch(agentLaunchEndpoint);
+    const response = await fetch(agentLaunchEndpoint, {
+      signal: signal ?? null,
+    });
     if (!response.ok) return undefined;
     const answer = launchRecordsSchema.safeParse(await response.json());
     return answer.success ? answer.data : undefined;

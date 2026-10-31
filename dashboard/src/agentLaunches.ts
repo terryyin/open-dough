@@ -150,11 +150,14 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   useEffect(() => {
     if (visibility === "hidden") return;
     let current = true;
+    // A read this effect no longer wants, such as once the page is hidden,
+    // stops waiting; other viewers' observation goes on.
+    const unwanted = new AbortController();
     const read = () => {
       const askedAt = Date.now();
       asks.current += 1;
       const ask = asks.current;
-      void readMachineSessions().then((answered) => {
+      void readMachineSessions(unwanted.signal).then((answered) => {
         if (!current) return;
         if (answered !== undefined) {
           const { records, ...facts } = answered;
@@ -188,12 +191,14 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       read();
       return () => {
         current = false;
+        unwanted.abort();
       };
     }
     const waiting = setTimeout(read, checkIntervalMs);
     return () => {
       current = false;
       clearTimeout(waiting);
+      unwanted.abort();
     };
   }, [visibility, readsSettled, settleRevealed, requested, projects]);
 
