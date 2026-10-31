@@ -80,9 +80,10 @@ export function LaunchAttachments({
         ref={input}
         id={inputId}
         type="file"
-        className="launch-attachments-input"
         accept={launchAttachmentAccept}
         multiple
+        hidden
+        tabIndex={-1}
         disabled={disabled || items.length >= launchAttachmentMaxCount}
         onChange={(event) => {
           const target = event.currentTarget;

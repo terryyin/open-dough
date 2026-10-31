@@ -6,21 +6,21 @@ test("developerPart is undefined when there is no text and no attachments", () =
   expect(developerPart({ instruction: "   " })).toBeUndefined();
 });
 
-test("developerPart returns trimmed text alone when there are no attachments", () => {
+test("developerPart keeps exact typed bytes alone when there are no attachments", () => {
   expect(developerPart({ instruction: "  Why clipped?  " })).toBe(
-    "Why clipped?",
+    "  Why clipped?  ",
   );
 });
 
-test("developerPart appends a numbered Attached images list after text", () => {
+test("developerPart appends a numbered Attached images list after exact text", () => {
   expect(
     developerPart({
-      instruction: "Why is this card clipped?",
+      instruction: " Why is this card clipped?\t",
       attachments: ["/tmp/launch-attachments/a/1-card-b.png"],
     }),
   ).toBe(
     [
-      "Why is this card clipped?",
+      " Why is this card clipped?\t",
       "",
       "Attached images:",
       "1. /tmp/launch-attachments/a/1-card-b.png",

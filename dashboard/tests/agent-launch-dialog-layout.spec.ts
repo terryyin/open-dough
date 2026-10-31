@@ -94,6 +94,7 @@ test("the instruction comes first, the summaries name the selection, and the com
   // Keyboard order follows the reading order.
   for (const next of [
     dialog.getByRole("button", { name: "Record", exact: true }),
+    dialog.getByRole("button", { name: "Attach images" }),
     host,
     model,
     dialog.getByRole("radio", { name: "Standard" }),

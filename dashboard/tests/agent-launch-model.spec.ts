@@ -159,7 +159,7 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   expect(second?.argv).not.toContain("--model");
 });
 
-test("the dialog opens in the instruction field, and Tab reaches Record, Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
+test("the dialog opens in the instruction field, and Tab reaches Record, Attach images, Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
   page,
   dashboard,
   launchJourney,
@@ -173,6 +173,7 @@ test("the dialog opens in the instruction field, and Tab reaches Record, Host, M
   ).toBeFocused();
   for (const next of [
     dialog.getByRole("button", { name: "Record", exact: true }),
+    dialog.getByRole("button", { name: "Attach images" }),
     dialog.getByRole("combobox", { name: "Host" }),
     modelOf(dialog),
     dialog.getByRole("radio", { name: "Standard" }),

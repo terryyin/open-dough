@@ -23,15 +23,17 @@ export const launchAttachmentUnsupportedType =
 export const launchAttachmentTooMany = "At most 5 images";
 export const launchAttachmentEmpty = "The image is empty.";
 
-// The developer's part of the first input: trimmed text, then a blank line and
-// the attached-images path list when the request names any. The list is not
-// part of the 4,000-character instruction field.
+// The developer's part of the first input: typed text with its exact bytes
+// when the field is not blank after trim, then a blank line and the
+// attached-images path list when the request names any. The list is not
+// part of the 4,000-character instruction field. Trim decides emptiness;
+// a present text keeps every typed byte.
 export function developerPart(request: {
   readonly instruction?: string | undefined;
   readonly attachments?: readonly string[] | undefined;
 }): string | undefined {
-  const text = request.instruction?.trim();
-  const own = text === undefined || text === "" ? undefined : text;
+  const text = request.instruction;
+  const own = text?.trim() ? text : undefined;
   const paths = request.attachments ?? [];
   const list =
     paths.length === 0
