@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-204_attach-image-at-launch.json",
+      "identity": "SEED-204#attach-image-at-launch",
+      "completedAt": "2026-10-31T12:10:12.357Z",
+      "blob": "94ccdf8ccd4837f82c9941ef0786833f7596d0a7"
+    },
+    {
       "fileName": "SEED-197_optimize-dashboard-test-feedback.json",
       "identity": "SEED-197#optimize-dashboard-test-feedback",
       "completedAt": "2026-10-31T09:30:53.784Z",

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-204#attach-image-at-launch",
+  "title": "Attach an image when starting a session",
+  "completedAt": "2026-10-31T12:10:12.357Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header ([plan](slice-plans/424-responsive-project-header/PLAN.md))
 - [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame ([plan](slice-plans/424-development-intent-frame/PLAN.md))
 - [Keep dashboard refresh work bounded across viewers](seeds/SEED-202-bounded-dashboard-refresh.md#bounded-dashboard-refresh) — SEED-202#bounded-dashboard-refresh ([plan](slice-plans/426-bounded-dashboard-refresh/PLAN.md))
-- [Attach an image when starting a session](seeds/SEED-204-attach-image-at-launch.md#attach-image-at-launch) — SEED-204#attach-image-at-launch ([plan](slice-plans/427-attach-image-at-launch/PLAN.md))
 
 ## Backlog list
 
