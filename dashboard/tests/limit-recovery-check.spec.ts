@@ -6,7 +6,7 @@
 // instead and exclude checks while it stands (./transient-recovery-lifecycle.spec.ts).
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { limiting } from "./limitedReadingJourney.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
@@ -43,7 +43,7 @@ test("after a limited check, with nothing withheld, the page makes its next chec
   github.serve(repository, answers.answer);
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
-  const { backlog, problem, source } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const unreachableCard = backlog.getByRole("article", {
     name: unreachableTitle,
   });
@@ -58,8 +58,8 @@ test("after a limited check, with nothing withheld, the page makes its next chec
   await passTimeUntilChecked(page);
   await expectSettledPage(page, titlesBesideUnreachable);
   await expect(problem).toHaveCount(0);
-  await expect(source).toContainText(revision);
-  await expect(source.locator("time")).toHaveAttribute(
+  await expect(readRevision).toContainText(shortRevision(revision));
+  await expect(parts(page).retrievedAt).toHaveAttribute(
     "datetime",
     opened.toISOString(),
   );

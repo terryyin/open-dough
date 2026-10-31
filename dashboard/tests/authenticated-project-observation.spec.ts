@@ -13,6 +13,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectMembership,
   expectSettledPage,
   openDirection,
@@ -72,11 +73,17 @@ test("authenticated project observation: each catalog project opens and reloads 
     );
   }
   await page.goto(server.baseURL);
-  const { project: selector, direction, source, problem } = parts(page);
+  const {
+    project: selector,
+    direction,
+    projectTitle,
+    problem,
+    readRevision,
+  } = parts(page);
 
   for (const published of projects) {
     const calls = observed.get(published.repository) ?? [];
-    await test.step(`${published.label} renders its own backlog, detail, and source evidence read through local gh`, async () => {
+    await test.step(`${published.label} renders its own backlog and detail read through local gh`, async () => {
       await selector
         .getByRole("radio", { name: published.label, exact: true })
         .check();
@@ -86,11 +93,15 @@ test("authenticated project observation: each catalog project opens and reloads 
       });
       await openDirection(page);
       await expect(direction).toContainText(published.direction);
-      await expect(source).toContainText(published.repository);
-      await expect(source).toContainText(published.revision);
+      await expect(projectTitle).toHaveText(published.label);
+      await expect(readRevision).toContainText(
+        shortRevision(published.revision),
+      );
       for (const other of projects.filter((p) => p !== published)) {
         await expect(page.locator("body")).not.toContainText(other.taken);
-        await expect(source).not.toContainText(other.revision);
+        await expect(readRevision).not.toContainText(
+          shortRevision(other.revision),
+        );
       }
 
       const takenStoryCard = page.getByRole("article", {
@@ -133,7 +144,9 @@ test("authenticated project observation: each catalog project opens and reloads 
     await test.step(`reloading ${published.label} resolves ${published.ref} again through local gh`, async () => {
       const before = calls.length;
       await reloadUntilRead(page);
-      await expect(source).toContainText(published.revision);
+      await expect(readRevision).toContainText(
+        shortRevision(published.revision),
+      );
       await expect.poll(() => calls.length).toBeGreaterThan(before);
       expect(calls[before]?.argv).toEqual([
         "api",
@@ -171,7 +184,7 @@ test("authenticated project observation: each catalog project opens and reloads 
       taken: [doughnut.taken],
       backlog: [doughnut.queued],
     });
-    await expect(source).toContainText(doughnut.revision);
+    await expect(readRevision).toContainText(shortRevision(doughnut.revision));
     await expect(problem).toHaveCount(0);
   });
 

@@ -7,7 +7,12 @@ import {
   zoomedWindow,
 } from "./accessibleReading.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts, expectSettledPage } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  expectSettledPage,
+  parts,
+  shownProjectControl,
+} from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
@@ -63,12 +68,7 @@ test.describe("touch preparation help", () => {
     await expect(dialog).not.toBeVisible();
     await expect(launcher).toBeFocused();
     await expect.poll(() => scrollYOf(page)).toBe(scroll);
-    await expect(
-      parts(page).project.getByRole("radio", {
-        name: "Open Dough",
-        exact: true,
-      }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Open Dough");
     expect(origin.requests.length).toBe(reads);
   });
 });
@@ -90,7 +90,7 @@ for (const viewport of [
     await page.setViewportSize(viewport.size);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openUntilRead(page);
-    const { taken, project } = parts(page);
+    const { taken } = parts(page);
     const ready = taken.getByRole("article", { name: plannedReady.title });
     await expect(
       ready.getByText("Ready for execution", { exact: true }),
@@ -187,18 +187,17 @@ for (const viewport of [
     await expect(close).toBeFocused();
     // Native modal inertness blocks even an explicit attempt to focus the
     // background. A pointer at the selector likewise cannot interact with it.
-    await project.getByRole("radio", { checked: true }).evaluate((element) => {
+    const selectedProject = shownProjectControl(page);
+    await selectedProject.evaluate((element) => {
       (element as HTMLElement).focus();
     });
     await expect(close).toBeFocused();
-    const projectBox = await box(project);
+    const projectBox = await box(selectedProject);
     await page.mouse.click(
       projectBox.x + 4,
       projectBox.y + projectBox.height / 2,
     );
-    await expect(
-      project.getByRole("radio", { checked: true }),
-    ).not.toBeFocused();
+    await expect(selectedProject).not.toBeFocused();
     await expect(dialog).toBeVisible();
     expect(origin.requests.length).toBe(reads);
     // Hit-testing inside the dialog reaches its content, even where its

@@ -3,7 +3,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
@@ -41,9 +41,7 @@ export async function openHeldPublication(page: Page, facts: PublishedFacts) {
 export async function publishedReadState(page: Page) {
   return {
     status: await parts(page).status.textContent(),
-    retrieved: await parts(page)
-      .source.locator("time")
-      .getAttribute("datetime"),
+    retrieved: await parts(page).retrievedAt.getAttribute("datetime"),
   };
 }
 
@@ -52,7 +50,7 @@ export async function expectPublishedReadState(
   saved: Awaited<ReturnType<typeof publishedReadState>>,
 ) {
   await expect(parts(page).status).toHaveText(saved.status ?? "");
-  await expect(parts(page).source.locator("time")).toHaveAttribute(
+  await expect(parts(page).retrievedAt).toHaveAttribute(
     "datetime",
     saved.retrieved ?? "",
   );
@@ -70,7 +68,9 @@ export async function expectOnlyDoughnut(
   await expect(
     parts(page).project.getByRole("radio", { name: "Doughnut", exact: true }),
   ).toBeChecked();
-  await expect(parts(page).source).toContainText(revisionDoughnut);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionDoughnut),
+  );
   await expect(shown.card).toContainText(doughnutSharedGoal);
   await expect(
     shown.card.getByRole("button", { name: "Hide detail" }),

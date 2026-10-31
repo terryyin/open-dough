@@ -4,7 +4,7 @@
 // reading resumes, and asks nothing until then (./limitedReadingJourney.ts).
 
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import {
   isContent,
@@ -49,16 +49,16 @@ test("limiting a detail read keeps the snapshot, labels what the limit withheld,
   await expectSettledPage(page, titles);
   const resumesAt = opened.getTime() + waitSeconds * 1_000;
   const until = await limitedUntil(page, resumesAt);
-  const { backlog, source, problem, status } = parts(page);
+  const { backlog, problem, status, readRevision } = parts(page);
 
   await test.step("the snapshot stays with its revision and retrieval time, each withheld detail is labeled one way with what was withheld and the limit's time, and one notice says when reading resumes", async () => {
-    await expect(source).toContainText(revision);
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(readRevision).toContainText(shortRevision(revision));
+    await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
       opened.toISOString(),
     );
     await expect(status).toContainText(
-      `Published work read at revision ${revision.slice(0, 7)}`,
+      `Published work read at revision ${shortRevision(revision)}`,
     );
     const withheldCard = backlog.getByRole("article", { name: withheldTitle });
     // GitHub refused the seed; the page did not ask for the plan. Both are

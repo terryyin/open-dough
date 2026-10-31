@@ -11,6 +11,7 @@ import {
 import { columnPagingControl, rem, showColumn } from "./boardPage.ts";
 import {
   expectMembership,
+  shortRevision,
   parts,
   sessionNamedBy,
   sessionStateOf,
@@ -135,7 +136,9 @@ test("one Taken story with two sessions and one local session means two entries;
   await expect(taken.locator(".column-count")).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(recentlyDone.locator(".session-entry")).toHaveCount(3);
-  await expect(parts(page).source).toContainText("d3".repeat(20));
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision("d3".repeat(20)),
+  );
   expect(
     (await savedLocalSessionRecords(dashboard)).every(
       (record) => record.doneAt !== undefined,

@@ -17,6 +17,7 @@ import {
   startSessionField,
 } from "./launchStoryCardPage.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   projectAddMachine,
   addedRepository,
@@ -40,9 +41,9 @@ test("Add selects, reads the repository's default branch, launches in its config
     page.getByRole("radio", { name: "Open Dough", exact: true }),
   ).toBeChecked();
   await addProjectOnPage(page);
-  const source = page.getByRole("region", { name: "Published Git state" });
-  await expect(source).toContainText(addedRepository);
-  await expect(source).toContainText(addedRevision);
+  const { projectTitle, readRevision } = parts(page);
+  await expect(projectTitle).toHaveText("Sample App");
+  await expect(readRevision).toContainText(shortRevision(addedRevision));
   expect(server.ghCalls()).toContainEqual([
     "api",
     "--include",
@@ -94,9 +95,9 @@ test("Add selects, reads the repository's default branch, launches in its config
   await expect(
     page.getByRole("radio", { name: "Sample App", exact: true }),
   ).toBeChecked();
-  await expect(
-    page.getByRole("region", { name: "Published Git state" }),
-  ).toContainText(addedRevision);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(addedRevision),
+  );
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     saved,
   );

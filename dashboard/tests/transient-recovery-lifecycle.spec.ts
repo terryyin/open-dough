@@ -10,6 +10,7 @@ import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
   expectSettledPage,
+  shortRevision,
   parts,
 } from "./dashboardPage.ts";
 import {
@@ -62,7 +63,6 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -96,7 +96,9 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
     expect(mainReads(origin)).toBe(2);
     await inspectDashboardStory(page);
     await expectSettledPage(page, titlesOfA);
-    await expect(parts(page).source).toContainText(revisionA);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(revisionA),
+    );
     await expect(parts(page).problem).toHaveCount(0);
   });
 });
@@ -112,7 +114,6 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -121,7 +122,6 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   await expectProblemAndNoSnapshot(
     other,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(other);
@@ -209,7 +209,6 @@ test("an ordinary transient failure does not hold back another project's reads",
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -223,6 +222,8 @@ test("an ordinary transient failure does not hold back another project's reads",
     backlog: [doughnutSharedTitle],
   });
   await expect(parts(page).problem).toHaveCount(0);
-  await expect(parts(page).source).toContainText(revisionDoughnut);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionDoughnut),
+  );
   expect(pathsRead(doughnut).some((path) => path === "main")).toBe(true);
 });

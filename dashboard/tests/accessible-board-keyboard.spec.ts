@@ -4,7 +4,7 @@ import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
 } from "./accessibleReading.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, parts, shortRevision } from "./dashboardPage.ts";
 import { enabledStoryCardLaunchActions } from "./storyCardControls.ts";
 import {
   pathsRead,
@@ -28,16 +28,15 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   origin.push(revisionB, backlogB);
   await page.goto("/");
   await expectMembership(page, titlesOfB);
-  const { project, sourceEvidence, directionToggle, backlog, taken } =
-    parts(page);
+  const { project, directionToggle, backlog, taken } = parts(page);
 
   // Reading order is the order of the page's source: Sessions, the project
-  // selector, source evidence, System settings, then direction, Start
-  // session and the badge legend, then each card's controls by column
-  // (Backlog, then Taken): a Backlog card's enabled launch actions, then
-  // Inspect. A card's recorded links are in its detail, not its scan view.
-  // In a wide window Taken stands beside Backlog's first card, so position on
-  // screen would order them differently.
+  // selector, System settings, then direction, Start session and the badge
+  // legend, then each card's controls by column (Backlog, then Taken): a
+  // Backlog card's enabled launch actions, then Inspect. A card's recorded
+  // links are in its detail, not its scan view. In a wide window Taken stands
+  // beside Backlog's first card, so position on screen would order them
+  // differently.
   const stopsFor = async (column: Locator) => {
     const stops: Locator[] = [];
     for (const card of await column.getByRole("article").all()) {
@@ -64,7 +63,6 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   const stops = [
     page.getByRole("button", { name: "Sessions", exact: true }),
     selectedProject,
-    sourceEvidence,
     page.getByRole("button", { name: "System settings", exact: true }),
     directionToggle,
     page.getByRole("button", { name: "Start session in Open Dough" }),
@@ -72,10 +70,10 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     ...(await stopsFor(backlog)),
     ...(await stopsFor(taken)),
   ];
-  // Sessions + selected project radio + Source evidence + System settings +
-  // Direction + Start session + Legend + two Backlog cards' enabled launch
-  // actions + four Inspect.
-  expect(stops).toHaveLength(7 + 2 + 4);
+  // Sessions + selected project radio + System settings + Direction + Start
+  // session + Legend + two Backlog cards' enabled launch actions + four
+  // Inspect.
+  expect(stops).toHaveLength(6 + 2 + 4);
 
   await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
     for (const stop of stops) {
@@ -146,31 +144,29 @@ test("accessible Board announces reading, the read result, and a failure while f
 }) => {
   await pausePageClock(page);
   const origin = await openAtA(page);
-  const { source, status, notice, problem } = parts(page);
-  const retrievedA =
-    (await source.locator("time").getAttribute("datetime")) ?? "";
+  const { status, notice, problem, retrievedAt } = parts(page);
+  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
 
   await test.step("both polite regions are offered before they have anything new to say", async () => {
     await expect(status).toContainText(
-      `Published work read at revision ${revisionA.slice(0, 7)}, retrieved `,
+      `Published work read at revision ${shortRevision(revisionA)}, retrieved `,
     );
     await expect(notice).toBeEmpty();
     expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
       true,
       true,
     ]);
-    // The source evidence already shows the result, so it is not shown twice.
+    // The successful result stays spoken, not shown twice in the chrome.
     expect(
       await box(status.getByText(/^Published work read at revision /)),
     ).toMatchObject({ width: 1, height: 1 });
   });
 
-  // Sessions, the project, the source evidence, then System settings.
+  // Sessions, the project, then System settings.
   const settings = page.getByRole("button", {
     name: "System settings",
     exact: true,
   });
-  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
@@ -195,15 +191,12 @@ test("accessible Board announces reading, the read result, and a failure while f
     await expectMembership(page, titlesOfB);
     await expect(status).toHaveText(
       new RegExp(
-        `^Published work read at revision ${revisionB.slice(0, 7)}, retrieved [^.]+\\.$`,
+        `^Published work read at revision ${shortRevision(revisionB)}, retrieved [^.]+\\.$`,
       ),
     );
-    const retrievedB = await source.locator("time").getAttribute("datetime");
+    const retrievedB = await retrievedAt.getAttribute("datetime");
     expect(retrievedB).not.toBe(retrievedA);
-    await expect(status.locator("time")).toHaveAttribute(
-      "datetime",
-      retrievedB ?? "",
-    );
+    await expect(retrievedAt).toHaveAttribute("datetime", retrievedB ?? "");
     await expect(status).toHaveAttribute("data-known", "[role='status']");
     await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
     await expect(notice).toBeEmpty();

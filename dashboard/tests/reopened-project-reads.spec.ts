@@ -10,7 +10,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import {
@@ -62,11 +62,11 @@ async function expectSettled(
   page: Page,
   { revision, queued }: { revision: string; queued: string },
 ) {
-  const { source, taken } = parts(page);
+  const { taken, readRevision } = parts(page);
   await expectSettledPage(page, { taken: [takenTitle], backlog: [queued] });
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   const card = taken.getByRole("article", { name: takenTitle });
   const progress = card.locator(".story-card-progress");
   await expect(progress).toContainText("From story branch; not in trunk.");
@@ -101,7 +101,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
       ...doughnutRecords,
     },
   });
-  const { project, source } = parts(page);
+  const { project, readRevision } = parts(page);
 
   await page.goto("/");
   await expectSettled(page, { revision: revisionA, queued: queuedTitle });
@@ -132,7 +132,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
       taken: [],
       backlog: [doughnutSharedTitle],
     });
-    await expect(source).toContainText(revisionDoughnut);
+    await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
     const before = origin.requests.length;
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
@@ -150,7 +150,9 @@ test("reopening an unchanged project asks only which commits its ref and story b
       queued: queuedAgainTitle,
     });
     await expect(page.locator("body")).not.toContainText(queuedTitle);
-    await expect(page.locator("body")).not.toContainText(revisionA.slice(0, 7));
+    await expect(page.locator("body")).not.toContainText(
+      shortRevision(revisionA),
+    );
     const asked = askedSince(origin, before);
     expect(asked).toEqual(
       expect.arrayContaining([

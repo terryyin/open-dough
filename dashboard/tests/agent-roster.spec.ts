@@ -24,7 +24,6 @@ import {
   expectRoute,
   openDough,
   publishRosterOrigins,
-  pygardon,
   queuedStory,
   takenStory,
 } from "./agentRosterRecords.ts";
@@ -180,7 +179,8 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expectProblemAndNoSnapshot(
       page,
       backlogUnreadable,
-      pygardon.repository,
+      undefined,
+      "Pygardon",
     );
   });
 });

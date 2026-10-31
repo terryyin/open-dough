@@ -36,7 +36,7 @@ test("limiting a revision check keeps the snapshot, says once when reading resum
   const answer = page.waitForResponse((response) => isCheck(response.url()));
   await passTimeUntilAsked(page);
   expect((await answer).status()).toBe(502);
-  const { source, problem } = parts(page);
+  const { problem } = parts(page);
 
   await expect(problem).toContainText(
     `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of ${repository}. GitHub asked to wait ${String(waitSeconds)} seconds before asking again.`,
@@ -46,8 +46,12 @@ test("limiting a revision check keeps the snapshot, says once when reading resum
   expect(await noticedResumeTime(page)).toBe(resumesAt);
   await expect(problem).toHaveCount(1);
   await expectSettledPage(page, titles);
-  await expect(source).toContainText(revision);
-  await expect(source.locator("time")).toHaveAttribute(
+  // Standing limit / failed check: status names no revision; the alert keeps
+  // the earlier retrieval time and Board membership proves the snapshot.
+  await expect(problem).toContainText(
+    "What is shown is the earlier snapshot, retrieved at",
+  );
+  await expect(problem.locator("time").nth(1)).toHaveAttribute(
     "datetime",
     opened.toISOString(),
   );

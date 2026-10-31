@@ -1,14 +1,14 @@
 // The pinned banner in each of its page-column layouts (../src/banner.css,
 // ../src/project-select.css): one row on a column wider than 800 CSS pixels,
 // ending with System settings; two rows up to 800, Sessions starting the
-// second before the project choices; and, up to 400, the choices wrapped onto
-// their own line, with the wider Verdana installed on the banner to reproduce
-// the Linux first-row wrap. One journey per layout opens the source evidence
-// and walks the keyboard back up a long page: the banner stays pinned and
-// short, Open Dough's mark leads it whole and uncovered, each choice reads on
-// one line, nothing is cut short, and no focused control is hidden under it.
-// A project switch in the banner is the last test: the mark stays Open
-// Dough's while the name and evidence become the newly selected project's.
+// second before the project choices; and, at or under 400, the compact title
+// select instead of the wrapping tab list. One journey per layout walks the
+// keyboard back up a long page: the banner stays pinned and short, Open
+// Dough's mark leads it whole and uncovered, nothing is cut short, and no
+// focused control is hidden under it. Wider layouts also check each choice
+// reads on one line. A project switch in the banner is a later test: the mark
+// stays Open Dough's while the plain title and Board become the newly selected
+// project's. Phone-width compact journeys live in dashboard-header-compact.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -18,7 +18,12 @@ import {
   revision,
 } from "./accessibleBoard.ts";
 import { zoomedWindow } from "./accessibleReading.ts";
-import { parts, expectMembership, expectSettledPage } from "./dashboardPage.ts";
+import {
+  parts,
+  expectCompactProjectSelect,
+  expectMembership,
+  expectSettledPage,
+} from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { expectProductMark } from "./productMark.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
@@ -32,14 +37,14 @@ import { settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 const layouts = [
-  { width: 1280, height: 800, rows: 1 },
-  { width: 700, height: 720, rows: 2 },
-  { ...zoomedWindow, rows: 2, fontFamily: "Verdana" },
+  { width: 1280, height: 800, rows: 1, compact: false },
+  { width: 700, height: 720, rows: 2, compact: false },
+  { ...zoomedWindow, rows: 2, fontFamily: "Verdana", compact: true },
 ] as const;
 
 for (const viewport of layouts) {
   const fontFamily = "fontFamily" in viewport ? viewport.fontFamily : undefined;
-  test(`selected project banner remains reachable and evidence readable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : ""}`, async ({
+  test(`selected project banner remains reachable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : ""}`, async ({
     page,
   }) => {
     await page.setViewportSize({
@@ -50,13 +55,14 @@ for (const viewport of layouts) {
     origin.push(revision, largeBacklog);
     await openUntilRead(page);
     // A wider installed font reproduces the Linux first-row wrapping; the
-    // same geometry, text, disclosure and keyboard promises must still hold.
+    // same geometry, text and keyboard promises must still hold.
     if (fontFamily) {
       await page.addStyleTag({
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, sourceEvidence, source, backlog } = parts(page);
+    const { banner, project, projectCompact, projectTitle, backlog } =
+      parts(page);
     // The last card's last control.
     const last = backlog
       .getByRole("article", { name: queuedTitle(queuedCount) })
@@ -68,10 +74,12 @@ for (const viewport of layouts) {
     await expectSettledPage(page, undefined, { timeout: 15_000 });
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
-    await expect(
-      banner.getByRole("heading", { level: 1, name: "Open Dough" }),
-    ).toBeInViewport({ ratio: 1 });
-    for (const control of [project, settings(page), sourceEvidence]) {
+    const titleControl = viewport.compact ? projectCompact : projectTitle;
+    await expect(titleControl).toBeInViewport({ ratio: 1 });
+    for (const control of [
+      viewport.compact ? projectCompact : project,
+      settings(page),
+    ]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     await expectProductMark(banner);
@@ -82,16 +90,20 @@ for (const viewport of layouts) {
     const pinned = await box(banner);
     expect(pinned.y).toBe(0);
     expect(pinned.height).toBeLessThan(viewport.height / 2);
-    expect(
-      await project.locator(".project-choice span").evaluateAll((choices) =>
-        choices.map((choice) => {
-          const text = document.createRange();
-          text.selectNodeContents(choice);
-          return text.getClientRects().length;
-        }),
-      ),
-    ).toEqual([1, 1, 1, 1]);
-    await expect(sourceEvidence).toContainText("Open Dough");
+    if (viewport.compact) {
+      await expectCompactProjectSelect(page, "Open Dough");
+    } else {
+      expect(
+        await project.locator(".project-choice span").evaluateAll((choices) =>
+          choices.map((choice) => {
+            const text = document.createRange();
+            text.selectNodeContents(choice);
+            return text.getClientRects().length;
+          }),
+        ),
+      ).toEqual([1, 1, 1, 1]);
+      await expect(projectTitle).toHaveText("Open Dough");
+    }
     await expectFrameIconControl(
       sessionsSidebarParts(page).button,
       "Sessions",
@@ -107,7 +119,7 @@ for (const viewport of layouts) {
         const inOrder = [
           mark,
           sessionsSidebarParts(page).button,
-          sourceEvidence,
+          projectTitle,
           project,
           gear,
         ];
@@ -117,9 +129,11 @@ for (const viewport of layouts) {
         );
         for (const middle of middles)
           expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
-        const controls = banner.locator(
-          "button, input, select, textarea, summary, a[href], [tabindex]",
-        );
+        const controls = banner
+          .locator(
+            "button, input, select, textarea, summary, a[href], [tabindex]",
+          )
+          .filter({ visible: true });
         await expect(controls.last()).toHaveAccessibleName("System settings");
         // The mark leads the banner but is no keyboard stop: going back
         // from the first control leaves the banner.
@@ -136,19 +150,6 @@ for (const viewport of layouts) {
       });
     }
 
-    await sourceEvidence.click();
-    await expect(source).toContainText("terryyin/open-dough");
-    await expect(source.getByText(revision, { exact: true })).toBeVisible();
-    await source.locator("time").scrollIntoViewIfNeeded();
-    await expect(source.locator("time")).toBeInViewport({ ratio: 1 });
-    const warning = source.getByText(/Retrieval time is when/);
-    await warning.scrollIntoViewIfNeeded();
-    await expect(warning).toBeInViewport({ ratio: 1 });
-    await expect(warning).toContainText("not commit time");
-    await expect(sourceEvidence).toBeInViewport({ ratio: 1 });
-    await expectProductMark(banner);
-    await expectNoSidewaysScrollAndWholeText(page);
-    await sourceEvidence.click();
     expect(origin.requests).toHaveLength(2);
 
     await last.focus();
@@ -168,7 +169,7 @@ for (const viewport of layouts) {
 test("banner project selection reads the selected project's actual published work", async ({
   page,
 }) => {
-  await page.setViewportSize(zoomedWindow);
+  await page.setViewportSize({ width: 1280, height: 800 });
   const openDough = await publishMovingOrigin(page);
   openDough.push(revision, largeBacklog);
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
@@ -177,8 +178,8 @@ test("banner project selection reads the selected project's actual published wor
     `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
   doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
   await openUntilRead(page);
-  const { banner, project, source, sourceEvidence } = parts(page);
-  await expect(source).toContainText(revision);
+  const { banner, project, projectTitle } = parts(page);
+  await expect(projectTitle).toHaveText("Open Dough");
   await expectProductMark(banner);
   const openDoughChoice = project.getByRole("radio", {
     name: "Open Dough",
@@ -197,17 +198,9 @@ test("banner project selection reads the selected project's actual published wor
     taken: [],
     backlog: ["Doughnut's next story"],
   });
-  await expect(sourceEvidence).toContainText("Doughnut");
   // Open Dough stays the product; the heading names the selected project.
   await expectProductMark(banner);
-  await expect(banner.getByRole("heading", { level: 1 })).toHaveText(
-    "Doughnut",
-  );
-  await sourceEvidence.click();
-  await expect(source).toContainText("nerds-odd-e/doughnut");
-  await expect(source).toContainText("main");
-  await sourceEvidence.click();
-  await expect(source).toContainText(doughnutRevision);
+  await expect(projectTitle).toHaveText("Doughnut");
   expect(openDough.requests).toHaveLength(2);
   expect(doughnut.requests).toHaveLength(2);
 });

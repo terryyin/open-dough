@@ -7,7 +7,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import {
   publishMovingFiles,
   type PublishedRevision,
@@ -42,7 +42,7 @@ async function expectCardsBeforeDetailsAt(
   titles: { readonly taken: string[]; readonly backlog: string[] },
   reading: readonly string[] = [],
 ) {
-  await expect(parts(page).source).toContainText(revision);
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   await expectMembership(page, titles);
   const cards = parts(page).board.locator("[data-story-card]");
   await expect(

@@ -100,7 +100,6 @@ export function ConfiguredDashboard({
           <>
             <DashboardBanner
               source={source}
-              work={work}
               onOpenSettings={onOpenSettings}
               onSelect={selectProject}
             />

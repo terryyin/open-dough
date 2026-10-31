@@ -9,7 +9,7 @@
 // ./steady-refresh-carry.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { expectSettledPage, shortRevision, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import type { Page } from "@playwright/test";
 import {
@@ -30,7 +30,9 @@ const unpinned = (text: string) => text.replace(/at revision [0-9a-f]{7}/g, "");
 
 // B's membership is shown, and the held record has been asked for at B.
 async function untilBShownWhileHeld(page: Page, origin: MovingOrigin) {
-  await expect(parts(page).source).toContainText(revisionB);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionB),
+  );
   await expect
     .poll(() => contentReads(origin.requests))
     .toContain(`${syncRecord}?ref=${revisionB}`);
@@ -41,7 +43,7 @@ test("a story's shown facts give way to the gap when the read of its record at B
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, board, problem } = parts(page);
+  const { board, problem } = parts(page);
   const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
@@ -65,13 +67,13 @@ test("a story's shown facts give way to the gap when the read of its record at B
       "GitHub did not answer within 30 seconds, so the read was given up.",
     );
     await expect(problem).toContainText(
-      `after reading the published work at revision ${revisionB.slice(0, 7)}`,
+      `after reading the published work at revision ${shortRevision(revisionB)}`,
     );
     await expect(queueCard).toContainText(gap);
     await expect(queueCard).not.toContainText("as published at A");
     await expect(queueCard).not.toContainText("Reading");
     await expectSettledPage(page);
-    await expect(source).toContainText(revisionB);
+    // Failed after-membership attempt: short revision is named in the alert.
   });
 });
 
@@ -79,7 +81,7 @@ test("a story's shown facts give way to what the read itself read when a hidden 
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, board, problem } = parts(page);
+  const { board, problem, readRevision } = parts(page);
   const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
@@ -108,7 +110,7 @@ test("a story's shown facts give way to what the read itself read when a hidden 
     await setPageVisibility(page, "visible");
     await page.clock.runFor(1);
     await expectSettledPage(page);
-    await expect(source).toContainText(revisionB);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
     await expect(detail).toContainText(`${queueStory}, as published at B.`);
     await expect(page.locator("body")).not.toContainText("as published at A");
   });

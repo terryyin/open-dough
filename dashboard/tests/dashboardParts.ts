@@ -8,9 +8,14 @@ export function parts(page: Page) {
   const board = page.getByRole("region", { name: "Board" });
   const status = page.getByRole("status").and(page.locator(".read-status"));
   const direction = page.getByRole("region", { name: "Near-future direction" });
+  const banner = page.getByRole("banner");
   return {
-    banner: page.getByRole("banner"),
-    sourceEvidence: page.getByLabel(/^Source evidence for /),
+    banner,
+    // The selected project's plain level-1 name in the banner (wider columns).
+    projectTitle: banner.getByRole("heading", { level: 1 }),
+    // Compact title control where the tab list no longer fits the banner.
+    projectCompact: banner.getByRole("button", { name: "Project" }),
+    projectCompactList: banner.getByRole("listbox", { name: "Project" }),
     project: page.getByRole("radiogroup", { name: "Project" }),
     board,
     backlog: board.getByRole("region", { name: "Backlog", exact: true }),
@@ -29,11 +34,17 @@ export function parts(page: Page) {
       name: "Recently done",
       exact: true,
     }),
-    source: page.getByRole("region", { name: "Published Git state" }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is
     // spoken; it says what the latest read is doing or what it read.
     status,
+    // After a successful read, the status announces the short revision (first
+    // 7 characters). Use `problem` after failures instead; while a read is
+    // held or only a standing rate limit is shown, the status names no
+    // revision.
+    readRevision: status,
+    // Retrieval <time> the status announces with that successful read.
+    retrievedAt: status.locator("time"),
     // That status only while it says a read is under way.
     reading: status.filter({ hasText: "Reading published work" }),
     notice: page.locator("[aria-live='polite']"),
@@ -45,6 +56,9 @@ export function parts(page: Page) {
       .filter({ hasText: "Ad hoc session started" }),
   };
 }
+
+// Short revision form the product says in a sentence (status, alerts, progress).
+export { shortRevision } from "../src/publishedWork.ts";
 
 // A standalone session entry, named for its launch's workflow and title.
 export const standaloneSessionName = (workflow: string, title: string) =>

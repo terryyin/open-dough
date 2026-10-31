@@ -10,7 +10,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   contentReads,
@@ -53,10 +53,10 @@ test.describe("project read isolation of automatic checks", () => {
     page: Page,
     shown: { link: Locator; retrievedAt: string | null },
   ) {
-    const { project, source } = parts(page);
+    const { project, readRevision } = parts(page);
     await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
-    await expect(source).toContainText(revisionDoughnut);
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
+    await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
       shown.retrievedAt ?? "",
     );

@@ -46,7 +46,6 @@ test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -62,7 +61,6 @@ test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds
     await expectProblemAndNoSnapshot(
       page,
       "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-      undefined,
       transientRecovery,
     );
     await expectRecoversAfter(page, await failedAt(page), 30);
@@ -109,7 +107,6 @@ test("a pinned backlog's eligible failure recovers on its own; a later successfu
   await expectProblemAndNoSnapshot(
     page,
     `GitHub answered HTTP 503 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revisionA}.`,
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -122,7 +119,6 @@ test("a pinned backlog's eligible failure recovers on its own; a later successfu
     await expectProblemAndNoSnapshot(
       page,
       `GitHub answered HTTP 503 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revisionA}.`,
-      undefined,
       transientRecovery,
     );
     await expectRecoversAfter(page, await failedAt(page), 30);
@@ -157,7 +153,6 @@ test("a lost connection is recovered on its own at the first wait", async ({
   await expectProblemAndNoSnapshot(
     page,
     "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   reconnect();
@@ -195,7 +190,6 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
     await expectProblemAndNoSnapshot(
       page,
       "GitHub did not answer within 30 seconds, so the read was given up.",
-      undefined,
       transientRecovery,
     );
   });

@@ -33,11 +33,11 @@ export function PublishedReadStatus({
       {/* Both polite regions stay rendered while they have nothing to say:
           assistive technology speaks a change of text inside a region it
           already knows, and may never speak one inserted with its text.
-          Neither takes focus. The result names only what was read; the
-          source evidence above already shows it, so it is spoken and not
-          shown twice, while a read under way is said in sight. Either keeps
-          the status's one line of room, so the read starting or ending moves
-          nothing below it. */}
+          Neither takes focus. The successful result names only what was
+          read and stays spoken, not shown twice in the page chrome, while a
+          read under way is said in sight. Either keeps the status's one
+          line of room, so the read starting or ending moves nothing below
+          it. */}
       <p role="status" className="announcement read-status">
         {reading && (
           <span className="read-status-line">

@@ -20,6 +20,7 @@ import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import {
+  daysAgo,
   openStoryRecord,
   seedStore,
   storedRecords,
@@ -29,10 +30,6 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
-
-function daysAgo(days: number): string {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-}
 
 test.describe("a scoped record dropped by retention expiry", () => {
   test.describe.configure({ mode: "serial" });

@@ -11,6 +11,7 @@ import { type Page } from "@playwright/test";
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   controlsBesideSessions,
   expectMembership,
   expectProblemAndNoSnapshot,
@@ -95,7 +96,7 @@ test.describe("project read recovery", () => {
 
     await pausePageClock(page);
     await page.goto("/");
-    const { project, direction, source, problem } = parts(page);
+    const { project, direction, problem, readRevision } = parts(page);
     const pygardon = project.getByRole("radio", {
       name: "Pygardon",
       exact: true,
@@ -108,7 +109,8 @@ test.describe("project read recovery", () => {
       await expectProblemAndNoSnapshot(
         page,
         "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
-        pygardonRepository,
+        undefined,
+        "Pygardon",
       );
     });
 
@@ -118,7 +120,7 @@ test.describe("project read recovery", () => {
       await expect(selectedProject).toBeFocused();
       await page.keyboard.press("ArrowLeft");
       await expectMembership(page, { taken: [], backlog: [doughnutTitle] });
-      await expect(source).toContainText(doughnutRevision);
+      await expect(readRevision).toContainText(shortRevision(doughnutRevision));
       await expect(problem).toHaveCount(0);
     });
 
@@ -141,7 +143,7 @@ test.describe("project read recovery", () => {
       });
       await openDirection(page);
       await expect(direction).toContainText(pygardonDirection);
-      await expect(source).toContainText(pygardonRevision);
+      await expect(readRevision).toContainText(shortRevision(pygardonRevision));
       await expect(problem).toHaveCount(0);
     });
 
@@ -158,7 +160,7 @@ test.describe("project read recovery", () => {
         taken: [pygardonTakenTitle],
         backlog: [pygardonQueuedTitle],
       });
-      await expect(source).toContainText(pygardonRevision);
+      // Failed check: status names no revision; membership proves Pygardon's snapshot.
       await expect(page.locator("body")).not.toContainText(doughnutTitle);
       await expect(page.locator("body")).not.toContainText(openDoughTitle);
     });

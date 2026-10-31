@@ -24,7 +24,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
@@ -86,7 +86,7 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, backlog, source } = parts(page);
+    const { project, backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -110,7 +110,9 @@ test.describe("project read isolation", () => {
         taken: [],
         backlog: [openDoughSharedTitleSecond],
       });
-      await expect(source).toContainText(revisionOpenDoughSecond);
+      await expect(readRevision).toContainText(
+        shortRevision(revisionOpenDoughSecond),
+      );
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
     });
 
@@ -130,7 +132,9 @@ test.describe("project read isolation", () => {
       // held-response races: nothing about the page depends on this release, so there is
       // no later moment at which it could still take effect.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
-      await expect(source).toContainText(revisionOpenDoughSecond);
+      await expect(readRevision).toContainText(
+        shortRevision(revisionOpenDoughSecond),
+      );
       await expect(
         project.getByRole("radio", { name: "Open Dough", exact: true }),
       ).toBeChecked();
@@ -147,7 +151,7 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, source } = parts(page);
+    const { project, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -173,7 +177,9 @@ test.describe("project read isolation", () => {
         taken: [],
         backlog: [openDoughSharedTitleSecond],
       });
-      await expect(source).toContainText(revisionOpenDoughSecond);
+      await expect(readRevision).toContainText(
+        shortRevision(revisionOpenDoughSecond),
+      );
       expect(doughnut.requests).toHaveLength(1);
     });
   });
@@ -182,7 +188,7 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, backlog, source } = parts(page);
+    const { project, backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
     await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
@@ -206,7 +212,9 @@ test.describe("project read isolation", () => {
         taken: [],
         backlog: [openDoughSharedTitleThird],
       });
-      await expect(source).toContainText(revisionOpenDoughThird);
+      await expect(readRevision).toContainText(
+        shortRevision(revisionOpenDoughThird),
+      );
       await expect(page.locator("body")).not.toContainText(
         openDoughSharedTitleFirst,
       );

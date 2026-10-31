@@ -1,6 +1,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   openDirection,
@@ -62,9 +63,9 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     taken,
     recentlyDone,
     direction,
-    source,
     status,
     reading,
+    readRevision,
   } = parts(page);
   await test.step("reading is shown before any work or count", async () => {
     await expect(status).toHaveText("Reading published work…");
@@ -145,7 +146,7 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     await expectSideBySideInOrder([backlog, taken, recentlyDone]);
   });
 
-  await test.step("direction and source evidence sit outside the Board", async () => {
+  await test.step("direction sits outside the Board", async () => {
     await openDirection(page);
     await expect(direction).toContainText(
       "Give developers visibility into a project's published work.",
@@ -153,10 +154,8 @@ test("published Board shows Backlog and Taken work read at one revision", async 
     await expect(direction).toContainText(
       "Derive it solely from Git state published to origin.",
     );
-    await expect(source).toContainText("terryyin/open-dough");
-    await expect(source).toContainText("main");
-    await expect(source).toContainText(revision);
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(readRevision).toContainText(shortRevision(revision));
+    await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
       retrievedAt.toISOString(),
     );
@@ -212,7 +211,7 @@ test("published Board accepts successfully empty groups and no recorded directio
 
   await openUntilRead(page);
 
-  const { board, backlog, taken, direction, source } = parts(page);
+  const { board, backlog, taken, direction, readRevision } = parts(page);
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");
   await expect(backlog).toContainText("No Backlog entries are recorded.");
@@ -222,6 +221,6 @@ test("published Board accepts successfully empty groups and no recorded directio
   await expect(direction).toContainText(
     "No near-future direction is recorded.",
   );
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   await expect(page.getByRole("alert")).toHaveCount(0);
 });

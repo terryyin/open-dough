@@ -4,13 +4,14 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { storyCardLaunchActions, detailToggle } from "./storyCardControls.ts";
-import { parts } from "./dashboardParts.ts";
+import { parts, shortRevision } from "./dashboardParts.ts";
 import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
 } from "./pageRequestNotes.ts";
 
 export * from "./dashboardParts.ts";
+export * from "./projectChoice.ts";
 
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, System settings, Start session, the badge legend, each Backlog
@@ -147,11 +148,19 @@ export async function expectWholeSnapshot(
   },
   otherRevisions: string[],
 ) {
-  const { board, source } = parts(page);
+  const { board, readRevision, retrievedAt } = parts(page);
   await expectMembership(page, shown.titles);
-  await expect(source).toContainText(shown.revision);
+  // Successful reads announce the short revision; failure and in-flight
+  // moments name none there, so Board detail links prove the shown snapshot.
+  if (
+    (await readRevision.textContent())?.includes(
+      "Published work read at revision",
+    )
+  ) {
+    await expect(readRevision).toContainText(shortRevision(shown.revision));
+  }
   if (shown.retrievedAt) {
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(retrievedAt).toHaveAttribute(
       "datetime",
       shown.retrievedAt.toISOString(),
     );
@@ -163,7 +172,7 @@ export async function expectWholeSnapshot(
   ).toBeVisible();
   for (const other of otherRevisions) {
     await expect(page.locator("body")).not.toContainText(other);
-    await expect(page.locator("body")).not.toContainText(other.slice(0, 7));
+    await expect(page.locator("body")).not.toContainText(shortRevision(other));
     await expect(board.locator(`a[href*="${other}"]`)).toHaveCount(0);
   }
 }
@@ -178,15 +187,16 @@ export const controlsBesideSessions = (page: Page) =>
     .filter({ hasNotText: /^Start session$/ });
 
 // A failed read with no earlier snapshot shows the problem, the way to read
-// again (`recovery`), and nothing that only a snapshot could say. The problem
-// is looked for once no read of the published work is on its way.
+// again (`recovery`), and nothing that only a snapshot could say. The banner's
+// plain title still names the selected project. The problem is looked for once
+// no read of the published work is on its way.
 export async function expectProblemAndNoSnapshot(
   page: Page,
   problemText: string,
-  repository = "terryyin/open-dough",
   recovery = "Reload the page to read again.",
+  projectLabel = "Open Dough",
 ) {
-  const { board, source, problem } = parts(page);
+  const { board, problem, projectTitle } = parts(page);
   await untilPublishedWorkRead(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText(problemText);
@@ -201,8 +211,7 @@ export async function expectProblemAndNoSnapshot(
   await expect(page.getByText(/\d+ entr(y|ies)/)).toHaveCount(0);
   await expect(page.getByText(/entries are recorded/)).toHaveCount(0);
   await expect(page.getByText("Near-future direction")).toHaveCount(0);
-  await expect(source).toContainText(repository);
-  await expect(source).not.toContainText(/Revision|Retrieved/);
+  await expect(projectTitle).toHaveText(projectLabel);
 }
 
 // Expand through the actual control before claiming direction is readable.

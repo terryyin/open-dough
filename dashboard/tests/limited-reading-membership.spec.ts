@@ -32,7 +32,6 @@ test("limiting the membership read shows that nothing has been read, says once w
   await expectProblemAndNoSnapshot(
     page,
     `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of ${repository}. GitHub asked to wait ${String(waitSeconds)} seconds before asking again.`,
-    repository,
     "This page reads the published work then, or when it is next seen.",
   );
   const resumesAt = (await failedAt(page)) + waitSeconds * 1_000;

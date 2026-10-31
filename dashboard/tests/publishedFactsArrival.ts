@@ -12,7 +12,7 @@ import {
   recordStoryState,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
@@ -213,7 +213,7 @@ export async function heldFactGroups(
     taken: stories.map(({ title }) => title),
     backlog: [preparing],
   });
-  await expect(parts(page).source).toContainText(revision);
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   // Every held group has actually reached GitHub through the synthetic gh.
   await expect
     .poll(

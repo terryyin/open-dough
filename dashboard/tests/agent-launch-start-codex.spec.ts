@@ -7,7 +7,7 @@ import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectStartNote } from "./storyCardControls.ts";
 import { expectCodexRetryProgress } from "./support/codexRetryPage.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { expectExecutionInput } from "./support/codexStartAssertions.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
@@ -37,7 +37,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     repository: "terryyin/open-dough",
   });
   await openUntilRead(page);
-  const { backlog, taken, source } = parts(page);
+  const { backlog, taken, readRevision } = parts(page);
   const queued = backlog.getByRole("article", { name: "Story A", exact: true });
   const claimed = taken.getByRole("article", { name: "Story A", exact: true });
   await expect(
@@ -125,7 +125,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
   published.advanceTo(revision);
   await reloadUntilRead(page);
   await expectSettledPage(page);
-  await expect(source).toContainText(revision);
+  await expect(readRevision).toContainText(shortRevision(revision));
   await expectStartNote(
     claimed,
     "Start execution",

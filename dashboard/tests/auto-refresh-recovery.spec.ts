@@ -51,8 +51,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, board, problem } = parts(page);
-  const retrievedAt = source.locator("time");
+  const { board, problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
   const restoreMain = origin.answerWith("main", unexplainedFailure);
@@ -80,7 +79,6 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
       { revision: revisionA, titles: titlesOfA },
       [revisionB],
     );
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
   });
 
   restoreMain();
@@ -99,9 +97,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
       retrievedA,
     );
     await expectMembership(page, titlesOfA);
-    await expect(source).toContainText(revisionA);
-    await expect(source).not.toContainText(revisionB);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
+    // Failure alert retains the earlier retrieval time; Board proves A, not B.
     await expect(board.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
     const calls = callsSince(page, beforeB);
     expect(headsChecks(calls)).toHaveLength(1);
@@ -136,9 +132,8 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, board, problem } = parts(page);
-  const retrievedA =
-    (await source.locator("time").getAttribute("datetime")) ?? "";
+  const { board, problem, retrievedAt } = parts(page);
+  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   const dashboardCard = board.getByRole("article", { name: dashboardStory });
   await dashboardCard.getByRole("button", { name: "Inspect story" }).click();
   const canonicalOfDashboardStory = dashboardCard.getByRole("link", {
@@ -175,7 +170,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       { revision: revisionA, titles: titlesOfA },
       [revisionB, revisionC],
     );
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(problem.locator("time").nth(1)).toHaveAttribute(
       "datetime",
       retrievedA,
     );

@@ -52,9 +52,7 @@ the vertical position while the newly shown columns reach it; where they are
 shorter, the Board stops at their bottom instead, without returning to the top.
 
 The banner keeps **Project** choices reachable above the Board's own scroll region.
-Its selected project disclosure shows repository/ref, full source revision, retrieval time
-(not commit time), and publication warning. Close it to return room to the work,
-especially at narrow widths or high browser zoom.
+The selected project's name is the banner's plain level-1 heading.
 
 **Near-future direction** starts collapsed below the banner, opposite the
 **Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction
@@ -208,7 +206,7 @@ project: as the browser tab, bookmark and touch icon (`index.html`, served by
 `tests/productMark.ts`), a passive image named “Open Dough” leading the
 banner, the no-projects banner, and System settings, whichever project is
 selected. The selected project's name, even Open Dough's, stays that project's
-heading and source evidence. There is no web manifest or installable app.
+plain heading. There is no web manifest or installable app.
 Action glyphs, execution-mode symbols, host avatars, and human and agent
 portraits keep their own concepts; prose-only documentation adds no artwork.
 

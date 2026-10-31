@@ -9,7 +9,7 @@ import {
 } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
@@ -79,7 +79,9 @@ test("story readiness reads preparation and progress accessibly", async ({
     const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
     await passTimeUntilCheckedAfterSettled(page);
-    await expect(parts(page).source).toContainText(restored);
+    await expect(parts(page).readRevision).toContainText(
+      shortRevision(restored),
+    );
     await expectMembership(page, {
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],

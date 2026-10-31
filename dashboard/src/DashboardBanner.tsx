@@ -5,18 +5,14 @@ import { keepHeight } from "./measuredHeight.ts";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectSelect } from "./ProjectSelect.tsx";
 import { SessionsButton } from "./SessionsSidebar.tsx";
-import { SourceStatus } from "./SourceStatus.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
 
 export function DashboardBanner({
   source,
-  work,
   onOpenSettings,
   onSelect,
 }: {
   readonly source: PublishedSource;
-  readonly work: PublishedWork | undefined;
   readonly onOpenSettings: () => void;
   readonly onSelect: (next: PublishedSource) => void;
 }) {
@@ -26,18 +22,12 @@ export function DashboardBanner({
   useLayoutEffect(() => {
     const element = banner.current;
     if (!element) return;
-    const { measure, stop } = keepHeight(
+    const { stop } = keepHeight(
       element,
       document.documentElement,
       "--banner-height",
     );
-    // Native focus scrolling can run before the resize observer reports a
-    // just-closed disclosure. Give that scroll the current footprint now.
-    document.addEventListener("focusin", measure, true);
-    return () => {
-      document.removeEventListener("focusin", measure, true);
-      stop();
-    };
+    return stop;
   }, []);
 
   return (
@@ -45,7 +35,7 @@ export function DashboardBanner({
       <ProductMark />
       <SessionsButton />
       <ProjectSelect source={source} onSelect={onSelect} />
-      <SourceStatus source={source} work={work} />
+      <h1 className="project-title">{source.label}</h1>
       <SettingsGear onOpen={onOpenSettings} />
     </header>
   );

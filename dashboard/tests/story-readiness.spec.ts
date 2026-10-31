@@ -7,6 +7,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin.ts";
 import {
+  shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   parts,
@@ -62,7 +63,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   });
 
   await page.goto("/");
-  const { project, source, backlog, taken } = parts(page);
+  const { project, backlog, taken, readRevision } = parts(page);
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
 
   await test.step("membership and order arrive before inventing not-refined", async () => {
@@ -105,7 +106,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
       blockedCard.getByText("Ready for execution", { exact: true }),
     ).toHaveCount(0);
 
-    await expect(source).toContainText(openDough.revision);
+    await expect(readRevision).toContainText(shortRevision(openDough.revision));
     await expectOwnersNotRecorded(page);
     await parts(page).preparationHelp.click();
     const legend = page.getByRole("dialog", { name: "Preparation badges" });
@@ -179,7 +180,6 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     await expectReadyDetailTwoCompleteAfterPublish(
       page,
       taken,
-      source,
       openDough,
       openDoughOrigin,
       publishTwoSlicesDone,
@@ -197,7 +197,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
         externalPlan.title,
       ],
     });
-    await expect(source).toContainText(doughnut.revision);
+    await expect(readRevision).toContainText(shortRevision(doughnut.revision));
 
     const planlessCard = backlog.getByRole("article", {
       name: planless.title,

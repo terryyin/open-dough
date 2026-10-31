@@ -8,7 +8,12 @@ import { expectReadableContrast, zoomedWindow } from "./accessibleReading.ts";
 import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
 import { expectMark } from "./agentPortrait.ts";
 import { contentPathsRead, publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, expectSettledPage, parts } from "./dashboardPage.ts";
+import {
+  shortRevision,
+  expectMembership,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import {
   publishPreparingJourney,
@@ -44,14 +49,14 @@ test("a queued card shows Preparing and its developer from published assignments
     repository: "terryyin/open-dough",
   });
   await page.goto("/");
-  const { backlog, taken, source } = parts(page);
+  const { backlog, taken, readRevision } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   const badges = (title: string) =>
     card(title).locator(".badge").allTextContents();
   const show = async (revision: string) => {
     origin.advanceTo(revision);
     await reloadUntilRead(page);
-    await expect(source).toContainText(revision);
+    await expect(readRevision).toContainText(shortRevision(revision));
     await expectSettledPage(page, { taken: [], backlog: order });
   };
   const expectNotPreparing = async (title: string) => {

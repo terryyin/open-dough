@@ -1,6 +1,9 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { isInsideOpenDialog } from "./pageShortcuts.ts";
-import { projectRadioName } from "./ProjectSelect.tsx";
+import {
+  projectCompactSelectClass,
+  projectRadioName,
+} from "./ProjectSelect.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useProjects } from "./projectList.tsx";
 
@@ -121,7 +124,22 @@ export function isProjectArrowShortcutEligible(
   return true;
 }
 
-function focusSelectedProjectRadio(): void {
+function isShown(element: Element): boolean {
+  return element.getClientRects().length > 0;
+}
+
+// Focus whichever project control the banner is showing: the compact title
+// select at the wrap width, otherwise the selected tab-shaped radio.
+function focusShownProjectControl(): void {
+  const compactRoot = document.querySelector(`.${projectCompactSelectClass}`);
+  const compact =
+    compactRoot instanceof HTMLElement
+      ? compactRoot.querySelector<HTMLElement>("button")
+      : null;
+  if (compact !== null && isShown(compact)) {
+    compact.focus();
+    return;
+  }
   document
     .querySelector<HTMLInputElement>(
       `input[type="radio"][name="${projectRadioName}"]:checked`,
@@ -207,7 +225,7 @@ export function useProjectKeyboardNavigation({
       return;
     }
     if (planned === "selected-project" || !focusStillUseful()) {
-      focusSelectedProjectRadio();
+      focusShownProjectControl();
     }
   }, [source.id]);
 }

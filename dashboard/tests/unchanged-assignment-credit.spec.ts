@@ -12,7 +12,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
-import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
+import {
+  shortRevision,
+  expectMembership,
+  parts,
+  rosterParts,
+} from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { readsBesideChecks } from "./originObservation.ts";
@@ -56,10 +61,10 @@ async function expectCreditedAt(
   credits: Readonly<Record<string, string>>,
   clock: RegExp,
 ) {
-  const { source, taken } = parts(page);
+  const { taken, readRevision } = parts(page);
   const { member, opener, back } = rosterParts(page);
   await untilPublishedWorkRead(page);
-  await expect(source).toContainText(at);
+  await expect(readRevision).toContainText(shortRevision(at));
   await expectMembership(page, { taken: agents.map(titleOf), backlog: [] });
   for (const agent of agents) {
     const card = taken.getByRole("article", { name: titleOf(agent) });

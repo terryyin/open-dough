@@ -9,7 +9,7 @@ import { agentNames } from "../../src/skills/dough-product-backlog/scripts/produ
 import { callsSince, contentReads, headsChecks } from "./autoRefreshJourney.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { parts, rosterParts } from "./dashboardPage.ts";
+import { shortRevision, parts, rosterParts } from "./dashboardPage.ts";
 import {
   heldFactGroups,
   takenCanonicalPath,
@@ -197,7 +197,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expect(problem).toContainText(
     "GitHub did not answer within 30 seconds, so the read was given up.",
   );
-  const readAt = `after reading the published work at revision ${revision.slice(0, 7)}`;
+  const readAt = `after reading the published work at revision ${shortRevision(revision)}`;
   await expect(problem).toContainText(readAt);
   await expect(problem).toContainText("What is shown is what it read");
   await expect(problem).not.toContainText("added nothing");
@@ -212,7 +212,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expectNoOrphanReading(page);
-  await expect(parts(page).source).toContainText(revision);
+  // Failed after-membership attempt: short revision is named in the alert (readAt).
 
   const from = githubFor(page).calls.length;
   await page.clock.runFor(14_000);
@@ -234,7 +234,7 @@ test("the existing 30-second core bound keeps assignments and done facts, leaves
   await expect(branchCard).not.toContainText(preparationGap);
   await expectNoOrphanReading(page);
   await expect(problem).toHaveCount(0);
-  await expect(parts(page).source).toContainText(revision);
+  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
   expect(contentReads(callsSince(page, from))).toContain(
     `${takenCanonicalPath}?ref=${revision}`,
   );

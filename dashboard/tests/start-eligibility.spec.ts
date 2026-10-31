@@ -5,7 +5,7 @@ import path from "node:path";
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   consumer,
   test,
@@ -63,7 +63,9 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   recordDependency(origin, 0, "satisfied", revision);
   const satisfied = await publishDependencies(origin);
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(satisfied);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(satisfied),
+  );
   await expect(
     card.getByText("Ready for execution", { exact: true }),
   ).toBeVisible();
@@ -112,7 +114,9 @@ test("a Taken card's green badge waits on its dependency like a Backlog card's",
   recordDependency(origin, 0, "satisfied", revision);
   const satisfied = await publishDependencies(origin);
   await passTimeUntilChecked(page);
-  await expect(parts(page).source).toContainText(satisfied);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(satisfied),
+  );
   await expect(
     card.getByText("Ready for execution", { exact: true }),
   ).toBeVisible();

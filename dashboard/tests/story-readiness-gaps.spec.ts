@@ -9,7 +9,7 @@ import {
 } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   buildDoughnutReadinessRepo,
   buildOpenDoughReadinessRepo,
@@ -61,7 +61,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
 
   await pausePageClock(page);
   await page.goto("/");
-  const { project, source, backlog, taken, problem } = parts(page);
+  const { project, backlog, taken, problem, readRevision } = parts(page);
 
   await test.step("baseline membership arrives with supported preparation facts", async () => {
     await expectSettledPage(page, {
@@ -73,7 +73,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
         .getByRole("article", { name: plannedReady.title })
         .getByText("Ready for execution", { exact: true }),
     ).toBeVisible();
-    await expect(source).toContainText(openDough.revision);
+    await expect(readRevision).toContainText(shortRevision(openDough.revision));
   });
 
   await test.step("changed assessed content without reassessment retains judgment with a change indication and keeps planning facts", async () => {
@@ -81,7 +81,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       page,
       taken,
       backlog,
-      source,
       openDough,
       openDoughOrigin,
       publishAssessedContentChange,
@@ -93,7 +92,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     openDoughOrigin.advanceTo(next);
     await passTimeUntilCheckedAfterSettled(page);
     await expectSettledPage(page);
-    await expect(source).toContainText(next);
+    await expect(readRevision).toContainText(shortRevision(next));
     for (const [list, title, judgment] of [
       [taken, plannedReady.title, "Ready for execution"],
       [backlog, plannedBlocked.title, "Not ready"],
@@ -115,7 +114,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     await expectPlanAssociationConflict(
       page,
       taken,
-      source,
       openDough,
       openDoughOrigin,
       publishConflictingPlanAssociation,
@@ -126,7 +124,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     await expectFailedPlanKeepsSupportedFacts(
       page,
       backlog,
-      source,
       openDough,
       openDoughOrigin,
     );
@@ -135,7 +132,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   await test.step("a failed check keeps prior evidence labeled with its original revision; a reload recovers", async () => {
     await expectFailedCheckKeepsPriorRevision(
       page,
-      source,
       problem,
       openDough,
       openDoughOrigin,

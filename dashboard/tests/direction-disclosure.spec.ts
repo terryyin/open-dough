@@ -1,6 +1,7 @@
 import { passTimeUntilChecked, pausePageClock } from "./autoRefreshJourney.ts";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectDirectionOpensAcrossRow,
   openDirection,
   parts,
@@ -41,9 +42,9 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
     direction,
     directionToggle,
     directionText: body,
-    source,
+    readRevision,
   } = parts(page);
-  await expect(source).toContainText(revisionA);
+  await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(directionToggle).toBeVisible();
   await expect(body).toBeHidden();
   await expect(direction.locator("details")).not.toHaveAttribute("open");
@@ -77,9 +78,9 @@ test("the opened direction reads across the whole project actions row beneath St
   origin.push(revisionA, withDirection(fullDirection));
   await page.setViewportSize({ width: 1440, height: 900 });
   await openUntilRead(page);
-  const { directionText, directionToggle, projectActions, source } =
+  const { directionText, directionToggle, projectActions, readRevision } =
     parts(page);
-  await expect(source).toContainText(revisionA);
+  await expect(readRevision).toContainText(shortRevision(revisionA));
   const closedHeight = (await projectActions.boundingBox())?.height;
 
   await expectDirectionOpensAcrossRow(page);
@@ -100,9 +101,9 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   const {
     directionText: body,
     directionToggle,
-    source,
     reading,
     problem,
+    readRevision,
   } = parts(page);
   await openDirection(page);
 
@@ -113,7 +114,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
   release();
-  await expect(source).toContainText(revisionB);
+  await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
 
@@ -129,7 +130,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   restore();
   origin.push(revisionA, withDirection(fullDirection));
   await passTimeUntilChecked(page);
-  await expect(source).toContainText(revisionA);
+  await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await expect(problem).toHaveCount(0);
 });
@@ -146,8 +147,8 @@ test("changing projects removes previous direction while reading and starts each
     direction,
     directionText: body,
     project,
-    source,
     reading,
+    readRevision,
   } = parts(page);
   await openDirection(page);
 
@@ -157,14 +158,14 @@ test("changing projects removes previous direction while reading and starts each
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
   release();
-  await expect(source).toContainText(revisionB);
+  await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeHidden();
   await expectDirectionOpensAcrossRow(page);
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(pathsRead(doughnut)).toHaveLength(2);
 
   await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
-  await expect(source).toContainText(revisionA);
+  await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await openDirection(page);
   await expect(body).toHaveText(fullDirection);

@@ -192,6 +192,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Observed effect: one owned CI repair commit before slice 2 delivery, plus follow-on title-toggle CSS correction after the repair’s margin clipped expanded titles; slice-2 work was stashed and restored around the repair.
   - Inference: recurrence of focused consumer selection missing existing Final-report header and look-spec consumers of the same compact-header contract after local owner proof passed.
 
+- Execution: SEED-198#responsive-project-header / plan 424 / first related implementation `1554cd81d83386549eead40df7abdbc1bf00698b`
+  - Timestamp: unknown (2026-10-31 Asia/Singapore; after slice-3 header proof green and during full `npm run test:dashboard`, before publish `c5927db4` 17:29 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `5220567c-77df-404c-a6d2-7abf6ccb5d69` L90–L94 — focused header/touched proof green; full suite then failed phone-width journeys that still clicked hidden project radios; coordinator fixed callers onto `chooseProject` / `expectProjectChoice` / `shownProjectControl` before delivery. Published with those helpers in `c5927db4`.
+  - Observed effect: no owned CI failure from this miss (caught locally by the wider suite before publish); extra repair loop on phone-width selection consumers already in the suite.
+  - Inference: qualified recurrence of focused/owning-surface proof missing indirect callers of the changed project-selection contract once the tab radios hide at ≤400px.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. Repair quiescence checks only writers, so stashing an interrupted agent’s checkout while read-only tests still observe it invalidates the proof. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
@@ -285,6 +293,14 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
   - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L43–L48 — interrupted slice-2 delegation left substantial uncommitted work; interrupted-delegation recovery; focused proof then failed scroll preservation; delegated repair Task `68cac5fa-79f3-4b9a-985b-493c6431566f`. Interrupted implementer `65ee0ea4-d220-4b05-83e4-e9df676660e4` ends mid-tool-use (consumer-trace / git status) with no proof return.
   - Observed effect: one aborted implementation Task with uncommitted product/test edits; coordinator re-established proof from the checkout, then one repair round (detached-node scroll adjust plus Playwright `scrollIntoView` measurement pollution) before acceptance; no dual-writer publish.
   - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed focused proof before a replacement writer. Host termination cause unestablished. Distinct from ODF-059 refactor interrupt on the same execution.
+
+- Execution: SEED-198#responsive-project-header / plan 424 / first related implementation `1554cd81d83386549eead40df7abdbc1bf00698b`
+  - Timestamp: unknown (2026-10-31; after slice-3 Task start following `576ef4c9` 13:53 +08 and before developer resume 16:09 +08)
+  - Tool: Cursor
+  - Open Dough release: 0.3.78
+  - Evidence: coordinator transcript `5220567c-77df-404c-a6d2-7abf6ccb5d69` L66–L71 — Task “Implement slice 3 compact selector” launched; next user turn is `resume` with no agent return; coordinator found slice-3 WIP present, classified intervening slice-2 CI as infrastructure-only, then re-established proof from the checkout. Interrupted implementer `ff760ded-80b5-4762-895e-2f682813455c` ends mid-work (preview-server cleanup) with no proof return.
+  - Observed effect: one aborted implementation Task with uncommitted compact-selector edits; coordinator recovered from the checkout and completed focused/wider proof (later catching ODF-150 phone callers) before publish `c5927db4`; no dual-writer publish.
+  - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed proof. Host termination cause unestablished.
 
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 

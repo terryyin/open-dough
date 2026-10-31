@@ -9,7 +9,7 @@
 import { expect, type Page } from "@playwright/test";
 import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   doneDirectory,
   entryName,
@@ -104,10 +104,12 @@ export function movingMain(beside: Readonly<Record<string, string>> = {}) {
 
 // Lets the page's next revision check come, until the page shows `revision`.
 export async function refreshedTo(page: Page, revision: string) {
-  const { source } = parts(page);
+  const { readRevision } = parts(page);
   await expect(async () => {
     await page.clock.fastForward(checkIntervalMs);
-    await expect(source).toContainText(revision, { timeout: 3_000 });
+    await expect(readRevision).toContainText(shortRevision(revision), {
+      timeout: 3_000,
+    });
   }).toPass({ timeout: 45_000 });
 }
 

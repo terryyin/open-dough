@@ -17,6 +17,7 @@ import {
   expectMembership,
   expectProblemAndNoSnapshot,
   expectSettledPage,
+  shortRevision,
   parts,
 } from "./dashboardPage.ts";
 import { selectSettledDoughnut } from "./doughnutJourney.ts";
@@ -62,7 +63,6 @@ test("recovery discovering a new revision replaces the snapshot with current fac
   await expectProblemAndNoSnapshot(
     page,
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    undefined,
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -71,7 +71,9 @@ test("recovery discovering a new revision replaces the snapshot with current fac
   await page.clock.runFor(15_250);
   await untilPageReadsAnswered(page);
   await expectSettledPage(page, titlesOfB);
-  await expect(parts(page).source).toContainText(revisionB);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionB),
+  );
   await expect(parts(page).problem).toHaveCount(0);
   await expect(page.locator("body")).not.toContainText("as published at A");
 });
@@ -100,7 +102,9 @@ test("switching projects abandons a late detail answer from the previous observa
 
   const shown = await selectSettledDoughnut(page);
   releaseDetail();
-  await expect(parts(page).source).toContainText(revisionDoughnut);
+  await expect(parts(page).readRevision).toContainText(
+    shortRevision(revisionDoughnut),
+  );
   await expect(shown.link).toBeFocused();
   await expect(page.locator("body")).not.toContainText(dashboardStory);
   await expect(page.locator("body")).not.toContainText("as published at A");
@@ -126,7 +130,7 @@ test("outstanding detail recovery excludes revision checks until it settles", as
   });
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
-  const { backlog, problem, source } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const unreachableCard = backlog.getByRole("article", {
     name: unreachableTitle,
   });
@@ -140,7 +144,7 @@ test("outstanding detail recovery excludes revision checks until it settles", as
     expect(headsChecks(githubFor(page).calls.slice(askedBeforeChecks))).toEqual(
       [],
     );
-    await expect(source).toContainText(revision);
+    await expect(readRevision).toContainText(shortRevision(revision));
     await expect(
       backlog.getByRole("article", { name: plannedTitle }),
     ).toBeVisible();

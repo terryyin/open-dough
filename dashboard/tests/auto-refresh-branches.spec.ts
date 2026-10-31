@@ -14,7 +14,7 @@
 // ./auto-refresh-rate-limit.spec.ts.
 
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shortRevision, parts } from "./dashboardPage.ts";
 import {
   callsSince,
   expectSteadyPace,
@@ -56,7 +56,7 @@ test("the automatic check follows each recorded story branch, reading only the p
   page,
 }) => {
   const { origin, progress } = await openedSettled(page);
-  const { source, taken } = parts(page);
+  const { taken, readRevision } = parts(page);
   const published = { ...branches };
   // The card qualifies its count briefly; the exact branch head is in the
   // story's detail, which stays open as the branch moves.
@@ -67,7 +67,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     .getByRole("region", { name: `Detail for ${onBranch}` })
     .locator(".progress-source");
   await expect(branchSource).toContainText(
-    `From branch ${example} at ${branchHead.slice(0, 7)}; not in trunk.`,
+    `From branch ${example} at ${shortRevision(branchHead)}; not in trunk.`,
   );
   await expect(progress).toContainText("Current slice started 7 min ago");
 
@@ -100,10 +100,10 @@ test("the automatic check follows each recorded story branch, reading only the p
       progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
     await expect(branchSource).toContainText(
-      `From branch ${example} at ${movedHead.slice(0, 7)}; not in trunk.`,
+      `From branch ${example} at ${shortRevision(movedHead)}; not in trunk.`,
     );
     await expect(progress).toContainText("Current slice started 2 min ago");
-    await expect(source).toContainText(revision);
+    await expect(readRevision).toContainText(shortRevision(revision));
     expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(
       [
         `content ${planPath("on-branch")}@${movedHead}`,
@@ -129,7 +129,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     origin.moveTrunk({ ...trunk, revision: trunkMoved });
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
-    await expect(source).toContainText(trunkMoved);
+    await expect(readRevision).toContainText(shortRevision(trunkMoved));
     // The shown progress stays while the new revision is read, so only the
     // page's own reads say the read has ended.
     await untilPageReadsAnswered(page);
@@ -166,7 +166,7 @@ test("the automatic check follows each recorded story branch, reading only the p
     );
     await expect(progress).toContainText("Completed 1 min ago");
     await expect(branchSource).toContainText(
-      `From branch ${example} at ${completedHead.slice(0, 7)}; not in trunk.`,
+      `From branch ${example} at ${shortRevision(completedHead)}; not in trunk.`,
     );
     await expect(progress).not.toContainText("Current slice started");
     expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(

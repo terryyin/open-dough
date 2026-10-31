@@ -64,15 +64,13 @@
   }
 }
 
-/* The narrowest column wraps the choices; a tighter edge keeps them short. */
-@container page (max-width: 400px) {
-  .project-select {
-    padding: 2px;
-  }
-}
-
 @media (any-pointer: coarse) {
   .project-choice {
+    min-height: var(--control-size);
+  }
+
+  .banner .project-title-select-button,
+  .banner .project-title-select-list [role="option"] {
     min-height: var(--control-size);
   }
 }

@@ -162,21 +162,21 @@ export async function whileTheLimitStands(
   });
 
   await test.step("a second tab showing a complete snapshot learns the limit from its next check, keeps its snapshot, and says the same time", async () => {
-    const { source } = parts(other);
-    const retrieved = await source.locator("time").getAttribute("datetime");
+    const { retrievedAt, problem } = parts(other);
+    const retrieved = await retrievedAt.getAttribute("datetime");
     const answer = other.waitForResponse((response) => isCheck(response.url()));
     await setPageVisibility(other, "hidden");
     await setPageVisibility(other, "visible");
     await other.clock.runFor(1);
     expect((await answer).status()).toBe(502);
-    await expect(parts(other).problem).toContainText(doughnutWithheld);
-    await expect(parts(other).problem).toContainText(
-      "Automatic checks resume then.",
-    );
+    await expect(problem).toContainText(doughnutWithheld);
+    await expect(problem).toContainText("Automatic checks resume then.");
     await expectSameResumeTime(other, resumesAt, refusedAt);
     await expectSettledPage(other, doughnutTitles);
-    await expect(source).toContainText(revisionDoughnut);
-    await expect(source.locator("time")).toHaveAttribute(
+    await expect(problem).toContainText(
+      "What is shown is the earlier snapshot, retrieved at",
+    );
+    await expect(problem.locator("time").nth(1)).toHaveAttribute(
       "datetime",
       retrieved ?? "",
     );
@@ -189,8 +189,8 @@ export async function whileTheLimitStands(
     await expectProblemAndNoSnapshot(
       page,
       doughnutWithheld,
-      doughnutRepository,
       "This page reads the published work then, or when it is next seen.",
+      "Doughnut",
     );
     expect(await noticedResumeTime(page)).toBe(resumesAt);
     expect(sent).toEqual([]);
@@ -201,8 +201,8 @@ export async function whileTheLimitStands(
     await expectProblemAndNoSnapshot(
       page,
       doughnutWithheld,
-      doughnutRepository,
       "This page reads the published work then, or when it is next seen.",
+      "Doughnut",
     );
     await expectSameResumeTime(page, resumesAt, refusedAt);
     expect(sent).toHaveLength(1);

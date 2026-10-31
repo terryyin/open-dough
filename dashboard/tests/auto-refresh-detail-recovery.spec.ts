@@ -11,6 +11,7 @@
 import type { Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
 import {
+  shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   expectSettledPage,
@@ -35,7 +36,7 @@ const gap = "The canonical record could not be read for preparation facts.";
 // Reloading the page reads the claims record at B and closes its gap,
 // reading nothing at any other revision.
 async function expectGapClosedAtB(page: Page) {
-  const { source, backlog, problem } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
   const from = githubFor(page).calls.length;
   await reloadUntilRead(page);
@@ -45,7 +46,7 @@ async function expectGapClosedAtB(page: Page) {
   await expect(claimsCard).not.toContainText(gap);
   await claimsCard.getByRole("button", { name: "Inspect story" }).click();
   await expect(claimsCard).toContainText(`${claimsStory}, as published at B.`);
-  await expect(source).toContainText(revisionB);
+  await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(problem).toHaveCount(0);
   await expect
     .poll(() => contentReads(callsSince(page, from)))
@@ -61,7 +62,7 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, backlog, problem } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const recordsB = recordsAt("B");
   const { [claimsRecord]: claimsAtB, ...withoutClaims } = recordsB;
   expect(claimsAtB).toBeDefined();
@@ -72,7 +73,7 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
     expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
     await expectSettledPage(page, titlesOfB);
     await expectOwnersNotRecorded(page);
-    await expect(source).toContainText(revisionB);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
     await expect(claimsCard).toContainText(gap);
     await expect(problem).toHaveCount(0);
   });
@@ -98,12 +99,12 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const { source, backlog, problem } = parts(page);
+  const { backlog, problem, readRevision } = parts(page);
   const recordsB = recordsAt("B");
   origin.push(revisionB, backlogB, recordsB);
   const releaseClaims = origin.hold(claimsRecord);
   const claimsCard = backlog.getByRole("article", { name: claimsStory });
-  const readAtB = `after reading the published work at revision ${revisionB.slice(0, 7)}`;
+  const readAtB = `after reading the published work at revision ${shortRevision(revisionB)}`;
 
   await test.step("B's membership is shown while one of its records is still being read", async () => {
     expectSteadyPace(await passTimeUntilChecked(page));
@@ -133,7 +134,7 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     await expect(problem).toContainText("this page reads it");
     await expect(claimsCard).toContainText(gap);
     await expectSettledPage(page);
-    await expect(source).toContainText(revisionB);
+    // Failed after-membership attempt: short revision is in the alert (readAtB).
   });
 
   await test.step("while recovery waits, checks do not run and the gap stays", async () => {
@@ -157,7 +158,7 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
     await expect(claimsCard).toContainText(
       `${claimsStory}, as published at B.`,
     );
-    await expect(source).toContainText(revisionB);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
     await expect(problem).toHaveCount(0);
     await expect
       .poll(() => contentReads(callsSince(page, from)))
