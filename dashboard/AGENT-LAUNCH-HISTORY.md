@@ -189,6 +189,15 @@ stay quiet. Alert history is local to the server run and never replaces the
 current observation shown on the page. Unknown never alerts;
 unavailable/unrecognized may. Each server has its own alert baseline.
 
+The one-second reuse window limits how old an answer may be, not how long
+the server retains it. Each server may keep one parsed copy per machine
+document and the latest shared observation until replacement. Terry accepted
+this memory tradeoff on 2026-10-31 and kept `SEED-202#bounded-dashboard-refresh`
+closed: its recorded probe settled at 51 MiB for one, three and eight viewers,
+compared with 22 MiB before the change. The additional working set consists of
+the parsed documents and latest observation; returning to the earlier heap
+baseline or expiring the observation after one second is not required.
+
 Open Dough's notification sender shows its icon and name. Explicitly prepare it
 with `npm run setup-notifier:dashboard` at
 `~/.open-dough/dashboard/notifier/Open Dough.app`, outside checkouts/deployments;
