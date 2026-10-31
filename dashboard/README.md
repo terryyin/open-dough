@@ -59,7 +59,7 @@ configured Gherkin locations in the project's `.planning/open-dough.json`, or
 says none are configured, and does not claim that tests or Proof are absent.
 Project changes, history, reload and System settings keep the perspective;
 choosing a session opens Development
-([dashboard navigation](../docs/dashboard-navigation.md#development-and-intent)).
+([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the
 **Preparation badge legend** help control. Click its title or use Enter/Space to read the complete published direction (or its no-direction

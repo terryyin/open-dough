@@ -1,11 +1,12 @@
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
-// nested folders, exact text with line numbers, Proof unavailable, project
-// change, and PNG files outside the kind omitted.
+// nested folders, exact text with line numbers and Gherkin styling, Proof
+// unavailable, project change, and PNG files outside the kind omitted.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import { expectAddress } from "./intentPerspectivePage.ts";
+import { colourOf } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
@@ -129,9 +130,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     );
     await expect(source).toContainText("Feature: Recall a note");
     await expect(source).toContainText("Given a notebook with a note titled");
-    await expect(
-      source.locator(".intent-source-line-number").first(),
-    ).toHaveText("1");
+    await expect(source.locator(".source-line-number").first()).toHaveText("1");
     await expect(intent).toContainText(
       `at revision ${shortRevision(doughnut.revision)}`,
     );
@@ -141,6 +140,47 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(
       intent.getByRole("region", { name: "Proof" }),
     ).not.toContainText(/passed|failed|no tests/i);
+  });
+
+  await test.step("Gherkin keywords and steps are styled; line text equals the source; copy excludes line numbers", async () => {
+    const source = intent.getByLabel(
+      "e2e_test/features/recall/recall_note.feature source",
+    );
+    const keyword = source
+      .locator(".source-line-text span")
+      .filter({ hasText: /^Feature$/ });
+    const step = source
+      .locator(".source-line-text span")
+      .filter({ hasText: /^Given $/ });
+    const plain = source
+      .locator(".source-line-text span")
+      .filter({ hasText: /^a notebook with a note titled $/ });
+    await expect(keyword).toBeVisible();
+    await expect(step).toBeVisible();
+    await expect(plain).toBeVisible();
+    const keywordColour = await colourOf(keyword);
+    const stepColour = await colourOf(step);
+    const plainColour = await colourOf(plain);
+    expect(keywordColour).not.toBe(plainColour);
+    expect(stepColour).not.toBe(plainColour);
+    expect(keywordColour).toBe(stepColour);
+
+    const lineText = await source
+      .locator(".source-line-text")
+      .evaluateAll((els) => els.map((el) => el.textContent).join("\n"));
+    expect(lineText).toBe(recallFeature);
+
+    const selected = await source.evaluate((pre) => {
+      const selection = window.getSelection();
+      if (selection === null) return "";
+      selection.removeAllRanges();
+      const range = document.createRange();
+      range.selectNodeContents(pre);
+      selection.addRange(range);
+      return selection.toString();
+    });
+    expect(selected).toBe(recallFeature);
+    expect(selected).not.toMatch(/(^|\n)\d+(\n|$)/);
   });
 
   await test.step("choosing Pygardon replaces Doughnut's tree and text; both locations browse", async () => {

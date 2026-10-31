@@ -1,0 +1,33 @@
+/* Shared whole-file source lines (`./SourceLines.tsx`): line numbers beside
+   selectable text so copying leaves the numbers behind. Token colours come
+   from on-demand Shiki highlighting when a language is supplied. */
+
+.source-lines {
+  margin: 0;
+  padding: var(--space-2);
+  overflow: auto;
+  border: 1px solid var(--edge);
+  background: var(--surface);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  tab-size: 2;
+}
+
+.source-line {
+  display: grid;
+  grid-template-columns: calc(var(--line-number-digits) * 1ch + 1ch) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.source-line-number {
+  user-select: none;
+  text-align: right;
+  color: var(--quiet);
+}
+
+.source-line-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+}

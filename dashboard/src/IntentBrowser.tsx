@@ -1,8 +1,7 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`): Purpose
-// shows a selected feature's published text with line numbers; Proof says
-// none is available yet. A failed file read keeps its own explanation and
-// retry while the location tree stays usable. Plain `IntentSourceLines`
-// remains the source pane for later styling.
+// shows a selected feature's published text with line numbers and Gherkin
+// styling; Proof says none is available yet. A failed file read keeps its
+// own explanation and retry while the location tree stays usable.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -57,6 +56,11 @@ export function IntentBrowser({
     };
   }, [source, revision, selectedPath, fileRetry]);
 
+  // The location's kind names the Shiki grammar for the shared source view.
+  const selectedLanguage = locations.find((location) =>
+    location.files.includes(selectedPath),
+  )?.kind;
+
   return (
     <div className="intent-browser">
       <div className="intent-locations">
@@ -95,6 +99,9 @@ export function IntentBrowser({
               text={text}
               revision={revision}
               path={selectedPath}
+              {...(selectedLanguage === undefined
+                ? {}
+                : { language: selectedLanguage })}
             />
           ) : (
             <p className="quiet">Reading {selectedPath}…</p>

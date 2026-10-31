@@ -107,7 +107,7 @@ without the setting shows the not-configured state.
 
 Includes the new read kind, the location-contained `file-at` admission, the
 fake-origin trees answer, Intent's tree and source pane, and updates to
-`docs/dashboard-navigation.md#development-and-intent`,
+`docs/dashboard-development-intent.md#development-and-intent`,
 `dashboard/PROJECT-CONFIGURATION.md` (the setting), and
 `dashboard/GITHUB-REQUESTS.md` (when Intent reads).
 
@@ -137,7 +137,7 @@ not-configured. Focused proof: `intent-gherkin-unusable.spec.ts`,
 
 ### 4. Style Gherkin source for reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: The journey's styling, line-text and copy assertions, plus the discriminating scratch edit.
 
 Behavior: When a feature is selected, `Feature:`, `Scenario:`, step keywords,
@@ -148,6 +148,12 @@ slow, and stays plain with no error if loading fails.
 
 Adds `shiki@4.5.0` as an exact devDependency, as the dashboard's other
 dependencies are, and the shared source-lines view.
+
+Accepted: shared `SourceLines` / `sourceHighlight` with on-demand Gherkin +
+`github-light`; location `kind` selects the grammar; copy excludes line
+numbers. Focused proof: `intent-gherkin-browse.spec.ts` styling step;
+discriminating scratch reported by implementer. Intent guidance extracted to
+`docs/dashboard-development-intent.md`.
 
 ### 5. Publish Gherkin locations in Doughnut and Pygardon
 Type: Behavior

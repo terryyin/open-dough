@@ -21,8 +21,8 @@ No plan, return, product, or proof was supplied.
 | 9 | No local checkout or running session is needed for that published, pinned reading. | slice 2 | observed: authenticated intent locations + file-at via fake published origin |
 | 10 | Each location shows its nested folders and Gherkin files in a collapsible tree arranged as Review changes arranges its files. | slice 2 | observed: IntentPerspective FileTree + recall nest in intent-gherkin-browse |
 | 11 | Files outside the kind (for example Doughnut’s tracked snapshot PNGs) are not listed. | slice 2 | observed: intent-gherkin-browse no recall.png control |
-| 12 | Selecting a file shows its whole exact text with line numbers and Gherkin syntax styling. | slice 4 | |
-| 13 | Styling only aids reading: copying the text yields the source, and nothing depends on color to be understood. | slice 4 | |
+| 12 | Selecting a file shows its whole exact text with line numbers and Gherkin syntax styling. | slice 4 | observed: intent-gherkin-browse styling step; SourceLines + sourceHighlight |
+| 13 | Styling only aids reading: copying the text yields the source, and nothing depends on color to be understood. | slice 4 | observed: selection equals source; line numbers excluded; plain text readable |
 | 14 | The selected file’s Proof truthfully says no Proof is available yet. | slice 2 | observed: intent-gherkin-browse Proof region “No Proof is available for this file yet” |
 | 15.1 | Distinct state: no configured locations says what happened and names the setting or location involved. | slice 2 | observed: expectNotConfiguredIntent names intent.locations and .planning/open-dough.json |
 | 15.2 | Distinct state: a location with no Gherkin files at the revision says what happened and names the setting or location involved. | slice 3 | observed: intent-gherkin-unusable empty/missing by path; boundary marks no-features |
@@ -30,7 +30,7 @@ No plan, return, product, or proof was supplied.
 | 15.4 | Distinct state: a failed read says what happened and names the setting or location involved; a failed read can be retried. | slice 3 | observed: intent-gherkin-unusable failed file-at alert + Retry |
 | 16 | Project change shows the newly selected project’s locations and source. | slice 2 | observed: intent-gherkin-browse Doughnut→Pygardon replaces trees/text |
 | 17 | Reads stay limited to paths inside the configured locations of the observed revision’s configuration: the local read boundary is not an open repository proxy. | slice 2 | observed: authenticated-read-intent-locations refuses file-at outside locations |
-| 18 | The dashboard has no dark appearance today, so one light styling theme suffices. | slice 4 | |
+| 18 | The dashboard has no dark appearance today, so one light styling theme suffices. | slice 4 | observed: github-light via sourceHighlight.ts |
 | 19 | Terry authorizes the configuration commits to Doughnut and Pygardon as part of this story’s publication and evaluation. | slice 5 | |
 | 20 | Other source kinds and file-selection patterns are deferred. |  | G1 |
 | 21 | Syntax styling in Review changes diffs is deferred; the styling ability is chosen so it can serve them later. |  | G2 |
@@ -75,7 +75,7 @@ unchanged Review changes tree plus the shared arrangement API.
 | Id / promise | Source-expected | Actual observation | Owner |
 | --- | --- | --- | --- |
 | 3, 5, 6, 8–11, 14, 15.1, 16, 17, 25, 26, 30, 41 | Intent browse/read without styling; not-configured; read restriction | Journey + boundary + frame specs green as listed in observations | slice 2 |
-| 12, 13, 23 styling | Styled keywords / copy | Deferred | slice 4 |
+| 12, 13, 18 | Styled keywords / copy / light theme | intent-gherkin-browse styling step; discriminating scratch | slice 4 |
 | 15.2–15.4, 27–29 | Empty/missing, unsupported, failed read | intent-gherkin-unusable + boundary settings/location problems | slice 3 |
 | settings unreadable/malformed | Distinct from not-configured | intent-gherkin-unusable settings test + boundary | slice 3 |
 | 1, 2, 7, 23–24 real projects | Trunk publication + evaluation | Deferred | slice 5 |

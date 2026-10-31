@@ -39,7 +39,7 @@ export type {
 } from "./intentLocationsSettings.ts";
 
 // The one supported Intent source kind and the extension its files use. The
-// kind also names the Shiki grammar later; there is no other mapping.
+// kind also names the Shiki grammar; there is no other mapping.
 export const intentSourceKinds = {
   gherkin: { extension: ".feature" },
 } as const;
