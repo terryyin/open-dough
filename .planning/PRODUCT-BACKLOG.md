@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Use the full mobile screen for sessions and simplify their header](seeds/SEED-199-mobile-session-screen.md#mobile-session-screen) — SEED-199#mobile-session-screen
 - [Simplify the project header and use a dropdown on narrow screens](seeds/SEED-198-responsive-project-header.md#responsive-project-header) — SEED-198#responsive-project-header
 - [Experience the Development and Intent frame](seeds/SEED-192-review-product-intent.md#open-development-intent-frame) — SEED-192#open-development-intent-frame
 - [Browse a project's test source in Intent](seeds/SEED-192-review-product-intent.md#browse-test-purpose) — SEED-192#browse-test-purpose
