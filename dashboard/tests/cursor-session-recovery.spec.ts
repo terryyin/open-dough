@@ -185,10 +185,11 @@ test("done and completed sessions offer no Recover", async ({
     "dashboard",
     "agent-launches.json",
   );
+  const recentDoneAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   writeFileSync(
     file,
     JSON.stringify({
-      "open-dough": [{ ...record, doneAt: "2026-10-01T00:00:00.000Z" }],
+      "open-dough": [{ ...record, doneAt: recentDoneAt }],
     }),
   );
   await reloadUntilRead(page);

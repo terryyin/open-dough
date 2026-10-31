@@ -27,7 +27,7 @@ is a fresh pass against the current suite with that wider cost band.
 
 **Identity:** SEED-197#optimize-dashboard-test-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/424-optimize-dashboard-test-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d1489746625331a85370acef2b9a49600b33b77e0fad6fc2563f63a24ff3ab80","plan":"b16162d287b891b6ecb8981d30f25be52c3ede10ecd555fa27987c13b7a1aadd"}}
 ```
 
 **Beneficiary:** A developer running the dashboard tests during local work.
