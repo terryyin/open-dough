@@ -3,8 +3,8 @@
 // as a developer does, and what the paging journeys
 // (./board-paging*.spec.ts) observe: which columns show and fill
 // the Board, which column paging controls offer which column, whether cards keep their
-// share of the Board, whether a move slid, and whether the Board ends with the
-// shown columns.
+// share of the Board, whether a move slid, whether the row rests showing a
+// column, and whether the Board ends with the shown columns.
 // Journeys reach a hidden column only as a developer does, through a column paging
 // control or focus, by `showColumn`; the product has no test-only way in.
 
@@ -72,6 +72,16 @@ export async function showColumn(page: Page, column: ColumnName) {
     await page.mouse.click(x + width / 2, (Math.max(y, 0) + shownTo) / 2);
   }
   await rested();
+}
+
+// A column the Board brings into view by itself, as a reveal does, shows once
+// the row rests there: until then the departing column still lengthens it.
+export async function expectRowRestsShowing(page: Page, column: ColumnName) {
+  const row = page.locator(".board-row");
+  const place = columns.indexOf(column) + 1;
+  const hidden = new RegExp(`(^| )${String(place)}( |$)`);
+  await expect(row).not.toHaveAttribute("data-hidden", hidden);
+  await expect(row).not.toHaveAttribute("data-sliding");
 }
 
 export const rem = 16;

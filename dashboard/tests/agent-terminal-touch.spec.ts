@@ -3,6 +3,8 @@
 import { expect, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
+import { expectRowRestsShowing, scrollYOf } from "./boardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -47,6 +49,14 @@ test.describe(`${name} terminal input`, () => {
     page,
     dashboard,
   }) => {
+    // Earlier sessions above it in Taken keep the Board scrolling behind the
+    // covering panel, so the revealed card holds a real reading place (E3).
+    for (const earlier of [1, 2, 3]) {
+      await launched(dashboard, "open-dough", {
+        identity: `SEED-901#earlier-${String(earlier)}`,
+        title: `Earlier session ${String(earlier)}`,
+      });
+    }
     const native = await launched(dashboard, "open-dough", {
       identity: "SEED-901#continue-touch-terminal",
       title,
@@ -58,7 +68,6 @@ test.describe(`${name} terminal input`, () => {
     await tapWhereShown(sidebar.button);
     const opener = sidebar.entry(title);
     const { sent, sizes } = noteTerminalTraffic(page);
-    const boardScroll = page.locator(".board-scroll");
     await tapWhereShown(opener);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
@@ -72,16 +81,18 @@ test.describe(`${name} terminal input`, () => {
       await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
       expect(attaches()).toHaveLength(count);
       expect(attaches().every(({ id }) => id === native.shortId)).toBe(true);
-      expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+      // The three earlier sessions and this one; nothing launches again.
+      expect(dashboard.claudeLaunchCalls()).toHaveLength(4);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     };
     await expect(rows).toContainText(`attached ${native.shortId}`);
     await expect(rows).toContainText("Claude Code");
     await expectCoveringFillsWindow(panel, { banner, board });
-    // Reveal may move the Board; Close must return that same place (E3).
-    const scrollWhileCovering = await boardScroll.evaluate(
-      (element) => element.scrollTop,
-    );
+    // Reveal may move the Board; Close must return that same place (E3),
+    // read once Taken, holding the session's card, rests in view.
+    await expectRowRestsShowing(page, "Taken");
+    const scrollWhileCovering = await scrollYOf(page);
+    expect(scrollWhileCovering).toBeGreaterThan(0);
     await expect(control("Mark as done")).toBeVisible();
     await expect(control("Close")).toBeVisible();
     await expectBoardUnreachableBehindCovering(panel, board);
@@ -207,14 +218,14 @@ test.describe(`${name} terminal input`, () => {
       await expect(sidebar.button).toBeFocused();
       await expect(banner).toBeVisible();
       await expect(board).toBeVisible();
-      expect(await boardScroll.evaluate((element) => element.scrollTop)).toBe(
-        scrollWhileCovering,
-      );
+      expect(await scrollYOf(page)).toBe(scrollWhileCovering);
       await expect.poll(() => attaches()[0]?.endedBy).toBe("SIGHUP");
       await expect
         .poll(() => processRunning(attaches()[0]?.pid ?? 0))
         .toBe(false);
-      const record = (await recordsOf(dashboard, "open-dough"))[0];
+      const record = (
+        (await recordsOf(dashboard, "open-dough")) as LaunchRecord[]
+      ).find(({ session }) => session.sessionId === native.sessionId);
       expect(record).toMatchObject({
         session: { sessionId: native.sessionId },
         sessionState: { kind: "available" },
