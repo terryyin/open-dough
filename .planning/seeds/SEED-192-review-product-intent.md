@@ -11,141 +11,331 @@ scope: epic
 
 ## Why This Matters
 
-For developers reviewing a newly developed story, the difficulty of connecting
-its intended outcome to maintained test source and observed proof should change
-to a review that supports decisions about intent clarity, protection, complexity,
-and proof cost. Begin with automated tests and the story's impact, within the
+For developers reviewing and maintaining product intent, reading test source in
+editors and piecing together separate run output should change to a coherent
+Intent workspace for Purpose and observed Proof. Begin with actual automated
+test source and named real projects, within the
 [near-future direction](../PRODUCT-BACKLOG.md#near-future-direction) and the
 [product intent review memorandum](../../docs/product-intent-review-memorandum.md).
+Terry evaluates the first experience. The cost of today's manual workflow has
+not been measured; usefulness must be judged against that baseline.
 
-The dashboard currently presents Development and supports Review changes.
-Intent remains design direction. Test source can be read in existing editors,
-and test results can be read outside the dashboard. The missing product outcome
-is a coherent review of the resulting intent and its proof. The time or error
-cost of the existing manual workflow has not been measured.
-
-Terry selected this direction on 2026-10-30 and requested its decomposition and
-backlog ordering. The named beneficiary is the developer maintaining and
-reviewing product intent, with Terry evaluating the initial experience. The
-stories and their order below are recommendations under that request, rather
-than a record of acceptance of each individual boundary.
+**Decomposition kept 2026-10-31:** Terry requested a visible Development/Intent
+frame first, explicit per-project test-folder types, source browsing before
+Proof, bounded rolling run history, folder summaries, further test families,
+and CI corroboration of locally produced proof with resource-aware timing.
+Terry kept this decomposition and directed the backlog to follow the order
+below, with optimization-candidate review after source browsing. Existing story
+identities are preserved. The stories remain preparation input; execution
+approaches and implementation are not selected by this backlog decision.
 
 ## Human-Owned Framing and Constraints
 
-The preceding discussion establishes these inputs:
+Established by Terry's 2026-10-30 and 2026-10-31 discussions:
 
-- The initial usable Intent increment can be a test-file browser. Each project
-  identifies its test locations; the reader follows their folder structure.
-- The next increment lists all recorded hard-to-resolve optimization candidates
-  and accepted slow tests. Selecting a listed test reuses the first increment's
-  test-source navigation. Terry requested this at priority 2 on 2026-10-31.
-- Purpose initially means actual static test source. Proof adds observed
-  execution information. The selected UX supports side-by-side and tabbed
-  layouts, with an adjacent switch that preserves the selection and story scope.
-- Review the intent introduced or affected by a newly developed story, including
-  a completed story with a recoverable comparison. The maintained product intent
-  survives the story; a changed file is only an initial indication of impact.
-- Protection and complexity assessment are questions to investigate. High-level,
-  concise tests are preferred; setup, low-level coupling, and mocking carry
-  complexity costs. These preferences have not established a scoring formula.
-- Actual execution reports provide the initial observable proof cost. Keep
-  timings, outcomes, selection, and evidence limitations understandable.
-- Domain models, static types, written specifications, and assessment of the
-  whole product's protection belong to the longer-term memorandum.
-- The initial navigation includes Development and Intent. Structure is deferred.
-  Near-future direction belongs in Development. Start session placement remains
-  open and need not be settled to deliver these review outcomes.
+- The developer should be able to see and feel the overall frame before the
+  Intent reader is built. Development and Intent are the initial perspectives;
+  Intent can initially explain that its content is forthcoming. Structure waits.
+- Each project explicitly configures its intent locations and what they contain.
+  Start with Cucumber source in Doughnut and Pygardon. Automatic detection is
+  deferred. Next consider TypeScript, Python, and script tests.
+- Purpose initially means actual static test source. File and folder browsing
+  needs no runtime reports, generated narrative, or authored intent catalogue.
+- Projects produce Proof through their test commands outside CI. Keep a bounded,
+  rolling history, show selected-file Proof, then folder-level observations.
+  CI independently checks the relevant claims; it does not produce the retained
+  dashboard Proof history. CPU and other resources can change run time.
+- Preserve the selected project and the shared frame. Purpose/Proof side-by-side
+  and tabbed layouts share one selection; the switch preserves selection and any
+  story scope. Near-future direction belongs in Development.
+- The existing optimization-candidate story was requested at priority 2 earlier
+  on 2026-10-31. Its links require useful source browsing, not merely an empty
+  frame. Terry selected its revised placement after the source-browsing stories,
+  at priority 4, when keeping this decomposition on 2026-10-31.
+- Story impact, protection, and complexity remain part of the parent direction.
+  Source changes and passing runs alone do not establish intent protection.
+  Domain models, types, and written specifications remain later extensions.
 
-The most consequential unresolved assumption is whether an explainable
-assessment can tell the developer something useful about a story's intent
-protection. The first browser story tests the smaller, explicitly requested
-entry point: whether developers can locate and read the relevant expressions of
-intent. A bounded assessment comes before richer aggregate reporting.
+The first learning question is whether the real frame makes the two perspectives
+understandable without disrupting Development. The next is whether explicit
+locations make real test source easy to find. Before spreading report collection,
+test the more consequential assumption that retained local proof can be associated
+with tested source and meaningfully corroborated by independent CI.
 
 ## Alternatives and Recommendation
 
-- **Defer or do nothing:** preserves the current tools and their cost, but leaves
-  the selected review goal unmet. Terry has chosen to advance this direction.
-- **Use an editor, existing Review changes, and manual test reports:** the
-  strongest smaller alternative and the baseline for assessing added value.
-  It can support an initial assessment without new report or AI infrastructure.
-  It does not provide the integrated Intent experience Terry requested; retain
-  it as the fallback and use it in the assessment stories where it is sufficient.
-  Its quantitative disadvantage remains unmeasured.
-- **Deliver only a test-source browser:** selected as the first useful product
-  increment. It improves access to Purpose and remains valuable if the later
-  proof and assessment stories are cancelled. It cannot itself establish how
-  much intent is protected.
-- **Build integrated review incrementally:** recommended. Follow useful source
-  reading with story impact and real proof, then test protection and complexity
-  judgments on bounded real cases. Add folder-level cost summaries after those
-  learning opportunities. A general scoring system is not a prerequisite.
+- **Defer:** keeps the existing editor/report workflow, but misses the explicitly
+  requested Intent experience. Terry has selected advancement of this direction.
+- **Use editors, Review changes, and existing reports:** the strongest smaller
+  alternative. It remains the comparison and fallback, and can support early
+  protection/complexity reviews. It does not supply the requested integrated
+  browsing and rolling evidence experience; its quantitative disadvantage is unknown.
+- **One source-browser story for every language:** possible as delivery
+  checkpoints, but plain text, folders, and explicit file selection are the same
+  observable behavior. A Python-only reader adds no demonstrated independent
+  outcome after a configurable text reader exists. Recommend a Cucumber pilot,
+  then one general source-browsing increment evaluated with TypeScript, Python,
+  Node, and shell examples. Split only if refinement reveals distinct behavior.
+- **One universal reporting story or JUnit-only import:** unnecessarily combines
+  different runner semantics. Reuse native reports and add one real producer
+  family at a time. Avoid a plugin platform or a universal scoring model.
+- **Recommended:** deliver the visible frame, source access, one end-to-end
+  locally produced Proof history, and early CI corroboration. Extend the shared
+  reading experience by actual runner family, with folder summaries once one
+  family's observations can already be read. Later families include their CI
+  corroboration under the policy learned from the first case.
 
-Each story below has one user-visible outcome and its own stopping point.
-Navigation, project test-location identification, source reading, evidence
-association, and any required support belong within those outcomes rather than
-in separate infrastructure stories. Detailed implementation choices remain for
-refinement and planning.
+## Research Basis and Architectural Considerations
+
+### Observed project inventory
+
+Read-only inspection on 2026-10-31; these are checkout observations, not new test
+runs or measurements. Open Dough was inspected at `7e198a7c3374`; Doughnut at
+`1233bbd6db20`; Pygardon at `5df070ed54fc`. No client-project files were changed.
+
+| Project | Initial source locations | Actual runners and relevant distinctions |
+| --- | --- | --- |
+| Open Dough | `dashboard/tests/`; shell checks under `tests/`; Node tests under `tests/`, `scripts/`, and skill-script locations selected by the existing test command | Dashboard TypeScript tests use Playwright Test, not Vitest. `scripts/test.sh` schedules shell checks and `node --test` files. |
+| Doughnut | `e2e_test/features/`; frontend test locations under `frontend/`; Node script tests under `scripts/` and `infra/` | Cucumber features run through Cypress and `@badeball/cypress-cucumber-preprocessor`. Frontend Vitest uses real-browser projects, including touch, with different CI retry/parallel settings. |
+| Pygardon | `e2e_test/features/`; separately `e2e_test/packaged/features/`; colocated tests under `frontend/src/`; `tests/` for pytest | Cucumber.js uses Playwright as browser automation. Its CI profile and tags differ from local defaults. Frontend uses Vitest with happy-dom. pytest defaults and CI exclude different slow/host-only selections. |
+
+Doughnut also has CLI Vitest, CLI Python unittest, and Java/JUnit backend tests.
+The requested Pygardon Python increment means pytest, not all Python tests in
+all projects. Java/JUnit and additional CLI/packaged profiles are scope choices
+for later selection; a generic source reader need not prohibit them. Source
+browsing does not imply their execution evidence is already supported.
+
+### Constraints from current Accepted ADRs
+
+- [ADR 0001 — Ubiquitous language](../../docs/adrs/0001-ubiquitous-language-accepted.md):
+  keep Development, Product intent, Purpose, and Proof distinct. An initial
+  scope limit does not justify a product gate against another readable format.
+- [ADR 0002 — Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md):
+  retain useful stopping points, reuse suitable existing solutions, and build
+  supporting machinery when the selected outcome needs it. Delivery order alone
+  does not justify blocking story dependencies.
+- [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
+  repository records own durable project facts; published facts, local
+  observations, and disposable UI state stay distinguishable. Project registration
+  and machine paths remain host settings. No application/server database is selected.
+- [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md):
+  compare the useful review with the existing manual workflow, including human
+  effort, collection overhead, retained data, and future maintenance cost.
+- [ADR 0000 — Use ADRs](../../docs/adrs/0000-use-adrs-accepted.md):
+  this Intent-specific direction belongs with product intent and planning.
+  No new ADR acceptance, supersession, or exception is proposed. Relevant index
+  and record statuses agree; no conflict was found in this recommendation.
+
+### Recommended boundaries for refinement
+
+These are proposed responsibilities and evidence semantics, not a technical
+schema, executable design, or a newly accepted architecture decision.
+
+1. **Project-owned configuration:** record intent roots, explicit source kind,
+   and file selection in each repository's `.planning/open-dough.json`, extending
+   its existing project settings. Identify the execution runner separately when
+   Proof needs it: Gherkin does not mean Cucumber.js, and TypeScript does not mean
+   Vitest. File selection matters for colocated tests and mixed helper folders.
+   Read config and source at the same named published revision. Missing config,
+   an empty configured location, and a failed read have different meanings.
+   Dashboard project registration remains machine-local. A settings editor is
+   not needed for the first browsing story; repository configuration suffices.
+2. **Reuse the existing frame and source concepts:** the current React dashboard
+   already has project selection, session preservation, settings navigation,
+   review file trees, exact source text, and authenticated pinned Git reads.
+   These inform reuse; they are not a ready-made Intent tree. The current
+   published-directory helper lists files only, while story-review text is
+   admitted within a particular comparison. Intent needs its own project/root
+   reading scope without depending on a live session or story workspace.
+3. **Producer ownership:** a project's normal authorized test workflow produces
+   evidence; the dashboard reads it. Prefer compact repository-published run
+   records for shared viewing without a developer clone. Local unpublished
+   results may exist before publication but are not published Proof. Keep the
+   current bounded working set small; deleting old records does not erase Git
+   history or guarantee bounded lifetime repository storage. The exact record
+   path, retention count, and size budget need first-Proof refinement.
+4. **Source association from the first run:** a run identifies the product,
+   tests, relevant dependency/configuration basis, selection, producer, time,
+   terminal outcome, and observed attempts. A feature-file hash or passing exit
+   alone cannot show that current implementation was tested. Dirty source stays
+   identifiable or explicitly unmatched. Publishing an evidence-only commit
+   must not invalidate its tested source merely because the enclosing commit
+   changed; CI compares the tested basis, not blindly the report commit's HEAD.
+5. **Bounded clinical history:** retain failed and incomplete observations as
+   well as passes, per configured suite, with each run's original scope. Proposed
+   starting retention is the latest ten compact run records per suite, subject
+   to review. A focused run must not masquerade as a full run, erase the meaning
+   of an earlier full observation, or combine old passing cases into a current
+   green suite. Keep raw screenshots/videos out of the compact rolling record.
+6. **Native reporting before new machinery:** Cucumber.js emits Cucumber
+   Messages, and Doughnut's preprocessor can emit Messages too. This is a
+   promising common input, not proven compatibility of their installed versions.
+   Map source scenarios/outline rows and retry attempts using each run's actual
+   source, not generated runtime IDs across unrelated runs. Keep collection,
+   ordinary diagnostics, and strict pass/fail rules coherent. Open Dough already
+   has an opt-in Playwright proof record, but it has no explicit tested revision
+   and no automatic history/retention policy.
+7. **Folder truth and timing:** summarize one selected run's observed children
+   before considering cross-run or mixed-runner totals. Show unobserved,
+   excluded, skipped, and incomplete work. Summed case durations are not elapsed
+   wall time under parallelism; shared setup/hook cost is only attributed where
+   observed. Do not invent folder wall time from case sums or imply that a
+   folder's source listing is the runner's collected-case inventory.
+8. **CI corroboration:** compare applicable tested source and selection before
+   comparing case outcomes. A broader CI run can corroborate the matched local
+   subset; excluded host-only cases remain unchecked. Missing expected cases,
+   changed source, malformed records, retry-assisted passes, and interrupted CI
+   need explicit classifications. CI reports its consistency verdict and any
+   diagnostic evidence without replacing or appending to the retained local
+   Proof history. It corroborates reproducibility; it does not authenticate who
+   created a local observation or prove that a test correctly expresses intent.
+9. **Resource-aware comparisons:** durations, timestamps, worker counts, and
+   execution order need not match. Record relevant runner/browser/runtime and
+   resource context where available; compare timing only within comparable
+   contexts. Do not choose an arbitrary CPU multiplier or timing tolerance as a
+   consistency gate. Actual failures/timeouts retain their observed outcome;
+   resource differences qualify interpretation rather than turning them into
+   passes. Performance-regression enforcement is a separate later decision.
+
+Both Open Dough and Pygardon's GitHub workflow declarations ignore pushes that
+change only `.planning/**` or `docs/**`. Pygardon uses its own source-check
+recipe/controller for execution. If report publication uses an ignored path,
+first-Proof/CI refinement must establish which source run is checked and how a
+report-only update requests corroboration; ordinary push behavior cannot be
+assumed sufficient. Respect existing CI adapters and test selection policies.
+
+### External reporting research
+
+The following official documentation supports feasibility, not a selected
+implementation. Installed-version compatibility still needs a real run during
+refinement or execution.
+
+- Cucumber.js recommends its [Messages formatter](https://github.com/cucumber/cucumber-js/blob/main/docs/formatters.md)
+  for structured output; legacy JSON is in maintenance mode. The
+  [Messages model](https://github.com/cucumber/messages/blob/main/README.md)
+  retains source/run information and has versioned schemas.
+- The Cypress preprocessor documents [Messages reports](https://github.com/badeball/cypress-cucumber-preprocessor/blob/master/docs/messages-report.md),
+  including optional embedded media, which reinforces the need for compact retention.
+- [Vitest reporters](https://vitest.dev/guide/reporters) provide JSON results and
+  allow multiple reporters. Keep existing quiet/strict reporters rather than
+  accidentally replacing their behavior when collection is added.
+- [Playwright reporters](https://playwright.dev/docs/test-reporters) support JSON
+  and multiple reporters; Open Dough's [existing proof contract](../../dashboard/tests/proof-record.md)
+  is a more directly relevant reuse candidate than replacing its strict reporter.
+- [pytest JUnit output](https://docs.pytest.org/en/stable/how-to/output.html#creating-junitxml-format-files)
+  includes setup/teardown in durations by default; it does not settle our full
+  source association, selection, and history requirements by itself.
+- [Node test reporters](https://nodejs.org/api/test.html#test-reporters) expose
+  structured events; console output is not a stable programmatic contract.
 
 ## Shared Evidence and Sizing Boundaries
 
-Use the [initial Intent UX/UI direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace)
-and the existing shared dashboard frame. Real repository content and actual
-execution evidence supply the views. A source read identifies its revision;
-a proof observation identifies the run and scope it actually supports. Missing
-or historical observations remain explicit. Browsing a test makes no claim that
-it is a good expression of product intent or that the whole product is covered.
+Follow the [initial Intent UX/UI direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace).
+Every candidate is evaluated by Terry or a developer reviewing the named project.
+Every stopping point preserves useful behavior without later stories. Source
+reads name their revision; Proof names its actual run and supported scope.
+Missing observations remain unknown. No synthetic sample establishes a real pass.
 
-[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-keeps durable project facts in repository records, published progress in origin,
-and machine-local observations distinguishable. Existing test-run reporting is
-an input to investigate, not an already implemented Intent proof service.
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
-requires worthwhile outcomes relative to a stated baseline, including review
-and future maintenance cost.
-
-No project S/M/L definitions were found, consistent with the retained sizing
-notes in [SEED-052](SEED-052-start-agent-work-from-dashboard.md#open-decisions-before-refinement-or-planning).
-Bands and a numeric effort distribution remain unassigned. The comparative
-hypotheses below identify uncertainty and likely scope pressure; they are not
-time commitments. Each candidate records decomposition facts only. No execution
-approach has been selected.
+Open Dough has no established S/M/L calibration, as already recorded here and in
+[SEED-052](SEED-052-start-agent-work-from-dashboard.md#open-decisions-before-refinement-or-planning).
+No bands or time commitments are invented. Comparative hypotheses below are
+unbanded; confidence includes integration, verification, and cleanup. The new
+track has three source/frame outcomes and nine Proof/CI outcomes; four existing
+review candidates remain. Most uncertainty lies in the first Proof and CI cases.
+None is execution-ready or assigned a planned/planless approach.
 
 ## Story Decomposition
 
+<a id="open-development-intent-frame"></a>
+
+### 1. Experience the Development and Intent frame
+
+**Identity:** SEED-192#open-development-intent-frame
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** Terry can experience and judge the actual two-perspective frame
+  while retaining a useful Development dashboard.
+- **Evaluation:** Switch to Intent for a selected project, read an honest
+  forthcoming-content state, switch projects, and return to Development with
+  useful session and navigation context. Keyboard, narrow-screen, and settings
+  journeys remain usable; near-future direction stays in Development.
+- **Value / learning:** Validates the frame's orientation and feel before readers
+  or reports add cost. An implemented UI is the reviewable result.
+- **Boundary:** Perspective navigation and the empty Intent state; no source
+  browser, placeholder proof numbers, Structure tab, or advance report machinery.
+  Final Start session placement is not a prerequisite.
+- **Effort hypothesis:** Unbanded; lower-to-middle, medium confidence. Existing
+  route/session preservation makes this more than adding two decorative tabs.
+- **Product prerequisites:** The current dashboard; no story blocker established.
+- **Safe stopping point:** Development remains usable and the new perspective is
+  understandable even if content work stops. Empty means not yet provided, not
+  evidence that the project has no tests.
+
+
 <a id="browse-test-purpose"></a>
 
-### 1. Browse a project's test source in Intent
+### 2. Browse a project's test source in Intent
 
 **Identity:** SEED-192#browse-test-purpose
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why:** A developer can find and read the project's maintained test
-  source as the initial account of Purpose, without leaving the dashboard.
-- **Evaluation:** Given an identified set of test locations for the selected
-  project, enter Intent, expand a folder, select a test file, and read its actual
-  source with its revision. The tree and reader correspond to that project.
-- **Value / learning:** Delivers the first usable Intent perspective and tests
-  whether this entry point helps developers locate expressions of behavior.
-- **Boundary:** Includes project test-location identification and the usable
-  browser in the existing frame. Its test-file selection is also the navigation
-  reused by the candidate links in the next story. Runtime proof collection and
-  generated intent narratives belong to later outcomes. The test-location
-  mechanism is open.
-- **Effort hypothesis:** Unbanded; comparatively lower, medium confidence.
-  Assumes the existing source-reading and folder-review capabilities can inform
-  the work; selecting test locations across projects is the main uncertainty.
-- **Product prerequisites:** A readable project and identified test locations.
-  No blocking story dependency has been established.
-- **Safe stopping point:** A read-only browser remains useful independently.
-  Empty, unavailable, or unreadable source must be distinguishable from an empty
-  or fully reviewed intent set.
+- **For / why:** A developer can locate and read real Cucumber features in the
+  selected project's Intent perspective.
+- **Evaluation:** With explicit configured Gherkin locations in Doughnut and
+  Pygardon, expand nested folders, choose a `.feature` file, and read its actual
+  source and revision. Changing project changes the configuration and content.
+- **Value / learning:** Tests explicit typed locations on two real projects and
+  supplies the first usable Purpose reader without waiting for Proof.
+- **Boundary:** Narrow the original broad browser identity to the Cucumber pilot.
+  Include project-owned settings and end-to-end publication/read behavior for the
+  examples. No auto-detection, scenario parsing, or test execution is required.
+  The initial Proof state truthfully says evidence is unavailable.
+- **Effort hypothesis:** Unbanded; middle, medium confidence. A published nested
+  tree and exact source read are needed; a reusable reader is not yet delivered.
+- **Product prerequisites:** Readable projects and configured roots. The frame
+  outcome is needed at integration, not a separately recorded start blocker.
+- **Safe stopping point:** A useful read-only Gherkin browser; missing settings,
+  empty roots, unsupported configuration, and read failures stay distinguishable.
+
+
+<a id="browse-configured-test-source"></a>
+
+### 3. Browse the other configured test sources
+
+**Identity:** SEED-192#browse-configured-test-source
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer can use Intent for the other maintained test sources,
+  including tests colocated with application code.
+- **Evaluation:** Open a dashboard Playwright TypeScript spec in Open Dough,
+  frontend Vitest specs in Doughnut and Pygardon, a Pygardon pytest file, and
+  selected Open Dough/Doughnut Node or shell test source. Nested navigation and
+  explicit file selection keep helpers and product files understandable.
+- **Value / learning:** Tests one shared text-reading rule across the requested
+  families; Python and scripts need no separate story merely for syntax.
+- **Boundary:** Explicit roots, source kinds, and include selections; actual text
+  with project/revision context. No AST-based case inventory, runner migration,
+  report collection, or claim that every file in a mixed folder is a test.
+- **Effort hypothesis:** Unbanded; lower-to-middle, medium confidence after the
+  Cucumber pilot. Split TypeScript first only if file selection or a distinct
+  Python/script behavior proves independently consequential during refinement.
+  Fold examples already supported by the pilot into its evaluation rather than
+  queue a source-extension story that would change no behavior.
+- **Product prerequisites:** A source-reading experience for integration. No
+  parser or execution reporter is a prerequisite for source browsing.
+- **Safe stopping point:** All named source examples remain readable without
+  runtime Proof. New formats can work naturally without an artificial gate.
+
 
 <a id="review-test-optimization-candidates"></a>
 
-### 2. Review test optimization candidates and accepted slow tests
+### 4. Review test optimization candidates and accepted slow tests
 
 **Identity:** SEED-192#review-test-optimization-candidates
 ```json dough-story-state
@@ -160,7 +350,7 @@ approach has been selected.
   cost in clearly labelled groups. Show the recorded test locations, observed
   cost and date, and disposition rationale, with access to recorded evidence.
   Selecting a test location opens that project's actual test source through
-  the first story's browser. A family spanning multiple files links each file;
+  the configured-source browser. A family spanning multiple files links each file;
   use an identified case location when available. An unavailable or moved target
   explains the gap rather than opening an unrelated test.
 - **Value / learning:** Makes unresolved optimization work and deliberate
@@ -168,16 +358,16 @@ approach has been selected.
   access to the protected behavior helps developers understand those decisions.
 - **Boundary:** Read the maintained record, such as Open Dough's
   [Test Optimization Candidates](../TEST-OPTIMIZATION-CANDIDATES.md), and reuse
-  the first story's source reader and test selection. Include all recorded
+  the configured-source reader and test selection. Include all recorded
   pending and accepted entries, regardless of their observed duration or whether
   a runtime report is available. Accepted costs remain visible with their
   rationale; acceptance does not imply skipping or excluding those tests.
   Profiling, test changes, and disposition changes belong to separate work.
 - **Effort hypothesis:** Unbanded; comparatively lower, medium confidence.
-  Assumes the first story supplies test-source navigation. Resolving recorded
+  Assumes source browsing supports the recorded tests' source types. Resolving recorded
   locations and presenting missing targets truthfully need refinement.
 - **Product prerequisites:** A maintained candidate record and the test-source
-  navigation delivered by the first story. Reusing that navigation belongs in
+  navigation delivered by the source-browsing increments. Reusing that navigation belongs in
   this story's implementation; no separate navigation mechanism is needed.
 - **Safe stopping point:** The complete recorded list and its test links are
   useful without runtime Proof or automated assessment. Distinguish an absent
@@ -185,7 +375,7 @@ approach has been selected.
 
 <a id="review-story-intent-impact"></a>
 
-### 3. Review a story's impact on test intent
+### 5. Review a story's impact on test intent
 
 **Identity:** SEED-192#review-story-intent-impact
 ```json dough-story-state
@@ -213,38 +403,124 @@ approach has been selected.
 
 <a id="read-observed-test-proof"></a>
 
-### 4. Read observed proof alongside test purpose
+### 6. Read observed proof alongside test purpose
 
 **Identity:** SEED-192#read-observed-test-proof
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why:** A developer can inspect what actually ran, its observed outcome,
-  when it ran, and its execution cost alongside the test source being reviewed.
-- **Evaluation:** For source with an applicable real report, select a test file
-  and inspect its observed executions, result, validation time, and duration.
-  Switch between side-by-side and tabbed Purpose/Proof layouts while preserving
-  the selection and story scope. Historical or unmatched evidence is qualified.
-- **Value / learning:** Makes the distinction between intended behavior and
-  observed proof usable, and supplies the initial directly observable proof cost.
-- **Boundary:** Begin with one existing report producer in one real project.
-  Open Dough's dashboard proof-record contract is a concrete candidate for
-  refinement, not a universal report format. Run tests through existing commands;
-  the report reader itself runs no tests. The selected producer must support a
-  truthful association with source; missing revision context stays unknown.
-- **Effort hypothesis:** Unbanded; comparatively higher, low confidence.
-  The existing report records execution but does not itself establish the source
-  revision. Evidence association and usable layout switching are the main risks.
-- **Product prerequisites:** A real test selection, source, and execution report
-  for the chosen case. No blocking story dependency has been established.
-- **Safe stopping point:** Selected-file Proof is useful without summaries or
-  AI judgment. Passing cases, skipped work, incomplete runs, and missing results
-  must retain their actual meanings rather than implying a complete pass.
+- **For / why:** A Pygardon developer can see recent actual Cucumber.js proof for
+  the feature source being reviewed, rather than locate separate console logs.
+- **Evaluation:** Run an existing authorized local selection, retain and publish
+  its compact record, then select its feature in Intent and inspect cases,
+  attempts, outcomes, time, cost, and recent run history against the tested basis.
+  A focused or interrupted run remains visibly limited. Switch Purpose/Proof
+  layouts without losing selection; preserve story scope when one is present.
+- **Value / learning:** The first complete producer-to-reader loop tests whether
+  source association and bounded clinical history are useful and affordable.
+- **Boundary:** Pygardon's ordinary Cucumber.js profile first, file-level Proof,
+  bounded run history, source association, and existing command failure meaning.
+  Retention count/path/publication and relevant source basis must be settled in
+  refinement. Folder totals and CI corroboration are separate outcomes.
+- **Effort hypothesis:** Unbanded; higher, low confidence. Existing Messages are
+  input, not a delivered publication/history service. Narrow the chosen profile
+  or selection if necessary while retaining honest outcome/attempt distinctions.
+- **Product prerequisites:** Actual feature source and a runnable authorized
+  local selection. No dashboard-run button or new service is required.
+- **Safe stopping point:** Recent local file-level evidence is useful even if CI
+  corroboration never arrives, and is explicitly uncorroborated in that case.
+
+
+<a id="check-cucumber-proof-in-ci"></a>
+
+### 7. Check locally collected Cucumber proof against CI
+
+**Identity:** SEED-192#check-cucumber-proof-in-ci
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A Pygardon developer can tell whether independent CI corroborates
+  the applicable retained local Cucumber proof or why comparison is incomplete.
+- **Evaluation:** CI reads the local record published with a source basis, runs
+  its own selection, and reports matching observations, a specific discrepancy,
+  or an explicit unchecked scope. A slower compatible CI run with matching
+  outcomes remains consistent without requiring equal durations.
+- **Value / learning:** Tests the trust boundary before proliferating producers:
+  selection, evidence-only commits, CI exclusions, and nonidentical resources.
+- **Boundary:** One project, one runner family. CI's comparison output does not
+  create, refresh, or overwrite retained local history. Define comparison of
+  case identities/outcomes, retries, incomplete runs, and report-only trigger
+  behavior. Performance gates and proof authenticity are separate concerns.
+- **Effort hypothesis:** Unbanded; higher, low confidence. Actual Pygardon source
+  recipe/controller and differing local/CI tags must be respected.
+- **Product prerequisites:** Retained locally produced Cucumber evidence and an
+  independently runnable CI selection; only matched source/scope is corroborated.
+- **Safe stopping point:** An actionable CI consistency verdict for Cucumber.js;
+  earlier source and local history views still work when CI is unavailable.
+
+
+<a id="read-cypress-cucumber-proof"></a>
+
+### 8. Read Doughnut Cucumber proof with recent history
+
+**Identity:** SEED-192#read-cypress-cucumber-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A Doughnut developer can review local Cypress-Cucumber evidence
+  for a selected feature through the same Intent experience.
+- **Evaluation:** Produce and publish a real record through Doughnut's existing
+  runner, read feature/case history, and check comparable observations against
+  its CI selection. Outline rows and retries retain their source association.
+- **Value / learning:** Tests whether the first Cucumber input and evidence
+  meanings survive a second real execution integration.
+- **Boundary:** Cypress preprocessor Messages and Doughnut's existing runner,
+  diagnostics, tags, and isolation. Reuse learned history/read/CI policy without
+  assuming Cucumber.js-generated identifiers or changing either project's runner.
+- **Effort hypothesis:** Unbanded; middle-to-higher, low-to-medium confidence.
+  Both emit Messages, but version compatibility and Cypress run semantics need
+  observation. No generic adapter framework is justified by this alone.
+- **Product prerequisites:** The evidence/history and CI comparison outcomes at
+  integration; no formal start dependency has been established.
+- **Safe stopping point:** Doughnut file-level history and bounded corroboration
+  stand alone; large attachments do not enter the compact retained record.
+
+
+<a id="inspect-hierarchical-proof-cost"></a>
+
+### 9. Find expensive proof in the test hierarchy
+
+**Identity:** SEED-192#inspect-hierarchical-proof-cost
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A developer can locate observed execution cost and result gaps
+  by selecting folders and drilling into their tests.
+- **Evaluation:** Select a Cucumber folder and one real run, read its observed
+  child outcomes and costs, then open a feature. A focused run exposes unobserved
+  children. Concurrent case-duration sums are labelled separately from run wall
+  time; unavailable folder wall time remains unavailable.
+- **Value / learning:** Makes existing observations navigable for maintenance
+  without requiring an automated judgment about cost or intent quality.
+- **Boundary:** Begin with the configured hierarchy and one supported Cucumber
+  run. No union of unrelated historical passes, mixed-runner performance ranking,
+  invented shared-setup attribution, or whole-product protection claim. Other
+  producers reuse the rule where their observations support it.
+- **Effort hypothesis:** Unbanded; middle, medium confidence after file-level
+  Proof. Case selection and timing definitions drive the uncertainty.
+- **Product prerequisites:** A browsable hierarchy and readable observations for
+  at least one runner; a second Cucumber producer is not required.
+- **Safe stopping point:** Honest folder-level outcomes/costs with drill-down,
+  useful even if every other report family is cancelled.
+
 
 <a id="assess-story-intent-protection"></a>
 
-### 5. Review how well a story's intent is protected
+### 10. Review how well a story's intent is protected
 
 **Identity:** SEED-192#assess-story-intent-protection
 ```json dough-story-state
@@ -279,7 +555,7 @@ approach has been selected.
 
 <a id="assess-story-test-complexity"></a>
 
-### 6. Review complexity introduced by a story's tests
+### 11. Review complexity introduced by a story's tests
 
 **Identity:** SEED-192#assess-story-test-complexity
 ```json dough-story-state
@@ -308,100 +584,234 @@ approach has been selected.
   heuristic's limitations remain useful even if no automated metric follows.
   The assessment changes no tests or project testing rules by itself.
 
-<a id="inspect-hierarchical-proof-cost"></a>
+<a id="read-vitest-proof"></a>
 
-### 7. Find expensive proof in the test hierarchy
+### 12. Read frontend Vitest proof in both projects
 
-**Identity:** SEED-192#inspect-hierarchical-proof-cost
+**Identity:** SEED-192#read-vitest-proof
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why:** A developer can locate where observed proof execution cost is
-  concentrated by reviewing folders and their contained tests.
-- **Evaluation:** For a real report, inspect a folder's results and timing summary,
-  then drill into its tests. Partial selection remains visible. Summed durations
-  and run elapsed time retain distinct meanings under concurrent execution.
-- **Value / learning:** Makes measured cost navigable so the developer can choose
-  where investigation or simplification may be worthwhile.
-- **Boundary:** Start with the actual folder hierarchy and one report's available
-  observations. A folder summary accounts for its observed children and exposes
-  gaps; it cannot establish validation of unobserved tests. Cross-run trends,
-  custom semantic groups, and whole-product intent coverage are later questions.
-- **Effort hypothesis:** Unbanded; comparatively middle, low-to-medium confidence.
-  Aggregation is bounded by a known report, but selection, retries, shared setup,
-  and timing attribution must not produce misleading totals.
-- **Product prerequisites:** A test hierarchy and actual execution observations
-  with identifiable selection and timing semantics. No blocking story dependency
-  has been established.
-- **Safe stopping point:** Folder summaries support cost investigation on their
-  own. High cost is an observation, not a conclusion that proof should be removed
-  or that intended behavior is too complex.
+- **For / why:** Doughnut and Pygardon developers can review frontend test results
+  and recent history beside the TypeScript source already readable in Intent.
+- **Evaluation:** Collect a real local Vitest run in each frontend, inspect
+  file/case outcomes and history, use supported folder summaries, and corroborate
+  comparable claims against each project's CI selection.
+- **Value / learning:** Tests shared reporting across browser-mode and happy-dom
+  Vitest without conflating their execution environments.
+- **Boundary:** The two frontends, including explicit browser-project identity,
+  retries, and existing reporter/failure behavior. Open Dough dashboard tests
+  remain Playwright. CLI Vitest is a later selection rather than hidden scope.
+- **Effort hypothesis:** Unbanded; middle, medium confidence after the first
+  proof/CI case. Split the frontend variants only if real reporting behavior
+  proves materially different; Vue versus React alone does not require a split.
+- **Product prerequisites:** TypeScript source reading and established run-history
+  and CI comparison semantics at integration.
+- **Safe stopping point:** Usable frontend Proof in both projects, with
+  environment and unsupported observations explicit.
 
-## Ordering and Scope Reduction
 
-Queue the seven stories above in that order. Terry added the candidate view at
-priority 2 on 2026-10-31; the original six stories retain their relative order.
-The backlog was empty when the initial decomposition began; unrelated dormant
-candidates remain in their existing seeds.
+<a id="read-playwright-proof"></a>
 
-1. The browser is the usable first increment Terry explicitly described.
-2. The candidate view makes recorded unresolved and accepted test costs visible,
-   with links into that browser, before adding runtime reporting.
-3. Story scope brings that browser to the selected near-future question.
-4. Real Proof makes the review concrete and exposes cost before judging it.
-5. The protection case tests the most consequential uncertainty before richer
-   aggregation or generalized AI automation.
-6. The complexity case tests the other judgment dimension separately from
-   protection and raw execution cost.
-7. Folder summaries extend evidence that can already be read for selected tests.
+### 13. Read Open Dough dashboard Playwright proof
 
-This is a value and learning order, not a dependency chain. The existing editor,
-Review changes, and report workflow can support the assessment cases earlier if
-that is the cheapest path to useful evidence. Reuse and reconciliation may allow
-stories to progress independently; no demonstrated product blocker justifies a
-blocking agreement yet. Reassess the order if early use shows that a manual
-assessment or cost summary provides greater value sooner.
+**Identity:** SEED-192#read-playwright-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-If scope must shrink, drop folder summaries first, then the separate complexity
-case. Retain an early protection assessment before expanding automation; a
-source browser and story-impact view remain a safe smaller product if runtime
-integration proves too costly. Negative or inconclusive assessment evidence
-prompts reconsideration of later automation rather than a forced scoring model.
+- **For / why:** An Open Dough developer can inspect observed dashboard protection
+  beside its TypeScript tests using the existing strict run semantics.
+- **Evaluation:** Retain a real dashboard run, review its selection, attempts,
+  strict terminal outcome and bounded history in Intent, and corroborate its
+  applicable claims against the actual CI selection/shards.
+- **Value / learning:** Brings the dashboard's own test intent into Proof and
+  tests reuse of its already available opt-in record.
+- **Boundary:** Add missing source association, publication, and history around
+  the existing contract. A listed-only, running, skipped, or raw-runner pass
+  cannot be upgraded to executed strict pass. Preserve quiet diagnostics.
+- **Effort hypothesis:** Unbanded; middle, medium confidence. Repetition/retry,
+  shared hooks, and shard scope already have meaningful distinctions to retain.
+- **Product prerequisites:** Source reader and established Proof/CI semantics.
+- **Safe stopping point:** Honest dashboard file/folder Proof without migrating
+  tests to another runner or waiting for Python/script collection.
+
+
+<a id="read-pytest-proof"></a>
+
+### 14. Read Pygardon pytest proof
+
+**Identity:** SEED-192#read-pytest-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** A Pygardon developer can review observed Python test protection
+  and recent history alongside the configured pytest source.
+- **Evaluation:** Record an actual authorized pytest selection, inspect file/case
+  and parameterized outcomes, then corroborate the applicable subset in CI.
+  Slow and host-Docker selections absent from CI stay explicitly unchecked.
+- **Value / learning:** Extends evidence to Python while preserving its real
+  collection, setup/teardown, expected-failure, and parallel-run meanings.
+- **Boundary:** Pygardon's selected pytest suite; not legacy Python trees or
+  Doughnut CLI unittest. Source root, default markers, and CI selection are
+  separate facts; visible source does not imply executed coverage.
+- **Effort hypothesis:** Unbanded; middle-to-higher, low-to-medium confidence.
+  Existing progress containment, plugins, and xdist must retain their behavior.
+- **Product prerequisites:** Python source reading and established Proof/CI semantics.
+- **Safe stopping point:** Reviewable Python Proof with its actual limits; no
+  invented per-folder wall cost or current pass from an unmatched older run.
+
+
+<a id="read-node-test-proof"></a>
+
+### 15. Read Node script-test proof
+
+**Identity:** SEED-192#read-node-test-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** Open Dough and Doughnut developers can inspect script-test
+  evidence alongside the configured Node test source.
+- **Evaluation:** Capture a real `node --test` selection in each project through
+  its existing command, read cases/subtests, terminal outcome, and history, and
+  corroborate matched CI observations.
+- **Value / learning:** Makes script protection visible at the runner's actual
+  case granularity without treating a wrapper's exit as every case passing.
+- **Boundary:** Node test events and the selected project commands. Preserve
+  existing scheduler ownership, quiet/strict failures, and nested-case meanings.
+  A suite plus its child cases must not inflate counts or summed duration.
+- **Effort hypothesis:** Unbanded; middle, medium confidence. Two project wrappers
+  use one runner family; console scraping is not a reporting contract.
+- **Product prerequisites:** Configured script source and shared Proof/CI semantics.
+- **Safe stopping point:** Useful Node-script Proof independently of shell checks,
+  Java/JUnit, or other not-yet-selected runners.
+
+
+<a id="read-shell-check-proof"></a>
+
+### 16. Read shell-check proof at its observed granularity
+
+**Identity:** SEED-192#read-shell-check-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why:** An Open Dough developer can review retained evidence for shell
+  checks whose protection is currently visible only through command output.
+- **Evaluation:** Run selected checks through the existing scheduler, review
+  each check's observed result and duration beside its source, and corroborate
+  comparable check-level observations in CI.
+- **Value / learning:** Extends the review to a real remaining test family without
+  manufacturing case identities or counts unavailable from the command.
+- **Boundary:** Selected Open Dough shell checks. A shell process can truthfully
+  yield file/check-level evidence; case-level claims require a real producer.
+  Preserve strict command exit and timing semantics. Add Doughnut shell checks
+  only when a concrete runnable target is selected.
+- **Effort hypothesis:** Unbanded; middle, low-to-medium confidence. The existing
+  scheduler already observes job exit/time, but retention and source mapping
+  still need integration; parsing arbitrary scripts is not part of this story.
+- **Product prerequisites:** Configured source and shared Proof/CI semantics.
+- **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
+  useful without pretending it has the same detail as Cucumber or pytest.
+
+
+## Ordering, Existing Stories, and Scope Reduction
+
+The numbered sections record the backlog order Terry selected on 2026-10-31;
+they do not establish a mandatory dependency chain. The existing seven identities
+remain canonical here. Specifically, `browse-test-purpose` narrows to the Cucumber source pilot,
+`read-observed-test-proof` narrows to Pygardon's first local Cucumber case, and
+`inspect-hierarchical-proof-cost` keeps folder Proof. These are not duplicated
+under new identities. Other existing review candidates retain their outcomes.
+
+The selected order starts with the frame (1), then the Cucumber pilot (2), then
+other configured source (3). The strongest rejected smaller option for the
+frame is a disposable mockup: Terry explicitly wants to experience the real
+interface and return to working Development. This story is justified by that
+learning, not merely as infrastructure for later readers.
+
+The earlier optimization-candidate priority becomes selected position 4, after
+its source-navigation prerequisites. Story impact (5) keeps the review centered
+on a story. First local Proof (6) precedes CI corroboration (7), then Doughnut's
+second producer (8). Folder Proof (9) needs only one producer and may move before
+8 if that offers earlier value. Preserve the bounded protection/complexity
+learning (10–11) before expanding collection across every remaining family
+(12–16). Those review cases can also use existing tools sooner.
+
+The kept decomposition differs from Terry's rough sequence in three deliberate ways:
+
+- Combine language-only source extensions when they share the same reading
+  outcome; retain TypeScript, Python, Node, and shell as real evaluation examples.
+- Separate runner-specific collection even where the source language matches.
+- Check CI consistency on one Cucumber family early, then include corroboration
+  in each later producer's complete outcome rather than postpone one very large
+  cross-runner reconciliation story until last.
+
+Once the comparison policy is understood, corroboration is part of a later
+producer's promised evidence quality. If a new runner introduces a separate
+unsettled comparison policy, split that learning from its local-history outcome
+instead of silently enlarging the producer story.
+
+No formal blocking dependency has been recorded: common code and delivery order
+alone do not establish that another story cannot start. Each consumer owns its
+integration. Establish a blocking agreement later only if refinement demonstrates
+an actual supplier outcome required before work can start.
+
+If investment must shrink, retain the source-only product after 3. Next retain
+one Cucumber producer plus its corroboration (6–7). Drop additional producer
+families in reverse order of demonstrated use; shell/Node and unrequested
+Java/CLI expansion are the first candidates to defer, rather than spreading
+partially trustworthy evidence everywhere. Keep an early protection review to
+test the parent direction's hardest assumption. History can be modest; source
+association and truthful selection/outcomes cannot be deferred without weakening
+what the first Proof claims.
 
 ## Open Decisions Before Refinement or Planning
 
-- Choose the smallest practical mechanism by which each project identifies its
-  test locations. This belongs inside the first story's useful browser outcome.
-- For the first Proof case, choose the report producer and establish how its
-  observations relate to the reviewed source. The existing dashboard report has
-  no explicit source revision; absence of that context cannot prove a match.
+- For first Proof, settle a runnable Pygardon profile, tested-source basis,
+  compact repository publication path, count/size retention budget, and how
+  source and report-only changes obtain CI corroboration. Ten runs per suite is
+  a proposed starting point, not an accepted retention rule.
+- Refine comparison dispositions: what local scope requires CI corroboration,
+  how unmatched/host-only scopes are reported, and what discrepancies fail a
+  check. Durations alone do not decide logical consistency in this proposal.
 - Select a real story and a developer's prior review basis for each assessment
-  case. Determine what useful decision and review cost would justify keeping the
-  method before observing the assessment result.
-- Establish project S/M/L calibration before assigning bands. Comparative scope
-  assumptions are available above; bands are not necessary to order these
-  candidates for refinement.
+  case; define what decision and review cost would justify keeping the method.
+- Establish Open Dough S/M/L calibration before assigning bands. Comparative
+  uncertainty is recorded; no borrowed client-project timing policy applies.
 
 ## When to Surface
 
-Terry requested decomposition and backlog prioritization on 2026-10-30. Review
-and refine a selected story before choosing an execution approach. Each later
-story remains subject to the learning from earlier delivery and assessment.
+Terry kept this revised decomposition and its backlog order on 2026-10-31.
+Refine one selected story before
+execution planning; reevaluate wider producer work from actual early use.
 
 ## Breadcrumbs
 
-- Terry's 2026-10-30 discussion: the Intent file browser, story scope,
-  Purpose/Proof layouts, proof timing and hierarchy, and the longer-term
-  three forms of intent expression; followed by acceptance and landing of the
-  near-future direction and a request for this decomposition.
-- Terry's 2026-10-31 request: queue the test optimization candidate view at
-  priority 2, including hard-to-resolve and accepted slow tests, with links
-  reusing the first story's test browser.
+- Terry's 2026-10-30 direction: initial source browser, story scope, Purpose/Proof
+  layouts, timing/hierarchy, and longer-term forms of intent expression.
+- Terry's earlier 2026-10-31 request: optimization candidates and accepted slow
+  tests at priority 2, with links into the test-source browser.
+- Terry's current 2026-10-31 request: decompose the broad first story, lead with
+  the real frame, use explicit folder types across Open Dough/Doughnut/Pygardon,
+  collect bounded local Proof history and folder observations, then corroborate
+  against CI with resource-aware timings.
+- Terry's 2026-10-31 keep and landing instruction: retain this decomposition,
+  queue its stories in the proposed order, and place optimization-candidate
+  review after source browsing.
 - [Product backlog](../PRODUCT-BACKLOG.md).
-- [Product intent review memorandum](../../docs/product-intent-review-memorandum.md).
-- [Initial Intent UX/UI direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace).
+- [Initial Intent direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md#product-intent-perspective-the-current-product).
-- [Current dashboard behavior](../../dashboard/README.md).
-- [Review changes and preparation](../../dashboard/STORY-PREPARATION.md).
-- [Existing dashboard proof-record contract](../../dashboard/tests/proof-record.md).
+- [Current dashboard behavior](../../dashboard/README.md),
+  [source reads](../../dashboard/server/ghContents.ts),
+  [review text](../../dashboard/server/storyReviewFileResponse.ts), and
+  [existing dashboard proof contract](../../dashboard/tests/proof-record.md).
+- Doughnut checkout: `package.json`, `frontend/vitest.config.ts`,
+  `e2e_test/config/common.ts`, `e2e_test/config/ci.ts`, `backend/build.gradle`.
+- Pygardon checkout: `cucumber.js`, `e2e_test/packaged/cucumber.js`,
+  `frontend/vite.config.ts`, `pyproject.toml`, `scripts/check-prepared-checkout.sh`,
+  and `.github/workflows/ci.yml`. These paths are research references within
+  their named repositories, not Open Dough installation requirements.
