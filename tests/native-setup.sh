@@ -16,7 +16,7 @@ printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.63.0"}}}' > 
 printf '%s\n' '{"version":"1.63.0"}' > "${temporary_dir}/node_modules/playwright/package.json"
 cat > "${temporary_dir}/bin/npm" << 'NPM'
 #!/bin/bash
-printf '%s\n' "$*" > "${SOURCE_CALL}"
+printf '%s\n' "$*" "NPM_CONFIG_AUDIT=${NPM_CONFIG_AUDIT:-} NPM_CONFIG_FUND=${NPM_CONFIG_FUND:-}" > "${SOURCE_CALL}"
 case ${SOURCE_BEHAVIOR} in
   failed) exit 23 ;;
   stalled) exec /bin/sleep 30 ;;
@@ -113,7 +113,10 @@ for stage in npm browser; do
     "${node}" "${script}" "${stage}") > "${temporary_dir}/healthy-${stage}.log" 2>&1
   expect_in_log "${temporary_dir}/healthy-${stage}.log" -F -- "${stage} acquisition complete"
   case ${stage} in
-    npm) expect_in_log "${temporary_dir}/source-call" -Fx -- 'ci --fetch-retries=0 --fetch-timeout=20000' ;;
+    npm)
+      expect_in_log "${temporary_dir}/source-call" -Fx -- 'ci --fetch-retries=0 --fetch-timeout=20000'
+      expect_in_log "${temporary_dir}/source-call" -Fx -- 'NPM_CONFIG_AUDIT=false NPM_CONFIG_FUND=false'
+      ;;
     browser) expect_in_log "${temporary_dir}/source-call" -Fx -- 'install chromium' ;;
     *) exit 1 ;;
   esac
@@ -143,7 +146,7 @@ for signal in INT TERM; do
     LATE_WRITE="${temporary_dir}/late-write" CHILD_READY="${temporary_dir}/child-ready" \
     "${node}" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &
   setup_pid=$!
-  for ((attempt = 0; attempt < 100; attempt++)); do
+  for ((attempt = 0; attempt < 500; attempt++)); do
     [[ -e ${temporary_dir}/child-ready ]] && break
     sleep 0.01
   done

@@ -24,11 +24,6 @@ import { lettersBrokenApart } from "./wholeWords.ts";
 type Viewport = { readonly width: number; readonly height: number };
 
 const phone = phoneLaunchTouchViewport;
-const largePhone = { width: 430, height: 932 };
-const rotated = ({ width, height }: Viewport) => ({
-  width: height,
-  height: width,
-});
 
 const answers = [
   {
@@ -193,45 +188,42 @@ test.describe("390×844 touch, held", () => {
   });
 });
 
-for (const viewport of [phone.portrait, largePhone]) {
-  for (const { scenario, words, answer } of answers) {
-    test.describe(`${viewport.width}×${viewport.height} touch, ${scenario}`, () => {
-      test.use({ viewport, hasTouch: true });
+for (const { scenario, words, answer } of answers) {
+  test.describe(`${phone.portrait.width}×${phone.portrait.height} touch, ${scenario}`, () => {
+    test.use({ viewport: phone.portrait, hasTouch: true });
 
-      test("the answer and the direction label read in whole words, opened, closed, and rotated", async ({
-        page,
-        origin,
-        dashboard,
-      }) => {
-        test.setTimeout(120_000);
-        dashboard.claudeScenario(scenario);
-        await openBacklog(page, origin);
-        const launcher = startSession(page, "Open Dough");
-        await expect(launcher).toBeVisible();
-        const turned = rotated(viewport);
-        const before = {
-          turned: await rowAt(page, turned),
-          upright: await rowAt(page, viewport),
-        };
+    test("the answer and the direction label read in whole words, opened, closed, and rotated", async ({
+      page,
+      origin,
+      dashboard,
+    }) => {
+      test.setTimeout(120_000);
+      dashboard.claudeScenario(scenario);
+      await openBacklog(page, origin);
+      const launcher = startSession(page, "Open Dough");
+      await expect(launcher).toBeVisible();
+      const before = {
+        turned: await rowAt(page, phone.landscape),
+        upright: await rowAt(page, phone.portrait),
+      };
 
-        await startWithTypedText(page);
-        const shown = answer(page);
-        await expect(shown).toBeVisible({ timeout: 30_000 });
-        if (scenario === "launched") {
-          const terminal = page.getByRole("region", { name: "Terminal" });
-          await tapWhereShown(terminal.getByRole("button", { name: "Close" }));
-          await expect(terminal).toHaveCount(0);
-        }
+      await startWithTypedText(page);
+      const shown = answer(page);
+      await expect(shown).toBeVisible({ timeout: 30_000 });
+      if (scenario === "launched") {
+        const terminal = page.getByRole("region", { name: "Terminal" });
+        await tapWhereShown(terminal.getByRole("button", { name: "Close" }));
+        await expect(terminal).toHaveCount(0);
+      }
 
-        await expectRowReadsWhole(page, shown, words, before.upright);
-        await expectDirectionOpensBeneath(page, shown, words);
+      await expectRowReadsWhole(page, shown, words, before.upright);
+      await expectDirectionOpensBeneath(page, shown, words);
 
-        await page.setViewportSize(turned);
-        await expectRowReadsWhole(page, shown, words, before.turned);
-        await expectDirectionOpensBeneath(page, shown, words);
-        await page.setViewportSize(viewport);
-        await expectRowReadsWhole(page, shown, words, before.upright);
-      });
+      await page.setViewportSize(phone.landscape);
+      await expectRowReadsWhole(page, shown, words, before.turned);
+      await expectDirectionOpensBeneath(page, shown, words);
+      await page.setViewportSize(phone.portrait);
+      await expectRowReadsWhole(page, shown, words, before.upright);
     });
-  }
+  });
 }

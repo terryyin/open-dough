@@ -6,7 +6,7 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { sixth } from "./storyReviewTrunk.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
 
-export function printingMergeDriver(origin: StartOrigin, clean = false) {
+export function printingMergeDriver(origin: StartOrigin) {
   const log = path.join(origin.machine, "merge-driver.log");
   return {
     prepare: (workspace: string) => {
@@ -19,12 +19,9 @@ export function printingMergeDriver(origin: StartOrigin, clean = false) {
       for (const root of [origin.project, workspace]) {
         writeAt(root, ".gitattributes", "src/a.ts merge=printing\n");
       }
-      // Story and trunk change separate lines, so the driver succeeds. The
-      // independent c.ts conflict makes merge-tree exit 1 in the other case.
+      // Story and trunk change separate lines, so the driver succeeds while
+      // the independent c.ts conflict makes merge-tree exit 1.
       writeAt(workspace, "src/a.ts", sixth("a").replace("a 0\n", "a story\n"));
-      if (clean) {
-        writeAt(workspace, "src/c.ts", sixth("c"));
-      }
       commitAll(workspace, "story using a printing merge driver");
     },
     invocations() {

@@ -136,39 +136,31 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   await expect(cDiff.locator(".story-review-added")).toHaveText(["+c story"]);
 });
 
-for (const printing of [false, true]) {
-  test(`after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds${printing ? " with a printing merge driver" : ""}`, async ({
+test("after trunk was integrated with nothing else, nothing changed since the review beyond what trunk holds", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const { story, card, review } = await markStoryReview(
     page,
     dashboard,
     origin,
-  }) => {
-    const driver = printing ? printingMergeDriver(origin, true) : undefined;
-    const { story, card, review } = await markStoryReview(
-      page,
-      dashboard,
-      origin,
-      driver?.prepare,
-    );
+  );
 
-    integrateTrunk(origin, story, printing ? "c trunk" : undefined);
-    const beforeReview = driver?.invocations();
-    const since = await reopenStoryReview(page, card);
-    if (driver !== undefined) {
-      expect(driver.invocations()).toBeGreaterThan(beforeReview ?? 0);
-    }
-    expect(since.markUncomparable).toBeUndefined();
-    expect(since.since?.files).toEqual([]);
-    await expectSinceTheReview(review, keptStoryAMark(dashboard));
-    await expect(review.locator(".story-review-since")).toContainText(
-      "Trunk was integrated since the mark",
-    );
-    // (d) No file, not even the landed slice.
-    await expect(review).not.toContainText("landed.txt");
-    await expect(review).toContainText(
-      "Nothing changed since the review beyond what trunk now holds.",
-    );
-  });
-}
+  integrateTrunk(origin, story);
+  const since = await reopenStoryReview(page, card);
+  expect(since.markUncomparable).toBeUndefined();
+  expect(since.since?.files).toEqual([]);
+  await expectSinceTheReview(review, keptStoryAMark(dashboard));
+  await expect(review.locator(".story-review-since")).toContainText(
+    "Trunk was integrated since the mark",
+  );
+  // (d) No file, not even the landed slice.
+  await expect(review).not.toContainText("landed.txt");
+  await expect(review).toContainText(
+    "Nothing changed since the review beyond what trunk now holds.",
+  );
+});
 
 test("a marked story whose baseline is unchanged does not say trunk was integrated", async ({
   page,

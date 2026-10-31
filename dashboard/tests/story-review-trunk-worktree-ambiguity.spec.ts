@@ -98,7 +98,7 @@ async function expectStoryWorktreeReviewedAlone(
     .toEqual(["slice.txt"]);
 }
 
-test("worktrees the story's agent left without this story's claim are passed over, and the review reads the story's worktree alone", async ({
+test("worktrees without this story's published claim — the agent's earlier or other-story worktrees and an earlier agent's unpublished claim — are passed over, and the review reads the publishing agent's worktree alone", async ({
   page,
   dashboard,
   origin,
@@ -107,9 +107,10 @@ test("worktrees the story's agent left without this story's claim are passed ove
   const story = await storyTakenWithOneSlice(origin);
   const { agent, beforeClaim } = story;
 
-  // One worktree the agent authors sits on trunk before the claim, and one
-  // is still on the claim of another story it held, which trunk no longer
-  // publishes.
+  // One worktree the agent authors sits on trunk before the claim, one is
+  // still on the claim of another story it held (which trunk no longer
+  // publishes), and an agent that held the story earlier left its worktree at
+  // its own claim (which trunk does not publish).
   const earlier = await agentWorktree(origin, agent, "earlier", beforeClaim);
   writeFileSync(path.join(earlier, "earlier.txt"), "earlier\n");
   await claimWorktree(
@@ -119,27 +120,13 @@ test("worktrees the story's agent left without this story's claim are passed ove
     beforeClaim,
     otherQueuedIdentity,
   );
-
-  await expectStoryWorktreeReviewedAlone(page, dashboard, origin, story);
-});
-
-test("a worktree of an agent trunk does not publish for the story is passed over, and the review reads the publishing agent's worktree", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  test.setTimeout(120_000);
-  const story = await storyTakenWithOneSlice(origin);
-
-  // An agent that held the story earlier left its worktree at its own claim,
-  // which trunk does not publish.
   const earlierAgent = "Akiho-chan";
   expect(story.agent).not.toBe(earlierAgent);
   await claimWorktree(
     origin,
     earlierAgent,
     "earlier-agent",
-    story.beforeClaim,
+    beforeClaim,
     queuedIdentity,
   );
 

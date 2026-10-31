@@ -9,7 +9,7 @@ import {
   planless,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { reloadUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 async function inspectReadyDetail(taken: Locator): Promise<Locator> {
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
@@ -57,6 +57,7 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
 
   await reloadUntilRead(page);
   await expect(source).toContainText(nextRevision);
+  await untilPageReadsAnswered(page);
 
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
   const detail = readyCard.getByRole("region", {
