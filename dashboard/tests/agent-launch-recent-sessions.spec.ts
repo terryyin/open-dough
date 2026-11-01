@@ -14,6 +14,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   storyCardSessions,
   storyCardSessionName,
   storyCardSessionOf,
@@ -64,7 +65,7 @@ test.describe("retained launches in their current column homes", () => {
       page,
       columnsJourney,
     );
-    const { project, recentlyDone: recent } = parts(page);
+    const { recentlyDone: recent } = parts(page);
     const entries = recent.getByRole("article");
     const sessionIds: string[] = [];
     // Launches the workflow and remembers its session, as the new entry
@@ -152,9 +153,7 @@ test.describe("retained launches in their current column homes", () => {
     });
 
     await test.step("another project lists only its own launches, and reloading or returning lists these again", async () => {
-      await project
-        .getByRole("radio", { name: "Doughnut", exact: true })
-        .check();
+      await chooseProject(page, "Doughnut");
       await expectMembership(page, {
         taken: [],
         backlog: [doughnutSharedTitle],
@@ -166,9 +165,7 @@ test.describe("retained launches in their current column homes", () => {
         storyCardSessionOf(card(doughnutSharedTitle), "Execution"),
       ).toHaveAccessibleName(storyCardSessionName("Execution"));
 
-      await project
-        .getByRole("radio", { name: "Open Dough", exact: true })
-        .check();
+      await chooseProject(page, "Open Dough");
       await expectMembership(page, { taken: [], backlog: queued });
       await expectEntries(launched);
       await page.reload();

@@ -1,7 +1,12 @@
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "./support/codexLaunch.ts";
-import { storyCardSessions, parts } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  chooseProject,
+  storyCardSessions,
+  parts,
+} from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -80,9 +85,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(recent).toHaveCount(0);
   await expect(entry).toContainText(record.session.sessionId);
   await page.getByRole("button", { name: "Sessions", exact: true }).click();
-  await parts(page)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await chooseProject(page, "Doughnut");
   const sidebar = page.getByRole("complementary", {
     name: "Sessions sidebar",
     exact: true,
@@ -92,9 +95,7 @@ test("card, Recently done and sidebar review the retained report with attention,
     exact: true,
   });
   await sideOpen.click();
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Open Dough", exact: true }),
-  ).toBeChecked();
+  await expectProjectChoice(page, "Open Dough");
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(sideOpen).toHaveAttribute("aria-current", "true");
   await expect(entry).toContainText("Ready for review");

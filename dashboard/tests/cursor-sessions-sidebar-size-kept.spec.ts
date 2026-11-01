@@ -23,7 +23,7 @@ import {
   wide,
   type Shown,
 } from "./cursorSessionsSidebarResizePage.ts";
-import { parts } from "./dashboardPage.ts";
+import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   changesAsked,
@@ -83,7 +83,7 @@ test.describe("with two projects", () => {
     await showPage(page, origin);
     const shown = runningCursorParts(page);
     const { sidebar, button, header, divider } = shown;
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     await button.click();
     await expect(sidebar).toBeVisible();
     await keepInBrowser(page, "open-dough.sidePanel.width", "500");
@@ -119,7 +119,7 @@ test.describe("with two projects", () => {
       await expect(sidebar).toBeHidden();
       await button.click();
       await expectChosen();
-      await project.getByRole("radio", { name: "Pygardon" }).check();
+      await chooseProject(page, "Pygardon");
       await expect(backlog).toContainText("A Pygardon story");
       await expectChosen();
       await page

@@ -1,6 +1,6 @@
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { chooseProject, parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   test,
@@ -163,9 +163,7 @@ test("each project's rendered pinned reference opens its own telling of the same
   await expect(
     parts(page).backlog.getByRole("article", { name: "Story B", exact: true }),
   ).toBeFocused();
-  await parts(page)
-    .project.getByRole("radio", { name: "Pygardon", exact: true })
-    .click();
+  await chooseProject(page, "Pygardon");
   await expect(consumer.locator(".story-dependencies summary")).toBeVisible();
   await consumer.locator(".story-dependencies summary").click();
   const reference = consumer.getByRole("link", {

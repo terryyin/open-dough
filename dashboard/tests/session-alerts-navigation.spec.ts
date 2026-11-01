@@ -6,7 +6,7 @@ import {
   startDashboardServer,
 } from "./support/dashboardServer.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice } from "./dashboardPage.ts";
 import {
   notificationOrigins,
   notifiedIdentity,
@@ -60,12 +60,7 @@ for (const mode of ["dev", "preview"] as const) {
       expect(new URL(dashboard.origin).port).not.toBe("4173");
       const before = dashboard.claudeLaunchCalls();
       await page.goto(destination ?? "");
-      await expect(
-        parts(page).project.getByRole("radio", {
-          name: "Doughnut",
-          exact: true,
-        }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Doughnut");
       const card = page.getByRole("article", {
         name: notifiedTitle,
         exact: true,

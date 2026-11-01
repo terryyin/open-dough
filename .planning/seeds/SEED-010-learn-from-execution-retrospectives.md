@@ -221,11 +221,45 @@ No architectural exception or new ADR is proposed here.
 ### 1. Record source-review observations through one supported operation
 
 **Identity:** SEED-010#record-source-review-observations
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/434-record-source-review-observations/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"212cb3f42f1d713a88765784d5c68867b4fca7ba90ba814039c369dcb8d481e2","plan":"42a30576e138fd23cc12abbe2ede7a4a305ff1fc6c594edee5fc9b97d682c6c8"}}
+```
 
-**Beneficiary and outcome:** A coordinator can retain source commitments,
-slice allocations and their observations through a supported recording path
-that the existing obligations reader accepts, with no hand-built Markdown
-cell escaping or reinterpretation of Slice versus obligation fields.
+**Goal:** A coordinator recording a planned-execution source review can retain
+commitments, slice allocations, and observations through one supported
+operation that the existing obligations reader accepts, without hand-built
+Markdown cell escaping or reinterpretation of Slice versus obligation fields.
+
+**Scope:** Reuse the current `source-review.md` Commitments table, plan Story
+obligations record, readers, and refusal vocabulary. Support settling an
+observation, a slice allocation, or a linked obligation for an identified
+commitment without changing source commitment text, commitment IDs, earlier
+unrelated observations, or human decisions. Accept existing valid records;
+refuse ambiguous identities or stale input with file bytes left intact and no
+partial write. This response changes authoring of those records, not
+acceptance policy, review depth, or whether a valid table proves the
+commitment's observed result. Review-ID stability across changed source text,
+and changes to how `list`/`check` interpret already-valid records, are outside
+this story.
+
+**Key examples:**
+- A commitment needs an `observed:` cell whose text includes a literal `|` and
+  quotes. Recording that observation through the supported operation leaves a
+  cell the unchanged `story-obligations` check accepts; source text and other
+  rows stay as they were.
+- A commitment is disposed by exclusion obligation G1. Recording that
+  disposition keeps G1 out of the Slice column, places G1 in the Observation
+  or obligation cell, and gives G1 a `Reported:` line in the required
+  `slice N — "…"` shape so check accepts both records.
+- Commitments allocated to slice N are inspected. Recording each as
+  `observed: <product or proof location>` clears `unobserved-commitment` for
+  those rows on `check --slice N` without rewriting unrelated rows.
+- One observation among many valid rows is wrong. Correcting that named
+  observation changes only that row; unrelated Commitments rows and Story
+  obligations entries remain intact.
+- The caller names an unknown commitment id, or supplies input that no longer
+  matches the current file. The operation refuses with the existing refusal
+  vocabulary and leaves the file bytes unchanged.
 
 **Evidence:** [ODF-391](../../docs/maintainer/findings/ODF-391.md) retains five
 Pygardon executions with repeated observation-cell repair/rebuild rounds;
@@ -233,19 +267,6 @@ Pygardon executions with repeated observation-cell repair/rebuild rounds;
 executions with Slice/Reported shape errors. These identities stay distinct.
 The guards refused malformed records before publication; no incorrect slice
 completion or measured universal saving is claimed.
-
-**Bounded scope:** Reuse the current source-review and Story obligations
-records, readers and refusal vocabulary. Settle an observation, its slice
-allocation or its linked obligation without changing source commitment text,
-IDs, earlier observations or human decisions. Support existing valid records;
-reject ambiguous identities or stale input without a partial write. This
-response changes authoring, not acceptance policy or review depth. Review-ID
-stability across changed source is outside this story.
-
-**Key examples:** Record text containing a literal pipe and quotes; record an
-exclusion through its obligation rather than putting G1 in Slice; record an
-observed slice; correct an existing observation while retaining unrelated
-rows; and refuse an unknown commitment or stale input with bytes intact.
 
 **Evaluation:** Replay at least one retained observation-cell case and one
 Slice/Reported case through the ordinary coordinator-facing recording path,
@@ -255,7 +276,7 @@ of missing proof, unresolved obligations and wrong story quotes. A valid table
 alone is insufficient evidence of the commitment's observed result. At closure,
 record the actual response revision and first containing release (or explicitly
 unreleased status) at both addressed findings; later ordinary use remains a
-separate observation. **Queued, not refined or implemented.**
+separate observation.
 
 
 <a id="pending-lifecycle-validation-obligations"></a>

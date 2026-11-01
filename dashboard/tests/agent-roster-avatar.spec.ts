@@ -13,7 +13,12 @@
 // details is profile-addition-latency.spec.ts.
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "./dashboardTest.ts";
-import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
+import {
+  chooseProject,
+  expectMembership,
+  parts,
+  rosterParts,
+} from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { avatarPathsRead } from "./avatarAnswers.ts";
@@ -91,7 +96,7 @@ test("each assignment credits the committer who added its profile's current allo
   page.on("request", (request) => pageRequests.push(request.url()));
   await page.goto("/");
 
-  const { taken, backlog, project, reading } = parts(page);
+  const { taken, backlog, reading } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   const takenStoryCard = taken.getByRole("article", { name: takenStory });
   const preparingCard = backlog.getByRole("article", { name: queuedStory });
@@ -227,7 +232,7 @@ test("each assignment credits the committer who added its profile's current allo
   });
 
   await test.step("another project's roster and cards show no human or avatar from the previous project", async () => {
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await chooseProject(page, "Doughnut");
     await expect(roster).toContainText(
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
     );

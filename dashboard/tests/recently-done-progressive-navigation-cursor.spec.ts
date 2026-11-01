@@ -15,6 +15,7 @@ import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import {
+  chooseProject,
   expectProjectChoice,
   parts,
   standaloneSessionName,
@@ -108,7 +109,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     );
     releaseCatalog();
     const { github, recent } = view;
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     const entry = recent.getByRole("article", { name: entryName });
     await expect(entry).toHaveCount(0);
     // The first ten entries' records are read before Pygardon is chosen:
@@ -118,7 +119,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesThrough(10).toSorted(),
     );
-    await project.getByRole("radio", { name: "Pygardon" }).check();
+    await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
 
     const { sidebar, button } = sessionsSidebarParts(page);

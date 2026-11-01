@@ -7,7 +7,12 @@ import {
   recentlyDoneSessionsInitialLimit,
   type LaunchRecord,
 } from "../src/agentLaunch.ts";
-import { standaloneSessionName, parts } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  chooseProject,
+  standaloneSessionName,
+  parts,
+} from "./dashboardPage.ts";
 import { pausePageClockAt } from "./dashboardTest.ts";
 import {
   fortyFiveDoneSessions,
@@ -111,10 +116,10 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     await expect(shown.sidebar).toBeHidden();
     await shown.button.click();
     await expect(shown.entries).toHaveCount(45);
-    await parts(page).project.getByRole("radio", { name: "Doughnut" }).check();
+    await chooseProject(page, "Doughnut");
     await expect(parts(page).backlog).toContainText("A Doughnut story");
     await expect(shown.entries).toHaveCount(45);
-    await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
+    await chooseProject(page, "Pygardon");
     await expect(parts(page).backlog).toContainText("A Pygardon story");
   });
 
@@ -123,9 +128,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   expect(olderCrossProject).not.toBe("");
   await test.step("opening an older cross-project session reaches its destination", async () => {
     await shown.entry(olderCrossProject).click();
-    await expect(
-      parts(page).project.getByRole("radio", { name: "Doughnut" }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Doughnut");
     await expect(
       parts(page).recentlyDone.getByRole("article", {
         name: standaloneSessionName("Ad hoc", olderCrossProject),
@@ -191,7 +194,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
 
   await test.step("reload restores the initial newest-20 range", async () => {
     await page.reload();
-    await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
+    await chooseProject(page, "Pygardon");
     await openSessionsSidebar(page);
     await expect(shown.header).toHaveAttribute("aria-expanded", "false");
     await shown.header.click();

@@ -15,6 +15,8 @@ import {
   startSessionField,
 } from "./launchStoryCardPage.ts";
 import {
+  chooseProject,
+  expectProjectChoice,
   expectMembership,
   parts,
   sessionNamedBy,
@@ -74,7 +76,6 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await recordReveals(page);
   await openTakenBacklog(page, launchJourney);
   const text = "why is the CI slow on main?";
-  const { project } = parts(page);
   const { button, entries, entry } = sessionsSidebarParts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
   const active = localOf(page, text);
@@ -86,17 +87,15 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await expect(active).toHaveCount(1);
   await expect(recent).toHaveCount(0);
   const sessionId = await sessionNamedBy(active);
-  await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
-  await expect(project.getByRole("radio", { name: "Pygardon" })).toBeChecked();
+  await chooseProject(page, "Pygardon");
+  await expectProjectChoice(page, "Pygardon");
 
   await test.step("the Sessions sidebar Session entry opens Open Dough's stories, its session in the terminal, and reveals its Taken entry", async () => {
     await button.click();
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
     await entry(text).click();
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Open Dough");
     await expectMembership(page, openDoughStories);
     await expect(panel.locator(".xterm-rows")).toContainText(
       `attached ${sessionId.slice(0, 8)}`,

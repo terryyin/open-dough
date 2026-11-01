@@ -4,6 +4,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   expectMembership,
   parts,
   standaloneSessionName,
@@ -215,10 +216,9 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       columnsJourney,
     );
     const { sidebar, button, entry } = sessionsSidebarParts(page);
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
-    const showProject = (name: string) =>
-      project.getByRole("radio", { name, exact: true }).check();
+    const showProject = (name: string) => chooseProject(page, name);
     await button.click();
 
     const release = holdPygardonStories();
