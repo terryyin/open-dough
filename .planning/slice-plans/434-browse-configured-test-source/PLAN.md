@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#browse-configured-test-source
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#browse-configured-test-source).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -22,10 +23,10 @@ PFE:
   one recursive tree read and filters by the kind's extension. The selection
   becomes that filter: kind extensions plus optional include patterns. Listing
   adds no GitHub call.
-- `pathContainedInIntentLocations`, used by `performedRead.ts` for `file-at`
-  admission, checks folder containment only. It must apply the same selection,
-  so that one function answers "does this location list this path" for both
-  listing and admission. Do not keep two rules.
+- `pathSelectedByIntentLocations` (`intentLocationSelection.ts`), used by
+  `performedRead.ts` for `file-at` admission, applies the same selection as
+  listing, so that one function answers "does this location list this path"
+  for both. Do not keep two rules.
 - Pattern matching uses Node's built-in `path.posix.matchesGlob` (no new
   dependency). It runs only on the server; the browser shows the patterns as
   text.
@@ -54,7 +55,7 @@ ordinary extension of the published settings contract and is documented in
 | Location shows path, kind, and patterns | 1 | Same journey: heading text names the patterns. |
 | Ex 5 Gherkin without include unchanged | 1 | `intent-gherkin-browse.spec.ts` and `intent-gherkin-unusable.spec.ts` stay green. The unsupported-kind example moves from `typescript` to an unsupported kind such as `java`. |
 | Ex 6 no match names path and patterns | 1 | `intent-gherkin-unusable.spec.ts` extended (or the new journey): a pattern location with no match says so, and other locations browse. Retired "No .feature files…" literals are updated to the general wording. |
-| Ex 7 selection bounds reading | 1 | `dashboard/tests/boundary/authenticated-read-intent-locations.spec.ts`: `file-at` for an unmatched file inside a pattern location is refused with the outside-locations refusal; a matched file is admitted. Discrimination: the test fails with folder-only admission in a scratch edit. |
+| Ex 7 selection bounds reading | 1 | `dashboard/tests/boundary/authenticated-read-intent-selection.spec.ts`: `file-at` for an unmatched file inside a pattern location is refused with the outside-locations refusal; a matched file is admitted. Discrimination: the test fails with folder-only admission in a scratch edit. |
 | Styling per kind (TS, TSX, JS, Python, shell) | 2 | The journey from slice 1 observes kind-specific token colours, as the Gherkin journey does with `colourOf`, on a `.ts`, a `.tsx`, a `.py`, a `.mjs`, and a `.sh` file. Copied text equals the source. |
 | Real configurations in the three projects; Terry's usefulness judgment | 3 | Real-project observation through the running dashboard against published trunks (revisions retained), then Terry's evaluation. |
 
@@ -71,12 +72,15 @@ uses. Hosted CI covers the rest.
 
 ### 1. List and read selected code test files
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-code-browse.spec.ts` (Ex 1–4, headings), the updated
 `intent-gherkin-unusable.spec.ts` (Ex 6, unsupported kind), the unchanged
-`intent-gherkin-browse.spec.ts` (Ex 5), and
-`boundary/authenticated-read-intent-locations.spec.ts` (Ex 7, discriminating),
-plus the consumer-trace record.
+`intent-gherkin-browse.spec.ts` (Ex 5),
+`boundary/authenticated-read-intent-locations.spec.ts` (empty/unsupported),
+and `boundary/authenticated-read-intent-selection.spec.ts` (Ex 7,
+discriminating), plus the consumer-trace record. Full dashboard Playwright
+suite: 1846 passed before refactor; focused Intent/admission specs and
+typecheck repassed after selection extract and `no-matching-files` rename.
 
 Behavior: A project publishes locations of kind `typescript`, `javascript`,
 `python`, or `shell`, optionally with `include` patterns → Intent lists, under
@@ -123,10 +127,12 @@ with the consumer trace.
 
 - Terry (2026-11-01): a location's selection leaves out the files it does not
   match; support files are not shown marked beside tests.
-- One selection function serves listing and `file-at` admission.
+- One selection function serves listing and `file-at` admission
+  (`intentLocationSelection.ts`: `locationSelects*` / `pathSelectedBy*`).
 - `include` patterns are relative to the location path, use `*` (within one
   folder) and `**` (across folders) as `path.posix.matchesGlob` defines them,
   and only narrow files that already have the kind's extensions.
+- Empty-location wire problem is `no-matching-files` (was `no-features`).
 
 ## Learnings and preparation review
 
@@ -162,7 +168,7 @@ Decisive premises, settled 2026-11-01 in this workspace's scratch directory:
 Consumers found while planning: `intent-gherkin-unusable.spec.ts` uses
 `typescript` as its unsupported kind and asserts the "No .feature files…"
 wording. `authenticated-read-intent-locations.spec.ts` asserts the
-`no-features` problem code, which may be renamed for the general case.
+`no-matching-files` problem code (renamed from `no-features`).
 `authenticatedIntentRead.ts` validates that enum. Execution's consumer trace
 extends this list.
 
@@ -170,3 +176,65 @@ Concern evidence: slice-plan refinement was not needed. Each slice has one
 proof loop; slice 1 keeps selection, admission, and wording together because
 they are one rule observed through one journey. No remaining slice-specific
 concern.
+
+## Story obligations
+
+### G1. Code kinds render without kind styling
+Reported: slice 1 — "Interim: code kinds render as plain text until slice 2 replaces it."
+Story clause: "Selecting a listed file shows its exact text with line numbers and styling for its kind, as Gherkin does today."
+Disposition: interim until slices 2
+Commitment: 5.6, 8, E1, E2, E3
+
+### X1. Support files beside matched tests
+Reported: slice 1 — "Showing support files beside matched tests"
+Story clause: "Showing support files beside matched tests"
+Disposition: excluded "Showing support files beside matched tests"
+Commitment: X1
+
+### X2. Exclude patterns
+Reported: slice 1 — "exclude patterns"
+Story clause: "exclude patterns"
+Disposition: excluded "exclude patterns"
+Commitment: X2
+
+### X3. Filter or search over long lists
+Reported: slice 1 — "a filter or search over long lists"
+Story clause: "a filter or search over long lists"
+Disposition: excluded "a filter or search over long lists"
+Commitment: X3
+
+### X4. Runner-own selection
+Reported: slice 1 — "reading the runner's own selection (Playwright `testDir`, Vitest `include`, pytest `testpaths`) instead of configured patterns"
+Story clause: "reading the runner's own selection (Playwright `testDir`, Vitest `include`, pytest `testpaths`) instead of configured patterns"
+Disposition: excluded "reading the runner's own selection (Playwright `testDir`, Vitest `include`, pytest `testpaths`) instead of configured patterns"
+Commitment: X4
+
+### X5. Doughnut CLI and Java locations
+Reported: slice 1 — "Doughnut's CLI Vitest, CLI Python, and Java/JUnit locations"
+Story clause: "Doughnut's CLI Vitest, CLI Python, and Java/JUnit locations"
+Disposition: excluded "Doughnut's CLI Vitest, CLI Python, and Java/JUnit locations"
+Commitment: X5
+
+### X6. Case or scenario outline
+Reported: slice 1 — "Case or scenario outline"
+Story clause: "Case or scenario outline"
+Disposition: excluded "Case or scenario outline"
+Commitment: X6
+
+### X7. AST parsing
+Reported: slice 1 — "AST parsing"
+Story clause: "AST parsing"
+Disposition: excluded "AST parsing"
+Commitment: X7
+
+### X8. Test execution
+Reported: slice 1 — "test execution"
+Story clause: "test execution"
+Disposition: excluded "test execution"
+Commitment: X8
+
+### X9. Proof collection
+Reported: slice 1 — "any Proof collection"
+Story clause: "any Proof collection"
+Disposition: excluded "any Proof collection"
+Commitment: X9

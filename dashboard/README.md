@@ -51,14 +51,15 @@ blank stretch, and showing it makes all of it reachable again. Paging keeps
 the vertical position while the newly shown columns reach it; where they are
 shorter, the Board stops at their bottom instead, without returning to the top.
 
-The banner keeps **Project** choices reachable above the Board's own scroll region.
-The Open Dough mark is the **Sessions** toggle; the project selector names the
-selected project, with the **Development** and **Intent** perspective choices
-beside it. Development, the first-visit default, shows the Board described here;
-Intent reads Purpose from configured Gherkin locations in the project's
-`.planning/open-dough.json`, or says none are configured, and does not claim
-that tests or Proof are absent. Project changes, history, reload and
-System settings keep the perspective; choosing a session opens Development
+The banner keeps **Project** choices reachable above the Board's own scroll
+region. The Open Dough mark is the **Sessions** toggle; the project selector
+names the selected project, with **Development** and **Intent** beside it.
+Development (first-visit default) shows the Board; Intent reads Purpose from
+configured test-source locations in `.planning/open-dough.json` (`gherkin`,
+`typescript`, `javascript`, `python`, or `shell`, optional `include`), or says
+none are configured, without claiming tests or Proof are absent. Project
+changes, history, reload and System settings keep the perspective; choosing a
+session opens Development
 ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the
@@ -229,26 +230,21 @@ requests and their cost to the launching person's API allowance.
 
 ## Blocking story dependencies
 
-A story card with recorded dependencies offers an expandable **Dependencies**
-section. Its summary shows the number blocking execution. Expand it in place to
-read each supplier, sequencing reason, required implementation, completion
-condition, and waiting, satisfied, or developer-decision state. Resolution links
-open recoverable historical evidence; an unresolved decision shows its actual
-question. Only the dependent card shows this relationship.
+A story card with recorded dependencies offers expandable **Dependencies**
+(count blocking execution). Expand for each supplier, sequencing reason,
+required implementation, completion condition, and waiting, satisfied, or
+developer-decision state. Resolution links open recoverable evidence; an
+unresolved decision shows its question. Only the dependent card shows this.
 
-On a Backlog or Taken card the green **Ready for execution** badge means
-start eligibility: the recorded readiness assessment is ready and no dependency is
-unsatisfied. While dependencies block, "Blocked by N dependencies" takes its
-place; a Not ready assessment stays visible beside it.
-
-**Start execution** stays unavailable while any dependency is unresolved or its
-canonical facts are loading or unreadable, with the reason beside the action.
-Inspection and refinement stay available. Clearing one dependency leaves the
-others visible; clearing all removes this block without overriding other start
-requirements. An already accepted execution can continue. Expansion and refresh
-preserve keyboard access, card position, and backlog order. The dashboard reads
-published outcomes at the pinned revision; the actual start command checks
-current canonical facts again before starting.
+On Backlog or Taken, green **Ready for execution** means readiness is ready and
+no dependency is unsatisfied; otherwise "Blocked by N dependencies" (a Not ready
+assessment stays beside it). **Start execution** stays unavailable while any
+dependency is unresolved or its canonical facts are loading or unreadable, with
+the reason beside the action. Inspection and refinement stay available. Clearing
+dependencies removes this block without overriding other start requirements; an
+already accepted execution can continue. Expansion and refresh preserve keyboard
+access, card position, and backlog order. The dashboard reads published outcomes
+at the pinned revision; the start command rechecks current canonical facts.
 
 See the [dependency requirements](../docs/project-visibility-requirements.md#blocking-story-dependencies)
 for meaning and lifecycle.

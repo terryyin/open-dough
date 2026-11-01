@@ -14,12 +14,15 @@ import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 export type IntentSettingsProblem = "malformed" | "unreadable";
 
 // Why one configured location cannot list files: the kind is not yet
-// supported, or the path is missing / holds none of the kind's files.
-export type IntentLocationProblem = "unsupported-kind" | "no-features";
+// supported, or the path holds none of the kind's selected files.
+export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
 export type IntentLocation = {
   readonly path: string;
   readonly kind: string;
+  // Optional include patterns relative to `path`, echoed from settings when
+  // the location declared them.
+  readonly include?: readonly string[];
   // Repository paths of files this kind lists under the location, at the
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
@@ -29,6 +32,7 @@ export type IntentLocation = {
 export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
+  readonly include?: readonly string[];
 };
 
 export type DeclaredSettings =
@@ -36,8 +40,23 @@ export type DeclaredSettings =
   | { readonly kind: "malformed" }
   | { readonly kind: "locations"; readonly locations: DeclaredLocation[] };
 
+function includePatternsOf(value: unknown): readonly string[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) return undefined;
+  const patterns: string[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "string" || !isSafeRepositoryPath(entry)) {
+      return undefined;
+    }
+    patterns.push(entry);
+  }
+  return patterns;
+}
+
 // The locations the settings declare, or absence / malformed JSON as distinct
-// outcomes from an unreadable settings file (handled by the caller).
+// outcomes from an unreadable settings file (handled by the caller). A
+// malformed `include` (not a list of non-empty safe relative strings) drops
+// that entry; it does not invent "match everything".
 export function declaredLocations(settings: string): DeclaredSettings {
   let parsed: unknown;
   try {
@@ -62,10 +81,20 @@ export function declaredLocations(settings: string): DeclaredSettings {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       continue;
     }
-    const { path, kind } = entry as { path?: unknown; kind?: unknown };
+    const { path, kind, include } = entry as {
+      path?: unknown;
+      kind?: unknown;
+      include?: unknown;
+    };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
-    declared.push({ path, kind });
+    if (!("include" in (entry as object))) {
+      declared.push({ path, kind });
+      continue;
+    }
+    const patterns = includePatternsOf(include);
+    if (patterns === undefined) continue;
+    declared.push({ path, kind, include: patterns });
   }
   return declared.length === 0
     ? { kind: "absent" }

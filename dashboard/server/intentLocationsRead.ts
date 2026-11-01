@@ -2,21 +2,19 @@
 // authenticated read boundary (`./authenticatedRead.ts`): the settings file's
 // `intent.locations`, and each location's nested files of its kind
 // (`intent=locations`). Each names only a pinned revision and is refused here
-// before any `gh` call otherwise. File text of a selected feature is read
-// through the existing `file-at` path once that revision's locations contain
-// it (`pathContainedInIntentLocations`). Nested listing uses one recursive
+// before any `gh` call otherwise. File text of a selected source file is read
+// through the existing `file-at` path once that revision's locations select
+// it (`pathSelectedByIntentLocations`). Nested listing uses one recursive
 // Git trees call per location (`./ghTrees.ts`). The pinned-text memo and
 // project setting path are reused (`./pinnedTexts.ts`,
 // `./recordsBesideBacklog.ts`). Settings parse and text live in
-// `./intentLocationsSettings.ts`.
+// `./intentLocationsSettings.ts`; selection in `./intentLocationSelection.ts`.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { listedReadParameters } from "./listedRecordsRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
-import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
-import { agentSettingsTextAt } from "./recordsBesideBacklog.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import {
   isPinnedRevision,
@@ -31,6 +29,10 @@ import {
   type IntentLocation,
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
+import {
+  extensionsOf,
+  locationSelectsRelativePath,
+} from "./intentLocationSelection.ts";
 
 export type {
   IntentLocation,
@@ -38,13 +40,14 @@ export type {
   IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 
-// The one supported Intent source kind and the extension its files use. The
-// kind also names the Shiki grammar; there is no other mapping.
-export const intentSourceKinds = {
-  gherkin: { extension: ".feature" },
-} as const;
-
-export type IntentSourceKind = keyof typeof intentSourceKinds;
+export {
+  intentSourceKinds,
+  locationSelectsPath,
+  locationSelectsRelativePath,
+  pathSelectedByIntentLocations,
+  pathSelectedByLocations,
+  type IntentSourceKind,
+} from "./intentLocationSelection.ts";
 
 export type IntentLocationsRead = {
   readonly kind: "intent-locations-at";
@@ -89,43 +92,6 @@ export function readingIntentLocationsOf({
   return readingPathAt(agentSettingsPath, revision);
 }
 
-function extensionOf(kind: string): string | undefined {
-  return kind in intentSourceKinds
-    ? intentSourceKinds[kind as IntentSourceKind].extension
-    : undefined;
-}
-
-// Whether `path` lies inside one of the declared location folders.
-export function pathContainedInLocations(
-  path: string,
-  locations: readonly { readonly path: string }[],
-): boolean {
-  if (!isSafeRepositoryPath(path)) return false;
-  return locations.some(
-    (location) =>
-      path === location.path || path.startsWith(`${location.path}/`),
-  );
-}
-
-// Whether `path` lies inside a configured Intent location of the revision
-// the caller's pinned reader already names. Settings text is read through
-// that reader so already-read text is not fetched again.
-export async function pathContainedInIntentLocations(
-  path: string,
-  readPinned: PinnedReader,
-): Promise<boolean> {
-  if (!isSafeRepositoryPath(path)) return false;
-  // Admission reuses the shared settings helper: absence and unread both mean
-  // no locations contain the path; malformed JSON is also a refusal.
-  const settings = await agentSettingsTextAt(readPinned);
-  if (settings === null) return false;
-  const declared = declaredLocations(settings);
-  return (
-    declared.kind === "locations" &&
-    pathContainedInLocations(path, declared.locations)
-  );
-}
-
 async function filesUnderLocation(
   pinned: PinnedTexts,
   source: PublishedSource,
@@ -134,8 +100,7 @@ async function filesUnderLocation(
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<readonly string[]> {
-  const extension = extensionOf(location.kind);
-  if (extension === undefined) return [];
+  if (extensionsOf(location.kind) === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
     source,
@@ -143,33 +108,36 @@ async function filesUnderLocation(
     signal,
   )(location.path);
   return entries.flatMap((entry) => {
-    if (entry.type !== "blob" || !entry.path.endsWith(extension)) return [];
+    if (entry.type !== "blob") return [];
+    if (
+      !locationSelectsRelativePath(entry.path, location.kind, location.include)
+    ) {
+      return [];
+    }
     return [`${location.path}/${entry.path}`];
   });
+}
+
+function locationFields(
+  location: DeclaredLocation,
+): Pick<IntentLocation, "path" | "kind" | "include"> {
+  return location.include === undefined
+    ? { path: location.path, kind: location.kind }
+    : { path: location.path, kind: location.kind, include: location.include };
 }
 
 function locationAnswer(
   location: DeclaredLocation,
   files: readonly string[],
 ): IntentLocation {
-  const extension = extensionOf(location.kind);
-  if (extension === undefined) {
-    return {
-      path: location.path,
-      kind: location.kind,
-      files: [],
-      problem: "unsupported-kind",
-    };
+  const fields = locationFields(location);
+  if (extensionsOf(location.kind) === undefined) {
+    return { ...fields, files: [], problem: "unsupported-kind" };
   }
   if (files.length === 0) {
-    return {
-      path: location.path,
-      kind: location.kind,
-      files: [],
-      problem: "no-features",
-    };
+    return { ...fields, files: [], problem: "no-matching-files" };
   }
-  return { path: location.path, kind: location.kind, files };
+  return { ...fields, files };
 }
 
 // Performs one Intent locations read: the configured locations and their

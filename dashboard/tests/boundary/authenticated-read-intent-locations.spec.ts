@@ -1,7 +1,7 @@
-// Intent locations and location-contained file-at admission for the local
+// Intent locations and location-selected file-at admission for the local
 // authenticated read boundary (../../server/intentLocationsRead.ts): a
 // configured Gherkin location lists nested `.feature` files; a `file-at`
-// outside those locations is refused without reading its contents.
+// outside a location's selection is refused without reading its contents.
 
 import { expect, test } from "../support/pageTest.ts";
 import {
@@ -152,7 +152,7 @@ test.describe("authenticated Intent locations read (development environment)", (
                 { path: "e2e_test/features", kind: "gherkin" },
                 { path: "no_such_dir", kind: "gherkin" },
                 { path: "empty_features", kind: "gherkin" },
-                { path: "frontend/src", kind: "typescript" },
+                { path: "frontend/src", kind: "java" },
               ],
             },
           }),
@@ -179,17 +179,17 @@ test.describe("authenticated Intent locations read (development environment)", (
           path: "no_such_dir",
           kind: "gherkin",
           files: [],
-          problem: "no-features",
+          problem: "no-matching-files",
         },
         {
           path: "empty_features",
           kind: "gherkin",
           files: [],
-          problem: "no-features",
+          problem: "no-matching-files",
         },
         {
           path: "frontend/src",
-          kind: "typescript",
+          kind: "java",
           files: [],
           problem: "unsupported-kind",
         },
