@@ -9,6 +9,12 @@ import { splitHref } from "../../src/skills/dough-product-backlog/scripts/produc
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
 
+// Destinations that leave the dashboard open in another tab with a safe opener.
+export const leaveDashboard = {
+  target: "_blank",
+  rel: "noopener noreferrer",
+} as const;
+
 export type SourceLink =
   // A file in the observed repository, pinned to the revision it names.
   | {

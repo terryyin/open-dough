@@ -7,7 +7,8 @@
 // the agent profiles its directory listing names beside the backlog, or the
 // done catalog published there and the done records it lists
 // (`./doneCatalogRead.ts`), the Intent locations configured in the project
-// settings (`./intentLocationsRead.ts`), ask when one reachable record was
+// settings (`./intentLocationsRead.ts`), the Test Optimization Candidates
+// record (`./intentCandidatesRead.ts`), ask when one reachable record was
 // last committed there, or which commit added a listed profile, when, and who
 // committed it (`./ghProfileAddition.ts`), or resolve the story branch a Taken
 // entry's profile records there and read that entry's plan, or its last

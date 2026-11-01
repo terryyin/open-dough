@@ -1,8 +1,8 @@
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
 // nested folders after expand, exact text with line numbers and Gherkin
-// styling, Proof unavailable, project change, PNG omitted, and dual-pane
-// scroll.
+// styling, and project change. Layout scrolling lives in
+// `./intent-gherkin-layout.spec.ts`.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
@@ -13,7 +13,6 @@ import {
   intentGroupToggle,
 } from "./intentPerspectivePage.ts";
 import { colourOf } from "./pageColours.ts";
-import { box } from "./partArrangement.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnut,
@@ -134,8 +133,14 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     ).toBeVisible();
     await expectIntentGroupsCollapsed(intent);
     await expect(
-      intent.getByText("Select a feature file to read its Purpose."),
+      intent.getByRole("heading", {
+        name: "Test Optimization Candidates",
+        exact: true,
+      }),
     ).toBeVisible();
+    await expect(intent).toContainText(
+      "No Test Optimization Candidates record has been published",
+    );
     await expandIntentGroup(intent, "e2e_test/packaged/features");
     await intent
       .getByRole("button", {
@@ -150,56 +155,4 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     );
     expectAddress(page, { project: "pygardon", perspective: "intent" });
   });
-});
-
-test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  const cases = Object.fromEntries(
-    [...Array(40).keys()].map((n) => [
-      `e2e_test/features/area/case_${String(n).padStart(2, "0")}.feature`,
-      n === 0
-        ? `Feature: Long\n${"  Scenario: A step\n    Given a step\n".repeat(60)}`
-        : `Feature: Case ${n}\n`,
-    ]),
-  );
-  await publishIntentProject(page, doughnut, doughnutSettings, cases);
-
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await expandIntentGroup(intent, "e2e_test/features");
-  await intent
-    .getByRole("button", { name: "e2e_test/features/area/case_00.feature" })
-    .click();
-  await expect(
-    intent.getByLabel("e2e_test/features/area/case_00.feature source"),
-  ).toContainText("Feature: Long");
-
-  const region = page.locator(".intent-scroll");
-  const browser = page.locator(".intent-locations");
-  const reading = page.locator(".intent-reading");
-  expect(
-    await region.evaluate((el) => el.scrollHeight > el.clientHeight),
-    "the page below the banner does not scroll",
-  ).toBe(false);
-  const [column, browserBox, readingBox] = await Promise.all([
-    box(page.locator(".page-column")),
-    box(browser),
-    box(reading),
-  ]);
-  expect(browserBox.x).toBe(column.x);
-  expect(browserBox.y + browserBox.height).toBe(600);
-  expect(readingBox.y + readingBox.height).toBe(600);
-
-  const scrolledTo = (pane: typeof browser, top: number) =>
-    pane.evaluate((el, to) => {
-      el.scrollTo({ top: to });
-    }, top);
-  const topOf = (pane: typeof browser) => pane.evaluate((el) => el.scrollTop);
-  await scrolledTo(browser, 200);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 0]);
-  await scrolledTo(reading, 300);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 300]);
 });

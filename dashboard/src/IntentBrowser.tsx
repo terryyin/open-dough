@@ -2,16 +2,17 @@
 // location is an exclusive expandable group; Purpose shows a selected
 // feature's published text with line numbers and Gherkin styling; Proof lists
 // its scenarios' latest committed observations (`./IntentProof.tsx`) from the
-// location's proof, read with the locations. A failed file read keeps its own
-// explanation and retry while the location tree stays usable; a failed proof
-// read's retry reads the locations again (`./IntentPerspective.tsx`) without
-// changing the selection. File selection (and an optional case target) is
-// owned by the Intent workspace (`./intentWorkspaceSelection.ts`), not this
-// browser.
+// location's proof, read with the locations. The Test Optimization Candidates
+// record is the default reading view; selecting a location file shows Purpose
+// while the location tree stays usable. A failed file read keeps its own
+// explanation and retry; a failed proof read's retry reads the locations again
+// without changing the selection. File selection (and an optional case target)
+// is owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentProof } from "./IntentProof.tsx";
@@ -22,6 +23,8 @@ import type { PublishedSource } from "./publishedSource.ts";
 type FileRead =
   | { readonly path: string; readonly state: "failed" }
   | { readonly path: string; readonly state: "ready"; readonly text: string };
+
+type ReadingView = "candidates" | "purpose";
 
 export function IntentBrowser({
   source,
@@ -40,6 +43,7 @@ export function IntentBrowser({
 }) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const selectedPath = selection.path;
+  const [view, setView] = useState<ReadingView>("candidates");
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   // The answered read of one path; Purpose and Proof show it only while that
   // path is the one selected, so a new selection never pairs with the
@@ -47,6 +51,7 @@ export function IntentBrowser({
   const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   const proofId = useId();
+  const candidatesControlId = useId();
 
   // Clearing selection when the project or locations change is owned by the
   // Intent workspace provider remounting on source/revision identity.
@@ -82,14 +87,32 @@ export function IntentBrowser({
   return (
     <div className="intent-browser">
       <div className="intent-locations">
+        <div className="intent-candidates-nav">
+          <button
+            type="button"
+            id={candidatesControlId}
+            className={
+              view === "candidates"
+                ? "intent-candidates-nav-button is-selected"
+                : "intent-candidates-nav-button"
+            }
+            aria-pressed={view === "candidates"}
+            onClick={() => {
+              setView("candidates");
+            }}
+          >
+            Test Optimization Candidates
+          </button>
+        </div>
         <h3 className="visually-hidden">Purpose locations</h3>
         {locations.map((location) => (
           <IntentLocationGroup
             key={location.path}
             location={location}
-            selectedPath={selectedPath}
+            selectedPath={view === "purpose" ? selectedPath : ""}
             onSelect={(path) => {
               setSelection({ path });
+              setView("purpose");
             }}
             idPrefix={intentLocationIdPrefix(location.path)}
             expanded={expandedPath === location.path}
@@ -102,46 +125,54 @@ export function IntentBrowser({
         ))}
       </div>
       <div className="intent-reading" tabIndex={-1}>
-        <section className="intent-purpose" aria-label="Purpose">
-          <h3>Purpose</h3>
-          {selectedPath === "" ? (
-            <p className="quiet">Select a feature file to read its Purpose.</p>
-          ) : selectedRead?.state === "failed" ? (
-            <p className="intent-file-problem" role="alert">
-              {selectedPath} could not be read.{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setFileRetry((n) => n + 1);
-                }}
-              >
-                Retry
-              </button>
-            </p>
-          ) : text !== undefined ? (
-            <IntentSourceLines
-              text={text}
-              revision={revision}
-              path={selectedPath}
-              {...(selectedLanguage === undefined
-                ? {}
-                : { language: selectedLanguage })}
-            />
-          ) : (
-            <p className="quiet">Reading {selectedPath}…</p>
-          )}
-        </section>
-        <section className="intent-proof" aria-labelledby={proofId}>
-          <h3 id={proofId}>Proof</h3>
-          <IntentProof
-            path={selectedPath}
-            kind={selectedLanguage}
-            text={text}
-            proof={selectedLocation?.proof}
-            rereading={proofRereading}
-            onRetry={onProofRetry}
-          />
-        </section>
+        {view === "candidates" ? (
+          <IntentCandidatesRecord source={source} revision={revision} />
+        ) : (
+          <>
+            <section className="intent-purpose" aria-label="Purpose">
+              <h3>Purpose</h3>
+              {selectedPath === "" ? (
+                <p className="quiet">
+                  Select a feature file to read its Purpose.
+                </p>
+              ) : selectedRead?.state === "failed" ? (
+                <p className="intent-file-problem" role="alert">
+                  {selectedPath} could not be read.{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFileRetry((n) => n + 1);
+                    }}
+                  >
+                    Retry
+                  </button>
+                </p>
+              ) : text !== undefined ? (
+                <IntentSourceLines
+                  text={text}
+                  revision={revision}
+                  path={selectedPath}
+                  {...(selectedLanguage === undefined
+                    ? {}
+                    : { language: selectedLanguage })}
+                />
+              ) : (
+                <p className="quiet">Reading {selectedPath}…</p>
+              )}
+            </section>
+            <section className="intent-proof" aria-labelledby={proofId}>
+              <h3 id={proofId}>Proof</h3>
+              <IntentProof
+                path={selectedPath}
+                kind={selectedLanguage}
+                text={text}
+                proof={selectedLocation?.proof}
+                rereading={proofRereading}
+                onRetry={onProofRetry}
+              />
+            </section>
+          </>
+        )}
       </div>
     </div>
   );

@@ -12,9 +12,10 @@
 // `done=catalog` and `done=bodies` the published done catalog and the
 // records it lists (`./authenticatedDoneRead.ts`); `intent=locations` the
 // Intent locations configured in project settings
-// (`./authenticatedIntentRead.ts`); `branch` asks about a story branch
-// recorded at that revision (`./authenticatedBranchRead.ts`). Every read
-// makes the same one request (`./authenticatedGet.ts`). No extra header or
+// (`./authenticatedIntentRead.ts`); Test Optimization Candidates
+// (`./authenticatedIntentCandidatesRead.ts`); `branch` asks about a story
+// branch recorded at that revision (`./authenticatedBranchRead.ts`). Every
+// read makes the same one request (`./authenticatedGet.ts`). No extra header or
 // credential is sent; the page is served by the same Vite process that
 // answers this endpoint, so the request is same-origin by construction, and
 // the endpoint's own Origin/Host check (`../server/localOrigin.ts`) does the

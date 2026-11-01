@@ -7,8 +7,9 @@
 // `./performedRevisionCheck.ts`, the records listed beside the backlog in
 // `./listedRecordsRead.ts`, the done catalog and the records it lists in
 // `./doneCatalogRead.ts`, Intent locations in `./intentLocationsRead.ts`,
-// containment in `./containmentRead.ts`; failure naming in
-// `./readingRequestedRead.ts`; what a read comes to is `./readOutcome.ts`.
+// Test Optimization Candidates in `./intentCandidatesRead.ts`, containment
+// in `./containmentRead.ts`; failure naming in `./readingRequestedRead.ts`;
+// what a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
@@ -34,6 +35,7 @@ import {
   pathSelectedByIntentLocations,
   performIntentLocationsRead,
 } from "./intentLocationsRead.ts";
+import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
@@ -118,6 +120,14 @@ export async function perform(
               );
             case "intent-locations-at":
               return await performIntentLocationsRead(
+                pinned,
+                source,
+                read,
+                signal,
+                naming,
+              );
+            case "intent-candidates-at":
+              return await performIntentCandidatesRead(
                 pinned,
                 source,
                 read,

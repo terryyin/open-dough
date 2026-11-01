@@ -31,8 +31,11 @@ dist_state() {
 run_suite() {
   (
     cd -- "${source_dir}"
+    # Drop FORCE_COLOR / NO_COLOR so a coloured coordinator shell cannot make
+    # Playwright warn outside a test and fail this local concurrent contract.
     exec env -u CI -u NODE_ENV -u npm_config_local_prefix \
       -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS \
+      -u FORCE_COLOR -u NO_COLOR \
       TMPDIR="${builds}" \
       npm run --silent test:dashboard -- project-configuration-boundary.spec.ts
   ) > "${temporary_dir}/$1.out" 2>&1

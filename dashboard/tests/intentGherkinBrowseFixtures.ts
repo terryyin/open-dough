@@ -1,6 +1,6 @@
-// Published projects, settings, and Gherkin texts for Intent Gherkin browse
-// and exclusive-group journeys (`./intent-gherkin-browse.spec.ts`,
-// `./intent-gherkin-groups.spec.ts`).
+// Published projects, settings, and Gherkin texts for Intent Gherkin browse,
+// exclusive-group, and layout journeys (`./intent-gherkin-browse.spec.ts`,
+// `./intent-gherkin-groups.spec.ts`, `./intent-gherkin-layout.spec.ts`).
 
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";

@@ -55,8 +55,116 @@
 }
 
 .intent-settings-problem button,
-.intent-file-problem button {
+.intent-file-problem button,
+.intent-candidates-problem button {
   margin-left: var(--space-1);
+}
+
+.intent-candidates-nav {
+  flex: none;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.intent-candidates-nav-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius, 0.25rem);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.intent-candidates-nav-button.is-selected,
+.intent-candidates-nav-button[aria-pressed="true"] {
+  border-color: var(--line);
+  background: var(--surface-selected, color-mix(in srgb, var(--line) 35%, transparent));
+}
+
+.intent-candidates-record {
+  min-width: 0;
+}
+
+.intent-candidates-revision {
+  margin: 0 0 var(--space-3);
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.intent-candidates-revision code {
+  font-size: 0.95em;
+  word-break: break-all;
+}
+
+.intent-candidates-absent,
+.intent-candidates-empty,
+.intent-candidates-problem {
+  max-width: 42rem;
+  line-height: 1.5;
+  margin: 0 0 var(--space-3);
+}
+
+.intent-candidate-group {
+  margin: 0 0 var(--space-4);
+}
+
+.intent-candidate-group > h3 {
+  margin: 0 0 var(--space-2);
+}
+
+.intent-candidate-entry {
+  margin: 0 0 var(--space-3);
+  padding: 0 0 var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.intent-candidate-entry:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.intent-candidate-entry > h4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
+.intent-candidate-entry > dl {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.intent-candidate-field {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.intent-candidate-field > dt {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.intent-candidate-field > dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.intent-candidate-latest {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.recorded-markdown-text a {
+  overflow-wrap: anywhere;
 }
 
 .intent-browser {

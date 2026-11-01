@@ -3,14 +3,8 @@
 // leads to a file of this snapshot or to an ordinary web address.
 
 import { shortRevision } from "./publishedWork.ts";
-import type { SourceLink } from "./sourceLink.ts";
+import { leaveDashboard, type SourceLink } from "./sourceLink.ts";
 import { storyCardLinkMarks } from "./storyCardFocus.ts";
-
-// Destinations that leave the dashboard open in another tab with a safe opener.
-const leaveDashboard = {
-  target: "_blank",
-  rel: "noopener noreferrer",
-} as const;
 
 export function RecordedLink({
   role,
