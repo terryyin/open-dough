@@ -2,6 +2,7 @@
 
 **Identity:** SEED-208#trustworthy-ci-completion
 **Source:** [Canonical story and complete retrospective](../../seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Goal and scope
 
@@ -50,7 +51,7 @@ increment; no slice intentionally publishes a red or flaky intermediate state.
 
 ### 1. Every host carries the project's actual failing-test policy
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the failed-publication, known-active-other-owner and explicit
 exception scenarios through project guidance and actual planning/delegation
 entry points. Use existing owned native replay facilities if applicable;
@@ -69,6 +70,19 @@ Reuse the existing failure-policy and delegation references. Make effects
 clear in descriptions, examples, headings and linked instructions for Codex,
 Cursor and Claude Code. Keep project policy in project guidance; reusable
 skills consume the established project's policy rather than imposing ours.
+
+Accepted proof: AGENTS.md "Failing and flaky tests" now holds the policy that
+was previously only one host's private memory (root AGENTS.md for Codex and
+Cursor, CLAUDE.md @AGENTS.md for Claude Code). Reusable hooks: execution-decisions
+"Diagnose failed proof" (attribution is not exemption), delegation "Give the
+agent" (carry the project's policy, not "fix or report"), ci-monitor ownership
+on the registered revision, executable-proof known-failure attribution.
+Walkthroughs of the failed-fixture, active-other-owner and bounded-exception
+cases are recorded against source-review ids. Consumer trace found only
+guidance, install and native-replay consumers; their `bash scripts/test.sh`
+batches exited 0, and the guidance batch was rerun after refactor wrapping.
+No active prepared wording contradicted the policy. Installed copies update
+only from a released payload.
 
 ### 2. A repair owner receives the whole failed-test inventory
 Type: Behavior

@@ -64,7 +64,10 @@ focused proof. For unresolved domain purpose, ask precisely about that consumer'
 requirement and stop its dependent obligation until answered rather than guessing
 policy.
 Discovering a failing assertion does not authorize weakening its promise; align
-behavior and proof under the project's existing failure policy.
+behavior and proof under the project's existing failure policy. A plan may
+record that a known failure predates the story; that attribution is diagnosis
+evidence, not an exclusion from proof or repair, and the plan carries the
+project's policy rather than an instruction to report the failure and continue.
 
 For artifact-preservation promises, identify installation, physical store, and
 predecessor using project-supplied identities/scope. Same-store continuity proves no

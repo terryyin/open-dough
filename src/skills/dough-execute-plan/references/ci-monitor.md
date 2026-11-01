@@ -114,11 +114,12 @@ registered SHA, this execution's deliveries, and any known repair owner in
 coordinator context before pausing. Do not infer cause or ownership from
 ancestry alone.
 
-Repair only a failure this execution owns. A known other owner — a declared
-writer, another execution's worktree, or retained context naming them — is not
-duplicated: preserve those files, report coordination, and do not pause,
-stash, overwrite, restage, or publish their repair. Unknown ownership of the failure
-or of conflicting in-progress repair files is a
+Repair only a failure this execution owns. A failure on its registered revision
+is its own even when the same failure predates its change. A known other owner
+— a declared writer, another execution's worktree, or retained context naming
+them — is not duplicated: preserve those files, report coordination, and do not
+pause, stash, overwrite, restage, or publish their repair. Unknown ownership of
+the failure or of conflicting in-progress repair files is a
 [coordination stop](execution-decisions.md#stop-for-human-judgment), not a
 registry, scheduler, or claim. Queue further failures during one repair;
 never nest stash/repair cycles. After restoration, triage queued events against
