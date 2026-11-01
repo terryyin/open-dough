@@ -12,7 +12,7 @@ planted: 2026-11-01
 
 **Identity:** SEED-209#bound-local-test-resources
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/433-local-test-resources/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b643c670e6368760144637f531c545c70bb9cfa0dfff0b61f683d9fd43c73176","plan":"66db3315c3f98b043805004c9d010db73bc40d3f5d18cffc4ed62e5b030a28ac"}}
 ```
 
 **Goal:** Keep Open Dough's local full-suite verification from monopolizing a
