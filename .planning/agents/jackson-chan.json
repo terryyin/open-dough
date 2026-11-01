@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-210#confirm-broken-base-before-start",
-  "host": "claude",
-  "model": "opus"
-}
