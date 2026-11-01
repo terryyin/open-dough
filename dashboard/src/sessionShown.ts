@@ -183,11 +183,21 @@ export function attentionCount(sessions: readonly ReadableSession[]): number {
 export function attentionSummary(
   sessions: readonly ReadableSession[],
 ): string | undefined {
-  return countWords(
-    attentionCount(sessions),
-    "1 session needs attention",
-    (count) => `${count} sessions need attention`,
+  return unlessNone(attentionCount(sessions), attentionWords);
+}
+
+// How many sessions need attention, in words, zero included.
+export function attentionWords(count: number): string {
+  return countedWords(
+    count,
+    "session needs attention",
+    "sessions need attention",
   );
+}
+
+// How many open sessions do not need attention, in words, zero included.
+export function activeSessionsWords(count: number): string {
+  return countedWords(count, "active session", "active sessions");
 }
 
 // What a story's card says of its listed sessions' unread reports, apart
@@ -195,20 +205,23 @@ export function attentionSummary(
 export function unreadReportSummary(
   sessions: readonly ReadableSession[],
 ): string | undefined {
-  return countWords(
+  return unlessNone(
     sessions.filter(
       (session) => sessionShown(session).unreadReport !== undefined,
     ).length,
-    "1 unread report",
-    (count) => `${count} unread reports`,
+    (count) => countedWords(count, "unread report", "unread reports"),
   );
 }
 
-function countWords(
+// A count and what it counts, singular for one.
+function countedWords(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
+// A count's words, or nothing when it is zero.
+function unlessNone(
   count: number,
-  one: string,
-  many: (count: number) => string,
+  words: (count: number) => string,
 ): string | undefined {
-  if (count === 0) return undefined;
-  return count === 1 ? one : many(count);
+  return count === 0 ? undefined : words(count);
 }

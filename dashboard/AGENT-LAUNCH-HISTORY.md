@@ -215,9 +215,15 @@ Closing the server aborts every owned helper operation (startup diagnostics and
 in-flight delivery); shutdown is not recorded as a notification refusal.
 
 Sessions sidebar lists unclosed records across projects (attention first oldest first, others
-newest first); badge counts attention only. Rows show ellipsized title and largest elapsed unit
-(30s), state border, accessible label/tooltip. Open rows use launch age; Done rows in Recently
-done sessions use completion age and say so in details/tooltip. Command+B toggles it except in
+newest first); badge counts attention only. While open, its title row shows display-only icon
+figures beside **Sessions**, full wording as accessible name and tooltip: active and waiting
+(needing attention) open sessions from the same reading, zeros kept; whole-machine CPU % averaged
+over about the last minute of `os.cpus()` counters (the span sampled so far until then); and free
+disk on the dashboard home's volume (`fs.statfs`, compact decimal unit). Host figures come from
+one server sample shared by every page, read at the sessions pace only while a visible page has
+the sidebar open; no reader, no sampling. An unread figure says unavailable on its own.
+Rows show ellipsized title and largest elapsed unit (30s), state border, accessible
+label/tooltip. Open rows use launch age; Done rows in Recently done sessions use completion age and say so in details/tooltip. Command+B toggles it except in
 an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload; closing while
 focused there restores Sessions. Wide: sidebar/page/Side panel; narrow: sidebar overlays below
 the banner, Side panel above the page. Opening a row changes project/history and reveals its

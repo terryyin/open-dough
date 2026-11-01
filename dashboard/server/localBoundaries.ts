@@ -1,7 +1,7 @@
 // This dashboard's local boundaries, in the order a server mounts them: the
-// project configuration, OpenAI configuration, terminal theme and feedback
-// maintenance JSON endpoints, instruction transcription, launch-image claims,
-// the authenticated read boundary, and the launch boundary with its terminal
+// project configuration, OpenAI configuration, terminal theme, feedback
+// maintenance and host status JSON endpoints, instruction transcription,
+// launch-image claims, the authenticated read boundary, and the launch boundary with its terminal
 // upgrades. Vite mounts this list as
 // plugins in dev and preview (`../vite.config.mts`, each through
 // `./localBoundaryPlugin.ts`), and the boundary server mounts the same list
@@ -11,6 +11,7 @@
 import { installAuthenticatedReadMiddleware } from "./authenticatedRead.ts";
 import { installInstructionTranscriptionMiddleware } from "./instructionTranscriptionBoundary.ts";
 import { installFeedbackMaintenanceMiddleware } from "./feedbackMaintenanceBoundary.ts";
+import { installHostStatusMiddleware } from "./hostStatusBoundary.ts";
 import { installLaunchAttachmentMiddleware } from "./launchAttachmentBoundary.ts";
 import { installAgentLaunchMiddleware } from "./launchBoundary.ts";
 import type { LocalBoundary } from "./localBoundary.ts";
@@ -32,6 +33,7 @@ export const localBoundaries: readonly LocalBoundary[] = [
     name: "dough-feedback-maintenance",
     install: installFeedbackMaintenanceMiddleware,
   },
+  { name: "dough-host-status", install: installHostStatusMiddleware },
   {
     name: "dough-instruction-transcription",
     install: installInstructionTranscriptionMiddleware,

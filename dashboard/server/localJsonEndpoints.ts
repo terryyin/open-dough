@@ -1,5 +1,6 @@
 // The request handling shared by this dashboard's local JSON settings
-// endpoints (projects, OpenAI access, terminal theme, feedback maintenance):
+// endpoints (projects, OpenAI access, terminal theme, feedback maintenance,
+// host status):
 // only the listed paths are taken, every request must come from this
 // dashboard's own page, the answer is JSON that is never cached, and closing
 // the server aborts what is still pending. A `RefusedRequest` answers its own status and message; any

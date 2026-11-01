@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-211#sessions-sidebar-host-status",
+  "title": "Show session counts and host resources beside the Sessions title",
+  "completedAt": "2026-11-01T03:38:54.358Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "claude"
+}

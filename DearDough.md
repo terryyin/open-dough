@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 387. Removed numbers are never reused.
+- Highest allocated local number: 388. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -631,3 +631,21 @@ current branch evidence as the observation.
   - Evidence: plan 432 source-review.md rows 1.1, 4f.1, 4f.3, E9, V3, K2
   - Observed effect: observations name a pending gate rather than its result
   - Inference: the record lacks a disposition for a commitment owned by completion or wrap-up
+
+## DD-388 — Source-only review arrived after the first slice was delegated
+
+The coordinator delegated slice 1 from the plan's slice text, then launched the
+source-only review that acceptance requires. That review listed two source
+commitments the plan's slice 1 had not carried: counts update when the reading
+updates, and no visible labels beside the icons. Both had to be sent to the
+already-running implementer.
+
+### Occurrences
+- Execution: SEED-211#sessions-sidebar-host-status, first implementation commit 65192a9b
+  - Timestamp: unknown (2026-11-01, before 2026-11-01T10:55:42+08:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 74418a53; checkout VERSION 0.3.79)
+  - Evidence: `.planning/slice-plans/436-sessions-sidebar-host-status/source-review.md` commitments 2.4 and 3.3 at 65192a9b; the plan's slice 1 Behavior text lacks both.
+  - Observed effect: a mid-task correction message reached the slice 1 agent, and the agent added proof for both before returning. No rework of committed work was needed.
+  - Inference: running the source-only review before the first delegation would have let the brief carry every source commitment. The guidance places the review at acceptance only.
