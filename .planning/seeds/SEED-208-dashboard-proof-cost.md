@@ -14,7 +14,7 @@ scope: story
 
 **Identity:** SEED-208#declare-fixture-defaults-on-fixtures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8d765aefef4096392f41b27f245ae19503f0601418cd938167256b69df20e07c","plan":"f07767a4b1c6256bcbf1d4bf96497ade0a23a4301fedf898cdd0063c35cc3218"}}
 ```
 
 **Goal:** Every dashboard journey that uses a shared start fixture receives

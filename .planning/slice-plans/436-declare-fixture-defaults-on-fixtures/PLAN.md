@@ -41,3 +41,20 @@ modules (consumer trace) pass strict at default workers;
 - Values stay `["open-dough"]` and the existing launch waits.
 - Stop for human judgment if a consumer turns out to need the first-file-only
   behavior.
+- Failing and flaky tests follow
+  [AGENTS.md § Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests).
+- The broader consumer run is required because both changed fixtures are
+  loaded by many distributed spec files (57 importers found by the 2026-11-01
+  trace of `cursorStart`/`unreadReportPage` imports).
+
+## Plan review
+
+Slice-plan refinement was not needed: one cohesive Structure slice with its
+own proof and no boundary, sizing, or design concern. No slice-specific
+concern remains. Premises observed on 2026-11-01 in this workspace:
+`cursorStart.ts:81` and `unreadReportPage.ts:16` still hold the module-level
+`test.use`; `unreadReportPage.ts` re-exports `startOriginTest.ts`'s `test`;
+`workingCursorTest` and `deploymentCursorTest` derive from `cursorStart`'s
+`test`, so fixture-level defaults reach them; the `codexStart.ts` reference
+shape exists. The file-order failure itself is reproduced as the slice's
+first proof step.
