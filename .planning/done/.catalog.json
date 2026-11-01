@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_proof-file-version-after-upgrade.json",
+      "identity": "SEED-192#proof-file-version-after-upgrade",
+      "completedAt": "2026-11-01T23:18:56.610Z",
+      "blob": "b4806f1fbeb9a578bf789328be2e6cc1e1badb67"
+    },
+    {
       "fileName": "SEED-192_read-observed-test-proof.json",
       "identity": "SEED-192#read-observed-test-proof",
       "completedAt": "2026-11-01T18:16:21.945Z",

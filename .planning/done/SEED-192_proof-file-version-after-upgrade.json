@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#proof-file-version-after-upgrade",
+  "title": "Keep Proof's file version true after a dashboard upgrade",
+  "completedAt": "2026-11-01T23:18:56.610Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude"
+}
