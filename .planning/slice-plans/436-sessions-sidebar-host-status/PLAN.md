@@ -134,3 +134,9 @@ For slice 2: the title row is `div.sessions-sidebar-title-row` (h2 still named
 shown value, words) inside `.sessions-sidebar-status`; the room observer
 watches the title row, so wrapping figures still resize the lists. Waiting
 wording reuses "N sessions need attention"; active is "N active sessions".
+
+CI repair after slice 1 (run 41267146086, dashboard 4/12): the
+`agent-launch-codex-model` "late reply from the previous project" case raced a
+failed Doughnut published-work read whose alert moved Start session under the
+click; unrelated to slice 1. The case now awaits `untilPublishedWorkRead`
+after switching project (130/130 at repeat 10; 30/30 targeted).

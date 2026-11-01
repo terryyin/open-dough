@@ -4,7 +4,7 @@ import path from "node:path";
 import { test, expect, stored } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
-import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { reloadUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
 
 test("slow/unavailable discovery retains focus, retry works, host changes and fresh openings reset; cancel creates nothing", async ({
   page,
@@ -201,6 +201,8 @@ test.describe("project catalog isolation", () => {
       .toBe(true);
     await page.keyboard.press("Escape");
     await page.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    // Doughnut's read fails here, and its problem moves Start session down.
+    await untilPublishedWorkRead(page);
     codexProtocol.models = [
       {
         model: "project-luna",
