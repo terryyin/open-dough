@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion ([plan](slice-plans/432-trustworthy-ci-completion/PLAN.md))
 - [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost ([plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md))
 - [Confirm a broken base before starting plan execution](seeds/SEED-210-confirm-broken-base-before-start.md#confirm-broken-base-before-start) — SEED-210#confirm-broken-base-before-start ([plan](slice-plans/435-confirm-broken-base-before-start/PLAN.md))
+- [Show session counts and host resources beside the Sessions title](seeds/SEED-211-sessions-sidebar-host-status.md#sessions-sidebar-host-status) — SEED-211#sessions-sidebar-host-status ([plan](slice-plans/436-sessions-sidebar-host-status/PLAN.md))
 
 ## Backlog list
 
-- [Show session counts and host resources beside the Sessions title](seeds/SEED-211-sessions-sidebar-host-status.md#sessions-sidebar-host-status) — SEED-211#sessions-sidebar-host-status
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact
