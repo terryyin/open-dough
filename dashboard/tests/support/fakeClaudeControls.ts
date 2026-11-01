@@ -74,6 +74,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   claudeAttachesSilent(silent: boolean): void;
   // Delay the composer after the attach banner; early keys are discarded.
   claudeAttachPromptDelay(ms: number): void;
+  // Whether a `claude attach` opens an option menu instead of the composer.
+  claudeAttachMenu(menu: boolean): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
   // ended it, once one did.
   heldClaudePid(): number | undefined;
@@ -193,6 +195,7 @@ export function fakeClaudeControls(
     claudeAttachPromptDelay(ms) {
       writeFileSync(state("attach-prompt-delay-ms"), String(ms));
     },
+    claudeAttachMenu: flag("attach-menu"),
     heldClaudePid: () => readPid(state("pid")),
     heldClaudeEndedBy() {
       return readState(state("pid.exited"));

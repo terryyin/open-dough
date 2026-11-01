@@ -79,7 +79,7 @@ constraint slices 2–4 must respect
 
 ### 2. Phone key toolbar and scroll-versus-navigate
 Type: Behavior
-Status: planned
+Status: done
 Proof: Accepted — `PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- dashboard/tests/agent-terminal-touch-keys.spec.ts` (and neighbor `agent-terminal-touch.spec.ts`): toolbar Esc/Tab/arrows/Enter + expandable Ctrl+C reach PTY `sent`; Esc cancels attach-menu; Down×2+Enter confirms; swipe leaves `sent` and selection unchanged; textarea stays focused after toolbar taps; desktop fine-pointer hides toolbar; Close and session identity reachable. Source-review commitments 3–4.11, 6.*, 8.1–8.3, 9.1, 9.3–9.4, 10.1–10.2, 10.5–10.6, E1–E3, E5, E7 observed.
 
 ```

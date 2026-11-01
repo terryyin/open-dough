@@ -82,3 +82,19 @@ export async function focusByTouch(panel: Locator) {
   await tapWhereShown(panel.locator(".xterm-screen"));
   await expect(panel.locator("textarea")).toBeFocused();
 }
+
+// Coarse-pointer accessory bar; absent on fine-pointer desktop chrome.
+export function terminalKeyToolbar(panel: Locator) {
+  return panel.getByRole("toolbar", { name: "Terminal keys", exact: true });
+}
+
+export function terminalKey(panel: Locator, name: string) {
+  return terminalKeyToolbar(panel).getByRole("button", { name, exact: true });
+}
+
+// Tap a toolbar key and keep observing that xterm's textarea holds focus
+// (Blink-style: toolbar pointerdown must not dismiss the soft keyboard).
+export async function tapTerminalKey(panel: Locator, name: string) {
+  await tapWhereShown(terminalKey(panel, name));
+  await expect(panel.locator("textarea")).toBeFocused();
+}
