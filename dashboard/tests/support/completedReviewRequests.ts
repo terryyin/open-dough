@@ -1,5 +1,5 @@
-// The completed-story boundary specs share only request construction, keeping
-// real Git setup and every response observation in their owning scenarios.
+// The review boundary specs share only request construction, keeping real Git
+// setup and every response observation in their owning scenarios.
 import type { APIRequestContext } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { queuedIdentity } from "./startOrigin.ts";

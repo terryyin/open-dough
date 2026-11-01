@@ -5,6 +5,7 @@ import {
   readFileSync,
   mkdirSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -176,4 +177,74 @@ test("older launch delivery cannot close another session and durable duplicates 
       (entry) => entry.session.sessionId === newer.session.sessionId,
     )?.doneAt,
   ).toBeUndefined();
+});
+
+test("refused deliveries keep the earlier completion message", async ({
+  dashboard,
+  origin,
+  codexProtocol: native,
+}) => {
+  if (native === undefined) throw new Error("No native fixture");
+  expect(
+    (
+      await launch(dashboard, {
+        source: "open-dough",
+        host: "codex",
+        workflow: "ad-hoc",
+        instruction: "Complete bounded work.",
+      })
+    ).status,
+  ).toBe(200);
+  const record = () =>
+    stored(dashboard.home).find(
+      (entry) => entry.session.sessionId === native.threadId,
+    );
+  const completion = () => record()?.completion;
+  const context = record()?.request.reporting;
+  if (context === undefined) throw new Error("No real reporting context");
+  const earlier = "Publication finished. Reminder: inspect the migration.";
+  const messageFile = path.join(origin.machine, "attention.txt");
+  writeFileSync(messageFile, earlier);
+  expect(
+    (
+      await reportingChild(
+        `${context.command} --outcome completed --message-file ${quote(messageFile)}`,
+        origin.machine,
+      )
+    ).ok,
+  ).toBe(true);
+  expect(completion()?.message).toBe(earlier);
+  const refused = (body: unknown, headers = { Origin: dashboard.origin }) =>
+    rawRequest({
+      url: `${dashboard.origin}/__agent-launch/completion`,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify(body),
+    });
+  const valid = {
+    source: "open-dough",
+    host: "codex",
+    reference: context.reference,
+    outcome: "unfinished",
+    message: "Required retirement is held; resolve ownership.",
+  };
+  for (const [change, headers, status] of [
+    [{ source: "unknown-project" }, undefined, 404],
+    [{ source: "doughnut" }, undefined, 404],
+    [{ host: "claude" }, undefined, 404],
+    [{ reference: "00000000-0000-4000-8000-000000000000" }, undefined, 404],
+    [{ session: "another-session" }, undefined, 409],
+    [{ message: "" }, undefined, 400],
+    [{ outcome: "quiet" }, undefined, 400],
+    [{ extra: true }, undefined, 400],
+    [{}, { Origin: "https://elsewhere.test" }, 403],
+  ] as const) {
+    expect((await refused({ ...valid, ...change }, headers)).status).toBe(
+      status,
+    );
+    expect(completion()).toMatchObject({
+      outcome: "completed",
+      message: earlier,
+    });
+  }
 });

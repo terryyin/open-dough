@@ -1,4 +1,6 @@
-// Effort-only launches resolve their configured model in the actual workspace.
+// Effort launches that start installed work: effort-only launches resolve
+// their configured model in the actual workspace, and workspace confirmation
+// keeps the chosen model and effort.
 import { test, expect } from "./support/codexStart.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expectAdHocReportingInput } from "./support/reportingInputAssertions.ts";
@@ -92,5 +94,67 @@ test("effort-only ad hoc dialog uses the configured model while omitting model o
   expect(turns[0]?.params).toEqual({
     threadId: native.threadId,
     input: [{ type: "text", text }],
+  });
+});
+
+test("workspace confirmation keeps model and effort through Back and Continue", async ({
+  page,
+  dashboard,
+  origin,
+  codexProtocol: fixture,
+}) => {
+  if (!fixture) throw new Error("Native fixture missing");
+  const native = fixture;
+  const { appendFileSync, existsSync } = await import("node:fs");
+  const { openBacklog, radio } = await import("./support/sessionDialog.ts");
+  const { stored } = await import("./support/codexStart.ts");
+  const card = await openBacklog(page, origin);
+  appendFileSync(`${origin.project}/.gitignore`, "tmp/\n");
+  await card.getByRole("button", { name: "Start execution" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
+  await dialog.getByLabel("Model", { exact: true }).selectOption("native-sol");
+  await dialog
+    .getByLabel("Reasoning effort", { exact: true })
+    .selectOption("ultra");
+  await radio(dialog, "Tracking", "One-shot").check();
+  await radio(dialog, "Workspace", "Default main").check();
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(
+    dialog.getByRole("heading", { name: "Existing changes in default main" }),
+  ).toBeVisible();
+  expect(native.calls.filter((c) => c.method === "thread/start")).toEqual([]);
+  await dialog.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue(
+    "native-sol",
+  );
+  await expect(
+    dialog.getByLabel("Reasoning effort", { exact: true }),
+  ).toHaveValue("ultra");
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "Continue with existing changes" })
+    .click();
+  await expect
+    .poll(
+      () =>
+        existsSync(
+          `${dashboard.home}/.open-dough/dashboard/agent-launches.json`,
+        )
+          ? stored(dashboard.home)[0]?.firstInput?.state
+          : undefined,
+      { timeout: 30_000 },
+    )
+    .toBe("confirmed");
+  expect(stored(dashboard.home)[0]?.request).toMatchObject({
+    model: "native-sol",
+    effort: "ultra",
+  });
+  expect(
+    native.calls.filter((c) => c.method === "thread/start")[0]?.params,
+  ).toEqual({
+    cwd: origin.project,
+    model: "native-sol",
+    config: { model_reasoning_effort: "ultra" },
   });
 });

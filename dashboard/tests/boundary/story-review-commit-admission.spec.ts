@@ -1,17 +1,26 @@
 // Range admission accepts object points and exact optional integration evidence,
-// while preserving the review's read-only story-workspace boundary.
-import { storyReviewRangeEndpoint } from "../src/storyReviewContract.ts";
-import { expect, test } from "./support/preparationPage.ts";
-import { queuedIdentity } from "./support/startOrigin.ts";
-import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-import { git, observed, storyWorktree } from "./support/storyReviewWorktree.ts";
+// while preserving the review's read-only story-workspace boundary, against
+// Story A's admission worktree (../support/storyReviewWorktree.ts).
+import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
+import { getReview } from "../support/completedReviewRequests.ts";
+import { expect, test } from "../support/preparationPage.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
+import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+import {
+  admissionWorktree,
+  git,
+  observed,
+} from "../support/storyReviewWorktree.ts";
+
+// No page: the local boundaries alone answer these requests.
+test.use({ serverMode: "boundary" });
 
 test("a range admits only exact story and object IDs and confirms the repository holds them", async ({
-  page,
+  request,
   dashboard,
   origin,
 }) => {
-  const { workspace, merged } = storyWorktree(origin);
+  const { workspace, merged } = admissionWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const query = {
@@ -28,15 +37,22 @@ test("a range admits only exact story and object IDs and confirms the repository
     { ...query, fromBaseline: "--output=/tmp/diff" },
     { ...query, workspace },
   ]) {
-    const response = await page.request.get(
-      `${dashboard.baseURL}${storyReviewRangeEndpoint}?${new URLSearchParams(invalid)}`,
-      { headers: { Origin: dashboard.origin } },
+    const response = await getReview(
+      request,
+      dashboard,
+      storyReviewRangeEndpoint,
+      invalid,
     );
     expect(response.status()).toBe(400);
   }
-  const response = await page.request.get(
-    `${dashboard.baseURL}${storyReviewRangeEndpoint}?${new URLSearchParams({ ...query, tree: `${"0".repeat(39)}1` })}`,
-    { headers: { Origin: dashboard.origin } },
+  const response = await getReview(
+    request,
+    dashboard,
+    storyReviewRangeEndpoint,
+    {
+      ...query,
+      tree: `${"0".repeat(39)}1`,
+    },
   );
   expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({ kind: "unavailable" });
@@ -45,11 +61,11 @@ test("a range admits only exact story and object IDs and confirms the repository
 });
 
 test("integration evidence requires an exact array of object points whose objects the repository holds", async ({
-  page,
+  request,
   dashboard,
   origin,
 }) => {
-  const { workspace, merged } = storyWorktree(origin);
+  const { workspace, merged } = admissionWorktree(origin);
   await keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const integration = {
@@ -67,10 +83,10 @@ test("integration evidence requires an exact array of object points whose object
   };
   const before = observed(workspace);
   const read = async (integrations: string) =>
-    page.request.get(
-      `${dashboard.baseURL}${storyReviewRangeEndpoint}?${new URLSearchParams({ ...query, integrations })}`,
-      { headers: { Origin: dashboard.origin } },
-    );
+    getReview(request, dashboard, storyReviewRangeEndpoint, {
+      ...query,
+      integrations,
+    });
   const valid = await read(JSON.stringify([integration]));
   expect(valid.status()).toBe(200);
   expect(await valid.json()).toMatchObject({ kind: "comparison", files: [] });
@@ -89,11 +105,9 @@ test("integration evidence requires an exact array of object points whose object
   duplicate.append("integrations", "[]");
   expect(
     (
-      await page.request.get(
+      await request.get(
         `${dashboard.baseURL}${storyReviewRangeEndpoint}?${duplicate}`,
-        {
-          headers: { Origin: dashboard.origin },
-        },
+        { headers: { Origin: dashboard.origin } },
       )
     ).status(),
   ).toBe(400);

@@ -2,9 +2,11 @@
 
 Assessment on 2026-11-01 against `ae6479d3558b2e660e99d5b4839f0b6b064e7df5`.
 Source inspection and existing measurements only; no new timings or test changes.
+SEED-208 (plan 432) then implemented the actions below; each section's
+**Outcome** names where the surviving proof now lives.
 The [candidate record](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md) owns
-dispositions; [the selected improvement story](../../.planning/seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost)
-owns proposed implementation.
+dispositions; the improvement story is recoverable at
+`40e1d2f9:.planning/seeds/SEED-208-dashboard-proof-cost.md` (`#reduce-dashboard-proof-cost`).
 
 ## Decision basis
 
@@ -40,7 +42,7 @@ evidence, and historical fixed-pair admission cannot all collapse into a parser
 test or one happy-path journey.
 
 `story-review-{refusal,commit-admission,file-text-admission,one-shot-admission}.spec.ts`
-and the last case of `story-review-mark.spec.ts` request `page` but only use
+and the last case of `story-review-mark.spec.ts` requested `page` but only used
 `page.request`. `preparationPage.ts` also creates a full installed-start origin;
 `storyReviewWorktree.ts` builds renames, binary changes, trunk merges, and several
 working-copy states even for requests rejected before reading Git.
@@ -57,6 +59,11 @@ but the earlier boundary-only move changed approximately 12.6s to 12.1–12.5s.
 Repeating that move alone has weak runtime ROI; removing irrelevant Git setup
 is the new hypothesis. Reuse existing server/record builders, not a new framework.
 
+**Outcome:** the four specs and `story-review-mark-admission.spec.ts` live in
+`dashboard/tests/boundary/` with `request` and `serverMode: "boundary"`;
+rejection cases use `admissionWorktree` in `support/storyReviewWorktree.ts`.
+No runtime gain was measured.
+
 ## 2. Codex discovered-model workflows
 
 **Coverage worth keeping: yes. Current shape worth its cost: no.** Wrong model
@@ -64,9 +71,9 @@ or effort in the established workspace can waste an entire agent run. The
 story and ad-hoc launch shapes differ, but three repetitions of catalog loading,
 selection, explanation, and native request shape add little protection.
 
-`agent-launch-codex-model.spec.ts` imports thirteen cases through
+`agent-launch-codex-model.spec.ts` imported thirteen cases through
 `codexModelCatalogCases.ts`, `codexEffortDialogCases.ts`, and
-`codexEffortWorkspaceCases.ts`. All use `codexStart.ts`, which creates an
+`codexEffortWorkspaceCases.ts`. All used `codexStart.ts`, which creates an
 installed-start origin per case. Catalog cancellation, host/project races,
 focus, and effort feedback do not need installed execution preparation.
 
@@ -84,6 +91,11 @@ Dropping one of thirteen cases previously gave no wall benefit; removing
 installed-start preparation from the cases that do not exercise it addresses
 the dominant siblings. Start-origin skill packing already happens once per run
 in `startOriginPreparation.ts`; do not propose implementing that cache again.
+
+**Outcome:** catalog and effort-dialog cases and the ad-hoc model shape use
+`codexLaunch.ts`; `codexEffortWorkspaceCases.ts` and the execution shape keep
+`codexStart.ts`. Refinement model/effort persistence moved to
+`agent-launch-preparation-codex.spec.ts`. Reported as simplification.
 
 ## 3. Host/start-phase matrix
 
@@ -105,6 +117,9 @@ Move the no-running-process store case to the real HTTP boundary without a page.
 gain is unknown. Earlier removal of only Codex execution did not improve its
 three-case file's wall. Do not infer a saving from test count or introduce a
 new host/workflow matrix helper to maintain the smaller selection.
+
+**Outcome:** implemented as stated; the stored-not-running case lives in
+`boundary/agent-launch-start-kept-not-running.spec.ts`.
 
 ## 4. Completed review's Landed runs tail
 
@@ -146,6 +161,9 @@ of the attribution guard must fail the retained proof before deleting its siblin
 benefit. Earlier 9.48–11.51s comparisons were inconclusive; no new caching or
 Git-attribution rewrite is justified to remove this single duplicate.
 
+**Outcome:** implemented as stated; a negative control of the fail-closed
+branch failed the retained driver case.
+
 ## 6. Recently-done deletion
 
 **Coverage worth keeping: yes. Current setup breadth worth its cost: no.**
@@ -166,6 +184,9 @@ sharing mutable HOME, sessions, servers, or lists across tests.
 not a wall-saving estimate. Dialog-only trimming is negligible; bypassing four
 incidental dialog paths with real APIs is the bounded useful experiment. Do not
 build a generic scenario DSL or merge unrelated deletion lifecycles.
+
+**Outcome:** setup uses `agentLaunchBoundary.ts` `launch` and `markDone`;
+runtime unchanged, retained as simpler orchestration.
 
 ## 7. Previously accepted launch poles
 
@@ -190,6 +211,10 @@ window. Do not use that helper as no-mock replacement proof or extend it for
 speed. Preserve those tests in this story; a real-race replacement needs its own
 evidenced approach, not an invented production gate.
 
+**Outcome:** one text auto-attachment journey remains; blank UI submission is
+owned by `agent-launch-ad-hoc.spec.ts` "starting with an empty field sends no
+instruction". The two races are unchanged.
+
 ## 8. Previously accepted attention and watcher chains
 
 **Integrated coverage worth keeping: yes. Embedded HTTP admission breadth: no.**
@@ -211,10 +236,14 @@ prebuilt candidate would bypass what they protect. A broader artifact cache or
 deployment redesign has unproved benefit and materially higher complexity.
 No such infrastructure work is justified by this review.
 
+**Outcome:** the nine refusals form "refused deliveries keep the earlier
+completion message" in `boundary/agent-completion-identity.spec.ts`; the
+attention lifecycle and watcher chains are unchanged.
+
 ## Delivery and stopping rule
 
 All supported reductions and fixture experiments belong to the one selected
-story. These are decisions and proposals, not completed removals. Establish
+story. SEED-208 completed them as recorded in each Outcome. Establish
 surviving proof before narrowing. Use fresh normal-mode full-suite before/after
 records, comparable host load, and controlled focused/serial evidence. Do not
 sum file durations into claimed wall savings. No retries, skips, exclusions,

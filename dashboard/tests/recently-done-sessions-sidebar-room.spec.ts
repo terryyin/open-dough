@@ -16,6 +16,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import {
+  crowd,
   listFloor as floor,
   scrollTopOf,
   wheelToEnd,
@@ -74,6 +75,10 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     expect(await scrollTopOf(body)).toBe(bodyTop);
     expect(await scrollTopOf(running.body)).toBe(runningTop);
     const listTop = await scrollTopOf(list);
+    await wheelToEnd(page, body);
+    // Reaching the end reveals the remaining older Dones below it; measure
+    // the last one once it is shown and wheeled to.
+    await expect(entries).toHaveCount(crowd);
     await wheelToEnd(page, body);
     await expectInside(entries.last(), body);
     expect(await scrollTopOf(list)).toBe(listTop);

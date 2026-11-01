@@ -55,6 +55,10 @@ test("Codex refusal retains its published preparation; the page resumes the same
     name: "Start refinement in Codex",
   });
   await expect(dialog).toContainText("Start also publishes");
+  await dialog.getByLabel("Model", { exact: true }).selectOption("native-luna");
+  await dialog
+    .getByLabel("Reasoning effort", { exact: true })
+    .selectOption("low");
   await showOptions(dialog);
   await dialog.getByRole("checkbox", { name: /Explore/ }).check();
   native.refuseCreation = true;
@@ -89,7 +93,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     activity: "preparation",
     host: "codex",
   });
-  expect(profiles[0]?.["model"]).toBeUndefined();
+  expect(profiles[0]?.["model"]).toBe("native-luna");
   const preparation: EstablishedPreparation = {
     identity: queuedIdentity,
     workspace,
@@ -110,7 +114,12 @@ test("Codex refusal retains its published preparation; the page resumes the same
         Record<string, unknown>
       >
     )["open-dough"]?.[queuedIdentity];
-  expect(kept()).toMatchObject({ host: "codex", preparation });
+  expect(kept()).toMatchObject({
+    host: "codex",
+    model: "native-luna",
+    effort: "low",
+    preparation,
+  });
   expect(native.calls.filter(({ method }) => method === "turn/start")).toEqual(
     [],
   );
@@ -132,7 +141,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await expect(dialog.getByLabel("Host", { exact: true })).toHaveValue("codex");
   await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
   await expect(dialog).toContainText(
-    "This start requested Codex with Default model.",
+    "This start requested Codex with native-luna model.",
   );
   await page.keyboard.press("Escape");
   const port = Number(new URL(dashboard.baseURL).port);
@@ -183,7 +192,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     native.refuseCreation = false;
     native.holdCreation = true;
     native.beforeInput = () => {
-      expect(kept()).toBeDefined();
+      expect(kept()).toMatchObject({ model: "native-luna", effort: "low" });
       expect(stored(restarted.home)[0]).toMatchObject({
         preparation,
         firstInput: { state: "uncertain" },
@@ -225,7 +234,14 @@ test("Codex refusal retains its published preparation; the page resumes the same
       native.calls
         .filter(({ method }) => method === "thread/start")
         .map(({ params }) => params),
-    ).toEqual([{ cwd: workspace }, { cwd: workspace }]);
+    ).toEqual([
+      {
+        cwd: workspace,
+        model: "native-luna",
+        config: { model_reasoning_effort: "low" },
+      },
+      { cwd: workspace },
+    ]);
     expectPreparationInput(native, preparation, restarted, origin);
     expect(allocation()).toBe(publishedSha);
     expect(await origin.takenProfiles()).toEqual(profiles);

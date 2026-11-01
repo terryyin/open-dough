@@ -1,24 +1,28 @@
 // Historical admission binds source/story/reference/pair/path before any file read.
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { test, expect } from "./support/codexStart.ts";
-import { commit } from "./support/launchLanding.ts";
+import { test, expect } from "../support/codexStart.ts";
+import { getReview } from "../support/completedReviewRequests.ts";
+import { commit } from "../support/launchLanding.ts";
 import {
   startReviewRun,
   captureReviewRun,
   retireReviewRun,
   repositoryObservation,
-} from "./support/oneShotReview.ts";
-import { queuedIdentity } from "./support/startOrigin.ts";
+} from "../support/oneShotReview.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
   storyReviewMarkEndpoint,
   reviewedFileDiffSchema,
-} from "../src/storyReviewContract.ts";
+} from "../../src/storyReviewContract.ts";
+
+// No page: the local boundaries alone answer these requests.
+test.use({ serverMode: "boundary" });
 
 test("foreign or malformed historical review requests cannot choose a repository, comparison, file, or mark", async ({
-  page,
+  request,
   dashboard,
   origin,
 }) => {
@@ -61,18 +65,15 @@ test("foreign or malformed historical review requests cannot choose a repository
       400,
     ],
   ] as const) {
-    const response = await page.request.get(
-      `${dashboard.baseURL}${endpoint}?${new URLSearchParams(query)}`,
-      { headers: { Origin: dashboard.origin } },
-    );
+    const response = await getReview(request, dashboard, endpoint, query);
     expect(response.status(), JSON.stringify(query)).toBe(status);
   }
-  const crossOrigin = await page.request.get(
+  const crossOrigin = await request.get(
     `${dashboard.baseURL}${storyReviewEndpoint}?${new URLSearchParams(named)}`,
     { headers: { Origin: "https://elsewhere.test" } },
   );
   expect(crossOrigin.status()).toBe(403);
-  const mark = await page.request.post(
+  const mark = await request.post(
     `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
     {
       headers: { Origin: dashboard.origin },
@@ -80,9 +81,11 @@ test("foreign or malformed historical review requests cannot choose a repository
     },
   );
   expect(mark.status()).toBe(400);
-  const valid = await page.request.get(
-    `${dashboard.baseURL}${storyReviewFileEndpoint}?${new URLSearchParams(file)}`,
-    { headers: { Origin: dashboard.origin } },
+  const valid = await getReview(
+    request,
+    dashboard,
+    storyReviewFileEndpoint,
+    file,
   );
   expect(valid.status()).toBe(200);
   expect(reviewedFileDiffSchema.parse(await valid.json())).toEqual({

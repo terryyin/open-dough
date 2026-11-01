@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-208#reduce-dashboard-proof-cost",
+  "title": "Reduce dashboard proof cost while retaining worthwhile coverage",
+  "completedAt": "2026-11-01T05:32:18.498Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "claude",
+  "model": "opus"
+}

@@ -2,25 +2,55 @@
 
 ## Latest pass
 
-- **Command / scope:** Source-only candidate resolution, 2026-11-01; all six
-  pending families and the two accepted-cost groups. No profiling or test edits.
-- **Revision:** `ae6479d3558b2e660e99d5b4839f0b6b064e7df5`.
-- **Before / after:** unavailable for this review; no new wall/case measurement.
-  Previous SEED-197 strict suite: 1,060.4s / 615.3s, 1,746 / 1,742 cases,
-  zero skipped; unlike load across a reboot prevents attributing that wall delta.
-- **Outcome:** incomplete measurement — value/cost decisions made; five original
-  candidates and two narrower obligations transferred to one queued story.
-  The completed-review selection round trip is accepted as necessary coverage.
-- **Limits:** Numeric ROI and prospective savings are unknown. Source inspection
-  establishes duplication or unique proof, not a measured speedup. User-directed
-  coverage simplifications need not demonstrate wall gain; infrastructure does.
+- **Command / scope:** SEED-208 slice 9, 2026-11-01: normal
+  `npm run test:dashboard` (local default two workers) for reference
+  `e83dfeb3` in a temporary checkout, then the candidate, back to back on the
+  developer's 16-core Mac; strict proof and `.tsv` records outside the repository.
+- **Revision:** reference `e83dfeb3a5cd078fc84cfa9e1d74d79e5cf1f185`; candidate
+  `c727fb2e` plus the slice 9 paging and Codex-model fixes (the later
+  room-spec wait and Codex fixture defaults were proved by focused runs only).
+- **Before / after:** reference 1,831 cases, 0 skipped, 1,701.9s wall,
+  3,228.6 summed test seconds, 1-minute load 4.8–12.4 (mean 7.3), one
+  untouched failure (`recently-done-sessions-sidebar-room.spec.ts:34`).
+  Candidate: 1,827 cases, 0 skipped, strict pass,
+  1,654.4s wall, 3,149.9s summed, load 4.2–10.3 (mean 6.0).
+- **Outcome:** the seven transferred obligations are implemented (SEED-208
+  slices 2–8) and no longer listed. Four fewer cases. Files the story changed
+  went from 199.5 to 172.0 summed seconds; the files it did not change also
+  fell by 51s (1.7%) under the lower load, so the 0.97 wall ratio is not
+  claimed as a speedup.
+- **Limits:** one pair only; the candidate ran under lower load. Retained
+  changes are coverage simplifications; slice 4's phase family is the only
+  focused `--workers=1` reduction measured (38s to 27s wall).
 - **Evidence:** [value/cost assessment](../docs/maintainer/dashboard-test-value-review.md);
-  [last measured pass](../docs/maintainer/dashboard-test-timings.md#local-npm-run-testdashboard-pass-seed-197-2026-10-31);
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
+  replacement plan `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`
+  slice Results (run records were local and not retained).
 
 ## Pending candidates
 
-None.
+### launch-records-poll-waits
+
+- **Locations / scope:** `agent-completion-attention.spec.ts` (waits for the
+  reported message and for "Unfinished work" on the card) and the two
+  close/reopen races in `agent-launch-ad-hoc-terminal.spec.ts`.
+- **Observed cost:** a timestamped diagnostic of the attention journey spent
+  14.9s on each of its two waits, about 30s of its 35s; each race spends about
+  15s after `release()`. All four wait for the page's next launch-records read,
+  `checkIntervalMs` (15s) after the previous one (`src/agentLaunches.ts:176`,
+  `src/revisionCheckSchedule.ts:31`). About 60 summed seconds in all.
+- **Unique protection:** a delivered report reaches the open page without a
+  reload; the races keep a closed or reopened terminal as the developer left it.
+- **Alternatives attempted:** none. The existing page clock and one-read pace
+  (`pausePageClockAt` in `dashboardTest.ts`, `watchRecordReads(page).passOnePace`
+  in `sessionStatePace.ts`) drive the same real read without a 15s wait.
+- **Disposition / rationale:** pending — a cheaper design that reuses existing
+  test infrastructure is credible, so this is not accepted as a necessary cost.
+  It was not tried because SEED-208 kept the attention lifecycle and both races
+  unchanged. The races still rewrite launch responses
+  (`withholdLaunchOutcomes`); a clock change must not extend that mechanism.
+- **Date:** 2026-11-01
+- **Evidence / follow-up:** SEED-208 slices 7 and 8 Results in the
+  replacement plan `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`.
 
 ## Accepted necessary costs
 
@@ -61,8 +91,8 @@ None.
   subsequently shortened the boundary's configured bound. No further cheap
   replacement for the remaining integrated protection was established.
 - **Disposition / rationale:** accepted necessary cost — preserve the unique
-  multi-step journeys. The repeated terminal input matrix is separately
-  transferred below; its duplication is not accepted. Acceptance excludes nothing;
+  multi-step journeys. SEED-208 slice 7 reduced the terminal input matrix to
+  one text journey; the races' poll waits are pending above. Acceptance excludes nothing;
   normal verification and CI continue running them. The project has no
   profile-exclusion mechanism. Reopen only with new evidence.
 - **Date:** 2026-10-30
@@ -91,8 +121,9 @@ None.
   activations while retaining the watcher journey. SEED-177 closed without
   further narrowing these long journeys.
 - **Disposition / rationale:** accepted necessary cost — retain unique
-  integrated protection, preserving the accepted coverage decision. The raw
-  attention admission matrix is separately transferred below. Any
+  integrated protection, preserving the accepted coverage decision. SEED-208
+  slice 8 moved the raw refusal rows to `boundary/agent-completion-identity`;
+  the attention journey's poll waits are pending above. Any
   further variant removal or boundary move needs separately authorized scope
   and established replacement proof; acceptance grants no coverage reduction
   or profile exclusion. Normal verification and CI keep these tests.
@@ -108,131 +139,4 @@ None.
 
 ## Transferred obligations
 
-### story-review-http-admission-boundary-placement
-
-- **Locations / scope:** HTTP-only journey-tier specs
-  `story-review-refusal.spec.ts`, `story-review-commit-admission.spec.ts`,
-  `story-review-file-text-admission.spec.ts`,
-  `story-review-one-shot-admission.spec.ts`, and the mark-request admission
-  case in `story-review-mark.spec.ts`.
-- **Observed cost:** focused family wall ≈12.6s (10 cases); summed `.tsv`
-  ≈55s under default workers on the SEED-193 host (2026-10-30).
-- **Unique protection:** server admission refusals and read-only workspace
-  guarantees for review/mark/range/file-text/one-shot endpoints.
-- **Alternatives attempted:** move to `serverMode: "boundary"` (and
-  `boundary/` homes) with `request` fixture; focused wall 12.1–12.5s over
-  three passes — no meaningful wall gain; undone.
-- **Disposition / rationale:** transferred — slice 2 of the
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Retain valuable HTTP/read-only contracts with request-only boundary proof and minimal real Git preconditions; a boundary-mode-only repeat has weak ROI.
-  Implementation pending; expected savings remain unmeasured.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** SEED-193 slice 2 focused proofs under
-  `/tmp/SEED-193-optimize-dashboard-test-feedback/slice2-*`.
-
-### codex-discovered-model-story-workflow-collapse
-
-- **Locations / scope:** `agent-launch-codex-model.spec.ts` workflows
-  `execution`, `refinement`, and `ad-hoc` (catalog/effort imported cases
-  unchanged).
-- **Observed cost:** focused family wall ≈10.2–12.1s (13 cases) under default
-  workers on the SEED-194 host (2026-10-30); full-suite file `.tsv` ≈41.5s.
-- **Unique protection:** discovered-model dialog → native creation for story
-  and ad-hoc shapes; boundary already owns creation/refusal variants.
-- **Alternatives attempted:** keep `execution` + `ad-hoc` only; focused wall
-  11.0–11.6s / 12 cases over three passes — no wall gain; undone.
-- **Disposition / rationale:** transferred — slice 3 of the
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Remove redundant refinement catalog UI after retaining its persistence assertions; use existing cheaper fixtures for catalog-only cases.
-  Implementation pending; expected savings remain unmeasured.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** SEED-194 slice 3 under
-  `/tmp/SEED-194-optimize-dashboard-test-feedback/slice3-*`.
-
-### agent-launch-start-phases-host-collapse
-
-- **Locations / scope:** `agent-launch-start-phases.spec.ts` Claude and Codex
-  initiating/observing execution page journeys (store “kept, never running”
-  case unchanged).
-- **Observed cost:** focused file wall ≈9.20–9.77s (3 cases) under default
-  workers on the SEED-195 host (2026-10-30); full-suite file `.tsv` ≈28.9s in
-  the top-20% band.
-- **Unique protection:** initiating/observing pages show the actual host
-  throughout execution progress, including host-specific readiness wording on
-  Claude argv / Codex `turn/start`.
-- **Alternatives attempted:** keep Claude page journey only; focused wall
-  9.14–9.38s / 2 cases over three passes — no wall gain; undone. Sibling
-  Codex coverage in `agent-launch-start-codex.spec.ts` and
-  `agent-launch-preparation-phases.spec.ts` remained green.
-- **Disposition / rationale:** transferred — slice 4 of the
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Keep Claude execution and Codex refinement phase journeys; surviving Codex execution already checks the changed-readiness handoff. Remove the opposite repetitions.
-  Implementation pending; expected savings remain unmeasured.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** SEED-195 slice 3 under
-  `/tmp/SEED-195-optimize-dashboard-test-feedback/slice3-*`.
-
-### story-review-completed-gaps-ambiguous-merge-collapse
-
-- **Locations / scope:** `boundary/story-review-completed-gaps.spec.ts` loop
-  case `ambiguous-merge`; driver/conflicts already assert related unavailable
-  merge explanations.
-- **Observed cost:** focused gaps file wall ≈10.34–11.18s under default
-  workers on the SEED-196 host (2026-10-30).
-- **Unique protection:** gaps-tier missing-agent recovery plus ambiguous-merge
-  unavailable explanation beside other gap singles.
-- **Alternatives attempted:** keep `missing-agent` only; focused wall
-  9.48–11.51s — inconclusive; undone.
-- **Disposition / rationale:** transferred — slice 5 of the
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Move the no-files assertion to the retained ambiguous printing-driver HTTP case, then remove the duplicate gaps iteration; keep missing-agent recovery.
-  Implementation pending; expected savings remain unmeasured.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** SEED-196 slice 3 under
-  `/tmp/SEED-196-optimize-dashboard-test-feedback/slice3-*`.
-
-### agent-launch-recent-delete-dialog-delta
-
-- **Locations / scope:** `agent-launch-recent-delete.spec.ts` Keep-focus /
-  ask-first overlap with `agent-launch-story-card-delete.spec.ts`.
-- **Observed cost:** full-suite file `.tsv` ≈26.8s on the SEED-196 baseline;
-  launch-heavy placement steps dominate; only one Keep-focus overlap found.
-- **Unique protection:** Recently done / sidebar / neighbouring-entry focus
-  placement after delete.
-- **Alternatives attempted:** none in SEED-196 — decisive checkpoint skipped
-  the experiment as not plausible for suite wall.
-- **Disposition / rationale:** transferred — slice 6 of the
-  [one replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Keep distinct placement/focus/no-stop proof; remove generic dialog duplication and use real launch/mark HTTP operations for incidental setup.
-  Implementation pending; expected savings remain unmeasured.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** SEED-196 slice 5 checkpoint in plan 423.
-
-### ad-hoc-terminal-input-matrix
-
-- **Locations / scope:** blank/text full-attachment loop in
-  `dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts`.
-- **Observed cost:** no isolated timing retained; source review 2026-11-01.
-- **Unique protection:** immediate terminal attachment, input, focus and detach;
-  boundary already owns exact text and blank/whitespace native argv.
-- **Alternatives attempted:** none; two equivalent full attachment journeys found.
-- **Disposition / rationale:** transferred — reduce the repeated matrix in
-  [plan slice 7](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Preserve blank UI submission proof and distinct close/reopen races. Not implemented.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** [value/cost review](../docs/maintainer/dashboard-test-value-review.md#7-previously-accepted-launch-poles).
-
-### attention-report-http-admission-placement
-
-- **Locations / scope:** eight refusal-body rows and cross-origin refusal in
-  `dashboard/tests/agent-completion-attention.spec.ts`.
-- **Observed cost:** whole attention case previously ≈39.6s; matrix not isolated.
-- **Unique protection:** refused reports cannot replace the retained message;
-  these raw HTTP requests do not exercise the attention page lifecycle.
-- **Alternatives attempted:** none; existing completion-identity boundary setup
-  is the proposed receiver, without another native launch fixture.
-- **Disposition / rationale:** transferred — narrow the journey and retain
-  real HTTP/store refusal proof in [plan slice 8](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
-  Expected runtime gain small; simpler proof ownership is independent value.
-- **Date:** 2026-11-01
-- **Evidence / follow-up:** [value/cost review](../docs/maintainer/dashboard-test-value-review.md#8-previously-accepted-attention-and-watcher-chains).
+None.

@@ -1,24 +1,20 @@
 // Catalog interaction cases registered by agent-launch-codex-model.spec.ts.
+// None starts installed work, so each reads the worker's launch journey.
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { test, expect, stored } from "./support/codexStart.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { test, expect, stored } from "./support/codexLaunch.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { parts } from "./dashboardPage.ts";
 import { reloadUntilRead, untilPublishedWorkRead } from "./pageRequestNotes.ts";
 
 test("slow/unavailable discovery retains focus, retry works, host changes and fresh openings reset; cancel creates nothing", async ({
   page,
-  origin,
+  launchJourney,
   codexProtocol: fixture,
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const codexProtocol = fixture;
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   const open = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -70,7 +66,7 @@ test("slow/unavailable discovery retains focus, retry works, host changes and fr
 test("a vanished explicit model is explained; deliberate default and former dynamic labels remain safe in the real UI", async ({
   page,
   dashboard,
-  origin,
+  launchJourney,
   codexProtocol: fixture,
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
@@ -83,12 +79,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
     supportedReasoningEfforts: [],
   };
   codexProtocol.models = [dynamic];
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   const open = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -140,17 +131,12 @@ test("a vanished explicit model is explained; deliberate default and former dyna
 
 test("a late catalog reply cannot replace another host's current options", async ({
   page,
-  origin,
+  launchJourney,
   codexProtocol: fixture,
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const codexProtocol = fixture;
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
     .click();
@@ -178,17 +164,12 @@ test.describe("project catalog isolation", () => {
   test.use({ projectFolders: ["open-dough", "doughnut"] });
   test("a late reply from the previous project cannot replace the current project's choices", async ({
     page,
-    origin,
+    launchJourney,
     codexProtocol: fixture,
   }) => {
     if (!fixture) throw new Error("Native fixture missing");
     const codexProtocol = fixture;
-    await publishCommittedOrigin(page, {
-      repoDir: origin.origin,
-      revision: (await origin.originGit("rev-parse", "main")).trim(),
-      repository: "terryyin/open-dough",
-    });
-    await page.goto("/");
+    await openTakenBacklog(page, launchJourney);
     await page
       .getByRole("button", { name: "Start session in Open Dough" })
       .click();

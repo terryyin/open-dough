@@ -1,17 +1,15 @@
-import { test, expect } from "./support/codexStart.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
+// Effort dialog cases registered by agent-launch-codex-model.spec.ts. None
+// starts installed work, so each reads the worker's launch journey.
+import path from "node:path";
+import { test, expect } from "./support/codexLaunch.ts";
+import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { twiceZoomedWindow } from "./accessibleReading.ts";
 
 test("model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback", async ({
   page,
-  origin,
+  launchJourney,
 }) => {
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   const open = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -78,18 +76,13 @@ test("model changes preserve compatible effort and retain incompatible selection
 
 test("unknown configured custom model leaves defaults usable and efforts delegated; narrow and 200% reading retains Start", async ({
   page,
-  origin,
+  launchJourney,
   codexProtocol: fixture,
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const native = fixture;
   native.configuredModel = "custom-model";
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   await page.setViewportSize({ width: 390, height: 600 });
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -117,17 +110,13 @@ test("unknown configured custom model leaves defaults usable and efforts delegat
 
 test("stale explicit effort is explained and a deliberate default retry sends neither override", async ({
   page,
-  origin,
+  dashboard,
+  launchJourney,
   codexProtocol: fixture,
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const native = fixture;
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
+  await openTakenBacklog(page, launchJourney);
   const open = page.getByRole("button", {
     name: "Start session in Open Dough",
   });
@@ -164,67 +153,5 @@ test("stale explicit effort is explained and a deliberate default retry sends ne
     .toBe(1);
   expect(
     native.calls.filter((c) => c.method === "thread/start")[0]?.params,
-  ).toEqual({ cwd: origin.project });
-});
-
-test("workspace confirmation keeps model and effort through Back and Continue", async ({
-  page,
-  dashboard,
-  origin,
-  codexProtocol: fixture,
-}) => {
-  if (!fixture) throw new Error("Native fixture missing");
-  const native = fixture;
-  const { appendFileSync, existsSync } = await import("node:fs");
-  const { openBacklog, radio } = await import("./support/sessionDialog.ts");
-  const { stored } = await import("./support/codexStart.ts");
-  const card = await openBacklog(page, origin);
-  appendFileSync(`${origin.project}/.gitignore`, "tmp/\n");
-  await card.getByRole("button", { name: "Start execution" }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
-  await dialog.getByLabel("Model", { exact: true }).selectOption("native-sol");
-  await dialog
-    .getByLabel("Reasoning effort", { exact: true })
-    .selectOption("ultra");
-  await radio(dialog, "Tracking", "One-shot").check();
-  await radio(dialog, "Workspace", "Default main").check();
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(
-    dialog.getByRole("heading", { name: "Existing changes in default main" }),
-  ).toBeVisible();
-  expect(native.calls.filter((c) => c.method === "thread/start")).toEqual([]);
-  await dialog.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue(
-    "native-sol",
-  );
-  await expect(
-    dialog.getByLabel("Reasoning effort", { exact: true }),
-  ).toHaveValue("ultra");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await dialog
-    .getByRole("button", { name: "Continue with existing changes" })
-    .click();
-  await expect
-    .poll(
-      () =>
-        existsSync(
-          `${dashboard.home}/.open-dough/dashboard/agent-launches.json`,
-        )
-          ? stored(dashboard.home)[0]?.firstInput?.state
-          : undefined,
-      { timeout: 30_000 },
-    )
-    .toBe("confirmed");
-  expect(stored(dashboard.home)[0]?.request).toMatchObject({
-    model: "native-sol",
-    effort: "ultra",
-  });
-  expect(
-    native.calls.filter((c) => c.method === "thread/start")[0]?.params,
-  ).toEqual({
-    cwd: origin.project,
-    model: "native-sol",
-    config: { model_reasoning_effort: "ultra" },
-  });
+  ).toEqual({ cwd: path.join(dashboard.home, "git", "open-dough") });
 });
