@@ -52,6 +52,20 @@ test("the documented obligation is read, listed, and blocks commit until proved"
   assert.equal(check(plan, "--completion").ok, true);
 });
 
+test("guidance names record beside list and check", () => {
+  const commands = obligations.slice(
+    obligations.indexOf("```sh"),
+    obligations.indexOf("```", obligations.indexOf("```sh") + 4),
+  );
+  assert.match(commands, /story-obligations\.mjs' list --plan/);
+  assert.match(commands, /story-obligations\.mjs' check --plan/);
+  assert.match(commands, /story-obligations\.mjs' record --plan/);
+  assert.match(
+    obligations,
+    /Use `record` to settle one commitment's slice allocation/,
+  );
+});
+
 test("delegation carries the installed listing as slice promises before assignment", () => {
   const delegation = reference("delegation.md");
   const beforeAssignment = delegation.slice(

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-010#record-source-review-observations
 **Source:** [selected story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#record-source-review-observations).
+**Source review:** [source-only return](source-review.md)
 
 ## Goal and scope
 
@@ -44,12 +45,8 @@ families; full suite stays with ordinary hosted CI.
 
 ### 1. Record commitment observations and linked obligations through one path
 Type: Behavior
-Status: planned
-Proof: Focused recording tests cover pipe/quote observations, exclusion via
-obligation with correct Slice/`Reported` shapes, observed allocations,
-single-row correction, and unknown/stale refusals with intact bytes; unchanged
-`check` accepts the valid results and still refuses the retained malformed
-shapes; guidance names the recording operation.
+Status: done
+Proof: Accepted — `node --test src/skills/dough-execute-plan/scripts/story-obligations-source-review*.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs` (26 pass) and `node --test src/skills/dough-execute-plan/scripts/story-obligations*.test.mjs` (59 pass). Write suite covers `|`/quotes (ODF-391), exclusion Slice/`Reported` (ODF-381), allocate+observe, single-row correction, unknown/stale intact bytes; guidance names `record`; prior source-review check suites preserved. Source review linked; commitments 1–13 observed; 14a/14b → G1 (wrap-up bookkeeping); 15 → G2 excluded.
 
 Behavior: Given a plan that links a Commitments table, the coordinator records
 an observation, slice allocation, or linked Story obligation for an identified
@@ -88,3 +85,20 @@ records stay as they are.
 Refinement was not needed: one proof loop covers the single authoring path and
 all key examples; no independent second outcome or hidden preparation slice.
 No remaining slice-specific concern.
+Recording landed as `record` on the existing `story-obligations` CLI with digest
+CAS and atomic dual-file replace; refactor split write/CLI modules under the
+250-line limit and shared the exact source-review link helpers with the reader.
+
+## Story obligations
+
+### G1. Closure finding revision and release recording
+Reported: slice 1 — "At closure, record the actual response revision and first containing release (or explicitly unreleased status) at both addressed findings"
+Story clause: "This response changes authoring of those records, not acceptance policy, review depth, or whether a valid table proves the commitment's observed result."
+Disposition: no user cost "A coordinator recording a planned-execution source review can retain commitments, slice allocations, and observations through one supported operation that the existing obligations reader accepts": Evaluation's closure recording of response revision and release at ODF-391 and ODF-381 is Story Wrap Up bookkeeping after the authoring operation ships, not a Commitments-table authoring result for this operation.
+Commitment: 14a, 14b
+
+### G2. Later ordinary use stays a separate observation
+Reported: slice 1 — "later ordinary use remains a separate observation"
+Story clause: "later ordinary use remains a separate observation"
+Disposition: excluded "later ordinary use remains a separate observation"
+Commitment: 15

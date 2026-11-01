@@ -163,7 +163,17 @@ Resolve `<installed-execute-plan>` to the installed execution skill directory,
 node '<installed-execute-plan>/scripts/story-obligations.mjs' list --plan '<PLAN.md>' --slice N
 node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --slice N
 node '<installed-execute-plan>/scripts/story-obligations.mjs' check --plan '<PLAN.md>' --completion
+node '<installed-execute-plan>/scripts/story-obligations.mjs' record --plan '<PLAN.md>' --commitment '<id>' [--slice N|""] [--observed '<product or proof location>' | --obligation '<id>'] [--entry-id '<id>' --title '<text>' --reported '<text>' --reported-slice N --story-clause '<text>' --disposition '<text>'] [--expected-review '<sha256>'] [--expected-plan '<sha256>']
 ```
+
+Use `record` to settle one commitment's slice allocation, `observed:` location,
+or disposing obligation id through the same script that lists and checks the
+table. It escapes `|` in written cells, keeps an obligation id out of Slice,
+and when you supply the entry fields writes the linked Story obligations
+`Reported: slice N — "…"` shape. Unknown commitment ids and stale
+`--expected-review` / `--expected-plan` digests refuse without rewriting either
+file. Hand-built cell escaping and putting an obligation id in Slice are not
+supported recording paths.
 
 The listing returns full entries for the slice's returns, receiving
 obligations, and open interims naming it, and, when the plan links a source

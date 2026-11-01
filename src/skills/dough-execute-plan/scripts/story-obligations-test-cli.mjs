@@ -22,6 +22,9 @@ export function check(plan, ...args) {
 export function list(plan, ...args) {
   return run("list", plan, ...args);
 }
+export function record(plan, ...args) {
+  return run("record", plan, ...args);
+}
 export function refuses(result, reason, entry = "G1", field) {
   assert.equal(result.ok, false);
   assert.ok(

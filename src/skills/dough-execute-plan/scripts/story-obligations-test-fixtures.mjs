@@ -96,8 +96,12 @@ ${rows.map((row) => `| ${row.join(" | ")} |`).join("\n")}
 }
 
 // A plan linking its retained return, with the return's rows written beside it.
-export function reviewed(t, rows, { entries = "", done = [] } = {}) {
-  const { plan, writePlan } = fixture(t);
+export function reviewed(
+  t,
+  rows,
+  { entries = "", done = [], example = holdings } = {},
+) {
+  const { plan, writePlan } = fixture(t, example);
   const writeReview = (next) =>
     writeFileSync(join(dirname(plan), "source-review.md"), sourceReview(next));
   writePlan(slicePlan(entries, { done, review: true }));
