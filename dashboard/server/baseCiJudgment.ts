@@ -13,7 +13,11 @@ import {
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
-import type { BaseCiFound, BaseCiState } from "../src/baseCiConfirmation.ts";
+import type {
+  BaseCiCompletedAncestor,
+  BaseCiFound,
+  BaseCiState,
+} from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   judgeNearest,
@@ -36,6 +40,7 @@ export type BaseCiJudgment =
       readonly revision: string;
       readonly subject: string;
       readonly laterWithoutResult: number;
+      readonly completedAncestor?: BaseCiCompletedAncestor;
       readonly reason?: string;
       readonly runUrl?: string;
     };
@@ -193,6 +198,9 @@ export function baseCiFound(
     subject: judgment.subject,
     state: judgment.state,
     laterWithoutResult: judgment.laterWithoutResult,
+    ...(judgment.completedAncestor === undefined
+      ? {}
+      : { completedAncestor: judgment.completedAncestor }),
     ...(judgment.reason === undefined ? {} : { reason: judgment.reason }),
     ...(judgment.runUrl === undefined ? {} : { runUrl: judgment.runUrl }),
   };

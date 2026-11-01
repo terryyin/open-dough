@@ -1,6 +1,6 @@
 // Publish a planning-only origin head after the current main tip so base-CI
 // journeys can place a nearest ancestor result on the prior revision
-// (`../agent-launch-base-ci.spec.ts`, `../agent-launch-base-ci-running-unread.spec.ts`).
+// (`../agent-launch-base-ci.spec.ts` and its completed-history/unread siblings).
 
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";

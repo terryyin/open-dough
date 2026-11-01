@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-214#completed-base-ci-ancestor",
+  "title": "Show the nearest completed base CI ancestor",
+  "completedAt": "2026-11-01T08:31:25.035Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "codex"
+}

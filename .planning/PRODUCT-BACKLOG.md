@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Use the dashboard terminal with a mobile keyboard](seeds/SEED-212-mobile-terminal-input.md#use-terminal-with-mobile-keyboard) — SEED-212#use-terminal-with-mobile-keyboard ([plan](slice-plans/436-use-terminal-with-mobile-keyboard/PLAN.md))
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
-- [Show the nearest completed base CI ancestor](seeds/SEED-214-completed-base-ci-ancestor.md#completed-base-ci-ancestor) — SEED-214#completed-base-ci-ancestor
 - [Read observed proof alongside test purpose](seeds/SEED-192-review-product-intent.md#read-observed-test-proof) — SEED-192#read-observed-test-proof ([plan](slice-plans/439-read-observed-test-proof/PLAN.md))
 
 ## Backlog list

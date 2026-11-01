@@ -345,6 +345,15 @@ Broad reference/metadata batches omit required passages and force repeated retri
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-264.md).
 
+- Execution: SEED-214#completed-base-ci-ancestor
+  - Timestamp: unknown (2026-11-01 execution conversation)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `391eceb34a225fcb6f6dc5b25d2979d66c07cb55`
+  - Evidence: startup combined reference reads were truncated (tool outputs reported 11,857 and 13,447 tokens); acceptance printed the complete `/tmp/open-dough-base-ci-consumers-reviewed.md` (44,166 tokens), truncating its consumer rows and requiring targeted retrieval.
+  - Observed effect: broad reads lost decision-relevant passages and forced additional retrieval in one small execution. These calls are one occurrence, not separate recurrences.
+  - Inference: narrower boundary reads and bounded consumer sections would reduce context churn; no elapsed-time saving was measured.
+
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323. An implementation agent probing a new macOS notification identity ended the
