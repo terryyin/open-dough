@@ -216,3 +216,7 @@ Reported: slice 2 — "A new terminal engine, separate mobile app, or second ses
 Story clause: "A new terminal engine, separate mobile app, or second session path."
 Disposition: excluded "A new terminal engine, separate mobile app, or second session path."
 Commitment: D5
+
+## Execution complete
+
+Product advice: Residual iOS predictive-IME / real-device risk remains accepted under the authorized physical-iPhone waiver; optional later physical Safari observation only if phone comfort still matters. Deferred sticky Ctrl/Alt, long-press, and buffer selection stay deferred. Near-future direction is product-intent review; this was an authorized urgent usability digression — no backlog reorder from this review. Plan number 436 still collides on disk with SEED-208’s declare-fixture-defaults plan; renumber that plan when SEED-208 is taken (ODF-106). Three phone E2E journeys document distinct journeys at real attachment cost; no suite-cleanup correction owned here.
