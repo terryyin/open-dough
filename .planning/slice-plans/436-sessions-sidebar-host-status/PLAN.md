@@ -90,6 +90,13 @@ endpoint, `SharedObservation` sampler, client poll aligned with
 `checkIntervalMs` / visibility, and the two host figures on the title row.
 Documents the status line in the Sessions sidebar product contract.
 
+## Execution complete
+
+Product advice: no change. The four figures meet the story's at-a-glance
+headroom goal. Memory, thresholds, a closed-sidebar status line and click-through
+detail stay deferred in the story until the developer finds CPU and disk
+insufficient to judge whether another session fits.
+
 ## Current decisions
 
 - Demand-driven shared sampling (client poll + `SharedObservation` reuse), not
