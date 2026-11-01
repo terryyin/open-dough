@@ -69,7 +69,7 @@ const headerRowHeight = (rows: readonly number[]) =>
 // The room the visible lists share in the sidebar: its height inside its
 // padding, less every header row. Measured as soon as a preferred section
 // expands or the sidebar opens, before that is painted, and again whenever
-// the sidebar, its heading or a section header changes size.
+// the sidebar, its title row or a section header changes size.
 function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
   const [room, setRoom] = useState<Room | undefined>();
   useLayoutEffect(() => {
@@ -97,7 +97,7 @@ function useRoom(sidebar: RefObject<HTMLElement | null>, measuring: boolean) {
     });
     for (const observed of [
       element,
-      element.querySelector("h2"),
+      element.querySelector(".sessions-sidebar-title-row"),
       ...element.querySelectorAll(".sessions-sidebar-section-header"),
     ])
       if (observed !== null) observer.observe(observed);

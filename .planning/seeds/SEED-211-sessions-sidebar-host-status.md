@@ -41,9 +41,12 @@ another tool.
   amount; accessible names or tooltips carry the full wording (for example
   "2 sessions need attention", "CPU 24%", "12 GB free"). No separate text
   labels beside the icons.
-- CPU usage is the host's recent whole-machine utilization percentage derived
-  from successive `os.cpus()` time counters on the dashboard server (not load
-  average alone, and not one browser tab's process). Free disk is
+- CPU usage is the host's whole-machine utilization percentage as a moving
+  average over roughly the last minute, derived from successive `os.cpus()`
+  time counters on the dashboard server (not one instantaneous snapshot, not
+  load average alone, and not one browser tab's process). Until a minute of
+  samples exists, such as on the first read after sampling resumes, it averages
+  the span sampled so far. Free disk is
   `fs.statfs` available space for that dashboard-home volume, shown in a
   compact human unit (for example GB).
 - Host figures are machine-local operational evidence from the dashboard

@@ -10,10 +10,12 @@ import { sessionKey } from "./sessionReference.ts";
 // Browser open preference survives project/view/terminal changes and reloads;
 // unavailable storage starts closed. Toggling changes no story/session facts.
 // Recently done sessions and Running Cursor sessions each start collapsed per
-// load (`./SessionsSidebarOptionalSections.tsx`). Expanded, every list scrolls
-// separately; one room owner (`./sessionsSidebarHeights.ts`) sizes every
-// expanded list against shared floors and preferred heights, equally until
-// resized. Collapsing restores list room. Expansion and splits survive
+// load (`./SessionsSidebarOptionalSections.tsx`). While open, the title row
+// shows display-only figures beside the heading: how many open sessions are
+// active and how many need attention, by the same reading the list shows.
+// Expanded, every list scrolls separately; one room owner
+// (`./sessionsSidebarHeights.ts`) sizes every expanded list against shared
+// floors and preferred heights, equally until resized. Collapsing restores list room. Expansion and splits survive
 // project/view/close changes; reload keeps preferred sizes, not expansion.
 
 import {
@@ -24,12 +26,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { Activity, Hand, type LucideIcon } from "lucide-react";
 import {
   openSessionsOf,
   type Alerts,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { IconButton } from "./Icon.tsx";
+import { Icon, IconButton } from "./Icon.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { SessionList } from "./SessionLists.tsx";
 import {
@@ -42,7 +45,12 @@ import {
 } from "./SessionsSidebarOptionalSections.tsx";
 import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
-import { attentionCount, attentionSummary } from "./sessionShown.ts";
+import {
+  activeSessionsWords,
+  attentionCount,
+  attentionSummary,
+  attentionWords,
+} from "./sessionShown.ts";
 import "./agent-launch.css";
 import "./sessions-sidebar.css";
 
@@ -157,6 +165,57 @@ export function SessionsButton() {
   );
 }
 
+// One display-only figure of the title row's status: its icon and its
+// number or amount, with its full wording as its accessible name and tooltip.
+function StatusFigure({
+  icon,
+  shown,
+  words,
+}: {
+  readonly icon: LucideIcon;
+  readonly shown: string;
+  readonly words: string;
+}) {
+  return (
+    <span
+      role="img"
+      className="sessions-sidebar-status-figure"
+      aria-label={words}
+      title={words}
+    >
+      <Icon icon={icon} />
+      {shown}
+    </span>
+  );
+}
+
+// The title row's status beside the Sessions heading: of the open sessions,
+// how many are active and how many need attention (waiting), zeros included;
+// nothing until the machine's sessions are first read.
+function SessionsSidebarStatus({
+  sessions,
+}: {
+  readonly sessions: readonly LaunchWithState[] | undefined;
+}) {
+  if (sessions === undefined) return null;
+  const waiting = attentionCount(sessions);
+  const active = sessions.length - waiting;
+  return (
+    <span className="sessions-sidebar-status">
+      <StatusFigure
+        icon={Activity}
+        shown={String(active)}
+        words={activeSessionsWords(active)}
+      />
+      <StatusFigure
+        icon={Hand}
+        shown={String(waiting)}
+        words={attentionWords(waiting)}
+      />
+    </span>
+  );
+}
+
 export function SessionsSidebar({
   open,
   records,
@@ -177,7 +236,10 @@ export function SessionsSidebar({
       aria-label="Sessions sidebar"
       hidden={!open}
     >
-      <h2 id="sessions-sidebar-heading">Sessions</h2>
+      <div className="sessions-sidebar-title-row">
+        <h2 id="sessions-sidebar-heading">Sessions</h2>
+        <SessionsSidebarStatus sessions={sessions} />
+      </div>
       <div className="sessions-sidebar-sessions">
         {open && alerts?.available === false && (
           <p className="quiet">Alerts unavailable: {alerts.reason}</p>

@@ -79,13 +79,36 @@
   scroll-padding-block: var(--focus-ring-clearance);
 }
 
-/* The heading sits on the banner's row, at its control height. */
-.sessions-sidebar > h2 {
+/* The title row sits on the banner's row, at its control height: the heading,
+   then its status figures at the row's end. */
+.sessions-sidebar-title-row {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--control-size);
+}
+
+.sessions-sidebar-title-row > h2 {
   font-size: var(--text-md);
   font-weight: var(--weight-strong);
+}
+
+/* Compact display-only figures, each an icon and its number. */
+.sessions-sidebar-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin-left: auto;
+  font-size: var(--text-sm);
+  color: var(--quiet);
+}
+
+.sessions-sidebar-status-figure {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-variant-numeric: tabular-nums;
 }
 
 .sessions-sidebar-sessions > p.quiet {
