@@ -117,7 +117,7 @@ per run), so it is not the largest benefit.
 
 ### 2. Preserve review admission without browser or irrelevant history
 Type: Structure
-Status: planned
+Status: done
 Proof: HTTP admission statuses, contents, fixed-pair authority and actual Git
 nonmutation remain green in the review/mark family; record before/after costs.
 
@@ -132,6 +132,20 @@ and `boundary/serving-modes.spec.ts` if common serving setup changes.
 Expected gain: browser/preview and irrelevant Git construction, not the rejected
 boundary-only rename. Keep a placement simplification as such; do not report it
 as runtime gain without comparable measurements. Do not add a generic builder.
+
+Result: the four admission specs and mark admission now live in
+`dashboard/tests/boundary/` with `request` and `serverMode: "boundary"`; refusal,
+both commit-admission cases and mark admission use the new minimal
+`admissionWorktree` (story commit, real `--no-ff` trunk merge, unstaged edit,
+later trunk commit only in the origin); file-text keeps `storyWorktree` and
+one-shot keeps its real start/capture/retire path. Every status/body row and
+nonmutation sentinel survived; mark admission gained an `observed()` sentinel.
+Family 17/17 strict at default workers (`tmp/after-s2-default`) and twice at
+`--workers=1` (33.7 and 38.8 summed s against 29.7 baseline, loads 8–14, with
+untouched browser journeys also slower); no runtime gain is claimed. Refactor
+reused `getReview` in file-text and one-shot (rerun 6/6, `tmp/refactor-s2`).
+`docs/maintainer/dashboard-test-value-review.md` and the candidate record still
+name the old paths; slice 9 reconciles them.
 
 ### 3. Prove model selection with fewer full starts and a cheaper dialog fixture
 Type: Structure

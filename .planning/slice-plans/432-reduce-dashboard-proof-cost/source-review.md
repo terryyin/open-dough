@@ -26,10 +26,10 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 3.6 | For worthwhile remaining coverage, prefer fewer tests first | slice 9 | |
 | 3.7 | Then prefer simpler real preconditions and existing system/test infrastructure | slice 9 | |
 | 3.8 | Accept evidenced residual necessary costs when no credible worthwhile acceleration remains | slice 9 | |
-| 4a.1 | Malformed review/mark requests still cannot select arbitrary repositories | slice 2 | |
-| 4a.2 | Malformed review/mark requests still cannot mutate real Git state | slice 2 | |
-| 4a.3 | That protection is proved without opening a browser | slice 2 | |
-| 4a.4 | That protection is proved without building irrelevant history | slice 2 | |
+| 4a.1 | Malformed review/mark requests still cannot select arbitrary repositories | slice 2 | observed: boundary/story-review-refusal, -commit-admission, -one-shot-admission, -mark-admission status/body rows |
+| 4a.2 | Malformed review/mark requests still cannot mutate real Git state | slice 2 | observed: observed()/written/origin-main sentinels in boundary/story-review-refusal and -mark-admission; repo+index in -one-shot-admission |
+| 4a.3 | That protection is proved without opening a browser | slice 2 | observed: serverMode boundary + request, no page, in all five boundary admission specs |
+| 4a.4 | That protection is proved without building irrelevant history | slice 2 | observed: admissionWorktree in support/storyReviewWorktree.ts used by refusal, commit-admission, mark-admission |
 | 4b.1 | One story journey retains its distinct launch shape | slice 3 | |
 | 4b.2 | One ad-hoc discovered-model journey retains its distinct launch shape | slice 3 | |
 | 4b.3 | Refinement model/effort persistence survives in its existing journey | slice 3 | |

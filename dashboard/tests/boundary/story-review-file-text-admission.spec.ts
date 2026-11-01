@@ -1,11 +1,14 @@
 // The same admitted comparison that serves a printed file diff can return
 // revision-consistent file text at those trees, or a typed unavailable
-// explanation, without changing the printed-diff answer.
+// explanation, without changing the printed-diff answer. Story A's full
+// worktree (../support/storyReviewWorktree.ts) holds the rename, addition,
+// deletion, image, and edit whose text each read returns.
 import { execFileSync } from "node:child_process";
-import { expect, test } from "./support/preparationPage.ts";
-import { queuedIdentity } from "./support/startOrigin.ts";
-import { observed, storyWorktree } from "./support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
+import { getReview } from "../support/completedReviewRequests.ts";
+import { expect, test } from "../support/preparationPage.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
+import { observed, storyWorktree } from "../support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
@@ -15,7 +18,10 @@ import {
   reviewedFileTextSchema,
   type ReviewedFile,
   type TakenStoryReview,
-} from "../src/storyReviewContract.ts";
+} from "../../src/storyReviewContract.ts";
+
+// No page: the local boundaries alone answer these requests.
+test.use({ serverMode: "boundary" });
 
 const story = { source: "open-dough", identity: queuedIdentity };
 
@@ -38,7 +44,7 @@ function fileQuery(review: TakenStoryReview, file: ReviewedFile) {
 }
 
 test("the same admitted comparison returns file text at its trees without changing printed diffs", async ({
-  page,
+  request,
   dashboard,
   origin,
 }) => {
@@ -46,9 +52,11 @@ test("the same admitted comparison returns file text at its trees without changi
   await keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
 
-  const snapshot = await page.request.get(
-    `${dashboard.baseURL}${storyReviewEndpoint}?${new URLSearchParams(story)}`,
-    { headers: { Origin: dashboard.origin } },
+  const snapshot = await getReview(
+    request,
+    dashboard,
+    storyReviewEndpoint,
+    story,
   );
   expect(snapshot.status()).toBe(200);
   const review = storyReviewSchema.parse(await snapshot.json());
@@ -78,10 +86,7 @@ test("the same admitted comparison returns file text at its trees without changi
     throw new Error("expected story worktree files");
 
   const get = (endpoint: string, query: Record<string, string>) =>
-    page.request.get(
-      `${dashboard.baseURL}${endpoint}?${new URLSearchParams(query)}`,
-      { headers: { Origin: dashboard.origin } },
-    );
+    getReview(request, dashboard, endpoint, query);
 
   const printed = await get(
     storyReviewFileEndpoint,

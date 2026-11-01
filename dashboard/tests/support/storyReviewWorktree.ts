@@ -4,9 +4,10 @@
 // and add one, delete another, and change an image; it merged trunk carrying
 // another story's file, trunk moved on since, and it holds a staged, an
 // unstaged, an untracked, and an ignored file; it can also change the merged
-// trunk file's mode alone. A worktree straight off trunk
-// has nothing to review, and a story whose first commit landed on trunk has
-// only its later changes to review. A story changing files in nested folders,
+// trunk file's mode alone. An admission worktree holds only a story commit,
+// a trunk merge, and an edit, with trunk moved on unfetched. A worktree
+// straight off trunk has nothing to review, and a story whose first commit
+// landed on trunk has only its later changes to review. A story changing files in nested folders,
 // at the root, and across folders by a rename shows its files under their
 // folders. A large story changes more files than the file browser holds and
 // files longer than the diff shows.
@@ -115,6 +116,37 @@ export function storyWorktree(origin: StartOrigin) {
   writeFileSync(exclude, "ignored.log\n", { flag: "a" });
   writeFileSync(path.join(workspace, "ignored.log"), "ignored\n");
   return { workspace, merged, later };
+}
+
+// Story A's worktree with only what a review's admission refers to: one story
+// commit, a merge of trunk's next commit, which is the review's baseline, and
+// an unstaged edit. Trunk then moves on in the origin itself, so only a fetch
+// would bring its later commit here.
+export function admissionWorktree(origin: StartOrigin) {
+  const project = origin.project;
+  const workspace = addStoryWorktree(project);
+  writeFileSync(path.join(workspace, "story.txt"), "story\n");
+  commitAll(workspace, "story file");
+  git(project, "commit", "--quiet", "--allow-empty", "-m", "another story");
+  git(project, "push", "--quiet", "origin", "main");
+  const merged = git(project, "rev-parse", "origin/main");
+  git(workspace, "merge", "--quiet", "--no-ff", "-m", "merge trunk", merged);
+  writeFileSync(path.join(workspace, "story.txt"), "story\nedited\n");
+  const later = git(
+    origin.origin,
+    "-c",
+    "user.name=Another Developer",
+    "-c",
+    "user.email=another@example.test",
+    "commit-tree",
+    "-p",
+    merged,
+    "-m",
+    "later trunk",
+    `${merged}^{tree}`,
+  );
+  git(origin.origin, "update-ref", "refs/heads/main", later, merged);
+  return { workspace, merged };
 }
 
 // Makes the file another story landed, which Story A's worktree merged,

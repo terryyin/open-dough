@@ -2,11 +2,11 @@
 // with a time; later work stays unmarked. Its ref survives Git housekeeping and
 // restart, when reopening compares with it; worktree index/status stay unchanged.
 // Opening/closing/refreshing/replacing marks nothing. Marking again replaces the
-// story's mark/ref. Paths, malformed objects and missing objects keep no mark.
+// story's mark/ref. Mark requests naming paths, malformed objects, or missing
+// objects are in ./boundary/story-review-mark-admission.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   builtDashboardDir,
@@ -195,55 +195,4 @@ test("marking again replaces the story's one mark and its ref", async ({
     mark?.markedAt ?? "",
   );
   expect(reviewedRefs(origin.project)).toBe(`${reviewedRef} ${second.tree}`);
-});
-
-test("a mark request naming a path, a malformed object, or an absent tree keeps no mark", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, merged } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
-  const tree = git(workspace, "rev-parse", "HEAD^{tree}");
-  const named = {
-    source: "open-dough",
-    identity: queuedIdentity,
-    tree,
-    baseline: merged,
-  };
-  const malformed = { error: "The review mark request is malformed." };
-  for (const [body, status, answer] of [
-    [{ ...named, workspace }, 400, malformed],
-    [{ ...named, tree: "HEAD" }, 400, malformed],
-    [{ ...named, baseline: `--output=${workspace}` }, 400, malformed],
-    [
-      { ...named, source: "elsewhere" },
-      404,
-      { error: "Unknown catalog source." },
-    ],
-    [
-      { ...named, tree: "0".repeat(40) },
-      200,
-      {
-        kind: "unavailable",
-        explanation: expect.stringMatching(
-          /^The snapshot could not be marked reviewed: /,
-        ),
-      },
-    ],
-  ] as const) {
-    const response = await page.request.post(
-      `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-      { headers: { Origin: dashboard.origin }, data: body },
-    );
-    expect(response.status(), JSON.stringify(body)).toBe(status);
-    expect(await response.json()).toEqual(answer);
-  }
-  const read = await page.request.get(
-    `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-    { headers: { Origin: dashboard.origin } },
-  );
-  expect(read.status()).toBe(405);
-  expect(keptReviewMarks(dashboard)).toBeUndefined();
-  expect(reviewedRefs(origin.project)).toBe("");
 });
