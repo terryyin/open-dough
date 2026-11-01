@@ -24,6 +24,12 @@
   background: var(--surface);
 }
 
+/* Inspection and the session shown in the Side panel each select a card. */
+.story-card-selected,
+.story-card.in-side-panel {
+  background: var(--accent-soft);
+}
+
 /* Each part of the card is spaced by the card's own gap. */
 .story-card > .story-card-frame > * {
   margin-top: 0;

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-215_visible-selected-story.json",
+      "identity": "SEED-215#visible-selected-story",
+      "completedAt": "2026-11-01T15:26:05.233Z",
+      "blob": "cc42708af889bca1be2396281a3793ecb9aeafde"
+    },
+    {
       "fileName": "SEED-212_use-terminal-with-mobile-keyboard.json",
       "identity": "SEED-212#use-terminal-with-mobile-keyboard",
       "completedAt": "2026-11-01T08:32:10.502Z",

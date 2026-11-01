@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
 - [Read observed proof alongside test purpose](seeds/SEED-192-review-product-intent.md#read-observed-test-proof) — SEED-192#read-observed-test-proof ([plan](slice-plans/439-read-observed-test-proof/PLAN.md))
-- [Make the selected story easier to see](seeds/SEED-215-visible-selected-story.md#visible-selected-story) — SEED-215#visible-selected-story
 
 ## Backlog list
 

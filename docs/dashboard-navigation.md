@@ -194,23 +194,17 @@ Keep the actual story badges and their textual meanings visible on cards.
 Direction and help are transient UI state and cause no source read. Keep
 direction, evidence, and view controls outside any zooming surface.
 
-Touch browsing uses the same project choices, story details and whole-column
-paging. With a coarse pointer, frame controls, project choices, story Start
-and Inspect actions, Column paging controls, and the Side panel terminal’s
-phone key toolbar, composer actions and Hide keyboard control provide at least
-44px targets. When hover is unavailable, a Start's preparation/readiness note
-and its disabled reason are readable on the card. Inspect story reveals the
-full identity, assessment and pinned source details; dependency explanations
-open in place. Titles and source paths wrap instead of widening the page.
-Rotation preserves the selected story and open explanations, and Hide detail
-and Close return focus to their originating card or control. On a coarse
-pointer the Side panel terminal fits the visible area when the soft keyboard
-or orientation changes so those controls and Close stay reachable; see
-[embedded terminals](../dashboard/AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions)
-for toolbar, composer Insert and scroll-versus-navigate behavior. Local
-Chromium touch viewport checks cover phone/tablet sizes and rotation alongside
-desktop checks; they do not establish physical-device keyboard or
-remote-connectivity behavior.
+Touch browsing keeps project choices, story details, and whole-column paging. Coarse-pointer controls have at least 44px targets:
+frame and project controls, story Start/Inspect, Column paging, and the terminal’s phone key toolbar, composer actions, and Hide keyboard.
+Without hover, cards show Start preparation/readiness notes and disabled reasons. Inspect reveals full identity, assessment, and pinned
+source details; dependencies open in place. Titles and paths wrap without widening the page. Rotation keeps selection and open explanations.
+Hide detail and Close return focus to their originating card or control. On a coarse pointer the Side panel terminal fits the visible area
+when the soft keyboard or orientation changes, keeping controls and Close reachable; see [embedded terminals](../dashboard/AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions)
+for toolbar, composer Insert, and scroll-versus-navigate behavior. Chromium checks cover phone/tablet viewports, rotation, and desktop;
+they do not establish physical-device keyboard or remote-connectivity behavior.
+
+A story card's pale blue fill lasts while its detail is open or its session is shown in the Side panel.
+It retains the inspection border and current-session outline, returning to ordinary fill when neither selection applies.
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.
