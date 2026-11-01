@@ -83,87 +83,81 @@ async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
   return { release, panel, sessionId, openTerminal };
 }
 
-for (const text of ["why is the CI slow on main?", ""]) {
-  test(`starting ${text === "" ? "with an empty field" : "with text"} opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session`, async ({
-    page,
-    dashboard,
-    launchJourney,
-  }) => {
-    dashboard.claudeScenario("launched");
-    await openTakenBacklog(page, launchJourney);
-    const button = page.getByRole("button", {
-      name: "Start session in Open Dough",
-    });
-    const dialog = page.getByRole("dialog", {
-      name: "Start a session in Open Dough in Claude Code",
-    });
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
-    const { taken } = parts(page);
-
-    // A window short enough that the Board scrolls well past 40 px both
-    // before the launch and once the terminal shares the window with it,
-    // whatever the fonts make its length, so a kept position is the page's
-    // own and not one the window forces.
-    await page.setViewportSize({ width: 1280, height: 480 });
-    await page.locator(".board-scroll").evaluate((region) => {
-      region.scrollTo(0, 40);
-    });
-    await button.click();
-    await expect(dialog).toBeVisible();
-    // Where the page is once the dialog is open; the launch does not move it.
-    const scroll = await page
-      .locator(".board-scroll")
-      .evaluate((region) => region.scrollTop);
-    expect(scroll).toBeGreaterThan(0);
-    if (text !== "") {
-      await startSessionField(dialog).fill(text);
-    }
-    await dialog.getByRole("button", { name: "Start" }).click();
-
-    const entry = taken.locator(".session-entry");
-    await expect(entry).toHaveCount(1);
-    const sessionId = await sessionNamedBy(entry);
-    const title = await entry.getByRole("heading", { level: 3 }).textContent();
-    await expect(panel).toHaveCount(1);
-    await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-      title ?? "",
-    );
-    await expect(panel.locator(".side-panel-names p")).toHaveText(
-      "Ad hoc session",
-    );
-    await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
-    await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
-    await page.keyboard.type("hello there");
-    await page.keyboard.press("Enter");
-    await expect(rows).toContainText("echo hello there");
-
-    await expect(parts(page).adHocStarted).toHaveCount(0);
-    await expect(entry).toContainText("Shown in terminal");
-    expect(
-      await page
-        .locator(".board-scroll")
-        .evaluate((region) => region.scrollTop),
-    ).toBe(scroll);
-    const { button: sessions, entries } = sessionsSidebarParts(page);
-    await sessions.click();
-    await expect(entries.first().getByRole("button")).toHaveAttribute(
-      "aria-current",
-      "true",
-    );
-
-    await panel.getByRole("button", { name: "Close" }).click();
-    await expect(panel).toHaveCount(0);
-    await expect(button).toBeFocused();
-    await expect(entry).not.toContainText("Shown in terminal");
-    await expect(
-      entry.getByRole("button", { name: "Open terminal" }),
-    ).toBeVisible();
-    expect(dashboard.claudeAttaches().map((attach) => attach.id)).toEqual([
-      sessionId.slice(0, 8),
-    ]);
+test("starting with text opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  dashboard.claudeScenario("launched");
+  await openTakenBacklog(page, launchJourney);
+  const button = page.getByRole("button", {
+    name: "Start session in Open Dough",
   });
-}
+  const dialog = page.getByRole("dialog", {
+    name: "Start a session in Open Dough in Claude Code",
+  });
+  const panel = page.getByRole("region", { name: "Terminal" });
+  const rows = panel.locator(".xterm-rows");
+  const { taken } = parts(page);
+
+  // A window short enough that the Board scrolls well past 40 px both
+  // before the launch and once the terminal shares the window with it,
+  // whatever the fonts make its length, so a kept position is the page's
+  // own and not one the window forces.
+  await page.setViewportSize({ width: 1280, height: 480 });
+  await page.locator(".board-scroll").evaluate((region) => {
+    region.scrollTo(0, 40);
+  });
+  await button.click();
+  await expect(dialog).toBeVisible();
+  // Where the page is once the dialog is open; the launch does not move it.
+  const scroll = await page
+    .locator(".board-scroll")
+    .evaluate((region) => region.scrollTop);
+  expect(scroll).toBeGreaterThan(0);
+  await startSessionField(dialog).fill("why is the CI slow on main?");
+  await dialog.getByRole("button", { name: "Start" }).click();
+
+  const entry = taken.locator(".session-entry");
+  await expect(entry).toHaveCount(1);
+  const sessionId = await sessionNamedBy(entry);
+  const title = await entry.getByRole("heading", { level: 3 }).textContent();
+  await expect(panel).toHaveCount(1);
+  await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
+    title ?? "",
+  );
+  await expect(panel.locator(".side-panel-names p")).toHaveText(
+    "Ad hoc session",
+  );
+  await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
+  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  await page.keyboard.type("hello there");
+  await page.keyboard.press("Enter");
+  await expect(rows).toContainText("echo hello there");
+
+  await expect(parts(page).adHocStarted).toHaveCount(0);
+  await expect(entry).toContainText("Shown in terminal");
+  expect(
+    await page.locator(".board-scroll").evaluate((region) => region.scrollTop),
+  ).toBe(scroll);
+  const { button: sessions, entries } = sessionsSidebarParts(page);
+  await sessions.click();
+  await expect(entries.first().getByRole("button")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+
+  await panel.getByRole("button", { name: "Close" }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(button).toBeFocused();
+  await expect(entry).not.toContainText("Shown in terminal");
+  await expect(
+    entry.getByRole("button", { name: "Open terminal" }),
+  ).toBeVisible();
+  expect(dashboard.claudeAttaches().map((attach) => attach.id)).toEqual([
+    sessionId.slice(0, 8),
+  ]);
+});
 
 test("a terminal the developer closed while its session started stays closed once it starts, and Open terminal still opens it", async ({
   page,

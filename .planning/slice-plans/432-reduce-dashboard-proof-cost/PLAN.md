@@ -275,7 +275,7 @@ worker counts and recent-delete three consecutive passes (`tmp/s6-*`).
 
 ### 7. Prove automatic terminal attachment once across equivalent input shapes
 Type: Structure
-Status: planned
+Status: done
 Proof: A real launch auto-attaches the terminal with keyboard/input/scroll and
 Close behavior; nonblank exact input and truly blank submission still survive.
 
@@ -290,6 +290,18 @@ Expected gain: up to one fewer full terminal journey, without a new fixture.
 The second-server integrated path remains accepted and unchanged.
 Slice 1 found the two races cost about 17 s each, mostly waiting inside
 `openWhileStarting`; record that as a residual candidate in slice 9.
+
+Result: the blank/text loop became one text journey with every attachment,
+focus, input, scroll, sidebar and Close check. Blank UI submission is already
+owned by `agent-launch-ad-hoc.spec.ts` "starting with an empty field sends no
+instruction" (real dialog, argv length 3, no instruction or reporting), with
+native semantics in the two boundary files; auto-presentation does not branch
+on the instruction (`src/unattachedSession.ts`). One case and about 1.6 s
+removed; family 22/22 strict at both worker counts (`tmp/s7-*`). Correction to
+the residual note: `openWhileStarting` returns in about 0.9 s; each race spends
+about 15 s after `release()` waiting for the page's next launch-records read,
+scheduled `checkIntervalMs` (15 s) after the withheld read
+(`src/agentLaunches.ts:176`, `src/revisionCheckSchedule.ts:31`).
 
 ### 8. Keep attention lifecycle proof focused on durable user behavior
 Type: Structure

@@ -45,9 +45,9 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4e.3 | Recently-done deletion keeps each no-stop result | slice 6 | observed: agent-launch-recent-delete.spec.ts claudeStopCalls unchanged and stored() loses only the deleted id |
 | 4e.4 | Incidental launch setup for those results uses real APIs | slice 6 | observed: agent-launch-recent-delete.spec.ts setup via agentLaunchBoundary launch and markDone |
 | 4e.5 | Generic confirmation proof has one owner | slice 6 | observed: agent-launch-story-card-delete.spec.ts Keep/Escape/focus/no announcement; removed from recent-delete |
-| 4f.1 | The blank/text matrix is reduced | slice 7 | |
-| 4f.2 | One full ad-hoc terminal attachment path survives that reduction | slice 7 | |
-| 4f.3 | Blank UI submission is still proved, at the cheapest real boundary | slice 7 | |
+| 4f.1 | The blank/text matrix is reduced | slice 7 | observed: agent-launch-ad-hoc-terminal.spec.ts has one text journey, no blank iteration |
+| 4f.2 | One full ad-hoc terminal attachment path survives that reduction | slice 7 | observed: agent-launch-ad-hoc-terminal.spec.ts starting with text opens the session in the terminal ... Close |
+| 4f.3 | Blank UI submission is still proved, at the cheapest real boundary | slice 7 | observed: agent-launch-ad-hoc.spec.ts starting with an empty field sends no instruction |
 | 4g.1 | Attention reporting keeps its installed-command lifecycle | slice 8 | |
 | 4g.2 | Attention reporting keeps its restart lifecycle | slice 8 | |
 | 4g.3 | Attention reporting keeps its retirement lifecycle | slice 8 | |
