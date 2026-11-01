@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact
