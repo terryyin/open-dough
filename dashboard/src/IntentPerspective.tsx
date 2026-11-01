@@ -16,6 +16,7 @@ import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts"
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import "./intent-perspective.css";
+import "./intent-candidates.css";
 
 function NotConfigured({ label }: { readonly label: string }) {
   return (

@@ -1,8 +1,13 @@
 // Recorded Test Optimization Candidates groups and entries for Intent
 // (`./IntentCandidatesRecord.tsx`): Pending, Accepted, and other sections
-// with every recorded field, driven by the parser's field order.
+// with every recorded field, driven by the parser's field order. Locations
+// open configured Intent files through the shared selection; evidence Markdown
+// links to those files do the same.
 
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
+import type { IntentConfiguredInventory } from "./intentCandidatesLocationMatch.ts";
+import { IntentCandidatesLocationsText } from "./IntentCandidatesLocationsText.tsx";
+import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { RecordedMarkdownText } from "./RecordedMarkdownText.tsx";
 import {
@@ -13,27 +18,55 @@ import {
   type TestOptimizationCandidatesRecord,
 } from "./testOptimizationCandidates.ts";
 
+const findingGroupOrder = [
+  { heading: "Pending candidates", key: "pending" },
+  { heading: "Accepted necessary costs", key: "accepted" },
+  { heading: "Profile-only exclusions", key: "profileOnly" },
+  { heading: "Transferred obligations", key: "transferred" },
+] as const;
+
 function Field({
   label,
+  fieldKey,
   value,
   source,
   revision,
+  inventory,
+  entrySlug,
+  onOpenLocation,
 }: {
   readonly label: string;
+  readonly fieldKey: (typeof candidateEntryFields)[number]["key"];
   readonly value: string;
   readonly source: PublishedSource;
   readonly revision: string;
+  readonly inventory: IntentConfiguredInventory;
+  readonly entrySlug: string;
+  readonly onOpenLocation: OpenCandidateLocation;
 }) {
   return (
     <div className="intent-candidate-field">
       <dt>{label}</dt>
       <dd>
-        <RecordedMarkdownText
-          text={value}
-          source={source}
-          revision={revision}
-          containingFilePath={testOptimizationCandidatesPath}
-        />
+        {fieldKey === "locations" ? (
+          <IntentCandidatesLocationsText
+            text={value}
+            recordPath={testOptimizationCandidatesPath}
+            inventory={inventory}
+            entrySlug={entrySlug}
+            onOpen={onOpenLocation}
+          />
+        ) : (
+          <RecordedMarkdownText
+            text={value}
+            source={source}
+            revision={revision}
+            containingFilePath={testOptimizationCandidatesPath}
+            inventory={inventory}
+            entrySlug={entrySlug}
+            onOpenIntentFile={onOpenLocation}
+          />
+        )}
       </dd>
     </div>
   );
@@ -43,14 +76,26 @@ function Entry({
   entry,
   source,
   revision,
+  inventory,
+  onOpenLocation,
+  focusEntrySlug,
 }: {
   readonly entry: CandidateEntry;
   readonly source: PublishedSource;
   readonly revision: string;
+  readonly inventory: IntentConfiguredInventory;
+  readonly onOpenLocation: OpenCandidateLocation;
+  readonly focusEntrySlug?: string;
 }) {
   const headingId = useId();
+  const articleRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (focusEntrySlug !== entry.slug) return;
+    articleRef.current?.scrollIntoView({ block: "nearest" });
+  }, [focusEntrySlug, entry.slug]);
   return (
     <article
+      ref={articleRef}
       className="intent-candidate-entry"
       aria-labelledby={headingId}
       data-slug={entry.slug}
@@ -64,9 +109,13 @@ function Entry({
             <Field
               key={field.key}
               label={field.label}
+              fieldKey={field.key}
               value={value}
               source={source}
               revision={revision}
+              inventory={inventory}
+              entrySlug={entry.slug}
+              onOpenLocation={onOpenLocation}
             />
           );
         })}
@@ -80,11 +129,17 @@ function FindingGroup({
   section,
   source,
   revision,
+  inventory,
+  onOpenLocation,
+  focusEntrySlug,
 }: {
   readonly heading: string;
   readonly section: FindingSection;
   readonly source: PublishedSource;
   readonly revision: string;
+  readonly inventory: IntentConfiguredInventory;
+  readonly onOpenLocation: OpenCandidateLocation;
+  readonly focusEntrySlug?: string;
 }) {
   const headingId = useId();
   return (
@@ -103,6 +158,9 @@ function FindingGroup({
             entry={entry}
             source={source}
             revision={revision}
+            inventory={inventory}
+            onOpenLocation={onOpenLocation}
+            {...(focusEntrySlug === undefined ? {} : { focusEntrySlug })}
           />
         ))
       )}
@@ -115,13 +173,20 @@ export function IntentCandidatesSections({
   source,
   revision,
   empty,
+  inventory,
+  onOpenLocation,
+  focusEntrySlug,
 }: {
   readonly record: TestOptimizationCandidatesRecord;
   readonly source: PublishedSource;
   readonly revision: string;
   readonly empty: boolean;
+  readonly inventory: IntentConfiguredInventory;
+  readonly onOpenLocation: OpenCandidateLocation;
+  readonly focusEntrySlug?: string;
 }) {
   const latestId = useId();
+  const focusProps = focusEntrySlug === undefined ? {} : { focusEntrySlug };
   return (
     <>
       {empty ? (
@@ -129,30 +194,18 @@ export function IntentCandidatesSections({
           This record has no pending candidates or accepted necessary costs.
         </p>
       ) : null}
-      <FindingGroup
-        heading="Pending candidates"
-        section={record.pending}
-        source={source}
-        revision={revision}
-      />
-      <FindingGroup
-        heading="Accepted necessary costs"
-        section={record.accepted}
-        source={source}
-        revision={revision}
-      />
-      <FindingGroup
-        heading="Profile-only exclusions"
-        section={record.profileOnly}
-        source={source}
-        revision={revision}
-      />
-      <FindingGroup
-        heading="Transferred obligations"
-        section={record.transferred}
-        source={source}
-        revision={revision}
-      />
+      {findingGroupOrder.map(({ heading, key }) => (
+        <FindingGroup
+          key={key}
+          heading={heading}
+          section={record[key]}
+          source={source}
+          revision={revision}
+          inventory={inventory}
+          onOpenLocation={onOpenLocation}
+          {...focusProps}
+        />
+      ))}
       <section className="intent-candidate-group" aria-labelledby={latestId}>
         <h3 id={latestId}>Latest pass</h3>
         <p className="intent-candidate-latest">

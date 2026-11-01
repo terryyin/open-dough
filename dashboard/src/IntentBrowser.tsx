@@ -7,17 +7,23 @@
 // while the location tree stays usable. A failed file read keeps its own
 // explanation and retry; a failed proof read's retry reads the locations again
 // without changing the selection. File selection (and an optional case target)
-// is owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
+// is owned by the Intent workspace (`./intentWorkspaceSelection.ts`). Opening a
+// test from the record keeps that view mounted so returning does not reread
+// the record.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
-import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
+import {
+  useIntentWorkspaceSelection,
+  type IntentSelection,
+} from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 type FileRead =
@@ -44,6 +50,7 @@ export function IntentBrowser({
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const selectedPath = selection.path;
   const [view, setView] = useState<ReadingView>("candidates");
+  const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   // The answered read of one path; Purpose and Proof show it only while that
   // path is the one selected, so a new selection never pairs with the
@@ -52,6 +59,13 @@ export function IntentBrowser({
   const [fileRetry, setFileRetry] = useState(0);
   const proofId = useId();
   const candidatesControlId = useId();
+  const inventory = inventoryFromIntentLocations(locations);
+
+  function openFromRecord(next: IntentSelection, entrySlug: string) {
+    setSelection(next);
+    setReturnEntrySlug(entrySlug);
+    setView("purpose");
+  }
 
   // Clearing selection when the project or locations change is owned by the
   // Intent workspace provider remounting on source/revision identity.
@@ -112,6 +126,7 @@ export function IntentBrowser({
             selectedPath={view === "purpose" ? selectedPath : ""}
             onSelect={(path) => {
               setSelection({ path });
+              setReturnEntrySlug(undefined);
               setView("purpose");
             }}
             idPrefix={intentLocationIdPrefix(location.path)}
@@ -125,9 +140,18 @@ export function IntentBrowser({
         ))}
       </div>
       <div className="intent-reading" tabIndex={-1}>
-        {view === "candidates" ? (
-          <IntentCandidatesRecord source={source} revision={revision} />
-        ) : (
+        <div hidden={view !== "candidates"}>
+          <IntentCandidatesRecord
+            source={source}
+            revision={revision}
+            inventory={inventory}
+            onOpenLocation={openFromRecord}
+            {...(view === "candidates" && returnEntrySlug !== undefined
+              ? { focusEntrySlug: returnEntrySlug }
+              : {})}
+          />
+        </div>
+        {view === "purpose" ? (
           <>
             <section className="intent-purpose" aria-label="Purpose">
               <h3>Purpose</h3>
@@ -155,6 +179,9 @@ export function IntentBrowser({
                   {...(selectedLanguage === undefined
                     ? {}
                     : { language: selectedLanguage })}
+                  {...(selection.caseTarget === undefined
+                    ? {}
+                    : { caseTarget: selection.caseTarget })}
                 />
               ) : (
                 <p className="quiet">Reading {selectedPath}…</p>
@@ -172,7 +199,7 @@ export function IntentBrowser({
               />
             </section>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -5,12 +5,14 @@
 // unreadable (with retry), mismatched, and empty records. Location
 // browsing stays with the Intent browser that hosts this view.
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   readIntentCandidatesAt,
   type IntentCandidatesReadResult,
 } from "./authenticatedIntentCandidatesRead.ts";
+import type { IntentConfiguredInventory } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesSections } from "./IntentCandidatesSections.tsx";
+import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
 import {
@@ -21,25 +23,39 @@ import {
 export function IntentCandidatesRecord({
   source,
   revision,
+  inventory,
+  onOpenLocation,
+  focusEntrySlug,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
+  readonly inventory: IntentConfiguredInventory;
+  readonly onOpenLocation: OpenCandidateLocation;
+  readonly focusEntrySlug?: string;
 }) {
   const [result, setResult] = useState<
     IntentCandidatesReadResult | "loading" | "failed"
   >("loading");
   const [retry, setRetry] = useState(0);
+  const [readCount, setReadCount] = useState(0);
   const titleId = useId();
+  const activeRead = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
+    const readId = ++activeRead.current;
     setResult("loading");
     void readIntentCandidatesAt(source, revision, controller.signal)
       .then((read) => {
-        if (!controller.signal.aborted) setResult(read);
+        if (!controller.signal.aborted && readId === activeRead.current) {
+          setReadCount((n) => n + 1);
+          setResult(read);
+        }
       })
       .catch(() => {
-        if (!controller.signal.aborted) setResult("failed");
+        if (!controller.signal.aborted && readId === activeRead.current) {
+          setResult("failed");
+        }
       });
     return () => {
       controller.abort();
@@ -90,13 +106,20 @@ export function IntentCandidatesRecord({
           source={source}
           revision={revision}
           empty={parsed.empty}
+          inventory={inventory}
+          onOpenLocation={onOpenLocation}
+          {...(focusEntrySlug === undefined ? {} : { focusEntrySlug })}
         />
       );
     }
   }
 
   return (
-    <section className="intent-candidates-record" aria-labelledby={titleId}>
+    <section
+      className="intent-candidates-record"
+      aria-labelledby={titleId}
+      data-candidates-reads={String(readCount)}
+    >
       <h3 id={titleId}>Test Optimization Candidates</h3>
       <p className="intent-candidates-revision">
         Recorded at revision {shortRevision(revision)} (<code>{revision}</code>
