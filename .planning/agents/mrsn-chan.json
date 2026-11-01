@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "identity": "SEED-211#sessions-sidebar-host-status",
-  "mode": "story-branch",
-  "branch": "claude/show-session-counts-and-host-resources-beside-th",
-  "host": "claude"
-}

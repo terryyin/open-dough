@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-211_sessions-sidebar-host-status.json",
+      "identity": "SEED-211#sessions-sidebar-host-status",
+      "completedAt": "2026-11-01T03:38:54.358Z",
+      "blob": "0603c32384e06f168406419ca0ae36f6799f5c52"
+    },
+    {
       "fileName": "SEED-010_record-source-review-observations.json",
       "identity": "SEED-010#record-source-review-observations",
       "completedAt": "2026-11-01T02:29:59.447Z",
