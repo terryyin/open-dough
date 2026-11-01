@@ -321,3 +321,35 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 ### Earlier moves
 
 [Earlier moves and their Git recovery references](docs/maintainer/project-findings-history.md#earlier-moves).
+
+## Repository authoring and host observations
+
+<a id="dd-363"></a>
+
+### DD-363 — Coordinator source-review hard-breaks fail fresh delivery
+
+[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-363).
+
+<a id="dd-365"></a>
+
+### DD-365 — Commit-specific preparation approval repeats after safe reconciliation
+
+[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-365).
+
+<a id="dd-370"></a>
+
+### DD-370 — New Markdown docs with trailing blank EOF fail staged whitespace
+
+[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-370).
+
+<a id="dd-371"></a>
+
+### DD-371 — Delivery typecheck first catches exactOptionalPropertyTypes after green proof
+
+[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-371).
+
+<a id="dd-374"></a>
+
+### DD-374 — Delegation brief softened the project's failing-test policy to "fix or report"
+
+[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-374).
