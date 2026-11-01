@@ -28,10 +28,9 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Assess the value and cost of recorded dashboard tests](seeds/SEED-207-dashboard-test-value.md#assess-dashboard-test-value) — SEED-207#assess-dashboard-test-value
-
 ## Backlog list
 
+- [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost
 - [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion
 - [Record source-review observations through one supported operation](seeds/SEED-010-learn-from-execution-retrospectives.md#record-source-review-observations) — SEED-010#record-source-review-observations
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
