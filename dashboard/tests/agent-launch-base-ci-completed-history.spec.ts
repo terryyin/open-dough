@@ -24,9 +24,10 @@ for (const conclusion of ["success", "failure"] as const) {
       page,
       "last completed base",
     );
-    const running = await publishLaterHead(origin, page, "running base");
     // A merged sibling is reachable from the target but not an ancestor of the
     // running revision. Its more recent completed result must not be selected.
+    // It is committed before the running revision so the date-ordered target
+    // listing keeps the running revision first whatever second each lands in.
     const sibling = (
       await origin.originGit(
         "-c",
@@ -41,6 +42,7 @@ for (const conclusion of ["success", "failure"] as const) {
         "sibling completed base",
       )
     ).trim();
+    const running = await publishLaterHead(origin, page, "running base");
     const merge = (
       await origin.originGit(
         "-c",
