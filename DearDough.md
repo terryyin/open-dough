@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 390. Removed numbers are never reused.
+- Highest allocated local number: 392. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -344,6 +344,15 @@ Former local code: DD-322. Slice 2 offered a separate Stop from the host `stop` 
 Broad reference/metadata batches omit required passages and force repeated retrieval despite existing targeted-reading guidance. Distinct executions and unknown provenance remain at the [authoritative owner](docs/maintainer/findings/ODF-264.md); repeated calls within one execution add no occurrence.
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-264.md).
+
+- Execution: SEED-214#completed-base-ci-ancestor
+  - Timestamp: unknown (2026-11-01 execution conversation)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at claim `391eceb34a225fcb6f6dc5b25d2979d66c07cb55`
+  - Evidence: startup combined reference reads were truncated (tool outputs reported 11,857 and 13,447 tokens); acceptance printed the complete `/tmp/open-dough-base-ci-consumers-reviewed.md` (44,166 tokens), truncating its consumer rows and requiring targeted retrieval.
+  - Observed effect: broad reads lost decision-relevant passages and forced additional retrieval in one small execution. These calls are one occurrence, not separate recurrences.
+  - Inference: narrower boundary reads and bounded consumer sections would reduce context churn; no elapsed-time saving was measured.
+
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
@@ -725,3 +734,35 @@ second-loaded file.
   - Evidence: plan 436 Current decisions Learning; coordinator history that real second-file journeys still passed without the option; before probes titled “missing defaults” vs after “keeps fixture defaults” in those proof records
   - Observed effect: order-dependence was proved and fixed via option-value probes rather than failing journeys; consumer suite later passed strict
   - Inference: Qualified practice. For fixture option defaults, assert the option values across file order instead of relying on journeys that may not exercise those options
+
+## DD-391 — Fresh delivery ownedPaths cannot stage a deleted rename source
+
+Guarded fresh preparation stages `ownedPaths` with `git add --literal-pathspecs`.
+A rename whose old path is already absent from the working tree fails that add
+with `pathspec … did not match any files`, so preparation refuses before commit.
+Recovery was to leave the old path already staged (deletion) in `stagedPaths`
+and put only the new path in `ownedPaths`.
+
+### Occurrences
+- Execution: SEED-213#renovate-intent-sidebar (plan 438; implementation commit `83216ac0`)
+  - Timestamp: 2026-11-01T16:08:00+08:00 (approx.; first fresh delivery refusal before accepted `83216ac0`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: preparation-failed JSON `operation: staging`, error `fatal: pathspec 'dashboard/src/IntentLocationTree.tsx' did not match any files`; retry with Tree in `stagedPaths` and Group in `ownedPaths` published `83216ac0`
+  - Observed effect: one failed fresh attempt, then successful delivery after renaming staging split
+  - Inference: Qualified. `--literal-pathspecs` treats a missing path as non-matching rather than a deletion to stage; callers must pre-stage the deletion or use another path list shape the preparation script accepts
+
+## DD-392 — Source-review Slice cells need the `slice N` prefix
+
+Coordinator-authored `source-review.md` put bare integers (`1`) in the
+Commitments Slice column. `story-obligations.mjs` requires `slice N` and
+refused every row as `malformed-commitment` until rewritten.
+
+### Occurrences
+- Execution: SEED-213#renovate-intent-sidebar (plan 438; implementation commit `83216ac0`)
+  - Timestamp: 2026-11-01T16:02:00+08:00 (approx.; first obligations check after drafting source-review.md)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: check JSON problems `malformed-commitment` for commitment ids 1–38d/E1–E6/D1–D4; corrected table uses `slice 1` and deferred rows name obligation ids D1–D4
+  - Observed effect: acceptance blocked until the table matched the reader; no product rework
+  - Inference: Related shape friction to ODF-381 (wrong Slice-cell contents) but a distinct required token shape (`slice N` vs bare number or obligation id)

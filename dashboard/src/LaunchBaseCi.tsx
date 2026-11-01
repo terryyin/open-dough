@@ -90,6 +90,34 @@ export function LaunchBaseCi({
             </a>
           </p>
         )}
+        {found.state === "running" &&
+          (found.completedAncestor === undefined ? (
+            <p>
+              No completed ancestor result of the selected check was found in
+              the readable history.
+            </p>
+          ) : (
+            <>
+              <p>
+                Nearest completed ancestor:{" "}
+                {shortSha(found.completedAncestor.revision)} (
+                {found.completedAncestor.subject}) —{" "}
+                {found.completedAncestor.state === "pass" ? "passed" : "failed"}
+                .
+              </p>
+              {found.completedAncestor.runUrl !== undefined && (
+                <p>
+                  <a
+                    href={found.completedAncestor.runUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {found.completedAncestor.runUrl}
+                  </a>
+                </p>
+              )}
+            </>
+          ))}
       </div>
       <div className="launch-dialog-footer">
         <div className="launch-dialog-actions">

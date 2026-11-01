@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-214_completed-base-ci-ancestor.json",
+      "identity": "SEED-214#completed-base-ci-ancestor",
+      "completedAt": "2026-11-01T08:31:25.035Z",
+      "blob": "bd9e132127374305b20ff40e41f7a88d0ddc8e80"
+    },
+    {
+      "fileName": "SEED-213_renovate-intent-sidebar.json",
+      "identity": "SEED-213#renovate-intent-sidebar",
+      "completedAt": "2026-11-01T08:27:28.684Z",
+      "blob": "4353236c1fe2207db69f0e3d377613be1a071ec1"
+    },
+    {
       "fileName": "SEED-208_declare-fixture-defaults-on-fixtures.json",
       "identity": "SEED-208#declare-fixture-defaults-on-fixtures",
       "completedAt": "2026-11-01T07:49:16.575Z",

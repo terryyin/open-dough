@@ -1,9 +1,11 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
-// ../src/dashboardRouteUrl.ts): the address that names them, and Intent's
-// not-configured content when the project publishes no intent locations.
+// ../src/dashboardRouteUrl.ts): the address that names them, Intent group
+// expand helpers for the locations column, and Intent's not-configured
+// content when the project publishes no intent locations.
 
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
 import { parts } from "./dashboardParts.ts";
 
 // The project, Development's view and the perspective the address names.
@@ -21,6 +23,47 @@ export function expectAddress(
     view: params.get("view"),
     perspective: params.get("perspective"),
   }).toEqual({ view: null, ...expected });
+}
+
+// Header control for one configured Intent location path.
+export function intentGroupToggle(intent: Locator, locationPath: string) {
+  const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
+  return intent.locator(
+    `button.intent-location-toggle[aria-controls="${bodyId}"]`,
+  );
+}
+
+// Expand the owning Intent group when it is collapsed (exclusive expand).
+export async function expandIntentGroup(intent: Locator, locationPath: string) {
+  const toggle = intentGroupToggle(intent, locationPath);
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+}
+
+// Collapse the open Intent group when it is expanded.
+export async function collapseIntentGroup(
+  intent: Locator,
+  locationPath: string,
+) {
+  const toggle = intentGroupToggle(intent, locationPath);
+  if ((await toggle.getAttribute("aria-expanded")) === "true") {
+    await toggle.click();
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+}
+
+// Every Intent group header starts collapsed with no file/list body shown.
+export async function expectIntentGroupsCollapsed(intent: Locator) {
+  const toggles = intent.locator("button.intent-location-toggle");
+  await expect(toggles.first()).toBeVisible();
+  const count = await toggles.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i += 1) {
+    await expect(toggles.nth(i)).toHaveAttribute("aria-expanded", "false");
+  }
+  await expect(intent.locator(".intent-location-body")).toHaveCount(0);
 }
 
 // Intent shown for this project in place of Development's content: the

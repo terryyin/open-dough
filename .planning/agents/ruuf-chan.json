@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-215#visible-selected-story",
+  "mode": "story-branch",
+  "branch": "codex/visible-selected-story",
+  "host": "codex"
+}

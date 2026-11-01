@@ -1,15 +1,17 @@
-// Configured Intent locations browser (`./IntentPerspective.tsx`): Purpose
-// shows a selected feature's published text with line numbers and Gherkin
-// styling; Proof lists its scenarios' latest committed observations
-// (`./IntentProof.tsx`) from the location's proof, read with the locations.
-// A failed file read keeps its own explanation and retry while the location
-// tree stays usable; a failed proof read's retry reads the locations again
-// (`./IntentPerspective.tsx`) without changing the selection.
+// Configured Intent locations browser (`./IntentPerspective.tsx`): each
+// location is an exclusive expandable group; Purpose shows a selected
+// feature's published text with line numbers and Gherkin styling; Proof lists
+// its scenarios' latest committed observations (`./IntentProof.tsx`) from the
+// location's proof, read with the locations. A failed file read keeps its own
+// explanation and retry while the location tree stays usable; a failed proof
+// read's retry reads the locations again (`./IntentPerspective.tsx`) without
+// changing the selection.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
-import { IntentLocationTree } from "./IntentLocationTree.tsx";
+import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -30,6 +32,7 @@ export function IntentBrowser({
   readonly onProofRetry: () => void;
 }) {
   const [selectedPath, setSelectedPath] = useState("");
+  const [expandedPath, setExpandedPath] = useState<string | null>(null);
   const [text, setText] = useState<string | undefined>(undefined);
   const [fileState, setFileState] = useState<
     "none" | "reading" | "ready" | "failed"
@@ -77,12 +80,18 @@ export function IntentBrowser({
       <div className="intent-locations">
         <h3 className="visually-hidden">Purpose locations</h3>
         {locations.map((location) => (
-          <IntentLocationTree
+          <IntentLocationGroup
             key={location.path}
             location={location}
             selectedPath={selectedPath}
             onSelect={setSelectedPath}
-            idPrefix={`intent-${location.path.replaceAll("/", "-")}`}
+            idPrefix={intentLocationIdPrefix(location.path)}
+            expanded={expandedPath === location.path}
+            onToggle={() => {
+              setExpandedPath((was) =>
+                was === location.path ? null : location.path,
+              );
+            }}
           />
         ))}
       </div>

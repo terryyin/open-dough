@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-213#renovate-intent-sidebar",
+  "title": "Renovate the Intent sidebar with expandable group panels",
+  "completedAt": "2026-11-01T08:27:28.684Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "cursor",
+  "model": "auto"
+}

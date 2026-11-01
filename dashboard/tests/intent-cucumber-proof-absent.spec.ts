@@ -12,6 +12,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -53,6 +54,7 @@ async function selectJobsFeature(page: Page) {
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   const purpose = intent.getByLabel(`${featurePath} source`);
   await expect(purpose).toContainText("Feature: Jobs");
@@ -89,6 +91,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await expandIntentGroup(intent, "e2e_test/features");
   await intent
     .getByRole("button", { name: doughnutFeature, exact: true })
     .click();
@@ -103,6 +106,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
   await expect(proof).not.toContainText(/not observed|could not be read/i);
 
   await test.step("a non-Gherkin source does not offer Cucumber adoption", async () => {
+    await expandIntentGroup(intent, "scripts");
     await intent
       .getByRole("button", { name: doughnutScript, exact: true })
       .click();

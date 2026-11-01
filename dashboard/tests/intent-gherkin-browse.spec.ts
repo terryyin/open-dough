@@ -1,97 +1,29 @@
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
-// nested folders, exact text with line numbers and Gherkin styling, Proof
-// unavailable, project change, and PNG files outside the kind omitted.
+// nested folders after expand, exact text with line numbers and Gherkin
+// styling, Proof unavailable, project change, PNG omitted, and dual-pane
+// scroll.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
-import { expectAddress } from "./intentPerspectivePage.ts";
+import {
+  expandIntentGroup,
+  expectAddress,
+  expectIntentGroupsCollapsed,
+  intentGroupToggle,
+} from "./intentPerspectivePage.ts";
 import { colourOf } from "./pageColours.ts";
 import { box } from "./partArrangement.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { publishFiles } from "./publishedOrigin.ts";
-import { filesOf, type Project } from "./catalogProjectRecords.ts";
-
-const doughnut: Project = {
-  label: "Doughnut",
-  ref: "main",
-  repository: "nerds-odd-e/doughnut",
-  revision: "d7".repeat(20),
-  taken: "Doughnut's own taken story",
-  queued: "Doughnut's own queued story",
-  direction: "Show Doughnut's own published direction through local gh.",
-  purpose: "Read Doughnut's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/302-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-302-queued.md",
-};
-
-const pygardon: Project = {
-  label: "Pygardon",
-  ref: "main",
-  repository: "terryyin/pygardon",
-  revision: "c1".repeat(20),
-  taken: "Pygardon's own taken story",
-  queued: "Pygardon's own queued story",
-  direction: "Show Pygardon's own published direction through local gh.",
-  purpose: "Read Pygardon's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/303-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-303-queued.md",
-};
-
-const recallFeature = `Feature: Recall a note
-  Scenario: Open a note by title
-    Given a notebook with a note titled "alpha"
-    When I ask to recall "alpha"
-    Then I see the note body
-`;
-
-const packagedFeature = `Feature: Packaged feature
-  Scenario: A packaged case
-    Given a packaged fixture
-    When I run it
-    Then it passes
-`;
-
-const doughnutSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [{ path: "e2e_test/features", kind: "gherkin" }],
-    },
-  },
-  null,
-  2,
-);
-
-const pygardonSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: "e2e_test/features", kind: "gherkin" },
-        { path: "e2e_test/packaged/features", kind: "gherkin" },
-      ],
-    },
-  },
-  null,
-  2,
-);
-
-function publishIntentProject(
-  page: Parameters<typeof publishFiles>[0],
-  published: Project,
-  settings: string,
-  features: Readonly<Record<string, string>>,
-) {
-  return publishFiles(page, {
-    repository: published.repository,
-    ref: published.ref,
-    revision: published.revision,
-    files: {
-      ...filesOf(published),
-      ".planning/open-dough.json": `${settings}\n`,
-      ...features,
-    },
-  });
-}
+import {
+  doughnut,
+  doughnutSettings,
+  packagedFeature,
+  publishIntentProject,
+  pygardon,
+  pygardonSettings,
+  recallFeature,
+} from "./intentGherkinBrowseFixtures.ts";
 
 test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text with line numbers, and replaces content on project change", async ({
   page,
@@ -110,10 +42,14 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
-  await expect(intent.getByText("e2e_test/features").first()).toBeVisible();
-  await expect(intent.getByText("gherkin").first()).toBeVisible();
+  await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
+  await expect(intentGroupToggle(intent, "e2e_test/features")).toContainText(
+    "gherkin",
+  );
+  await expectIntentGroupsCollapsed(intent);
 
   await test.step("selecting a nested feature shows exact text, line numbers and the observed revision", async () => {
+    await expandIntentGroup(intent, "e2e_test/features");
     await expect(
       intent.getByRole("button", { name: "recall", exact: true }),
     ).toBeVisible();
@@ -192,13 +128,15 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
         name: "e2e_test/features/recall/recall_note.feature",
       }),
     ).toHaveCount(0);
-    await expect(intent.getByText("e2e_test/features").first()).toBeVisible();
+    await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
     await expect(
-      intent.getByText("e2e_test/packaged/features").first(),
+      intentGroupToggle(intent, "e2e_test/packaged/features"),
     ).toBeVisible();
+    await expectIntentGroupsCollapsed(intent);
     await expect(
       intent.getByText("Select a feature file to read its Purpose."),
     ).toBeVisible();
+    await expandIntentGroup(intent, "e2e_test/packaged/features");
     await intent
       .getByRole("button", {
         name: "e2e_test/packaged/features/packaged.feature",
@@ -231,6 +169,7 @@ test("Intent fills the height below the banner; the location browser meets the l
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await expandIntentGroup(intent, "e2e_test/features");
   await intent
     .getByRole("button", { name: "e2e_test/features/area/case_00.feature" })
     .click();

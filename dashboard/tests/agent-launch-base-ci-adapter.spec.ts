@@ -107,6 +107,67 @@ process.stdout.write(JSON.stringify({
   expect(before).not.toBe(head);
 });
 
+test("a running adapter attempt shows its nearest completed ancestor", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const completed = await publishLaterHead(
+    origin,
+    page,
+    "adapter completed base",
+  );
+  const { head, published } = await publishLaterHead(
+    origin,
+    page,
+    "adapter running base",
+  );
+  published.serveActions(() => undefined);
+  installAdapter(
+    origin.project,
+    `#!${process.execPath}
+let input = '';
+for await (const chunk of process.stdin) input += chunk;
+const request = JSON.parse(input);
+if (request.operation !== 'discover') process.exit(1);
+process.stdout.write(JSON.stringify({ attempts: [
+  { runId: 'running', attemptId: '1', sha: ${JSON.stringify(head)}, outcome: 'pending', url: 'https://ci.invalid/adapter-running', time: '2026-10-01T00:02:00Z' },
+  { runId: 'completed', attemptId: '1', sha: ${JSON.stringify(completed.head)}, outcome: 'success', url: 'https://ci.invalid/adapter-completed', time: '2026-10-01T00:01:00Z' },
+] }));
+`,
+  );
+  await openUntilRead(page);
+  await parts(page)
+    .backlog.getByRole("article", { name: "Story A" })
+    .getByRole("button", { name: "Start execution" })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Start execution in Claude Code",
+  });
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(
+    dialog.getByRole("heading", { name: "Base CI still running" }),
+  ).toBeFocused();
+  await expect(dialog).toContainText(
+    `Nearest completed ancestor: ${completed.head.slice(0, 7)} (adapter completed base) — passed.`,
+  );
+  await expect(
+    dialog.getByRole("link", {
+      name: "https://ci.invalid/adapter-completed",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("link", {
+      name: "https://ci.invalid/adapter-running",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  expect(await keptStarts(dashboard)).toEqual([]);
+  expect(await origin.takenProfiles()).toEqual([]);
+});
+
 test("an adapter exit failure asks as could not be read", async ({
   page,
   dashboard,

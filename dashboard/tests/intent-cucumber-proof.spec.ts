@@ -12,6 +12,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   consolidatedFiles,
@@ -91,6 +92,7 @@ for (const [layout, proofFiles] of [
     await openUntilRead(page, "/?project=pygardon");
     const { intent, intentChoice } = parts(page);
     await intentChoice.click();
+    await expandIntentGroup(intent, "e2e_test/features");
     await intent
       .getByRole("button", { name: featurePath, exact: true })
       .click();

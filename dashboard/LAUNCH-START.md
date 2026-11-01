@@ -87,23 +87,9 @@ removed only when a durable launch record carries those facts. Records
 display the established workspace without making it a story fact.
 ## Base CI before an execution start
 
-Before a new story execution start runs the installed start script, the
-boundary judges the origin target's selected check
-(`.planning/open-dough.json`'s `ciWorkflow`, default `ci.yml`, or nonempty
-`ciAdapter` discover in the project folder): newest result at the target
-head or its nearest ancestor that has one. History is the provider's
-one-page commit listing for that head, not the project folder's Git;
-adapter exit or invalid discover is could not be read with the reason.
-Pass starts as today. Failed (including cancelled or timed out), still
-running, or could not be read asks first, naming branch, judged revision
-(short SHA and subject), later commits without their own result, state,
-and run URL when given. Back/Escape restores choices and starts nothing;
-Continue names the confirmed revision and state (re-ask on change; pass
-starts without asking). Existing changes in Default main are asked first
-when both apply ([Existing changes](LAUNCH-EXISTING-CHANGES.md)).
-Refinement, Start session, and kept or established resumes are not asked.
-Observation is per request and kept nowhere (ADR 0008). While Start waits:
-“Checking base CI…” beside Starting… (acceptance still uses Starting…).
+See [Base CI before an execution start](LAUNCH-BASE-CI.md) for the selected-check
+judgment, completed ancestor context, and confirmation behavior.
+
 ## Session choices
 
 A story dialog's Session group stays in view, never behind a disclosure, with
