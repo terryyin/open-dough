@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources
+- [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion ([plan](slice-plans/432-trustworthy-ci-completion/PLAN.md))
 
 ## Backlog list
 
-- [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion
 - [Record source-review observations through one supported operation](seeds/SEED-010-learn-from-execution-retrospectives.md#record-source-review-observations) — SEED-010#record-source-review-observations
 - [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source

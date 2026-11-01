@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-208#trustworthy-ci-completion",
+  "mode": "story-branch",
+  "branch": "claude/finish-every-execution-with-trustworthy-ci-and-n",
+  "host": "claude"
+}
