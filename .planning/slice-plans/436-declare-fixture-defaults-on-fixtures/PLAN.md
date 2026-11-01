@@ -2,6 +2,7 @@
 
 **Identity:** SEED-208#declare-fixture-defaults-on-fixtures
 **Source:** [correction story](../../seeds/SEED-208-dashboard-proof-cost.md#declare-fixture-defaults-on-fixtures).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -27,18 +28,22 @@ plan 432 slice 9 Result and obligation G2, recoverable at
 
 ### 1. Fixture defaults reach every consumer in any file order
 Type: Structure
-Status: planned
-Proof: For each module, first reproduce the order dependence at `--workers=1`
-with a non-option-setting consumer loaded first followed by a consumer that
-relies on the default (record the failing or the observed missing default; if
-no current consumer relies on it, record that and observe the option value
-instead). After the change the same order passes, and all consumers of both
-modules (consumer trace) pass strict at default workers;
-`npm run typecheck:dashboard` clean.
+Status: done
+Proof: Accepted. Before: option-value probes at `--workers=1` showed second-file
+`projectFolders`/`launchTimeoutMs` missing
+(`tmp/order-probe-cursor2/proof.json`, `tmp/order-probe-unread/proof.json`).
+After: same probes keep defaults
+(`tmp/after-order-cursor/proof.json`, `tmp/after-order-unread/proof.json`).
+Consumer suite of 47 specs / 107 tests:
+`tmp/consumer-suite/proof.json` terminal `strictStatus=passed`,
+`runnerStatus=passed`. `npm run typecheck:dashboard` clean (post-refactor
+`tmp/refactor-typecheck-dashboard.log`). Source review commitments 1–6, E1–E2,
+X1–X2 observed in `source-review.md`.
 
 ## Current decisions and stopping points
 
-- Values stay `["open-dough"]` and the existing launch waits.
+- Values stay `["open-dough"]` and the existing launch waits (`launchWaitMs`,
+  which is `30_000`).
 - Stop for human judgment if a consumer turns out to need the first-file-only
   behavior.
 - Failing and flaky tests follow
@@ -46,6 +51,11 @@ modules (consumer trace) pass strict at default workers;
 - The broader consumer run is required because both changed fixtures are
   loaded by many distributed spec files (57 importers found by the 2026-11-01
   trace of `cursorStart`/`unreadReportPage` imports).
+- Learning: module-level `test.use` binds only to the first file that evaluates
+  the module in a worker; second-file journeys may still pass when they do not
+  need that option, so option-value probes are the reliable order-dependence
+  signal. Post-change refactor shares `launchWaitMs` on `unreadReportPage`
+  with the sibling start fixtures.
 
 ## Plan review
 
