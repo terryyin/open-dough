@@ -129,6 +129,8 @@ Former local code: DD-259. Focused consumer selection misses indirect callers, c
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-150.md).
 
+**Response (2026-11-01):** SEED-208#trustworthy-ci-completion slice 5 delivered shared-effect consumer selection and whole-journey repair acceptance on its story branch; unreleased, awaiting observation in later ordinary executions; **not resolved**. [Delivered response](docs/maintainer/findings/ODF-150.md#delivered-response--2026-11-01).
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. Repair quiescence checks only writers, so stashing an interrupted agent’s checkout while read-only tests still observe it invalidates the proof. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
@@ -512,6 +514,10 @@ distinct executions remain [retained with their original provenance and effects]
 Terry approved consolidating the verified duplicate source identities on
 2026-11-01. SEED-208#trustworthy-ci-completion already covers the response;
 **queued, not resolved**. Source recovery: `d042a04e:DearDough.md`.
+**Response (2026-11-01):** SEED-208 slice 2 (`7b3122a3`) returns every failed
+job's test identities with an explicit completeness inventory, on its story
+branch; unreleased, awaiting observation in later ordinary executions; **not
+resolved**. [Delivered response](docs/maintainer/findings/ODF-380.md#delivered-response--2026-11-01).
 
 ## ODF-381 — Source-review put obligation IDs in the Slice column
 
@@ -566,3 +572,8 @@ focused proof missing consumers): here the miss is inside cause-driven repair
 of one product surface across successive owned CI failures.
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-384.md).
+
+**Response (2026-11-01):** SEED-208 slice 5 accepts a repair on the cause's
+whole affected journey and every listed failure, on its story branch;
+unreleased, awaiting observation in later ordinary executions; **not
+resolved**. [Delivered response](docs/maintainer/findings/ODF-384.md#delivered-response--2026-11-01).

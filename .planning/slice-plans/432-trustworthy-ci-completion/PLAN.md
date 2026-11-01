@@ -181,7 +181,7 @@ under the first two. The story-launch Option B proof is kept. Repeat-each 5
 
 ### 5. A repaired publication is reviewed and completed on its actual proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk/replay a provisional review followed by a CI repair, a repair
 that changes a shared lifecycle, and a later green tip with an earlier unread
 failure. Use existing CI completion/coverage fixtures and actual test
@@ -204,6 +204,21 @@ same diagnostic cause with former-code traceability through existing bounded
 maintenance. Update DD-376's hosted observation from actual outcomes rather
 than reimplementing its delivered setup fix. No shared feedback cycle or
 release/client rollout is implied by this story.
+
+Accepted proof: executable-proof.md gains "Accept a repair on its affected
+behavior" (every listed failure, whole affected journey and changed-effect
+consumers in one check; a removed distinguishing assertion leaves the promise
+unproved) and names shared layout/input/read consumers as journeys.
+ci-monitor.md step 4 assigns every listed failure under that rule, step 1
+examines recurring setup failures for a repository cause, and completion
+succeeds only once every delivered actionable failure is settled.
+finish-or-stop.md and the retrospective recheck only conclusions a repair's
+code or proof affects. Findings record delivered, unreleased, awaiting
+observation responses at ODF-150, ODF-380, ODF-384, DD-374 and DD-378;
+DD-376 adds 68 hosted runs without an npm install failure. Walkthroughs used
+this execution's run 41261530651. Guidance, completion/late-failure, payload
+and native replay tests exited 0. The finish-or-stop read row is at 29,991 of
+30,000 bytes (DD-347 later evidence).
 
 ## Decisive premises and observations
 

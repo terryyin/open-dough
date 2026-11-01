@@ -12,21 +12,21 @@ text; slice allocation and observations are the coordinator's.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Terry and developers using Open Dough can trust an execution's final completion | slice 5 |  |
-| 1.1 | The applicable published state has successful CI | slice 5 |  |
-| 1.2 | Known failed or flaky proof has been diagnosed and repaired | slice 5 |  |
-| 1.3 | The result's claimed behavior is actually observed | slice 5 |  |
-| 1.4 | A later green run never erases an earlier unresolved failure | slice 5 |  |
-| 2 | Value now: stable, meaningful proof supports the product-intent direction and reduces repair loops and unnecessary developer interruptions | slice 5 |  |
-| 3.1 | One improvement plan, first backlog story, every known detail preserved in the story | slice 5 |  |
-| 3.2 | Editing main directly and synchronizing origin is authorized only to prepare and publish this story and plan | slice 5 |  |
-| 3.3 | That authorization does not execute the story's product or guidance changes | slice 5 |  |
-| 3.4 | Keep the current Taken assignment and all unrelated queue order and near-future direction | slice 5 |  |
-| 3.5 | The outcome spans the existing completion workflow and the concrete proof defects that made its green result unreliable | slice 5 |  |
-| 3.6 | Deliver incrementally within this one requested story | slice 5 |  |
-| 3.7 | Do not silently drop a diagnosed cause | slice 5 |  |
-| 3.8 | Do not turn a diagnosed cause into an unowned suggestion | slice 5 |  |
-| 3.9 | Do not expand into general test optimization | slice 5 |  |
+| 1 | Terry and developers using Open Dough can trust an execution's final completion | slice 5 | observed: slices 1–5 together (policy, inventory, touch, freshness, repair acceptance and completion rules); closure gates below |
+| 1.1 | The applicable published state has successful CI | slice 5 | observed: branch CI success on 4cb318ba, 7b3122a3, 19b826f1 after owned repair of 482b644e; final accepted revision and trunk enforced by the completion operation and wrap-up trunk observation (ci-monitor.md Await section) |
+| 1.2 | Known failed or flaky proof has been diagnosed and repaired | slice 5 | observed: run 41261530651 diagnosed with full inventory and repaired (4cb318ba); slices 3–4 repaired the touch and freshness proof defects |
+| 1.3 | The result's claimed behavior is actually observed | slice 5 | observed: slices 3–4 discriminating proofs (moved/covered touch refusals; suppressed/marked poll fails) |
+| 1.4 | A later green run never erases an earlier unresolved failure | slice 5 | observed: ci-monitor.md Await section: no passing rerun or later green tip settles a delivered failure; ci-mailbox-complete-retain-cases.mjs unread earlier failure blocks shutdown |
+| 2 | Value now: stable, meaningful proof supports the product-intent direction and reduces repair loops and unnecessary developer interruptions | slice 5 | observed: delivered slices reduce rediscovery (complete inventory, consumer journeys in executable-proof.md) without new process machinery |
+| 3.1 | One improvement plan, first backlog story, every known detail preserved in the story | slice 5 | observed: plan 432 is this story's one improvement plan and the seed keeps its retained retrospective |
+| 3.2 | Editing main directly and synchronizing origin is authorized only to prepare and publish this story and plan | slice 5 | observed: execution published only to the story branch; no direct main edit during execution |
+| 3.3 | That authorization does not execute the story's product or guidance changes | slice 5 | observed: product and guidance changes were executed by this planned execution, not by preparation authority |
+| 3.4 | Keep the current Taken assignment and all unrelated queue order and near-future direction | slice 5 | observed: no queue order or unrelated Taken entries changed by slices 1–5 |
+| 3.5 | The outcome spans the existing completion workflow and the concrete proof defects that made its green result unreliable | slice 5 | observed: slices 1, 2, 5 change the completion workflow; slices 3, 4 repair the concrete proof defects |
+| 3.6 | Deliver incrementally within this one requested story | slice 5 | observed: five slices delivered as separate story-branch increments 482b644e, 7b3122a3, 19b826f1, eb3c9a2b and slice 5 |
+| 3.7 | Do not silently drop a diagnosed cause | slice 5 | observed: every diagnosed cause in the plan has a slice result; C7 diagnosis recorded in slice 3 |
+| 3.8 | Do not turn a diagnosed cause into an unowned suggestion | slice 5 | observed: findings responses recorded at ODF-150, ODF-380, ODF-384, DD-374, DD-378, DD-376 |
+| 3.9 | Do not expand into general test optimization | slice 5 | observed: no general test optimization; SEED-207 work untouched |
 | 4a.1 | The project's failed/flaky-test policy is available to Codex, Cursor and Claude Code through shared project guidance | slice 1 | observed: AGENTS.md "Failing and flaky tests" (root AGENTS.md read by Codex and Cursor; Claude Code via CLAUDE.md @AGENTS.md) |
 | 4a.2 | Preserve an active sibling repair owner's work | slice 1 | observed: AGENTS.md "Failing and flaky tests" other-owner bullet; execution-decisions.md "Diagnose failed proof" |
 | 4a.3 | A defect that predates this change is not, by that fact alone, an exemption | slice 1 | observed: AGENTS.md attribution bullet; execution-decisions.md "Diagnose failed proof"; executable-proof.md known-failure sentence |
@@ -38,16 +38,16 @@ text; slice allocation and observations are the coordinator's.
 | 4c.3 | Settle the transitions that need it | slice 3 | observed: the 20-file reached touch batch (48 tests, --workers 4) passed under the stricter landing check, so no journey transition needed settling |
 | 4d.1 | Restore genuine temporal proof for regular unmarked polling after a settled fresh Host-switch read | slice 4 | observed: agent-launch-host-switch-fresh.spec.ts Start session test advances the clock only after the settled fresh answer and rendered offer, then asserts a later ask exists and every later ask is unmarked; fails when the poll is suppressed (D1) or marked (D2) |
 | 4d.2 | That proof includes the Start session offer result | slice 4 | observed: same test asserts the fresh answer offers Codex ad-hoc, Isolated workspace is enabled and the dialog lacks the not-offered text |
-| 4e.1 | Judge repairs against the complete affected behavioral lifecycle and existing consumers | slice 5 |  |
-| 4e.2 | After a repair, reconsider only the affected retrospective conclusions | slice 5 |  |
-| 4e.3 | Preserve source promises and regression discrimination | slice 5 |  |
-| 4f.1 | Finish on the applicable accepted revision and required target | slice 5 |  |
-| 4f.2 | Account for all known actionable failures when finishing | slice 5 |  |
-| 4f.3 | Account for observation shutdown when finishing | slice 5 |  |
-| 4f.4 | Keep an honest incomplete stop for a real unresolved gate | slice 5 |  |
-| 4g.1 | Retain evidence and link the supported findings to their response | slice 5 |  |
-| 4g.2 | When executed, reconcile the duplicated diagnostic finding and the stale setup observation through the existing bounded findings procedures | slice 5 |  |
-| 4g.3 | Do not mark a process issue fixed solely because guidance was edited | slice 5 |  |
+| 4e.1 | Judge repairs against the complete affected behavioral lifecycle and existing consumers | slice 5 | observed: executable-proof.md "Accept a repair on its affected behavior" and shared layout/input/read consumer journeys; ci-monitor.md step 4 links it |
+| 4e.2 | After a repair, reconsider only the affected retrospective conclusions | slice 5 | observed: finish-or-stop.md and dough-execution-retrospective SKILL.md reconsider only conclusions a repair's code or proof affects |
+| 4e.3 | Preserve source promises and regression discrimination | slice 5 | observed: executable-proof.md repair section: removing the only distinguishing assertion leaves the promise unproved |
+| 4f.1 | Finish on the applicable accepted revision and required target | slice 5 | observed: ci-monitor.md Await section uses the target's observer and last accepted registered SHA; finish-or-stop branch receipt never substitutes for trunk observation |
+| 4f.2 | Account for all known actionable failures when finishing | slice 5 | observed: ci-monitor.md Await section: success only once every delivered actionable failure is repaired, proved infrastructure, owned or excepted |
+| 4f.3 | Account for observation shutdown when finishing | slice 5 | observed: ci-completion-wait.md success requires confirmed shutdown; ci-mailbox-complete tests passed |
+| 4f.4 | Keep an honest incomplete stop for a real unresolved gate | slice 5 | observed: ci-monitor.md missing authority/decision leaves incomplete work; finish-or-stop incomplete stop unchanged |
+| 4g.1 | Retain evidence and link the supported findings to their response | slice 5 | observed: DearDough.md and docs/maintainer/findings ODF-150/380/384 Delivered response sections; project-maintenance-findings DD-374/DD-378 responses |
+| 4g.2 | When executed, reconcile the duplicated diagnostic finding and the stale setup observation through the existing bounded findings procedures | slice 5 | observed: ODF-380 keeps DD-368/DD-373 consolidation with its response; ProjectFindings DD-376 later hosted evidence (68 runs #3359–#3426 without npm install failure) |
+| 4g.3 | Do not mark a process issue fixed solely because guidance was edited | slice 5 | observed: each response is marked delivered on the story branch, unreleased, awaiting observation, not resolved |
 | E1.1 | An unrelated fixed-date fixture fails on my published revision: establish its cause, repair it under the project policy, then finish the relevant CI obligation | slice 1 | observed: AGENTS.md published-revision bullet; ci-monitor.md "Repair only a failure this execution owns" predates sentence; delegation.md failure-policy carry |
 | E1.2 | Reproducing the failure on the base is attribution, not a waiver | slice 1 | observed: AGENTS.md attribution bullet; execution-decisions.md "Attribution explains the cause" |
 | E2.1 | Another active execution owns that exact repair and its uncommitted files: preserve them and report the real coordination boundary, with no duplicate writer, stash or claim | slice 1 | observed: AGENTS.md other-owner bullet; ci-monitor.md known other owner paragraph |
@@ -56,50 +56,50 @@ text; slice allocation and observations are the coordinator's.
 | E3.2 | The diagnostic distinguishes bounded details from completeness | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs excerpt versus inventory assertions; inventory.complete only without gaps |
 | E3.3 | Missing logs remain explicit unknown evidence | slice 2 | observed: ci-github-diagnostic-logs.test.mjs held-only test asserts gap reason log-unavailable |
 | E4.1 | npm setup fails first but a later sibling asserts incorrectly: the attempt is not waived as infrastructure | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "an npm setup failure beside a later sibling's assertion is not an infrastructure-only inventory, even while the sibling still runs"; ci-monitor.md: a gap is never infrastructure |
-| E4.2 | Recurring acquisition trouble is examined for a repository setup cause rather than ignored indefinitely | slice 5 |  |
+| E4.2 | Recurring acquisition trouble is examined for a repository setup cause rather than ignored indefinitely | slice 5 | observed: ci-monitor.md step 1: recurring setup or acquisition failure examined for a repository cause before another infrastructure disposition |
 | E5.1 | A touch target moves between measurement and activation: the helper cannot report successful reachability for a different point and silently miss the target | slice 3 | observed: control-reachability-observation.spec.ts moving-target test asserts the refusal "native touch lands on the intended control" and zero clicks |
 | E5.2 | Stable native-touch journeys and clear obstruction diagnosis survive | slice 3 | observed: control-reachability-observation.spec.ts stable target gets one click; early and late cover refusals name DIV#cover; reached touch journeys pass |
 | E6.1 | Initial read saw Option A, configuration changes to B, Host switches: a settled fresh response renders B | slice 4 | observed: agent-launch-host-switch-fresh.spec.ts story-launch test renders Codex Option B, not A, after the Host switch with a fresh ask; Start session test renders the newly installed offer |
 | E6.2 | A subsequent actual regular poll is observed and carries no fresh marker | slice 4 | observed: expect.poll(asks.length) greater than the settled index and asks.slice(settled).every(!fresh) |
 | E6.3 | Initial requests, or a timer advanced before scheduling, cannot stand in for this observation | slice 4 | observed: later asks counted only from the index recorded after the settled render; the predecessor spec passed under D1+D2 while the repaired spec fails |
-| E7.1 | A banner/dialog repair fixes its first zoom assertion; acceptance still exercises opening, Close clear of the banner, End revealing the last explanation, and affected focus/navigation consumers | slice 5 |  |
-| E7.2 | Do not publish three successive single-assertion fixes | slice 5 |  |
-| E8.1 | A CI repair follows a provisional retrospective: its affected product and proof conclusions are reviewed on the repaired candidate | slice 5 |  |
-| E8.2 | Deleting the only distinguishing temporal assertion cannot make the original promise proved | slice 5 |  |
-| E9 | A story branch passes, or the same SHA fails on main, or an older unread failure remains after a later green tip: the owning execution diagnoses the failure and completes required trunk observation before successful closure | slice 5 |  |
+| E7.1 | A banner/dialog repair fixes its first zoom assertion; acceptance still exercises opening, Close clear of the banner, End revealing the last explanation, and affected focus/navigation consumers | slice 5 | observed: executable-proof.md repair section replays opening, operating, dismissing, focus return and navigation plus changed-effect consumers |
+| E7.2 | Do not publish three successive single-assertion fixes | slice 5 | observed: executable-proof.md repair section: several failures in one surface need one combined check, not a publication per assertion |
+| E8.1 | A CI repair follows a provisional retrospective: its affected product and proof conclusions are reviewed on the repaired candidate | slice 5 | observed: dough-execution-retrospective SKILL.md rechecks affected product and proof conclusions on the repaired candidate |
+| E8.2 | Deleting the only distinguishing temporal assertion cannot make the original promise proved | slice 5 | observed: executable-proof.md and retrospective SKILL.md: a deleted distinguishing assertion leaves the promise unproved; slice 4 restored the Host-switch temporal assertion |
+| E9 | A story branch passes, or the same SHA fails on main, or an older unread failure remains after a later green tip: the owning execution diagnoses the failure and completes required trunk observation before successful closure | slice 5 | observed: ci-monitor.md Await section plus separate trunk observer in wrap-up closure; unread earlier failure retains shutdown (ci-mailbox-complete-retain-cases.mjs) |
 | E10.1 | Terry explicitly waives a specific native probe or authorizes one landing exception: preserve its exact scope and truthful outcome | slice 1 | observed: AGENTS.md exception bullet; execution-decisions.md explicit human exception scope |
 | E10.2 | Never turn the historical exception into the default completion rule | slice 1 | observed: AGENTS.md exception bullet, never becomes the default for later work |
-| C1.1 | Keep Accepted ADR 0002's whole-product focus, continuous integration, decentralized reconciliation and stop-and-fix principles | slice 5 |  |
-| C1.2 | Keep ADR 0008's separation of published facts from local evidence | slice 5 |  |
-| C1.3 | Keep ADR 0010's evidenced-benefit standard | slice 5 |  |
-| C1.4 | ADR 0009 is Proposed, not Accepted | slice 5 |  |
-| C2.1 | Keep one shared behavioral source | slice 5 |  |
-| C2.2 | Future reusable guidance changes belong in src/skills and must respect AGENTS.md | slice 5 |  |
-| C2.3 | Do not hand-synchronize the installed .agents or .claude managed copies | slice 5 |  |
+| C1.1 | Keep Accepted ADR 0002's whole-product focus, continuous integration, decentralized reconciliation and stop-and-fix principles | slice 5 | observed: changes keep stop-and-fix and continuous integration (AGENTS.md policy, owned repair of 482b644e) |
+| C1.2 | Keep ADR 0008's separation of published facts from local evidence | slice 5 | observed: inventory and findings separate published CI facts from local evidence |
+| C1.3 | Keep ADR 0010's evidenced-benefit standard | slice 5 | observed: each change carries discriminating failed-before/passed-after evidence |
+| C1.4 | ADR 0009 is Proposed, not Accepted | slice 5 | observed: no change treats ADR 0009 as Accepted |
+| C2.1 | Keep one shared behavioral source | slice 5 | observed: reusable changes made once in src/skills; no per-host copies |
+| C2.2 | Future reusable guidance changes belong in src/skills and must respect AGENTS.md | slice 5 | observed: guidance edits in src/skills follow AGENTS.md authoring rules |
+| C2.3 | Do not hand-synchronize the installed .agents or .claude managed copies | slice 5 | observed: no .agents/skills or .claude/skills file changed in slices 1–5 |
 | C2.4 | The explicit Open Dough failure policy stays project guidance, not a policy imposed on other projects | slice 1 | observed: src/skills edits name "this project's failure policy"; Open Dough rule only in AGENTS.md |
-| C3.1 | Reuse current diagnostic/provider acquisition, bounded evidence, consumer tracing, CI observer, completion receipts and publication mechanisms | slice 5 |  |
+| C3.1 | Reuse current diagnostic/provider acquisition, bounded evidence, consumer tracing, CI observer, completion receipts and publication mechanisms | slice 5 | observed: diagnostic, consumer-trace, observer, completion receipts and managed delivery reused |
 | C3.2 | Preserve held-log waits, cancellation, safe diagnostics and exact-attempt identity | slice 2 | observed: unchanged held-wait, exit 75, safe-cause and attempt-identity tests pass in ci-github-diagnostic.test.mjs and ci-github-diagnostic-logs.test.mjs |
-| C3.3 | Add no new scheduler, global lock or completion ledger | slice 5 |  |
-| C4 | No retry-until-green repair, arbitrary sleeps, blanket timeout inflation, muted failures, force clicks, or replacing native touch with locator activation to bypass the observed problem | slice 5 |  |
-| C5.1 | E2E scenarios keep useful integration and user-intent protection | slice 5 |  |
-| C5.2 | Rule details may use smaller black-box tests when meaningful coverage survives | slice 5 |  |
-| C5.3 | Fewer tests, more tests, or a passing run alone is not an improvement | slice 5 |  |
-| C6.1 | Do not reimplement the already delivered relative-date, no-audit, native deadline, attachment-byte, WebSocket-registration or consistency repairs | slice 5 |  |
-| C6.2 | Keep the accepted bounded-refresh heap tradeoff accepted | slice 5 |  |
+| C3.3 | Add no new scheduler, global lock or completion ledger | slice 5 | observed: no scheduler, global lock or completion ledger added |
+| C4 | No retry-until-green repair, arbitrary sleeps, blanket timeout inflation, muted failures, force clicks, or replacing native touch with locator activation to bypass the observed problem | slice 5 | observed: no sleeps, retries, timeout inflation, muted failures, force clicks or locator activation added; ci-monitor.md still forbids rerun until green |
+| C5.1 | E2E scenarios keep useful integration and user-intent protection | slice 5 | observed: touch and freshness journeys kept as real-browser E2E proofs |
+| C5.2 | Rule details may use smaller black-box tests when meaningful coverage survives | slice 5 | observed: diagnostic rules proved through instrumented CLI cases, not only E2E |
+| C5.3 | Fewer tests, more tests, or a passing run alone is not an improvement | slice 5 | observed: each slice judged on discriminating observations, not test counts |
+| C6.1 | Do not reimplement the already delivered relative-date, no-audit, native deadline, attachment-byte, WebSocket-registration or consistency repairs | slice 5 | observed: delivered relative-date, no-audit, native-deadline, attachment-byte, WebSocket and consistency repairs not reimplemented |
+| C6.2 | Keep the accepted bounded-refresh heap tradeoff accepted | slice 5 | observed: bounded-refresh heap tradeoff untouched |
 | C7 | Old sessions-sidebar-touch and final-report-touch failures are candidates for diagnosis, not proven instances of the same touch race | slice 3 | observed: slice 3 diagnosis in PLAN.md — sessions-sidebar-touch #3346 (Board read under a cover) and final-report-touch #3352 (project-control locator) are not this race; only #3316 focusByTouch is plausibly one |
-| C8.1 | Preserve ongoing SEED-207 assessment ownership; do not duplicate its general test-value/optimization work | slice 5 |  |
-| C8.2 | Shared files do not create a blocking story dependency; reconcile actual overlapping changes through normal work | slice 5 |  |
-| C9.1 | Changes to installation, native host delivery or release rollout require their established functional checks | slice 5 |  |
-| C9.2 | This planning publication is not a release, nor permission to update every installation | slice 5 |  |
-| V1 | Each planned change needs discriminating failure-before/pass-after evidence at the behavior boundary | slice 5 |  |
-| V2 | Each planned change needs preserved consumer proof | slice 5 |  |
-| V3 | Each planned change needs successful applicable CI | slice 5 |  |
-| V4 | Walk the guidance through the failed-fixture, active-other-owner, mixed-failure and post-review-repair cases from the executing agent's perspective; file presence or a wording test alone does not prove usefulness | slice 5 |  |
-| V5 | Compare the next relevant ordinary executions with the concrete failure and repair loops, keeping numerator/denominator, target/revision, known misses, human interruptions, rework and observation limits | slice 5 |  |
-| V6 | A lower aggregate red-run percentage alone is not causal proof | slice 5 |  |
-| V7 | Do not invent a universal reliability target or promise no future environment failure | slice 5 |  |
-| K1 | Before closure, every scoped defect is repaired or has an explicit human-owned changed disposition | slice 5 |  |
-| K2 | Final target CI and observation shutdown are settled | slice 5 |  |
-| K3 | Affected review conclusions are current | slice 5 |  |
-| K4 | No known flaky observation is left as unrelated noise | slice 5 |  |
-| K5 | This evidence is preserved through source/plan cleanup using normal Git recovery and durable test/document ownership | slice 5 |  |
+| C8.1 | Preserve ongoing SEED-207 assessment ownership; do not duplicate its general test-value/optimization work | slice 5 | observed: SEED-207 and the sibling dashboard-proof execution were not touched |
+| C8.2 | Shared files do not create a blocking story dependency; reconcile actual overlapping changes through normal work | slice 5 | observed: trunk merge 4cb318ba reconciled overlapping trunk work normally |
+| C9.1 | Changes to installation, native host delivery or release rollout require their established functional checks | slice 5 | observed: no installation, native host delivery or release change; install-repeat-force and native replay checks passed |
+| C9.2 | This planning publication is not a release, nor permission to update every installation | slice 5 | observed: no release or installation update performed |
+| V1 | Each planned change needs discriminating failure-before/pass-after evidence at the behavior boundary | slice 5 | observed: slice accepted-proof paragraphs record failed-before/passed-after evidence |
+| V2 | Each planned change needs preserved consumer proof | slice 5 | observed: each slice's consumer-trace batch passed |
+| V3 | Each planned change needs successful applicable CI | slice 5 | observed: branch CI success on each delivered increment after the owned repair; final applicable CI enforced by the completion operation |
+| V4 | Walk the guidance through the failed-fixture, active-other-owner, mixed-failure and post-review-repair cases from the executing agent's perspective; file presence or a wording test alone does not prove usefulness | slice 5 | observed: slice 1 and slice 5 walkthroughs (failed fixture, active other owner, mixed failure via run 41261530651, post-review repair) |
+| V5 | Compare the next relevant ordinary executions with the concrete failure and repair loops, keeping numerator/denominator, target/revision, known misses, human interruptions, rework and observation limits | slice 5 | observed: ODF-150/380/384 responses name the later-execution comparison basis (numerator/denominator, target/revision, misses, interruptions, rework, observation limits) for findings maintenance |
+| V6 | A lower aggregate red-run percentage alone is not causal proof | slice 5 | observed: findings responses state a lower red-run rate alone is not evidence |
+| V7 | Do not invent a universal reliability target or promise no future environment failure | slice 5 | observed: no reliability target or no-future-failure promise added |
+| K1 | Before closure, every scoped defect is repaired or has an explicit human-owned changed disposition | slice 5 | observed: every scoped defect has a delivered repair (slices 2–4, owned CI repair) or recorded response (slice 5) |
+| K2 | Final target CI and observation shutdown are settled | slice 5 | observed: final target CI and shutdown enforced by the completion operation and wrap-up trunk observation; no unread failure outstanding at slice 5 |
+| K3 | Affected review conclusions are current | slice 5 | observed: review conclusions reconsidered on repaired candidates per finish-or-stop.md; this execution's retrospective runs after slice 5 |
+| K4 | No known flaky observation is left as unrelated noise | slice 5 | observed: run 41261530651 failures owned and repaired; no known flaky observation left as noise |
+| K5 | This evidence is preserved through source/plan cleanup using normal Git recovery and durable test/document ownership | slice 5 | observed: evidence retained in docs/maintainer/findings, ProjectFindings.md and Git history of plan 432 |
