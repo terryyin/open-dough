@@ -254,6 +254,24 @@ reference → target → shared selection). Each Behavior has its own proof loop
 and Structure precedes the Behavior it enables. This review found no remaining
 slice-specific concern.
 
+## Execution complete
+
+Product advice: Keep Intent's candidates record as the default reading view with
+shared selection and truthful gap reasons. No further product change from the
+Doughnut mismatched published file or Pygardon's newly configured `tests/`
+python inventory; both are accurate against current remotes. Rebase onto the
+Intent exclusive-group sidebar when integrating, and keep revision remounts
+returning to the candidates control rather than an empty Proof pane.
+
+## Execution complete
+
+Product advice: Keep Intent's candidates record as the default reading view with
+shared selection and truthful gap reasons. No further product change from the
+Doughnut mismatched published file or Pygardon's newly configured `tests/`
+python inventory; both are accurate against current remotes. Rebase onto the
+Intent exclusive-group sidebar when integrating, and keep revision remounts
+returning to the candidates control rather than an empty Proof pane.
+
 ## Story obligations
 
 ### G-D61. Layout and control treatment are design details

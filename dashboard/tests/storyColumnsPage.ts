@@ -65,7 +65,9 @@ export async function openStoryColumnsJourney(
     // fake), Continue with the named confirmation so journeys that are not
     // asserting that gate still start (SEED-210).
     launch: async (title: string, workflow: Workflow) => {
-      await expect(action(title, workflow)).toBeEnabled();
+      // After a project switch the Backlog card can arrive after settlement
+      // words; wait for the Start control itself rather than a short enable.
+      await expect(action(title, workflow)).toBeEnabled({ timeout: 30_000 });
       await action(title, workflow).click();
       const dialog = page.getByRole("dialog", {
         name: `Start ${workflow} in Claude Code`,

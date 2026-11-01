@@ -204,6 +204,11 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("another project counts only its own sessions, and a return or reload reads the count afresh", async () => {
       const select = (name: string) => chooseProject(page, name);
       await select("Doughnut");
+      // Doughnut's published work and Backlog card must settle before Start.
+      await settled();
+      await expect(
+        board.getByRole("article", { name: doughnutSharedTitle, exact: true }),
+      ).toBeVisible();
       // Launching waits for Doughnut's card, so its count is Doughnut's.
       await launch(doughnutSharedTitle, "Execution");
       await expectCounted({});
