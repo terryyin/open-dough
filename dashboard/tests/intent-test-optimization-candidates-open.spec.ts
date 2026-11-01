@@ -37,6 +37,9 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
 
   await test.step("Ex 1: open full path from agent-launch-poles; tree and Purpose agree; return keeps entry", async () => {
     const poles = record.getByRole("article", { name: "agent-launch-poles" });
+    // Wait until the first settled candidates read is recorded; capturing
+    // while still "0" races the open/return assertion on CI.
+    await expect(record).toHaveAttribute("data-candidates-reads", /^[1-9]\d*$/);
     const readsBefore = await record.getAttribute("data-candidates-reads");
     await poles
       .getByRole("button", {
