@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-208#declare-fixture-defaults-on-fixtures",
+  "mode": "story-branch",
+  "branch": "cursor/declare-dashboard-fixture-defaults-on-their-fixt",
+  "host": "cursor",
+  "model": "auto"
+}

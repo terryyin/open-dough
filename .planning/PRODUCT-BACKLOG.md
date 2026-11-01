@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Confirm a broken base before starting plan execution](seeds/SEED-210-confirm-broken-base-before-start.md#confirm-broken-base-before-start) — SEED-210#confirm-broken-base-before-start ([plan](slice-plans/435-confirm-broken-base-before-start/PLAN.md))
 - [Use the dashboard terminal with a mobile keyboard](seeds/SEED-212-mobile-terminal-input.md#use-terminal-with-mobile-keyboard) — SEED-212#use-terminal-with-mobile-keyboard ([plan](slice-plans/436-use-terminal-with-mobile-keyboard/PLAN.md))
+- [Declare dashboard fixture defaults on their fixtures](seeds/SEED-208-dashboard-proof-cost.md#declare-fixture-defaults-on-fixtures) — SEED-208#declare-fixture-defaults-on-fixtures ([plan](slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md))
 
 ## Backlog list
 
-- [Declare dashboard fixture defaults on their fixtures](seeds/SEED-208-dashboard-proof-cost.md#declare-fixture-defaults-on-fixtures) — SEED-208#declare-fixture-defaults-on-fixtures
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact
 - [Read observed proof alongside test purpose](seeds/SEED-192-review-product-intent.md#read-observed-test-proof) — SEED-192#read-observed-test-proof
