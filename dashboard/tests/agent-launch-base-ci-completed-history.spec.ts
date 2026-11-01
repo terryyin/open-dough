@@ -29,6 +29,10 @@ for (const conclusion of ["success", "failure"] as const) {
     // running revision. Its more recent completed result must not be selected.
     const sibling = (
       await origin.originGit(
+        "-c",
+        "user.name=Dashboard Developer",
+        "-c",
+        "user.email=developer@example.test",
         "commit-tree",
         `${completed.head}^{tree}`,
         "-p",
@@ -39,6 +43,10 @@ for (const conclusion of ["success", "failure"] as const) {
     ).trim();
     const merge = (
       await origin.originGit(
+        "-c",
+        "user.name=Dashboard Developer",
+        "-c",
+        "user.email=developer@example.test",
         "commit-tree",
         `${running.head}^{tree}`,
         "-p",

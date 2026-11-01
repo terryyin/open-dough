@@ -115,3 +115,22 @@ required targeted retrieval. The accepted log is 736 lines (500-line warning,
 within the 1,000-line ceiling); no retention or unrelated maintenance occurred.
 No new process code was allocated. Applicable branch CI remains pending at this
 review; the coordinator owns its completion operation and later trunk evidence.
+
+## CI repair: fixture Git identity
+
+Run `41287614698`, attempt 1, dashboard shard 3/12 failed at the new sibling
+`commit-tree`: the bare fixture had no explicit author, while local Git could
+infer one. The repair supplies the established `Dashboard Developer` /
+`developer@example.test` identity to both commit-tree calls, using per-command
+`-c` arguments; no machine configuration or product behavior changes.
+
+Red: `env -u FORCE_COLOR -u NO_COLOR GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=user.useConfigOnly GIT_CONFIG_VALUE_0=true OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/open-dough-base-ci-identity-no-fallback-red.json npm run test:dashboard -- agent-launch-base-ci-completed-history.spec.ts --grep 'nearest completed failure' --workers=1`
+selected one journey and failed with `Author identity unknown`.
+
+Green: `env -u FORCE_COLOR -u NO_COLOR GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=user.useConfigOnly GIT_CONFIG_VALUE_0=true OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/open-dough-base-ci-identity-green.json npm run test:dashboard -- agent-launch-base-ci-completed-history.spec.ts --workers=1`
+passed all three completed-history journeys with the same assertions.
+`npm run typecheck:dashboard` and `git diff --check` also passed. Independent
+refactoring found no further edit; unaffected source commitments, product
+review, and the remaining 10 launch journeys retain their accepted proof.
+The repair's consumer trace is `/tmp/open-dough-base-ci-identity-consumers.md`.
+CI remains owned through the applicable repaired revision.
