@@ -28,7 +28,7 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources
+- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources ([plan](slice-plans/433-local-test-resources/PLAN.md))
 
 ## Backlog list
 
