@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#review-test-optimization-candidates",
+  "title": "Review test optimization candidates and accepted slow tests",
+  "completedAt": "2026-11-01T23:25:56.555Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "cursor",
+  "model": "auto"
+}

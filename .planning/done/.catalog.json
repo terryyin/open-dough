@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_review-test-optimization-candidates.json",
+      "identity": "SEED-192#review-test-optimization-candidates",
+      "completedAt": "2026-11-01T23:25:56.555Z",
+      "blob": "7808fe342695412e9390d0412adb6ce313b0be54"
+    },
+    {
       "fileName": "SEED-192_proof-file-version-after-upgrade.json",
       "identity": "SEED-192#proof-file-version-after-upgrade",
       "completedAt": "2026-11-01T23:18:56.610Z",
