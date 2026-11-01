@@ -223,7 +223,7 @@ the failure before and passed after; the spec passed 30/30 under
 
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
-Status: planned
+Status: done
 Proof: After Terry authorizes the release, run `release-and-update-clients`;
 it pushes to every production-dashboard project. In an owned Pygardon
 worktree, adopt the installed reference in Pygardon's `cucumber.js` and
@@ -237,6 +237,28 @@ stay green under the failure policy above.
 
 Behavior: Pygardon developer or agent runs ordinary Cucumber tests and lands
 the work → Intent shows those scenarios' latest proof beside their source.
+
+Recorded rollout (2026-11-01/02): with Terry's go-ahead, slices 1–3 and two CI
+repairs landed on Open Dough `main` through Dough Land `--keep-worktree`
+(`bdeb210a`, landing receipt recorded; trunk CI repaired at `46587847`, green),
+and `release-and-update-clients` published 0.3.80 (`1908428b`, tag `v0.3.80`)
+and pushed updates to all five production projects. In an owned Pygardon
+worktree, `e2e_test/plugins/cucumberProof.mts` was added as a Cucumber.js plugin
+in the shared `focused` profile (so `default` and `ci`), with `"proof":
+"e2e_test/proof"` on `e2e_test/features`; `e2e_test/packaged/features` runs only
+through its packaging tests and declares none. The focused run
+`nix develop -c scripts/check-worktree.sh pnpm exec cucumber-js e2e_test/features/disk_space_cli.feature e2e_test/features/runtime_status.feature e2e_test/features/strategy_areas.feature`
+exited 0 with output and diagnostics identical to the same run without the
+recorder; `--profile ci --dry-run` wrote nothing. Pygardon landed
+`3711c54a3` on its `main`, and its CI passed. Intent at that revision showed
+`runtime_status.feature`'s scenario Passed, 205 ms, commit `6bc3372`, This file
+version, and `holdings.feature` "Nothing has been observed yet for this file in
+e2e_test/proof."
+
+For Terry's evaluation (ADR 0010): 1 proof file, 1,208 bytes, 3 observations;
+the first Intent locations read of the new revision took 3,060 ms (79,305-byte
+answer), later reads 3–9 ms; the adoption commit was 6 files, +267/−2, of which
+proof +35 and the recorder +224. The rollout exposed G6–G9, fixed here.
 
 ## Decisive premises
 
@@ -298,6 +320,31 @@ Disposition: no user cost "A developer reviewing a Pygardon feature file in Inte
 Reported: slice 2 — "The directory-listing failure branch (\"<dir> could not be listed at this revision\", no `file`) is not exercised"
 Story clause: "An unreadable or malformed proof file is reported as a read failure with retry"
 Disposition: proved by slice 2: dashboard/server/intentProofRead.ts proofFilesUnder returns the same unreadable problem for a failed listing as for a failed file read, and dashboard/src/IntentProofProblem.tsx ProofProblem renders both with the same Retry that dashboard/tests/intent-cucumber-proof-absent.spec.ts "a failed proof file read says so; Retry reads the proof again…" exercises; only the sentence differs
+
+### G6. Proof pairs a new selection with the previous file's text (first reported in slice 4)
+Reported: slice 4 — "holdings' \"Nothing has been observed yet…\" sentence above a Not observed row for runtime_status's scenario"
+Story clause: "For a selected feature file, the Proof pane reads proof from the same published revision as Purpose and lists the file's scenarios and outline rows in source order"
+Disposition: proved by slice 4: dashboard/tests/intent-selection-reads.spec.ts "selecting another feature never shows the previous feature's text in Purpose or Proof" records every frame labelled for the new file while its read is held; it failed before the fix with the reported mixed frame
+
+### G7. Startup Intent re-reads clear the selection (first reported in slice 4)
+Reported: slice 4 — "While the page is first loading, Intent re-reads `intent=locations` several times... Each re-read collapses the expanded group and clears the selected feature"
+Story clause: "the Proof pane reads proof from the same published revision as Purpose"
+Disposition: proved by slice 4: dashboard/tests/intent-selection-reads.spec.ts "a feature selected while startup detail completes stays selected with its Purpose and Proof" (one locations read, group and selection kept) and "a new published revision reads the locations again and starts with nothing selected"; the first failed before the fix with three reads and a collapsed group
+
+### G8. Reference does not limit recording to the declared location (first reported in slice 4)
+Reported: slice 4 — "It doesn't say what to do with features run outside the declared Gherkin location"
+Story clause: "Declare the proof directory in `.planning/open-dough.json` with the Intent location it covers"
+Disposition: proved by slice 4: src/skills/dough-test-optimization/references/cucumber-proof.md Configure once bullet recording only features under the locations that declare the proof directory; payload tests passed
+
+### G9. Reference does not say how a TypeScript project loads the plugin (first reported in slice 4)
+Reported: slice 4 — "Its `./<path>/proof-plugin.js` example doesn't tell a TypeScript project that plugins are loaded with `import()` before `requireModule`"
+Story clause: "Existing output, diagnostics and the command's exit meaning stay unchanged"
+Disposition: proved by slice 4: src/skills/dough-test-optimization/references/cucumber-proof.md Configure once bullet on native import() plugin loading and loading silently; payload tests passed
+
+### G10. Pygardon has no test of its own for its recorder (first reported in slice 4)
+Reported: slice 4 — "Pygardon has no test of its own for the recorder. Retry, outline and failure behaviour were exercised only in the slice-3 scratch walk"
+Story clause: "Pygardon's ordinary Cucumber.js setup follows the released reference"
+Disposition: no user cost "Pygardon produces that proof as a side effect of its ordinary Cucumber runs": Pygardon's real focused run produced proof that Intent reads on this file version, its CI passed with the recorder in both profiles, the same rules' retry, outline, failure and interruption behavior was walked in slice 3, and Pygardon owns its implementation and its tests
 
 ## Human checkpoint
 

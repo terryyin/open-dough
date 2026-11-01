@@ -15,11 +15,11 @@ return, product or proof.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | A.1 | Open Dough publishes a reference document, not a skill, in its installed guidance | slice 3 | observed: PLAN.md slice 3 recorded walk; install.sh managed_files |
-| A.2 | A project that follows the reference records Cucumber proof itself | slice 4 |  |
+| A.2 | A project that follows the reference records Cucumber proof itself | slice 4 | observed: PLAN.md slice 4 recorded rollout: Pygardon 3711c54a3 records its own proof with its own recorder |
 | A.3 | Proof is the latest observation of each test, not a run history | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows show one latest row per scenario, no run list |
-| A.4 | Every ordinary test run updates the proof of the tests it ran | slice 4 |  |
+| A.4 | Every ordinary test run updates the proof of the tests it ran | slice 4 | observed: PLAN.md slice 4 recorded rollout: Pygardon focused run recorded exactly its three scenarios |
 | A.5 | Nobody runs the whole suite just to collect proof | slice 3 | observed: PLAN.md slice 3 recorded walk runs a, b, e |
-| A.6 | A full run simply brings every test's proof up to date | slice 4 |  |
+| A.6 | A full run simply brings every test's proof up to date | slice 4 | observed: PLAN.md slice 4 recorded rollout: slice 3 run c full run recorded every scenario |
 | A.7 | Accumulating observations and consolidating them occasionally is allowed | slice 3 | observed: PLAN.md slice 3 recorded walk run f |
 | A.8 | A producer that already keeps a consolidated latest snapshot need not consolidate | slice 3 | observed: PLAN.md slice 3 recorded walk; reference keeps consolidation optional |
 | A.9 | The earlier ten-run rolling history is replaced and is not part of this story | slice 1 | observed: dashboard/src/IntentProof.tsx renders only the latest observation; no history read |
@@ -28,10 +28,10 @@ return, product or proof.
 | G.1.2 | whether it passed, needed a retry or failed | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows Passed / Passed after retry (2 attempts) / Failed |
 | G.1.3 | how long it took | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows Duration column |
 | G.1.4 | whether the feature file has changed since | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows "This file version"/"Earlier file version" |
-| G.2 | The developer no longer searches console logs or reruns tests to learn this | slice 4 |  |
-| G.3 | Pygardon produces that proof as a side effect of its ordinary Cucumber runs | slice 4 |  |
-| G.4 | Pygardon produces it by following one published Open Dough reference | slice 4 |  |
-| G.5 | That reference becomes the standard that later Cucumber projects (Doughnut, story 8) adopt | slice 4 |  |
+| G.2 | The developer no longer searches console logs or reruns tests to learn this | slice 4 | observed: PLAN.md slice 4 recorded rollout: Intent shows Pygardon's observed scenario beside its source |
+| G.3 | Pygardon produces that proof as a side effect of its ordinary Cucumber runs | slice 4 | observed: PLAN.md slice 4 recorded rollout: Pygardon's ordinary focused run produced the proof |
+| G.4 | Pygardon produces it by following one published Open Dough reference | slice 4 | observed: PLAN.md slice 4 recorded rollout: recorder follows the installed 0.3.80 reference |
+| G.5 | That reference becomes the standard that later Cucumber projects (Doughnut, story 8) adopt | slice 4 | observed: PLAN.md slice 4 recorded rollout: 0.3.80 installs the reference in every production project |
 | 1.1 | Exactly one reference document exists in the released Open Dough guidance | slice 3 | observed: PLAN.md slice 3 recorded walk; install.sh managed_files |
 | 1.2 | It is written for the agent working in the project that adopts it (ADR 0006) | slice 3 | observed: PLAN.md slice 3 recorded walk behavior review |
 | 1.3 | It states the rules a project's Cucumber setup follows (1.4–1.10) | slice 3 | observed: PLAN.md slice 3 recorded walk; reference rules |
@@ -76,11 +76,11 @@ return, product or proof.
 | 1.11.2 | no traces | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
 | 1.11.3 | no captured output | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
 | 1.11.4 | no embedded attachments | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
-| 2.1 | Pygardon's ordinary Cucumber.js setup follows the released reference | slice 4 |  |
-| 2.2 | Proof from real local runs lands with ordinary commits | slice 4 |  |
-| 2.3 | No dashboard run button produces proof | slice 4 |  |
-| 2.4 | No service produces proof | slice 4 |  |
-| 2.5 | No CI step produces proof | slice 4 |  |
+| 2.1 | Pygardon's ordinary Cucumber.js setup follows the released reference | slice 4 | observed: PLAN.md slice 4 recorded rollout: Pygardon cucumber.js plugin in default and ci |
+| 2.2 | Proof from real local runs lands with ordinary commits | slice 4 | observed: PLAN.md slice 4 recorded rollout: proof file landed with the adoption commit 3711c54a3 |
+| 2.3 | No dashboard run button produces proof | slice 4 | observed: PLAN.md slice 4 recorded rollout: no run button; proof came from the local run |
+| 2.4 | No service produces proof | slice 4 | observed: PLAN.md slice 4 recorded rollout: no service; the recorder runs inside cucumber-js |
+| 2.5 | No CI step produces proof | slice 4 | observed: PLAN.md slice 4 recorded rollout: no CI step writes or commits proof |
 | 3.1 | For a selected feature file, the Proof pane reads proof from the same published revision as Purpose | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts proof published at the pinned revision with the feature; dashboard/server/intentLocationsRead.ts proofOfLocation |
 | 3.2 | It lists the file's scenarios and outline rows in source order | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows in source order incl. both outline rows |
 | 3.3 | Each row shows the following | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts header and expectedRows grid |
@@ -118,7 +118,7 @@ return, product or proof.
 | X.8 | Shipping a ready-made formatter from Open Dough — deferred | slice 3 | observed: PLAN.md slice 3 recorded walk; no recorder shipped |
 | X.9 | Shipping a consolidation tool from Open Dough — deferred | slice 3 | observed: PLAN.md slice 3 recorded walk; no consolidation tool shipped |
 | X.10 | The reference states the rules; Pygardon owns its implementation | slice 3 | observed: PLAN.md slice 3 recorded walk; recorder written by the project |
-| X.11 | Automatic consolidation in Pygardon is optional while its proof stays small — deferred | slice 4 |  |
+| X.11 | Automatic consolidation in Pygardon is optional while its proof stays small — deferred | slice 4 | observed: PLAN.md slice 4 recorded rollout: Pygardon has no automatic consolidation |
 | E.1 | Focused run updates only what it ran: one scenario run today shows observed today on this file version; the others show yesterday's observations with their earlier commit | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts today's rows carry todayCommit and This file version; others yesterdayCommit |
 | E.2 | Latest failure wins: Intent shows it failed today, with no green summary hiding it | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts Cancel a job Failed, count line shows 1 failed |
 | E.3 | Retry-assisted pass: Intent shows *Passed after retry (2 attempts)*, not a plain pass | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts "Passed after retry (2 attempts)" |

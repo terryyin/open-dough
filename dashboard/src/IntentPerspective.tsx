@@ -62,18 +62,22 @@ function IntentBody({
   const [locationsRetry, setLocationsRetry] = useState(0);
   const [proofRereading, setProofRereading] = useState(false);
   const proofReread = useRef<AbortController | undefined>(undefined);
+  // Locations are read per revision: the published work's detail completing
+  // at the same revision replaces `work`, but neither reads them again nor
+  // remounts the browser and its selection.
+  const revision = work?.revision;
 
   useEffect(() => {
     proofReread.current?.abort();
     proofReread.current = undefined;
     setProofRereading(false);
-    if (work === undefined) {
+    if (revision === undefined) {
       setIntent({ status: "not-configured" });
       return;
     }
     const controller = new AbortController();
     setIntent("loading");
-    void readIntentLocationsAt(source, work.revision, controller.signal)
+    void readIntentLocationsAt(source, revision, controller.signal)
       .then((locations) => {
         if (!controller.signal.aborted) setIntent(locations);
       })
@@ -83,7 +87,7 @@ function IntentBody({
     return () => {
       controller.abort();
     };
-  }, [source, work, locationsRetry]);
+  }, [source, revision, locationsRetry]);
 
   // A failed proof read is retried by reading the locations again in place:
   // the browser keeps its selection and Purpose, and only a configured

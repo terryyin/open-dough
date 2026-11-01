@@ -1,10 +1,12 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
-// expand helpers for the locations column, and Intent's not-configured
-// content when the project publishes no intent locations.
+// expand helpers for the locations column, how many Intent locations reads
+// the page asks, and Intent's not-configured content when the project
+// publishes no intent locations.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
 import { parts } from "./dashboardParts.ts";
 
@@ -52,6 +54,21 @@ export async function collapseIntentGroup(
     await toggle.click();
   }
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
+}
+
+// How many Intent locations reads, with their proof, the page has asked.
+export function countLocationsReads(page: Page) {
+  let reads = 0;
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("intent") === "locations"
+    ) {
+      reads += 1;
+    }
+  });
+  return () => reads;
 }
 
 // Every Intent group header starts collapsed with no file/list body shown.
