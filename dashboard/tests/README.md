@@ -174,6 +174,10 @@ sibling of an existing journey joins that file and asserts its delta. A
 worker-scoped fixture, or a `launchOptions` value, is declared once, in
 `support/pageTest.ts`, whose header says why a second home splits the
 workers.
+A fixture module declares its option defaults on its fixtures (overrides in
+its `test.extend`), not with a module-level `test.use`: a module is evaluated
+once per worker, so such a call applies only to the first spec file that
+loads it there.
 
 Discovery and sharding follow the file: `support/testFiles.mjs` finds every
 `*.spec.ts` under `tests/` recursively and CI's split ([dashboard
@@ -224,6 +228,8 @@ when every run passed.
 Retain a strict JSON selection with `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; see
 [proof record](proof-record.md) for fields, wall versus `durationMs`, load
 comparison, and shard timing artifacts ([dashboard shards](shards.md)).
+Pass no `--reporter`: it replaces the quiet reporter, which writes the record,
+the times file and the strict verdict.
 
 ## No process outlives its run
 
