@@ -294,6 +294,32 @@ proof +35 and the recorder +224. The rollout exposed G6–G9, fixed here.
   own output survived; slice 4 configures the recorder as a plugin and
   compares output with and without it.
 
+## Execution complete
+
+Product advice:
+- Correction first: [SEED-192#proof-file-version-after-upgrade](../440-proof-file-version-after-upgrade/PLAN.md)
+  keeps "This file version" true after a dashboard upgrade. Tree listings
+  remembered before blob shas would otherwise mark every row as an earlier
+  version for the next project that adopts proof, so it belongs before story 8.
+- Story 7 (CI corroboration) stays next. Pygardon's CI already runs the
+  recorder under its `ci` profile without committing, so a comparison input
+  exists. Refinement should reword its "history" to the latest-snapshot model
+  and decide whether proof-only commits should keep triggering full Pygardon CI.
+- Story 8 (Doughnut) needs reframing. "Recent history" contradicts the settled
+  snapshot, Doughnut runs the Cypress Cucumber preprocessor rather than
+  Cucumber.js plugins (so it needs a runner section or a second reference over
+  the same file format), and its Rule and doc-string features need kept parity
+  tests for `scenarioRowsOf`.
+- Story 9 (folder totals) should be reframed from "one real run" to sums of
+  the latest observations labelled as such. Keep it after 8 while Pygardon
+  holds one proof file.
+- A later test-tier cleanup could move the proof answer's variants (listing
+  failure, rate-limit rethrow, filtering, consolidated equivalence) into
+  boundary tests and keep one journey per state. Plan 440 left it out of its
+  correction.
+- Before relying on totals, measure Pygardon's proof file count after a week of
+  ordinary use, and the cold Intent read with and without proof (ADR 0010).
+
 ## Story obligations
 
 ### G1. Undeclared proof keeps the old placeholder (first reported in slice 1)
