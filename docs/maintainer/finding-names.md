@@ -11,7 +11,12 @@ Retained 21 new identities ODF-377–397, 56 missing rows at existing finding
 owners and three newly mapped existing-identity facets. Repeated reports,
 source indexes and aliases do not create executions. A synthesized impact
 comparison counts a project/execution once across related findings. Original
-execution releases and unknowns remain intact. Local record moves and Lizard’s
+execution releases and unknowns remain intact. Name adoption is applied only
+where unambiguous. Terry approved consolidating Open Dough DD-368/DD-373
+as ODF-380 with both former aliases and executions retained. Terry also approved consolidating Pygardon DD-382/DD-395 into its existing
+ODF-150 entry and DD-393 into existing ODF-153. All source aliases, distinct
+occurrences and DD-382’s local facet remain retained; no name decision remains
+pending. Local record moves and Lizard’s
 DD-003 retirement retain exact Git recovery; no new local story was needed.
 
 Selected shared work: retain the concurrently published, human-prioritized

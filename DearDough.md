@@ -25,13 +25,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 ### Occurrences
 
-- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
-  - Timestamp: unknown (2026-10-30; after slice-1 acceptance near `5c73925b` 14:40:51+08:00 and before resumed refactor Task that reported at ~14:39–14:50 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L28 — “Resuming from the interrupted post-change refactor after slice 1 acceptance.” First refactor Task `a87536cb-6351-4c1d-9147-e23fe34639b9` (started 14:33 +08) ends after reading the skill and opening `git status`/`git diff` with no return; resumed Task `152e2811-3bad-4346-84e9-dc6a00f7ac76` completed `AdmittedFileDiff` → `AdmittedReviewedFile` rename/cohesion with no product behavior change.
-  - Observed effect: one aborted post-change refactor with essentially no edits; one replacement refactor Task before slice-1 delivery; no work lost.
-  - Inference: qualified recurrence of host-interrupted refactor without return (ODF-059). Empty-tree case made reconstruction cheap; host termination cause unestablished here. Distinct from ODF-229 (implementation Task) on the same execution.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-059](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-059.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -47,22 +42,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-074](docs/maintainer/findings/ODF-074.md); rereading adds no occurrence.
 
-- Execution: SEED-010#expose-codex-observer-identity / plan 372, first implementation `eac4f2083efe6c2909d6022a6ca0f5e699c8996b`
-  - Timestamp: unknown (2026-10-29, Asia/Singapore; source-review acceptance before slice delivery)
-  - Tool: Codex
-  - Open Dough release: 0.3.75 (installed guidance at accepted Take `68014eebcf717ecac6330fb813a613b42a4fb947`; the native binding probe separately used modified source)
-  - Evidence: coordinator inspected plan 371's `## Slice 1` / `Status: pending` layout, drafted plan 372 likewise and recorded ready/admitted it. Once source-review commitments required the full slice reader, three `story-obligations.mjs check --slice 1` refusals named missing `## Ordered slices`, unsupported `### Slice 1` instead of `### 1. name`, and unsupported `Status: pending` instead of `planned|done`; accepted plan at `eac4f208` contains the corrected layout.
-  - Observed effect: three local repair rounds after implementation; the strict delivery check failed closed and no incorrect slice completion was published.
-  - Inference: qualified recurrence of an unverified consuming-operation premise: another active plan's layout was treated as a usable template without exercising the reader that later consumes it. Checking that reader before readiness could catch the mismatch earlier; no escaping product defect or measured duration saving is claimed.
-
-- Execution: SEED-202#consistent-shared-refresh / plan 428 / first related implementation `bd970ab3f9ce756d9a98681b7b846c70e8dd001a`
-  - Timestamp: unknown (2026-10-31; slice 3 implementation before delivery `81abccbdb4b779a875820e26c78c73ef5e878c55` 20:49:24+08:00)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.79
-  - Evidence: plan 428 Decisive premises and Finding 3 (`e01504b0` code read) inferred Cursor joiners could be labeled not running; slice 3 agent `8fdf20cc-39ae-4e66-9f88-a617aad90e21` and coordinator `0f28130b-4f06-4d23-a62a-b0a5632293f8` L43 — label miss did not reproduce under runner-then-records; own-read promise did; Learnings and `cursor-held-sessions-revision.spec.ts` record revision-key own-read proof.
-  - Observed effect: no product rework of the planned revision-key fix; investigation cost while separating the unreproduced label symptom from the story's own-read obligation; plan learning updated; slice delivered on the verified promise.
-  - Inference: qualified recurrence of an unverified host-state premise entering the plan from a prior code read without exercising the current join path; checking that path at planning time would have dropped the label claim earlier. No claim that the revision-key fix was unnecessary.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-074](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-074.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -86,46 +67,8 @@ Former local code: DD-192. Every small slice launches a fresh full refactor agen
 
 ### Occurrences
 
-- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; before-cleanup `b0c9d8fc4290d39ce4ee23aff91fed648f915dd7:.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
-  - Timestamp: 2026-10-28T21:34:58+08:00
-  - Tool: Cursor
-  - Open Dough release: 0.3.73
-  - Evidence: coordinator transcript `526c01b7-1fb2-4f61-9a8a-64275b27fbb6` — six per-slice `dough-post-change-refactor` Task launches; slices 2, 3, and 5 returned “none — already clean”; slices 1, 4, and 6 made useful edits
-  - Observed effect: three of six mandatory refactor agents edited nothing after reading the accepted slice diffs
-  - Inference: same fixed per-slice refactor cost as ODF-141; mixed payoff on a six-behavior bounded-memory plan
-
-- Execution: SEED-173#dashboard-ci-balance; first implementation `874ef52c0e99857feefde9b4058673c83029d875`, restored result `783d6bda38ab381e686bfb63500b97970dc8817f`
-  - Timestamp: unknown (2026-10-29 execution conversation)
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: fresh `/root/refactor_ci_weights` and `/root/refactor_rejected_allocation` returns both report `none — already clean`, no edits/tests, approximately ten and seven active minutes respectively; the latter independently checked all four restored weight files against the baseline. Recoverable plan: `783d6bda38ab381e686bfb63500b97970dc8817f:.planning/slice-plans/375-dashboard-ci-balance/PLAN.md`.
-  - Observed effect: two independent refactor handoffs made no changes on one data-only experiment and its explicit rejection; accepted proof remained applicable.
-  - Inference: qualified recurrence of fixed review cost on small accepted changes. Durations are agent estimates, not stopwatch/token totals, and confirming restoration and proof boundaries may add confidence; no claim that either review was valueless or that skipping it would produce a measured saving.
-
-- Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
-  - Timestamp: unknown (2026-10-31 execution conversation)
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: `/root/ci_refactor` and `/root/geometry_refactor` returned “none — already clean,” no edits/tests, estimating seven and ten active minutes; `/root/refactor_2` shortened one documentation line and estimated six minutes. Related acceptance records are recoverable at `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/`.
-  - Observed effect: two mandatory independent CI-repair refactor handoffs made no edits; the final slice pass changed only prose. The first slice's independent pass made useful attachment/status/helper refactors and renewed their affected proof.
-  - Inference: qualified recurrence of fixed review overhead on small accepted repairs; durations are agent estimates, not measured wall/token totals. Proof correspondence adds confidence; no measured claim that omitting review would save the full estimates.
-
-- Execution: SEED-204#attach-image-at-launch / plan 427 / first related implementation `59c47d4c2183cbb908d645f649a37bbde063abb0`
-  - Timestamp: 2026-10-31T18:19:59+08:00 (slice 1 plan-only refactor before delivery `e26f8fb3`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: coordinator transcript `9b247773-9b4c-456b-9be3-4f21c7043f14`; mandatory per-slice `dough-post-change-refactor` Tasks after slices 1–7 and the dialog CI repair. Slice 1 Task `38f1be28-c09d-44b3-8e9b-376e9f53bfc2` reported `none — already clean` on the waived-probe plan-only diff; later slice/repair passes edited product or tests (for example slice 5 retired unused `launchAttachmentAccept`, CI-repair refactor dropped dead CSS positioning).
-  - Observed effect: one of the mandatory refactor agents edited nothing after reading an accepted plan-only change; other passes on this seven-slice story made useful cohesion edits.
-  - Inference: qualified recurrence of fixed per-slice refactor cost (ODF-141) with mixed payoff; durations unmeasured; no claim that omitting the clean pass would have saved a known token or wall-time total.
-
-- Execution: SEED-202#consistent-shared-refresh / plan 428 / first related implementation `bd970ab3f9ce756d9a98681b7b846c70e8dd001a`
-  - Timestamp: unknown (2026-10-31; three post-slice refactor Tasks before deliveries `bd970ab3`, `1bdb3420`, `81abccbd`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.79
-  - Evidence: coordinator transcript `0f28130b-4f06-4d23-a62a-b0a5632293f8`; mandatory `dough-post-change-refactor` Tasks `c1e687fe-b4ed-469e-8ccc-74d432795d8e` (slice 1) and `076fa213-15fe-4165-8237-85ada14f1818` (slice 3) returned `none — already clean`; slice 2 Task `ed47a427-669b-42ce-babe-01f8e1b61b34` extracted `machineDocumentsRevision.ts` for the 250-line file-size gate.
-  - Observed effect: two of three mandatory refactor agents edited nothing after reading accepted slice diffs; one paid off on file size in the same store subsystem.
-  - Inference: qualified recurrence of fixed per-slice refactor cost (ODF-141) with mixed payoff on a three-slice correction; durations/tokens unmeasured; no claim that omitting either clean pass would have saved a known total.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-141](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-141.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
 
@@ -199,52 +142,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 ### Occurrences
 
-- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
-  - Timestamp: 2026-10-28T14:19:12Z (CI failure on slice 3 SHA `242e5fe7`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.73
-  - Evidence: plan slice 3 accepted proof named `story-branch-landing-capture.spec.ts` / later-publication twin plus unit coverage; CI run 40704491019 job `dashboard (3/12)` failed `story-branch-retained-landing.spec.ts:43` (ZodError requiring `landing` on second integrate). Repair `804e7d7f` asserts `already-accepted` without a landing field after expectation clear. Coordinator transcript `3fc700d8-1e3b-486e-82de-cd7b0c5e26e7` stashed slice 4 for that repair.
-  - Observed effect: one owned CI failure and one assertion repair before slice 4 delivery; the sibling retained-landing journey was not in the slice's focused proof.
-  - Inference: recurrence of focused-neighbor selection missing an existing consumer of the same second-integrate / no-landing contract after open-expectation clear.
-- Execution: SEED-199#mobile-session-screen / plan 425 / first related implementation `eaa0237881d704ee46711d8bc4fb188401b6ec94`
-  - Timestamp: 2026-10-31T13:07:38+08:00 (repair commit `a8ff15c2`; CI run 41165181622 attempt 1 on slice-1 SHA `eaa02378`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: plan Decisive premises listed header-UUID consumers (`agent-terminal*`, touch/session-management/sidebar) and slice-1 accepted proof included `final-report-touch*` but not `session-workspace-retirement.spec.ts` or board-paging / stacking look specs. CI failed Final-report UUID asserts and `expectNoSidewaysScrollAndWholeText` ellipsis reads. Repair `a8ff15c2` updated those consumers and added title-toggle negative margin; coordinator transcript `363e0b94-67d5-49d4-b77d-48deec743aed` stashed in-progress slice 2 for the repair, then removed the clipping margin during slice-2 acceptance (`533e9750`).
-  - Observed effect: one owned CI repair commit before slice 2 delivery, plus follow-on title-toggle CSS correction after the repair’s margin clipped expanded titles; slice-2 work was stashed and restored around the repair.
-  - Inference: recurrence of focused consumer selection missing existing Final-report header and look-spec consumers of the same compact-header contract after local owner proof passed.
-- Execution: SEED-204#attach-image-at-launch / plan 427 / first related implementation `59c47d4c2183cbb908d645f649a37bbde063abb0`
-  - Timestamp: 2026-10-31T10:45:36Z (CI failure run 41194050673 on slice-2 SHA `59c47d4c`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: slice 2 accepted proof named `agent-launch-ad-hoc-attachments.spec.ts` and `boundary/developer-part.spec.ts`. CI run 41194050673 failed existing launch-dialog layout/model consumers (tab order / sideways scroll) and exact instruction-byte expectations after Attach images changed `LaunchDialog` and `developerPart`. Repair `752504ff` hid the file input from tab order, constrained attachment layout overflow, and restored exact-byte `developerPart`. Coordinator transcript `9b247773-9b4c-456b-9be3-4f21c7043f14` stashed in-progress slice 3 around that repair. Distinct from later unrelated Recently-done WebSocket mock flake repair `305513aa` on slice-3 SHA.
-  - Observed effect: one owned CI failure and one dialog/first-input consumer repair before slice 3 delivery; layout and exact-byte consumers were outside the slice's focused attachment proof.
-  - Inference: recurrence of focused consumer selection missing existing LaunchDialog layout and `developerPart` byte consumers after local owner proof passed (ODF-150).
-
-- Execution: SEED-198#responsive-project-header / plan 424 / first related implementation `1554cd81d83386549eead40df7abdbc1bf00698b`
-  - Timestamp: unknown (2026-10-31 Asia/Singapore; after slice-3 header proof green and during full `npm run test:dashboard`, before publish `c5927db4` 17:29 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: coordinator transcript `5220567c-77df-404c-a6d2-7abf6ccb5d69` L90–L94 — focused header/touched proof green; full suite then failed phone-width journeys that still clicked hidden project radios; coordinator fixed callers onto `chooseProject` / `expectProjectChoice` / `shownProjectControl` before delivery. Published with those helpers in `c5927db4`.
-  - Observed effect: no owned CI failure from this miss (caught locally by the wider suite before publish); extra repair loop on phone-width selection consumers already in the suite.
-  - Inference: qualified recurrence of focused/owning-surface proof missing indirect callers of the changed project-selection contract once the tab radios hide at ≤400px.
-- Execution: SEED-205#logo-sidebar-toggle / plan 430 / first related implementation `63c7699e57ce9ec57112e30434df07e944d3eaea`
-  - Timestamp: 2026-10-31T23:13:50+08:00 (repair commit `539b192b`; CI run 41212447397 on slice-1 SHA `63c7699e`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: slice 1 accepted proof named banner/Sessions/passive-mark specs (`dashboard-header*`, `frame-sessions-look`, `frame-board-look`, `system-settings-look`, `sessions-sidebar`). CI failed many shards on `expectNoSidewaysScrollAndWholeText` without `compactProjectSelectCut` after designed compact-title truncation, and `source-navigation.spec.ts` treated Sessions' decorative `img.product-mark` (`alt=""`) as injected content. Repair `539b192b`. Later owned CI also failed `preparation-legend.spec.ts` at high zoom against banner geometry (repairs `d470063c`/`5f9ca93c`/`d62f0a66`; separate iterative-repair note DD-377). Coordinator transcript `1bca2eeb-150d-41d1-ab95-a929db66954e` stashed in-progress slice 2 for the truncation repair.
-  - Observed effect: one multi-shard owned CI failure and one consumer/locator repair before slice 2 resumed; later banner-geometry consumers of the same one-line banner change failed separately in prep-legend.
-  - Inference: recurrence of focused owning-surface proof missing page-wide whole-text and decorative-mark consumers of the changed compact banner contract after local owner proof passed (ODF-150).
-
-- Execution: SEED-192#browse-test-purpose / plan 429 / first related implementation `ab73ddd47574e48447445e385c6fe5d91194fc68`
-  - Timestamp: 2026-10-31T15:16:34Z (CI failure run 41214067769 on slice-2 SHA `2b74f403`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.79
-  - Evidence: slice 2 accepted proof named `intent-gherkin-browse.spec.ts`, `boundary/authenticated-read-intent-locations.spec.ts`, and frame not-configured consumers; it added `pathContainedInIntentLocations` on `file-at` admission. Existing `boundary/authenticated-read-boundary.spec.ts` committed-last cases still asserted unchanged `ghCalls().length` on unreachable refusals. CI failed that call-count on `2b74f403`, then again on `9c6bf664` and `16e8ffc4` (same cause). Repair `75cf1785` (run 41253114575 green) allows the pinned settings read and extracts `authenticated-read-committed-last.spec.ts`. Coordinator transcript `04bc7742-683e-41b1-995f-2fdbc6947449` L122–L133; repair Task `dd709676-9080-447c-a3db-adcfbeb6cea6`. Same delivery also typechecked a missed `tree` exhaustiveness consumer in `revisionReuseOrigin.ts` before slice-2 publish.
-  - Observed effect: three owned CI failures of one admission call-count contract across slices 2–4; one expectation/spec-split repair before slice 5 close; slice-5 plan work stashed and restored around the repair.
-  - Inference: recurrence of focused Intent/admission proof missing an existing boundary call-count consumer of the shared `file-at` refusal path after local owner proof passed (ODF-150).
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-150](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-150.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -258,38 +157,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 ### Occurrences
 
-- Execution: SEED-162#keep-long-running-dashboard-sessions-responsive; before-cleanup `b0c9d8fc4290d39ce4ee23aff91fed648f915dd7:.planning/slice-plans/366-keep-long-running-dashboard-sessions-responsive/PLAN.md`; first related implementation commit `9bff183a`
-  - Timestamp: unknown (around slice-5 accept near `c467f720` 2026-10-28T22:07:05+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.73
-  - Evidence: coordinator transcript `526c01b7-1fb2-4f61-9a8a-64275b27fbb6` L56–L57 — `CI_MONITOR_UNAVAILABLE` (GitHub unreachable); continued; later attached `/tmp/dough-ci-501/watch-gFrx9R`
-  - Observed effect: lost observation coverage once mid-execution; re-attach restored coverage for later publications including accepted tip `0d1672f7`
-  - Inference: same transient-transport ending as ODF-121; managed re-attach limited the gap to already-published revisions
-
-- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
-  - Timestamp: unknown (coordinator noted lost coverage after slice 2 publish `c2aa41dd` at 2026-10-28T22:00:03+08:00 and before slice 3 publish `242e5fe7` at 2026-10-28T22:17:11+08:00)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.73
-  - Evidence: coordinator transcript `3fc700d8-1e3b-486e-82de-cd7b0c5e26e7` L75 — “Noting lost CI coverage once (GitHub unreachable) and continuing slice 3 acceptance.” Supplied execution limitations name `CI_MONITOR_UNAVAILABLE`. Later mailbox `/tmp/dough-ci-501/watch-UB2SnZ` retains CI_FAILURE for `c2aa41dd` (OVER BUDGET) and `242e5fe7` (retained-landing); the unavailable event payload itself is not in that mailbox.
-  - Observed effect: coordinator reported lost coverage once and continued; slice 2’s hosted OVER BUDGET failure was not classified in the same turn; coverage resumed for later publications on a subsequent observer.
-  - Inference: qualified recurrence of transport-ending observation loss. Exact `gh`/TLS error text is unrecovered from the dead observer; distinct from eight-hour budget expiry (ODF-259).
-
-- Execution: SEED-174#optimize-dashboard-test-feedback / plan 376 / first related implementation `692d90320ebb6e6d0a96f61a52e0597717a982e4`
-  - Timestamp: unknown (2026-10-29 Asia/Singapore; two finished observers left `CI_MONITOR_UNAVAILABLE` event files dated ~18:19 and ~19:11 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.76
-  - Evidence: `/tmp/dough-ci-501/watch-dzWNZd/events/000000000001.json` — `CI_MONITOR_UNAVAILABLE` reason “gh did not answer within the request's time limit”; `/tmp/dough-ci-501/watch-lDWSLx/events/000000000001.json` — same type, reason “GitHub is unreachable”; both for branch `cursor/reduce-dashboard-test-feedback-time-with-measure`. Coordinator transcript `5473d3e9-6f21-4fad-9a6f-c38bde1e1b81` noted lost coverage once mid-slice-2 and continued. Later observer `/tmp/dough-ci-501/watch-1xJHW1` retained coverage for tip `f5d22bce` as `not_required` with basis `a1703fdd` `success`.
-  - Observed effect: two transport-ended observers on this execution; coordinator continued without claiming CI success; tip observation remains pending/possibly gapped relative to those dead mailboxes.
-  - Inference: qualified recurrence of ODF-121 transient-transport ending (gh timeout and unreachable); distinct from eight-hour budget expiry (ODF-259) and from wrong-`--repo` 404 (ODF-256).
-
-- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
-  - Timestamp: unknown (2026-10-30; during slice-2 acceptance before tip publish `c9ada8b1` 15:13:13+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: plan 416 Accepted proof note — “CI observer reported `CI_MONITOR_UNAVAILABLE` (gh failed) during slice 2 acceptance — lost coverage noted once”; coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` wrote that note into `.planning/slice-plans/416-expand-dashboard-diff-context/PLAN.md`. Later observer `/tmp/dough-ci-501/watch-XRpiZS` retains tip `c9ada8b1181558efb5f2d6d075fee2ad3ff3a171` as `pending`; the unavailable event payload itself is not in that mailbox.
-  - Observed effect: lost observation coverage noted once mid-slice-2; coordinator continued without claiming CI success; tip CI remains pending under a later observer.
-  - Inference: qualified recurrence of ODF-121 transient-transport ending (`gh failed`); exact `gh`/TLS error text unrecovered from the dead observer; distinct from eight-hour budget expiry (ODF-259) and wrong-`--repo` 404 (ODF-256).
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-121](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-121.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
@@ -299,14 +168,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 ### Occurrences
 
-- Execution: SEED-163#reliably-report-dashboard-wrap-up / plan 367 / first related implementation `938f2f1e9224eb6503654fec1b8a3b033ccdd64e`
-  - Timestamp: 2026-10-28T13:45:25Z (CI failure on slice 1 SHA `938f2f1e`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: 0.3.73
-  - Evidence: plan accepted proof for slice 1 used `--reporter=line`; CI run 40698951934 jobs `dashboard (12/12)` and `(6/12)` reported “passed but wrote output” from `plantTrackedClosureRepository`’s bare `git init` printing default-branch advice under configured `quietReporter`. Repair `2ba5950d` switches to `git init -b main`.
-  - Observed effect: local focused proof accepted; hosted quietReporter rejected the same green assertions; one fixture repair and stash of in-flight slice 2 work.
-  - Inference: recurrence of reporter override hiding the project’s configured output-failure policy; the fixture noise was the proximate print, not a separate finding.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-226](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-226.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 
@@ -324,29 +187,8 @@ Existing shared finding: [meaning and retained evidence](docs/maintainer/finding
 
 ### Occurrences
 
-- Execution: SEED-174#optimize-dashboard-test-feedback / plan 376 / first related implementation `692d90320ebb6e6d0a96f61a52e0597717a982e4`
-  - Timestamp: unknown (2026-10-29 Asia/Singapore; after slice-1 delivery `692d9032` 18:15 +08 and before slice-2 delivery `a1703fdd` 18:32 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.76
-  - Evidence: coordinator transcript `5473d3e9-6f21-4fad-9a6f-c38bde1e1b81` — first slice-2 Task (“Slice 2 agent-launch optimize”) interrupted with no return; coordinator followed interrupted-delegation recovery, found clean working tree at `692d9032`, then launched fresh Task “Slice 2 optimize retry” which delivered `a1703fdd`.
-  - Observed effect: one aborted implementation Task with no product edits; full recovery + fresh agent before acceptance; no work lost or dual-writer conflict.
-  - Inference: qualified recurrence of interrupted Cursor implementation without return; empty-tree case made reconstruction cheap but still required a replacement writer. Host termination cause (watchdog vs other) is unestablished here.
-
-- Execution: SEED-189#expand-dashboard-diff-context / plan 416 / first related implementation `5c73925b9dcdffd763c20f5b81c5d1aa45413757`
-  - Timestamp: unknown (2026-10-30; after slice-2 Task start ~14:42 +08 and before repair Task `68cac5fa` at 14:55 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: coordinator transcript `1cd76bae-22c3-404c-b849-2df63d24fb85` L43–L48 — interrupted slice-2 delegation left substantial uncommitted work; interrupted-delegation recovery; focused proof then failed scroll preservation; delegated repair Task `68cac5fa-79f3-4b9a-985b-493c6431566f`. Interrupted implementer `65ee0ea4-d220-4b05-83e4-e9df676660e4` ends mid-tool-use (consumer-trace / git status) with no proof return.
-  - Observed effect: one aborted implementation Task with uncommitted product/test edits; coordinator re-established proof from the checkout, then one repair round (detached-node scroll adjust plus Playwright `scrollIntoView` measurement pollution) before acceptance; no dual-writer publish.
-  - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed focused proof before a replacement writer. Host termination cause unestablished. Distinct from ODF-059 refactor interrupt on the same execution.
-
-- Execution: SEED-198#responsive-project-header / plan 424 / first related implementation `1554cd81d83386549eead40df7abdbc1bf00698b`
-  - Timestamp: unknown (2026-10-31; after slice-3 Task start following `576ef4c9` 13:53 +08 and before developer resume 16:09 +08)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: coordinator transcript `5220567c-77df-404c-a6d2-7abf6ccb5d69` L66–L71 — Task “Implement slice 3 compact selector” launched; next user turn is `resume` with no agent return; coordinator found slice-3 WIP present, classified intervening slice-2 CI as infrastructure-only, then re-established proof from the checkout. Interrupted implementer `ff760ded-80b5-4762-895e-2f682813455c` ends mid-work (preview-server cleanup) with no proof return.
-  - Observed effect: one aborted implementation Task with uncommitted compact-selector edits; coordinator recovered from the checkout and completed focused/wider proof (later catching ODF-150 phone callers) before publish `c5927db4`; no dual-writer publish.
-  - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed proof. Host termination cause unestablished.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-229](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-229.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 
@@ -500,13 +342,8 @@ Broad reference/metadata batches omit required passages and force repeated retri
 
 ### Occurrences
 
-- Execution: SEED-186#document-dashboard-product-intent / plan 416, first implementation `85e1d6caeca4b573fb7daae6ae0c67dc378bcd2a`
-  - Timestamp: unknown (2026-10-30 Codex execution; before execution-complete handoff)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance at claim `cba3aa43858318729018af6ab75f13a98e63c13a`
-  - Evidence: dashboard launch `4939d524-d621-4b33-b7a2-32fc33d6105b`, coordinator startup tool results reported truncation at 12,177 and 14,937 original tokens while batching source/setup/ADR/publication reads; later calls retrieved ADR 0008 and ADR 0002 passages separately. This execution's retrospective repeated the same issue in a 12,453-token combined finding-history read.
-  - Observed effect: required or selected passages were omitted from oversized responses, followed by narrower retrieval; no elapsed or total token saving is measured.
-  - Inference: recurrence under existing boundary/targeted-retrieval guidance. Per-command token settings did not bound the aggregate functions.exec result; inspect aggregate size and retrieve only decision-relevant sections.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-264](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-264.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
@@ -613,22 +450,8 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-356](docs/maintainer/findings/ODF-356.md); rereading adds no occurrence.
 
-- Execution: SEED-191#optimize-dashboard-test-feedback / plan 419 (`0bb810742a61e7ded6b51989b26a5eb9df8f8a43:.planning/slice-plans/419-optimize-dashboard-test-feedback/PLAN.md`), first implementation `544f6790543f810c9f1d946712600d1271a1ec65`
-  - Timestamp: 2026-10-30T16:39:28+08:00 (first slice 2 fresh delivery attempt before accepted `544f6790` at 16:40:04+08:00)
-  - Tool: Cursor
-  - Model: gemini-4-argon
-  - Open Dough release: modified; revision `7225da81df32e6fc59debf9b2943f3166335c9f5`; base 0.3.77
-  - Evidence: coordinator transcript `08443b87-04c2-43dc-88a7-1a9d6107338c` — first `execution-increment-delivery.mjs fresh` for slice 2 passed `["node","scripts/lint.mjs","--fix"]` in `formatting`, which returned `preparation-failed` (`eslint: not found on PATH ... prettier: not found on PATH`); retry with `["npm","run","format"]` succeeded (`544f6790`).
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-  - Inference: recurrence of ODF-356 when reading `"format": "node scripts/lint.mjs --fix"` from `package.json` without wrapping it in `npm run format` so `node_modules/.bin` is on PATH.
-
-- Execution: SEED-206#explicit-reread-freshness / plan 431, first implementation `2010301f933b951b34e37c6538c957658a545080`
-  - Timestamp: 2026-10-31T23:00:00+08:00 (approx.; first slice 1 fresh delivery refused before accepted `2010301f`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: coordinator session for plan 431 — first `execution-increment-delivery.mjs fresh` for slice 1 passed `["node","scripts/lint.mjs","--fix"]` in `formatting`, which returned `preparation-failed` (`eslint: not found on PATH` / `prettier: not found on PATH`); retry with `["npm","run","format"]` published `2010301f`.
-  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm.
-  - Inference: recurrence of ODF-356; prefer `npm run format` as the selective formatter operation so `node_modules/.bin` is on PATH.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-356](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-356.md); source recovery remains in this project’s pre-compaction revision.
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
@@ -708,7 +531,9 @@ delivery.
 
 Distinct executions, original timestamps/releases/tools, observed effects and qualified inferences are [retained at ODF-362](docs/maintainer/findings/ODF-362.md); rereading adds no occurrence.
 
-## DD-364 — Source-only review launched without the full seed examples
+## ODF-377 — Source-only review launched without the full seed examples
+
+Former local code: DD-364.
 
 A coordinator's first source-only review prompt omitted Key examples 3–4, so
 the reviewer returned incomplete commitments and a second complete-seed launch
@@ -716,16 +541,12 @@ was required before acceptance.
 
 ### Occurrences
 
-- Execution: SEED-158#publish-awaiting-hosted-proof
-  - Timestamp: 2026-10-28T16:22:00+08:00
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: modified; revision 67fad4e0; base 0.3.73
-  - Evidence: before-cleanup `1223cddb7bd75f7f56d4668ebd46930e28326491:.planning/slice-plans/364-publish-awaiting-hosted-proof/source-review.md` Launch note ("first launch's coordinator prompt omitted examples 3–4"); coordinator transcript relaunch; subagents `a0e1094e` (incomplete seed) then `8dd2f633` (complete seed)
-  - Observed effect: one discarded source-only review, then a second launch that recovered examples 3–4 before commitment allocation
-  - Inference: distinct from ODF-326 (unchanged-input repeat); here the first inputs were incomplete, so the second launch was corrective rather than redundant
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-377](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-377.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-366 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
+## ODF-378 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
+
+Former local code: DD-366.
 
 A dashboard launch plants an open first-landing expectation whose landing
 context targets trunk (`main`). Story-branch increment publication auto-resolves
@@ -735,15 +556,12 @@ the story-branch candidate.
 
 ### Occurrences
 
-- Execution: SEED-166#handle-stale-worktree-bundles; plan at before-cleanup `d3bfd15b60526de1430ca12da7c3acb1a12447ee:.planning/slice-plans/369-handle-stale-worktree-bundles/PLAN.md`; first related implementation commit `0bb02d31c8e9c6c995bfcc41c0e9685ab387e8ea`
-  - Timestamp: unknown (2026-10-29; after slice-1 commit `0bb02d31`, through execution-complete publish)
-  - Tool: Cursor
-  - Open Dough release: 0.3.74
-  - Evidence: coordinator transcript `a56ca4f1-4b16-4f30-a9c3-ee4138c9c1e5` — each `execution-increment-delivery.mjs fresh` commit succeeded then refused with “Publication does not match the supplied landing context”; open first-landing expectation keyed by workspace+branch named landing-context.json targeting `refs/heads/main`; `execution-increment-resume.mjs resume` of the same candidate then accepted on the story branch without supplying `--landing-context`
-  - Observed effect: every story-branch fresh publish interrupted on trunk-targeted landing retain; resume without landing context accepted the candidate
-  - Inference: distinct from ODF-251 (second worktree for trunk corrections). Planted trunk first-landing expectation and story-branch publish target collide on the same launch workspace; auto-resolve should not apply trunk landing to execution-branch increments
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-378](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-378.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-367 — Delegated dashboard proof omitted its required sandbox wrapper
+## ODF-379 — Delegated dashboard proof omitted its required sandbox wrapper
+
+Former local code: DD-367.
 
 The coordinator handed off dashboard proof without carrying the established
 escalated socket/process-inspection wrapper. Two sandboxed diagnostic runners
@@ -752,29 +570,22 @@ cleanup attribution were needed before usable proof could continue.
 
 ### Occurrences
 
-- Execution: SEED-167#cheap-isolated-fixtures; first implementation `8c55a30c56d324100cc44cbb105123aa8ebfc823`
-  - Timestamp: unknown (2026-10-29, Asia/Singapore; slice-1 diagnostic attempts)
-  - Tool: Codex
-  - Open Dough release: 0.3.74
-  - Evidence: coordinator/implement_origin_preparation conversation; diagnostic runners12117/17810 ended143 after denied ps teardown; slice1-proof.md, slice1-quiescence.json and aborted-owned-paths.json in `/private/tmp/cheap-isolated-fixtures-167`; final escalated guard runs ended0.
-  - Observed effect: two attempts supplied no complete pass; owned processes required termination and four generic temporary directories were retained because ownership was uncertain.
-  - Inference: carry the known runtime wrapper in each proof handoff before launch; an omitted permission boundary can invalidate teardown evidence even when test bodies run. No duration saving is inferred.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-379](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-379.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-368 — A CI log excerpt hides an earlier failed test in the same job
+## ODF-380 — Bounded CI diagnostics omit earlier failed-test identities
 
-The default CI diagnostic keeps lines around GitHub error markers. With the quiet dashboard reporter, the process-exit marker follows only the last test failure; an earlier failure can be omitted without a complete failed-test inventory. This differs from ODF-221's same-cause sibling repair omission: here the first diagnosis did not expose the sibling failure at all.
+Former local code: DD-368. Former local code: DD-373.
 
-### Occurrences
+A latest-error tail omits earlier failing tests in the same job. The two
+distinct executions remain [retained with their original provenance and effects](docs/maintainer/findings/ODF-380.md).
+Terry approved consolidating the verified duplicate source identities on
+2026-11-01. SEED-208#trustworthy-ci-completion already covers the response;
+**queued, not resolved**. Source recovery: `d042a04e:DearDough.md`.
 
-- Execution: SEED-169#compact-session-entry; first implementation `c036dbd73a6f58949356b3b7de497085642bd1fc`
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown; installed diagnostic at `c036dbd73a6f58949356b3b7de497085642bd1fc:.agents/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs`
-  - Evidence: [run 40817756668, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40817756668/job/123262746829), 2026-10-29 UTC logs, has FAIL lines for agent-launch-attention.spec.ts and sessions-sidebar-navigation-cases.spec.ts. The diagnostic excerpt showed only navigation. After its repair `76d61616d6e74866024a3091a2ec7040d2b9791e`, [run 40819519249, dashboard12](https://github.com/terryyin/open-dough/actions/runs/40819519249/job/123268443339) retained only the unchanged attention failure. Full logs were read through the same CI GitHub source to verify both inventories.
-  - Observed effect: the coordinator published the navigation-only repair before discovering that readiness comparison had already failed in the first job; another CI cycle repeated that known-but-unseen failure.
-  - Inference: bounded per-failure inventory before repair publication could have avoided at least that extra cycle; retain bounded excerpts without treating a tail as the complete failed-test list.
+## ODF-381 — Source-review put obligation IDs in the Slice column
 
-## DD-369 — Source-review put obligation IDs in the Slice column
+Former local code: DD-369.
 
 Coordinator-authored `source-review.md` placed disposing obligation ids in the
 Commitments table's Slice column, and the first Story obligations `Reported`
@@ -783,39 +594,12 @@ check` refused until both were rewritten to the consuming reader's shapes.
 
 ### Occurrences
 
-- Execution: SEED-182#standardize-test-optimization-candidates / plan 414, first implementation `ca65ffdfc73dc0adfabbf917abc6989fc8831793`
-  - Timestamp: unknown (2026-10-30; source-review and obligation acceptance before `ca65ffdf` at 12:45:07+08:00)
-  - Tool: Cursor
-  - Open Dough release: modified; revision `e46170ee1d19e03290ff7cbcbf68932bcc5cb20c` Take base; VERSION 0.3.77
-  - Evidence: coordinator transcript `9235c917-6cb2-43bc-88ee-d439f170ed9a` — first Write of `source-review.md` row 4 used `| … | G1 | |` (obligation id in Slice); first Story obligations block used multi-line `Reported: slice 1 acceptance — …` without the quoted form; after inspecting reader-expected shapes, rewritten with `|  | G1 |` and `Reported: slice 1 — "…"`, then check passed before publish `ca65ffdf`. Spent plan/source-review recoverable at before-cleanup `e53e4aa5975b71eaf9e584040fc5910fbfc81692:.planning/slice-plans/414-standardize-test-optimization-candidates/`
-  - Observed effect: one local repair round on planning records before the first accepted increment; no product rework and no incorrect slice completion published
-  - Inference: qualified recurrence of writing to a consuming reader's format without exercising it first (same class as the plan-layout ODF-074 occurrence on plan 372). Checking `story-obligation-source-review` / Reported shapes before the first write would avoid the repair; no escaping product defect claimed
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-381](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-381.md); source recovery remains in this project’s pre-compaction revision.
 
-- Execution: SEED-186#document-dashboard-product-intent / plan 416, first implementation `85e1d6caeca4b573fb7daae6ae0c67dc378bcd2a`
-  - Timestamp: unknown (2026-10-30 Codex execution; before execution-complete handoff)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance at claim `cba3aa43858318729018af6ab75f13a98e63c13a`
-  - Evidence: same launch, first G1 write in plan 416 used unquoted `Reported: slice 1 — implementation consumer inspection...`; `story-obligations.mjs check --slice 1` returned `malformed-reported`. The coordinator added the required quoted form; the next check accepted 1 obligation and 225 commitments before implementation publication. The final record is retained at `85e1d6ca:.planning/slice-plans/416-dashboard-product-intent-documentation/PLAN.md#story-obligations`.
-  - Observed effect: one local planning-record repair and repeat check; no product rework or incorrectly published completion.
-  - Inference: recurrence of the Reported-shape part of DD-369, not its Slice-column error. Use the supplied record shape at first write; the refusal successfully prevented accepting malformed evidence.
+## ODF-382 — First-pass helper-gone proof used address drift instead of a deleted wire helper
 
-- Execution: SEED-190#keep-running-cursor-sessions / plan 418, first related implementation `0921f1f71ab86f870b8adf8d686cb7889256e900`
-  - Timestamp: unknown (2026-10-30; coordinator source-review writes between source-only return ~15:23+08:00 and obligation re-check before resume ~15:25+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: coordinator transcript `51bb7763-bed4-4bd1-a5fa-bf7e58d7132b` — first `source-review.md` Write placed commitment ids `8`/`9`/`10` in the Slice column for exclusions; rewrite placed obligation ids `G3`/`G4`/`G5` there (`| … | G3 | G3 |`); StrReplace rewrote those rows to `| … | slice 1 | G3 |` (and G4/G5) and quoted the matching Story obligations `Reported:` lines before `story-obligations.mjs` check accepted and increment `0921f1f7` published
-  - Observed effect: local planning-record repair before acceptance; no product rework and no incorrect slice completion published
-  - Inference: Slice-column recurrence of DD-369 (same class as the SEED-182 occurrence). Checking the consuming reader's Slice/`Reported` shapes before the first write would avoid the repair round
-
-- Execution: SEED-206#explicit-reread-freshness / plan 431, first implementation `2010301f933b951b34e37c6538c957658a545080`
-  - Timestamp: 2026-10-31T22:55:00+08:00 (approx.; source-review / obligation check before slice 1 delivery)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: coordinator session for plan 431 — first `source-review.md` deferred rows used `| … | G1 | G1 |` (obligation id in Slice) and Story obligations `Reported: source review — …` without `slice N — "…"`; `story-obligations.mjs check --slice 1` returned `malformed-commitment` / `malformed-reported`; rewrite to empty Slice + obligation in Observation and `Reported: slice 1 — "…"` then check passed before `2010301f`.
-  - Observed effect: one local planning-record repair before the first accepted increment; no product rework and no incorrect slice completion published
-  - Inference: Slice-column and Reported-shape recurrence of DD-369. Exercise the consuming reader's shapes before the first write.
-
-## DD-372 — First-pass helper-gone proof used address drift instead of a deleted wire helper
+Former local code: DD-372.
 
 A Behavior return claimed same-build survival after “helper gone” while focused
 proofs only drifted the recorded `spawnHelper` path and left the answering
@@ -828,33 +612,12 @@ DD-371 already named the typecheck finding.
 
 ### Occurrences
 
-- Execution: SEED-190#keep-running-cursor-sessions / plan 418, first related implementation `0921f1f71ab86f870b8adf8d686cb7889256e900`
-  - Timestamp: unknown (2026-10-30; first implementer return before source-only review ~15:23+08:00; G1/G2 resume from ~15:25+08:00)
-  - Tool: Cursor
-  - Open Dough release: 0.3.78
-  - Evidence: implementer subagent `601f21c0-cc39-46fd-a4b7-263994c68126` first return Gaps (“Copy-from-install onto a missing wire helper path has no separate focused assertion (address-drift repair is what the specs hit)”; stop-one-session not freshly asserted); coordinator source-review/`PLAN.md` obligations G1/G2; resume closed wire-delete via `OPEN_DOUGH_CURSOR_SPAWN_HELPER_PROOF` and stop-several before publish `0921f1f7`. Distinct from ODF-314 (omitted named plan proof rows that then exposed a product defect) and ODF-187 (plan-prescribed nondiscriminating observation): here the story/plan helper-gone condition was substituted by a weaker fixture that still exercised repair.
-  - Observed effect: one extra implementation round before acceptance; wire-delete and stop-several entered focused proof; no escaped product defect
-  - Inference: qualified. Source-review comparison to the story’s deleted-checkout example was the decisive catch; preferring the production retirement fixture (delete the wire helper the runner still reports) on the first pass would avoid the resume. No measured token or duration saving claimed.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-382](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-382.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-373 — Bounded failed-job tails omit earlier failing test identities
+## ODF-383 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
 
-The CI diagnostic retains a bounded tail around GitHub error markers. When a
-job reports several failed tests before its final process-exit marker, that
-tail can expose only the last failure despite other tests already failing in
-the same attempt. A complete failure-name summary is needed before selecting
-the repair scope; long raw logs need not enter coordinator context.
-
-### Occurrences
-
-- Execution: SEED-200#session-terminal-voice-input; first implementation `e352b41c20dc7dfb9655353a2a15cc5b967939f1`
-  - Timestamp: unknown (2026-10-31 CI repair, run 41166733510 attempt 1)
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: installed `ci-github-diagnostic.mjs::failedLogExcerpt` keeps at most80 lines and favors the latest error tail. Short diagnostics for jobs124435809061 and124435809098 omitted actual failures in `boundary/agent-terminal-codex.spec.ts` and `cursor-session-recovery.spec.ts`; a subsequent full seven-job `FAIL:` inventory recovered thirteen failed tests before repair publication. Inventory and disposition are retained in `6c2d87444ac11423c250b5a301452edd0c561b77:.planning/slice-plans/426-session-terminal-voice-input/ci-repair-evidence.md`.
-  - Observed effect: initial bounded repair selection covered four stale-date specs; reading complete failure identities added two already-failing specs and one additional focused selection. No failure was silently accepted and the combined repair was published once.
-  - Inference: tool-output completeness issue, distinct from ODF-221's repair leaving a known same-cause sibling until a later run. Consider returning every failed test identity alongside bounded diagnostic excerpts; token/time savings are unmeasured.
-
-## DD-375 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
+Former local code: DD-375.
 
 When trunk amends the selected story during execution, the accept-proof rule
 requires a fresh source-only review, replacing `source-review.md` and
@@ -865,16 +628,12 @@ earlier observation has to be remapped by hand.
 
 ### Occurrences
 
-- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
-  - Timestamp: 2026-10-31T17:56:08+08:00 (trunk amendment `82a35ccf`, found at slice 2's source-freshness check)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.79 (installed guidance in the execution checkout)
-  - Evidence: `source-freshness.mjs check` returned `amended` for the story. The change removed two lines of its Deferred promises (the sibling-story deferral). The second reviewer's ids differed from the first's (89 → 87 rows; for example `1.10.1`→`1.9`, `4.4.1`+`4.4.3`→`4.6`, `R5`→`X6`). Replacement record: `.planning/slice-plans/426-bounded-dashboard-refresh/source-review.md` at `218b8d92`.
-  - Observed effect: one extra reviewer run (about 43k subagent tokens), a hand-written id remap carrying slice 1–2 observations, and one failed remap attempt, all before slice 2 could be delivered. No commitment changed.
-  - Inference: for an amendment that only removes or narrows an exclusion, keeping the existing review and settling the affected row would avoid the remap. Asking reviewers for stable ids would also reduce it. Neither is measured.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-383](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-383.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-377 — CI layout repair iterates successive assertions without one full-journey check
+## ODF-384 — CI layout repair iterates successive assertions without one full-journey check
+
+Former local code: DD-377.
 
 A CI repair for a banner-related dialog layout fixes the reported assertion
 (Close overlap, then content viewport ratio, then End scroll) without verifying
@@ -887,10 +646,5 @@ of one product surface across successive owned CI failures.
 
 ### Occurrences
 
-- Execution: SEED-205#logo-sidebar-toggle / plan 430 / first related implementation `63c7699e57ce9ec57112e30434df07e944d3eaea`
-  - Timestamp: 2026-10-31T23:25:54+08:00 (first prep-legend repair `d470063c`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.79
-  - Evidence: after mark-as-Sessions banner change, owned CI failed `preparation-legend.spec.ts` three times in sequence — run 41213869876 (dialog not visible / Close over banner at 200% zoom) → `d470063c` pinned under `--banner-height`; run 41214826618 (explanation viewport ratio ~0.99 at 400% zoom) → `5f9ca93c` dropped vertical centering and flexed content; run 41216028080 (End leaves explanation ~0.93) → `d62f0a66` used near-full height and lighter bottom padding. Coordinator transcript `1bca2eeb-150d-41d1-ab95-a929db66954e` L67–L85; repair agents `b74c60f9`, `68aa0863`, `400716f4`.
-  - Observed effect: three owned CI repair commits and three repair agents on the same `preparation-legend.css` before Close-off-banner and End-to-last-line both held together.
-  - Inference: each repair matched the failing assertion rather than replaying the full zoomed prep-legend journey (open, Close clear of banner controls, scroll End shows last explanation) once; that single check would likely have collapsed the loop.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-384](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-384.md); source recovery remains in this project’s pre-compaction revision.
