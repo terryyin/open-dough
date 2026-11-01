@@ -192,7 +192,7 @@ also asserts. Family 30/30 strict (`tmp/after2-s3-default`, `tmp/after2-s3-w1`:
 
 ### 4. Retain phase integration without the host/workflow cross-product
 Type: Structure
-Status: planned
+Status: done
 Proof: Claude execution and Codex refinement still observe preparation, native
 launch, reload, and placement on initiating/observing pages; both handoffs retain
 the appropriate readiness semantics.
@@ -206,6 +206,21 @@ Move the stored-but-not-running case to real boundary proof without `page`.
 Run both phase files plus `agent-launch-start-codex` and
 `agent-launch-preparation-codex`. Expected gain: two fewer complete lifecycles;
 even unchanged focused wall does not justify restoring duplicated proof.
+
+Result: `agent-launch-start-phases` keeps only the Claude execution journey
+(with its argv readiness check) and `agent-launch-preparation-phases` only the
+Codex refinement journey; the stored-but-not-running case moved unchanged to
+`boundary/agent-launch-start-kept-not-running.spec.ts`. Codex execution's
+changed readiness stays owned by `agent-launch-start-codex`'s card-start test,
+whose `expectExecutionInput(..., true)` asserts the stored start's
+`changedSinceReview` and exact equality of the single `turn/start` handoff
+block, including `- readiness: Changed since readiness review` (stricter than
+the removed substring check). Only the cross-product wording "Starting
+refinement in Claude Code…" lost its own observation; both template halves
+remain observed. Family at `--workers=1`: 33.9 → 22.9 summed s, 38 → 27 s wall
+(loads 5–7; `tmp/before-s4-w1`, `tmp/after-s4-w1`), all strict. Slice 9 also
+settles the superseded rejection note at
+`docs/maintainer/dashboard-local-test-timings.md:139`.
 
 ### 5. Keep one fail-closed proof for ambiguous completion attribution
 Type: Structure

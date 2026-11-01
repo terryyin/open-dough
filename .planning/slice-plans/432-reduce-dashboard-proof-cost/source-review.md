@@ -34,9 +34,9 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4b.2 | One ad-hoc discovered-model journey retains its distinct launch shape | slice 3 | observed: agent-launch-codex-model.spec.ts ad-hoc test on codexLaunch (home project cwd, model, effort, no turn/start) |
 | 4b.3 | Refinement model/effort persistence survives in its existing journey | slice 3 | observed: agent-launch-preparation-codex.spec.ts kept() model/effort before input and first thread/start |
 | 4b.4 | Catalog-only cases no longer prepare installed-start repositories | slice 3 | observed: codexModelCatalogCases.ts and codexEffortDialogCases.ts import only support/codexLaunch.ts |
-| 4c.1 | Claude execution retains the full phase/observer journey | slice 4 | |
-| 4c.2 | Codex refinement retains the full phase/observer journey | slice 4 | |
-| 4c.3 | The existing Codex execution proof retains its changed-readiness handoff | slice 4 | |
+| 4c.1 | Claude execution retains the full phase/observer journey | slice 4 | observed: agent-launch-start-phases.spec.ts expectStartProgress(execution, claude) plus argv readiness |
+| 4c.2 | Codex refinement retains the full phase/observer journey | slice 4 | observed: agent-launch-preparation-phases.spec.ts expectStartProgress(refinement, codex) |
+| 4c.3 | The existing Codex execution proof retains its changed-readiness handoff | slice 4 | observed: agent-launch-start-codex.spec.ts card start expectExecutionInput(..., true) exact handoff block |
 | 4d.1 | The duplicate gaps case for ambiguous attribution is removed | slice 5 | |
 | 4d.2 | Ambiguous attribution still fails closed with no files after that removal | slice 5 | |
 | 4d.3 | Missing-agent recovery remains protected | slice 5 | |
