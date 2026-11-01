@@ -14,6 +14,12 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded branch and pull-request runs, while keeping deliberate
+# manual repetitions independent for scripts/ci-repeat.sh.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # lint runs once, as its own job so it does not count toward the test
   # matrix's job-total.
