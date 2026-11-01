@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show session counts and host resources beside the Sessions title](seeds/SEED-211-sessions-sidebar-host-status.md#sessions-sidebar-host-status) — SEED-211#sessions-sidebar-host-status
 - [Confirm a broken base before starting plan execution](seeds/SEED-210-confirm-broken-base-before-start.md#confirm-broken-base-before-start) — SEED-210#confirm-broken-base-before-start
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
