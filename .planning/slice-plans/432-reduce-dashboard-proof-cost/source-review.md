@@ -48,10 +48,10 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4f.1 | The blank/text matrix is reduced | slice 7 | observed: agent-launch-ad-hoc-terminal.spec.ts has one text journey, no blank iteration |
 | 4f.2 | One full ad-hoc terminal attachment path survives that reduction | slice 7 | observed: agent-launch-ad-hoc-terminal.spec.ts starting with text opens the session in the terminal ... Close |
 | 4f.3 | Blank UI submission is still proved, at the cheapest real boundary | slice 7 | observed: agent-launch-ad-hoc.spec.ts starting with an empty field sends no instruction |
-| 4g.1 | Attention reporting keeps its installed-command lifecycle | slice 8 | |
-| 4g.2 | Attention reporting keeps its restart lifecycle | slice 8 | |
-| 4g.3 | Attention reporting keeps its retirement lifecycle | slice 8 | |
-| 4g.4 | Its raw refusal variants use an existing real boundary fixture | slice 8 | |
+| 4g.1 | Attention reporting keeps its installed-command lifecycle | slice 8 | observed: agent-completion-attention.spec.ts installed report receipt, store message and card |
+| 4g.2 | Attention reporting keeps its restart lifecycle | slice 8 | observed: agent-completion-attention.spec.ts restarted server keeps message and receipt |
+| 4g.3 | Attention reporting keeps its retirement lifecycle | slice 8 | observed: agent-completion-attention.spec.ts retainedReceipt after workspace removal |
+| 4g.4 | Its raw refusal variants use an existing real boundary fixture | slice 8 | observed: boundary/agent-completion-identity.spec.ts refused deliveries keep the earlier completion message |
 | 4h.1 | Completed-review Published/Landed round-trip selection keeps its accepted coverage | slice 9 | |
 | 4h.2 | Non-owner second-server protection keeps its accepted coverage | slice 9 | |
 | 4h.3 | Real production-watcher chains keep their accepted coverage | slice 9 | |

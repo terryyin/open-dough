@@ -305,7 +305,7 @@ scheduled `checkIntervalMs` (15 s) after the withheld read
 
 ### 8. Keep attention lifecycle proof focused on durable user behavior
 Type: Structure
-Status: planned
+Status: done
 Proof: Refused completion requests preserve the previous message; installed
 reporting survives retirement/restart and explicit read/Done behavior stays green.
 
@@ -317,6 +317,17 @@ identity helpers; no extra native launch fixture merely to relocate assertions.
 Run both files. Expected runtime gain is small; clearer ownership and less
 multi-responsibility journey code justify this bounded change independently.
 Preserve accepted real production watcher/install/build chains unchanged.
+
+Result: the nine refusal rows (four foreign identities 404, foreign session
+409, empty message, unknown outcome and extra field 400, cross-origin 403) now
+form their own test, "refused deliveries keep the earlier completion message",
+in `boundary/agent-completion-identity.spec.ts`: one HTTP ad-hoc Codex `launch`,
+one real installed `--message-file` report, and after every row the stored
+completion still holds the earlier message (the journey had checked it once
+after all rows). `agent-completion-attention` keeps the installed command,
+retirement receipt, restart, Mark as read and Mark as done unchanged. Runtime
+about unchanged (attention 36.9 → 37–38 s, identity file about 2 s); retained
+for single-responsibility ownership (`tmp/s8-*`).
 
 ### 9. Verify the combined result and settle residual costs
 Type: Structure

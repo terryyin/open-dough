@@ -9,7 +9,6 @@ import { machineSessions } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
-import { rawRequest } from "./support/rawHttp.ts";
 import { expectInstalledReportingScript } from "./support/reportingInputAssertions.ts";
 import { keepFinalReport } from "./support/retainedReport.ts";
 import {
@@ -120,36 +119,6 @@ test("installed attention report stays open, durable and readable through column
     queued.getByRole("button", { name: "Mark as read" }),
   ).toBeVisible();
   expect(nativeSince(before)).toEqual([]);
-  const post = (body: unknown, headers = { Origin: dashboard.origin }) =>
-    rawRequest({
-      url: `${dashboard.baseURL}/__agent-launch/completion`,
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify(body),
-    });
-  const valid = {
-    source: "open-dough",
-    host: "codex",
-    reference: context.reference,
-    outcome: "unfinished",
-    message: "Required retirement is held; resolve ownership.",
-  };
-  for (const [change, status] of [
-    [{ source: "unknown-project" }, 404],
-    [{ source: "doughnut" }, 404],
-    [{ host: "claude" }, 404],
-    [{ reference: "00000000-0000-4000-8000-000000000000" }, 404],
-    [{ session: "another-session" }, 409],
-    [{ message: "" }, 400],
-    [{ outcome: "quiet" }, 400],
-    [{ extra: true }, 400],
-  ] as const) {
-    expect((await post({ ...valid, ...change })).status).toBe(status);
-  }
-  expect((await post(valid, { Origin: "https://elsewhere.test" })).status).toBe(
-    403,
-  );
-  expect(stored(dashboard.home)[0]?.completion?.message).toBe(text);
   expect((await report("unfinished")).outcome).toBe("unfinished");
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   await expect(queued).toContainText("Unfinished work", { timeout: 20000 });
