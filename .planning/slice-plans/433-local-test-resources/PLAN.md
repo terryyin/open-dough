@@ -135,3 +135,15 @@ passed all 11 preserved scenarios and the actual copied-runner consumer;
 comparison and observing locations above remain valid, with lifecycle cases now
 in their separate file. `git diff --check` passed. Refactor consumer dispositions:
 `/tmp/dough-local-refactor-consumer-trace.md`.
+
+The first hosted run `41262408074/1` failed five dashboard shards on obsolete
+project-radio selectors: ad-hoc sessions, workspace retirement, terminal Done,
+terminal lifetime and sidebar navigation. The unchanged failing source and
+published repair `62defee536b8154291ac114f5b266f8ade35631d` establish the existing
+UI-control transition as the cause; no local admission executes in CI. The repair
+was already on main under another owner, so this execution preserved it by
+merging published main at `0d0a20a249a81925ba6969fcf3e6e4cb9023a929`, with no
+duplicate test repair. All 13 cases in those five files passed strict verification:
+`PATH=/opt/homebrew/bin:$PATH env -u CI -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-local-upstream-repair-proof.json npm run --silent test:dashboard -- agent-launch-ad-hoc-sessions.spec.ts session-workspace-retirement.spec.ts agent-terminal-done-question.spec.ts agent-terminal-lifetime.spec.ts sessions-sidebar-navigation-cases.spec.ts --workers=2`.
+The resource implementation and its accepted proof remain unchanged. Hosted
+validation continues on the merged revision rather than rerunning the old code.
