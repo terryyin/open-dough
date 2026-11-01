@@ -120,7 +120,7 @@ draft survive without reconnect solely to re-fit
 
 ### 5. Physical iPhone Safari acceptance of the finished chrome
 Type: Behavior
-Status: planned
+Status: done
 Proof: Waived 2026-11-01 by developer instruction “skip the real iphone test,”
 together with slice 1. Story Proof now closes the device-shaped gate via
 phone-viewport automation from slices 2–4.
