@@ -4,5 +4,24 @@
   "integratedStateCompletion": {
     "check": "ci.yml",
     "context": "push"
+  },
+  "intent": {
+    "locations": [
+      {
+        "path": "dashboard/tests",
+        "kind": "typescript",
+        "include": ["**/*.spec.ts"]
+      },
+      {
+        "path": "tests",
+        "kind": "shell",
+        "include": ["*.sh"]
+      },
+      {
+        "path": "src/skills",
+        "kind": "javascript",
+        "include": ["**/*.test.mjs"]
+      }
+    ]
   }
 }

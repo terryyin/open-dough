@@ -137,6 +137,16 @@ with the consumer trace.
 
 ## Learnings and preparation review
 
+Slice 3 progress (2026-11-01), before Terry outward-push confirmation: trunk
+pattern checks (Open Dough `923dd746`, Doughnut `b373ef62`, Pygardon
+`0de75f3c`) need no pattern corrections; tree + `locationSelectsRelativePath`
+Ex 1–4 hold (`dashboard/test-results/slice3-intent-observation-20261101-130333/`).
+Open Dough `.planning/open-dough.json` gains the three code locations
+(uncommitted); Doughnut/Pygardon settings sit under
+`/tmp/slice3-intent-settings-20261101/` unpushed. Published-trunk Intent still
+shows Open Dough `locations: null` and Doughnut/Pygardon gherkin-only until
+settings publish.
+
 Decisive premises, settled 2026-11-01 in this workspace's scratch directory:
 
 - **Pattern semantics.** Consuming operation: the planned server-side selection.
