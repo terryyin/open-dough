@@ -14,14 +14,14 @@ return, product or proof.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| A.1 | Open Dough publishes a reference document, not a skill, in its installed guidance | slice 3 |  |
+| A.1 | Open Dough publishes a reference document, not a skill, in its installed guidance | slice 3 | observed: PLAN.md slice 3 recorded walk; install.sh managed_files |
 | A.2 | A project that follows the reference records Cucumber proof itself | slice 4 |  |
 | A.3 | Proof is the latest observation of each test, not a run history | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows show one latest row per scenario, no run list |
 | A.4 | Every ordinary test run updates the proof of the tests it ran | slice 4 |  |
-| A.5 | Nobody runs the whole suite just to collect proof | slice 3 |  |
+| A.5 | Nobody runs the whole suite just to collect proof | slice 3 | observed: PLAN.md slice 3 recorded walk runs a, b, e |
 | A.6 | A full run simply brings every test's proof up to date | slice 4 |  |
-| A.7 | Accumulating observations and consolidating them occasionally is allowed | slice 3 |  |
-| A.8 | A producer that already keeps a consolidated latest snapshot need not consolidate | slice 3 |  |
+| A.7 | Accumulating observations and consolidating them occasionally is allowed | slice 3 | observed: PLAN.md slice 3 recorded walk run f |
+| A.8 | A producer that already keeps a consolidated latest snapshot need not consolidate | slice 3 | observed: PLAN.md slice 3 recorded walk; reference keeps consolidation optional |
 | A.9 | The earlier ten-run rolling history is replaced and is not part of this story | slice 1 | observed: dashboard/src/IntentProof.tsx renders only the latest observation; no history read |
 | G.1 | A developer reviewing a Pygardon feature file in Intent sees, beside its source, the latest observed result of each scenario | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts "<feature> proof" table beside the source pane |
 | G.1.1 | when it was observed | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts expectedRows "1d ago"/"2h ago" Observed column |
@@ -32,50 +32,50 @@ return, product or proof.
 | G.3 | Pygardon produces that proof as a side effect of its ordinary Cucumber runs | slice 4 |  |
 | G.4 | Pygardon produces it by following one published Open Dough reference | slice 4 |  |
 | G.5 | That reference becomes the standard that later Cucumber projects (Doughnut, story 8) adopt | slice 4 |  |
-| 1.1 | Exactly one reference document exists in the released Open Dough guidance | slice 3 |  |
-| 1.2 | It is written for the agent working in the project that adopts it (ADR 0006) | slice 3 |  |
-| 1.3 | It states the rules a project's Cucumber setup follows (1.4–1.10) | slice 3 |  |
-| 1.4 | Configure proof once in the project's Cucumber configuration, beside its existing formatters | slice 3 |  |
-| 1.4.1 | So that every run records proof, including each of the following | slice 3 |  |
-| 1.4.1a | focused runs | slice 3 |  |
-| 1.4.1b | tagged runs | slice 3 |  |
-| 1.4.1c | parallel runs | slice 3 |  |
-| 1.4.1d | retried runs | slice 3 |  |
-| 1.4.1e | full runs | slice 3 |  |
-| 1.4.2 | Existing output stays unchanged | slice 3 |  |
-| 1.4.3 | Existing diagnostics stay unchanged | slice 3 |  |
-| 1.4.4 | The command's exit meaning stays unchanged | slice 3 |  |
-| 1.5 | Declare the proof directory in `.planning/open-dough.json` | slice 3 |  |
-| 1.5.1 | The declaration names the Intent location the directory covers | slice 3 |  |
-| 1.5.2 | The proof directory is committed, not ignored | slice 3 |  |
-| 1.6 | Each run writes its own uniquely named file | slice 3 |  |
-| 1.6.1 | Each run rewrites its file after every finished scenario | slice 3 |  |
-| 1.6.2 | An interrupted run keeps what finished | slice 3 |  |
-| 1.6.3 | Unique names mean concurrent worktrees never conflict when merged | slice 3 |  |
-| 1.6.4 | Unique names mean repeated runs never conflict when merged | slice 3 |  |
-| 1.7 | Each observation names its scenario by feature path | slice 3 |  |
-| 1.7.1 | and by scenario name | slice 3 |  |
-| 1.7.2 | and, for an outline, by its example row | slice 3 |  |
-| 1.7.3 | never by runner-generated IDs | slice 3 |  |
-| 1.8 | Each observation records the following fields | slice 3 |  |
-| 1.8.1 | the final outcome | slice 3 |  |
-| 1.8.2 | the attempt count | slice 3 |  |
-| 1.8.3 | the duration | slice 3 |  |
-| 1.8.4 | the finish time | slice 3 |  |
-| 1.8.5 | the commit the run started from | slice 3 |  |
-| 1.8.6 | the Git blob hash of the feature file as tested | slice 3 |  |
+| 1.1 | Exactly one reference document exists in the released Open Dough guidance | slice 3 | observed: PLAN.md slice 3 recorded walk; install.sh managed_files |
+| 1.2 | It is written for the agent working in the project that adopts it (ADR 0006) | slice 3 | observed: PLAN.md slice 3 recorded walk behavior review |
+| 1.3 | It states the rules a project's Cucumber setup follows (1.4–1.10) | slice 3 | observed: PLAN.md slice 3 recorded walk; reference rules |
+| 1.4 | Configure proof once in the project's Cucumber configuration, beside its existing formatters | slice 3 | observed: PLAN.md slice 3 recorded walk runs a–c |
+| 1.4.1 | So that every run records proof, including each of the following | slice 3 | observed: PLAN.md slice 3 recorded walk runs a–c |
+| 1.4.1a | focused runs | slice 3 | observed: PLAN.md slice 3 recorded walk run a |
+| 1.4.1b | tagged runs | slice 3 | observed: PLAN.md slice 3 recorded walk run b |
+| 1.4.1c | parallel runs | slice 3 | observed: PLAN.md slice 3 recorded walk run c |
+| 1.4.1d | retried runs | slice 3 | observed: PLAN.md slice 3 recorded walk run c |
+| 1.4.1e | full runs | slice 3 | observed: PLAN.md slice 3 recorded walk run c |
+| 1.4.2 | Existing output stays unchanged | slice 3 | observed: PLAN.md slice 3 recorded walk runs a, b, failing, d |
+| 1.4.3 | Existing diagnostics stay unchanged | slice 3 | observed: PLAN.md slice 3 recorded walk runs a, b, failing, d |
+| 1.4.4 | The command's exit meaning stays unchanged | slice 3 | observed: PLAN.md slice 3 recorded walk runs a, failing, d |
+| 1.5 | Declare the proof directory in `.planning/open-dough.json` | slice 3 | observed: PLAN.md slice 3 recorded walk scratch .planning/open-dough.json |
+| 1.5.1 | The declaration names the Intent location the directory covers | slice 3 | observed: PLAN.md slice 3 recorded walk scratch .planning/open-dough.json |
+| 1.5.2 | The proof directory is committed, not ignored | slice 3 | observed: PLAN.md slice 3 recorded walk proof files committed at each step |
+| 1.6 | Each run writes its own uniquely named file | slice 3 | observed: PLAN.md slice 3 recorded walk runs e, f |
+| 1.6.1 | Each run rewrites its file after every finished scenario | slice 3 | observed: PLAN.md slice 3 recorded walk run d |
+| 1.6.2 | An interrupted run keeps what finished | slice 3 | observed: PLAN.md slice 3 recorded walk run d |
+| 1.6.3 | Unique names mean concurrent worktrees never conflict when merged | slice 3 | observed: PLAN.md slice 3 recorded walk run e merge |
+| 1.6.4 | Unique names mean repeated runs never conflict when merged | slice 3 | observed: PLAN.md slice 3 recorded walk run e |
+| 1.7 | Each observation names its scenario by feature path | slice 3 | observed: PLAN.md slice 3 recorded walk parsed rows |
+| 1.7.1 | and by scenario name | slice 3 | observed: PLAN.md slice 3 recorded walk parsed rows |
+| 1.7.2 | and, for an outline, by its example row | slice 3 | observed: PLAN.md slice 3 recorded walk run c outline rows |
+| 1.7.3 | never by runner-generated IDs | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
+| 1.8 | Each observation records the following fields | slice 3 | observed: PLAN.md slice 3 recorded walk parseProofFile on every file |
+| 1.8.1 | the final outcome | slice 3 | observed: PLAN.md slice 3 recorded walk run c and failing |
+| 1.8.2 | the attempt count | slice 3 | observed: PLAN.md slice 3 recorded walk run c Flaky queue attempts 2 |
+| 1.8.3 | the duration | slice 3 | observed: PLAN.md slice 3 recorded walk parseProofFile |
+| 1.8.4 | the finish time | slice 3 | observed: PLAN.md slice 3 recorded walk parseProofFile |
+| 1.8.5 | the commit the run started from | slice 3 | observed: PLAN.md slice 3 recorded walk rows' commits |
+| 1.8.6 | the Git blob hash of the feature file as tested | slice 3 | observed: PLAN.md slice 3 recorded walk featureBlob equals git hash-object |
 | 1.9 | The latest observation of a scenario wins across all files, whatever its outcome | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts Cancel a job newer Failed outranks yesterday's pass |
 | 1.9.1 | Scenarios a run did not execute keep their earlier observation | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts List jobs and crash row keep yesterday's commit |
-| 1.10 | Consolidation is optional | slice 3 |  |
-| 1.10.1 | Consolidation keeps meaning | slice 3 |  |
-| 1.10.2 | Consolidation writes the latest observations in the same file format, as a new uniquely named file | slice 3 |  |
-| 1.10.3 | Consolidation removes the files it consumed | slice 3 |  |
+| 1.10 | Consolidation is optional | slice 3 | observed: PLAN.md slice 3 recorded walk; reference keeps consolidation optional |
+| 1.10.1 | Consolidation keeps meaning | slice 3 | observed: PLAN.md slice 3 recorded walk run f identical rows |
+| 1.10.2 | Consolidation writes the latest observations in the same file format, as a new uniquely named file | slice 3 | observed: PLAN.md slice 3 recorded walk run f |
+| 1.10.3 | Consolidation removes the files it consumed | slice 3 | observed: PLAN.md slice 3 recorded walk run f |
 | 1.10.4 | Readers never distinguish consolidated files from run files | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts two run files and one consolidated file assert identical expectedRows |
-| 1.11 | Records stay compact | slice 3 |  |
-| 1.11.1 | no screenshots | slice 3 |  |
-| 1.11.2 | no traces | slice 3 |  |
-| 1.11.3 | no captured output | slice 3 |  |
-| 1.11.4 | no embedded attachments | slice 3 |  |
+| 1.11 | Records stay compact | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
+| 1.11.1 | no screenshots | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
+| 1.11.2 | no traces | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
+| 1.11.3 | no captured output | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
+| 1.11.4 | no embedded attachments | slice 3 | observed: PLAN.md slice 3 recorded walk files hold only the nine fields |
 | 2.1 | Pygardon's ordinary Cucumber.js setup follows the released reference | slice 4 |  |
 | 2.2 | Proof from real local runs lands with ordinary commits | slice 4 |  |
 | 2.3 | No dashboard run button produces proof | slice 4 |  |
@@ -115,16 +115,16 @@ return, product or proof.
 | X.5 | Folder totals (story 9) — deferred | slice 1 | observed: no folder totals in dashboard/src/IntentProof.tsx |
 | X.6 | CI corroboration (story 7) — deferred | slice 1 | observed: no CI read in dashboard/server/intentProofRead.ts |
 | X.7 | Doughnut and other runner families — deferred | slice 1 | observed: Cucumber proof only; dashboard/src/cucumberProof.ts |
-| X.8 | Shipping a ready-made formatter from Open Dough — deferred | slice 3 |  |
-| X.9 | Shipping a consolidation tool from Open Dough — deferred | slice 3 |  |
-| X.10 | The reference states the rules; Pygardon owns its implementation | slice 3 |  |
+| X.8 | Shipping a ready-made formatter from Open Dough — deferred | slice 3 | observed: PLAN.md slice 3 recorded walk; no recorder shipped |
+| X.9 | Shipping a consolidation tool from Open Dough — deferred | slice 3 | observed: PLAN.md slice 3 recorded walk; no consolidation tool shipped |
+| X.10 | The reference states the rules; Pygardon owns its implementation | slice 3 | observed: PLAN.md slice 3 recorded walk; recorder written by the project |
 | X.11 | Automatic consolidation in Pygardon is optional while its proof stays small — deferred | slice 4 |  |
 | E.1 | Focused run updates only what it ran: one scenario run today shows observed today on this file version; the others show yesterday's observations with their earlier commit | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts today's rows carry todayCommit and This file version; others yesterdayCommit |
 | E.2 | Latest failure wins: Intent shows it failed today, with no green summary hiding it | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts Cancel a job Failed, count line shows 1 failed |
 | E.3 | Retry-assisted pass: Intent shows *Passed after retry (2 attempts)*, not a plain pass | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts "Passed after retry (2 attempts)" |
 | E.4 | Changed source: each row shows it was observed on an earlier file version, and a newly added scenario shows *Not observed* | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts Earlier file version rows and Archive a job Not observed |
-| E.5 | Interrupted run: after two of five scenarios finish, those two show the new observations and the other three keep their earlier ones | slice 3 |  |
-| E.6 | Parallel worktrees: two worktrees' proof files merge without conflict, and Intent shows each scenario's latest observation across both | slice 3 |  |
-| E.7 | Consolidation keeps meaning: after an agent consolidates proof files into one, Intent shows exactly the same rows before and after | slice 3 |  |
+| E.5 | Interrupted run: after two of five scenarios finish, those two show the new observations and the other three keep their earlier ones | slice 3 | observed: PLAN.md slice 3 recorded walk example 5 rows |
+| E.6 | Parallel worktrees: two worktrees' proof files merge without conflict, and Intent shows each scenario's latest observation across both | slice 3 | observed: PLAN.md slice 3 recorded walk example 6 rows |
+| E.7 | Consolidation keeps meaning: after an agent consolidates proof files into one, Intent shows exactly the same rows before and after | slice 3 | observed: PLAN.md slice 3 recorded walk example 7 rows |
 | E.8a | Not adopted: Doughnut, which declares no proof directory, shows that Proof is not recorded and names the reference | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 not declared (Doughnut-like location) |
 | E.8b | Unreadable: a truncated Pygardon proof file shows a read failure with retry, while Purpose stays readable | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 truncated proof file with Retry, Purpose text kept |

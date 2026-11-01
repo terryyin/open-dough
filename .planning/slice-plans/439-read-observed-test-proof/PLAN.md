@@ -138,7 +138,7 @@ read failure changes the answer.
 
 ### 3. A project that follows the reference produces readable proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: The [behavior review](../../../AGENTS.md#behavior-review) walk, recorded
 in this plan: in the execution workspace's scratch directory, a minimal
 Cucumber.js 13 project configured only from the reference text. Run it focused,
@@ -154,6 +154,49 @@ ordinary run writes uniquely named, compact proof that keeps finished
 scenarios through interruption and leaves the runner's output and exit
 unchanged. Readers see the same latest rows before and after consolidation.
 
+Recorded walk (2026-11-01, scratch `walk3/proj` in the execution job's tmp, Cucumber.js
+13.2.1, Node 24.21.0; recorder `support/proof-plugin.js` and
+`support/consolidate-proof.js` written from the reference text only). Six
+scenarios: plain, `@smoke`, an outline with rows `timeout|3` and
+`crash \| oom|5`, one failing under `FAIL=1`, and one `@flaky` that fails its
+first attempt.
+
+| Run | Result |
+| --- | --- |
+| a. focused `features/jobs.feature:8` | exit 0, stdout and stderr equal to the same run without the recorder; 1 file |
+| b. `--tags @smoke`, also `-p ci` | exit 0, output unchanged; 1 file |
+| failing `FAIL=1 --name 'Report a broken job'` | exit 1 both ways, output unchanged |
+| c. `--parallel 2 --retry 1` | exit 0; 1 file, 6 observations; Flaky queue `passed`, `attempts: 2`; both outline rows with `example` (escaped pipe unescaped) |
+| d. SIGINT during the third of five | same signal and output as without the recorder; file holds exactly the two finished scenarios, no temp file |
+| e. second worktree, two runs, merged | 3 uniquely named files; `git merge` exit 0, no conflict |
+| f. consolidation | 7 files into 1 new uniquely named file; consumed files deleted |
+| `--dry-run`, unwritable directory | no file written, output unchanged |
+
+The dashboard's `parseProofFile` parsed every file at each committed revision;
+`latestObservations` with `scenarioRowsOf` gave: after d, List and Cancel at
+the new commit and the other three rows at their earlier commit (example 5);
+across both worktrees' files, the later observation of each scenario (example
+6); identical rows before and after consolidation (example 7); Flaky queue
+passed after 2 attempts (example 3); and, after a scenario was added, earlier
+rows on a different file version. `featureBlob` equalled `git hash-object`.
+
+The walk corrected the reference: the `format` example replaced the project's
+own stdout formatter (a format entry without a target takes stdout), so the
+recorder is now a Cucumber.js plugin; dry-run and fail-fast attempts are not
+recorded; the outcome is the attempt's worst step status; recording happens in
+the main process under `--parallel`; feature paths are converted to the
+repository root; files below the proof directory are read too. The reference
+is declared in `install.sh` `managed_files` and linked from
+`dough-test-optimization/SKILL.md`. Payload tests
+(`tests/payload-declaration-links.sh`, `tests/compare-payload.sh` and the
+install/update payload family) passed.
+
+Behavior review: an agent arrives from Intent's not-recorded sentence or the
+`dough-test-optimization` link; it needs its Cucumber configuration and
+profiles, the Gherkin location in `.planning/open-dough.json`, and a Git
+checkout (without one it records nothing); the walk above is the useful
+outcome.
+
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
 Status: planned
@@ -161,7 +204,8 @@ Proof: After Terry authorizes the release, run `release-and-update-clients`;
 it pushes to every production-dashboard project. In an owned Pygardon
 worktree, adopt the installed reference in Pygardon's `cucumber.js` and
 `.planning/open-dough.json`, run a real focused selection with Pygardon's
-documented command, and land in Pygardon. The local dashboard's Intent then
+documented command (comparing its output and exit with and without the
+recorder), and land in Pygardon. The local dashboard's Intent then
 shows those scenarios with current-version observations and the rest *Not
 observed*. Record the proof file count, Intent read time, and the commit diff
 that proof added, for Terry's evaluation (ADR 0010). Pygardon's own CI must
@@ -199,6 +243,10 @@ the work → Intent shows those scenarios' latest proof beside their source.
   feature path and name, the default 2-worker profile ran unchanged, and the
   worktree stayed clean. Settled for the formatter route; slice 4 still owns
   the configured adoption and landing.
+  The slice 3 walk showed that a `--format` entry without its own target
+  replaces the stdout formatter, so this probe did not check that Pygardon's
+  own output survived; slice 4 configures the recorder as a plugin and
+  compares output with and without it.
 
 ## Story obligations
 
