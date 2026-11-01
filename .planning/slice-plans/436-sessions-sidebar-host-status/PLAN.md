@@ -76,7 +76,7 @@ figures until slice 2.
 
 ### 2. Show shared host CPU and free disk beside the Sessions title
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary shared-sample and unavailable cases; E2E title-row CPU and
 free-disk figures; discrimination by a scratch failure that forces
 unavailable or wrong values and makes the focused case fail, then revert.
@@ -140,3 +140,32 @@ CI repair after slice 1 (run 41267146086, dashboard 4/12): the
 failed Doughnut published-work read whose alert moved Start session under the
 click; unrelated to slice 1. The case now awaits `untilPublishedWorkRead`
 after switching project (130/130 at repeat 10; 30/30 targeted).
+
+Slice 2 accepted proof (2026-11-01): `dashboard/tests/boundary/host-status.spec.ts`
+(real GET sample and origin refusals; 60 s CPU window and primed first span;
+independent unavailable figures; one shared sample per demand window and none
+without demand) and `dashboard/tests/sessions-sidebar-host-status.spec.ts`
+(host figures from the page's read, closed/open; unavailable wording; host
+figures with sessions unread; value change one interval later; hidden page asks
+nothing) — 12 passed with `sessions-sidebar.spec.ts` after refactor; focused
+sidebar/boundary surface 101 passed before refactor. First read after idle
+primes 250 ms between two counter snapshots. The title row must stay at control
+height (room/resize specs measured a wrapped heading at 46 px), so the heading
+does not wrap and the status uses smaller type.
+
+## Story obligations
+
+### G1. Title-row status can wrap with large values
+Reported: slice 2 — "With two-digit counts on both, plus "100%" and a 3-digit GB amount, the status can still wrap to a second line. The room observer handles it, but no spec covers that case."
+Story clause: "the Sessions title row shows four compact figures beside the title"
+Disposition: no user cost "sees session load and host headroom without leaving the sidebar": a wrapped status stays inside the title row beside the heading (flex-wrap in .sessions-sidebar-status); sessionsSidebarHeights.ts observes .sessions-sidebar-title-row, the path the room/resize specs already exercise, so lists re-measure instead of overlapping.
+
+### G2. Reopening briefly shows the page's previous host values
+Reported: slice 2 — "After the sidebar is closed and reopened, the page briefly shows its previous host values until the immediate re-read answers, which happens within milliseconds."
+Story clause: "opening the sidebar shows them from the current sessions reading and the latest shared host sample (or a first sample if none yet)"
+Disposition: no user cost "sees session load and host headroom without leaving the sidebar": the previous values are this page's latest answered sample and useHostStatus reads at once on opening (observed in the E2E open step), replacing them on that answer.
+
+### G3. Serving modes do not request the host endpoint
+Reported: slice 2 — "serving-modes does not send a request to the new endpoint in dev vs preview; both mount it from the same list by construction."
+Story clause: "only host scalars need a new local JSON endpoint under the existing local-origin boundary"
+Disposition: no user cost "sees session load and host headroom without leaving the sidebar": dev, preview and boundary servers all mount localJsonEndpoints from localBoundaries.ts, where dough-host-status is registered; the boundary spec and the dev-served E2E both read it.

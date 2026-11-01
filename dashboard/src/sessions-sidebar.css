@@ -89,25 +89,32 @@
 }
 
 .sessions-sidebar-title-row > h2 {
+  flex: none;
+  white-space: nowrap;
   font-size: var(--text-md);
   font-weight: var(--weight-strong);
 }
 
-/* Compact display-only figures, each an icon and its number. */
+/* Compact display-only figures, each a small icon and its number or amount,
+   sized so the four fit on one line beside the heading in the sidebar's
+   width, and so the row keeps its height when the host figures arrive. */
 .sessions-sidebar-status {
+  --icon-size: 0.875rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-1) var(--space-2);
   margin-left: auto;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--quiet);
 }
 
 .sessions-sidebar-status-figure {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 0.125rem;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
