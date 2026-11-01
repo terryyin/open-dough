@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "dbs-chan",
-  "email": "dbs-chan@example.org",
-  "identity": "SEED-214#completed-base-ci-ancestor",
-  "mode": "story-branch",
-  "branch": "codex/completed-base-ci-ancestor",
-  "host": "codex"
-}
