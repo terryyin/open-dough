@@ -33,9 +33,9 @@ text; slice allocation and observations are the coordinator's.
 | 4b.1 | Return a complete inventory of failed-job and failed-test identities | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "the inventory names an early failure, a later one and every job's beyond the excerpted ten" (12 jobs, every identity); hosted run 41261530651 inventory named all five failed journeys |
 | 4b.2 | Return it alongside bounded diagnostic details | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs same test, first job's excerpt at most 24 lines lacks the early identity the inventory holds; stdout bounds kept |
 | 4b.3 | Expose unavailable, omitted or still-changing evidence instead of presenting a partial view as complete | slice 2 | observed: ci-github-diagnostic-logs.test.mjs held-only and mixed held/expired/readable gaps; ci-github-diagnostic-inventory.test.mjs "failure lines past each job's bound are counted, not dropped silently" |
-| 4c.1 | Remove the demonstrated mismatch between the coordinates a native touch helper checks and the coordinates it taps | slice 3 |  |
-| 4c.2 | Retain real touch, reachability, clipping and sufficiently sized target observations | slice 3 |  |
-| 4c.3 | Settle the transitions that need it | slice 3 |  |
+| 4c.1 | Remove the demonstrated mismatch between the coordinates a native touch helper checks and the coordinates it taps | slice 3 | observed: dashboard/tests/controlReachability.ts tapWhereShown taps the point it measured and hit-tested in one browser turn; control-reachability-observation.spec.ts "a control that moves before the touch is refused, not silently missed" failed before (resolved) and passes after |
+| 4c.2 | Retain real touch, reachability, clipping and sufficiently sized target observations | slice 3 | observed: tapWhereShown keeps clippedEdges, 44px size checks, hit check and native touchscreen.tap; existing observation tests including the modal tap pass |
+| 4c.3 | Settle the transitions that need it | slice 3 | observed: the 20-file reached touch batch (48 tests, --workers 4) passed under the stricter landing check, so no journey transition needed settling |
 | 4d.1 | Restore genuine temporal proof for regular unmarked polling after a settled fresh Host-switch read | slice 4 |  |
 | 4d.2 | That proof includes the Start session offer result | slice 4 |  |
 | 4e.1 | Judge repairs against the complete affected behavioral lifecycle and existing consumers | slice 5 |  |
@@ -57,8 +57,8 @@ text; slice allocation and observations are the coordinator's.
 | E3.3 | Missing logs remain explicit unknown evidence | slice 2 | observed: ci-github-diagnostic-logs.test.mjs held-only test asserts gap reason log-unavailable |
 | E4.1 | npm setup fails first but a later sibling asserts incorrectly: the attempt is not waived as infrastructure | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "an npm setup failure beside a later sibling's assertion is not an infrastructure-only inventory, even while the sibling still runs"; ci-monitor.md: a gap is never infrastructure |
 | E4.2 | Recurring acquisition trouble is examined for a repository setup cause rather than ignored indefinitely | slice 5 |  |
-| E5.1 | A touch target moves between measurement and activation: the helper cannot report successful reachability for a different point and silently miss the target | slice 3 |  |
-| E5.2 | Stable native-touch journeys and clear obstruction diagnosis survive | slice 3 |  |
+| E5.1 | A touch target moves between measurement and activation: the helper cannot report successful reachability for a different point and silently miss the target | slice 3 | observed: control-reachability-observation.spec.ts moving-target test asserts the refusal "native touch lands on the intended control" and zero clicks |
+| E5.2 | Stable native-touch journeys and clear obstruction diagnosis survive | slice 3 | observed: control-reachability-observation.spec.ts stable target gets one click; early and late cover refusals name DIV#cover; reached touch journeys pass |
 | E6.1 | Initial read saw Option A, configuration changes to B, Host switches: a settled fresh response renders B | slice 4 |  |
 | E6.2 | A subsequent actual regular poll is observed and carries no fresh marker | slice 4 |  |
 | E6.3 | Initial requests, or a timer advanced before scheduling, cannot stand in for this observation | slice 4 |  |
@@ -86,7 +86,7 @@ text; slice allocation and observations are the coordinator's.
 | C5.3 | Fewer tests, more tests, or a passing run alone is not an improvement | slice 5 |  |
 | C6.1 | Do not reimplement the already delivered relative-date, no-audit, native deadline, attachment-byte, WebSocket-registration or consistency repairs | slice 5 |  |
 | C6.2 | Keep the accepted bounded-refresh heap tradeoff accepted | slice 5 |  |
-| C7 | Old sessions-sidebar-touch and final-report-touch failures are candidates for diagnosis, not proven instances of the same touch race | slice 3 |  |
+| C7 | Old sessions-sidebar-touch and final-report-touch failures are candidates for diagnosis, not proven instances of the same touch race | slice 3 | observed: slice 3 diagnosis in PLAN.md — sessions-sidebar-touch #3346 (Board read under a cover) and final-report-touch #3352 (project-control locator) are not this race; only #3316 focusByTouch is plausibly one |
 | C8.1 | Preserve ongoing SEED-207 assessment ownership; do not duplicate its general test-value/optimization work | slice 5 |  |
 | C8.2 | Shared files do not create a blocking story dependency; reconcile actual overlapping changes through normal work | slice 5 |  |
 | C9.1 | Changes to installation, native host delivery or release rollout require their established functional checks | slice 5 |  |

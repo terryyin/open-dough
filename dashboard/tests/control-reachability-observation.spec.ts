@@ -1,4 +1,5 @@
 // Exercise every-control observations with real browser scrolling and clipping.
+import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { expectEveryControlReachable, tapWhereShown } from "./pageLayout.ts";
 
@@ -80,4 +81,88 @@ test("unscrollable overflow is rejected while a modal control escapes its page a
     "data-pressed",
     "yes",
   );
+});
+
+// A native touch counted where it lands: the button counts each click it gets.
+const countedTarget = `<style>
+    #target { position: absolute; left: 20px; top: 20px; width: 80px; height: 50px; }
+    #cover { position: absolute; inset: 0; }
+  </style><button id="target"
+    onclick="this.dataset.clicks = String(Number(this.dataset.clicks ?? 0) + 1)">Target</button>`;
+
+// The control as the helper sees it, except that just before the helper's
+// native touch the page changes the control. Only the timing is controlled:
+// the change and the touch are the browser's own.
+function changedBeforeTouch(
+  control: Locator,
+  change: (element: HTMLElement) => void,
+): Locator {
+  const page = control.page();
+  const touchscreen = {
+    async tap(x: number, y: number) {
+      await control.evaluate(change);
+      await page.touchscreen.tap(x, y);
+    },
+  };
+  const changingPage = new Proxy(page, {
+    get: (object, key): unknown =>
+      key === "touchscreen" ? touchscreen : bound(object, key),
+  });
+  return new Proxy(control, {
+    get: (object, key): unknown =>
+      key === "page" ? () => changingPage : bound(object, key),
+  });
+}
+
+// The object's own property, a method still called on that object.
+function bound(object: object, key: string | symbol): unknown {
+  const value: unknown = Reflect.get(object, key);
+  return typeof value === "function"
+    ? (value as (...args: unknown[]) => unknown).bind(object)
+    : value;
+}
+
+test("a native touch clicks a control that stays where it was shown, once", async ({
+  page,
+}) => {
+  await page.setContent(countedTarget);
+  const target = page.getByRole("button", { name: "Target" });
+  await tapWhereShown(target);
+  await expect(target).toHaveAttribute("data-clicks", "1");
+});
+
+test("a control that moves before the touch is refused, not silently missed", async ({
+  page,
+}) => {
+  await page.setContent(countedTarget);
+  const target = page.getByRole("button", { name: "Target" });
+  const moving = changedBeforeTouch(target, (element) => {
+    element.style.setProperty("left", "300px");
+  });
+  await expect(tapWhereShown(moving)).rejects.toThrow(
+    "native touch lands on the intended control",
+  );
+  await expect(target).not.toHaveAttribute("data-clicks");
+});
+
+test("a covered control is refused, naming what covers it, whether covered before or after it was measured", async ({
+  page,
+}) => {
+  await page.setContent(`${countedTarget}<div id="cover"></div>`);
+  const target = page.getByRole("button", { name: "Target" });
+  await expect(tapWhereShown(target)).rejects.toThrow(
+    /touch reaches the intended control[\s\S]*DIV#cover/,
+  );
+  await page.locator("#cover").evaluate((element) => {
+    element.remove();
+  });
+  const coveredLate = changedBeforeTouch(target, (element) => {
+    const cover = document.createElement("div");
+    cover.id = "cover";
+    element.after(cover);
+  });
+  await expect(tapWhereShown(coveredLate)).rejects.toThrow(
+    /native touch lands on the intended control[\s\S]*DIV#cover/,
+  );
+  await expect(target).not.toHaveAttribute("data-clicks");
 });

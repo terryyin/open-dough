@@ -119,7 +119,7 @@ Replay the full diagnosed cause and nearby lifecycle, not just its last line.
 
 ### 3. Native touch proof checks the point it actually uses
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a deterministic real-browser moving-target regression at the
 existing touch-helper boundary; prove failure on predecessor and pass after
 repair. Cover stable target, movement and obstruction while keeping actual
@@ -136,6 +136,19 @@ size, real scrolling, focus, rotation and short-screen coverage intact.
 
 Do not label every historic touch failure the same cause. Inspect the
 sessions-sidebar/final-report evidence before including either as an instance.
+
+Accepted proof: tapWhereShown measures size, clipping-independent hit and
+center in one browser turn, taps exactly that point, then reads where the
+real pointerdown landed; a moved or covered control fails naming what it hit.
+control-reachability-observation.spec.ts adds stable, moved, early-cover and
+late-cover cases through a proxy that only times a real DOM change before
+the native tap; moved and covered failed on the predecessor (silent resolve,
+unnamed cover) and pass after. The 20 reached touch spec files (48 tests,
+--workers 4, load 7–17) and typecheck passed; no journey needed settling.
+Diagnosis: sessions-sidebar-touch #3346 was a Board read under a cover
+(fixed by a65ab2e1) and final-report-touch #3352 a project-control locator
+timeout (fixed by 22eb4b3e), not this race; #3316's focusByTouch inactive
+terminal is the one plausible instance and would now fail with a named hit.
 
 ### 4. Fresh Host-switch proof observes the subsequent ordinary poll
 Type: Behavior
