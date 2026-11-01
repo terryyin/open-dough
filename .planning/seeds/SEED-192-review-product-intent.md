@@ -258,7 +258,7 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#review-story-intent-impact
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/441-review-story-intent-impact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3c7f37b7580488e8ffa9ce215876beefbded0116dc5b4909553e721d92b5e78","plan":"4e71a108030af2167c9b0e67f9558fe8d2145559fa4b39987be27da238cad0f6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/441-review-story-intent-impact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9840a41e74f59afdf926142ada9c2ecc959dcfab6612a368f5a0a4fcccb7c16d","plan":"4e2f55876911b0fe7445f52efbd2c44dd263ca82c1f39e35d051bc69405227fc"}}
 ```
 
 **Beneficiary:** A developer reviewing what one story changed in a configured

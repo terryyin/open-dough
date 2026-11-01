@@ -7,7 +7,9 @@
 
 A developer selects a story on the Development board by clicking its card's
 empty area, which works for active and Recently done cards. Clicking it again
-deselects it. In Intent, the selected story's default Review changes comparison
+deselects it. Keyboard selection uses the active card's existing Inspect
+control and an equivalent selection control added to Recently done cards.
+In Intent, the selected story's default Review changes comparison
 overlays the published test tree. With the whole tree shown, changed files are
 styled by kind and folders containing changes are highlighted. With "Selected
 story only" on, only the changed files appear. Selecting a changed file shows
@@ -27,8 +29,9 @@ PFE:
 - **Selection.** `dashboard/src/Columns.tsx` keeps `selectedIdentity` in local
   state. Its `select()` toggle and story-navigation reveal-and-select
   (`storyNavigation.tsx`) already exist, and selecting shows `StoryDetail`.
-  `DoneStoryCard.tsx` has no selection. Lift the selection to one page-level
-  owner keyed by project, in the style of `pageSessions.ts` /
+  `DoneStoryCard.tsx` has neither selection nor an Inspect control; add a
+  keyboard-operable selection control there. Lift the selection to one
+  page-level owner keyed by project, in the style of `pageSessions.ts` /
   `storyNavigation.tsx` contexts. Columns, Recently done, and Intent use it.
 - **Selected styling.** `.story-card-selected` and `.story-card.in-side-panel`
   share `--accent-soft` (`story-cards.css`). Selection needs its own visible
@@ -80,6 +83,12 @@ plus the comparison's changed files with their kinds and old paths, give:
 - a contains-changes mark for each folder and location; and
 - the count of changed files outside every location.
 
+Deleted files remain selectable changes even when absent from the published
+tree. A rename is in scope when its current or old path meets a configured
+location's kind and include patterns, including moves between locations or
+across their boundary. Preserve both paths for Review's rename diff, and count
+the changed file once rather than treating its two paths as two changes.
+
 "Selected story only" is the same join restricted to changed entries. Folder
 expansion is one function of the join: open what contains changes, plus the
 first changed location in configured order. Intent applies it at mount and at
@@ -90,13 +99,14 @@ each toggle, never on a live selection change.
 | Story example | Observable signal |
 | --- | --- |
 | 1 workspace story, highlighted tree, diff | Playwright journey with a story-review workspace fixture and Intent locations: card-area click selects; Intent shows story name, compared revisions, modified/added styling, contains-changes folders, changed folders open; the changed file's diff region matches Review's |
-| 2 toggle | same journey: "Selected story only" shows only changed files, expanded; off restores the whole tree with changed folders opened |
+| 2 toggle | same journey, including deleted and renamed files: "Selected story only" shows only changed files, expanded; off restores the whole tree with changed folders opened |
 | 3 outside locations | same journey: count of changed files outside Intent locations |
 | 4 no in-scope change | journey variant: product-only change says no test files in Intent locations changed |
-| 5 completed story | journey on `completedPublishedStory` through `committedOrigin` with Intent settings committed |
+| 5 completed story | journey on `completedPublishedStory` through `committedOrigin` with Intent settings committed; a file deleted by the story is absent from the published tree but remains selectable with its deletion diff |
 | 6 no comparison | active story with no workspace: explanation; tree usable |
-| 7 deselect / controls don't select | board journey: second empty-area click clears selection, and Intent shows no toggle; Start, session entry, dependency link clicks keep selection unchanged |
+| 7 deselect / controls don't select | board journey: second empty-area click clears selection, and Intent shows no toggle; Tab reaches the Recently done selection control and Enter/Space select and deselect through the same state; Start, session entry, dependency link clicks keep selection unchanged |
 | 8 collapsed default | updated Intent journeys: every folder starts collapsed without a selected story |
+| Deleted and renamed files under the existing scope rule | workspace journey variants: a deletion, a rename between configured locations, a rename into a location, and a rename out of one remain visible with their change kind and Review's exact diff; an old-path match keeps a rename in scope, while a change matching neither path contributes once to the outside count |
 
 Local gates: run focused specs through the Playwright command below while
 iterating. Slices 1 and 3 change shared page state and shared Review changes
@@ -114,14 +124,21 @@ Command:
 Type: Behavior
 Status: planned
 Proof: new board journey (e.g. `dashboard/tests/story-card-selection.spec.ts`)
-for example 7, plus selecting and deselecting a Recently done card. Existing
+for example 7, plus selecting and deselecting a Recently done card by both
+card-area click and keyboard. Tab to its selection control, activate it with
+Enter and Space, and assert the same selected state and deselection behavior.
+The control has an accessible name and exposes its selected state. Existing
 inspection and story-navigation journeys still pass.
 
 Pre-condition: the board shows active and Recently done cards. Trigger: the
 developer clicks a card's empty area, then clicks it again. Result: the first
 click selects the story. An active card shows detail, as Inspect does, and
 every selected card has a selected mark distinct from "shown in Side panel".
-The second click deselects it. Clicks on buttons, links, inputs, session
+The second click deselects it. Active cards retain Inspect/Hide detail as their
+keyboard equivalent. Recently done cards gain a focusable native selection
+button that selects and deselects without opening detail. Its activation
+toggles selection once, without a second toggle from the card-area handler.
+Clicks on other buttons, links, inputs, session
 entries, and disclosures inside the card do not select. One story is selected
 per project across active and done cards. Selection moves from `Columns` to a
 page-level owner that Intent can read. Reveal-and-select from story navigation
@@ -157,13 +174,21 @@ model with shared styles, including modified. Enables slice 4.
 Type: Behavior
 Status: planned
 Proof: new Intent journey on a workspace fixture with Intent settings
-(examples 1, 3, and 6). This journey also proves the overlay join.
+(examples 1, 3, and 6). This journey also proves the overlay join. Include a
+deleted test and rename variants between two configured locations, into a
+location from outside, and out of a location. Assert visibility, change-kind
+styling, the same deletion/rename diff as Review changes, and the outside
+count under the current-or-old-path rule. A rename with neither path admitted
+is excluded and counted once outside.
 
 Pre-condition: a selected Taken story with a reviewable workspace and Intent
 locations. Trigger: switch to Intent. Result:
 
 - Intent names the story and the compared revisions.
 - Changed in-scope files are styled by kind, and added files are inserted.
+- Deleted files stay visible. Renames admitted by either path stay reviewable,
+  including when the new path lies outside configured locations; neither
+  deletion nor rename disappears because a path is absent from the base tree.
 - Folders and location groups containing changes have the contains-changes
   background. Those folders are open, and so is the first changed location.
   Everything else is collapsed.
@@ -178,8 +203,9 @@ Deselecting removes the lens.
 ### 5. Show only the selected story's changes
 Type: Behavior
 Status: planned
-Proof: extend slice 4's journey (example 2) plus a product-only-change variant
-(example 4).
+Proof: extend slice 4's journey (example 2), retaining its deleted and renamed
+entries in both toggle states with the same change kinds and diffs, plus a
+product-only-change variant (example 4).
 
 Pre-condition: slice 4's view. Trigger: toggle "Selected story only" on, then
 off. Result: on shows only the in-scope changed files and their folders,
@@ -194,8 +220,10 @@ Status: planned
 Proof: Intent journey on `completedPublishedStory` (example 5). First extend
 `dashboard/tests/committedOrigin.ts` to answer the recursive `git/trees`
 request (`support/ghRequest.ts` kind `tree`) from `git ls-tree -r` at the
-revision. The fixture commits Intent settings and a test file the story
-changes.
+revision. The fixture commits Intent settings and test files the story changes,
+including one it deletes. Assert that the deleted file is absent from the
+published inventory yet appears as removed in Intent, in both toggle states,
+and opens the same deletion diff as Review changes.
 
 Pre-condition: a story in Recently done whose published history comparison is
 available. Trigger: click its card, switch to Intent. Result: Intent shows its
@@ -232,7 +260,8 @@ second caller needs, and its Structure proof observes the result.
 
 - A card's empty-area click is the existing inspection selection, not a
   second selection. It is one selection per project, page-level, and not in
-  the URL.
+  the URL. Recently done cards get a keyboard selection control because they
+  have no existing Inspect control.
 - Intent stays at the published revision, and the story comparison is an
   overlay. Locations are the published ones.
 - The toggle starts off. Folder expansion happens only at Intent mount and at
@@ -246,9 +275,13 @@ None yet.
 
 ## Concern evidence
 
-Refinement was not needed. The slices follow one model: selection, then
-comparison, then the overlay join, then the shared tree and diff. Each
+All seven slice boundaries are retained. The slices follow one model:
+selection, then comparison, then the overlay join, then the shared tree and diff. Each
 Behavior has its own proof loop, and Structure slice 3 comes directly before
 slice 4, the Behavior it enables. Slice 6's fixture extension is a known,
 bounded addition inside its own proof. Slice 2's spec updates have
-identified consumers. This review found no remaining slice-specific concern.
+identified consumers. Slice 1 now owns Recently done keyboard selection proof;
+slices 4–6 explicitly cover deleted files and renames across Intent locations
+through the same overlay and toggle model, including a completed-story deletion
+absent from the published inventory. No additional slice or sizing exception is
+needed. This review found no remaining slice-specific concern.
