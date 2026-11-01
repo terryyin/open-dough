@@ -42,11 +42,12 @@ test("Intent shows Pending and Accepted candidate groups with every recorded fie
     const accepted = record.getByRole("region", {
       name: "Accepted necessary costs",
     });
-    await expect(pending.getByRole("article")).toHaveCount(1);
+    await expect(pending.getByRole("article")).toHaveCount(2);
     await expect(accepted.getByRole("article")).toHaveCount(3);
-    await expect(
-      pending.getByRole("heading", { name: "launch-records-poll-waits" }),
-    ).toBeVisible();
+    await expect(pending.getByRole("heading", { level: 4 })).toHaveText([
+      "launch-records-poll-waits",
+      "moved-test-after-record",
+    ]);
     await expect(accepted.getByRole("heading", { level: 4 })).toHaveText([
       "story-review-completed-journey-landed-runs-tail",
       "agent-launch-poles",

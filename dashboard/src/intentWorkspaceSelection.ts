@@ -3,7 +3,8 @@
 // Disposable page state (ADR 0008). The provider remounts on source or
 // revision identity so selection clears with that identity
 // (`./IntentPerspective.tsx`). The location tree and Purpose read and set
-// it through this owner; the candidate-record view will share it.
+// it through this owner; the candidate-record view shares it when opening
+// a recorded location.
 
 import {
   createContext,
@@ -17,6 +18,12 @@ export type IntentSelection = {
   readonly path: string;
   readonly caseTarget?: string;
 };
+
+/** Open a configured Intent file from a candidate-record entry. */
+export type OpenCandidateLocation = (
+  selection: IntentSelection,
+  entrySlug: string,
+) => void;
 
 export type IntentWorkspaceSelection = {
   readonly selection: IntentSelection;

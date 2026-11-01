@@ -144,7 +144,7 @@ at narrow width.
 
 ### 3. Open recorded test locations from an entry
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright journeys for examples 1 (open and return), 2, 3, 4 (outside
 configured), 5, and 6. Boundary cases cover the pure matching rule over the
 real-record shapes (backticked full path, bare unique, bare ambiguous,
@@ -224,6 +224,10 @@ Ambient `CURSOR_CONVERSATION_ID` can attach managed-delivery observation in
 tests that intend an unavailable bridge — clear it for that case. Concurrent
 dashboard runs must drop `FORCE_COLOR`/`NO_COLOR` so a coloured coordinator
 shell cannot fail the silent-local contract.
+
+Slice 3: Location matching is one pure function over recorded text, the record
+path, and `IntentLocation.files` plus location roots. Record view stays mounted
+so return does not reread; `data-candidates-reads` observes that.
 
 ## Concern evidence
 

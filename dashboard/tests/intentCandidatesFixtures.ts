@@ -1,8 +1,7 @@
 // Published Test Optimization Candidates records for Intent journeys
 // (`./intent-test-optimization-candidates.spec.ts`), shaped like the real
-// Open Dough record summarised in SEED-192.
+// Open Dough, Doughnut, and Pygardon records summarised in SEED-192.
 
-import { candidateEntryFields } from "../src/testOptimizationCandidates.ts";
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import {
   browseSpec,
@@ -11,8 +10,16 @@ import {
   publishIntentProject,
   shellCheck,
 } from "./intentCodeBrowseFixtures.ts";
+import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
 
 export { testOptimizationCandidatesPath };
+
+export {
+  doughnutFeaturePath,
+  publishDoughnutWithCandidates,
+  publishPygardonOutsideConfigured,
+  pygardonClipPath,
+} from "./intentCandidatesOtherProjectFixtures.ts";
 
 export const evidenceDocPath = "docs/maintainer/dashboard-test-value-review.md";
 
@@ -21,41 +28,24 @@ export const evidenceDoc = `# Dashboard test value review
 Section for candidates evidence.
 `;
 
-const fieldLabel = Object.fromEntries(
-  candidateEntryFields.map((field) => [field.key, field.label]),
-) as Record<(typeof candidateEntryFields)[number]["key"], string>;
+export const openDoughSpecPaths = {
+  polesTerminal: "dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts",
+  polesSecond: "dashboard/tests/agent-launch-second-server.spec.ts",
+  attention: "dashboard/tests/agent-completion-attention.spec.ts",
+  watcher: "dashboard/tests/production-watcher.spec.ts",
+  watcherUpdates: "dashboard/tests/production-watcher-updates.spec.ts",
+  watcherFailures: "dashboard/tests/production-watcher-failures.spec.ts",
+  storyReview: "dashboard/tests/story-review-completed.spec.ts",
+  storyReviewBoundary:
+    "dashboard/tests/boundary/story-review-completed.spec.ts",
+  gherkin: "dashboard/tests/intent-gherkin-browse.spec.ts",
+  movedAway: "dashboard/tests/moved-away-after-record.spec.ts",
+} as const;
 
-function entry(
-  slug: string,
-  fields: {
-    locations: string;
-    observedCost: string;
-    uniqueProtection: string;
-    alternativesAttempted: string;
-    disposition: string;
-    date: string;
-    evidence: string;
-    humanDecisionNeeded?: string;
-  },
-): string {
-  const human =
-    fields.humanDecisionNeeded === undefined
-      ? ""
-      : `- **${fieldLabel.humanDecisionNeeded}:** ${fields.humanDecisionNeeded}\n`;
-  return `### ${slug}
-
-- **${fieldLabel.locations}:** ${fields.locations}
-- **${fieldLabel.observedCost}:** ${fields.observedCost}
-- **${fieldLabel.uniqueProtection}:** ${fields.uniqueProtection}
-- **${fieldLabel.alternativesAttempted}:** ${fields.alternativesAttempted}
-- **${fieldLabel.dispositionRationale}:** ${fields.disposition}
-- **${fieldLabel.date}:** ${fields.date}
-${human}- **${fieldLabel.evidence}:** ${fields.evidence}
-`;
-}
-
-// Open Dough-shaped record: one pending, three accepted, evidence Markdown
-// link, and a `sha:path` reference kept as recorded text.
+// Open Dough-shaped record: pending and accepted entries, evidence Markdown
+// link (including one to a configured Intent file), and a `sha:path` kept as
+// recorded text. Locations cover full paths, bare unique/ambiguous names,
+// and a four-file family.
 export const openDoughCandidatesRecord = `# Test Optimization Candidates
 
 ## Latest pass
@@ -85,6 +75,15 @@ ${entry("launch-records-poll-waits", {
   evidence:
     "SEED-208 Results in `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`",
 })}
+${entry("moved-test-after-record", {
+  locations: `\`${openDoughSpecPaths.movedAway}\``,
+  observedCost: "was about 12s before the file moved",
+  uniqueProtection: "former integrated path no longer published",
+  alternativesAttempted: "none",
+  disposition: "pending — path must be rewritten after the move",
+  date: "2026-11-01",
+  evidence: "recorded before the move",
+})}
 ## Accepted necessary costs
 
 ${entry("story-review-completed-journey-landed-runs-tail", {
@@ -99,8 +98,7 @@ ${entry("story-review-completed-journey-landed-runs-tail", {
   evidence: `[source comparison and ROI](../${evidenceDocPath})`,
 })}
 ${entry("agent-launch-poles", {
-  locations:
-    "`dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts` and `dashboard/tests/agent-launch-second-server.spec.ts`",
+  locations: `\`${openDoughSpecPaths.polesTerminal}\` and \`${openDoughSpecPaths.polesSecond}\``,
   observedCost: "second-server case measured 52.5s / 51.2s after SEED-176",
   uniqueProtection: "dual-preview page protection through reload",
   alternativesAttempted:
@@ -108,11 +106,10 @@ ${entry("agent-launch-poles", {
   disposition:
     "accepted necessary cost — preserve the unique multi-step journeys. Acceptance excludes nothing.",
   date: "2026-10-30",
-  evidence: `[SEED-176 local measurements](../${evidenceDocPath})`,
+  evidence: `[SEED-176 local measurements](../${evidenceDocPath}); Intent file [second-server journey](../${openDoughSpecPaths.polesSecond})`,
 })}
 ${entry("long-integrated-journeys", {
-  locations:
-    "`dashboard/tests/agent-completion-attention.spec.ts` and production-watcher chains",
+  locations: `\`${openDoughSpecPaths.attention}\` and the production-watcher chains in \`${openDoughSpecPaths.watcher}\`, \`${openDoughSpecPaths.watcherUpdates}\`, and \`${openDoughSpecPaths.watcherFailures}\``,
   observedCost: "approximately 39.6s attention case on the SEED-177 baseline",
   uniqueProtection:
     "attention reporting remains durable through column changes",
@@ -167,15 +164,27 @@ export const mismatchedCandidatesRecord = `# Not A Candidates Record
 Body that Intent must not partially show.
 `;
 
+const openDoughSources = {
+  [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
+  [evidenceDocPath]: evidenceDoc,
+  [openDoughSpecPaths.gherkin]: browseSpec,
+  [openDoughSpecPaths.polesTerminal]: browseSpec,
+  [openDoughSpecPaths.polesSecond]: browseSpec,
+  [openDoughSpecPaths.attention]: browseSpec,
+  [openDoughSpecPaths.watcher]: browseSpec,
+  [openDoughSpecPaths.watcherUpdates]: browseSpec,
+  [openDoughSpecPaths.watcherFailures]: browseSpec,
+  [openDoughSpecPaths.storyReview]: browseSpec,
+  [openDoughSpecPaths.storyReviewBoundary]: browseSpec,
+  "tests/compare-versions.sh": shellCheck,
+};
+
 export function publishOpenDoughWithCandidates(
   page: Parameters<typeof publishIntentProject>[0],
   record: string = openDoughCandidatesRecord,
 ) {
   return publishIntentProject(page, openDough, openDoughSettings, {
+    ...openDoughSources,
     [testOptimizationCandidatesPath]: record,
-    [evidenceDocPath]: evidenceDoc,
-    "dashboard/tests/intent-gherkin-browse.spec.ts": browseSpec,
-    "dashboard/tests/agent-launch-second-server.spec.ts": browseSpec,
-    "tests/compare-versions.sh": shellCheck,
   });
 }
