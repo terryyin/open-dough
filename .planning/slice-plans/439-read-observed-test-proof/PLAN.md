@@ -213,6 +213,14 @@ listener outlived the test. The step now also polls the third answer. A forced
 delay on that answer failed before the fix and passed 5/5 after; the spec passed
 60/60 under `--repeat-each 10`.
 
+Story-branch CI repair (2026-11-01): run 41326542071 on `23e725f2` failed
+`agent-launch-base-ci-completed-history.spec.ts`: its fixture committed the
+running base before a merged sibling, so a sibling landing a second later was
+listed first by date and its failure judged nearest, as the product should.
+The fixture now commits the sibling first. A forced one-second gap reproduced
+the failure before and passed after; the spec passed 30/30 under
+`--repeat-each 10`, and the other base-CI specs passed.
+
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
 Status: planned
