@@ -1,11 +1,14 @@
-// Intent lists and reads configured TypeScript, Python, JavaScript, and shell
-// test source at the observed revision (../src/IntentPerspective.tsx): matched
-// files under include patterns, helpers and product files omitted, headings
-// naming path/kind/patterns, and exact text with kind styling and the
-// observed revision.
+// Intent lists and reads configured code test source at the observed revision
+// (../src/IntentPerspective.tsx): include-pattern matches, helpers/product
+// omitted, group headers, and exact text with kind styling.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
+import {
+  expandIntentGroup,
+  expectIntentGroupsCollapsed,
+  intentGroupToggle,
+} from "./intentPerspectivePage.ts";
 import { expectKeywordAndStringColours } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -56,14 +59,14 @@ test("Intent lists matched code test files under include patterns, omits helpers
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+  await expectIntentGroupsCollapsed(intent);
 
   await test.step("Ex 1: TypeScript specs among helpers; heading names patterns; selecting shows exact text, revision, and kind styling", async () => {
-    const testsHeading = intent.getByRole("heading", {
-      name: /dashboard\/tests/,
-    });
+    const testsHeading = intentGroupToggle(intent, "dashboard/tests");
     await expect(testsHeading).toBeVisible();
     await expect(testsHeading).toContainText("typescript");
     await expect(testsHeading).toContainText("**/*.spec.ts");
+    await expandIntentGroup(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
         name: "dashboard/tests/intent-gherkin-browse.spec.ts",
@@ -113,9 +116,10 @@ test("Intent lists matched code test files under include patterns, omits helpers
   });
 
   await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted; selecting shows kind styling", async () => {
-    const shellHeading = intent.getByRole("heading", { name: /^tests / });
+    const shellHeading = intentGroupToggle(intent, "tests");
     await expect(shellHeading).toContainText("shell");
     await expect(shellHeading).toContainText("*.sh");
+    await expandIntentGroup(intent, "tests");
     await expect(
       intent.getByRole("button", {
         name: "tests/compare-versions.sh",
@@ -142,9 +146,11 @@ test("Intent lists matched code test files under include patterns, omits helpers
 
   await test.step("Ex 4 javascript: matched *.test.mjs listed; fixtures omitted; selecting shows kind styling", async () => {
     await chooseProject(page, "Doughnut");
-    await expect(
-      intent.getByRole("heading", { name: /scripts/ }),
-    ).toContainText("**/*.test.mjs");
+    await expectIntentGroupsCollapsed(intent);
+    await expect(intentGroupToggle(intent, "scripts")).toContainText(
+      "**/*.test.mjs",
+    );
+    await expandIntentGroup(intent, "scripts");
     await expect(
       intent.getByRole("button", {
         name: "scripts/backend-test-worktree-admission.test.mjs",
@@ -176,10 +182,10 @@ test("Intent lists matched code test files under include patterns, omits helpers
 
   await test.step("Ex 2 colocated TypeScript and Ex 3 Python: specs listed; product and support omitted; selecting shows kind styling", async () => {
     await chooseProject(page, "Pygardon");
-    const frontendHeading = intent.getByRole("heading", {
-      name: /frontend\/src/,
-    });
+    await expectIntentGroupsCollapsed(intent);
+    const frontendHeading = intentGroupToggle(intent, "frontend/src");
     await expect(frontendHeading).toContainText("**/*.spec.tsx");
+    await expandIntentGroup(intent, "frontend/src");
     await expect(
       intent.getByRole("button", {
         name: "frontend/src/pages/AspyPage.devices.spec.tsx",
@@ -211,9 +217,10 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expect(tsxSource).toContainText('return "devices";');
     await expectKeywordAndStringColours(tsxSource, /^return$/, /^"devices"$/);
 
-    const pythonHeading = intent.getByRole("heading", { name: /^tests / });
+    const pythonHeading = intentGroupToggle(intent, "tests");
     await expect(pythonHeading).toContainText("python");
     await expect(pythonHeading).toContainText("**/test_*.py");
+    await expandIntentGroup(intent, "tests");
     await expect(
       intent.getByRole("button", {
         name: "tests/test_example.py",
