@@ -12,9 +12,32 @@ import {
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { proofOutcomes } from "./cucumberProof.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
+
+const proofObservation = z.object({
+  feature: z.string().min(1),
+  scenario: z.string(),
+  example: z.array(z.string()).optional(),
+  outcome: z.enum(proofOutcomes),
+  attempts: z.number().int().min(1),
+  durationMs: z.number().min(0),
+  finishedAt: z.string().min(1),
+  commit: commitSha,
+  featureBlob: commitSha,
+});
+
+// A Gherkin location's declared proof (`../server/intentProofRead.ts`).
+const locationProof = z.union([
+  z.object({
+    path: z.string().min(1),
+    featureBlobs: z.record(z.string(), z.string().min(1)),
+    observations: z.array(proofObservation),
+  }),
+  z.object({ path: z.string().min(1), problem: z.literal("unreadable") }),
+]);
 
 const intentLocation = z.object({
   path: z.string().min(1),
@@ -22,6 +45,7 @@ const intentLocation = z.object({
   include: z.array(z.string().min(1)).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),
+  proof: locationProof.optional(),
 });
 
 const okIntent = z.object({
@@ -31,6 +55,7 @@ const okIntent = z.object({
 });
 
 export type IntentLocation = z.infer<typeof intentLocation>;
+export type IntentLocationProof = z.infer<typeof locationProof>;
 export type IntentSettingsProblem = z.infer<typeof settingsProblem>;
 
 export type IntentLocations =

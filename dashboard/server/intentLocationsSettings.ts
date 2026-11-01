@@ -5,6 +5,7 @@
 // with the locations read.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { ProofObservation } from "../src/cucumberProof.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 
@@ -17,6 +18,18 @@ export type IntentSettingsProblem = "malformed" | "unreadable";
 // supported, or the path holds none of the kind's selected files.
 export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
+// The committed proof a Gherkin location declares (`./intentProofRead.ts`):
+// its directory, each listed feature file's Git blob sha at the revision,
+// and the latest observation of each scenario of those files; or only the
+// directory when a proof file could not be read as one.
+export type IntentLocationProof =
+  | {
+      readonly path: string;
+      readonly featureBlobs: Readonly<Record<string, string>>;
+      readonly observations: readonly ProofObservation[];
+    }
+  | { readonly path: string; readonly problem: "unreadable" };
+
 export type IntentLocation = {
   readonly path: string;
   readonly kind: string;
@@ -27,12 +40,17 @@ export type IntentLocation = {
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
+  // Present only when a Gherkin location declares a proof directory.
+  readonly proof?: IntentLocationProof;
 };
 
 export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
   readonly include?: readonly string[];
+  // The repository directory the location's committed Cucumber proof lives
+  // in, when declared as a safe repository path.
+  readonly proof?: string;
 };
 
 export type DeclaredSettings =
@@ -81,20 +99,23 @@ export function declaredLocations(settings: string): DeclaredSettings {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       continue;
     }
-    const { path, kind, include } = entry as {
+    const { path, kind, include, proof } = entry as {
       path?: unknown;
       kind?: unknown;
       include?: unknown;
+      proof?: unknown;
     };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
+    const proofOf =
+      typeof proof === "string" && isSafeRepositoryPath(proof) ? { proof } : {};
     if (!("include" in (entry as object))) {
-      declared.push({ path, kind });
+      declared.push({ path, kind, ...proofOf });
       continue;
     }
     const patterns = includePatternsOf(include);
     if (patterns === undefined) continue;
-    declared.push({ path, kind, include: patterns });
+    declared.push({ path, kind, include: patterns, ...proofOf });
   }
   return declared.length === 0
     ? { kind: "absent" }

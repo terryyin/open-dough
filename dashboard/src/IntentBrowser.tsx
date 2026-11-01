@@ -1,12 +1,15 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`): Purpose
 // shows a selected feature's published text with line numbers and Gherkin
-// styling; Proof says none is available yet. A failed file read keeps its
-// own explanation and retry while the location tree stays usable.
+// styling; Proof lists its scenarios' latest committed observations
+// (`./IntentProof.tsx`) from the location's proof, read with the locations.
+// A failed file read keeps its own explanation and retry while the location
+// tree stays usable.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { IntentLocationTree } from "./IntentLocationTree.tsx";
+import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -57,9 +60,10 @@ export function IntentBrowser({
   }, [source, revision, selectedPath, fileRetry]);
 
   // The location's kind (with path for typescript/.tsx) selects the grammar.
-  const selectedLanguage = locations.find((location) =>
+  const selectedLocation = locations.find((location) =>
     location.files.includes(selectedPath),
-  )?.kind;
+  );
+  const selectedLanguage = selectedLocation?.kind;
 
   return (
     <div className="intent-browser">
@@ -109,14 +113,11 @@ export function IntentBrowser({
         </section>
         <section className="intent-proof" aria-labelledby={proofId}>
           <h3 id={proofId}>Proof</h3>
-          {selectedPath === "" ? (
-            <p className="quiet">Select a feature file to see its Proof.</p>
-          ) : (
-            <p>
-              No Proof is available for this file yet. Intent does not collect
-              or show test run observations here.
-            </p>
-          )}
+          <IntentProof
+            path={selectedPath}
+            text={fileState === "ready" ? text : undefined}
+            proof={selectedLocation?.proof}
+          />
         </section>
       </div>
     </div>

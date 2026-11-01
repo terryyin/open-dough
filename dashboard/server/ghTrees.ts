@@ -7,10 +7,12 @@
 import { GhFailure, isNotFound, runGh } from "./ghRead.ts";
 
 // One blob or tree a recursive Git tree lists, with its path relative to the
-// requested location.
+// requested location and the Git object sha that names its content: a
+// blob's sha is what `git hash-object` gives its bytes.
 export type TreeEntry = {
   readonly path: string;
   readonly type: "blob" | "tree";
+  readonly sha: string;
 };
 
 // Each path segment of the location, and the colon that joins the revision
@@ -62,9 +64,14 @@ export async function listRepositoryTreeViaGh(
     throw new GhFailure({ kind: "failed" });
   }
   return tree.flatMap((entry: unknown) => {
-    const { path: entryPath, type } = (entry ?? {}) as {
+    const {
+      path: entryPath,
+      type,
+      sha,
+    } = (entry ?? {}) as {
       path?: unknown;
       type?: unknown;
+      sha?: unknown;
     };
     if (typeof entryPath !== "string" || entryPath.length === 0) {
       return [];
@@ -72,6 +79,9 @@ export async function listRepositoryTreeViaGh(
     if (type !== "blob" && type !== "tree") {
       return [];
     }
-    return [{ path: entryPath, type }];
+    if (typeof sha !== "string" || sha.length === 0) {
+      return [];
+    }
+    return [{ path: entryPath, type, sha }];
   });
 }

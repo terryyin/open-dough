@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#read-observed-test-proof
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#read-observed-test-proof).
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -81,7 +82,7 @@ lands first and keep both specs' selection steps aligned.
 
 ### 1. Intent shows the latest committed proof of each scenario
 Type: Behavior
-Status: planned
+Status: done
 Proof: New Playwright Intent proof journey (beside
 `intent-gherkin-browse.spec.ts`) with published Pygardon-like feature and proof
 files, covering examples 1–4, 6 and 7. Apply the repository's
@@ -96,6 +97,23 @@ observed on this file version. Unobserved rows say so, and a count line
 summarizes. Draft the reference's file format in
 `src/skills/dough-test-optimization/references/cucumber-proof.md` here as the
 reader's contract. It is not yet in `managed_files`.
+
+Accepted proof (2026-11-01): `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-gherkin-browse.spec.ts dashboard/tests/intent-gherkin-unusable.spec.ts dashboard/tests/intent-code-browse.spec.ts dashboard/tests/boundary/authenticated-read-intent-locations.spec.ts --reporter=list`
+passed 12 (the new spec 8/8 under `--repeat-each 4`; 8 passed again after
+refactoring), plus `authenticated-read-intent-selection` and
+`development-intent-frame-sessions` (3 passed) and `npm run typecheck:dashboard`.
+Per-commitment observations are in the [source review](source-review.md).
+`dashboard/src/gherkinScenarios.ts` matched `@cucumber/gherkin` 42 on all 169
+rows of Pygardon's real features.
+
+Learnings for slices 2–3: the contract is `intent.locations[].proof` on a
+`gherkin` location, and every `*.json` under it is a `{"version": 1,
+"observations": [...]}` file (fields in the reference). One invalid
+observation makes its whole file malformed, which the server answers as
+`proof: {path, problem: "unreadable"}`; the pane says only "could not be read"
+with no retry yet. Undeclared proof keeps the old placeholder. Slice 3 applies
+`dashboard/src/cucumberProof.ts` (`parseProofFile`, `latestObservations`) to the
+walk's files.
 
 ### 2. Proof absence and failures read distinctly
 Type: Behavior
@@ -173,6 +191,28 @@ the work → Intent shows those scenarios' latest proof beside their source.
   feature path and name, the default 2-worker profile ran unchanged, and the
   worktree stayed clean. Settled for the formatter route; slice 4 still owns
   the configured adoption and landing.
+
+## Story obligations
+
+### G1. Undeclared proof keeps the old placeholder
+Reported: slice 1 — "When proof is not declared, the old \"No Proof is available for this file yet…\" text is kept"
+Story clause: "A project without a declared proof directory says so and names the reference to adopt"
+Disposition: receiving slice 2
+
+### G2. Declared proof with nothing for this file shows only Not observed rows
+Reported: slice 1 — "the empty or absent proof directory (which shows every row as Not observed), was not exercised"
+Story clause: "A declared directory with no observation for this file says nothing has been observed yet"
+Disposition: receiving slice 2
+
+### G3. Unreadable proof has no retry and is unexercised
+Reported: slice 1 — "The pane then shows \"Proof in <dir> could not be read.\" with no retry yet"
+Story clause: "An unreadable or malformed proof file is reported as a read failure with retry"
+Disposition: receiving slice 2
+
+### G4. Gherkin scanner edge cases unproved
+Reported: slice 1 — "Not exercised: escaped pipes in example cells; multiple Examples blocks; Rule: nesting; doc strings containing keywords"
+Story clause: "lists the file's scenarios and outline rows in source order"
+Disposition: no user cost "A developer reviewing a Pygardon feature file in Intent sees": compared at acceptance against Cucumber's own @cucumber/gherkin 42 parser on all of Pygardon's e2e_test/features (169 rows, including its Rule: and Background: files), dashboard/src/gherkinScenarios.ts produced identical rows; Pygardon uses no escaped pipes, doc strings or multiple Examples blocks, and other projects are deferred
 
 ## Human checkpoint
 
