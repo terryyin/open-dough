@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources ([plan](slice-plans/433-local-test-resources/PLAN.md))
 - [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion ([plan](slice-plans/432-trustworthy-ci-completion/PLAN.md))
 - [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost ([plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md))
 - [Record source-review observations through one supported operation](seeds/SEED-010-learn-from-execution-retrospectives.md#record-source-review-observations) — SEED-010#record-source-review-observations ([plan](slice-plans/434-record-source-review-observations/PLAN.md))
