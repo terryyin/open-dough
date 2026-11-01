@@ -40,11 +40,11 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4d.1 | The duplicate gaps case for ambiguous attribution is removed | slice 5 | observed: story-review-completed-gaps.spec.ts has no ambiguous-merge iteration |
 | 4d.2 | Ambiguous attribution still fails closed with no files after that removal | slice 5 | observed: boundary/story-review-completed-driver.spec.ts ambiguous-merge unavailable + not.toHaveProperty(files); negative control tmp/s5-negctl |
 | 4d.3 | Missing-agent recovery remains protected | slice 5 | observed: story-review-completed-gaps.spec.ts agentless story-branch recovery and trunk missing-agent tests |
-| 4e.1 | Recently-done deletion keeps each placement result | slice 6 | |
-| 4e.2 | Recently-done deletion keeps each focus result | slice 6 | |
-| 4e.3 | Recently-done deletion keeps each no-stop result | slice 6 | |
-| 4e.4 | Incidental launch setup for those results uses real APIs | slice 6 | |
-| 4e.5 | Generic confirmation proof has one owner | slice 6 | |
+| 4e.1 | Recently-done deletion keeps each placement result | slice 6 | observed: agent-launch-recent-delete.spec.ts Recently done, done card, Taken, Backlog, sidebar counts |
+| 4e.2 | Recently-done deletion keeps each focus result | slice 6 | observed: agent-launch-recent-delete.spec.ts toBeFocused after each delete |
+| 4e.3 | Recently-done deletion keeps each no-stop result | slice 6 | observed: agent-launch-recent-delete.spec.ts claudeStopCalls unchanged and stored() loses only the deleted id |
+| 4e.4 | Incidental launch setup for those results uses real APIs | slice 6 | observed: agent-launch-recent-delete.spec.ts setup via agentLaunchBoundary launch and markDone |
+| 4e.5 | Generic confirmation proof has one owner | slice 6 | observed: agent-launch-story-card-delete.spec.ts Keep/Escape/focus/no announcement; removed from recent-delete |
 | 4f.1 | The blank/text matrix is reduced | slice 7 | |
 | 4f.2 | One full ad-hoc terminal attachment path survives that reduction | slice 7 | |
 | 4f.3 | Blank UI submission is still proved, at the cheapest real boundary | slice 7 | |

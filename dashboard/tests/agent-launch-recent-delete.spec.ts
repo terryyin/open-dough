@@ -1,25 +1,30 @@
 import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 // Recently done records on the committed story-columns origin (./launchJourney.ts):
-// State unknown entries offer Delete record… with the story-card-entry question;
-// deletion removes the entry without success text and moves focus within its list,
-// then to its done card or the section. The sidebar offers no deletion, nor do
-// Working/Done entries. Origin owns placement; the dashboard drives fake-claude.
+// State unknown entries offer Delete record…; deletion removes only that record
+// from Recently done and the sidebar, stops nothing, and moves focus within its
+// list, then to its done card or the section. The sidebar offers no deletion, nor
+// do Working/Done entries. Origin owns placement; the dashboard drives fake-claude.
+// The question, Keep, Escape and their focus: ./agent-launch-story-card-delete.spec.ts.
 // Session unavailable: ./agent-launch-recent-delete-unavailable.spec.ts.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
 import {
+  identityA,
+  identityB,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { launch, markDone } from "./agentLaunchBoundary.ts";
+import {
   storyCardSessionOf,
-  storyCardSessions,
   expectMembership,
   parts,
   standaloneSessionName,
-  sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
@@ -28,17 +33,11 @@ import {
 } from "./launchJourney.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import { idleBetweenSteps } from "./support/markDone.ts";
 
 test.setTimeout(120_000);
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
-test.use({
-  projectFolders: ["open-dough"],
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
-});
+test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting a Recently done entry's record", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -55,46 +54,57 @@ test.describe("deleting a Recently done entry's record", () => {
     dashboard,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryColumnsJourney(
+    const { card, settled, show } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sessionsSidebarParts(page);
-    const queued = {
+    await expectMembership(page, {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
-    };
-    await expectMembership(page, queued);
+    });
     await settled();
-    await launch(readyStory, "Execution");
-    await launch(notRefinedStory, "Refinement");
-    const done = await sessionNamedBy(
-      storyCardSessionOf(card(readyStory), "Execution"),
+    // The four sessions and two done marks are setup, started and marked
+    // through the launch boundary; each launch answers once it settled.
+    const started = async (
+      story: string,
+      identity: string,
+      workflow: "execution" | "refinement",
+    ) => {
+      const answer = await launch(dashboard, {
+        source: "open-dough",
+        identity,
+        title: story,
+        workflow,
+        host: "claude",
+      });
+      const { record } = JSON.parse(answer.body) as {
+        record?: { session: { sessionId: string } };
+      };
+      if (record === undefined) throw new Error(`Not launched: ${answer.body}`);
+      return record.session.sessionId;
+    };
+    const markedDoneOf = async (session: string) => {
+      // Idle between steps, the mark takes the native rename at once.
+      idleBetweenSteps(dashboard, session);
+      const answer = await markDone(dashboard, {
+        source: "open-dough",
+        host: "claude",
+        session,
+      });
+      expect(answer.status, answer.body).toBe(200);
+    };
+    const done = await started(readyStory, identityB, "execution");
+    await markedDoneOf(done);
+    const inDoneStory = await started(
+      notRefinedStory,
+      notRefinedIdentity,
+      "refinement",
     );
-    idleBetweenSteps(dashboard, done);
-    await markDoneAnyway(storyCardSessionOf(card(readyStory), "Execution"));
-    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
-    await launch(readyStory, "Refinement");
-    await launch(takenStory, "Execution");
-    // Every launch finishes, its entry naming its session, before the page
-    // reloads; reloading sooner would lose a launch still in flight.
-    const inDoneStory = await sessionNamedBy(
-      storyCardSessionOf(card(notRefinedStory), "Refinement"),
-    );
-    idleBetweenSteps(dashboard, inDoneStory);
-    await markDoneAnyway(
-      storyCardSessionOf(card(notRefinedStory), "Refinement"),
-    );
-    await expect(
-      storyCardSessionOf(card(notRefinedStory), "Refinement"),
-    ).toHaveCount(0);
-    const refinement = await sessionNamedBy(
-      storyCardSessionOf(card(readyStory), "Refinement"),
-    );
-    const storyA = await sessionNamedBy(
-      storyCardSessionOf(card(takenStory), "Execution"),
-    );
+    await markedDoneOf(inDoneStory);
+    const refinement = await started(readyStory, identityB, "refinement");
+    const storyA = await started(takenStory, identityA, "execution");
     const recordFile = path.join(
       dashboard.home,
       ".open-dough",
@@ -137,9 +147,6 @@ test.describe("deleting a Recently done entry's record", () => {
       await (await deleteButton(entry)).click();
       await confirm(entry).click();
       await expect(entry).toHaveCount(0);
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
     };
 
     await test.step("a session marked done and one whose story is done, inside its done card, are Recently done entries", async () => {
@@ -189,24 +196,14 @@ test.describe("deleting a Recently done entry's record", () => {
       }
     });
 
-    await test.step("deleting the last session inside a done story's card asks first, removes it from Recently done and the sidebar, and puts the keyboard on the card, which stays", async () => {
+    await test.step("deleting the last session inside a done story's card removes it from Recently done and the sidebar, and puts the keyboard on the card, which stays", async () => {
       await showColumn(page, "Recently done");
-      await (await deleteButton(insideDoneCard)).click();
-      await expect(
-        insideDoneCard.getByRole("button", { name: "Keep" }),
-      ).toBeFocused();
-      expect(stored()).toContain(inDoneStory);
+      await deleteEntry(insideDoneCard);
 
-      await confirm(insideDoneCard).click();
-
-      await expect(insideDoneCard).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(2);
       await expect(sidebar.sidebar.getByText(notRefinedStory)).toHaveCount(0);
       await expect(doneCard).toBeFocused();
       await expect(doneCard.locator(".session-entry")).toHaveCount(0);
-      await expect(
-        page.getByText("Session record deleted", { exact: true }),
-      ).toHaveCount(0);
       expect(stored()).not.toContain(inDoneStory);
       expect(stored()).toContain(done);
       expect(dashboard.claudeStopCalls()).toHaveLength(stopsBeforeDeletes);

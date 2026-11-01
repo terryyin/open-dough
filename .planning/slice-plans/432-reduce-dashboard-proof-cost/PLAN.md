@@ -247,7 +247,7 @@ cases, 43 → 40 s wall at `--workers=1` (`tmp/s5-before-w1`, `tmp/s5-after-w1`)
 
 ### 6. Exercise deletion placements without replaying incidental launch dialogs
 Type: Structure
-Status: planned
+Status: done
 Proof: Recently-done/done-card/Taken/Backlog/sidebar placement and keyboard
 destinations survive deletion; only the selected stored record disappears and
 no native conversation is stopped.
@@ -260,6 +260,18 @@ page action. Keep all distinct placement observations and private test state.
 Run both deletion files plus their unavailable siblings. Expected gain is
 incidental UI setup and simpler orchestration; dialog assertion trimming alone
 has negligible expected wall return. Do not merge unrelated lifecycle tests.
+
+Result: `agent-launch-recent-delete` now starts its four incidental sessions
+with `agentLaunchBoundary.ts` `launch` and marks two done with `markDone`
+(both awaited to settlement), drops the `DOUGH_DONE_RENAME_WAIT_MS` override,
+and keeps every placement, focus, sidebar, selected-record and no-stop
+observation; deletion stays a page action. Its Keep focus, record kept while
+asking and no success announcement are owned by
+`agent-launch-story-card-delete` (and the unavailable sibling); the Done-entry
+no-delete check stays here because that owner covers only Working and Needs
+input. Runtime unchanged (7.2 → 7.0 s; the six API operations still settle in
+about 2.1 s); retained as simpler orchestration. Family 9/9 strict at both
+worker counts and recent-delete three consecutive passes (`tmp/s6-*`).
 
 ### 7. Prove automatic terminal attachment once across equivalent input shapes
 Type: Structure
