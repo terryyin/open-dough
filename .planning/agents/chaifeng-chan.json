@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-010#record-source-review-observations",
+  "mode": "story-branch",
+  "branch": "cursor/record-source-review-observations-through-one-su",
+  "host": "cursor",
+  "model": "auto"
+}
