@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-192#review-test-optimization-candidates",
+  "mode": "story-branch",
+  "branch": "cursor/review-test-optimization-candidates-and-accepted",
+  "host": "cursor",
+  "model": "auto"
+}
