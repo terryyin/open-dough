@@ -1,15 +1,18 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-10-29","reviewAfter":"2026-11-04"}
+{"schemaVersion":1,"reviewed":"2026-11-01","reviewAfter":"2026-11-04"}
 ```
 
-Reviewed 2026-10-29 (Asia/Singapore): targeted response-watch review of Open Dough,
-Doughnut, Pygardon and Lizard sources and relevant retained findings; production
-inventory rechecked unchanged. Terry Talks is outside shared collection because
-process retrospective is off and has no local findings record. The remaining
-scope-limit watch awaits verified relevant use after release. Lizard's
-missing observer-identity receipt remains separately retained as ODF-376.
+Reviewed 2026-11-01 (Asia/Singapore): combined-cycle review of Open Dough,
+Doughnut, Pygardon and Lizard post-local sources and authoritative retained
+findings; production inventory rechecked unchanged. Terry Talks is outside
+shared collection because process retrospective defaults off, with no local
+findings record. No encountered execution supplies the scope-watch’s complete
+post-adoption restriction/independent-reason/decision event; installation and
+unrelated successful delivery do not establish that use. Watch start remains
+unknown. Response observations at ODF-139/354 and counterevidence at
+ODF-150/264 change no watch state here.
 
 <a id="scope-limits-and-required-restrictions"></a>
 
@@ -52,5 +55,4 @@ missing observer-identity receipt remains separately retained as ODF-376.
 - **Review after:** 2026-11-04 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-10-29 (Asia/Singapore), historical/authoring review and
-  release/installation verification; no qualifying use of the fix observed.
+- **Last assessed:** 2026-11-01 (Asia/Singapore), complete selected shared-source review and targeted response connections; no qualifying ordinary restriction decision using the fix was established.

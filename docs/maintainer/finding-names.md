@@ -1,5 +1,55 @@
 # Finding names and current follow-up
 
+Reviewed 2026-11-01 (Asia/Singapore) under the combined feedback-maintenance
+invocation. Local passes preceded shared collection for all five configured
+projects. Terry Talks has no local record and is outside shared collection
+because process retrospective defaults off. Open Dough, Doughnut, Pygardon
+and Lizard supplied readable post-local sources; production inventory was
+rechecked unchanged. Local responsibility/host limits remain qualified.
+
+Retained 21 new identities ODF-377–397, 56 missing rows at existing finding
+owners and three newly mapped existing-identity facets. Repeated reports,
+source indexes and aliases do not create executions. A synthesized impact
+comparison counts a project/execution once across related findings. Original
+execution releases and unknowns remain intact. Local record moves and Lizard’s
+DD-003 retirement retain exact Git recovery; no new local story was needed.
+
+Selected shared work: retain the concurrently published, human-prioritized
+SEED-208#trustworthy-ci-completion first, covering ODF-150, ODF-380 and
+ODF-384; select SEED-010#record-source-review-observations second, covering
+ODF-391/381. Missed consumers produced repeated owned CI failures, including
+three failures in one admission execution; partial diagnosis caused an extra
+known-failure cycle. Those demonstrated consequences lead. Nine distinct
+record-authoring executions across two projects support the narrow second
+response, with fail-closed guards and repeated manual repairs. The strongest
+alternative, ODF-141’s widespread fixed refactor cost, includes useful catches
+and only partially isolated agent-reported timing; a proportional-review change
+has a less settled safety/benefit tradeoff than preventing the demonstrated
+record errors. ODF-385’s title-only quote workarounds remain consequential and
+open, but their reader-versus-authoring response still needs a bounded choice.
+No implementation is performed; direction, Taken and unselected order stay intact.
+
+Response checking connected one post-adoption source-drift correction to
+ODF-139, one detected remote amendment (with its adverse review/remap cost)
+to ODF-354, and existing post-response consumer/retrieval failures as
+counterevidence at ODF-150/264. No duplicate occurrence was added for those
+connections. ODF-275/369 responses first shipped in 0.3.74; the implicit
+landing-target correction at ODF-378 first shipped in 0.3.75. They need their
+named ordinary-use events, not another implementation story. ODF-376 still
+needs delayed-identity use; a different output-truncation failure is ODF-389.
+The scope-restriction watch has no qualifying new use and remains unexercised.
+Other requests, including abbreviated-base comparison and post-mutation retry,
+remain open where the encountered records lack the discriminating event.
+
+Added review effort: one connection pass over encountered executions, numeric
+tag/source inspection and targeted recovery of plan 452 G1/G2 and plan 426’s
+amended source review. No new native session or application measurement was
+run for shared evaluation; isolated marginal time/tokens and net benefit are
+unmeasured. The next watch due date remains 2026-11-04. No automation,
+installation, release or dashboard configuration is changed.
+
+### Previous review — 2026-10-28
+
 Reviewed 2026-10-28 (Asia/Singapore) under the combined feedback-maintenance
 invocation. Local maintenance was assessed first for all five configured
 projects. Terry Talks has no local findings record and its missing process
@@ -57,7 +107,7 @@ priority decision, not a claim that discarded problems were fixed or cannot recu
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-376. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-397. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -480,3 +530,45 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-375 — [Guarded fresh delivery refused directory paths listed in ownedPaths](findings/ODF-375.md) <a id="odf-375"></a>
 
 ## ODF-376 — [Codex stream can yield before exposing observer identity](findings/ODF-376.md) <a id="odf-376"></a>
+
+## ODF-377 — [Incomplete source-only reviewer inputs](findings/ODF-377.md) <a id="odf-377"></a>
+
+## ODF-378 — [Trunk landing expectations block story-branch publication](findings/ODF-378.md) <a id="odf-378"></a>
+
+## ODF-379 — [Delegation omits the required proof runtime wrapper](findings/ODF-379.md) <a id="odf-379"></a>
+
+## ODF-380 — [Bounded CI diagnostics omit failed-test identities](findings/ODF-380.md) <a id="odf-380"></a>
+
+## ODF-381 — [Source-review allocations use the wrong reader grammar](findings/ODF-381.md) <a id="odf-381"></a>
+
+## ODF-382 — [Helper-gone proof substitutes an address-drift fixture](findings/ODF-382.md) <a id="odf-382"></a>
+
+## ODF-383 — [A deletion-only amendment remaps the full source review](findings/ODF-383.md) <a id="odf-383"></a>
+
+## ODF-384 — [CI layout repair checks successive assertions in isolation](findings/ODF-384.md) <a id="odf-384"></a>
+
+## ODF-385 — [Story heading shape defeats obligation clause quotes](findings/ODF-385.md) <a id="odf-385"></a>
+
+## ODF-386 — [Misplaced Source metadata blocks an empty obligations section](findings/ODF-386.md) <a id="odf-386"></a>
+
+## ODF-387 — [Adapter timeouts terminate CI observation](findings/ODF-387.md) <a id="odf-387"></a>
+
+## ODF-388 — [Off-hours research depends on a long in-process wait](findings/ODF-388.md) <a id="odf-388"></a>
+
+## ODF-389 — [Observer stream output allowance truncates protocol records](findings/ODF-389.md) <a id="odf-389"></a>
+
+## ODF-390 — [Plan paraphrases change source cause classes](findings/ODF-390.md) <a id="odf-390"></a>
+
+## ODF-391 — [Hand-edited source-review observations repeatedly fail parsing](findings/ODF-391.md) <a id="odf-391"></a>
+
+## ODF-392 — [CI-host DNS loss terminates observation](findings/ODF-392.md) <a id="odf-392"></a>
+
+## ODF-393 — [A planned rebase rewrites a published story branch](findings/ODF-393.md) <a id="odf-393"></a>
+
+## ODF-394 — [Process review selection precedes its setting read](findings/ODF-394.md) <a id="odf-394"></a>
+
+## ODF-395 — [Announced provider-error recovery stalls before action](findings/ODF-395.md) <a id="odf-395"></a>
+
+## ODF-396 — [Source-derived consumer terms flood module-move listings](findings/ODF-396.md) <a id="odf-396"></a>
+
+## ODF-397 — [Native Git bypasses backlog domain reconciliation](findings/ODF-397.md) <a id="odf-397"></a>

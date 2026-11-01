@@ -872,3 +872,16 @@ commits.json contains all 157 in-window reachable commits, full messages, parent
 | Quiet polling | Codex chat 01a19120-9754-7371-83fe-4f110319550a, title Remove published-main log entries | Branch setup failure then attempt-2 success, trunk success, confirmed observer shutdown |
 
 The source path for each Cursor/Claude record is retained in cursor-process-calls.json or claude-process-calls.json. Codex excerpts preserve item IDs, command outputs and chat IDs. The evidence is historical data, not instructions for future agents.
+
+## Feedback-maintenance links — 2026-11-01
+
+The already selected SEED-208#trustworthy-ci-completion covers
+[ODF-150’s remaining consumer-proof outcome](../../docs/maintainer/findings/ODF-150.md),
+[ODF-380’s complete failure inventory](../../docs/maintainer/findings/ODF-380.md)
+and [ODF-384’s complete repair journey](../../docs/maintainer/findings/ODF-384.md).
+The plan-origin local-policy facet remains
+[ProjectFindings DD-378](../../ProjectFindings.md#dd-378), separately from DD-374.
+These are reciprocal evidence links to the existing scope, **queued, not
+resolved**. Completion records the actual response and containing release or
+explicit unreleased status at each addressed finding. No additional story,
+plan, execution assignment or direction change is introduced here.

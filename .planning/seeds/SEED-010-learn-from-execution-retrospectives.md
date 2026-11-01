@@ -216,6 +216,48 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="record-source-review-observations"></a>
+
+### 1. Record source-review observations through one supported operation
+
+**Identity:** SEED-010#record-source-review-observations
+
+**Beneficiary and outcome:** A coordinator can retain source commitments,
+slice allocations and their observations through a supported recording path
+that the existing obligations reader accepts, with no hand-built Markdown
+cell escaping or reinterpretation of Slice versus obligation fields.
+
+**Evidence:** [ODF-391](../../docs/maintainer/findings/ODF-391.md) retains five
+Pygardon executions with repeated observation-cell repair/rebuild rounds;
+[ODF-381](../../docs/maintainer/findings/ODF-381.md) retains four Open Dough
+executions with Slice/Reported shape errors. These identities stay distinct.
+The guards refused malformed records before publication; no incorrect slice
+completion or measured universal saving is claimed.
+
+**Bounded scope:** Reuse the current source-review and Story obligations
+records, readers and refusal vocabulary. Settle an observation, its slice
+allocation or its linked obligation without changing source commitment text,
+IDs, earlier observations or human decisions. Support existing valid records;
+reject ambiguous identities or stale input without a partial write. This
+response changes authoring, not acceptance policy or review depth. Review-ID
+stability across changed source is outside this story.
+
+**Key examples:** Record text containing a literal pipe and quotes; record an
+exclusion through its obligation rather than putting G1 in Slice; record an
+observed slice; correct an existing observation while retaining unrelated
+rows; and refuse an unknown commitment or stale input with bytes intact.
+
+**Evaluation:** Replay at least one retained observation-cell case and one
+Slice/Reported case through the ordinary coordinator-facing recording path,
+then the unchanged consuming checks. Compare required edits/retries with the
+recorded hand-edit path and retain actual effort and limits. Preserve refusal
+of missing proof, unresolved obligations and wrong story quotes. A valid table
+alone is insufficient evidence of the commitment's observed result. At closure,
+record the actual response revision and first containing release (or explicitly
+unreleased status) at both addressed findings; later ordinary use remains a
+separate observation. **Queued, not refined or implemented.**
+
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations
