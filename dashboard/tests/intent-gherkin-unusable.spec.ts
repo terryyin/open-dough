@@ -1,7 +1,7 @@
 // Intent distinguishes unusable locations and failed reads
-// (../src/IntentPerspective.tsx): empty or missing paths, unsupported kinds,
-// a failed feature read with retry, and unreadable or malformed settings,
-// while other locations stay browseable.
+// (../src/IntentPerspective.tsx): empty or missing paths, pattern misses,
+// unsupported kinds, failed reads with retry, and settings problems, while
+// other locations stay browseable.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
@@ -9,6 +9,7 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 
 const doughnut: Project = {
   label: "Doughnut",
@@ -41,38 +42,17 @@ const usableFeature = `Feature: Usable
     Given a working location
 `;
 
-const mixedSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: "e2e_test/features", kind: "gherkin" },
-        { path: "no_such_dir", kind: "gherkin" },
-        { path: "empty_features", kind: "gherkin" },
-        { path: "frontend/src", kind: "typescript" },
-      ],
-    },
+const mixedSettings = JSON.stringify({
+  intent: {
+    locations: [
+      { path: "e2e_test/features", kind: "gherkin" },
+      { path: "no_such_dir", kind: "gherkin" },
+      { path: "empty_features", kind: "gherkin" },
+      { path: "frontend/src", kind: "java" },
+      { path: "scripts", kind: "javascript", include: ["**/*.test.mjs"] },
+    ],
   },
-  null,
-  2,
-);
-
-function publishIntentProject(
-  page: Parameters<typeof publishFiles>[0],
-  published: Project,
-  settings: string,
-  features: Readonly<Record<string, string>>,
-) {
-  return publishFiles(page, {
-    repository: published.repository,
-    ref: published.ref,
-    revision: published.revision,
-    files: {
-      ...filesOf(published),
-      ".planning/open-dough.json": `${settings}\n`,
-      ...features,
-    },
-  });
-}
+});
 
 test("Intent names empty, missing, and unsupported locations while others browse; failed file reads retry", async ({
   page,
@@ -82,6 +62,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
     "e2e_test/features/usable/usable.feature": usableFeature,
     "empty_features/README.md": "# no features here\n",
     "frontend/src/app.ts": "export {}\n",
+    "scripts/helpers.mjs": "export const helpers = {};\n",
   });
 
   await openUntilRead(page, "/?project=doughnut");
@@ -89,12 +70,12 @@ test("Intent names empty, missing, and unsupported locations while others browse
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
 
-  await test.step("a missing location and one with no .feature files say so by path; the usable location still browses", async () => {
+  await test.step("a missing location and one with no matching files say so by path; the usable location still browses", async () => {
     await expect(intent).toContainText(
-      "No .feature files are published at no_such_dir for this revision.",
+      "No gherkin files are published at no_such_dir for this revision.",
     );
     await expect(intent).toContainText(
-      "No .feature files are published at empty_features for this revision.",
+      "No gherkin files are published at empty_features for this revision.",
     );
     const usable = intent.getByRole("button", {
       name: "e2e_test/features/usable/usable.feature",
@@ -107,8 +88,23 @@ test("Intent names empty, missing, and unsupported locations while others browse
     ).toContainText("Feature: Usable");
   });
 
-  await test.step("kind typescript says it is not yet supported, naming it; others still browse", async () => {
-    await expect(intent).toContainText("Kind typescript is not yet supported.");
+  await test.step("Ex 6: a pattern location with no match names path and patterns; others still browse", async () => {
+    await expect(intent).toContainText(
+      "No files matching **/*.test.mjs are published at scripts for this revision.",
+    );
+    await expect(
+      intent.getByRole("heading", { name: /scripts/ }),
+    ).toContainText("**/*.test.mjs");
+    await expect(
+      intent.getByRole("button", {
+        name: "e2e_test/features/usable/usable.feature",
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+
+  await test.step("kind java says it is not yet supported, naming it; others still browse", async () => {
+    await expect(intent).toContainText("Kind java is not yet supported.");
     await expect(
       intent.getByRole("button", {
         name: "e2e_test/features/usable/usable.feature",
@@ -162,7 +158,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
       }),
     ).toBeVisible();
     await expect(intent).toContainText(
-      "No .feature files are published at no_such_dir for this revision.",
+      "No gherkin files are published at no_such_dir for this revision.",
     );
     await alert.getByRole("button", { name: "Retry" }).click();
     await expect(

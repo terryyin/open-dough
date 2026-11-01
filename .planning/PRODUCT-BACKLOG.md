@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Confirm a broken base before starting plan execution](seeds/SEED-210-confirm-broken-base-before-start.md#confirm-broken-base-before-start) — SEED-210#confirm-broken-base-before-start ([plan](slice-plans/435-confirm-broken-base-before-start/PLAN.md))
-- [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source ([plan](slice-plans/434-browse-configured-test-source/PLAN.md))
 
 ## Backlog list
 

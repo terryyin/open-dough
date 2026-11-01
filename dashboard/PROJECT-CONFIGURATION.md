@@ -38,12 +38,16 @@ Cancel or Escape keeps the entry and returns focus to Remove project.
 
 Each project's repository may also publish Intent locations in
 `.planning/open-dough.json` as
-`"intent": { "locations": [{ "path": "<folder>", "kind": "gherkin" }] }`.
-The kind selects which files Intent lists (`gherkin` → `.feature`) and the
-syntax grammar of the same name. Absence of the `intent` key means Intent
-shows that no locations are configured. An unreadable settings file and
-malformed JSON are distinct from that absence. The dashboard reads that
-setting and the listed source at the same observed revision as the backlog; it
-does not edit the file.
+`"intent": { "locations": [{ "path": "<folder>", "kind": "<kind>", "include": ["<pattern>", ...] }] }`.
+The kind selects which files Intent can list and the syntax grammar of the same
+name: `gherkin` (`.feature`), `typescript` (`.ts`, `.tsx`), `javascript`
+(`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An
+optional `include` list of path patterns relative to the location narrows that
+set (`*` stays in one folder; `**` crosses folders). Without `include`, Intent
+lists every file of the kind under the folder. Absence of the `intent` key
+means Intent shows that no locations are configured. An unreadable settings
+file and malformed JSON are distinct from that absence. The dashboard reads
+that setting and the listed source at the same observed revision as the
+backlog; it does not edit the file.
 
 [Dashboard overview](README.md) describes project observation and navigation.

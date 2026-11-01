@@ -13,12 +13,13 @@ import { agentSettingsPath } from "../../src/skills/dough-product-backlog/script
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
-const locationProblem = z.enum(["unsupported-kind", "no-features"]);
+const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
 
 const intentLocation = z.object({
   path: z.string().min(1),
   kind: z.string().min(1),
+  include: z.array(z.string().min(1)).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),
 });

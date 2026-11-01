@@ -31,7 +31,7 @@ import { reportedFailure } from "./readFailureMessage.ts";
 import { performListedRecordsRead } from "./listedRecordsRead.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import {
-  pathContainedInIntentLocations,
+  pathSelectedByIntentLocations,
   performIntentLocationsRead,
 } from "./intentLocationsRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
@@ -176,7 +176,7 @@ export async function perform(
                   path,
                   readPinned,
                 )) &&
-                !(await pathContainedInIntentLocations(path, readPinned))
+                !(await pathSelectedByIntentLocations(path, readPinned))
               ) {
                 return unreachable;
               }

@@ -1,7 +1,8 @@
-// One configured Intent location as a folder tree of its kind's files
-// (`./IntentBrowser.tsx`): nested disclosure through the shared FileTree,
-// with each feature row named by its full repository path. An unsupported
-// kind or a location with no features of its kind says so by path or kind.
+// One configured Intent location as a folder tree of its kind's selected
+// files (`./IntentBrowser.tsx`): nested disclosure through the shared
+// FileTree, with each file row named by its full repository path. An
+// unsupported kind or a location with no matching files says so by path,
+// kind, and include patterns.
 
 import { useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -9,10 +10,9 @@ import { reviewFileTree } from "./reviewFileTree.ts";
 import { FileTree } from "./StoryReviewFileTree.tsx";
 import "./story-review-files.css";
 
-const featureFileWords = (count: number) =>
-  count === 1 ? "feature file" : "feature files";
+const fileCountWords = (count: number) => (count === 1 ? "file" : "files");
 
-function FeatureRow({
+function FileRow({
   label,
   name,
   selected,
@@ -36,11 +36,21 @@ function FeatureRow({
   );
 }
 
+function selectionPhrase(location: IntentLocation): string {
+  if (location.include === undefined || location.include.length === 0) {
+    return location.kind;
+  }
+  return `${location.kind}, ${location.include.join(", ")}`;
+}
+
 function locationExplanation(location: IntentLocation): string {
   if (location.problem === "unsupported-kind") {
     return `Kind ${location.kind} is not yet supported.`;
   }
-  return `No .feature files are published at ${location.path} for this revision.`;
+  if (location.include !== undefined && location.include.length > 0) {
+    return `No files matching ${location.include.join(", ")} are published at ${location.path} for this revision.`;
+  }
+  return `No ${location.kind} files are published at ${location.path} for this revision.`;
 }
 
 export function IntentLocationTree({
@@ -73,6 +83,14 @@ export function IntentLocationTree({
       <h3 id={`${idPrefix}-heading`}>
         <code>{location.path}</code>{" "}
         <span className="intent-location-kind">{location.kind}</span>
+        {location.include !== undefined && location.include.length > 0
+          ? location.include.map((pattern) => (
+              <span key={pattern} className="intent-location-pattern">
+                {" "}
+                <code>{pattern}</code>
+              </span>
+            ))
+          : null}
       </h3>
       {location.problem !== undefined ? (
         <p className="intent-location-problem">
@@ -80,7 +98,7 @@ export function IntentLocationTree({
         </p>
       ) : (
         <FileTree
-          label={`Feature files under ${location.path}`}
+          label={`${selectionPhrase(location)} files under ${location.path}`}
           nodes={tree}
           selectedPath={selectedRelative}
           onSelect={(relative) => {
@@ -97,7 +115,7 @@ export function IntentLocationTree({
           }}
           idPrefix={`${idPrefix}-tree`}
           renderFile={({ file, name, selected, onSelect: select }) => (
-            <FeatureRow
+            <FileRow
               label={`${location.path}/${file.path}`}
               name={name}
               selected={selected}
@@ -106,7 +124,7 @@ export function IntentLocationTree({
               }}
             />
           )}
-          fileCountWords={featureFileWords}
+          fileCountWords={fileCountWords}
         />
       )}
     </section>

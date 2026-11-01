@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#browse-configured-test-source",
+  "title": "Browse the other configured test sources",
+  "completedAt": "2026-11-01T05:42:23.467Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "cursor",
+  "model": "auto"
+}

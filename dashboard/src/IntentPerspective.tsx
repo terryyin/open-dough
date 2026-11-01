@@ -1,6 +1,6 @@
 // The Intent perspective of the selected project: Purpose reads configured
-// Gherkin source at the observed revision through the authenticated read
-// boundary, and Proof truthfully says none is available yet. Unusable
+// test-source locations at the observed revision through the authenticated
+// read boundary, and Proof truthfully says none is available yet. Unusable
 // locations and failed reads each keep their own explanation; remaining
 // locations stay browseable.
 
@@ -21,7 +21,7 @@ function NotConfigured({ label }: { readonly label: string }) {
     <p className="intent-not-configured">
       No intent locations are configured for {label}. Add an{" "}
       <code>intent.locations</code> setting to <code>{agentSettingsPath}</code>{" "}
-      to publish Gherkin folders for Intent to read.
+      to publish test-source folders for Intent to read.
     </p>
   );
 }

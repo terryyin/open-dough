@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_browse-configured-test-source.json",
+      "identity": "SEED-192#browse-configured-test-source",
+      "completedAt": "2026-11-01T05:42:23.467Z",
+      "blob": "be797290ec803fb1ec5c4d1d7e6ecf9842319204"
+    },
+    {
       "fileName": "SEED-208_reduce-dashboard-proof-cost.json",
       "identity": "SEED-208#reduce-dashboard-proof-cost",
       "completedAt": "2026-11-01T05:32:18.498Z",
