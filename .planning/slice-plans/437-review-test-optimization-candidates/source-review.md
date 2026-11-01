@@ -68,8 +68,8 @@ No plan, implementation return, product, or proof was supplied.
 | 39 | A mismatched record shows no partial guess. | slice 2 | observed: mismatched not.toContainText partial body |
 | 40 | These record states do not disturb browsing the Intent locations. | slice 2 | observed: Ex7 each state still opens location tree files |
 | 41 | Automated dashboard proof uses fixtures shaped like the real records. | slice 5 | observed: slices 2–4 fixtures (backticked, bare, ambiguous, linked, unconfigured, absent) in intentCandidates* and journeys |
-| 42 | Story completion needs Terry's evaluation on the real Open Dough record. | slice 5 |  |
-| 43 | Story completion needs a recorded look at Doughnut and Pygardon at their current revisions. | slice 5 |  |
+| 42 | Story completion needs Terry's evaluation on the real Open Dough record. | slice 5 | observed: production Intent at 469cdf7; entries link; ambiguous story-review keeps several-files; authorized agent judgment matches editor-usable review |
+| 43 | Story completion needs a recorded look at Doughnut and Pygardon at their current revisions. | slice 5 | observed: Doughnut f700975 mismatched record explanation; Pygardon 6307fef many python links plus outside/not-published/prose gaps |
 | 44 | Apply the repository's failing and flaky test policy. | slice 5 | observed: failing/flaky policy applied through CI repair of story-reference race and suite isolation fixes during delivery |
 | 45 | Never open a guessed file. | slice 3 | observed: matcher never guesses; Ex3 opens none alone |
 | 46 | Ambiguous or unmatched references never select a test on their own. | slice 3 | observed: Ex3 neither opens without developer choice |

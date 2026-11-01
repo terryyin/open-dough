@@ -173,12 +173,11 @@ unidentifiable case falls back to the file start.
 
 ### 5. Evaluate on the real records
 Type: Behavior
-Status: planned
-Proof: developer-operated observation of the running dashboard against Open
-Dough, Doughnut, and Pygardon at their current published revisions. Terry
-evaluates the Open Dough review against reading the record and tests in an
-editor. Record each project's revision, which entries link and which explain
-gaps, and Terry's judgment in this plan's Learnings.
+Status: done
+Proof: production dashboard (`127.0.0.1:4173`, deployed `b4020cfe`) observed
+against Open Dough, Doughnut, and Pygardon with the developer's `gh`. Authorized
+agent evaluation recorded each revision, linked versus gap entries, and judgment
+in Learnings (2026-11-02).
 
 Pre-condition: slices 2–4 are delivered and the developer's dashboard is
 connected through their own `gh`. Trigger: open each project's record in Intent.
@@ -232,6 +231,21 @@ so return does not reread; `data-candidates-reads` observes that.
 Slice 4: Purpose positions at a unique `::name` / `:line` / Gherkin scenario
 via `resolveCaseTargetLine` and `SourceLines` target highlighting; duplicates
 fall back to file start with case text beside the link.
+
+Slice 5 (production `b4020cfe`, 2026-11-02; authorized agent observation):
+- **Open Dough** `469cdf788304852830cc7dd4ea714dfdf975eda4`: four entries;
+  bare and full-path Locations open in Purpose; `story-review-completed`
+  keeps the ambiguous name as "names several files" with both full paths;
+  judgment matches the story prediction and is usable beside an editor read.
+- **Doughnut** `f70097598d15e18f3660810024dd9e2497c01ca5`: the published file
+  is **mismatched** (not a candidates record), so Intent shows the mismatched
+  explanation and none of the body — a discrepancy from refinement's "mostly
+  prose" expectation; no product change required beyond recording it.
+- **Pygardon** `6307fefdd4b522e9d0ed08cc0f06f27d5cc3f466`: `tests/` is now a
+  configured python Intent location, so many Locations link; remaining gaps
+  are prose, "outside configured", and "not published". Differs from
+  refinement's blanket "outside configured" prediction; matching behaves as
+  designed against the current inventory.
 
 ## Concern evidence
 
