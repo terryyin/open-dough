@@ -1,0 +1,191 @@
+# Read observed proof alongside test purpose
+
+**Identity:** SEED-192#read-observed-test-proof
+**Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#read-observed-test-proof).
+
+## Goal and scope
+
+When a developer selects a Pygardon feature file in Intent, the Proof pane
+beside Purpose shows the latest committed observation of each of its scenarios
+and outline rows. Pygardon produces those observations from its ordinary
+Cucumber.js runs by following one released Open Dough reference document, a
+reference rather than a skill. The story's Scope owns the rules: one
+uniquely named file per run, rewritten after each finished scenario. A
+scenario is identified by feature path, scenario name and example row. The
+latest observation wins. Consolidation is optional and keeps meaning. Each
+observation carries its commit and feature-file blob.
+
+Material exclusions (deferred, not rejected): run history and trends; tabbed
+Purpose/Proof layout and its switch; story scope; folder totals; CI
+corroboration; Doughnut and other runners. Open Dough ships no ready-made
+formatter or consolidation tool.
+
+Assumptions: Pygardon is the evaluation project (Doughnut keeps
+[story 8](../../seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof)).
+Proof files are committed with ordinary work.
+
+## Existing solutions and decisions
+
+PFE:
+
+- **Intent reader.** Extend `dashboard/src/IntentBrowser.tsx`'s placeholder
+  Proof section and the pinned-revision Intent reads in
+  `dashboard/server/intentLocationsRead.ts` / `intentLocationsSettings.ts`.
+  Declare proof beside the Intent location in `.planning/open-dough.json`. Read
+  proof files through the same authenticated pinned-read boundary
+  (`ghTrees.ts` for listing, `file-at` for text), once per revision and project.
+- **File-version match.** Compare the observation's recorded blob with the
+  published blob of the selected feature: either carry `sha` through
+  `TreeEntry` (the Git trees API answers it) or hash the read text as a Git
+  blob. Prefer the tree `sha` because it is byte-exact.
+- **Scenario order and rows.** The Purpose reader already has the published
+  feature text. Derive scenario, outline and example-row identities from that
+  text in source order. Do not rely on runtime IDs (observed: AST/pickle IDs are
+  fresh UUIDs each run).
+- **Existing proof contract.** `dashboard/tests/proof-record.md` is Playwright-
+  specific, one record per invocation. It is a reference for atomic snapshot
+  writing and honest incomplete states, not a reusable format.
+- **Payload.** Only skill directories install. The reference goes under
+  `src/skills/dough-test-optimization/references/` and is promoted through
+  `install.sh`'s `managed_files` ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)).
+  Write it for the agent in the adopting project ([ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)).
+  Run the [behavior review](../../../AGENTS.md#behavior-review).
+- **Release and rollout.** Use the internal `release-and-update-clients` skill.
+  It updates every production-dashboard project, not only Pygardon.
+
+Applicable Accepted decisions: ADR 0001 (Purpose/Proof language), ADR 0003,
+ADR 0004 (project-owned `.planning/open-dough.json`), ADR 0006, ADR 0008
+(repository records own durable facts; the dashboard reads the published
+revision), ADR 0010 (measure read cost and commit noise against today's
+workflow). No conflict; no new ADR or North Star topic.
+
+Coordination: [plan 438](../438-renovate-intent-sidebar/PLAN.md) (SEED-213)
+changes the Intent locations column and `intent-gherkin-browse.spec.ts`
+journeys. This plan changes the Proof section only. Rebase onto whichever
+lands first and keep both specs' selection steps aligned.
+
+## Outside-in proof
+
+| Story example | Slice | Observable proof |
+| --- | --- | --- |
+| 1 Focused run updates only what it ran | 1 | Playwright Intent journey: two published proof files at the pinned revision; rows show the newer observation for one scenario and the older ones elsewhere, each with its own time and commit |
+| 2 Latest failure wins | 1 | Same journey: newer failed observation outranks an older pass; the count line shows the failure |
+| 3 Retry-assisted pass | 1 | Same journey: an observation with 2 attempts reads *Passed after retry (2 attempts)* |
+| 4 Changed source | 1 | Same journey: an observation whose blob differs from the published feature reads as observed on an earlier file version; an added scenario reads *Not observed* |
+| 6 Parallel worktrees / 7 Consolidation | 1 | Same journey: the same observations split across two run files or consolidated into one render identical rows |
+| 8 Not adopted / unreadable / nothing yet | 2 | Playwright Intent journey: no declared proof names the installed reference; declared but nothing for this file says nothing observed; a malformed proof file shows a read failure with retry while Purpose stays readable |
+| 5 Interrupted run, parallel and retry production | 3 | Recorded behavior walk: a scratch Cucumber.js project configured only from the reference is run focused, with `--parallel 2 --retry 1`, and interrupted. The dashboard's own proof parser reads its files with the expected rows. Payload declaration tests pass |
+| Real Pygardon proof | 4 | Real focused Pygardon run after adoption, landed in Pygardon; the dashboard's Intent shows those scenarios observed on the current file version. Terry evaluates |
+
+## Ordered slices
+
+### 1. Intent shows the latest committed proof of each scenario
+Type: Behavior
+Status: planned
+Proof: New Playwright Intent proof journey (beside
+`intent-gherkin-browse.spec.ts`) with published Pygardon-like feature and proof
+files, covering examples 1–4, 6 and 7. Apply the repository's
+[failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests).
+
+Behavior: a project declares a proof directory with its Gherkin location, and
+the pinned revision holds run and consolidated proof files → the developer
+selects a feature → Proof lists every scenario and outline row in source order.
+Each row shows its latest outcome across all files (retry-assisted passes
+marked), duration, time since observation, short commit, and whether it was
+observed on this file version. Unobserved rows say so, and a count line
+summarizes. Draft the reference's file format in
+`src/skills/dough-test-optimization/references/cucumber-proof.md` here as the
+reader's contract. It is not yet in `managed_files`.
+
+### 2. Proof absence and failures read distinctly
+Type: Behavior
+Status: planned
+Proof: Playwright Intent journey for example 8 (not declared, declared but
+unobserved, malformed or unreadable proof file with retry), and neighboring
+Intent journeys stay green. Apply the repository's
+[failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests).
+
+Behavior: the same reader meets missing configuration, no observation for the
+file, or an unreadable proof file → three different explanations. The
+not-adopted one names the installed reference path, and Purpose stays readable
+throughout.
+
+### 3. A project that follows the reference produces readable proof
+Type: Behavior
+Status: planned
+Proof: The [behavior review](../../../AGENTS.md#behavior-review) walk, recorded
+in this plan: in the execution workspace's scratch directory, a minimal
+Cucumber.js 13 project configured only from the reference text. Run it focused,
+parallel with retry, interrupted, and twice into separate files, then
+consolidate once. Apply the dashboard proof parser from slice 1 to the results
+and record the observed rows (examples 3, 5, 6 and 7 on the producer side).
+Add the reference to `install.sh`'s `managed_files`; payload declaration and
+compare tests (`tests/payload-declaration-links.sh`, `tests/compare-payload.sh`)
+pass. Run `bash scripts/test.sh` for the affected payload tests.
+
+Behavior: an agent in a Cucumber.js project follows the reference → every
+ordinary run writes uniquely named, compact proof that keeps finished
+scenarios through interruption and leaves the runner's output and exit
+unchanged. Readers see the same latest rows before and after consolidation.
+
+### 4. Pygardon's ordinary runs publish proof that Intent reads
+Type: Behavior
+Status: planned
+Proof: After Terry authorizes the release, run `release-and-update-clients`;
+it pushes to every production-dashboard project. In an owned Pygardon
+worktree, adopt the installed reference in Pygardon's `cucumber.js` and
+`.planning/open-dough.json`, run a real focused selection with Pygardon's
+documented command, and land in Pygardon. The local dashboard's Intent then
+shows those scenarios with current-version observations and the rest *Not
+observed*. Record the proof file count, Intent read time, and the commit diff
+that proof added, for Terry's evaluation (ADR 0010). Pygardon's own CI must
+stay green under the failure policy above.
+
+Behavior: Pygardon developer or agent runs ordinary Cucumber tests and lands
+the work → Intent shows those scenarios' latest proof beside their source.
+
+## Decisive premises
+
+- **Cucumber.js 13.2.1 lets a project formatter observe every attempt without
+  changing runs.** Consuming operations: slices 1, 3 and 4. Observed
+  2026-11-01 in a scratch project using Pygardon's installed Cucumber.js. A
+  custom formatter passed with `--format` beside `progress` under
+  `--parallel 2 --retry 1` received the failed first attempt
+  (`willBeRetried: true`) and the passing retry. Outline rows arrived as
+  separate pickles, and the exit was 0. AST IDs differed per run. Settled.
+- **A `cucumber.js` profile's `format` loads the formatter, and per-scenario
+  atomic rewrites survive interruption.** Consuming operations: slices 3 and 4.
+  Observed in a second scratch run with `format: ['progress', './proof2.js']`
+  in `cucumber.js`, interrupted with SIGINT during the third of four
+  scenarios. The exit was 130 and the file held exactly the two finished
+  scenarios. Settled.
+- **Recorded blob hash can be compared with the published file.** Consuming
+  operation: slice 1 file-version match. Observed: `git hash-object README.md`
+  equals the blob `git ls-tree HEAD README.md` lists
+  (`bffc614ea005fe28fbd97e4048b28b62b0b2ec48`). Settled. The dashboard side
+  (tree `sha` or text hash) is chosen in slice 1 and proved by its journey.
+- **Pygardon's real hooks and services accept the added formatter.**
+  Consuming operation: slice 4. Observed 2026-11-01 in a scratch detached
+  Pygardon worktree at `ce1e68ae4` (removed afterwards; nothing committed), after
+  `nix develop -c scripts/prepare-worktree.sh`:
+  `nix develop -c scripts/check-worktree.sh pnpm exec cucumber-js --format <probe formatter> e2e_test/features/disk_space_cli.feature`
+  exited 0. The formatter recorded the scenario's `PASSED` attempt with its
+  feature path and name, the default 2-worker profile ran unchanged, and the
+  worktree stayed clean. Settled for the formatter route; slice 4 still owns
+  the configured adoption and landing.
+
+## Human checkpoint
+
+Slice 4 publishes a release, updates every production-dashboard project, and
+lands in Pygardon. Before it, stop for Terry's go-ahead naming that rollout.
+Slices 1–3 need no such stop.
+
+## Concern evidence
+
+Slice-plan refinement was not needed. Each slice has one proof loop: the
+reader's rows, the reader's absence states, the producer reference, and the
+real adoption. No cumulative special-case pattern was found, because one
+latest-observation reduction serves run and consolidated files alike. No remaining
+slice-specific concern: every decisive premise above was observed. Slice 4's
+rollout waits only for the human checkpoint. Sizing of slice 1 is the
+largest; if it overruns, split the file-version match from the rows.
