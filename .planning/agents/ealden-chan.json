@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-192#proof-file-version-after-upgrade",
+  "mode": "story-branch",
+  "branch": "claude/keep-proof-s-file-version-true-after-a-dashboard",
+  "host": "claude"
+}
