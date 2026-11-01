@@ -36,7 +36,7 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   ).toHaveAccessibleName("Intent");
   await expect(intentChoice).toBeChecked();
   await expect(development).not.toBeChecked();
-  await expect(intent.getByRole("heading", { level: 2 })).toHaveText("Intent");
+  await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expect(intent).toContainText(
     `No intent locations are configured for ${label}.`,
   );

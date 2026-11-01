@@ -56,7 +56,7 @@ export function useBoardScrolling(suspended: boolean) {
         return;
       document
         .querySelector<HTMLElement>(
-          ".board-scroll .board, .roster-scroll h2, .intent-scroll h2",
+          ".board-scroll .board, .roster-scroll h2, .intent-scroll .intent-reading",
         )
         ?.focus({ preventScroll: true });
     };

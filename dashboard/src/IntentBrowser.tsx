@@ -75,7 +75,7 @@ export function IntentBrowser({
           />
         ))}
       </div>
-      <div className="intent-reading">
+      <div className="intent-reading" tabIndex={-1}>
         <section className="intent-purpose" aria-label="Purpose">
           <h3>Purpose</h3>
           {selectedPath === "" ? (

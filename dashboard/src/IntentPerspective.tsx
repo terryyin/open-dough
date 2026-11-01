@@ -134,10 +134,7 @@ export function IntentPerspective({
   readonly work: PublishedWork | undefined;
 }) {
   return (
-    <main className="intent-perspective" aria-labelledby="intent-heading">
-      <h2 id="intent-heading" tabIndex={-1}>
-        Intent
-      </h2>
+    <main className="intent-perspective" aria-label="Intent">
       <IntentBody source={source} work={work} />
     </main>
   );

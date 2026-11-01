@@ -87,7 +87,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  await expect(intent.getByRole("heading", { level: 2 })).toHaveText("Intent");
+  await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
 
   await test.step("a missing location and one with no .feature files say so by path; the usable location still browses", async () => {
     await expect(intent).toContainText(

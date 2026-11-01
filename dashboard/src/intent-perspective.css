@@ -1,13 +1,33 @@
 /* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
-   Purpose locations beside source and Proof. */
+   Purpose locations beside source and Proof. The perspective choice already
+   names the page, so it shows no heading of its own. Below the banner the
+   page itself does not scroll: the location browser runs the full remaining
+   height against the page's left edge, and it and the reading pane each
+   scroll on their own, both ways. */
 
-.intent-perspective {
-  max-width: 72rem;
+.intent-scroll {
+  display: flex;
+  flex-direction: column;
 }
 
-.intent-perspective h2 {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-lg);
+.intent-scroll > .scroll-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.intent-scroll .page-header {
+  flex: none;
+  margin-block: var(--space-2);
+}
+
+.intent-perspective {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
 }
 
 .intent-perspective h3 {
@@ -17,11 +37,21 @@
 
 .intent-not-configured,
 .intent-settings-problem,
+.intent-perspective > .quiet {
+  margin: var(--space-3) clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.intent-not-configured,
+.intent-settings-problem,
 .intent-location-problem,
 .intent-file-problem {
   max-width: 42rem;
-  margin: var(--space-2) 0 0;
   line-height: 1.5;
+}
+
+.intent-location-problem,
+.intent-file-problem {
+  margin: var(--space-2) 0 0;
 }
 
 .intent-settings-problem button,
@@ -30,16 +60,36 @@
 }
 
 .intent-browser {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
-  gap: var(--space-4);
-  align-items: start;
-  margin-top: var(--space-3);
+  border-top: 1px solid var(--line);
 }
 
+.intent-locations,
+.intent-reading {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* The browser pane scrolls as one; its locations are sections within it, not
+   boxes that scroll themselves. */
 .intent-locations {
-  display: grid;
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+}
+
+.intent-locations > .intent-location {
+  flex: none;
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: var(--space-2) var(--space-3);
 }
 
 .intent-location-kind {
@@ -49,9 +99,14 @@
 }
 
 .intent-reading {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
-  min-width: 0;
+  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
+}
+
+.intent-reading:focus-visible {
+  outline-offset: -3px;
 }
 
 .intent-purpose,
@@ -59,8 +114,16 @@
   min-width: 0;
 }
 
+/* Narrow, the browser sits above the reading pane and keeps part of the
+   height; each still scrolls on its own. */
 @media (max-width: 52rem) {
   .intent-browser {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 40%) minmax(0, 1fr);
+  }
+
+  .intent-locations {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
   }
 }

@@ -12,7 +12,10 @@ Proof reading surface. When the selected project's
 Intent lists each location's nested `.feature` files in a collapsible tree,
 reads a selected file's exact published text with line numbers and Gherkin
 syntax styling at the observed revision, and says no Proof is available for
-it yet. A location that
+it yet. The selected perspective choice names the page, so Intent shows no
+heading of its own. Below the banner the page does not scroll: the location
+tree fills the remaining height against the left edge, and it and the reading
+pane each scroll independently. A location that
 is missing, holds no `.feature` files, or names an unsupported kind says so
 by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
