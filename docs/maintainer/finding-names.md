@@ -33,6 +33,9 @@ has a less settled safety/benefit tradeoff than preventing the demonstrated
 record errors. ODF-385’s title-only quote workarounds remain consequential and
 open, but their reader-versus-authoring response still needs a bounded choice.
 No implementation is performed; direction, Taken and unselected order stay intact.
+Concurrent accepted work later closed SEED-207 and queued dashboard proof-cost
+reduction. Terry then explicitly confirmed CI completion first, observation
+recording second, and proof cost third; the final queue follows that choice.
 
 Response checking connected one post-adoption source-drift correction to
 ODF-139, one detected remote amendment (with its adverse review/remap cost)
