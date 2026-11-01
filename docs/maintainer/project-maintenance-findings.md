@@ -109,3 +109,26 @@ for a second round.
   - Evidence: slice 1 implementation return listed `sessions-sidebar-navigation-cases.spec.ts` "a story on no card…" as failing 1 in 4 on clean `22eb4b3e` and "did not fix it". A coordinator follow-up then found the cause (a reveal-count test race with keep-in-view after a Side panel press) and fixed it (`revealsAtClick`, 8 of 8 passing repeated); see `72ce39b109d5352b43dd093c68b9257b564a1bdc:.planning/slice-plans/424-development-intent-frame/PLAN.md` Current decisions.
   - Observed effect: one extra delegation round (about 5 minutes, 9 tool uses). The fix landed in the same increment.
   - Inference: the coordinator's wording, not the shared guidance, caused this; delegation already says a discovered failure keeps the project's failure policy. Pass the project's policy verbatim instead of paraphrasing it.
+
+<a id="dd-378"></a>
+
+## DD-378 — Planning treats pre-existing failures as exclusions from completion
+
+An execution-ready plan turned correct regression attribution into an instruction to report and leave known failing tests. That instruction propagated into repair briefs and an unfinished completion stop, conflicting with Terry's established Open Dough failing-test policy; later resume repaired the failures.
+
+### Occurrences
+
+- Execution: SEED-199#mobile-session-screen; first implementation eaa0237881d704ee46711d8bc4fb188401b6ec94
+  - Timestamp: unknown (2026-10-31; initial stop preceded the 14:01 +08 follow-up)
+  - Tool: Cursor
+  - Open Dough release: unknown
+  - Evidence: f601fcbd:.planning/slice-plans/425-mobile-session-screen/PLAN.md, Decisive premises 3, says the retirement failures are not owned and should be reported. Coordinator transcript 363e0b94-67d5-49d4-b77d-48deec743aed L48 and L114 carry that exclusion; L126 reverses it and repairs registered revisions. Detailed CI/story analysis: docs/maintainer/ci-retrospective-2026-11-01.md.
+  - Observed effect: execution stopped unfinished and requested a fix-or-waive decision for known failures; repeated resume and fixture repairs were needed before green integration. This is distinct from DD-374's softened implementation brief: the exclusion originated in the prepared plan. Another active repair owner's files still require preservation; pre-existing origin alone is not that ownership evidence.
+
+**Current responsibility (2026-11-01):** The prepared plan substituted a
+project-specific failure-policy exclusion for this repository’s stop-and-fix
+policy. Shared delegation already preserves the project’s failure policy.
+Retain this plan-origin facet separately from DD-374’s softened brief.
+[SEED-208#trustworthy-ci-completion](../../.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
+already covers the response; **queued, not resolved**. No duplicate local story.
+Original source recovery: `b1fa3b50:DearDough.md`.

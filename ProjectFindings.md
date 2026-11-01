@@ -353,3 +353,9 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 ### DD-374 — Delegation brief softened the project's failing-test policy to "fix or report"
 
 [Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-374).
+
+<a id="dd-378"></a>
+
+### DD-378 — Planning treats pre-existing failures as exclusions from completion
+
+[Original evidence, project-policy responsibility and existing SEED-208 response](docs/maintainer/project-maintenance-findings.md#dd-378).
