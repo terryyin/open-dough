@@ -138,7 +138,10 @@ Case count unchanged (`1,746` passed, `0` skipped, `strictStatus: "passed"`).
   focused run overwrote the baseline times artifact).
 - **Rejected (Slice 3):** Collapsing `agent-launch-start-phases` to one host
   did not improve focused wall (**9.20–9.77s / 3 → 9.14–9.38s / 2**); undone and
-  listed under Pending candidates.
+  listed under Pending candidates. Later implemented by SEED-208 slice 4 as a
+  coverage simplification: Claude execution stays in `agent-launch-start-phases`,
+  Codex refinement in `agent-launch-preparation-phases`, and the phase family at
+  `--workers=1` went from 33.9s to 22.9s summed (38s to 27s wall, loads 5–7).
 - **Comparison limits:** After suite started under higher multi-minute load
   (`11.42` / `14.47` vs `5.38` / `8.73`); suite-wall delta is modest (4.1s).
   Focused three-pass evidence anchors the retained family. No product behavior

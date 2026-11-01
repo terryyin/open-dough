@@ -331,7 +331,7 @@ for single-responsibility ownership (`tmp/s8-*`).
 
 ### 9. Verify the combined result and settle residual costs
 Type: Structure
-Status: planned
+Status: done
 Proof: Successful strict full suite with no skips and comparable before/after
 wall/case records; every transferred candidate has an evidenced disposition.
 
@@ -339,8 +339,9 @@ First fix the load-exposed synchronization in
 `recentlyDoneSessionsSidebarPaging.ts` (wait for the page's observed re-arm, not
 a synchronous `scrollTop`), proved by its family; diagnose any other slice 1
 failure that recurs rather than rerunning it. Then run normal
-`npm run test:dashboard` for the reference revision `e073d3f2` (a temporary
-owned checkout) and the candidate back to back under the same load, and judge
+`npm run test:dashboard` for the reference revision `e83dfeb3` (trunk as merged
+into this branch at `154e968f`, so the pair differs only by this story; a
+temporary owned checkout) and the candidate back to back under the same load, and judge
 the ratio with the loads recorded, since slice 1's two runs differed by 258 s. Include
 replacement proof cost. Validate affected source/support files with
 `npm run typecheck:dashboard` and the ordinary lint hook; shared fixture changes
@@ -352,6 +353,30 @@ experiments leave no credible worthwhile cheaper design. Preserve accepted
 selection/second-server/watcher protection, no exclusions, and ordinary CI.
 If whole-suite improvement is inconclusive, report that honestly and separate
 the retained, independently worthwhile coverage simplifications.
+
+Result: paired normal runs at the default local concurrency (2 workers since
+trunk's `4aaad6fd`; one full run is about 28 min, so not comparable with slice
+1's 8-worker walls): reference `e83dfeb3` 1,831 cases, 0 skipped, 1,701.9 s
+wall, 3,228.6 summed s, load mean 7.3, failed only the untouched
+`recently-done-sessions-sidebar-room:34`; candidate (`tmp/final-cand2`) 1,827
+cases, 0 skipped, 1,654.4 s, 3,149.9 summed s, load mean 6.0, strict pass. The
+0.97 wall ratio is not claimed as speedup: untouched files also fell 1.7% under
+the lower load; this story's files fell 199.5 → 172.0 summed s. The reverse
+pair was lost to the cross-worktree full-run queue and an external SIGTERM.
+The first candidate run exposed G2. Also fixed: the paging re-arm race
+(`recentlyDoneSessionsSidebarPaging.ts` waits for the top scroll event; three
+consecutive passes of both consumers) and the room-spec race (wait for the
+reveal to reach `crowd` before measuring the last entry; three consecutive
+passes); `support/codexStart.ts` now sets its project folder and launch wait as
+fixture overrides instead of a module-level `test.use` (all 29 consumers 52/52
+strict, `tmp/s9-refactor-consumers`). The diff has no mocks, focus markers,
+retries, exclusions, longer timeouts, shared mutable state or product change.
+The candidate record now lists the pending `launch-records-poll-waits`
+(about 60 summed s in two attention waits and the two terminal races, each one
+15 s launch-records poll; `pausePageClockAt`/`passOnePace` offer a cheaper real
+design) and the maintainer review/timing docs name the surviving owners. The
+same module-level `test.use` pattern remains in `support/cursorStart.ts:81`
+and `support/unreadReportPage.ts:16`.
 
 ## Current decisions and stopping points
 
@@ -392,3 +417,8 @@ Actual benefits remain hypotheses; the early probe and final re-profile own them
 Reported: slice 3 — "the 'Default' branch of the kept-start sentence (`src/StartEffects.tsx:81`) ... no other test covers 'with Default model'."
 Story clause: "while retaining the important behavior those tests protect"
 Disposition: proved by slice 3: `agent-launch-start-codex.spec.ts` card-start test asserts "This start requested Codex with Default model." on the reopened kept start
+
+### G2. Moved Codex dialog cases lost their project folder in shared workers (first reported in slice 9)
+Reported: slice 9 — "`codexModelCatalogCases.ts:10` failed and `:66` timed out. In both, `host-options` returned 404 'The project folder is not available on this machine.'"
+Story clause: "while retaining the important behavior those tests protect"
+Disposition: proved by slice 9: the moved cases run on `codexLaunch`, which supplies no project folder, and had borrowed `codexStart.ts`'s module-level `test.use` only when a worker loaded it for this file first; `agent-launch-codex-model.spec.ts` file-level `test.use({ projectFolders: ["open-dough"] })`; the order reproduction `--workers=1 agent-completion-attention.spec.ts agent-launch-codex-model.spec.ts` failed before (`tmp/s9-diag-order`) and passed 13/13 after (`tmp/s9-fix-order`); candidate full run strict-green (`tmp/final-cand2`)

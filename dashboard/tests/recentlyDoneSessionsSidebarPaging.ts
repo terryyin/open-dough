@@ -63,12 +63,26 @@ export async function revealRecentlyDoneThrough(
   for (;;) {
     const before = await shown.entries.count();
     if (before >= count) return;
-    await shown.body.evaluate((element) => {
-      element.scrollTo(0, 0);
-    });
-    await expect
-      .poll(() => shown.body.evaluate((element) => element.scrollTop === 0))
-      .toBe(true);
+    // The page re-arms in its scroll handler, which runs on the next rendered
+    // frame; resolve only after that top-position scroll event is delivered so
+    // the end scroll below is not coalesced with it.
+    await shown.body.evaluate(
+      (element) =>
+        new Promise<void>((resolve) => {
+          if (element.scrollTop === 0) {
+            resolve();
+            return;
+          }
+          element.addEventListener(
+            "scroll",
+            () => {
+              resolve();
+            },
+            { once: true },
+          );
+          element.scrollTo(0, 0);
+        }),
+    );
     await shown.body.evaluate((element) => {
       element.scrollTo(0, element.scrollHeight);
     });

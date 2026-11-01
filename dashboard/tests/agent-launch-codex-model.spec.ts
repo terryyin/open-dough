@@ -13,6 +13,10 @@ import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { openTakenBacklog } from "./launchStoryCardPage.ts";
 
+// The catalog, effort-dialog and ad-hoc cases use codexLaunch.ts, which gives
+// no project folder; Start session needs the one an installed origin makes.
+test.use({ projectFolders: ["open-dough"] });
+
 // Chooses Native Luna at low effort from a catalog read one page at a time.
 async function chooseLuna(page: Page) {
   const dialog = page.getByRole("dialog");
