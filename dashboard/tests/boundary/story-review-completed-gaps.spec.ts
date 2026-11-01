@@ -161,32 +161,22 @@ test("an unreadable workspace preserves active captured gaps and completed revie
   expect(await missingRecord.json()).not.toHaveProperty("files");
 });
 
-for (const variant of ["missing-agent", "ambiguous-merge"] as const) {
-  test(`${variant} recovers a unique claim or explains the remaining attribution gap`, async ({
+test("an agentless story-branch completion recovers its unique claim", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  await completedPublishedStory(origin, "story-branch", "missing-agent");
+  const response = await get(
     request,
     dashboard,
-    origin,
-  }) => {
-    await completedPublishedStory(origin, "story-branch", variant);
-    const response = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
-    );
-    expect(response.status()).toBe(200);
-    if (variant === "missing-agent") {
-      expect(await response.json()).toMatchObject({ kind: "published" });
-      expect(await response.json()).toHaveProperty("files");
-    } else {
-      expect(await response.json()).toMatchObject({
-        kind: "unavailable",
-        explanation: expect.stringMatching(/merge resolutions/),
-      });
-      expect(await response.json()).not.toHaveProperty("files");
-    }
-  });
-}
+    storyReviewEndpoint,
+    completed,
+  );
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({ kind: "published" });
+  expect(await response.json()).toHaveProperty("files");
+});
 
 test("missing claim history explains the gap rather than showing a partial comparison", async ({
   request,

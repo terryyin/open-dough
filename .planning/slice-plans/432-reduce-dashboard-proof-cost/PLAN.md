@@ -224,7 +224,7 @@ settles the superseded rejection note at
 
 ### 5. Keep one fail-closed proof for ambiguous completion attribution
 Type: Structure
-Status: planned
+Status: done
 Proof: Ambiguous printing-driver review reports unavailable and returns no
 files; missing-agent recovery and genuine conflict attribution remain green.
 
@@ -235,6 +235,15 @@ Run both files and `story-review-completed-conflicts`; use a targeted negative
 control if plain/printing equivalence is disputed. Restore the control before
 delivery. Expected small runtime gain and less duplicate history construction;
 do not rewrite attribution or build a cache for this one case.
+
+Result: the driver's printing `ambiguous-merge` case now also asserts no
+`files`, the only assertion the removed gaps iteration had beyond it (its
+explanation check is stricter). The gaps loop became one test, "an agentless
+story-branch completion recovers its unique claim"; trunk missing-agent
+recovery stays in the same file. Negative control: disabling the fail-closed
+branch in `server/storyCompletedCommits.ts` failed exactly that driver case;
+the product file was restored byte for byte (`tmp/s5-negctl`). Family 12 → 11
+cases, 43 → 40 s wall at `--workers=1` (`tmp/s5-before-w1`, `tmp/s5-after-w1`).
 
 ### 6. Exercise deletion placements without replaying incidental launch dialogs
 Type: Structure

@@ -45,6 +45,7 @@ for (const variant of [
           "merge resolutions whose story changes cannot be attributed safely",
         ),
       });
+      expect(await response.json()).not.toHaveProperty("files");
     } else {
       expect(await response.json()).toMatchObject({
         kind: "published",

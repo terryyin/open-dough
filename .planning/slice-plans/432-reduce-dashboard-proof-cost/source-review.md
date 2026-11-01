@@ -37,9 +37,9 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4c.1 | Claude execution retains the full phase/observer journey | slice 4 | observed: agent-launch-start-phases.spec.ts expectStartProgress(execution, claude) plus argv readiness |
 | 4c.2 | Codex refinement retains the full phase/observer journey | slice 4 | observed: agent-launch-preparation-phases.spec.ts expectStartProgress(refinement, codex) |
 | 4c.3 | The existing Codex execution proof retains its changed-readiness handoff | slice 4 | observed: agent-launch-start-codex.spec.ts card start expectExecutionInput(..., true) exact handoff block |
-| 4d.1 | The duplicate gaps case for ambiguous attribution is removed | slice 5 | |
-| 4d.2 | Ambiguous attribution still fails closed with no files after that removal | slice 5 | |
-| 4d.3 | Missing-agent recovery remains protected | slice 5 | |
+| 4d.1 | The duplicate gaps case for ambiguous attribution is removed | slice 5 | observed: story-review-completed-gaps.spec.ts has no ambiguous-merge iteration |
+| 4d.2 | Ambiguous attribution still fails closed with no files after that removal | slice 5 | observed: boundary/story-review-completed-driver.spec.ts ambiguous-merge unavailable + not.toHaveProperty(files); negative control tmp/s5-negctl |
+| 4d.3 | Missing-agent recovery remains protected | slice 5 | observed: story-review-completed-gaps.spec.ts agentless story-branch recovery and trunk missing-agent tests |
 | 4e.1 | Recently-done deletion keeps each placement result | slice 6 | |
 | 4e.2 | Recently-done deletion keeps each focus result | slice 6 | |
 | 4e.3 | Recently-done deletion keeps each no-stop result | slice 6 | |
