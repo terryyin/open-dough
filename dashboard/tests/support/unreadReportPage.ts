@@ -9,11 +9,17 @@ import { parts } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { publishOrigin, test } from "./startOriginTest.ts";
+import { launchWaitMs } from "./launchWait.ts";
+import { publishOrigin, test as base } from "./startOriginTest.ts";
 
 export { doneNameOf, shortIdOf } from "./reportedLaunch.ts";
-export { publishOrigin, test };
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 30_000 });
+export { publishOrigin };
+// Option defaults here, not a module-level test.use, which would reach only
+// the first file a worker loads this module for. A file's test.use still wins.
+export const test = base.extend({
+  projectFolders: ["open-dough"],
+  launchTimeoutMs: launchWaitMs,
+});
 
 export const titleA = "Story A";
 export const unreadWords = "Unread report: Completed with attention";

@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Use the dashboard terminal with a mobile keyboard](seeds/SEED-212-mobile-terminal-input.md#use-terminal-with-mobile-keyboard) — SEED-212#use-terminal-with-mobile-keyboard ([plan](slice-plans/436-use-terminal-with-mobile-keyboard/PLAN.md))
-- [Declare dashboard fixture defaults on their fixtures](seeds/SEED-208-dashboard-proof-cost.md#declare-fixture-defaults-on-fixtures) — SEED-208#declare-fixture-defaults-on-fixtures ([plan](slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md))
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
 
 ## Backlog list

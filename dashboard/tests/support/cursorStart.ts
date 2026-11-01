@@ -30,6 +30,10 @@ export const test = base.extend<{
   cursorPaintDelayMs: number | undefined;
   cursor: FakeCursor;
 }>({
+  // Option defaults here, not a module-level test.use, which would reach only
+  // the first file a worker loads this module for. A file's test.use still wins.
+  projectFolders: ["open-dough"],
+  launchTimeoutMs: launchWaitMs,
   cursorScreen: [undefined, { option: true }],
   cursorSplitPaintMs: [undefined, { option: true }],
   cursorSubmitPaintMs: [undefined, { option: true }],
@@ -78,7 +82,6 @@ export const test = base.extend<{
     await use([cursor.binDir]);
   },
 });
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: launchWaitMs });
 
 // Cursor keeps working after its launch instruction, so the launch client is
 // not hung up as idle before the page's terminal joins it.
