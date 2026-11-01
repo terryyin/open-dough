@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-212#use-terminal-with-mobile-keyboard",
+  "title": "Use the dashboard terminal with a mobile keyboard",
+  "completedAt": "2026-11-01T08:32:10.502Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "cursor",
+  "model": "auto"
+}
