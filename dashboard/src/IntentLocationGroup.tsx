@@ -1,8 +1,9 @@
 // One configured Intent location as an expandable group
 // (`./IntentBrowser.tsx`): Sessions-style header discloses the body; nested
-// folder disclosure stays in the shared FileTree. An unsupported kind or a
-// location with no matching files says so by path, kind, and include patterns
-// inside the expanded body.
+// folder disclosure stays in the shared FileTree. Selection is the Intent
+// workspace's (`./intentWorkspaceSelection.ts`), passed through the browser.
+// An unsupported kind or a location with no matching files says so by path,
+// kind, and include patterns inside the expanded body.
 
 import { useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";

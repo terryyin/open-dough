@@ -5,7 +5,9 @@
 // location's proof, read with the locations. A failed file read keeps its own
 // explanation and retry while the location tree stays usable; a failed proof
 // read's retry reads the locations again (`./IntentPerspective.tsx`) without
-// changing the selection.
+// changing the selection. File selection (and an optional case target) is
+// owned by the Intent workspace (`./intentWorkspaceSelection.ts`), not this
+// browser.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -14,6 +16,7 @@ import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
+import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 type FileRead =
@@ -35,7 +38,8 @@ export function IntentBrowser({
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
 }) {
-  const [selectedPath, setSelectedPath] = useState("");
+  const { selection, setSelection } = useIntentWorkspaceSelection();
+  const selectedPath = selection.path;
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   // The answered read of one path; Purpose and Proof show it only while that
   // path is the one selected, so a new selection never pairs with the
@@ -45,7 +49,7 @@ export function IntentBrowser({
   const proofId = useId();
 
   // Clearing selection when the project or locations change is owned by the
-  // parent remounting this browser on source/revision identity.
+  // Intent workspace provider remounting on source/revision identity.
   useEffect(() => {
     if (selectedPath === "") return;
     const controller = new AbortController();
@@ -84,7 +88,9 @@ export function IntentBrowser({
             key={location.path}
             location={location}
             selectedPath={selectedPath}
-            onSelect={setSelectedPath}
+            onSelect={(path) => {
+              setSelection({ path });
+            }}
             idPrefix={intentLocationIdPrefix(location.path)}
             expanded={expandedPath === location.path}
             onToggle={() => {
