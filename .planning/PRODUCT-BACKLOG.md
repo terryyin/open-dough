@@ -32,7 +32,7 @@ intent introduced or affected by a newly developed story.
 
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
-- [Read Doughnut Cucumber proof with recent history](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof
+- [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity

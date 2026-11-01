@@ -48,7 +48,8 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
   On 2026-11-01 Terry replaced rolling run history with a latest per-test
   snapshot that every ordinary run updates, under a published
   [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md); later stories still to be refined
-  read "history" in that light.
+  use that latest-observation model. Earlier direction notes below retain their
+  original historical wording; active guidance and stories use the replacement.
 - Preserve the selected project and the shared frame. Purpose/Proof side-by-side
   and tabbed layouts share one selection; the switch preserves selection and any
   story scope. Near-future direction belongs in Development.
@@ -73,7 +74,7 @@ with tested source and meaningfully corroborated by independent CI.
 - **Use editors, Review changes, and existing reports:** the strongest smaller
   alternative. It remains the comparison and fallback, and can support early
   protection/complexity reviews. It does not supply the requested integrated
-  browsing and rolling evidence experience; its quantitative disadvantage is unknown.
+  browsing and latest-observation experience; its quantitative disadvantage is unknown.
 - **One source-browser story for every language:** possible as delivery
   checkpoints, but plain text, folders, and explicit file selection are the same
   observable behavior. A Python-only reader adds no demonstrated independent
@@ -83,8 +84,8 @@ with tested source and meaningfully corroborated by independent CI.
 - **One universal reporting story or JUnit-only import:** unnecessarily combines
   different runner semantics. Reuse native reports and add one real producer
   family at a time. Avoid a plugin platform or a universal scoring model.
-- **Recommended:** deliver the visible frame, source access, one end-to-end
-  locally produced Proof history, and early CI corroboration. Extend the shared
+- **Recommended:** deliver the visible frame, source access, the first project's
+  latest local observations, and early CI corroboration. Extend the shared
   reading experience by actual runner family, with folder summaries once one
   family's observations can already be read. Later families include their CI
   corroboration under the policy learned from the first case.
@@ -165,12 +166,12 @@ schema, executable design, or a newly accepted architecture decision.
    identifiable or explicitly unmatched. Publishing an evidence-only commit
    must not invalidate its tested source merely because the enclosing commit
    changed; CI compares the tested basis, not blindly the report commit's HEAD.
-5. **Bounded clinical history:** retain failed and incomplete observations as
-   well as passes, per configured suite, with each run's original scope. Proposed
-   starting retention is the latest ten compact run records per suite, subject
-   to review. A focused run must not masquerade as a full run, erase the meaning
-   of an earlier full observation, or combine old passing cases into a current
-   green suite. Keep raw screenshots/videos out of the compact rolling record.
+5. **Latest per-test observations:** each ordinary run updates only the cases
+   it observed. The latest observation wins whatever its outcome; cases not run
+   keep their earlier observations. Retain each observation's time, attempts
+   and source association. A focused run neither claims a full run nor turns
+   a mixture of older passes into a current green suite. Consolidation preserves
+   those latest observations; raw screenshots/videos stay outside compact Proof.
 6. **Native reporting before new machinery:** Cucumber.js emits Cucumber
    Messages, and Doughnut's preprocessor can emit Messages too. This is a
    promising common input, not proven compatibility of their installed versions.
@@ -179,19 +180,19 @@ schema, executable design, or a newly accepted architecture decision.
    ordinary diagnostics, and strict pass/fail rules coherent. Open Dough already
    has an opt-in Playwright proof record, but it has no explicit tested revision
    and no automatic history/retention policy.
-7. **Folder truth and timing:** summarize one selected run's observed children
-   before considering cross-run or mixed-runner totals. Show unobserved,
-   excluded, skipped, and incomplete work. Summed case durations are not elapsed
-   wall time under parallelism; shared setup/hook cost is only attributed where
-   observed. Do not invent folder wall time from case sums or imply that a
-   folder's source listing is the runner's collected-case inventory.
+7. **Folder truth and timing:** summarize the latest observations of the
+   folder's cases, retaining their differing times and source versions. Expose
+   unobserved, excluded, skipped and incomplete work. These observations may
+   come from different runs; a sum of their durations is neither one run's
+   elapsed wall time nor current suite cost. Attribute shared setup/hooks only
+   where observed. A source listing is not the runner's collected-case inventory.
 8. **CI corroboration:** compare applicable tested source and selection before
    comparing case outcomes. A broader CI run can corroborate the matched local
    subset; excluded host-only cases remain unchecked. Missing expected cases,
    changed source, malformed records, retry-assisted passes, and interrupted CI
    need explicit classifications. CI reports its consistency verdict and any
-   diagnostic evidence without replacing or appending to the retained local
-   Proof history. It corroborates reproducibility; it does not authenticate who
+   diagnostic evidence without changing retained local observations. It
+   corroborates reproducibility; it does not authenticate who
    created a local observation or prove that a test correctly expresses intent.
 9. **Resource-aware comparisons:** durations, timestamps, worker counts, and
    execution order need not match. Record relevant runner/browser/runtime and
@@ -228,7 +229,7 @@ refinement or execution.
   is a more directly relevant reuse candidate than replacing its strict reporter.
 - [pytest JUnit output](https://docs.pytest.org/en/stable/how-to/output.html#creating-junitxml-format-files)
   includes setup/teardown in durations by default; it does not settle our full
-  source association, selection, and history requirements by itself.
+  source association, selection, and latest-observation requirements by itself.
 - [Node test reporters](https://nodejs.org/api/test.html#test-reporters) expose
   structured events; console output is not a stable programmatic contract.
 
@@ -504,11 +505,14 @@ existing Inspect button.
 - **Evaluation:** CI reads the local record published with a source basis, runs
   its own selection, and reports matching observations, a specific discrepancy,
   or an explicit unchecked scope. A slower compatible CI run with matching
-  outcomes remains consistent without requiring equal durations.
+  outcomes remains consistent without requiring equal durations. Compare each
+  observation's tested source and selection, not merely the commit containing
+  the proof file or an unchanged Gherkin blob. Unestablished implementation,
+  steps or configuration provenance remains explicitly unchecked.
 - **Value / learning:** Tests the trust boundary before proliferating producers:
   selection, evidence-only commits, CI exclusions, and nonidentical resources.
 - **Boundary:** One project, one runner family. CI's comparison output does not
-  create, refresh, or overwrite retained local history. Define comparison of
+  create, refresh, or overwrite retained local observations. Define comparison of
   case identities/outcomes, retries, incomplete runs, and report-only trigger
   behavior. Performance gates and proof authenticity are separate concerns.
 - **Effort hypothesis:** Unbanded; higher, low confidence. Actual Pygardon source
@@ -516,12 +520,12 @@ existing Inspect button.
 - **Product prerequisites:** Retained locally produced Cucumber evidence and an
   independently runnable CI selection; only matched source/scope is corroborated.
 - **Safe stopping point:** An actionable CI consistency verdict for Cucumber.js;
-  earlier source and local history views still work when CI is unavailable.
+  source and latest local observations remain readable when CI is unavailable.
 
 
 <a id="read-cypress-cucumber-proof"></a>
 
-### 8. Read Doughnut Cucumber proof with recent history
+### 8. Read the latest Doughnut Cypress-Cucumber proof
 
 **Identity:** SEED-192#read-cypress-cucumber-proof
 ```json dough-story-state
@@ -531,19 +535,23 @@ existing Inspect button.
 - **For / why:** A Doughnut developer can review local Cypress-Cucumber evidence
   for a selected feature through the same Intent experience.
 - **Evaluation:** Produce and publish a real record through Doughnut's existing
-  runner, read feature/case history, and check comparable observations against
-  its CI selection. Outline rows and retries retain their source association.
+  runner, read each case's latest observation, and check comparable observations
+  against its CI selection. A later focused run replaces only the cases it ran;
+  outline rows and retries retain their source association.
 - **Value / learning:** Tests whether the first Cucumber input and evidence
   meanings survive a second real execution integration.
-- **Boundary:** Cypress preprocessor Messages and Doughnut's existing runner,
-  diagnostics, tags, and isolation. Reuse learned history/read/CI policy without
-  assuming Cucumber.js-generated identifiers or changing either project's runner.
+- **Boundary:** Implement a project-owned recorder through Doughnut's Cypress
+  Cucumber preprocessor Messages path, preserving its runner, diagnostics, tags,
+  isolation and exit meaning. The reference's Cucumber.js plugin setup is not
+  an integration path for Cypress. Reuse the compact proof format and the policy
+  for latest observations and CI; verify Messages compatibility, source case
+  identity, outline rows and retry semantics without relying on generated IDs.
 - **Effort hypothesis:** Unbanded; middle-to-higher, low-to-medium confidence.
   Both emit Messages, but version compatibility and Cypress run semantics need
   observation. No generic adapter framework is justified by this alone.
-- **Product prerequisites:** The evidence/history and CI comparison outcomes at
+- **Product prerequisites:** The latest-observation and CI comparison outcomes at
   integration; no formal start dependency has been established.
-- **Safe stopping point:** Doughnut file-level history and bounded corroboration
+- **Safe stopping point:** Latest Doughnut file-level Proof and bounded corroboration
   stand alone; large attachments do not enter the compact retained record.
 
 
@@ -558,15 +566,17 @@ existing Inspect button.
 
 - **For / why:** A developer can locate observed execution cost and result gaps
   by selecting folders and drilling into their tests.
-- **Evaluation:** Select a Cucumber folder and one real run, read its observed
-  child outcomes and costs, then open a feature. A focused run exposes unobserved
-  children. Concurrent case-duration sums are labelled separately from run wall
-  time; unavailable folder wall time remains unavailable.
+- **Evaluation:** Select a Cucumber folder and read its latest observed
+  child outcomes and costs, then open a feature. Publish a later focused run:
+  only its cases change, earlier observations retain their time/source version,
+  and never-observed children remain explicit. Label duration sums as sums of
+  latest observations; folder wall time remains unavailable without direct proof.
 - **Value / learning:** Makes existing observations navigable for maintenance
   without requiring an automated judgment about cost or intent quality.
-- **Boundary:** Begin with the configured hierarchy and one supported Cucumber
-  run. No union of unrelated historical passes, mixed-runner performance ranking,
-  invented shared-setup attribution, or whole-product protection claim. Other
+- **Boundary:** Begin with the configured hierarchy and supported Cucumber
+  observations. Do not infer current suite status from mixed observations.
+  Exclude mixed-runner performance ranking, invented shared-setup attribution,
+  and whole-product protection claims. Other
   producers reuse the rule where their observations support it.
 - **Effort hypothesis:** Unbanded; middle, medium confidence after file-level
   Proof. Case selection and timing definitions drive the uncertainty.
@@ -652,9 +662,9 @@ existing Inspect button.
 ```
 
 - **For / why:** Doughnut and Pygardon developers can review frontend test results
-  and recent history beside the TypeScript source already readable in Intent.
+  and latest observations beside the TypeScript source already readable in Intent.
 - **Evaluation:** Collect a real local Vitest run in each frontend, inspect
-  file/case outcomes and history, use supported folder summaries, and corroborate
+  latest file/case outcomes, use supported folder summaries, and corroborate
   comparable claims against each project's CI selection.
 - **Value / learning:** Tests shared reporting across browser-mode and happy-dom
   Vitest without conflating their execution environments.
@@ -664,7 +674,7 @@ existing Inspect button.
 - **Effort hypothesis:** Unbanded; middle, medium confidence after the first
   proof/CI case. Split the frontend variants only if real reporting behavior
   proves materially different; Vue versus React alone does not require a split.
-- **Product prerequisites:** TypeScript source reading and established run-history
+- **Product prerequisites:** TypeScript source reading and established latest-observation
   and CI comparison semantics at integration.
 - **Safe stopping point:** Usable frontend Proof in both projects, with
   environment and unsupported observations explicit.
@@ -682,11 +692,11 @@ existing Inspect button.
 - **For / why:** An Open Dough developer can inspect observed dashboard protection
   beside its TypeScript tests using the existing strict run semantics.
 - **Evaluation:** Retain a real dashboard run, review its selection, attempts,
-  strict terminal outcome and bounded history in Intent, and corroborate its
+  strict terminal outcome and latest case observations in Intent, and corroborate its
   applicable claims against the actual CI selection/shards.
 - **Value / learning:** Brings the dashboard's own test intent into Proof and
   tests reuse of its already available opt-in record.
-- **Boundary:** Add missing source association, publication, and history around
+- **Boundary:** Add missing source association, publication, and latest observations around
   the existing contract. A listed-only, running, skipped, or raw-runner pass
   cannot be upgraded to executed strict pass. Preserve quiet diagnostics.
 - **Effort hypothesis:** Unbanded; middle, medium confidence. Repetition/retry,
@@ -706,7 +716,7 @@ existing Inspect button.
 ```
 
 - **For / why:** A Pygardon developer can review observed Python test protection
-  and recent history alongside the configured pytest source.
+  and latest observations alongside the configured pytest source.
 - **Evaluation:** Record an actual authorized pytest selection, inspect file/case
   and parameterized outcomes, then corroborate the applicable subset in CI.
   Slow and host-Docker selections absent from CI stay explicitly unchecked.
@@ -734,7 +744,7 @@ existing Inspect button.
 - **For / why:** Open Dough and Doughnut developers can inspect script-test
   evidence alongside the configured Node test source.
 - **Evaluation:** Capture a real `node --test` selection in each project through
-  its existing command, read cases/subtests, terminal outcome, and history, and
+  its existing command, read cases/subtests, latest outcomes and attempts, and
   corroborate matched CI observations.
 - **Value / learning:** Makes script protection visible at the runner's actual
   case granularity without treating a wrapper's exit as every case passing.
@@ -810,7 +820,7 @@ The kept decomposition differs from Terry's rough sequence in three deliberate w
 
 Once the comparison policy is understood, corroboration is part of a later
 producer's promised evidence quality. If a new runner introduces a separate
-unsettled comparison policy, split that learning from its local-history outcome
+unsettled comparison policy, split that learning from its latest-local-Proof outcome
 instead of silently enlarging the producer story.
 
 No formal blocking dependency has been recorded: common code and delivery order

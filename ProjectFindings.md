@@ -361,3 +361,11 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 ### DD-378 — Planning treats pre-existing failures as exclusions from completion
 
 [Original evidence, project-policy responsibility and existing SEED-208 response](docs/maintainer/project-maintenance-findings.md#dd-378).
+
+## Fixture option defaults need direct proof across file order
+
+<a id="dd-390"></a>
+
+[DD-390's original observation and local responsibility](docs/maintainer/project-test-findings.md#dd-390)
+retain the successful option-value probes and their provenance. This observation
+selects no new implementation story.

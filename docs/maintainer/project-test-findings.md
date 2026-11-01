@@ -479,3 +479,28 @@ Adding a worker-scoped fixture to one fixture module while other specs extend on
   - Inference: qualified. A slice that changes test infrastructure has a hosted cost its local proof cannot see; reading the published run's report artifact (worker count, gaps) as part of the next slice's acceptance would catch it in one revision. Playwright's rule is now in the fixture's comment.
 
 **Responsibility and current assessment (2026-10-20):** The concrete fixture population was repository-owned and repaired in the same execution, with the reported local 13-to-8 worker comparison retained above. This is historical evidence, not a new recurrence or implementation commitment. The general lesson to inspect hosted costs remains qualified; no shared platform defect is established. Recovery: `dae40ae3ed427d6827828b43c4fecc794d60cd85:DearDough.md#dd-312`.
+
+<a id="dd-390"></a>
+
+## DD-390 — Journey-only order-dependence can miss fixture option binding
+
+Real second-file journeys that do not need a shared fixture option still pass
+under module-level `test.use` order dependence. Option-value probes at
+`--workers=1` were the reliable signal that defaults failed to reach the
+second-loaded file.
+
+### Occurrences
+- Execution: SEED-208#declare-fixture-defaults-on-fixtures (plan 436; first related implementation commit `9b4f8a8c`)
+  - Timestamp: unknown (2026-11-01 implementation; before-order probes `tmp/order-probe-cursor2/proof.json` `startedAt` 2026-11-01T06:33:44.496Z and `tmp/order-probe-unread/proof.json` `startedAt` 2026-11-01T06:35:00.785Z)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: plan 436 Current decisions Learning; coordinator history that real second-file journeys still passed without the option; before probes titled “missing defaults” vs after “keeps fixture defaults” in those proof records
+  - Observed effect: order-dependence was proved and fixed via option-value probes rather than failing journeys; consumer suite later passed strict
+  - Inference: Qualified practice. For fixture option defaults, assert the option values across file order instead of relying on journeys that may not exercise those options
+
+**Responsibility and disposition (2026-11-02):** Project-owned fixture-proof
+practice, rather than a defect established in shared Open Dough guidance.
+The execution's option-value probes detected the defect and its strict consumer
+suite subsequently passed. Preserve this as a useful test-design observation;
+no further implementation story is justified by this evidence alone. Original
+source and provenance are recoverable at `a47f4814:DearDough.md`.
