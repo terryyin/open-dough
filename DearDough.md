@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 388. Removed numbers are never reused.
+- Highest allocated local number: 389. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -406,6 +406,15 @@ The guarded fresh delivery runs each preparation operation directly without a sh
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-356.md).
 
+### Occurrences
+- Execution: SEED-192#browse-configured-test-source (plan 434; first implementation commit ed99ac6b)
+  - Timestamp: unknown (2026-11-01, slice 1 fresh delivery before accepted ed99ac6b at 12:52:27+08:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: coordinator transcript `90876999-4c26-45c3-9ee9-3164f1af460b` — first fresh delivery for slice 1 passed `["node","scripts/lint.mjs","--fix"]` in formatting; retry with `["npm","run","format"]` published `ed99ac6b`
+  - Observed effect: one refused preparation attempt and a second guarded request; no commit or publication harm
+  - Inference: recurrence of ODF-356; prefer `npm run format` so `node_modules/.bin` is on PATH
+
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
 ## ODF-357 — Preparation observations recorded results their own commands contradict
@@ -649,3 +658,20 @@ already-running implementer.
   - Evidence: `.planning/slice-plans/436-sessions-sidebar-host-status/source-review.md` commitments 2.4 and 3.3 at 65192a9b; the plan's slice 1 Behavior text lacks both.
   - Observed effect: a mid-task correction message reached the slice 1 agent, and the agent added proof for both before returning. No rework of committed work was needed.
   - Inference: running the source-only review before the first delegation would have let the brief carry every source commitment. The guidance places the review at acceptance only.
+
+## DD-389 — Post-change refactor left a production module empty before delivery
+
+After a slice-1 post-change refactor reported complete with selection extracted
+into `intentLocationSelection.ts`, delivery diagnosis found
+`dashboard/server/intentLocationsRead.ts` at 0 bytes. Typecheck failed on the
+missing listing/admission exports. A resumed refactor restore rewrote the
+module and focused proof passed before the increment published.
+
+### Occurrences
+- Execution: SEED-192#browse-configured-test-source (plan 434; first implementation commit ed99ac6b)
+  - Timestamp: 2026-11-01T12:51:00+08:00 (approx.; CRITICAL restore prompt before ed99ac6b at 12:52:27+08:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: coordinator transcript `90876999-4c26-45c3-9ee9-3164f1af460b` line diagnosing empty `intentLocationsRead.ts`; refactor subagent `9fbc149f-715e-4977-98b8-0640ee9d9d9e` first claimed REFACTOR COMPLETE, then on resume restored 0 bytes → 194 lines with typecheck and 9 focused Playwright passes
+  - Observed effect: slice 1 delivery stopped for restore; one extra refactor resume and focused re-proof before `ed99ac6b`
+  - Inference: qualified. The emptying happened after the first complete return and before delivery; cause (host write loss, intervening edit, or extract mishap) is not established from the record

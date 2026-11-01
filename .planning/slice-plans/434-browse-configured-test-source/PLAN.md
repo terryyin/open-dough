@@ -248,3 +248,7 @@ Reported: slice 1 — "any Proof collection"
 Story clause: "any Proof collection"
 Disposition: excluded "any Proof collection"
 Commitment: X9
+
+## Execution complete
+
+Product advice: Outcome matches the story; next backlog item can reuse this reader — no backlog change. Land Open Dough settings tip so catalog-main Intent UI shows Ex 1 / OD shell. Documented selection honesty (`test_*_support.py` matching `**/test_*.py`) stays a Proof-era concern, not a defect here.
