@@ -2,6 +2,7 @@
 
 **Identity:** SEED-209#bound-local-test-resources
 **Source:** [selected story](../../seeds/SEED-209-local-test-resources.md#bound-local-test-resources).
+**Source review:** [independent commitments](source-review.md).
 
 ## Goal and scope
 
@@ -48,7 +49,7 @@ to seek green; diagnose causal failures before rerunning.
 
 ### 1. Serialize local full suites and bound their default concurrency
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real linked-worktree subprocess runs observe mutually exclusive full
 suites, independent focused checks, two/four defaults, explicit overrides,
 nesting and lifecycle recovery, plus unchanged CI behavior; affected runner and
@@ -81,3 +82,40 @@ lifecycle rules together and document the public commands and overrides.
 The source entry points and disposable-copy helper were inspected in the named
 checkout's base. No remaining slice concern; refinement was unnecessary because
 one proof loop covers the single local scheduling policy and its lifecycle.
+
+## Accepted proof
+
+The implementation owner observed terminal exit 0 for three consecutive final
+`PATH=/opt/homebrew/bin:$PATH npm test -- tests/support/local-test-suite.test.mjs`
+runs (11 scenarios each; `/tmp/dough-local-suite-final-{1,2,3}.log`). The real
+temporary Git worktrees and observing assertions cover all source-review rows,
+including predecessor liveness at entry, simultaneous reclaimers, killed
+reclaimers, queued cancellation and nested runs in different timezones.
+
+Eight existing runner consumers passed:
+`PATH=/opt/homebrew/bin:$PATH npm test -- tests/test-runner-selection.sh tests/test-runner-ci-environment.sh tests/test-runner-interrupt.sh tests/test-runner-bash.sh tests/test-runner-failure-report.sh tests/test-runner-split.sh tests/test-runner-budget.sh tests/test-runner-github-requests.sh`.
+Log: `/tmp/dough-local-runner-regression.log`.
+
+`PATH=/opt/homebrew/bin:$PATH env -u CI -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-local-dashboard-reporters-proof.json npm run --silent test:dashboard -- quiet-reporter.spec.ts boundary/proof-record-entry.spec.ts boundary/dashboard-scheduling.spec.ts boundary/spec-times.spec.ts --workers=2`
+passed strict 14/14, zero skipped: 6 quiet-reporter, 2 actual config/npm entry,
+1 scheduling and 5 spec-times cases. Coordinator inspected selected tests,
+setup and attempts in that JSON and relevant source. The same environment with
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-local-dashboard-lifetime-proof.json npm run --silent test:dashboard -- boundary/run-processes.spec.ts --workers=2`
+passed strict 4/4 for actual global setup/teardown, timeouts and survivor cleanup.
+Consumer traces and individual dispositions are retained outside Git in
+`/tmp/dough-local-test-consumer-trace.md` and its `-workers.md` companion.
+
+No full suite was launched locally. Linux gate execution remains a hosted-CI
+observation; the local Docker daemon is unavailable, and the implementation uses
+the existing dashboard `/proc` pattern. Actual local admission and concurrency
+were observed; elapsed-time and memory improvement remain unmeasured.
+
+Independent refactoring extracted process observation, dashboard selection,
+controlled fixture construction and lifecycle scenarios without changing their
+bodies, and gave the resource policy one maintained document. The final command
+`PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 npm test -- tests/support/local-test-suite.test.mjs tests/support/local-test-suite-lifecycle.test.mjs tests/test-runner-bash.sh`
+passed all 11 preserved scenarios and the actual copied-runner consumer;
+`/tmp/dough-local-refactor-final-proof.log` retains its quiet output. The source
+comparison and observing locations above remain valid, with lifecycle cases now
+in their separate file. `git diff --check` passed. Refactor consumer dispositions:
+`/tmp/dough-local-refactor-consumer-trace.md`.

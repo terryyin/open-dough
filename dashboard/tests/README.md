@@ -7,6 +7,9 @@ GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; [proof records](proof-record.md); and [CI shards](shards.md) for allocation,
 recorded times and deadlines.
 
+See [local resource use](../../tests/local-test-resources.md) for full-suite
+admission across linked worktrees, worker defaults, overrides and cleanup.
+
 ## Two tiers: browser journeys and boundary tests
 
 A **browser journey** proves one representative, integrated user journey in
@@ -187,8 +190,8 @@ and their assignment to exactly one shard.
 Run from the repository root; `npm run test:dashboard -- boundary/` or
 `-- --grep 'published Board'` selects files or tests, and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
-build, the quiet reporter and the run's identity. Local runs use Playwright's
-default worker count, CI runs every core.
+build, the quiet reporter and the run's identity. Local runs default to two
+workers, CI runs every core.
 
 CI runs the suite as shard jobs, each running the whole spec files
 `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` deals it by recorded duration, keeping its
