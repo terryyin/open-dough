@@ -354,6 +354,15 @@ Broad reference/metadata batches omit required passages and force repeated retri
   - Inference: narrower boundary reads and bounded consumer sections would reduce context churn; no elapsed-time saving was measured.
 
 
+- Execution: SEED-215#visible-selected-story (first implementation `4e177a5a98edade2fe1693f233b2007fb23e2796`)
+  - Timestamp: unknown (2026-11-01 execution conversation)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at admission `2b4f612158bacf07a8d855b3980246daafeac9da`
+  - Evidence: coordinator transcript `01a1961c-0988-7772-a27d-4945d3e3f210`; startup combined publication, identity, preparation, hooks and dashboard documentation read reported 16,244 original output tokens with truncation; later combined execution/CI reads reported 8,242 and 6,127 tokens with truncation, followed by targeted CI adapter, preparation, and delivery reads. This retrospective repeated a 9,784-token source/refactor batch that was also truncated. The skill already required one boundary row per result.
+  - Observed effect: requested guidance was omitted and recovered through additional reads before a six-line CSS fill change. Repeated batches in this execution count once.
+  - Inference: applying the existing boundary/targeted-retrieval rule would avoid this context churn; no elapsed-time or total-token saving was measured.
+
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323. An implementation agent probing a new macOS notification identity ended the
