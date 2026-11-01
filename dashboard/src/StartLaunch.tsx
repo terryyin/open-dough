@@ -45,7 +45,7 @@ import { Play, PencilLine, type LucideIcon } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import { storySession } from "./LaunchSessionPolicy.tsx";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
@@ -224,6 +224,9 @@ export function StartLaunch({
           kept={kept}
           notOfferedLine={notOfferedLine(options, kept)}
           onStart={onStart}
+          {...(workflow === "execution" && resumes === undefined
+            ? { submittingStatus: "Checking base CI…" }
+            : {})}
           onRefused={(selected) => {
             refused.current = true;
             setKept(selected);

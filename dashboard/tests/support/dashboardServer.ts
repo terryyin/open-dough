@@ -32,7 +32,13 @@ import {
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
-import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
+import {
+  everyRepository,
+  startFakeGitHub,
+  type FakeGitHub,
+} from "./fakeGitHub.ts";
+import { defaultBaseCiRevision } from "./baseCiActions.ts";
+import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
 import {
   serverLaunch,
@@ -128,6 +134,12 @@ export async function startDashboardServer(
   const ownsMachine = options.machine === undefined;
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
+  if (ownsGitHub) {
+    github.serve(
+      everyRepository,
+      publishes({ revision: defaultBaseCiRevision }),
+    );
+  }
   const gh = installFakeGh(tempRoot);
   const ghEnv = fakeGhEnv(gh, github.url);
   const claude = installFakeClaude(

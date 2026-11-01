@@ -70,6 +70,18 @@ export type GhRequest =
       // said.
       readonly perPage: number | undefined;
     }
+  | {
+      // A selected Actions workflow by filename or id.
+      readonly kind: "actions-workflow";
+      readonly repository: string;
+      readonly workflow: string;
+    }
+  | {
+      // Push runs of a selected Actions workflow.
+      readonly kind: "actions-runs";
+      readonly repository: string;
+      readonly workflowId: string;
+    }
   | { readonly kind: "unknown" };
 
 // GitHub's raw media types: both answer a file's raw bytes, labeled with the
@@ -207,6 +219,26 @@ export function parseRequest(argv: readonly string[]): GhRequest {
         };
       }
     }
+  }
+  const actionsWorkflow =
+    /^repos\/([^/]+\/[^/]+)\/actions\/workflows\/([^/?]+)$/.exec(endpoint);
+  if (actionsWorkflow?.[1] !== undefined && actionsWorkflow[2] !== undefined) {
+    return {
+      kind: "actions-workflow",
+      repository: actionsWorkflow[1],
+      workflow: decodeURIComponent(actionsWorkflow[2]),
+    };
+  }
+  const actionsRuns =
+    /^repos\/([^/]+\/[^/]+)\/actions\/workflows\/([^/]+)\/runs(?:\?.*)?$/.exec(
+      endpoint,
+    );
+  if (actionsRuns?.[1] !== undefined && actionsRuns[2] !== undefined) {
+    return {
+      kind: "actions-runs",
+      repository: actionsRuns[1],
+      workflowId: decodeURIComponent(actionsRuns[2]),
+    };
   }
   return { kind: "unknown" };
 }

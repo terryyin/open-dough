@@ -185,7 +185,12 @@ export function publishMovingFiles(
       observe(requests, call);
       return Promise.resolve(answer);
     }
-    if (request.kind === "unknown" || request.kind === "ref") {
+    if (
+      request.kind === "unknown" ||
+      request.kind === "ref" ||
+      request.kind === "actions-workflow" ||
+      request.kind === "actions-runs"
+    ) {
       return Promise.resolve(noConnection);
     }
     const at = publishedAt(revisions, request.revision);

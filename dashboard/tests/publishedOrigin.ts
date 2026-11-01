@@ -8,9 +8,9 @@
 // concurrently observed repositories.
 //
 // `publishOrigin` publishes only the ref and the backlog file, and
-// `publishMovingOrigin` also any record files a push names; any other content
-// path at a published revision is answered as not found (missing), not as a
-// lost connection.
+// `publishMovingOrigin` (./publishedMovingOrigin.ts) also any record files a
+// push names; any other content path at a published revision is answered as
+// not found (missing), not as a lost connection.
 // Both list a published revision's directories from those files alone, so a
 // project without agent profiles lists none; listings are not observed.
 // `publishFiles` (./publishedFiles.ts) publishes fixed files at one revision,
@@ -22,15 +22,18 @@ import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest.ts";
 import {
   asHeadsListing,
-  commitAnswer,
   noConnection,
   notFoundAnswer,
-  rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
 import { directoryListingAnswer, listedFiles } from "./listingAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
-import type { FakeGitHub, GhCall } from "./support/fakeGitHub.ts";
+import {
+  backlogPath,
+  defaultRepository,
+  publishedTarget,
+} from "./publishedOriginBasics.ts";
+import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
 
 export {
   commitAnswer,
@@ -50,13 +53,15 @@ export {
   type ObservedRequest,
 } from "./originObservation.ts";
 export { publishFiles } from "./publishedFiles.ts";
-
-// The project this dashboard opens by default. Callers that observe another
-// project pass its repository explicitly; this default keeps every existing
-// single-project journey unchanged.
-export const defaultRepository = "terryyin/open-dough";
-
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
+export {
+  backlogPath,
+  defaultRepository,
+  publishedTarget,
+} from "./publishedOriginBasics.ts";
+export {
+  publishMovingOrigin,
+  type MovingOrigin,
+} from "./publishedMovingOrigin.ts";
 
 export type Origin = {
   // What GitHub answers for `commits/main`, and, listed as `main`'s head, for
@@ -71,23 +76,6 @@ export type Origin = {
   // Holds the ref answer back until the test lets it go.
   readonly refHeldUntil?: Promise<void>;
 };
-
-// Which published file a call asks for: "main" for the ref (or a check
-// listing it among the branch heads), the revision for the backlog file read
-// at it, or undefined for anything else.
-function publishedTarget(call: GhCall): string | undefined {
-  const { request } = call;
-  if (
-    (request.kind === "ref" && request.ref === "main") ||
-    request.kind === "matching-refs"
-  ) {
-    return "main";
-  }
-  if (request.kind === "content" && request.path === backlogPath) {
-    return request.revision;
-  }
-  return undefined;
-}
 
 export function publishOrigin(
   page: Page,
@@ -129,125 +117,13 @@ export function publishOrigin(
     ) {
       return notFoundAnswer();
     }
-    return noConnection;
+    // Default passing Actions / head history for base CI (SEED-210).
+    const headSha =
+      backlog?.revision ??
+      ("body" in ref && typeof ref.body === "string"
+        ? (JSON.parse(ref.body) as { sha?: string }).sha
+        : undefined);
+    return defaultPassingBaseCi(request, headSha) ?? noConnection;
   });
   return Promise.resolve(observed);
-}
-
-// An origin whose `main` moves while the page is open. A test only pushes
-// commits and delays answers, as a network would; what the page then shows is
-// never supplied here.
-export type MovingOrigin = {
-  readonly requests: ObservedRequest[];
-  // Pushes a commit: `main` names it from now on, and the backlog (and any
-  // record files given by repository path) stay readable at it, as at every
-  // commit pushed before.
-  push(
-    revision: string,
-    backlog: string,
-    files?: Readonly<Record<string, string>>,
-  ): void;
-  // Holds back answers from now on until the returned release is called: for
-  // "main" the ref answer, for a revision the backlog file read at it, and for
-  // a record file's repository path its reads at any revision. A held answer
-  // was decided when its request arrived, not when it is released.
-  hold(what: string): () => void;
-  // Answers from now on with this raw answer instead of the published one,
-  // until the returned restore is called: for "main" the ref request and the
-  // check listing it, for a
-  // revision the backlog file read at it.
-  answerWith(what: string, answer: OriginAnswer): () => void;
-};
-
-// Published to the page's dashboard, or to a fake GitHub a pageless test
-// gives its servers.
-export function publishMovingOrigin(
-  page: Page | FakeGitHub,
-  repository: string = defaultRepository,
-): Promise<MovingOrigin> {
-  const requests: ObservedRequest[] = [];
-  const backlogs = new Map<string, string>();
-  const records = new Map<string, Readonly<Record<string, string>>>();
-  const held = new Map<string, Promise<void>>();
-  const instead = new Map<string, OriginAnswer>();
-  let main: string | undefined;
-
-  const github = "serve" in page ? page : githubFor(page);
-  github.serve(repository, async (call) => {
-    const target = publishedTarget(call);
-    const { request } = call;
-    if (target === undefined && request.kind === "content") {
-      const files = records.get(request.revision);
-      const body =
-        files !== undefined && Object.hasOwn(files, request.path)
-          ? files[request.path]
-          : undefined;
-      if (body !== undefined) {
-        observe(requests, call);
-        await held.get(request.path);
-        return rawFileAnswer(body);
-      }
-      // Published at this revision with no such file: a missing record, not a
-      // temporary connection loss (those use answerWith / hold). Leave it
-      // unobserved so membership request accounting stays ref+backlog.
-      return notFoundAnswer();
-    }
-    if (request.kind === "listing") {
-      const files = records.get(request.revision);
-      return files === undefined
-        ? noConnection
-        : directoryListingAnswer(
-            request.path,
-            listedFiles({
-              [backlogPath]: backlogs.get(request.revision) ?? "",
-              ...files,
-            }),
-          );
-    }
-    if (target === undefined) {
-      return noConnection;
-    }
-    observe(requests, call);
-    let answer: OriginAnswer;
-    if (target === "main") {
-      answer =
-        instead.get("main") ??
-        (main === undefined ? notFoundAnswer() : commitAnswer(main));
-    } else {
-      const backlog = backlogs.get(target);
-      answer =
-        instead.get(target) ??
-        (backlog === undefined ? notFoundAnswer() : rawFileAnswer(backlog));
-    }
-    await held.get(target);
-    return request.kind === "matching-refs" ? asHeadsListing(answer) : answer;
-  });
-
-  return Promise.resolve({
-    requests,
-    push(revision, backlog, files = {}) {
-      backlogs.set(revision, backlog);
-      records.set(revision, files);
-      main = revision;
-    },
-    answerWith(what, answer) {
-      instead.set(what, answer);
-      return () => {
-        instead.delete(what);
-      };
-    },
-    hold(what) {
-      let release: () => void = () => undefined;
-      held.set(
-        what,
-        new Promise<void>((resolve) => {
-          release = resolve;
-        }),
-      );
-      return () => {
-        held.delete(what);
-        release();
-      };
-    },
-  });
 }

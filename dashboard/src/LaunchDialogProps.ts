@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { OfferedShape } from "./commandOptions.ts";
 import type { AgentLaunchRequest, LaunchChoices } from "./agentLaunch.ts";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import type { DialogSession } from "./LaunchSessionPolicy.tsx";
 
 // Shared startup-dialog contract: subject, Session group, options, and the
@@ -40,6 +40,11 @@ export type LaunchDialogProps = {
   readonly notOfferedLine?: string | undefined;
   readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
   readonly onRefused?: (selected: ReadonlySet<string>) => void;
+  // What Start says while the request is on its way.
+  readonly submittingLabel?: string;
+  // Status shown while the request is on its way (for example base CI
+  // judgment), without replacing the Start button's Starting… label.
+  readonly submittingStatus?: string;
   // Whether the launch was accepted.
   readonly onClose: (accepted: boolean) => void;
 };

@@ -114,11 +114,19 @@ export function useStartupRecovery({
             attempt.id,
             answer.kind === "existing-changes"
               ? existingChanges
-              : {
-                  kind:
-                    answer.kind === "stop-unconfirmed" ? "failed" : answer.kind,
-                  explanation: answer.explanation,
-                },
+              : answer.kind === "base-ci"
+                ? {
+                    kind: "failed",
+                    explanation:
+                      "The origin target's CI is not a pass, so this start was not continued from Startup recovery. Start a new execution when you are ready to confirm the base.",
+                  }
+                : {
+                    kind:
+                      answer.kind === "stop-unconfirmed"
+                        ? "failed"
+                        : answer.kind,
+                    explanation: answer.explanation,
+                  },
           );
         else settle(attempt.id, { kind: "continuing", after: asksSoFar() });
         reread();

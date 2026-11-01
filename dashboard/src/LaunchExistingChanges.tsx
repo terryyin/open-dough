@@ -1,151 +1,13 @@
-// A launch dialog's confirmation state for a session in the default checkout
-// that holds uncommitted changes: which paths changed and how many (never
-// their content), that continuing includes them in the session's result, and
-// the landing that remains selected, which confirming never changes. Its
-// heading takes the keyboard when it opens, and again when the changes
-// changed before Continue, which then asks once more. Nothing is
-// preselected: the developer chooses Back or Continue with existing changes.
+// A launch dialog's confirmation for a session in the default checkout that
+// holds uncommitted changes: which paths changed and how many (never their
+// content), that continuing includes them in the session's result, and the
+// landing that remains selected, which confirming never changes. Its heading
+// takes the keyboard when it opens, and again when the changes changed before
+// Continue, which then asks once more. Nothing is preselected: the developer
+// chooses Back or Continue with existing changes.
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-  type SyntheticEvent,
-} from "react";
-import type {
-  ExistingChangesFound,
-  LaunchChoices,
-  SessionPolicy,
-} from "./agentLaunch.ts";
-import type { StopUnconfirmedFound } from "./sessionStop.ts";
-import { LaunchStopUnconfirmed } from "./LaunchStopUnconfirmed.tsx";
-
-// What asking for a launch answers its dialog: whether the local service
-// accepted it (its startup goes on without the dialog), or the default
-// checkout's existing changes to confirm, with nothing started.
-export type StartAnswer = boolean | ExistingChangesFound | StopUnconfirmedFound;
-
-// A launch dialog's confirmation state: `start` asks for the launch, which
-// is submitted (`submitting`) from that moment until an answer finds changes;
-// changes it finds are shown (`view`, the choices hidden behind it) until
-// Back, Escape, or a launch answer, and Continue sends that Start's choices
-// again with the confirmation; `landing` is what stays selected after checks,
-// said under them. Back returns the keyboard to Start
-// (`startButton`) once the choices show again. Any other answer is the
-// dialog's to end with (`ended`). While a launch is submitted, nothing
-// dismisses the dialog: neither its cancel nor Escape, wherever the keyboard
-// is once its controls are disabled.
-export function useExistingChangesConfirmation({
-  id,
-  landing,
-  onStart,
-  ended,
-}: {
-  readonly id: string;
-  readonly landing: SessionPolicy["landing"];
-  readonly onStart: (choices: LaunchChoices) => Promise<StartAnswer>;
-  readonly ended: (accepted: boolean) => void;
-}): {
-  readonly view: ReactNode;
-  readonly startButton: RefObject<HTMLButtonElement | null>;
-  readonly submitting: boolean;
-  readonly start: (choices: LaunchChoices) => void;
-  readonly onCancel: (event: SyntheticEvent) => void;
-} {
-  const [found, setFound] = useState<ExistingChangesFound>();
-  const [blocked, setBlocked] = useState<StopUnconfirmedFound>();
-  const [submitting, setSubmitting] = useState(false);
-  // Set at once, so a second Start before the next render sends nothing.
-  const submitted = useRef(false);
-  const asked = useRef<LaunchChoices>(undefined);
-  const startButton = useRef<HTMLButtonElement>(null);
-  const backToChoices = useRef(false);
-  useEffect(() => {
-    if (!submitting) return;
-    const suppress = (event: KeyboardEvent) => {
-      if (event.key === "Escape") event.preventDefault();
-    };
-    window.addEventListener("keydown", suppress, true);
-    return () => {
-      window.removeEventListener("keydown", suppress, true);
-    };
-  }, [submitting]);
-  useEffect(() => {
-    if (found === undefined && blocked === undefined && backToChoices.current) {
-      backToChoices.current = false;
-      startButton.current?.focus();
-    }
-  }, [found, blocked]);
-  const start = (choices: LaunchChoices) => {
-    if (submitted.current) return;
-    submitted.current = true;
-    setSubmitting(true);
-    void onStart(choices).then((answer) => {
-      if (typeof answer !== "object") {
-        ended(answer);
-        return;
-      }
-      submitted.current = false;
-      setSubmitting(false);
-      asked.current = choices;
-      if (answer.kind === "stop-unconfirmed") setBlocked(answer);
-      else setFound(answer);
-    });
-  };
-  const back = () => {
-    backToChoices.current = true;
-    setFound(undefined);
-    setBlocked(undefined);
-  };
-  return {
-    view:
-      blocked !== undefined ? (
-        <LaunchStopUnconfirmed
-          id={id}
-          blocked={blocked}
-          starting={submitting}
-          onBack={back}
-          onStartAnyway={() => {
-            if (asked.current === undefined) return;
-            setBlocked(undefined);
-            start({ ...asked.current, overrideStopUnconfirmed: true });
-          }}
-        />
-      ) : (
-        found !== undefined && (
-          <LaunchExistingChanges
-            id={id}
-            found={found}
-            landing={landing}
-            starting={submitting}
-            onBack={back}
-            onContinue={() => {
-              if (asked.current === undefined) return;
-              start({
-                ...asked.current,
-                existingChanges: found.fingerprint,
-              });
-            }}
-          />
-        )
-      ),
-    startButton,
-    submitting,
-    start,
-    onCancel: (event) => {
-      if (submitted.current) {
-        event.preventDefault();
-        return;
-      }
-      if (found !== undefined || blocked !== undefined) {
-        event.preventDefault();
-        back();
-      }
-    },
-  };
-}
+import { useEffect, useRef } from "react";
+import type { ExistingChangesFound, SessionPolicy } from "./agentLaunch.ts";
 
 const existingChangesHeading = "Existing changes in default main";
 
@@ -156,7 +18,7 @@ function landingRemains(landing: SessionPolicy["landing"]): string {
     : "Wait for review remains selected.";
 }
 
-function LaunchExistingChanges({
+export function LaunchExistingChanges({
   id,
   found,
   landing,

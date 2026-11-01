@@ -25,7 +25,7 @@ import {
 } from "./agentLaunch.ts";
 import { useAskedLaunches } from "./askedLaunches.ts";
 import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import {
   adHocKey,
   askedRequests,

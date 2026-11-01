@@ -167,6 +167,9 @@ export function feedbackMaintenanceState(
 export function heldReason(
   refused: Exclude<Acceptance, { readonly kind: "accepted" }>,
 ): string {
+  if (refused.kind === "base-ci")
+    return `origin ${refused.branch} base CI is ${refused.state}`;
+  if (refused.kind === "stop-unconfirmed") return refused.explanation;
   if (refused.kind !== "existing-changes") return refused.explanation;
   const paths =
     refused.count === 1 ? "1 changed path" : `${refused.count} changed paths`;

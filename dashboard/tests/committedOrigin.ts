@@ -30,6 +30,15 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
 import { commitOf, listAt, listedAt, showAt } from "./committedOriginRepo.ts";
+import {
+  passingActionsAnswer,
+  targetHistoryAnswer,
+} from "./support/baseCiActions.ts";
+
+export type ActionsAnswerer = (
+  argv: readonly string[],
+  headSha: string,
+) => OriginAnswer | undefined;
 
 export type CommittedOrigin = {
   readonly requests: ObservedRequest[];
@@ -43,6 +52,8 @@ export type CommittedOrigin = {
   // Answers "main", "compare", a repository path, or a listed directory with
   // this raw answer until restore.
   answerWith(what: string, answer: OriginAnswer): () => void;
+  // Overrides the default passing Actions answer until restore.
+  serveActions(answerer: ActionsAnswerer): () => void;
   advanceTo(revision: string): void;
 };
 
@@ -71,10 +82,19 @@ export function publishCommittedOrigin(
   const compares: string[] = [];
   const held = new Map<string, Promise<void>>();
   const instead = new Map<string, OriginAnswer>();
+  let actionsOverride: ActionsAnswerer | undefined;
   const history = committedHistoryAnswers(repoDir);
 
   githubFor(page).serve(repository, async (call) => {
-    const { request } = call;
+    const { request, argv } = call;
+    if (
+      request.kind === "actions-workflow" ||
+      request.kind === "actions-runs"
+    ) {
+      const actionsAnswer = actionsOverride?.(argv, published());
+      if (actionsAnswer !== undefined) return actionsAnswer;
+      return passingActionsAnswer(request.kind, published());
+    }
     if (request.kind === "ref" && request.ref === "main") {
       observe(requests, call);
       await held.get("main");
@@ -120,15 +140,28 @@ export function publishCommittedOrigin(
         ]),
       ),
     });
-    if (request.kind === "commit-list" && readable(request.revision)) {
-      if (options.realHistory === true) {
-        return history.list(request.revision, request.path, request.perPage);
+    if (request.kind === "commit-list") {
+      // Target-head history for base CI (no path): real commits of main/SHA.
+      if (request.path === "") {
+        const tip =
+          request.revision === "main" || request.revision === published()
+            ? published()
+            : readable(request.revision)
+              ? request.revision
+              : undefined;
+        if (tip !== undefined)
+          return targetHistoryAnswer(repoDir, tip, request.perPage);
       }
-      return commitListIn(
-        profiles(request.revision),
-        request.path,
-        request.perPage,
-      );
+      if (readable(request.revision)) {
+        if (options.realHistory === true) {
+          return history.list(request.revision, request.path, request.perPage);
+        }
+        return commitListIn(
+          profiles(request.revision),
+          request.path,
+          request.perPage,
+        );
+      }
     }
     if (request.kind === "commit") {
       if (
@@ -179,6 +212,12 @@ export function publishCommittedOrigin(
       instead.set(what, answer);
       return () => {
         instead.delete(what);
+      };
+    },
+    serveActions(answerer) {
+      actionsOverride = answerer;
+      return () => {
+        actionsOverride = undefined;
       };
     },
     advanceTo(next) {

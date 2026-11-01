@@ -54,13 +54,19 @@ export const adHocKey = (sourceId: string) =>
 export function problemOf(
   outcome: Exclude<AttemptOutcome, { kind: "launched" }>,
 ): LaunchProblem {
-  return outcome.kind === "existing-changes"
-    ? {
-        kind: "failed",
-        explanation:
-          "The default checkout holds changes this start did not confirm, so nothing was started. Start again to review them.",
-      }
-    : outcome;
+  if (outcome.kind === "existing-changes")
+    return {
+      kind: "failed",
+      explanation:
+        "The default checkout holds changes this start did not confirm, so nothing was started. Start again to review them.",
+    };
+  if (outcome.kind === "base-ci")
+    return {
+      kind: "failed",
+      explanation:
+        "The origin target's CI was not a pass and this start did not confirm that judgment, so nothing was started. Start again to review it.",
+    };
+  return outcome;
 }
 
 // What the asking action shows of `page`, an accepted one as its latest
@@ -85,7 +91,9 @@ export function shownAttempt(
 export function answeredAttempt(
   answer: Exclude<
     AcceptanceAnswer,
-    { kind: "existing-changes" } | { kind: "stop-unconfirmed" }
+    | { kind: "existing-changes" }
+    | { kind: "base-ci" }
+    | { kind: "stop-unconfirmed" }
   >,
   request: AgentLaunchRequest,
   onLaunched: OnLaunched,
