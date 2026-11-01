@@ -149,7 +149,7 @@ name the old paths; slice 9 reconciles them.
 
 ### 3. Prove model selection with fewer full starts and a cheaper dialog fixture
 Type: Structure
-Status: planned
+Status: done
 Proof: Actual model/effort reaches native creation in story/ad-hoc shapes and
 refinement persistence before input; all catalog/effort UI variants remain green.
 
@@ -173,6 +173,22 @@ simplification, not speedup. Non-installed cases: `codexModelCatalogCases.ts`
 `codexEffortWorkspaceCases.ts:41`; the ad-hoc iteration of
 `agent-launch-codex-model.spec.ts:10`. Ad-hoc `cwd` assertions then name the
 fake HOME project instead of `origin.project`.
+
+Result: seven cases moved to `codexLaunch` with the read-only launch journey
+(`codexModelCatalogCases.ts` and `codexEffortDialogCases.ts` now use only that
+fixture), plus the ad-hoc shape of `agent-launch-codex-model.spec.ts`; the
+execution shape stays on `codexStart`. `codexEffortWorkspaceCases.ts` keeps the
+installed cases, including workspace confirmation (moved there in refactoring)
+and the effort-only ad-hoc case, which the plan listed as non-installed but
+which checks reporting input that only an installed launch workspace records
+(`server/launchWorkspaceReporting.ts`). Refinement's selected model/effort now
+reaches the first `thread/start` and persists in `refinement-starts.json`
+before input in `agent-launch-preparation-codex`; its default native creation
+stays observed on the retry. A retry never rewrites the kept start
+(`server/preparationStart.ts:149-163`), and native creation follows the retry's
+request (`server/hosts/codex/launch.ts:47-50`), as Claude's kept-start journey
+also asserts. Family 30/30 strict (`tmp/after2-s3-default`, `tmp/after2-s3-w1`:
+37.7 summed s against 43.9 at lower load); reported as simplification.
 
 ### 4. Retain phase integration without the host/workflow cross-product
 Type: Structure
@@ -292,9 +308,28 @@ the retained, independently worthwhile coverage simplifications.
 
 ## Learnings and preparation review
 
+CI run 41263584410 on slice 2's `332c1327` failed dashboard shards 2, 4, 9, 11
+and 12 in `agent-terminal-done-question`, `agent-terminal-lifetime`,
+`session-workspace-retirement`, `sessions-sidebar-navigation-cases` and
+`agent-launch-ad-hoc-sessions` (project-choice `locator.check` timeouts). None
+is touched by this story; the same shards failed on other branches built on
+the banner change `c26577b5`, and trunk's `62defee5` ("Choose and check projects
+through whichever banner control shows") repairs them, including
+`recently-done-sessions-sidebar-paging`. Disposition: base defect owned and
+repaired on trunk; the branch takes trunk before slice 3's publication so later
+CI verdicts observe this story's changes. Slice 9 re-checks whether slice 1's
+local paging failure still needs its own fix after that merge.
+
 The source review established real duplication but also the unique completed
 review radio round trip; its prior overlap description was incomplete.
 Refinement was not needed: slices own separate cohesive correction/proof loops,
 share one measurement protocol, and bound unknown cost premises in slice 1.
 No remaining slice-specific concern identified by this preparation review.
 Actual benefits remain hypotheses; the early probe and final re-profile own them.
+
+## Story obligations
+
+### G1. Kept-start "Default model" wording lost its only observation
+Reported: slice 3 — "the 'Default' branch of the kept-start sentence (`src/StartEffects.tsx:81`) ... no other test covers 'with Default model'."
+Story clause: "while retaining the important behavior those tests protect"
+Disposition: proved by slice 3: `agent-launch-start-codex.spec.ts` card-start test asserts "This start requested Codex with Default model." on the reopened kept start

@@ -30,10 +30,10 @@ that the named retentions in 4a–4h are examples, not exhaustive rejection rule
 | 4a.2 | Malformed review/mark requests still cannot mutate real Git state | slice 2 | observed: observed()/written/origin-main sentinels in boundary/story-review-refusal and -mark-admission; repo+index in -one-shot-admission |
 | 4a.3 | That protection is proved without opening a browser | slice 2 | observed: serverMode boundary + request, no page, in all five boundary admission specs |
 | 4a.4 | That protection is proved without building irrelevant history | slice 2 | observed: admissionWorktree in support/storyReviewWorktree.ts used by refusal, commit-admission, mark-admission |
-| 4b.1 | One story journey retains its distinct launch shape | slice 3 | |
-| 4b.2 | One ad-hoc discovered-model journey retains its distinct launch shape | slice 3 | |
-| 4b.3 | Refinement model/effort persistence survives in its existing journey | slice 3 | |
-| 4b.4 | Catalog-only cases no longer prepare installed-start repositories | slice 3 | |
+| 4b.1 | One story journey retains its distinct launch shape | slice 3 | observed: agent-launch-codex-model.spec.ts execution test on codexStart (worktree cwd, model, effort, profile) |
+| 4b.2 | One ad-hoc discovered-model journey retains its distinct launch shape | slice 3 | observed: agent-launch-codex-model.spec.ts ad-hoc test on codexLaunch (home project cwd, model, effort, no turn/start) |
+| 4b.3 | Refinement model/effort persistence survives in its existing journey | slice 3 | observed: agent-launch-preparation-codex.spec.ts kept() model/effort before input and first thread/start |
+| 4b.4 | Catalog-only cases no longer prepare installed-start repositories | slice 3 | observed: codexModelCatalogCases.ts and codexEffortDialogCases.ts import only support/codexLaunch.ts |
 | 4c.1 | Claude execution retains the full phase/observer journey | slice 4 | |
 | 4c.2 | Codex refinement retains the full phase/observer journey | slice 4 | |
 | 4c.3 | The existing Codex execution proof retains its changed-readiness handoff | slice 4 | |

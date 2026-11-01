@@ -137,6 +137,9 @@ test("Codex card start publishes one claim and retries its retained workspace be
   await expect(dialog).toContainText(
     "in workspace ~/git/open-dough/.worktrees/story-a",
   );
+  await expect(dialog).toContainText(
+    "This start requested Codex with Default model.",
+  );
   await dialog
     .getByRole("textbox", { name: "Instruction (optional)" })
     .fill("Implement the selected slice.");
