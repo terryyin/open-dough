@@ -1,8 +1,21 @@
 import { availableParallelism } from "node:os";
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
 import { dashboardTestProjects } from "./tests/support/testFiles.mjs";
 import type { QuietReporterOptions } from "./tests/support/quietReporter.ts";
+import { acquireLocalSuite } from "../scripts/local-test-suite.mjs";
+import { fullDashboardSuite } from "./tests/support/fullSuiteSelection.mjs";
+
+// Config is the shared entry for npm and direct Playwright commands. Workers
+// reload it, but only the runner admits a full local run before global setup.
+if (
+  process.env["TEST_WORKER_INDEX"] === undefined &&
+  !process.env["CI"] &&
+  fullDashboardSuite()
+) {
+  await acquireLocalSuite(fileURLToPath(new URL("../", import.meta.url)));
+}
 
 // Vite and other descendants may explicitly enable Node's compile cache.
 // Disable writes before global setup and workers start, including when a
@@ -41,10 +54,9 @@ export default defineConfig({
   testDir: "./tests",
   outputDir: `./test-results/${runStamp}`,
   fullyParallel: true,
-  // Playwright's default uses half the cores. Each CI dashboard shard job must
-  // finish within the CI verdict target, so there it uses every core; local
-  // runs keep the default.
-  ...(process.env["CI"] ? { workers: availableParallelism() } : {}),
+  // Local runs leave room for neighboring projects. CI keeps every core per
+  // shard; Playwright's explicit --workers override applies to either default.
+  workers: process.env["CI"] ? availableParallelism() : 2,
   forbidOnly: Boolean(process.env["CI"]),
   // CI's recorded deadline ends the run, build included, before the job's
   // own bound, so the run fails naming it and keeps what completed

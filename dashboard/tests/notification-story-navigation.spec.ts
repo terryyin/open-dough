@@ -1,5 +1,5 @@
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice, chooseProject } from "./dashboardPage.ts";
 import {
   publishRosterOrigins,
   takenIdentity,
@@ -26,9 +26,7 @@ test("cold story URL waits for the named project's data, then reveals and focuse
   await recordReveals(page);
   await page.goto(storyUrl());
   const card = page.getByRole("article", { name: notifiedTitle, exact: true });
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
+  await expectProjectChoice(page, "Doughnut");
   await expect.poll(() => target.requests.length).toBeGreaterThan(1);
   expect(await revealsOf(page)).toEqual([]);
   await expect(card).toHaveCount(0);
@@ -74,9 +72,7 @@ test("reload, direct open, and history preserve story targeting while ordinary p
   await page.reload();
   await expect(card).toBeFocused();
   await expect(card).toBeInViewport({ ratio: 0.99 });
-  await parts(page)
-    .project.getByRole("radio", { name: "Open Dough", exact: true })
-    .check();
+  await chooseProject(page, "Open Dough");
   await expect(page.getByRole("article", { name: otherTitle })).toBeVisible();
   expect(new URL(page.url()).searchParams.has("story")).toBe(false);
   await page.goBack();
@@ -147,14 +143,10 @@ test("a project choice supersedes a pending story destination without a late rev
   await recordReveals(page);
   await page.goto(storyUrl());
   await expect.poll(() => target.requests.length).toBeGreaterThan(1);
-  await parts(page)
-    .project.getByRole("radio", { name: "Open Dough", exact: true })
-    .check();
+  await chooseProject(page, "Open Dough");
   await expect(page.getByRole("article", { name: otherTitle })).toBeVisible();
   release();
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Open Dough", exact: true }),
-  ).toBeChecked();
+  await expectProjectChoice(page, "Open Dough");
   expect(new URL(page.url()).searchParams.has("story")).toBe(false);
   expect(await revealsOf(page)).toEqual([]);
   await expect(page.getByRole("article", { name: notifiedTitle })).toHaveCount(
@@ -238,9 +230,7 @@ test("ordinary project replacement in settings clears the pending story target b
   await page
     .getByRole("button", { name: "Back to dashboard", exact: true })
     .click();
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Pygardon", exact: true }),
-  ).toBeChecked();
+  await expectProjectChoice(page, "Pygardon");
   await expect(
     page.getByRole("region", { name: "Story destination" }),
   ).toHaveCount(0);

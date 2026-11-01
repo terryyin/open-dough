@@ -16,7 +16,7 @@ import {
   valueOf,
   wide,
 } from "./cursorSessionsSidebarResizePage.ts";
-import { parts } from "./dashboardPage.ts";
+import { chooseProject, parts } from "./dashboardPage.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
@@ -150,7 +150,7 @@ test.describe("with two projects", () => {
     await showPage(page, origin);
     const shown = runningCursorParts(page);
     const { sidebar, button, header, divider, body } = shown;
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     await button.click();
     await header.click();
     await expect(body).toBeVisible();
@@ -174,7 +174,7 @@ test.describe("with two projects", () => {
     });
 
     await test.step("choosing another project keeps it", async () => {
-      await project.getByRole("radio", { name: "Pygardon" }).check();
+      await chooseProject(page, "Pygardon");
       await expect(backlog).toContainText("A Pygardon story");
       await expectChosen();
     });

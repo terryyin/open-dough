@@ -17,6 +17,8 @@ A relative path is resolved from the directory `scripts/test.sh` starts in;
 `npm test` starts it at the repository root. A path that is not a file, or not
 one of those kinds, fails the run naming it before any check starts.
 
+[Local resource use](local-test-resources.md) covers concurrency and cleanup.
+
 ## Check environment
 
 The runner gives every check, in the whole suite or a chosen run alike, the
@@ -106,8 +108,9 @@ job starts a worker pool of its own.
 suite's own, which is how `tests/test-runner-failure-report.sh` runs
 substitute checks. Chosen paths replace that discovery.
 
-The runner runs one job per online CPU at a time; each job keeps its own
-temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another count, 1 or more.
+The runner runs four jobs at a time locally and one per online CPU in CI; each
+job keeps its own temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another
+count, 1 or more.
 Jobs start in the order `scripts/test-shares.mjs` deals them from the CI
 seconds recorded in `tests/longest-first`, longest recorded first;
 `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, and
