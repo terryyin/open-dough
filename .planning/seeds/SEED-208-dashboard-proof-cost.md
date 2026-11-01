@@ -73,3 +73,40 @@ implementation. [Plan](../slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
 **Effort hypothesis:** Moderate overall, medium confidence. Simple scope
 reductions are low risk; fixture gains require bounded measurement before
 keeping shared changes. One story owns all changes and final suite re-profiling.
+
+<a id="declare-fixture-defaults-on-fixtures"></a>
+
+### Declare dashboard fixture defaults on their fixtures
+
+**Identity:** SEED-208#declare-fixture-defaults-on-fixtures
+
+**Goal:** Every dashboard journey that uses a shared start fixture receives
+that fixture's project folder and launch wait, whichever spec file a test
+worker loads first.
+
+**Beneficiary:** Developers running and moving dashboard journeys.
+
+**Scope:** Correction found by the
+[reduce-dashboard-proof-cost](#reduce-dashboard-proof-cost) retrospective
+(execution `432-reduce-dashboard-proof-cost`, first implementation commit
+`332c1327`). Its slice 9 found that a module-level `test.use` in a shared
+support module applies only to the first spec file a worker loads it for, and
+replaced the one in `dashboard/tests/support/codexStart.ts` with fixture
+overrides. The same pattern remains in `dashboard/tests/support/cursorStart.ts`
+and `dashboard/tests/support/unreadReportPage.ts`. Declare those defaults on
+the fixtures the same way; a spec's own `test.use` still wins. Test support
+only; product behavior unchanged.
+
+**Key examples:**
+
+- A worker that first loads another `cursorStart` consumer still gives a later
+  Cursor journey file the `open-dough` project folder and launch wait.
+- The unread-report journeys keep their folder and 30 s launch wait in any
+  file order.
+
+**Evaluation:** All consumers of both modules pass strict, plus one
+file-order reproduction per module at `--workers=1` that observes the default
+in the second-loaded file.
+
+**Boundaries:** No other fixture redesign; no change to option values.
+[Plan](../slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md).

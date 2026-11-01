@@ -145,6 +145,18 @@ Former local code: DD-262. A focused proof overrides a configured reporter that 
 
 [Occurrence evidence](https://github.com/terryyin/open-dough/blob/692bf5162b86fca9cbebc1c57c98efd227198e9d/docs/maintainer/findings/ODF-226.md).
 
+Existing shared finding; this execution adds an occurrence under that code.
+
+### Occurrences
+- Execution: SEED-208#reduce-dashboard-proof-cost (plan 432, first implementation commit `332c1327`)
+  - Timestamp: 2026-11-01T09:14:00+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: plan 432 slice 1 Result and its "Do not pass `--reporter`" protocol note; the coordinator's slice 1 delegation named `npm run test:dashboard -- --reporter=list`, following a local memory note for direct Playwright runs.
+  - Observed effect: the first 909 s full baseline replaced the configured quiet reporter, so it wrote no proof record or times file and no strict verdict; a second full run was needed.
+  - Inference: guidance that recommends a reporter flag for readability can silently disable the project's verdict-owning reporter when the same flag is reused for recorded proof.
+
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 
 Former local code: DD-263. A coordinator explicitly requests a temporary reproduction to delete, so product repairs return without a permanent regression test and require another delegation round. [Evidence and current response](docs/maintainer/findings/ODF-227.md).

@@ -422,3 +422,18 @@ Disposition: proved by slice 3: `agent-launch-start-codex.spec.ts` card-start te
 Reported: slice 9 — "`codexModelCatalogCases.ts:10` failed and `:66` timed out. In both, `host-options` returned 404 'The project folder is not available on this machine.'"
 Story clause: "while retaining the important behavior those tests protect"
 Disposition: proved by slice 9: the moved cases run on `codexLaunch`, which supplies no project folder, and had borrowed `codexStart.ts`'s module-level `test.use` only when a worker loaded it for this file first; `agent-launch-codex-model.spec.ts` file-level `test.use({ projectFolders: ["open-dough"] })`; the order reproduction `--workers=1 agent-completion-attention.spec.ts agent-launch-codex-model.spec.ts` failed before (`tmp/s9-diag-order`) and passed 13/13 after (`tmp/s9-fix-order`); candidate full run strict-green (`tmp/final-cand2`)
+
+## Execution complete
+
+Product advice:
+- Queue the pending `launch-records-poll-waits` candidate in
+  `.planning/TEST-OPTIMIZATION-CANDIDATES.md` as the next dashboard proof-cost
+  story: about 60 summed s (the attention journey's two waits and the two
+  ad-hoc terminal races) wait one 15 s launch-records poll each, and existing
+  real pacing helpers (`pausePageClockAt`, `passOnePace`) make a cheaper
+  no-mock design credible. This story measured no whole-suite speedup; that
+  candidate is the largest remaining wait.
+- Retrospective correction (not queued):
+  [declare fixture defaults on fixtures](../436-declare-fixture-defaults-on-fixtures/PLAN.md)
+  removes the remaining module-level `test.use` in `support/cursorStart.ts`
+  and `support/unreadReportPage.ts`, the trap that caused G2.
