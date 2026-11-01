@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
-- [Keep Proof's file version true after a dashboard upgrade](seeds/SEED-192-review-product-intent.md#proof-file-version-after-upgrade) — SEED-192#proof-file-version-after-upgrade ([plan](slice-plans/440-proof-file-version-after-upgrade/PLAN.md))
 
 ## Backlog list
 

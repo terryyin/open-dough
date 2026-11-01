@@ -514,36 +514,6 @@ gaps, is useful without runtime Proof or automated assessment.
 - **Safe stopping point:** Developers can review a story's changes to Purpose
   even if runtime reporting or assisted assessment is never added.
 
-<a id="proof-file-version-after-upgrade"></a>
-
-### 6a. Keep Proof's file version true after a dashboard upgrade
-
-**Identity:** SEED-192#proof-file-version-after-upgrade
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/440-proof-file-version-after-upgrade/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f8a7ed0db62304b8d65a0e22b557d4f07b724823e925641b38d1b7efd3675cfa","plan":"23eaecc1f5c5e60581ecbd66070af632657d86aa3e6b67c239daf22ea9136d5b"}}
-```
-
-**Goal:** A developer reading a feature file's Proof in Intent after upgrading
-the dashboard sees "This file version" whenever the observation's recorded blob
-matches the published feature file. Today a feature listing a dashboard version
-remembered before listings carried blob shas makes every row read "Earlier file
-version" until the feature folder changes. This corrects the closed
-SEED-192#read-observed-test-proof, recoverable at
-`2d2d6a2f:.planning/seeds/SEED-192-review-product-intent.md`.
-
-**Scope:** A remembered feature listing without blob shas is never used for the
-file-version match. Keep one tree read per location and revision, reuse of a
-listing across revisions that did not touch its folder, and every Proof state and journey.
-Test-tier consolidation of the proof answer's other variants is not part of
-this correction.
-
-**Key example:** A feature listing without blob shas was retained at revision
-A. Revision B changes only the proof folder. Intent at B answers the blob of
-every listed feature, and a matching observation reads "This file version".
-
-**Plan:** [440-proof-file-version-after-upgrade](../slice-plans/440-proof-file-version-after-upgrade/PLAN.md)
-
-
 <a id="check-cucumber-proof-in-ci"></a>
 
 ### 7. Check locally collected Cucumber proof against CI
