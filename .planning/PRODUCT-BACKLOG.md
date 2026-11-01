@@ -32,11 +32,11 @@ intent introduced or affected by a newly developed story.
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
 - [Renovate the Intent sidebar with expandable group panels](seeds/SEED-213-intent-sidebar-panels.md#renovate-intent-sidebar) — SEED-213#renovate-intent-sidebar ([plan](slice-plans/438-renovate-intent-sidebar/PLAN.md))
 - [Show the nearest completed base CI ancestor](seeds/SEED-214-completed-base-ci-ancestor.md#completed-base-ci-ancestor) — SEED-214#completed-base-ci-ancestor
+- [Read observed proof alongside test purpose](seeds/SEED-192-review-product-intent.md#read-observed-test-proof) — SEED-192#read-observed-test-proof ([plan](slice-plans/439-read-observed-test-proof/PLAN.md))
 
 ## Backlog list
 
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact
-- [Read observed proof alongside test purpose](seeds/SEED-192-review-product-intent.md#read-observed-test-proof) — SEED-192#read-observed-test-proof
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
 - [Read Doughnut Cucumber proof with recent history](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost
