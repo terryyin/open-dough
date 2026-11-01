@@ -7,7 +7,7 @@ import {
   doughnut,
   publishIntentProject,
   pygardon,
-  pythonTest,
+  pygardonSettings,
 } from "./intentCodeBrowseFixtures.ts";
 import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
 
@@ -34,6 +34,22 @@ export const pygardonGherkinOnlySettings = JSON.stringify(
 
 export const pygardonClipPath = "tests/test_clip_core.py";
 
+export const pygardonClipCase = "test_clip_segments_h264_reencodes_video";
+
+/** Published clip-core source with the H264 case below the file start. */
+export const pygardonClipSource = [
+  "def test_example():",
+  '    assert "ok"',
+  "",
+  ...[...Array(40).keys()].map((index) => `# pad ${index}`),
+  `def ${pygardonClipCase}():`,
+  "    assert True",
+  "",
+].join("\n");
+
+/** 1-based line of `def test_clip_segments_h264_reencodes_video` in the fixture. */
+export const pygardonClipCaseLine = 44;
+
 export const pygardonCandidatesRecord = `# Test Optimization Candidates
 
 ## Latest pass
@@ -52,7 +68,7 @@ None.
 ## Accepted necessary costs
 
 ${entry("real-h264-codec-roundtrip", {
-  locations: `\`${pygardonClipPath}::test_clip_segments_h264_reencodes_video\``,
+  locations: `\`${pygardonClipPath}::${pygardonClipCase}\``,
   observedCost: "about 45s codec roundtrip on the developer host",
   uniqueProtection: "real H264 reencode through clip segments",
   alternativesAttempted: "mocked codec path lost the unique protection",
@@ -139,10 +155,18 @@ export function publishPygardonOutsideConfigured(
 ) {
   return publishIntentProject(page, pygardon, pygardonGherkinOnlySettings, {
     [testOptimizationCandidatesPath]: pygardonCandidatesRecord,
-    [pygardonClipPath]: `${pythonTest}
-def test_clip_segments_h264_reencodes_video():
-    assert True
-`,
+    [pygardonClipPath]: pygardonClipSource,
+    "frontend/src/devices.spec.ts": browseSpec,
+  });
+}
+
+/** Example 4 configured variant: `tests/` is a python Intent location. */
+export function publishPygardonConfiguredTests(
+  page: Parameters<typeof publishIntentProject>[0],
+) {
+  return publishIntentProject(page, pygardon, pygardonSettings, {
+    [testOptimizationCandidatesPath]: pygardonCandidatesRecord,
+    [pygardonClipPath]: pygardonClipSource,
     "frontend/src/devices.spec.ts": browseSpec,
   });
 }

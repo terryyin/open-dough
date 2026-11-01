@@ -160,7 +160,7 @@ resolve to a configured Intent file select it in the same way.
 
 ### 4. Open a test at its recorded case
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright journey for example 4's configured variant (`::name`), plus a
 Gherkin fixture whose entry names a scenario exactly once and another with
 `path:line`. The target line is shown and identified in Purpose. A case name
@@ -228,6 +228,10 @@ shell cannot fail the silent-local contract.
 Slice 3: Location matching is one pure function over recorded text, the record
 path, and `IntentLocation.files` plus location roots. Record view stays mounted
 so return does not reread; `data-candidates-reads` observes that.
+
+Slice 4: Purpose positions at a unique `::name` / `:line` / Gherkin scenario
+via `resolveCaseTargetLine` and `SourceLines` target highlighting; duplicates
+fall back to file start with case text beside the link.
 
 ## Concern evidence
 

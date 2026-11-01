@@ -40,7 +40,56 @@ export const openDoughSpecPaths = {
     "dashboard/tests/boundary/story-review-completed.spec.ts",
   gherkin: "dashboard/tests/intent-gherkin-browse.spec.ts",
   movedAway: "dashboard/tests/moved-away-after-record.spec.ts",
+  caseLine: "dashboard/tests/case-position-line.spec.ts",
 } as const;
+
+/** Spec with a distinctive line far below the start for `path:line` proof. */
+export const openDoughCaseLineSource = [
+  'import { test } from "@playwright/test";',
+  'test("browses", async () => {});',
+  "",
+  ...[...Array(40).keys()].map((index) => `// pad ${index}`),
+  'test("line-anchored case", async () => {});',
+  "",
+].join("\n");
+
+/** 1-based line of the line-anchored case in the fixture. */
+export const openDoughCaseLineNumber = 44;
+
+export const openDoughCaseLineRecord = `# Test Optimization Candidates
+
+## Latest pass
+
+- **Command / scope:** path:line case fixture
+- **Revision:** ${openDough.revision}
+- **Before / after:** unavailable
+- **Outcome:** incomplete measurement
+- **Limits:** fixture only
+- **Evidence:** none
+
+## Pending candidates
+
+${entry("path-line-case", {
+  locations: `\`${openDoughSpecPaths.caseLine}:${openDoughCaseLineNumber}\``,
+  observedCost: "about 3s line-anchored case",
+  uniqueProtection: "path:line positions Purpose",
+  alternativesAttempted: "none",
+  disposition: "pending — path:line proof",
+  date: "2026-11-01",
+  evidence: "fixture",
+})}
+## Accepted necessary costs
+
+None.
+
+## Profile-only exclusions
+
+None.
+
+## Transferred obligations
+
+None.
+`;
 
 // Open Dough-shaped record: pending and accepted entries, evidence Markdown
 // link (including one to a configured Intent file), and a `sha:path` kept as
@@ -186,5 +235,16 @@ export function publishOpenDoughWithCandidates(
   return publishIntentProject(page, openDough, openDoughSettings, {
     ...openDoughSources,
     [testOptimizationCandidatesPath]: record,
+  });
+}
+
+/** Open Dough fixture whose Locations name a file by `path:line`. */
+export function publishOpenDoughCaseLine(
+  page: Parameters<typeof publishIntentProject>[0],
+) {
+  return publishIntentProject(page, openDough, openDoughSettings, {
+    ...openDoughSources,
+    [testOptimizationCandidatesPath]: openDoughCaseLineRecord,
+    [openDoughSpecPaths.caseLine]: openDoughCaseLineSource,
   });
 }

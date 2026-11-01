@@ -44,10 +44,10 @@ No plan, implementation return, product, or proof was supplied.
 | 20.3 | In Locations, a bare filename that matches exactly one configured Intent-location file opens that file in Purpose | slice 3 | observed: open.spec.ts Doughnut bare cli_notebook_lfs.feature opens unique feature |
 | 21 | An opened file becomes the same selection the location tree shows. | slice 3 | observed: Ex1 tree button aria-pressed true for opened path |
 | 22 | A family that names several files links each one. | slice 3 | observed: Ex2 four file buttons remain after opening one |
-| 23.1 | Unambiguous case by line (`path:line`) positions Purpose at that case | slice 4 |  |
-| 23.2 | Unambiguous case by unique `path::name` positions Purpose at that case | slice 4 |  |
-| 23.3 | Unambiguous named Gherkin scenario positions Purpose at that case | slice 4 |  |
-| 24 | Otherwise the file opens at its start, with the recorded case text kept beside the link. | slice 4 |  |
+| 23.1 | Unambiguous case by line (`path:line`) positions Purpose at that case | slice 4 | observed: intent-test-optimization-candidates-case.spec.ts path:line journey |
+| 23.2 | Unambiguous case by unique `path::name` positions Purpose at that case | slice 4 | observed: case.spec.ts Pygardon configured ::name at line |
+| 23.3 | Unambiguous named Gherkin scenario positions Purpose at that case | slice 4 | observed: case.spec.ts Gherkin scenario named exactly once |
+| 24 | Otherwise the file opens at its start, with the recorded case text kept beside the link. | slice 4 | observed: case.spec.ts duplicate case name opens at file start; case text beside link |
 | 25 | After reading a test, the developer returns to the record view at the entry they came from. | slice 3 | observed: Ex1 candidates control returns to agent-launch-poles article |
 | 26 | The record remains shown on return. | slice 3 | observed: Ex1 candidates control aria-pressed true after return |
 | 27 | Opening a test neither rereads the record. | slice 3 | observed: Ex1 data-candidates-reads unchanged on return |
@@ -99,7 +99,7 @@ No plan, implementation return, product, or proof was supplied.
 | E1 | Journey: Open Dough groups/fields; open path from entry; return to entry | slice 3 | observed: open.spec.ts Ex1 open and return |
 | E2 | Journey: multi-file family each linked; others remain after opening one | slice 3 | observed: open.spec.ts Ex2 multi-file family |
 | E3 | Journey: ambiguous bare name lists two full paths; neither opens alone | slice 3 | observed: open.spec.ts Ex3 ambiguous bare name |
-| E4 | Journey: outside configured explanation; after configure, opens at `::name` case | slice 4 |  |
+| E4 | Journey: outside configured explanation; after configure, opens at `::name` case | slice 4 | observed: case.spec.ts configured ::name variant; outside remains in open.spec.ts |
 | E5 | Journey: prose without gap; bare unique `.feature` opens | slice 3 | observed: open.spec.ts Doughnut prose + bare unique |
 | E6 | Journey: not published at this revision; opens nothing | slice 3 | observed: open.spec.ts Ex6 not published |
 | E7 | Journey: absent record explanation; both-`None.` explanation; browsing unchanged | slice 2 | observed: intent-test-optimization-candidates-states.spec.ts Ex7 absent/empty/mismatched/unreadable |
