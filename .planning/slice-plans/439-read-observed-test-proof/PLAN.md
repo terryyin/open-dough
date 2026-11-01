@@ -117,7 +117,7 @@ walk's files.
 
 ### 2. Proof absence and failures read distinctly
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright Intent journey for example 8 (not declared, declared but
 unobserved, malformed or unreadable proof file with retry), and neighboring
 Intent journeys stay green. Apply the repository's
@@ -127,6 +127,14 @@ Behavior: the same reader meets missing configuration, no observation for the
 file, or an unreadable proof file → three different explanations. The
 not-adopted one names the installed reference path, and Purpose stays readable
 throughout.
+
+Accepted proof (2026-11-01): the new `dashboard/tests/intent-cucumber-proof-absent.spec.ts`
+with every neighboring Intent and Development Intent frame spec, 25 passed; the
+proof and browse specs 36/36 under `--repeat-each 4`; 7 passed again after
+refactoring; `npm run typecheck:dashboard` clean. Retry re-reads the Intent
+locations read in place, keeping selection and Purpose. A malformed file stays
+malformed at the same revision; only a new published revision or a transient
+read failure changes the answer.
 
 ### 3. A project that follows the reference produces readable proof
 Type: Behavior
@@ -194,25 +202,30 @@ the work → Intent shows those scenarios' latest proof beside their source.
 
 ## Story obligations
 
-### G1. Undeclared proof keeps the old placeholder
+### G1. Undeclared proof keeps the old placeholder (first reported in slice 1)
 Reported: slice 1 — "When proof is not declared, the old \"No Proof is available for this file yet…\" text is kept"
 Story clause: "A project without a declared proof directory says so and names the reference to adopt"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/intent-cucumber-proof-absent.spec.ts "Ex 8: a project without declared proof says Proof is not recorded and names the reference" asserts the not-recorded sentence naming dough-test-optimization/references/cucumber-proof.md
 
 ### G2. Declared proof with nothing for this file shows only Not observed rows
 Reported: slice 1 — "the empty or absent proof directory (which shows every row as Not observed), was not exercised"
 Story clause: "A declared directory with no observation for this file says nothing has been observed yet"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/intent-cucumber-proof-absent.spec.ts "a declared proof directory with nothing for this file says nothing is observed yet" (absent directory; other feature only) asserts "Nothing has been observed yet for this file in e2e_test/proof."
 
 ### G3. Unreadable proof has no retry and is unexercised
 Reported: slice 1 — "The pane then shows \"Proof in <dir> could not be read.\" with no retry yet"
 Story clause: "An unreadable or malformed proof file is reported as a read failure with retry"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/intent-cucumber-proof-absent.spec.ts "Ex 8: a truncated proof file reads as a read failure with retry…" and "a failed proof file read says so; Retry reads the proof again…" assert the alert, Retry re-read, and recovered rows
 
 ### G4. Gherkin scanner edge cases unproved
 Reported: slice 1 — "Not exercised: escaped pipes in example cells; multiple Examples blocks; Rule: nesting; doc strings containing keywords"
 Story clause: "lists the file's scenarios and outline rows in source order"
 Disposition: no user cost "A developer reviewing a Pygardon feature file in Intent sees": compared at acceptance against Cucumber's own @cucumber/gherkin 42 parser on all of Pygardon's e2e_test/features (169 rows, including its Rule: and Background: files), dashboard/src/gherkinScenarios.ts produced identical rows; Pygardon uses no escaped pipes, doc strings or multiple Examples blocks, and other projects are deferred
+
+### G5. Proof directory listing failure unexercised
+Reported: slice 2 — "The directory-listing failure branch (\"<dir> could not be listed at this revision\", no `file`) is not exercised"
+Story clause: "An unreadable or malformed proof file is reported as a read failure with retry"
+Disposition: proved by slice 2: dashboard/server/intentProofRead.ts proofFilesUnder returns the same unreadable problem for a failed listing as for a failed file read, and dashboard/src/IntentProofProblem.tsx ProofProblem renders both with the same Retry that dashboard/tests/intent-cucumber-proof-absent.spec.ts "a failed proof file read says so; Retry reads the proof again…" exercises; only the sentence differs
 
 ## Human checkpoint
 

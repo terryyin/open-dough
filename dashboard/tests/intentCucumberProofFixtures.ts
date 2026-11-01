@@ -2,7 +2,9 @@
 // the Intent Proof journey (`./intent-cucumber-proof.spec.ts`): a full run
 // yesterday on the earlier file version, a focused run today on the
 // published one, and the same observations as two run files or one
-// consolidated file.
+// consolidated file; for the absence and failure journey
+// (`./intent-cucumber-proof-absent.spec.ts`), proof of the other feature
+// only, and today's run file cut off mid-write.
 
 import { gitBlobSha } from "./listingAnswers.ts";
 
@@ -117,11 +119,12 @@ const todayRun = [
 const proofFile = (observations: readonly Observation[]) =>
   `${JSON.stringify({ version: 1, observations }, null, 2)}\n`;
 
+const todayRunPath = `${proofDirectory}/20261101T095900Z-worktree-b-9d2e.json`;
+
 export const runFiles = {
   [`${proofDirectory}/20261031T085500Z-worktree-a-4f1c.json`]:
     proofFile(yesterdayRun),
-  [`${proofDirectory}/20261101T095900Z-worktree-b-9d2e.json`]:
-    proofFile(todayRun),
+  [todayRunPath]: proofFile(todayRun),
 };
 
 // The same observations consolidated: the latest of each scenario only.
@@ -132,6 +135,20 @@ export const consolidatedFiles = {
     yesterdayRun[3] as Observation,
     yesterdayRun[4] as Observation,
   ]),
+};
+
+// A focused run of the other feature only.
+export const otherFeatureOnlyFiles = {
+  [`${proofDirectory}/20261101T080000Z-worktree-c-1a2b.json`]: proofFile([
+    yesterdayRun[4] as Observation,
+  ]),
+};
+
+// Today's run file cut off part way, as an interrupted copy leaves it.
+export const truncatedPath = todayRunPath;
+export const truncatedFiles = {
+  ...runFiles,
+  [truncatedPath]: proofFile(todayRun).slice(0, 120),
 };
 
 export const settings = JSON.stringify(

@@ -36,7 +36,11 @@ const locationProof = z.union([
     featureBlobs: z.record(z.string(), z.string().min(1)),
     observations: z.array(proofObservation),
   }),
-  z.object({ path: z.string().min(1), problem: z.literal("unreadable") }),
+  z.object({
+    path: z.string().min(1),
+    problem: z.enum(["unreadable", "malformed"]),
+    file: z.string().min(1).optional(),
+  }),
 ]);
 
 const intentLocation = z.object({

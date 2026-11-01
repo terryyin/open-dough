@@ -3,7 +3,8 @@
 // styling; Proof lists its scenarios' latest committed observations
 // (`./IntentProof.tsx`) from the location's proof, read with the locations.
 // A failed file read keeps its own explanation and retry while the location
-// tree stays usable.
+// tree stays usable; a failed proof read's retry reads the locations again
+// (`./IntentPerspective.tsx`) without changing the selection.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -17,10 +18,16 @@ export function IntentBrowser({
   source,
   revision,
   locations,
+  proofRereading,
+  onProofRetry,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
+  // Whether the locations, with their proof, are being read again after a
+  // proof read failed; the selection and Purpose stay as they are.
+  readonly proofRereading: boolean;
+  readonly onProofRetry: () => void;
 }) {
   const [selectedPath, setSelectedPath] = useState("");
   const [text, setText] = useState<string | undefined>(undefined);
@@ -115,8 +122,11 @@ export function IntentBrowser({
           <h3 id={proofId}>Proof</h3>
           <IntentProof
             path={selectedPath}
+            kind={selectedLanguage}
             text={fileState === "ready" ? text : undefined}
             proof={selectedLocation?.proof}
+            rereading={proofRereading}
+            onRetry={onProofRetry}
           />
         </section>
       </div>

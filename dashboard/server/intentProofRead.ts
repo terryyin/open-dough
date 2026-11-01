@@ -4,8 +4,8 @@
 // directory (`./ghTrees.ts`), each `.json` file's text by its blob sha
 // (`./pinnedTexts.ts`), and the latest observation of each scenario across
 // every file (`../src/cucumberProof.ts`). Rate limits still fail the whole
-// read; any other unreadable or malformed proof file leaves the location's
-// Purpose readable and reports its proof unreadable.
+// read; any other failed read or malformed proof file leaves the location's
+// Purpose readable and reports which, naming the first such file.
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import {
@@ -17,10 +17,23 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { rateLimitStop } from "./ghFailure.ts";
 import type { TreeEntry } from "./ghTrees.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
-import type { IntentLocationProof } from "./intentLocationsSettings.ts";
+import type {
+  IntentLocationProof,
+  IntentProofProblem,
+} from "./intentLocationsSettings.ts";
 
 // A feature file the location lists, by repository path, with its blob sha.
 export type ListedFeature = { readonly path: string; readonly sha: string };
+
+type ProofRead =
+  | { readonly observations: readonly ProofObservation[] }
+  | { readonly problem: IntentProofProblem; readonly file?: string };
+
+// A failed read leaves the location's Purpose readable unless it is a rate
+// limit, or the read was given up, which fail the whole Intent read.
+function rethrownUnlessReadFailure(error: unknown, signal: AbortSignal) {
+  if (rateLimitStop(error) !== undefined || signal.aborted) throw error;
+}
 
 async function proofFilesUnder(
   pinned: PinnedTexts,
@@ -28,24 +41,36 @@ async function proofFilesUnder(
   revision: string,
   directory: string,
   signal: AbortSignal,
-): Promise<readonly ProofObservation[] | undefined> {
-  const entries: readonly TreeEntry[] = await pinned.treeLister(
-    source,
-    revision,
-    signal,
-  )(directory);
+): Promise<ProofRead> {
+  let entries: readonly TreeEntry[];
+  try {
+    entries = await pinned.treeLister(source, revision, signal)(directory);
+  } catch (error) {
+    rethrownUnlessReadFailure(error, signal);
+    return { problem: "unreadable" };
+  }
   const readBlob = pinned.blobReader(source, revision, signal);
   const files = entries
     .filter((entry) => entry.type === "blob" && entry.path.endsWith(".json"))
     .map((entry) => ({ path: `${directory}/${entry.path}`, sha: entry.sha }))
     .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
-  const parsed = await Promise.all(
-    files.map(async (file) => parseProofFile(await readBlob(file))),
-  );
-  if (parsed.some((observations) => observations === undefined)) {
-    return undefined;
+  const read = await Promise.allSettled(files.map((file) => readBlob(file)));
+  for (const text of read) {
+    if (text.status === "rejected") {
+      rethrownUnlessReadFailure(text.reason, signal);
+    }
   }
-  return parsed.flatMap((observations) => observations ?? []);
+  const observations: ProofObservation[] = [];
+  for (const [at, file] of files.entries()) {
+    const text = read[at];
+    if (text === undefined || text.status === "rejected") {
+      return { problem: "unreadable", file: file.path };
+    }
+    const parsed = parseProofFile(text.value);
+    if (parsed === undefined) return { problem: "malformed", file: file.path };
+    observations.push(...parsed);
+  }
+  return { observations };
 }
 
 // The declared proof of a location's listed features at the revision.
@@ -59,22 +84,14 @@ export async function locationProofAt(
   naming: (reading: string) => void,
 ): Promise<IntentLocationProof> {
   naming(readingPathAt(directory, revision));
-  let observations: readonly ProofObservation[] | undefined;
-  try {
-    observations = await proofFilesUnder(
-      pinned,
-      source,
-      revision,
-      directory,
-      signal,
-    );
-  } catch (error) {
-    if (rateLimitStop(error) !== undefined || signal.aborted) throw error;
-    observations = undefined;
-  }
-  if (observations === undefined) {
-    return { path: directory, problem: "unreadable" };
-  }
+  const read = await proofFilesUnder(
+    pinned,
+    source,
+    revision,
+    directory,
+    signal,
+  );
+  if ("problem" in read) return { path: directory, ...read };
   const listed = new Set(features.map((feature) => feature.path));
   return {
     path: directory,
@@ -82,7 +99,9 @@ export async function locationProofAt(
       features.map((feature) => [feature.path, feature.sha]),
     ),
     observations: latestObservations(
-      observations.filter((observation) => listed.has(observation.feature)),
+      read.observations.filter((observation) =>
+        listed.has(observation.feature),
+      ),
     ),
   };
 }

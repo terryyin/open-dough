@@ -4,11 +4,14 @@
 // (`./cucumberProof.ts`) and that observation's own time, commit, and
 // whether the feature file's Git blob then was the one published now. A
 // count line summarizes the latest outcomes, scenarios not observed
-// included; it is never a suite verdict.
+// included; it is never a suite verdict. A file with nothing observed yet,
+// a project that records no proof, and proof that could not be read (with
+// retry) each say so differently.
 
 import { proofIdentity, type ProofObservation } from "./cucumberProof.ts";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
+import { NotRecorded, ProofProblem } from "./IntentProofProblem.tsx";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 
@@ -146,7 +149,14 @@ function ProofRows({
   return (
     <>
       <p className="intent-proof-counts">
-        {countLine(rows.map(({ observation }) => observation))}
+        {latest.size === 0 ? (
+          <>
+            Nothing has been observed yet for this file in{" "}
+            <code>{proof.path}</code>.
+          </>
+        ) : (
+          countLine(rows.map(({ observation }) => observation))
+        )}
       </p>
       <table className="intent-proof-rows" aria-label={`${path} proof`}>
         <thead>
@@ -190,29 +200,29 @@ function ProofRows({
 
 export function IntentProof({
   path,
+  kind,
   text,
   proof,
+  rereading,
+  onRetry,
 }: {
   readonly path: string;
+  readonly kind: string | undefined;
   readonly text: string | undefined;
   readonly proof: IntentLocationProof | undefined;
+  // Whether the proof is being read again after a failed read.
+  readonly rereading: boolean;
+  readonly onRetry: () => void;
 }) {
   if (path === "") {
     return <p className="quiet">Select a feature file to see its Proof.</p>;
   }
-  if (proof === undefined) {
-    return (
-      <p>
-        No Proof is available for this file yet. Intent does not collect or show
-        test run observations here.
-      </p>
-    );
-  }
+  if (proof === undefined) return <NotRecorded kind={kind} />;
   if ("problem" in proof) {
-    return (
-      <p className="intent-file-problem" role="alert">
-        Proof in {proof.path} could not be read.
-      </p>
+    return rereading ? (
+      <p className="quiet">Reading Proof in {proof.path}…</p>
+    ) : (
+      <ProofProblem proof={proof} onRetry={onRetry} />
     );
   }
   if (text === undefined) {

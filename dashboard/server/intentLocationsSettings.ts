@@ -20,15 +20,24 @@ export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
 // The committed proof a Gherkin location declares (`./intentProofRead.ts`):
 // its directory, each listed feature file's Git blob sha at the revision,
-// and the latest observation of each scenario of those files; or only the
-// directory when a proof file could not be read as one.
+// and the latest observation of each scenario of those files; or the
+// directory, why its proof could not be read, and the first proof file
+// (in path order) that could not be read or is not one, when one is known.
 export type IntentLocationProof =
   | {
       readonly path: string;
       readonly featureBlobs: Readonly<Record<string, string>>;
       readonly observations: readonly ProofObservation[];
     }
-  | { readonly path: string; readonly problem: "unreadable" };
+  | {
+      readonly path: string;
+      readonly problem: IntentProofProblem;
+      readonly file?: string;
+    };
+
+// Why a declared proof directory could not be read: a listing or file read
+// failed, or a file read is not a proof file.
+export type IntentProofProblem = "unreadable" | "malformed";
 
 export type IntentLocation = {
   readonly path: string;

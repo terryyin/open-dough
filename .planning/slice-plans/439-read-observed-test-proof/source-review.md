@@ -93,13 +93,13 @@ return, product or proof.
 | 3.4 | A count line summarizes the latest outcomes | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts "5 scenarios: 2 passed, 1 passed after retry, 1 failed, 1 not observed" |
 | 3.4.1 | The count includes scenarios not observed | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts count line "1 not observed" |
 | 3.4.2 | The count line is not a "suite green" verdict | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts asserts no green, all passed or suite wording |
-| 4.1 | A project without a declared proof directory says so | slice 2 |  |
-| 4.1.1 | and names the reference to adopt | slice 2 |  |
-| 4.2 | A declared directory with no observation for this file says nothing has been observed yet | slice 2 |  |
-| 4.3 | An unreadable or malformed proof file is reported as a read failure | slice 2 |  |
-| 4.3.1 | The read failure offers retry | slice 2 |  |
-| 4.3.2 | It is not shown as "not observed" | slice 2 |  |
-| 4.4 | Purpose stays readable in every case | slice 2 |  |
+| 4.1 | A project without a declared proof directory says so | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 not declared: not-recorded sentence |
+| 4.1.1 | and names the reference to adopt | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 not declared: names dough-test-optimization/references/cucumber-proof.md |
+| 4.2 | A declared directory with no observation for this file says nothing has been observed yet | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test declared proof with nothing for this file: Nothing has been observed yet |
+| 4.3 | An unreadable or malformed proof file is reported as a read failure | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts truncated and failed-read tests: alert Proof could not be read |
+| 4.3.1 | The read failure offers retry | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts both failure tests click Retry; failed read recovers rows |
+| 4.3.2 | It is not shown as "not observed" | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts truncated test: no Not observed text and no table |
+| 4.4 | Purpose stays readable in every case | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts every test asserts the Purpose source text, including after Retry |
 | 5.1 | Proof never claims more than it observed | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts unobserved Archive a job reads Not observed with empty cells |
 | 5.2 | Each row shows its own time and basis, because rows come from different runs and commits | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts rows carry differing times and commits |
 | 5.2.1 | The latest per-scenario snapshot is the design, not a defect | slice 1 | observed: dashboard/tests/intent-cucumber-proof.spec.ts rows from two runs shown side by side |
@@ -126,5 +126,5 @@ return, product or proof.
 | E.5 | Interrupted run: after two of five scenarios finish, those two show the new observations and the other three keep their earlier ones | slice 3 |  |
 | E.6 | Parallel worktrees: two worktrees' proof files merge without conflict, and Intent shows each scenario's latest observation across both | slice 3 |  |
 | E.7 | Consolidation keeps meaning: after an agent consolidates proof files into one, Intent shows exactly the same rows before and after | slice 3 |  |
-| E.8a | Not adopted: Doughnut, which declares no proof directory, shows that Proof is not recorded and names the reference | slice 2 |  |
-| E.8b | Unreadable: a truncated Pygardon proof file shows a read failure with retry, while Purpose stays readable | slice 2 |  |
+| E.8a | Not adopted: Doughnut, which declares no proof directory, shows that Proof is not recorded and names the reference | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 not declared (Doughnut-like location) |
+| E.8b | Unreadable: a truncated Pygardon proof file shows a read failure with retry, while Purpose stays readable | slice 2 | observed: dashboard/tests/intent-cucumber-proof-absent.spec.ts test Ex 8 truncated proof file with Retry, Purpose text kept |

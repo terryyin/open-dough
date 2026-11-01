@@ -18,9 +18,14 @@ Proof lists the file's scenarios and outline rows in source order, each with
 its latest observation's outcome (retry-assisted passes marked), duration,
 time since, commit, and whether it was observed on this file version, or
 _Not observed_, under a count line of those latest outcomes; proof files are
-read once with the locations at that revision. Otherwise Proof says none is
-available for the file yet. The selected perspective choice names the page, so
-Intent shows no heading of its own. Below the banner the page does not
+read once with the locations at that revision. A file with nothing observed
+yet in that directory says so. A proof file that could not be read, or is not
+valid proof, is reported by name as a read failure with retry, never as _Not
+observed_, and the retry reads the locations again without changing the
+selection or Purpose. Without a declared directory, Proof says it is not
+recorded for the project and names the installed reference to follow; other
+kinds say Proof is read only for Gherkin files so far. The selected
+perspective choice names the page, so Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. A location that is
 missing, holds no `.feature` files, or names an unsupported kind says so

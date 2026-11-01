@@ -54,7 +54,8 @@ project's own code; Open Dough ships no formatter or consolidation tool.
 - A scenario has finished when its last attempt has finished, that is, when
   no retry follows. Record it once, then.
 - Every `.json` file in the proof directory is read as proof. Keep nothing
-  else there with that extension.
+  else there with that extension. One file that is not valid proof leaves the
+  whole directory's proof unreadable until it is fixed or removed.
 
 ## File format
 
