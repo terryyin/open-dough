@@ -196,15 +196,21 @@ direction, evidence, and view controls outside any zooming surface.
 
 Touch browsing uses the same project choices, story details and whole-column
 paging. With a coarse pointer, frame controls, project choices, story Start
-and Inspect actions, and Column paging controls provide at least 44px targets. When
-hover is unavailable, a Start's preparation/readiness note and its disabled
-reason are readable on the card. Inspect story reveals the full identity,
-assessment and pinned source details; dependency explanations open in place.
-Titles and source paths wrap instead of widening the page. Rotation preserves
-the selected story and open explanations, and Hide detail and Close return
-focus to their originating card or control. Local Chromium touch viewport
-checks cover phone/tablet sizes and rotation alongside desktop checks; they
-do not establish physical-device keyboard or remote-connectivity behavior.
+and Inspect actions, Column paging controls, and the Side panel terminal’s
+phone key toolbar, composer actions and Hide keyboard control provide at least
+44px targets. When hover is unavailable, a Start's preparation/readiness note
+and its disabled reason are readable on the card. Inspect story reveals the
+full identity, assessment and pinned source details; dependency explanations
+open in place. Titles and source paths wrap instead of widening the page.
+Rotation preserves the selected story and open explanations, and Hide detail
+and Close return focus to their originating card or control. On a coarse
+pointer the Side panel terminal fits the visible area when the soft keyboard
+or orientation changes so those controls and Close stay reachable; see
+[embedded terminals](../dashboard/AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions)
+for toolbar, composer Insert and scroll-versus-navigate behavior. Local
+Chromium touch viewport checks cover phone/tablet sizes and rotation alongside
+desktop checks; they do not establish physical-device keyboard or
+remote-connectivity behavior.
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.

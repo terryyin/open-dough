@@ -4,6 +4,9 @@
 // terminal. Prints `attached <id> <cols>x<rows>` unless attaches-silent
 // exists, then shows Claude Code’s bordered composer and visible cursor.
 // attach-prompt-delay-ms delays that prompt; keys before it are discarded.
+// When attach-menu exists, the prompt is an option menu (↑/↓ move, Enter
+// confirms, Esc cancels) instead of the composer, so phone toolbar tests can
+// separate arrow navigation from scrollback swipes.
 // Echoes typing and
 // `echo <line>`, edits with Backspace, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
 // on Ctrl+Z. Logs pid and recorded environment (./fake-claude) in
@@ -41,7 +44,29 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
   } catch {
     // No control: the prompt follows the banner immediately.
   }
-  const showPrompt = () => {
+  const menuMode = fs.existsSync(path.join(dir, "attach-menu"));
+  const menuOptions = ["Red", "Blue", "Green"];
+  let menuIndex = 0;
+  let inMenu = menuMode;
+  const paintMenu = () => {
+    const history = [...Array(80).keys()]
+      .map((line) => `menu history ${line}`)
+      .join("\r\n");
+    const rows = menuOptions.map(
+      (option, index) => `${index === menuIndex ? "›" : " "} ${option}`,
+    );
+    // Keep earlier lines in the scrollback so a swipe can move history while
+    // the option marker stays put until an arrow key arrives.
+    process.stdout.write(
+      `\u001b[2J\u001b[H` +
+        `${history}\r\n` +
+        `Choose a color\r\n${rows.join(
+          "\r\n",
+        )}\r\n↑/↓ option · Enter confirm · Esc cancel\r\n\u001b[?25h`,
+    );
+  };
+  const showComposer = () => {
+    inMenu = false;
     ready = true;
     process.stdout.write(
       " Claude Code ─\r\n" +
@@ -49,11 +74,17 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
         "──────────────────────────────────\r\n\u001b[?25h",
     );
   };
+  const showPrompt = () => {
+    ready = true;
+    if (menuMode) paintMenu();
+    else showComposer();
+  };
   if (!silent) {
     if (promptDelayMs > 0) setTimeout(showPrompt, promptDelayMs);
     else showPrompt();
   }
   let line = "";
+  let pending = "";
   // The terminal may go before the signal that ends this process arrives.
   process.stdin.on("error", () => {});
   process.stdout.on("error", () => {});
@@ -61,7 +92,49 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", (typed) => {
     if (!ready) return;
-    for (const key of typed) {
+    pending += typed;
+    while (pending.length > 0) {
+      if (inMenu) {
+        if (pending.startsWith("\u001b[A")) {
+          pending = pending.slice(3);
+          menuIndex = Math.max(0, menuIndex - 1);
+          paintMenu();
+          continue;
+        }
+        if (pending.startsWith("\u001b[B")) {
+          pending = pending.slice(3);
+          menuIndex = Math.min(menuOptions.length - 1, menuIndex + 1);
+          paintMenu();
+          continue;
+        }
+        if (pending.startsWith("\u001b[C") || pending.startsWith("\u001b[D")) {
+          pending = pending.slice(3);
+          continue;
+        }
+        // Incomplete CSI only (`ESC [` …); a lone ESC cancels immediately.
+        if (pending.startsWith("\u001b[") && pending.length < 3) return;
+        if (pending.startsWith("\u001b")) {
+          pending = pending.slice(1);
+          process.stdout.write("\u001b[2J\u001b[Hcancelled\r\n");
+          showComposer();
+          continue;
+        }
+        if (pending.startsWith("\r") || pending.startsWith("\n")) {
+          pending = pending.slice(1);
+          const chosen = menuOptions[menuIndex] ?? "";
+          fs.appendFileSync(
+            path.join(dir, `attach.${process.pid}.lines`),
+            `${JSON.stringify(chosen)}\n`,
+          );
+          process.stdout.write(`\r\necho ${chosen}\r\n`);
+          showComposer();
+          continue;
+        }
+        pending = pending.slice(1);
+        continue;
+      }
+      const key = pending[0];
+      pending = pending.slice(1);
       if (key === "\r" || key === "\n") {
         fs.appendFileSync(
           path.join(dir, `attach.${process.pid}.lines`),

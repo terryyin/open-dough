@@ -123,3 +123,80 @@
 .side-panel:has(> .terminal-screen) > .side-panel-header {
   column-gap: var(--space-1);
 }
+
+/* Phone accessory keys, hide-keyboard, and optional composer stay out of
+   fine-pointer desktop chrome; coarse pointers get 44px targets that inject
+   sequences without stealing focus, plus an ordinary draft field with Insert.
+   Soft-keyboard fit sets --side-panel-height from visualViewport in
+   ./useTerminalVisualViewportFit.ts. */
+.terminal-key-toolbar,
+.terminal-composer {
+  display: none;
+}
+
+@media (any-pointer: coarse) {
+  /* Shared accessory strips: one compact row each so reduced phone heights
+     still leave fitted terminal room. Keys scroll sideways instead of
+     wrapping onto a second strip. */
+  .terminal-key-toolbar,
+  .terminal-composer {
+    display: flex;
+    flex: none;
+    align-items: stretch;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-top: 1px solid var(--line);
+    background: var(--raised-surface);
+  }
+
+  .terminal-key-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .terminal-key-toolbar-key,
+  .terminal-composer-insert {
+    box-sizing: border-box;
+    flex: none;
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+    padding: 0 var(--space-2);
+    border: 1px solid var(--edge);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text);
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .terminal-key-toolbar-key:hover,
+  .terminal-composer-insert:hover:not(:disabled) {
+    background: var(--hover);
+  }
+
+  /* Keep More / Ctrl+C at the trailing edge while primary keys scroll. */
+  .terminal-key-toolbar-trailing {
+    position: sticky;
+    right: 0;
+    display: flex;
+    flex: none;
+    gap: var(--space-1);
+    padding-inline-start: var(--space-1);
+    background: var(--raised-surface);
+  }
+
+  .terminal-composer-draft {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    min-height: var(--control-size);
+  }
+
+  .terminal-composer-insert:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+}

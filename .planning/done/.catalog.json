@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-212_use-terminal-with-mobile-keyboard.json",
+      "identity": "SEED-212#use-terminal-with-mobile-keyboard",
+      "completedAt": "2026-11-01T08:32:10.502Z",
+      "blob": "76d23e947ed4617cbd0ce030fb4ca82b2d9f789d"
+    },
+    {
       "fileName": "SEED-214_completed-base-ci-ancestor.json",
       "identity": "SEED-214#completed-base-ci-ancestor",
       "completedAt": "2026-11-01T08:31:25.035Z",

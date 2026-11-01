@@ -31,8 +31,9 @@ export function noteTerminalTraffic(page: Page) {
 }
 
 // Fitting is observed at the native PTY and the rendered cells, not merely
-// by the CSS box. The current panel must fill its viewport share and xterm
-// must fit its available room before the journey measures a touch coordinate.
+// by the CSS box. The current panel must fill the visible viewport share
+// (visualViewport when present) and xterm must fit its available room before
+// the journey measures a touch coordinate.
 export async function expectFittedInput(panel: Locator, sizes: string[]) {
   const screen = panel.locator(".xterm-screen");
   await expect
@@ -52,13 +53,18 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
         const rowHeight =
           element.querySelector(".xterm-rows > div")?.getBoundingClientRect()
             .height ?? 0;
-        // Covering and split both pin the panel at the viewport height.
-        const panelHeight = innerHeight;
+        // Soft-keyboard fit pins the panel to the visual viewport; without one
+        // the layout viewport height is the covering/split pin.
+        const visible = window.visualViewport;
+        const visibleTop = visible?.offsetTop ?? 0;
+        const panelHeight = visible?.height ?? innerHeight;
+        const visibleBottom = visibleTop + panelHeight;
         return {
           rows: element.querySelectorAll(".xterm-rows > div").length,
           fits:
             room !== undefined &&
             Math.abs(room.height - panelHeight) < 1 &&
+            Math.abs(room.y - visibleTop) < 1 &&
             availableHeight - input.height >= -1 &&
             availableHeight - input.height < rowHeight + 1 &&
             input.width >= 44 &&
@@ -67,8 +73,8 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
             input.y >= room.y &&
             input.x + input.width <= room.right + 1 &&
             input.y + input.height <= room.bottom + 1 &&
-            input.y >= 0 &&
-            input.bottom <= innerHeight &&
+            input.y >= visibleTop - 1 &&
+            input.bottom <= visibleBottom + 1 &&
             document.documentElement.scrollWidth <=
               document.documentElement.clientWidth,
         };
@@ -78,7 +84,67 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
     .toBe(true);
 }
 
+export {
+  clearSoftKeyboardViewport,
+  expectControlInVisualViewport,
+  hideKeyboardControl,
+  simulateSoftKeyboardViewport,
+} from "./touchTerminalSoftKeyboardPage.ts";
+
 export async function focusByTouch(panel: Locator) {
   await tapWhereShown(panel.locator(".xterm-screen"));
-  await expect(panel.locator("textarea")).toBeFocused();
+  await expect(panel.locator("textarea.xterm-helper-textarea")).toBeFocused();
+}
+
+// Coarse-pointer accessory bar; absent on fine-pointer desktop chrome.
+export function terminalKeyToolbar(panel: Locator) {
+  return panel.getByRole("toolbar", { name: "Terminal keys", exact: true });
+}
+
+export function terminalKey(panel: Locator, name: string) {
+  return terminalKeyToolbar(panel).getByRole("button", { name, exact: true });
+}
+
+// Docs 44px primary targets without tapping; tapWhereShown also enforces size
+// when the control is activated.
+export async function expectMinTouchTarget(control: Locator) {
+  expect(
+    await control.evaluate((button) => {
+      const box = button.getBoundingClientRect();
+      return box.width >= 44 && box.height >= 44;
+    }),
+  ).toBe(true);
+}
+
+// Tap a toolbar key and keep observing that xterm's textarea holds focus
+// (Blink-style: toolbar pointerdown must not dismiss the soft keyboard).
+export async function tapTerminalKey(panel: Locator, name: string) {
+  await tapWhereShown(terminalKey(panel, name));
+  await expect(panel.locator("textarea.xterm-helper-textarea")).toBeFocused();
+}
+
+// Optional phone draft field + Insert; revealed by Compose on coarse chrome.
+export function composeToggle(panel: Locator) {
+  return terminalKey(panel, "Compose");
+}
+
+export function terminalComposerDraft(panel: Locator) {
+  return panel.getByRole("textbox", { name: "Terminal draft", exact: true });
+}
+
+export function insertDraftButton(panel: Locator) {
+  return panel.getByRole("button", { name: "Insert draft", exact: true });
+}
+
+export async function openTerminalComposer(panel: Locator) {
+  const more = terminalKey(panel, "More terminal keys");
+  if ((await more.getAttribute("aria-expanded")) !== "true") {
+    await tapWhereShown(more);
+  }
+  const toggle = composeToggle(panel);
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await tapWhereShown(toggle);
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(terminalComposerDraft(panel)).toBeVisible();
 }

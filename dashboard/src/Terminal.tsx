@@ -3,19 +3,22 @@
 // The header names its session and agent, and offers dictation, Done where
 // supported, maximize/restore and Close. Closing or replacing the view detaches
 // without ending the session; plain Escape still goes to the native terminal.
-// Disconnected or ended attachments can reopen the same session. The saved
-// terminal theme applies to this content and its Side panel border.
+// On coarse-pointer phones a key toolbar injects Esc/Tab/arrows/Enter and
+// expandable Ctrl+C on the same input path without dismissing the soft
+// keyboard, an optional text composer Inserts longer drafts without
+// submitting them, and the panel fits the visual viewport when the soft
+// keyboard or orientation changes (with an explicit hide-keyboard control).
+// Disconnected or ended attachments can reopen the same session.
+// The saved terminal theme applies to this content and its Side panel border.
 // Done asks first when completion is unknown, closes the view after success,
 // and leaves the terminal visible with recovery guidance when marking fails.
 
 import {
   useCallback,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
-  type RefObject,
 } from "react";
 import { CircleCheck } from "lucide-react";
 import { marksRecordDone } from "./sessionCapabilities.ts";
@@ -32,7 +35,7 @@ import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { usePortraitPreview } from "./terminalPortraitPreview.ts";
-import { keepHeight } from "./measuredHeight.ts";
+import { useRowsHeight } from "./terminalRowsHeight.ts";
 import { assignedAgent } from "./launchRecord.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
@@ -53,21 +56,8 @@ import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalPalette } from "./terminalThemes.ts";
 import { useTerminalDictation } from "./useTerminalDictation.tsx";
-
-// Keeps `--terminal-rows-height` on the identity at the height of its title
-// and session rows, however they wrap, so the agent portrait beside them
-// stays proportionate to both, with its stylesheet's compact cap.
-function useRowsHeight(
-  identity: RefObject<HTMLDivElement | null>,
-  rows: RefObject<HTMLDivElement | null>,
-) {
-  useLayoutEffect(() => {
-    const target = identity.current;
-    const measured = rows.current;
-    if (!target || !measured) return;
-    return keepHeight(measured, target, "--terminal-rows-height").stop;
-  }, [identity, rows]);
-}
+import { TerminalKeyToolbar } from "./TerminalKeyToolbar.tsx";
+import { useTerminalVisualViewportFit } from "./useTerminalVisualViewportFit.ts";
 
 const endings = {
   disconnected: { says: "Disconnected from the session", action: "Reconnect" },
@@ -110,6 +100,7 @@ export function Terminal({
 }) {
   const { record } = session;
   const { hostOperations } = usePageSessions();
+  const panel = useRef<HTMLElement>(null);
   const screen = useRef<HTMLDivElement>(null);
   const actions = useRef<HTMLDivElement>(null);
   const inputHelp = useId();
@@ -134,6 +125,7 @@ export function Terminal({
     onAttachRefusal,
   );
   const dictation = useTerminalDictation(insertText);
+  useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
   const attachAgain = () => {
@@ -154,7 +146,7 @@ export function Terminal({
   const agentName = agentNameOf(agent);
   const { background } = terminalPalette(useShownTerminalTheme());
   return (
-    <section className="side-panel" aria-label="Terminal">
+    <section ref={panel} className="side-panel" aria-label="Terminal">
       <PanelDivider />
       <header className="side-panel-header">
         <div ref={identity} className="terminal-identity">
@@ -245,6 +237,7 @@ export function Terminal({
         className="terminal-screen"
         style={{ "--terminal-background": background } as CSSProperties}
       />
+      <TerminalKeyToolbar insert={insertText} />
     </section>
   );
 }

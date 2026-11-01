@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 392. Removed numbers are never reused.
+- Highest allocated local number: 399. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -52,6 +52,15 @@ Former local code: DD-128. Startup boundary instructions require broad reference
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 
 Former local code: DD-155. Concurrent unpublished plan allocation produces two quick plans with the same numeric selector, making a number-only execution request ambiguous. [Evidence and current response](docs/maintainer/findings/ODF-106.md).
+
+### Occurrences
+- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first related commit after Take `4ad7f2de`)
+  - Timestamp: unknown (2026-11-01; observed during slice-2 publish hold)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: Take/HEAD holds both `.planning/slice-plans/436-use-terminal-with-mobile-keyboard/` and `.planning/slice-plans/436-declare-fixture-defaults-on-fixtures/`; unpublished SEED-208 prep commits also used plan 436
+  - Observed effect: number-only “plan 436” is ambiguous; publish of SEED-212 was held until foreign SEED-208 tip commits were dropped (see DD-398)
+  - Inference: concurrent allocation still cannot see sibling unpublished or already-landed same-number plans when directories differ only by slug
 
 ## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
 
@@ -701,6 +710,13 @@ already-running implementer.
   - Evidence: `.planning/slice-plans/436-sessions-sidebar-host-status/source-review.md` commitments 2.4 and 3.3 at 65192a9b; the plan's slice 1 Behavior text lacks both.
   - Observed effect: a mid-task correction message reached the slice 1 agent, and the agent added proof for both before returning. No rework of committed work was needed.
   - Inference: running the source-only review before the first delegation would have let the brief carry every source commitment. The guidance places the review at acceptance only.
+- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first product implementation commit `c0c97e0f`)
+  - Timestamp: unknown (2026-11-01; after physical-iPhone waiver; source review launched after slice-2 Task delegation)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: coordinator transcript `60e22314-a376-487e-aa74-b511ff265df2` delegates slice 2, then launches source-only review; `source-review.md` and D1–D5 Story obligations written after that delegation
+  - Observed effect: deferred exclusions D1–D5 were recorded after the implementer was already running; no mid-run product correction was required for this execution
+  - Inference: same timing gap as the prior occurrence; deferred-only late commitments reduced impact here
 
 ## DD-389 — Post-change refactor left a production module empty before delivery
 
@@ -766,3 +782,37 @@ refused every row as `malformed-commitment` until rewritten.
   - Evidence: check JSON problems `malformed-commitment` for commitment ids 1–38d/E1–E6/D1–D4; corrected table uses `slice 1` and deferred rows name obligation ids D1–D4
   - Observed effect: acceptance blocked until the table matched the reader; no product rework
   - Inference: Related shape friction to ODF-381 (wrong Slice-cell contents) but a distinct required token shape (`slice N` vs bare number or obligation id)
+
+## DD-398 — Foreign unpublished commits on an execution tip block story-branch publish
+
+Another agent's unpublished preparation commits sat on the SEED-212 story-branch
+tip ahead of Take. Publishing the owned slice would have carried that foreign
+history (and a colliding plan-436 prep) onto the remote story branch until a
+human authorized dropping the tip commits while keeping uncommitted owned work.
+
+### Occurrences
+- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first related commit after Take `4ad7f2de`)
+  - Timestamp: unknown (2026-11-01; after slice-2 proof/refactor, before first product publish)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: local tip had `ed541ce7` / `b9af529c` (ebacky-chan SEED-208 prep) while `origin/...` remained at Take `22497b66`; developer authorized drop; owned SEED-212 work kept
+  - Observed effect: slice-2 delivery held for a human decision; tip reset to Take; foreign prep removed from this branch history before `c0c97e0f`
+  - Inference: an execution checkout that retains another agent's unpublished tip commits needs an explicit ownership check before publish; stopping for the developer was the useful stop
+
+## DD-399 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
+
+Two waived planning-only slices were marked `done` in the working tree before
+any increment published. Delivery of the next implementation slice refused the
+uncommitted earlier dones; the coordinator temporarily set the later waived
+slice back to `planned`, published the earlier waiver, then re-marked and
+published the later waiver, then the product slice.
+
+### Occurrences
+- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first related commit after Take `4ad7f2de`)
+  - Timestamp: unknown (2026-11-01; between waiver recording and `c0c97e0f`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: plan slices 1 and 5 both `Status: done` under one waiver; delivery held; temporary slice-5 `done`→`planned`→`done`; published as `4ad7f2de` then `3e7c8d8d` before product `c0c97e0f`
+  - Observed effect: extra plan-status edits and two planning-only publishes to restore delivery order
+  - Inference: marking every waived gate done before the first ordered publish creates delivery-order friction; publishing (or leaving planned) one waived gate at a time would avoid the temporary mutation
+
