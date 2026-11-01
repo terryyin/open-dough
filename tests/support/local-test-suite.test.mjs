@@ -1,0 +1,226 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import {
+  cpSync,
+  existsSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from "node:fs";
+import { availableParallelism } from "node:os";
+import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
+import { test } from "node:test";
+import { fullDashboardSuite } from "../../dashboard/tests/support/fullSuiteSelection.mjs";
+import {
+  dashboard,
+  fixture,
+  gateRef,
+  git,
+  repository,
+  succeeded,
+  until,
+} from "./local-test-suite-fixtures.mjs";
+
+test("local repository defaults to four jobs; explicit overrides and CI keep their concurrency", async (t) => {
+  const cores = Number(
+    spawnSync("getconf", ["_NPROCESSORS_ONLN"], { encoding: "utf8" }).stdout,
+  );
+  const cases = Math.max(cores, 4) + 1;
+  const { project, observe } = fixture(t, cases);
+  for (const [name, expected, env] of [
+    ["local", 4, {}],
+    ["override", 2, { OPEN_DOUGH_TEST_JOBS: "2" }],
+    ["ci", cores, { CI: "true" }],
+  ]) {
+    const observation = observe(name);
+    const run = repository(t, project, observation, env);
+    const started = () =>
+      readdirSync(observation).filter((entry) => entry.startsWith("start-"))
+        .length;
+    await until(
+      `${name}: ${expected} jobs entered`,
+      () => started() === expected || run.child.exitCode !== null,
+    );
+    assert.equal(started(), expected, run.output());
+    // The negative window proves no extra job enters while all slots are held.
+    await delay(150);
+    assert.equal(started(), expected);
+    writeFileSync(path.join(observation, "release"), "");
+    await succeeded(run);
+    assert.equal(started(), cases);
+  }
+});
+
+test("repository full suites serialize across spaced worktrees while focused and CI runs remain independent", async (t) => {
+  const { project, linked, observe } = fixture(t);
+  const first = observe("first"),
+    second = observe("second");
+  const owner = repository(t, project, first);
+  await until("first full suite entered", () =>
+    existsSync(path.join(first, "start-0")),
+  );
+  const original = git(project, "rev-parse", gateRef);
+  const ownerRecord = JSON.parse(git(project, "cat-file", "blob", original));
+  const common = git(
+    project,
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir",
+  );
+  // A copied token is insufficient without live ancestry. Cancelling that
+  // waiting caller must leave the active owner's admission untouched.
+  for (const token of ["stale-token", ownerRecord.tokens[0]]) {
+    const denied = observe(`denied-${token}`);
+    const pretender = repository(t, linked, denied, {
+      DOUGH_LOCAL_SUITE_OWNERS: Buffer.from(
+        JSON.stringify({ [common]: token }),
+      ).toString("base64url"),
+      DOUGH_LOCAL_SUITE_IDS: token,
+    });
+    await delay(150);
+    assert.ok(!existsSync(path.join(denied, "start-0")));
+    pretender.child.kill("SIGTERM");
+    const cancelled = await pretender.result;
+    assert.ok(cancelled.code === 143 || cancelled.signal === "SIGTERM");
+    assert.equal(git(project, "rev-parse", gateRef), original);
+  }
+  const waiter = repository(t, linked, second);
+  for (const [name, env, args] of [
+    ["focus", {}, ["checks/probe-0.sh"]],
+    ["share", { OPEN_DOUGH_TEST_SPLIT: "1/1" }, []],
+    ["ci", { CI: "true" }, []],
+  ]) {
+    const observation = observe(name);
+    writeFileSync(path.join(observation, "release"), "");
+    await succeeded(repository(t, linked, observation, env, args));
+    assert.ok(existsSync(path.join(observation, "start-0")));
+    assert.ok(!existsSync(path.join(second, "start-0")));
+  }
+  writeFileSync(path.join(first, "release"), "");
+  await succeeded(owner);
+  await until("waiting full suite entered", () =>
+    existsSync(path.join(second, "start-0")),
+  );
+  writeFileSync(path.join(second, "release"), "");
+  await succeeded(waiter);
+});
+
+test("native Playwright config shares repository admission and preserves dashboard defaults and overrides", async (t) => {
+  const { project, linked, observe } = fixture(t);
+  const first = observe("dashboard"),
+    second = observe("repository");
+  const owner = dashboard(t, linked, first);
+  await until(
+    "dashboard started",
+    () =>
+      existsSync(path.join(first, "start")) || owner.child.exitCode !== null,
+  );
+  assert.ok(existsSync(path.join(first, "start")), owner.output());
+  assert.equal(readFileSync(path.join(first, "workers"), "utf8"), "2");
+  const waiter = repository(t, project, second);
+  for (const [name, args, env, expected] of [
+    ["focus", ["--grep", "needle"], {}, 2],
+    ["override", ["--workers=3", "--grep=needle"], {}, 3],
+    ["ci", [], { CI: "true" }, availableParallelism()],
+  ]) {
+    const observation = observe(name);
+    writeFileSync(path.join(observation, "release"), "");
+    await succeeded(dashboard(t, project, observation, args, env));
+    assert.equal(
+      Number(readFileSync(path.join(observation, "workers"), "utf8")),
+      expected,
+    );
+    assert.ok(!existsSync(path.join(second, "start-0")));
+  }
+  const listing = observe("list");
+  await succeeded(dashboard(t, project, listing, ["--list"]));
+  assert.ok(!existsSync(path.join(listing, "workers")));
+  writeFileSync(path.join(first, "release"), "");
+  await succeeded(owner);
+  await until("repository entered after dashboard", () =>
+    existsSync(path.join(second, "start-0")),
+  );
+  writeFileSync(path.join(second, "release"), "");
+  await succeeded(waiter);
+});
+
+test("nested full invocations inherit actual ancestry without releasing their parent's admission", async (t) => {
+  const { project, linked, observe } = fixture(t);
+  const first = observe("outer"),
+    second = observe("waiter");
+  const owner = repository(t, project, first, {
+    NESTED_WORKTREE: linked,
+    TZ: "Pacific/Auckland",
+  });
+  await until(
+    "nested full invocation completed",
+    () =>
+      existsSync(path.join(first, "nested-returned")) ||
+      owner.child.exitCode !== null,
+  );
+  assert.ok(existsSync(path.join(first, "nested/start")), owner.output());
+  const waiter = repository(t, linked, second);
+  await delay(150);
+  assert.ok(!existsSync(path.join(second, "start-0")));
+  writeFileSync(path.join(first, "release"), "");
+  await succeeded(owner);
+  await until("waiter entered", () => existsSync(path.join(second, "start-0")));
+  writeFileSync(path.join(second, "release"), "");
+  await succeeded(waiter);
+});
+
+test("independent repositories and copied non-Git runner fixtures remain usable", async (t) => {
+  const first = fixture(t),
+    second = fixture(t);
+  const held = first.observe("held"),
+    parallel = second.observe("parallel");
+  const owner = repository(t, first.project, held);
+  await until("owner entered", () => existsSync(path.join(held, "start-0")));
+  writeFileSync(path.join(parallel, "release"), "");
+  await succeeded(repository(t, second.project, parallel));
+  const outside = path.join(second.root, "outside Git");
+  cpSync(second.project, outside, {
+    recursive: true,
+    filter: (entry) => path.basename(entry) !== ".git",
+  });
+  const isolated = second.observe("outside");
+  writeFileSync(path.join(isolated, "release"), "");
+  await succeeded(repository(t, outside, isolated));
+  writeFileSync(path.join(held, "release"), "");
+  await succeeded(owner);
+});
+
+test("only an unfiltered dashboard run takes admission, including explicit worker and reporter settings", () => {
+  for (const args of [
+    [],
+    ["test"],
+    ["test", "--workers", "2", "--reporter=list"],
+    ["test", "-j3", "--timeout=1000"],
+  ])
+    assert.equal(fullDashboardSuite(args, {}), true, JSON.stringify(args));
+  for (const args of [
+    ["probe"],
+    ["--grep=needle"],
+    ["-g", "needle"],
+    ["--grep-invert", "skip"],
+    ["--project", "chromium"],
+    ["--shard=1/2"],
+    ["--test-list", "cases.txt"],
+    ["--test-list-invert=x"],
+    ["--last-failed"],
+    ["--only-changed"],
+    ["--list"],
+    ["--ui"],
+    ["--", "probe"],
+  ])
+    assert.equal(
+      fullDashboardSuite(["test", ...args], {}),
+      false,
+      JSON.stringify(args),
+    );
+  assert.equal(
+    fullDashboardSuite(["test"], { OPEN_DOUGH_DASHBOARD_SPLIT: "1/2" }),
+    false,
+  );
+});

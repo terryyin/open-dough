@@ -24,6 +24,7 @@
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { releaseLocalSuites } from "../../../scripts/local-test-suite.mjs";
 import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { buildDashboardTo, builtDashboardVariable } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
@@ -67,6 +68,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     buildDashboardTo(outDir);
   } catch (error) {
     remove();
+    await releaseLocalSuites();
     throw error;
   }
   process.env[builtDashboardVariable] = outDir;
@@ -77,6 +79,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     const survived = await endRunProcesses(runId);
     const reached = existsSync(ownerless);
     remove();
+    await releaseLocalSuites();
     if (survived.length > 0)
       throw new Error(
         `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started (dashboard/tests/README.md, "No process outlives its run"):\n${describeRunProcesses(survived)}`,

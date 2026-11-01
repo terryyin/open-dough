@@ -15,12 +15,21 @@ source "${source_dir}/scripts/test-environment.bash"
 # The sourced environment resolves the Bash every check runs in.
 readonly test_bash
 
+# Re-enter through the local admission owner for full runs. Its immediate child
+# alone skips this wrapper; a nested suite still validates inherited ownership.
+# Keep this before discovery/setup and outside OPEN_DOUGH_TEST_* normalization.
+if (($# == 0)) && [[ -z ${CI:-} && -z ${OPEN_DOUGH_TEST_SPLIT:-} && ${DOUGH_LOCAL_SUITE_RUNNER_PID:-} != "${PPID}" ]]; then
+  exec node "${source_dir}/scripts/local-test-suite.mjs" repository \
+    "${source_dir}" "${caller_dir}" "${test_bash}" "${source_dir}/scripts/test.sh"
+fi
+
 # The runner is the one scheduler: every shell check and every `node --test`
 # file is its own job, and no job runs a worker pool of its own. Each job keeps
-# a private temp directory. Plan 073 capped the pool at four because elapsed-time
-# waits starved at eight; tests now wait for events, so the default is one slot
-# per online CPU. OPEN_DOUGH_TEST_JOBS overrides it with any count of 1 or more.
-job_slots=${OPEN_DOUGH_TEST_JOBS:-$(getconf _NPROCESSORS_ONLN)}
+# a private temp directory. Local runs default to four jobs; CI keeps one per
+# online CPU. OPEN_DOUGH_TEST_JOBS overrides either with a count of 1 or more.
+default_job_slots=4
+[[ -z ${CI:-} ]] || default_job_slots=$(getconf _NPROCESSORS_ONLN)
+job_slots=${OPEN_DOUGH_TEST_JOBS:-${default_job_slots}}
 if ((job_slots < 1)); then
   job_slots=1
 fi
