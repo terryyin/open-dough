@@ -220,6 +220,15 @@ this execution's run 41261530651. Guidance, completion/late-failure, payload
 and native replay tests exited 0. The finish-or-stop read row is at 29,991 of
 30,000 bytes (DD-347 later evidence).
 
+CI repair after slice 5: run 41265520743 on 89e810a5 failed
+boundary/proof-record-entry.spec.ts:19 once (green on eb3c9a2b and bb52db3f).
+Its two nested runs on the real config shared CI's HTML report folder, which
+Playwright empties before writing index.html, so one run's removal raced the
+other's write. Each nested run now writes its report under its own proof
+directory. A folder-clearing stand-in failed 6/6 with the CI ENOENT before and
+passed after; boundary/ plus quiet-reporter specs passed plain and under CI=1
+with the outer report still written. Review conclusions are unchanged.
+
 ## Execution complete
 
 Product advice: no backlog change. The delivered responses at ODF-150,
