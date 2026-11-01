@@ -80,7 +80,7 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
 
 export async function focusByTouch(panel: Locator) {
   await tapWhereShown(panel.locator(".xterm-screen"));
-  await expect(panel.locator("textarea")).toBeFocused();
+  await expect(panel.locator("textarea.xterm-helper-textarea")).toBeFocused();
 }
 
 // Coarse-pointer accessory bar; absent on fine-pointer desktop chrome.
@@ -92,9 +92,46 @@ export function terminalKey(panel: Locator, name: string) {
   return terminalKeyToolbar(panel).getByRole("button", { name, exact: true });
 }
 
+// Docs 44px primary targets without tapping; tapWhereShown also enforces size
+// when the control is activated.
+export async function expectMinTouchTarget(control: Locator) {
+  expect(
+    await control.evaluate((button) => {
+      const box = button.getBoundingClientRect();
+      return box.width >= 44 && box.height >= 44;
+    }),
+  ).toBe(true);
+}
+
 // Tap a toolbar key and keep observing that xterm's textarea holds focus
 // (Blink-style: toolbar pointerdown must not dismiss the soft keyboard).
 export async function tapTerminalKey(panel: Locator, name: string) {
   await tapWhereShown(terminalKey(panel, name));
-  await expect(panel.locator("textarea")).toBeFocused();
+  await expect(panel.locator("textarea.xterm-helper-textarea")).toBeFocused();
+}
+
+// Optional phone draft field + Insert; revealed by Compose on coarse chrome.
+export function composeToggle(panel: Locator) {
+  return terminalKey(panel, "Compose");
+}
+
+export function terminalComposerDraft(panel: Locator) {
+  return panel.getByRole("textbox", { name: "Terminal draft", exact: true });
+}
+
+export function insertDraftButton(panel: Locator) {
+  return panel.getByRole("button", { name: "Insert draft", exact: true });
+}
+
+export async function openTerminalComposer(panel: Locator) {
+  const more = terminalKey(panel, "More terminal keys");
+  if ((await more.getAttribute("aria-expanded")) !== "true") {
+    await tapWhereShown(more);
+  }
+  const toggle = composeToggle(panel);
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") {
+    await tapWhereShown(toggle);
+  }
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(terminalComposerDraft(panel)).toBeVisible();
 }

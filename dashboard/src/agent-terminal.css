@@ -124,28 +124,36 @@
   column-gap: var(--space-1);
 }
 
-/* Phone accessory keys stay out of fine-pointer desktop chrome; coarse
-   pointers get 44px targets that inject sequences without stealing focus. */
-.terminal-key-toolbar {
+/* Phone accessory keys and optional composer stay out of fine-pointer
+   desktop chrome; coarse pointers get 44px targets that inject sequences
+   without stealing focus, plus an ordinary draft field with Insert. */
+.terminal-key-toolbar,
+.terminal-composer {
   display: none;
 }
 
 @media (any-pointer: coarse) {
-  /* One horizontal row so reduced phone heights still leave fitted terminal
-     room; keys scroll sideways instead of wrapping onto a second strip. */
-  .terminal-key-toolbar {
+  /* Shared accessory strips: one compact row each so reduced phone heights
+     still leave fitted terminal room. Keys scroll sideways instead of
+     wrapping onto a second strip. */
+  .terminal-key-toolbar,
+  .terminal-composer {
     display: flex;
     flex: none;
-    flex-wrap: nowrap;
     align-items: stretch;
     gap: var(--space-1);
     padding: var(--space-1) var(--space-2);
-    overflow-x: auto;
     border-top: 1px solid var(--line);
     background: var(--raised-surface);
   }
 
-  .terminal-key-toolbar-key {
+  .terminal-key-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .terminal-key-toolbar-key,
+  .terminal-composer-insert {
     box-sizing: border-box;
     flex: none;
     min-width: var(--control-size);
@@ -162,7 +170,8 @@
     cursor: pointer;
   }
 
-  .terminal-key-toolbar-key:hover {
+  .terminal-key-toolbar-key:hover,
+  .terminal-composer-insert:hover:not(:disabled) {
     background: var(--hover);
   }
 
@@ -175,5 +184,17 @@
     gap: var(--space-1);
     padding-inline-start: var(--space-1);
     background: var(--raised-surface);
+  }
+
+  .terminal-composer-draft {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    min-height: var(--control-size);
+  }
+
+  .terminal-composer-insert:disabled {
+    opacity: 0.55;
+    cursor: default;
   }
 }

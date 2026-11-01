@@ -1,9 +1,11 @@
 // Touch accessory keys for the Side panel terminal: inject the sequences a
 // phone soft keyboard does not supply, on the same attachment input path as
 // typing, without dismissing that soft keyboard (Blink-style pointerdown
-// preventDefault so xterm's textarea keeps focus).
+// preventDefault so xterm's textarea keeps focus). Owns the optional Compose
+// reveal so phone chrome stays one accessory mount beside the screen.
 
 import { useState, type PointerEvent } from "react";
+import { TerminalComposer } from "./TerminalComposer.tsx";
 
 const primaryKeys = [
   { name: "Esc", sequence: "\u001b", label: "Esc" },
@@ -50,6 +52,31 @@ function ToolbarKey({
   );
 }
 
+function ToolbarToggle({
+  name,
+  label,
+  expanded,
+  onToggle,
+}: {
+  readonly name: string;
+  readonly label: string;
+  readonly expanded: boolean;
+  readonly onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="terminal-key-toolbar-key"
+      aria-label={name}
+      aria-expanded={expanded}
+      onPointerDown={keepTerminalFocus}
+      onClick={onToggle}
+    >
+      {label}
+    </button>
+  );
+}
+
 export function TerminalKeyToolbar({
   insert,
 }: {
@@ -57,36 +84,47 @@ export function TerminalKeyToolbar({
   readonly insert: (sequence: string) => boolean;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
   return (
-    <div
-      className="terminal-key-toolbar"
-      role="toolbar"
-      aria-label="Terminal keys"
-    >
-      {primaryKeys.map((key) => (
-        <ToolbarKey key={key.name} {...key} insert={insert} />
-      ))}
-      <span className="terminal-key-toolbar-trailing">
-        {trailingKeys.map((key) => (
+    <>
+      <div
+        className="terminal-key-toolbar"
+        role="toolbar"
+        aria-label="Terminal keys"
+      >
+        {primaryKeys.map((key) => (
           <ToolbarKey key={key.name} {...key} insert={insert} />
         ))}
-        <button
-          type="button"
-          className="terminal-key-toolbar-key"
-          aria-label="More terminal keys"
-          aria-expanded={moreOpen}
-          onPointerDown={keepTerminalFocus}
-          onClick={() => {
-            setMoreOpen((open) => !open);
-          }}
-        >
-          More
-        </button>
-        {moreOpen &&
-          moreKeys.map((key) => (
+        <span className="terminal-key-toolbar-trailing">
+          {trailingKeys.map((key) => (
             <ToolbarKey key={key.name} {...key} insert={insert} />
           ))}
-      </span>
-    </div>
+          <ToolbarToggle
+            name="More terminal keys"
+            label="More"
+            expanded={moreOpen}
+            onToggle={() => {
+              setMoreOpen((open) => !open);
+            }}
+          />
+          {moreOpen && (
+            <>
+              <ToolbarToggle
+                name="Compose"
+                label="Compose"
+                expanded={composeOpen}
+                onToggle={() => {
+                  setComposeOpen((open) => !open);
+                }}
+              />
+              {moreKeys.map((key) => (
+                <ToolbarKey key={key.name} {...key} insert={insert} />
+              ))}
+            </>
+          )}
+        </span>
+      </div>
+      <TerminalComposer insert={insert} open={composeOpen} />
+    </>
   );
 }

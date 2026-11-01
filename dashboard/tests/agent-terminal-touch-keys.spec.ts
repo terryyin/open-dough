@@ -1,6 +1,7 @@
 // Phone key toolbar and scroll-versus-navigate on the ordinary
 // page/xterm/WebSocket/PTY path. Desktop fine-pointer chrome stays without
-// the toolbar; swipe still scrolls history only.
+// the toolbar or composer; swipe still scrolls history only. Composer Insert
+// lives in ./agent-terminal-touch-composer.spec.ts.
 import { expect, test } from "./dashboardTest.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import {
@@ -12,10 +13,14 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 import {
+  composeToggle,
+  expectMinTouchTarget,
   focusByTouch,
+  insertDraftButton,
   noteTerminalTraffic,
   scrollByTouch,
   tapTerminalKey,
+  terminalComposerDraft,
   terminalKey,
   terminalKeyToolbar,
 } from "./touchTerminalPage.ts";
@@ -69,13 +74,10 @@ test.describe("phone terminal key toolbar", () => {
       "More terminal keys",
     ]) {
       await expect(terminalKey(panel, name)).toBeVisible();
-      expect(
-        await terminalKey(panel, name).evaluate((button) => {
-          const box = button.getBoundingClientRect();
-          return box.width >= 44 && box.height >= 44;
-        }),
-      ).toBe(true);
+      await expectMinTouchTarget(terminalKey(panel, name));
     }
+    await expect(composeToggle(panel)).toHaveCount(0);
+    await expect(terminalComposerDraft(panel)).toHaveCount(0);
     await expect(terminalKey(panel, "Ctrl+C")).toHaveCount(0);
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
     await expect(panel.locator(".side-panel-names p")).toHaveText(
@@ -148,7 +150,7 @@ test.describe("phone terminal key toolbar", () => {
       );
     });
 
-    await test.step("expandable Ctrl+C, Close and session identity stay reachable", async () => {
+    await test.step("expandable Ctrl+C and Compose, Close and session identity stay reachable", async () => {
       await focusByTouch(panel);
       await tapWhereShown(terminalKey(panel, "More terminal keys"));
       await expect(terminalKey(panel, "More terminal keys")).toHaveAttribute(
@@ -156,6 +158,8 @@ test.describe("phone terminal key toolbar", () => {
         "true",
       );
       await expect(terminalKey(panel, "Ctrl+C")).toBeVisible();
+      await expect(composeToggle(panel)).toBeVisible();
+      await expectMinTouchTarget(composeToggle(panel));
       const beforeInterrupt = sent.length;
       await tapTerminalKey(panel, "Ctrl+C");
       await expect
@@ -178,7 +182,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     hasTouch: false,
   });
 
-  test("fine-pointer desktop keeps today's terminal chrome without the toolbar", async ({
+  test("fine-pointer desktop keeps today's terminal chrome without the toolbar or composer", async ({
     page,
     dashboard,
   }) => {
@@ -196,6 +200,9 @@ test.describe("desktop terminal without phone key toolbar", () => {
       `attached ${native.shortId}`,
     );
     await expect(terminalKeyToolbar(panel)).toBeHidden();
+    await expect(composeToggle(panel)).toBeHidden();
+    await expect(terminalComposerDraft(panel)).toHaveCount(0);
+    await expect(insertDraftButton(panel)).toHaveCount(0);
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
   });
 });

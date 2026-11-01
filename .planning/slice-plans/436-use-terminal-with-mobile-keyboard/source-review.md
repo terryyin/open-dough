@@ -23,13 +23,15 @@ waived; phone-viewport automation closes the device-shaped gate).
 | 4.9 | Activating a key sends corresponding input on terminal → WebSocket → PTY path | slice 2 | observed: `noteTerminalTraffic` `sent` matches sequences above |
 | 4.10 | Activating a key keeps soft keyboard’s current visibility (neither dismiss nor force open) | slice 2 | observed: `tapTerminalKey` asserts xterm `textarea` remains focused after each tap (`preventDefault` on pointerdown) |
 | 4.11 | Desktop hardware-keyboard and existing special-key behavior stay as they are | slice 2 | observed: desktop describe hides toolbar; Close still present |
-| 5.1 | Composer: edit with native selection, autocorrection, and dictation | slice 3 | |
-| 5.2 | Composer: deliberately Insert into the current terminal | slice 3 | |
-| 5.3 | Insert must not submit or execute the draft | slice 3 | |
-| 5.4 | A deliberate Enter submits | slice 3 | |
-| 5.5 | Direct terminal typing remains available | slice 3 | |
-| 5.6 | Unavailable attachment keeps unsent draft for deliberate retry; never auto-replayed | slice 3 | |
-| 5.7 | Reuse existing attachment `insert` path | slice 3 | |
+| 5.1 | Composer: edit with native selection, autocorrection, and dictation | slice 3 | observed: `TerminalComposer` ordinary text `input` with autocorrect/spellcheck attrs; `agent-terminal-touch-composer.spec.ts` fills draft |
+| 5.2 | Composer: deliberately Insert into the current terminal | slice 3 | observed: `agent-terminal-touch-composer.spec.ts` Insert → `sent` equals draft text once |
+| 5.3 | Insert must not submit or execute the draft | slice 3 | observed: after Insert, `sent` has no trailing `\r`; draft cleared only on success (`agent-terminal-touch-composer.spec.ts`) |
+| 5.4 | A deliberate Enter submits | slice 3 | observed: after Insert + typed suffix, toolbar Enter → `echo …` / `lines` with `\r` (`agent-terminal-touch-composer.spec.ts`) |
+| 5.5 | Direct terminal typing remains available | slice 3 | observed: composer spec types into xterm after Insert; `sent` appends typed text |
+| 5.6 | Unavailable attachment keeps unsent draft for deliberate retry; never auto-replayed | slice 3 | observed: disconnect keeps draft; reconnect leaves draft; Insert after reconnect sends once (`agent-terminal-touch-composer.spec.ts`) |
+| 5.7 | Reuse existing attachment `insert` path | slice 3 | observed: `TerminalKeyToolbar` mounts `TerminalComposer` with `insert` from `Terminal`/`useAttachedTerminal` |
+
+
 | 6.1 | One-finger swipe moves terminal scrollback history only (`scrollLines`) | slice 2 | observed: keys spec swipe changes `menu history` text; `sent` unchanged |
 | 6.2 | Swipe must not send Up/Down or move an option-menu selection | slice 2 | observed: after swipe, `› Blue` still selected; `sent` equal |
 | 6.3 | Toolbar arrows navigate menus and move the application cursor | slice 2 | observed: Down/Up change `›` marker; Enter confirms |
@@ -41,20 +43,26 @@ waived; phone-viewport automation closes the device-shaped gate).
 | 8.2 | Physical iPhone Safari observation waived (developer 2026-11-01); phone-viewport automation closes device-shaped gate | slice 1 | observed: story Proof + plan slices 1 and 5 done under waiver |
 | 8.3 | Apply repository failing and flaky test policy | slice 2 | observed: focused specs EXIT:0; no known flaky skip introduced |
 | 9.1 | Toolbar activation must not steal focus dismissing soft keyboard or trigger unrelated dashboard shortcuts | slice 2 | observed: textarea focused after toolbar taps; no shortcut side effects in journey |
-| 9.2 | Composer Insert must not append trailing Enter or submit | slice 3 | |
+| 9.2 | Composer Insert must not append trailing Enter or submit | slice 3 | observed: `agent-terminal-touch-composer.spec.ts` Insert; `sent` equals draft without `\r` |
+
+
 | 9.3 | Swipe-to-scroll must not emit navigation key sequences | slice 2 | observed: `sent` unchanged across swipe |
 | 9.4 | New controls follow accessible names and 44px touch targets | slice 2 | observed: aria-labels; each primary key ≥44×44 |
 | 10.1 | One Side panel terminal view | slice 2 | observed: toolbar inside Terminal region; no new panel |
 | 10.2 | Coarse-pointer key toolbar with terminal; primary keys visible; less-frequent expand | slice 2 | observed: `@media (any-pointer: coarse)` CSS; More expands Ctrl+C |
-| 10.3 | Optional composer with Insert distinct from Enter | slice 3 | |
+| 10.3 | Optional composer with Insert distinct from Enter | slice 3 | observed: Compose under More; Insert button vs toolbar Enter; desktop hides both |
+
 | 10.4 | Explicit hide-keyboard control available | slice 4 | |
 | 10.5 | Exact layout is an implementation choice if examples and 44px hold | slice 2 | observed: horizontal scroll strip with sticky Enter/More |
 | 10.6 | No new Board or Sessions sidebar chrome | slice 2 | observed: diff confined to Terminal chrome and tests |
-| 11 | Keep both direct typing and the composer in scope | slice 3 | |
+| 11 | Keep both direct typing and the composer in scope | slice 3 | observed: composer + direct typing steps in same journey |
+
 | E1 | Menu: Down twice + Enter confirms; Esc cancels; keys with keyboard shown or hidden | slice 2 | observed: Esc → cancelled; reopen; Down×2+Enter → Green; focus retained as soft-keyboard stand-in |
 | E2 | Keyboard open: Tab, Left/Right; toolbar does not hide keyboard/lose input/trigger shortcut; expandable Ctrl+C | slice 2 | observed: Tab/Left/Right + Ctrl+C steps; focus held |
 | E3 | Short direct typing with on-screen keyboard without corrupted text | slice 2 | observed: neighbor `agent-terminal-touch.spec.ts` editing journey remains green with toolbar present |
-| E4 | Composer Insert then deliberate Enter; draft survives unavailable attachment | slice 3 | |
+| E4 | Composer Insert then deliberate Enter; draft survives unavailable attachment | slice 3 | observed: full journey in `agent-terminal-touch-composer.spec.ts` |
+
+
 | E5 | Swipe history without moving menu; arrows navigate without relying on swipe | slice 2 | observed: swipe vs arrows steps in keys spec |
 | E6 | Open/hide keyboard and rotate; attachment/input/draft survive; controls reachable | slice 4 | |
 | E7 | Desktop typing, special keys, dictation, ordinary scrolling retain current behavior | slice 2 | observed: desktop no-toolbar; touch neighbor + `session-terminal-voice.spec.ts` green |

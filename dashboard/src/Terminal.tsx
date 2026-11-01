@@ -5,7 +5,8 @@
 // without ending the session; plain Escape still goes to the native terminal.
 // On coarse-pointer phones a key toolbar injects Esc/Tab/arrows/Enter and
 // expandable Ctrl+C on the same input path without dismissing the soft
-// keyboard. Disconnected or ended attachments can reopen the same session.
+// keyboard, and an optional text composer Inserts longer drafts without
+// submitting them. Disconnected or ended attachments can reopen the same session.
 // The saved terminal theme applies to this content and its Side panel border.
 // Done asks first when completion is unknown, closes the view after success,
 // and leaves the terminal visible with recovery guidance when marking fails.

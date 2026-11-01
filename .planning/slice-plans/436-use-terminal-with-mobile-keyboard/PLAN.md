@@ -92,9 +92,12 @@ session identity remain reachable
 
 ### 3. Optional composer Insert without submit
 Type: Behavior
-Status: planned
-Proof: Playwright composer Insert / Enter / unavailable-attachment draft cases
-on the phone viewport; dictation insert path still works.
+Status: done
+Proof: Accepted — `agent-terminal-touch-composer.spec.ts` (split from keys):
+Insert → `sent` without `\r`; toolbar Enter submits; disconnect retains draft;
+reconnect does not auto-replay; Insert after reconnect once; direct typing
+still works; Compose under More keeps 240px fit neighbor green; voice neighbor
+green. Source-review 5.1–5.7, 9.2, 10.3, 11, E4 observed.
 
 ```
 Behavior: composer draft ready on an attached (or reconnecting) terminal →
@@ -103,6 +106,7 @@ draft text reaches the terminal once without trailing Enter; Enter submits;
 unsent draft survives unavailable attachment and is never auto-replayed;
 direct typing remains available
 ```
+
 
 ### 4. Fit the terminal to the soft keyboard and orientation
 Type: Behavior
