@@ -2,6 +2,7 @@
 
 **Identity:** SEED-208#reduce-dashboard-proof-cost
 **Source:** [selected story](../../seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost).
+**Source review:** [source-only commitments](source-review.md)
 **Assessment:** [family value/cost decisions](../../../docs/maintainer/dashboard-test-value-review.md).
 
 ## Goal and scope
@@ -55,7 +56,8 @@ Run commands from the owned execution checkout, after locked native setup.
 For each focused family below use `npm run test:dashboard -- <named specs>`;
 save strict proof and `.tsv` to unique absolute paths outside the repository via
 `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and `OPEN_DOUGH_DASHBOARD_TIMES`, unsetting
-`NO_COLOR`/`FORCE_COLOR`. Record exact revision, case selection, workers, cache,
+`NO_COLOR`/`FORCE_COLOR`. Do not pass `--reporter`: it replaces the configured
+quiet reporter that writes both records (`dashboard/playwright.config.ts`). Record exact revision, case selection, workers, cache,
 host/load/memory, duration and outer wall. For comparisons also use
 `--workers=1` where default scheduling masks work removed. Use three comparable
 focused observations when results are doubtful; changed async synchronization
@@ -72,7 +74,7 @@ case should require another full native launch merely to move assertions.
 
 ### 1. Establish the current cost and survival map
 Type: Structure
-Status: planned
+Status: done
 Proof: Successful strict normal full-suite baseline and focused family records.
 
 Bounded early probe: inspect host contention and setup first, then run normal
@@ -83,6 +85,35 @@ minimal Git preconditions and boundary-fixture extension points. These are
 decisive premises for slices 2, 3, 6, and 8; if absent, revise only the affected
 approach before editing. Stop profiling when it no longer changes an experiment.
 This slice removes reliance on a historical, incomparable performance baseline.
+
+Result (e073d3f2, 16 cores/48 GB, competing VM, doughnut e2e and other agents):
+two full runs, neither strict-green. Run 1 (load 7→35, 909 s, written with a
+`--reporter` override and so no records) failed `production-watcher-updates`,
+`agent-launch-ad-hoc-sessions:68` and `recently-done-sessions-sidebar-room:34`;
+all three files passed at `--workers=4`. Run 2 (load 11–29): 1,831 cases,
+0 skipped, 1,830 passed, 650.6 s wall, 4,762.7 summed test seconds; it failed
+`recently-done-sessions-sidebar-paging:34` (stayed at 40, wanted 45), which passed
+at `--workers=4`. Probable cause: `recentlyDoneSessionsSidebarPaging.ts:66-77`
+treats a synchronous `scrollTop === 0` as re-armed before the page's reveal
+trigger observes the return to the top. Every S2–S8 family case passed in both
+runs, and each family passed strict alone at `--workers=1`.
+
+| Slice | Cases | Summed s (8 workers) | Wall s (1 worker) | Credible removable summed s |
+| --- | --- | --- | --- | --- |
+| 2 | 17 | 64.3 | 34 | 3–5 (browser/preview; estimate) |
+| 3 | 20 + 11 boundary | 53.1 | 48 | 5–7 (one full start ~3.4–4.8; origin swap ~2) |
+| 4 | 5 | 35.7 | 27 | 9–11 |
+| 5 | 12 | 60.0 | 45 | ~2.8 |
+| 6 | 9 | 27.7 | 35 | 2–3 |
+| 7 | 15 | 40.5 | 47 | ~2 (the two preserved races cost 17 s each) |
+| 8 | 2 | 39.9 | 41 | ~0 (refusal rows are <0.5 s of HTTP) |
+
+The combined credible gain (25–35 summed s, under 1% of the suite) is below the
+spread between two full runs on this host, so whole-suite wall cannot show it.
+Records: `~/.claude/jobs/e8e9da13/tmp/baseline-full2/` and `baseline-s2`…`s8/`.
+Premises: S2, S6 and S8 boundary/real-API homes exist as planned; S3's
+installed-origin preparation costs only 0.12–0.26 s per case (packing is once
+per run), so it is not the largest benefit.
 
 ### 2. Preserve review admission without browser or irrelevant history
 Type: Structure
@@ -119,8 +150,15 @@ successful start and no new shared mutable protocol state.
 Run the model file and all three imported case families plus
 `agent-launch-preparation-codex`, `agent-launch-start-codex`, and
 `boundary/agent-launch-codex-model-boundary.spec.ts`; extend to other fixture
-consumers only when changed. Expected largest benefit: removing installed-origin
-preparation across the dialog family, not another one-case trim experiment.
+consumers only when changed. Expected gain is small (slice 1: about 2 summed s
+from the origin swap of nine non-installed cases, plus one full start from the
+refinement repetition). Keep the swap because the story requires catalog-only
+cases not to prepare installed-start repositories, and report it as
+simplification, not speedup. Non-installed cases: `codexModelCatalogCases.ts`
+:9, :70, :141, :179; `codexEffortDialogCases.ts` :5, :79, :118;
+`codexEffortWorkspaceCases.ts:41`; the ad-hoc iteration of
+`agent-launch-codex-model.spec.ts:10`. Ad-hoc `cwd` assertions then name the
+fake HOME project instead of `origin.project`.
 
 ### 4. Retain phase integration without the host/workflow cross-product
 Type: Structure
@@ -184,6 +222,8 @@ close/reopen races; they rewrite responses and cannot be claimed as no-mock
 replacement proof. Do not extend that mechanism or redesign settlement here.
 Expected gain: up to one fewer full terminal journey, without a new fixture.
 The second-server integrated path remains accepted and unchanged.
+Slice 1 found the two races cost about 17 s each, mostly waiting inside
+`openWhileStarting`; record that as a residual candidate in slice 9.
 
 ### 8. Keep attention lifecycle proof focused on durable user behavior
 Type: Structure
@@ -206,7 +246,13 @@ Status: planned
 Proof: Successful strict full suite with no skips and comparable before/after
 wall/case records; every transferred candidate has an evidenced disposition.
 
-Run normal `npm run test:dashboard` under comparable host conditions. Include
+First fix the load-exposed synchronization in
+`recentlyDoneSessionsSidebarPaging.ts` (wait for the page's observed re-arm, not
+a synchronous `scrollTop`), proved by its family; diagnose any other slice 1
+failure that recurs rather than rerunning it. Then run normal
+`npm run test:dashboard` for the reference revision `e073d3f2` (a temporary
+owned checkout) and the candidate back to back under the same load, and judge
+the ratio with the loads recorded, since slice 1's two runs differed by 258 s. Include
 replacement proof cost. Validate affected source/support files with
 `npm run typecheck:dashboard` and the ordinary lint hook; shared fixture changes
 justify full-suite coverage. Inspect diff for mocks, focus markers, lost
