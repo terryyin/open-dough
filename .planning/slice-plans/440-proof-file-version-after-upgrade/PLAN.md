@@ -132,6 +132,15 @@ passed, and the whole `dashboard/tests/boundary` folder passed 921. Learning:
 the fake `gh` names every tree call `tree` without a path, so call counts are
 what prove one read per location and revision.
 
+## Execution complete
+
+Product advice: no change. The key change restores Proof's file-version match
+after an upgrade, and the retrospective found no other remembered entry
+shape at risk: directory listings carried blob shas before answers were
+retained across processes (`ee0b21b7` before `9d8b5ed6`), and the other
+answer kinds have not changed shape since. Story 8's Doughnut adoption no
+longer depends on its folder changing to read "This file version".
+
 ## Decisive premises
 
 - **The symptom reproduces at the boundary.** Consuming operation: slice 1's
