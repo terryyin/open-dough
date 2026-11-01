@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-210#confirm-broken-base-before-start",
+  "title": "Confirm a broken base before starting plan execution",
+  "completedAt": "2026-11-01T07:29:07.153Z",
+  "developer": "Terry Yin",
+  "agent": "DavidKo-chan",
+  "host": "cursor",
+  "model": "auto"
+}
