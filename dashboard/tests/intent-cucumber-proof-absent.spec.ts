@@ -12,10 +12,12 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import {
+  countLocationsReads,
+  expandIntentGroup,
+} from "./intentPerspectivePage.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import {
   doughnut,
   nodeTest,
@@ -63,21 +65,6 @@ async function selectJobsFeature(page: Page) {
     purpose,
     proof: intent.getByRole("region", { name: "Proof" }),
   };
-}
-
-// How many Intent locations reads, with their proof, the page has asked.
-function countLocationsReads(page: Page) {
-  let reads = 0;
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    ) {
-      reads += 1;
-    }
-  });
-  return () => reads;
 }
 
 test("Ex 8: a project without declared proof says Proof is not recorded and names the reference", async ({

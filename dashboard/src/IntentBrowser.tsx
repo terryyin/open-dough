@@ -16,6 +16,10 @@ import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
+type FileRead =
+  | { readonly path: string; readonly state: "failed" }
+  | { readonly path: string; readonly state: "ready"; readonly text: string };
+
 export function IntentBrowser({
   source,
   revision,
@@ -33,41 +37,37 @@ export function IntentBrowser({
 }) {
   const [selectedPath, setSelectedPath] = useState("");
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
-  const [text, setText] = useState<string | undefined>(undefined);
-  const [fileState, setFileState] = useState<
-    "none" | "reading" | "ready" | "failed"
-  >("none");
+  // The answered read of one path; Purpose and Proof show it only while that
+  // path is the one selected, so a new selection never pairs with the
+  // previous text, and anything else reads as still reading.
+  const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   const proofId = useId();
 
   // Clearing selection when the project or locations change is owned by the
   // parent remounting this browser on source/revision identity.
   useEffect(() => {
-    if (selectedPath === "") {
-      setText(undefined);
-      setFileState("none");
-      return;
-    }
+    if (selectedPath === "") return;
     const controller = new AbortController();
-    setFileState("reading");
-    setText(undefined);
+    setFileRead(undefined);
     void readRepositoryFileAt(source, selectedPath, revision, controller.signal)
-      .then((body) => {
+      .then((text) => {
         if (!controller.signal.aborted) {
-          setText(body);
-          setFileState("ready");
+          setFileRead({ path: selectedPath, state: "ready", text });
         }
       })
       .catch(() => {
         if (!controller.signal.aborted) {
-          setText(undefined);
-          setFileState("failed");
+          setFileRead({ path: selectedPath, state: "failed" });
         }
       });
     return () => {
       controller.abort();
     };
   }, [source, revision, selectedPath, fileRetry]);
+
+  const selectedRead = fileRead?.path === selectedPath ? fileRead : undefined;
+  const text = selectedRead?.state === "ready" ? selectedRead.text : undefined;
 
   // The location's kind (with path for typescript/.tsx) selects the grammar.
   const selectedLocation = locations.find((location) =>
@@ -100,9 +100,7 @@ export function IntentBrowser({
           <h3>Purpose</h3>
           {selectedPath === "" ? (
             <p className="quiet">Select a feature file to read its Purpose.</p>
-          ) : fileState === "reading" ? (
-            <p className="quiet">Reading {selectedPath}…</p>
-          ) : fileState === "failed" ? (
+          ) : selectedRead?.state === "failed" ? (
             <p className="intent-file-problem" role="alert">
               {selectedPath} could not be read.{" "}
               <button
@@ -132,7 +130,7 @@ export function IntentBrowser({
           <IntentProof
             path={selectedPath}
             kind={selectedLanguage}
-            text={fileState === "ready" ? text : undefined}
+            text={text}
             proof={selectedLocation?.proof}
             rereading={proofRereading}
             onRetry={onProofRetry}

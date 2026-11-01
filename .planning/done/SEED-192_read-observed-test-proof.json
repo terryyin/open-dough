@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#read-observed-test-proof",
+  "title": "Read observed proof alongside test purpose",
+  "completedAt": "2026-11-01T18:16:21.945Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "claude",
+  "model": "opus"
+}

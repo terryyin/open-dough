@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 399. Removed numbers are never reused.
+- Highest allocated local number: 402. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -825,3 +825,55 @@ published the later waiver, then the product slice.
   - Observed effect: extra plan-status edits and two planning-only publishes to restore delivery order
   - Inference: marking every waived gate done before the first ordered publish creates delivery-order friction; publishing (or leaving planned) one waived gate at a time would avoid the temporary mutation
 
+## DD-400 — A decisive premise probe proved the capability, not the story's restriction
+
+The plan settled "a project formatter observes every attempt without changing
+runs" from probes that checked the formatter received events and the exit
+stayed 0. Neither probe compared the existing formatter's output, although the
+story promises existing output stays unchanged. The slice 3 walk then showed a
+Cucumber.js `format` entry without its own target replaces the stdout formatter.
+
+### Occurrences
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
+  - Timestamp: unknown (2026-11-01; walk finding before commit `4487c435` at 2026-11-01T22:24:08+07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: plan 439 "Decisive premises" (Pygardon probe with `--format <probe formatter>`, scratch probe with `format: ['progress', './proof2.js']`); slice 3 walk `runs/finding-format.out` 0 bytes, exit 0; reference corrected to a plugin in `4487c435`; slice 4 premise note added
+  - Observed effect: the drafted reference's configuration example, settled by those premises, would have erased an adopting project's progress output; the walk caught it before release.
+  - Inference: a premise consumed by a restriction ("output unchanged") needs an observation of that restriction, not only of the capability; related to ODF-074 but the premise was inspected, only incompletely.
+
+## DD-401 — A rollout slice released from trunk without a step landing the earlier slices
+
+Plan 439 slice 4 ran `release-and-update-clients`, which releases only Open
+Dough `main`, while slices 1–3 of the Story Branch execution existed only on the
+execution branch. The plan named no trunk landing before the release, so the
+coordinator stopped mid-slice to ask for a Dough Land `--keep-worktree` landing.
+
+### Occurrences
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
+  - Timestamp: unknown (2026-11-01; question asked before landing `bdeb210a` at 2026-11-01T23:14:09+07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: plan 439 slice 4 Proof text; `.agents/skills/release-and-update-clients/SKILL.md` "Work on Open Dough's `main`"; the coordinator's landing question and Terry's "Land with keep-worktree" answer
+  - Observed effect: a second human stop inside an already approved rollout, and two later trunk CI repairs ran before the release could start.
+  - Inference: a Story Branch plan whose slice publishes from trunk should name the retained landing, and its human checkpoint should cover it, so one go-ahead suffices.
+
+## DD-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
+
+At a human-judgment stop, `ci-mailbox.mjs stop <recorded directory>` printed a
+Node stack ending in `ENOENT ... request.json` from `readMailbox`
+(`ci-mailbox-location.mjs:69`) via `requestMailboxStop`. The directory was then
+absent and no worker for it ran, so shutdown succeeded, but the command
+reported no terminal result.
+
+### Occurrences
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
+  - Timestamp: unknown (2026-11-01, at the slice 4 checkpoint after commit `4487c435`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.79
+  - Evidence: two `stop /tmp/dough-ci-501/watch-SJuZJr` calls, both exiting with the stack (the first output tail ends in `}` and the Node version); then `ls` reported the directory missing and `pgrep -fl watch-SJuZJr` found no process
+  - Observed effect: the coordinator verified shutdown by hand instead of from a stop receipt.
+  - Inference: the first call may have removed the mailbox before failing, or the worker ended on its own first; either way an already-ended mailbox needs a reported result, not a crash.
