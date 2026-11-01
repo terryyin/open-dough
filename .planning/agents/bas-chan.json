@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-207#assess-dashboard-test-value",
+  "mode": "story-branch",
+  "branch": "codex/assess-dashboard-test-value",
+  "host": "codex"
+}

@@ -28,6 +28,8 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
+- [Assess the value and cost of recorded dashboard tests](seeds/SEED-207-dashboard-test-value.md#assess-dashboard-test-value) — SEED-207#assess-dashboard-test-value
+
 ## Backlog list
 
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
