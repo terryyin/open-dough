@@ -28,6 +28,8 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
+- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources
+
 ## Backlog list
 
 - [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion

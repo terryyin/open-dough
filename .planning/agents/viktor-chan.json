@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-209#bound-local-test-resources",
+  "mode": "story-branch",
+  "branch": "codex/local-test-resources",
+  "host": "codex",
+  "model": "gpt-6"
+}
