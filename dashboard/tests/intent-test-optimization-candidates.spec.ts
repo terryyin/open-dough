@@ -7,6 +7,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  expandIntentGroup,
   expectCandidatesRevision,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -104,6 +105,7 @@ test("Intent shows Pending and Accepted candidate groups with every recorded fie
   });
 
   await test.step("Location tree stays usable beside the record; control is keyboard-operable", async () => {
+    await expandIntentGroup(intent, "dashboard/tests");
     await intent
       .getByRole("button", {
         name: "dashboard/tests/intent-gherkin-browse.spec.ts",

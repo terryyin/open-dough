@@ -7,6 +7,7 @@ import { filesOf } from "./catalogProjectRecords.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  expandIntentGroup,
   expectCandidatesRevision,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -54,6 +55,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expect(candidatesRecord(intent)).toContainText(
       "No Test Optimization Candidates record has been published for Doughnut",
     );
+    await expandIntentGroup(intent, "scripts");
     await intent
       .getByRole("button", {
         name: "scripts/backend-test-worktree-admission.test.mjs",
@@ -85,6 +87,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
         name: "Accepted necessary costs",
       }),
     ).toContainText("None.");
+    await expandIntentGroup(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
         name: "dashboard/tests/intent-gherkin-browse.spec.ts",
@@ -104,6 +107,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expect(candidatesRecord(intent)).not.toContainText(
       "Body that Intent must not partially show",
     );
+    await expandIntentGroup(intent, "tests");
     await intent
       .getByRole("button", {
         name: "tests/test_example.py",
@@ -137,6 +141,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expect(
       candidatesRecord(intent).getByRole("button", { name: "Retry" }),
     ).toBeVisible();
+    await expandIntentGroup(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
         name: "dashboard/tests/intent-gherkin-browse.spec.ts",

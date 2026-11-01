@@ -65,6 +65,10 @@ export function IntentBrowser({
     setSelection(next);
     setReturnEntrySlug(entrySlug);
     setView("purpose");
+    const owning = locations.find((location) =>
+      location.files.includes(next.path),
+    );
+    if (owning !== undefined) setExpandedPath(owning.path);
   }
 
   // Clearing selection when the project or locations change is owned by the
