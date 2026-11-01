@@ -221,6 +221,13 @@ The fixture now commits the sibling first. A forced one-second gap reproduced
 the failure before and passed after; the spec passed 30/30 under
 `--repeat-each 10`, and the other base-CI specs passed.
 
+Completion CI repair (2026-11-02): run 41334022336 on the records commit
+`6c354905` failed `story-reference-navigation.spec.ts` ("Expected: 0, Received:
+1"): the test sampled the launch count before the Start's own `claude --bg`
+launch was recorded. It now waits for that one launch and asserts exactly one
+after navigation. A forced pause reproduced the failure before and passed after;
+the spec passed 30/30 under `--repeat-each 10`.
+
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
 Status: done

@@ -126,7 +126,7 @@ test("a reference reveals a starting story without opening its protected inspect
   await expect(
     supplier.getByRole("button", { name: "Inspect story" }),
   ).toBeDisabled();
-  const before = dashboard.claudeLaunchCalls().length;
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const consumer = parts(page).backlog.getByRole("article", {
     name: "Story A",
     exact: true,
@@ -140,7 +140,7 @@ test("a reference reveals a starting story without opening its protected inspect
   await expect(
     supplier.getByRole("link", { name: /^Canonical record/ }),
   ).toBeVisible();
-  expect(dashboard.claudeLaunchCalls().length).toBe(before);
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeAttaches()).toEqual([]);
   dashboard.releaseHeldClaude();
   await expect(
