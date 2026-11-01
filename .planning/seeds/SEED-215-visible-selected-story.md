@@ -6,7 +6,7 @@
 
 **Identity:** SEED-215#visible-selected-story
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/440-visible-selected-story/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9b94cd3e028309b60364cf2b79faeb97cd6288d33e776dabc0574e1e9e8dcf33","plan":"654217c0d573bead325d179683322ffb9c6d3914166c05d90f9ae280864d1036"}}
 ```
 
 **Goal:** Make the dashboard's selected story visually obvious with a tinted background.
