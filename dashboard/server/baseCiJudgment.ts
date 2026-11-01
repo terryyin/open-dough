@@ -2,8 +2,9 @@
 // result of the project's selected check at the target head or its nearest
 // ancestor that has one. Pass starts without asking; every other state is
 // answered for the developer to confirm. ADR 0008: observe without owning;
-// nothing is kept beyond the request. Slice 1 covers GitHub Actions; a
-// command-adapter project is judged in a later slice.
+// nothing is kept beyond the request. GitHub Actions and command-adapter
+// (ciAdapter discover) projects share one judgment rule.
+import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   createGitHubActions,
   GitHubAcquisitionFailed,
@@ -14,6 +15,12 @@ import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { BaseCiFound, BaseCiState } from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import {
+  judgeNearest,
+  type ListedCommit,
+  type ListedRun,
+  unread,
+} from "./baseCiNearest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export type BaseCiJudgment =
@@ -33,20 +40,57 @@ export type BaseCiJudgment =
       readonly runUrl?: string;
     };
 
-type ListedCommit = {
-  readonly sha?: unknown;
-  readonly commit?: { readonly message?: unknown };
-};
-
-type ListedRun = {
-  readonly headSha?: string;
-  readonly status?: string;
-  readonly conclusion?: string | null;
-  readonly url?: string;
-  readonly createdAt?: string;
-};
-
 const historyPage = 30;
+
+function githubAcquisitionUnread(
+  error: unknown,
+  fallback: string,
+): BaseCiJudgment {
+  if (error instanceof GitHubAcquisitionHeld)
+    return unread(
+      `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
+    );
+  if (error instanceof GitHubAcquisitionFailed) return unread(error.message);
+  return unread(error instanceof Error ? error.message : fallback);
+}
+
+async function readTargetHistory(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<ListedCommit[] | BaseCiJudgment> {
+  try {
+    const commits = (await readGitHubActions(
+      [
+        "api",
+        `repos/${source.repository}/commits?sha=${encodeURIComponent(source.ref)}&per_page=${String(historyPage)}`,
+      ],
+      signal,
+    )) as ListedCommit[];
+    if (!Array.isArray(commits) || commits.length === 0)
+      return unread("No commit history was returned for the origin target");
+    return commits;
+  } catch (error) {
+    return githubAcquisitionUnread(
+      error,
+      "The commit history could not be read",
+    );
+  }
+}
+
+async function judgeWithRuns(
+  source: PublishedSource,
+  signal: AbortSignal,
+  loadRuns: () => Promise<ListedRun[]>,
+  unreadOnError: (error: unknown) => BaseCiJudgment,
+): Promise<BaseCiJudgment> {
+  const commits = await readTargetHistory(source, signal);
+  if (!Array.isArray(commits)) return commits;
+  try {
+    return judgeNearest(commits, await loadRuns());
+  } catch (error) {
+    return unreadOnError(error);
+  }
+}
 
 type CiConfiguration = {
   readonly adapter: readonly string[] | undefined;
@@ -55,58 +99,6 @@ type CiConfiguration = {
 
 function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
-}
-
-function subjectOf(message: unknown): string {
-  if (typeof message !== "string" || message.trim() === "")
-    return "(no subject)";
-  return message.split(/\r?\n/, 1)[0] ?? "(no subject)";
-}
-
-function judgeAttempt(
-  status: string | undefined,
-  conclusion: string | null | undefined,
-): "pass" | BaseCiState | undefined {
-  if (
-    status === "queued" ||
-    status === "in_progress" ||
-    status === "pending" ||
-    status === "waiting" ||
-    status === "requested"
-  )
-    return "running";
-  if (status !== "completed") return undefined;
-  if (conclusion === "success") return "pass";
-  return "failed";
-}
-
-// Newest listed run for `sha`, by creation time then listing order.
-function newestRunFor(
-  runs: readonly ListedRun[],
-  sha: string,
-): ListedRun | undefined {
-  let newest: ListedRun | undefined;
-  let newestAt = Number.NEGATIVE_INFINITY;
-  for (const run of runs) {
-    if (run.headSha !== sha) continue;
-    const at = Date.parse(run.createdAt ?? "");
-    const stamp = Number.isFinite(at) ? at : Number.NEGATIVE_INFINITY;
-    if (newest === undefined || stamp >= newestAt) {
-      newest = run;
-      newestAt = stamp;
-    }
-  }
-  return newest;
-}
-
-function unread(reason: string): BaseCiJudgment {
-  return {
-    state: "unread",
-    revision: "unavailable",
-    subject: "(unavailable)",
-    laterWithoutResult: 0,
-    reason,
-  };
 }
 
 async function judgeGitHubActions(
@@ -119,83 +111,50 @@ async function judgeGitHubActions(
     repo: source.repository,
     workflow,
   });
-  let commits: ListedCommit[];
-  try {
-    commits = (await readGitHubActions(
-      [
-        "api",
-        `repos/${source.repository}/commits?sha=${encodeURIComponent(source.ref)}&per_page=${String(historyPage)}`,
-      ],
-      signal,
-    )) as ListedCommit[];
-  } catch (error) {
-    if (error instanceof GitHubAcquisitionHeld)
-      return unread(
-        `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
-      );
-    if (error instanceof GitHubAcquisitionFailed) return unread(error.message);
-    return unread(
-      error instanceof Error
-        ? error.message
-        : "The commit history could not be read",
-    );
-  }
-  if (!Array.isArray(commits) || commits.length === 0)
-    return unread("No commit history was returned for the origin target");
+  return judgeWithRuns(
+    source,
+    signal,
+    () =>
+      github.listRuns(
+        { branch: source.ref, created: undefined, limit: 100 },
+        signal,
+      ) as Promise<ListedRun[]>,
+    (error) =>
+      githubAcquisitionUnread(error, "The Actions runs could not be read"),
+  );
+}
 
-  let runs: ListedRun[];
-  try {
-    runs = (await github.listRuns(
-      { branch: source.ref, created: undefined, limit: 100 },
-      signal,
-    )) as ListedRun[];
-  } catch (error) {
-    if (error instanceof GitHubAcquisitionHeld)
-      return unread(
-        `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
-      );
-    if (error instanceof GitHubAcquisitionFailed) return unread(error.message);
-    return unread(
-      error instanceof Error
-        ? error.message
-        : "The Actions runs could not be read",
-    );
-  }
-
-  let skipped = 0;
-  for (const commit of commits) {
-    if (typeof commit.sha !== "string" || commit.sha === "") {
-      skipped += 1;
-      continue;
-    }
-    const run = newestRunFor(runs, commit.sha);
-    if (run === undefined) {
-      skipped += 1;
-      continue;
-    }
-    const state = judgeAttempt(run.status, run.conclusion);
-    if (state === undefined) {
-      skipped += 1;
-      continue;
-    }
-    return {
-      state,
-      revision: commit.sha,
-      subject: subjectOf(commit.commit?.message),
-      laterWithoutResult: skipped,
-      ...(typeof run.url === "string" && run.url !== ""
-        ? { runUrl: run.url }
-        : {}),
-    };
-  }
-  return unread(
-    "No result of the selected check was found in the readable history",
+async function judgeCommandAdapter(
+  source: PublishedSource,
+  folder: ProjectFolder,
+  adapter: readonly string[],
+  signal: AbortSignal,
+): Promise<BaseCiJudgment> {
+  const acquisition = createCommandAcquisition({
+    command: adapter,
+    repo: source.repository,
+    branch: source.ref,
+    root: folder.path,
+  });
+  return judgeWithRuns(
+    source,
+    signal,
+    async () => {
+      await acquisition.acquireRuns(signal);
+      return (await acquisition.discoverAncestorCandidates()) as ListedRun[];
+    },
+    (error) =>
+      unread(
+        error instanceof Error
+          ? error.message
+          : "The command-adapter discover could not be read",
+      ),
   );
 }
 
 // Judges the origin target's CI for `source` from the project folder's CI
-// settings. Bound by the authenticated read wait. Command-adapter projects
-// are unread until their slice lands.
+// settings. Bound by the authenticated read wait. A nonempty `ciAdapter`
+// uses discover attempts from the project folder; otherwise GitHub Actions.
 export async function judgeBaseCi(
   source: PublishedSource,
   folder: ProjectFolder,
@@ -204,7 +163,7 @@ export async function judgeBaseCi(
   try {
     const { adapter } = ciConfiguration(folder.path);
     if (adapter !== undefined)
-      return unread("Command-adapter base CI is not yet judged for this start");
+      return await judgeCommandAdapter(source, folder, adapter, controller);
     return await judgeGitHubActions(source, folder, controller);
   } catch (error) {
     if (

@@ -3,9 +3,7 @@
 How a story launch establishes its start before the native session, recovers
 it, and applies the dialog's Session choices. [Agent launch](AGENT-LAUNCH.md)
 owns the rest of the launch contract.
-
 [Launch editing by touch](LAUNCH-TOUCH.md) describes viewport changes and input.
-
 ## Mechanical start and recovery
 
 The selected installed skill establishes a start only when it ships both its
@@ -14,7 +12,6 @@ without a claim/announcement or workspace. Capability follows the selected
 installation, not a workflow-specific host ban. The dialog describes the
 published Take or Preparing announcement and `.worktrees` workspace only after
 that capability is read; pressing Start authorizes the described publication.
-
 The existing skill script, never dashboard reimplementation, establishes the
 start before a native session. Execution runs `execution-start.mjs start` with
 integration/workspace/branch/identity, stable machine/project publisher, story
@@ -32,7 +29,6 @@ lowercase hyphenated words, accents removed, at most 48 characters, `story` for
 no usable words (`session` for a session with no story), and numbered when
 workspace folders or any known host namespace collide. The same descriptions
 supply collision lookup for `claude/`, `codex/`, and `cursor/`.
-
 Start runs only when origin is the catalog repository and the story has no
 unresolved [launch attempt](AGENT-LAUNCH-STARTUP.md)
 on this machine. Progress is registered synchronously before running: preparing,
@@ -41,7 +37,6 @@ without a second start. Every page reads those local phases, but the card stays
 where origin places it. Across servers the installed script owns
 claim/assignment conflict and publication; refusals name origin's owner when
 readable.
-
 `execution-starts.json` and `refinement-starts.json` beside launch records retain
 one start per project/story/workflow before the script runs: host, selected
 model, workspace, branch, time, and execution publisher. Missing predecessor
@@ -53,7 +48,6 @@ retains its preparation. A stopped start that could have committed/published,
 or gave no readable result, is retained with workspace/branch and recovery.
 A stop that made no assignment removes its record; refinement also removes
 only the workspace/branch that attempt created.
-
 The start wait is a warning threshold (two minutes by default,
 `DOUGH_START_TIMEOUT_MS` for tests). Crossing it notes `slowSince` on the
 attempt, which stays unsettled and owned while the script runs; time alone
@@ -61,7 +55,6 @@ never aborts the script or settles the attempt. A second start is refused and
 Continue starts nothing while it runs. When the script finishes, its answer
 proceeds normally: a refusal stops, or an established start records its receipt
 and launches one native session automatically, without a manual continuation.
-
 A published receipt must be retained in
 `~/.open-dough/dashboard/launch-attempts.json` before the native session.
 If recording it fails, the attempt answers `failed`/`unrecorded`: publication
@@ -71,14 +64,12 @@ branch and assignment remain; repair the file and Continue to keep the receipt
 and launch once through the installed command's `existing` or `continue`
 answer. Other failed attempt notes remain answered from memory while the file
 keeps its earlier conservative state; a restart reads that interrupted state.
-
 Continuing an interrupted or failed attempt from Startup recovery, or a kept
 start's Start, resumes the kept workspace/branch, publisher/model and recovery,
 yielding existing/resumed execution or continued preparation instead of a
 second publication. An execution interrupted before its result is retained
 uses workspace HEAD/parent only on its kept branch; the installed script
 validates the isolated claim or refuses it.
-
 Refinement retry uses the installed command's `continue` operation. It verifies
 the retained workspace, branch and exact allocation on fetched origin before
 continuing. A missing workspace or inconsistent ownership keeps the saved start
@@ -88,38 +79,31 @@ or native conversation. An older installed command that cannot verify
 continuation also stops safely. A start with an uncertain announcement result
 stays uncertain; a new announcement is allowed only after the installed command
 explicitly verified that its earlier announcement was not accepted.
-
 A published start followed by native refusal keeps recovery and explains
-“Taken by <Agent>” or “Preparing as <Agent>; no session started”, with workspace.
-Its card offers Start with “Started here, no session yet”; the dialog explains
-that the publication is already established. The kept start is removed only
-when a durable launch record carries those established facts. Records display
-the established workspace without making it a story fact.
-
+“Taken by <Agent>” or “Preparing as <Agent>; no session started”, with
+workspace. Its card offers Start with “Started here, no session yet”; the
+dialog explains the publication is already established. The kept start is
+removed only when a durable launch record carries those facts. Records
+display the established workspace without making it a story fact.
 ## Base CI before an execution start
 
 Before a new story execution start runs the installed start script, the
-boundary judges the CI state of the origin target the work will start from:
-the newest result of the project's selected check
-(`.planning/open-dough.json`'s `ciWorkflow`, default `ci.yml`, or later a
-`ciAdapter`) at the target head or, when the head has none, its nearest
-ancestor that has one. History is the provider's commit listing for the target
-head (one page); the dashboard does not read the project folder's Git history.
-A pass starts exactly as today. Failed (including cancelled or timed out),
-still running, or could not be read asks first in the dialog, naming the
-target branch, the judged revision (short SHA and subject), how many later
-commits have no result of their own, the state, and the run URL when given.
-Back (or Escape) returns to the choices as they were and starts nothing: no
-Take, workspace, branch, or kept start. Continue sends the same start naming
-the confirmed revision and state; when the boundary now judges otherwise it
-asks again, and a pass starts without asking. Existing changes in Default
-main are asked first when both apply
-([Existing changes](LAUNCH-EXISTING-CHANGES.md)). Refinement starts, Start
-session, and resuming a kept or established start are not asked. The
-judgment is an observation answered per request and kept nowhere (ADR 0008).
-While Start waits on that judgment it shows “Checking base CI…” as a status
-beside the usual Starting… button (acceptance still uses Starting…).
-
+boundary judges the origin target's selected check
+(`.planning/open-dough.json`'s `ciWorkflow`, default `ci.yml`, or nonempty
+`ciAdapter` discover in the project folder): newest result at the target
+head or its nearest ancestor that has one. History is the provider's
+one-page commit listing for that head, not the project folder's Git;
+adapter exit or invalid discover is could not be read with the reason.
+Pass starts as today. Failed (including cancelled or timed out), still
+running, or could not be read asks first, naming branch, judged revision
+(short SHA and subject), later commits without their own result, state,
+and run URL when given. Back/Escape restores choices and starts nothing;
+Continue names the confirmed revision and state (re-ask on change; pass
+starts without asking). Existing changes in Default main are asked first
+when both apply ([Existing changes](LAUNCH-EXISTING-CHANGES.md)).
+Refinement, Start session, and kept or established resumes are not asked.
+Observation is per request and kept nowhere (ADR 0008). While Start waits:
+“Checking base CI…” beside Starting… (acceptance still uses Starting…).
 ## Session choices
 
 A story dialog's Session group stays in view, never behind a disclosure, with
@@ -133,7 +117,6 @@ Automatically land. A one-shot dialog's line beside Start names the choices
 and whether its result waits for review or lands, which Start then authorizes.
 Command details say where the session runs and show the policy's flags after
 the identity, before any options.
-
 The policy's values and flags are the shared definition in the installed
 `dough-execute-plan/scripts/session-policy.mjs`, which the dashboard imports
 from source (`src/launchRequest.ts`); requests, start records and launch records
@@ -146,7 +129,6 @@ machine answer's `sessionPolicies`); otherwise the radio is disabled with why,
 and a one-shot choice left from another host disables Start. The boundary
 refuses before any start or native call a one-shot policy the installation
 cannot take, and Default main or Automatically land without one-shot.
-
 A one-shot execution runs `execution-start.mjs start --one-shot` with workspace
 authority, adding `--push-authorized` only for Automatically land and no
 publisher. A one-shot refinement runs `preparation-assignment.mjs start
@@ -160,13 +142,11 @@ Preparing. A kept one-shot start shows its policy and resumes as it was,
 whatever the reopened dialog would choose; once established, it reuses its
 context without rerunning the start. One-shot execution's kept start stays on
 the Backlog card.
-
 ### Start session
 
 Start session shares story starts' Attach images (picker or paste into the
 instruction field), including the same type, size and count refusals; see
 [Agent launch](AGENT-LAUNCH.md).
-
 The project row's Start session offers the same Session group with two
 choices and no Tracking: Workspace (Isolated workspace or Default main) and
 After checks (Wait for review or Automatically land), in the story dialogs'
@@ -182,7 +162,6 @@ the start, the shared policy and `established-session.mjs` (`ad-hoc` in the
 machine answer's `sessionPolicies`); otherwise those radios are disabled with
 why, a choice left from another host disables Start, and the boundary refuses
 such a request before anything starts.
-
 Default main · Wait for review runs no start and sends no block: the session
 opens in the project folder with only the developer's text and the reporting
 context, or blank. Every other combination runs `execution-start.mjs start
@@ -205,7 +184,6 @@ sidebar's and the terminal's saved workspace as a one-shot start does. The
 reporting context of a launch that established a session names the launch's
 [landing context](AGENT-LAUNCH-COMPLETION.md), which carries no story identity,
 where the installed landing module takes one.
-
 A session has no story, so its start is kept by its launch attempt:
 `session-starts.json` beside the workflows' start stores holds, per project
 and attempt, the host, workspace, branch and time, written before the script
@@ -240,7 +218,6 @@ refused before any workspace existed keeps
 nothing, and a later Start session chooses its workspace afresh. A
 conversation whose first input is unconfirmed is recovered by the same
 continuation with no start run.
-
 When the launch workspace is already known, Start or Continue checks that
 workspace's selected-host Open Dough installation for the helpers this launch
 will consume before further publication or native launch. Compatibility is
@@ -254,20 +231,17 @@ whole-payload release updater (`open-dough-release.sh apply`) runs for that
 exact worktree into both native skill roots, without automatic `--force`, then
 Continue-equivalent resume reuses the retained start. A refused or failed
 update does not launch.
-
 When a successful attempt-store write prunes a settled attempt past its 30-day
 retention, it also removes that attempt's kept session start and its
 `launch-attachments/<attempt>/` folder. A refused or failed write removes
 neither. Current and unsettled attempts retain their starts and attachment
 files, and a late script result cannot recreate a pruned start. This removes
 machine records; the Git workspace and branch remain available.
-
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
 project, host, instruction, Workspace and After checks choices, and image
 content digests (none when absent). Repeating them resumes a retained start or
 recovers unconfirmed first input; differing choices or images start elsewhere
 and leave that conversation and workspace to continue on their own.
-
 ### Existing changes in default main
 
 Default main starts confirm unchanged checkout content through the dialog's

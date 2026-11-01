@@ -99,10 +99,8 @@ starts without confirmation, and nothing waits for CI.
 
 ### 3. Judge a command-adapter project's base and observe real projects
 Type: Behavior
-Status: planned
-Proof: adapter spec case (failed attempt asks; adapter failure is unreadable);
-real Pygardon observation (question shown, Back, nothing created) and Open
-Dough pass judgment, revisions recorded here.
+Status: done
+Proof: `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-base-ci-adapter.spec.ts …` → adapter fail+Back and unread on exit; full base-CI set 10/10. Real module observation 2026-11-01: Open Dough head `7c9a1929` judged `06934335` pass; Pygardon head `b6485b82` judged `36b67d41` pass (plan-time fail `83a41a176` no longer nearest). Live Pygardon UI fail→Back not re-run while trunk passes; fixture covers that journey.
 
 Behavior: a project with `ciAdapter` is judged from its adapter's `discover`
 attempts, run in the project folder, with the same rule and question.
@@ -206,6 +204,24 @@ Decisive premises, observed 2026-11-01 in this workspace:
   "Start execution"; their fake GitHub answers no Actions routes, so without a
   default passing answer each would meet "could not be read". Slice 1 owns that
   default.
+
+Execution (slice 3), observed 2026-11-01 via `judgeBaseCi` scratch script
+(importing `dashboard/server/baseCiJudgment.ts`; not by starting):
+
+- **Open Dough (GitHub Actions) pass.** Origin head
+  `7c9a1929cb7d102b40c649300739762c359f5f35`; nearest judged
+  `069343353ee0040bffd23a797b1ac5080bed8b75` (`Merge commit '7e71fdb…'`)
+  state `pass`, `laterWithoutResult` 5, run
+  `https://github.com/terryyin/open-dough/actions/runs/41278034118`.
+- **Pygardon (ciAdapter discover) pass at observation time.** Origin head
+  `b6485b82b0cb8dd0a530b02953f7a0ade8185ce5`; nearest judged
+  `36b67d4144a3e295fc8619bb12c5d245e0fa027a`
+  (`Record execution-complete product advice…`) state `pass`,
+  `laterWithoutResult` 2. At plan-time preparation the nearest was a
+  failure (`83a41a176`); trunk has since greened. Live dashboard
+  "Base CI failed" → Back on Pygardon was not obtained in this session
+  (current judgment is pass); fixture spec covers failing attempt + Back;
+  developer-operated UI Back remains if a red trunk returns.
 
 Refinement not needed: each slice is one proof loop over one judgment rule,
 with provider and state variants extending the same model rather than adding

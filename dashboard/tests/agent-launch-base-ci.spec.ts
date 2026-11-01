@@ -1,5 +1,6 @@
 // Before a new execution start runs the installed script, the boundary judges
-// the origin target's CI (GitHub Actions for this slice). A pass starts as
+// the origin target's CI. These cases use GitHub Actions; command-adapter
+// projects live in agent-launch-base-ci-adapter.spec.ts. A pass starts as
 // today; a failed judgment asks in the dialog; Back starts nothing; Continue
 // names the confirmed revision and state; a changed judgment asks again or
 // starts on a pass. Kept starts are not asked. Running and unread judgments

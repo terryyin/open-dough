@@ -12,11 +12,11 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Do not silently start new work on a broken build. | slice 3 | |
+| 1 | Do not silently start new work on a broken build. | slice 3 | observed: unconfirmedStart + adapter/GH judgment; fail/running/unread ask before script (adapter + GH specs) |
 | 2 | Before the dashboard runs the execution start (which publishes the Take and creates the workspace and branch), it judges the CI state of the origin target the work will start from. | slice 1 | observed: dashboard/server/launchStart.ts unconfirmedStart → judgeBaseCi before attempt/script; agent-launch-base-ci.spec.ts failed case: no Take until Continue |
 | 3 | When that state is not a pass, the developer sees what was found and confirms whether to start anyway. | slice 1 | observed: LaunchBaseCi.tsx + agent-launch-base-ci.spec.ts failed heading focused before Continue |
 | 4 | Back starts nothing. | slice 1 | observed: agent-launch-base-ci.spec.ts Back: empty takenProfiles, keptStarts, claude launches; origin main unchanged |
-| 5 | This keeps a red trunk from quietly accumulating new work on top of it, while still letting the developer start the work that fixes it. | slice 3 | |
+| 5 | This keeps a red trunk from quietly accumulating new work on top of it, while still letting the developer start the work that fixes it. | slice 3 | observed: fail asks before start; Continue on failing base still starts (adapter + GH failed cases) |
 | 6.1 | Every dashboard story execution start that runs the start script: Standard | slice 1 | observed: launchStart.ts unconfirmedStart for workflow execution; agent-launch-base-ci.spec.ts Start execution path |
 | 6.2 | Every dashboard story execution start that runs the start script: One-shot | slice 1 | observed: launchStart.ts gates workflow === "execution" (one-shot is an execution start mode through the same pre-acceptance) |
 | 6.3 | Every dashboard story execution start that runs the start script: Isolated workspace | slice 1 | observed: unconfirmedStart after existing-changes check; workspace selection unchanged for isolated |
@@ -31,7 +31,7 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 9.2 | Otherwise use its nearest ancestor that has one. | slice 1 | observed: agent-launch-base-ci.spec.ts pass/fail cases with later planning-only head |
 | 10 | Qualification: Trunk heads are usually planning-only commits that CI never runs, so the head's own result alone would almost never exist. | | Q1 |
 | 11.1 | The check is GitHub Actions (`ciWorkflow`, default `ci.yml`, push runs) | slice 1 | observed: baseCiJudgment.ts judgeGitHubActions via readCiConfiguration + createGitHubActions |
-| 11.2 | or the project's `ciAdapter` command's `discover` attempts | slice 3 | |
+| 11.2 | or the project's `ciAdapter` command's `discover` attempts | slice 3 | observed: baseCiJudgment.ts judgeCommandAdapter + agent-launch-base-ci-adapter.spec.ts |
 | 12 | Of that revision's attempts, the newest decides. | slice 1 | observed: baseCiJudgment.ts newestRunFor by createdAt |
 | 13 | A pass starts exactly as today, with no extra step. | slice 1 | observed: agent-launch-base-ci.spec.ts "a passing nearest result starts with no question when the head has none" |
 | 14.1 | Every other state asks first, named truthfully: failed (including cancelled or timed out) | slice 1 | observed: judgeAttempt maps completed non-success to failed; LaunchBaseCi baseCiFailedHeading; failed-case spec |
@@ -52,7 +52,7 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 19 | Continuing sends the same start naming the judged revision and state it confirmed. | slice 1 | observed: baseCiConfirmation + Continue on failing base; request.baseCi compared in unconfirmedStart |
 | 20 | When the boundary now judges a different revision or state, it asks again instead of starting. | slice 1 | observed: agent-launch-base-ci.spec.ts "confirmed failure then a new failure at another revision asks again" |
 | 21 | When the boundary now judges a pass, it starts without asking. | slice 1 | observed: agent-launch-base-ci.spec.ts "confirmed failure then pass starts without asking again" |
-| 22 | Customized CI is in scope. | slice 3 | |
+| 22 | Customized CI is in scope. | slice 3 | observed: ciAdapter path in judgeBaseCi; adapter spec |
 | 23 | Qualification: adapter discover already answers attempts; Pygardon judged the same way; no follow-up story. | | Q2 |
 | 24 | No waiting for, retrying, or diagnosing CI from the dashboard. | | E1 |
 | 25 | No persistent trunk-CI badge on the board. | | E2 |
@@ -60,7 +60,7 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 27 | No check in the start script itself, so agent-invoked starts outside the dashboard are unchanged. | | E3 |
 | 28 | Trunk moving between the confirmed judgment and the start script's own fetch is not re-checked beyond the boundary's comparison at Continue. | | E4 |
 | 29 | Open Dough pass example: planning-only head, nearest success → Start with no question. | slice 1 | observed: agent-launch-base-ci.spec.ts pass case |
-| 30 | Pygardon fail example: nearest adapter attempt failed → Base CI failed; Back nothing; Continue starts. | slice 3 | |
+| 30 | Pygardon fail example: nearest adapter attempt failed → Base CI failed; Back nothing; Continue starts. | slice 3 | observed: agent-launch-base-ci-adapter.spec.ts failing nearest + Back; live Pygardon at observation time judged pass (36b67d41), UI fail→Back not re-run |
 | 31 | Nearest result still running → dialog says still running; does not wait. | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts in-progress case |
 | 32 | Adapter unreachable or GitHub rate-limited → could not be read and why; never shows a pass. | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts rate-limited Actions case (adapter unreachable → slice 3) |
 | 33 | Confirmed failure at X; then pass → starts; or new failure at Y → asks again naming Y. | slice 1 | observed: recheck pass + recheck Y specs |
@@ -75,6 +75,6 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 39 | It keeps nothing beyond the request (no server database). | slice 1 | observed: request.baseCi only; no startStore base-CI field |
 | 40.1 | Reuse dough-execute-plan CI modules: CI selection | slice 1 | observed: readCiConfiguration import in baseCiJudgment.ts |
 | 40.2 | askGitHub through this user's shared GitHub request owner | slice 1 | observed: createGitHubActions / readGitHubActions imports |
-| 40.3 | command-adapter discovery | slice 3 | |
+| 40.3 | command-adapter discovery | slice 3 | observed: createCommandAcquisition / discover in baseCiJudgment.ts |
 | 41 | Qualification: dashboard already imports shared session policy from source. | | Q3 |
-| 42 | Adapter command runs from the project folder (integration checkout); failure is "could not be read". | slice 3 | |
+| 42 | Adapter command runs from the project folder (integration checkout); failure is "could not be read". | slice 3 | observed: adapter exit failure case → unread; judgeCommandAdapter root = folder.path |
