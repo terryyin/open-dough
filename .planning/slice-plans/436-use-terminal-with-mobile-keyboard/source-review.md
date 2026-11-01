@@ -9,8 +9,9 @@ waived; phone-viewport automation closes the device-shaped gate).
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | From the Side panel’s live attached terminal on a phone, the developer can read output, enter and edit instructions, navigate interactive option menus, and submit or cancel input without a physical keyboard | slice 4 | |
-| 2 | Phone use is practical enough to drive the same native session the desktop uses | slice 4 | |
+| 1 | From the Side panel’s live attached terminal on a phone, the developer can read output, enter and edit instructions, navigate interactive option menus, and submit or cancel input without a physical keyboard | slice 4 | observed: aggregate phone-viewport proof across slices 2–4 (keys, composer, keyboard-fit specs) |
+| 2 | Phone use is practical enough to drive the same native session the desktop uses | slice 4 | observed: same attachment path as desktop; phone chrome + fit; desktop neighbors green |
+
 | 3 | Keep the existing xterm.js attachment and live native session/input path; add mobile controls around it; no replacement terminal engine and no separate mobile app | slice 2 | observed: `Terminal.tsx` mounts `TerminalKeyToolbar` via `insertText` from `useAttachedTerminal`; no new engine |
 | 4.1 | Toolbar key Esc | slice 2 | observed: `agent-terminal-touch-keys.spec.ts` Esc cancel + `sent` `\u001b` |
 | 4.2 | Toolbar key Tab | slice 2 | observed: keys spec Tab → `sent` `\t`; textarea stays focused |
@@ -35,10 +36,11 @@ waived; phone-viewport automation closes the device-shaped gate).
 | 6.1 | One-finger swipe moves terminal scrollback history only (`scrollLines`) | slice 2 | observed: keys spec swipe changes `menu history` text; `sent` unchanged |
 | 6.2 | Swipe must not send Up/Down or move an option-menu selection | slice 2 | observed: after swipe, `› Blue` still selected; `sent` equal |
 | 6.3 | Toolbar arrows navigate menus and move the application cursor | slice 2 | observed: Down/Up change `›` marker; Enter confirms |
-| 7.1 | Fit terminal, toolbar, and composer actions to visible area when soft keyboard opens/closes or device rotates | slice 4 | |
-| 7.2 | Explicit hide-keyboard control | slice 4 | |
-| 7.3 | Toolbar, composer actions, and Close reachable at reduced height | slice 4 | |
-| 7.4 | Attachment, typed input, and unsent composer draft survive; no reconnect only to fit | slice 4 | |
+| 7.1 | Fit terminal, toolbar, and composer actions to visible area when soft keyboard opens/closes or device rotates | slice 4 | observed: `useTerminalVisualViewportFit` + `agent-terminal-touch-keyboard-fit.spec.ts` simulated visualViewport |
+| 7.2 | Explicit hide-keyboard control | slice 4 | observed: Hide keyboard under More; fit spec blurs active field |
+| 7.3 | Toolbar, composer actions, and Close reachable at reduced height | slice 4 | observed: fit spec at 400 and 240; controls in visual viewport |
+| 7.4 | Attachment, typed input, and unsent composer draft survive; no reconnect only to fit | slice 4 | observed: fit spec draft + one attachment through rotate/hide; no reconnect for fit |
+
 | 8.1 | Proportionate automated checks on real browser → terminal → PTY path including phone-viewport journeys | slice 2 | observed: `agent-terminal-touch-keys.spec.ts` + neighbor `agent-terminal-touch.spec.ts` on attachment path |
 | 8.2 | Physical iPhone Safari observation waived (developer 2026-11-01); phone-viewport automation closes device-shaped gate | slice 1 | observed: story Proof + plan slices 1 and 5 done under waiver |
 | 8.3 | Apply repository failing and flaky test policy | slice 2 | observed: focused specs EXIT:0; no known flaky skip introduced |
@@ -52,7 +54,8 @@ waived; phone-viewport automation closes the device-shaped gate).
 | 10.2 | Coarse-pointer key toolbar with terminal; primary keys visible; less-frequent expand | slice 2 | observed: `@media (any-pointer: coarse)` CSS; More expands Ctrl+C |
 | 10.3 | Optional composer with Insert distinct from Enter | slice 3 | observed: Compose under More; Insert button vs toolbar Enter; desktop hides both |
 
-| 10.4 | Explicit hide-keyboard control available | slice 4 | |
+| 10.4 | Explicit hide-keyboard control available | slice 4 | observed: Hide keyboard control; desktop keys spec asserts absent |
+
 | 10.5 | Exact layout is an implementation choice if examples and 44px hold | slice 2 | observed: horizontal scroll strip with sticky Enter/More |
 | 10.6 | No new Board or Sessions sidebar chrome | slice 2 | observed: diff confined to Terminal chrome and tests |
 | 11 | Keep both direct typing and the composer in scope | slice 3 | observed: composer + direct typing steps in same journey |
@@ -64,7 +67,8 @@ waived; phone-viewport automation closes the device-shaped gate).
 
 
 | E5 | Swipe history without moving menu; arrows navigate without relying on swipe | slice 2 | observed: swipe vs arrows steps in keys spec |
-| E6 | Open/hide keyboard and rotate; attachment/input/draft survive; controls reachable | slice 4 | |
+| E6 | Open/hide keyboard and rotate; attachment/input/draft survive; controls reachable | slice 4 | observed: `agent-terminal-touch-keyboard-fit.spec.ts` full journey |
+
 | E7 | Desktop typing, special keys, dictation, ordinary scrolling retain current behavior | slice 2 | observed: desktop no-toolbar; touch neighbor + `session-terminal-voice.spec.ts` green |
 | D1 | Sticky Ctrl/Alt deferred |  | D1 |
 | D2 | Long-press key repeat deferred |  | D2 |

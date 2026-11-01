@@ -31,8 +31,9 @@ export function noteTerminalTraffic(page: Page) {
 }
 
 // Fitting is observed at the native PTY and the rendered cells, not merely
-// by the CSS box. The current panel must fill its viewport share and xterm
-// must fit its available room before the journey measures a touch coordinate.
+// by the CSS box. The current panel must fill the visible viewport share
+// (visualViewport when present) and xterm must fit its available room before
+// the journey measures a touch coordinate.
 export async function expectFittedInput(panel: Locator, sizes: string[]) {
   const screen = panel.locator(".xterm-screen");
   await expect
@@ -52,13 +53,18 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
         const rowHeight =
           element.querySelector(".xterm-rows > div")?.getBoundingClientRect()
             .height ?? 0;
-        // Covering and split both pin the panel at the viewport height.
-        const panelHeight = innerHeight;
+        // Soft-keyboard fit pins the panel to the visual viewport; without one
+        // the layout viewport height is the covering/split pin.
+        const visible = window.visualViewport;
+        const visibleTop = visible?.offsetTop ?? 0;
+        const panelHeight = visible?.height ?? innerHeight;
+        const visibleBottom = visibleTop + panelHeight;
         return {
           rows: element.querySelectorAll(".xterm-rows > div").length,
           fits:
             room !== undefined &&
             Math.abs(room.height - panelHeight) < 1 &&
+            Math.abs(room.y - visibleTop) < 1 &&
             availableHeight - input.height >= -1 &&
             availableHeight - input.height < rowHeight + 1 &&
             input.width >= 44 &&
@@ -67,8 +73,8 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
             input.y >= room.y &&
             input.x + input.width <= room.right + 1 &&
             input.y + input.height <= room.bottom + 1 &&
-            input.y >= 0 &&
-            input.bottom <= innerHeight &&
+            input.y >= visibleTop - 1 &&
+            input.bottom <= visibleBottom + 1 &&
             document.documentElement.scrollWidth <=
               document.documentElement.clientWidth,
         };
@@ -77,6 +83,13 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
     })
     .toBe(true);
 }
+
+export {
+  clearSoftKeyboardViewport,
+  expectControlInVisualViewport,
+  hideKeyboardControl,
+  simulateSoftKeyboardViewport,
+} from "./touchTerminalSoftKeyboardPage.ts";
 
 export async function focusByTouch(panel: Locator) {
   await tapWhereShown(panel.locator(".xterm-screen"));

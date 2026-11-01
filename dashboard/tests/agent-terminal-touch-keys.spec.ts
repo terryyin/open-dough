@@ -16,6 +16,7 @@ import {
   composeToggle,
   expectMinTouchTarget,
   focusByTouch,
+  hideKeyboardControl,
   insertDraftButton,
   noteTerminalTraffic,
   scrollByTouch,
@@ -203,6 +204,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await expect(composeToggle(panel)).toBeHidden();
     await expect(terminalComposerDraft(panel)).toHaveCount(0);
     await expect(insertDraftButton(panel)).toHaveCount(0);
+    await expect(hideKeyboardControl(panel)).toBeHidden();
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
   });
 });

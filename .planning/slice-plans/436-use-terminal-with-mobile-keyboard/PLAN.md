@@ -110,10 +110,12 @@ direct typing remains available
 
 ### 4. Fit the terminal to the soft keyboard and orientation
 Type: Behavior
-Status: planned
-Proof: Phone viewport reduced-height / orientation / hide-keyboard cases;
-controls reachable; attachment and composer draft survive; desktop layout
-unaffected.
+Status: done
+Proof: Accepted — `agent-terminal-touch-keyboard-fit.spec.ts`: simulated
+`visualViewport` fit; Hide keyboard blurs without detach; toolbar/composer/Close
+reachable at reduced height; draft + attachment survive rotate; desktop omits
+fit chrome. Neighbors keys/composer/touch/voice green. Source-review 1, 2,
+7.1–7.4, 10.4, E6 observed. Residual: physical iOS IME still unsettled (waived).
 
 ```
 Behavior: terminal open on phone → soft keyboard opens or hides, or device
@@ -121,6 +123,7 @@ rotates; user uses hide-keyboard → terminal, toolbar, and composer actions fit
 the visible area; Close stays reachable; attachment, typed input, and unsent
 draft survive without reconnect solely to re-fit
 ```
+
 
 ### 5. Physical iPhone Safari acceptance of the finished chrome
 Type: Behavior
@@ -152,8 +155,8 @@ completion and returns to the owning slice’s repair
   Remains unsettled; physical probe and acceptance waived 2026-11-01. Proceed
   with planned approach; residual IME risk accepted for this story.
 - **`visualViewport` (or equivalent) can drive Side panel fit without breaking
-  covering layout.** Unsettled until slice 4 implements and proves it; no
-  current product use. Approach hypothesis only; slice 4 owns the observation.
+  covering layout.** Settled for phone-viewport automation (slice 4 fit spec);
+  residual real-iOS IME interaction remains waived with slices 1/5.
 
 ## Current decisions
 

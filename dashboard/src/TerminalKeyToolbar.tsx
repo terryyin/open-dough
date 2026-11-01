@@ -2,7 +2,8 @@
 // phone soft keyboard does not supply, on the same attachment input path as
 // typing, without dismissing that soft keyboard (Blink-style pointerdown
 // preventDefault so xterm's textarea keeps focus). Owns the optional Compose
-// reveal so phone chrome stays one accessory mount beside the screen.
+// reveal and an explicit Hide keyboard control so phone chrome stays one
+// accessory mount beside the screen.
 
 import { useState, type PointerEvent } from "react";
 import { TerminalComposer } from "./TerminalComposer.tsx";
@@ -77,6 +78,24 @@ function ToolbarToggle({
   );
 }
 
+// Blurs the focused field so the soft keyboard can dismiss; unlike sequence
+// keys, it must not preventDefault on pointerdown or focus would stay put.
+function HideKeyboardKey() {
+  return (
+    <button
+      type="button"
+      className="terminal-key-toolbar-key"
+      aria-label="Hide keyboard"
+      onClick={() => {
+        const active = document.activeElement;
+        if (active instanceof HTMLElement) active.blur();
+      }}
+    >
+      Hide
+    </button>
+  );
+}
+
 export function TerminalKeyToolbar({
   insert,
 }: {
@@ -109,6 +128,7 @@ export function TerminalKeyToolbar({
           />
           {moreOpen && (
             <>
+              <HideKeyboardKey />
               <ToolbarToggle
                 name="Compose"
                 label="Compose"
