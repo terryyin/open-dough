@@ -358,6 +358,7 @@ test.describe("the Sessions sidebar's title row status", () => {
     await test.step("seen again, a host read at once", async () => {
       await setPageVisibility(page, "visible");
       await expect.poll(() => reads.asked()).toBe(3);
+      await expect.poll(() => reads.answers.length).toBe(3);
     });
   });
 });
