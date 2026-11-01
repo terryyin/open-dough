@@ -1,6 +1,6 @@
 // Custom SVG marks for the Development and Intent perspective choices
 // (./PerspectiveSelect.tsx). Same stroke-weight language as frame Lucide
-// icons (./Icon.tsx); decorative beside the visible labels. Structure is
+// icons (./Icon.tsx); decorative, since each choice carries its name. Structure is
 // not offered here.
 
 import type { ReactNode } from "react";
@@ -30,14 +30,16 @@ function PerspectiveMark({
   );
 }
 
-// Work in flight on the board: three story-card shapes, staggered as cards
-// mid-progress — not a code bracket or hammer.
+// Incremental and iterative delivery: a turning cycle around bars that grow
+// with each pass — not a staggered cascade, which reads as waterfall.
 export function DevelopmentMark() {
   return (
     <PerspectiveMark mark="development">
-      <rect x="3" y="3.5" width="13" height="5" rx="1.25" />
-      <rect x="5.5" y="9.5" width="13" height="5" rx="1.25" />
-      <rect x="8" y="15.5" width="13" height="5" rx="1.25" />
+      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M8.5 16v-2" />
+      <path d="M12 16v-4.5" />
+      <path d="M15.5 16v-7" />
     </PerspectiveMark>
   );
 }

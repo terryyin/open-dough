@@ -1,6 +1,7 @@
 // Development and Intent meaning marks (../src/PerspectiveMarks.tsx): each
-// perspective choice keeps its accessible name and shows one decorative SVG
-// that differs from the other. Structure is not offered.
+// perspective choice keeps its accessible name and shows only one decorative
+// SVG, no visible words, that differs from the other. Structure is not
+// offered.
 
 import { expect, type Locator } from "@playwright/test";
 
@@ -30,4 +31,8 @@ export async function expectPerspectiveMeaningMarks({
     await intentMark.innerHTML(),
   );
   await expect(perspective.locator("svg")).toHaveCount(2);
+  // Only the styled tooltip, while hovered or focused, shows the name.
+  await expect(
+    perspective.locator("label > span:not(.frame-tooltip)"),
+  ).toHaveText(["", ""]);
 }

@@ -2,7 +2,11 @@
 // completion-ordered across configured projects, completion ages, newest 20,
 // and opening through PageFrame. Room sharing, reopen, Board/final-report
 // destinations, and older paging live beside this file.
-import { standaloneSessionName, parts } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  standaloneSessionName,
+  parts,
+} from "./dashboardPage.ts";
 import { browserLocaleString } from "./browserLocale.ts";
 import {
   doneRecord,
@@ -174,9 +178,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await shown.entry(newestTitle).click();
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(panel.getByRole("heading")).toHaveText(newestTitle);
-    await expect(
-      parts(page).project.getByRole("radio", { name: "Doughnut" }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Doughnut");
     const local = parts(page).recentlyDone.getByRole("article", {
       name: standaloneSessionName("Ad hoc", newestTitle),
     });

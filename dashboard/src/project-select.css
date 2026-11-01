@@ -26,10 +26,13 @@
   cursor: pointer;
 }
 
-/* Marks sit beside the labels; slightly tighter than project tabs so the
-   pair still fits the phone one-line banner (./banner.css ≤400px). */
+/* Icon-only: the mark is the whole visual, its name in the tooltip. */
 .perspective-choice {
   padding-inline: var(--space-2);
+}
+
+.perspective-choice:has(> input:hover, > input:focus-visible) > .frame-tooltip {
+  display: block;
 }
 
 :is(.project-choice, .perspective-choice) input {
@@ -49,13 +52,13 @@
   background: var(--hover);
 }
 
-:is(.project-choice, .perspective-choice) span {
+:is(.project-choice, .perspective-choice) input + span {
   position: relative;
   pointer-events: none;
   white-space: nowrap;
 }
 
-.perspective-choice span {
+.perspective-choice input + span {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -63,8 +66,8 @@
 
 .perspective-choice .perspective-mark {
   flex: none;
-  width: 1rem;
-  height: 1rem;
+  width: var(--icon-size);
+  height: var(--icon-size);
 }
 
 :is(.project-choice, .perspective-choice) input:checked {
@@ -74,15 +77,6 @@
 
 :is(.project-choice, .perspective-choice) input:checked + span {
   color: var(--raised-surface);
-}
-
-/* In a narrow page column (./banner.css) the project choices share the
-   banner's second row evenly. */
-@container page (max-width: 900px) {
-  .project-choice {
-    flex: 1;
-    padding-inline: var(--space-1);
-  }
 }
 
 @media (any-pointer: coarse) {

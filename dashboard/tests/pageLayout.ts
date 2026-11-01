@@ -111,20 +111,38 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
     .map((element) => element.tagName + ": " + (element.textContent ?? "").slice(0, 60));
 })()`;
 
-// Compact project select may truncate on the phone one-line banner
-// (../src/banner.css ≤400px); pass as cut-by-design to whole-text checks.
+// Compact project select may truncate on the one-line banner
+// (../src/banner.css), which shows it at any width the tabs do not fit; the
+// whole-text checks below always treat it as cut by design.
 export const compactProjectSelectCut = [".project-title-select"] as const;
 
 // The page fits the window and its text is read whole, apart from parts that
 // are cut by design and read whole elsewhere, such as a Sessions sidebar
 // entry's title, or a terminal's own scrolling screen. The page is measured
 // once no read of the published work is on its way, so what it measures is
-// the work shown, not the line saying it is being read.
+// the work shown, not the line saying it is being read, as the next frame
+// paints it.
 export async function expectNoSidewaysScrollAndWholeText(
   page: Page,
-  cutByDesign: readonly string[] = [],
+  partsCutByDesign: readonly string[] = [],
 ) {
+  const cutByDesign = [...compactProjectSelectCut, ...partsCutByDesign];
   await untilPublishedWorkRead(page);
+  // Measure what a frame paints: layout that follows a resize observer,
+  // such as the banner's project tabs giving way to the compact select,
+  // settles in the rendering step before that paint. A new observer's first
+  // notice comes in that step after the page's own (a paused page clock
+  // stops animation frames, not rendering).
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        const observer = new ResizeObserver(() => {
+          observer.disconnect();
+          resolve();
+        });
+        observer.observe(document.documentElement);
+      }),
+  );
   expect(
     await page.evaluate(
       "document.documentElement.scrollWidth <= document.documentElement.clientWidth",
@@ -170,7 +188,7 @@ export async function pressWhereShown(control: Locator) {
 
 // Selected project id under the page column. Covering aria-hides the column,
 // so role queries miss it; CSS still reaches the checked project radio, or at the
-// compact wrap width the title button's data-project-id
+// compact project control the title button's data-project-id
 // (./support/reportTouchJourney.ts).
 export async function pageColumnProjectValue(
   page: Page,

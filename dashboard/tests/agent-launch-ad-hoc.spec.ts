@@ -11,7 +11,12 @@ import {
   startSessionDialog,
   startSessionField,
 } from "./launchStoryCardPage.ts";
-import { expectMembership, parts, sessionNamedBy } from "./dashboardPage.ts";
+import {
+  chooseProject,
+  expectMembership,
+  parts,
+  sessionNamedBy,
+} from "./dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -43,7 +48,7 @@ test("Start session sits at the end opposite Near-future direction beside the he
   launchJourney,
 }) => {
   await openJourney(page, launchJourney);
-  const { project, directionToggle, preparationHelp } = parts(page);
+  const { directionToggle, preparationHelp } = parts(page);
   const button = startSession(page, "Open Dough");
 
   await expect(button).toHaveText("Start session");
@@ -60,7 +65,7 @@ test("Start session sits at the end opposite Near-future direction beside the he
     Math.abs(start.y + start.height / 2 - (help.y + help.height / 2)),
   ).toBeLessThan(start.height);
 
-  await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
+  await chooseProject(page, "Pygardon");
   await expect(startSession(page, "Pygardon")).toBeVisible();
   await expect(button).toHaveCount(0);
 
@@ -215,8 +220,8 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
 }) => {
   dashboard.claudeScenario("launched");
   await openJourney(page, launchJourney);
-  const { project, recentlyDone } = parts(page);
-  await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
+  const { recentlyDone } = parts(page);
+  await chooseProject(page, "Pygardon");
   const dialog = startSessionDialog(page, "Pygardon");
 
   await startSession(page, "Pygardon").click();
@@ -235,7 +240,7 @@ test("starting on Pygardon uses Pygardon's folder and lists the session in the s
     "what changed last week?",
   );
 
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   await expect(recentlyDone).toContainText(
     "No sessions launched from this dashboard are kept.",
   );

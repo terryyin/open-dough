@@ -6,7 +6,11 @@
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts } from "./dashboardPage.ts";
+import {
+  expectMembership,
+  expectProjectChoice,
+  parts,
+} from "./dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
@@ -55,7 +59,7 @@ test.describe("with the three catalog projects' sessions", () => {
       columnsJourney,
     );
     const { button, entries, entry } = sessionsSidebarParts(page);
-    const { development, intent, intentChoice, project, backlog } = parts(page);
+    const { development, intent, intentChoice, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     await expectMembership(page, openDoughStories);
@@ -67,9 +71,7 @@ test.describe("with the three catalog projects' sessions", () => {
     await test.step("from Open Dough's Intent, the Pygardon entry shows Pygardon's Development stories as one history entry and opens its session there", async () => {
       const before = await historyLength(page);
       await entry(pygardonStory.title).click();
-      await expect(
-        project.getByRole("radio", { name: "Pygardon", exact: true }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Pygardon");
       await expect(development).toBeChecked();
       await expect(intent).toHaveCount(0);
       expect(new URL(page.url()).searchParams.get("perspective")).toBeNull();

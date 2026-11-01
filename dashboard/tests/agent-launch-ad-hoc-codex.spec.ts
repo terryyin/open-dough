@@ -4,7 +4,7 @@ import { realpathSync } from "node:fs";
 import path from "node:path";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { openTakenBacklog, startSessionField } from "./launchStoryCardPage.ts";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice, parts } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
@@ -185,12 +185,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await sidebar.button.click();
       await expect(sidebar.entries).toHaveCount(1);
       await sidebar.entry(label).click();
-      await expect(
-        parts(page).project.getByRole("radio", {
-          name: "Open Dough",
-          exact: true,
-        }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Open Dough");
       await expect(recent.getByText("Shown in terminal")).toBeVisible();
       await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
       await expect(sidebar.entry(label)).toHaveAttribute(

@@ -4,7 +4,7 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import { launch, refinementRequest } from "./agentLaunchBoundary.ts";
-import { storyCardSessions, parts } from "./dashboardPage.ts";
+import { chooseProject, storyCardSessions, parts } from "./dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -100,16 +100,12 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
   // A project change preserves the page's one current native attachment.
-  await parts(page)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await chooseProject(page, "Doughnut");
   await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
     notRefinedStory,
   );
   expect(codexAttaches(native)).toHaveLength(1);
-  await parts(page)
-    .project.getByRole("radio", { name: "Open Dough", exact: true })
-    .check();
+  await chooseProject(page, "Open Dough");
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(panel).toHaveCount(0);
   await expect

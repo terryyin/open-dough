@@ -10,7 +10,12 @@
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership, parts, rosterParts } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  expectMembership,
+  parts,
+  rosterParts,
+} from "./dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -55,7 +60,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     );
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
     const { roster } = rosterParts(page);
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const shownMark = page.getByText("Shown in terminal", { exact: true });
     const pygardonStoryCard = backlog.getByRole("article", {
@@ -71,9 +76,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       const before = await historyLength(page);
       const release = holdPygardonStories();
       await entry(pygardonStory.title).click();
-      await expect(
-        project.getByRole("radio", { name: "Pygardon", exact: true }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Pygardon");
       expectRoute(page, { project: "pygardon", view: null });
       expect(await historyLength(page)).toBe(before + 1);
       await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);

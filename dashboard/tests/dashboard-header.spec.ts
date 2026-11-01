@@ -1,8 +1,8 @@
 // The pinned banner in each of its page-column layouts (../src/banner.css,
-// ../src/project-select.css): one row on a column wider than 900 CSS pixels,
-// Sessions (Open Dough mark as its visual), perspective, project choices, and
-// System settings; two rows up to 900, with project choices on the second; and
-// at or under 400, one row with the compact title select. One journey per
+// ../src/project-select.css): always one row, Sessions (Open Dough mark as its
+// visual), icon-only perspective, project choices, and System settings. The
+// project tabs show while they fit on that row; otherwise the compact title
+// select takes their place, even well above phone width. One journey per
 // layout walks the keyboard back up a long page: the banner stays pinned and
 // short, the mark-as-Sessions toggle leads it, nothing is cut short, and no
 // focused control is hidden under it. Wider layouts also check each choice
@@ -39,9 +39,10 @@ import { settings } from "./support/systemSettingsPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
 const layouts = [
-  { width: 1280, height: 800, rows: 1, compact: false },
-  { width: 700, height: 720, rows: 2, compact: false },
-  { ...zoomedWindow, rows: 1, fontFamily: "Verdana", compact: true },
+  { width: 1280, height: 800, compact: false },
+  { width: 700, height: 720, compact: false },
+  { width: 520, height: 720, compact: true },
+  { ...zoomedWindow, fontFamily: "Verdana", compact: true },
 ] as const;
 
 for (const viewport of layouts) {
@@ -120,49 +121,34 @@ for (const viewport of layouts) {
       viewport.compact ? [...compactProjectSelectCut] : [],
     );
 
-    if (viewport.rows === 1) {
-      await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
-        const gear = settings(page);
-        const projectName = viewport.compact ? projectCompact : project;
-        const inOrder = [sessions, perspective, projectName, gear];
-        await expectSideBySideInOrder(inOrder);
-        const middles = (await Promise.all(inOrder.map(box))).map(
-          ({ y, height }) => y + height / 2,
-        );
-        for (const middle of middles)
-          expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
-        const controls = banner
-          .locator(
-            "button, input, select, textarea, summary, a[href], [tabindex]",
-          )
-          .filter({ visible: true });
-        await expect(controls.last()).toHaveAccessibleName("System settings");
-        // Sessions (mark) leads the banner as the first keyboard stop.
-        await expect(controls.first()).toHaveAccessibleName("Sessions");
-        await controls.first().focus();
-        await page.keyboard.press("Shift+Tab");
-        await expect(banner.locator(":focus")).toHaveCount(0);
-        const gearBox = await box(gear);
-        for (const right of await controls.evaluateAll((all) =>
-          all.map((element) => element.getBoundingClientRect().right),
-        )) {
-          expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
-        }
-      });
-    }
-
-    if (viewport.rows === 2) {
-      await test.step("Sessions and perspective share the first row; project choices the second", async () => {
-        const middle = ({ y, height }: { y: number; height: number }) =>
-          y + height / 2;
-        const choices = await box(perspective);
-        const sessionsBox = await box(sessions);
-        const projectBox = await box(project);
-        await expectSideBySideInOrder([sessions, perspective, settings(page)]);
-        expect(middle(choices)).toBeCloseTo(middle(sessionsBox), 0);
-        expect(projectBox.y).toBeGreaterThanOrEqual(choices.y + choices.height);
-      });
-    }
+    await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
+      const gear = settings(page);
+      const projectName = viewport.compact ? projectCompact : project;
+      const inOrder = [sessions, perspective, projectName, gear];
+      await expectSideBySideInOrder(inOrder);
+      const middles = (await Promise.all(inOrder.map(box))).map(
+        ({ y, height }) => y + height / 2,
+      );
+      for (const middle of middles)
+        expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
+      const controls = banner
+        .locator(
+          "button, input, select, textarea, summary, a[href], [tabindex]",
+        )
+        .filter({ visible: true });
+      await expect(controls.last()).toHaveAccessibleName("System settings");
+      // Sessions (mark) leads the banner as the first keyboard stop.
+      await expect(controls.first()).toHaveAccessibleName("Sessions");
+      await controls.first().focus();
+      await page.keyboard.press("Shift+Tab");
+      await expect(banner.locator(":focus")).toHaveCount(0);
+      const gearBox = await box(gear);
+      for (const right of await controls.evaluateAll((all) =>
+        all.map((element) => element.getBoundingClientRect().right),
+      )) {
+        expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
+      }
+    });
 
     expect(origin.requests).toHaveLength(2);
 

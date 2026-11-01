@@ -14,7 +14,11 @@
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { launch } from "./agentLaunchBoundary.ts";
-import { parts, standaloneSessionName } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  parts,
+  standaloneSessionName,
+} from "./dashboardPage.ts";
 import { rem } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { placedAt } from "./recentlyDoneProgressive.ts";
@@ -131,9 +135,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     await row.click();
 
     await test.step("Open Dough's Recently done lists entries through 27 at once, asking only for their records, and brings none into view while the held one is read", async () => {
-      await expect(
-        project.getByRole("radio", { name: "Open Dough", exact: true }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Open Dough");
       await expect(view.heldCard).toContainText("Reading done story…");
       await expect(entry).toBeVisible();
       await expect(shownEntries(recent)).toHaveCount(destination);

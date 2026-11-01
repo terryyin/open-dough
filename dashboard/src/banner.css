@@ -1,16 +1,14 @@
-/* The pinned banner: one row on a wide page column. Sessions (Open Dough's
-   mark as its visual), the perspective choices, the project choices, and
+/* The pinned banner: always one row. Sessions (Open Dough's mark as its
+   visual), the icon-only perspective choices, the project choices, and
    System settings at the far end. Every control is one control height, and
-   the icon controls share one look (./icon-control.css). An empty flexible
-   track keeps the perspective at the start and the project choices at the
-   end. */
+   the icon controls share one look (./icon-control.css). The flexible track
+   holds the project choices at its end: the tabs while they fit on that one
+   line, otherwise the compact title select filling it (./ProjectSelect.tsx). */
 .banner {
   flex-shrink: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns:
-    auto auto minmax(0, 1fr) auto
-    var(--control-size);
+  grid-template-columns: auto auto minmax(0, 1fr) var(--control-size);
   grid-template-rows: minmax(var(--control-size), auto);
   align-items: center;
   gap: var(--space-1) var(--space-2);
@@ -32,16 +30,50 @@
   grid-row: 1;
 }
 
-/* Compact title select (./ProjectSelect.tsx): shown where the tab list no
-   longer fits; hidden on wider columns so the tab radios own the name. */
-.banner .project-title-select {
-  display: none;
+.banner .project-slot {
   position: relative;
   grid-column: 3;
   grid-row: 1;
+  display: flex;
+  justify-content: flex-end;
   min-width: 0;
-  max-width: 100%;
+  margin-right: var(--space-2);
+}
+
+/* The tabs keep one line at their own width; without room for it they are
+   neither seen nor reached, yet keep that width inside a one-pixel clipped
+   frame so room is measured again. */
+.banner .project-tabs {
+  display: flex;
+  flex: none;
+}
+
+.banner .project-select {
+  flex: none;
+  flex-wrap: nowrap;
+  width: max-content;
+}
+
+.banner .project-slot[data-compact] .project-tabs {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* Compact title select (./ProjectSelect.tsx): shown in place of the tabs
+   when they do not fit, filling the room and truncating its name. */
+.banner .project-title-select {
+  display: none;
+  position: relative;
+  flex: 1;
+  min-width: 0;
   align-self: center;
+}
+
+.banner .project-slot[data-compact] .project-title-select {
+  display: block;
 }
 
 .banner .project-title-select-button {
@@ -62,11 +94,15 @@
   background-size: 0.3em 0.3em;
   background-repeat: no-repeat;
   font: inherit;
-  font-size: inherit;
+  min-height: var(--control-size);
+  font-size: var(--text-md);
   font-weight: var(--weight-strong);
   letter-spacing: -0.01em;
   color: inherit;
   text-align: start;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -105,114 +141,11 @@
   flex-wrap: nowrap;
 }
 
-.banner .project-select {
+.banner .settings-control {
   grid-column: 4;
   grid-row: 1;
-  justify-self: end;
-  margin-right: var(--space-2);
-}
-
-.banner .settings-control {
-  grid-column: 5;
-  grid-row: 1;
-}
-
-/* A narrow page column (./side-panel.css), whether the window is narrow
-   or the Sessions sidebar or the side panel shares it, takes a second row
-   for the project choices when the tab list no longer shares the first. */
-@container page (max-width: 900px) {
-  .banner {
-    grid-template-rows: minmax(var(--control-size), auto) auto;
-    column-gap: var(--space-1);
-    padding-block: var(--space-2);
-  }
-
-  .banner .sessions-toggle-group {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .banner .perspective-select {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .banner .settings-control {
-    grid-column: 5;
-    grid-row: 1;
-  }
-
-  .banner .project-select {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-self: stretch;
-    margin-right: 0;
-  }
 }
 
 @container page (max-width: 800px) {
   .project-action-target { display: none; }
-}
-
-/* At the compact project breakpoint, the title is the one project selector;
-   separate tabs are not shown. Sessions (mark), labelled perspective, compact
-   title, and System settings share one row: the title track shrinks and may
-   truncate so the page does not scroll sideways. */
-@container page (max-width: 400px) {
-  .banner {
-    grid-template-rows: minmax(var(--control-size), auto);
-    padding-block: var(--space-1);
-  }
-
-  .banner .project-select {
-    display: none;
-  }
-
-  .banner .sessions-toggle-group {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .banner .perspective-select {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: start;
-    min-width: 0;
-    padding: 2px;
-  }
-
-  .banner .perspective-choice {
-    padding-inline: 2px;
-    font-size: var(--text-xs);
-  }
-
-  .banner .perspective-choice span {
-    gap: 2px;
-  }
-
-  .banner .perspective-choice .perspective-mark {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
-
-  .banner .project-title-select {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    grid-column: 3;
-    grid-row: 1;
-  }
-
-  .banner .settings-control {
-    grid-column: 5;
-    grid-row: 1;
-  }
-
-  .banner .project-title-select-button {
-    min-height: var(--control-size);
-    font-size: var(--text-md);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }

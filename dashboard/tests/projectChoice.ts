@@ -6,7 +6,8 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
 
 // Whichever project control the banner is showing: the compact title button
-// at the wrap width, otherwise the selected tab-shaped radio.
+// when the tabs do not fit on the banner's one row, otherwise the selected
+// tab-shaped radio.
 export function shownProjectControl(page: Page): Locator {
   const { project, projectCompact } = parts(page);
   return projectCompact.or(project.getByRole("radio", { checked: true }));
@@ -38,16 +39,18 @@ export async function expectProjectChoice(
   label: string,
 ): Promise<void> {
   const { project, projectCompact } = parts(page);
-  if (await projectCompact.isVisible()) {
-    await expect(projectCompact).toHaveText(label);
-    return;
-  }
+  // Opening a sidebar or panel can narrow the column and swap the shown
+  // control, so wait for either one naming the project.
   await expect(
-    project.getByRole("radio", { name: label, exact: true }),
-  ).toBeChecked();
+    projectCompact
+      .filter({ hasText: new RegExp(`^${label}$`) })
+      .or(
+        project.getByRole("radio", { name: label, exact: true, checked: true }),
+      ),
+  ).toBeVisible();
 }
 
-// Compact title select at the wrap width: tabs are gone, the title control
+// Compact title select when the tabs do not fit: tabs are gone, the title control
 // names the project, and Escape leaves the list without a choice while
 // keeping focus on the control.
 export async function expectCompactProjectSelect(

@@ -1,4 +1,4 @@
-// Compact title select on a phone-width column (../src/banner.css ≤400px):
+// Compact title select on a phone-width column (../src/banner.css):
 // one-line banner with mark-as-Sessions toggle, labelled perspective, compact
 // project select (may truncate), and settings; touch and keyboard choose a
 // project, Escape leaves the selection, resize keeps it across tab radios and

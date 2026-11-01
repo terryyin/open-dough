@@ -71,7 +71,7 @@ test("body reading keys use native Board scrolling while focused controls and mo
 });
 
 for (const viewport of [
-  { width: 1400, height: 420 },
+  { width: 1400, height: 360 },
   { width: 700, height: 800 },
 ]) {
   test(`URL and Session entry reveal a tall card's top within the Board at ${viewport.width}×${viewport.height}`, async ({

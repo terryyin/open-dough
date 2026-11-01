@@ -1,7 +1,11 @@
 // Destinations from Recently done sessions: Board reveal beyond the first ten
 // and a Codex final-report panel.
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
-import { standaloneSessionName, parts } from "./dashboardPage.ts";
+import {
+  expectProjectChoice,
+  standaloneSessionName,
+  parts,
+} from "./dashboardPage.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
@@ -115,9 +119,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
     await shown.entry(instruction).click();
 
     await test.step("Open Dough's Board Recently done extends through entry 27 while the held story reads", async () => {
-      await expect(
-        project.getByRole("radio", { name: "Open Dough", exact: true }),
-      ).toBeChecked();
+      await expectProjectChoice(page, "Open Dough");
       await expect(view.heldCard).toContainText("Reading done story…");
       await expect(boardEntry).toBeVisible();
       await expect(shownEntries(recent)).toHaveCount(destination);

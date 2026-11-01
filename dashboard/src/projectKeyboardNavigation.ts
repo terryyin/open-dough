@@ -129,7 +129,7 @@ function isShown(element: Element): boolean {
 }
 
 // Focus whichever project control the banner is showing: the compact title
-// select at the wrap width, otherwise the selected tab-shaped radio.
+// select when the tabs do not fit, otherwise the selected tab-shaped radio.
 function focusShownProjectControl(): void {
   const compactRoot = document.querySelector(`.${projectCompactSelectClass}`);
   const compact =
