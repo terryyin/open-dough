@@ -46,10 +46,10 @@ No replacement terminal engine and no separate mobile app.
 with swipes that move menus instead of history, would miss it. The strongest
 remaining doubt is that short direct typing into xterm’s hidden textarea can
 still mis-behave under iOS predictive IME even after the toolbar and composer
-land; the composer mitigates longer drafts, and physical iPhone observation is
-the gate for whether direct typing is actually comfortable. That risk does not
-change the selected outcome: keep direct typing and the composer both in scope,
-and prove them on a real device rather than shrinking the promise preemptively.
+land; the composer mitigates longer drafts. On 2026-11-01 the developer waived
+physical iPhone Safari observation for this story; phone-viewport automated
+proof stands in for the device gate. That risk does not change the selected
+outcome: keep direct typing and the composer both in scope.
 
 **Scope:**
 
@@ -82,11 +82,10 @@ and prove them on a real device rather than shrinking the promise preemptively.
   to fit the panel.
 - **Proof:** Cover stable behavior with proportionate automated checks on the
   real browser → terminal → PTY path for text, special keys, and interactive
-  selection. Story completion also requires a recorded physical iPhone Safari
-  observation (iOS version, keyboard, host/application, keyboard visibility,
-  orientation). Desktop mobile emulation alone does not close the device gate.
-  The 2026-10-13 mobile observation explicitly excluded physical iOS keyboard
-  behavior and does not satisfy this gate. Apply the repository’s
+  selection, including phone-viewport journeys. Physical iPhone Safari
+  observation is waived for this story (developer, 2026-11-01); desktop
+  phone-viewport automation closes the device-shaped gate. Apply the
+  repository’s
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
 
 **Scope limits (deferred promises, not rejections):**

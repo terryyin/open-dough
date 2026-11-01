@@ -2,6 +2,7 @@
 
 **Identity:** SEED-212#use-terminal-with-mobile-keyboard
 **Source:** [selected story](../../seeds/SEED-212-mobile-terminal-input.md#use-terminal-with-mobile-keyboard).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -52,25 +53,22 @@ ADR 0007 / 0009 remain Proposed and unbound here.
 
 | Story promise / example | Slice | Observable proof |
 | --- | --- | --- |
-| Observe current iPhone typing / menu / scroll failures before locking IME details | 1 | Developer-operated physical iPhone Safari record of the pre-change symptoms (iOS version, keyboard shown/hidden, host/application, orientation); shapes slices 2–4 if direct typing or focus retention needs a different approach |
+| Observe current iPhone typing / menu / scroll failures before locking IME details | 1 | Waived 2026-11-01 by developer (skip real iPhone test); proceed with planned Blink-style toolbar / insert / visualViewport approach; unsettled IME premises stay noted |
 | Tap Down twice + Enter selects a menu option; Esc cancels; Tab / Left / Right edit; Ctrl+C interrupts; keyboard visibility preserved | 2 | New or extended phone-viewport Playwright journey on the real browser→xterm→WebSocket→PTY path: toolbar buttons send the expected input bytes; option-menu fixture moves; focus stays on the terminal textarea after toolbar taps; expandable Ctrl+C present |
 | Swipe scrolls history without changing sent input or menu selection; arrows navigate without relying on swipe | 2 | Same journey: swipe changes visible scrollback with `sent` unchanged (as today’s touch-scroll step); with a menu prompt, arrows change selection while swipe does not |
 | Composer Insert places text once without Enter; deliberate Enter submits; unavailable attachment keeps draft for retry, never auto-replays | 3 | Playwright: composer Insert equals transcript-style insert (text in `sent` without `\r`); Enter afterward submits; disconnect/reconnect keeps draft until deliberate Insert |
 | Soft keyboard open/hide and rotate: fit, controls reachable, attachment and unsent draft survive | 4 | Phone viewport + simulated visualViewport / reduced height / orientation cases: toolbar, composer actions, Close reachable; Close not required to re-fit; draft retained across rotate |
 | Desktop hardware keyboard, dictation, ordinary scroll unchanged | 2–4 | Existing `agent-terminal-touch`, voice, and desktop terminal specs stay green; no toolbar on fine-pointer desktop |
-| Physical iPhone Safari acceptance of the finished chrome | 5 | Developer-operated observation after slices 2–4: same fields as slice 1, against the shipped toolbar/composer/fit; desktop emulation alone does not close |
+| Physical iPhone Safari acceptance of the finished chrome | 5 | Waived 2026-11-01 by developer (skip real iPhone test); phone-viewport Playwright from slices 2–4 closes acceptance for this story |
 
 ## Ordered slices
 
 ### 1. Observe current iPhone soft-keyboard and menu-input failures
 Type: Behavior
-Status: planned
-Proof: Developer-operated early probe on physical iPhone Safari against the
-current dashboard (pre-toolbar). Record iOS version, soft keyboard
-shown/hidden, host/application under test, orientation, and what fails for
-typing, scrolling, and option-menu navigation. Failure or a surprising IME
-detail stops dependent slices and revises their approach in this plan before
-implementation continues.
+Status: done
+Proof: Waived 2026-11-01 by developer instruction “skip the real iphone test.”
+No physical probe recorded. Remaining slices keep the planned approach;
+Decisive premises for iOS IME stay unsettled and accepted as residual risk.
 
 ```
 Behavior: current phone dashboard open with a live terminal → developer
@@ -82,9 +80,7 @@ constraint slices 2–4 must respect
 ### 2. Phone key toolbar and scroll-versus-navigate
 Type: Behavior
 Status: planned
-Proof: Phone-viewport Playwright on the real attachment path; toolbar input
-bytes and menu selection; swipe leaves `sent` unchanged; existing touch and
-desktop terminal neighbors remain green.
+Proof: Accepted — `PATH="/opt/homebrew/bin:$PATH" npm run test:dashboard -- dashboard/tests/agent-terminal-touch-keys.spec.ts` (and neighbor `agent-terminal-touch.spec.ts`): toolbar Esc/Tab/arrows/Enter + expandable Ctrl+C reach PTY `sent`; Esc cancels attach-menu; Down×2+Enter confirms; swipe leaves `sent` and selection unchanged; textarea stays focused after toolbar taps; desktop fine-pointer hides toolbar; Close and session identity reachable. Source-review commitments 3–4.11, 6.*, 8.1–8.3, 9.1, 9.3–9.4, 10.1–10.2, 10.5–10.6, E1–E3, E5, E7 observed.
 
 ```
 Behavior: coarse-pointer terminal open → tap toolbar Esc/Tab/arrows/Enter and
@@ -125,11 +121,9 @@ draft survive without reconnect solely to re-fit
 ### 5. Physical iPhone Safari acceptance of the finished chrome
 Type: Behavior
 Status: planned
-Proof: Developer-operated observation after slices 2–4. Record iOS version,
-keyboard, host/application, keyboard visibility, and orientation against the
-key examples (menu arrows, toolbar with keyboard up, short direct typing,
-composer Insert, swipe vs arrows, fit/rotate). The 2026-10-13 Chromium mobile
-observation does not close this gate.
+Proof: Waived 2026-11-01 by developer instruction “skip the real iphone test,”
+together with slice 1. Story Proof now closes the device-shaped gate via
+phone-viewport automation from slices 2–4.
 
 ```
 Behavior: finished phone terminal chrome on physical iPhone Safari → developer
@@ -151,21 +145,26 @@ completion and returns to the owning slice’s repair
   Settled as the behavior to preserve. Re-run after install is slice 2’s
   regression neighbor.
 - **iOS soft-keyboard visibility and predictive-IME typing on this dashboard.**
-  Unsettled without a physical device. Bounded by early probe slice 1 (symptoms)
-  and acceptance slice 5 (finished chrome). Failure revises slices 2–4.
+  Remains unsettled; physical probe and acceptance waived 2026-11-01. Proceed
+  with planned approach; residual IME risk accepted for this story.
 - **`visualViewport` (or equivalent) can drive Side panel fit without breaking
   covering layout.** Unsettled until slice 4 implements and proves it; no
   current product use. Approach hypothesis only; slice 4 owns the observation.
 
 ## Current decisions
 
+- Developer waived physical iPhone Safari probe and acceptance (2026-11-01:
+  “skip the real iphone test”). Slices 1 and 5 are done under that waiver;
+  phone-viewport Playwright owns the device-shaped proof.
 - One backlog story; delivery order is toolbar + scroll/navigate, then
-  composer, then keyboard-fit, with physical observation before locking IME
-  details and again for acceptance.
+  composer, then keyboard-fit.
 - Coarse-pointer media query shows the new chrome; fine-pointer desktop keeps
   today’s terminal chrome.
 - No sticky Ctrl/Alt, long-press repeat, or buffer selection overlay in this
   plan.
+- Slice 2 learning: a wrapping multi-row toolbar broke fitted input at 240px
+  phone height; one horizontal-scrolling row with sticky Enter/More preserves
+  fit and reachability.
 
 ## Concern evidence
 
@@ -176,5 +175,37 @@ special-case recognizers. Interim absence of composer until slice 3 and of
 viewport fit until slice 4 is an accepted delivery order from the story, not a
 remaining concern.
 
-No remaining slice-specific concern identified in this review beyond the
-authorized early-probe / acceptance device observations named in slices 1 and 5.
+Physical iPhone slices 1 and 5 were waived 2026-11-01; no remaining
+slice-specific concern for slices 2–4 beyond residual unsettled IME risk.
+
+## Story obligations
+
+### D1. Sticky Ctrl/Alt deferred
+Reported: slice 2 — "Sticky Ctrl/Alt modifiers"
+Story clause: "Sticky Ctrl/Alt modifiers (tap modifier, then a letter); dedicated **Ctrl+C** is enough for this increment."
+Disposition: excluded "Sticky Ctrl/Alt modifiers (tap modifier, then a letter); dedicated **Ctrl+C** is enough for this increment."
+Commitment: D1
+
+### D2. Long-press key repeat deferred
+Reported: slice 2 — "Long-press key repeat on toolbar arrows"
+Story clause: "Long-press key repeat on toolbar arrows."
+Disposition: excluded "Long-press key repeat on toolbar arrows."
+Commitment: D2
+
+### D3. Touch text-selection overlay deferred
+Reported: slice 2 — "A general touch text-selection / copy overlay"
+Story clause: "A general touch text-selection / copy overlay over the terminal buffer."
+Disposition: excluded "A general touch text-selection / copy overlay over the terminal buffer."
+Commitment: D3
+
+### D4. Synthetic wheel / host-specific application scroll deferred
+Reported: slice 2 — "Synthetic wheel or host-specific parsing"
+Story clause: "Synthetic wheel or host-specific parsing for application-internal scrollers."
+Disposition: excluded "Synthetic wheel or host-specific parsing for application-internal scrollers."
+Commitment: D4
+
+### D5. New engine / mobile app / second session path deferred
+Reported: slice 2 — "A new terminal engine, separate mobile app, or second session path"
+Story clause: "A new terminal engine, separate mobile app, or second session path."
+Disposition: excluded "A new terminal engine, separate mobile app, or second session path."
+Commitment: D5
