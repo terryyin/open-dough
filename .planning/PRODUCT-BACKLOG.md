@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Assess the value and cost of recorded dashboard tests](seeds/SEED-207-dashboard-test-value.md#assess-dashboard-test-value) — SEED-207#assess-dashboard-test-value
-
 ## Backlog list
 
 - [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost
