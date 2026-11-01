@@ -1,12 +1,14 @@
-// Configured Intent locations browser (`./IntentPerspective.tsx`): Purpose
-// shows a selected feature's published text with line numbers and Gherkin
-// styling; Proof says none is available yet. A failed file read keeps its
-// own explanation and retry while the location tree stays usable.
+// Configured Intent locations browser (`./IntentPerspective.tsx`): each
+// location is an exclusive expandable group; Purpose shows a selected
+// feature's published text with line numbers and Gherkin styling; Proof says
+// none is available yet. A failed file read keeps its own explanation and
+// retry while the location tree stays usable.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
-import { IntentLocationTree } from "./IntentLocationTree.tsx";
+import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -20,6 +22,7 @@ export function IntentBrowser({
   readonly locations: readonly IntentLocation[];
 }) {
   const [selectedPath, setSelectedPath] = useState("");
+  const [expandedPath, setExpandedPath] = useState<string | null>(null);
   const [text, setText] = useState<string | undefined>(undefined);
   const [fileState, setFileState] = useState<
     "none" | "reading" | "ready" | "failed"
@@ -66,12 +69,18 @@ export function IntentBrowser({
       <div className="intent-locations">
         <h3 className="visually-hidden">Purpose locations</h3>
         {locations.map((location) => (
-          <IntentLocationTree
+          <IntentLocationGroup
             key={location.path}
             location={location}
             selectedPath={selectedPath}
             onSelect={setSelectedPath}
-            idPrefix={`intent-${location.path.replaceAll("/", "-")}`}
+            idPrefix={intentLocationIdPrefix(location.path)}
+            expanded={expandedPath === location.path}
+            onToggle={() => {
+              setExpandedPath((was) =>
+                was === location.path ? null : location.path,
+              );
+            }}
           />
         ))}
       </div>

@@ -1,10 +1,15 @@
 // Intent distinguishes unusable locations and failed reads
 // (../src/IntentPerspective.tsx): empty or missing paths, pattern misses,
 // unsupported kinds, failed reads with retry, and settings problems, while
-// other locations stay browseable.
+// other locations stay browseable after expanding their group.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
+import {
+  expandIntentGroup,
+  expectIntentGroupsCollapsed,
+  intentGroupToggle,
+} from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
@@ -69,14 +74,22 @@ test("Intent names empty, missing, and unsupported locations while others browse
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+  await expectIntentGroupsCollapsed(intent);
 
   await test.step("a missing location and one with no matching files say so by path; the usable location still browses", async () => {
+    await expandIntentGroup(intent, "no_such_dir");
     await expect(intent).toContainText(
       "No gherkin files are published at no_such_dir for this revision.",
+    );
+    await expandIntentGroup(intent, "empty_features");
+    await expect(intentGroupToggle(intent, "no_such_dir")).toHaveAttribute(
+      "aria-expanded",
+      "false",
     );
     await expect(intent).toContainText(
       "No gherkin files are published at empty_features for this revision.",
     );
+    await expandIntentGroup(intent, "e2e_test/features");
     const usable = intent.getByRole("button", {
       name: "e2e_test/features/usable/usable.feature",
       exact: true,
@@ -89,12 +102,14 @@ test("Intent names empty, missing, and unsupported locations while others browse
   });
 
   await test.step("Ex 6: a pattern location with no match names path and patterns; others still browse", async () => {
+    await expandIntentGroup(intent, "scripts");
     await expect(intent).toContainText(
       "No files matching **/*.test.mjs are published at scripts for this revision.",
     );
-    await expect(
-      intent.getByRole("heading", { name: /scripts/ }),
-    ).toContainText("**/*.test.mjs");
+    await expect(intentGroupToggle(intent, "scripts")).toContainText(
+      "**/*.test.mjs",
+    );
+    await expandIntentGroup(intent, "e2e_test/features");
     await expect(
       intent.getByRole("button", {
         name: "e2e_test/features/usable/usable.feature",
@@ -104,7 +119,9 @@ test("Intent names empty, missing, and unsupported locations while others browse
   });
 
   await test.step("kind java says it is not yet supported, naming it; others still browse", async () => {
+    await expandIntentGroup(intent, "frontend/src");
     await expect(intent).toContainText("Kind java is not yet supported.");
+    await expandIntentGroup(intent, "e2e_test/features");
     await expect(
       intent.getByRole("button", {
         name: "e2e_test/features/usable/usable.feature",
@@ -141,6 +158,8 @@ test("Intent names empty, missing, and unsupported locations while others browse
     // the failing route (a second click on the already-selected row does not).
     await page.reload();
     await openUntilRead(page, "/?project=doughnut&perspective=intent");
+    await expectIntentGroupsCollapsed(intent);
+    await expandIntentGroup(intent, "e2e_test/features");
     await intent
       .getByRole("button", {
         name: "e2e_test/features/usable/usable.feature",
@@ -157,9 +176,11 @@ test("Intent names empty, missing, and unsupported locations while others browse
         exact: true,
       }),
     ).toBeVisible();
+    await expandIntentGroup(intent, "no_such_dir");
     await expect(intent).toContainText(
       "No gherkin files are published at no_such_dir for this revision.",
     );
+    await expandIntentGroup(intent, "e2e_test/features");
     await alert.getByRole("button", { name: "Retry" }).click();
     await expect(
       intent.getByLabel("e2e_test/features/usable/usable.feature source"),

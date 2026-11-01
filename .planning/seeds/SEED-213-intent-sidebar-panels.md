@@ -142,7 +142,7 @@ Accepted ADRs; ADR 0007 / 0009 remain Proposed and do not bind this UI change.
 **References:**
 
 - [Current Intent group browser](../../dashboard/src/IntentBrowser.tsx).
-- [Current group file tree](../../dashboard/src/IntentLocationTree.tsx).
+- [Current Intent location group](../../dashboard/src/IntentLocationGroup.tsx).
 - [Existing Sessions sidebar optional sections](../../dashboard/src/SessionsSidebarOptionalSections.tsx)
   and [Recently done section header](../../dashboard/src/RecentlyDoneSessions.tsx).
 - [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).

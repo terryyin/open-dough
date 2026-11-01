@@ -2,6 +2,7 @@
 
 **Identity:** SEED-213#renovate-intent-sidebar
 **Source:** [selected story](../../seeds/SEED-213-intent-sidebar-panels.md#renovate-intent-sidebar).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -20,10 +21,10 @@ dashboard Side panel.
 
 PFE:
 
-- **Intent locations column.** Keep `IntentBrowser` / `IntentLocationTree` and
+- **Intent locations column.** Keep `IntentBrowser` / `IntentLocationGroup` and
   the existing locations-beside-reading grid (`intent-perspective.css`). Own
   exclusive expanded-group state at the browser (or equivalent parent of the
-  group list); each location tree remains the body for one group.
+  group list); each location group remains the body for one location.
 - **Sessions optional-section chrome.** Reuse the interaction pattern from
   `RecentlyDoneSessions` / `RunningCursorSessions` (`sessions-sidebar-section-header`,
   `aria-expanded`, `aria-controls`, body shown only when open)—presentation and
@@ -59,12 +60,18 @@ ADR 0007 / 0009 remain Proposed and unbound here.
 
 ### 1. Exclusive expandable Intent group sections
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright Intent journeys covering start-collapsed, exclusive expand,
 all-closed, selection surviving collapse, empty/unsupported body, nested folder
 local disclosure; existing Intent browse/read/scroll neighbors updated and
 green. Apply the repository's
 [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests).
+
+Accepted focused proof (post-refactor):
+`env -u NO_COLOR -u FORCE_COLOR npm run test:dashboard -- dashboard/tests/intent-gherkin-groups.spec.ts dashboard/tests/intent-gherkin-browse.spec.ts dashboard/tests/intent-code-browse.spec.ts dashboard/tests/intent-gherkin-unusable.spec.ts --workers=2`
+→ pass (6 tests). Exclusive journey in `intent-gherkin-groups.spec.ts`;
+`IntentLocationGroup` + `intentLocationIdPrefix`; exclusive `expandedPath` in
+`IntentBrowser`.
 
 ```
 Behavior: Intent open with several configured groups → expand A, expand B,
@@ -96,6 +103,15 @@ not change Intent group expansion; group headers stay scannable
 - Do not introduce a shared Sessions/Intent section abstraction unless it is
   the simplest local implementation of the likeness promise.
 
+## Learnings
+
+- Collapsed FileTree folder accessible name includes the file count; do not
+  assert exact folder name alone after collapse.
+- Dashboard quiet Playwright reporter treats shell `NO_COLOR`+`FORCE_COLOR`
+  warnings as run failure; unset both for focused npm Intent runs.
+- `intentLocationIdPrefix` must live in a CSS-free `.ts` module so Playwright
+  Node helpers can import it without loading CSS.
+
 ## Concern evidence
 
 Refinement not needed: one Behavior slice owns one exclusive-expand Intent
@@ -103,3 +119,29 @@ locations model with a single outside-in proof loop; no accumulating
 special-case rules or independent second outcome.
 
 No remaining slice-specific concern identified in this review.
+
+## Story obligations
+
+### D1. Persist expanded Intent group deferred
+Reported: slice 1 — "Persisting which Intent group was expanded"
+Story clause: "Persisting which Intent group was expanded across visits, reloads, or projects."
+Disposition: excluded "Persisting which Intent group was expanded across visits, reloads, or projects."
+Commitment: D1
+
+### D2. Auto-expand pre-selected group deferred
+Reported: slice 1 — "Auto-expanding the group that contains a pre-selected or deep-linked file"
+Story clause: "Auto-expanding the group that contains a pre-selected or deep-linked file on mount (no such durable Intent selection exists today)."
+Disposition: excluded "Auto-expanding the group that contains a pre-selected or deep-linked file on mount (no such durable Intent selection exists today)."
+Commitment: D2
+
+### D3. Purpose/Proof layout and configuration deferred
+Reported: slice 1 — "Changing Purpose/Proof layout, Intent location configuration"
+Story clause: "Changing Purpose/Proof layout, Intent location configuration, or how locations and files are published."
+Disposition: excluded "Changing Purpose/Proof layout, Intent location configuration, or how locations and files are published."
+Commitment: D3
+
+### D4. Shared Sessions/Intent component module deferred
+Reported: slice 1 — "Sharing one React component module with Sessions sections"
+Story clause: "Sharing one React component module with Sessions sections unless reuse is the simplest local implementation; visual/behavioral likeness is the promise, not a shared abstraction."
+Disposition: excluded "Sharing one React component module with Sessions sections unless reuse is the simplest local implementation; visual/behavioral likeness is the promise, not a shared abstraction."
+Commitment: D4
