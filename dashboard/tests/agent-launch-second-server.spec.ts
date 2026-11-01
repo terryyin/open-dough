@@ -6,7 +6,7 @@
 import { type AttemptObservation } from "../src/agentLaunch.ts";
 import { accept, attempts, launchRequest } from "./agentLaunchBoundary.ts";
 import { answerOf } from "./keptExecutionStart.ts";
-import { storyCardSessions, parts } from "./dashboardPage.ts";
+import { chooseProject, storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected, openStories, test } from "./responsiveStart.ts";
 import { recoveryOf, worktrees } from "./responsiveRecovery.ts";
@@ -85,10 +85,8 @@ test("a second server follows the live script and native worker, protects its ca
     await reloadUntilRead(page);
     await expectProtected(story);
     await expect(story).toContainText(warning);
-    await parts(page).project.getByRole("radio", { name: "Doughnut" }).click();
-    await parts(page)
-      .project.getByRole("radio", { name: "Open Dough" })
-      .click();
+    await chooseProject(page, "Doughnut");
+    await chooseProject(page, "Open Dough");
     await expectProtected(story);
     await expect(recoveryOf(page)).toHaveCount(0);
     push.release();

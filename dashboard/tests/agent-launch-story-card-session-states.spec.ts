@@ -16,10 +16,10 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { test as base, expect } from "./dashboardTest.ts";
 import {
+  chooseProject,
   storyCardSessionOf,
   storyCardSessions,
   expectMembership,
-  parts,
   sessionNamedBy,
   sessionStateOf,
 } from "./dashboardPage.ts";
@@ -86,7 +86,6 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       page,
       columnsJourney,
     );
-    const { project } = parts(page);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -203,17 +202,13 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         await settled();
         await expectShown();
 
-        await project
-          .getByRole("radio", { name: "Doughnut", exact: true })
-          .check();
+        await chooseProject(page, "Doughnut");
         await expectMembership(page, {
           taken: [],
           backlog: [doughnutSharedTitle],
         });
         await expect(storyCardSessions(page.locator("body"))).toHaveCount(0);
-        await project
-          .getByRole("radio", { name: "Open Dough", exact: true })
-          .check();
+        await chooseProject(page, "Open Dough");
         await expectMembership(page, queued);
         await settled();
         await expectShown();

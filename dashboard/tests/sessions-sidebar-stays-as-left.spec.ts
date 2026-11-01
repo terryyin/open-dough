@@ -8,6 +8,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   storyCardSessionOf,
   expectMembership,
   parts,
@@ -53,7 +54,7 @@ test.describe("the Sessions sidebar as left", () => {
       columnsJourney,
     );
     const { sidebar, button } = sessionsSidebarParts(page);
-    const { project, taken } = parts(page);
+    const { taken } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const expectOpen = async () => {
       await expect(sidebar).toBeVisible();
@@ -66,17 +67,13 @@ test.describe("the Sessions sidebar as left", () => {
     await expectOpen();
 
     await test.step("switching project and back", async () => {
-      await project
-        .getByRole("radio", { name: "Doughnut", exact: true })
-        .check();
+      await chooseProject(page, "Doughnut");
       await expectMembership(page, {
         taken: [],
         backlog: [doughnutSharedTitle],
       });
       await expectOpen();
-      await project
-        .getByRole("radio", { name: "Open Dough", exact: true })
-        .check();
+      await chooseProject(page, "Open Dough");
       await expectMembership(page, queued);
       await expectOpen();
     });

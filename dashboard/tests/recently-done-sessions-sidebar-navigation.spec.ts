@@ -2,6 +2,7 @@
 // and a Codex final-report panel.
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import {
+  chooseProject,
   expectProjectChoice,
   standaloneSessionName,
   parts,
@@ -101,14 +102,14 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
     };
     releaseCatalog();
     const { github, recent } = view;
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     const boardEntry = recent.getByRole("article", { name: entryName });
     await expect(boardEntry).toHaveCount(0);
     await expectEntries(recent, names(10));
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesThrough(10).toSorted(),
     );
-    await project.getByRole("radio", { name: "Pygardon" }).check();
+    await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
 
     const shown = recentlyDoneParts(page);

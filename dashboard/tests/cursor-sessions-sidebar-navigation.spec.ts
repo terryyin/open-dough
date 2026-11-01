@@ -5,7 +5,7 @@
 // Expansion lasts for the page, across project and view changes and closing
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
-import { parts } from "./dashboardPage.ts";
+import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import {
   changesAsked,
@@ -88,7 +88,7 @@ test.describe("with two projects", () => {
     const asked = changesAsked(page);
     await showPage(page, origin);
     const { sidebar, button, header, body } = runningCursorParts(page);
-    const { project, backlog } = parts(page);
+    const { backlog } = parts(page);
     const expanded = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
       await expect(body).toBeVisible();
@@ -98,7 +98,7 @@ test.describe("with two projects", () => {
     await expanded();
 
     await test.step("choosing another project keeps it expanded", async () => {
-      await project.getByRole("radio", { name: "Pygardon" }).check();
+      await chooseProject(page, "Pygardon");
       await expect(backlog).toContainText("A Pygardon story");
       await expanded();
     });

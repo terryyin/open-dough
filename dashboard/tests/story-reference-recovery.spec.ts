@@ -1,6 +1,11 @@
 import { expect } from "./dashboardTest.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectProjectChoice, parts } from "./dashboardPage.ts";
+import {
+  shownProjectControl,
+  chooseProject,
+  expectProjectChoice,
+  parts,
+} from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   test,
@@ -125,19 +130,15 @@ test("leaving during a pending reference prevents the delayed read from moving f
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
   await notice.getByRole("button", { name: "Retry story reference" }).click();
   await expect(notice).toContainText("Reading Open Dough");
-  const project = parts(page).project.getByRole("radio", {
-    name: "Pygardon",
-    exact: true,
-  });
-  await project.click();
-  await expect(project).toBeChecked();
+  await chooseProject(page, "Pygardon");
+  await expectProjectChoice(page, "Pygardon");
   release();
   await expectProjectChoice(page, "Pygardon");
   await expect(notice).toBeEmpty();
   await expect(page.getByRole("region", { name: /^Detail for/ })).toHaveCount(
     0,
   );
-  await expect(project).toBeFocused();
+  await expect(shownProjectControl(page)).toBeFocused();
 });
 
 test("choosing another inspection during a pending reference keeps that choice when its destination arrives", async ({

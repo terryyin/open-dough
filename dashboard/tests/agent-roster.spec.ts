@@ -6,6 +6,7 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   expectMembership,
   expectProblemAndNoSnapshot,
   parts,
@@ -37,7 +38,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   await publishRosterOrigins(page);
   await page.goto("/");
 
-  const { taken, backlog, project } = parts(page);
+  const { taken, backlog } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
   const takenStoryCard = taken.getByRole("article", { name: takenStory });
@@ -121,7 +122,7 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   await test.step("selecting another project replaces the roster's source, and history back restores the previous project and view", async () => {
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await chooseProject(page, "Doughnut");
     expectRoute(page, { project: "doughnut", view: "roster" });
     await expect(roster).toContainText(
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
@@ -152,16 +153,14 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   });
 
   await test.step("selecting a project whose backlog cannot be read says why no assignment is known, and marks no agent as opened", async () => {
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await chooseProject(page, "Open Dough");
     await expectMembership(page, {
       taken: [takenStory],
       backlog: [queuedStory],
     });
     await opener("Akiho-chan").click();
     await expect(member("Akiho-chan")).toHaveAttribute("aria-current", "true");
-    await project.getByRole("radio", { name: "Pygardon", exact: true }).check();
+    await chooseProject(page, "Pygardon");
     expectRoute(page, { project: "pygardon", view: "roster" });
     await expect(roster).toContainText(
       "Pygardon: no published work has been read, so no assignment is known.",
