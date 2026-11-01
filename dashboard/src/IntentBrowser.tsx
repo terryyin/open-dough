@@ -1,13 +1,16 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`): Purpose
 // shows a selected feature's published text with line numbers and Gherkin
 // styling; Proof says none is available yet. A failed file read keeps its
-// own explanation and retry while the location tree stays usable.
+// own explanation and retry while the location tree stays usable. File
+// selection (and an optional case target) is owned by the Intent workspace
+// (`./intentWorkspaceSelection.ts`), not this browser.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { IntentLocationTree } from "./IntentLocationTree.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
+import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function IntentBrowser({
@@ -19,7 +22,8 @@ export function IntentBrowser({
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
 }) {
-  const [selectedPath, setSelectedPath] = useState("");
+  const { selection, setSelection } = useIntentWorkspaceSelection();
+  const selectedPath = selection.path;
   const [text, setText] = useState<string | undefined>(undefined);
   const [fileState, setFileState] = useState<
     "none" | "reading" | "ready" | "failed"
@@ -28,7 +32,7 @@ export function IntentBrowser({
   const proofId = useId();
 
   // Clearing selection when the project or locations change is owned by the
-  // parent remounting this browser on source/revision identity.
+  // Intent workspace provider remounting on source/revision identity.
   useEffect(() => {
     if (selectedPath === "") {
       setText(undefined);
@@ -70,7 +74,9 @@ export function IntentBrowser({
             key={location.path}
             location={location}
             selectedPath={selectedPath}
-            onSelect={setSelectedPath}
+            onSelect={(path) => {
+              setSelection({ path });
+            }}
             idPrefix={`intent-${location.path.replaceAll("/", "-")}`}
           />
         ))}

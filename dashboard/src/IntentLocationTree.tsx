@@ -1,8 +1,9 @@
 // One configured Intent location as a folder tree of its kind's selected
-// files (`./IntentBrowser.tsx`): nested disclosure through the shared
-// FileTree, with each file row named by its full repository path. An
-// unsupported kind or a location with no matching files says so by path,
-// kind, and include patterns.
+// files: nested disclosure through the shared FileTree, with each file
+// row named by its full repository path. Selection is the Intent
+// workspace's (`./intentWorkspaceSelection.ts`), passed through the
+// browser (`./IntentBrowser.tsx`). An unsupported kind or a location with
+// no matching files says so by path, kind, and include patterns.
 
 import { useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#review-test-optimization-candidates
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -111,7 +112,7 @@ written.
 
 ### 1. One Intent selection shared by the workspace
 Type: Structure
-Status: planned
+Status: done
 Proof: existing Intent journeys pass unchanged:
 `intent-code-browse.spec.ts`, `intent-gherkin-browse.spec.ts`,
 `intent-gherkin-unusable.spec.ts`, and `development-intent-frame*.spec.ts`.
@@ -209,7 +210,10 @@ earlier.
 
 ## Learnings
 
-None yet.
+Slice 1: Intent selection ownership lives in `intentWorkspaceSelection.ts`
+(`path` + optional `caseTarget`); `IntentPerspective` remounts the provider on
+`source.id:work.revision`. Existing Intent journeys (12) passed after the move.
+Optional `caseTarget` is unused until later slices.
 
 ## Concern evidence
 
@@ -217,3 +221,53 @@ Refinement was not needed. The slices follow one model (record → recorded
 reference → target → shared selection). Each Behavior has its own proof loop,
 and Structure precedes the Behavior it enables. This review found no remaining
 slice-specific concern.
+
+## Story obligations
+
+### G-D61. Layout and control treatment are design details
+Reported: slice 1 — "Layout, placement of the record view within Intent, and control treatment are planning and design details."
+Story clause: "Layout, placement of the record view within Intent, and control treatment are planning and design details."
+Disposition: excluded "Layout, placement of the record view within Intent, and control treatment are planning and design details."
+Commitment: 61
+
+### G-D1. Structured location syntax deferred
+Reported: slice 1 — "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Story clause: "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Disposition: excluded "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Commitment: D1
+
+### G-D2. dough-test-optimization skill change deferred
+Reported: slice 1 — "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Story clause: "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Disposition: excluded "A structured location syntax in the candidate-record format, and any change to the dough-test-optimization skill."
+Commitment: D2
+
+### G-D3. Tree badges deferred
+Reported: slice 1 — "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Story clause: "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Disposition: excluded "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Commitment: D3
+
+### G-D4. Runtime Proof deferred
+Reported: slice 1 — "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Story clause: "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Disposition: excluded "Badges or marks for candidates in the location tree, and runtime Proof, profiling, or automated assessment."
+Commitment: D4
+
+### G-D5. Editing entries deferred
+Reported: slice 1 — "Editing, moving, or deciding entries. Those belong to the dough-test-optimization workflow."
+Story clause: "Editing, moving, or deciding entries. Those belong to the dough-test-optimization workflow."
+Disposition: excluded "Editing, moving, or deciding entries. Those belong to the dough-test-optimization workflow."
+Commitment: D5
+
+### G-D6. Changing Intent location configuration deferred
+Reported: slice 1 — "Changing any project's Intent location configuration, including Pygardon's `tests/`."
+Story clause: "Changing any project's Intent location configuration, including Pygardon's `tests/`."
+Disposition: excluded "Changing any project's Intent location configuration, including Pygardon's `tests/`."
+Commitment: D6
+
+### G-D7. Story-scoped filtering deferred
+Reported: slice 1 — "Story-scoped filtering of entries."
+Story clause: "Story-scoped filtering of entries."
+Disposition: excluded "Story-scoped filtering of entries."
+Commitment: D7

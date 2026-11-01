@@ -12,6 +12,7 @@ import {
   type IntentSettingsProblem,
 } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import "./intent-perspective.css";
@@ -116,13 +117,16 @@ function IntentBody({
       />
     );
   }
+  // Remount the selection owner on source/revision so tree and Purpose share
+  // one cleared Intent selection for that identity.
   return (
-    <IntentBrowser
-      key={`${source.id}:${work.revision}`}
-      source={source}
-      revision={work.revision}
-      locations={intent.locations}
-    />
+    <IntentWorkspaceSelectionProvider key={`${source.id}:${work.revision}`}>
+      <IntentBrowser
+        source={source}
+        revision={work.revision}
+        locations={intent.locations}
+      />
+    </IntentWorkspaceSelectionProvider>
   );
 }
 
