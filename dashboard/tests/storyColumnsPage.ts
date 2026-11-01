@@ -61,14 +61,26 @@ export async function openStoryColumnsJourney(
     // waits for startup's answers before checking that it reconciled. The
     // fresh published-work read after settlement reads every card's
     // preparation again, temporarily taking their Start actions away, so a
-    // later launch begins on settled cards.
+    // later launch begins on settled cards. When base CI asks (unread/failed
+    // fake), Continue with the named confirmation so journeys that are not
+    // asserting that gate still start (SEED-210).
     launch: async (title: string, workflow: Workflow) => {
       await expect(action(title, workflow)).toBeEnabled();
       await action(title, workflow).click();
-      await page
-        .getByRole("dialog", { name: `Start ${workflow} in Claude Code` })
-        .getByRole("button", { name: "Start" })
-        .click();
+      const dialog = page.getByRole("dialog", {
+        name: `Start ${workflow} in Claude Code`,
+      });
+      await dialog.getByRole("button", { name: "Start" }).click();
+      const continueBaseCi = dialog.getByRole("button", {
+        name: /Continue (on failing base|while CI runs|without CI result)/,
+      });
+      await Promise.race([
+        dialog.waitFor({ state: "hidden" }),
+        continueBaseCi.waitFor({ state: "visible" }),
+      ]);
+      if (await continueBaseCi.isVisible().catch(() => false)) {
+        await continueBaseCi.click();
+      }
       await untilPageRequestsAnswered(page);
       await expect(page.getByText(/this story's actions/)).toHaveCount(0);
     },

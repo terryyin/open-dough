@@ -24,4 +24,5 @@ the warning asks again. It is a local comparison, not a kept confirmation, and
 the record keeps no fingerprint. A clean checkout starts without a warning.
 
 Owned by [Launch start](LAUNCH-START.md); story and Start session Default main
-flows share this confirmation.
+flows share this confirmation. The sibling confirmation for a new execution
+start's origin-target CI is [Base CI before an execution start](LAUNCH-START.md#base-ci-before-an-execution-start).

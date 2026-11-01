@@ -20,7 +20,7 @@ import {
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StartLaunch } from "./StartLaunch.tsx";
 import { StartupStatus } from "./StartupStatus.tsx";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { StoryCardSessions } from "./StoryCardSessions.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";

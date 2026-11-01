@@ -96,6 +96,30 @@ that the publication is already established. The kept start is removed only
 when a durable launch record carries those established facts. Records display
 the established workspace without making it a story fact.
 
+## Base CI before an execution start
+
+Before a new story execution start runs the installed start script, the
+boundary judges the CI state of the origin target the work will start from:
+the newest result of the project's selected check
+(`.planning/open-dough.json`'s `ciWorkflow`, default `ci.yml`, or later a
+`ciAdapter`) at the target head or, when the head has none, its nearest
+ancestor that has one. History is the provider's commit listing for the target
+head (one page); the dashboard does not read the project folder's Git history.
+A pass starts exactly as today. Failed (including cancelled or timed out),
+still running, or could not be read asks first in the dialog, naming the
+target branch, the judged revision (short SHA and subject), how many later
+commits have no result of their own, the state, and the run URL when given.
+Back (or Escape) returns to the choices as they were and starts nothing: no
+Take, workspace, branch, or kept start. Continue sends the same start naming
+the confirmed revision and state; when the boundary now judges otherwise it
+asks again, and a pass starts without asking. Existing changes in Default
+main are asked first when both apply
+([Existing changes](LAUNCH-EXISTING-CHANGES.md)). Refinement starts, Start
+session, and resuming a kept or established start are not asked. The
+judgment is an observation answered per request and kept nowhere (ADR 0008).
+While Start waits on that judgment it shows “Checking base CI…” as a status
+beside the usual Starting… button (acceptance still uses Starting…).
+
 ## Session choices
 
 A story dialog's Session group stays in view, never behind a disclosure, with

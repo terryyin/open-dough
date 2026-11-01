@@ -3,7 +3,7 @@
 // mounted, then restores the modal and its field focus.
 import { useEffect, useId, useRef } from "react";
 import { launchInstructionLimit } from "./agentLaunch.ts";
-import { useExistingChangesConfirmation } from "./LaunchExistingChanges.tsx";
+import { useLaunchConfirmation } from "./useLaunchConfirmation.tsx";
 import { LaunchDialogFooter } from "./LaunchDialogFooter.tsx";
 import { LaunchDisclosure } from "./LaunchDisclosure.tsx";
 import { useLaunchInstruction } from "./LaunchInstruction.tsx";
@@ -47,6 +47,8 @@ export function LaunchDialog({
   notOfferedLine,
   onStart,
   onRefused,
+  submittingLabel,
+  submittingStatus,
   onClose,
 }: LaunchDialogProps) {
   const id = useId();
@@ -67,7 +69,7 @@ export function LaunchDialog({
     useLaunchSettings(sourceId, host, projectContext);
   const attachments = useLaunchAttachments();
   // Unless a launch found existing changes to confirm, closes with its answer.
-  const confirmation = useExistingChangesConfirmation({
+  const confirmation = useLaunchConfirmation({
     id,
     landing: session.landing,
     onStart,
@@ -202,6 +204,8 @@ export function LaunchDialog({
             id={id}
             effects={effects}
             submitting={submitting}
+            {...(submittingLabel === undefined ? {} : { submittingLabel })}
+            {...(submittingStatus === undefined ? {} : { submittingStatus })}
             startBlocked={
               settingsBlocked ||
               dictation.busy ||

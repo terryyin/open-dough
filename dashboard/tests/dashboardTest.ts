@@ -25,7 +25,13 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { startFakeGitHub, type FakeGitHub } from "./support/fakeGitHub.ts";
+import {
+  everyRepository,
+  startFakeGitHub,
+  type FakeGitHub,
+} from "./support/fakeGitHub.ts";
+import { defaultBaseCiRevision } from "./support/baseCiActions.ts";
+import { publishes } from "./support/publishedRepository.ts";
 
 export { expect };
 
@@ -100,6 +106,10 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
     const github = await startFakeGitHub();
+    github.serve(
+      everyRepository,
+      publishes({ revision: defaultBaseCiRevision }),
+    );
     const removals: Removal[] = [];
     removalsAfterStop.set(github, removals);
     await use(github);

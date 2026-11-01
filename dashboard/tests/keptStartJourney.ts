@@ -25,6 +25,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { serveOriginBaseCi } from "./support/serveOriginBaseCi.ts";
 import {
   openUntilRead,
   reloadUntilRead,
@@ -41,6 +42,7 @@ export const test = base.extend<{ origin: StartOrigin }>({
     origin.cleanup();
   },
   dashboard: async ({ github, origin }, use) => {
+    serveOriginBaseCi(github, origin);
     const server = await startDashboardServer({
       mode: "preview",
       prebuilt: builtDashboardDir,

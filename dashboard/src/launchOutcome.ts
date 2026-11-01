@@ -16,6 +16,7 @@ import { completionReceiptSchema } from "./completionReport.ts";
 import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import type { HostOperations } from "./sessionCapabilities.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
+import { baseCiFoundSchema } from "./baseCiConfirmation.ts";
 import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
 import { stopUnconfirmedFoundSchema } from "./sessionStop.ts";
 export {
@@ -23,6 +24,13 @@ export {
   existingChangesShown,
   type ExistingChangesFound,
 } from "./existingLaunchChanges.ts";
+export {
+  baseCiFoundSchema,
+  baseCiConfirmationSchema,
+  type BaseCiFound,
+  type BaseCiConfirmation,
+  type BaseCiState,
+} from "./baseCiConfirmation.ts";
 
 // Why nothing was launched; `not-listed`: host listing names no launched
 // session; `session-open`: an open launch record of the story remains.
@@ -53,6 +61,7 @@ export const launchUncertaintyReasons = ["timed-out", "unconfirmed"] as const;
 // have started.
 const unlaunchedSchemas = [
   existingChangesFoundSchema,
+  baseCiFoundSchema,
   z.object({
     kind: z.literal("failed"),
     reason: z.enum(launchFailureReasons),

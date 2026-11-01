@@ -37,7 +37,7 @@ import {
 } from "./sessionPolicyWords.ts";
 import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";

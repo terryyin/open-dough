@@ -10,6 +10,8 @@ export function LaunchDialogFooter({
   id,
   effects,
   submitting,
+  submittingLabel = "Starting…",
+  submittingStatus,
   startBlocked,
   startButton,
   onCancel,
@@ -17,6 +19,10 @@ export function LaunchDialogFooter({
   readonly id: string;
   readonly effects: ReactNode;
   readonly submitting: boolean;
+  // What Start says while the request is on its way.
+  readonly submittingLabel?: string;
+  // Optional status while the request is on its way (base CI judgment).
+  readonly submittingStatus?: string;
   // Whether the choices cannot start yet.
   readonly startBlocked: boolean;
   readonly startButton: RefObject<HTMLButtonElement | null>;
@@ -24,11 +30,17 @@ export function LaunchDialogFooter({
 }) {
   const effectsId = `${id}-effects`;
   const cutoffId = `${id}-cutoff`;
+  const statusId = `${id}-submitting-status`;
   return (
     <div className="launch-dialog-footer">
       {effects !== undefined && (
         <p id={effectsId} className="launch-dialog-effects">
           {effects}
+        </p>
+      )}
+      {submitting && submittingStatus !== undefined && (
+        <p id={statusId} role="status" className="launch-dialog-cutoff">
+          {submittingStatus}
         </p>
       )}
       {submitting && (
@@ -52,7 +64,7 @@ export function LaunchDialogFooter({
           aria-describedby={effects !== undefined ? effectsId : undefined}
           disabled={startBlocked}
         >
-          {submitting ? "Starting…" : "Start"}
+          {submitting ? submittingLabel : "Start"}
         </button>
       </div>
     </div>

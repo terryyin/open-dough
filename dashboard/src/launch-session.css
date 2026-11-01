@@ -1,6 +1,6 @@
 /* A story launch dialog's Session group (`LaunchSessionPolicy.tsx`) and its
-   confirmation of existing changes (`LaunchExistingChanges.tsx`), after the
-   dialog's own rules (`launch-dialog.css`), which they refine. */
+   pre-start confirmations (`useLaunchConfirmation.tsx`), after the dialog's
+   own rules (`launch-dialog.css`), which they refine. */
 
 /* The Session group stays in view: each choice is a labeled row of radios,
    wrapping at narrow widths, with its hint below. */

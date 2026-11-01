@@ -72,7 +72,10 @@ export type LaunchProblem = {
 export type AcceptanceAnswer =
   | Extract<
       Acceptance,
-      { readonly kind: "accepted" | "existing-changes" | "stop-unconfirmed" }
+      {
+        readonly kind:
+          "accepted" | "existing-changes" | "base-ci" | "stop-unconfirmed";
+      }
     >
   | (LaunchProblem & { readonly unacknowledged?: true });
 

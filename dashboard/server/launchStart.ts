@@ -2,7 +2,9 @@
 // the native session begins. A slow start warns while it keeps running.
 // Before a launch is accepted, a start in the default checkout first observes
 // its existing changes: changes the request did not confirm, or that changed
-// since, answer with what was observed, and nothing starts.
+// since, answer with what was observed, and nothing starts. A new execution
+// start then judges the origin target's CI the same way: a non-pass answers
+// for confirmation before any attempt or script.
 import {
   policyOf,
   unattachedPolicyOf,
@@ -13,7 +15,9 @@ import {
   type PublicationReceipt,
   type SessionPolicy,
 } from "../src/agentLaunch.ts";
+import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import { existingChanges } from "./defaultCheckoutChanges.ts";
+import { baseCiFound, judgeBaseCi } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch, UnattachedEstablished } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -94,20 +98,37 @@ async function startWorkspace(
 }
 
 // What a launch's start answers before the launch is accepted, with nothing
-// run: a kept start another host owns is refused, and changes in the default
+// run: a kept start another host owns is refused; changes in the default
 // checkout the request did not confirm, or that changed since, are answered
-// for the developer to confirm.
+// first; then a new execution start whose origin-target CI is not a pass is
+// answered for the developer to confirm. Kept or established starts are not
+// asked about the base.
 export async function unconfirmedStart(
   source: PublishedSource,
   request: AgentLaunchRequest,
   folder: ProjectFolder,
-): Promise<ExistingChangesFound | undefined> {
-  if ((await startWorkspace(source, request)) !== "default-checkout")
+): Promise<ExistingChangesFound | BaseCiFound | undefined> {
+  if ((await startWorkspace(source, request)) === "default-checkout") {
+    const found = await existingChanges(folder);
+    if (found !== undefined && found.fingerprint !== request.existingChanges)
+      return found;
+  }
+  if (request.workflow !== "execution") return undefined;
+  if (
+    (await keptStart(source.id, request.identity, request.workflow)) !==
+    undefined
+  )
     return undefined;
-  const found = await existingChanges(folder);
-  return found !== undefined && found.fingerprint !== request.existingChanges
-    ? found
-    : undefined;
+  const judgment = await judgeBaseCi(source, folder);
+  if (judgment.state === "pass") return undefined;
+  const confirmed = request.baseCi;
+  if (
+    confirmed !== undefined &&
+    confirmed.revision === judgment.revision &&
+    confirmed.state === judgment.state
+  )
+    return undefined;
+  return baseCiFound(source.ref, judgment);
 }
 
 // The start a launch's workflow runs before its session. Past the warning

@@ -1,15 +1,29 @@
 // Launch request and recorded-request contracts shared by the browser and server.
 import { z } from "zod";
 import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  sessionPolicy,
-  sessionPolicyChoices,
-  sessionPolicyFlags,
-  unattachedSessionChoices,
-  unattachedSessionPolicy,
-} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import { sessionPolicyFlags } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import { baseCiConfirmationSchema } from "./baseCiConfirmation.ts";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";
+import {
+  policyOf,
+  sameUnattachedPolicy,
+  sessionPolicySchema,
+  unattachedPolicyOf,
+  unattachedSessionPolicySchema,
+  type SessionPolicy,
+} from "./launchSessionPolicy.ts";
+
+export {
+  defaultSessionPolicy,
+  policyOf,
+  sameUnattachedPolicy,
+  sessionPolicySchema,
+  unattachedPolicyOf,
+  unattachedSessionPolicySchema,
+  type SessionPolicy,
+  type UnattachedSessionPolicy,
+} from "./launchSessionPolicy.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 
@@ -48,55 +62,6 @@ const launchOptions = {
   attachmentDigests: z.array(launchAttachmentDigest).max(5).optional(),
 };
 
-// A session's policy as the shared definition spells its three choices
-// (`session-policy.mjs`): tracking, workspace, and landing. A request or
-// record without one has the default policy: standard tracking in an isolated
-// workspace, published through the workflow's own lifecycle.
-export const sessionPolicySchema = z.object({
-  tracking: z.enum(sessionPolicyChoices.tracking.values),
-  workspace: z.enum(sessionPolicyChoices.workspace.values),
-  landing: z.enum(sessionPolicyChoices.landing.values),
-});
-
-export type SessionPolicy = z.infer<typeof sessionPolicySchema>;
-
-export const defaultSessionPolicy: SessionPolicy = sessionPolicy({});
-
-// A request's or record's policy, the default when it names none.
-export function policyOf(request: {
-  readonly policy?: SessionPolicy | undefined;
-}): SessionPolicy {
-  return request.policy ?? defaultSessionPolicy;
-}
-
-// An unattached session's policy, as the shared definition spells the two
-// choices of a session with no workflow (`session-policy.mjs`): workspace and
-// landing, never tracking. A request or record without one has the default:
-// the default checkout, waiting for review.
-export const unattachedSessionPolicySchema = z.strictObject({
-  workspace: z.enum(unattachedSessionChoices.workspace.values),
-  landing: z.enum(unattachedSessionChoices.landing.values),
-});
-
-export type UnattachedSessionPolicy = z.infer<
-  typeof unattachedSessionPolicySchema
->;
-
-// An unattached request's or record's policy, the default when it names none.
-export function unattachedPolicyOf(request: {
-  readonly policy?: UnattachedSessionPolicy | undefined;
-}): UnattachedSessionPolicy {
-  return unattachedSessionPolicy(request.policy);
-}
-
-// Whether two unattached policies make the same choices.
-export function sameUnattachedPolicy(
-  a: UnattachedSessionPolicy,
-  b: UnattachedSessionPolicy,
-): boolean {
-  return a.workspace === b.workspace && a.landing === b.landing;
-}
-
 // What a story's command line takes after its skill, as every host and the
 // dialog spell it: the work item's identity, the flags of its policy, then
 // the options selected.
@@ -129,6 +94,8 @@ const storyLaunchRequestSchema = z.object({
   ...launchOptions,
   policy: sessionPolicySchema.optional(),
   existingChanges: existingChangesSchema.optional(),
+  // Confirmed origin-target CI judgment for a new execution start. Transient.
+  baseCi: baseCiConfirmationSchema.optional(),
   // Explicit override of an unconfirmed stop's replacement-writer block
   // in the same workspace. Transient: never recorded.
   overrideStopUnconfirmed: z.boolean().optional(),
@@ -160,14 +127,15 @@ export const agentLaunchRequestSchema = z.discriminatedUnion("workflow", [
 export type StoryLaunchRequest = z.infer<typeof storyLaunchRequestSchema>;
 export type AgentLaunchRequest = z.infer<typeof agentLaunchRequestSchema>;
 
-// A request as it is kept: without transient confirmation of existing changes
-// or attachment claim ids (bytes stay out of JSON stores; paths are set only
-// after admission materializes claims).
+// A request as it is kept: without transient confirmation of existing changes,
+// base CI, or attachment claim ids (bytes stay out of JSON stores; paths are
+// set only after admission materializes claims).
 export function withoutConfirmation(
   request: AgentLaunchRequest,
 ): AgentLaunchRequest {
   const kept = { ...request };
   delete kept.existingChanges;
+  if ("baseCi" in kept) delete kept.baseCi;
   delete kept.overrideStopUnconfirmed;
   delete kept.attachmentClaims;
   return kept;
@@ -229,6 +197,7 @@ export const recordedLaunchRequestSchema = z.discriminatedUnion("workflow", [
   storyLaunchRequestSchema
     .omit({
       existingChanges: true,
+      baseCi: true,
       overrideStopUnconfirmed: true,
       attachmentClaims: true,
     })

@@ -1,0 +1,116 @@
+// A launch dialog's confirmation for a new execution start whose origin
+// target CI is not a pass: names the branch, judged revision and state, how
+// many later commits lack their own result, and the run when given. Heading
+// takes the keyboard; Back/Escape returns to the choices; Continue resends
+// with the confirmed revision and state. A changed judgment asks again.
+
+import { useEffect, useRef } from "react";
+import type { BaseCiFound } from "./baseCiConfirmation.ts";
+
+export const baseCiFailedHeading = "Base CI failed";
+export const baseCiRunningHeading = "Base CI still running";
+export const baseCiUnreadHeading = "Base CI could not be read";
+
+export function baseCiHeading(state: BaseCiFound["state"]): string {
+  if (state === "failed") return baseCiFailedHeading;
+  if (state === "running") return baseCiRunningHeading;
+  return baseCiUnreadHeading;
+}
+
+export function baseCiContinueLabel(state: BaseCiFound["state"]): string {
+  if (state === "failed") return "Continue on failing base";
+  if (state === "running") return "Continue while CI runs";
+  return "Continue without CI result";
+}
+
+function shortSha(revision: string): string {
+  return revision.slice(0, 7);
+}
+
+function laterLine(count: number): string {
+  if (count === 0) return "";
+  return count === 1
+    ? "One later commit has no result of its own."
+    : `${String(count)} later commits have no result of their own.`;
+}
+
+export function LaunchBaseCi({
+  id,
+  found,
+  starting,
+  onBack,
+  onContinue,
+}: {
+  readonly id: string;
+  readonly found: BaseCiFound;
+  readonly starting: boolean;
+  readonly onBack: () => void;
+  readonly onContinue: () => void;
+}) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  const first = useRef(`${found.revision}:${found.state}`);
+  const changed = `${found.revision}:${found.state}` !== first.current;
+  const headingId = `${id}-base-ci-heading`;
+  const title = baseCiHeading(found.state);
+
+  useEffect(() => {
+    heading.current?.focus();
+  }, [found.revision, found.state]);
+
+  return (
+    <section className="launch-changes" aria-labelledby={headingId}>
+      <div className="launch-dialog-body">
+        <h2 id={headingId} ref={heading} tabIndex={-1}>
+          {title}
+        </h2>
+        <p role="status" className="launch-changes-notice">
+          {changed
+            ? "The base's CI changed after it was shown; review it again."
+            : ""}
+        </p>
+        <p>
+          Origin <code>{found.branch}</code>
+          {found.revision === "unavailable"
+            ? ""
+            : ` at ${shortSha(found.revision)} (${found.subject})`}
+          {found.state === "failed"
+            ? " has a failing nearest result of the project's selected CI check."
+            : found.state === "running"
+              ? " has a nearest CI check that is still running."
+              : " could not have its CI read."}
+        </p>
+        {found.laterWithoutResult > 0 && (
+          <p>{laterLine(found.laterWithoutResult)}</p>
+        )}
+        {found.reason !== undefined && <p>{found.reason}</p>}
+        {found.runUrl !== undefined && (
+          <p>
+            <a href={found.runUrl} target="_blank" rel="noreferrer">
+              {found.runUrl}
+            </a>
+          </p>
+        )}
+      </div>
+      <div className="launch-dialog-footer">
+        <div className="launch-dialog-actions">
+          <button
+            type="button"
+            className="frame-button"
+            onClick={onBack}
+            disabled={starting}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            className="frame-button frame-button-primary"
+            onClick={onContinue}
+            disabled={starting}
+          >
+            {starting ? "Starting…" : baseCiContinueLabel(found.state)}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}

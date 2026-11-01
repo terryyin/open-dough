@@ -26,7 +26,14 @@ import {
   type Terminal,
 } from "../agentTerminalBoundary.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
+import { defaultBaseCiRevision } from "../support/baseCiActions.ts";
 import { installFakeClaude } from "../support/fakeClaude.ts";
+import { endFakeGh, fakeGhEnv, installFakeGh } from "../support/fakeGh.ts";
+import {
+  everyRepository,
+  publishes,
+  startFakeGitHub,
+} from "../support/fakeGitHub.ts";
 import { withRestoredEnv } from "../support/testEnv.ts";
 import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
 
@@ -44,13 +51,24 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
   // only possible cause of the attach process ending.
   test("closeServer, called alone with the socket and HTTP server still open, ends the attach process", async () => {
     const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-terminal-hook-"));
+    // Execution start judges origin CI through gh; own fake gh + passing
+    // Actions so this hook wiring never hits the suite's ownerless root.
+    const gh = installFakeGh(tempRoot);
+    const github = await startFakeGitHub();
+    github.serve(
+      everyRepository,
+      publishes({ revision: defaultBaseCiRevision }),
+    );
+    const ghEnv = fakeGhEnv(gh, github.url);
     const claude = installFakeClaude(
       tempRoot,
-      { binDir: tempRoot, path: process.env["PATH"] ?? "" },
+      { binDir: gh.binDir, path: ghEnv["PATH"] ?? "" },
       { projectFolders: ["open-dough"] },
     );
     configureDevelopmentProjects(claude.controls.home);
-    const restoreEnv = withRestoredEnv(claude.env);
+    // Claude's PATH keeps fake-claude ahead of fake-gh; ghEnv supplies the
+    // request-owner root and FAKE_GH_ORIGIN.
+    const restoreEnv = withRestoredEnv({ ...ghEnv, ...claude.env });
 
     let handler: StoredHandler | undefined;
     const middlewares = {
@@ -106,6 +124,8 @@ test.describe("agent terminal boundary: closeServer hook wiring", () => {
       await ensureCursorRunner(claude.controls.home);
       await stopCursorRunner(claude.controls.home);
       restoreEnv();
+      await endFakeGh(gh);
+      await github.close();
       rmSync(tempRoot, { recursive: true, force: true });
     }
   });

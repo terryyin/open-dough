@@ -74,16 +74,12 @@ export async function expectStartProgress(
   await dialog.getByLabel("Host", { exact: true }).selectOption(host);
   await expect(dialog).toContainText("Start also publishes");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const observer = await page.context().newPage();
-  await observer.goto(dashboard.baseURL);
-  await readColumns(observer);
-  const observeCard = observer.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
   const running = (phase: "preparing" | "launching") => [
     { workflow, source: "open-dough", identity: queuedIdentity, phase, host },
   ];
+  // Base-CI judgment runs before acceptance. Open the observer only once
+  // preparing is running so its first sessions read includes the start; a
+  // read taken during judgment would miss it until the next 15s poll.
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 20_000 })
     .toEqual(running("preparing"));
@@ -97,6 +93,13 @@ export async function expectStartProgress(
       workspace: "~/git/open-dough/.worktrees/story-a",
     }),
   ]);
+  const observer = await page.context().newPage();
+  await observer.goto(dashboard.baseURL);
+  await readColumns(observer);
+  const observeCard = observer.getByRole("article", {
+    name: "Story A",
+    exact: true,
+  });
   for (const card of [backlogCard, observeCard]) {
     await expect(card).toContainText(`Preparing ${workflow}…`);
     await expect(

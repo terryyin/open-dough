@@ -2,6 +2,7 @@
 
 **Identity:** SEED-210#confirm-broken-base-before-start
 **Source:** [selected story](../../seeds/SEED-210-confirm-broken-base-before-start.md#confirm-broken-base-before-start).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -77,10 +78,8 @@ PFE:
 
 ### 1. Ask before starting on a failing base
 Type: Behavior
-Status: planned
-Proof: `agent-launch-base-ci.spec.ts` pass, failed/Back/Continue, recheck, and
-kept-start cases; the 35 existing execution-start specs green through the
-default passing answer; full dashboard suite before publishing.
+Status: done
+Proof: `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-base-ci.spec.ts --reporter=line` → 5/5 pass (pass when head has none; failed/Back/Continue; recheck pass; recheck new failure Y; kept-start resume). Representative Start-execution specs with default passing answer: `agent-launch-base-ci` + `agent-launch-default-checkout-warning` + `agent-launch-start-taken` + `boundary/agent-launch-start` + `boundary/agent-launch-session-kept-start` → 16/16. Full dashboard suite before publishing (coordinator).
 
 Behavior: a dashboard execution start whose GitHub Actions base judgment is a
 pass starts as today → a failed judgment answers the question before any
@@ -109,6 +108,50 @@ Dough pass judgment, revisions recorded here.
 Behavior: a project with `ciAdapter` is judged from its adapter's `discover`
 attempts, run in the project folder, with the same rule and question.
 
+## Story obligations
+
+### Q1. Trunk-head planning-only qualification
+Reported: slice 1 — "Trunk heads are usually planning-only commits that CI never runs (observed below), so the head's own result alone would almost never exist."
+Story clause: "Trunk heads are usually planning-only commits that CI never runs (observed below), so the head's own result alone would almost never exist."
+Disposition: no user cost "Do not silently start new work on a broken build": the clause explains why nearest-ancestor judgment is needed; it does not add product behavior.
+Commitment: 10
+
+### Q2. Adapter discover assessment qualification
+Reported: slice 1 — "so Pygardon's base is judged the same way and no follow-up story is needed"
+Story clause: "so Pygardon's base is judged the same way and no follow-up story is needed"
+Disposition: no user cost "Do not silently start new work on a broken build": assessment note only; adapter judgment is owned by commitments 11.2, 22, 30, 42.
+Commitment: 23
+
+### E1. No waiting, retrying, or diagnosing CI
+Reported: slice 1 — "No waiting for, retrying, or diagnosing CI from the dashboard"
+Story clause: "No waiting for, retrying, or diagnosing CI from the dashboard"
+Disposition: excluded "No waiting for, retrying, or diagnosing CI from the dashboard"
+Commitment: 24
+
+### E2. No persistent trunk-CI badge
+Reported: slice 1 — "no persistent trunk-CI badge on the board"
+Story clause: "no persistent trunk-CI badge on the board"
+Disposition: excluded "no persistent trunk-CI badge on the board"
+Commitment: 25
+
+### E3. No check in the start script
+Reported: slice 1 — "No check in the start script itself, so agent-invoked starts outside the dashboard are unchanged"
+Story clause: "No check in the start script itself, so agent-invoked starts outside the dashboard are unchanged"
+Disposition: excluded "No check in the start script itself, so agent-invoked starts outside the dashboard are unchanged"
+Commitment: 27
+
+### E4. No re-check beyond Continue comparison
+Reported: slice 1 — "Trunk moving between the confirmed judgment and the start script's own fetch is not re-checked beyond the boundary's comparison at Continue"
+Story clause: "Trunk moving between the confirmed judgment and the start script's own fetch is not re-checked beyond the boundary's comparison at Continue"
+Disposition: excluded "Trunk moving between the confirmed judgment and the start script's own fetch is not re-checked beyond the boundary's comparison at Continue"
+Commitment: 28
+
+### Q3. Shared session-policy import qualification
+Reported: slice 1 — "as the dashboard already imports the shared session policy from source"
+Story clause: "as the dashboard already imports the shared session policy from source"
+Disposition: no user cost "Do not silently start new work on a broken build": explains reuse precedent; not a separate product promise.
+Commitment: 41
+
 ## Current decisions
 
 - Gate only new execution starts in pre-acceptance; kept or established starts
@@ -118,6 +161,26 @@ attempts, run in the project folder, with the same rule and question.
   the dashboard does not fetch or read the project folder's Git history.
 
 ## Learnings and preparation review
+
+Execution (slice 1):
+
+- Fake GitHub only routed known `GhRequest` kinds to per-repo answerers; Actions
+  was `unknown` → `noConnection`. Parse Actions workflow/runs so the shared
+  default reaches the judgment. Boundary servers that own their own fake GitHub
+  also need the default (`startDashboardServer` when `ownsGitHub`).
+- Confirmation hook renamed to `useLaunchConfirmation` once base-CI joined
+  existing-changes as a second unconfirmed answer kind; Actions/history fake
+  answers consolidated in `baseCiActions.ts`.
+- API `accept`/`launch` helpers resend with confirmed `baseCi` when the boundary
+  asks, so hook/boundary launches without a page still continue. Judgment before
+  acceptance can delay the first sessions poll: open a second observer only after
+  preparing is visible, or the 5s Preparing assert races the 15s poll interval.
+- `publishMovingOrigin` / `publishOrigin` must answer Actions and empty-path
+  commit listings with a passing head; otherwise another project's
+  `github.serve` replaces the suite default and Start hits Base CI unread.
+- Judgment and the held start share one accept request, so Start keeps the
+  Starting… label; “Checking base CI…” is a submitting status line, not the
+  button text (responsive held-start journeys assert Starting…).
 
 Decisive premises, observed 2026-11-01 in this workspace:
 

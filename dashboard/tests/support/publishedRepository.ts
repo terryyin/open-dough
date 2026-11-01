@@ -18,6 +18,7 @@ import {
   type PathHistories,
 } from "../pathHistoryAnswers.ts";
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
+import { defaultPassingBaseCi } from "./baseCiActions.ts";
 
 // Answers `revision` for any ref, and as the only branch head `main` of a
 // head listing; for any content read, the named file in
@@ -35,18 +36,28 @@ export function publishes(published: {
   readonly committed?: Readonly<Record<string, Date>>;
   readonly history?: PathHistories;
 }): RepositoryAnswerer {
+  const branch = published.defaultBranch ?? "main";
   return ({ request }) => {
+    // Default passing Actions / head history for the published head so
+    // execution-start journeys are not asked about base CI (SEED-210).
+    const passingBase = defaultPassingBaseCi(
+      request,
+      published.revision,
+      branch,
+    );
+    if (passingBase !== undefined) return Promise.resolve(passingBase);
     if (request.kind === "repository")
       return Promise.resolve({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          default_branch: published.defaultBranch ?? "main",
+          default_branch: branch,
         }),
       });
     if (request.kind === "commit-list") {
       // Absent history or commit time: empty list; explicit `null` history:
-      // lost connection (`commitListIn`).
+      // lost connection (`commitListIn`). Path-less history is the default
+      // passing base above.
       return Promise.resolve(
         commitListIn(published, request.path, request.perPage),
       );

@@ -251,6 +251,8 @@ export function answerFrom(
       const text = files[request.path];
       return text === undefined ? notFoundAnswer() : rawFileAnswer(text);
     }
+    case "actions-workflow":
+    case "actions-runs":
     case "unknown":
       return noConnection;
   }

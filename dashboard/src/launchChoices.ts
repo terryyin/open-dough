@@ -1,6 +1,7 @@
 // What a launch dialog hands its caller, and how those choices become a
 // request's settings (`./launchRequest.ts`): the developer's choices among
 // the request's options, as typed, before the request trims and omits them.
+import type { BaseCiConfirmation } from "./baseCiConfirmation.ts";
 import type { LaunchModel } from "./hostDescription.ts";
 import type {
   AgentLaunchRequest,
@@ -23,6 +24,8 @@ export type LaunchChoices = {
   readonly unattached?: UnattachedSessionPolicy;
   // The fingerprint of the existing changes the developer confirmed.
   readonly existingChanges?: string;
+  // The origin-target CI judgment the developer confirmed.
+  readonly baseCi?: BaseCiConfirmation;
   // The developer explicitly accepted the competing-writer risk of an
   // unconfirmed stop in the same workspace.
   readonly overrideStopUnconfirmed?: boolean;
@@ -41,6 +44,7 @@ export function requestedSettings({
   effort,
   options,
   existingChanges,
+  baseCi,
   overrideStopUnconfirmed,
 }: Omit<LaunchChoices, "policy" | "unattached">) {
   const own = instruction.trim();
@@ -53,6 +57,7 @@ export function requestedSettings({
       ? {}
       : { options: [...options] }),
     ...(existingChanges === undefined ? {} : { existingChanges }),
+    ...(baseCi === undefined ? {} : { baseCi }),
     ...(overrideStopUnconfirmed === true
       ? { overrideStopUnconfirmed: true }
       : {}),

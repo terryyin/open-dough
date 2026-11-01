@@ -16,7 +16,7 @@ import type {
 import { requestAgentAcceptance } from "./agentLaunchClient.ts";
 import { withAttachmentClaims } from "./launchAttachmentClient.ts";
 import { useKeyedState } from "./keyedState.ts";
-import type { StartAnswer } from "./LaunchExistingChanges.tsx";
+import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import {
   answeredAttempt,
   problemOf,
@@ -92,9 +92,10 @@ export function useAskedLaunches({
         return false;
       }
       const answer = await requestAgentAcceptance(accepted, attachTerminal);
-      // Nothing started: the dialog asks the developer about the changes.
+      // Nothing started: the dialog asks the developer to confirm.
       if (
         answer.kind === "existing-changes" ||
+        answer.kind === "base-ci" ||
         answer.kind === "stop-unconfirmed"
       ) {
         setPage(key, undefined);

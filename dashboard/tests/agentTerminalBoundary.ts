@@ -21,6 +21,9 @@ export type LaunchedSession = {
 
 let launchSerial = 0;
 
+// Launches through `launch` / `accept`, which confirm a base-CI gate answer
+// the same way Continue does, so hook and terminal specs without a page keep
+// reaching a session when origin CI is unread or non-pass.
 export async function launched(
   server: DashboardServer,
   source = "open-dough",

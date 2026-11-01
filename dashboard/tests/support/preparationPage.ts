@@ -4,6 +4,7 @@ import { fixtureServerMode, test as base } from "../dashboardTest.ts";
 import { startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
 import { launchWaitMs } from "./launchWait.ts";
+import { serveOriginBaseCi } from "./serveOriginBaseCi.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 export const test = base.extend<{
@@ -36,6 +37,7 @@ export const test = base.extend<{
     { github, origin, codexProtocol, pathPrefix, startTimeoutMs, serverMode },
     use,
   ) => {
+    serveOriginBaseCi(github, origin);
     const server = await startDashboardServer({
       ...fixtureServerMode(serverMode),
       github,
