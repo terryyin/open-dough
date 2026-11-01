@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-192#review-story-intent-impact",
+  "mode": "story-branch",
+  "branch": "cursor/review-a-story-s-impact-on-test-intent",
+  "host": "cursor",
+  "model": "auto"
+}
