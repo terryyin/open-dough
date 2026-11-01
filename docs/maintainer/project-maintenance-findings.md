@@ -138,7 +138,7 @@ An execution-ready plan turned correct regression attribution into an instructio
 project-specific failure-policy exclusion for this repository’s stop-and-fix
 policy. Shared delegation already preserves the project’s failure policy.
 Retain this plan-origin facet separately from DD-374’s softened brief.
-[SEED-208#trustworthy-ci-completion](../../.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
+[SEED-208#trustworthy-ci-completion](https://github.com/terryyin/open-dough/blob/0dc909c334be271d24fc37ac0da89980936d799b/.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
 already covers the response; **queued, not resolved**. No duplicate local story.
 Original source recovery: `b1fa3b50:DearDough.md`.
 
