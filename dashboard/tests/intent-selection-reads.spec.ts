@@ -13,6 +13,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
+  candidatesRecord,
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
@@ -209,9 +210,15 @@ test("a new published revision reads the locations again and starts with nothing
   await passTimeUntilCheckedAfterSettled(page);
   await untilPageReadsAnswered(page);
   await expect.poll(locationsReads).toBe(2);
-  await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
-    "Select a feature file to see its Proof.",
-  );
+  // Remount clears Intent selection and returns to the candidates default view.
+  await expect(
+    intent.getByRole("button", {
+      name: "Test Optimization Candidates",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(candidatesRecord(intent)).toBeVisible();
+  await expect(intent.getByRole("region", { name: "Proof" })).toHaveCount(0);
   await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
