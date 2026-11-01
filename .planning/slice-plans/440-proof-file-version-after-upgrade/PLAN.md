@@ -8,6 +8,7 @@ SEED-192#read-observed-test-proof (closed; story and plan recoverable at
 `2d2d6a2f:.planning/slice-plans/439-read-observed-test-proof/PLAN.md`). Reviewed commits:
 `58350c9d` (slice 1: `TreeEntry` gained `sha`), `e09089e9`, `4487c435`,
 `798a946f`, with CI repairs `30231a24`, `23e725f2`, `60bfc813`.
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -97,7 +98,7 @@ today's workflow). Both are preserved; no new ADR or North Star topic.
 
 ### 1. A feature listing remembered without blob shas never decides the file version
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new boundary test under `dashboard/tests/boundary/` (for example
 `authenticated-read-intent-proof-retained.spec.ts`) built on
 `retainedAnswersJourney.ts`. One process reads membership and
@@ -120,6 +121,16 @@ earlier one, reads the folder's tree once more and remembers it under the new
 key. Later untouched revisions reuse that listing. Update the `treeLister`
 comment in `pinnedTexts.ts` to say the key names the entry shape that carries
 blob shas.
+
+Accepted proof (2026-11-02): `treeLister` keys listings `${directory}\0tree\0sha`;
+the key change sufficed, so the fallback was not used.
+`authenticated-read-intent-proof-retained.spec.ts` failed first (B answered
+`featureBlobs: {}`, then asked one `tree`) and passes: B asks exactly two
+`tree` calls and answers both features' blobs; C asks one `tree` and answers
+the same. The listed focused command passed 26, `npm run typecheck:dashboard`
+passed, and the whole `dashboard/tests/boundary` folder passed 921. Learning:
+the fake `gh` names every tree call `tree` without a path, so call counts are
+what prove one read per location and revision.
 
 ## Decisive premises
 
