@@ -68,3 +68,7 @@ concern remains. Premises observed on 2026-11-01 in this workspace:
 `test`, so fixture-level defaults reach them; the `codexStart.ts` reference
 shape exists. The file-order failure itself is reproduced as the slice's
 first proof step.
+
+## Execution complete
+
+Product advice: no change

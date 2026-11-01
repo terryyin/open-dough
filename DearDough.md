@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 389. Removed numbers are never reused.
+- Highest allocated local number: 390. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -75,6 +75,17 @@ Former local code: DD-219. An absolute changed-file size check conflicts with an
 
 Former local code: DD-221. Asynchronous CI repair runs many-worker repetitions alongside a slice’s full suite on the same machine, producing load-only failures and slower proof. [Evidence and current response](docs/maintainer/findings/ODF-209.md).
 
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-209.md). This execution adds an occurrence under that established code; no new code or mapping is allocated. Matching uncertainty: the overload came from two overlapping local consumer-suite shell runs in one checkout, not from asynchronous CI repair.
+
+### Occurrences
+- Execution: SEED-208#declare-fixture-defaults-on-fixtures (plan 436; first related implementation commit `9b4f8a8c`)
+  - Timestamp: unknown (2026-11-01, before successful consumer-suite `startedAt` 2026-11-01T07:28:12.503Z)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: coordinator transcript `dd2ff6ec-5170-465e-91f3-6d76ede25001` (first consumer suite ~48 min with timeouts, second overlapping ~44 min with contention/setup failures; later solo strict pass); `tmp/consumer-suite/proof.json` terminal `durationMs` 160249, `selectedCount` 107, `strictStatus=passed`
+  - Observed effect: two long failed consumer-suite attempts under mutual host contention; one clean solo rerun accepted the slice proof in ~160 s
+  - Inference: Qualified. Same shared-host overload mechanism as prior local-shell ODF-209 rows; starting a second heavy suite beside an unfinished one produced load-only failure noise
+
 ## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
 
 Former local code: DD-234. A removal traces what a path displays but misses what it lets the user do, delivering a capability loss caught only by retrospective. [Evidence and current response](docs/maintainer/findings/ODF-210.md).
@@ -98,6 +109,17 @@ Former local code: DD-245. Background coordinators implement tiny Structure or p
 ## ODF-100 — Masked formatter failure <a id="odf-100"></a>
 
 Former local code: DD-251 (plans 264 and 271 only). A formatter piped through tail returns the final pipeline stage's success, allowing subsequent delivery steps after formatter failure. [Evidence and current response](docs/maintainer/findings/ODF-100.md).
+
+Existing shared finding: [meaning and retained evidence](docs/maintainer/findings/ODF-100.md). This execution adds an occurrence under that established code; no new code or mapping is allocated. Matching uncertainty: the piped command was the consumer-suite `npm` proof via `tee|tail`, not the selective formatter; the decisive practice is treating a pipeline ending in `tail` as the check's exit status (doughnut ODF-100 rows already include non-formatter piped checks).
+
+### Occurrences
+- Execution: SEED-208#declare-fixture-defaults-on-fixtures (plan 436; first related implementation commit `9b4f8a8c`)
+  - Timestamp: unknown (2026-11-01, first overlapped consumer-suite diagnosis in coordinator transcript `dd2ff6ec-5170-465e-91f3-6d76ede25001`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: coordinator transcript `dd2ff6ec-5170-465e-91f3-6d76ede25001` stating the first 47-spec consumer suite finished with timeouts while shell `EXIT:0` came from the `tee|tail` pipeline, not the tests
+  - Observed effect: a failing suite looked successful at the shell exit until the coordinator inspected proof/timeouts; diagnosis continued into the overlapping second run
+  - Inference: Qualified. Same pipeline-exit masking as ODF-100; proof commands whose pass/fail matters need an unpiped exit (or `pipefail`) rather than `… | tee | tail; echo EXIT:$?` on the pipeline alone
 
 ## ODF-097 — Publishing after a failed check <a id="odf-097"></a>
 
@@ -687,3 +709,19 @@ module and focused proof passed before the increment published.
   - Evidence: coordinator transcript `90876999-4c26-45c3-9ee9-3164f1af460b` line diagnosing empty `intentLocationsRead.ts`; refactor subagent `9fbc149f-715e-4977-98b8-0640ee9d9d9e` first claimed REFACTOR COMPLETE, then on resume restored 0 bytes → 194 lines with typecheck and 9 focused Playwright passes
   - Observed effect: slice 1 delivery stopped for restore; one extra refactor resume and focused re-proof before `ed99ac6b`
   - Inference: qualified. The emptying happened after the first complete return and before delivery; cause (host write loss, intervening edit, or extract mishap) is not established from the record
+
+## DD-390 — Journey-only order-dependence can miss fixture option binding
+
+Real second-file journeys that do not need a shared fixture option still pass
+under module-level `test.use` order dependence. Option-value probes at
+`--workers=1` were the reliable signal that defaults failed to reach the
+second-loaded file.
+
+### Occurrences
+- Execution: SEED-208#declare-fixture-defaults-on-fixtures (plan 436; first related implementation commit `9b4f8a8c`)
+  - Timestamp: unknown (2026-11-01 implementation; before-order probes `tmp/order-probe-cursor2/proof.json` `startedAt` 2026-11-01T06:33:44.496Z and `tmp/order-probe-unread/proof.json` `startedAt` 2026-11-01T06:35:00.785Z)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
+  - Evidence: plan 436 Current decisions Learning; coordinator history that real second-file journeys still passed without the option; before probes titled “missing defaults” vs after “keeps fixture defaults” in those proof records
+  - Observed effect: order-dependence was proved and fixed via option-value probes rather than failing journeys; consumer suite later passed strict
+  - Inference: Qualified practice. For fixture option defaults, assert the option values across file order instead of relying on journeys that may not exercise those options
