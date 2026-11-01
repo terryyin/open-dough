@@ -52,17 +52,34 @@ test("the documented obligation is read, listed, and blocks commit until proved"
   assert.equal(check(plan, "--completion").ok, true);
 });
 
-test("guidance names record beside list and check", () => {
-  const commands = obligations.slice(
-    obligations.indexOf("```sh"),
-    obligations.indexOf("```", obligations.indexOf("```sh") + 4),
+test("guidance documents record under the source review and list/check at boundaries", () => {
+  // Slice by H2 anchors: the Commitments example fences a `##` line, so
+  // markdownSection would end the source-review body early.
+  const sourceReview = obligations.slice(
+    obligations.indexOf("## Record the source review"),
+    obligations.indexOf("## Use the record at execution boundaries"),
   );
-  assert.match(commands, /story-obligations\.mjs' list --plan/);
-  assert.match(commands, /story-obligations\.mjs' check --plan/);
-  assert.match(commands, /story-obligations\.mjs' record --plan/);
   assert.match(
-    obligations,
-    /Use `record` to settle one commitment's slice allocation/,
+    sourceReview,
+    /Settle a commitment's slice allocation, `observed:` location/,
+  );
+  assert.match(
+    sourceReview,
+    /story-obligations\.mjs' record --plan '<PLAN\.md>' --commitment/,
+  );
+
+  const boundaries = obligations.slice(
+    obligations.indexOf("## Use the record at execution boundaries"),
+  );
+  const listCheckCommands = boundaries.slice(
+    boundaries.indexOf("```sh"),
+    boundaries.indexOf("```", boundaries.indexOf("```sh") + 4),
+  );
+  assert.match(listCheckCommands, /story-obligations\.mjs' list --plan/);
+  assert.match(listCheckCommands, /story-obligations\.mjs' check --plan/);
+  assert.match(
+    boundaries,
+    /`record` under \[the source review\]\(#record-the-source-review\)/,
   );
 });
 
