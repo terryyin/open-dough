@@ -13,6 +13,9 @@ scope: story
 ### Declare dashboard fixture defaults on their fixtures
 
 **Identity:** SEED-208#declare-fixture-defaults-on-fixtures
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/436-declare-fixture-defaults-on-fixtures/PLAN.md"}
+```
 
 **Goal:** Every dashboard journey that uses a shared start fixture receives
 that fixture's project folder and launch wait, whichever spec file a test
