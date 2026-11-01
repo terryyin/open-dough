@@ -220,6 +220,20 @@ this execution's run 41261530651. Guidance, completion/late-failure, payload
 and native replay tests exited 0. The finish-or-stop read row is at 29,991 of
 30,000 bytes (DD-347 later evidence).
 
+## Execution complete
+
+Product advice: no backlog change. The delivered responses at ODF-150,
+ODF-380, ODF-384, DD-374 and DD-378 stay queued-not-resolved until later
+ordinary executions show the effect; compare them against this story's
+retained loops rather than a red-run rate. The next edit to the "Before
+finishing or stopping" guidance must free read-budget bytes first. Hypothesis
+for later review, not a finding: trunk's 62defee5 makes chooseProject retry
+through whichever banner control shows while a sidebar or panel swaps it;
+check that this settles a real transition rather than masking one.
+Process findings DD-385 (abbreviated validated candidate), DD-386 (Story
+Branch failure already repaired on trunk) and DD-387 (closure commitments
+observed before their gate) are recorded in DearDough.md.
+
 ## Decisive premises and observations
 
 Preparation basis: main ae6479d3. Project AGENTS, the cited ADRs, diagnostic,

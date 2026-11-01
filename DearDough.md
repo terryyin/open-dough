@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 378. Removed numbers are never reused.
+- Highest allocated local number: 387. Removed numbers are never reused.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
 - Project-owned DD-275/DD-309 and repaired DD-283/DD-290/DD-312 remain in [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
@@ -577,3 +577,57 @@ of one product surface across successive owned CI failures.
 whole affected journey and every listed failure, on its story branch;
 unreleased, awaiting observation in later ordinary executions; **not
 resolved**. [Delivered response](docs/maintainer/findings/ODF-384.md#delivered-response--2026-11-01).
+
+## DD-385 — Abbreviated validated candidate stops delivery as candidate-mismatch
+
+Managed `deliver` with `--validated-candidate` given as a short SHA stopped
+with `candidate-mismatch` although the abbreviation named the committed
+candidate; the full SHA was accepted. The base input documents abbreviated IDs,
+the candidate input does not, and the stop does not say the form was the cause.
+
+### Occurrences
+- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
+  - Timestamp: unknown (2026-11-01, during the CI repair publication)
+  - Evidence: deliver for 4cb318ba with `--validated-candidate 4cb318ba` → candidate-mismatch, remoteTip 482b644e; retry with the full SHA accepted 4cb318ba
+  - Observed effect: one refused publication and a retry
+  - Inference: the candidate is compared as a string; resolving it like the base, or naming the form, would avoid the stop
+
+## DD-386 — Story Branch CI failure already repaired on trunk has no named path
+
+On a Story Branch, CI failed five dashboard journeys on a Markdown-only slice.
+The same five failed on main at the branch's fork ancestry and passed from a
+later trunk repair by another writer. No execution reference names bringing
+trunk into the story branch as the owned repair; the coordinator merged
+`origin/main` through the repair stash and `deliver`, which worked.
+
+### Occurrences
+- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
+  - Timestamp: unknown (2026-11-01, after run 41261530651 completed)
+  - Evidence: run 41261530651 on 482b644e; main runs 41259613925 (c26577b5, failed same five) and 41260942864 (62defee5, green); merge 4cb318ba, branch CI green
+  - Observed effect: correct repair, chosen from general Git judgment rather than guidance
+  - Inference: ci-monitor "Handle a notification" step 4 or source freshness could name trunk incorporation when the diagnosed repair already exists on trunk
+
+## DD-387 — Closure commitments must be observed before the closure gate runs
+
+The source-review check refuses the last slice's done transition while any
+whole-story commitment allocated to it is unobserved, but commitments such as
+"the applicable published state has successful CI" and "final target CI and
+shutdown are settled" can only be observed by the later completion operation
+and wrap-up trunk observation. The coordinator recorded the enforcing gate and
+current branch evidence as the observation.
+
+### Occurrences
+- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
+  - Timestamp: 2026-11-01 (slice 5 acceptance; time unknown)
+  - Evidence: plan 432 source-review.md rows 1.1, 4f.1, 4f.3, E9, V3, K2
+  - Observed effect: observations name a pending gate rather than its result
+  - Inference: the record lacks a disposition for a commitment owned by completion or wrap-up
