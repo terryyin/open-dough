@@ -13,15 +13,10 @@
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { listedReadParameters } from "./listedRecordsRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
-import {
-  isPinnedRevision,
-  refused,
-  unpinnedRevision,
-  type RefusedParameters,
-} from "./refusedParameters.ts";
+import { parsePinnedIntentRead } from "./intentReadParameters.ts";
+import type { RefusedParameters } from "./refusedParameters.ts";
 import {
   declaredLocations,
   intentSettingsTextAt,
@@ -57,32 +52,17 @@ export type IntentLocationsRead = {
 const intentRefusal = "An Intent locations read names only a pinned revision.";
 
 // The Intent locations read a request names, undefined when it names none.
+// Other Intent values parse elsewhere; unknown Intent values are refused
+// after every Intent parser (`./intentRequestedRead.ts`).
 export function parseIntentLocationsRead(
   params: URLSearchParams,
 ): IntentLocationsRead | RefusedParameters | undefined {
-  const intent = params.get("intent");
-  if (intent === null) return undefined;
-  const others = [
-    "path",
-    "since",
-    "committed",
-    "file",
-    "branch",
-    "head",
-    ...listedReadParameters.filter((name) => name !== "intent"),
-  ];
-  if (
-    intent !== "locations" ||
-    params.getAll("intent").length !== 1 ||
-    others.some((name) => params.get(name) !== null)
-  ) {
-    return refused(intentRefusal);
-  }
-  const revision = params.get("revision");
-  if (!isPinnedRevision(revision)) {
-    return unpinnedRevision;
-  }
-  return { kind: "intent-locations-at", revision };
+  return parsePinnedIntentRead(
+    params,
+    "locations",
+    "intent-locations-at",
+    intentRefusal,
+  );
 }
 
 // What an Intent locations read names as being read before any file is.

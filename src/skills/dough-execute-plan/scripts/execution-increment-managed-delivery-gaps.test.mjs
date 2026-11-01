@@ -25,9 +25,14 @@ const repo = "owner/project";
 test("an unavailable host bridge reports unobserved coverage and preserves acceptance", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
+  // Ambient Cursor session from a live coordinator must not attach coverage
+  // when this case deliberately supplies no session.
+  const env = { ...fixture.env };
+  delete env.CURSOR_CONVERSATION_ID;
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
+    env,
     session: null,
     workspace: fixture.execution,
     branch: "exec/story",

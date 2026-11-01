@@ -12,6 +12,7 @@ import {
   readingRefOf,
 } from "../src/authenticatedReadRules.ts";
 import { readingDoneCatalogOf } from "./doneCatalogRead.ts";
+import { readingIntentCandidatesOf } from "./intentCandidatesRead.ts";
 import { readingIntentLocationsOf } from "./intentLocationsRead.ts";
 import { readingListedRecordsOf } from "./listedRecordsRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
@@ -40,6 +41,8 @@ export function readingOf(
       return readingDoneCatalogOf(source, read);
     case "intent-locations-at":
       return readingIntentLocationsOf(read);
+    case "intent-candidates-at":
+      return readingIntentCandidatesOf(read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":

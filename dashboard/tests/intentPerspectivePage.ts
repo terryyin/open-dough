@@ -1,10 +1,11 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
-// ../src/dashboardRouteUrl.ts): the address that names them, and Intent's
-// not-configured content when the project publishes no intent locations.
+// ../src/dashboardRouteUrl.ts): the address that names them, Intent's
+// not-configured content when the project publishes no intent locations,
+// and the Test Optimization Candidates record view.
 
-import { expect, type Page } from "@playwright/test";
-import { parts } from "./dashboardParts.ts";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { parts, shortRevision } from "./dashboardParts.ts";
 
 // The project, Development's view and the perspective the address names.
 export function expectAddress(
@@ -53,4 +54,25 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toBeHidden();
+}
+
+// The candidates record region Intent shows for the selected project.
+export function candidatesRecord(intent: Locator) {
+  return intent.getByRole("region", {
+    name: "Test Optimization Candidates",
+    exact: true,
+  });
+}
+
+export async function expectCandidatesRevision(
+  intent: Locator,
+  revision: string,
+) {
+  const record = candidatesRecord(intent);
+  await expect(record).toContainText(
+    `Recorded at revision ${shortRevision(revision)}`,
+  );
+  await expect(
+    record.locator("code").filter({ hasText: revision }),
+  ).toHaveCount(1);
 }

@@ -86,6 +86,14 @@ type Answer =
       readonly locations: null | readonly IntentLocation[];
       readonly settingsProblem?: IntentSettingsProblem;
     }
+  // Test Optimization Candidates at a revision (`./intentCandidatesRead.ts`):
+  // null when absent; `candidatesProblem: "unreadable"` when the fixed path
+  // could not be read; otherwise the published Markdown text.
+  | {
+      readonly revision: string;
+      readonly candidates: string | null;
+      readonly candidatesProblem?: "unreadable";
+    }
   // A path read at a branch head: null when that head does not have it.
   | {
       readonly revision: string;

@@ -7,91 +7,16 @@ import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import { expectAddress } from "./intentPerspectivePage.ts";
 import { colourOf } from "./pageColours.ts";
-import { box } from "./partArrangement.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { publishFiles } from "./publishedOrigin.ts";
-import { filesOf, type Project } from "./catalogProjectRecords.ts";
-
-const doughnut: Project = {
-  label: "Doughnut",
-  ref: "main",
-  repository: "nerds-odd-e/doughnut",
-  revision: "d7".repeat(20),
-  taken: "Doughnut's own taken story",
-  queued: "Doughnut's own queued story",
-  direction: "Show Doughnut's own published direction through local gh.",
-  purpose: "Read Doughnut's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/302-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-302-queued.md",
-};
-
-const pygardon: Project = {
-  label: "Pygardon",
-  ref: "main",
-  repository: "terryyin/pygardon",
-  revision: "c1".repeat(20),
-  taken: "Pygardon's own taken story",
-  queued: "Pygardon's own queued story",
-  direction: "Show Pygardon's own published direction through local gh.",
-  purpose: "Read Pygardon's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/303-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-303-queued.md",
-};
-
-const recallFeature = `Feature: Recall a note
-  Scenario: Open a note by title
-    Given a notebook with a note titled "alpha"
-    When I ask to recall "alpha"
-    Then I see the note body
-`;
-
-const packagedFeature = `Feature: Packaged feature
-  Scenario: A packaged case
-    Given a packaged fixture
-    When I run it
-    Then it passes
-`;
-
-const doughnutSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [{ path: "e2e_test/features", kind: "gherkin" }],
-    },
-  },
-  null,
-  2,
-);
-
-const pygardonSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: "e2e_test/features", kind: "gherkin" },
-        { path: "e2e_test/packaged/features", kind: "gherkin" },
-      ],
-    },
-  },
-  null,
-  2,
-);
-
-function publishIntentProject(
-  page: Parameters<typeof publishFiles>[0],
-  published: Project,
-  settings: string,
-  features: Readonly<Record<string, string>>,
-) {
-  return publishFiles(page, {
-    repository: published.repository,
-    ref: published.ref,
-    revision: published.revision,
-    files: {
-      ...filesOf(published),
-      ".planning/open-dough.json": `${settings}\n`,
-      ...features,
-    },
-  });
-}
+import {
+  doughnut,
+  doughnutSettings,
+  packagedFeature,
+  publishIntentProject,
+  pygardon,
+  pygardonSettings,
+  recallFeature,
+} from "./intentGherkinBrowseFixtures.ts";
 
 test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text with line numbers, and replaces content on project change", async ({
   page,
@@ -197,8 +122,14 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       intent.getByText("e2e_test/packaged/features").first(),
     ).toBeVisible();
     await expect(
-      intent.getByText("Select a feature file to read its Purpose."),
+      intent.getByRole("heading", {
+        name: "Test Optimization Candidates",
+        exact: true,
+      }),
     ).toBeVisible();
+    await expect(intent).toContainText(
+      "No Test Optimization Candidates record has been published",
+    );
     await intent
       .getByRole("button", {
         name: "e2e_test/packaged/features/packaged.feature",
@@ -212,55 +143,4 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     );
     expectAddress(page, { project: "pygardon", perspective: "intent" });
   });
-});
-
-test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  const cases = Object.fromEntries(
-    [...Array(40).keys()].map((n) => [
-      `e2e_test/features/area/case_${String(n).padStart(2, "0")}.feature`,
-      n === 0
-        ? `Feature: Long\n${"  Scenario: A step\n    Given a step\n".repeat(60)}`
-        : `Feature: Case ${n}\n`,
-    ]),
-  );
-  await publishIntentProject(page, doughnut, doughnutSettings, cases);
-
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await intent
-    .getByRole("button", { name: "e2e_test/features/area/case_00.feature" })
-    .click();
-  await expect(
-    intent.getByLabel("e2e_test/features/area/case_00.feature source"),
-  ).toContainText("Feature: Long");
-
-  const region = page.locator(".intent-scroll");
-  const browser = page.locator(".intent-locations");
-  const reading = page.locator(".intent-reading");
-  expect(
-    await region.evaluate((el) => el.scrollHeight > el.clientHeight),
-    "the page below the banner does not scroll",
-  ).toBe(false);
-  const [column, browserBox, readingBox] = await Promise.all([
-    box(page.locator(".page-column")),
-    box(browser),
-    box(reading),
-  ]);
-  expect(browserBox.x).toBe(column.x);
-  expect(browserBox.y + browserBox.height).toBe(600);
-  expect(readingBox.y + readingBox.height).toBe(600);
-
-  const scrolledTo = (pane: typeof browser, top: number) =>
-    pane.evaluate((el, to) => {
-      el.scrollTo({ top: to });
-    }, top);
-  const topOf = (pane: typeof browser) => pane.evaluate((el) => el.scrollTop);
-  await scrolledTo(browser, 200);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 0]);
-  await scrolledTo(reading, 300);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 300]);
 });

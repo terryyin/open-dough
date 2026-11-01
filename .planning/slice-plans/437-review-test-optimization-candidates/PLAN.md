@@ -125,7 +125,7 @@ selection in slice 3.
 
 ### 2. Read the candidate record in Intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: new Playwright Intent journey(s) with fixture records for examples 1
 (groups and fields) and 7 (all four record states). A server boundary case
 shows that the record read names only a pinned revision and admits no other
@@ -214,6 +214,16 @@ Slice 1: Intent selection ownership lives in `intentWorkspaceSelection.ts`
 (`path` + optional `caseTarget`); `IntentPerspective` remounts the provider on
 `source.id:work.revision`. Existing Intent journeys (12) passed after the move.
 Optional `caseTarget` is unused until later slices.
+
+Slice 2: Candidates read is its own pinned admitted kind
+(`intent=test-optimization-candidates`) of fixed path
+`.planning/TEST-OPTIMIZATION-CANDIDATES.md`. Default Intent reading view is the
+record; selecting a tree file switches to Purpose. `publishes()` falls back to
+backlog for unnamed paths, so true absent needs an explicit 404/`unanswered`.
+Ambient `CURSOR_CONVERSATION_ID` can attach managed-delivery observation in
+tests that intend an unavailable bridge — clear it for that case. Concurrent
+dashboard runs must drop `FORCE_COLOR`/`NO_COLOR` so a coloured coordinator
+shell cannot fail the silent-local contract.
 
 ## Concern evidence
 

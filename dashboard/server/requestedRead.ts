@@ -3,8 +3,8 @@
 // the ref resolved afresh with its backlog; a revision check (`since`,
 // `watch`); the backlog or one path at a pinned revision; last commit or
 // profile addition (`committed`); listed records (`./listedRecordsRead.ts`);
-// the done catalog (`./doneCatalogRead.ts`); Intent locations
-// (`./intentLocationsRead.ts`); a story branch head or path on it (`branch`,
+// the done catalog (`./doneCatalogRead.ts`); Intent reads
+// (`./intentRequestedRead.ts`); a story branch head or path on it (`branch`,
 // `head`); or containment (`contains`, `./containmentRead.ts`). Malformed or
 // mixed parameters are refused here (`./refusedParameters.ts`) before any `gh`
 // call.
@@ -34,9 +34,9 @@ import {
   type DoneCatalogRead,
 } from "./doneCatalogRead.ts";
 import {
-  parseIntentLocationsRead,
-  type IntentLocationsRead,
-} from "./intentLocationsRead.ts";
+  parseIntentRequestedRead,
+  type IntentRequestedRead,
+} from "./intentRequestedRead.ts";
 import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 // A story branch as a read names it: the branch, and the head commit this
@@ -55,7 +55,7 @@ export type RequestedRead =
   | { readonly kind: "backlog-at"; readonly revision: string }
   | ListedRecordsRead
   | DoneCatalogRead
-  | IntentLocationsRead
+  | IntentRequestedRead
   | {
       readonly kind: "addition-at";
       readonly revision: string;
@@ -212,7 +212,7 @@ export function parseRequestedRead(
   if (catalogRead !== undefined) {
     return catalogRead;
   }
-  const intentRead = parseIntentLocationsRead(params);
+  const intentRead = parseIntentRequestedRead(params);
   if (intentRead !== undefined) {
     return intentRead;
   }
