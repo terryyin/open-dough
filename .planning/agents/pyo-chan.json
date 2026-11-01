@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "identity": "SEED-213#renovate-intent-sidebar",
+  "mode": "story-branch",
+  "branch": "cursor/renovate-the-intent-sidebar-with-expandable-grou",
+  "host": "cursor",
+  "model": "auto"
+}
