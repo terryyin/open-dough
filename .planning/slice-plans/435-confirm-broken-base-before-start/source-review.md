@@ -35,9 +35,9 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 12 | Of that revision's attempts, the newest decides. | slice 1 | observed: baseCiJudgment.ts newestRunFor by createdAt |
 | 13 | A pass starts exactly as today, with no extra step. | slice 1 | observed: agent-launch-base-ci.spec.ts "a passing nearest result starts with no question when the head has none" |
 | 14.1 | Every other state asks first, named truthfully: failed (including cancelled or timed out) | slice 1 | observed: judgeAttempt maps completed non-success to failed; LaunchBaseCi baseCiFailedHeading; failed-case spec |
-| 14.2 | still running or queued | slice 2 | |
-| 14.3 | could not be read (no result in the readable history, provider or adapter failure, rate limit, or the read's time bound) | slice 2 | |
-| 15 | Nothing waits for a running check to finish. | slice 2 | |
+| 14.2 | still running or queued | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts in-progress case; LaunchBaseCi baseCiRunningHeading |
+| 14.3 | could not be read (no result in the readable history, provider or adapter failure, rate limit, or the read's time bound) | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts rate-limited + empty listing; unread heading + reason (adapter unread remains slice 3) |
+| 15 | Nothing waits for a running check to finish. | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts in-progress asks immediately with Continue while CI runs; no wait |
 | 16.1 | The question names the target branch | slice 1 | observed: LaunchBaseCi.tsx Origin `{found.branch}`; failed-case spec contains "main" |
 | 16.2 | the judged revision (short SHA and subject) | slice 1 | observed: LaunchBaseCi.tsx shortSha + subject; failed-case spec short SHA |
 | 16.3 | how many later commits have no result of their own when it is not the head | slice 1 | observed: laterLine + failed-case "One later commit has no result of its own." |
@@ -61,8 +61,8 @@ split: 6.1–6.4, 7.1–7.5, 9.1–9.2, 11.1–11.2, 14.1–14.3, 16.1–16.5, 1
 | 28 | Trunk moving between the confirmed judgment and the start script's own fetch is not re-checked beyond the boundary's comparison at Continue. | | E4 |
 | 29 | Open Dough pass example: planning-only head, nearest success → Start with no question. | slice 1 | observed: agent-launch-base-ci.spec.ts pass case |
 | 30 | Pygardon fail example: nearest adapter attempt failed → Base CI failed; Back nothing; Continue starts. | slice 3 | |
-| 31 | Nearest result still running → dialog says still running; does not wait. | slice 2 | |
-| 32 | Adapter unreachable or GitHub rate-limited → could not be read and why; never shows a pass. | slice 2 | |
+| 31 | Nearest result still running → dialog says still running; does not wait. | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts in-progress case |
+| 32 | Adapter unreachable or GitHub rate-limited → could not be read and why; never shows a pass. | slice 2 | observed: agent-launch-base-ci-running-unread.spec.ts rate-limited Actions case (adapter unreachable → slice 3) |
 | 33 | Confirmed failure at X; then pass → starts; or new failure at Y → asks again naming Y. | slice 1 | observed: recheck pass + recheck Y specs |
 | 34 | Kept start resumed from Startup recovery → no CI question. | slice 1 | observed: kept-start resume spec |
 | 35.1 | Question replaces the choices | slice 1 | observed: LaunchBaseCi.tsx section replaces choices via LaunchExistingChanges confirmation path |

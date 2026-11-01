@@ -2,10 +2,11 @@
 // the origin target's CI (GitHub Actions for this slice). A pass starts as
 // today; a failed judgment asks in the dialog; Back starts nothing; Continue
 // names the confirmed revision and state; a changed judgment asks again or
-// starts on a pass. Kept starts are not asked. Real installed start and bare
-// origin as agent-launch-default-checkout-warning.spec.ts; fake GitHub answers
-// the head's commit listing and Actions runs (./committedOrigin.ts,
-// ./support/baseCiActions.ts).
+// starts on a pass. Kept starts are not asked. Running and unread judgments
+// live in agent-launch-base-ci-running-unread.spec.ts. Real installed start
+// and bare origin as agent-launch-default-checkout-warning.spec.ts; fake
+// GitHub answers the head's commit listing and Actions runs
+// (./committedOrigin.ts, ./support/baseCiActions.ts).
 
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";

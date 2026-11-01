@@ -34,18 +34,22 @@ export function actionsRunsAnswer(
     status: 200,
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify({
-      workflow_runs: runs.map((run, index) => ({
-        id: run.id ?? index + 1,
-        run_attempt: 1,
-        head_sha: run.headSha,
-        head_branch: branch,
-        event: "push",
-        status: run.status ?? "completed",
-        conclusion: run.conclusion ?? "success",
-        html_url:
-          run.url ?? `https://ci.invalid/${String(run.id ?? index + 1)}`,
-        created_at: `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
-      })),
+      workflow_runs: runs.map((run, index) => {
+        const status = run.status ?? "completed";
+        return {
+          id: run.id ?? index + 1,
+          run_attempt: 1,
+          head_sha: run.headSha,
+          head_branch: branch,
+          event: "push",
+          status,
+          conclusion:
+            run.conclusion ?? (status === "completed" ? "success" : null),
+          html_url:
+            run.url ?? `https://ci.invalid/${String(run.id ?? index + 1)}`,
+          created_at: `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
+        };
+      }),
     }),
   };
 }

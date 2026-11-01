@@ -70,7 +70,7 @@ PFE:
 | Confirmed X, then fixed (pass) → starts; new failure at Y → asks again | 1 | Same spec: change the fake run answers between the question and Continue. |
 | Kept start resumed → no question | 1 | Same spec or an existing recovery spec: a kept start's Start is not asked even with a failing base. |
 | Existing execution journeys unchanged | 1 | The shared fake GitHub answers a passing run for the published head by default, so the 35 specs that start execution stay green without edits; run them (full dashboard suite before publishing, per the shared-path rule). |
-| Running, and could-not-be-read (no result, rate limit, provider failure) ask truthfully | 2 | `agent-launch-base-ci.spec.ts` cases: in-progress run → "still running" with Continue while CI runs; rate-limited Actions answer and an empty run listing → "could not be read" with the reason and Continue without CI result; none shows a pass. |
+| Running, and could-not-be-read (no result, rate limit, provider failure) ask truthfully | 2 | `agent-launch-base-ci-running-unread.spec.ts` cases: in-progress run → "still running" with Continue while CI runs; rate-limited Actions answer and an empty run listing → "could not be read" with the reason and Continue without CI result; none shows a pass. |
 | Command-adapter project judged the same way | 3 | Spec case with a project whose `.planning/open-dough.json` names a fixture `ciAdapter` script answering `discover`: failing nearest attempt asks; adapter exit failure → could not be read. |
 | Real projects | 3 | Real observation through the running dashboard: Pygardon (failing `main` at plan time) — Start execution on a queued story shows "Base CI failed", then Back; origin `main` and `.worktrees` unchanged. Open Dough's pass judgment observed through the boundary module from a scratch script, not by starting. Revisions retained in this plan. |
 
@@ -90,9 +90,8 @@ request field, the shared fake's default, and the `LAUNCH-START.md` section.
 
 ### 2. Say when the base's CI is running or unreadable
 Type: Behavior
-Status: planned
-Proof: `agent-launch-base-ci.spec.ts` running, rate-limited, and no-result
-cases; each fails in a scratch edit that maps the state to pass.
+Status: done
+Proof: `npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-base-ci.spec.ts dashboard/tests/agent-launch-base-ci-running-unread.spec.ts --reporter=line` → 8/8 (5 failed/pass/recheck/kept + 3 in-progress/rate-limited/empty). Scratch maps of running→pass and unread→pass each fail the matching new case (reverted).
 
 Behavior: in-progress, rate-limited, failed-read, timed-out, and no-result
 judgments each ask with their own truthful wording and continue action; none
