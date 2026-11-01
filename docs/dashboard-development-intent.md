@@ -11,12 +11,24 @@ Proof reading surface. When the selected project's
 `.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
 Intent lists each location's nested `.feature` files in a collapsible tree,
 reads a selected file's exact published text with line numbers and Gherkin
-syntax styling at the observed revision, and says no Proof is available for
-it yet. The selected perspective choice names the page, so Intent shows no
-heading of its own. Below the banner the page does not scroll: the location
-tree fills the remaining height against the left edge, and it and the reading
-pane each scroll independently. A location that
-is missing, holds no `.feature` files, or names an unsupported kind says so
+syntax styling at the observed revision. When the location also declares a
+`proof` directory of committed Cucumber proof (the
+[Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
+Proof lists the file's scenarios and outline rows in source order, each with
+its latest observation's outcome (retry-assisted passes marked), duration,
+time since, commit, and whether it was observed on this file version, or
+_Not observed_, under a count line of those latest outcomes; proof files are
+read once with the locations at that revision. A file with nothing observed
+yet in that directory says so. A proof file that could not be read, or is not
+valid proof, is reported by name as a read failure with retry, never as _Not
+observed_, and the retry reads the locations again without changing the
+selection or Purpose. Without a declared directory, Proof says it is not
+recorded for the project and names the installed reference to follow; other
+kinds say Proof is read only for Gherkin files so far. The selected
+perspective choice names the page, so Intent shows no heading of its own. Below the banner the page does not
+scroll: the location tree fills the remaining height against the left edge,
+and it and the reading pane each scroll independently. A location that is
+missing, holds no `.feature` files, or names an unsupported kind says so
 by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
 are configured and names the setting and file; it shows no empty tree. An

@@ -8,7 +8,8 @@
 // Git trees call per location (`./ghTrees.ts`). The pinned-text memo and
 // project setting path are reused (`./pinnedTexts.ts`,
 // `./recordsBesideBacklog.ts`). Settings parse and text live in
-// `./intentLocationsSettings.ts`; selection in `./intentLocationSelection.ts`.
+// `./intentLocationsSettings.ts`; selection in `./intentLocationSelection.ts`;
+// a Gherkin location's declared Cucumber proof in `./intentProofRead.ts`.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
@@ -27,8 +28,10 @@ import {
   intentSettingsTextAt,
   type DeclaredLocation,
   type IntentLocation,
+  type IntentLocationProof,
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
+import { locationProofAt, type ListedFeature } from "./intentProofRead.ts";
 import {
   extensionsOf,
   locationSelectsRelativePath,
@@ -37,6 +40,7 @@ import {
 export type {
   IntentLocation,
   IntentLocationProblem,
+  IntentLocationProof,
   IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 
@@ -99,7 +103,7 @@ async function filesUnderLocation(
   location: DeclaredLocation,
   signal: AbortSignal,
   naming: (reading: string) => void,
-): Promise<readonly string[]> {
+): Promise<readonly ListedFeature[]> {
   if (extensionsOf(location.kind) === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
@@ -114,7 +118,7 @@ async function filesUnderLocation(
     ) {
       return [];
     }
-    return [`${location.path}/${entry.path}`];
+    return [{ path: `${location.path}/${entry.path}`, sha: entry.sha }];
   });
 }
 
@@ -128,7 +132,8 @@ function locationFields(
 
 function locationAnswer(
   location: DeclaredLocation,
-  files: readonly string[],
+  files: readonly ListedFeature[],
+  proof: IntentLocationProof | undefined,
 ): IntentLocation {
   const fields = locationFields(location);
   if (extensionsOf(location.kind) === undefined) {
@@ -137,7 +142,39 @@ function locationAnswer(
   if (files.length === 0) {
     return { ...fields, files: [], problem: "no-matching-files" };
   }
-  return { ...fields, files };
+  const paths = files.map((file) => file.path);
+  return proof === undefined
+    ? { ...fields, files: paths }
+    : { ...fields, files: paths, proof };
+}
+
+// Proof is read for a Gherkin location that declares a proof directory and
+// lists feature files.
+function proofOfLocation(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  revision: string,
+  location: DeclaredLocation,
+  files: readonly ListedFeature[],
+  signal: AbortSignal,
+  naming: (reading: string) => void,
+): Promise<IntentLocationProof> | undefined {
+  if (
+    location.proof === undefined ||
+    location.kind !== "gherkin" ||
+    files.length === 0
+  ) {
+    return undefined;
+  }
+  return locationProofAt(
+    pinned,
+    source,
+    revision,
+    location.proof,
+    files,
+    signal,
+    naming,
+  );
 }
 
 // Performs one Intent locations read: the configured locations and their
@@ -172,14 +209,24 @@ export async function performIntentLocationsRead(
   }
   const locations: IntentLocation[] = [];
   for (const location of declared.locations) {
+    const files = await filesUnderLocation(
+      pinned,
+      source,
+      revision,
+      location,
+      signal,
+      naming,
+    );
     locations.push(
       locationAnswer(
         location,
-        await filesUnderLocation(
+        files,
+        await proofOfLocation(
           pinned,
           source,
           revision,
           location,
+          files,
           signal,
           naming,
         ),

@@ -1,10 +1,10 @@
 // The Intent perspective of the selected project: Purpose reads configured
 // test-source locations at the observed revision through the authenticated
-// read boundary, and Proof truthfully says none is available yet. Unusable
-// locations and failed reads each keep their own explanation; remaining
-// locations stay browseable.
+// read boundary, and Proof shows the committed observations a location's
+// proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
+// each keep their own explanation; remaining locations stay browseable.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   readIntentLocationsAt,
@@ -60,8 +60,13 @@ function IntentBody({
     work === undefined ? { status: "not-configured" } : "loading",
   );
   const [locationsRetry, setLocationsRetry] = useState(0);
+  const [proofRereading, setProofRereading] = useState(false);
+  const proofReread = useRef<AbortController | undefined>(undefined);
 
   useEffect(() => {
+    proofReread.current?.abort();
+    proofReread.current = undefined;
+    setProofRereading(false);
     if (work === undefined) {
       setIntent({ status: "not-configured" });
       return;
@@ -79,6 +84,26 @@ function IntentBody({
       controller.abort();
     };
   }, [source, work, locationsRetry]);
+
+  // A failed proof read is retried by reading the locations again in place:
+  // the browser keeps its selection and Purpose, and only a configured
+  // answer replaces the locations shown.
+  const retryProof = (revision: string) => {
+    proofReread.current?.abort();
+    const controller = new AbortController();
+    proofReread.current = controller;
+    setProofRereading(true);
+    void readIntentLocationsAt(source, revision, controller.signal)
+      .then((locations) => {
+        if (!controller.signal.aborted && locations.status === "configured") {
+          setIntent(locations);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!controller.signal.aborted) setProofRereading(false);
+      });
+  };
 
   if (work === undefined || intent === "loading") {
     return work === undefined ? (
@@ -122,6 +147,10 @@ function IntentBody({
       source={source}
       revision={work.revision}
       locations={intent.locations}
+      proofRereading={proofRereading}
+      onProofRetry={() => {
+        retryProof(work.revision);
+      }}
     />
   );
 }

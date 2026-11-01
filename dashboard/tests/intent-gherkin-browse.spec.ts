@@ -72,7 +72,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       `at revision ${shortRevision(doughnut.revision)}`,
     );
     await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
-      "No Proof is available for this file yet",
+      "Proof is not recorded for this project.",
     );
     await expect(
       intent.getByRole("region", { name: "Proof" }),

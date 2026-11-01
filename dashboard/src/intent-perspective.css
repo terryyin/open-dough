@@ -137,3 +137,31 @@
     border-bottom: 1px solid var(--line);
   }
 }
+
+/* Proof rows (./IntentProof.tsx): one per scenario or outline row, each with
+   its own outcome, time, commit and file version, wide enough to read in
+   place and scrolling with the reading pane. */
+.intent-proof-counts {
+  margin: 0 0 var(--space-2);
+}
+
+.intent-proof-rows {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.intent-proof-rows th,
+.intent-proof-rows td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.intent-proof-rows tbody th {
+  font-weight: 400;
+}
+
+.intent-proof-example {
+  color: var(--quiet);
+}

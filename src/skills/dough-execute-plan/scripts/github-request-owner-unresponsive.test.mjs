@@ -1,8 +1,10 @@
 // An owner may accept socket connections without answering its authenticated
 // greeting. Concurrent consumers replace it once in the same allowance, and
-// when it resumes, its earlier authenticated connection cannot ask again.
+// when it resumes, its earlier authenticated connection cannot ask again. One
+// that ends before its welcome, gone before its consumer hears so, is absent.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { rmSync } from "node:fs";
 import { connect } from "node:net";
 import { basename, join } from "node:path";
 import { test } from "node:test";
@@ -15,6 +17,11 @@ import {
   scopeOf,
 } from "./github-request-owner-endpoint-connection.mjs";
 import { send } from "./github-request-owner-wire.mjs";
+
+const stopped = (pid) =>
+  execFileSync("ps", ["-p", String(pid), "-o", "stat="], { encoding: "utf8" })
+    .trim()
+    .startsWith("T");
 
 // Connectability is a fixture precondition, not the owner's readiness rule.
 const socketConnects = (path) =>
@@ -56,15 +63,7 @@ test("an owner whose socket connects but whose greeting never answers is replace
     );
   });
   process.kill(original.pid, "SIGSTOP");
-  await until(
-    () =>
-      execFileSync("ps", ["-p", String(original.pid), "-o", "stat="], {
-        encoding: "utf8",
-      })
-        .trim()
-        .startsWith("T"),
-    "the original owner stopped",
-  );
+  await until(() => stopped(original.pid), "the original owner stopped");
   assert.equal(
     await socketConnects(join(original.directory, original.socket)),
     true,
@@ -116,4 +115,41 @@ test("an owner whose socket connects but whose greeting never answers is replace
     owners().map(({ pid }) => pid),
     [replacement.pid],
   );
+});
+
+test("an owner that ends before welcoming a waiting greeting, and is gone before that consumer hears so, is absent rather than failed", async (t) => {
+  const { github, owners, consumer } = replacementMachine(t);
+  await consumer().reached();
+  const [owner] = owners();
+  const socket = join(owner.directory, owner.socket);
+  github.teardown.defer(() => {
+    if (!processGone(owner.pid)) process.kill(owner.pid, "SIGCONT");
+  });
+  process.kill(owner.pid, "SIGSTOP");
+  await until(() => stopped(owner.pid), "the owner stopped");
+
+  // The greeting waits at the stopped owner, which then finds its record
+  // withdrawn and ends before it welcomes anyone: stopped past its next
+  // check, that check runs before it reads the greeting.
+  const greeting = greeted({ ...owner, socket }, () => undefined).then(
+    (connection) => {
+      connection?.destroy();
+      return connection === undefined ? "absent" : "welcomed";
+    },
+    (error) => `failed: ${error.failure?.cause ?? error.message}`,
+  );
+  assert.equal(await socketConnects(socket), true);
+  rmSync(owner.file);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  process.kill(owner.pid, "SIGCONT");
+
+  // A consumer slowed as under load hears its connection close only once the
+  // owner's process is gone.
+  const pause = new Int32Array(new SharedArrayBuffer(4));
+  const deadline = Date.now() + 10_000;
+  while (!processGone(owner.pid)) {
+    if (Date.now() > deadline) throw new Error("The ending owner stayed");
+    Atomics.wait(pause, 0, 0, 10);
+  }
+  assert.equal(await greeting, "absent");
 });
