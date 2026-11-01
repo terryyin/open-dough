@@ -107,10 +107,12 @@ with `.tsx` files using TSX. Gherkin styling is unchanged.
 
 ### 3. Publish code test locations in the three projects
 Type: Behavior
-Status: planned
-Proof: Real-project observation through the dashboard at the published
-revisions, retained under `dashboard/test-results/` (gitignored) and summarized
-here, then Terry's evaluation.
+Status: done
+Proof: After-publish observation
+`dashboard/test-results/slice3-intent-observation-after-publish-20261101-132747/holds-summary.md`:
+Ex 1–4 hold (DN `d47bdcdedc`, PG `b6485b82b`, OD settings `a0ba689a`). Terry
+confirmed pushes and usefulness 2026-11-01. OD catalog-main Intent UI awaits
+land of the settings tip.
 
 Behavior: Open Dough's `.planning/open-dough.json` (in this change) and
 Doughnut's and Pygardon's trunks publish the story's locations → in Intent,
@@ -134,18 +136,16 @@ with the consumer trace.
   folder) and `**` (across folders) as `path.posix.matchesGlob` defines them,
   and only narrow files that already have the kind's extensions.
 - Empty-location wire problem is `no-matching-files` (was `no-features`).
+- Terry (2026-11-01): confirmed Doughnut/Pygardon settings pushes and Intent
+  usefulness for Ex 1–4 (“confirm all”).
 
 ## Learnings and preparation review
 
-Slice 3 progress (2026-11-01), before Terry outward-push confirmation: trunk
-pattern checks (Open Dough `923dd746`, Doughnut `b373ef62`, Pygardon
-`0de75f3c`) need no pattern corrections; tree + `locationSelectsRelativePath`
-Ex 1–4 hold (`dashboard/test-results/slice3-intent-observation-20261101-130333/`).
-Open Dough `.planning/open-dough.json` gains the three code locations
-(uncommitted); Doughnut/Pygardon settings sit under
-`/tmp/slice3-intent-settings-20261101/` unpushed. Published-trunk Intent still
-shows Open Dough `locations: null` and Doughnut/Pygardon gherkin-only until
-settings publish.
+Slice 3 (2026-11-01): pattern checks needed no corrections. Open Dough settings
+on `a0ba689a`; Doughnut `d47bdcdedc` and Pygardon `b6485b82b` pushed after
+Terry confirm. After-publish Ex 1–4 hold in
+`dashboard/test-results/slice3-intent-observation-after-publish-20261101-132747/`.
+OD catalog-main Intent UI still awaits land.
 
 Decisive premises, settled 2026-11-01 in this workspace's scratch directory:
 

@@ -11,10 +11,10 @@ implementation return, product, or proof.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer reviewing Open Dough’s, Doughnut’s, or Pygardon’s product intent can find and read the project’s TypeScript, Python, Node, and shell test source in Intent, including tests kept beside application code, as they already read Cucumber features. | slice 3 | |
+| 1 | A developer reviewing Open Dough’s, Doughnut’s, or Pygardon’s product intent can find and read the project’s TypeScript, Python, Node, and shell test source in Intent, including tests kept beside application code, as they already read Cucumber features. | slice 3 | observed: after-publish Intent Ex 1–4 in `dashboard/test-results/slice3-intent-observation-after-publish-20261101-132747/holds-summary.md`; Terry usefulness confirm 2026-11-01 |
 | 2 | Each location lists only the files its configuration selects, so specs are not buried among helpers and product files. Human amendment: selection leaves out unmatched files; a project adds a pattern or location to read helpers. | slice 1 | observed: `dashboard/tests/intent-code-browse.spec.ts` Ex 1–4 listing omissions |
-| 3 | This extends the Purpose reader to every requested test family without a separate story per language. | slice 3 | |
-| 4 | It supplies the test source that later Proof stories and the optimization-candidate links point into. | slice 3 | |
+| 3 | This extends the Purpose reader to every requested test family without a separate story per language. | slice 3 | observed: same holds-summary; kinds on three projects |
+| 4 | It supplies the test source that later Proof stories and the optimization-candidate links point into. | slice 3 | observed: readable listed files at published DN/PG SHAs and OD `a0ba689a` |
 | 5.1 | Kind may be `typescript` (`.ts`, `.tsx`) | slice 1 | observed: `intentSourceKinds.typescript` in `dashboard/server/intentLocationSelection.ts`; Ex 1–2 listing |
 | 5.2 | Kind may be `javascript` (`.js`, `.mjs`, `.cjs`) | slice 1 | observed: `intentSourceKinds.javascript`; Ex 4 javascript listing |
 | 5.3 | Kind may be `python` (`.py`) | slice 1 | observed: `intentSourceKinds.python`; Ex 3 listing |
@@ -30,16 +30,16 @@ implementation return, product, or proof.
 | 9.1 | No matching files → says so, naming path and selection, not `.feature` files. | slice 1 | observed: Ex 6 in `intent-gherkin-unusable.spec.ts`; `locationExplanation` |
 | 9.2 | Absent, malformed, unreadable settings, unsupported kind, failed read keep distinct explanations. | slice 1 | observed: `intent-gherkin-unusable.spec.ts`; boundary settings cases |
 | 9.3 | Proof still says none is available yet. | slice 1 | observed: unchanged Proof none wording (full suite) |
-| 10.1 | Open Dough: `dashboard/tests` (`typescript`, `**/*.spec.ts`) | slice 3 | |
-| 10.2 | Open Dough: `tests` (`shell`, `*.sh`) | slice 3 | |
-| 10.3 | Open Dough: `src/skills` (`javascript`, `**/*.test.mjs`) | slice 3 | |
-| 10.4 | Doughnut: `frontend/tests` (`typescript`, `**/*.spec.ts`) | slice 3 | |
-| 10.5 | Doughnut: `scripts` (`javascript`, `**/*.test.mjs`) | slice 3 | |
-| 10.6 | Doughnut: `infra` (`javascript`, `**/*.test.mjs`) | slice 3 | |
-| 10.7 | Pygardon: `frontend/src` (`typescript`, four spec/test patterns) | slice 3 | |
-| 10.8 | Pygardon: `tests` (`python`, `**/test_*.py`) | slice 3 | |
-| 10.9 | Doughnut and Pygardon get settings-only commits pushed without force. | slice 3 | |
-| 10.10 | Execution confirms that outward step with Terry before pushing. | slice 3 | |
+| 10.1 | Open Dough: `dashboard/tests` (`typescript`, `**/*.spec.ts`) | slice 3 | observed: `.planning/open-dough.json` on `a0ba689a`; Ex 1 API |
+| 10.2 | Open Dough: `tests` (`shell`, `*.sh`) | slice 3 | observed: same settings; Ex 4 shell API at `a0ba689a` |
+| 10.3 | Open Dough: `src/skills` (`javascript`, `**/*.test.mjs`) | slice 3 | observed: same settings file |
+| 10.4 | Doughnut: `frontend/tests` (`typescript`, `**/*.spec.ts`) | slice 3 | observed: Intent UI at `d47bdcdedc` |
+| 10.5 | Doughnut: `scripts` (`javascript`, `**/*.test.mjs`) | slice 3 | observed: Intent UI at `d47bdcdedc` |
+| 10.6 | Doughnut: `infra` (`javascript`, `**/*.test.mjs`) | slice 3 | observed: settings on `d47bdcdedc` |
+| 10.7 | Pygardon: `frontend/src` (`typescript`, four spec/test patterns) | slice 3 | observed: Intent UI at `b6485b82b` |
+| 10.8 | Pygardon: `tests` (`python`, `**/test_*.py`) | slice 3 | observed: Intent UI at `b6485b82b` |
+| 10.9 | Doughnut and Pygardon get settings-only commits pushed without force. | slice 3 | observed: `d47bdcdedc`→doughnut main; `b6485b82b`→pygardon main |
+| 10.10 | Execution confirms that outward step with Terry before pushing. | slice 3 | observed: Terry 2026-11-01 “confirm all” before push |
 | 11.1 | Reads stay limited to files a configured location lists (kind + include). | slice 1 | observed: Ex 7 `authenticated-read-intent-locations.spec.ts` |
 | 11.2 | A colocated location must not make the folder’s product source readable. | slice 1 | observed: Ex 7 unmatched `AspyPage.tsx` 404 outside-locations |
 | E1 | Spec among helpers: list specs, omit helpers; select shows exact text with TypeScript styling and revision. | slice 1 | observed: Ex 1 listing + colourOf TypeScript in `intent-code-browse.spec.ts` |
@@ -66,4 +66,4 @@ implementation return, product, or proof.
 | --- | --- | --- | --- |
 | 2, 5.1–5.5, 5.7, 6.*, 7, 9.*, 11.*, E4.*, E5–E7 | List/select/headings/admission/distinct states as source states | Fake-origin Intent journeys and boundary `file-at` match expected listing, wording, and refusal | slice 1 done |
 | 5.6, 8, E1–E3 | Kind styling on selected code files | Lazy grammars + colourOf keyword≠string for `.ts`/`.tsx`/`.mjs`/`.py`/`.sh`; Gherkin unchanged | proved by slice 2 |
-| 1, 3, 4, 10.* | Real three-project configurations and goal completion | Not in product settings yet | slice 3 |
+| 1, 3, 4, 10.* | Real three-project configurations and goal completion | DN/PG trunks + OD settings SHA Ex 1–4 hold; Terry usefulness confirm; OD catalog main Intent UI awaits land | slice 3 done |
