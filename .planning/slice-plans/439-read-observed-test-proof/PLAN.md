@@ -206,6 +206,13 @@ in `github-request-owner-unresponsive.test.mjs` failed 5/5 without the fix; the
 two tests passed 20 times in a row, the 22 request/diagnostic tests 3 times,
 and full `npm test` passed.
 
+Trunk CI repair (2026-11-01): run 41325287636 on the landed `bdeb210a` failed
+`sessions-sidebar-host-status.spec.ts` with "response.json: Test ended": its last
+step awaited the third host read being asked, not answered, so the response
+listener outlived the test. The step now also polls the third answer. A forced
+delay on that answer failed before the fix and passed 5/5 after; the spec passed
+60/60 under `--repeat-each 10`.
+
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
 Status: planned
