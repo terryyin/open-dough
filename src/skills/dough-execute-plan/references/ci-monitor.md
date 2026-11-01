@@ -133,9 +133,15 @@ until that missing history is accounted for.
 1. **Classify before pausing.** For the GitHub default, read the failed
    attempt's failed jobs, failed steps, and bounded log excerpts with
    `node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-github-diagnostic.mjs' failure OWNER/REPO RUN_ID ATTEMPT`,
-   kept out of coordinator context except relevant excerpts. Exit 75 signals a hold;
-   for held logs use each job's numeric `logWaitSeconds` and `logUnavailable`,
-   retaining readable steps/excerpts. Rerun only after directed waits end,
+   kept out of coordinator context except relevant excerpts. Every failed job
+   lists the `failures` its whole log names in known formats; excerpts cover
+   only the first ten jobs' marked errors. Repair scope covers every listed
+   failure. `inventory.complete` is false while any `inventory.gaps` entry
+   remains: an unfinished attempt, a missing log, omitted lines, or a job naming
+   no failing test or check. Treat a gap as unknown evidence, never as passing
+   or infrastructure; diagnose again once an unfinished attempt ends.
+   Exit 75 signals a hold; for held logs use each job's numeric
+   `logWaitSeconds` and `logUnavailable`, retaining readable steps/excerpts. Rerun only after directed waits end,
    never a wait inferred from prose. Other missing logs (HTTP 404/410, output
    bounds, failed requests) supply no delay: classify from available evidence,
    retaining uncertainty when insufficient. Missing logs alone never justify

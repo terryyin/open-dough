@@ -86,13 +86,24 @@ only from a released payload.
 
 ### 2. A repair owner receives the whole failed-test inventory
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing instrumented diagnostic CLI cases for an early
 FAIL followed by a long log and a later FAIL, more than ten failed jobs,
 mixed npm/assertion failures, unavailable or held logs, and a later sibling
 failure. Run npm test -- src/skills/dough-execute-plan/scripts/ci-github-diagnostic.test.mjs
-src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs,
+src/skills/dough-execute-plan/scripts/ci-github-diagnostic-logs.test.mjs
+src/skills/dough-execute-plan/scripts/ci-github-diagnostic-inventory.test.mjs,
 then every reached diagnostic/acquisition consumer from consumer-trace.
+
+Accepted proof: the diagnostic reads every failed job's whole log and
+returns per-job `failures` in the project's known formats plus a top-level
+`inventory {complete, failedJobs, gaps}`; the first ten jobs keep bounded
+excerpts. Gaps name unavailable logs, omitted lines, unrecognized or
+identity-free failures and unfinished attempts; ci-monitor.md treats a gap
+as unknown evidence, never infrastructure. Six new cases failed before and
+pass after; the diagnostic, acquisition, request-owner and ci-monitor
+guidance consumers exited 0. Its first hosted use named all five failed
+journeys of run 41261530651, repaired by merging trunk's 62defee5.
 
 Behavior: Failure evidence is requested -> every available failed job/test
 identity remains discoverable, bounded details remain bounded, and partial

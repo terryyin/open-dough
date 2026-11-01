@@ -30,9 +30,9 @@ text; slice allocation and observations are the coordinator's.
 | 4a.1 | The project's failed/flaky-test policy is available to Codex, Cursor and Claude Code through shared project guidance | slice 1 | observed: AGENTS.md "Failing and flaky tests" (root AGENTS.md read by Codex and Cursor; Claude Code via CLAUDE.md @AGENTS.md) |
 | 4a.2 | Preserve an active sibling repair owner's work | slice 1 | observed: AGENTS.md "Failing and flaky tests" other-owner bullet; execution-decisions.md "Diagnose failed proof" |
 | 4a.3 | A defect that predates this change is not, by that fact alone, an exemption | slice 1 | observed: AGENTS.md attribution bullet; execution-decisions.md "Diagnose failed proof"; executable-proof.md known-failure sentence |
-| 4b.1 | Return a complete inventory of failed-job and failed-test identities | slice 2 |  |
-| 4b.2 | Return it alongside bounded diagnostic details | slice 2 |  |
-| 4b.3 | Expose unavailable, omitted or still-changing evidence instead of presenting a partial view as complete | slice 2 |  |
+| 4b.1 | Return a complete inventory of failed-job and failed-test identities | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "the inventory names an early failure, a later one and every job's beyond the excerpted ten" (12 jobs, every identity); hosted run 41261530651 inventory named all five failed journeys |
+| 4b.2 | Return it alongside bounded diagnostic details | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs same test, first job's excerpt at most 24 lines lacks the early identity the inventory holds; stdout bounds kept |
+| 4b.3 | Expose unavailable, omitted or still-changing evidence instead of presenting a partial view as complete | slice 2 | observed: ci-github-diagnostic-logs.test.mjs held-only and mixed held/expired/readable gaps; ci-github-diagnostic-inventory.test.mjs "failure lines past each job's bound are counted, not dropped silently" |
 | 4c.1 | Remove the demonstrated mismatch between the coordinates a native touch helper checks and the coordinates it taps | slice 3 |  |
 | 4c.2 | Retain real touch, reachability, clipping and sufficiently sized target observations | slice 3 |  |
 | 4c.3 | Settle the transitions that need it | slice 3 |  |
@@ -52,10 +52,10 @@ text; slice allocation and observations are the coordinator's.
 | E1.2 | Reproducing the failure on the base is attribution, not a waiver | slice 1 | observed: AGENTS.md attribution bullet; execution-decisions.md "Attribution explains the cause" |
 | E2.1 | Another active execution owns that exact repair and its uncommitted files: preserve them and report the real coordination boundary, with no duplicate writer, stash or claim | slice 1 | observed: AGENTS.md other-owner bullet; ci-monitor.md known other owner paragraph |
 | E2.2 | A vague assertion of pre-existing origin is not evidence of that ownership | slice 1 | observed: AGENTS.md other-owner bullet, "pre-existing" is not evidence of such an owner |
-| E3.1 | Early failure, many detail lines, later failure before exit marker; more than ten failed jobs: the diagnostic names every available failed test and job | slice 2 |  |
-| E3.2 | The diagnostic distinguishes bounded details from completeness | slice 2 |  |
-| E3.3 | Missing logs remain explicit unknown evidence | slice 2 |  |
-| E4.1 | npm setup fails first but a later sibling asserts incorrectly: the attempt is not waived as infrastructure | slice 2 |  |
+| E3.1 | Early failure, many detail lines, later failure before exit marker; more than ten failed jobs: the diagnostic names every available failed test and job | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "the inventory names an early failure, a later one and every job's beyond the excerpted ten" |
+| E3.2 | The diagnostic distinguishes bounded details from completeness | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs excerpt versus inventory assertions; inventory.complete only without gaps |
+| E3.3 | Missing logs remain explicit unknown evidence | slice 2 | observed: ci-github-diagnostic-logs.test.mjs held-only test asserts gap reason log-unavailable |
+| E4.1 | npm setup fails first but a later sibling asserts incorrectly: the attempt is not waived as infrastructure | slice 2 | observed: ci-github-diagnostic-inventory.test.mjs "an npm setup failure beside a later sibling's assertion is not an infrastructure-only inventory, even while the sibling still runs"; ci-monitor.md: a gap is never infrastructure |
 | E4.2 | Recurring acquisition trouble is examined for a repository setup cause rather than ignored indefinitely | slice 5 |  |
 | E5.1 | A touch target moves between measurement and activation: the helper cannot report successful reachability for a different point and silently miss the target | slice 3 |  |
 | E5.2 | Stable native-touch journeys and clear obstruction diagnosis survive | slice 3 |  |
@@ -78,7 +78,7 @@ text; slice allocation and observations are the coordinator's.
 | C2.3 | Do not hand-synchronize the installed .agents or .claude managed copies | slice 5 |  |
 | C2.4 | The explicit Open Dough failure policy stays project guidance, not a policy imposed on other projects | slice 1 | observed: src/skills edits name "this project's failure policy"; Open Dough rule only in AGENTS.md |
 | C3.1 | Reuse current diagnostic/provider acquisition, bounded evidence, consumer tracing, CI observer, completion receipts and publication mechanisms | slice 5 |  |
-| C3.2 | Preserve held-log waits, cancellation, safe diagnostics and exact-attempt identity | slice 2 |  |
+| C3.2 | Preserve held-log waits, cancellation, safe diagnostics and exact-attempt identity | slice 2 | observed: unchanged held-wait, exit 75, safe-cause and attempt-identity tests pass in ci-github-diagnostic.test.mjs and ci-github-diagnostic-logs.test.mjs |
 | C3.3 | Add no new scheduler, global lock or completion ledger | slice 5 |  |
 | C4 | No retry-until-green repair, arbitrary sleeps, blanket timeout inflation, muted failures, force clicks, or replacing native touch with locator activation to bypass the observed problem | slice 5 |  |
 | C5.1 | E2E scenarios keep useful integration and user-intent protection | slice 5 |  |
