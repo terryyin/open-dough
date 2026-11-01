@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-208_declare-fixture-defaults-on-fixtures.json",
+      "identity": "SEED-208#declare-fixture-defaults-on-fixtures",
+      "completedAt": "2026-11-01T07:49:16.575Z",
+      "blob": "d7b7b085a919ba2ab2e9b8fbf83887933df6fa63"
+    },
+    {
       "fileName": "SEED-192_browse-configured-test-source.json",
       "identity": "SEED-192#browse-configured-test-source",
       "completedAt": "2026-11-01T05:42:23.467Z",

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-208#declare-fixture-defaults-on-fixtures",
+  "title": "Declare dashboard fixture defaults on their fixtures",
+  "completedAt": "2026-11-01T07:49:16.575Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "cursor",
+  "model": "auto"
+}
