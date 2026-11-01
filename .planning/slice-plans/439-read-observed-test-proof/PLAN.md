@@ -197,6 +197,15 @@ profiles, the Gherkin location in `.planning/open-dough.json`, and a Git
 checkout (without one it records nothing); the walk above is the useful
 outcome.
 
+CI repair (2026-11-01): run 41321048358 on `4487c435` failed
+`ci-github-diagnostic-inventory.test.mjs` with "local connection failed", a
+request-owner race unrelated to this story. `github-request-owner.mjs` now
+removes its socket before closing connections, and `greeted()` treats a close
+before the welcome as absence once the socket is gone. The new regression test
+in `github-request-owner-unresponsive.test.mjs` failed 5/5 without the fix; the
+two tests passed 20 times in a row, the 22 request/diagnostic tests 3 times,
+and full `npm test` passed.
+
 ### 4. Pygardon's ordinary runs publish proof that Intent reads
 Type: Behavior
 Status: planned
