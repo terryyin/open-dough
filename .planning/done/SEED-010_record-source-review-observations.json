@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#record-source-review-observations",
+  "title": "Record source-review observations through one supported operation",
+  "completedAt": "2026-11-01T02:29:59.447Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "cursor",
+  "model": "auto"
+}
