@@ -126,7 +126,9 @@ test("a reference reveals a starting story without opening its protected inspect
   await expect(
     supplier.getByRole("button", { name: "Inspect story" }),
   ).toBeDisabled();
+  // Inspect protects before mechanical prep invokes the held host.
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  const before = dashboard.claudeLaunchCalls().length;
   const consumer = parts(page).backlog.getByRole("article", {
     name: "Story A",
     exact: true,
