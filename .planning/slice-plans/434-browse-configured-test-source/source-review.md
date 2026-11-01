@@ -20,13 +20,13 @@ implementation return, product, or proof.
 | 5.3 | Kind may be `python` (`.py`) | slice 1 | observed: `intentSourceKinds.python`; Ex 3 listing |
 | 5.4 | Kind may be `shell` (`.sh`, `.bash`) | slice 1 | observed: `intentSourceKinds.shell`; Ex 4 shell listing |
 | 5.5 | Kind may be `gherkin` (`.feature`) | slice 1 | observed: `intentSourceKinds.gherkin`; `intent-gherkin-browse.spec.ts` Ex 5 |
-| 5.6 | Each `.tsx` file is styled as TSX. | slice 2 | G1 |
+| 5.6 | Each `.tsx` file is styled as TSX. | slice 2 | observed: `sourceHighlight.ts` path→tsx; Ex 2 colourOf in `intent-code-browse.spec.ts` |
 | 5.7 | Another kind keeps the existing unsupported-kind explanation. | slice 1 | observed: `intent-gherkin-unusable.spec.ts` unsupported kind `java` |
 | 6.1 | A location may give `include`, path patterns relative to the location: `*` one folder, `**` across folders. | slice 1 | observed: `locationSelectsRelativePath` + `path.posix.matchesGlob`; PROJECT-CONFIGURATION.md |
 | 6.2 | When given, lists only files of its kind matching at least one pattern. | slice 1 | observed: `intent-code-browse.spec.ts` Ex 1–4 |
 | 6.3 | Without `include`, lists every file of its kind; existing configurations unchanged. | slice 1 | observed: `intent-gherkin-browse.spec.ts` Ex 5 |
 | 7 | Each location shows its path, kind, and any include patterns. | slice 1 | observed: heading assertions in `intent-code-browse.spec.ts`; `IntentLocationTree.tsx` |
-| 8 | Selecting a listed file shows its exact text with line numbers and styling for its kind; styling only aids reading. | slice 1 | G1 |
+| 8 | Selecting a listed file shows its exact text with line numbers and styling for its kind; styling only aids reading. | slice 1 | observed: Ex 1–4 exact text + colourOf keyword/string in `intent-code-browse.spec.ts`; Gherkin unchanged |
 | 9.1 | No matching files → says so, naming path and selection, not `.feature` files. | slice 1 | observed: Ex 6 in `intent-gherkin-unusable.spec.ts`; `locationExplanation` |
 | 9.2 | Absent, malformed, unreadable settings, unsupported kind, failed read keep distinct explanations. | slice 1 | observed: `intent-gherkin-unusable.spec.ts`; boundary settings cases |
 | 9.3 | Proof still says none is available yet. | slice 1 | observed: unchanged Proof none wording (full suite) |
@@ -42,9 +42,9 @@ implementation return, product, or proof.
 | 10.10 | Execution confirms that outward step with Terry before pushing. | slice 3 | |
 | 11.1 | Reads stay limited to files a configured location lists (kind + include). | slice 1 | observed: Ex 7 `authenticated-read-intent-locations.spec.ts` |
 | 11.2 | A colocated location must not make the folder’s product source readable. | slice 1 | observed: Ex 7 unmatched `AspyPage.tsx` 404 outside-locations |
-| E1 | Spec among helpers: list specs, omit helpers; select shows exact text with TypeScript styling and revision. | slice 1 | G1 |
-| E2 | Colocated: list `.spec.tsx`, omit product and `*.spec.helpers.tsx`; styled as TSX. | slice 1 | G1 |
-| E3 | Python: list `test_*.py`, omit support; Python styling. | slice 1 | G1 |
+| E1 | Spec among helpers: list specs, omit helpers; select shows exact text with TypeScript styling and revision. | slice 1 | observed: Ex 1 listing + colourOf TypeScript in `intent-code-browse.spec.ts` |
+| E2 | Colocated: list `.spec.tsx`, omit product and `*.spec.helpers.tsx`; styled as TSX. | slice 1 | observed: Ex 2 listing + colourOf TSX in `intent-code-browse.spec.ts` |
+| E3 | Python: list `test_*.py`, omit support; Python styling. | slice 1 | observed: Ex 3 listing + colourOf Python in `intent-code-browse.spec.ts` |
 | E4.1 | Shell `*.sh` lists top-level checks, not under `tests/support`. | slice 1 | observed: Ex 4 shell in `intent-code-browse.spec.ts` |
 | E4.2 | JavaScript `**/*.test.mjs` lists matched test, not `*-fixtures.mjs`. | slice 1 | observed: Ex 4 javascript in `intent-code-browse.spec.ts` |
 | E5 | Gherkin without include lists the same `.feature` files as before. | slice 1 | observed: `intent-gherkin-browse.spec.ts` |
@@ -65,5 +65,5 @@ implementation return, product, or proof.
 | Id | Source-expected | Actual observation | Owner |
 | --- | --- | --- | --- |
 | 2, 5.1–5.5, 5.7, 6.*, 7, 9.*, 11.*, E4.*, E5–E7 | List/select/headings/admission/distinct states as source states | Fake-origin Intent journeys and boundary `file-at` match expected listing, wording, and refusal | slice 1 done |
-| 5.6, 8, E1–E3 | Kind styling on selected code files | `highlightSourceLines` still gherkin-only; journeys assert exact text + revision without token colours | G1 interim until slice 2 |
+| 5.6, 8, E1–E3 | Kind styling on selected code files | Lazy grammars + colourOf keyword≠string for `.ts`/`.tsx`/`.mjs`/`.py`/`.sh`; Gherkin unchanged | proved by slice 2 |
 | 1, 3, 4, 10.* | Real three-project configurations and goal completion | Not in product settings yet | slice 3 |

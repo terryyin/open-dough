@@ -95,10 +95,11 @@ Interim: code kinds render as plain text until slice 2 replaces it.
 
 ### 2. Style each code kind
 Type: Behavior
-Status: planned
-Proof: The journey from slice 1 observes distinct token colours for a keyword
-and a string in `.ts`, `.tsx`, `.mjs`, `.py`, and `.sh` sources. Grammar-load
-failure still leaves exact plain text (existing fallback check).
+Status: done
+Proof: `intent-code-browse.spec.ts` observes distinct keyword vs string colours
+via `expectKeywordAndStringColours` for `.ts`, `.tsx`, `.mjs`, `.py`, and `.sh`;
+`intent-gherkin-browse.spec.ts` unchanged. Grammar-load failure still leaves
+exact plain text. typecheck:dashboard passed after refactor (`sourceLanguage`).
 
 Behavior: Selecting a TypeScript, TSX, JavaScript, Python, or shell file →
 its lines are styled with that language's grammar, loaded on first use only,
@@ -182,8 +183,7 @@ concern.
 ### G1. Code kinds render without kind styling
 Reported: slice 1 — "Interim: code kinds render as plain text until slice 2 replaces it."
 Story clause: "Selecting a listed file shows its exact text with line numbers and styling for its kind, as Gherkin does today."
-Disposition: interim until slices 2
-Commitment: 5.6, 8, E1, E2, E3
+Disposition: proved by slice 2: intent-code-browse.spec.ts colourOf per kind; sourceHighlight.ts lazy grammars
 
 ### X1. Support files beside matched tests
 Reported: slice 1 — "Showing support files beside matched tests"

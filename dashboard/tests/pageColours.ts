@@ -21,6 +21,25 @@ export const colourOf = (element: Locator) =>
 export const backgroundOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).backgroundColor);
 
+// Kind styling: a keyword token and a string token must not share one colour.
+export async function expectKeywordAndStringColours(
+  source: Locator,
+  keyword: RegExp,
+  stringLiteral: RegExp,
+) {
+  const keywordToken = source
+    .locator(".source-line-text span")
+    .filter({ hasText: keyword });
+  const stringToken = source
+    .locator(".source-line-text span")
+    .filter({ hasText: stringLiteral });
+  await expect(keywordToken.first()).toBeVisible();
+  await expect(stringToken.first()).toBeVisible();
+  expect(await colourOf(keywordToken.first())).not.toBe(
+    await colourOf(stringToken.first()),
+  );
+}
+
 // A session entry inside a card is set off from the card on the shared raised surface
 // and reads in the card's own text, while its local-launch note stays quiet.
 export async function expectSessionEntrySetOff(entry: Locator) {

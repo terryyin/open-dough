@@ -1,8 +1,10 @@
 // Intent Purpose source pane (`./IntentBrowser.tsx`): path and observed
 // revision beside the shared whole-file source-lines view. The location's
-// kind names the Shiki grammar; styling arrives when that highlighter is ready.
+// kind and path select the Shiki language (`sourceLanguage`); styling
+// arrives when that highlighter is ready.
 
 import { SourceLines } from "./SourceLines.tsx";
+import { sourceLanguage } from "./sourceHighlight.ts";
 import "./intent-source-lines.css";
 
 export function IntentSourceLines({
@@ -16,6 +18,8 @@ export function IntentSourceLines({
   readonly path: string;
   readonly language?: string;
 }) {
+  const highlightLanguage =
+    language === undefined ? undefined : sourceLanguage(language, path);
   return (
     <div className="intent-source">
       <p className="intent-source-meta">
@@ -23,7 +27,9 @@ export function IntentSourceLines({
       </p>
       <SourceLines
         text={text}
-        {...(language === undefined ? {} : { language })}
+        {...(highlightLanguage === undefined
+          ? {}
+          : { language: highlightLanguage })}
         aria-label={`${path} source`}
       />
     </div>

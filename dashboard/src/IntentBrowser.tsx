@@ -56,7 +56,7 @@ export function IntentBrowser({
     };
   }, [source, revision, selectedPath, fileRetry]);
 
-  // The location's kind names the Shiki grammar for the shared source view.
+  // The location's kind (with path for typescript/.tsx) selects the grammar.
   const selectedLanguage = locations.find((location) =>
     location.files.includes(selectedPath),
   )?.kind;

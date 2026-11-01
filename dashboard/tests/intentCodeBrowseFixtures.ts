@@ -117,7 +117,7 @@ export const aspyPage = `export function AspyPage() {
 `;
 
 export const pythonTest = `def test_example():
-    assert True
+    assert "ok"
 `;
 
 export const shellCheck = `#!/usr/bin/env bash

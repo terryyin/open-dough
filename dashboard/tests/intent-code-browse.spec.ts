@@ -1,11 +1,12 @@
 // Intent lists and reads configured TypeScript, Python, JavaScript, and shell
 // test source at the observed revision (../src/IntentPerspective.tsx): matched
 // files under include patterns, helpers and product files omitted, headings
-// naming path/kind/patterns, and exact text with the observed revision
-// (plain text until grammars load in a later slice).
+// naming path/kind/patterns, and exact text with kind styling and the
+// observed revision.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
+import { expectKeywordAndStringColours } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   aspyPage,
@@ -56,7 +57,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
 
-  await test.step("Ex 1: TypeScript specs among helpers; heading names patterns; selecting shows exact text and revision", async () => {
+  await test.step("Ex 1: TypeScript specs among helpers; heading names patterns; selecting shows exact text, revision, and kind styling", async () => {
     const testsHeading = intent.getByRole("heading", {
       name: /dashboard\/tests/,
     });
@@ -104,9 +105,14 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expect(intent).toContainText(
       `at revision ${shortRevision(openDough.revision)}`,
     );
+    await expectKeywordAndStringColours(
+      source,
+      /^import$/,
+      /^"@playwright\/test"$/,
+    );
   });
 
-  await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted", async () => {
+  await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted; selecting shows kind styling", async () => {
     const shellHeading = intent.getByRole("heading", { name: /^tests / });
     await expect(shellHeading).toContainText("shell");
     await expect(shellHeading).toContainText("*.sh");
@@ -122,9 +128,19 @@ test("Intent lists matched code test files under include patterns, omits helpers
         exact: true,
       }),
     ).toHaveCount(0);
+
+    await intent
+      .getByRole("button", {
+        name: "tests/compare-versions.sh",
+        exact: true,
+      })
+      .click();
+    const source = intent.getByLabel("tests/compare-versions.sh source");
+    await expect(source).toContainText("echo ok");
+    await expectKeywordAndStringColours(source, /^echo$/, /^ok$/);
   });
 
-  await test.step("Ex 4 javascript: matched *.test.mjs listed; fixtures omitted", async () => {
+  await test.step("Ex 4 javascript: matched *.test.mjs listed; fixtures omitted; selecting shows kind styling", async () => {
     await chooseProject(page, "Doughnut");
     await expect(
       intent.getByRole("heading", { name: /scripts/ }),
@@ -147,14 +163,18 @@ test("Intent lists matched code test files under include patterns, omits helpers
         exact: true,
       })
       .click();
-    await expect(
-      intent.getByLabel(
-        "scripts/backend-test-worktree-admission.test.mjs source",
-      ),
-    ).toContainText("assert.equal(1, 1)");
+    const source = intent.getByLabel(
+      "scripts/backend-test-worktree-admission.test.mjs source",
+    );
+    await expect(source).toContainText("assert.equal(1, 1)");
+    await expectKeywordAndStringColours(
+      source,
+      /^import$/,
+      /^"node:assert\/strict"$/,
+    );
   });
 
-  await test.step("Ex 2 colocated TypeScript and Ex 3 Python: specs listed; product and support omitted", async () => {
+  await test.step("Ex 2 colocated TypeScript and Ex 3 Python: specs listed; product and support omitted; selecting shows kind styling", async () => {
     await chooseProject(page, "Pygardon");
     const frontendHeading = intent.getByRole("heading", {
       name: /frontend\/src/,
@@ -179,6 +199,18 @@ test("Intent lists matched code test files under include patterns, omits helpers
       }),
     ).toHaveCount(0);
 
+    await intent
+      .getByRole("button", {
+        name: "frontend/src/pages/AspyPage.devices.spec.tsx",
+        exact: true,
+      })
+      .click();
+    const tsxSource = intent.getByLabel(
+      "frontend/src/pages/AspyPage.devices.spec.tsx source",
+    );
+    await expect(tsxSource).toContainText('return "devices";');
+    await expectKeywordAndStringColours(tsxSource, /^return$/, /^"devices"$/);
+
     const pythonHeading = intent.getByRole("heading", { name: /^tests / });
     await expect(pythonHeading).toContainText("python");
     await expect(pythonHeading).toContainText("**/test_*.py");
@@ -201,11 +233,11 @@ test("Intent lists matched code test files under include patterns, omits helpers
         exact: true,
       })
       .click();
-    await expect(
-      intent.getByLabel("tests/test_example.py source"),
-    ).toContainText("def test_example():");
+    const pythonSource = intent.getByLabel("tests/test_example.py source");
+    await expect(pythonSource).toContainText("def test_example():");
     await expect(intent).toContainText(
       `at revision ${shortRevision(pygardon.revision)}`,
     );
+    await expectKeywordAndStringColours(pythonSource, /^def$/, /^"ok"$/);
   });
 });
