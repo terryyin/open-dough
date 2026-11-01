@@ -23,8 +23,8 @@
   changes are coverage simplifications; slice 4's phase family is the only
   focused `--workers=1` reduction measured (38s to 27s wall).
 - **Evidence:** [value/cost assessment](../docs/maintainer/dashboard-test-value-review.md);
-  [replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md)
-  slice Results; records under `~/.claude/jobs/e8e9da13/tmp/final-*`.
+  replacement plan `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`
+  slice Results (run records were local and not retained).
 
 ## Pending candidates
 
@@ -50,7 +50,7 @@
   (`withholdLaunchOutcomes`); a clock change must not extend that mechanism.
 - **Date:** 2026-11-01
 - **Evidence / follow-up:** SEED-208 slices 7 and 8 Results in the
-  [replacement plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md).
+  replacement plan `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`.
 
 ## Accepted necessary costs
 

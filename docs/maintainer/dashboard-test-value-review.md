@@ -5,8 +5,8 @@ Source inspection and existing measurements only; no new timings or test changes
 SEED-208 (plan 432) then implemented the actions below; each section's
 **Outcome** names where the surviving proof now lives.
 The [candidate record](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md) owns
-dispositions; [the selected improvement story](../../.planning/seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost)
-owns proposed implementation.
+dispositions; the improvement story is recoverable at
+`40e1d2f9:.planning/seeds/SEED-208-dashboard-proof-cost.md` (`#reduce-dashboard-proof-cost`).
 
 ## Decision basis
 

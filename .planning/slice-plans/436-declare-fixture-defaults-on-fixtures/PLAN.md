@@ -11,8 +11,8 @@ launchTimeoutMs: … })` in `dashboard/tests/support/cursorStart.ts:81` and
 fixture itself, as `support/codexStart.ts` now does (plain-value overrides
 inside `base.extend`; the `[value, { option: true }]` form fails typecheck for
 an inherited option). Spec-level `test.use` keeps precedence. Provenance:
-plan 432 slice 9 Result and obligation G2 (removed with that plan at wrap-up;
-recover from its last commit `b6a767ce`).
+plan 432 slice 9 Result and obligation G2, recoverable at
+`40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`.
 
 ## Existing solutions and constraints
 
