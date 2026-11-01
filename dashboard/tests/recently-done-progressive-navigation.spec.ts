@@ -13,7 +13,7 @@
 // `gh` calls reaching the fake GitHub show which records were read.
 
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shownProjectControl, chooseProject, parts } from "./dashboardPage.ts";
 import { rem, showColumn } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
@@ -187,7 +187,7 @@ test("choosing another project before the entries before it are read shows that 
     "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
   );
   const view = await openedWithHeldStory(page, dashboard);
-  const { project, backlog } = parts(page);
+  const { backlog } = parts(page);
   await view.markedDone(destination);
   await expect(view.done(destination)).toBeVisible();
   // The demand's records have all been asked for, the held one still
@@ -196,13 +196,12 @@ test("choosing another project before the entries before it are read shows that 
   await expect
     .poll(() => recordsAsked(view.github).toSorted())
     .toEqual(storiesThrough(destination).toSorted());
-  const pygardonChoice = project.getByRole("radio", { name: "Pygardon" });
-  await pygardonChoice.check();
+  await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   view.release();
   await settle(page);
-  await expect(pygardonChoice).toBeFocused();
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await expect(shownProjectControl(page)).toBeFocused();
+  await chooseProject(page, "Open Dough");
   await expectEntries(view.recent, names(10));
   expect(recordsAsked(view.github).toSorted()).toEqual(
     storiesThrough(destination).toSorted(),

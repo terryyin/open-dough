@@ -7,6 +7,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   storyCardAttentionOf,
   storyCardSessionOf,
   storyCardSessions,
@@ -86,7 +87,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       page,
       columnsJourney,
     );
-    const { board, project, taken } = parts(page);
+    const { board, taken } = parts(page);
     const card = (title: string) =>
       board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
@@ -201,8 +202,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     });
 
     await test.step("another project counts only its own sessions, and a return or reload reads the count afresh", async () => {
-      const select = (name: string) =>
-        project.getByRole("radio", { name, exact: true }).check();
+      const select = (name: string) => chooseProject(page, name);
       await select("Doughnut");
       // Launching waits for Doughnut's card, so its count is Doughnut's.
       await launch(doughnutSharedTitle, "Execution");

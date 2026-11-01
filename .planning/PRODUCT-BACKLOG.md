@@ -28,13 +28,13 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources
+- [Bound local test resources](seeds/SEED-209-local-test-resources.md#bound-local-test-resources) — SEED-209#bound-local-test-resources ([plan](slice-plans/433-local-test-resources/PLAN.md))
 - [Finish every execution with trustworthy CI and no known flaky tests](seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion) — SEED-208#trustworthy-ci-completion ([plan](slice-plans/432-trustworthy-ci-completion/PLAN.md))
+- [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost ([plan](slice-plans/432-reduce-dashboard-proof-cost/PLAN.md))
 
 ## Backlog list
 
 - [Record source-review observations through one supported operation](seeds/SEED-010-learn-from-execution-retrospectives.md#record-source-review-observations) — SEED-010#record-source-review-observations
-- [Reduce dashboard proof cost while retaining worthwhile coverage](seeds/SEED-208-dashboard-proof-cost.md#reduce-dashboard-proof-cost) — SEED-208#reduce-dashboard-proof-cost
 - [Browse the other configured test sources](seeds/SEED-192-review-product-intent.md#browse-configured-test-source) — SEED-192#browse-configured-test-source
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact

@@ -3,6 +3,7 @@
 // and opening through PageFrame. Room sharing, reopen, Board/final-report
 // destinations, and older paging live beside this file.
 import {
+  chooseProject,
   expectProjectChoice,
   standaloneSessionName,
   parts,
@@ -193,16 +194,14 @@ test("finds and opens the newest completed sessions across projects from a colla
       await shown.header.click();
     const attaches = dashboard.claudeAttaches().length;
     await shown.entry(olderTitle).click();
-    await expect(
-      parts(page).project.getByRole("radio", { name: "Pygardon" }),
-    ).toBeChecked();
+    await expectProjectChoice(page, "Pygardon");
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toHaveLength(attaches);
   });
 
   await test.step("reload starts the section collapsed again", async () => {
     await page.reload();
-    await parts(page).project.getByRole("radio", { name: "Pygardon" }).check();
+    await chooseProject(page, "Pygardon");
     await openSessionsSidebar(page);
     await expect(shown.header).toHaveAttribute("aria-expanded", "false");
     await expect(shown.body).toHaveCount(0);

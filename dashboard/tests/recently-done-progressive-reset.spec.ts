@@ -10,7 +10,7 @@
 // GitHub show which records were read, and at which revision.
 
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { shownProjectControl, chooseProject, parts } from "./dashboardPage.ts";
 import { rem, showColumn } from "./boardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { expectEntries } from "./recentlyDoneColumn.ts";
@@ -151,7 +151,7 @@ test("choosing another project while a revealed batch is read shows that project
   );
   const view = await openedWithHeldStory(page, dashboard, { open: [] });
   const { github, recent } = view;
-  const { project, backlog } = parts(page);
+  const { backlog } = parts(page);
   await revealAction(recent).click();
   await expectEntries(recent, names(20));
   await revealAction(recent).click();
@@ -161,14 +161,13 @@ test("choosing another project while a revealed batch is read shows that project
   await expect
     .poll(() => recordsAsked(github).toSorted())
     .toEqual(storiesThrough(30).toSorted());
-  const pygardonChoice = project.getByRole("radio", { name: "Pygardon" });
-  await pygardonChoice.check();
+  await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   view.release();
   await settle(page);
-  await expect(pygardonChoice).toBeFocused();
+  await expect(shownProjectControl(page)).toBeFocused();
   await expect(recent).not.toContainText("progressive story");
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   await expectEntries(recent, names(10));
   await expect(revealAction(recent)).toHaveText("Show 10 of 25 older entries");
   expect(recordsAsked(github).toSorted()).toEqual(

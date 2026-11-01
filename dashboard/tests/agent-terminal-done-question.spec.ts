@@ -9,9 +9,9 @@
 
 import { expect, test } from "./dashboardTest.ts";
 import {
+  chooseProject,
   storyCardSessions,
   expectMembership,
-  parts,
   sessionStateOf,
 } from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
@@ -58,7 +58,6 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       page,
       columnsJourney,
     );
-    const { project } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(notRefinedStory, "Execution");
@@ -66,7 +65,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached ");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await chooseProject(page, "Doughnut");
     await expectMembership(page, {
       taken: [],
       backlog: [doughnutSharedTitle],

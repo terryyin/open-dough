@@ -24,19 +24,27 @@ export async function selectedProjectId(page: Page): Promise<string> {
 
 export async function chooseProject(page: Page, label: string): Promise<void> {
   const { project, projectCompact, projectCompactList } = parts(page);
-  if (await projectCompact.isVisible()) {
-    await projectCompact.click();
-    await projectCompactList
-      .getByRole("option", { name: label, exact: true })
-      .click();
-    return;
-  }
-  await project.getByRole("radio", { name: label, exact: true }).check();
+  // A sidebar or panel opening or closing can swap the shown control while
+  // the choice is made; choose again through whichever one then shows.
+  await expect(async () => {
+    if (await projectCompact.isVisible()) {
+      await projectCompact.click({ timeout: 2_000 });
+      await projectCompactList
+        .getByRole("option", { name: label, exact: true })
+        .click({ timeout: 2_000 });
+    } else {
+      await project
+        .getByRole("radio", { name: label, exact: true })
+        .check({ timeout: 2_000 });
+    }
+    await expectProjectChoice(page, label, { timeout: 1_000 });
+  }).toPass();
 }
 
 export async function expectProjectChoice(
   page: Page,
   label: string,
+  options?: { readonly timeout?: number },
 ): Promise<void> {
   const { project, projectCompact } = parts(page);
   // Opening a sidebar or panel can narrow the column and swap the shown
@@ -47,7 +55,7 @@ export async function expectProjectChoice(
       .or(
         project.getByRole("radio", { name: label, exact: true, checked: true }),
       ),
-  ).toBeVisible();
+  ).toBeVisible(options);
 }
 
 // Compact title select when the tabs do not fit: tabs are gone, the title control

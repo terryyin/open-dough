@@ -13,7 +13,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "./dashboardTest.ts";
-import { storyCardSessions, expectMembership, parts } from "./dashboardPage.ts";
+import {
+  chooseProject,
+  storyCardSessions,
+  expectMembership,
+} from "./dashboardPage.ts";
 import { doughnutSharedTitle } from "./doughnutProject.ts";
 import {
   notRefinedStory,
@@ -73,7 +77,6 @@ test.describe("the terminal's lifetime", () => {
       page,
       columnsJourney,
     );
-    const { project } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     const status = panel.getByRole("status");
@@ -96,9 +99,7 @@ test.describe("the terminal's lifetime", () => {
       dashboard.claudeAttaches().map((each) => each.id === shortId);
 
     await test.step("switching projects and back keeps the terminal attached to the same session", async () => {
-      await project
-        .getByRole("radio", { name: "Doughnut", exact: true })
-        .check();
+      await chooseProject(page, "Doughnut");
       await expectMembership(page, {
         taken: [],
         backlog: [doughnutSharedTitle],
@@ -111,9 +112,7 @@ test.describe("the terminal's lifetime", () => {
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo still here");
 
-      await project
-        .getByRole("radio", { name: "Open Dough", exact: true })
-        .check();
+      await chooseProject(page, "Open Dough");
       await expectMembership(page, queued);
       await panel.locator(".xterm-screen").click();
       await page.keyboard.type("and back");

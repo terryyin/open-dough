@@ -253,29 +253,167 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#browse-configured-test-source
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/434-browse-configured-test-source/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8f93c7c53a45c23cde572e8f2dcfa86eb9b0c35502d373c6def95a00f7966218","plan":"2834d2014495f388270d58ab257f6708e927f90edef0a80ad6f01a694e451a1b"}}
 ```
 
-- **For / why:** A developer can use Intent for the other maintained test sources,
-  including tests colocated with application code.
-- **Evaluation:** Open a dashboard Playwright TypeScript spec in Open Dough,
-  frontend Vitest specs in Doughnut and Pygardon, a Pygardon pytest file, and
-  selected Open Dough/Doughnut Node or shell test source. Nested navigation and
-  explicit file selection keep helpers and product files understandable.
-- **Value / learning:** Tests one shared text-reading rule across the requested
-  families; Python and scripts need no separate story merely for syntax.
-- **Boundary:** Explicit roots, source kinds, and include selections; actual text
-  with project/revision context. No AST-based case inventory, runner migration,
-  report collection, or claim that every file in a mixed folder is a test.
-- **Effort hypothesis:** Unbanded; lower-to-middle, medium confidence after the
-  Cucumber pilot. Split TypeScript first only if file selection or a distinct
-  Python/script behavior proves independently consequential during refinement.
-  Fold examples already supported by the pilot into its evaluation rather than
-  queue a source-extension story that would change no behavior.
-- **Product prerequisites:** A source-reading experience for integration. No
-  parser or execution reporter is a prerequisite for source browsing.
-- **Safe stopping point:** All named source examples remain readable without
-  runtime Proof. New formats can work naturally without an artificial gate.
+Refined 2026-11-01. Terry chose that a location's file selection leaves out the
+files it does not match; a project adds a pattern or a location to read helpers.
+
+#### Goal
+
+A developer reviewing Open Dough's, Doughnut's, or Pygardon's product intent
+can find and read the project's TypeScript, Python, Node, and shell test source
+in Intent, including tests kept beside application code, as they already read
+Cucumber features. Each location lists only the files its configuration selects,
+so specs are not buried among helpers and product files. This extends the
+Purpose reader to every requested test family without a separate story per
+language. It also supplies the test source that later Proof stories and the
+optimization-candidate links point into. Usefulness compared with the editor
+workflow stays Terry's judgment.
+
+#### Scope
+
+Required behavior:
+
+- **More source kinds.** A location's kind may be `typescript` (`.ts`, `.tsx`),
+  `javascript` (`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`,
+  `.bash`), besides `gherkin` (`.feature`). The kind selects the files a location
+  can list and the syntax styling of the text. Each `.tsx` file is styled as TSX.
+  Another kind keeps the existing unsupported-kind explanation.
+- **Explicit file selection.** A location may give `include`, a list of path
+  patterns relative to the location: `*` stays within one folder and `**`
+  crosses folders. When given, the location lists only files of its kind that
+  match at least one pattern. Without it, the location lists every file of its
+  kind, as Gherkin locations do today, so existing configurations are unchanged.
+- **The location says what it shows.** Each location shows its path, kind, and
+  any include patterns, so the tree reads as a selection rather than the whole
+  folder.
+- **Read and style.** Selecting a listed file shows its exact text with line
+  numbers and styling for its kind, as Gherkin does today. Styling still only
+  aids reading.
+- **Distinct states generalize.** A location with no matching files at the
+  revision says so, naming its path and selection, not `.feature` files. Absent
+  settings, malformed settings, unreadable settings, an unsupported kind, and a
+  failed read keep their existing distinct explanations. Proof still says none
+  is available yet.
+- **Real configurations.** Execution adds locations to the three projects'
+  `.planning/open-dough.json`:
+  - Open Dough: `dashboard/tests` (`typescript`, `**/*.spec.ts`), `tests`
+    (`shell`, `*.sh`), and `src/skills` (`javascript`, `**/*.test.mjs`).
+  - Doughnut: `frontend/tests` (`typescript`, `**/*.spec.ts`), plus `scripts`
+    and `infra` (`javascript`, `**/*.test.mjs`).
+  - Pygardon: `frontend/src` (`typescript`, `**/*.spec.ts`, `**/*.spec.tsx`,
+    `**/*.test.ts`, `**/*.test.tsx`), and `tests` (`python`, `**/test_*.py`).
+
+  Exact patterns may be corrected against each trunk at execution. Doughnut and
+  Pygardon get settings-only commits pushed without force, as in the Gherkin
+  pilot. Execution confirms that outward step with Terry before pushing.
+
+Deferred promises (not undertaken here; nothing prevents them):
+
+- Showing support files beside matched tests, exclude patterns, a filter or
+  search over long lists, and reading the runner's own selection (Playwright
+  `testDir`, Vitest `include`, pytest `testpaths`) instead of configured patterns.
+- Doughnut's CLI Vitest, CLI Python, and Java/JUnit locations. These kinds
+  already cover them; adding them is a later configuration choice.
+- Case or scenario outline, AST parsing, test execution, and any Proof
+  collection.
+
+Required restrictions:
+
+- Reads stay limited to files a configured location of the observed revision
+  lists, now including its kind and include selection. A colocated location
+  must not make the folder's product source readable, because the read
+  boundary is not an open repository proxy. This is the same rule the pilot
+  applied by folder.
+
+Boundary assumptions:
+
+- A listed file is a file the configuration selects, not a claim that the
+  runner collects it or that it holds a test.
+- Pygardon's `tests` location lists about 1,277 files in one flat folder.
+  Keeping today's tree and independently scrolling pane is good enough for now,
+  and the browser's find works on rendered rows. A filter stays deferred until
+  real use shows a need.
+
+#### Key examples
+
+1. **Spec among helpers.** Open Dough publishes `dashboard/tests` as
+   `typescript` with include `**/*.spec.ts` → the developer opens Intent →
+   specs appear at the top level and under `boundary`, while helpers such as
+   `intentPerspectivePage.ts` and `boundary/ownRecordContinuation.ts` are not
+   listed. Selecting
+   `intent-gherkin-browse.spec.ts` shows its exact text with TypeScript styling
+   and the observed revision.
+2. **Colocated tests.** Pygardon publishes `frontend/src` as `typescript` with
+   its four spec/test patterns → the tree lists, for example,
+   `pages/AspyPage.devices.spec.tsx` (styled as TSX) but not `AspyPage.tsx`, and
+   not `*.spec.helpers.tsx` support files.
+3. **Python.** Pygardon publishes `tests` as `python` with include
+   `**/test_*.py` → `test_*.py` files are listed, and support modules such as
+   `worktree_check_support.py` are not. A selected file shows Python styling.
+4. **Node and shell.** Open Dough's `tests` (`shell`, `*.sh`) lists top-level
+   checks such as `compare-versions.sh`, not files under `tests/support`.
+   Doughnut's `scripts` (`javascript`, `**/*.test.mjs`) lists
+   `backend-test-worktree-admission.test.mjs` but not the
+   `*-fixtures.mjs` helpers.
+5. **No include.** Doughnut's existing `e2e_test/features` `gherkin` location
+   lists the same `.feature` files as before.
+6. **No match.** A location's patterns match no file at the revision → it says
+   no files match its selection at that path, naming the patterns; other
+   locations still browse.
+7. **Selection bounds reading.** A request to read `frontend/src/pages/AspyPage.tsx`,
+   which is inside Pygardon's `frontend/src` location but matches none of its
+   patterns, is refused as outside the configured locations, the same refusal a
+   path outside every location gets.
+
+#### Architecture
+
+Applicable Accepted decisions:
+[ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md) (Purpose is
+test source; a listed file is not Proof),
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+(extend the existing reader rather than add a second one), and
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+(the selection is a published project fact in repository settings; no machine
+setting). No conflict found; no ADR change proposed.
+
+- **One selection rule, two uses.** A location's kind and include patterns
+  decide which files it lists, and the same rule decides read admission.
+  Admission must not keep the pilot's folder-only check, or listing and reading
+  would disagree. Listing still uses one recursive tree read per location,
+  filtered locally; patterns add no GitHub calls.
+- **Kind stays the domain term.** The kind names its file extensions and its
+  styling language together. The highlighter loads each kind's grammar on
+  demand, as it loads Gherkin today; `.tsx` choosing TSX within `typescript` is
+  the only per-extension choice. Shell uses Shiki's `shellscript` grammar under
+  the `shell` kind name.
+- **Pattern matching.** Pattern semantics are part of the published settings
+  contract. Prefer an existing small glob matcher, or a narrow `*`/`**` matcher,
+  over a general one with options the settings do not document.
+- **Borrowed mechanism.** A build tool's source set, such as TypeScript's
+  `tsconfig` `include` or Gradle's `sourceSets` filters, names a root plus
+  include patterns for one language and treats only the matched files as members.
+  An Intent location works the same way: root, kind, and include. The analogy
+  stops at membership. A source set also defines what is compiled together,
+  while an Intent location only defines what can be read. Collection by a test
+  runner remains a separate fact.
+
+Options compared (explore): reading each runner's own selection from its
+config file was rejected: it needs per-runner config parsing, including
+executable JavaScript configs, and it is the deferred automatic detection.
+Fixed per-kind naming conventions, such as "TypeScript means `*.spec.*`", are
+an implicit policy that misses Pygardon's `*.test.tsx` and Open Dough's shell
+checks. Listing every file with tests marked was the option Terry declined.
+Include patterns keep the selection explicit and project-owned.
+
+Challenge: unlike Gherkin, code tests are already easy to read in an editor, so
+this story's value rests less on reading comfort than on giving every requested
+family one place, revision, and selection that later Proof and the
+optimization-candidate links point into. The strongest doubt is drift: a
+configured selection can differ from what a runner actually collects. The
+"selection, not collection" assumption above keeps that truthful, and Proof
+stories own the comparison with what runs.
 
 
 <a id="review-test-optimization-candidates"></a>
