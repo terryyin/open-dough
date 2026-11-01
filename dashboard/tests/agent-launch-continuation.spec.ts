@@ -26,6 +26,7 @@ import {
 } from "./agentLaunchBoundary.ts";
 import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
 import { parts } from "./dashboardPage.ts";
+import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
@@ -204,15 +205,20 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
     "This machine's launch evidence (~/.open-dough/dashboard/launch-attempts.json) could not be read",
   );
   await expect(parts(page).project).toBeVisible();
+  // The page's published-work reads retain answers under retained-answers/
+  // (../server/retainedAnswers.ts); wait for them so the listing is stable.
+  await untilPublishedWorkRead(page);
   expect(readFileSync(file, "utf8")).toBe("{ not json");
-  // The unreadable attempts file stays. The runner's address and log and the
-  // notification sender are not a replacement of it.
+  // The unreadable attempts file stays. The runner's address and log, the
+  // notification sender, and retained GitHub answers are not a replacement
+  // of it.
   expect(readdirSync(folder).sort()).toEqual([
     "cursor-runner.json",
     "cursor-runner.log",
     "launch-attempts.json",
     "notifier",
     "projects-production.json",
+    "retained-answers",
   ]);
   expect(dashboard.claudeCalls()).toEqual([]);
 });
