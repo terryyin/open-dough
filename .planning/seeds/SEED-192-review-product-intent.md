@@ -46,8 +46,8 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
   CI independently checks the relevant claims; it does not produce the retained
   dashboard Proof history. CPU and other resources can change run time.
   On 2026-11-01 Terry replaced rolling run history with a latest per-test
-  snapshot that every ordinary run updates, under a published reference
-  ([story 6](#read-observed-test-proof)); later stories still to be refined
+  snapshot that every ordinary run updates, under a published
+  [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md); later stories still to be refined
   read "history" in that light.
 - Preserve the selected project and the shared frame. Purpose/Proof side-by-side
   and tabbed layouts share one selection; the switch preserves selection and any
@@ -514,208 +514,6 @@ gaps, is useful without runtime Proof or automated assessment.
 - **Safe stopping point:** Developers can review a story's changes to Purpose
   even if runtime reporting or assisted assessment is never added.
 
-<a id="read-observed-test-proof"></a>
-
-### 6. Read observed proof alongside test purpose
-
-**Identity:** SEED-192#read-observed-test-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/439-read-observed-test-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1c65d5b45ee20d711e7445b611af9cf62ad19ec5fe8598b79e7b86e345a985c7","plan":"31e70a8ffe275cc939ea8e6c4faf9729590b1d4982bc1681255454a3319d474a"}}
-```
-
-**Refinement direction (Terry, 2026-11-01):** Cucumber only. Open Dough
-publishes a reference document, not a skill, in its installed guidance; a
-project that follows it records Cucumber proof itself. Proof is the latest
-observation of each test, not a run history. Every ordinary test run updates
-the proof of the tests it ran; nobody runs the whole suite just to collect
-proof, and a full run simply brings every test up to date. Accumulating
-observations and consolidating them occasionally is allowed; a producer that
-already keeps a consolidated latest snapshot need not consolidate. This
-replaces the earlier ten-run rolling history for this story.
-
-#### Goal
-
-A developer reviewing a Pygardon feature file in Intent sees, beside its
-source, the latest observed result of each scenario: when it was observed,
-whether it passed, needed a retry or failed, how long it took, and whether the
-feature file has changed since. They no longer search console logs or rerun
-tests to learn this. Pygardon produces that proof as a side effect of its
-ordinary Cucumber runs by following one published Open Dough reference, which
-becomes the standard later Cucumber projects (Doughnut,
-[story 8](#read-cypress-cucumber-proof)) adopt.
-
-#### Scope
-
-Required behavior:
-
-- **Published Cucumber proof reference.** One reference document in the
-  released Open Dough guidance, written for the agent working in the project
-  that adopts it ([ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)).
-  It states the rules a project's Cucumber setup follows:
-  - Configure proof once in the project's Cucumber configuration, beside its
-    existing formatters, so every run records it: focused, tagged, parallel,
-    retried, and full runs. Existing output, diagnostics and the command's exit
-    meaning stay unchanged.
-  - Declare the proof directory in `.planning/open-dough.json` with the Intent
-    location it covers; the directory is committed, not ignored.
-  - Each run writes its own uniquely named file and rewrites it after every
-    finished scenario, so an interrupted run keeps what finished. Unique names
-    mean concurrent worktrees and repeated runs never conflict when merged.
-  - Each observation names its scenario by feature path, scenario name and,
-    for an outline, its example row (never runner-generated IDs). It records
-    the final outcome, the attempt count, duration, finish time, the commit the
-    run started from, and the Git blob hash of the feature file as tested.
-  - The latest observation of a scenario wins across all files, whatever its
-    outcome. Scenarios a run did not execute keep their earlier observation.
-  - Consolidation is optional and keeps meaning: it writes the latest
-    observations in the same file format as a new uniquely named file and
-    removes the files it consumed. Readers never distinguish consolidated files
-    from run files.
-  - Records stay compact: no screenshots, traces, captured output, or embedded
-    attachments.
-- **Pygardon adopts it.** Pygardon's ordinary Cucumber.js setup follows the
-  released reference, and proof from real local runs lands with ordinary
-  commits. No dashboard run button, service, or CI step produces it.
-- **Intent shows file-level Proof.** For a selected feature file, the Proof pane
-  reads proof from the same published revision as Purpose and lists the
-  file's scenarios and outline rows in source order. Each shows its latest
-  outcome (with passes that needed a retry marked as such), duration, how long
-  ago it was observed, and the commit it was observed from. It says
-  whether the observation was on this version of the file or the file has
-  changed since. A count line summarizes the latest outcomes, including
-  scenarios not observed; it is not a "suite green" verdict.
-- **Distinct empty and failed states.** A project without a declared proof
-  directory says so and names the reference to adopt. A declared directory with
-  no observation for this file says nothing has been observed yet. An
-  unreadable or malformed proof file is reported as a read failure with retry,
-  not as "not observed". Purpose stays readable in every case.
-
-Required restrictions:
-
-- Proof never claims more than it observed. Each row shows its own time and
-  basis, because rows come from different runs and commits (the latest
-  per-scenario snapshot is the design, not a defect). Matching the feature
-  file's blob shows only that the Gherkin is unchanged; product or step
-  changes since then are not detected, and the pane does not call them
-  current.
-- Only committed proof is proof. Files written in CI or other runs that are
-  never committed do not count.
-
-Deferred promises (not rejected):
-
-- Purpose/Proof tabbed layout and its layout switch; story-scope preservation
-  ([story 5](#review-story-intent-impact)). The current side-by-side reader stays.
-- Run history and trends. Folder totals ([story 9](#inspect-hierarchical-proof-cost)).
-  CI corroboration ([story 7](#check-cucumber-proof-in-ci)).
-  Doughnut and other runner families.
-- Shipping a ready-made formatter or consolidation tool from Open Dough. The
-  reference states the rules; Pygardon owns its implementation. Automatic
-  consolidation in Pygardon is optional while its proof stays small.
-
-#### Key examples
-
-1. **Focused run updates only what it ran.** Pygardon has committed proof for
-   all of `jobs.feature` from yesterday. A developer agent runs one scenario of
-   that file, it passes, and the work lands. Intent shows that scenario
-   observed today on this file version, and the others still show yesterday's
-   observations with their earlier commit.
-2. **Latest failure wins.** A scenario passed in an earlier run; today's run
-   fails it. Intent shows it failed today, with no green summary hiding it.
-3. **Retry-assisted pass.** A scenario fails its first attempt and passes on
-   retry. Intent shows *Passed after retry (2 attempts)*, not a plain pass.
-4. **Changed source.** Observations were made on an earlier version of the
-   feature file; its Gherkin has since been edited and published. Each row shows
-   it was observed on an earlier file version, and a newly added scenario
-   shows *Not observed*.
-5. **Interrupted run.** A run is stopped after two of five scenarios finish.
-   Those two show the new observations; the other three keep their earlier ones.
-6. **Parallel worktrees.** Two worktrees each run tests and land. Their proof
-   files merge without conflict, and Intent shows each scenario's latest
-   observation across both.
-7. **Consolidation keeps meaning.** An agent consolidates Pygardon's proof
-   files into one. Intent shows exactly the same rows before and after.
-8. **Not adopted / unreadable.** Doughnut, which declares no proof directory,
-   shows that Proof is not recorded and names the reference. A truncated
-   Pygardon proof file shows a read failure with retry, while Purpose stays
-   readable.
-
-#### UX/UI
-
-The reader is the developer, normally Terry, reviewing one project's intent.
-The adopting agent reads the reference, not the dashboard. In the Proof pane,
-the developer decides whether a scenario's evidence is recent and on the
-current Gherkin enough to trust, so time-since-observation and file-version
-match are on every row rather than in a tooltip. Not observed, not adopted and
-unreadable must read differently. The reader's recovery is to run the
-scenario or retry the read; the pane collects nothing itself.
-
-#### Architecture
-
-- **Responsibilities.** The project's Cucumber setup produces proof, the
-  repository owns the committed records, and the dashboard only reads the
-  published revision, as
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  places durable project facts. Committing is what keeps proof from agent
-  worktrees after they are retired. Configuration extends the project-owned
-  `.planning/open-dough.json` ([ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)).
-- **Reference placement.** The installed payload contains only skill
-  directories. Put the reference in an existing skill's `references/` (the
-  recommendation is `dough-test-optimization`) and declare it in
-  `install.sh`'s `managed_files` under
-  [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md). A new
-  non-skill install root would bring installation, update and coexistence
-  checks into scope for no reading benefit.
-- **Merge-safe accumulation.** This borrows Git's own loose objects and packs:
-  objects are written cheaply under unique names that never collide, `gc`
-  packs them periodically, and readers read both. Here run files are the loose
-  objects, consolidation is packing, and the reader reduces to the latest
-  observation per scenario. The analogy stops at ordering: Git objects are
-  immutable and timeless, while proof needs a latest observation chosen by
-  finish time, so clocks that disagree across machines can misorder two
-  observations of the same scenario taken close together.
-- **Considered and not chosen.** One snapshot file updated in place, or one
-  per feature, conflicts whenever two branches run the same tests. Committing
-  Cucumber Messages NDJSON keeps per-run IDs, source and attachments, which is
-  far from compact. Local-only uncommitted proof disappears with retired
-  worktrees and is not shared.
-- **Read cost.** Each proof file is one more published-content read. The
-  dashboard reads proof once per published revision and project, not per click.
-  Consolidation is the remedy if the file count makes this slow; measure it
-  during evaluation under
-  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md),
-  together with the commit noise proof adds to ordinary changes.
-
-#### Facts and hypotheses (2026-11-01)
-
-- Observed: Pygardon at `e72b32b0a` uses `@cucumber/cucumber` 13.2.1, with
-  focused and `ci` profiles in `cucumber.js` and 38 feature files under
-  `e2e_test/features`. Its CI ignores `.planning/**` and `docs/**` pushes.
-- Observed with a local scratch probe using Pygardon's installed Cucumber.js: a
-  custom formatter configured beside `progress` received every attempt under
-  `--parallel 2 --retry 1`. It saw the failed first attempt with
-  `willBeRetried` and then the passing retry, received outline rows as
-  separate pickles with their row's AST node, and left the exit at 0. AST node
-  IDs are fresh UUIDs on each run, which confirms identity must come from
-  source, not IDs.
-- Observed: the Intent Proof pane is a placeholder, Purpose/Proof are side by
-  side with no layout switch, and SEED-213 is renovating the Intent sidebar,
-  not the reader.
-- Observed with a second scratch probe: a formatter listed in a `cucumber.js`
-  profile's `format` beside `progress`, rewriting its file atomically after
-  each finished scenario, kept the two finished scenarios when the run was
-  interrupted (exit 130) during the third. `git hash-object` of an unchanged
-  file equals its blob in `git ls-tree`.
-- Hypothesis: proof file counts stay small enough to read without
-  consolidation during evaluation.
-
-- **Effort hypothesis:** Unbanded; higher, medium confidence. It spans the
-  reference, a release reaching Pygardon's installation, Pygardon's adoption,
-  and the Intent reader.
-- **Product prerequisites:** Pygardon feature source and its ordinary local
-  Cucumber runs. No blocking story dependency.
-- **Safe stopping point:** Committed latest per-scenario proof readable beside
-  Purpose, explicitly uncorroborated by CI.
-
 <a id="proof-file-version-after-upgrade"></a>
 
 ### 6a. Keep Proof's file version true after a dashboard upgrade
@@ -729,8 +527,9 @@ scenario or retry the read; the pane collects nothing itself.
 the dashboard sees "This file version" whenever the observation's recorded blob
 matches the published feature file. Today a feature listing a dashboard version
 remembered before listings carried blob shas makes every row read "Earlier file
-version" until the feature folder changes. This corrects
-[story 6](#read-observed-test-proof).
+version" until the feature folder changes. This corrects the closed
+SEED-192#read-observed-test-proof, recoverable at
+`2d2d6a2f:.planning/seeds/SEED-192-review-product-intent.md`.
 
 **Scope:** A remembered feature listing without blob shas is never used for the
 file-version match. Keep one tree read per location and revision, reuse of a
@@ -1036,7 +835,7 @@ every listed feature, and a matching observation reads "This file version".
 The numbered sections record the backlog order Terry selected on 2026-10-31;
 they do not establish a mandatory dependency chain. The existing seven identities
 remain canonical here. Specifically, the Cucumber source pilot closed as SEED-192#browse-test-purpose;
-`read-observed-test-proof` narrows to Pygardon's first local Cucumber case, and
+`read-observed-test-proof` delivered Pygardon's first local Cucumber case, and
 `inspect-hierarchical-proof-cost` keeps folder Proof. These are not duplicated
 under new identities. Other existing review candidates retain their outcomes.
 
@@ -1085,8 +884,8 @@ what the first Proof claims.
 ## Open Decisions Before Refinement or Planning
 
 - First Proof's profile, tested basis, publication and retention were settled
-  in [story 6](#read-observed-test-proof) on 2026-11-01: proof is a latest
-  per-scenario snapshot, not run history. How source and proof-only changes
+  on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
+  a latest per-scenario snapshot, not run history. How source and proof-only changes
   obtain CI corroboration remains with [story 7](#check-cucumber-proof-in-ci).
 - Refine comparison dispositions: what local scope requires CI corroboration,
   how unmatched/host-only scopes are reported, and what discrepancies fail a

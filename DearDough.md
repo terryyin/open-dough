@@ -776,7 +776,7 @@ story promises existing output stays unchanged. The slice 3 walk then showed a
 Cucumber.js `format` entry without its own target replaces the stdout formatter.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof; first implementation commit `58350c9d`)
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
   - Timestamp: unknown (2026-11-01; walk finding before commit `4487c435` at 2026-11-01T22:24:08+07:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -793,7 +793,7 @@ execution branch. The plan named no trunk landing before the release, so the
 coordinator stopped mid-slice to ask for a Dough Land `--keep-worktree` landing.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof; first implementation commit `58350c9d`)
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
   - Timestamp: unknown (2026-11-01; question asked before landing `bdeb210a` at 2026-11-01T23:14:09+07:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -811,7 +811,7 @@ absent and no worker for it ran, so shutdown succeeded, but the command
 reported no terminal result.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof; first implementation commit `58350c9d`)
+- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
   - Timestamp: unknown (2026-11-01, at the slice 4 checkpoint after commit `4487c435`)
   - Tool: Claude Code
   - Model: claude-opus-5-5

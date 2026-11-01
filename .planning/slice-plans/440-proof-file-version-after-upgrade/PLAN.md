@@ -3,8 +3,9 @@
 **Identity:** SEED-192#proof-file-version-after-upgrade
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#proof-file-version-after-upgrade),
 a bounded retrospective correction of
-[SEED-192#read-observed-test-proof](../../seeds/SEED-192-review-product-intent.md#read-observed-test-proof)
-([plan 439](../439-read-observed-test-proof/PLAN.md)). Reviewed commits:
+SEED-192#read-observed-test-proof (closed; story and plan recoverable at
+`2d2d6a2f:.planning/seeds/SEED-192-review-product-intent.md` and
+`2d2d6a2f:.planning/slice-plans/439-read-observed-test-proof/PLAN.md`). Reviewed commits:
 `58350c9d` (slice 1: `TreeEntry` gained `sha`), `e09089e9`, `4487c435`,
 `798a946f`, with CI repairs `30231a24`, `23e725f2`, `60bfc813`.
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_read-observed-test-proof.json",
+      "identity": "SEED-192#read-observed-test-proof",
+      "completedAt": "2026-11-01T18:16:21.945Z",
+      "blob": "e8c2e9094a698c07b3a64a5c1ab842738518338d"
+    },
+    {
       "fileName": "SEED-214_completed-base-ci-ancestor.json",
       "identity": "SEED-214#completed-base-ci-ancestor",
       "completedAt": "2026-11-01T08:31:25.035Z",
