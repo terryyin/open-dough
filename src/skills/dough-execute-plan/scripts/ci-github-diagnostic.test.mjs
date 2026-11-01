@@ -109,7 +109,7 @@ const failedLog = [
   ...Array.from(Array(100).keys(), (index) => stamped(`cleanup ${index}`)),
 ].join("\n");
 
-test("the diagnostic entry reads failed jobs and bounded log excerpts with at most eight requests under way", async (t) => {
+test("the diagnostic entry reads every failed job's log with at most eight requests under way and bounds the excerpts", async (t) => {
   const failed = [3, 7, 20, 41, 60, 99, 100, 120, 130, 140, 149];
   const github = instrumentedGithubFixture(t, {
     jobs: completedJobs(failed),
@@ -125,7 +125,7 @@ test("the diagnostic entry reads failed jobs and bounded log excerpts with at mo
   const logsAsked = () =>
     github.asked().filter((asked) => asked.endsWith("/logs"));
 
-  // Ten logs are wanted at once; the ninth waits for a turn.
+  // Eleven logs are wanted at once; the ninth waits for a turn.
   await until(() => logsAsked().length === 8, "eight log requests under way");
   await new Promise((resolve) => setTimeout(resolve, 300));
   assert.equal(logsAsked().length, 8);
@@ -135,15 +135,27 @@ test("the diagnostic entry reads failed jobs and bounded log excerpts with at mo
 
   const answer = JSON.parse(diagnostic.stdout());
   assert.deepEqual(
-    { ...answer, failedJobs: answer.failedJobs.length },
+    { ...answer, failedJobs: answer.failedJobs.length, inventory: undefined },
     {
       type: "CI_FAILURE_DIAGNOSTIC",
       repo: "owner/repo",
       runId: 42,
       attempt: 2,
-      failedJobs: 10,
-      omittedFailedJobs: 1,
+      failedJobs: 11,
+      inventory: undefined,
     },
+  );
+  // Every failed job is named; its log printed no failure line in a known
+  // format, so the inventory says so instead of claiming completeness.
+  assert.deepEqual(
+    answer.failedJobs.map(({ jobId }) => jobId),
+    failed.map((index) => 1000 + index),
+  );
+  assert.equal(answer.inventory.complete, false);
+  assert.equal(answer.inventory.failedJobs, 11);
+  assert.deepEqual(
+    answer.inventory.gaps.map(({ jobId, reason }) => [jobId, reason]),
+    failed.map((index) => [1000 + index, "no-recognized-failure"]),
   );
   const [first] = answer.failedJobs;
   assert.deepEqual(
@@ -154,6 +166,7 @@ test("the diagnostic entry reads failed jobs and bounded log excerpts with at mo
       conclusion: "failure",
       url: "https://github.test/owner/repo/actions/runs/42/job/1003",
       failedSteps: [{ number: 2, name: "Run tests", conclusion: "failure" }],
+      failures: [],
       log: undefined,
     },
   );
@@ -168,10 +181,15 @@ test("the diagnostic entry reads failed jobs and bounded log excerpts with at mo
     "##[error]Process completed with exit code 1.",
   );
   assert.equal(first.log.lines[23], "cleanup 2");
+  // Ten jobs carry excerpts; the eleventh is named with its inventory only.
+  const last = answer.failedJobs.at(-1);
+  assert.equal(last.log, undefined);
+  assert.equal(last.excerptOmitted, true);
+  assert.equal(answer.failedJobs.filter(({ log }) => log).length, 10);
   assert.ok(diagnostic.stdout().length < 40_000);
 
   assert.deepEqual(github.asked().sort(), [
-    ...failed.slice(0, 10).map((index) => apiCall(`jobs/${1000 + index}/logs`)),
+    ...failed.map((index) => apiCall(`jobs/${1000 + index}/logs`)),
     apiCall("runs/42/attempts/2/jobs?per_page=100&page=1"),
     apiCall("runs/42/attempts/2/jobs?per_page=100&page=2"),
   ]);

@@ -1,30 +1,67 @@
 // Browser observations for reachable controls; native scrolling and taps stay real.
 import { expect, type Locator } from "@playwright/test";
-import { box } from "./partArrangement.ts";
+
+// How the page names what a touch point holds when it is the control itself,
+// and where the page keeps what the last native touch landed on until read.
+const touch = {
+  intended: "the intended control",
+  landingKey: "tapWhereShownLanding",
+};
 
 // Touch an already visible, comfortably sized control at its current location.
 // No locator activation may scroll a clipped target into view for this check.
+// The size and what lies at the touch point are measured in one browser turn,
+// and that same point is touched; where the touch then lands is observed, so
+// a control that moves or is covered in between fails rather than being
+// silently missed.
 export async function tapWhereShown(control: Locator) {
-  const { x, y, width, height } = await box(control);
-  expect(width, "touch target width").toBeGreaterThanOrEqual(44);
-  expect(height, "touch target height").toBeGreaterThanOrEqual(44);
   expect(
     await control.evaluate(clippedEdges, false),
     "touch target is not clipped",
   ).toBe(0);
+  const shown = await control.evaluate((element, { intended, landingKey }) => {
+    const describe = (found: EventTarget | null) =>
+      !(found instanceof Element)
+        ? "nothing"
+        : element.contains(found)
+          ? intended
+          : [
+              found.tagName,
+              found.id ? `#${found.id}` : "",
+              ...[...found.classList].map((name) => `.${name}`),
+            ].join("");
+    const { x, y, width, height } = element.getBoundingClientRect();
+    const point = { x: x + width / 2, y: y + height / 2 };
+    const atPoint = describe(document.elementFromPoint(point.x, point.y));
+    if (atPoint === intended) {
+      const landing = {
+        on: "nothing",
+        heard: (event: Event) => {
+          landing.on = describe(event.target);
+          removeEventListener("pointerdown", landing.heard, true);
+        },
+      };
+      addEventListener("pointerdown", landing.heard, true);
+      Reflect.set(window, landingKey, landing);
+    }
+    return { ...point, width, height, atPoint };
+  }, touch);
+  expect(shown.width, "touch target width").toBeGreaterThanOrEqual(44);
+  expect(shown.height, "touch target height").toBeGreaterThanOrEqual(44);
+  expect(shown.atPoint, "touch reaches the intended control").toBe(
+    touch.intended,
+  );
+  await control.page().touchscreen.tap(shown.x, shown.y);
   expect(
-    await control.evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      return element.contains(
-        document.elementFromPoint(
-          rect.x + rect.width / 2,
-          rect.y + rect.height / 2,
-        ),
-      );
-    }),
-    "touch reaches the intended control",
-  ).toBe(true);
-  await control.page().touchscreen.tap(x + width / 2, y + height / 2);
+    await control.page().evaluate((key) => {
+      const landing = Reflect.get(window, key) as
+        { on: string; heard: EventListener } | undefined;
+      Reflect.deleteProperty(window, key);
+      if (landing) removeEventListener("pointerdown", landing.heard, true);
+      return landing?.on ?? "nothing";
+    }, touch.landingKey),
+    "native touch lands on the intended control",
+  ).toBe(touch.intended);
 }
 
 // Every control in an area, such as a dialog's scrolling body, can be scrolled

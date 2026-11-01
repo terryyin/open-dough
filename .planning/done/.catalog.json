@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-208_trustworthy-ci-completion.json",
+      "identity": "SEED-208#trustworthy-ci-completion",
+      "completedAt": "2026-11-01T03:04:07.282Z",
+      "blob": "23b9d1a70bf1b3cdf36a5f470ca595f178578f39"
+    },
+    {
       "fileName": "SEED-010_record-source-review-observations.json",
       "identity": "SEED-010#record-source-review-observations",
       "completedAt": "2026-11-01T02:29:59.447Z",

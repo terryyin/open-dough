@@ -228,6 +228,10 @@ no upstream status or rate evidence.
 
 The installed [CI diagnostic](../src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs)
 retains failed steps and every readable log excerpt when another log is missing.
+It scans every failed job's whole log for failure lines in known formats and
+reports an `inventory` whose `gaps` name unfinished jobs, missing logs, omitted
+lines, or jobs without a recognized failing test or check; excerpts stay bounded
+to the first ten jobs.
 A held job carries numeric `logWaitSeconds` alongside `logUnavailable`; any held
 log makes the command exit 75. Expired HTTP 404/410 logs, output bounds and other
 failed requests supply no delay. Other partial diagnostics exit 0; jobs-acquisition

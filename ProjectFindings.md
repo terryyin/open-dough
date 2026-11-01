@@ -281,6 +281,7 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Observed effect: wording churn in sentences the slices did not otherwise change, and an agent-reported constraint carried into the next delegation.
   - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
   - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
+  - Later evidence: SEED-208#trustworthy-ci-completion slice 5 (2026-11-01) added the completion-accounting rule to `ci-monitor.md#await-the-applicable-revision-at-completion` and repair-review wording to `finish-or-stop.md`; the "Before finishing or stopping" row went from 29772 to 29991 bytes after removing one sentence and one clause that the same row already stated elsewhere.
 
 ## Hosted CI npm install stalls at its acquisition deadline (repaired)
 
@@ -303,6 +304,7 @@ reports the run as a failure.
   - Evidence: `ci-github-diagnostic.mjs failure` excerpts for both runs show the cache restored (~46 MB) and then the 45 s acquisition deadline exceeded. `gh run view` showed all other jobs succeeding.
   - Observed effect: two CI-failure notifications, each classified and ignored as infrastructure. Lint for `bd5a9094` and three shards were covered only by the next revision.
   - Inference: repaired in the same execution. Over the last 60 runs, the install step took a median of 4 s on 2026-10-30 and 38 s on 2026-10-31. The npm summary lines put the time in `npm audit` ("audited 136 packages in 29s/33s/45s"), not acquisition. The story branch repaired it at `d4190ce4` with `--no-audit --no-fund`. Trunk independently set `NPM_CONFIG_AUDIT=false NPM_CONFIG_FUND=false` (`7b9777c7`), and the integration kept trunk's form. Both keep the 45 s stall bound. The hosted outcome on trunk is not yet observed.
+  - Later evidence (2026-11-01, SEED-208#trustworthy-ci-completion): the last failed `Install npm dependencies` step is still #3358 (run 41195930489, attempt 1, 2026-10-31T11:12:58Z). `gh run list --repo terryyin/open-dough --workflow ci.yml` with each run's `gh api …/actions/runs/RUN/jobs` step conclusions covered all 68 completed runs #3359–#3426, 19 of them on main (including #3404 `aef7858b` and #3422 `ecd1e23f`), with no reruns: none of their 1,088 install steps failed. The hosted trunk outcome is now observed passing. This is post-repair exposure, not proof that setup cannot fail; a recurrence is examined for a repository cause before another infrastructure disposition.
 
 ## Review and recovery
 

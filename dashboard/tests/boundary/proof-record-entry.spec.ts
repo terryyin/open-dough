@@ -56,6 +56,11 @@ for (const entry of [
       process.env[splitVariable] = excludingSplit;
       run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
         OPEN_DOUGH_DASHBOARD_PROOF_RECORD: recordPath,
+        // On CI this config also writes an HTML report, which empties its
+        // folder first. Concurrent nested runs sharing the checkout's
+        // folder would remove one another's report mid-write, so each
+        // writes its own and the outer run keeps the checkout's.
+        PLAYWRIGHT_HTML_OUTPUT_DIR: path.join(directory, "playwright-report"),
       });
     } finally {
       if (inheritedSplit === undefined)

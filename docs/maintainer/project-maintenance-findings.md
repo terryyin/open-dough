@@ -110,6 +110,15 @@ for a second round.
   - Observed effect: one extra delegation round (about 5 minutes, 9 tool uses). The fix landed in the same increment.
   - Inference: the coordinator's wording, not the shared guidance, caused this; delegation already says a discovered failure keeps the project's failure policy. Pass the project's policy verbatim instead of paraphrasing it.
 
+**Response (2026-11-01):** SEED-208#trustworthy-ci-completion slice 1
+(`482b644e90076052a2f36b9df7977b6f46ce7e89`, story branch
+`claude/finish-every-execution-with-trustworthy-ci-and-n`) puts the policy in
+AGENTS.md "Failing and flaky tests", which every host reads, with "Do not
+paraphrase it as 'fix or report'". `delegation.md` "Give the agent" now
+carries the project's policy by link or verbatim. The reusable wording is
+unreleased; the project policy takes effect when the story reaches main.
+**Delivered, awaiting observation in later delegation briefs; not resolved.**
+
 <a id="dd-378"></a>
 
 ## DD-378 — Planning treats pre-existing failures as exclusions from completion
@@ -129,6 +138,20 @@ An execution-ready plan turned correct regression attribution into an instructio
 project-specific failure-policy exclusion for this repository’s stop-and-fix
 policy. Shared delegation already preserves the project’s failure policy.
 Retain this plan-origin facet separately from DD-374’s softened brief.
-[SEED-208#trustworthy-ci-completion](../../.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
+[SEED-208#trustworthy-ci-completion](https://github.com/terryyin/open-dough/blob/0dc909c334be271d24fc37ac0da89980936d799b/.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
 already covers the response; **queued, not resolved**. No duplicate local story.
 Original source recovery: `b1fa3b50:DearDough.md`.
+
+**Response (2026-11-01):** SEED-208 slice 1 (`482b644e90076052a2f36b9df7977b6f46ce7e89`)
+on story branch `claude/finish-every-execution-with-trustworthy-ci-and-n`
+added AGENTS.md "Failing and flaky tests": a plan may record that a failure
+predates its story, but that attribution does not exclude the failure from the
+executing agent's repair. `executable-proof.md` gives plans the same rule, and
+`execution-decisions.md` "Diagnose failed proof" applies it during execution.
+In the same execution, run 41261530651 failed on the coordinator's own Markdown-only
+publication with five journeys that also failed on main; the coordinator owned
+and repaired it by merging trunk, without a fix-or-waive stop. That is the
+response's own use, not an ordinary-use observation. The AGENTS.md policy takes
+effect for this repository when the story reaches main; the reusable wording is
+unreleased. **Delivered, awaiting observation in later ordinary executions; not
+resolved.**

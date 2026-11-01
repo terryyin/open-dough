@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-208#trustworthy-ci-completion",
+  "title": "Finish every execution with trustworthy CI and no known flaky tests",
+  "completedAt": "2026-11-01T03:04:07.282Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude"
+}

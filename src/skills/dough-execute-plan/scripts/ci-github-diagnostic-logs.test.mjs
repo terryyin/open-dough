@@ -117,6 +117,12 @@ test(
     );
     assert.deepEqual(held.failedSteps, steps);
     assert.equal(held.log, undefined);
+    assert.equal(held.failures, undefined);
+    assert.deepEqual(JSON.parse(diagnostic.stdout()).inventory, {
+      complete: false,
+      failedJobs: 1,
+      gaps: [{ jobId: 1000, name: "job 0", reason: "log-unavailable" }],
+    });
     assert.equal(diagnostic.stderr(), "");
     assert.equal(github.asked().length, 2);
   },
@@ -162,6 +168,17 @@ test(
     assert.match(expired.logUnavailable, /HTTP 410$/);
     assert.equal(Object.hasOwn(expired, "logWaitSeconds"), false);
     assert.deepEqual(readable.log, { lines: [excerpt], omittedLines: 0 });
+    // Neither missing log is presented as a complete inventory.
+    const { inventory } = JSON.parse(diagnostic.stdout());
+    assert.equal(inventory.complete, false);
+    assert.deepEqual(
+      inventory.gaps.map(({ jobId, reason }) => [jobId, reason]),
+      [
+        [1000, "log-unavailable"],
+        [1001, "log-unavailable"],
+        [1002, "no-test-identity"],
+      ],
+    );
     for (const evidence of [held, expired, readable])
       assert.deepEqual(evidence.failedSteps, steps);
     assert.equal(diagnostic.stdout().includes(secret), false);
