@@ -14,6 +14,15 @@ export const baseCiConfirmationSchema = z.strictObject({
 
 export type BaseCiConfirmation = z.infer<typeof baseCiConfirmationSchema>;
 
+// Historical context beside a running judgment; it never confirms the base.
+const completedAncestorSchema = z.object({
+  revision: z.string().min(1),
+  subject: z.string().min(1),
+  state: z.enum(["pass", "failed"]),
+  runUrl: z.url().optional(),
+});
+export type BaseCiCompletedAncestor = z.infer<typeof completedAncestorSchema>;
+
 // What the boundary answers when the origin target's CI is not a pass: the
 // judged revision and state to confirm, what the dialog shows, and the run
 // reference when the provider gave one.
@@ -28,6 +37,7 @@ export const baseCiFoundSchema = z.object({
   // Why the base could not be read, when `state` is unread.
   reason: z.string().min(1).optional(),
   runUrl: z.url().optional(),
+  completedAncestor: completedAncestorSchema.optional(),
 });
 
 export type BaseCiFound = z.infer<typeof baseCiFoundSchema>;

@@ -100,13 +100,18 @@ export function actionsForRuns(
 
 // Commit listing body the judgment reads for the origin target (no path).
 export function headCommitListAnswer(
-  commits: readonly { readonly sha: string; readonly message: string }[],
+  commits: readonly {
+    readonly sha: string;
+    readonly message: string;
+    readonly parents?: readonly string[];
+  }[],
 ): OriginAnswer {
   return {
     status: 200,
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify(
-      commits.map(({ sha, message }) => ({
+      commits.map(({ sha, message, parents }) => ({
+        parents: parents?.map((parent) => ({ sha: parent })),
         sha,
         commit: {
           message,
@@ -134,7 +139,7 @@ export function targetHistoryAnswer(
       repoDir,
       "log",
       `--max-count=${String(limit)}`,
-      "--format=%H%x00%s",
+      "--format=%H%x00%s%x00%P",
       revision,
     ],
     { encoding: "utf8" },
@@ -144,8 +149,12 @@ export function targetHistoryAnswer(
     .filter(Boolean);
   return headCommitListAnswer(
     lines.map((line) => {
-      const [sha, subject] = line.split("\0");
-      return { sha: sha ?? "", message: subject ?? "" };
+      const [sha, subject, parents] = line.split("\0");
+      return {
+        sha: sha ?? "",
+        message: subject ?? "",
+        parents: parents?.split(" ").filter(Boolean) ?? [],
+      };
     }),
   );
 }

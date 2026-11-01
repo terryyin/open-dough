@@ -31,7 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Use the dashboard terminal with a mobile keyboard](seeds/SEED-212-mobile-terminal-input.md#use-terminal-with-mobile-keyboard) — SEED-212#use-terminal-with-mobile-keyboard ([plan](slice-plans/436-use-terminal-with-mobile-keyboard/PLAN.md))
 - [Review test optimization candidates and accepted slow tests](seeds/SEED-192-review-product-intent.md#review-test-optimization-candidates) — SEED-192#review-test-optimization-candidates ([plan](slice-plans/437-review-test-optimization-candidates/PLAN.md))
 - [Renovate the Intent sidebar with expandable group panels](seeds/SEED-213-intent-sidebar-panels.md#renovate-intent-sidebar) — SEED-213#renovate-intent-sidebar ([plan](slice-plans/438-renovate-intent-sidebar/PLAN.md))
-- [Show the nearest completed base CI ancestor](seeds/SEED-214-completed-base-ci-ancestor.md#completed-base-ci-ancestor) — SEED-214#completed-base-ci-ancestor
+- [Show the nearest completed base CI ancestor](seeds/SEED-214-completed-base-ci-ancestor.md#completed-base-ci-ancestor) — SEED-214#completed-base-ci-ancestor ([plan](slice-plans/439-completed-base-ci-ancestor/PLAN.md))
 
 ## Backlog list
 

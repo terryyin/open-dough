@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-214#completed-base-ci-ancestor
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/439-completed-base-ci-ancestor/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6e216b345abfb8e04fe2968cfaca2b25bbaf354c4205de4c2479529bac202ab7","plan":"bcc0c8746e3bba89dc26089bb00db578bbf6eabc5461789a3c2f0d70890b9f4c"}}
 ```
 
 **Goal:** Help the developer judge a session's starting revision by showing the
