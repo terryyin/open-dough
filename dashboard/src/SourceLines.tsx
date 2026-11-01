@@ -1,9 +1,10 @@
 // Whole-file source text with line numbers for Intent Purpose reading and,
 // later, other readers. Plain text shows immediately; when `language` is
 // set, Shiki token colours arrive without delaying that text, and a failed
-// grammar load leaves the lines plain with no error.
+// grammar load leaves the lines plain with no error. An optional 1-based
+// `targetLine` identifies and scrolls that case into view.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   highlightSourceLines,
   type SourceTokenLine,
@@ -37,11 +38,14 @@ function LineText({
 export function SourceLines({
   text,
   language,
+  targetLine,
   "aria-label": ariaLabel,
 }: {
   readonly text: string;
   // Shiki language id (from `sourceLanguage` for Intent kinds).
   readonly language?: string;
+  /** 1-based line to identify and bring into view. */
+  readonly targetLine?: number;
   readonly "aria-label": string;
 }) {
   const lines = text.length === 0 ? [""] : text.split("\n");
@@ -51,6 +55,7 @@ export function SourceLines({
   const [tokenLines, setTokenLines] = useState<
     readonly SourceTokenLine[] | undefined
   >(undefined);
+  const targetRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (language === undefined) {
@@ -67,6 +72,11 @@ export function SourceLines({
     };
   }, [text, language]);
 
+  useEffect(() => {
+    if (targetLine === undefined) return;
+    targetRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+  }, [targetLine, text, tokenLines]);
+
   return (
     <pre
       className="source-lines"
@@ -74,14 +84,24 @@ export function SourceLines({
       tabIndex={0}
       aria-label={ariaLabel}
     >
-      {lines.map((line, index) => (
-        <div key={index} className="source-line">
-          <span className="source-line-number" aria-hidden="true">
-            {index + 1}
-          </span>
-          <LineText line={line} tokens={tokenLines?.[index]} />
-        </div>
-      ))}
+      {lines.map((line, index) => {
+        const lineNumber = index + 1;
+        const isTarget = targetLine === lineNumber;
+        return (
+          <div
+            key={index}
+            ref={isTarget ? targetRef : undefined}
+            className={isTarget ? "source-line is-target" : "source-line"}
+            data-line={lineNumber}
+            {...(isTarget ? { "aria-current": "location" as const } : {})}
+          >
+            <span className="source-line-number" aria-hidden="true">
+              {lineNumber}
+            </span>
+            <LineText line={line} tokens={tokenLines?.[index]} />
+          </div>
+        );
+      })}
     </pre>
   );
 }

@@ -120,6 +120,12 @@
   overflow-wrap: anywhere;
 }
 
+.intent-candidate-location-case {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+  overflow-wrap: anywhere;
+}
+
 .intent-candidate-location-gap {
   color: var(--quiet);
   font-size: var(--text-sm);

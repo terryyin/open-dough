@@ -162,6 +162,9 @@ export function IntentBrowser({
                   {...(selectedLanguage === undefined
                     ? {}
                     : { language: selectedLanguage })}
+                  {...(selection.caseTarget === undefined
+                    ? {}
+                    : { caseTarget: selection.caseTarget })}
                 />
               ) : (
                 <p className="quiet">Reading {selectedPath}…</p>

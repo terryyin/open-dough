@@ -4,6 +4,7 @@
 // full-path choices, or stays as recorded text with its specific gap reason.
 
 import { Fragment, type ReactNode } from "react";
+import { recordedCaseSuffix } from "./intentCaseTargetLine.ts";
 import type {
   IntentConfiguredInventory,
   MatchedLocationTarget,
@@ -37,21 +38,34 @@ function Reference({
     return <span>{label}</span>;
   }
   if (match.kind === "file") {
+    const caseSuffix =
+      match.caseTarget === undefined
+        ? undefined
+        : recordedCaseSuffix(match.caseTarget);
+    const linkLabel =
+      caseSuffix !== undefined && label.endsWith(caseSuffix)
+        ? label.slice(0, -caseSuffix.length)
+        : label;
     return (
-      <button
-        type="button"
-        className="intent-candidate-location-link"
-        onClick={() => {
-          onOpen(
-            match.caseTarget === undefined
-              ? { path: match.path }
-              : { path: match.path, caseTarget: match.caseTarget },
-            entrySlug,
-          );
-        }}
-      >
-        {label}
-      </button>
+      <span className="intent-candidate-location-with-case">
+        <button
+          type="button"
+          className="intent-candidate-location-link"
+          onClick={() => {
+            onOpen(
+              match.caseTarget === undefined
+                ? { path: match.path }
+                : { path: match.path, caseTarget: match.caseTarget },
+              entrySlug,
+            );
+          }}
+        >
+          {linkLabel}
+        </button>
+        {caseSuffix === undefined ? null : (
+          <span className="intent-candidate-location-case">{caseSuffix}</span>
+        )}
+      </span>
     );
   }
   if (match.kind === "several") {
