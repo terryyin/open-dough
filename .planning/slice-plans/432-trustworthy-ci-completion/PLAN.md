@@ -152,7 +152,7 @@ terminal is the one plausible instance and would now fail with a named hit.
 
 ### 4. Fresh Host-switch proof observes the subsequent ordinary poll
 Type: Behavior
-Status: planned
+Status: done
 Proof: Repair agent-launch-host-switch-fresh.spec.ts using real controlled
 responses and paused clock. Await the fresh read's settled result before
 advancing to an actual regular poll. Run that spec plus the existing
@@ -168,6 +168,16 @@ The current implementation is not assumed broken merely because its test
 lost an assertion. Change product code only if discriminating proof reveals
 a real defect; otherwise restore the test's observation without expanding
 freshness to new actions or changing the one-second sharing contract.
+
+Accepted proof: no product defect; only agent-launch-host-switch-fresh.spec.ts
+changed. sessionsGets keeps each response body; the Start session test
+installs a real Codex skill copy after unmarked answers lack the offer,
+switches Host, awaits a fresh answer offering Codex and its rendered
+Isolated workspace, then runs the clock one interval and asserts a later,
+unmarked ask. Temporarily suppressing that poll, marking it fresh, or
+unmarking the switch read each failed the spec; the predecessor spec passed
+under the first two. The story-launch Option B proof is kept. Repeat-each 5
+(10/10) and seven sessions freshness/sharing consumer specs passed.
 
 ### 5. A repaired publication is reviewed and completed on its actual proof
 Type: Behavior

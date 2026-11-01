@@ -36,8 +36,8 @@ text; slice allocation and observations are the coordinator's.
 | 4c.1 | Remove the demonstrated mismatch between the coordinates a native touch helper checks and the coordinates it taps | slice 3 | observed: dashboard/tests/controlReachability.ts tapWhereShown taps the point it measured and hit-tested in one browser turn; control-reachability-observation.spec.ts "a control that moves before the touch is refused, not silently missed" failed before (resolved) and passes after |
 | 4c.2 | Retain real touch, reachability, clipping and sufficiently sized target observations | slice 3 | observed: tapWhereShown keeps clippedEdges, 44px size checks, hit check and native touchscreen.tap; existing observation tests including the modal tap pass |
 | 4c.3 | Settle the transitions that need it | slice 3 | observed: the 20-file reached touch batch (48 tests, --workers 4) passed under the stricter landing check, so no journey transition needed settling |
-| 4d.1 | Restore genuine temporal proof for regular unmarked polling after a settled fresh Host-switch read | slice 4 |  |
-| 4d.2 | That proof includes the Start session offer result | slice 4 |  |
+| 4d.1 | Restore genuine temporal proof for regular unmarked polling after a settled fresh Host-switch read | slice 4 | observed: agent-launch-host-switch-fresh.spec.ts Start session test advances the clock only after the settled fresh answer and rendered offer, then asserts a later ask exists and every later ask is unmarked; fails when the poll is suppressed (D1) or marked (D2) |
+| 4d.2 | That proof includes the Start session offer result | slice 4 | observed: same test asserts the fresh answer offers Codex ad-hoc, Isolated workspace is enabled and the dialog lacks the not-offered text |
 | 4e.1 | Judge repairs against the complete affected behavioral lifecycle and existing consumers | slice 5 |  |
 | 4e.2 | After a repair, reconsider only the affected retrospective conclusions | slice 5 |  |
 | 4e.3 | Preserve source promises and regression discrimination | slice 5 |  |
@@ -59,9 +59,9 @@ text; slice allocation and observations are the coordinator's.
 | E4.2 | Recurring acquisition trouble is examined for a repository setup cause rather than ignored indefinitely | slice 5 |  |
 | E5.1 | A touch target moves between measurement and activation: the helper cannot report successful reachability for a different point and silently miss the target | slice 3 | observed: control-reachability-observation.spec.ts moving-target test asserts the refusal "native touch lands on the intended control" and zero clicks |
 | E5.2 | Stable native-touch journeys and clear obstruction diagnosis survive | slice 3 | observed: control-reachability-observation.spec.ts stable target gets one click; early and late cover refusals name DIV#cover; reached touch journeys pass |
-| E6.1 | Initial read saw Option A, configuration changes to B, Host switches: a settled fresh response renders B | slice 4 |  |
-| E6.2 | A subsequent actual regular poll is observed and carries no fresh marker | slice 4 |  |
-| E6.3 | Initial requests, or a timer advanced before scheduling, cannot stand in for this observation | slice 4 |  |
+| E6.1 | Initial read saw Option A, configuration changes to B, Host switches: a settled fresh response renders B | slice 4 | observed: agent-launch-host-switch-fresh.spec.ts story-launch test renders Codex Option B, not A, after the Host switch with a fresh ask; Start session test renders the newly installed offer |
+| E6.2 | A subsequent actual regular poll is observed and carries no fresh marker | slice 4 | observed: expect.poll(asks.length) greater than the settled index and asks.slice(settled).every(!fresh) |
+| E6.3 | Initial requests, or a timer advanced before scheduling, cannot stand in for this observation | slice 4 | observed: later asks counted only from the index recorded after the settled render; the predecessor spec passed under D1+D2 while the repaired spec fails |
 | E7.1 | A banner/dialog repair fixes its first zoom assertion; acceptance still exercises opening, Close clear of the banner, End revealing the last explanation, and affected focus/navigation consumers | slice 5 |  |
 | E7.2 | Do not publish three successive single-assertion fixes | slice 5 |  |
 | E8.1 | A CI repair follows a provisional retrospective: its affected product and proof conclusions are reviewed on the repaired candidate | slice 5 |  |
