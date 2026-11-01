@@ -1,3 +1,16 @@
+## 0.3.81 - 2026-11-02
+
+- Clarify Cucumber proof adoption in TypeScript projects: plugins load through native `import()` before support-code loaders, must load silently, and record only features under the Gherkin locations declaring their proof directory.
+- Dashboard Intent opens the Test Optimization Candidates record as its default view, groups Pending and Accepted entries, follows recorded file and test-case locations, and reports absent, unreadable, empty and mismatched published records truthfully.
+- Keep Purpose and Proof attached to the selected file while reads finish, preserve selection when startup detail arrives at the same revision, and recover feature-blob information from listings remembered before a dashboard upgrade so matching proof says "This file version".
+- Cancel superseded branch and pull-request CI runs. Stabilize browser journeys around launch completion, project switching and candidates reads, and isolate a managed-delivery test from an ambient Cursor session.
+
+The Promoted installation payload changes only `dough-test-optimization/references/cucumber-proof.md`; no payload paths are added or removed. The execution-test isolation change is source-only. Dashboard code, CI, tests, planning and maintainer records remain source functionality; undeclared guidance remains Proposed. This rollout updates guidance and does not adopt a proof recorder in any project.
+
+Validation: all 16 focused release checks and the release self-installation check passed, covering payload declarations, both native roots, host-hook registration, comparison, latest-release pinning, ordinary refusal and no-write behavior, replacement failures, retired paths, force recovery and release finalization. The representative behavior review follows a TypeScript Cucumber project from the reference to a silently loaded plugin and location-scoped proof; the completed Pygardon adoption recorded identical output and exit with and without the recorder, no dry-run writes, and published proof read by Intent. Dashboard corrections retain their owning regression and production observations. Hosted CI passed source revision `a47f4814edb00038ef77d45e001cae1db9255cb6` (run `41361621376`); subsequent pre-release changes are planning and maintainer records, and this is reused evidence rather than a claim about the release commit's future CI.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code discovery, installation and host-hook mechanisms reuse their existing integration evidence. The conventional reference clarification uses its representative authoring review and completed adoption evidence. These are reviewed, reused and deterministic checks, not fresh native-host acceptance. No new native exception is claimed; outstanding native requirements retain their owners.
+
 ## 0.3.80 - 2026-11-01
 
 - Add a Cucumber proof reference to test optimization: a Cucumber.js project records each ordinary run's latest observed scenario result, outcome, commit and feature-file version as committed, uniquely named proof through a plugin recorder that leaves output and exit unchanged, survives parallel, retried and interrupted runs, merges without conflict across worktrees, and consolidates without changing what readers see. Test optimization keeps that recorder in every Cucumber profile an experiment changes.
