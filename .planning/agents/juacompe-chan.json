@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "juacompe-chan",
-  "email": "juacompe-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-211#sessions-sidebar-host-status",
-  "host": "cursor",
-  "model": "auto"
-}
