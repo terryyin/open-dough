@@ -5,6 +5,7 @@
 
 import { execFileSync } from "node:child_process";
 import type { OriginAnswer } from "../originAnswers.ts";
+import type { GhCall } from "./fakeGitHub.ts";
 
 // Default published head when a journey has not served its own origin yet
 // (SEED-210): every-repository and owned-GitHub defaults answer this revision.
@@ -96,6 +97,24 @@ export function actionsForRuns(
     }
     return undefined;
   };
+}
+
+// Answers the judgment's calls a journey serves itself; undefined leaves a
+// call to the repository's other answers.
+export type CiAnswerer = (
+  call: GhCall,
+) => OriginAnswer | Promise<OriginAnswer> | undefined;
+
+// The calls a judgment asks: the selected check's Actions workflow and runs,
+// and a branch's history listed by its name (no path, not a pinned sha).
+export function isCiJudgmentCall({ request }: GhCall): boolean {
+  return (
+    request.kind === "actions-workflow" ||
+    request.kind === "actions-runs" ||
+    (request.kind === "commit-list" &&
+      request.path === "" &&
+      !/^[0-9a-f]{40}$/.test(request.revision))
+  );
 }
 
 // Commit listing body the judgment reads for the origin target (no path).

@@ -77,10 +77,12 @@ export type GhRequest =
       readonly workflow: string;
     }
   | {
-      // Push runs of a selected Actions workflow.
+      // Push runs of a selected Actions workflow on one branch (`branch=`),
+      // "" when none is named.
       readonly kind: "actions-runs";
       readonly repository: string;
       readonly workflowId: string;
+      readonly branch: string;
     }
   | { readonly kind: "unknown" };
 
@@ -230,7 +232,7 @@ export function parseRequest(argv: readonly string[]): GhRequest {
     };
   }
   const actionsRuns =
-    /^repos\/([^/]+\/[^/]+)\/actions\/workflows\/([^/]+)\/runs(?:\?.*)?$/.exec(
+    /^repos\/([^/]+\/[^/]+)\/actions\/workflows\/([^/]+)\/runs(?:\?(.*))?$/.exec(
       endpoint,
     );
   if (actionsRuns?.[1] !== undefined && actionsRuns[2] !== undefined) {
@@ -238,6 +240,7 @@ export function parseRequest(argv: readonly string[]): GhRequest {
       kind: "actions-runs",
       repository: actionsRuns[1],
       workflowId: decodeURIComponent(actionsRuns[2]),
+      branch: new URLSearchParams(actionsRuns[3] ?? "").get("branch") ?? "",
     };
   }
   return { kind: "unknown" };

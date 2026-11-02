@@ -67,18 +67,55 @@ Gherkin files so far. The selected perspective choice names the page, so
 Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. Directly under the
-banner, a strip of two Intent reading modes, **Intent** and **Optimization
-Candidates**, chooses what that content shows; it belongs to Intent and is
-not a third perspective. Entering Intent selects **Intent**: the location
-tree, which holds only Purpose locations, beside Purpose and Proof.
+banner, a strip of three Intent reading modes, **Intent**, **Optimization
+Candidates** and **CI status**, chooses what that content shows; it belongs
+to Intent and is not another perspective, and arrow keys, Home and End move
+between its tabs. **Intent** shows the location tree, which holds only
+Purpose locations, beside Purpose and Proof; it is the tab a project's Intent
+first shows.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
 Purpose and Proof, and choosing **Optimization Candidates** again returns to
-that entry without reading the record again. The choice is disposable page
-state, not on the URL; a project change or a new revision starts again on
-**Intent**. A location that is
+that entry without reading the record again. **CI status** shows, across the
+content area without the location tree, the selected check's judgment of the
+project's configured trunk (`main` here), or, while a story is selected on
+Development's board, of that story's published story branch: the branch its
+single agent profile records in Story Branch Mode. It is judged by the same
+rule as the
+[base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md): the
+newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at the
+branch head or its nearest ancestor that has one; for a story branch, a run
+on the trunk for a commit in the branch's history counts as that commit's
+result, and the run's branch is named (for example "run on `main`"). A
+selected story with no published story branch (queued or being prepared,
+Trunk Mode, or Recently done) is named with that explanation; one whose agent
+profiles cannot be read, or that more than one profile names, says its branch
+is unknown and why; a recorded name the dashboard cannot use is that story's
+gap; and a recorded branch GitHub no longer publishes is said so by name.
+None of these shows a status, and no other branch's judgment stands in. A
+changed selection replaces the judgment, never showing one read for an
+earlier selection, and clearing it returns to the trunk. It names the branch and
+states **Passed**, **Failed** (including cancelled or timed out),
+**Running** or **Could not be read** with the reason, with the judged short
+SHA and subject, how many later commits have no result of their own, the run
+link when given, while running the nearest completed ancestor, and when it
+was checked; a history with no result is **Could not be read**, never
+passed. It is read each time the tab is shown, when the judged branch
+changes, again when the page's
+revision check finds the judged branch's head moved while it is shown (a new
+trunk revision, or a new head of a story branch it watches because the story's
+progress is read there; a story branch without a counted plan is not watched
+and is re-read on **Check again**), and on **Check again**, with no timed
+polling, and it is offered whether Intent locations are
+configured, absent, or unreadable: the strip stands above those
+explanations, which **Intent** and **Optimization Candidates** show when
+there is no location tree. The chosen tab is kept while the page stays on
+the project, across switches to Development and back and across new
+revisions, where **Optimization Candidates** reads the record at the new
+revision; a project change starts again on **Intent**. The choice is
+disposable page state, not on the URL or in storage. A location that is
 missing, holds no `.feature` files, or names an unsupported kind says so
 by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations

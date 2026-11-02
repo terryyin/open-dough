@@ -25,12 +25,9 @@ import {
   type MadeCommit,
   type PathHistories,
 } from "./pathHistoryAnswers.ts";
-import {
-  aheadByAnswer,
-  changedBetween,
-  compareAnswer,
-} from "./comparisonAnswers.ts";
+import { refMoveComparisons } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
+import { isCiJudgmentCall, type CiAnswerer } from "./support/baseCiActions.ts";
 
 // A repository whose configured ref (default `main`) names one revision at which these files are
 // published: every contents read at that revision is observed and answered
@@ -47,15 +44,14 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 // `unanswered` is listed in its directory, but reading it fails as a lost
 // connection would. A check
 // lists the configured ref and every published branch head; checks are answered but not
-// observed (./originObservation.ts). A comparison of two revisions the ref
-// named, joined by its moves from the base to the head, is observed and
-// answered as ahead by the commits those moves were made by, naming the files
-// that differ between the two published revisions, and each of those commits
-// with every file it changed; joined through a move that names none, it
-// answers no connection. The reverse, from a later revision the ref named to
-// an earlier one, is answered behind, and any other comparison diverged, both
-// observed. While comparisons are held, each one asked is observed at once
-// and answered only once they are released.
+// observed (./originObservation.ts). A comparison is answered from the ref's
+// moves (`refMoveComparisons`, ./comparisonAnswers.ts) and observed unless it
+// has no connection; each commit a move was made by answers with every file it
+// changed. While comparisons are held, each one asked is observed at once
+// and answered only once they are released. Once CI is served, the selected
+// check's Actions answers and the history listing of a branch by its name
+// (`commits?sha=<branch>`, no path) are answered by it first, each observed;
+// until then they have no answer.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
@@ -84,6 +80,10 @@ export type MovingFiles = {
   moveBranch(branch: string, at: PublishedRevision | undefined): void;
   // Holds every comparison asked from now on until the returned release.
   holdComparisons(): () => void;
+  // Answers CI judgment calls (Actions workflow and runs, and a branch's
+  // history by name) with `answer` from now on; undefined leaves a call to
+  // the published files.
+  serveCi(answer: CiAnswerer): void;
 };
 
 export function publishMovingFiles(
@@ -99,27 +99,21 @@ export function publishMovingFiles(
   let trunk: PublishedRevision = published;
   const branches = new Map(Object.entries(published.branches ?? {}));
   const revisions = [published, ...branches.values()];
-  // Each move of the ref in order, with the commits it was made by when it
-  // names them.
-  const moves: {
-    readonly from: string;
-    readonly to: string;
-    readonly by: readonly MadeCommit[] | undefined;
-  }[] = [];
-  // The moves that took the ref from `base` to `head`, oldest first, or
-  // undefined when it never moved from one to the other.
-  const movesBetween = (base: string, head: string) => {
-    for (let first = 0; first < moves.length; first += 1) {
-      if (moves[first]?.from !== base) continue;
-      const last = moves.findIndex(({ to }, at) => at >= first && to === head);
-      if (last !== -1) return moves.slice(first, last + 1);
-    }
-    return undefined;
-  };
+  const comparisons = refMoveComparisons(
+    (revision) => publishedAt(revisions, revision)?.files,
+  );
   const madeCommits = new Map<string, MadeCommit>();
   let comparisonsHeld: Promise<void> = Promise.resolve();
+  let ci: CiAnswerer | undefined;
   githubFor(page).serve(repository, async (call) => {
     const { request } = call;
+    if (ci !== undefined && isCiJudgmentCall(call)) {
+      const answer = await ci(call);
+      if (answer !== undefined) {
+        observe(requests, call);
+        return answer;
+      }
+    }
     if (request.kind === "repository")
       return Promise.resolve({
         status: 200,
@@ -152,25 +146,11 @@ export function publishMovingFiles(
     }
     if (request.kind === "compare") {
       const { base, head } = request;
-      const forward = movesBetween(base, head);
-      if (forward?.some(({ by }) => by === undefined) === true) {
-        return noConnection;
-      }
+      const unconnected = comparisons.unconnected(base, head);
+      if (unconnected !== undefined) return unconnected;
       observe(requests, call);
       await comparisonsHeld;
-      if (forward === undefined) {
-        return compareAnswer(
-          movesBetween(head, base) === undefined ? "diverged" : "behind",
-        );
-      }
-      return aheadByAnswer(
-        forward.flatMap(({ by = [] }) => by.map(({ sha }) => sha)),
-        request.perPage,
-        changedBetween(
-          publishedAt(revisions, base)?.files ?? {},
-          publishedAt(revisions, head)?.files ?? {},
-        ),
-      );
+      return comparisons.answer(base, head, request.perPage);
     }
     if (request.kind === "commit") {
       const made = madeCommits.get(request.sha);
@@ -227,12 +207,15 @@ export function publishMovingFiles(
   return {
     requests,
     moveTrunk(at, by) {
-      moves.push({ from: trunk.revision, to: at.revision, by });
+      comparisons.moved(trunk.revision, at.revision, by);
       for (const made of by ?? []) {
         madeCommits.set(made.sha, made);
       }
       trunk = at;
       revisions.push(at);
+    },
+    serveCi(answer) {
+      ci = answer;
     },
     holdComparisons() {
       let release: () => void = () => undefined;

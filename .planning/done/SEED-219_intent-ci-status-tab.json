@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-219#intent-ci-status-tab",
+  "title": "Show CI status in an Intent tab",
+  "completedAt": "2026-11-02T13:08:50.706Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "claude",
+  "model": "opus"
+}

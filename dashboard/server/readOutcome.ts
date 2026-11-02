@@ -4,6 +4,7 @@
 // `./listedRecordsRead.ts`, `./doneCatalogRead.ts`, and `./containmentRead.ts`.
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
+import type { IntentCiStatusAnswer } from "./intentCiStatusRead.ts";
 import type {
   IntentLocation,
   IntentSettingsProblem,
@@ -94,6 +95,9 @@ type Answer =
       readonly candidates: string | null;
       readonly candidatesProblem?: "unreadable";
     }
+  // Intent's CI status: the judged branch, when it was checked, and the
+  // selected check's judgment (`./intentCiStatusRead.ts`).
+  | IntentCiStatusAnswer
   // A path read at a branch head: null when that head does not have it.
   | {
       readonly revision: string;

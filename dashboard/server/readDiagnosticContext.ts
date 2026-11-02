@@ -93,6 +93,7 @@ function categoryOf(read: RequestedRead): DiagnosticCategory {
       return "done";
     case "intent-locations-at":
     case "intent-candidates-at":
+    case "intent-ci-status":
       return "intent";
     case "containment-at":
       return "containment";
@@ -102,6 +103,7 @@ function categoryOf(read: RequestedRead): DiagnosticCategory {
 function pinOf(read: RequestedRead): string | undefined {
   switch (read.kind) {
     case "ref":
+    case "intent-ci-status":
       return undefined;
     case "revision-check":
       return read.since;

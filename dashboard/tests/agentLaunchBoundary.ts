@@ -12,6 +12,8 @@ import { agentDeleteEndpoint } from "../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
 import {
+  alertsAnswered,
+  alertsSettled,
   attempts,
   establishingPreparation,
   establishingProjects,
@@ -27,6 +29,8 @@ import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
 
 export {
+  alertsAnswered,
+  alertsSettled,
   attempts,
   establishingPreparation,
   establishingProjects,

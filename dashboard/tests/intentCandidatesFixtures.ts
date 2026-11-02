@@ -186,7 +186,8 @@ export const mismatchedCandidatesRecord = `# Not A Candidates Record
 Body that Intent must not partially show.
 `;
 
-const openDoughSources = {
+// The Open Dough sources its candidates record is published with.
+export const openDoughSources = {
   [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
   [evidenceDocPath]: evidenceDoc,
   [openDoughSpecPaths.gherkin]: browseSpec,

@@ -2,7 +2,7 @@
 // (`./authenticatedRead.ts`) asks for, once its catalog source is known:
 // the ref resolved afresh with its backlog; a revision check (`since`,
 // `watch`); the backlog or one path at a pinned revision; last commit or
-// profile addition (`committed`); listed records (`./listedRecordsRead.ts`);
+// profile addition (`committed`, `./additionRead.ts`); listed records (`./listedRecordsRead.ts`);
 // the done catalog (`./doneCatalogRead.ts`); Intent reads
 // (`./intentRequestedRead.ts`); a story branch head or path on it (`branch`,
 // `head`); or containment (`contains`, `./containmentRead.ts`). Malformed or
@@ -37,7 +37,7 @@ import {
   parseIntentRequestedRead,
   type IntentRequestedRead,
 } from "./intentRequestedRead.ts";
-import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { parseAdditionRead, type AdditionRead } from "./additionRead.ts";
 
 // A story branch as a read names it: the branch, and the head commit this
 // boundary already resolved it to.
@@ -56,11 +56,7 @@ export type RequestedRead =
   | ListedRecordsRead
   | DoneCatalogRead
   | IntentRequestedRead
-  | {
-      readonly kind: "addition-at";
-      readonly revision: string;
-      readonly path: string;
-    }
+  | AdditionRead
   | {
       readonly kind: "branch-head-at";
       readonly revision: string;
@@ -151,30 +147,6 @@ function parseBranchRead(
     : { ...read, revision, onBranch: { branch, head } };
 }
 
-// Which commit added an agent profile, asked only on trunk at a pinned
-// revision and only for a path the shared profile module names as a profile;
-// whether that profile is listed at the revision is the performed read's to
-// decide. An avatar read (`./avatarRead.ts`) names its profile the same way.
-export function parseAdditionRead(
-  revision: string | null,
-  path: string | null,
-):
-  Extract<RequestedRead, { readonly kind: "addition-at" }> | RefusedParameters {
-  if (!isPinnedRevision(revision)) {
-    return unpinnedRevision;
-  }
-  const repositoryPath = parseSafeRepositoryPath(path);
-  const file = repositoryPath?.split("/").pop();
-  if (
-    repositoryPath === undefined ||
-    file === undefined ||
-    profileAgentName(file) === undefined
-  ) {
-    return refused("An addition read names only an agent profile path.");
-  }
-  return { kind: "addition-at", revision, path: repositoryPath };
-}
-
 export function parseRequestedRead(
   params: URLSearchParams,
 ): RequestedRead | RefusedParameters {
@@ -205,7 +177,11 @@ export function parseRequestedRead(
           "An addition read names only a pinned revision and an agent profile path.",
         );
   }
-  if (branch !== null || params.get("head") !== null) {
+  // Intent's CI status names its branch to judge, not a branch to read on.
+  if (
+    (branch !== null || params.get("head") !== null) &&
+    params.get("intent") !== "ci-status"
+  ) {
     return parseBranchRead(params, branch);
   }
   const catalogRead = parseDoneCatalogRead(params);

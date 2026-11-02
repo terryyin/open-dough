@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-219_intent-ci-status-tab.json",
+      "identity": "SEED-219#intent-ci-status-tab",
+      "completedAt": "2026-11-02T13:08:50.706Z",
+      "blob": "d7b116bfbb379209ee66f1f75436bd9db487fb87"
+    },
+    {
       "fileName": "SEED-223_deliberate-intent-proof.json",
       "identity": "SEED-223#deliberate-intent-proof",
       "completedAt": "2026-11-02T09:57:37.061Z",

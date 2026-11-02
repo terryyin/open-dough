@@ -13,7 +13,7 @@ import type { Boundary } from "./performedRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { unreachable, type Outcome } from "./readOutcome.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
-import { parseAdditionRead } from "./requestedRead.ts";
+import { parseAdditionRead } from "./additionRead.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import {
   contextForAvatarRead,

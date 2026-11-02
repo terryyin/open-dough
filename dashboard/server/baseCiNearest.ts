@@ -1,10 +1,36 @@
-// Nearest selected-check result along the origin target's commit listing:
-// newest run per revision, then the first revision that yields a judged state.
+// Nearest selected-check result along a branch's commit listing: newest run
+// per revision, then the first revision that yields a judged state. A result
+// belongs to its commit whichever branch's push produced it, so the runs may
+// come from more than one branch's listing; each judged result names the
+// branch its run was on (`branch`, as the listing that returned it says).
 import type {
   BaseCiCompletedAncestor,
   BaseCiState,
 } from "../src/baseCiConfirmation.ts";
-import type { BaseCiJudgment } from "./baseCiJudgment.ts";
+
+// One judged result, unread with its reason when no state could be judged.
+export type BaseCiJudgment =
+  | {
+      readonly state: "pass";
+      readonly revision: string;
+      readonly subject: string;
+      readonly laterWithoutResult: number;
+      readonly runUrl?: string;
+      readonly runBranch?: string;
+    }
+  | {
+      readonly state: BaseCiState;
+      readonly revision: string;
+      readonly subject: string;
+      readonly laterWithoutResult: number;
+      readonly completedAncestor?: BaseCiCompletedAncestor;
+      readonly reason?: string;
+      readonly runUrl?: string;
+      readonly runBranch?: string;
+      // GitHub has no published branch of the judged name (its history
+      // listing answered `404`).
+      readonly unpublished?: true;
+    };
 
 export type ListedCommit = {
   readonly sha?: unknown;
@@ -18,9 +44,19 @@ export type ListedRun = {
   readonly conclusion?: string | null;
   readonly url?: string;
   readonly createdAt?: string;
+  // The branch whose listing returned the run.
+  readonly branch?: string;
 };
 
-export function unread(reason: string): BaseCiJudgment {
+function runBranchOf(run: ListedRun): { runBranch?: string } {
+  return typeof run.branch === "string" && run.branch !== ""
+    ? { runBranch: run.branch }
+    : {};
+}
+
+export function unread(
+  reason: string,
+): Exclude<BaseCiJudgment, { state: "pass" }> {
   return {
     state: "unread",
     revision: "unavailable",
@@ -108,6 +144,7 @@ function nearestCompletedAncestor(
       subject: subjectOf(commit.commit?.message),
       state: completedStateOf(run.conclusion),
       ...(run.url ? { runUrl: run.url } : {}),
+      ...runBranchOf(run),
     };
   }
   return undefined;
@@ -146,6 +183,7 @@ export function judgeNearest(
       ...(typeof run.url === "string" && run.url !== ""
         ? { runUrl: run.url }
         : {}),
+      ...runBranchOf(run),
     };
   }
   return unread(

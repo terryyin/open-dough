@@ -1,5 +1,6 @@
 import { sessionKey } from "./sessionReference.ts";
 // The page keeps one side panel and its Sessions sidebar above project selection.
+// Story selection and the chosen Intent mode are kept here as page state.
 // The panel shows one item: a session's terminal or final report, or a story's
 // story review. Sidebar navigation reveals the chosen project/story without
 // remounting the page. pageSidePanel owns selection, current marks,
@@ -24,6 +25,7 @@ import { StoryReview } from "./StoryReview.tsx";
 import { StoryReviewsOnPage } from "./pageStoryReviews.ts";
 import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
+import { IntentModeProvider } from "./pageIntentMode.tsx";
 import { StorySelectionProvider } from "./pageStorySelection.tsx";
 import { useSessionNavigation } from "./sessionNavigation.ts";
 import {
@@ -158,7 +160,9 @@ export function PageFrame({
                     className="page-column"
                     aria-hidden={shownMaximized ? true : undefined}
                   >
-                    {children}
+                    <IntentModeProvider project={stories.selected}>
+                      {children}
+                    </IntentModeProvider>
                   </div>
                 </RecentlyDoneRangeOnPage>
               </SessionsSidebarOnPage>

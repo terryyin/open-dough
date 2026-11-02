@@ -76,6 +76,11 @@ export function readingBranchHeadOf(
   return `branch ${branch} of ${repository}`;
 }
 
+// A branch's selected-check judgment (`../server/intentCiStatusRead.ts`).
+export function readingCiStatusOf(branch: string, repository: string): string {
+  return `the CI status of ${readingBranchHeadOf(branch, repository)}`;
+}
+
 export function readingPathAt(path: string, revision: string): string {
   return `${path} at ${revision}`;
 }

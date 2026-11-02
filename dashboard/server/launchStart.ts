@@ -17,7 +17,7 @@ import {
 } from "../src/agentLaunch.ts";
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import { existingChanges } from "./defaultCheckoutChanges.ts";
-import { baseCiFound, judgeBaseCi } from "./baseCiJudgment.ts";
+import { baseCiFound, judgeBranchCi } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { EstablishedLaunch, UnattachedEstablished } from "./hostLaunch.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -119,7 +119,7 @@ export async function unconfirmedStart(
     undefined
   )
     return undefined;
-  const judgment = await judgeBaseCi(source, folder);
+  const judgment = await judgeBranchCi(source, folder, source.ref);
   if (judgment.state === "pass") return undefined;
   const confirmed = request.baseCi;
   if (
