@@ -42,30 +42,3 @@ example after the repository is renamed). CI status names `main`, says
 **Could not be read**, and shows the 404 reason.
 
 **Plan:** [448-ci-status-review-corrections](../slice-plans/448-ci-status-review-corrections/PLAN.md)
-
-<a id="investigate-ci-completion-timeout"></a>
-
-### Explain the CI completion timeout for an already successful run
-
-**Identity:** SEED-219#investigate-ci-completion-timeout
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
-```
-
-**Goal:** Explain why completion observation for `db511594b1935968e01df4b22f4931bcb5843994`
-returned `unresolvedReason: "timeout"` and stopped its observer although
-GitHub Actions run `41436051947` succeeded, and identify an evidence-backed
-disposition or bounded repair proposal.
-
-**Scope:** Inspect the original session and mailbox evidence, registration,
-provider timestamps, and the applicable observer implementation. Distinguish
-expected bounded shutdown from missed or inapplicable success evidence. Keep
-this investigation independent of correction 448 and its existing owner.
-Investigation is authorized; implementation is not part of this mission.
-
-**Known expectations:** A completed applicable success observed within the
-completion budget returns success. Timeout alone establishes no CI verdict.
-Later success at `d0abfe47` does not explain the earlier observation gap.
-Preserve original evidence, identify its limits, and recommend a deterministic
-regression case if a defect is established. Tests and any repair handoff follow
-[AGENTS.md — Failing and flaky tests](../../AGENTS.md#failing-and-flaky-tests).
