@@ -187,3 +187,36 @@ with `main` as the default and a selected story's branch taking precedence.
 In refinement on 2026-11-02 Terry chose: an explanation with no status for
 stories without a published story branch; keeping the chosen Intent tab per
 project; and re-reading on head change plus **Check again**, without polling.
+
+<a id="ci-status-review-corrections"></a>
+
+### 1a. Keep CI status unread failures readable and its read contract plain
+
+**Identity:** SEED-219#ci-status-review-corrections
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/448-ci-status-review-corrections/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c403b77295e29bbe503b28d1a61af2c73f3388a71e0952e4bc87d1c5a21fabf2","plan":"204cf12d555e8f65f58899c4773f1b411af37ca2bb79d266e35bd93e2a1fc34d"}}
+```
+
+**Goal:** A developer reading Intent's CI status when GitHub cannot list the
+trunk's history sees **Could not be read** with GitHub's reason, never "main
+is not published", and the maintained Intent doc describes when trunk runs
+count for a story branch as the dashboard actually judges them. Maintainers
+get one plain parameter for the judged branch and no overlapping end-to-end
+tests. This corrects [the CI status tab](#intent-ci-status-tab) after its
+execution retrospective.
+
+**Scope:** The configured ref is never marked no longer published; an unread
+trunk judgment keeps its reason visible. A story branch absent on GitHub
+still says so by name. The Intent doc states that a `ciAdapter` project
+judges a story branch from its own discover answer only. The `ci-status`
+read names its judged branch with its own parameter instead of the shared
+`branch` read parameter. Overlapping CI status end-to-end tests move to
+unit tests or are removed with their surviving coverage named. Whether
+`ciAdapter` projects should also count trunk runs is not part of this
+correction.
+
+**Key example:** GitHub answers HTTP 404 for `main`'s commit history (for
+example after the repository is renamed). CI status names `main`, says
+**Could not be read**, and shows the 404 reason.
+
+**Plan:** [448-ci-status-review-corrections](../slice-plans/448-ci-status-review-corrections/PLAN.md)

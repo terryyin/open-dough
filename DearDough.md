@@ -334,6 +334,16 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
+### Occurrences
+- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
+  - Timestamp: unknown (2026-11-02, before repair commit 276116fc)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
+  - Evidence: fresh delivery of the flaky-test repair returned `preparation-refused`, "the plan must be included in ownedPaths"; the retry with PLAN.md added published 276116fc
+  - Observed effect: one refused attempt and retry; nothing committed or published by the refused attempt
+  - Inference: a repair increment that leaves the plan unchanged still needs the plan path in ownedPaths; the coordinator built the list from changed files only
+
 <a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
 
 ## ODF-355 — Preparation recorded measured allocations without their full sort key
@@ -345,6 +355,16 @@ Former local code: DD-337. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-356 — A direct formatter command in fresh delivery lacked the package's binaries
 
 Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/findings/ODF-356.md).
+
+### Occurrences
+- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
+  - Timestamp: unknown (2026-11-02, before slice 1 commit 713d91a6)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
+  - Evidence: coordinator ran `node scripts/lint.mjs --fix` directly: "prettier: not found on PATH"; `npm run --silent format` then succeeded and was used as the delivery formatting operation
+  - Observed effect: one failed formatter call before delivery; delivery itself used the npm script and did not fail
+  - Inference: same binary-resolution cause outside the guarded entry: the project's selective formatter must be invoked through npm
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
@@ -492,6 +512,14 @@ already-running implementer.
   - Evidence: coordinator transcript `60e22314-a376-487e-aa74-b511ff265df2` delegates slice 2, then launches source-only review; `source-review.md` and D1–D5 Story obligations written after that delegation
   - Observed effect: deferred exclusions D1–D5 were recorded after the implementer was already running; no mid-run product correction was required for this execution
   - Inference: same timing gap as the prior occurrence; deferred-only late commitments reduced impact here
+- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
+  - Timestamp: unknown (2026-11-02, before the 2026-11-02 slice 1 commit 713d91a6)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
+  - Evidence: this session delegated slice 1, then launched the source-only review; `.planning/slice-plans/447-intent-ci-status-tab/source-review.md` slice-1 ids (S1.5c unreadable settings, S3.4b cancelled/timed out, S3.9 no result) were sent to the running implementer as an addendum
+  - Observed effect: the implementer added observations for the late ids; the timed-out Check again assertion still came back weak and the coordinator strengthened it before acceptance
+  - Inference: third occurrence of the same ordering: the delegation boundary reads the obligations listing, but the source review that feeds it is produced at the acceptance boundary
 
 ## DD-389 — Post-change refactor left a production module empty before delivery
 

@@ -257,6 +257,21 @@ another branch moving" step; mutation-checked. The head followed is
 `CiTarget.head` in `dashboard/src/intentCiTarget.ts`. Final state: full
 `npm test` passed and the whole dashboard suite 1906 passed.
 
+## Execution complete
+
+Product advice: no backlog change. The retrospective planned one bounded
+correction,
+[SEED-219#ci-status-review-corrections](../../seeds/SEED-219-intent-ci-status-tab.md#ci-status-review-corrections)
+([plan 448](../448-ci-status-review-corrections/PLAN.md)): a trunk history 404
+reads as an unpublished `main` without its reason, the Intent doc overstates
+trunk runs for `ciAdapter` story branches, `branch` carries two read
+meanings, and two end-to-end tests overlap. Open for Terry: whether `ciAdapter`
+projects should also count trunk runs of shared commits (plan 447 narrowed the
+story's "Results on shared commits" to GitHub Actions). For later refinement:
+SEED-192#assess-story-intent-protection should decide whether it needs the
+deferred landing-revision CI, and SEED-192#check-cucumber-proof-in-ci should
+reuse `judgeBranchCi` rather than add a second CI read.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |
