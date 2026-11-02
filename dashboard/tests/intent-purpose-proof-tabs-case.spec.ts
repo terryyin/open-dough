@@ -1,7 +1,7 @@
 // Switching Purpose and Proof keeps a positioned case without reading again,
 // and opening a recorded file from Optimization Candidates chooses Purpose on
-// its case (../src/IntentFileReading.tsx; SEED-222 examples 7 for tabs, 8;
-// commitment 22). The tabs themselves are `./intent-purpose-proof-tabs.spec.ts`.
+// its case (../src/IntentFileReading.tsx). The tabs themselves are
+// `./intent-purpose-proof-tabs.spec.ts`.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -43,7 +43,7 @@ test("switching tabs keeps a positioned case without reading again, and opening 
   const reads = contentReadsOf(requests, doughnutCaseFeaturePath);
   expect(reads).toBe(1);
 
-  await test.step("Ex 7: Proof and back keeps the file, its case position and the Intent tab, reading nothing", async () => {
+  await test.step("Proof and back keeps the file, its case position and the Intent tab, reading nothing", async () => {
     await pressWhereShown(readingTab(intent, "Proof"));
     await expectReadingTabChosen(intent, "Proof");
     await expect(
@@ -60,7 +60,7 @@ test("switching tabs keeps a positioned case without reading again, and opening 
     expect(contentReadsOf(requests, doughnutCaseFeaturePath)).toBe(reads);
   });
 
-  await test.step("Ex 8: on Proof, opening the recorded file shows Purpose positioned on its case", async () => {
+  await test.step("on Proof, opening the recorded file shows Purpose positioned on its case", async () => {
     // Leave Purpose read from its start, away from the case.
     await page.locator(".intent-reading").evaluate((el) => {
       el.scrollTo({ top: 0 });

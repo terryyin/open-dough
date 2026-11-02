@@ -4,8 +4,7 @@
 // follow the selection, stacking Purpose above Proof where the reading area is
 // too narrow, and off bringing back the tab chosen before; switching layouts
 // keeps the selection, the Intent reading tab and the selected story, and
-// reads nothing again (SEED-222 examples 2, 4, 7 for layouts; commitments 2,
-// 8–14, 19, 20). A positioned case across layouts is
+// reads nothing again. A positioned case across layouts is
 // `./intent-purpose-proof-side-by-side-case.spec.ts`.
 
 import type { Locator } from "@playwright/test";
@@ -120,7 +119,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     await expect(intent).toHaveAttribute("data-selected-story", selectedStory);
   };
 
-  await test.step("Ex 2: pressed by keyboard, both panels show the same file beside each other", async () => {
+  await test.step("pressed by keyboard, both panels show the same file beside each other", async () => {
     await toggle.focus();
     await page.keyboard.press("Enter");
     const regions = await expectSideBySide(intent);
@@ -135,7 +134,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     expect(contentReadsOf(requests, featurePath)).toBe(reads);
   });
 
-  await test.step("Ex 2: scrolling Purpose keeps Proof where it is; the reading area holds still", async () => {
+  await test.step("scrolling Purpose keeps Proof where it is; the reading area holds still", async () => {
     const purposeBody = intent
       .getByRole("region", { name: "Purpose", exact: true })
       .locator(".intent-reading-panel-body");
@@ -157,7 +156,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     ).toBeInViewport();
   });
 
-  await test.step("Ex 2: selecting another file updates both panels", async () => {
+  await test.step("selecting another file updates both panels", async () => {
     await fileName(otherPath).click();
     const regions = await expectSideBySide(intent);
     await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
@@ -168,7 +167,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     ).toContainText("Report free space");
   });
 
-  await test.step("Ex 4: narrowed until the locations sit above, Purpose stacks above Proof with the toggle on; widened, beside again", async () => {
+  await test.step("narrowed until the locations sit above, Purpose stacks above Proof with the toggle on; widened, beside again", async () => {
     await page.setViewportSize({ width: 800, height: 900 });
     await expect(async () => {
       const locations = await box(page.locator(".intent-locations"));
@@ -181,7 +180,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     await expectArranged(await expectSideBySide(intent), "beside");
   });
 
-  await test.step("Ex 7: off by keyboard brings back Proof, chosen before; switching reads nothing and keeps the selection", async () => {
+  await test.step("off by keyboard brings back Proof, chosen before; switching reads nothing and keeps the selection", async () => {
     const otherReads = contentReadsOf(requests, otherPath);
     expect(otherReads).toBe(1);
     await toggle.focus();

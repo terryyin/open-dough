@@ -3,7 +3,7 @@
 // Intent opens, the chosen tab fills the reading area and stays chosen across
 // file selections, the tabs keep Intent's tab keyboard behavior without
 // reaching project cycling or reading again, and a location Summary has no
-// tabs (SEED-222 examples 1, 7 for tabs; commitments 1, 3–7, X2). Case
+// tabs. Case
 // positioning across tabs is `./intent-purpose-proof-tabs-case.spec.ts`.
 
 import type { Page } from "@playwright/test";
@@ -73,7 +73,7 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
     await chooseReadingTab(intent, "Purpose");
   });
 
-  await test.step("Ex 1: a selected file shows Purpose with its source; Proof shows that file's proof", async () => {
+  await test.step("a selected file shows Purpose with its source; Proof shows that file's proof", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
     await intent
       .getByRole("button", { name: featurePath, exact: true })
@@ -89,7 +89,7 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
     await expect(source).toBeHidden();
   });
 
-  await test.step("Ex 7: arrow keys, Home and End choose tabs, never the project, and read nothing again", async () => {
+  await test.step("arrow keys, Home and End choose tabs, never the project, and read nothing again", async () => {
     const reads = contentReadsOf(requests, featurePath);
     expect(reads).toBeGreaterThan(0);
     await expectReadingTabChosen(intent, "Proof");
@@ -115,7 +115,7 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
     expect(contentReadsOf(requests, featurePath)).toBe(reads);
   });
 
-  await test.step("Ex 1: selecting another file keeps Proof chosen with the new file's proof", async () => {
+  await test.step("selecting another file keeps Proof chosen with the new file's proof", async () => {
     await intent.getByRole("button", { name: otherPath, exact: true }).click();
     await expect(readingTab(intent, "Proof")).toHaveAttribute(
       "aria-selected",
@@ -127,7 +127,7 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
     await expect(purpose).toHaveCount(0);
   });
 
-  await test.step("X2: a location Summary keeps one pane without tabs; a file brings them back", async () => {
+  await test.step("a location Summary keeps one pane without tabs; a file brings them back", async () => {
     await intentLocationName(intent, "e2e_test/features").click();
     await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
       "e2e_test/features",

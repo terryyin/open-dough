@@ -1,7 +1,7 @@
 // Opening a recorded file from Optimization Candidates with Side by side on
 // shows Purpose positioned on its case, and switching layouts keeps that case
-// in view without reading again (../src/IntentFileReading.tsx; SEED-222
-// examples 7 for layouts; commitments 19.2, 20, 21). Side by side itself is
+// in view without reading again (../src/IntentFileReading.tsx). Side by side
+// itself is
 // `./intent-purpose-proof-side-by-side.spec.ts`.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -48,7 +48,7 @@ test("with Side by side on, a recorded file opens on its case in Purpose, and sw
     );
   };
 
-  await test.step("Ex 21: side by side, opening the recorded file positions Purpose's own panel on its case", async () => {
+  await test.step("side by side, opening the recorded file positions Purpose's own panel on its case", async () => {
     await toggle.click();
     await expectSideBySide(intent);
     await openDoughnutRecordedCase(intent);
@@ -62,7 +62,7 @@ test("with Side by side on, a recorded file opens on its case in Purpose, and sw
     expect(contentReadsOf(requests, doughnutCaseFeaturePath)).toBe(1);
   });
 
-  await test.step("Ex 7: off and on keeps the case in view in either layout, reading nothing", async () => {
+  await test.step("off and on keeps the case in view in either layout, reading nothing", async () => {
     await pressWhereShown(toggle);
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
     await expect(readingTab(intent, "Purpose")).toHaveAttribute(
@@ -76,7 +76,7 @@ test("with Side by side on, a recorded file opens on its case in Purpose, and sw
     await unchanged();
   });
 
-  await test.step("Ex 7: from Proof in tabs, Side by side shows Purpose where it was read, on the case", async () => {
+  await test.step("from Proof in tabs, Side by side shows Purpose where it was read, on the case", async () => {
     await pressWhereShown(toggle);
     await pressWhereShown(readingTab(intent, "Proof"));
     await expect(readingTab(intent, "Proof")).toHaveAttribute(

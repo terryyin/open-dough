@@ -3,8 +3,7 @@
 // it lasts across perspective switches, reloads and later visits, while the
 // chosen Purpose or Proof tab does not. Where the browser keeps none, keeps an
 // unusable one or refuses storage, Intent starts with tabs and a choice lasts
-// for the page, without error (SEED-222 examples 3, 5, 6; commitments 15–18,
-// exclusions X1, X4). Side by side itself is
+// for the page, without error. Side by side itself is
 // `./intent-purpose-proof-side-by-side.spec.ts`. Each test's browser context
 // keeps its own storage.
 
