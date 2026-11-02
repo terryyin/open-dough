@@ -529,30 +529,178 @@ existing Inspect button.
 
 **Identity:** SEED-192#read-cypress-cucumber-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/442-read-cypress-cucumber-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ff65b5aac5cbe9f974dd33c51ff659cc162dab55f04f73627d7dbf569cb29822","plan":"6a6f145e538da613520b903ee3cfec74c4529161e226e369500a4cc7cd639882"}}
 ```
 
-- **For / why:** A Doughnut developer can review local Cypress-Cucumber evidence
-  for a selected feature through the same Intent experience.
-- **Evaluation:** Produce and publish a real record through Doughnut's existing
-  runner, read each case's latest observation, and check comparable observations
-  against its CI selection. A later focused run replaces only the cases it ran;
-  outline rows and retries retain their source association.
-- **Value / learning:** Tests whether the first Cucumber input and evidence
-  meanings survive a second real execution integration.
-- **Boundary:** Implement a project-owned recorder through Doughnut's Cypress
-  Cucumber preprocessor Messages path, preserving its runner, diagnostics, tags,
-  isolation and exit meaning. The reference's Cucumber.js plugin setup is not
-  an integration path for Cypress. Reuse the compact proof format and the policy
-  for latest observations and CI; verify Messages compatibility, source case
-  identity, outline rows and retry semantics without relying on generated IDs.
-- **Effort hypothesis:** Unbanded; middle-to-higher, low-to-medium confidence.
-  Both emit Messages, but version compatibility and Cypress run semantics need
-  observation. No generic adapter framework is justified by this alone.
-- **Product prerequisites:** The latest-observation and CI comparison outcomes at
-  integration; no formal start dependency has been established.
-- **Safe stopping point:** Latest Doughnut file-level Proof and bounded corroboration
-  stand alone; large attachments do not enter the compact retained record.
+**Beneficiary:** A Doughnut developer reviewing Cypress-Cucumber protection for a
+selected feature in Intent, such as Terry reviewing Doughnut beside its Gherkin.
+
+**Goal:** Through Doughnut's ordinary Cypress Cucumber runs, the project records
+the same compact latest-observation Proof that Intent already reads for
+Pygardon. Selecting a Doughnut feature in Intent shows each scenario and outline
+row's latest committed observation beside Purpose. This tests whether the first
+Cucumber evidence meanings survive a second real runner
+([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
+
+**Facts observed during refinement (2026-11-02, read-only):**
+
+- Open Dough Intent already parses and shows the
+  [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md)
+  format (`dashboard/src/cucumberProof.ts`, `dashboard/server/intentProofRead.ts`,
+  `dashboard/src/IntentProof.tsx`). Latest observation wins by `finishedAt`;
+  identity is `feature` + `scenario` + optional `example` cells — never
+  runner-generated IDs. Proof is read once with Intent locations.
+- Pygardon already records that format with a Cucumber.js plugin
+  (`e2e_test/plugins/cucumberProof.mts` at Pygardon `d62f58fb9`) and declares
+  `proof: "e2e_test/proof"` on its Gherkin location. Open Dough ships the
+  reference only; each project owns its recorder.
+- Doughnut at `1581250a75` runs features through Cypress 16.2.1 and
+  `@badeball/cypress-cucumber-preprocessor` 28.0.1 (`e2e_test/config/common.ts`,
+  `addCucumberPreprocessorPlugin`). Its `.planning/open-dough.json` already lists
+  `e2e_test/features` as Gherkin and declares **no** `proof` directory. The
+  preprocessor depends on `@cucumber/messages` ^34 and can write
+  `cucumber-messages.ndjson` when `messages.enabled` is true (default false).
+  Messages accumulate in the preprocessor's Node process and are flushed in
+  `after:run`. Doughnut's `composeCypressPluginEvents` already composes multiple
+  `after:run` handlers. Cypress retries set Messages `willBeRetried`; the
+  preprocessor discards intermediate attempt messages on reload. Spec-level hook
+  failures prevent that spec's Messages contribution. `filterSpecs` /
+  `omitFiltered` are already on. Scenario Outlines exist in the suite.
+- CI corroboration of local Cucumber proof does **not** exist in product code.
+  Story 7 (`#check-cucumber-proof-in-ci`) remains not-refined and owns that
+  first comparison policy. No formal blocking dependency is recorded.
+
+**Selected direction:** Add a Doughnut-owned proof recorder on the Cypress
+preprocessor Messages path that writes the existing compact proof files. Declare
+the proof directory on Doughnut's Gherkin Intent location. Intent reads Doughnut
+the same way it reads Pygardon. Keep Cucumber.js plugin wiring out of Cypress.
+
+**Alternatives considered (explore / borrow):**
+
+| Option | Assessment |
+| --- | --- |
+| Leave Doughnut on editor + Cypress output | Baseline and fallback. It does not put latest observations in Intent beside Purpose. |
+| Run Doughnut features through Cucumber.js to reuse Pygardon's plugin | Rejected by this story's boundary: Cypress owns isolation, tags, diagnostics and exit. |
+| Enable Messages ndjson only and teach Intent to read ndjson | Invents a second proof format and risks committing bulky attachments. Rejected. |
+| Post-process a Messages file after `cy:run` with a separate script | Credible, but a second command can be skipped and drifts from ordinary runs. Prefer recording inside the composed Cypress Node lifecycle so every ordinary profile that runs features records. |
+| **Cypress Messages → compact proof in Doughnut** (selected) | Reuses the published format and Intent reader. Records from the preprocessor's Messages accumulation (enabled report and/or in-process envelopes) without changing Cypress exit or diagnostics. |
+| **Borrowed: Pygardon's proof plugin mapping** (adapted) | Same roles: Messages envelopes → source-keyed observation → one uniquely named compact file per run, latest wins across files. Where the analogy breaks: Cucumber.js loads a `plugin` in its coordinator; Cypress accumulates Messages across specs in the preprocessor and finishes in `after:run`, with Cypress retries and hook-failure gaps the Pygardon plugin never sees. |
+
+**Challenge:** The purpose is Intent review of **local** Cypress-Cucumber
+evidence. Evaluation text that also asks for CI corroboration can meet its
+wording by waiting on, or reinventing, story 7's unsettled comparison policy
+while still leaving the Purpose unmet if Doughnut never records. The strongest
+consequential doubt for the selected path is the opposite miss: a recorder that
+writes files while mis-mapping outline rows, retries, or filtered specs so
+Intent shows wrong associations. Scope therefore pins source identity and
+Cypress semantics, and defers CI to story 7 rather than stretching this story
+across an unbuilt policy.
+
+**Scope:**
+
+- **Recorder ownership.** Doughnut implements and maintains the recorder in its
+  repository. Open Dough's Intent reader and compact proof format stay as they
+  are unless a Cypress observation forces a format-compatible fix; no generic
+  multi-runner adapter framework is added
+  ([ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)).
+- **Messages path.** Record from Doughnut's existing `@badeball/cypress-cucumber-preprocessor`
+  Messages stream / accumulation. Enabling a Messages file for the recorder's
+  own use is allowed; that ndjson is not committed Proof and must not carry
+  screenshots, videos or other bulky attachments into the compact record.
+- **Compact proof.** Each ordinary finished run that observes at least one
+  in-scope scenario writes one uniquely named version-1 proof file under the
+  declared proof directory, matching the Cucumber proof reference fields and
+  atomic rewrite rules. Identify scenarios only by feature path (repo-root,
+  `/` separators), scenario name as written in Gherkin, and outline `example`
+  cell values. Record only finished last attempts (`willBeRetried` false) that
+  actually ran. A focused or tagged run updates only the cases it observed;
+  other identities keep earlier observations.
+- **Configuration.** Declare `proof` on Doughnut's Gherkin Intent location in
+  `.planning/open-dough.json`. Record only features under that location.
+  Install the recorder in every Cypress profile that runs those features so
+  focused, tagged and full runs all record.
+- **Preserve the runner.** Existing Cypress output, diagnostics, tags,
+  isolation, composition of plugin event handlers, and command exit meaning
+  stay unchanged. The recorder prints nothing and never fails the run. When it
+  cannot record (for example outside a Git checkout, or when the preprocessor
+  produced no usable Messages for the observed specs), it records nothing and
+  leaves the run intact.
+- **Intent reading.** With proof committed at a published Doughnut revision,
+  Intent shows that feature's latest observations the same way as for Pygardon:
+  per-scenario outcome, attempts, duration, time, commit, and whether the
+  published feature blob matches the observed one; unobserved scenarios stay
+  explicit; a missing proof declaration, empty proof, and unreadable or
+  malformed proof remain distinct.
+- **Verification.** Prove with a real Doughnut Cypress selection that records
+  and a published revision Intent can read. Cover outline rows and a
+  retry-assisted outcome where Doughnut's runner can produce them. Apply the
+  repository's
+  [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
+  Terry evaluates usefulness against today's Cypress output + editor workflow.
+
+**Scope limits (deferred promises, not rejections):**
+
+- CI corroboration of Doughnut's local observations (story 7 owns the first
+  comparison policy; once that policy exists, including corroboration in this
+  producer's complete outcome is a later choice, not this story's delivery).
+- Folder-level Proof summaries (story 9).
+- Committing Messages ndjson, screenshots, videos, traces or step logs as Proof.
+- Recording features outside the declared Gherkin Intent location, including
+  throwaway specs.
+- Changing Doughnut's Cypress tags, isolation, retries policy, or CI selection.
+- A shared Open Dough-shipped Cypress recorder package, or teaching Intent a
+  second proof format.
+- Vitest, Node, Playwright or other Doughnut non-Cypress families.
+
+**Required restrictions:**
+
+- Never treat a mixture of older and newer case observations as one current
+  full-suite green result; a focused run claims only what it ran.
+- Never key observations by Cypress or preprocessor generated IDs across runs.
+- Never present missing, empty or unreadable Doughnut proof as an observed
+  pass.
+
+**Key examples:**
+
+1. Doughnut declares `proof` for `e2e_test/features`. An ordinary `cy:run`
+   selection that finishes two scenarios writes one new compact proof file and
+   leaves Cypress exit and diagnostics unchanged. A third scenario not in the
+   selection is absent from that file.
+2. Those two observations are committed. In Intent, at that published revision,
+   selecting feature A shows both scenarios' latest outcomes with time, commit
+   and file-version match; a scenario never observed reads Not observed.
+3. A later focused run re-runs only one scenario and it fails. After commit,
+   Intent shows the failure for that scenario and keeps the earlier observation
+   for the other.
+4. A Scenario Outline row is observed: Intent names the outline's Gherkin
+   scenario name and that row's example cells, distinct from other rows.
+5. A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with
+   attempt count, not a clean single-attempt pass.
+6. Before any proof directory is declared, Intent for Doughnut Gherkin still
+   browses Purpose and explains that proof is not recorded, pointing at the
+   Cucumber proof reference — same absent-proof meaning as today.
+7. A run outside Git, or a spec whose hook failure yields no Messages
+   contribution, leaves prior committed proof unchanged and does not fail
+   Cypress for that reason.
+
+**Architecture:**
+
+- **Producer in Doughnut, reader in Open Dough.** Durable proof files are
+  repository records of the observed project
+  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+  The dashboard continues to read committed proof at the published revision; it
+  does not become the authority that creates Doughnut's observations.
+- **One evidence format.** Cypress production must satisfy the existing compact
+  schema so Purpose and Proof vocabulary stay intact
+  ([ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md)). Extending
+  Intent with a Cypress-specific schema would split Proof meanings.
+- **No premature shared framework.** A second producer justifies reuse of the
+  format and reader, not a plugin platform
+  ([ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)).
+- **CI policy stays with story 7.** This story does not invent corroboration
+  dispositions. Applicable Accepted decisions checked: ADR 0000, 0001, 0002,
+  0008, 0010. Index and in-file statuses agree; no conflict with the selected
+  path. Proposed ADR 0007 / 0009 are non-binding here.
 
 
 <a id="inspect-hierarchical-proof-cost"></a>
