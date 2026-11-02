@@ -492,29 +492,194 @@ existing Inspect button.
 
 **Identity:** SEED-192#inspect-hierarchical-proof-cost
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b30b9e2665f88435fba30689138fc623048770913b8d7ef19480f5790977723e","plan":"fcb91a0a49a9a86f4ea6e03b49138bd512ceffb0df1c9aa08554912fb97771a7"}}
 ```
 
-- **For / why:** A developer can locate observed execution cost and result gaps
-  by selecting folders and drilling into their tests.
-- **Evaluation:** Select a Cucumber folder and read its latest observed
-  child outcomes and costs, then open a feature. Publish a later focused run:
-  only its cases change, earlier observations retain their time/source version,
-  and never-observed children remain explicit. Label duration sums as sums of
-  latest observations; folder wall time remains unavailable without direct proof.
-- **Value / learning:** Makes existing observations navigable for maintenance
-  without requiring an automated judgment about cost or intent quality.
-- **Boundary:** Begin with the configured hierarchy and supported Cucumber
-  observations. Do not infer current suite status from mixed observations.
-  Exclude mixed-runner performance ranking, invented shared-setup attribution,
-  and whole-product protection claims. Other
-  producers reuse the rule where their observations support it.
-- **Effort hypothesis:** Unbanded; middle, medium confidence after file-level
-  Proof. Case selection and timing definitions drive the uncertainty.
-- **Product prerequisites:** A browsable hierarchy and readable observations for
-  at least one runner; a second Cucumber producer is not required.
-- **Safe stopping point:** Honest folder-level outcomes/costs with drill-down,
-  useful even if every other report family is cancelled.
+**Beneficiary:** A developer maintaining a configured project's Cucumber
+proof, such as Terry deciding which Doughnut or Pygardon feature is worth
+optimizing or re-recording.
+
+**Goal:** From a location or folder summary in Intent, the developer sees
+where the retained proof's time goes and where proof is missing, then drills
+down to the folder, file, or scenario responsible, without opening every file.
+Each figure says what it is: a sum of last successful scenario durations over
+the scenarios that have one, from observations of differing times and commits,
+never a run's elapsed time or the suite's current cost. This completes the
+North Star's
+[hierarchical Proof report](../../docs/dashboard-ux-ui-north-star.md#runtime-proof-and-hierarchy)
+for one runner family. Terry evaluates it against today's workflow of reading
+proof JSON or file Proof one file at a time, and of profiling runs through
+[test optimization](../../src/skills/dough-test-optimization/SKILL.md)
+([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
+
+**Facts observed during refinement (2026-11-02, read-only):**
+
+- [Show summaries when selecting Intent entries and folders](../done/SEED-217_intent-entry-folder-summaries.json)
+  already delivered location and folder summaries
+  (`dashboard/src/IntentGherkinSummary.tsx`, `intentSummaryCoverage.ts`):
+  file and scenario totals, one "Last successful proof" count line, and each
+  immediate child's own lines, Partial while any file is unread. It deferred
+  durations, opening a child from a summary row, and earlier-file-version
+  counts. Its counts match proof to the scenario rows of each file's published
+  text, so proof of a removed scenario is not counted.
+- Retained proof is now last successful proof only
+  ([Cucumber proof](../../src/skills/dough-test-optimization/references/cucumber-proof.md)):
+  every observation is a pass with `durationMs` across all attempts,
+  `attempts`, `finishedAt`, `commit`, and `featureBlob`. "Result gaps" are
+  therefore scenarios without successful proof; no failed outcome is retained.
+- File Proof (`IntentProof.tsx`) already shows each scenario's duration,
+  observation time, commit, and same or earlier file version. Intent's one
+  selection (`intentWorkspaceSelection.ts`) already carries a location,
+  folder, or file plus an optional case target, which Optimization Candidates
+  uses to open a file positioned on a case.
+- Published proof is sparse and mixed. Doughnut `origin/main` at `8930764691`:
+  23 successful observations from 4 commits over about 6 hours, in 4 of 94
+  feature files; one feature holds 26 s of
+  the 51.5 s sum. Pygardon `origin/main` at `50f7803ea`: 6 observations in
+  three files, from runs on 2026-11-01 and 2026-11-02, out of 38 features.
+
+**Challenge:** The purpose is finding expensive proof. With coverage this
+sparse, a folder's summed duration mostly measures how much of it was
+recorded: ranking folders by their sums would put the best-recorded folder
+first and present unrecorded folders as cheap. A sum can satisfy "show folder
+cost" and still mislead. The scope therefore pairs every sum with how many
+scenarios it covers, never shows an unproven folder as 0 s, and leads with
+the slowest individual scenarios, whose durations are comparable however
+sparse the coverage. Ranking folders by their sums is excluded; once coverage
+is broad, it is a later choice informed by use.
+
+**Alternatives considered (explore / borrow):**
+
+| Option | Assessment |
+| --- | --- |
+| Profiling through test optimization, or reading proof JSON | The baseline and fallback. Profiling measures real wall time for a run, but costs a run and does not keep it navigable in Intent. |
+| Folder sums only, children ranked by sum | Smallest change to the existing summary, but misleads under sparse coverage (Challenge). Rejected. |
+| Slowest scenarios only | Comparable figures and a direct path to the costly case, but loses where time and gaps sit in the tree. |
+| **Sums with coverage in tree order, plus the slowest scenarios, with drill-down** (selected) | The tree keeps its order, so missing proof and cost stay readable side by side; the slowest list points to the costly cases; clicking moves the existing selection. |
+| **Borrowed: disk-usage browser (`du`/ncdu)** (adapted) | A disk-usage browser shows each folder's total of its children's sizes and lets you descend into the largest. Here a folder's total is its summed last successful scenario durations, and descending moves Intent's selection. Where the analogy breaks: file sizes are complete and current, while proof is partial and from different times. So each total names its covered scenarios and its observation spread, an unproven child has an unknown cost rather than zero, and the largest-first sort is replaced by the slowest-scenarios list. |
+
+**Scope:**
+
+- **Summed duration with coverage.** A Gherkin location or folder summary
+  with readable proof states the sum of the last successful proof durations
+  of its scenarios and outline rows that have one, and how many of its
+  scenarios that covers, for example "Summed duration of last successful
+  proof: 51.5 s over 23 of 412 scenarios". It says this is a sum of separate
+  observations, retries included, and not a run's elapsed time. Scenarios
+  without successful proof add nothing and are counted as not covered. The
+  same rules for which observations count apply as for the existing count
+  lines: only scenarios in each file's published text, read files only, and
+  Partial labels while any contained file is pending or unread.
+- **Observation spread.** The summary says when its counted observations
+  finished, from oldest to newest, and from how many commits, so a sum
+  mixing runs reads as mixed. A single observation reads as one time and
+  commit.
+- **Each child's figures.** Every immediate subfolder and file row keeps its
+  existing lines in tree order and adds its own summed duration with its
+  covered-scenario count. A child with no successful proof says its duration
+  is unknown, never "0 s".
+- **Slowest scenarios.** The summary lists the slowest scenarios and outline
+  rows with successful proof anywhere in the selection, slowest first, up to
+  ten. Each row names the scenario (with its example values) and its file,
+  and gives its duration, attempts when retried, observation time, commit,
+  and same or earlier file version, as file Proof does. A selection without
+  successful proof shows no list and says no proof has been recorded there.
+- **Drill down.** A child row's name selects that folder or file in Intent's
+  one selection, revealing it in the tree, exactly as selecting it in the
+  tree would: a folder shows its own summary, a file shows its Purpose and
+  Proof. A slowest-scenario row opens its file with Purpose positioned on
+  that scenario, as opening a case from Optimization Candidates does. These
+  are keyboard-operable controls.
+- **Where proof is absent.** A location without declared proof, a non-Gherkin
+  kind, or a proof read failure keeps the existing explanations and retry
+  and shows no duration or slowest list.
+- **Proof.** Dashboard Playwright proof covers the key examples with fixtures
+  holding mixed-time, mixed-commit observations and unobserved scenarios.
+  Story completion also needs Terry's evaluation on Doughnut's or Pygardon's
+  published proof. Apply the repository's
+  [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
+
+**Scope limits (deferred promises, not rejections):**
+
+- Ranking or reordering folders and files by their sums; a project-wide
+  summary above the locations; comparisons across locations or runner
+  families.
+- Run wall time, shared setup or hook attribution, and estimating the cost of
+  scenarios without proof.
+- Counting earlier-file-version observations at folder level; the slowest
+  rows and file Proof show each scenario's version.
+- Other producer families, which reuse these rules where their observations
+  support them; story-scoped figures for a selected story.
+
+**Required restrictions:**
+
+- Never present a sum as elapsed or current suite time, or a folder without
+  successful proof as cheap or 0 s. Missing evidence stays explicit
+  ([North Star](../../docs/dashboard-ux-ui-north-star.md#runtime-proof-and-hierarchy)).
+
+**Key examples:**
+
+1. Doughnut's `e2e_test/features` summary, every file read: it reads
+   "Summed duration of last successful proof: 51.5 s over 23 of" its
+   scenario total, says the sum is of separate observations and not a run's
+   elapsed time, and says the observations finished between 04:52 and 10:30
+   UTC on 2026-11-02 from 4 commits. The slowest list starts with a
+   `cli/cli_notebook_lfs.feature` scenario.
+2. In that summary, the `cli` row shows its sum over its covered scenarios,
+   and a folder with no recorded proof says its duration is unknown. The
+   rows stay in tree order.
+3. Click the `cli` row's name: `cli` becomes selected and revealed in the
+   tree, and its summary shows only its own figures and slowest scenarios.
+   Click its `cli_notebook_lfs.feature` row: the file's Purpose and Proof
+   show as when selected in the tree.
+4. From the location summary, click the slowest scenario: its file opens with
+   Purpose positioned on that scenario, and its Proof row gives the same
+   duration, time, and commit.
+5. A later focused recording run is published for one feature. Its scenarios
+   show the new durations and the newer end of the spread; every other
+   scenario keeps its earlier duration, time, and commit, and unrecorded
+   scenarios stay uncovered.
+6. A retried scenario that passed on its second attempt is counted with its
+   total duration across both attempts, and its slowest row says
+   "2 attempts".
+7. A folder of 9 files with 8 read: its sum and covered count are labelled
+   Partial across 8 of 9 files, like its count line, until the last file is
+   read.
+8. Pygardon's `e2e_test/packaged/features` summary with its one observation
+   reads one scenario's duration and one observation time and commit.
+   Open Dough's `dashboard/tests` summary keeps its existing explanation and
+   shows no duration.
+
+**UX/UI:** The developer starts from a location or folder summary already
+selected in the tree, scans the sum, coverage, and spread to judge how far
+the figures can be trusted, then either descends through child rows or jumps
+from the slowest list. Interaction choices that change the promise:
+
+- Child names in a summary move the same selection as the tree, so the tree,
+  the summary, and the reader never disagree about what is selected, and
+  caret-only expansion keeps its SEED-217 behavior.
+- A slowest scenario opens Purpose positioned on its case, matching
+  Optimization Candidates; with Side by side from
+  [the Purpose and Proof layout story](SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout)
+  its Proof row is also in view.
+
+Wording, number formats, and placement follow the existing summary and file
+Proof.
+
+**Architecture:** No Accepted decision conflicts. The figures are derived
+in the browser from published text and committed proof at the observed
+revision, never stored, and add no reads beyond the summary's existing ones
+([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+The summary's per-scenario matching (`intentSummaryCoverage.ts`) gains
+duration and spread aggregation once for the selection and its children,
+reusing file Proof's duration, time, and version wording rather than a copy.
+Drill-down uses Intent's existing selection and case target; it adds no
+second navigation path ([ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)).
+[ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md): these are
+Proof observations, not a judgment of intent. Two Taken stories change the
+same reader and selection, SEED-222's layout and
+[story impact](#review-story-intent-impact); whichever lands later builds on
+the other.
 
 
 <a id="assess-story-intent-protection"></a>
