@@ -1,15 +1,14 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`): each
-// location is an exclusive expandable group; Purpose shows a selected
-// feature's published text with line numbers and Gherkin styling; Proof lists
-// its scenarios' latest committed observations (`./IntentProof.tsx`) from the
-// location's proof, read with the locations. The Test Optimization Candidates
-// record is the default reading view; selecting a location file shows Purpose
-// while the location tree stays usable. A failed file read keeps its own
-// explanation and retry; a failed proof read's retry reads the locations again
-// without changing the selection. File selection (and an optional case target)
-// is owned by the Intent workspace (`./intentWorkspaceSelection.ts`). Opening a
-// test from the record keeps that view mounted so returning does not reread
-// the record.
+// location is an exclusive expandable group. Locations and folders share
+// caret (expansion only) and name (select; toggle once selected) controls;
+// a caret never changes selection or the reading pane. A file shows Purpose
+// and Proof; a location or folder name shows a Summary (`./IntentSummary.tsx`).
+// The Test Optimization Candidates record is the default reading view. A
+// failed file read keeps its own explanation and retry; a failed proof
+// read's retry reads the locations again without changing the selection.
+// Selection is owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
+// Opening a test from the record keeps that view mounted so returning does
+// not reread the record.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -20,7 +19,10 @@ import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
+import { IntentSummary } from "./IntentSummary.tsx";
+import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
 import {
+  selectionScope,
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
@@ -30,7 +32,7 @@ type FileRead =
   | { readonly path: string; readonly state: "failed" }
   | { readonly path: string; readonly state: "ready"; readonly text: string };
 
-type ReadingView = "candidates" | "purpose";
+type ReadingView = "candidates" | "reading";
 
 export function IntentBrowser({
   source,
@@ -43,11 +45,12 @@ export function IntentBrowser({
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
   // Whether the locations, with their proof, are being read again after a
-  // proof read failed; the selection and Purpose stay as they are.
+  // proof read failed; the selection and reader stay as they are.
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
 }) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
+  const scope = selectionScope(selection);
   const selectedPath = selection.path;
   const [view, setView] = useState<ReadingView>("candidates");
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
@@ -60,21 +63,29 @@ export function IntentBrowser({
   const proofId = useId();
   const candidatesControlId = useId();
   const inventory = inventoryFromIntentLocations(locations);
+  const treeSelection: IntentSelection =
+    view === "reading" ? selection : { path: "" };
 
   function openFromRecord(next: IntentSelection, entrySlug: string) {
-    setSelection(next);
+    setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
     setReturnEntrySlug(entrySlug);
-    setView("purpose");
+    setView("reading");
     const owning = locations.find((location) =>
       location.files.includes(next.path),
     );
     if (owning !== undefined) setExpandedPath(owning.path);
   }
 
+  function selectInTree(next: IntentSelection) {
+    setSelection(next);
+    setReturnEntrySlug(undefined);
+    setView("reading");
+  }
+
   // Clearing selection when the project or locations change is owned by the
   // Intent workspace provider remounting on source/revision identity.
   useEffect(() => {
-    if (selectedPath === "") return;
+    if (scope !== "file" || selectedPath === "") return;
     const controller = new AbortController();
     setFileRead(undefined);
     void readRepositoryFileAt(source, selectedPath, revision, controller.signal)
@@ -91,16 +102,15 @@ export function IntentBrowser({
     return () => {
       controller.abort();
     };
-  }, [source, revision, selectedPath, fileRetry]);
+  }, [source, revision, selectedPath, scope, fileRetry]);
 
-  const selectedRead = fileRead?.path === selectedPath ? fileRead : undefined;
+  const selectedRead =
+    scope === "file" && fileRead?.path === selectedPath ? fileRead : undefined;
   const text = selectedRead?.state === "ready" ? selectedRead.text : undefined;
 
-  // The location's kind (with path for typescript/.tsx) selects the grammar.
-  const selectedLocation = locations.find((location) =>
-    location.files.includes(selectedPath),
-  );
-  const selectedLanguage = selectedLocation?.kind;
+  const selectedLocation = owningLocation(locations, selection);
+  const selectedLanguage =
+    scope === "file" ? selectedLocation?.kind : undefined;
 
   return (
     <div className="intent-browser">
@@ -127,12 +137,8 @@ export function IntentBrowser({
           <IntentLocationGroup
             key={location.path}
             location={location}
-            selectedPath={view === "purpose" ? selectedPath : ""}
-            onSelect={(path) => {
-              setSelection({ path });
-              setReturnEntrySlug(undefined);
-              setView("purpose");
-            }}
+            selection={treeSelection}
+            onSelect={selectInTree}
             idPrefix={intentLocationIdPrefix(location.path)}
             expanded={expandedPath === location.path}
             onToggle={() => {
@@ -155,7 +161,18 @@ export function IntentBrowser({
               : {})}
           />
         </div>
-        {view === "purpose" ? (
+        {view === "reading" &&
+        (scope === "location" || scope === "folder") &&
+        selectedLocation !== undefined ? (
+          <IntentSummary
+            path={selectedPath}
+            fileCount={filesOfSelection(selectedLocation, selection).length}
+            location={selectedLocation}
+            proofRereading={proofRereading}
+            onProofRetry={onProofRetry}
+          />
+        ) : null}
+        {view === "reading" && scope === "file" ? (
           <>
             <section className="intent-purpose" aria-label="Purpose">
               <h3>Purpose</h3>

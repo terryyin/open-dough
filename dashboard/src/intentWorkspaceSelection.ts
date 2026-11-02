@@ -1,10 +1,11 @@
-// One Intent selection for the project's Intent workspace: the selected
-// file path and an optional case target later slices position Purpose on.
-// Disposable page state (ADR 0008). The provider remounts on source or
-// revision identity so selection clears with that identity
-// (`./IntentPerspective.tsx`). The location tree and Purpose read and set
-// it through this owner; the candidate-record view shares it when opening
-// a recorded location.
+// One Intent selection for the project's Intent workspace: a configured
+// location, a folder under one, or a file (with an optional case target later
+// slices position Purpose on). Disposable page state (ADR 0008). The provider
+// remounts on source or revision identity so selection clears with that
+// identity (`./IntentPerspective.tsx`). The location tree and Purpose read and
+// set it through this owner; the candidate-record view shares it when opening
+// a recorded file. A missing `scope` with a non-empty path is a file, so
+// candidate opens stay `{ path }` / `{ path, caseTarget }`.
 
 import {
   createContext,
@@ -14,10 +15,21 @@ import {
   type ReactNode,
 } from "react";
 
+export type IntentSelectionScope = "location" | "folder" | "file";
+
 export type IntentSelection = {
   readonly path: string;
+  readonly scope?: IntentSelectionScope;
   readonly caseTarget?: string;
 };
+
+/** What the selection names; empty path is none. */
+export function selectionScope(
+  selection: IntentSelection,
+): "none" | IntentSelectionScope {
+  if (selection.path === "") return "none";
+  return selection.scope ?? "file";
+}
 
 /** Open a configured Intent file from a candidate-record entry. */
 export type OpenCandidateLocation = (

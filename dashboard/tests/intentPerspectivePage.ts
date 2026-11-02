@@ -27,12 +27,26 @@ export function expectAddress(
   }).toEqual({ view: null, ...expected });
 }
 
-// Header control for one configured Intent location path.
+// Caret disclosure for one configured Intent location path (expansion only).
 export function intentGroupToggle(intent: Locator, locationPath: string) {
   const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
   return intent.locator(
     `button.intent-location-toggle[aria-controls="${bodyId}"]`,
   );
+}
+
+// Selectable name for one configured Intent location path.
+export function intentLocationName(intent: Locator, locationPath: string) {
+  return intent.locator(
+    `button.intent-location-name[data-location-path="${locationPath}"]`,
+  );
+}
+
+// Selectable name for one Intent folder under the shared file tree.
+export function intentFolderName(intent: Locator, folderName: string) {
+  return intent
+    .locator("button.story-review-folder-name")
+    .filter({ hasText: folderName });
 }
 
 // Expand the owning Intent group when it is collapsed (exclusive expand).
