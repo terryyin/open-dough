@@ -30,3 +30,15 @@
 .intent-proof-example {
   color: var(--quiet);
 }
+
+/* A summary's slowest scenarios (./IntentSummarySlowest.tsx): file Proof's
+   row cells under a caption, before the per-child breakdown. */
+.intent-summary-slowest {
+  margin: 0 0 var(--space-3);
+}
+
+.intent-summary-slowest caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 0 0 var(--space-1);
+}

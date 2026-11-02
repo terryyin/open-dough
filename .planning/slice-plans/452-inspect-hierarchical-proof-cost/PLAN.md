@@ -118,7 +118,7 @@ reads, unlike file Proof's relative times.
 
 ### 2. Slowest scenarios in a summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: same spec (example 1 slowest list, 6 attempts);
 `intent-cucumber-proof.spec.ts` and `intent-doughnut-cucumber-proof.spec.ts`
 green after the wording extraction.
@@ -130,6 +130,17 @@ attempts, time, commit, and file-version cells from one shared extraction of
 `IntentProof.tsx`'s row wording. No counted rows → no list, and the existing
 no-successful-proof wording. Rows carry their source line from
 `gherkinScenarios.ts` for slice 3 (adding `line` to `ScenarioRow`).
+
+Accepted (2026-11-02): `intent-summary-proof-cost.spec.ts` ("ex1 and ex6",
+cli folder, 9.8 steps) and `intent-summary-slowest.spec.ts` (ten-row cap,
+tree-then-source ties), with all intent specs (66 passed) after the
+refactor. One matching walk, `observedRowsForFiles` in
+`intentSummaryCoverage.ts`, feeds the count, sum and slowest list. File
+Proof and the list share `ProofObservationCells.tsx`; `durationWords` stays
+in `proofDurationWords.ts`. `ScenarioRow.line` is the Scenario line, or the
+Examples row line for outline rows. Specs asserting relative proof times
+for November fixtures pause the clock with `pausePageClockAt`
+(`pausePageClock` starts on 2026-09-23).
 
 ### 3. Drill down from a summary
 Type: Behavior

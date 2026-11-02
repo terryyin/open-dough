@@ -3,16 +3,14 @@
 // covers, says it is a sum of separate observations and not a run's elapsed
 // time, and gives the observations' oldest-to-newest finish and commits; each
 // immediate child adds its own sum or says its duration is unknown, never
-// 0 s, with Partial labelling like the count line
-// (../src/IntentGherkinSummary.tsx, ../src/intentSummaryProofCost.ts).
+// 0 s, with Partial labelling like the count line; its slowest proven rows
+// read as file Proof reads them, the cap in `./intent-summary-slowest.spec.ts`
+// (../src/IntentGherkinSummary.tsx, ../src/intentSummaryProofCost.ts,
+// ../src/IntentSummarySlowest.tsx).
 
-import type { Locator } from "@playwright/test";
-import { expect, test } from "./dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import {
-  passTimeUntilCheckedAfterSettled,
-  pausePageClock,
-} from "./autoRefreshJourney.ts";
+import { passTimeUntilCheckedAfterSettled } from "./autoRefreshJourney.ts";
 import { holdAuthenticatedReadsOf } from "./holdAuthenticatedReads.ts";
 import {
   countLocationsReads,
@@ -23,6 +21,15 @@ import {
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
+import {
+  childRows,
+  expectChildren,
+  expectSlowest,
+  notElapsed,
+  slowestList,
+  sumLine,
+  zeroDuration,
+} from "./intentSummaryProofCostPage.ts";
 import {
   doughnut,
   featuresPath,
@@ -38,35 +45,11 @@ test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
 
-const zeroDuration = /\b0(?:\.0)? m?s\b/;
-const sumLine = "Summed duration of last successful proof";
-const notElapsed =
-  "A sum of separate scenario observations, retries included, not a run's elapsed time.";
-
-function childRows(summary: Locator) {
-  return summary
-    .getByRole("list", { name: "Summary by folder and file" })
-    .locator(":scope > li");
-}
-
-async function expectChildren(
-  summary: Locator,
-  expected: readonly (readonly [string, string])[],
-) {
-  const rows = childRows(summary);
-  await expect(rows.locator(":scope > code")).toHaveText(
-    expected.map(([name]) => name),
-  );
-  for (const [at, [, line]] of expected.entries()) {
-    await expect(rows.nth(at)).toContainText(line);
-  }
-}
-
 test("location and folder summaries sum last successful proof with coverage, spread, and per-child sums; a later focused run changes only its file", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await pausePageClock(page);
+  await pausePageClockAt(page, new Date("2026-11-02T12:00:00.000Z"));
   const locationsReads = countLocationsReads(page);
   const origin = publishMovingFiles(page, {
     repository: doughnut.repository,
@@ -95,6 +78,19 @@ test("location and folder summaries sum last successful proof with coverage, spr
         { exact: true },
       ),
     ).toBeVisible();
+  });
+
+  await test.step("ex1 and ex6: the slowest list starts with the slowest file's retried row, saying 2 attempts, with file Proof's cells", async () => {
+    const lfs = "cli/cli_notebook_lfs.feature";
+    const login = "cli/cli_login.feature";
+    await expectSlowest(summary, [
+      `Push a large notebook · ${lfs} · Passed after retry (2 attempts) · 12.0 s · 7h ago · a1a1a1a · This file version`,
+      "Assess · assessment/assess.feature · Passed · 4.0 s · 1h ago · c3c3c3c · This file version",
+      `Sync <size> Example: 1MB · ${lfs} · Passed · 3.0 s · 5h ago · b2b2b2b · This file version`,
+      "Assess more · assessment/assess_more.feature · Passed · 2.5 s · 3h ago · a1a1a1a · Earlier file version",
+      `Log in · ${login} · Passed · 1.5 s · 5h ago · b2b2b2b · This file version`,
+      `Log out · ${login} · Passed · 500 ms · 4h ago · c3c3c3c · This file version`,
+    ]);
   });
 
   await test.step("ex2 and ex6: children in tree order with their sums, the retried row's total included; unproven children unknown, never 0 s", async () => {
@@ -132,6 +128,31 @@ test("location and folder summaries sum last successful proof with coverage, spr
       ["cli_login.feature", `${sumLine}: 2.0 s over 2 of 2 scenarios`],
       ["cli_notebook_lfs.feature", `${sumLine}: 15.0 s over 2 of 4 scenarios`],
     ]);
+    // Only cli's own rows, named relative to cli.
+    const slowest = slowestList(summary);
+    await expect(slowest.locator("tbody th")).toHaveText([
+      "Push a large notebook",
+      "Sync <size> Example: 1MB",
+      "Log in",
+      "Log out",
+    ]);
+    await expect(slowest.locator("tbody tr td:nth-of-type(1)")).toHaveText([
+      "cli_notebook_lfs.feature",
+      "cli_notebook_lfs.feature",
+      "cli_login.feature",
+      "cli_login.feature",
+    ]);
+  });
+
+  await test.step("9.8: a folder without successful proof shows no slowest list and says so", async () => {
+    await intentFolderName(intent, "recall").click();
+    await expect(summary).toContainText(
+      "Last successful proof: 4 scenarios: 4 without successful proof",
+    );
+    await expect(
+      summary.getByText(`${sumLine} unknown`, { exact: true }).first(),
+    ).toBeVisible();
+    await expect(slowestList(summary)).toHaveCount(0);
   });
 
   await test.step("ex5: a later focused run of one feature changes only its figures and the spread's newer end", async () => {

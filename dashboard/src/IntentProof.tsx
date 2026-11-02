@@ -1,81 +1,26 @@
 // Intent's Proof pane for one selected feature file (`./IntentBrowser.tsx`):
 // every scenario and outline row the published text runs, in source order
 // (`./gherkinScenarios.ts`), each with its last successful committed proof
-// (`./cucumberProof.ts`) and that observation's own time, commit, and
-// whether the feature file's Git blob then was the one published now. A
+// (`./cucumberProof.ts`) read as `./ProofObservationCells.tsx` words it. A
 // count line summarizes successful proof, scenarios without successful proof
 // included; it is never a suite verdict. A file without successful proof,
 // a project that records no proof, and proof that could not be read (with
 // retry) each say so differently (`./IntentProofAbsence.tsx`).
 
-import {
-  proofIdentity,
-  type SuccessfulProofObservation,
-} from "./cucumberProof.ts";
+import { proofIdentity } from "./cucumberProof.ts";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
-import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
+import { scenarioRowsOf } from "./gherkinScenarios.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
-import { durationWords } from "./proofDurationWords.ts";
+import {
+  ObservedCells,
+  observedCellHeaders,
+  ScenarioName,
+} from "./ProofObservationCells.tsx";
 import {
   noSuccessfulProof,
-  passed,
-  passedAfterRetry,
   proofScenarioCountLine,
 } from "./proofScenarioCountLine.ts";
-import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
-
-// The outcome a row reads, with a retry-assisted pass named as such.
-function outcomeOf({ attempts }: SuccessfulProofObservation): string {
-  if (attempts === 1) return passed;
-  const tries = `${String(attempts)} attempts`;
-  return `${passedAfterRetry} (${tries})`;
-}
-
-function ScenarioName({ row }: { readonly row: ScenarioRow }) {
-  return (
-    <>
-      {row.scenario}
-      {row.example === undefined ? null : (
-        <span className="intent-proof-example">
-          {" "}
-          Example: {row.example.join(" | ")}
-        </span>
-      )}
-    </>
-  );
-}
-
-function ObservedCells({
-  observation,
-  publishedBlob,
-  now,
-}: {
-  readonly observation: SuccessfulProofObservation;
-  readonly publishedBlob: string | undefined;
-  readonly now: number;
-}) {
-  const finished = Date.parse(observation.finishedAt);
-  return (
-    <>
-      <td>{outcomeOf(observation)}</td>
-      <td>{durationWords(observation.durationMs)}</td>
-      <td>
-        <time dateTime={observation.finishedAt}>
-          {elapsedWords(Math.max(0, now - finished))} ago
-        </time>
-      </td>
-      <td>
-        <code>{observation.commit.slice(0, 7)}</code>
-      </td>
-      <td>
-        {observation.featureBlob === publishedBlob
-          ? "This file version"
-          : "Earlier file version"}
-      </td>
-    </>
-  );
-}
 
 function ProofRows({
   path,
@@ -113,11 +58,11 @@ function ProofRows({
         <thead>
           <tr>
             <th scope="col">Scenario</th>
-            <th scope="col">Last successful proof</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Observed</th>
-            <th scope="col">Commit</th>
-            <th scope="col">Observed on</th>
+            {observedCellHeaders.map((header) => (
+              <th key={header} scope="col">
+                {header}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>

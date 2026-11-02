@@ -11,7 +11,7 @@ import {
   proofIdentity,
   type SuccessfulProofObservation,
 } from "./cucumberProof.ts";
-import { scenarioRowsOf } from "./gherkinScenarios.ts";
+import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
 import { proofScenarioCountLine } from "./proofScenarioCountLine.ts";
 import {
   reviewFileOrder,
@@ -112,18 +112,39 @@ export function coverageOf(
   };
 }
 
+// One scenario row of a read file with its latest successful observation,
+// if any: the single matching of rows to proof that summary counts, sums,
+// and slowest scenarios (`./intentSummaryProofCost.ts`) all read.
+export type ObservedRow = {
+  readonly path: string;
+  readonly row: ScenarioRow;
+  readonly observation: SuccessfulProofObservation | undefined;
+};
+
+export function observedRowsForFiles(
+  files: readonly string[],
+  textOf: (path: string) => string | undefined,
+  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+): readonly ObservedRow[] {
+  return files.flatMap((path) => {
+    const text = textOf(path);
+    if (text === undefined) return [];
+    return scenarioRowsOf(text).map((row) => ({
+      path,
+      row,
+      observation: latest.get(proofIdentity({ feature: path, ...row })),
+    }));
+  });
+}
+
 export function observationsForFiles(
   files: readonly string[],
   textOf: (path: string) => string | undefined,
   latest: ReadonlyMap<string, SuccessfulProofObservation>,
 ): readonly (SuccessfulProofObservation | undefined)[] {
-  return files.flatMap((path) => {
-    const text = textOf(path);
-    if (text === undefined) return [];
-    return scenarioRowsOf(text).map((row) =>
-      latest.get(proofIdentity({ feature: path, ...row })),
-    );
-  });
+  return observedRowsForFiles(files, textOf, latest).map(
+    ({ observation }) => observation,
+  );
 }
 
 export function scenarioCountForFiles(

@@ -1,8 +1,9 @@
 // Published Intent locations for the summary proof-cost journey
 // (`./intent-summary-proof-cost.spec.ts`): a Doughnut-like Gherkin location
 // of nine feature files whose committed proof mixes times, commits, a retried
-// row, and scenarios without successful proof, plus a packaged location with
-// one observation.
+// row, an earlier file version, and scenarios without successful proof, a
+// packaged location with one observation, and a bulk location with more
+// proven rows than the slowest list holds.
 
 import { filesOf } from "./catalogProjectRecords.ts";
 import { gitBlobSha } from "./listingAnswers.ts";
@@ -12,6 +13,7 @@ export { doughnut };
 
 export const featuresPath = "e2e_test/features";
 export const packagedPath = "e2e_test/packaged/features";
+export const bulkPath = "e2e_test/bulk/features";
 const notebookPath = `${featuresPath}/cli/cli_notebook_lfs.feature`;
 const loginPath = `${featuresPath}/cli/cli_login.feature`;
 const helpPath = `${featuresPath}/cli/cli_help.feature`;
@@ -70,6 +72,7 @@ const observed = (
   more: {
     readonly example?: readonly string[];
     readonly attempts?: number;
+    readonly featureBlob?: string;
   } = {},
 ) => ({
   feature: path,
@@ -80,7 +83,7 @@ const observed = (
   durationMs,
   finishedAt,
   commit,
-  featureBlob: gitBlobSha(text),
+  featureBlob: more.featureBlob ?? gitBlobSha(text),
 });
 
 const proofFile = (observations: readonly Record<string, unknown>[]) =>
@@ -121,6 +124,8 @@ const latestProof = proofFile([
     2500,
     at("09:00"),
     commitA,
+    // Observed while the file read differently.
+    { featureBlob: gitBlobSha(feature("Assess more", "")) },
   ),
 ]);
 
@@ -141,6 +146,36 @@ const packagedProof = proofFile([
   ),
 ]);
 
+// Bulk: twelve proven rows, ten listed. Ties keep tree order (the z_sub
+// folder before a_top.feature), then source order.
+const deepPath = `${bulkPath}/z_sub/deep.feature`;
+const aTopPath = `${bulkPath}/a_top.feature`;
+const bulkDurations: Readonly<Record<string, readonly number[]>> = {
+  [deepPath]: [9000, 5000, 5000, 1000, 300, 100],
+  [aTopPath]: [8000, 5000, 4000, 3000, 1000, 200],
+};
+const bulkFeatures = Object.fromEntries(
+  Object.keys(bulkDurations).map((path) => {
+    const prefix = path === deepPath ? "D" : "T";
+    const names = [1, 2, 3, 4, 5, 6].map((n) => `${prefix}${String(n)}`);
+    return [path, feature(prefix, scenarios(...names))];
+  }),
+);
+const bulkProof = proofFile(
+  Object.entries(bulkDurations).flatMap(([path, durations]) =>
+    durations.map((durationMs, n) =>
+      observed(
+        path,
+        bulkFeatures[path] ?? "",
+        `${path === deepPath ? "D" : "T"}${String(n + 1)}`,
+        durationMs,
+        at("11:00"),
+        commitA,
+      ),
+    ),
+  ),
+);
+
 const settings = JSON.stringify(
   {
     intent: {
@@ -151,6 +186,7 @@ const settings = JSON.stringify(
           kind: "gherkin",
           proof: "e2e_test/packaged/proof",
         },
+        { path: bulkPath, kind: "gherkin", proof: "e2e_test/bulk/proof" },
       ],
     },
   },
@@ -165,4 +201,6 @@ export const publishedFiles: Readonly<Record<string, string>> = {
   [packagedFeaturePath]: packagedFeature,
   [proofPath]: latestProof,
   "e2e_test/packaged/proof/latest.json": packagedProof,
+  ...bulkFeatures,
+  "e2e_test/bulk/proof/latest.json": bulkProof,
 };

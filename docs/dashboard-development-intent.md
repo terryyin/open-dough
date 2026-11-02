@@ -32,7 +32,13 @@ one (a retried row's total across attempts included) and says how many of the
 rows that covers, for example "Summed duration of last successful proof:
 23.5 s over 6 of 15 scenarios", with a note that it is a sum of separate
 observations and not a run's elapsed time, and when those observations
-finished, oldest to newest in UTC, from which commit or how many commits. Each
+finished, oldest to newest in UTC, from which commit or how many commits. A
+"Slowest scenarios" list then gives up to ten of those rows from anywhere in
+the selection, slowest first (equal durations in tree, then source order),
+each naming the scenario with its example cells and its file relative to the
+selection, with the same outcome-with-attempts, duration, time since, commit,
+and file-version cells as file Proof; a selection without successful proof
+shows no list. Each
 child row adds its own sum and covered count, or says its summed duration is
 unknown when none of its rows has successful proof, never zero; children keep
 tree order. The figures are derived in the browser from the texts and proof the

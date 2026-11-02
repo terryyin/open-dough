@@ -2,17 +2,20 @@
 // (`./IntentGherkinSummary.tsx`): the last successful proof durations of the
 // read files' scenario rows (`./intentSummaryCoverage.ts`), with how many rows
 // that covers, labelled Partial like the count line, and when and from which
-// commits those observations finished. Rows without successful proof add no
-// duration, and a selection with none says its duration is unknown, never
-// zero.
+// commits those observations finished, and its slowest counted rows. Rows
+// without successful proof add no duration, and a selection with none says
+// its duration is unknown, never zero.
 
 import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import {
   coverageLabelledLine,
+  observedRowsForFiles,
   scenarioWords,
   type CoverageTally,
+  type ObservedRow,
 } from "./intentSummaryCoverage.ts";
 import { durationWords } from "./proofDurationWords.ts";
+import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 
 // The summed cost of the scenario rows of read files: counted rows are those
 // with a latest successful observation, and the spread is their oldest and
@@ -98,4 +101,30 @@ export function proofSpreadLine(cost: ProofCost): string | undefined {
       ? `commit ${(commits[0] ?? "").slice(0, 7)}`
       : `${String(commits.length)} commits`;
   return `${noun} finished ${when}, from ${from}.`;
+}
+
+// One counted scenario row of a summary's slowest list.
+export type SlowestRow = ObservedRow & {
+  readonly observation: SuccessfulProofObservation;
+};
+
+const slowestLimit = 10;
+
+const counted = (row: ObservedRow): row is SlowestRow =>
+  row.observation !== undefined;
+
+// The counted rows of the read files, anywhere in the selection, slowest
+// first; equal durations keep tree order, then source order. At most ten.
+export function slowestRowsOf(
+  files: readonly string[],
+  textOf: (path: string) => string | undefined,
+  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+): readonly SlowestRow[] {
+  const inTreeOrder = reviewFileOrder(
+    reviewFileTree(files.map((path) => ({ path }))),
+  ).map(({ path }) => path);
+  return observedRowsForFiles(inTreeOrder, textOf, latest)
+    .filter(counted)
+    .sort((a, b) => b.observation.durationMs - a.observation.durationMs)
+    .slice(0, slowestLimit);
 }

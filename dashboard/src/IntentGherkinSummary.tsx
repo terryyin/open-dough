@@ -2,8 +2,9 @@
 // contained feature (`./authenticatedRead.ts`, `./boundedPool.ts`), shows
 // reading progress, scenario totals from successfully read files, and with
 // declared proof one aggregate count line and summed duration with its
-// coverage, the separate-observations note and observation spread, plus a
-// per-child breakdown with each child's sum (`./intentSummaryCoverage.ts`,
+// coverage, the separate-observations note, observation spread and slowest
+// scenarios (`./IntentSummarySlowest.tsx`), plus a per-child breakdown with
+// each child's sum (`./intentSummaryCoverage.ts`,
 // `./intentSummaryProofCost.ts`).
 // Totals stay Partial while any file is pending or unread; a failed file is
 // named with a retry that rereads only it.
@@ -28,7 +29,9 @@ import {
   proofCostNote,
   proofCostOf,
   proofSpreadLine,
+  slowestRowsOf,
 } from "./intentSummaryProofCost.ts";
+import { IntentSummarySlowest } from "./IntentSummarySlowest.tsx";
 import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -140,10 +143,8 @@ export function IntentGherkinSummary({
   const settled = coverage.pendingCount === 0;
   const proof = location.proof;
   const children = immediateChildrenOf(path, files);
-  const latest =
-    proof !== undefined && !("problem" in proof)
-      ? latestByIdentity(proof.observations)
-      : undefined;
+  const readable = proof !== undefined && !("problem" in proof);
+  const latest = readable ? latestByIdentity(proof.observations) : undefined;
   const observed =
     latest === undefined ? [] : observationsForFiles(files, textOf, latest);
   const cost = proofCostOf(observed);
@@ -193,6 +194,11 @@ export function IntentGherkinSummary({
             <>
               <p className="intent-proof-counts quiet">{proofCostNote}</p>
               <p className="intent-proof-counts">{spread}</p>
+              <IntentSummarySlowest
+                path={path}
+                rows={slowestRowsOf(files, textOf, latest)}
+                featureBlobs={readable ? proof.featureBlobs : {}}
+              />
             </>
           )}
           {children.length > 0 ? (
