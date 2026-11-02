@@ -55,8 +55,8 @@ PFE:
 
 Architecture follows the seed's
 [Architecture](../../seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout)
-and the North Star's
-[Purpose and Proof layouts](../../../docs/dashboard-ux-ui-north-star.md#purpose-and-proof-layouts):
+and the North Star's former Purpose and Proof layouts (removed in slice 4;
+now [Development and Intent](../../../docs/dashboard-development-intent.md)):
 the toggle is a browser-kept preference, the chosen tab is Intent reader page
 state, and neither joins `intentWorkspaceSelection.ts`. No new North Star
 topic is needed.
@@ -191,7 +191,7 @@ before counting reads.
 
 ### 4. Remember Side by side in this browser
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-purpose-proof-kept.spec.ts` (examples 3, 5,
 6).
 
@@ -204,6 +204,22 @@ layout is kept in this browser like the dashboard's other view preferences;
 remove "Purpose/Proof layout switching are not offered yet"; remove the North
 Star's "Purpose and Proof layouts" section and repair its references
 (`docs/dashboard-design-review.md` wording if it cites the open choice).
+
+Accepted (2026-11-02): `keptChoice` in `dashboard/src/keptPreference.ts`
+now holds "what this browser keeps, else the choice made on this page" for
+both the Board position (`columnPaging.ts`) and the Intent layout
+(`open-dough.intent.layout`, `IntentBrowser.tsx`); the page fallback keeps a
+refused-storage choice across remounts (Development and back, project
+switch). North Star section removed with its Status and placement mentions;
+`dashboard-design-review.md` and `product-intent-review-memorandum.md`
+wording repaired; seed and plan links now point at
+`docs/dashboard-development-intent.md`. Proof:
+`intent-purpose-proof-kept.spec.ts` (3 tests, repeat-each 5); board kept,
+paging, clamp, scroll and sidebar kept/unkept specs; final state: full
+`npm test` passed and the whole dashboard suite 1904 passed with one failure,
+`agent-terminal-touch-keyboard-fit.spec.ts:145`, a race in that test (it
+read the panel height once right after `setViewportSize`, getting the prior
+400px); repaired by polling the height, then repeat-each 10: 20 passed.
 
 ## Decisive premises
 

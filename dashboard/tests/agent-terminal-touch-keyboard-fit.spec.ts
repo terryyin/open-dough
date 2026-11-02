@@ -142,7 +142,10 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
       // and Close must stay in the visible area without reconnecting to re-fit.
       await page.setViewportSize({ width: portrait.width, height: 240 });
       await expectCovering(panel);
-      expect((await box(panel)).height).toBeCloseTo(240, 0);
+      // The panel re-fits after the resize; read its height once it has.
+      await expect
+        .poll(async () => (await box(panel)).height)
+        .toBeCloseTo(240, 0);
       await expect(draft).toHaveValue(held);
       for (const control of [
         hideKeyboardControl(panel),

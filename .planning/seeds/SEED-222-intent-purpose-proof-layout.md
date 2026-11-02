@@ -28,8 +28,8 @@ whole test source.
 as two tabs sharing the reading area, and can turn on **Side by side** to see
 both together as two panels. The browser remembers that choice, so the
 developer finds their layout again after navigating, reloading, or switching
-project. This delivers the
-[North Star's Purpose and Proof layouts](../../docs/dashboard-ux-ui-north-star.md#purpose-and-proof-layouts).
+project. This delivered the North Star's former Purpose and Proof layouts,
+now explained by [Development and Intent](../../docs/dashboard-development-intent.md).
 
 **Scope:**
 

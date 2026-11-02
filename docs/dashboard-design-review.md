@@ -39,9 +39,9 @@ The [requirements](project-visibility-requirements.md#three-perspectives) own
 the product intent and structural direction, including Purpose and Proof within
 each Product intent. Review the proposed Intent workspace against the
 [selected UX/UI direction](dashboard-ux-ui-north-star.md#initial-intent-workspace):
-file browsing, switchable Purpose/Proof layouts, hierarchical run evidence, and
-story-scoped inspection. Structure, further local worktree/lock observation,
-and possible agent communication and takeover remain separate design work. Preserve
+file browsing, hierarchical run evidence, and story-scoped inspection.
+Structure, further local worktree/lock observation, and possible agent
+communication and takeover remain separate design work. Preserve
 existing local-session capabilities and the delivered Recently done view:
 published done-story records and local session disposition retain their
 distinct meanings under the [current dashboard](../dashboard/README.md). Do not

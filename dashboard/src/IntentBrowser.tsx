@@ -4,9 +4,9 @@
 // locations. Locations and folders share caret (expansion only) and name
 // (select; toggle once selected) controls; a caret never changes selection or
 // the reading pane. A file, or nothing selected yet, shows Purpose and Proof
-// as tabs or side by side (`./IntentFileReading.tsx`), one reader layout for
-// the page; a location or folder name shows a Summary
-// (`./IntentSummary.tsx`). The record fills the content area
+// as tabs or side by side (`./IntentFileReading.tsx`), one reader layout this
+// browser keeps (`./keptPreference.ts`); a location or folder name shows a
+// Summary (`./IntentSummary.tsx`). The record fills the content area
 // without the locations; it is read the first time it is chosen and stays
 // mounted after, so opening a test from it and returning does not reread it. A
 // failed file read keeps its own explanation and retry; a failed proof read's
@@ -25,6 +25,7 @@ import {
   type IntentReadingTab,
 } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import { keptChoice } from "./keptPreference.ts";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentModeTabs, type IntentMode } from "./IntentModeTabs.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
@@ -36,6 +37,15 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+
+// The reader layout this browser keeps for every project, tabs where it keeps
+// an unusable one, and otherwise the one chosen on this page, even where the
+// browser keeps nothing.
+const keptLayout = keptChoice<IntentReadingLayout>(
+  "open-dough.intent.layout",
+  "tabs",
+  (kept) => (kept === "side-by-side" ? "side-by-side" : "tabs"),
+);
 
 export function IntentBrowser({
   source,
@@ -66,10 +76,9 @@ export function IntentBrowser({
   const [fileRetry, setFileRetry] = useState(0);
   // Purpose or Proof, kept across file selections (`./IntentFileReading.tsx`).
   const [readingTab, setReadingTab] = useState<IntentReadingTab>("purpose");
-  // Tabs or side by side, for the page; kept here so a record open, which
-  // starts a fresh reading, keeps it.
-  const [readingLayout, setReadingLayout] =
-    useState<IntentReadingLayout>("tabs");
+  // Tabs or side by side, one choice this browser keeps for every project;
+  // held here so a record open, which starts a fresh reading, keeps it.
+  const [readingLayout, setReadingLayout] = useState(keptLayout.read);
   // Each open from the record starts a fresh reading, positioned on its case.
   const [recordOpens, setRecordOpens] = useState(0);
   const readingArea = useRef<HTMLDivElement | null>(null);
@@ -183,7 +192,10 @@ export function IntentBrowser({
               tab={readingTab}
               onChooseTab={setReadingTab}
               layout={readingLayout}
-              onChooseLayout={setReadingLayout}
+              onChooseLayout={(next) => {
+                setReadingLayout(next);
+                keptLayout.choose(next);
+              }}
               idPrefix={readingIdPrefix}
               readingArea={readingArea}
               path={selectedPath}

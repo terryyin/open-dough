@@ -55,8 +55,8 @@ comprehensive assessment of the whole product its goal.
 
 The [Intent workspace design](dashboard-ux-ui-north-star.md#initial-intent-workspace)
 provides the file browser, Purpose/Proof views, and story scope for this review.
-The selected layouts are interface direction; they do not establish an intent
-coverage measure by themselves.
+Its Purpose and Proof layouts are interface choices; they do not establish an
+intent coverage measure by themselves.
 
 ## Discovering what intent protection means
 

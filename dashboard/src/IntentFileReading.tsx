@@ -3,10 +3,11 @@
 // of one Intent tablist (`./IntentTabs.tsx`) at the top of the reading area,
 // the chosen tab's panel filling it; side by side, both panels together, each
 // named by its heading and scrolling on its own. The **Side by side** toggle
-// beside the tabs switches layouts. The layout and the chosen tab are the
-// reader's page state, owned by the browser so selecting another file keeps
-// them, and opening from the candidates record chooses Purpose and starts a
-// fresh reading positioned on its case. The file read and proof are the
+// beside the tabs switches layouts. The chosen tab is the reader's page state
+// and the layout one choice this browser keeps, both owned by the Intent
+// browser so selecting another file keeps them, and opening from the
+// candidates record chooses Purpose and starts a fresh reading positioned on
+// its case. The file read and proof are the
 // browser's, so a tab or layout switch reads nothing again, and each returns
 // to where it was read in this file (`./useIntentReadingPlaces.ts`).
 

@@ -74,8 +74,12 @@ instead, each named by its heading and scrolling on its own, both following
 the selection; where the reading pane is too narrow for two columns,
 including whenever the location tree sits above it, Purpose stacks above
 Proof with the toggle still on. Turning it off brings back the tab chosen
-before. The layout lasts for the page; switching it reads nothing again and
-keeps the selection, the reading mode, the selected story and the line
+before. Like the dashboard's other view preferences, this browser keeps the
+layout as one disposable choice for every project, across perspective
+switches, reloads and later visits; the chosen tab is not kept. Where the
+browser keeps none, refuses storage, or keeps an unusable value, Intent starts
+with tabs and a layout chosen lasts for the page. Switching the layout reads
+nothing again and keeps the selection, the reading mode, the selected story and the line
 Purpose was read at, so a positioned case stays in view.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
