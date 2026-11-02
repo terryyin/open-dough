@@ -2,6 +2,7 @@
 
 **Identity:** SEED-222#intent-purpose-proof-layout
 **Source:** [selected story](../../seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout).
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -88,7 +89,7 @@ the selection scope is `file` or `none`; Summary is unchanged.
 
 ### 1. One shared Intent tablist
 Type: Structure
-Status: planned
+Status: done
 Proof: existing reading-strip journeys unchanged —
 `intent-test-optimization-candidates*.spec.ts` (keyboard strip,
 open/return) and `development-intent-frame-keyboard.spec.ts`.
@@ -98,6 +99,17 @@ handling (roving tabindex, arrow/Home/End, `preventDefault`, focus of the
 reached tab, tab/panel ids) into one Intent tablist component taking its
 options, label and id prefix; the reading strip becomes its first user with
 unchanged markup and behavior. Enables slice 2's Purpose/Proof tabs.
+
+Accepted (2026-11-02): `dashboard/src/IntentTabs.tsx` (`IntentTabs`,
+`IntentTabOption`, `intentTabId`, `intentTabPanelId`) renders only the
+tablist; the caller owns its wrapper and tabpanels. `IntentModeTabs.tsx`
+keeps `IntentMode`/`IntentModeTabs`; `IntentBrowser.tsx` uses the shared id
+helpers. Proof: all 22 `*intent*`/`development-intent*` specs, 43 passed, plus
+dashboard typecheck. Learning for slice 2: the shared classes are still
+`intent-mode-tabs`/`intent-mode-tab`; rename them (e.g. `intent-tabs`) when
+Purpose/Proof becomes the second user, in `IntentTabs.tsx`,
+`project-select.css` and `intent-perspective.css` (no test selects them), and
+give Purpose/Proof an `idPrefix` distinct from the strip's.
 
 ### 2. Purpose and Proof tabs
 Type: Behavior

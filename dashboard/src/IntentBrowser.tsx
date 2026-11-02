@@ -18,15 +18,11 @@ import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import {
-  IntentModeTabs,
-  intentModePanelId,
-  intentModeTabId,
-  type IntentMode,
-} from "./IntentModeTabs.tsx";
+import { IntentModeTabs, type IntentMode } from "./IntentModeTabs.tsx";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
+import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
@@ -133,8 +129,8 @@ export function IntentBrowser({
       <div
         className="intent-browser"
         role="tabpanel"
-        id={intentModePanelId(modeIdPrefix, "intent")}
-        aria-labelledby={intentModeTabId(modeIdPrefix, "intent")}
+        id={intentTabPanelId(modeIdPrefix, "intent")}
+        aria-labelledby={intentTabId(modeIdPrefix, "intent")}
         hidden={mode !== "intent"}
       >
         <div className="intent-locations">
@@ -223,8 +219,8 @@ export function IntentBrowser({
       <div
         className="intent-candidates-panel"
         role="tabpanel"
-        id={intentModePanelId(modeIdPrefix, "candidates")}
-        aria-labelledby={intentModeTabId(modeIdPrefix, "candidates")}
+        id={intentTabPanelId(modeIdPrefix, "candidates")}
+        aria-labelledby={intentTabId(modeIdPrefix, "candidates")}
         hidden={mode !== "candidates"}
         tabIndex={-1}
       >

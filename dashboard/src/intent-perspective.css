@@ -68,8 +68,9 @@
 }
 
 /* Intent's reading modes (./IntentModeTabs.tsx): one segmented strip under
-   the banner, its group drawn with the banner's Perspective choice
-   (./project-select.css), the selected mode filled in the accent. */
+   the banner. Its tabs (./IntentTabs.tsx) sit in a group drawn with the
+   banner's Perspective choice (./project-select.css), the selected tab filled
+   in the accent. */
 .intent-mode-bar {
   flex: none;
   display: flex;
