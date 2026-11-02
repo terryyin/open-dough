@@ -116,7 +116,7 @@ story step; all `intent-ci-status*.spec.ts` (11) green; typecheck passes.
 
 ### 4. A ciAdapter story branch counts trunk results of shared commits
 Type: Behavior
-Status: planned
+Status: done
 Change: `judgeCommandAdapter` (`dashboard/server/baseCiJudgment.ts`) also
 acquires and discovers the configured ref (`source.ref`) for a story branch,
 listing the trunk's results first as `judgeGitHubActions` does and naming them
@@ -142,6 +142,20 @@ Proof:
   (the launch judges the trunk, so its single discover is unchanged);
 - before publishing this last slice, run the full `npm test` and the whole
   dashboard suite on the final state (shared runtime path).
+Accepted proof: `judgeBranchCi` reads the history once, and
+`judgeCommandAdapter` runs the trunk and story-branch discovers concurrently
+(trunk listed first; a failure aborts the other and reads unread with its
+reason), so a story branch stays inside the 30 s read wait under the 20 s
+adapter timeout. `dashboard-story-branch-ci.test.mjs` adapter tests (E2,
+out-of-history exclusion, nearer own failed/running, failing trunk discover,
+single trunk discover, concurrency), each red before the change;
+`intent-ci-status-reads.spec.ts` ciAdapter trunk + story-board journey ("Passed
+at 4774f60 (Add login), run on main", no `actions-*` calls), red with
+own-only judging, `--repeat-each=5` stable; all `intent-ci-status*.spec.ts`
+and `agent-launch-base-ci*.spec.ts` (24) green; typecheck passes. Learning:
+sequential adapter discovers would have doubled the worst case past the read
+wait; whether a project's own adapter tolerates two concurrent calls is the
+adapter's contract, as with watchers.
 
 ## Local gates
 

@@ -27,28 +27,13 @@ import {
 import {
   type BaseCiJudgment,
   judgeNearest,
+  type ListedCommit,
   type ListedRun,
   unread,
 } from "./baseCiNearest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export type { BaseCiJudgment } from "./baseCiNearest.ts";
-
-async function judgeWithRuns(
-  source: PublishedSource,
-  branch: string,
-  signal: AbortSignal,
-  loadRuns: () => Promise<ListedRun[]>,
-  unreadOnError: (error: unknown) => BaseCiJudgment,
-): Promise<BaseCiJudgment> {
-  const commits = await readBranchHistory(source, branch, signal);
-  if (!Array.isArray(commits)) return commits;
-  try {
-    return judgeNearest(commits, await loadRuns());
-  } catch (error) {
-    return unreadOnError(error);
-  }
-}
 
 type CiConfiguration = {
   readonly adapter: readonly string[] | undefined;
@@ -64,18 +49,19 @@ function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));
 }
 
-// A story branch (any branch but the configured ref) also lists the trunk's
+// Judges `branch` from its listed history and `workflow`'s Actions runs. A
+// story branch (any branch but the configured ref) also lists the trunk's
 // runs, so a shared ancestor's trunk run counts as that commit's result; the
 // trunk is listed first so, at equal creation times, the branch's own run is
 // the newer. The trunk itself asks one listing, as the launch always has.
 // Listed one after the other so the workflow lookup is asked once.
 async function judgeGitHubActions(
+  commits: readonly ListedCommit[],
   source: PublishedSource,
   branch: string,
-  folder: ProjectFolder,
+  workflow: string,
   signal: AbortSignal,
 ): Promise<BaseCiJudgment> {
-  const { workflow } = ciConfiguration(folder.path);
   const github = createGitHubActions({
     repo: source.repository,
     workflow,
@@ -88,58 +74,70 @@ async function judgeGitHubActions(
       )) as ListedRun[],
       listedBranch,
     );
-  return judgeWithRuns(
-    source,
-    branch,
-    signal,
-    async () => {
-      const own = await listed(branch);
-      return branch === source.ref
-        ? own
-        : [...(await listed(source.ref)), ...own];
-    },
-    (error) =>
-      githubAcquisitionUnread(error, "The Actions runs could not be read"),
-  );
+  try {
+    const own = await listed(branch);
+    return judgeNearest(
+      commits,
+      branch === source.ref ? own : [...(await listed(source.ref)), ...own],
+    );
+  } catch (error) {
+    return githubAcquisitionUnread(error, "The Actions runs could not be read");
+  }
 }
 
-async function judgeCommandAdapter(
+// Judges `branch` from its listed history and the ciAdapter's discover
+// attempts, asked in `root`. As with a ciWorkflow, a story branch also asks
+// the discover for the configured ref, so a shared ancestor's trunk result
+// counts as that commit's result; the trunk's attempts are listed first so,
+// at equal times, the branch's own is the newer. The two discovers run at
+// once, so a story branch waits no longer than one; each acquisition keeps
+// its own state and the adapter runs as its own process. The trunk itself
+// asks one discover, as the launch always has. Any failed discover makes the
+// judgment unread with its reason and ends the other. Exported so the
+// discover rule is proved without a GitHub history read.
+export async function judgeCommandAdapter(
+  commits: readonly ListedCommit[],
   source: PublishedSource,
   branch: string,
-  folder: ProjectFolder,
+  root: string,
   adapter: readonly string[],
   signal: AbortSignal,
 ): Promise<BaseCiJudgment> {
-  const acquisition = createCommandAcquisition({
-    command: adapter,
-    repo: source.repository,
-    branch,
-    root: folder.path,
-  });
-  return judgeWithRuns(
-    source,
-    branch,
-    signal,
-    async () => {
-      // The adapter owns its discover semantics for the named branch; no
-      // trunk listing is added.
-      await acquisition.acquireRuns(signal);
-      return fromBranch(
-        (await acquisition.discoverAncestorCandidates()) as ListedRun[],
-        branch,
-      );
-    },
-    (error) =>
-      unread(
-        error instanceof Error
-          ? error.message
-          : "The command-adapter discover could not be read",
-      ),
-  );
+  const ended = new AbortController();
+  const asked = AbortSignal.any([signal, ended.signal]);
+  const discovered = async (discoveredBranch: string) => {
+    const acquisition = createCommandAcquisition({
+      command: adapter,
+      repo: source.repository,
+      branch: discoveredBranch,
+      root,
+    });
+    try {
+      await acquisition.acquireRuns(asked);
+    } catch (error) {
+      ended.abort();
+      throw error;
+    }
+    return fromBranch(
+      (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+      discoveredBranch,
+    );
+  };
+  try {
+    const branches = branch === source.ref ? [branch] : [source.ref, branch];
+    const listed = await Promise.all(branches.map(discovered));
+    return judgeNearest(commits, listed.flat());
+  } catch (error) {
+    return unread(
+      error instanceof Error
+        ? error.message
+        : "The command-adapter discover could not be read",
+    );
+  }
 }
 
 // Judges `branch` of `source` from the project folder's CI settings, at the
-// head its own commit listing resolves. Bound by the authenticated read wait,
+// head its own commit listing resolves, read once for either CI. Bound by the authenticated read wait,
 // and ended early by `signal` when given. A nonempty `ciAdapter` uses
 // discover attempts from the project folder; otherwise GitHub Actions. A name
 // the safe-branch rule refuses is never asked about.
@@ -155,16 +153,25 @@ export async function judgeBranchCi(
   const controller =
     signal === undefined ? bound : AbortSignal.any([bound, signal]);
   try {
-    const { adapter } = ciConfiguration(folder.path);
+    const { adapter, workflow } = ciConfiguration(folder.path);
+    const commits = await readBranchHistory(source, branch, controller);
+    if (!Array.isArray(commits)) return commits;
     if (adapter !== undefined)
       return await judgeCommandAdapter(
+        commits,
         source,
         branch,
-        folder,
+        folder.path,
         adapter,
         controller,
       );
-    return await judgeGitHubActions(source, branch, folder, controller);
+    return await judgeGitHubActions(
+      commits,
+      source,
+      branch,
+      workflow,
+      controller,
+    );
   } catch (error) {
     if (
       error instanceof Error &&
