@@ -99,3 +99,28 @@ export function reviewFileOrder<T extends PathBearing>(
     node.kind === "file" ? [node.file] : reviewFileOrder(node.children),
   );
 }
+
+// Every folder's path, outer folders before the folders they hold.
+export function reviewFolderPaths<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+): readonly string[] {
+  return nodes.flatMap((node) =>
+    node.kind === "file"
+      ? []
+      : [node.path, ...reviewFolderPaths(node.children)],
+  );
+}
+
+// The folders that hold `path` at any depth, outermost first; a folder does
+// not hold itself.
+export function reviewFoldersHolding<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+  path: string,
+): readonly string[] {
+  for (const node of nodes) {
+    if (node.kind === "folder" && path.startsWith(`${node.path}/`)) {
+      return [node.path, ...reviewFoldersHolding(node.children, path)];
+    }
+  }
+  return [];
+}

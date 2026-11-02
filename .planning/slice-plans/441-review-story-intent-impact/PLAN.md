@@ -147,7 +147,7 @@ keeps working, and the selection survives a perspective switch.
 
 ### 2. Intent folders start collapsed
 Type: Behavior
-Status: planned
+Status: done
 Proof: update the consumer journeys the scratch observation found (see the
 decisive premises below) to expand folders explicitly, and assert the
 collapsed start (example 8).

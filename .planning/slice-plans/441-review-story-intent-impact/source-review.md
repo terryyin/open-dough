@@ -51,7 +51,7 @@ No plan, return, product, or proof supplied.
 | 12.3 | Proof describes published revision and says so | slice 4 | |
 | 12.4 | Proof for story's version not claimed | slice 4 | |
 | 13 | Changed file matches Review; views never disagree | slice 4 | |
-| 14.1 | Folders start collapsed when tree first shown | slice 2 | |
+| 14.1 | Folders start collapsed when tree first shown | slice 2 | observed: intent-entry-folder-summaries-folders.spec.ts: Ex 8 step — every folder caret aria-expanded=false, nested file hidden; intent-test-optimization-candidates-open.spec.ts: Ex 8 record-opened file selected with its folders open |
 | 14.2 | Open folders containing changes on Intent open with selection or toggle | slice 4 | |
 | 14.3 | First changed location group opens | slice 4 | |
 | 14.4 | Other folders stay collapsed | slice 4 | |
@@ -72,7 +72,7 @@ No plan, return, product, or proof supplied.
 | E5 | Journey: completed Recently done + published comparison | slice 6 | |
 | E6 | Journey: no comparison explanation; tree usable | slice 4 | |
 | E7 | Journey: deselect clears Intent toggle; Start/session do not select | slice 1 | observed: story-card-selection.spec.ts: deselect clears Intent toggle absence; Start/session do not select |
-| E8 | Journey: no selection → folders collapsed | slice 2 | |
+| E8 | Journey: no selection → folders collapsed | slice 2 | observed: intent-entry-folder-summaries-folders.spec.ts: Ex 8 step with no story selected |
 | X1 | Deferred: other Intent comparisons |  | X1 |
 | X2 | Deferred: Intent config changed by story |  | X2 |
 | X3 | Deferred: proof of story version / protection / complexity |  | X3 |

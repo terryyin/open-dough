@@ -2,6 +2,9 @@
 // (`./IntentBrowser.tsx`): caret discloses the body without changing
 // selection; the name selects the location (and toggles once selected).
 // Nested folders use the shared FileTree's opt-in caret + selectable name.
+// Every folder starts collapsed; the folders holding the selection open
+// whenever the selection moves to another file or folder, so a test opened
+// from elsewhere (the candidates record) shows selected in the tree.
 // Selection is the Intent workspace's (`./intentWorkspaceSelection.ts`),
 // passed through the browser. An unsupported kind or a location with no
 // matching files says so by path, kind, and include patterns inside the
@@ -15,7 +18,11 @@ import {
   selectionScope,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { reviewFileTree } from "./reviewFileTree.ts";
+import {
+  reviewFileTree,
+  reviewFolderPaths,
+  reviewFoldersHolding,
+} from "./reviewFileTree.ts";
 import { FileTree } from "./StoryReviewFileTree.tsx";
 import "./story-review-files.css";
 
@@ -82,7 +89,6 @@ export function IntentLocationGroup({
   readonly expanded: boolean;
   readonly onToggle: () => void;
 }) {
-  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const bodyId = `${idPrefix}-body`;
   const prefix = `${location.path}/`;
   // Arrange paths relative to the location so the tree starts inside it.
@@ -102,9 +108,31 @@ export function IntentLocationGroup({
       : "";
   const locationSelected =
     scope === "location" && selection.path === location.path;
+  const revealPath = selectedRelative || selectedFolderRelative;
+
+  // Folders are tracked by the ones open, so a folder not yet seen starts
+  // collapsed and only those holding the selection start open; the selection
+  // last revealed keeps a moved selection opening its folders without
+  // reopening one collapsed around it since.
+  const [openFolders, setOpenFolders] = useState<ReadonlySet<string>>(
+    () => new Set(reviewFoldersHolding(tree, revealPath)),
+  );
+  const [revealed, setRevealed] = useState(revealPath);
+  if (revealed !== revealPath) {
+    setRevealed(revealPath);
+    const holding = reviewFoldersHolding(tree, revealPath);
+    if (holding.some((folderPath) => !openFolders.has(folderPath))) {
+      setOpenFolders(new Set([...openFolders, ...holding]));
+    }
+  }
+  const collapsed = new Set(
+    reviewFolderPaths(tree).filter(
+      (folderPath) => !openFolders.has(folderPath),
+    ),
+  );
 
   function toggleFolder(folderPath: string) {
-    setCollapsed((was) => {
+    setOpenFolders((was) => {
       const next = new Set(was);
       if (next.has(folderPath)) next.delete(folderPath);
       else next.add(folderPath);
