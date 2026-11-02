@@ -30,11 +30,11 @@ intent introduced or affected by a newly developed story.
 
 - [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof ([plan](slice-plans/442-read-cypress-cucumber-proof/PLAN.md))
 - [Record and read only successful scenario proof](seeds/SEED-220-last-successful-intent-proof.md#last-successful-intent-proof) — SEED-220#last-successful-intent-proof ([plan](slice-plans/446-last-successful-intent-proof/PLAN.md))
+- [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 
 ## Backlog list
 
 - [Show CI status in an Intent tab](seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) — SEED-219#intent-ci-status-tab
-- [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-192#review-story-intent-impact",
+  "mode": "story-branch",
+  "branch": "claude/review-a-story-s-impact-on-test-intent-2",
+  "host": "claude",
+  "model": "opus"
+}
