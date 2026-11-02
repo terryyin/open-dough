@@ -3,8 +3,9 @@
 // files only, labelled Partial while any contained file is pending or unread,
 // with contributing-file coverage for the selection and each immediate child
 // in the browser's tree order (`./reviewFileTree.ts`). An unread file is never
-// counted as passed or without successful proof. A nonempty selection with no readable
-// files says its scenario total is unavailable, not zero.
+// counted as passed or without successful proof. A nonempty selection with no
+// readable files says its scenario total is unavailable, not zero. Summed
+// proof duration over the same rows lives in `./intentSummaryProofCost.ts`.
 
 import {
   proofIdentity,
@@ -138,7 +139,7 @@ export function scenarioCountForFiles(
 // Labels a complete line Partial with contributing-file coverage while any
 // contained file is pending or unread, and names the unavailable form when
 // nothing readable has contributed yet.
-function coverageLabelledLine(
+export function coverageLabelledLine(
   coverage: CoverageTally,
   complete: string,
   unavailable: string,

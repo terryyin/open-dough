@@ -26,10 +26,20 @@ the observed revision (with bounded concurrency and "N of M files read"
 progress), counts scenarios and outline rows from successfully read files,
 and, when the location declares proof, shows one aggregate count line over
 those rows (rows without successful proof counted explicitly) plus a breakdown
-by immediate child in the browser's order. Scenario totals and Proof count lines
-are labelled _Partial_ with contributing-file coverage while any contained
-file is still reading or could not be read, for the selection and each
-affected child; fully read siblings stay complete. An unread file is named
+by immediate child in the browser's order. Under the count line, a summed
+duration line adds the last successful proof durations of the rows that have
+one (a retried row's total across attempts included) and says how many of the
+rows that covers, for example "Summed duration of last successful proof:
+23.5 s over 6 of 15 scenarios", with a note that it is a sum of separate
+observations and not a run's elapsed time, and when those observations
+finished, oldest to newest in UTC, from which commit or how many commits. Each
+child row adds its own sum and covered count, or says its summed duration is
+unknown when none of its rows has successful proof, never zero; children keep
+tree order. The figures are derived in the browser from the texts and proof the
+summary already reads and are not stored. Scenario totals, Proof count lines
+and summed duration lines are labelled _Partial_ with contributing-file
+coverage while any contained file is still reading or could not be read, for
+the selection and each affected child; fully read siblings stay complete. An unread file is named
 with a retry that reads only the failed files, and is never counted as
 passed or without successful proof. A nonempty selection with no readable files
 says its scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,

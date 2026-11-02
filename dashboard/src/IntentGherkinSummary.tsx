@@ -1,9 +1,12 @@
 // Gherkin location or folder summary body (`./IntentSummary.tsx`): reads each
 // contained feature (`./authenticatedRead.ts`, `./boundedPool.ts`), shows
 // reading progress, scenario totals from successfully read files, and with
-// declared proof one aggregate count line plus a per-child breakdown
-// (`./intentSummaryCoverage.ts`). Totals stay Partial while any file is
-// pending or unread; a failed file is named with a retry that rereads only it.
+// declared proof one aggregate count line and summed duration with its
+// coverage, the separate-observations note and observation spread, plus a
+// per-child breakdown with each child's sum (`./intentSummaryCoverage.ts`,
+// `./intentSummaryProofCost.ts`).
+// Totals stay Partial while any file is pending or unread; a failed file is
+// named with a retry that rereads only it.
 
 import { useEffect, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -17,12 +20,39 @@ import {
   proofCountLineFor,
   scenarioCountForFiles,
   scenarioTotalLine,
+  type CoverageTally,
   type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
+import {
+  proofCostLineFor,
+  proofCostNote,
+  proofCostOf,
+  proofSpreadLine,
+} from "./intentSummaryProofCost.ts";
+import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const summaryReadConcurrency = 4;
+
+function ChildProofLines({
+  coverage,
+  observed,
+}: {
+  readonly coverage: CoverageTally;
+  readonly observed: readonly (SuccessfulProofObservation | undefined)[];
+}) {
+  return (
+    <>
+      <p className="intent-proof-counts">
+        {proofCountLineFor(coverage, observed)}
+      </p>
+      <p className="intent-proof-counts">
+        {proofCostLineFor(coverage, proofCostOf(observed))}
+      </p>
+    </>
+  );
+}
 
 type ReadyTexts = ReadonlyMap<string, string>;
 
@@ -114,6 +144,10 @@ export function IntentGherkinSummary({
     proof !== undefined && !("problem" in proof)
       ? latestByIdentity(proof.observations)
       : undefined;
+  const observed =
+    latest === undefined ? [] : observationsForFiles(files, textOf, latest);
+  const cost = proofCostOf(observed);
+  const spread = proofSpreadLine(cost);
 
   return (
     <>
@@ -150,11 +184,17 @@ export function IntentGherkinSummary({
       ) : settled || coverage.readyCount > 0 ? (
         <>
           <p className="intent-proof-counts intent-summary-proof-counts">
-            {proofCountLineFor(
-              coverage,
-              observationsForFiles(files, textOf, latest),
-            )}
+            {proofCountLineFor(coverage, observed)}
           </p>
+          <p className="intent-proof-counts">
+            {proofCostLineFor(coverage, cost)}
+          </p>
+          {spread === undefined ? null : (
+            <>
+              <p className="intent-proof-counts quiet">{proofCostNote}</p>
+              <p className="intent-proof-counts">{spread}</p>
+            </>
+          )}
           {children.length > 0 ? (
             <ul
               className="intent-summary-children"
@@ -175,12 +215,14 @@ export function IntentGherkinSummary({
                       {scenarioTotalLine(childCoverage, childScenarios)}
                     </p>
                     {showProof ? (
-                      <p className="intent-proof-counts">
-                        {proofCountLineFor(
-                          childCoverage,
-                          observationsForFiles(child.files, textOf, latest),
+                      <ChildProofLines
+                        coverage={childCoverage}
+                        observed={observationsForFiles(
+                          child.files,
+                          textOf,
+                          latest,
                         )}
-                      </p>
+                      />
                     ) : null}
                   </li>
                 );

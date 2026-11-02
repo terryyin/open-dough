@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#inspect-hierarchical-proof-cost
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost).
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -91,7 +92,7 @@ Pygardon's published proof (slice 4).
 
 ### 1. Summed duration, coverage, and spread in summaries
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-summary-proof-cost.spec.ts` (examples 1 sum
 and spread, 2, 5, 6 sum, 7, 8); existing `intent-entry-folder*.spec.ts`
 green.
@@ -103,6 +104,17 @@ the separate-observations-not-elapsed note, and the spread line; each child
 row gains its sum and covered count or "duration unknown". Aggregation lives
 beside `observationsForFiles` in `intentSummaryCoverage.ts`, using the domain
 rule above. Docs: `docs/dashboard-development-intent.md` summary paragraph.
+
+Accepted (2026-11-02): `intent-summary-proof-cost.spec.ts` (ex1, ex2/ex6,
+ex6, ex5, ex8 steps; ex7 test) and the explanations spec's absence
+assertions, with all 31 `tests/*intent*.spec.ts` (65 passed) on the
+refactored state. The cost aggregation lives in
+`dashboard/src/intentSummaryProofCost.ts`, a sibling of
+`intentSummaryCoverage.ts` (file-size split) that reuses
+`observationsForFiles` and `coverageLabelledLine`; `durationWords` moved to
+`dashboard/src/proofDurationWords.ts`, which slice 2's row-wording
+extraction may absorb. The spread uses absolute UTC times, as key example 1
+reads, unlike file Proof's relative times.
 
 ### 2. Slowest scenarios in a summary
 Type: Behavior
@@ -183,6 +195,14 @@ answer within scope returns to slices 1–3; outside scope is a follow-up.
   sum); every sum names its coverage; an unproven child's duration is
   unknown, never 0 s; the slowest list holds at most ten rows; a slowest row
   opens Purpose positioned, matching Optimization Candidates.
+
+## Story obligations
+
+### G1. Deferred scope limits stay unbuilt
+Reported: slice 1 — "Source review ids 22.1–22.10 name the story's deferred scope limits."
+Story clause: "Ranking or reordering folders and files by their sums"
+Disposition: excluded "Scope limits (deferred promises, not rejections)"
+Commitment: 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9, 22.10
 
 ## Concern evidence
 

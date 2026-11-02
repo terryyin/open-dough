@@ -15,6 +15,7 @@ import {
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
+import { durationWords } from "./proofDurationWords.ts";
 import {
   noSuccessfulProof,
   passed,
@@ -29,13 +30,6 @@ function outcomeOf({ attempts }: SuccessfulProofObservation): string {
   if (attempts === 1) return passed;
   const tries = `${String(attempts)} attempts`;
   return `${passedAfterRetry} (${tries})`;
-}
-
-function durationWords(ms: number): string {
-  if (ms < 1000) return `${String(Math.round(ms))} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} s`;
-  const seconds = Math.round(ms / 1000);
-  return `${String(Math.floor(seconds / 60))}m ${String(seconds % 60)}s`;
 }
 
 function ScenarioName({ row }: { readonly row: ScenarioRow }) {
