@@ -31,11 +31,11 @@ intent introduced or affected by a newly developed story.
 - [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof ([plan](slice-plans/442-read-cypress-cucumber-proof/PLAN.md))
 - [Remove the test optimization candidate pass summary](seeds/SEED-192-review-product-intent.md#remove-candidate-pass-summary) — SEED-192#remove-candidate-pass-summary ([plan](slice-plans/445-remove-candidate-pass-summary/PLAN.md))
 - [Record and read only successful scenario proof](seeds/SEED-220-last-successful-intent-proof.md#last-successful-intent-proof) — SEED-220#last-successful-intent-proof ([plan](slice-plans/446-last-successful-intent-proof/PLAN.md))
+- [End the held-gh start-slack deadlock and concurrent test-results race](seeds/SEED-218-end-local-suite-hangs.md#fix-owned-calls-start-slack-hang) — SEED-218#fix-owned-calls-start-slack-hang ([plan](slice-plans/444-fix-owned-calls-start-slack-hang/PLAN.md))
 
 ## Backlog list
 
 - [Show CI status in an Intent tab](seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) — SEED-219#intent-ci-status-tab
-- [End the held-gh start-slack deadlock and concurrent test-results race](seeds/SEED-218-end-local-suite-hangs.md#fix-owned-calls-start-slack-hang) — SEED-218#fix-owned-calls-start-slack-hang
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost

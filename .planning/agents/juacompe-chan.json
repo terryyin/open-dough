@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "juacompe-chan",
+  "email": "juacompe-chan@example.org",
+  "identity": "SEED-218#fix-owned-calls-start-slack-hang",
+  "mode": "story-branch",
+  "branch": "codex/fix-owned-calls-start-slack-hang",
+  "host": "codex"
+}
