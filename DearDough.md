@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 404. Removed numbers are never reused.
+- Highest allocated local number: 406. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -501,6 +501,14 @@ already-running implementer.
   - Evidence: coordinator transcript `60e22314-a376-487e-aa74-b511ff265df2` delegates slice 2, then launches source-only review; `source-review.md` and D1–D5 Story obligations written after that delegation
   - Observed effect: deferred exclusions D1–D5 were recorded after the implementer was already running; no mid-run product correction was required for this execution
   - Inference: same timing gap as the prior occurrence; deferred-only late commitments reduced impact here
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: coordinator conversation delegates slice 1, then launches the source-only reviewer at slice 1 acceptance; `.planning/slice-plans/449-intent-purpose-proof-layout/source-review.md` allocates no commitment to slice 1
+  - Observed effect: no correction reached the slice 1 agent; slices 2–4 briefs carried their allocated commitment ids from `story-obligations.mjs list`
+  - Inference: a Structure first slice owing no commitment hides the timing gap; it would have bitten had slice 1 been a Behavior slice
 
 ## DD-389 — Post-change refactor left a production module empty before delivery
 
@@ -679,3 +687,36 @@ terms (`leftCalls`, `testOptions`) did not prevent that derived-path noise.
   - Evidence: implementation trace `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/plan444-consumers.nr9p2cxx/trace.md`, Effect terms and Located consumers; coordinator's full trace read reported 34,965 original tokens and truncated output. Refactor trace `/tmp/plan444-refactor-consumers.aCT4yS/trace.md` restricted the changed path to the test and exposed its actual job-label/timing/story consumers.
   - Observed effect: irrelevant trace rows consumed output/context; the coordinator followed with bounded searches and inspected the narrower trace. No missed consumer, test failure, or hang was established.
   - Inference: generated generic planning basenames need separate handling or an explicit changed-path selection. Related to ODF-350/ODF-352, but this observation concerns automatic path basenames, not supplied substring terms or data keys; shared reconciliation is not performed here.
+
+## DD-405 — A plan's local gate names the hook-owned lint that delivery forbids running
+
+The slice plan's Local gates told the coordinator to run `npm run lint`
+before publishing slices 1 and 2, while Execute Plan delivery says not to run
+hook-owned lint independently because the commit hook runs it on staged
+files. The executor had to judge which instruction wins.
+
+### Occurrences
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: `.planning/slice-plans/449-intent-purpose-proof-layout/PLAN.md` Local gates ("plus `npm run lint` and the dashboard typecheck"); `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; `dough-execute-plan/references/wrap-up.md` delivery steps 1 and 7
+  - Observed effect: the coordinator skipped the plan's lint step and relied on the hook; every slice commit passed it. Delegates ran `npx eslint` on changed files instead
+  - Inference: slice planning names project gates without the hook contract that delivery owns; a plan should leave hook-owned checks to the commit
+
+## DD-406 — Coordinator issued a no-op background command while waiting on a delegate
+
+Right after delegating slice 1, the coordinator ran a background `echo
+waiting` solely to have something pending, although the delegation guidance
+says to wait through the host's notification without empty calls.
+
+### Occurrences
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: coordinator conversation after the slice 1 Agent launch; `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
+  - Observed effect: one wasted turn and a spurious completion notification; later waits ended the turn and resumed on the agent's notification
+  - Inference: executor slip against existing guidance, not a guidance gap; recorded as a one-off

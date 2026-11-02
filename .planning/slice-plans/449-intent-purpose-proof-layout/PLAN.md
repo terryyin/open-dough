@@ -221,6 +221,16 @@ paging, clamp, scroll and sidebar kept/unkept specs; final state: full
 read the panel height once right after `setViewportSize`, getting the prior
 400px); repaired by polling the height, then repeat-each 10: 20 passed.
 
+## Execution complete
+
+Product advice: no change to backlog priorities; the outcome matches the
+story with every source commitment observed. For wrap-up assimilation:
+`docs/project-visibility-requirements.md` (open choices, the initial Intent
+UX/UI item) still says the file browser and Purpose/Proof layout switch
+"remain future work", now false for both; and `keptChoice`
+(`dashboard/src/keptPreference.ts`) is the home for any later disposable
+preference that must outlast its view's remount on one page.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |
