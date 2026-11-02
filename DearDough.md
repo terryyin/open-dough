@@ -506,7 +506,7 @@ already-running implementer.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
-  - Evidence: coordinator conversation delegates slice 1, then launches the source-only reviewer at slice 1 acceptance; `.planning/slice-plans/449-intent-purpose-proof-layout/source-review.md` allocates no commitment to slice 1
+  - Evidence: coordinator conversation delegates slice 1, then launches the source-only reviewer at slice 1 acceptance; `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/source-review.md` allocates no commitment to slice 1
   - Observed effect: no correction reached the slice 1 agent; slices 2–4 briefs carried their allocated commitment ids from `story-obligations.mjs list`
   - Inference: a Structure first slice owing no commitment hides the timing gap; it would have bitten had slice 1 been a Behavior slice
 
@@ -701,7 +701,7 @@ files. The executor had to judge which instruction wins.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
-  - Evidence: `.planning/slice-plans/449-intent-purpose-proof-layout/PLAN.md` Local gates ("plus `npm run lint` and the dashboard typecheck"); `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; `dough-execute-plan/references/wrap-up.md` delivery steps 1 and 7
+  - Evidence: `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/PLAN.md` Local gates ("plus `npm run lint` and the dashboard typecheck"); `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; `dough-execute-plan/references/wrap-up.md` delivery steps 1 and 7
   - Observed effect: the coordinator skipped the plan's lint step and relied on the hook; every slice commit passed it. Delegates ran `npx eslint` on changed files instead
   - Inference: slice planning names project gates without the hook contract that delivery owns; a plan should leave hook-owned checks to the commit
 

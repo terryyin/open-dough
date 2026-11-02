@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-222#intent-purpose-proof-layout",
+  "title": "Read Purpose and Proof in tabs or remembered split panels",
+  "completedAt": "2026-11-02T10:23:11.806Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "claude",
+  "model": "opus"
+}
