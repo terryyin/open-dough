@@ -100,7 +100,7 @@ second attach — without waiting the interval in real time.
 
 ### 2. The attention journey sees each delivered report after paced reads
 Type: Behavior
-Status: planned
+Status: done
 Proof: the attention case passes three consecutive focused runs with unchanged
 assertions (including retirement, restart, Mark as read and Mark as done); its
 focused time drops by roughly two poll intervals against the baseline.
@@ -155,3 +155,19 @@ transferred `launch-records-poll-waits` obligation.
   race took 1.8–1.9s and the reopened race 1.7–1.8s, against the 16.4–17.0s
   baseline. The text journey stayed at 1.6–1.8s, unpaused. The refactor rename
   then passed one run. `npm run typecheck:dashboard` exited 0.
+- **Slice 2 (attention journey).** Promise: a delivered completion report,
+  and later an unfinished one, reach the open page after one paced read each,
+  with no reload, and the rest of the attention lifecycle is unchanged.
+  Boundary: the real preview server, real Git launch, the installed reporting
+  command and the real launch-records reads; only the native Codex transport
+  is fake, and page time is paused from before `page.goto` to the end. Setup:
+  `pausePageClockAt` and `watchRecordReads` run before `page.goto` in
+  `dashboard/tests/agent-completion-attention.spec.ts`. Observations:
+  `passOnePace` precedes the message `toHaveText(text)` and the
+  `toContainText("Unfinished work")` assertion, and every later assertion is
+  unchanged. `reloadUntilRead` and the restart wait on answered requests, not
+  on page time. Command:
+  `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-completion-attention.spec.ts --reporter=list`.
+  Result: three consecutive passes at load 12.6–13.3 (above the baseline's),
+  with the case at 6.4s, 7.0s and 6.1s against the 36.1–36.2s baseline.
+  `npm run typecheck:dashboard` exited 0.
