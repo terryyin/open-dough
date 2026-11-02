@@ -123,7 +123,7 @@ Command:
 
 ### 1. Select a story by its card
 Type: Behavior
-Status: planned
+Status: done
 Proof: new board journey (e.g. `dashboard/tests/story-card-selection.spec.ts`)
 for example 7, plus selecting and deselecting a Recently done card by both
 card-area click and keyboard. Tab to its selection control, activate it with
@@ -292,6 +292,10 @@ second caller needs, and its Structure proof observes the result.
   output dirs) are in the checkout. Follow-up:
   SEED-218#fix-owned-calls-start-slack-hang. This story returns to the backlog;
   resume after that hang fix, or with suite gates known green.
+- **Resumed 2026-11-02 (claude, mrsn-chan):** slice 1's code reached main in
+  `c64319b6`; main CI passed at `0328d829` with it and the SEED-218 hang fix.
+  The focused proof below reran green in this worktree (15 tests), so slice 1
+  is delivered without a separate increment.
 
 ### Slice 1 accepted proof
 
@@ -303,6 +307,21 @@ result: pass (2)
 ```
 
 Also green: `steady-refresh-inspection.spec.ts`, `story-reference-navigation.spec.ts`, `notification-story-navigation.spec.ts` (13).
+
+### Slice 2 accepted proof
+
+```
+command: npm run typecheck:dashboard; env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent- dashboard/tests/development-intent-frame dashboard/tests/story-review-tree-collapse dashboard/tests/boundary/story-review-folders
+covers: example 8 — every Intent folder starts collapsed; a record-opened file's folders open and it shows selected; caret/name expansion unchanged
+boundary: IntentLocationGroup open-folder state (reviewFoldersHolding / reviewFolderPaths)
+observations: Ex 8 steps in intent-entry-folder-summaries-folders.spec.ts and intent-test-optimization-candidates-open.spec.ts
+result: pass (44); after refactor inline, focused rerun 5 passed
+```
+
+- A collapsed folder's name button carries its file count, so journeys
+  matching folder names exactly expand folders first (`expandIntentFolders`).
+- Slice 4 opens folders containing changes by seeding `IntentLocationGroup`'s
+  `openFolders` at mount and at toggles.
 
 ## Story obligations
 
