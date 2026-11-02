@@ -196,12 +196,13 @@ schema, executable design, or a newly accepted architecture decision.
    corroborates reproducibility; it does not authenticate who
    created a local observation or prove that a test correctly expresses intent.
 9. **Resource-aware comparisons:** durations, timestamps, worker counts, and
-   execution order need not match. Record relevant runner/browser/runtime and
-   resource context where available; compare timing only within comparable
-   contexts. Do not choose an arbitrary CPU multiplier or timing tolerance as a
-   consistency gate. Actual failures/timeouts retain their observed outcome;
-   resource differences qualify interpretation rather than turning them into
-   passes. Performance-regression enforcement is a separate later decision.
+   execution order need not match exactly. Record relevant runner/browser/runtime
+   and resource context where available. For [story 7](#check-cucumber-proof-in-ci),
+   Terry selected a per-case failure threshold on 2026-11-02: CI duration greater
+   than five times the retained local proof duration fails; different resources
+   or worker counts do not waive it. Actual failures/timeouts retain their
+   observed outcome. Broader performance-regression policies remain separate
+   decisions.
 
 Both Open Dough and Pygardon's GitHub workflow declarations ignore pushes that
 change only `.planning/**` or `docs/**`. Pygardon uses its own source-check
@@ -512,9 +513,10 @@ existing Inspect button.
   the applicable retained local Cucumber proof or why comparison is incomplete.
 - **Evaluation:** CI reads the local record published with a source basis, runs
   its own selection, and reports matching observations, a specific discrepancy,
-  or an explicit unchecked scope. A slower compatible CI run with matching
-  outcomes remains consistent without requiring equal durations. Compare each
-  observation's tested source and selection, not merely the commit containing
+  or an explicit unchecked scope. Matching outcomes need not have equal
+  durations, but a CI case taking more than five times its retained local proof
+  duration fails the comparison. Compare each observation's tested source and
+  selection, not merely the commit containing
   the proof file or an unchanged Gherkin blob. Unestablished implementation,
   steps or configuration provenance remains explicitly unchecked.
 - **Value / learning:** Tests the trust boundary before proliferating producers:
@@ -522,13 +524,34 @@ existing Inspect button.
 - **Boundary:** One project, one runner family. CI's comparison output does not
   create, refresh, or overwrite retained local observations. Define comparison of
   case identities/outcomes, retries, incomplete runs, and report-only trigger
-  behavior. Performance gates and proof authenticity are separate concerns.
+  behavior. The five-times duration gate below is in scope; broader performance
+  policies and proof authenticity remain separate concerns.
 - **Effort hypothesis:** Unbanded; higher, low confidence. Actual Pygardon source
   recipe/controller and differing local/CI tags must be respected.
 - **Product prerequisites:** Retained locally produced Cucumber evidence and an
   independently runnable CI selection; only matched source/scope is corroborated.
 - **Safe stopping point:** An actionable CI consistency verdict for Cucumber.js;
   source and latest local observations remain readable when CI is unavailable.
+
+**Agreed comparison rules (Terry, 2026-11-02):**
+
+Terry asked to record these decisions now and complete the story's refinement
+later. Apply the comparison per scenario or outline row, identified by feature
+path, scenario name, and example row values, using its latest retained local
+proof. Ordinary CI failures still fail CI.
+
+| Situation | Comparison result |
+| --- | --- |
+| Case runs in CI but has no retained local proof | OK; missing local proof does not fail the comparison. |
+| Case has retained local proof but is explicitly excluded by CI tags | Skipped, with the exclusion reason shown. |
+| Case has retained local proof and is selected for CI, but is missing from CI results | Fail. An unexpected omission is not an exclusion. |
+| Matched case has CI duration greater than `5 ×` its retained local proof duration | Fail. Exactly `5 ×` is allowed. |
+
+Compare the same case-duration measurement on both sides, including all retry
+attempts. Different machine resources or worker counts do not waive the duration
+gate. Source compatibility remains required before claiming corroboration;
+the detailed provenance, retry and incomplete-run policies, report-only triggers,
+and unavailable or zero-duration measurements remain for later refinement.
 
 
 <a id="inspect-hierarchical-proof-cost"></a>
@@ -818,9 +841,11 @@ what the first Proof claims.
   on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
   a latest per-scenario snapshot, not run history. How source and proof-only changes
   obtain CI corroboration remains with [story 7](#check-cucumber-proof-in-ci).
-- Refine comparison dispositions: what local scope requires CI corroboration,
-  how unmatched/host-only scopes are reported, and what discrepancies fail a
-  check. Durations alone do not decide logical consistency in this proposal.
+- Complete [story 7's comparison refinement](#check-cucumber-proof-in-ci).
+  Terry settled missing-case handling, explicit CI-tag exclusions, and the
+  greater-than-five-times duration gate on 2026-11-02; tested-source provenance,
+  retry and incomplete-run verdicts, report-only triggers, and unavailable or
+  zero-duration measurements still need refinement.
 - Select a real story and a developer's prior review basis for each assessment
   case; define what decision and review cost would justify keeping the method.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
