@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-217#intent-entry-folder-summaries",
+  "mode": "story-branch",
+  "branch": "cursor/show-summaries-when-selecting-intent-entries-and",
+  "host": "cursor",
+  "model": "auto"
+}
