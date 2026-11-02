@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Jane-chan",
-  "email": "jane-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-218#fix-owned-calls-start-slack-hang",
-  "host": "claude",
-  "model": "opus"
-}
