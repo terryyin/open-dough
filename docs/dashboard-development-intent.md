@@ -9,23 +9,48 @@ roster, near-future direction, Start session and published-state
 qualifications. Intent replaces that content with the project's Purpose and
 Proof reading surface. When the selected project's
 `.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
-Intent lists each location's nested `.feature` files in a collapsible tree,
-reads a selected file's exact published text with line numbers and Gherkin
-syntax styling at the observed revision. When the location also declares a
-`proof` directory of committed Cucumber proof (the
+Intent lists each location's nested `.feature` files in a collapsible tree.
+Locations and folders share separate caret and name controls: a caret toggles
+expansion without changing the selection or the reading pane (Purpose, Proof,
+or summary); clicking an unselected name selects that location or folder and
+shows its summary without changing expansion; clicking the selected name
+toggles expansion and keeps the selection and summary. Locations still allow
+only one open at a time via caret (or a selected name's toggle); selecting a
+closed location's name leaves it closed and leaves any other open location
+open. Both controls are keyboard-operable, and a selected location or folder
+reads as pressed. Selecting a file still reads its exact published text with
+line numbers and Gherkin syntax styling at the observed revision. A location or
+folder summary names the selection by path and how many matching files it
+holds. For Gherkin it also reads each contained feature's published text at
+the observed revision (with bounded concurrency and "N of M files read"
+progress), counts scenarios and outline rows from successfully read files,
+and, when the location declares proof, shows one aggregate count line over
+those rows (never-observed counted as _Not observed_) plus a breakdown by
+immediate child in the browser's order. Scenario totals and Proof count lines
+are labelled _Partial_ with contributing-file coverage while any contained
+file is still reading or could not be read, for the selection and each
+affected child; fully read siblings stay complete. An unread file is named
+with a retry that reads only the failed files, and is never counted as
+passed or unobserved. A nonempty selection with no readable files says its
+scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,
+and unusable locations reuse the same Proof-absent or location explanations
+as a file; without declared proof a Gherkin summary still gives the
+statistics it can. When the location also declares a `proof` directory of
+committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
-Proof lists the file's scenarios and outline rows in source order, each with
-its latest observation's outcome (retry-assisted passes marked), duration,
-time since, commit, and whether it was observed on this file version, or
-_Not observed_, under a count line of those latest outcomes; proof files are
-read once with the locations at that revision. A file with nothing observed
-yet in that directory says so. A proof file that could not be read, or is not
-valid proof, is reported by name as a read failure with retry, never as _Not
-observed_, and the retry reads the locations again without changing the
-selection or Purpose. Without a declared directory, Proof says it is not
-recorded for the project and names the installed reference to follow; other
-kinds say Proof is read only for Gherkin files so far. The selected
-perspective choice names the page, so Intent shows no heading of its own. Below the banner the page does not
+a selected file's Proof lists the file's scenarios and outline rows in source
+order, each with its latest observation's outcome (retry-assisted passes
+marked), duration, time since, commit, and whether it was observed on this
+file version, or _Not observed_, under a count line of those latest
+outcomes; proof files are read once with the locations at that revision. A
+file with nothing observed yet in that directory says so. A proof file that
+could not be read, or is not valid proof, is reported by name as a read
+failure with retry, never as _Not observed_, and the retry reads the
+locations again without changing the selection or Purpose. Without a
+declared directory, Proof says it is not recorded for the project and names
+the installed reference to follow; other kinds say Proof is read only for
+Gherkin files so far. The selected perspective choice names the page, so
+Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. Directly under the
 banner, a strip of two Intent reading modes, **Intent** and **Optimization

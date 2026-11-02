@@ -24,9 +24,32 @@
 }
 
 /* A folder's disclosure: its name, marked open or closed, and while
-   collapsed how many changed files it holds. */
+   collapsed how many changed files it holds. Intent's opt-in path splits
+   caret (`.story-review-folder`) and selectable name
+   (`.story-review-folder-name`) in one row. */
+.story-review-folder-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
 .story-review-files .story-review-folder {
   font-weight: 600;
+}
+
+.story-review-folder-row > .story-review-folder {
+  flex: none;
+  min-width: 1.5rem;
+  padding-inline: 0.25rem;
+  font-weight: 600;
+}
+
+.story-review-folder-row > .story-review-folder-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  text-align: start;
 }
 
 .story-review-folder::before {
@@ -35,6 +58,10 @@
   margin-inline-end: 0.3rem;
   content: "\25BE";
   content: "\25BE" / "";
+}
+
+.story-review-folder-row > .story-review-folder::before {
+  margin-inline-end: 0;
 }
 
 .story-review-folder[aria-expanded="false"]::before {

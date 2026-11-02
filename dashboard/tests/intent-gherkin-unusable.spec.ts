@@ -1,63 +1,27 @@
 // Intent distinguishes unusable locations and failed reads
 // (../src/IntentPerspective.tsx): empty or missing paths, pattern misses,
 // unsupported kinds, failed reads with retry, and settings problems, while
-// other locations stay browseable after expanding their group.
+// other locations stay browseable after expanding their group. Selecting an
+// unusable location's name shows its Summary with path, file count, and the
+// same location explanation the expanded body uses.
 
 import { expect, test } from "./dashboardTest.ts";
-import { chooseProject, parts } from "./dashboardPage.ts";
+import { parts } from "./dashboardPage.ts";
 import {
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
+  intentLocationName,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { publishFiles } from "./publishedOrigin.ts";
-import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { publishIntentProject } from "./intentCodeBrowseFixtures.ts";
-
-const doughnut: Project = {
-  label: "Doughnut",
-  ref: "main",
-  repository: "nerds-odd-e/doughnut",
-  revision: "e8".repeat(20),
-  taken: "Doughnut's own taken story",
-  queued: "Doughnut's own queued story",
-  direction: "Show Doughnut's own published direction through local gh.",
-  purpose: "Read Doughnut's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/302-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-302-queued.md",
-};
-
-const pygardon: Project = {
-  label: "Pygardon",
-  ref: "main",
-  repository: "terryyin/pygardon",
-  revision: "f9".repeat(20),
-  taken: "Pygardon's own taken story",
-  queued: "Pygardon's own queued story",
-  direction: "Show Pygardon's own published direction through local gh.",
-  purpose: "Read Pygardon's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/303-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-303-queued.md",
-};
-
-const usableFeature = `Feature: Usable
-  Scenario: Still browses
-    Given a working location
-`;
-
-const mixedSettings = JSON.stringify({
-  intent: {
-    locations: [
-      { path: "e2e_test/features", kind: "gherkin" },
-      { path: "no_such_dir", kind: "gherkin" },
-      { path: "empty_features", kind: "gherkin" },
-      { path: "frontend/src", kind: "java" },
-      { path: "scripts", kind: "javascript", include: ["**/*.test.mjs"] },
-    ],
-  },
-});
+import {
+  doughnut,
+  mixedSettings,
+  usableFeature,
+} from "./intentGherkinUnusableFixtures.ts";
+// Settings problems: ./intent-gherkin-settings-problems.spec.ts
 
 test("Intent names empty, missing, and unsupported locations while others browse; failed file reads retry", async ({
   page,
@@ -75,6 +39,47 @@ test("Intent names empty, missing, and unsupported locations while others browse
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expectIntentGroupsCollapsed(intent);
+
+  await test.step("commitment 55/57: unusable location names show Summary with path, 0 files, and the location explanation", async () => {
+    await intentLocationName(intent, "no_such_dir").click();
+    await expect(intentGroupToggle(intent, "no_such_dir")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    let summary = intent.getByRole("region", { name: "Summary" });
+    await expect(summary).toContainText("no_such_dir");
+    await expect(summary).toContainText("0 files");
+    await expect(summary).toContainText(
+      "No gherkin files are published at no_such_dir for this revision.",
+    );
+
+    await intentLocationName(intent, "empty_features").click();
+    await expect(intentGroupToggle(intent, "empty_features")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    summary = intent.getByRole("region", { name: "Summary" });
+    await expect(summary).toContainText("empty_features");
+    await expect(summary).toContainText("0 files");
+    await expect(summary).toContainText(
+      "No gherkin files are published at empty_features for this revision.",
+    );
+
+    await intentLocationName(intent, "frontend/src").click();
+    summary = intent.getByRole("region", { name: "Summary" });
+    await expect(summary).toContainText("frontend/src");
+    await expect(summary).toContainText("0 files");
+    await expect(summary).toContainText("Kind java is not yet supported.");
+
+    await intentLocationName(intent, "scripts").click();
+    summary = intent.getByRole("region", { name: "Summary" });
+    await expect(summary).toContainText("scripts");
+    await expect(summary).toContainText("0 files");
+    await expect(summary).toContainText(
+      "No files matching **/*.test.mjs are published at scripts for this revision.",
+    );
+    await expectIntentGroupsCollapsed(intent);
+  });
 
   await test.step("a missing location and one with no matching files say so by path; the usable location still browses", async () => {
     await expandIntentGroup(intent, "no_such_dir");
@@ -106,7 +111,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await expect(intent).toContainText(
       "No files matching **/*.test.mjs are published at scripts for this revision.",
     );
-    await expect(intentGroupToggle(intent, "scripts")).toContainText(
+    await expect(intentLocationName(intent, "scripts")).toContainText(
       "**/*.test.mjs",
     );
     await expandIntentGroup(intent, "e2e_test/features");
@@ -186,65 +191,5 @@ test("Intent names empty, missing, and unsupported locations while others browse
       intent.getByLabel("e2e_test/features/usable/usable.feature source"),
     ).toContainText("Feature: Usable");
     await page.unroute(`**${authenticatedReadEndpoint}?*`);
-  });
-});
-
-test("unreadable and malformed Intent settings stay distinct from not-configured", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  const unreadable: Project = {
-    ...doughnut,
-    revision: "a0".repeat(20),
-  };
-  const malformed: Project = {
-    ...pygardon,
-    revision: "b1".repeat(20),
-  };
-  await publishFiles(page, {
-    repository: unreadable.repository,
-    ref: unreadable.ref,
-    revision: unreadable.revision,
-    files: {
-      ...filesOf(unreadable),
-      ".planning/open-dough.json": "{}\n",
-    },
-    unanswered: [".planning/open-dough.json"],
-  });
-  await publishFiles(page, {
-    repository: malformed.repository,
-    ref: malformed.ref,
-    revision: malformed.revision,
-    files: {
-      ...filesOf(malformed),
-      ".planning/open-dough.json": "{not json\n",
-    },
-  });
-
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-
-  await test.step("unreadable settings name the file and stay distinct from absence", async () => {
-    await expect(intent).toContainText(
-      ".planning/open-dough.json could not be read, so Intent locations for Doughnut are unavailable.",
-    );
-    await expect(intent).not.toContainText(
-      "No intent locations are configured",
-    );
-    await expect(intent).not.toContainText("is not valid JSON");
-  });
-
-  await test.step("malformed settings name the file as invalid JSON", async () => {
-    await chooseProject(page, "Pygardon");
-    await expect(intent).toContainText(
-      ".planning/open-dough.json is not valid JSON, so Intent locations for Pygardon could not be read.",
-    );
-    await expect(intent).not.toContainText(
-      "No intent locations are configured",
-    );
-    await expect(intent).not.toContainText(
-      "could not be read, so Intent locations for Pygardon are unavailable.",
-    );
   });
 });

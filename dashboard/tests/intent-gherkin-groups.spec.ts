@@ -1,7 +1,8 @@
 // Intent location groups expand exclusively
 // (../src/IntentPerspective.tsx): start collapsed, one open body at a time,
-// all-closed reachable, Purpose survives collapse, empty/unsupported bodies
-// participate, and nested folder disclosure stays local to the open group.
+// all-closed reachable, Purpose survives caret collapse, empty/unsupported
+// bodies participate, and nested folder caret disclosure stays local to the
+// open group.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -10,6 +11,7 @@ import {
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
+  intentLocationName,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -37,6 +39,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
 
   await test.step("on Intent open, group headers are visible and every file list is hidden", async () => {
     await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
+    await expect(intentLocationName(intent, "e2e_test/features")).toBeVisible();
     await expect(
       intentGroupToggle(intent, "e2e_test/packaged/features"),
     ).toBeVisible();
@@ -129,14 +132,14 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     await expect(intent).toContainText("Kind java is not yet supported.");
   });
 
-  await test.step("nested folder toggle does not collapse the Intent group", async () => {
+  await test.step("nested folder caret toggles without collapsing the Intent group", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
-    const folder = intent.locator("button.story-review-folder").filter({
-      hasText: "recall",
-    });
-    await expect(folder).toHaveAttribute("aria-expanded", "true");
-    await folder.click();
-    await expect(folder).toHaveAttribute("aria-expanded", "false");
+    const caret = intent.getByRole("button", { name: "Collapse recall" });
+    await expect(caret).toHaveAttribute("aria-expanded", "true");
+    await caret.click();
+    await expect(
+      intent.getByRole("button", { name: "Expand recall" }),
+    ).toHaveAttribute("aria-expanded", "false");
     await expect(
       intentGroupToggle(intent, "e2e_test/features"),
     ).toHaveAttribute("aria-expanded", "true");
@@ -145,8 +148,10 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
         name: "e2e_test/features/recall/recall_note.feature",
       }),
     ).toHaveCount(0);
-    await folder.click();
-    await expect(folder).toHaveAttribute("aria-expanded", "true");
+    await intent.getByRole("button", { name: "Expand recall" }).click();
+    await expect(
+      intent.getByRole("button", { name: "Collapse recall" }),
+    ).toHaveAttribute("aria-expanded", "true");
     await expect(
       intent.getByRole("button", {
         name: "e2e_test/features/recall/recall_note.feature",

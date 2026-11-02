@@ -2,95 +2,47 @@
 // file row: each folder a disclosure that collapses and expands, a collapsed
 // folder telling how many files it holds in caller-supplied words, and each
 // file rendered by the caller. Review changes supplies its FileRow and
-// "changed files" wording (`./StoryReviewSnapshotView.tsx`). A file's control
-// is named, and titled, by its kind and full path in words; a file that
-// includes trunk's changes says so in its row and its name. A file whose
-// diff adds or removes lines shows how many beside its name, and its control
-// is described by them in words.
+// "changed files" wording (`./StoryReviewFileRow.tsx`,
+// `./StoryReviewSnapshotView.tsx`). Intent may pass `folderSelection` so each
+// folder is a caret disclosure plus a selectable name; Review changes passes
+// nothing and keeps one disclosure row.
 
-import { type ReactNode, useId } from "react";
+import { type ReactNode } from "react";
 import type { PathBearing, PathTreeNode } from "./reviewFileTree.ts";
-import type { ReviewedFile } from "./storyReviewContract.ts";
 import "./story-review-files.css";
 
-export const kindWords: Record<ReviewedFile["kind"], string> = {
-  added: "Added",
-  modified: "Modified",
-  deleted: "Deleted",
-  renamed: "Renamed",
-};
+export {
+  changedFiles,
+  changedFileWords,
+  FileRow,
+  includesTrunkWords,
+  kindWords,
+} from "./StoryReviewFileRow.tsx";
 
-// The flag of a file that includes trunk's changes.
-export const includesTrunkWords = "includes trunk's changes";
-
-// A file's kind and full path in words, and its flag, as its control is
-// named.
-const reviewedFileWords = (file: ReviewedFile) =>
-  `${kindWords[file.kind]} ${
-    file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
-  }${file.includesTrunkFrom === undefined ? "" : `, ${includesTrunkWords}`}`;
-
-export const changedFileWords = (count: number) =>
-  count === 1 ? "changed file" : "changed files";
-
-// How many files a snapshot lists, in words.
-export const changedFiles = (count: number) =>
-  `${String(count)} ${changedFileWords(count)}`;
-
-const lineWords = (count: number, change: string) =>
-  `${String(count)} ${count === 1 ? "line" : "lines"} ${change}`;
-
-// A file's control: its name, and its line counts when its diff adds or
-// removes any, which describe the control in words.
-export function FileRow({
-  file,
-  name,
-  selected,
-  onSelect,
+function FolderCount({
+  count,
+  fileCountWords,
 }: {
-  readonly file: ReviewedFile;
-  readonly name: string;
-  readonly selected: boolean;
-  readonly onSelect: (path: string) => void;
+  readonly count: number;
+  readonly fileCountWords: (count: number) => string;
 }) {
-  const countsId = useId();
-  const counted =
-    file.lines !== undefined && file.lines.added + file.lines.removed > 0
-      ? file.lines
-      : undefined;
   return (
-    <button
-      type="button"
-      aria-label={reviewedFileWords(file)}
-      aria-describedby={counted === undefined ? undefined : countsId}
-      title={reviewedFileWords(file)}
-      aria-pressed={selected}
-      data-kind={file.kind}
-      onClick={() => {
-        onSelect(file.path);
-      }}
-    >
-      <code>{name}</code>
-      {file.includesTrunkFrom !== undefined && (
-        <span className="story-review-trunk"> {includesTrunkWords}</span>
-      )}
-      {counted === undefined ? null : (
-        <>
-          {" "}
-          <span className="story-review-line-counts">
-            <span className="story-review-lines-added">+{counted.added}</span>{" "}
-            <span className="story-review-lines-removed">
-              −{counted.removed}
-            </span>
-            <span id={countsId} hidden>
-              {`${lineWords(counted.added, "added")}, ${lineWords(counted.removed, "removed")}`}
-            </span>
-          </span>
-        </>
-      )}
-    </button>
+    <>
+      {" "}
+      <span className="story-review-folder-count">
+        {count}
+        <span className="visually-hidden"> {fileCountWords(count)}</span>
+      </span>
+    </>
   );
 }
+
+// Opt-in Intent path: caret toggles disclosure; name selects (or toggles
+// when already selected). Review changes omits this and keeps one row.
+export type FolderSelection = {
+  readonly selectedPath: string;
+  readonly onSelect: (folderPath: string) => void;
+};
 
 // The browser's rows under one folder, or the top level: a folder's
 // disclosure above its own rows, hidden while it is collapsed, or a file's
@@ -108,6 +60,7 @@ export function FileTree<T extends PathBearing>({
   hidden,
   renderFile,
   fileCountWords,
+  folderSelection,
 }: {
   readonly nodes: readonly PathTreeNode<T>[];
   readonly selectedPath: string;
@@ -125,6 +78,7 @@ export function FileTree<T extends PathBearing>({
     readonly onSelect: (path: string) => void;
   }) => ReactNode;
   readonly fileCountWords: (count: number) => string;
+  readonly folderSelection?: FolderSelection;
 }) {
   return (
     <ul aria-label={label} id={id} hidden={hidden}>
@@ -142,6 +96,52 @@ export function FileTree<T extends PathBearing>({
           );
         const folderCollapsed = collapsed.has(node.path);
         const rowsId = `${idPrefix}-folder-${node.path}`;
+        const count = folderCollapsed ? (
+          <FolderCount count={node.fileCount} fileCountWords={fileCountWords} />
+        ) : null;
+        if (folderSelection !== undefined) {
+          const folderSelected = folderSelection.selectedPath === node.path;
+          return (
+            <li key={`folder:${node.path}`}>
+              <div className="story-review-folder-row">
+                <button
+                  type="button"
+                  className="story-review-folder"
+                  aria-expanded={!folderCollapsed}
+                  aria-controls={rowsId}
+                  aria-label={`${folderCollapsed ? "Expand" : "Collapse"} ${node.name}`}
+                  onClick={() => {
+                    onToggle(node.path);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="story-review-folder-name"
+                  aria-pressed={folderSelected}
+                  onClick={() => {
+                    folderSelection.onSelect(node.path);
+                  }}
+                >
+                  <code>{node.name}</code>
+                  {count}
+                </button>
+              </div>
+              <FileTree
+                nodes={node.children}
+                selectedPath={selectedPath}
+                onSelect={onSelect}
+                collapsed={collapsed}
+                onToggle={onToggle}
+                idPrefix={idPrefix}
+                id={rowsId}
+                hidden={folderCollapsed}
+                renderFile={renderFile}
+                fileCountWords={fileCountWords}
+                folderSelection={folderSelection}
+              />
+            </li>
+          );
+        }
         return (
           <li key={`folder:${node.path}`}>
             <button
@@ -154,18 +154,7 @@ export function FileTree<T extends PathBearing>({
               }}
             >
               <code>{node.name}</code>
-              {folderCollapsed ? (
-                <>
-                  {" "}
-                  <span className="story-review-folder-count">
-                    {node.fileCount}
-                    <span className="visually-hidden">
-                      {" "}
-                      {fileCountWords(node.fileCount)}
-                    </span>
-                  </span>
-                </>
-              ) : null}
+              {count}
             </button>
             <FileTree
               nodes={node.children}

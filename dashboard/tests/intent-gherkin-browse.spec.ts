@@ -43,9 +43,11 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
   await intentChoice.click();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
-  await expect(intentGroupToggle(intent, "e2e_test/features")).toContainText(
-    "gherkin",
-  );
+  await expect(
+    intent.locator(
+      'button.intent-location-name[data-location-path="e2e_test/features"]',
+    ),
+  ).toContainText("gherkin");
   await expectIntentGroupsCollapsed(intent);
 
   await test.step("selecting a nested feature shows exact text, line numbers and the observed revision", async () => {

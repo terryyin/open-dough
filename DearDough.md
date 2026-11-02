@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 402. Removed numbers are never reused.
+- Highest allocated local number: 403. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -617,3 +617,22 @@ reported no terminal result.
   - Evidence: two `stop /tmp/dough-ci-501/watch-SJuZJr` calls, both exiting with the stack (the first output tail ends in `}` and the Node version); then `ls` reported the directory missing and `pgrep -fl watch-SJuZJr` found no process
   - Observed effect: the coordinator verified shutdown by hand instead of from a stop receipt.
   - Inference: the first call may have removed the mailbox before failing, or the worker ended on its own first; either way an already-ended mailbox needs a reported result, not a crash.
+
+## DD-403 — Absorbed mid-flight plan amendment plus execution evidence reports freshness conflict
+
+After Terry’s trunk plan amendment was absorbed into the story-branch working
+tree and the plan gained only additive execution evidence (Status, accepted
+proof, story obligations, source-review link), `source-freshness.mjs check`
+reported plan `conflict` / `overlapping-edit` with comparison base still at
+Take. Guidance requires a conflict stop for developer decision; delivery
+instead temporarily replaced the plan with exact trunk text to pass the gate,
+then restored the execution evidence — on both slice deliveries.
+
+### Occurrences
+- Execution: SEED-217#intent-entry-folder-summaries (plan 443; first related implementation commit `51825cdc`)
+  - Timestamp: 2026-11-02T10:34:00+07:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.81
+  - Evidence: amendment `272f7c29` on origin; coordinator transcript `ce83dd3b-85a9-40d2-b173-4327eb2a3b2c` (freshness conflict then strip/restore before `51825cdc` and again before `881309f4`); check JSON `result:conflict`, plan `reason:overlapping-edit`, `from:44887208` (Take) while story `from:272f7c29` stayed `unchanged`; source-freshness.md “Stop on a conflict”
+  - Observed effect: two delivery gates needed a temporary exact-trunk plan for `unchanged`, then re-application of Status/accepted-proof/obligations, without an `awaiting story review` stop
+  - Inference: three-way freshness does not treat absorbed trunk text plus additive execution records as `unchanged`/`amended` when base remains Take; the strip/restore pattern bypasses the required conflict stop
