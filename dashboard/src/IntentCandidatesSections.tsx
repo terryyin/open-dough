@@ -185,7 +185,6 @@ export function IntentCandidatesSections({
   readonly onOpenLocation: OpenCandidateLocation;
   readonly focusEntrySlug?: string;
 }) {
-  const latestId = useId();
   const focusProps = focusEntrySlug === undefined ? {} : { focusEntrySlug };
   return (
     <>
@@ -206,17 +205,6 @@ export function IntentCandidatesSections({
           {...focusProps}
         />
       ))}
-      <section className="intent-candidate-group" aria-labelledby={latestId}>
-        <h3 id={latestId}>Latest pass</h3>
-        <p className="intent-candidate-latest">
-          <RecordedMarkdownText
-            text={record.latestPass}
-            source={source}
-            revision={revision}
-            containingFilePath={testOptimizationCandidatesPath}
-          />
-        </p>
-      </section>
     </>
   );
 }

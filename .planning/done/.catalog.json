@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_remove-candidate-pass-summary.json",
+      "identity": "SEED-192#remove-candidate-pass-summary",
+      "completedAt": "2026-11-02T04:25:37.083Z",
+      "blob": "34dabfd6ad69873fc5ccef78407eae30e7cd08ed"
+    },
+    {
       "fileName": "SEED-217_intent-entry-folder-summaries.json",
       "identity": "SEED-217#intent-entry-folder-summaries",
       "completedAt": "2026-11-02T04:05:56.145Z",

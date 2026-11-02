@@ -280,6 +280,16 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
 
+### Occurrences
+
+- Execution: `SEED-192#remove-candidate-pass-summary` / plan 445, first related implementation `04481f7f228db2cf4ec03af288d490410cd36936`
+  - Timestamp: unknown (2026-11-02, startup before implementation)
+  - Tool: Codex
+  - Open Dough release: unknown; installed execution guidance at starting revision `d9f70140a8ade624f89d4305d0c5ce9f74ee5a17`
+  - Evidence: coordinator conversation startup `functions.exec` batches reported 13,274 and 21,550 original output tokens with truncation; later calls retrieved publication, identity/preparation, and workflow passages again before the implementation delegation. This automatic retrospective also initially batched 10,879 original tokens and lost part of its reader excerpt to truncation.
+  - Observed effect: repeated retrieval expanded the context needed for one candidate-format removal; accepted implementation and focused proof still completed.
+  - Inference: recurrence of broad-read execution deviation under existing targeted-retrieval guidance. No measured duration or token saving is established, and no new process rule is proposed.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).

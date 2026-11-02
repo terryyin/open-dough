@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#remove-candidate-pass-summary",
+  "title": "Remove the test optimization candidate pass summary",
+  "completedAt": "2026-11-02T04:25:37.083Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "codex"
+}

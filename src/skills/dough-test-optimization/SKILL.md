@@ -160,10 +160,10 @@ test/support-code simplifications, experiments rejected, delivered commits, and
 remaining candidates. Distinguish measured improvement, no demonstrated gain,
 and incomplete work. Do not claim speedup from fewer cases or lines alone.
 
-Write the latest-pass summary and remaining candidates to the
+Write remaining candidates to the
 [candidate record](references/candidate-record.md), including after a
-profile-only pass that ends with findings, following that reference for create,
-replace, and preservation rules. Retain the plan and evidence for retrospective
+profile-only pass that ends with findings, following that reference for creation,
+disposition, and preservation rules. Retain the plan and evidence for retrospective
 and [story wrap-up](../dough-story-wrap-up/SKILL.md); unresolved candidates must
 be resolved or transferred in that record before cleanup.
 Emit `## TEST OPTIMIZATION COMPLETE` only when the pass's planned work,

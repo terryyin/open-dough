@@ -58,15 +58,6 @@ export const openDoughCaseLineNumber = 44;
 
 export const openDoughCaseLineRecord = `# Test Optimization Candidates
 
-## Latest pass
-
-- **Command / scope:** path:line case fixture
-- **Revision:** ${openDough.revision}
-- **Before / after:** unavailable
-- **Outcome:** incomplete measurement
-- **Limits:** fixture only
-- **Evidence:** none
-
 ## Pending candidates
 
 ${entry("path-line-case", {
@@ -96,15 +87,6 @@ None.
 // recorded text. Locations cover full paths, bare unique/ambiguous names,
 // and a four-file family.
 export const openDoughCandidatesRecord = `# Test Optimization Candidates
-
-## Latest pass
-
-- **Command / scope:** fixture pass for Intent candidates review
-- **Revision:** ${openDough.revision}
-- **Before / after:** unavailable
-- **Outcome:** incomplete measurement
-- **Limits:** fixture only
-- **Evidence:** [value/cost assessment](../${evidenceDocPath})
 
 ## Pending candidates
 
@@ -179,15 +161,6 @@ None.
 `;
 
 export const emptyCandidatesRecord = `# Test Optimization Candidates
-
-## Latest pass
-
-- **Command / scope:** empty finding pass
-- **Revision:** fixture
-- **Before / after:** unavailable
-- **Outcome:** no demonstrated gain
-- **Limits:** none
-- **Evidence:** none
 
 ## Pending candidates
 

@@ -35,15 +35,6 @@ export const doughnutUniqueScenarioLine = 35;
 
 export const doughnutCaseCandidatesRecord = `# Test Optimization Candidates
 
-## Latest pass
-
-- **Command / scope:** doughnut case-position fixture
-- **Revision:** ${doughnut.revision}
-- **Before / after:** unavailable
-- **Outcome:** incomplete measurement
-- **Limits:** fixture only
-- **Evidence:** none
-
 ## Pending candidates
 
 ${entry("unique-scenario-once", {

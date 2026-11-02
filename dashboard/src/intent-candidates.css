@@ -91,13 +91,6 @@
   line-height: 1.45;
 }
 
-.intent-candidate-latest {
-  margin: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  line-height: 1.45;
-}
-
 .recorded-markdown-text a {
   overflow-wrap: anywhere;
 }
