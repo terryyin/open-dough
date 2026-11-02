@@ -15,8 +15,11 @@ import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import {
   accountControlFeature,
   accountControlPath,
+  cypressRetryFeature,
+  cypressRetryPath,
   doughnutProofSettings,
   expectedAccountControlRows,
+  expectedCypressRetryRows,
   expectedNoteCreationRows,
   noteCreationFeature,
   noteCreationPath,
@@ -26,6 +29,7 @@ import {
   outlineObservedAt,
   proofFiles,
   proofHeader,
+  retryObservedAt,
 } from "./intentDoughnutCucumberProofFixtures.ts";
 
 test("Intent Proof shows Doughnut's committed Cypress-Cucumber observations for note_creation", async ({
@@ -132,4 +136,44 @@ test("Intent Proof shows Doughnut Scenario Outline rows with example cells", asy
       ),
     );
   expect(cells).toEqual([proofHeader, ...expectedAccountControlRows]);
+});
+
+test("Intent Proof shows Doughnut retry-assisted pass with attempt count", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.clock.setFixedTime(retryObservedAt);
+  await publishIntentProject(page, doughnut, doughnutProofSettings, {
+    [cypressRetryPath]: cypressRetryFeature,
+    ...proofFiles,
+  });
+
+  await openUntilRead(page, "/?project=doughnut");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+  await expandIntentGroup(intent, "e2e_test/features");
+  await intent
+    .getByRole("button", { name: cypressRetryPath, exact: true })
+    .click();
+  await expect(intent.getByLabel(`${cypressRetryPath} source`)).toContainText(
+    "Scenario: Retry succeeds",
+  );
+
+  const proof = intent.getByRole("region", { name: "Proof" });
+  const table = proof.getByRole("table", {
+    name: `${cypressRetryPath} proof`,
+  });
+  await expect(table).toBeVisible();
+  await expect(proof).toContainText("1 scenario: 1 passed after retry");
+  await expect(proof).not.toContainText(/green|all passed|suite/i);
+  const cells = await table
+    .getByRole("row")
+    .evaluateAll((rows) =>
+      rows.map((row) =>
+        [...row.querySelectorAll("th, td")].map((cell) =>
+          cell.textContent.trim(),
+        ),
+      ),
+    );
+  expect(cells).toEqual([proofHeader, ...expectedCypressRetryRows]);
 });

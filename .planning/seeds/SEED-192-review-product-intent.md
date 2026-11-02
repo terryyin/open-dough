@@ -654,7 +654,9 @@ across an unbuilt policy.
 - Committing Messages ndjson, screenshots, videos, traces or step logs as Proof.
 - Recording features outside the declared Gherkin Intent location, including
   throwaway specs.
-- Changing Doughnut's Cypress tags, isolation, retries policy, or CI selection.
+- Changing Doughnut's Cypress tags, isolation, or CI selection. Enabling
+  ordinary Cypress retries for retry-assisted successful proof is in scope
+  for this story (2026-11-02 developer choice, aligned with SEED-220).
 - A shared Open Dough-shipped Cypress recorder package, or teaching Intent a
   second proof format.
 - Vitest, Node, Playwright or other Doughnut non-Cypress families.
@@ -676,9 +678,11 @@ across an unbuilt policy.
 2. Those two observations are committed. In Intent, at that published revision,
    selecting feature A shows both scenarios' latest outcomes with time, commit
    and file-version match; a scenario never observed reads Not observed.
-3. A later focused run re-runs only one scenario and it fails. After commit,
-   Intent shows the failure for that scenario and keeps the earlier observation
-   for the other.
+3. A later focused run re-runs only one previously passed scenario and it
+   fails. After commit, that identity has no successful proof in Intent (Not
+   observed / cleared), while another scenario's earlier pass remains — same
+   successful-only meaning as SEED-220 (2026-11-02 developer choice; do not
+   show Failed as latest observation).
 4. A Scenario Outline row is observed: Intent names the outline's Gherkin
    scenario name and that row's example cells, distinct from other rows.
 5. A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with
