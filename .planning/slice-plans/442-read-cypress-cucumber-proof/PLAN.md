@@ -246,3 +246,11 @@ Commitment: X8
 
 No slice-plan refinement: three slices, one Messages→compact rule, one early
 probe for live Cypress Messages/exit. That probe's failure stops slice 3.
+
+## Execution complete
+
+Product advice: Keep SEED-220#last-successful-intent-proof as the owner for
+successful-only clear and exact `No successful proof` copy; no new backlog
+item from this story—second Cypress-Cucumber producer validated the shared
+Intent proof path (Terry useful 2026-11-02), with CI corroboration still owned
+by SEED-192#check-cucumber-proof-in-ci.

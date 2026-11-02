@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 404. Removed numbers are never reused.
+- Highest allocated local number: 405. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -662,3 +662,24 @@ terms (`leftCalls`, `testOptions`) did not prevent that derived-path noise.
   - Evidence: implementation trace `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/plan444-consumers.nr9p2cxx/trace.md`, Effect terms and Located consumers; coordinator's full trace read reported 34,965 original tokens and truncated output. Refactor trace `/tmp/plan444-refactor-consumers.aCT4yS/trace.md` restricted the changed path to the test and exposed its actual job-label/timing/story consumers.
   - Observed effect: irrelevant trace rows consumed output/context; the coordinator followed with bounded searches and inspected the narrower trace. No missed consumer, test failure, or hang was established.
   - Inference: generated generic planning basenames need separate handling or an explicit changed-path selection. Related to ODF-350/ODF-352, but this observation concerns automatic path basenames, not supplied substring terms or data keys; shared reconciliation is not performed here.
+
+## DD-405 — Concurrent Taken sibling rewrote the active story mid-execution
+
+A second Taken story rewrote the same seed/plan section the active Story Branch
+was finishing. `source-freshness.mjs check` correctly reported `conflict` /
+`overlapping-edit`; the coordinator stopped for `awaiting story review`. After
+the developer authorized keep-trunk wording plus branch execution evidence (and
+retries), absorbing trunk still required rewriting trunk story text, restoring
+plan Status/proof/obligations, and a full fresh source-only review before the
+last slice could publish. Distinct from DD-403 (that occurrence bypassed the
+conflict stop) and from ODF-383 (deletion-only amendment with no commitment
+change): here the sibling rewrite was substantive and the stop was honored.
+
+### Occurrences
+- Execution: SEED-192#read-cypress-cucumber-proof (plan 442; first related implementation commit `a289a6b6`)
+  - Timestamp: 2026-11-02T14:06:00+07:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.81
+  - Evidence: coordinator transcript `e3276439-2476-44f5-9723-3c6f5de52364` (freshness conflict at tip `69363d7a` vs trunk `362bc06d` SEED-220 last-successful wording; unfinished `awaiting story review`; user “as recommended and retry”; absorb then fresh source review before delivery `7253d174`); Taken SEED-220#last-successful-intent-proof on the same backlog
+  - Observed effect: slice-3 finish delayed for human absorb decision, trunk-text restore of execution evidence, and a second source-only review/obligation realign, after Intent Doughnut proof and Terry usefulness were already in hand
+  - Inference: concurrent Taken work that edits a shared active story section predictably forces late conflict + absorb + re-review cost even when the conflict stop is followed
