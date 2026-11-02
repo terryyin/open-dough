@@ -1,6 +1,7 @@
 # Pass launch-records reads without waiting the poll interval
 
 **Source:** [SEED-221#launch-records-poll-waits](../../seeds/SEED-221-launch-records-poll-waits.md#launch-records-poll-waits)
+**Source review:** [source-review.md](source-review.md)
 **Identity:** SEED-221#launch-records-poll-waits
 **Request:** Terry Yin's `/dough-test-optimization --resolve` (2026-11-02)
 resolved the pending `launch-records-poll-waits` candidate in
@@ -48,6 +49,14 @@ read, without losing protection.
   revision, 1-minute load, worker count, per-case and wall time:
   `cd dashboard && env -u NO_COLOR -u FORCE_COLOR npx playwright test tests/agent-completion-attention.spec.ts tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=list`
   (after `setup-native` in a fresh worktree). Keep raw output outside the repo.
+- **Baseline (run 2026-11-02, revision `4c7e5995`, Story Branch Mode on
+  `claude/dough-test-optimization-resolve`):** three back-to-back runs of the
+  command above from the repository root with `--config
+  dashboard/playwright.config.ts`, 2 local workers, 1-minute load 5.8–7.9:
+  4 passed each; wall 44s / 41s / 41s (reported 43.4s / 40.4s / 40.1s).
+  Per case: attention (`:30`) 36.2s / 36.2s / 36.1s; closed race (`:162`)
+  16.7s / 17.0s / 16.9s; reopened race (`:195`) 16.4s ×3; text journey
+  (`:86`) 1.6–1.7s.
 
 ## Family analysis
 
@@ -78,7 +87,7 @@ other family members share the result).
 
 ### 1. The close/reopen races see their session start after one paced read
 Type: Behavior
-Status: planned
+Status: done
 Proof: both race cases pass three consecutive focused runs with unchanged
 assertions; each case's focused time drops by roughly the poll interval against
 the baseline.
@@ -121,4 +130,28 @@ transferred `launch-records-poll-waits` obligation.
 
 ## Learnings
 
-None yet.
+- Under a paused page clock, xterm writes and draws only as page time
+  advances. Advancing page time partially before a `passOnePace` breaks that
+  helper's "no read before the pace" check, because the page schedules its
+  next read a whole pace after the last answer. Advance it only in whole paces
+  with `passOnePace`. Slice 2 meets the same constraint if it reads terminal
+  text.
+
+## Accepted proof
+
+- **Slice 1 (close/reopen races).** Promise: after `release()`, one paced
+  read shows the launched outcome; the closed terminal stays closed with no new
+  attach and Open terminal attaches it; the reopened terminal keeps its text
+  with no second attach. Boundary: the real dashboard server and its
+  launch-records reads, with the fake `claude` attaching and echoing; page time
+  is paused only in the two races. Setup: `openWhileStarting` in
+  `dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts` pauses page time
+  (`pausePageClockAt`), watches record reads, then withholds outcomes. The
+  `release()` call lifts the withholding and runs one `passOnePace`. `shows`
+  lets up to three whole paces pass until the rows show the text, and a failed
+  pace check fails the test. Command:
+  `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts --reporter=list`.
+  Result: three consecutive passes (3 passed each) at load 4.7–5.4. The closed
+  race took 1.8–1.9s and the reopened race 1.7–1.8s, against the 16.4–17.0s
+  baseline. The text journey stayed at 1.6–1.8s, unpaused. The refactor rename
+  then passed one run. `npm run typecheck:dashboard` exited 0.
