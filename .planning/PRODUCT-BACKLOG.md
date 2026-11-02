@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof ([plan](slice-plans/442-read-cypress-cucumber-proof/PLAN.md))
 - [Remove the test optimization candidate pass summary](seeds/SEED-192-review-product-intent.md#remove-candidate-pass-summary) — SEED-192#remove-candidate-pass-summary ([plan](slice-plans/445-remove-candidate-pass-summary/PLAN.md))
+- [Record and read only successful scenario proof](seeds/SEED-220-last-successful-intent-proof.md#last-successful-intent-proof) — SEED-220#last-successful-intent-proof
 
 ## Backlog list
 
