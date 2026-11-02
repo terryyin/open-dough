@@ -3,8 +3,9 @@
 // a rename across folders (./support/storyReviewWorktree.ts). Every folder
 // shows expanded; a chain is one folder row; the rename sits once under its
 // new folder and its old folder is absent. Each file shows by its name alone,
-// its kind told by the name's style; its control is named, and titled, by its
-// kind and full path, and selecting a nested file heads its diff with them.
+// its kind told by the name's style, a modified one's distinct from plain;
+// its control is named, and titled, by its kind and full path, and selecting
+// a nested file heads its diff with them.
 // The review opens on the first file in the browser's order, inside the
 // folders that come first.
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
@@ -90,6 +91,7 @@ test("a story's changed files show by name under their folders", async ({
       const resolved = {
         text: resolve("--text"),
         ready: resolve("--ready"),
+        accent: resolve("--accent"),
         quiet: resolve("--quiet"),
       };
       probe.remove();
@@ -114,8 +116,8 @@ test("a story's changed files show by name under their folders", async ({
         "Added docs/adrs/drafts/0009-tree.md",
         { ...plain, color: tokens.ready },
       ],
-      ["Modified dashboard/src/b.ts", plain],
-      ["Modified README.md", plain],
+      ["Modified dashboard/src/b.ts", { ...plain, color: tokens.accent }],
+      ["Modified README.md", { ...plain, color: tokens.accent }],
       [
         "Deleted dashboard/server/c.ts",
         { ...plain, color: tokens.quiet, line: "line-through" },
@@ -124,8 +126,18 @@ test("a story's changed files show by name under their folders", async ({
     ] as const) {
       expect(await nameStyle(name), name).toEqual(style);
     }
-    // The three kinds' colours differ, so the comparison above can tell them.
-    expect(new Set(Object.values(tokens)).size).toBe(3);
+    // Each row carries its kind from the shared change-kind model.
+    await expect(
+      files.getByRole("listitem").filter({
+        has: page.getByRole("button", {
+          name: "Modified README.md",
+          exact: true,
+        }),
+      }),
+    ).toHaveAttribute("data-kind", "modified");
+    // The kinds' colours differ from each other and from plain text, so the
+    // comparison above can tell them.
+    expect(new Set(Object.values(tokens)).size).toBe(4);
   });
 
   await test.step("a keyboard-focused file says its kind and full path in words", async () => {

@@ -159,7 +159,7 @@ because its folders open. Expansion keeps working as today.
 
 ### 3. One change-kind model for Review changes and Intent
 Type: Structure
-Status: planned
+Status: done
 Proof: existing Review changes journeys pass unchanged in behavior
 (`story-review-comparison*.spec.ts`, `story-review-file-moves.spec.ts`,
 `story-review-completed.spec.ts`, `story-review-line-counts.spec.ts`), plus
@@ -322,6 +322,25 @@ result: pass (44); after refactor inline, focused rerun 5 passed
   matching folder names exactly expand folders first (`expandIntentFolders`).
 - Slice 4 opens folders containing changes by seeding `IntentLocationGroup`'s
   `openFolders` at mount and at toggles.
+
+### Slice 3 accepted proof
+
+```
+command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list --workers=6 dashboard/tests/story-review- dashboard/tests/boundary/story-review- dashboard/tests/intent- dashboard/tests/development-intent-frame dashboard/tests/story-card-selection
+covers: Review changes behavior unchanged except modified names in --accent; one change-kind model with per-folder containsChanges
+observations: story-review-tree.spec.ts kind-style step; boundary/story-review-folders.spec.ts contains-changes model test
+result: pass (171); side-panel/board/recently-done/agent-terminal consumers 44 passed
+full gates on final state: whole dashboard suite 1894 passed (29.1m); npm test passed (PATH with Homebrew Bash 5 first — /bin/bash 3.2 is refused)
+```
+
+- Slice 4 API: `useStoryComparison({source, identity, completed})` gives
+  `{review, reading, problem, shown}`; pass `shown.reviewed`,
+  `shown.comparison.from` (or `file.includesTrunkFrom`) and `shown.tree` to
+  `FileDiff`; gate with `storyComparisonOffered`; give tree items
+  `{path, kind}` so `FileTree` emits `data-kind`; use `node.containsChanges` /
+  `reviewContainsChanges` and style `data-contains-changes` in slice 4.
+- Review changes itself opens on "since" when a review mark exists; Intent
+  uses the story's "all changes, including uncommitted" (commitment 7.1).
 
 ## Story obligations
 

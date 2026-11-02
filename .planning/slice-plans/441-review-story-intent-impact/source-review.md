@@ -28,7 +28,7 @@ No plan, return, product, or proof supplied.
 | 6.2 | Toggle off by default; whole tree with changes highlighted | slice 4 | |
 | 6.3 | Without selected story, Intent shows no toggle or highlight (apart from folder default) | slice 1 | observed: story-card-selection.spec.ts: deselected Intent has no Selected story only control/text |
 | 7.1 | Intent uses selected story's default Review changes comparison (all changes incl. uncommitted) | slice 4 | |
-| 7.2 | Same comparison read as Review changes | slice 3 | |
+| 7.2 | Same comparison read as Review changes | slice 3 | observed: useStoryComparison.ts calls useStoryReviewSelection + useStoryReviewComparison, the reads Review changes uses; story-review-* journeys green (171) |
 | 7.3 | Intent states which revisions it compared | slice 4 | |
 | 7.4 | No comparison → explanation | slice 4 | |
 | 7.5 | Failed read → explanation and retry | slice 4 | |
@@ -43,9 +43,9 @@ No plan, return, product, or proof supplied.
 | 10.1 | Full published tree; change-kind styles | slice 4 | |
 | 10.2 | Contains-changes background on folders/groups with changes | slice 4 | |
 | 10.3 | Deleted file stays visible and styled removed | slice 4 | |
-| 11.1 | One change-kind style set including modified | slice 3 | |
-| 11.2 | Review changes shows same styles | slice 3 | |
-| 11.3 | Review needs no contains-changes; not forbidden | slice 3 | |
+| 11.1 | One change-kind style set including modified | slice 3 | observed: change-kinds.css — added/modified/deleted/renamed; story-review-tree.spec.ts kind-style step asserts modified = --accent |
+| 11.2 | Review changes shows same styles | slice 3 | observed: story-review-tree.spec.ts: Modified rows in Review changes compute to --accent; StoryReviewFileTree.tsx imports change-kinds.css |
+| 11.3 | Review needs no contains-changes; not forbidden | slice 3 | observed: FileTree renders data-contains-changes; no Review style for it; boundary/story-review-folders.spec.ts contains-changes model test |
 | 12.1 | Changed file → same FileDiff as Review in Purpose | slice 4 | |
 | 12.2 | Unchanged files show published source | slice 4 | |
 | 12.3 | Proof describes published revision and says so | slice 4 | |
@@ -57,10 +57,10 @@ No plan, return, product, or proof supplied.
 | 14.4 | Other folders stay collapsed | slice 4 | |
 | 14.5 | Story change while Intent hidden does not rearrange | slice 5 | |
 | 14.6 | Rule applies next Intent open or toggle | slice 5 | |
-| 15.1 | One comparison-read implementation | slice 3 | |
-| 15.2 | One change-kind/styles implementation | slice 3 | |
-| 15.3 | One file-tree implementation | slice 3 | |
-| 15.4 | One diff implementation | slice 3 | |
+| 15.1 | One comparison-read implementation | slice 3 | observed: storyComparisonShown.ts used by StoryReviewBody and useStoryComparison; storyComparisonOffered gates StoryReviewAction |
+| 15.2 | One change-kind/styles implementation | slice 3 | observed: one ChangeKind in reviewFileTree.ts, one style file change-kinds.css |
+| 15.3 | One file-tree implementation | slice 3 | observed: reviewFileTree/FileTree remain the only tree, used by Review and IntentLocationGroup; Intent journeys green |
+| 15.4 | One diff implementation | slice 3 | observed: FileDiff unchanged; storyComparisonShown returns its reviewed/from/tree arguments |
 | 16.1 | Playwright covers key examples with workspace + completed fixtures | slice 6 | |
 | 16.2 | Terry evaluation on real Open Dough story | slice 7 | |
 | 16.3 | Apply failing and flaky test policy | slice 1 | observed: AGENTS.md failing/flaky policy applied; focused selection+navigation specs green |

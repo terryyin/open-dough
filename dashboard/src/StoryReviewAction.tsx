@@ -11,7 +11,7 @@
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { WorkEntry } from "./publishedWork.ts";
-import { reviewWorkspaceOf } from "./storyReviewWorkspace.ts";
+import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import { ArrowRight, GitCompare } from "lucide-react";
 import { Icon } from "./Icon.tsx";
@@ -35,9 +35,13 @@ export function StoryReviewAction({
 }) {
   const openStoryReview = useOpenStoryReview();
   if (
-    !completed &&
-    reviewWorkspaceOf(records, workspaces, sourceId, work.identity) ===
-      undefined
+    !storyComparisonOffered(
+      records,
+      workspaces,
+      sourceId,
+      work.identity,
+      completed,
+    )
   )
     return null;
   return (

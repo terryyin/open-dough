@@ -1,0 +1,23 @@
+/* The one set of change-kind styles for every file browser that shows a
+   story's changes, Review changes and Intent alike (./StoryReviewFileTree.tsx
+   marks each changed file's row with its kind from ./reviewFileTree.ts). A
+   file's kind shows only in the style of its name; its control's name and
+   hover text, and its diff's heading, say the kind in words. An unchanged
+   file keeps the plain style. */
+
+.story-review-files [data-kind="added"] code {
+  color: var(--ready);
+}
+
+.story-review-files [data-kind="modified"] code {
+  color: var(--accent);
+}
+
+.story-review-files [data-kind="deleted"] code {
+  color: var(--quiet);
+  text-decoration-line: line-through;
+}
+
+.story-review-files [data-kind="renamed"] code {
+  font-style: italic;
+}

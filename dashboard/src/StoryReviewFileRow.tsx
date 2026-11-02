@@ -58,7 +58,6 @@ export function FileRow({
       aria-describedby={counted === undefined ? undefined : countsId}
       title={reviewedFileWords(file)}
       aria-pressed={selected}
-      data-kind={file.kind}
       onClick={() => {
         onSelect(file.path);
       }}

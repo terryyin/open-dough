@@ -3,10 +3,13 @@
 // single-folder chains are one folder, a rename sits at its new path only,
 // each folder counts its files at any depth, and folders come before files in
 // name order whatever the input order. Review changes coverage uses
-// ReviewedFile; a path-only item uses the same arrangement.
+// ReviewedFile; a path-only item uses the same arrangement. An item's change
+// kind is the shared change-kind model: an item without one is unchanged, and
+// each folder knows whether it contains a changed item at any depth.
 
 import { expect, test } from "../support/pageTest.ts";
 import {
+  reviewContainsChanges,
   reviewFileTree,
   type PathBearing,
   type PathTreeNode,
@@ -67,6 +70,7 @@ test("a file node keeps its snapshot file", () => {
     name: "new",
     path: "new",
     fileCount: 1,
+    containsChanges: true,
     children: [
       {
         kind: "file",
@@ -111,4 +115,35 @@ test("a path-only item arranges like a reviewed file at the same path", () => {
   expect(outline(reviewFileTree(paths))).toEqual(
     outline(reviewFileTree(files)),
   );
+});
+
+test("each folder knows whether it contains a changed item at any depth", () => {
+  const items: readonly PathBearing[] = [
+    { path: "tests/a/unchanged.spec.ts" },
+    { path: "tests/a/deep/changed.spec.ts", kind: "modified" },
+    { path: "tests/b/unchanged.spec.ts" },
+    { path: "tests/c/gone.spec.ts", kind: "deleted" },
+    { path: "root.spec.ts" },
+  ];
+  const marks = (nodes: readonly PathTreeNode[]): string[] =>
+    nodes.flatMap((node) =>
+      node.kind === "folder"
+        ? [
+            `${node.path} ${node.containsChanges ? "changes" : "unchanged"}`,
+            ...marks(node.children),
+          ]
+        : [],
+    );
+  const tree = reviewFileTree(items);
+  expect(marks(tree)).toEqual([
+    "tests changes",
+    "tests/a changes",
+    "tests/a/deep changes",
+    "tests/b unchanged",
+    "tests/c changes",
+  ]);
+  expect(reviewContainsChanges(tree)).toBe(true);
+  expect(
+    reviewContainsChanges(reviewFileTree(items.map(({ path }) => ({ path })))),
+  ).toBe(false);
 });

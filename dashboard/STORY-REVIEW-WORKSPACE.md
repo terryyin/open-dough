@@ -4,9 +4,10 @@ Which workspace a [story review](AGENT-LAUNCH-REVIEW.md) reads.
 
 One rule picks it for the card that offers **Review changes** and for the
 boundary that answers the review, its file diffs and its mark
-(`reviewWorkspaceOf` in `src/storyReviewWorkspace.ts`). The most recent kept
-launch record by `launchedAt`, whether it names a start or a preparation,
-picks the workspace before any found worktree.
+(`reviewWorkspaceOf` in `src/storyReviewWorkspace.ts`; the offer itself,
+always made for a completed story, is `storyComparisonOffered`). The most
+recent kept launch record by `launchedAt`, whether it names a start or a
+preparation, picks the workspace before any found worktree.
 
 Without such a record, an active story's review reads the worktree local Git
 finds on this machine, as for a Trunk Mode story taken in a terminal: a
