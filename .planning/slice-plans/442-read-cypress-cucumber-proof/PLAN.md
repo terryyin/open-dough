@@ -1,4 +1,4 @@
-# Read the latest Doughnut Cypress-Cucumber proof
+# Read Doughnut's last successful Cypress-Cucumber proof
 
 **Identity:** SEED-192#read-cypress-cucumber-proof
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof).
@@ -7,14 +7,15 @@
 ## Goal and scope
 
 A Doughnut developer reviewing a selected feature in Intent sees each scenario
-and outline row's latest committed Cypress-Cucumber observation beside Purpose.
+and outline row's last successful committed Cypress-Cucumber proof beside Purpose.
 Doughnut's ordinary Cypress runs record the compact Cucumber proof format;
 Intent reads it the same way it already reads Pygardon.
 
 Exclusions, from the story: CI corroboration (story 7), folder Proof, committing
 Messages ndjson or media as Proof, features outside the declared Gherkin
-location, changing Cypress tags/isolation/retries/CI selection, a shared
-Open Dough Cypress recorder package, and other Doughnut runners.
+location, changing Cypress tags/isolation/CI selection, a shared Open Dough
+Cypress recorder package, and other Doughnut runners. Ordinary Cypress retries
+for successful proof stay in scope (2026-11-02).
 
 Required restrictions: a focused run never claims a full green suite; never key
 by generated IDs; never present missing/empty/unreadable proof as a pass.
@@ -24,7 +25,7 @@ by generated IDs; never present missing/empty/unreadable proof as a pass.
 PFE:
 
 - **Intent reader (reuse).** Open Dough already parses version-1 compact proof,
-  reduces to latest observations, and shows them in Intent
+  reduces to last successful proof, and shows it in Intent
   (`dashboard/src/cucumberProof.ts`, `dashboard/server/intentProofRead.ts`,
   `dashboard/src/IntentProof.tsx`,
   [Cucumber proof reference](../../../src/skills/dough-test-optimization/references/cucumber-proof.md)).
@@ -42,9 +43,6 @@ PFE:
   `addCucumberPreprocessorPlugin` in `e2e_test/config/common.ts`. Add a
   Doughnut-owned after:run consumer that maps those Messages into compact proof
   under a declared `proof` directory on the Gherkin Intent location.
-- **Gap.** No Doughnut proof directory, no Cypress→compact recorder, no
-  committed Doughnut proof files.
-
 Accepted decisions:
 [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 — proof files are Doughnut repository records; Intent reads published facts.
@@ -67,15 +65,20 @@ One mapping from a Cypress Cucumber run's Messages to compact observations:
 - identity = feature path from repo root + Gherkin scenario name + outline
   example cells when present;
 - record only the last finished attempt that actually ran
-  (`willBeRetried` false; skip dry/filtered non-runs);
+  (`willBeRetried` false; skip dry/filtered non-runs): a pass records proof
+  with all retry attempts, while an unsuccessful final attempt removes that
+  identity's earlier proof without recording a failure;
 - one uniquely named version-1 file per run under the location's `proof`
-  directory; latest `finishedAt` wins across files in Intent.
+  directory; latest successful `finishedAt` wins across files in Intent.
+  For legacy files, select latest results before retaining passes. Terry's
+  2026-11-02 amendment owns this meaning; historical baseline observations below
+  retain their provenance.
 
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |
 | --- | --- | --- | --- |
-| Intent shows latest compact proof for a Gherkin location with `proof` declared, and distinguishes absent / empty / malformed | Playwright Intent proof journeys | `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts` in this preparation checkout after `npm ci` | 7 passed (2026-11-02) |
+| Intent shows last-successful compact proof for a Gherkin location with `proof` declared, and distinguishes absent / empty / malformed | Playwright Intent proof journeys | `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts` in this preparation checkout after `npm ci` | 7 passed (2026-11-02) |
 | Open Dough's parser accepts a real committed Pygardon proof file | `parseProofFile` / `latestObservations` on `pygardon/e2e_test/proof/*.json` | Node import of `dashboard/src/cucumberProof.ts` against Pygardon at `d62f58fb9` | 1 file, 3 observations parsed; latest identities = 3 |
 | Doughnut's composed `after:run` still runs every registered handler | `node --test e2e_test/config/composeCypressPluginEvents.test.mjs` in Doughnut at `1581250a75` | 2 passed | Composed completion handlers await each registration |
 | Preprocessor can emit Messages ndjson, sets `willBeRetried`, discards intermediate retry messages, and omits reports on hook failures | Read `plugin-event-handlers.js` / `browser-runtime.js` / `preprocessor-configuration.js` in preprocessor 28.0.1 | Source contains writes to `cucumber-messages.ndjson`, retry discard, hook-failure warning | Mechanism present; **live envelope contents from a Doughnut Cypress run remain unbound** → early probe slice 2 |
@@ -85,9 +88,9 @@ One mapping from a Cypress Cucumber run's Messages to compact observations:
 
 | Story example | Observable signal |
 | --- | --- |
-| 1 ordinary / focused Cypress selection records without changing exit or diagnostics | Doughnut: same command exit and stdout/stderr shape with recorder on vs off; one new compact `.json` under the declared proof directory listing only the scenarios that ran |
-| 2 Intent at a published revision with those observations | Intent on project Doughnut: selected feature shows those scenarios' latest outcomes, times, commits, file-version match; an unobserved scenario reads Not observed |
-| 3 later focused run fails a previously passed case (successful-only) | Failure clears that identity; Intent shows Not observed for it and keeps the other scenario's earlier pass (SEED-220) |
+| 1 ordinary / focused Cypress selection records without changing exit or diagnostics | Doughnut: same command exit and stdout/stderr shape with recorder on vs off; successful scenarios produce one new compact `.json` under the declared proof directory |
+| 2 Intent at a published revision with those observations | Intent on project Doughnut: selected feature shows last successful proof, times, commits, file-version match; a scenario without success reads No successful proof |
+| 3 later focused run replaces only its cases | A pass records new successful proof; a final failure clears that identity's earlier proof. Intent keeps the other scenario's earlier success |
 | 4 outline row | Observation and Intent row use Gherkin outline name + example cells |
 | 5 retry-assisted pass | Intent shows passed-after-retry with attempt count |
 | 6 no `proof` declaration | Intent absent-proof copy naming the Cucumber proof reference (already covered by Open Dough absent journey; reconfirm after Doughnut config change only if the undeclared path regresses) |
@@ -129,21 +132,20 @@ resume at slice 3 only.
 Behavior: Doughnut ordinary Cypress profiles record compact proof (owned by
 SEED-096).
 
-### 3. Intent shows Doughnut's latest Cypress-Cucumber observations
+### 3. Intent shows Doughnut's last successful Cypress-Cucumber proof
 Type: Behavior
-Status: planned
-Proof: At published Doughnut revision carrying that proof (at least
-`e87c86c692` / current `origin/main`), Intent shows examples 2–5 (and 7 if
-exercised). Prefer the live Doughnut project in the dashboard; an Open Dough
-Playwright fixture may pin the same committed proof bytes only as a regression
-guard, not as a substitute for the first live read. Landed SEED-096 proof today
-covers plain passed scenarios on one feature (example 2 path); outline rows and
-retry-assisted passes are not in that committed file — obtain them via a
-Doughnut follow-up focused run if still required, or record the gap. Terry's
-usefulness judgment vs Cypress output + editor closes the story evaluation.
+Status: done
+Proof: Accepted 2026-11-02. Live Intent read of Doughnut published proof
+(example 2 + No successful proof) plus regressions
+`intent-doughnut-cucumber-proof.spec.ts` (note_creation, outline, retry).
+Outline proof on Doughnut main (PR #1651). Retry-assisted pass on Doughnut main
+(PR #1652, `attempts: 2`). Example 3 owner-changed to SEED-220 successful-only.
+G3 proved via recorder/runner silence tests. Terry confirmed usefulness
+2026-11-02. Focused Playwright:
+`env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-doughnut-cucumber-proof.spec.ts` → 3 passed.
 
 Behavior: Selecting a Doughnut feature in Intent shows each scenario/outline
-row's latest committed observation beside Purpose.
+row's last successful committed proof beside Purpose.
 
 ## Current decisions
 
@@ -159,43 +161,15 @@ row's latest committed observation beside Purpose.
   Doughnut `origin/main` (`SEED-096_cucumber-proof` in done catalog;
   `e87c86c692` proof commit; `proof` declared; one committed proof file).
   Slices 1–2 marked done by that landing; continue at slice 3.
-- **2026-11-02 slice 3 learning:** Live Intent on registered project Doughnut
-  at published `6c045cc` shows example 2 for `note_creation.feature` (9
-  passed, commit `d648487`, This file version) and Not observed for
-  `note_deletion.feature`. No Open Dough reader defect. Landed proof still
-  lacks a second run file, outline `example` cells, and `attempts > 1`; a
-  Doughnut follow-up focused Cypress publish would own those bytes — not
-  obtained in this Open Dough checkout. Playwright regression pins the same
-  committed proof bytes under `dashboard/tests/fixtures/doughnut-cucumber-proof/`.
-- **2026-11-02 Doughnut follow-up (authorized `pnpm cy:run` + commit):** On
-  Doughnut worktree `cursor/cypress-cucumber-proof-followup` from
-  `origin/main` `796b350c`, focused
-  `./scripts/run.sh pnpm cy:run --spec e2e_test/features/users/account_control.feature`
-  recorded three outline rows with `example` cells; committed and pushed as
-  `e2e_test/proof/20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json`
-  at Doughnut SHA `1be2689d21` (branch `origin/cursor/cypress-cucumber-proof-followup`;
-  not yet on `origin/main`). Open Dough fixtures/regression pin those bytes
-  plus `account_control.feature`. Prior note_creation proof file unchanged
-  beside it. Slice 3 stays planned; Story obligations stay open for
-  coordinator acceptance. Terry usefulness (commitment 32) unobserved.
-
-### Proposed dispositions (coordinator acceptance pending)
-
-- **G1 → observed:** Outline rows published; Intent regression shows
-  outline name + `Example: …` cells for three distinct rows.
-- **G2 → owner-changed (2026-11-02):** Story example 3 amended to SEED-220
-  successful-only clear (Not observed for failed identity; keep other pass;
-  do not show Failed). Doughnut store already matches.
-- **G3 → observed (cite existing tests + prior proof):** Recorder test
-  `proof failures and a missing Git checkout remain silent and harmless`
-  (`cucumberProofRecorder.test.mjs`); runner fixture preserves Cypress exit
-  with hook failures and scopes proof to executed Messages cases
-  (`cucumberProofRunner.test.mjs`). Prior committed note_creation proof still
-  present and Intent regression still reads it; no destructive live outside-Git
-  run required.
-- **G4 → proved (2026-11-02):** Ordinary `retries.runMode: 1`; Doughnut PR
-  #1652 publishes `cypress_retry` proof with `attempts: 2` passed; Intent
-  regression shows Passed after retry (2 attempts).
+- **2026-11-02 product direction / usefulness / slice 3:** Keep SEED-220
+  successful-only; absorb trunk last-successful wording; retries stay in scope.
+  Terry confirmed Intent Doughnut Proof useful beside Cypress + editor. Live
+  Intent at Doughnut `6c045cc` showed example 2 for `note_creation` and explicit
+  absence (`Not observed`) for `note_deletion`; no reader defect. Exact copy
+  `No successful proof` remains SEED-220. Outline (`account_control`, PR #1651)
+  and retry (`cypress_retry` attempts:2, PR #1652) proof on Doughnut main;
+  Open Dough regressions pin those bytes under
+  `dashboard/tests/fixtures/doughnut-cucumber-proof/`. Dispositions below.
 
 ## Story obligations
 
@@ -206,9 +180,9 @@ Disposition: proved by slice 3: Doughnut e2e_test/proof/20261102T064803493Z-e248
 
 ### G2. Later focused run failure replace vs Doughnut successful-only store
 Reported: slice 3 — "Developer amended example 3 to successful-only clear (SEED-220); do not show Failed as latest."
-Story clause: "A later focused run re-runs only one previously passed scenario and it fails. After commit, that identity has no successful proof in Intent (Not observed / cleared), while another scenario's earlier pass remains — same successful-only meaning as SEED-220 (2026-11-02 developer choice; do not show Failed as latest observation)."
-Disposition: owner changed "A later focused run re-runs only one previously passed scenario and it fails. After commit, that identity has no successful proof in Intent (Not observed / cleared), while another scenario's earlier pass remains — same successful-only meaning as SEED-220 (2026-11-02 developer choice; do not show Failed as latest observation)."
-Commitment: 38
+Story clause: "A later focused run re-runs only one scenario and it fails. After commit, its earlier proof is removed, Intent shows No successful proof for that scenario, and the other scenario keeps its earlier success. A later pass restores successful proof; a mixed-result run retains its passing scenarios."
+Disposition: owner changed "A later focused run re-runs only one scenario and it fails. After commit, its earlier proof is removed, Intent shows No successful proof for that scenario, and the other scenario keeps its earlier success."
+Commitment: 12e, E3a, E3b, E3c
 
 ### G3. Cannot-record / no-Messages path not exercised against prior Doughnut proof
 Reported: slice 3 — "Recorder/runner tests cover silent cannot-record; note_creation proof still Intent-readable."
@@ -220,54 +194,55 @@ Reported: slice 3 — "Doughnut PR #1652 publishes cypress_retry attempts:2 pass
 Story clause: "A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with attempt count, not a clean single-attempt pass."
 Disposition: proved by slice 3: Doughnut e2e_test/proof/20261102T070001761Z-49dd375b-a1e7-46d9-a5b1-5a67b567e939.json on origin/main + intent-doughnut-cucumber-proof.spec.ts retry Intent test
 
+### G5. Intent copy still says Not observed for no-success rows
+Reported: slice 3 — "Absorbed trunk example 2 wording requires No successful proof; product still shows Not observed until SEED-220."
+Story clause: "a scenario without success reads No successful proof."
+Disposition: owner changed "a scenario without success reads No successful proof."
+Commitment: E2
+
 ### X1. CI corroboration deferred
 Reported: slice 3 — "CI corroboration deferred to story 7."
 Story clause: "CI corroboration of Doughnut's local observations (story 7 owns the first comparison policy"
 Disposition: excluded "CI corroboration of Doughnut's local observations (story 7 owns the first comparison policy"
-Commitment: 43
+Commitment: X1
 
 ### X2. Folder-level Proof deferred
 Reported: slice 3 — "Folder-level Proof summaries deferred."
 Story clause: "Folder-level Proof summaries (story 9)."
 Disposition: excluded "Folder-level Proof summaries (story 9)."
-Commitment: 44
+Commitment: X2
 
 ### X3. Bulky Messages/media as Proof deferred
 Reported: slice 3 — "Bulky Messages and media as Proof deferred."
 Story clause: "Committing Messages ndjson, screenshots, videos, traces or step logs as Proof."
 Disposition: excluded "Committing Messages ndjson, screenshots, videos, traces or step logs as Proof."
-Commitment: 45, 46, 47, 48, 49
+Commitment: X3
 
 ### X4. Outside Gherkin location deferred
 Reported: slice 3 — "Outside declared Gherkin location recording deferred."
 Story clause: "Recording features outside the declared Gherkin Intent location, including throwaway specs."
 Disposition: excluded "Recording features outside the declared Gherkin Intent location, including throwaway specs."
-Commitment: 50
+Commitment: X4
 
 ### X5. Cypress tags/isolation/CI selection deferred
 Reported: slice 3 — "Cypress tags/isolation/CI selection changes deferred; retries enablement authorized for G4."
 Story clause: "Changing Doughnut's Cypress tags, isolation, or CI selection."
 Disposition: excluded "Changing Doughnut's Cypress tags, isolation, or CI selection."
-Commitment: 51, 52, 53
+Commitment: X5
 
 ### X6. Shared recorder / second format deferred
 Reported: slice 3 — "Shared Open Dough Cypress recorder package deferred."
 Story clause: "A shared Open Dough-shipped Cypress recorder package, or teaching Intent a second proof format."
 Disposition: excluded "A shared Open Dough-shipped Cypress recorder package, or teaching Intent a second proof format."
-Commitment: 54, 55
+Commitment: X6, X7
 
 ### X7. Non-Cypress Doughnut families deferred
 Reported: slice 3 — "Non-Cypress Doughnut families deferred."
 Story clause: "Vitest, Node, Playwright or other Doughnut non-Cypress families."
 Disposition: excluded "Vitest, Node, Playwright or other Doughnut non-Cypress families."
-Commitment: 56
+Commitment: X8
 
 ## Concern evidence
 
-Slice-plan refinement was not needed: three slices, one coherent Messages→compact
-mapping rule, one early probe bounding the only unsettled live-run premise, and
-no independent second outcome or duplicated domain rules across slices.
-
-Remaining slice-specific concerns: none beyond the authorized early probe in
-slice 2 (live Cypress Messages shape and exit/diagnostics preservation), whose
-failure stops slice 3 and revises the plan.
+No slice-plan refinement: three slices, one Messages→compact rule, one early
+probe for live Cypress Messages/exit. That probe's failure stops slice 3.

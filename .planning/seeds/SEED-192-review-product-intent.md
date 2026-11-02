@@ -543,9 +543,9 @@ existing Inspect button.
 selected feature in Intent, such as Terry reviewing Doughnut beside its Gherkin.
 
 **Goal:** Through Doughnut's ordinary Cypress Cucumber runs, the project records
-the same compact latest-observation Proof that Intent already reads for
+the same compact last-successful Proof that Intent reads for
 Pygardon. Selecting a Doughnut feature in Intent shows each scenario and outline
-row's latest committed observation beside Purpose. This tests whether the first
+row's last successful committed proof beside Purpose. This tests whether the first
 Cucumber evidence meanings survive a second real runner
 ([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
 
@@ -614,14 +614,15 @@ across an unbuilt policy.
   Messages stream / accumulation. Enabling a Messages file for the recorder's
   own use is allowed; that ndjson is not committed Proof and must not carry
   screenshots, videos or other bulky attachments into the compact record.
-- **Compact proof.** Each ordinary finished run that observes at least one
+- **Compact proof.** Each ordinary finished run with at least one passing
   in-scope scenario writes one uniquely named version-1 proof file under the
   declared proof directory, matching the Cucumber proof reference fields and
   atomic rewrite rules. Identify scenarios only by feature path (repo-root,
   `/` separators), scenario name as written in Gherkin, and outline `example`
   cell values. Record only finished last attempts (`willBeRetried` false) that
-  actually ran. A focused or tagged run updates only the cases it observed;
-  other identities keep earlier observations.
+  actually ran. Retain only passes with retry counts; a final unsuccessful
+  result removes earlier proof for that identity. A focused or tagged run
+  maintains only the cases it executed; other identities keep earlier proof.
 - **Configuration.** Declare `proof` on Doughnut's Gherkin Intent location in
   `.planning/open-dough.json`. Record only features under that location.
   Install the recorder in every Cypress profile that runs those features so
@@ -633,9 +634,9 @@ across an unbuilt policy.
   produced no usable Messages for the observed specs), it records nothing and
   leaves the run intact.
 - **Intent reading.** With proof committed at a published Doughnut revision,
-  Intent shows that feature's latest observations the same way as for Pygardon:
-  per-scenario outcome, attempts, duration, time, commit, and whether the
-  published feature blob matches the observed one; unobserved scenarios stay
+  Intent shows that feature's last successful proof the same way as for Pygardon:
+  per-scenario success, attempts, duration, time, commit, and whether the
+  published feature blob matches the observed one; scenarios without success stay
   explicit; a missing proof declaration, empty proof, and unreadable or
   malformed proof remain distinct.
 - **Verification.** Prove with a real Doughnut Cypress selection that records
@@ -656,7 +657,7 @@ across an unbuilt policy.
   throwaway specs.
 - Changing Doughnut's Cypress tags, isolation, or CI selection. Enabling
   ordinary Cypress retries for retry-assisted successful proof is in scope
-  for this story (2026-11-02 developer choice, aligned with SEED-220).
+  for this story (2026-11-02 developer choice, keep SEED-220 successful-only).
 - A shared Open Dough-shipped Cypress recorder package, or teaching Intent a
   second proof format.
 - Vitest, Node, Playwright or other Doughnut non-Cypress families.
@@ -672,17 +673,17 @@ across an unbuilt policy.
 **Key examples:**
 
 1. Doughnut declares `proof` for `e2e_test/features`. An ordinary `cy:run`
-   selection that finishes two scenarios writes one new compact proof file and
+   selection that passes two scenarios writes one new compact proof file and
    leaves Cypress exit and diagnostics unchanged. A third scenario not in the
    selection is absent from that file.
 2. Those two observations are committed. In Intent, at that published revision,
-   selecting feature A shows both scenarios' latest outcomes with time, commit
-   and file-version match; a scenario never observed reads Not observed.
-3. A later focused run re-runs only one previously passed scenario and it
-   fails. After commit, that identity has no successful proof in Intent (Not
-   observed / cleared), while another scenario's earlier pass remains — same
-   successful-only meaning as SEED-220 (2026-11-02 developer choice; do not
-   show Failed as latest observation).
+   selecting feature A shows both scenarios' last successful proof with time,
+   commit and file-version match; a scenario without success reads No successful
+   proof.
+3. A later focused run re-runs only one scenario and it fails. After commit,
+   its earlier proof is removed, Intent shows No successful proof for that
+   scenario, and the other scenario keeps its earlier success. A later pass
+   restores successful proof; a mixed-result run retains its passing scenarios.
 4. A Scenario Outline row is observed: Intent names the outline's Gherkin
    scenario name and that row's example cells, distinct from other rows.
 5. A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with

@@ -2,11 +2,12 @@
 // (../src/IntentProof.tsx, ../server/intentProofRead.ts): the same proof
 // bytes Doughnut published under e2e_test/proof for note_creation.feature
 // and account_control.feature (Scenario Outline example cells) show each
-// scenario/outline row's latest outcome, duration, time, commit, and
-// file-version match beside Purpose; a sibling feature with no observations
-// in those runs reads Not observed. This pins the live Doughnut Intent read
-// as a regression; it does not replace that live observation.
+// scenario/outline row's last successful proof, duration, time, commit, and
+// file-version match beside Purpose; a sibling feature with no success in
+// those runs stays explicit (product still says Not observed until SEED-220).
+// Pins the live Doughnut Intent read as a regression; does not replace it.
 
+import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -22,47 +23,47 @@ import {
   expectedCypressRetryRows,
   expectedNoteCreationRows,
   noteCreationFeature,
+  noteCreationObservedAt,
   noteCreationPath,
   noteDeletionFeature,
   noteDeletionPath,
-  observedAt,
   outlineObservedAt,
   proofFiles,
   proofHeader,
   retryObservedAt,
 } from "./intentDoughnutCucumberProofFixtures.ts";
 
-test("Intent Proof shows Doughnut's committed Cypress-Cucumber observations for note_creation", async ({
-  page,
-}) => {
+async function openDoughnutFeature(
+  page: Page,
+  {
+    now,
+    files,
+    featurePath,
+    sourceMarker,
+  }: {
+    now: Date;
+    files: Record<string, string>;
+    featurePath: string;
+    sourceMarker: string;
+  },
+) {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.clock.setFixedTime(observedAt);
-  await publishIntentProject(page, doughnut, doughnutProofSettings, {
-    [noteCreationPath]: noteCreationFeature,
-    [noteDeletionPath]: noteDeletionFeature,
-    [accountControlPath]: accountControlFeature,
-    ...proofFiles,
-  });
-
+  await page.clock.setFixedTime(now);
+  await publishIntentProject(page, doughnut, doughnutProofSettings, files);
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
-  await intent
-    .getByRole("button", { name: noteCreationPath, exact: true })
-    .click();
-  await expect(intent.getByLabel(`${noteCreationPath} source`)).toContainText(
-    "Feature: Nested Note creation",
+  await intent.getByRole("button", { name: featurePath, exact: true }).click();
+  await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
+    sourceMarker,
   );
-
   const proof = intent.getByRole("region", { name: "Proof" });
-  const table = proof.getByRole("table", {
-    name: `${noteCreationPath} proof`,
-  });
-  await expect(table).toBeVisible();
-  await expect(proof).toContainText("9 scenarios: 9 passed");
-  await expect(proof).not.toContainText(/green|all passed|suite/i);
-  const cells = await table
+  return { intent, proof };
+}
+
+async function proofTableCells(table: Locator) {
+  return table
     .getByRole("row")
     .evaluateAll((rows) =>
       rows.map((row) =>
@@ -71,7 +72,33 @@ test("Intent Proof shows Doughnut's committed Cypress-Cucumber observations for 
         ),
       ),
     );
-  expect(cells).toEqual([proofHeader, ...expectedNoteCreationRows]);
+}
+
+test("Intent Proof shows Doughnut's committed Cypress-Cucumber proof for note_creation", async ({
+  page,
+}) => {
+  const { intent, proof } = await openDoughnutFeature(page, {
+    now: noteCreationObservedAt,
+    files: {
+      [noteCreationPath]: noteCreationFeature,
+      [noteDeletionPath]: noteDeletionFeature,
+      [accountControlPath]: accountControlFeature,
+      ...proofFiles,
+    },
+    featurePath: noteCreationPath,
+    sourceMarker: "Feature: Nested Note creation",
+  });
+
+  const table = proof.getByRole("table", {
+    name: `${noteCreationPath} proof`,
+  });
+  await expect(table).toBeVisible();
+  await expect(proof).toContainText("9 scenarios: 9 passed");
+  await expect(proof).not.toContainText(/green|all passed|suite/i);
+  expect(await proofTableCells(table)).toEqual([
+    proofHeader,
+    ...expectedNoteCreationRows,
+  ]);
 
   await test.step("an unobserved Doughnut feature reads Not observed", async () => {
     await intent
@@ -100,80 +127,50 @@ test("Intent Proof shows Doughnut's committed Cypress-Cucumber observations for 
 test("Intent Proof shows Doughnut Scenario Outline rows with example cells", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.clock.setFixedTime(outlineObservedAt);
-  await publishIntentProject(page, doughnut, doughnutProofSettings, {
-    [noteCreationPath]: noteCreationFeature,
-    [accountControlPath]: accountControlFeature,
-    ...proofFiles,
+  const { proof } = await openDoughnutFeature(page, {
+    now: outlineObservedAt,
+    files: {
+      [noteCreationPath]: noteCreationFeature,
+      [accountControlPath]: accountControlFeature,
+      ...proofFiles,
+    },
+    featurePath: accountControlPath,
+    sourceMarker: "Scenario Outline: Only admins can open failure reports",
   });
 
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await expandIntentGroup(intent, "e2e_test/features");
-  await intent
-    .getByRole("button", { name: accountControlPath, exact: true })
-    .click();
-  await expect(intent.getByLabel(`${accountControlPath} source`)).toContainText(
-    "Scenario Outline: Only admins can open failure reports",
-  );
-
-  const proof = intent.getByRole("region", { name: "Proof" });
   const table = proof.getByRole("table", {
     name: `${accountControlPath} proof`,
   });
   await expect(table).toBeVisible();
   await expect(proof).toContainText("3 scenarios: 3 passed");
   await expect(proof).not.toContainText(/green|all passed|suite/i);
-  const cells = await table
-    .getByRole("row")
-    .evaluateAll((rows) =>
-      rows.map((row) =>
-        [...row.querySelectorAll("th, td")].map((cell) =>
-          cell.textContent.trim(),
-        ),
-      ),
-    );
-  expect(cells).toEqual([proofHeader, ...expectedAccountControlRows]);
+  expect(await proofTableCells(table)).toEqual([
+    proofHeader,
+    ...expectedAccountControlRows,
+  ]);
 });
 
 test("Intent Proof shows Doughnut retry-assisted pass with attempt count", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.clock.setFixedTime(retryObservedAt);
-  await publishIntentProject(page, doughnut, doughnutProofSettings, {
-    [cypressRetryPath]: cypressRetryFeature,
-    ...proofFiles,
+  const { proof } = await openDoughnutFeature(page, {
+    now: retryObservedAt,
+    files: {
+      [cypressRetryPath]: cypressRetryFeature,
+      ...proofFiles,
+    },
+    featurePath: cypressRetryPath,
+    sourceMarker: "Scenario: Retry succeeds",
   });
 
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await expandIntentGroup(intent, "e2e_test/features");
-  await intent
-    .getByRole("button", { name: cypressRetryPath, exact: true })
-    .click();
-  await expect(intent.getByLabel(`${cypressRetryPath} source`)).toContainText(
-    "Scenario: Retry succeeds",
-  );
-
-  const proof = intent.getByRole("region", { name: "Proof" });
   const table = proof.getByRole("table", {
     name: `${cypressRetryPath} proof`,
   });
   await expect(table).toBeVisible();
   await expect(proof).toContainText("1 scenario: 1 passed after retry");
   await expect(proof).not.toContainText(/green|all passed|suite/i);
-  const cells = await table
-    .getByRole("row")
-    .evaluateAll((rows) =>
-      rows.map((row) =>
-        [...row.querySelectorAll("th, td")].map((cell) =>
-          cell.textContent.trim(),
-        ),
-      ),
-    );
-  expect(cells).toEqual([proofHeader, ...expectedCypressRetryRows]);
+  expect(await proofTableCells(table)).toEqual([
+    proofHeader,
+    ...expectedCypressRetryRows,
+  ]);
 });

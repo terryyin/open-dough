@@ -27,13 +27,13 @@ export const accountControlPath =
 export const cypressRetryPath =
   "e2e_test/features/testability/cypress_retry.feature";
 export const proofDirectory = "e2e_test/proof";
-export const proofFileName =
+export const noteCreationProofFileName =
   "20261102T030305438Z-d4182692-ae90-4ae0-981d-a993fec40c59.json";
 export const outlineProofFileName =
   "20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json";
 export const retryProofFileName =
   "20261102T070001761Z-49dd375b-a1e7-46d9-a5b1-5a67b567e939.json";
-export const proofPath = `${proofDirectory}/${proofFileName}`;
+export const noteCreationProofPath = `${proofDirectory}/${noteCreationProofFileName}`;
 export const outlineProofPath = `${proofDirectory}/${outlineProofFileName}`;
 export const retryProofPath = `${proofDirectory}/${retryProofFileName}`;
 
@@ -52,8 +52,8 @@ export const cypressRetryFeature = readFileSync(
   "utf8",
 );
 
-export const committedProofJson = readFileSync(
-  `${fixtureRoot}${proofFileName}`,
+export const committedNoteCreationProofJson = readFileSync(
+  `${fixtureRoot}${noteCreationProofFileName}`,
   "utf8",
 );
 
@@ -67,8 +67,8 @@ export const committedRetryProofJson = readFileSync(
   "utf8",
 );
 
-// One sibling feature with no observations in the committed run file, so
-// Intent can show Not observed beside Purpose for an unobserved file.
+// One sibling feature with no successful proof in the committed run files, so
+// Intent can show explicit absence beside Purpose (Not observed until SEED-220).
 export const noteDeletionFeature = `Feature: Note deletion
   Scenario: Trash a note
     Given a notebook with a note
@@ -93,14 +93,14 @@ export const doughnutProofSettings = JSON.stringify(
 );
 
 export const proofFiles = {
-  [proofPath]: committedProofJson,
+  [noteCreationProofPath]: committedNoteCreationProofJson,
   [outlineProofPath]: committedOutlineProofJson,
   [retryProofPath]: committedRetryProofJson,
 };
 
 // Fixed "now" one hour after the last note-creation observation's finishedAt
 // so every note-creation row floors to "1h ago".
-export const observedAt = new Date("2026-11-02T04:03:28.015Z");
+export const noteCreationObservedAt = new Date("2026-11-02T04:03:28.015Z");
 
 // Fixed "now" one hour after the last account_control outline observation.
 export const outlineObservedAt = new Date("2026-11-02T07:48:10.993Z");
