@@ -155,6 +155,14 @@ row's latest committed observation beside Purpose.
 - Prefer in-process `after:run` mapping of preprocessor Messages over a
   separate post-`cy:run` script so ordinary profiles cannot skip recording.
 - Do not ship a Cypress recorder from Open Dough in this story.
+- **2026-11-02 developer choice:** Do not implement Doughnut slices 1–2 in this
+  Open Dough execution. Doughnut SEED-096#cucumber-proof (Honoka-chan /
+  `codex/cucumber-proof`) already owns that recorder. Wait until that work
+  lands on Doughnut `origin/main` with committed compact proof Intent can
+  read, then resume this plan at slice 3 only. Checked 2026-11-02: SEED-096
+  admission is on main (`e90f3032a9`); recorder and `proof` declaration are
+  not landed yet (worktree still has uncommitted files; both SEED-096 slices
+  planned).
 
 ## Concern evidence
 
