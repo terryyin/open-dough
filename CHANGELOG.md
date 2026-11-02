@@ -1,3 +1,16 @@
+## 0.3.82 - 2026-11-02
+
+- Make Cucumber proof deliberate: ordinary passing and failing tests leave proof untouched; an explicit project option generates or refreshes compact snapshots for executed scenarios. Explicit unsuccessful scenarios clear earlier success while unexecuted scenarios retain theirs. Existing Cucumber.js and Cypress Messages producers follow the same contract.
+- Each proof-bearing Intent location declares a project-owned `proofGeneration` command or skill. The dashboard displays that instruction without executing it, describes published proof as a historical snapshot, and keeps existing proof readable when generation configuration is missing or invalid.
+- Intent reads last successful scenario proof, including retry counts, observation times and source versions, without reviving older passes behind legacy failures. Location and folder summaries report partial reads honestly; Intent and Optimization Candidates remain distinct reading modes with preserved selection.
+- Test Optimization Candidates retain findings and their dispositions without a latest-pass summary. Stabilize delayed owned-call launch tests and reduce unused space above the Intent workspace.
+
+The Promoted payload changes `dough-test-optimization/SKILL.md`, `references/candidate-record.md` and `references/cucumber-proof.md`. No payload paths, installer or host-discovery mechanisms change. Dashboard code and tests remain source functionality. This release supplies the contract; project-owned producer migrations and their generation commands are separate work requested during rollout.
+
+Validation: 60 Intent tests in 26 files passed; after a schema filename correction, typecheck and the 10 generation browser/boundary tests passed. The independent refactor review and representative guidance walkthrough passed. Six focused installer/release checks passed, covering all-tool installation, verified no-write updates, self-installation baseline, release finalization, project-settings preservation and guidance payload. The release self-installation check passed before metadata changes. Hosted CI is observed separately; these local results do not claim a future CI verdict.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code installation, discovery and host-hook mechanisms reuse their existing integration evidence. The conventional guidance change uses its representative behavior review; deterministic checks are not fresh native-host acceptance. No native exception is claimed.
+
 ## 0.3.81 - 2026-11-02
 
 - Clarify Cucumber proof adoption in TypeScript projects: plugins load through native `import()` before support-code loaders, must load silently, and record only features under the Gherkin locations declaring their proof directory.
