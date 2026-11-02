@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show CI status in an Intent tab](seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) — SEED-219#intent-ci-status-tab
 - [End the held-gh start-slack deadlock and concurrent test-results race](seeds/SEED-218-end-local-suite-hangs.md#fix-owned-calls-start-slack-hang) — SEED-218#fix-owned-calls-start-slack-hang
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
