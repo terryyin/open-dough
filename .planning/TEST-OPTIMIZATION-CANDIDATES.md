@@ -35,7 +35,10 @@ None.
   SEED-176 change-wait boundary move and 52.5s / 51.2s after on the developer's
   Mac. Whole-suite runs had unlike or contended load, so these case timings
   establish no comparable suite-wall gain. No separate ad-hoc-terminal
-  timing was retained in the legacy disposition.
+  timing was retained in the legacy disposition. After SEED-221 removed the
+  close/reopen races' poll waits, focused runs of the ad-hoc-terminal spec
+  took 1.7–1.9s per race against a 16.4–17.0s baseline (local, load 4.7–5.4,
+  2026-11-02).
 - **Unique protection:** dual-preview page protection through reload and
   project switch, and immediate terminal attachment after an ad hoc launch.
 - **Alternatives attempted:** cheaper server-only refusal and non-owner
@@ -44,7 +47,8 @@ None.
   replacement for the remaining integrated protection was established.
 - **Disposition / rationale:** accepted necessary cost — preserve the unique
   multi-step journeys. SEED-208 slice 7 reduced the terminal input matrix to
-  one text journey; the races' poll waits are transferred below. Acceptance excludes nothing;
+  one text journey; the races now pass their launch-records read with the
+  paused page clock instead of a poll wait. Acceptance excludes nothing;
   normal verification and CI continue running them. The project has no
   profile-exclusion mechanism. Reopen only with new evidence.
 - **Date:** 2026-10-30
@@ -63,7 +67,9 @@ None.
   shared hooks, varied from 116.84s to 194.81s on Ubuntu 24.04 with twelve
   shards and four workers per shard. These are case/chain timings, not
   additive local suite-wall savings; the chain showed no reliable elapsed
-  improvement.
+  improvement. After SEED-221 removed the attention journey's two poll waits,
+  focused runs took 6.1–7.0s against a 36.1–36.2s baseline (local, load
+  12.6–13.3, 2026-11-02).
 - **Unique protection:** attention reporting remains durable and readable
   through column changes, retirement, restart, Mark as read, and Mark as done;
   production-watcher journeys retain real activation, published-policy,
@@ -75,8 +81,9 @@ None.
 - **Disposition / rationale:** accepted necessary cost — retain unique
   integrated protection, preserving the accepted coverage decision. SEED-208
   slice 8 moved the raw refusal rows to `boundary/agent-completion-identity`;
-  the attention journey's poll waits are transferred below. Any
-  further variant removal or boundary move needs separately authorized scope
+  the attention journey now passes its launch-records reads with the paused
+  page clock instead of poll waits. Any further variant removal or boundary
+  move needs separately authorized scope
   and established replacement proof; acceptance grants no coverage reduction
   or profile exclusion. Normal verification and CI keep these tests.
 - **Date:** 2026-10-30
@@ -92,32 +99,4 @@ None.
 
 ## Transferred obligations
 
-### launch-records-poll-waits
-
-- **Locations / scope:** `agent-completion-attention.spec.ts` (waits for the
-  reported message and for "Unfinished work" on the card) and the two
-  close/reopen races in `agent-launch-ad-hoc-terminal.spec.ts`.
-- **Observed cost:** a timestamped diagnostic of the attention journey spent
-  14.9s on each of its two waits, about 30s of its 35s; each race spends about
-  15s after `release()`. All four wait for the page's next launch-records read,
-  `checkIntervalMs` (15s) after the previous one (`src/agentLaunches.ts:176`,
-  `src/revisionCheckSchedule.ts:31`). About 60 summed seconds in all.
-- **Unique protection:** a delivered report reaches the open page without a
-  reload; the races keep a closed or reopened terminal as the developer left it.
-- **Alternatives attempted:** none. The existing page clock and one-read pace
-  (`pausePageClockAt` in `dashboardTest.ts`, `watchRecordReads(page).passOnePace`
-  in `sessionStatePace.ts`) drive the same real read without a 15s wait.
-- **Disposition / rationale:** transferred — the four waits share one
-  cost (the page's next scheduled launch-records read), and the existing paused
-  page clock with one-read pace drives the same real read, so cheaper proof
-  preserves the protection; this is not a necessary cost and no product or
-  confidence trade-off needs a decision. The replacement keeps
-  `withholdLaunchOutcomes` unchanged and adds no clock mechanism. Planned, not
-  implemented.
-- **Date:** 2026-11-02 (recorded 2026-11-01)
-- **Evidence / follow-up:** replacement plan
-  [448](slice-plans/448-launch-records-poll-waits/PLAN.md) for
-  [SEED-221#launch-records-poll-waits](seeds/SEED-221-launch-records-poll-waits.md#launch-records-poll-waits);
-  its focused baseline is a planned prerequisite. Origin: SEED-208 slices 7
-  and 8 Results in
-  `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`.
+None.

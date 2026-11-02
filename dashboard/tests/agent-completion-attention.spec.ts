@@ -22,6 +22,8 @@ import {
 } from "./support/dashboardServer.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { pausePageClockAt } from "./dashboardTest.ts";
+import { watchRecordReads } from "./sessionStatePace.ts";
 
 type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
@@ -40,6 +42,10 @@ test("installed attention report stays open, durable and readable through column
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
+  // Page time stands still, so the open page reads its sessions again only
+  // as each steady pace is let pass: a delivered report reaches it then.
+  await pausePageClockAt(page, new Date());
+  const { passOnePace } = await watchRecordReads(page);
   await page.goto("/");
   const queued = parts(page).backlog.getByRole("article", {
     name: "Story A",
@@ -107,7 +113,8 @@ test("installed attention report stays open, durable and readable through column
     message: text,
   });
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-  await expect(messagePartOf(queued).text).toHaveText(text, { timeout: 20000 });
+  await passOnePace();
+  await expect(messagePartOf(queued).text).toHaveText(text);
   await expect(queued.locator(".session-attention-message script")).toHaveCount(
     0,
   );
@@ -121,7 +128,8 @@ test("installed attention report stays open, durable and readable through column
   expect(nativeSince(before)).toEqual([]);
   expect((await report("unfinished")).outcome).toBe("unfinished");
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-  await expect(queued).toContainText("Unfinished work", { timeout: 20000 });
+  await passOnePace();
+  await expect(queued).toContainText("Unfinished work");
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   published.advanceTo(revision);
   await reloadUntilRead(page);

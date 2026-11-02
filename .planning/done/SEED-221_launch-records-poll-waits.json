@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-221#launch-records-poll-waits",
+  "title": "Pass launch-records reads without waiting the poll interval",
+  "completedAt": "2026-11-02T09:35:36.566Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

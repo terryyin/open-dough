@@ -8,7 +8,7 @@
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "./dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
@@ -17,6 +17,7 @@ import {
 import type { LaunchJourney } from "./launchJourney.ts";
 import { parts, sessionNamedBy } from "./dashboardPage.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { watchRecordReads } from "./sessionStatePace.ts";
 
 test.setTimeout(120_000);
 
@@ -60,13 +61,31 @@ async function withholdLaunchOutcomes(page: Page) {
 
 // Starts an ad hoc session with launch outcomes withheld, and opens its
 // listed entry's terminal while Start session still says it is starting.
+// Page time stands still, so `release` lets exactly one more read of the
+// machine's sessions see the launched outcome, and the terminal writes and
+// draws what reached it only as page time passes: `shows` lets one steady
+// pace pass at a time, each with its read answered, until it shows `text`.
 async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
-  const release = await withholdLaunchOutcomes(page);
+  await pausePageClockAt(page, new Date());
+  const { passOnePace } = await watchRecordReads(page);
+  const stopWithholding = await withholdLaunchOutcomes(page);
+  const release = async () => {
+    stopWithholding();
+    await passOnePace();
+  };
   await openTakenBacklog(page, launchJourney);
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
   const panel = page.getByRole("region", { name: "Terminal" });
+  const rows = panel.locator(".xterm-rows");
+  const shows = async (text: string) => {
+    for (let pace = 0; pace < 3; pace += 1) {
+      await passOnePace();
+      if ((await rows.textContent())?.includes(text)) return;
+    }
+    expect(await rows.textContent()).toContain(text);
+  };
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
     .click();
@@ -80,7 +99,7 @@ async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
   const openTerminal = entry.getByRole("button", { name: "Open terminal" });
   await openTerminal.click();
   await expect(panel).toHaveCount(1);
-  return { release, panel, sessionId, openTerminal };
+  return { release, panel, rows, shows, sessionId, openTerminal };
 }
 
 test("starting with text opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
@@ -165,17 +184,14 @@ test("a terminal the developer closed while its session started stays closed onc
   launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, sessionId, openTerminal } = await openWhileStarting(
-    page,
-    launchJourney,
-  );
-  const rows = panel.locator(".xterm-rows");
+  const { release, panel, shows, sessionId, openTerminal } =
+    await openWhileStarting(page, launchJourney);
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
   const attaches = dashboard.claudeAttaches().length;
 
-  release();
+  await release();
   await expectQuietAdHocActionsRow(page);
   // Progress cleared without a presentation: the developer already closed it.
   await expect(panel).toHaveCount(0);
@@ -183,10 +199,10 @@ test("a terminal the developer closed while its session started stays closed onc
   expect(dashboard.claudeAttaches()).toHaveLength(attaches);
 
   await openTerminal.click();
-  await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
+  await shows(`attached ${sessionId.slice(0, 8)}`);
   await page.keyboard.type("hello there");
   await page.keyboard.press("Enter");
-  await expect(rows).toContainText("echo hello there");
+  await shows("echo hello there");
   expect(
     new Set(dashboard.claudeAttaches().map((attach) => attach.id)),
   ).toEqual(new Set([sessionId.slice(0, 8)]));
@@ -198,22 +214,19 @@ test("a terminal the developer reopened while its session started stays open, at
   launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, sessionId, openTerminal } = await openWhileStarting(
-    page,
-    launchJourney,
-  );
-  const rows = panel.locator(".xterm-rows");
+  const { release, panel, rows, shows, sessionId, openTerminal } =
+    await openWhileStarting(page, launchJourney);
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
-  await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
+  await shows(`attached ${sessionId.slice(0, 8)}`);
   await page.keyboard.type("still here");
   await page.keyboard.press("Enter");
-  await expect(rows).toContainText("echo still here");
+  await shows("echo still here");
   const shown = await rows.textContent();
   const attaches = dashboard.claudeAttaches().length;
 
-  release();
+  await release();
   await expectQuietAdHocActionsRow(page);
   await expect(panel).toHaveCount(1);
   await expect(rows).toHaveText(shown ?? "");

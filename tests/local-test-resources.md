@@ -7,6 +7,8 @@ commands using `dashboard/playwright.config.ts`. The next full run waits before
 starting its jobs or dashboard build. Named checks, dashboard path/grep/
 project/shard/test-list selections, list-only runs, and explicit suite shares
 remain independent. Independent repositories do not share admission.
+A full run's shell wall time therefore includes any wait for admission; time
+it from the runner's own reported duration when comparing runs.
 
 Local defaults are four repository jobs and two dashboard workers, conservative
 starting values for a shared development machine. Override them explicitly with
