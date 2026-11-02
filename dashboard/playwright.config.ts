@@ -1,3 +1,4 @@
+import { mkdirSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
@@ -22,6 +23,13 @@ if (
 // caller supplied NODE_COMPILE_CACHE. No cache allocation or cleanup is needed.
 process.env["NODE_DISABLE_COMPILE_CACHE"] = "1";
 
+// Host shells (for example Cursor) often set both FORCE_COLOR and NO_COLOR.
+// Node then warns on stderr; quiet nested runs that expect empty stderr fail.
+// Drop both here so workers and descendant Playwright processes inherit a
+// conflict-free environment. Explicit child env may still set either alone.
+delete process.env["FORCE_COLOR"];
+delete process.env["NO_COLOR"];
+
 // Each run keeps its retained files in its own directory, named by its start
 // time, because Playwright empties a run's output directory before it starts:
 // a later run from the same checkout then removes only its own
@@ -31,9 +39,22 @@ process.env["NODE_DISABLE_COMPILE_CACHE"] = "1";
 // their own.
 const runStampVariable = "OPEN_DOUGH_DASHBOARD_RUN_STAMP";
 if (process.env["TEST_WORKER_INDEX"] === undefined) {
-  process.env[runStampVariable] = new Date().toISOString().replace(/:/g, "-");
+  // Include pid so two local dashboard runs started in the same millisecond
+  // (dashboard-concurrent-runs) never share or delete one another's outputDir.
+  process.env[runStampVariable] =
+    `${new Date().toISOString().replace(/:/g, "-")}-${String(process.pid)}`;
 }
 const runStamp = process.env[runStampVariable] ?? "";
+if (runStamp === "") {
+  throw new Error(
+    "OPEN_DOUGH_DASHBOARD_RUN_STAMP is empty; refusing ./test-results as outputDir.",
+  );
+}
+// Playwright may mkdir the stamp directory without creating its parent; a
+// sibling run's cleanup can remove the last stamp and leave test-results gone.
+mkdirSync(fileURLToPath(new URL("./test-results", import.meta.url)), {
+  recursive: true,
+});
 
 const suiteTime = remainingSuiteTime(
   process.env["OPEN_DOUGH_DASHBOARD_DEADLINE_MS"],

@@ -16,6 +16,7 @@ import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
+import { useStorySelection } from "./pageStorySelection.tsx";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
   recentlyDoneName,
@@ -85,11 +86,15 @@ function ListedEntry({
   detailOf,
   sourceId,
   launchRecords,
+  selectedIdentity,
+  onSelect,
 }: {
   readonly each: Listed;
   readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
   readonly sourceId: string;
   readonly launchRecords: readonly LaunchRecord[] | undefined;
+  readonly selectedIdentity: string | undefined;
+  readonly onSelect: (identity: string) => void;
 }) {
   if (!("record" in each)) {
     return <SessionEntry record={each.session} onStoryCard={false} />;
@@ -105,6 +110,8 @@ function ListedEntry({
       sessions={sessions}
       sourceId={sourceId}
       launchRecords={launchRecords}
+      selected={selectedIdentity === record.identity}
+      onSelect={onSelect}
     />
   );
 }
@@ -119,6 +126,7 @@ export function RecentlyDone({
   readonly launchRecords: readonly LaunchRecord[] | undefined;
 }) {
   const section = useRef<HTMLElement>(null);
+  const { selectedIdentity, toggle } = useStorySelection(sourceId);
   const {
     creations: listedCreations,
     records,
@@ -174,6 +182,8 @@ export function RecentlyDone({
                 detailOf={details.detailOf}
                 sourceId={sourceId}
                 launchRecords={launchRecords}
+                selectedIdentity={selectedIdentity}
+                onSelect={toggle}
               />
             </li>
           ))}

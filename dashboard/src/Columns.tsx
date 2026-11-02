@@ -1,7 +1,7 @@
 import { SessionEntry } from "./SessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import type { LaunchWithState } from "./agentLaunch.ts";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect } from "react";
 import { type PublishedWork, type WorkEntry } from "./publishedWork.ts";
 import {
   UnreadableProfiles,
@@ -9,6 +9,7 @@ import {
 } from "./AgentAssignmentFacts.tsx";
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { revealStory } from "./pageEntries.ts";
+import { useStorySelection } from "./pageStorySelection.tsx";
 import { useStoryNavigation } from "./storyNavigation.tsx";
 import { columnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
@@ -124,6 +125,7 @@ function Column({
 
 // The projected columns keep published story membership/order separate from
 // machine-local sessions. Cards retain work identity and storyCardFocus marks.
+// Selection is the page's per-project owner (`./pageStorySelection.tsx`).
 export function Columns({
   work,
   columns,
@@ -136,8 +138,8 @@ export function Columns({
   onOpenRoster: OpenRoster;
 }) {
   const [backlog, taken] = columns;
-  const [selectedIdentity, setSelectedIdentity] = useState<string | undefined>(
-    undefined,
+  const { selectedIdentity, toggle, select } = useStorySelection(
+    work.source.id,
   );
   const { opening } = useStoryNavigation();
   useLayoutEffect(() => {
@@ -147,14 +149,9 @@ export function Columns({
     // Startup protection still owns whether inspection is available. Revealing
     // its card must not invoke its disabled inspection or any launch action.
     if (launches.storyStartupOf(work.source.id, opening.identity) === undefined)
-      setSelectedIdentity(opening.identity);
+      select(opening.identity);
     return stop;
-  }, [opening, work.source.id]);
-  const select = (identity: string) => {
-    setSelectedIdentity((current) =>
-      current === identity ? undefined : identity,
-    );
-  };
+  }, [opening, work.source.id, select]);
   return (
     <>
       <div className="columns">
@@ -166,7 +163,7 @@ export function Columns({
           launches={launches}
           offersStart
           selectedIdentity={selectedIdentity}
-          onSelect={select}
+          onSelect={toggle}
           onOpenRoster={onOpenRoster}
         />
         <Column
@@ -177,7 +174,7 @@ export function Columns({
           launches={launches}
           offersStart={false}
           selectedIdentity={selectedIdentity}
-          onSelect={select}
+          onSelect={toggle}
           onOpenRoster={onOpenRoster}
           unreadableProfiles={work.unreadableProfiles}
         />

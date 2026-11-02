@@ -45,7 +45,9 @@ export function startProofCommand(
         !name.startsWith("PW_") &&
         name !== "OPEN_DOUGH_DASHBOARD_SPLIT" &&
         name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD" &&
-        name !== "OPEN_DOUGH_DASHBOARD_TIMES",
+        name !== "OPEN_DOUGH_DASHBOARD_TIMES" &&
+        name !== "FORCE_COLOR" &&
+        name !== "NO_COLOR",
     ),
   );
   const child = spawnGroupLeader(command, args, {
