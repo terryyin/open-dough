@@ -1,7 +1,8 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`) and the
 // Test Optimization Candidates record, each one Intent reading mode chosen
 // under the banner (`./IntentModeTabs.tsx`, drawn and owned by
-// `./IntentPerspective.tsx`); entering Intent shows the locations. Locations and folders share caret (expansion only) and name
+// `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
+// shows the locations. Locations and folders share caret (expansion only) and name
 // (select; toggle once selected) controls; a caret never changes selection or
 // the reading pane. A file shows Purpose and Proof; a location or folder name
 // shows a Summary (`./IntentSummary.tsx`). The record fills the content area
@@ -19,7 +20,7 @@ import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { intentModePanelId, intentModeTabId } from "./IntentModeTabs.tsx";
-import type { ModeChoice } from "./intentModeChoice.ts";
+import type { ModeChoice } from "./pageIntentMode.tsx";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";

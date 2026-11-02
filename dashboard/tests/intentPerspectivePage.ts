@@ -151,21 +151,29 @@ export async function expectCandidatesRevision(
   ).toHaveCount(1);
 }
 
+type IntentModeName = "Intent" | "Optimization Candidates" | "CI status";
+
 // One of Intent's reading-mode tabs under the banner.
-export function intentModeTab(
-  intent: Locator,
-  name: "Intent" | "Optimization Candidates" | "CI status",
-) {
+export function intentModeTab(intent: Locator, name: IntentModeName) {
   return intent
     .getByRole("tablist", { name: "Intent reading" })
     .getByRole("tab", { name, exact: true });
 }
 
+export async function expectIntentModeChosen(
+  intent: Locator,
+  name: IntentModeName,
+) {
+  await expect(intentModeTab(intent, name)).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+}
+
 // Choose Optimization Candidates: the record fills Intent's content area and
 // the locations browser is gone.
 export async function chooseOptimizationCandidates(intent: Locator) {
-  const tab = intentModeTab(intent, "Optimization Candidates");
-  await tab.click();
-  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await intentModeTab(intent, "Optimization Candidates").click();
+  await expectIntentModeChosen(intent, "Optimization Candidates");
   await expect(intent.locator(".intent-locations")).toBeHidden();
 }

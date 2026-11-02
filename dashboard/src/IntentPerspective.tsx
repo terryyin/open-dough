@@ -6,7 +6,7 @@
 // reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
 // explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
 // on Intent locations, is offered whatever their state. The chosen mode is
-// this perspective's own (`./intentModeChoice.ts`).
+// kept by the page per project (`./pageIntentMode.tsx`).
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -22,8 +22,8 @@ import {
   intentModePanelId,
   intentModeTabId,
 } from "./IntentModeTabs.tsx";
-import { useIntentModeChoice, type ModeChoice } from "./intentModeChoice.ts";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -207,10 +207,7 @@ export function IntentPerspective({
   // Intent reads the page's selected story; the comparison overlay uses this
   // identity once it lands.
   const { selectedIdentity } = useStorySelection(source.id);
-  const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(
-    source.id,
-    work?.revision,
-  );
+  const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(source.id);
   return (
     <main
       className="intent-perspective"
@@ -233,6 +230,7 @@ export function IntentPerspective({
       />
       <IntentCiStatusPanel
         source={source}
+        revision={work?.revision}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
       />

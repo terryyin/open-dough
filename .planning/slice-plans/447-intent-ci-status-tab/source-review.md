@@ -61,11 +61,11 @@ text.
 | S5.2 | Tab shows the judgment for the currently selected story | slice 4 | |
 | S5.3 | A changed selection replaces the shown judgment | slice 4 | |
 | S5.4 | Restriction: a judgment read for an earlier selection is never shown for the new one | slice 4 | |
-| S6.1 | Chosen Intent tab (any of the three) is kept while the page stays on the project | slice 2 | |
-| S6.1a | Kept across Development<->Intent switches | slice 2 | |
-| S6.1b | Kept across new revisions | slice 2 | |
-| S6.2 | A project change starts again on **Intent** | slice 2 | |
-| S6.3 | **Optimization Candidates** reads its record at the new revision when shown after a revision change | slice 2 | |
+| S6.1 | Chosen Intent tab (any of the three) is kept while the page stays on the project | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts "CI status and Optimization Candidates stay chosen across Development and back; …": expectChosen for both tabs |
+| S6.1a | Kept across Development<->Intent switches | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts same test: CI status steps Development→Intent still CI status (Passed at a1b2c3d), Candidates step expectCandidatesRevision |
+| S6.1b | Kept across new revisions | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts "a new trunk revision keeps CI status chosen and reads the trunk's judgment again at the new head": expectChosen after moveTrunk |
+| S6.2 | A project change starts again on **Intent** | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts step "a project change starts again on Intent, and so does returning" |
+| S6.3 | **Optimization Candidates** reads its record at the new revision when shown after a revision change | slice 2 | observed: dashboard/tests/intent-test-optimization-candidates-revision.spec.ts "Optimization Candidates shown across a new revision stays chosen and reads that revision's record" |
 | S7.1a | Judgment is read when the tab is shown | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": judgment calls asserted on showing the tab |
 | S7.1b | Judgment is read when the judged branch changes | slice 4 | |
 | S7.1c | Judgment is read when the page's existing revision check finds that branch's head moved | slice 5 | |
@@ -109,5 +109,5 @@ text.
 | E8a | GitHub rate-limited or runs cannot be listed: tab names branch, says Could not be read with reason | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…": runs listing fails → names main, Could not be read, reason |
 | E8b | Check again retries | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…": Check again then Passed |
 | E9 | Project with no Intent locations: strip still offers CI status beside the not-configured explanation | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status is offered without Intent locations…" step "no Intent locations" |
-| E10a | New trunk revision while CI status shown: tab stays chosen and re-reads trunk judgment | slice 2 | |
-| E10b | Switching project shows Intent | slice 2 | |
+| E10a | New trunk revision while CI status shown: tab stays chosen and re-reads trunk judgment | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts "a new trunk revision keeps CI status chosen…": Failed at e8e8e8e, new checked datetime, commit-list main calls 1→2 |
+| E10b | Switching project shows Intent | slice 2 | observed: dashboard/tests/intent-ci-status-kept.spec.ts step "a project change starts again on Intent…": Doughnut shows Intent selected |

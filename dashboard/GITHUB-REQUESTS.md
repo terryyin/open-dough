@@ -31,7 +31,8 @@ configured intent location, one contents read of each selected feature file
 not already pinned, and, on selecting a location or folder summary, one
 contents read per contained feature file not already pinned; paths outside
 those locations are refused without a contents read. Each time Intent's
-**CI status** tab is shown, and on each **Check again**, the trunk's
+**CI status** tab is shown, each time a new trunk revision is observed
+while it is shown, and on each **Check again**, the trunk's
 judgment costs one listing of the configured ref's commit history (up to 30
 commits) and one listing of the selected workflow's push runs on that ref,
 plus one lookup of the workflow; with a configured `ciAdapter`, only the

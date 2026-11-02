@@ -161,7 +161,7 @@ increment under the failure policy.
 
 ### 2. Keep the chosen Intent tab per project
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-ci-status-kept.spec.ts` (examples 2's return
 and 10); Candidates journeys
 (`intent-test-optimization-candidates*.spec.ts`) green, with one added
@@ -174,6 +174,15 @@ two (CI status re-reads at the new trunk head; Candidates reads its record at
 the new revision); a project change starts on **Intent**. Mode moves to a
 page-level per-project owner beside story selection. Settled premise below:
 no existing journey asserts the reset.
+
+Accepted proof (slice 2, 2026-11-02): `intent-ci-status-kept.spec.ts`
+(keep across Development and back, new trunk revision re-read, project
+change resets; mutation-checked) and
+`intent-test-optimization-candidates-revision.spec.ts` (Candidates at the new
+revision), with every `*intent*` spec, `story-card-selection` and
+`recently-done-sessions-sidebar`: 51 passed after refactor. The owner is
+`dashboard/src/pageIntentMode.tsx` under `PageFrame`; the whole-suite gate
+runs with slice 3's on the final state.
 
 ### 3. One story-branch rule and a branch judgment with shared-commit results
 Type: Structure

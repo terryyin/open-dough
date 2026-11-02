@@ -4,8 +4,9 @@
 // branch, states Passed, Failed, Running or Could not be read (with the
 // reason), the judged revision, later commits without their own result, the
 // run link, a running judgment's nearest completed ancestor, and when it was
-// checked. It is read each time it is shown and again on Check again; a
-// re-read keeps the shown judgment until its answer replaces it. Wording is
+// checked. It is read each time it is shown, again when a new trunk revision
+// is observed while it is shown, and on Check again; a re-read keeps the
+// shown judgment until its answer replaces it. Wording is
 // shared with the launch's base-CI confirmation (`./baseCiWording.ts`).
 
 import { useEffect, useState } from "react";
@@ -93,12 +94,23 @@ function Shown({ judgment }: { readonly judgment: Judgment }) {
 
 export function IntentCiStatus({
   source,
+  revision,
 }: {
   readonly source: PublishedSource;
+  // The page's observed trunk revision, once read.
+  readonly revision: string | undefined;
 }) {
   const [judgment, setJudgment] = useState<Judgment | undefined>(undefined);
   const [reading, setReading] = useState(true);
   const [check, setCheck] = useState(0);
+  // The trunk head this judgment follows: the first revision read only
+  // records it, since the judgment already reads the trunk's head; a later
+  // one re-reads.
+  const [followed, setFollowed] = useState(revision);
+  if (revision !== undefined && revision !== followed) {
+    setFollowed(revision);
+    if (followed !== undefined) setCheck((n) => n + 1);
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -160,10 +172,12 @@ export function IntentCiStatus({
 // The CI status tab's panel, read only while that tab is chosen.
 export function IntentCiStatusPanel({
   source,
+  revision,
   mode,
   modeIdPrefix,
 }: {
   readonly source: PublishedSource;
+  readonly revision: string | undefined;
   readonly mode: IntentMode;
   readonly modeIdPrefix: string;
 }) {
@@ -176,7 +190,9 @@ export function IntentCiStatusPanel({
       hidden={mode !== "ci-status"}
       tabIndex={-1}
     >
-      {mode === "ci-status" ? <IntentCiStatus source={source} /> : null}
+      {mode === "ci-status" ? (
+        <IntentCiStatus source={source} revision={revision} />
+      ) : null}
     </div>
   );
 }

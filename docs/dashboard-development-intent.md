@@ -56,8 +56,9 @@ and it and the reading pane each scroll independently. Directly under the
 banner, a strip of three Intent reading modes, **Intent**, **Optimization
 Candidates** and **CI status**, chooses what that content shows; it belongs
 to Intent and is not another perspective, and arrow keys, Home and End move
-between its tabs. Entering Intent selects **Intent**: the location
-tree, which holds only Purpose locations, beside Purpose and Proof.
+between its tabs. **Intent** shows the location tree, which holds only
+Purpose locations, beside Purpose and Proof; it is the tab a project's Intent
+first shows.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -74,13 +75,16 @@ states **Passed**, **Failed** (including cancelled or timed out),
 SHA and subject, how many later commits have no result of their own, the run
 link when given, while running the nearest completed ancestor, and when it
 was checked; a history with no result is **Could not be read**, never
-passed. It is read each time the tab is shown and again on **Check again**,
-with no timed polling, and it is offered whether Intent locations are
+passed. It is read each time the tab is shown, again when the page's
+revision check observes a new trunk revision while it is shown, and on
+**Check again**, with no timed polling, and it is offered whether Intent locations are
 configured, absent, or unreadable: the strip stands above those
 explanations, which **Intent** and **Optimization Candidates** show when
-there is no location tree. The choice is disposable page
-state, not on the URL; a project change or a new revision starts again on
-**Intent**. A location that is
+there is no location tree. The chosen tab is kept while the page stays on
+the project, across switches to Development and back and across new
+revisions, where **Optimization Candidates** reads the record at the new
+revision; a project change starts again on **Intent**. The choice is
+disposable page state, not on the URL or in storage. A location that is
 missing, holds no `.feature` files, or names an unsupported kind says so
 by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
