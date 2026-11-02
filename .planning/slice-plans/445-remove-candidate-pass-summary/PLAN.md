@@ -40,7 +40,7 @@ same-named remote execution branch. Claim CI is unobserved on trunk.
 
 ### 1. Maintain and read candidates without a pass summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: Candidate journey/boundary specs, dashboard typecheck, representative
 source-guidance behavior review, consumer trace, and an independent refactor.
 
@@ -48,6 +48,26 @@ Behavior: An optimization pass maintains only findings; this project's candidate
 file has the four finding sections, and Intent reads and displays those findings
 without asking for or presenting a pass summary. Historical summaries may be
 ignored when reading existing published records during rollout.
+
+Accepted proof: `npm run test:dashboard -- intent-test-optimization-candidates
+authenticated-read-intent-candidates` exited 0 with 13 tests in five files;
+`npm run typecheck:dashboard` and `git diff --check` passed. Populated and empty
+four-section setup lives in `dashboard/tests/intentCandidatesFixtures.ts`;
+the candidate journeys observe preserved fields, links, case positions, and
+empty/missing/malformed/unreadable states. The historical-record journey in
+`intent-test-optimization-candidates.spec.ts` supplies an old leading summary
+and observes retained finding headings/cost with no summary content.
+
+Source behavior review: profiling writes remaining findings; resolve-only
+preserves dispositions and creates nothing for a missing file; all-`None.`
+remains explicit empty; wrap-up transfers unresolved findings without adding
+metadata. `quick_validate.py src/skills/dough-test-optimization` passed.
+Consumer trace: `/tmp/remove-candidate-pass-summary-consumer-trace.md`, base
+`c8c382761e6d7c305e7c6becec72506744038f13`, with removed summary effect terms;
+all 334 listed consumers have run/reused/excluded dispositions. Generic matches,
+historical records and released installed skill copies do not consume this edit.
+The initial new compatibility assertion omitted the retained title from the
+heading expectation; correcting that assertion produced the passing focused run.
 
 ## Preparation review
 

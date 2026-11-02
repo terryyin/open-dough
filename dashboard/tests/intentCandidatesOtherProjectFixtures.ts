@@ -52,15 +52,6 @@ export const pygardonClipCaseLine = 44;
 
 export const pygardonCandidatesRecord = `# Test Optimization Candidates
 
-## Latest pass
-
-- **Command / scope:** pygardon fixture pass
-- **Revision:** ${pygardon.revision}
-- **Before / after:** unavailable
-- **Outcome:** incomplete measurement
-- **Limits:** fixture only
-- **Evidence:** none
-
 ## Pending candidates
 
 None.
@@ -90,15 +81,6 @@ export const doughnutFeaturePath =
   "e2e_test/features/cli/cli_notebook_lfs.feature";
 
 export const doughnutCandidatesRecord = `# Test Optimization Candidates
-
-## Latest pass
-
-- **Command / scope:** doughnut fixture pass
-- **Revision:** ${doughnut.revision}
-- **Before / after:** unavailable
-- **Outcome:** incomplete measurement
-- **Limits:** fixture only
-- **Evidence:** none
 
 ## Pending candidates
 

@@ -31,10 +31,6 @@ const settings = JSON.stringify({
 });
 const recordText = `# Test Optimization Candidates
 
-## Latest pass
-
-summary
-
 ## Pending candidates
 
 None.

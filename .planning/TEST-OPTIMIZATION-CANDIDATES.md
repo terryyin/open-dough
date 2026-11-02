@@ -1,31 +1,5 @@
 # Test Optimization Candidates
 
-## Latest pass
-
-- **Command / scope:** SEED-208 slice 9, 2026-11-01: normal
-  `npm run test:dashboard` (local default two workers) for reference
-  `e83dfeb3` in a temporary checkout, then the candidate, back to back on the
-  developer's 16-core Mac; strict proof and `.tsv` records outside the repository.
-- **Revision:** reference `e83dfeb3a5cd078fc84cfa9e1d74d79e5cf1f185`; candidate
-  `c727fb2e` plus the slice 9 paging and Codex-model fixes (the later
-  room-spec wait and Codex fixture defaults were proved by focused runs only).
-- **Before / after:** reference 1,831 cases, 0 skipped, 1,701.9s wall,
-  3,228.6 summed test seconds, 1-minute load 4.8–12.4 (mean 7.3), one
-  untouched failure (`recently-done-sessions-sidebar-room.spec.ts:34`).
-  Candidate: 1,827 cases, 0 skipped, strict pass,
-  1,654.4s wall, 3,149.9s summed, load 4.2–10.3 (mean 6.0).
-- **Outcome:** the seven transferred obligations are implemented (SEED-208
-  slices 2–8) and no longer listed. Four fewer cases. Files the story changed
-  went from 199.5 to 172.0 summed seconds; the files it did not change also
-  fell by 51s (1.7%) under the lower load, so the 0.97 wall ratio is not
-  claimed as a speedup.
-- **Limits:** one pair only; the candidate ran under lower load. Retained
-  changes are coverage simplifications; slice 4's phase family is the only
-  focused `--workers=1` reduction measured (38s to 27s wall).
-- **Evidence:** [value/cost assessment](../docs/maintainer/dashboard-test-value-review.md);
-  replacement plan `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`
-  slice Results (run records were local and not retained).
-
 ## Pending candidates
 
 ### launch-records-poll-waits
@@ -129,7 +103,8 @@
   or profile exclusion. Normal verification and CI keep these tests.
 - **Date:** 2026-10-30
 - **Evidence / follow-up:** accepted triage at `03424649`; SEED-177 baseline
-  analysis in the Git-recoverable plan named under Latest pass;
+  analysis in
+  `7732299ae62a72d8a292f6dbfc854eb08e10037d:.planning/slice-plans/413-optimize-dashboard-test-feedback/PLAN.md`;
   [production-policy proof and measurements](../docs/maintainer/production-policy-test-timings.md).
   Plan 413 explicitly excludes thinning these necessary-cost journeys.
 

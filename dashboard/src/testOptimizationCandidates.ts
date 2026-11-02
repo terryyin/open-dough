@@ -1,22 +1,13 @@
 // Parse a published Test Optimization Candidates record for Intent. The
 // format owner is dough-test-optimization's candidate-record reference:
-// exact title, five sections in order, `###` slug entries with labelled
+// exact title, four finding sections in order, `###` slug entries with labelled
 // fields, and `None.` for an empty finding section. Any other shape is
-// mismatched; this shows no partial guess.
+// mismatched; this shows no partial guess. A leading summary in an older
+// published record is ignored.
 
 export { testOptimizationCandidatesPath } from "./testOptimizationCandidatesPath.ts";
 
 const title = "# Test Optimization Candidates";
-
-const sectionHeadings = [
-  "Latest pass",
-  "Pending candidates",
-  "Accepted necessary costs",
-  "Profile-only exclusions",
-  "Transferred obligations",
-] as const;
-
-type SectionHeading = (typeof sectionHeadings)[number];
 
 const findingSections = [
   "Pending candidates",
@@ -68,7 +59,6 @@ export type FindingSection =
   | { readonly kind: "entries"; readonly entries: readonly CandidateEntry[] };
 
 export type TestOptimizationCandidatesRecord = {
-  readonly latestPass: string;
   readonly pending: FindingSection;
   readonly accepted: FindingSection;
   readonly profileOnly: FindingSection;
@@ -86,7 +76,7 @@ export type ParsedTestOptimizationCandidates =
 
 function splitSections(
   text: string,
-): ReadonlyMap<SectionHeading, string> | undefined {
+): ReadonlyMap<FindingHeading, string> | undefined {
   const normalized = text.replace(/\r\n/g, "\n").trimEnd();
   if (!normalized.startsWith(`${title}\n`) && normalized !== title) {
     return undefined;
@@ -94,11 +84,12 @@ function splitSections(
   const body = normalized.slice(title.length).replace(/^\n/, "");
   const headingPattern = /^## (.+)$/gm;
   const matches = [...body.matchAll(headingPattern)];
-  if (matches.length !== sectionHeadings.length) return undefined;
-  const sections = new Map<SectionHeading, string>();
+  if (matches[0]?.[1] === "Latest pass") matches.shift();
+  if (matches.length !== findingSections.length) return undefined;
+  const sections = new Map<FindingHeading, string>();
   for (const [i, match] of matches.entries()) {
     const heading = match[1];
-    const expected = sectionHeadings[i];
+    const expected = findingSections[i];
     if (
       heading === undefined ||
       expected === undefined ||
@@ -185,10 +176,6 @@ export function parseTestOptimizationCandidates(
 ): ParsedTestOptimizationCandidates {
   const sections = splitSections(text);
   if (sections === undefined) return { status: "mismatched" };
-  const latestPass = sections.get("Latest pass");
-  if (latestPass === undefined || latestPass.trim() === "") {
-    return { status: "mismatched" };
-  }
   const findings = {} as Record<FindingHeading, FindingSection>;
   for (const heading of findingSections) {
     const body = sections.get(heading);
@@ -203,7 +190,6 @@ export function parseTestOptimizationCandidates(
     status: "record",
     empty: pending.kind === "none" && accepted.kind === "none",
     record: {
-      latestPass: latestPass.trimEnd(),
       pending,
       accepted,
       profileOnly: findings["Profile-only exclusions"],

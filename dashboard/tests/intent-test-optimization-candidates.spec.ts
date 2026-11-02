@@ -17,7 +17,10 @@ import {
   intentModeTab,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { publishOpenDoughWithCandidates } from "./intentCandidatesFixtures.ts";
+import {
+  openDoughCandidatesRecord,
+  publishOpenDoughWithCandidates,
+} from "./intentCandidatesFixtures.ts";
 import { openDough } from "./intentCodeBrowseFixtures.ts";
 
 const requiredFieldLabels = candidateEntryFields
@@ -123,7 +126,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     ).toContainText("None.");
     await expect(
       record.getByRole("region", { name: "Latest pass" }),
-    ).toContainText("fixture pass for Intent candidates review");
+    ).toHaveCount(0);
   });
 
   await test.step("Evidence Markdown link opens the pinned snapshot; sha:path stays recorded text", async () => {
@@ -177,4 +180,31 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   await chooseOptimizationCandidates(intent);
   await expect(candidatesRecord(intent)).toBeVisible();
   await expect(intentTab).toBeVisible();
+});
+
+test("Intent reads findings from an older record without presenting its pass summary", async ({
+  page,
+}) => {
+  const historicalRecord = openDoughCandidatesRecord.replace(
+    "# Test Optimization Candidates\n",
+    "# Test Optimization Candidates\n\n## Latest pass\n\nHistorical pass measurements.\n",
+  );
+  await publishOpenDoughWithCandidates(page, historicalRecord);
+  await openUntilRead(page, "/?project=open-dough");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+  await chooseOptimizationCandidates(intent);
+
+  const record = candidatesRecord(intent);
+  await expect(record.getByRole("heading", { level: 3 })).toHaveText([
+    "Test Optimization Candidates",
+    "Pending candidates",
+    "Accepted necessary costs",
+    "Profile-only exclusions",
+    "Transferred obligations",
+  ]);
+  await expect(
+    record.getByRole("article", { name: "launch-records-poll-waits" }),
+  ).toContainText("about 60 summed seconds");
+  await expect(record).not.toContainText("Historical pass measurements.");
 });
