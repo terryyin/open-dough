@@ -217,7 +217,7 @@ is hidden does not rearrange the tree until Intent opens or the toggle changes.
 
 ### 6. Review a completed story in Intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: Intent journey on `completedPublishedStory` (example 5). First extend
 `dashboard/tests/committedOrigin.ts` to answer the recursive `git/trees`
 request (`support/ghRequest.ts` kind `tree`) from `git ls-tree -r` at the
@@ -382,6 +382,22 @@ result: pass (57, rerun after refactor); story-review family 135 passed; --repea
   unchecked once Retry produces a comparison.
 - With the toggle on, locations without changes are not rendered.
 
+### Slice 6 accepted proof
+
+```
+command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list --workers=6 dashboard/tests/intent- dashboard/tests/boundary/authenticated-read-intent dashboard/tests/development-intent-frame dashboard/tests/story-card-selection dashboard/tests/story-review dashboard/tests/boundary/story-review dashboard/tests/recently-done- dashboard/tests/side-panel- (and touch/board consumers of the diff)
+covers: example 5; G1 (unrecoverable published comparison explained), G3 (done title), G4 (compared revisions distinct from Intent's published revision)
+observations: intent-story-completed.spec.ts tests 1-2
+result: pass (276); --repeat-each=6 intent-story-c 48 passed
+full gates on final state: npm test passed; whole dashboard suite 1902 passed (29.9m)
+```
+
+- Review's `.story-review-code` carries `aria-busy` while context text reads;
+  diff comparisons wait for `aria-busy="false"` (a 1-in-32 flaky read before).
+- A completed story's published comparison includes its `.planning` records,
+  so its outside count includes them, matching Review changes' list.
+- A shallow project checkout gives a real unavailable published comparison.
+
 ## Story obligations
 
 ### X1. Other Intent comparisons deferred
@@ -417,7 +433,7 @@ Commitment: X5
 ### G1. Unavailable review explanation unobserved
 Reported: slice 4 — "A review answer of unavailable or landing-unavailable shows its own explanation as unavailable with no retry. No test covers this path."
 Story clause: "A story with no comparison Review changes could offer, such as an active story with no recoverable workspace, gets an explanation."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: dashboard/tests/intent-story-completed.spec.ts test 2 — shallow-history completed story shows its own explanation (.intent-story-problem exact text), no Retry, no toggle, no change marks, tree usable
 
 ### G2. Summaries count only published files
 Reported: slice 4 — "Location and folder Summaries still count only published files, so inserted files are not in Summary counts."
@@ -427,12 +443,12 @@ Disposition: no user cost "sees that story's test-file changes in place in the p
 ### G3. Completed story named by identity only
 Reported: slice 4 — "A completed story is named by its identity and read with completed: true. Slice 6 should supply the done record's title and prove it."
 Story clause: "Intent names the selected story"
-Disposition: receiving slice 6
+Disposition: proved by slice 6: dashboard/tests/intent-story-completed.spec.ts both tests — .intent-story-name 'Story Story A SEED-A#a' from the done record title
 
 ### G4. Compared revisions equal Intent's published revision in the fixture
 Reported: slice 4 — "The compared baseline and Intent's published revision are the same commit in this fixture, so the ADR 0008 distinction is shown as two separate elements but not observed with two different values."
 Story clause: "Intent states which revisions it compared."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: dashboard/tests/intent-story-completed.spec.ts test 1 step 'the compared revisions are the published comparison's…' — baseline, completion and advanced published revision all differ and are each shown
 
 ## Concern evidence
 

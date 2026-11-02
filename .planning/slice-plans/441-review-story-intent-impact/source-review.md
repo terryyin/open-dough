@@ -61,7 +61,7 @@ No plan, return, product, or proof supplied.
 | 15.2 | One change-kind/styles implementation | slice 3 | observed: one ChangeKind in reviewFileTree.ts, one style file change-kinds.css |
 | 15.3 | One file-tree implementation | slice 3 | observed: reviewFileTree/FileTree remain the only tree, used by Review and IntentLocationGroup; Intent journeys green |
 | 15.4 | One diff implementation | slice 3 | observed: FileDiff unchanged; storyComparisonShown returns its reviewed/from/tree arguments |
-| 16.1 | Playwright covers key examples with workspace + completed fixtures | slice 6 | |
+| 16.1 | Playwright covers key examples with workspace + completed fixtures | slice 6 | observed: dashboard/tests/intent-story-completed.spec.ts (completed fixture) plus intent-story-changes*.spec.ts (workspace fixture) |
 | 16.2 | Terry evaluation on real Open Dough story | slice 7 | |
 | 16.3 | Apply failing and flaky test policy | slice 1 | observed: AGENTS.md failing/flaky policy applied; focused selection+navigation specs green |
 | 17 | Never present missing/failed comparison or no in-scope changes as empty change set | slice 4 | observed: intent-story-changes-gaps.spec.ts: expectPublishedTreeUsable in no-comparison and failed-read variants |
@@ -69,7 +69,7 @@ No plan, return, product, or proof supplied.
 | E2 | Journey: Selected story only toggle on/off | slice 5 | observed: intent-story-changes-only.spec.ts test 1 and intent-story-changes-moves.spec.ts both toggle states |
 | E3 | Journey: outside-locations count | slice 4 | observed: intent-story-changes.spec.ts and intent-story-changes-moves.spec.ts: outside-count steps |
 | E4 | Journey: product-only / no in-scope message | slice 5 | observed: intent-story-changes-only.spec.ts test 2 (product-only change) |
-| E5 | Journey: completed Recently done + published comparison | slice 6 | |
+| E5 | Journey: completed Recently done + published comparison | slice 6 | observed: dashboard/tests/intent-story-completed.spec.ts test 1 — Recently done card click selects; Intent shows the published comparison, deletion absent from published tree shown removed in both toggle states, diffs equal Review's |
 | E6 | Journey: no comparison explanation; tree usable | slice 4 | observed: intent-story-changes-gaps.spec.ts: no-workspace test then expand, select a.spec.ts, source 'a 11' |
 | E7 | Journey: deselect clears Intent toggle; Start/session do not select | slice 1 | observed: story-card-selection.spec.ts: deselect clears Intent toggle absence; Start/session do not select |
 | E8 | Journey: no selection → folders collapsed | slice 2 | observed: intent-entry-folder-summaries-folders.spec.ts: Ex 8 step with no story selected |

@@ -25,17 +25,17 @@ export const defaultStoryComparison: {
 export function useStoryComparison({
   source,
   identity,
-  completed = false,
-  round = 0,
-  enabled = true,
+  completed,
+  round,
+  enabled,
 }: {
   readonly source: string;
   readonly identity: string;
-  readonly completed?: boolean;
+  readonly completed: boolean;
   // How many times the reader asked for a new read.
-  readonly round?: number;
+  readonly round: number;
   // A disabled comparison reads nothing and shows none.
-  readonly enabled?: boolean;
+  readonly enabled: boolean;
 }): {
   // The review read, which explains a comparison it cannot show.
   readonly review: StoryReview | undefined;

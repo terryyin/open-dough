@@ -63,7 +63,7 @@ export function IntentBrowser({
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
   // The selected story and its comparison, once read.
-  readonly story?: ComparedStory | undefined;
+  readonly story: ComparedStory | undefined;
   // Whether the locations, with their proof, are being read again after a
   // proof read failed; the selection and reader stay as they are.
   readonly proofRereading: boolean;

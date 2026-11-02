@@ -80,7 +80,7 @@ const outsideWords = (count: number) =>
 
 // How many of the story's changed files no Intent location admits, and the
 // way to Review changes, which shows them; nothing when there are none.
-export function StoryOutsideLocations({
+function StoryOutsideLocations({
   source,
   story,
   outside,

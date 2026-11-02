@@ -191,7 +191,7 @@ export function IntentPerspective({
 }) {
   const { selectedIdentity } = useStorySelection(source.id);
   const { story, comparison, compared, retry } = useIntentStoryLens({
-    source: source.id,
+    source,
     work,
     selectedIdentity,
     records,

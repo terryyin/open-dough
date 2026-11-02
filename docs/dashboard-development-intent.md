@@ -74,7 +74,10 @@ With a story selected on the page, Intent names it and the revisions its
 default Review changes comparison runs between, and overlays that
 comparison's changed files on the published tree: each is styled by its
 change kind, added files are inserted, deleted files stay, and a rename sits
-at its new path where a location selects it, else at its old path. Folders
+at its new path where a location selects it, else at its old path. A
+completed story is named by its done record's title and compared through its
+published completion, whose revisions need not be the published revision
+Intent and its Proof describe. Folders
 and locations containing changes share one background; the first time Intent
 has the comparison, those folders and the first changed location open and
 everything else collapses. **Selected story only**, off at first, leaves

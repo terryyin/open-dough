@@ -102,6 +102,7 @@ export function FileDiff({
         <DiffLines
           printed={answer.printed}
           sides={sides}
+          contextReading={textRead.reading}
           {...(sides === undefined && textProblem !== undefined
             ? { textProblem }
             : {})}

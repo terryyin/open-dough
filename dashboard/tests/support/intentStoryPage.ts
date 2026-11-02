@@ -140,6 +140,8 @@ export async function intentDiff(intent: Locator, name: string) {
   await expect(purpose.locator(".intent-story-diff-name")).toHaveText(name);
   const code = purpose.locator(".story-review-code");
   await expect(code).toBeVisible();
+  // Read once its omitted context is known, so the gaps it offers show.
+  await expect(code).toHaveAttribute("aria-busy", "false");
   return code.innerText();
 }
 
@@ -154,6 +156,8 @@ export async function reviewDiff(page: Page, name: string) {
   const diff = review.getByRole("region", { name });
   const code = diff.locator(".story-review-code");
   await expect(code).toBeVisible();
+  // Read once its omitted context is known, so the gaps it offers show.
+  await expect(code).toHaveAttribute("aria-busy", "false");
   return code.innerText();
 }
 
