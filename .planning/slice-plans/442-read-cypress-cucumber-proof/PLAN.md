@@ -213,37 +213,23 @@ row's latest committed observation beside Purpose.
 ## Story obligations
 
 ### G1. Outline row not in published Doughnut proof
-Reported: slice 3 follow-up — Doughnut `1be2689d21` (on main via PR #1651 /
-`6a8a34e967`) publishes `account_control.feature` outline rows with example
-cells; Open Dough `intent-doughnut-cucumber-proof.spec.ts` asserts Intent names
-+ Example cells.
+Reported: slice 3 — "Doughnut 1be2689d21 on main publishes account_control outline rows; Intent regression asserts Example cells."
 Story clause: "A Scenario Outline row is observed: Intent names the outline's Gherkin scenario name and that row's example cells, distinct from other rows."
 Disposition: proved by slice 3: Doughnut e2e_test/proof/20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json on origin/main + intent-doughnut-cucumber-proof.spec.ts outline Intent test
 
 ### G2. Later focused run failure replace vs Doughnut successful-only store
-Reported: slice 3 follow-up — unmet for story example 3: Doughnut
-`maintainScenarioProof` publishes only passed observations and clears failed
-identities (`cucumberProofStore.mjs`); Intent would see Not observed, not Failed.
-Related Taken SEED-220#last-successful-intent-proof. Commitment 12 separately
-observed via coexisting note_creation + account_control proof files.
+Reported: slice 3 — "Doughnut successful-only store clears failed identities; Intent would show Not observed, not Failed (SEED-220 related)."
 Story clause: "A later focused run re-runs only one scenario and it fails. After commit, Intent shows the failure for that scenario and keeps the earlier observation for the other."
 Disposition: return
 Commitment: 38
 
 ### G3. Cannot-record / no-Messages path not exercised against prior Doughnut proof
-Reported: slice 3 follow-up — covered by Doughnut
-`cucumberProofRecorder.test.mjs` (missing Git / write failure silent) and
-`cucumberProofRunner.test.mjs` (hook failures preserve exit; proof scoped);
-prior note_creation proof unchanged and still Intent-readable.
+Reported: slice 3 — "Recorder/runner tests cover silent cannot-record; note_creation proof still Intent-readable."
 Story clause: "A run outside Git, or a spec whose hook failure yields no Messages contribution, leaves prior committed proof unchanged and does not fail Cypress for that reason."
 Disposition: proved by slice 3: cucumberProofRecorder.test.mjs silent missing-Git/write; cucumberProofRunner.test.mjs hook-failure exit preserved; note_creation proof still Intent-readable
 
 ### G4. Retry-assisted pass not in published Doughnut proof
-Reported: slice 3 follow-up — ordinary `common.ts` has no retries; cannot produce
-retry-assisted committed proof without deferred policy change (X5); fixture/unit
-tests already cover attempts>1 mapping. Story verification qualifies coverage
-"where Doughnut's runner can produce them"; key example 5 still names Intent
-retry-assisted pass.
+Reported: slice 3 — "Ordinary common.ts has no retries; cannot publish retry-assisted proof without deferred policy change."
 Story clause: "A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with attempt count, not a clean single-attempt pass."
 Disposition: return
 Commitment: 30, 40
