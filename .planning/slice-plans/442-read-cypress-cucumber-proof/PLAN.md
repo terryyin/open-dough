@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#read-cypress-cucumber-proof
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof).
+**Source review:** [independent source-only commitments](source-review.md)
 
 ## Goal and scope
 
@@ -158,15 +159,82 @@ row's latest committed observation beside Purpose.
   Doughnut `origin/main` (`SEED-096_cucumber-proof` in done catalog;
   `e87c86c692` proof commit; `proof` declared; one committed proof file).
   Slices 1–2 marked done by that landing; continue at slice 3.
-- **2026-11-02 slice 3 learning (uncommitted):** Live Intent on registered
-  project Doughnut at published `6c045cc` shows example 2 for
-  `note_creation.feature` (9 passed, commit `d648487`, This file version) and
-  Not observed for `note_deletion.feature`. No Open Dough reader defect.
-  Landed proof still lacks a second run file, outline `example` cells, and
-  `attempts > 1`; a Doughnut follow-up focused Cypress publish would own
-  those bytes — not obtained in this Open Dough checkout. Playwright
-  regression pins the same committed proof bytes under
-  `dashboard/tests/fixtures/doughnut-cucumber-proof/`.
+- **2026-11-02 slice 3 learning:** Live Intent on registered project Doughnut
+  at published `6c045cc` shows example 2 for `note_creation.feature` (9
+  passed, commit `d648487`, This file version) and Not observed for
+  `note_deletion.feature`. No Open Dough reader defect. Landed proof still
+  lacks a second run file, outline `example` cells, and `attempts > 1`; a
+  Doughnut follow-up focused Cypress publish would own those bytes — not
+  obtained in this Open Dough checkout. Playwright regression pins the same
+  committed proof bytes under `dashboard/tests/fixtures/doughnut-cucumber-proof/`.
+
+## Story obligations
+
+### G1. Outline row not in published Doughnut proof
+Reported: slice 3 — "Landed file has no `example`; outline name + example cells uncovered."
+Story clause: "A Scenario Outline row is observed: Intent names the outline's Gherkin scenario name and that row's example cells, distinct from other rows."
+Disposition: return
+Commitment: 10.3, 29, 39
+
+### G2. Later focused run replacement not published for Doughnut
+Reported: slice 3 — "only one committed proof file; no second published run"
+Story clause: "A later focused run re-runs only one scenario and it fails. After commit, Intent shows the failure for that scenario and keeps the earlier observation for the other."
+Disposition: return
+Commitment: 12, 38
+
+### G3. Cannot-record / no-Messages path not exercised against prior Doughnut proof
+Reported: slice 3 — "record failure / no Messages leaves prior proof — Uncovered — not exercised"
+Story clause: "A run outside Git, or a spec whose hook failure yields no Messages contribution, leaves prior committed proof unchanged and does not fail Cypress for that reason."
+Disposition: return
+Commitment: 24, 42
+
+### G4. Retry-assisted pass not in published Doughnut proof
+Reported: slice 3 — "all `attempts: 1`; retry-assisted pass uncovered"
+Story clause: "A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with attempt count, not a clean single-attempt pass."
+Disposition: return
+Commitment: 30, 40
+
+### X1. CI corroboration deferred
+Reported: slice 3 — "CI corroboration deferred to story 7."
+Story clause: "CI corroboration of Doughnut's local observations (story 7 owns the first comparison policy"
+Disposition: excluded "CI corroboration of Doughnut's local observations (story 7 owns the first comparison policy"
+Commitment: 43
+
+### X2. Folder-level Proof deferred
+Reported: slice 3 — "Folder-level Proof summaries deferred."
+Story clause: "Folder-level Proof summaries (story 9)."
+Disposition: excluded "Folder-level Proof summaries (story 9)."
+Commitment: 44
+
+### X3. Bulky Messages/media as Proof deferred
+Reported: slice 3 — "Bulky Messages and media as Proof deferred."
+Story clause: "Committing Messages ndjson, screenshots, videos, traces or step logs as Proof."
+Disposition: excluded "Committing Messages ndjson, screenshots, videos, traces or step logs as Proof."
+Commitment: 45
+
+### X4. Outside Gherkin location deferred
+Reported: slice 3 — "Outside declared Gherkin location recording deferred."
+Story clause: "Recording features outside the declared Gherkin Intent location, including throwaway specs."
+Disposition: excluded "Recording features outside the declared Gherkin Intent location, including throwaway specs."
+Commitment: 46
+
+### X5. Cypress policy changes deferred
+Reported: slice 3 — "Cypress tags/isolation/retries/CI selection changes deferred."
+Story clause: "Changing Doughnut's Cypress tags, isolation, retries policy, or CI selection."
+Disposition: excluded "Changing Doughnut's Cypress tags, isolation, retries policy, or CI selection."
+Commitment: 47
+
+### X6. Shared recorder / second format deferred
+Reported: slice 3 — "Shared Open Dough Cypress recorder package deferred."
+Story clause: "A shared Open Dough-shipped Cypress recorder package, or teaching Intent a second proof format."
+Disposition: excluded "A shared Open Dough-shipped Cypress recorder package, or teaching Intent a second proof format."
+Commitment: 48
+
+### X7. Non-Cypress Doughnut families deferred
+Reported: slice 3 — "Non-Cypress Doughnut families deferred."
+Story clause: "Vitest, Node, Playwright or other Doughnut non-Cypress families."
+Disposition: excluded "Vitest, Node, Playwright or other Doughnut non-Cypress families."
+Commitment: 49
 
 ## Concern evidence
 
