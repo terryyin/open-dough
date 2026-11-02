@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 - [Show CI status in an Intent tab](seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) — SEED-219#intent-ci-status-tab ([plan](slice-plans/447-intent-ci-status-tab/PLAN.md))
 - [Pass launch-records reads without waiting the poll interval](seeds/SEED-221-launch-records-poll-waits.md#launch-records-poll-waits) — SEED-221#launch-records-poll-waits ([plan](slice-plans/448-launch-records-poll-waits/PLAN.md))
+- [Read Purpose and Proof in tabs or remembered split panels](seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout) — SEED-222#intent-purpose-proof-layout ([plan](slice-plans/449-intent-purpose-proof-layout/PLAN.md))
 
 ## Backlog list
 
-- [Read Purpose and Proof in tabs or remembered split panels](seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout) — SEED-222#intent-purpose-proof-layout
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection

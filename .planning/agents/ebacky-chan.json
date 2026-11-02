@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "identity": "SEED-222#intent-purpose-proof-layout",
+  "mode": "story-branch",
+  "branch": "claude/read-purpose-and-proof-in-tabs-or-remembered-spl",
+  "host": "claude",
+  "model": "opus"
+}
