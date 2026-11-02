@@ -27,9 +27,10 @@ Story Branch Mode entry adds one
 branch head request and one plan read on that branch. Opening Intent for a
 project adds, at the observed revision, one read of `.planning/open-dough.json`
 when that file is not already pinned, plus one recursive Git trees listing per
-configured intent location, and one contents read of each selected feature file
-not already pinned; paths outside those locations are refused without a
-contents read. Only the ref and branch
+configured intent location, one contents read of each selected feature file
+not already pinned, and, on selecting a location or folder summary, one
+contents read per contained feature file not already pinned; paths outside
+those locations are refused without a contents read. Only the ref and branch
 head requests are made on every load: content and history already read at a
 resolved revision or branch head by any dashboard process of this user on this
 machine are not asked again, so a reload, a return to a project, a replaced

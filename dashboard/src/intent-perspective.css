@@ -166,8 +166,25 @@
 }
 
 .intent-summary-path,
-.intent-summary-files {
+.intent-summary-files,
+.intent-summary-progress,
+.intent-summary-scenarios {
   margin: 0 0 var(--space-2);
+}
+
+.intent-summary-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.intent-summary-children > li {
+  margin: 0 0 var(--space-3);
+}
+
+.intent-summary-children .intent-summary-scenarios,
+.intent-summary-children .intent-proof-counts {
+  margin: var(--space-1) 0 0;
 }
 
 /* Narrow, the browser sits above the reading pane and keeps part of the

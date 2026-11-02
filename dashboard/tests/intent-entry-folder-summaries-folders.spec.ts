@@ -14,21 +14,13 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   featuresPath,
   jobsFolder,
-  jobsOtherFeature,
-  jobsOtherPath,
-  packagedFeature,
-  packagedFeaturePath,
   packagedPath,
   publishIntentProject,
   pygardon,
-  pygardonProofFiles,
+  pygardonFeatureSources,
   pygardonSettings,
-  reportsFeature,
-  reportsFeaturePath,
   reportsFolder,
-  stooqFeature,
   stooqPath,
-  topFeature,
   topFeaturePath,
 } from "./intentEntryFolderSummariesFixtures.ts";
 
@@ -36,14 +28,12 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, pygardon, pygardonSettings, {
-    [stooqPath]: stooqFeature,
-    [jobsOtherPath]: jobsOtherFeature,
-    [reportsFeaturePath]: reportsFeature,
-    [topFeaturePath]: topFeature,
-    [packagedFeaturePath]: packagedFeature,
-    ...pygardonProofFiles,
-  });
+  await publishIntentProject(
+    page,
+    pygardon,
+    pygardonSettings,
+    pygardonFeatureSources,
+  );
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
@@ -71,7 +61,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     await expect(summary).toContainText(featuresPath);
   });
 
-  await test.step("unselected folder name selects keeping open state; selected name toggles and keeps selection", async () => {
+  await test.step("unselected folder name selects keeping open state; selected name toggles and keeps selection; E12 count line keeps Not observed", async () => {
     const jobsName = intentFolderName(intent, "jobs");
     await expect(jobsName).toHaveAttribute("aria-pressed", "false");
     await jobsName.click();
@@ -82,6 +72,29 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText(jobsFolder);
     await expect(summary).toContainText("2 files");
+    await expect(
+      summary.getByText("5 scenarios", { exact: true }),
+    ).toBeVisible();
+    await expect(summary).toContainText(
+      "5 scenarios: 2 passed, 3 not observed",
+    );
+    await expect(summary).not.toContainText("validated");
+    const children = summary.getByRole("list", {
+      name: "Summary by folder and file",
+    });
+    await expect(children.locator(":scope > li")).toHaveCount(2);
+    await expect(children.locator(":scope > li").nth(0)).toContainText(
+      "batch.feature",
+    );
+    await expect(children.locator(":scope > li").nth(0)).toContainText(
+      "3 scenarios: 3 not observed",
+    );
+    await expect(children.locator(":scope > li").nth(1)).toContainText(
+      "stooq_refresh.feature",
+    );
+    await expect(children.locator(":scope > li").nth(1)).toContainText(
+      "2 scenarios: 2 passed",
+    );
     await expect(intentLocationName(intent, featuresPath)).toHaveAttribute(
       "aria-pressed",
       "false",

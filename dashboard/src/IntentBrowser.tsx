@@ -165,9 +165,12 @@ export function IntentBrowser({
         (scope === "location" || scope === "folder") &&
         selectedLocation !== undefined ? (
           <IntentSummary
+            key={`${source.id}:${revision}:${selectedPath}`}
             path={selectedPath}
-            fileCount={filesOfSelection(selectedLocation, selection).length}
+            files={filesOfSelection(selectedLocation, selection)}
             location={selectedLocation}
+            source={source}
+            revision={revision}
             proofRereading={proofRereading}
             onProofRetry={onProofRetry}
           />

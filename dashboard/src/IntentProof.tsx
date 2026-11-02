@@ -6,27 +6,20 @@
 // count line summarizes the latest outcomes, scenarios not observed
 // included; it is never a suite verdict. A file with nothing observed yet,
 // a project that records no proof, and proof that could not be read (with
-// retry) each say so differently.
+// retry) each say so differently (`./IntentProofAbsence.tsx`).
 
 import { proofIdentity, type ProofObservation } from "./cucumberProof.ts";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
-import { NotRecorded, ProofProblem } from "./IntentProofProblem.tsx";
+import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
+import {
+  notObserved,
+  outcomeWords,
+  passedAfterRetry,
+  proofScenarioCountLine,
+} from "./proofScenarioCountLine.ts";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
-
-const outcomeWords: Record<ProofObservation["outcome"], string> = {
-  passed: "Passed",
-  failed: "Failed",
-  skipped: "Skipped",
-  pending: "Pending",
-  undefined: "Undefined",
-  ambiguous: "Ambiguous",
-  unknown: "Unknown outcome",
-};
-
-const notObserved = "Not observed";
-const passedAfterRetry = "Passed after retry";
 
 // The outcome a row reads, with a retry-assisted pass named as such.
 function outcomeOf({ outcome, attempts }: ProofObservation): string {
@@ -35,43 +28,6 @@ function outcomeOf({ outcome, attempts }: ProofObservation): string {
   return outcome === "passed"
     ? `${passedAfterRetry} (${tries})`
     : `${outcomeWords[outcome]} (${tries})`;
-}
-
-// The count line's category for a row's latest observation.
-function categoryOf(observation: ProofObservation | undefined): string {
-  if (observation === undefined) return notObserved;
-  if (observation.outcome === "passed" && observation.attempts > 1) {
-    return passedAfterRetry;
-  }
-  return outcomeWords[observation.outcome];
-}
-
-const countOrder = [
-  outcomeWords.passed,
-  passedAfterRetry,
-  outcomeWords.failed,
-  outcomeWords.skipped,
-  outcomeWords.pending,
-  outcomeWords.undefined,
-  outcomeWords.ambiguous,
-  outcomeWords.unknown,
-  notObserved,
-];
-
-function countLine(observed: readonly (ProofObservation | undefined)[]) {
-  const counts = new Map<string, number>();
-  for (const observation of observed) {
-    const category = categoryOf(observation);
-    counts.set(category, (counts.get(category) ?? 0) + 1);
-  }
-  const parts = countOrder.flatMap((category) => {
-    const count = counts.get(category);
-    return count === undefined
-      ? []
-      : [`${String(count)} ${category.toLowerCase()}`];
-  });
-  const total = observed.length;
-  return `${String(total)} ${total === 1 ? "scenario" : "scenarios"}: ${parts.join(", ")}`;
 }
 
 function durationWords(ms: number): string {
@@ -155,7 +111,7 @@ function ProofRows({
             <code>{proof.path}</code>.
           </>
         ) : (
-          countLine(rows.map(({ observation }) => observation))
+          proofScenarioCountLine(rows.map(({ observation }) => observation))
         )}
       </p>
       <table className="intent-proof-rows" aria-label={`${path} proof`}>
@@ -217,12 +173,14 @@ export function IntentProof({
   if (path === "") {
     return <p className="quiet">Select a feature file to see its Proof.</p>;
   }
-  if (proof === undefined) return <NotRecorded kind={kind} />;
-  if ("problem" in proof) {
-    return rereading ? (
-      <p className="quiet">Reading Proof in {proof.path}…</p>
-    ) : (
-      <ProofProblem proof={proof} onRetry={onRetry} />
+  if (proof === undefined || "problem" in proof) {
+    return (
+      <IntentProofAbsence
+        kind={kind}
+        proof={proof}
+        rereading={rereading}
+        onRetry={onRetry}
+      />
     );
   }
   if (text === undefined) {

@@ -160,7 +160,8 @@ the shared caret/name model and preserved reader during caret navigation.
 
 ### 2. Summarize a Gherkin selection's scenarios and Proof
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof (reuse for delivery): `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list --workers=2 dashboard/tests/intent-entry-folder-summaries.spec.ts dashboard/tests/intent-entry-folder-summaries-folders.spec.ts dashboard/tests/intent-entry-folder-summary-explanations.spec.ts dashboard/tests/intent-entry-folder-summary-partial.spec.ts dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts dashboard/tests/intent-selection-reads.spec.ts` → 15 passed after post-change refactor (2026-11-02). Slice 2 source-review commitments observed in `source-review.md`.
 Proof: new journey steps on the Pygardon-like and Doughnut-like fixtures:
 reading progress, scenario totals, the aggregate count line including
 _Not observed_, per-child breakdown, partial scenario and Proof totals while a

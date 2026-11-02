@@ -21,9 +21,22 @@ open. Both controls are keyboard-operable, and a selected location or folder
 reads as pressed. Selecting a file still reads its exact published text with
 line numbers and Gherkin syntax styling at the observed revision. A location or
 folder summary names the selection by path and how many matching files it
-holds; non-Gherkin kinds, undeclared proof, and unusable locations reuse the
-same Proof-absent or location explanations as a file. When the location also
-declares a `proof` directory of committed Cucumber proof (the
+holds. For Gherkin it also reads each contained feature's published text at
+the observed revision (with bounded concurrency and "N of M files read"
+progress), counts scenarios and outline rows from successfully read files,
+and, when the location declares proof, shows one aggregate count line over
+those rows (never-observed counted as _Not observed_) plus a breakdown by
+immediate child in the browser's order. Scenario totals and Proof count lines
+are labelled _Partial_ with contributing-file coverage while any contained
+file is still reading or could not be read, for the selection and each
+affected child; fully read siblings stay complete. An unread file is named
+with a retry that reads only the failed files, and is never counted as
+passed or unobserved. A nonempty selection with no readable files says its
+scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,
+and unusable locations reuse the same Proof-absent or location explanations
+as a file; without declared proof a Gherkin summary still gives the
+statistics it can. When the location also declares a `proof` directory of
+committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
 a selected file's Proof lists the file's scenarios and outline rows in source
 order, each with its latest observation's outcome (retry-assisted passes

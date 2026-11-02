@@ -2,8 +2,11 @@
 // (../src/IntentBrowser.tsx, ../src/IntentSummary.tsx,
 // ../src/IntentLocationGroup.tsx): caret toggles without moving selection;
 // unselected name selects keeping open state; selected name toggles and
-// keeps selection; closed location name selects without opening. Folder
-// controls, keyboard, and caret reader preservation:
+// keeps selection; closed location name selects without opening. Gherkin
+// summaries give scenario totals, aggregate count lines, and child
+// breakdown. Partial coverage, unread retry, and unavailable totals:
+// ./intent-entry-folder-summary-partial.spec.ts. Folder controls, keyboard,
+// and caret reader preservation:
 // ./intent-entry-folder-summaries-folders.spec.ts. Absent-Proof wording:
 // ./intent-entry-folder-summary-explanations.spec.ts. Review changes keeps
 // disclosure-only folders (./story-review-tree*.spec.ts).
@@ -18,35 +21,23 @@ import {
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   featuresPath,
-  jobsOtherFeature,
-  jobsOtherPath,
-  packagedFeature,
-  packagedFeaturePath,
   packagedPath,
   publishIntentProject,
   pygardon,
-  pygardonProofFiles,
+  pygardonFeatureSources,
   pygardonSettings,
-  reportsFeature,
-  reportsFeaturePath,
-  stooqFeature,
-  stooqPath,
-  topFeature,
-  topFeaturePath,
 } from "./intentEntryFolderSummariesFixtures.ts";
 
 test("Intent location caret/name select a summary without opening on first name click", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, pygardon, pygardonSettings, {
-    [stooqPath]: stooqFeature,
-    [jobsOtherPath]: jobsOtherFeature,
-    [reportsFeaturePath]: reportsFeature,
-    [topFeaturePath]: topFeature,
-    [packagedFeaturePath]: packagedFeature,
-    ...pygardonProofFiles,
-  });
+  await publishIntentProject(
+    page,
+    pygardon,
+    pygardonSettings,
+    pygardonFeatureSources,
+  );
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
@@ -116,5 +107,36 @@ test("Intent location caret/name select a summary without opening on first name 
       "false",
     );
     await expect(summary).toContainText(packagedPath);
+  });
+
+  await test.step("Gherkin location summary: scenario total, aggregate count line with Not observed, child breakdown", async () => {
+    await intentLocationName(intent, featuresPath).click();
+    const summary = intent.getByRole("region", { name: "Summary" });
+    await expect(
+      summary.getByText("9 scenarios", { exact: true }),
+    ).toBeVisible();
+    await expect(summary).toContainText(
+      "9 scenarios: 2 passed, 7 not observed",
+    );
+    const children = summary.getByRole("list", {
+      name: "Summary by folder and file",
+    });
+    await expect(children.locator(":scope > li")).toHaveCount(3);
+    await expect(children.locator(":scope > li").nth(0)).toContainText("jobs");
+    await expect(children.locator(":scope > li").nth(0)).toContainText(
+      "5 scenarios: 2 passed, 3 not observed",
+    );
+    await expect(children.locator(":scope > li").nth(1)).toContainText(
+      "reports",
+    );
+    await expect(children.locator(":scope > li").nth(1)).toContainText(
+      "1 scenario: 1 not observed",
+    );
+    await expect(children.locator(":scope > li").nth(2)).toContainText(
+      "disk_space.feature",
+    );
+    await expect(children.locator(":scope > li").nth(2)).toContainText(
+      "3 scenarios: 3 not observed",
+    );
   });
 });

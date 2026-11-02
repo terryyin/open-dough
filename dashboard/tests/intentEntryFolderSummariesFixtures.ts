@@ -62,6 +62,10 @@ export const stooqFeature = `Feature: Stooq refresh
     Given a watchlist
     When I refresh from Stooq
     Then quotes update
+  Scenario: Refresh again
+    Given a watchlist
+    When I refresh again
+    Then quotes stay current
 `;
 
 export const jobsOtherFeature = `Feature: Batch jobs
@@ -69,12 +73,25 @@ export const jobsOtherFeature = `Feature: Batch jobs
     Given pending jobs
     When the batch runs
     Then they finish
+  Scenario: Skip a job
+    Given a skipped job
+    Then it stays skipped
+  Scenario: Archive a job
+    Given a finished job
+    Then it is archived
 `;
 
 export const topFeature = `Feature: Disk space
   Scenario: Report free space
     Given a disk
     Then I see its free space
+  Scenario Outline: Warn when under <limit>
+    Given free space is under <limit>
+    Then I warn
+    Examples:
+      | limit |
+      | 10%   |
+      | 5%    |
 `;
 
 export const reportsFeature = `Feature: Status report
@@ -86,17 +103,24 @@ export const reportsFeature = `Feature: Status report
 const proofFile = (observations: readonly Record<string, unknown>[]) =>
   `${JSON.stringify({ version: 1, observations }, null, 2)}\n`;
 
+const passedObservation = (
+  feature: string,
+  scenario: string,
+  featureText: string,
+) => ({
+  feature,
+  scenario,
+  outcome: "passed",
+  attempts: 1,
+  durationMs: 100,
+  finishedAt: "2026-11-01T10:00:00.000Z",
+  commit: "a1b2c3d4".repeat(5),
+  featureBlob: gitBlobSha(featureText),
+});
+
 const validProofBody = proofFile([
-  {
-    feature: stooqPath,
-    scenario: "Refresh quotes",
-    outcome: "passed",
-    attempts: 1,
-    durationMs: 100,
-    finishedAt: "2026-11-01T10:00:00.000Z",
-    commit: "a1b2c3d4".repeat(5),
-    featureBlob: gitBlobSha(stooqFeature),
-  },
+  passedObservation(stooqPath, "Refresh quotes", stooqFeature),
+  passedObservation(stooqPath, "Refresh again", stooqFeature),
 ]);
 
 export const pygardonProofFiles = {
@@ -125,6 +149,18 @@ export const pygardonSettings = JSON.stringify(
 
 export const doughnutFeaturePath =
   "e2e_test/features/recall/recall_note.feature";
+export const doughnutOtherFeaturePath =
+  "e2e_test/features/recall/other_note.feature";
+export const doughnutFeature = `Feature: Recall a note
+  Scenario: Recall
+    Given a note
+  Scenario: Recall again
+    Given the same note
+`;
+export const doughnutOtherFeature = `Feature: Other note
+  Scenario: Other recall
+    Given another note
+`;
 export const doughnutSettings = JSON.stringify(
   {
     intent: {
@@ -172,3 +208,12 @@ export function publishIntentProject(
     },
   });
 }
+
+export const pygardonFeatureSources = {
+  [stooqPath]: stooqFeature,
+  [jobsOtherPath]: jobsOtherFeature,
+  [reportsFeaturePath]: reportsFeature,
+  [topFeaturePath]: topFeature,
+  [packagedFeaturePath]: packagedFeature,
+  ...pygardonProofFiles,
+};
