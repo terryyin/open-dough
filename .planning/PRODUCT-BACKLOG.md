@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
 - [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof ([plan](slice-plans/442-read-cypress-cucumber-proof/PLAN.md))
-- [Show summaries when selecting Intent entries and folders](seeds/SEED-217-intent-entry-folder-summaries.md#intent-entry-folder-summaries) — SEED-217#intent-entry-folder-summaries ([plan](slice-plans/443-intent-entry-folder-summaries/PLAN.md))
 
 ## Backlog list
 

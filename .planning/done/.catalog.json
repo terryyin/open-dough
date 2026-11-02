@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-217_intent-entry-folder-summaries.json",
+      "identity": "SEED-217#intent-entry-folder-summaries",
+      "completedAt": "2026-11-02T04:05:56.145Z",
+      "blob": "6b0c3b0e7e5cb7b140fd9e9e490d522130c33a69"
+    },
+    {
       "fileName": "SEED-192_review-test-optimization-candidates.json",
       "identity": "SEED-192#review-test-optimization-candidates",
       "completedAt": "2026-11-01T23:25:56.555Z",

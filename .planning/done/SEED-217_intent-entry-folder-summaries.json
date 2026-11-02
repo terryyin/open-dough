@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-217#intent-entry-folder-summaries",
+  "title": "Show summaries when selecting Intent entries and folders",
+  "completedAt": "2026-11-02T04:05:56.145Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "cursor",
+  "model": "auto"
+}
