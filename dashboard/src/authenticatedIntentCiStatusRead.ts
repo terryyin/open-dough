@@ -1,9 +1,9 @@
 // Intent's CI status, read through the local authenticated read boundary
 // (`../server/intentCiStatusRead.ts`) with `intent=ci-status`: the selected
 // check's judgment of one branch, the source's configured ref unless a story
-// branch is named, as the launch's base-CI check judges it, with the branch
-// it belongs to and when it was checked (`./IntentCiStatus.tsx`). The
-// boundary resolves the branch head itself. An answer naming any other
+// branch is named as `judged`, as the launch's base-CI check judges it, with
+// the branch it belongs to and when it was checked (`./IntentCiStatus.tsx`).
+// The boundary resolves the branch head itself. An answer naming any other
 // branch than the one asked is refused, never shown.
 
 import { z } from "zod";
@@ -32,7 +32,7 @@ export async function readIntentCiStatus(
 ): Promise<IntentCiStatus> {
   const reading = readingCiStatusOf(branch, source.repository);
   const named =
-    branch === source.ref ? "" : `&branch=${encodeURIComponent(branch)}`;
+    branch === source.ref ? "" : `&judged=${encodeURIComponent(branch)}`;
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}&intent=ci-status${named}`,
     reading,

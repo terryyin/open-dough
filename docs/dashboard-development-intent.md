@@ -107,9 +107,15 @@ single agent profile records in Story Branch Mode. It is judged by the same
 rule as the
 [base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md): the
 newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at the
-branch head or its nearest ancestor that has one; for a story branch, a run
-on the trunk for a commit in the branch's history counts as that commit's
-result, and the run's branch is named (for example "run on `main`"). A
+branch head or its nearest ancestor that has one. For a story branch, the
+selected check's results on the trunk are read too (the `ciWorkflow`'s push
+runs on the trunk, or the `ciAdapter`'s discover for the trunk): a trunk
+result for a commit in the branch's history counts as that commit's result,
+and the run's branch is named (for example "run on `main`"); a trunk result
+for a commit not in its history never counts. The nearest commit with a
+result decides, by its newest result, so a nearer or newer failed or running
+result still decides, and a trunk read that fails leaves the judgment **Could
+not be read**. A
 selected story with no published story branch (queued or being prepared,
 Trunk Mode, or Recently done) is named with that explanation; one whose agent
 profiles cannot be read, or that more than one profile names, says its branch
@@ -123,8 +129,10 @@ states **Passed**, **Failed** (including cancelled or timed out),
 SHA and subject, how many later commits have no result of their own, the run
 link when given, while running the nearest completed ancestor, and when it
 was checked; a history with no result is **Could not be read**, never
-passed. It is read each time the tab is shown, when the judged branch
-changes, again when the page's
+passed, and so is a trunk whose history GitHub answers `404` for, with
+GitHub's reason: only a story branch is called no longer published. It is
+read each time the tab is shown, when the judged branch changes, again when
+the page's
 revision check finds the judged branch's head moved while it is shown (a new
 trunk revision, or a new head of a story branch it watches because the story's
 progress is read there; a story branch without a counted plan is not watched

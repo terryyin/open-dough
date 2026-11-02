@@ -1,6 +1,7 @@
 // The GitHub reads of a branch CI judgment (`./baseCiJudgment.ts`): a failed
 // acquisition as an unread judgment that says why, and the judged branch's
-// commit history, marked unpublished when GitHub has no branch of that name.
+// commit history, marked unpublished when GitHub has no story branch of that
+// name.
 import {
   GitHubAcquisitionFailed,
   GitHubAcquisitionHeld,
@@ -37,7 +38,10 @@ function isNotFound(error: unknown): error is GitHubAcquisitionFailed {
 }
 
 // The branch's history, newest first; an unread judgment when it could not
-// be listed, marked unpublished when GitHub has no branch of that name.
+// be listed, marked unpublished when GitHub has no story branch of that
+// name. The configured ref is never unpublished: GitHub answers the same
+// `404` for a repository it does not have or cannot show, so the trunk's
+// `404` is unread with GitHub's reason.
 export async function readBranchHistory(
   source: PublishedSource,
   branch: string,
@@ -55,7 +59,7 @@ export async function readBranchHistory(
       return unread(`No commit history was returned for ${branch}`);
     return commits;
   } catch (error) {
-    if (isNotFound(error))
+    if (branch !== source.ref && isNotFound(error))
       return { ...unread(error.message), unpublished: true };
     return githubAcquisitionUnread(
       error,

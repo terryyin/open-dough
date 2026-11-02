@@ -27,8 +27,8 @@ export type BaseCiJudgment =
       readonly reason?: string;
       readonly runUrl?: string;
       readonly runBranch?: string;
-      // GitHub has no published branch of the judged name (its history
-      // listing answered `404`).
+      // GitHub has no published story branch of the judged name (its
+      // history listing answered `404`); never the configured ref.
       readonly unpublished?: true;
     };
 

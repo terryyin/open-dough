@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-219#ci-status-review-corrections",
+  "title": "Keep CI status unread failures readable and its read contract plain",
+  "completedAt": "2026-11-02T16:13:56.017Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "claude",
+  "model": "opus"
+}
