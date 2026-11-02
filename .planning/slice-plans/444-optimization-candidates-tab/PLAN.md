@@ -92,6 +92,15 @@ Candidates again → report focused on that entry. Update
 [Development and Intent](../../../docs/dashboard-development-intent.md) for the
 tab strip, Intent default, and removal of the locations-column control.
 
+## Execution complete
+
+Product advice: no change to the queued product direction. The delivered tab
+strip meets every source commitment. Hypothesis for wrap-up: a check that
+refuses case-insensitively colliding file names under `dashboard/src` would
+keep macOS-only lint failures, like the `launchSessionPolicy.ts` /
+`LaunchSessionPolicy.tsx` collision repaired here, from recurring unseen by
+Linux CI.
+
 ## Concern evidence
 
 Refinement: not needed; one Behavior owns one proof loop, the domain rule is
