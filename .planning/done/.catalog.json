@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_read-cypress-cucumber-proof.json",
+      "identity": "SEED-192#read-cypress-cucumber-proof",
+      "completedAt": "2026-11-02T07:38:07.013Z",
+      "blob": "3d97543726631158fb11b07d13cdc9485e7b13b2"
+    },
+    {
       "fileName": "SEED-220_last-successful-intent-proof.json",
       "identity": "SEED-220#last-successful-intent-proof",
       "completedAt": "2026-11-02T05:29:10.308Z",
