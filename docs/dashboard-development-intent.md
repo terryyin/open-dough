@@ -88,6 +88,9 @@ are counted with a way to Review changes. A changed file's Purpose is Review
 changes' diff of it, and its Proof says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while
 the published tree stays usable; deselecting the story removes the lens.
+The story is a lens on Intent, not a separate definition of it, and its
+changed files are an initial view of its impact: they do not by themselves
+establish every affected behavior or the regression proof it needs.
 Structure and Purpose/Proof layout switching are not offered yet. The perspective is disposable
 presentation state on the URL (`perspective=intent`), independent of
 Development's stories/roster view, which Intent keeps to return to. Choosing

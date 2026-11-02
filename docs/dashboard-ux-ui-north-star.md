@@ -135,23 +135,6 @@ merely because some children have results. Mockups use real files and observed
 results, or show that a result is unavailable, rather than fabricating values.
 Collection, storage, revision matching, and exact aggregation rules remain open.
 
-### Story-scoped Intent
-
-Allow Intent to show the whole project or be scoped to a selected story,
-including a completed story, so readers can inspect its impact on tests. Reuse
-available source comparisons to show changed files and their changes, alongside
-applicable proof. State the compared revisions and the scope of each result.
-
-File changes provide an initial view of observed impact; they do not by
-themselves establish every affected behavior or all required regression proof.
-Intent remains the maintained view of the product beyond the story's lifetime.
-The story scope is a lens on that view, not a separate definition of Intent.
-
-The [product intent review memorandum](product-intent-review-memorandum.md)
-records the longer-term roles of tests, domain models and types, and
-specifications, together with the current focus on reviewing the intent
-distilled from a newly developed story.
-
 ## Questions the Development perspective should answer
 
 The current dashboard answers these questions through stories and their
