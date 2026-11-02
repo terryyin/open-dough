@@ -112,7 +112,7 @@ reload.
 
 ### 3. Re-profile local dashboard feedback
 Type: Structure
-Status: planned
+Status: done
 Proof: normal `npm run test:dashboard` on the final state under comparable load
 against a reference run of the starting revision, with cases, wall and summed
 test seconds recorded; record the outcome (measured gain, no demonstrated gain,
@@ -127,9 +127,16 @@ transferred `launch-records-poll-waits` obligation.
 
 - Retain a slice only with a measured focused gain; summed or fewer seconds
   alone do not count.
+- Slices 1 and 2 are retained: each has a measured focused gain of about one
+  poll interval per removed wait, with every assertion kept. The candidate
+  record has no pending or transferred entry left for this family.
 
 ## Learnings
 
+- A full local `test:dashboard` run waits for repository-wide admission
+  behind other worktrees' suites, so compare Playwright's reported run time,
+  not shell wall. A `--reporter` override drops the proof-record reporter;
+  leave reporters to the config when per-test records are needed.
 - Under a paused page clock, xterm writes and draws only as page time
   advances. Advancing page time partially before a `passOnePace` breaks that
   helper's "no read before the pace" check, because the page schedules its
@@ -171,3 +178,23 @@ transferred `launch-records-poll-waits` obligation.
   Result: three consecutive passes at load 12.6–13.3 (above the baseline's),
   with the case at 6.4s, 7.0s and 6.1s against the 36.1–36.2s baseline.
   `npm run typecheck:dashboard` exited 0.
+- **Slice 3 (local dashboard re-profile).** Command: normal
+  `npm run --silent test:dashboard -- --reporter=dot` with 2 local workers,
+  run back to back. The reference was the starting revision `4c7e5995` in a
+  temporary detached worktree; the candidate was `126dbf58` in the execution
+  checkout. Result: both runs exited 0 with 1,898 passed and 0 failed.
+  Playwright-reported run time was 31.3 min for the reference and 29.6 min for
+  the candidate, 1.7 min (about 5%) less, with the same cases. Shell wall
+  times were 2,063s and 4,068s. The candidate's shell wall includes about
+  38 min spent waiting for local-suite admission
+  (`scripts/local-test-suite.mjs` admits one full local suite per repository)
+  while other worktrees' suites ran, so only Playwright's time is comparable.
+  Load (1-minute, sampled every 30s over each shell wall) averaged 10.7
+  (4.6–29.6) for the reference and 7.4 (3.9–13.2) for the candidate.
+  Limits: the per-test proof record was not written, because the `dot`
+  reporter override replaced the config's proof-record reporter, so the
+  focused per-case timings are the per-test evidence. The suite-level
+  difference is consistent with the about 60 summed seconds removed at
+  2 workers, but at this load it is not separable from run-to-run noise.
+  Outcome: measured focused gain (about 15s per race and about 30s for the
+  attention journey); the suite-level gain is small and inconclusive.
