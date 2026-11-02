@@ -233,7 +233,7 @@ does for a workspace.
 
 ### 7. Terry evaluates a real story
 Type: Behavior
-Status: planned
+Status: done
 Proof: developer-operated observation of the running dashboard on Open Dough.
 Terry selects a real Taken or recently completed story with test changes,
 reviews it in Intent in both toggle states, and compares this with Review
@@ -397,6 +397,31 @@ full gates on final state: npm test passed; whole dashboard suite 1902 passed (2
 - A completed story's published comparison includes its `.planning` records,
   so its outside count includes them, matching Review changes' list.
 - A shallow project checkout gives a real unavailable published comparison.
+
+### Slice 7 evaluation (delegated by Terry)
+
+On 2026-11-02 Terry asked the agent to do the evaluation ("you do the
+evaluation"). The agent drove this branch's dev dashboard
+(`npm run dev:dashboard`, `http://127.0.0.1:43127/`, at `5a1ecb5f`) on the real
+Open Dough project with headless Playwright, using the Intent locations
+`dashboard/tests` (`**/*.spec.ts`), `tests` (`*.sh`) and `src/skills`
+(`**/*.test.mjs`). Intent's published revision was `19387d9`.
+
+| Story | Compared | Seen |
+| --- | --- | --- |
+| SEED-192#review-story-intent-impact (Taken) | `9470bb4` with worktree at `5a1ecb5`, uncommitted included | 15 changed specs (10 modified, 5 added) styled by kind; `dashboard/tests` and `boundary` open; 49 outside; "Selected story only" leaves the 15; Modified `boundary/story-review-folders.spec.ts` diff equals Review changes' |
+| SEED-221#launch-records-poll-waits (done) | `14ea8f5` with completion `08e47d3` | 2 modified specs, 8 outside, diff equals Review's |
+| SEED-192#read-cypress-cucumber-proof (done) | `7ab3987` with the landed run's tree `be0ecd2` | 1 added spec, 13 outside, diff equals Review's |
+| SEED-220#last-successful-intent-proof (done) | `efef603` with completion `67af028` | 6 specs (5 modified, 1 added), 21 outside, diff equals Review's |
+| SEED-223#deliberate-intent-proof (done) | none | Explains that merge resolutions prevent safe attribution; no toggle, no marks, tree usable |
+
+Judgment: useful. Compared with Review changes plus an editor, Intent places
+the story's test changes among their neighbouring tests at the published
+revision and opens the same diff without leaving the test tree, and an
+unattributable history is explained rather than shown as no change. In a large
+folder the whole-tree view lists many unchanged specs before the changed ones,
+so "Selected story only" is the faster reading mode; the whole tree gives
+context. No discrepancy changes the plan.
 
 ## Story obligations
 

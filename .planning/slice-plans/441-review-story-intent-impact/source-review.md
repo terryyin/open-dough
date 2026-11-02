@@ -10,7 +10,7 @@ No plan, return, product, or proof supplied.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Developer selects a story on the Development board and, in Intent, sees that story's test-file changes in place in the project's test source | slice 4 | observed: intent-story-changes.spec.ts: card-area click selects a Taken workspace story; Intent shows its test changes over the published tree |
-| 2 | Intent connects to the near-future question about a story without whole-product entry cost; Terry evaluates vs Review changes plus editor (ADR 0010) | slice 7 | |
+| 2 | Intent connects to the near-future question about a story without whole-product entry cost; Terry evaluates vs Review changes plus editor (ADR 0010) | slice 7 | observed: PLAN.md 'Slice 7 evaluation (delegated by Terry)' — five real Open Dough stories in Intent vs Review changes; judged useful |
 | 3.1 | Clicking empty area of active story card selects it exactly as Inspect story, showing detail | slice 1 | observed: story-card-selection.spec.ts: empty-area click → story-card-selected + Detail region + Hide detail |
 | 3.2 | Clicking selected card empty area again deselects | slice 1 | observed: story-card-selection.spec.ts: second empty-area click clears selection; Inspect restored |
 | 3.3 | Hide detail deselects | slice 1 | observed: story-card-selection.spec.ts: Hide detail click clears selection; Inspect restored |
@@ -62,7 +62,7 @@ No plan, return, product, or proof supplied.
 | 15.3 | One file-tree implementation | slice 3 | observed: reviewFileTree/FileTree remain the only tree, used by Review and IntentLocationGroup; Intent journeys green |
 | 15.4 | One diff implementation | slice 3 | observed: FileDiff unchanged; storyComparisonShown returns its reviewed/from/tree arguments |
 | 16.1 | Playwright covers key examples with workspace + completed fixtures | slice 6 | observed: dashboard/tests/intent-story-completed.spec.ts (completed fixture) plus intent-story-changes*.spec.ts (workspace fixture) |
-| 16.2 | Terry evaluation on real Open Dough story | slice 7 | |
+| 16.2 | Terry evaluation on real Open Dough story | slice 7 | observed: PLAN.md 'Slice 7 evaluation (delegated by Terry)' — Terry delegated the evaluation to the agent on 2026-11-02 ("you do the evaluation") |
 | 16.3 | Apply failing and flaky test policy | slice 1 | observed: AGENTS.md failing/flaky policy applied; focused selection+navigation specs green |
 | 17 | Never present missing/failed comparison or no in-scope changes as empty change set | slice 4 | observed: intent-story-changes-gaps.spec.ts: expectPublishedTreeUsable in no-comparison and failed-read variants |
 | E1 | Journey: Taken workspace story select + Intent highlight/diff | slice 4 | observed: intent-story-changes.spec.ts: whole journey |
