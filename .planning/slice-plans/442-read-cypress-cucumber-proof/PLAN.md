@@ -107,44 +107,39 @@ equivalent), with SUT prerequisites the existing runner already requires.
 
 ### 1. Map Cypress Cucumber Messages to compact proof
 Type: Structure
-Status: planned
-Proof: Doughnut unit tests feed synthetic Messages envelopes (plain scenario,
-outline row cells, `willBeRetried` then final attempt, feature outside the
-configured location, no-Git / unwritable destination) and assert compact JSON
-matching the Cucumber proof reference; a failing scenario's run exit meaning is
-unchanged when the mapper throws (caught / best-effort).
+Status: done
+Proof: Satisfied outside this checkout by Doughnut SEED-096#cucumber-proof
+(`e87c86c692` and close `09e6779e24` on Doughnut `origin/main`): Doughnut-owned
+Messages→compact mapper/recorder under `e2e_test/config/cucumberProof*.mjs`
+with focused Node tests. Developer authorized (2026-11-02) not to reimplement
+here.
 
-Internal change: Add a Doughnut-owned pure Messages→observations mapper and
-atomic run-file writer beside the e2e config, modeled on Pygardon's field rules
-but independent of Cucumber.js plugin loading. No Cypress wiring yet.
-Enables slice 2.
+Internal change: none in Open Dough.
 
 ### 2. Record compact proof from ordinary Doughnut Cypress runs
 Type: Behavior
-Status: planned
-Proof: Early probe — enable Messages for the recorder's use (gitignored side
-file, not Proof); register an `after:run` handler after
-`addCucumberPreprocessorPlugin` so it runs after Messages flush; declare
-`proof` on `e2e_test/features` in `.planning/open-dough.json`. Run one focused
-Cypress selection twice (recorder off vs on): exit codes and non-proof
-diagnostics match; with recorder on, exactly one new compact proof file lists
-only the observed identities. If live Messages lack fields the mapper needs,
-or recording changes exit/diagnostics, stop and revise the plan before slice 3.
+Status: done
+Proof: Satisfied by the same Doughnut landing: `.planning/open-dough.json`
+declares `proof: "e2e_test/proof"` on `e2e_test/features`; committed run file
+`e2e_test/proof/20261102T030305438Z-d4182692-ae90-4ae0-981d-a993fec40c59.json`
+(9 passed observations for `note_creation.feature`). Developer authorized
+resume at slice 3 only.
 
-Behavior: Doughnut's ordinary feature-running Cypress profiles record compact
-proof for in-scope finished scenarios without changing runner meaning.
+Behavior: Doughnut ordinary Cypress profiles record compact proof (owned by
+SEED-096).
 
 ### 3. Intent shows Doughnut's latest Cypress-Cucumber observations
 Type: Behavior
 Status: planned
-Proof: Commit real recorder output from slice 2 (or a follow-up focused run that
-includes an outline row and, when Cypress retries are available in that
-selection, a retry-assisted pass). At that published Doughnut revision, Intent
-shows examples 2–5 (and 7 if exercised). Prefer the live Doughnut project in
-the dashboard; an Open Dough Playwright fixture may pin the same committed
-proof bytes only as a regression guard, not as a substitute for the first live
-read. Terry's usefulness judgment vs Cypress output + editor closes the story
-evaluation.
+Proof: At published Doughnut revision carrying that proof (at least
+`e87c86c692` / current `origin/main`), Intent shows examples 2–5 (and 7 if
+exercised). Prefer the live Doughnut project in the dashboard; an Open Dough
+Playwright fixture may pin the same committed proof bytes only as a regression
+guard, not as a substitute for the first live read. Landed SEED-096 proof today
+covers plain passed scenarios on one feature (example 2 path); outline rows and
+retry-assisted passes are not in that committed file — obtain them via a
+Doughnut follow-up focused run if still required, or record the gap. Terry's
+usefulness judgment vs Cypress output + editor closes the story evaluation.
 
 Behavior: Selecting a Doughnut feature in Intent shows each scenario/outline
 row's latest committed observation beside Purpose.
@@ -156,13 +151,22 @@ row's latest committed observation beside Purpose.
   separate post-`cy:run` script so ordinary profiles cannot skip recording.
 - Do not ship a Cypress recorder from Open Dough in this story.
 - **2026-11-02 developer choice:** Do not implement Doughnut slices 1–2 in this
-  Open Dough execution. Doughnut SEED-096#cucumber-proof (Honoka-chan /
-  `codex/cucumber-proof`) already owns that recorder. Wait until that work
-  lands on Doughnut `origin/main` with committed compact proof Intent can
-  read, then resume this plan at slice 3 only. Checked 2026-11-02: SEED-096
-  admission is on main (`e90f3032a9`); recorder and `proof` declaration are
-  not landed yet (worktree still has uncommitted files; both SEED-096 slices
-  planned).
+  Open Dough execution. Doughnut SEED-096#cucumber-proof owns that recorder.
+  Wait until it lands on Doughnut `origin/main` with committed compact proof,
+  then resume at slice 3 only.
+- **2026-11-02 resume:** Developer reported SEED-096 ready. Confirmed closed on
+  Doughnut `origin/main` (`SEED-096_cucumber-proof` in done catalog;
+  `e87c86c692` proof commit; `proof` declared; one committed proof file).
+  Slices 1–2 marked done by that landing; continue at slice 3.
+- **2026-11-02 slice 3 learning (uncommitted):** Live Intent on registered
+  project Doughnut at published `6c045cc` shows example 2 for
+  `note_creation.feature` (9 passed, commit `d648487`, This file version) and
+  Not observed for `note_deletion.feature`. No Open Dough reader defect.
+  Landed proof still lacks a second run file, outline `example` cells, and
+  `attempts > 1`; a Doughnut follow-up focused Cypress publish would own
+  those bytes — not obtained in this Open Dough checkout. Playwright
+  regression pins the same committed proof bytes under
+  `dashboard/tests/fixtures/doughnut-cucumber-proof/`.
 
 ## Concern evidence
 
