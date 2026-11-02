@@ -1,5 +1,6 @@
 /* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
-   Purpose locations beside source and Proof. The perspective choice already
+   a reading-mode strip over Purpose locations beside source and Proof, or
+   over the candidates record. The perspective choice already
    names the page, so it shows no heading of its own. Below the banner the
    page itself does not scroll: the location browser runs the full remaining
    height against the page's left edge, and it and the reading pane each
@@ -60,12 +61,56 @@
   margin-left: var(--space-1);
 }
 
+/* Intent's reading modes (./IntentModeTabs.tsx): one segmented strip under
+   the banner, its group drawn with the banner's Perspective choice
+   (./project-select.css), the selected mode filled in the accent. */
+.intent-mode-bar {
+  flex: none;
+  display: flex;
+  padding: 0 clamp(0.75rem, 4vw, 1.5rem) var(--space-2);
+}
+
+.intent-mode-tab {
+  box-sizing: border-box;
+  min-height: calc(var(--control-size) - 8px);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.intent-mode-tab:hover {
+  background: var(--hover);
+}
+
+.intent-mode-tab[aria-selected="true"] {
+  background: var(--accent);
+  box-shadow: var(--shadow-1);
+  color: var(--raised-surface);
+}
+
+@media (any-pointer: coarse) {
+  .intent-mode-tab {
+    min-height: var(--control-size);
+  }
+}
+
 .intent-browser {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
   border-top: 1px solid var(--line);
+}
+
+.intent-browser[hidden] {
+  display: none;
 }
 
 .intent-locations,

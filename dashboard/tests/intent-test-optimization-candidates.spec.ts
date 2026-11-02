@@ -1,14 +1,20 @@
 // Intent reads the published Test Optimization Candidates record at the
-// observed revision (../src/IntentCandidatesRecord.tsx): labelled Pending
-// and Accepted groups with every recorded field (example 1).
+// observed revision (../src/IntentCandidatesRecord.tsx) on its own
+// Optimization Candidates tab (../src/IntentModeTabs.tsx): entering Intent
+// shows the Intent tab with locations, Purpose and Proof; the record shows
+// labelled Pending and Accepted groups with every recorded field (example 1)
+// across the content area without the locations.
 
 import { candidateEntryFields } from "../src/testOptimizationCandidates.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  chooseOptimizationCandidates,
   expandIntentGroup,
   expectCandidatesRevision,
+  intentGroupToggle,
+  intentModeTab,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishOpenDoughWithCandidates } from "./intentCandidatesFixtures.ts";
@@ -19,7 +25,7 @@ const requiredFieldLabels = candidateEntryFields
   .map((field) => field.label);
 const allFieldLabels = candidateEntryFields.map((field) => field.label);
 
-test("Intent shows Pending and Accepted candidate groups with every recorded field and resolves evidence links at the named revision", async ({
+test("Intent opens on its Intent tab; Optimization Candidates shows Pending and Accepted groups with every recorded field without the locations and resolves evidence links at the named revision", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -30,11 +36,42 @@ test("Intent shows Pending and Accepted candidate groups with every recorded fie
   await intentChoice.click();
 
   const record = candidatesRecord(intent);
-  const candidatesControl = intent.getByRole("button", {
-    name: "Test Optimization Candidates",
+  const intentTab = intentModeTab(intent, "Intent");
+  const candidatesTab = intentModeTab(intent, "Optimization Candidates");
+  const locations = intent.locator(".intent-locations");
+
+  await test.step("entering Intent selects the Intent tab: locations, Purpose and Proof, no locations-column candidates control", async () => {
+    await expect(intent.getByRole("tab")).toHaveText([
+      "Intent",
+      "Optimization Candidates",
+    ]);
+    await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
+    await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();
+    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
+      "Select a feature file to read its Purpose.",
+    );
+    await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
+      "Select a feature file to see its Proof.",
+    );
+    await expect(
+      intent.getByRole("button", { name: "Test Optimization Candidates" }),
+    ).toHaveCount(0);
+    await expect(record).toHaveCount(0);
   });
-  await expect(candidatesControl).toHaveAttribute("aria-pressed", "true");
+
+  await chooseOptimizationCandidates(intent);
+  await expect(intentTab).toHaveAttribute("aria-selected", "false");
+  await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(0);
   await expectCandidatesRevision(intent, openDough.revision);
+  const [content, report] = await Promise.all([
+    intent.boundingBox(),
+    intent
+      .getByRole("tabpanel", { name: "Optimization Candidates" })
+      .boundingBox(),
+  ]);
+  expect(report?.x, "the record starts at Intent's left edge").toBe(content?.x);
+  expect(report?.width, "the record spans Intent's width").toBe(content?.width);
 
   await test.step("Ex 1: pending and accepted groups, slugs, and every recorded field in record order", async () => {
     const pending = record.getByRole("region", {
@@ -104,7 +141,10 @@ test("Intent shows Pending and Accepted candidate groups with every recorded fie
     );
   });
 
-  await test.step("Location tree stays usable beside the record; control is keyboard-operable", async () => {
+  await test.step("Intent tab brings back the locations with Purpose and Proof; the tabs are keyboard-operable", async () => {
+    await intentTab.click();
+    await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await expect(record).toBeHidden();
     await expandIntentGroup(intent, "dashboard/tests");
     await intent
       .getByRole("button", {
@@ -115,15 +155,26 @@ test("Intent shows Pending and Accepted candidate groups with every recorded fie
     await expect(
       intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
     ).toContainText('test("browses"');
-    await candidatesControl.focus();
-    await expect(candidatesControl).toBeFocused();
-    await page.keyboard.press("Enter");
+    await expect(intent.getByRole("region", { name: "Proof" })).toBeVisible();
+
+    await intentTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(candidatesTab).toBeFocused();
+    await expect(candidatesTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesRecord(intent)).toContainText(
       "launch-records-poll-waits",
     );
+    await expect(locations).toBeHidden();
+    await page.keyboard.press("ArrowLeft");
+    await expect(intentTab).toBeFocused();
+    await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await expect(
+      intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
+    ).toBeVisible();
   });
 
   await page.setViewportSize({ width: 420, height: 800 });
+  await chooseOptimizationCandidates(intent);
   await expect(candidatesRecord(intent)).toBeVisible();
-  await expect(candidatesControl).toBeVisible();
+  await expect(intentTab).toBeVisible();
 });

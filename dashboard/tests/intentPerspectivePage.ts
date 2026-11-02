@@ -3,7 +3,8 @@
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
 // expand helpers for the locations column, how many Intent locations reads
 // the page asks, Intent's not-configured content when the project publishes
-// no intent locations, and the Test Optimization Candidates record view.
+// no intent locations, Intent's reading-mode tabs (../src/IntentModeTabs.tsx)
+// and the Test Optimization Candidates record they show.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -134,4 +135,23 @@ export async function expectCandidatesRevision(
   await expect(
     record.locator("code").filter({ hasText: revision }),
   ).toHaveCount(1);
+}
+
+// One of Intent's reading-mode tabs under the banner.
+export function intentModeTab(
+  intent: Locator,
+  name: "Intent" | "Optimization Candidates",
+) {
+  return intent
+    .getByRole("tablist", { name: "Intent reading" })
+    .getByRole("tab", { name, exact: true });
+}
+
+// Choose Optimization Candidates: the record fills Intent's content area and
+// the locations browser is gone.
+export async function chooseOptimizationCandidates(intent: Locator) {
+  const tab = intentModeTab(intent, "Optimization Candidates");
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(intent.locator(".intent-locations")).toBeHidden();
 }

@@ -1,12 +1,15 @@
-// Intent opens recorded test locations from a candidate entry into the
-// shared Purpose selection and returns to that entry without rereading
-// (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
+// Intent opens recorded test locations from a candidate entry on the
+// Optimization Candidates tab into the Intent tab's shared Purpose selection,
+// and choosing Optimization Candidates again returns to that entry without
+// rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  chooseOptimizationCandidates,
   expectCandidatesRevision,
+  intentModeTab,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -19,7 +22,7 @@ import {
 } from "./intentCandidatesFixtures.ts";
 import { doughnut, openDough, pygardon } from "./intentCodeBrowseFixtures.ts";
 
-test("Intent opens a recorded location into Purpose, marks the tree, and returns to the entry without rereading", async ({
+test("Intent opens a recorded location into the Intent tab's Purpose, marks the tree, and returns to the entry without rereading", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -28,12 +31,12 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
   await openUntilRead(page, "/?project=open-dough");
   const { intent } = parts(page);
   await parts(page).intentChoice.click();
+  await chooseOptimizationCandidates(intent);
 
   const record = candidatesRecord(intent);
   await expectCandidatesRevision(intent, openDough.revision);
-  const candidatesControl = intent.getByRole("button", {
-    name: "Test Optimization Candidates",
-  });
+  const intentTab = intentModeTab(intent, "Intent");
+  const candidatesTab = intentModeTab(intent, "Optimization Candidates");
 
   await test.step("Ex 1: open full path from agent-launch-poles; tree and Purpose agree; return keeps entry", async () => {
     const poles = record.getByRole("article", { name: "agent-launch-poles" });
@@ -57,10 +60,12 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
         exact: true,
       }),
     ).toHaveAttribute("aria-pressed", "true");
-    await expect(candidatesControl).toHaveAttribute("aria-pressed", "false");
+    await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
+    await expect(intent.getByRole("region", { name: "Proof" })).toBeVisible();
+    await expect(record).toBeHidden();
 
-    await candidatesControl.click();
-    await expect(candidatesControl).toHaveAttribute("aria-pressed", "true");
+    await chooseOptimizationCandidates(intent);
     const returned = candidatesRecord(intent);
     await expect(
       returned.getByRole("article", { name: "agent-launch-poles" }),
@@ -72,7 +77,7 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
   });
 
   await test.step("Ex 2: long-integrated-journeys links four files; others remain after opening one", async () => {
-    await candidatesControl.click();
+    await chooseOptimizationCandidates(intent);
     const family = candidatesRecord(intent).getByRole("article", {
       name: "long-integrated-journeys",
     });
@@ -95,7 +100,7 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
     await expect(
       intent.getByLabel(`${openDoughSpecPaths.watcher} source`),
     ).toContainText('test("browses"');
-    await candidatesControl.click();
+    await chooseOptimizationCandidates(intent);
     const after = candidatesRecord(intent).getByRole("article", {
       name: "long-integrated-journeys",
     });
@@ -127,7 +132,7 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
         exact: true,
       }),
     ).toBeVisible();
-    await expect(intent.getByLabel(/source$/)).toHaveCount(0);
+    await expect(intent.getByLabel(/source$/)).toBeHidden();
     await ambiguous
       .getByRole("button", {
         name: openDoughSpecPaths.storyReview,
@@ -140,7 +145,7 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
   });
 
   await test.step("Ex 6: moved path is not published; opens nothing", async () => {
-    await candidatesControl.click();
+    await chooseOptimizationCandidates(intent);
     const moved = candidatesRecord(intent).getByRole("article", {
       name: "moved-test-after-record",
     });
@@ -148,7 +153,7 @@ test("Intent opens a recorded location into Purpose, marks the tree, and returns
     await expect(
       moved.getByRole("button", { name: openDoughSpecPaths.movedAway }),
     ).toHaveCount(0);
-    await expect(candidatesControl).toHaveAttribute("aria-pressed", "true");
+    await expect(candidatesTab).toHaveAttribute("aria-selected", "true");
   });
 
   await test.step("Evidence Markdown link to a configured Intent file opens in Intent", async () => {
@@ -171,6 +176,7 @@ test("Intent explains outside configured locations for a Pygardon-shaped python 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, pygardon.revision);
 
   const entry = candidatesRecord(intent).getByRole("article", {
@@ -193,6 +199,7 @@ test("Intent leaves Doughnut prose without a gap and opens a unique bare feature
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, doughnut.revision);
 
   const prose = candidatesRecord(intent).getByRole("article", {

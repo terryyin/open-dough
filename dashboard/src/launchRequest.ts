@@ -12,7 +12,7 @@ import {
   unattachedPolicyOf,
   unattachedSessionPolicySchema,
   type SessionPolicy,
-} from "./launchSessionPolicy.ts";
+} from "./launchRequestSessionPolicy.ts";
 
 export {
   defaultSessionPolicy,
@@ -23,7 +23,7 @@ export {
   unattachedSessionPolicySchema,
   type SessionPolicy,
   type UnattachedSessionPolicy,
-} from "./launchSessionPolicy.ts";
+} from "./launchRequestSessionPolicy.ts";
 
 export const agentLaunchEndpoint = "/__agent-launch";
 

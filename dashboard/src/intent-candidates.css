@@ -1,29 +1,23 @@
 /* Test Optimization Candidates record and location-open controls within
    Intent (`./IntentCandidatesRecord.tsx`, `./IntentCandidatesLocationsText.tsx`). */
 
-.intent-candidates-nav {
-  flex: none;
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--line);
+/* The Optimization Candidates reading mode (`./IntentModeTabs.tsx`): the
+   record across the Intent content area, scrolling on its own. */
+.intent-candidates-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
+  border-top: 1px solid var(--line);
 }
 
-.intent-candidates-nav-button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid transparent;
-  border-radius: var(--radius, 0.25rem);
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
+.intent-candidates-panel[hidden] {
+  display: none;
 }
 
-.intent-candidates-nav-button.is-selected,
-.intent-candidates-nav-button[aria-pressed="true"] {
-  border-color: var(--line);
-  background: var(--surface-selected, color-mix(in srgb, var(--line) 35%, transparent));
+.intent-candidates-panel:focus-visible {
+  outline-offset: -3px;
 }
 
 .intent-candidates-record {

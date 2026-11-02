@@ -1,14 +1,17 @@
 // Intent explains absent, unreadable, mismatched, and empty Test
-// Optimization Candidates records while location browsing stays usable
-// (example 7; ../src/IntentCandidatesRecord.tsx).
+// Optimization Candidates records on its Optimization Candidates tab while
+// location browsing stays usable on the Intent tab (example 7;
+// ../src/IntentCandidatesRecord.tsx).
 
 import { expect, test } from "./dashboardTest.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  chooseOptimizationCandidates,
   expandIntentGroup,
   expectCandidatesRevision,
+  intentModeTab,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
@@ -49,12 +52,15 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  const intentTab = intentModeTab(intent, "Intent");
 
   await test.step("Ex 7 absent: no published record; locations still browse", async () => {
+    await chooseOptimizationCandidates(intent);
     await expectCandidatesRevision(intent, doughnut.revision);
     await expect(candidatesRecord(intent)).toContainText(
       "No Test Optimization Candidates record has been published for Doughnut",
     );
+    await intentTab.click();
     await expandIntentGroup(intent, "scripts");
     await intent
       .getByRole("button", {
@@ -71,9 +77,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
 
   await test.step("Ex 7 empty: both pending and accepted are None.", async () => {
     await chooseProject(page, "Open Dough");
-    await intent
-      .getByRole("button", { name: "Test Optimization Candidates" })
-      .click();
+    await chooseOptimizationCandidates(intent);
     await expect(candidatesRecord(intent)).toContainText(
       "This record has no pending candidates or accepted necessary costs.",
     );
@@ -87,6 +91,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
         name: "Accepted necessary costs",
       }),
     ).toContainText("None.");
+    await intentTab.click();
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
@@ -98,15 +103,14 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
 
   await test.step("Ex 7 mismatched: no partial guess; locations still browse", async () => {
     await chooseProject(page, "Pygardon");
-    await intent
-      .getByRole("button", { name: "Test Optimization Candidates" })
-      .click();
+    await chooseOptimizationCandidates(intent);
     await expect(candidatesRecord(intent)).toContainText(
       `${testOptimizationCandidatesPath} is not a Test Optimization Candidates record`,
     );
     await expect(candidatesRecord(intent)).not.toContainText(
       "Body that Intent must not partially show",
     );
+    await intentTab.click();
     await expandIntentGroup(intent, "tests");
     await intent
       .getByRole("button", {
@@ -134,6 +138,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
       unanswered: [testOptimizationCandidatesPath],
     });
     await openUntilRead(page, "/?project=open-dough&perspective=intent");
+    await chooseOptimizationCandidates(intent);
     await expectCandidatesRevision(intent, revision);
     await expect(candidatesRecord(intent)).toContainText(
       `${testOptimizationCandidatesPath} could not be read at this revision`,
@@ -141,6 +146,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expect(
       candidatesRecord(intent).getByRole("button", { name: "Retry" }),
     ).toBeVisible();
+    await intentTab.click();
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {

@@ -1,15 +1,16 @@
-// Configured Intent locations browser (`./IntentPerspective.tsx`): each
-// location is an exclusive expandable group; Purpose shows a selected
-// feature's published text with line numbers and Gherkin styling; Proof lists
-// its scenarios' latest committed observations (`./IntentProof.tsx`) from the
-// location's proof, read with the locations. The Test Optimization Candidates
-// record is the default reading view; selecting a location file shows Purpose
-// while the location tree stays usable. A failed file read keeps its own
-// explanation and retry; a failed proof read's retry reads the locations again
-// without changing the selection. File selection (and an optional case target)
-// is owned by the Intent workspace (`./intentWorkspaceSelection.ts`). Opening a
-// test from the record keeps that view mounted so returning does not reread
-// the record.
+// Configured Intent locations browser (`./IntentPerspective.tsx`) and the
+// Test Optimization Candidates record, each one Intent reading mode chosen
+// under the banner (`./IntentModeTabs.tsx`); entering Intent shows the
+// locations. Each location is an exclusive expandable group; Purpose shows a
+// selected feature's published text with line numbers and Gherkin styling;
+// Proof lists its scenarios' latest committed observations
+// (`./IntentProof.tsx`) from the location's proof, read with the locations.
+// The record fills the content area without the locations; it is read the
+// first time it is chosen and stays mounted after, so opening a test from it
+// and returning does not reread it. A failed file read keeps its own
+// explanation and retry; a failed proof read's retry reads the locations
+// again without changing the selection. File selection (and an optional case
+// target) is owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -18,6 +19,12 @@ import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import {
+  IntentModeTabs,
+  intentModePanelId,
+  intentModeTabId,
+  type IntentMode,
+} from "./IntentModeTabs.tsx";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import {
@@ -29,8 +36,6 @@ import type { PublishedSource } from "./publishedSource.ts";
 type FileRead =
   | { readonly path: string; readonly state: "failed" }
   | { readonly path: string; readonly state: "ready"; readonly text: string };
-
-type ReadingView = "candidates" | "purpose";
 
 export function IntentBrowser({
   source,
@@ -49,7 +54,8 @@ export function IntentBrowser({
 }) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const selectedPath = selection.path;
-  const [view, setView] = useState<ReadingView>("candidates");
+  const [mode, setMode] = useState<IntentMode>("intent");
+  const [candidatesChosen, setCandidatesChosen] = useState(false);
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   // The answered read of one path; Purpose and Proof show it only while that
@@ -58,13 +64,13 @@ export function IntentBrowser({
   const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   const proofId = useId();
-  const candidatesControlId = useId();
+  const modeIdPrefix = useId();
   const inventory = inventoryFromIntentLocations(locations);
 
   function openFromRecord(next: IntentSelection, entrySlug: string) {
     setSelection(next);
     setReturnEntrySlug(entrySlug);
-    setView("purpose");
+    setMode("intent");
     const owning = locations.find((location) =>
       location.files.includes(next.path),
     );
@@ -102,109 +108,114 @@ export function IntentBrowser({
   );
   const selectedLanguage = selectedLocation?.kind;
 
+  function chooseMode(next: IntentMode) {
+    setMode(next);
+    if (next === "candidates") setCandidatesChosen(true);
+  }
+
   return (
-    <div className="intent-browser">
-      <div className="intent-locations">
-        <div className="intent-candidates-nav">
-          <button
-            type="button"
-            id={candidatesControlId}
-            className={
-              view === "candidates"
-                ? "intent-candidates-nav-button is-selected"
-                : "intent-candidates-nav-button"
-            }
-            aria-pressed={view === "candidates"}
-            onClick={() => {
-              setView("candidates");
-            }}
-          >
-            Test Optimization Candidates
-          </button>
+    <>
+      <IntentModeTabs
+        mode={mode}
+        idPrefix={modeIdPrefix}
+        onSelect={chooseMode}
+      />
+      <div
+        className="intent-browser"
+        role="tabpanel"
+        id={intentModePanelId(modeIdPrefix, "intent")}
+        aria-labelledby={intentModeTabId(modeIdPrefix, "intent")}
+        hidden={mode !== "intent"}
+      >
+        <div className="intent-locations">
+          <h3 className="visually-hidden">Purpose locations</h3>
+          {locations.map((location) => (
+            <IntentLocationGroup
+              key={location.path}
+              location={location}
+              selectedPath={selectedPath}
+              onSelect={(path) => {
+                setSelection({ path });
+                setReturnEntrySlug(undefined);
+              }}
+              idPrefix={intentLocationIdPrefix(location.path)}
+              expanded={expandedPath === location.path}
+              onToggle={() => {
+                setExpandedPath((was) =>
+                  was === location.path ? null : location.path,
+                );
+              }}
+            />
+          ))}
         </div>
-        <h3 className="visually-hidden">Purpose locations</h3>
-        {locations.map((location) => (
-          <IntentLocationGroup
-            key={location.path}
-            location={location}
-            selectedPath={view === "purpose" ? selectedPath : ""}
-            onSelect={(path) => {
-              setSelection({ path });
-              setReturnEntrySlug(undefined);
-              setView("purpose");
-            }}
-            idPrefix={intentLocationIdPrefix(location.path)}
-            expanded={expandedPath === location.path}
-            onToggle={() => {
-              setExpandedPath((was) =>
-                was === location.path ? null : location.path,
-              );
-            }}
-          />
-        ))}
+        <div className="intent-reading" tabIndex={-1}>
+          <section className="intent-purpose" aria-label="Purpose">
+            <h3>Purpose</h3>
+            {selectedPath === "" ? (
+              <p className="quiet">
+                Select a feature file to read its Purpose.
+              </p>
+            ) : selectedRead?.state === "failed" ? (
+              <p className="intent-file-problem" role="alert">
+                {selectedPath} could not be read.{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFileRetry((n) => n + 1);
+                  }}
+                >
+                  Retry
+                </button>
+              </p>
+            ) : text !== undefined ? (
+              <IntentSourceLines
+                text={text}
+                revision={revision}
+                path={selectedPath}
+                {...(selectedLanguage === undefined
+                  ? {}
+                  : { language: selectedLanguage })}
+                {...(selection.caseTarget === undefined
+                  ? {}
+                  : { caseTarget: selection.caseTarget })}
+              />
+            ) : (
+              <p className="quiet">Reading {selectedPath}…</p>
+            )}
+          </section>
+          <section className="intent-proof" aria-labelledby={proofId}>
+            <h3 id={proofId}>Proof</h3>
+            <IntentProof
+              path={selectedPath}
+              kind={selectedLanguage}
+              text={text}
+              proof={selectedLocation?.proof}
+              rereading={proofRereading}
+              onRetry={onProofRetry}
+            />
+          </section>
+        </div>
       </div>
-      <div className="intent-reading" tabIndex={-1}>
-        <div hidden={view !== "candidates"}>
+      <div
+        className="intent-candidates-panel"
+        role="tabpanel"
+        id={intentModePanelId(modeIdPrefix, "candidates")}
+        aria-labelledby={intentModeTabId(modeIdPrefix, "candidates")}
+        hidden={mode !== "candidates"}
+        tabIndex={-1}
+      >
+        {candidatesChosen ? (
           <IntentCandidatesRecord
             source={source}
             revision={revision}
             inventory={inventory}
             onOpenLocation={openFromRecord}
-            {...(view === "candidates" && returnEntrySlug !== undefined
+            {...(mode === "candidates" && returnEntrySlug !== undefined
               ? { focusEntrySlug: returnEntrySlug }
               : {})}
           />
-        </div>
-        {view === "purpose" ? (
-          <>
-            <section className="intent-purpose" aria-label="Purpose">
-              <h3>Purpose</h3>
-              {selectedPath === "" ? (
-                <p className="quiet">
-                  Select a feature file to read its Purpose.
-                </p>
-              ) : selectedRead?.state === "failed" ? (
-                <p className="intent-file-problem" role="alert">
-                  {selectedPath} could not be read.{" "}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFileRetry((n) => n + 1);
-                    }}
-                  >
-                    Retry
-                  </button>
-                </p>
-              ) : text !== undefined ? (
-                <IntentSourceLines
-                  text={text}
-                  revision={revision}
-                  path={selectedPath}
-                  {...(selectedLanguage === undefined
-                    ? {}
-                    : { language: selectedLanguage })}
-                  {...(selection.caseTarget === undefined
-                    ? {}
-                    : { caseTarget: selection.caseTarget })}
-                />
-              ) : (
-                <p className="quiet">Reading {selectedPath}…</p>
-              )}
-            </section>
-            <section className="intent-proof" aria-labelledby={proofId}>
-              <h3 id={proofId}>Proof</h3>
-              <IntentProof
-                path={selectedPath}
-                kind={selectedLanguage}
-                text={text}
-                proof={selectedLocation?.proof}
-                rereading={proofRereading}
-                onRetry={onProofRetry}
-              />
-            </section>
-          </>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }

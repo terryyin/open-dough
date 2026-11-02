@@ -2,8 +2,9 @@
 // record (`./authenticatedIntentCandidatesRead.ts`): named revision,
 // Pending and Accepted groups with every recorded field, other sections
 // under their own headings, and distinct explanations for absent,
-// unreadable (with retry), mismatched, and empty records. Location
-// browsing stays with the Intent browser that hosts this view.
+// unreadable (with retry), mismatched, and empty records. Intent hosts this
+// view on its Optimization Candidates tab (`./IntentBrowser.tsx`), apart from
+// location browsing.
 
 import { useEffect, useId, useRef, useState } from "react";
 import {

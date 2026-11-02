@@ -11,6 +11,7 @@ import {
   expectAddress,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
+  intentModeTab,
 } from "./intentPerspectivePage.ts";
 import { colourOf } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -132,14 +133,12 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       intentGroupToggle(intent, "e2e_test/packaged/features"),
     ).toBeVisible();
     await expectIntentGroupsCollapsed(intent);
-    await expect(
-      intent.getByRole("heading", {
-        name: "Test Optimization Candidates",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(intent).toContainText(
-      "No Test Optimization Candidates record has been published",
+    await expect(intentModeTab(intent, "Intent")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
+      "Select a feature file to read its Purpose.",
     );
     await expandIntentGroup(intent, "e2e_test/packaged/features");
     await intent

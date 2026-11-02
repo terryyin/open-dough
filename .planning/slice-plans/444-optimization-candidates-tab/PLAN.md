@@ -2,6 +2,7 @@
 
 **Identity:** SEED-216#optimization-candidates-tab
 **Source:** [selected story](../../seeds/SEED-216-optimization-candidates-tab.md#optimization-candidates-tab).
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -77,7 +78,7 @@ and `development-intent*.spec.ts` before delivery.
 
 ### 1. Choose Intent or Optimization Candidates under the banner
 Type: Behavior
-Status: planned
+Status: done
 Proof: rewritten candidates and default-view journeys above; Development /
 Intent frame journeys unchanged.
 
@@ -98,3 +99,25 @@ one reading-mode switch, and the only Structure (lift view state above the
 browser, reuse radiogroup pattern) belongs inside that Behavior.
 
 Remaining slice-specific concerns: none identified in this review.
+
+## Execution record
+
+**Mode:** Story Branch; branch `claude/review-optimization-candidates-in-a-separate-int`
+on `origin`; claim published at `59eb2fb7` on `main`.
+
+**Slice 1 accepted proof (2026-11-02):**
+`env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-*.spec.ts dashboard/tests/development-intent*.spec.ts dashboard/tests/dashboard-header.spec.ts`
+— 36 passed after refactor; adjacent launch/side-panel specs 6 passed;
+`npm run typecheck:dashboard` and `npm run lint` pass. Per-commitment
+observations are in the [source review](source-review.md).
+
+**Learnings:**
+
+- `dashboard/src/launchSessionPolicy.ts` and `LaunchSessionPolicy.tsx` differed
+  only by case and extension; on macOS that broke typescript-eslint's project
+  service, so local `npm run lint` failed on the base while Linux CI stayed
+  green. Renamed to `launchRequestSessionPolicy.ts` in this increment.
+- The Optimization Candidates record is read the first time its tab is chosen
+  and stays mounted; a revision or project change resets the tab to Intent.
+  Reading keys with nothing focused now target the visible panel
+  (`boardScroll.ts`); no journey observes that path, as before this story.

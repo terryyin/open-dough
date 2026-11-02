@@ -1,11 +1,12 @@
-// Intent opens a recorded test at its identified case in Purpose
-// (SEED-192 commitments 23.1–23.3, 24, E4 configured variant).
+// Intent opens a recorded test from the Optimization Candidates tab at its
+// identified case in the Intent tab's Purpose (SEED-192 commitments 23.1–23.3, 24, E4 configured variant).
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
+  chooseOptimizationCandidates,
   expectCandidatesRevision,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -46,6 +47,7 @@ test("Intent opens a configured Pygardon ::name case at its line in Purpose", as
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, pygardon.revision);
 
   const entry = candidatesRecord(intent).getByRole("article", {
@@ -72,6 +74,7 @@ test("Intent opens a Gherkin scenario named exactly once at its line", async ({
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
+  await chooseOptimizationCandidates(intent);
   await expectCandidatesRevision(intent, doughnut.revision);
 
   const entry = candidatesRecord(intent).getByRole("article", {
@@ -99,6 +102,7 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
     await openUntilRead(page, "/?project=open-dough");
     const { intent, intentChoice } = parts(page);
     await intentChoice.click();
+    await chooseOptimizationCandidates(intent);
     await expectCandidatesRevision(intent, openDough.revision);
 
     const entry = candidatesRecord(intent).getByRole("article", {
@@ -124,6 +128,7 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
     await openUntilRead(page, "/?project=doughnut");
     const { intent, intentChoice } = parts(page);
     await intentChoice.click();
+    await chooseOptimizationCandidates(intent);
 
     const entry = candidatesRecord(intent).getByRole("article", {
       name: "duplicate-scenario-name",
@@ -145,9 +150,7 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
       )
       .toBe(0);
 
-    await intent
-      .getByRole("button", { name: "Test Optimization Candidates" })
-      .click();
+    await chooseOptimizationCandidates(intent);
     const returned = candidatesRecord(intent).getByRole("article", {
       name: "duplicate-scenario-name",
     });
