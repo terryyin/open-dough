@@ -1,9 +1,13 @@
 // Committed Doughnut Cypress-Cucumber proof bytes and the feature text they
 // observed, pinned for Intent's Doughnut proof regression
-// (`./intent-doughnut-cucumber-proof.spec.ts`). The proof file is the same
-// bytes as Doughnut `e2e_test/proof/20261102T030305438Z-d4182692-ae90-4ae0-981d-a993fec40c59.json`
-// on `origin/main` at `6c045ccfd5` (Git blob `2f4f918bd3efe54e1cbf4b8c615a35bd0fb48a4e`);
-// the live Intent read of project Doughnut owns first observation.
+// (`./intent-doughnut-cucumber-proof.spec.ts`). Note-creation proof matches
+// Doughnut `e2e_test/proof/20261102T030305438Z-d4182692-ae90-4ae0-981d-a993fec40c59.json`
+// on `origin/main` at `6c045ccfd5` (Git blob `2f4f918bd3efe54e1cbf4b8c615a35bd0fb48a4e`).
+// Outline proof matches
+// `e2e_test/proof/20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json`
+// on Doughnut `cursor/cypress-cucumber-proof-followup` at `1be2689d21`
+// (Git blob `90ca341db4c1b0fd2b8e0d5e410bc34277b7a608`). Live Intent on
+// project Doughnut owns first observation of each published file.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -16,18 +20,33 @@ export const noteCreationPath =
   "e2e_test/features/note_creation_and_update/note_creation.feature";
 export const noteDeletionPath =
   "e2e_test/features/note_creation_and_update/note_deletion.feature";
+export const accountControlPath =
+  "e2e_test/features/users/account_control.feature";
 export const proofDirectory = "e2e_test/proof";
 export const proofFileName =
   "20261102T030305438Z-d4182692-ae90-4ae0-981d-a993fec40c59.json";
+export const outlineProofFileName =
+  "20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json";
 export const proofPath = `${proofDirectory}/${proofFileName}`;
+export const outlineProofPath = `${proofDirectory}/${outlineProofFileName}`;
 
 export const noteCreationFeature = readFileSync(
   `${fixtureRoot}note_creation.feature`,
   "utf8",
 );
 
+export const accountControlFeature = readFileSync(
+  `${fixtureRoot}account_control.feature`,
+  "utf8",
+);
+
 export const committedProofJson = readFileSync(
   `${fixtureRoot}${proofFileName}`,
+  "utf8",
+);
+
+export const committedOutlineProofJson = readFileSync(
+  `${fixtureRoot}${outlineProofFileName}`,
   "utf8",
 );
 
@@ -58,11 +77,15 @@ export const doughnutProofSettings = JSON.stringify(
 
 export const proofFiles = {
   [proofPath]: committedProofJson,
+  [outlineProofPath]: committedOutlineProofJson,
 };
 
-// Fixed "now" one hour after the last observation's finishedAt so every row
-// floors to "1h ago" (earlier rows are a few seconds older than one hour).
+// Fixed "now" one hour after the last note-creation observation's finishedAt
+// so every note-creation row floors to "1h ago".
 export const observedAt = new Date("2026-11-02T04:03:28.015Z");
+
+// Fixed "now" one hour after the last account_control outline observation.
+export const outlineObservedAt = new Date("2026-11-02T07:48:10.993Z");
 
 export const expectedNoteCreationRows = [
   [
@@ -135,6 +158,33 @@ export const expectedNoteCreationRows = [
     "1.6 s",
     "1h ago",
     "d648487",
+    "This file version",
+  ],
+] as const;
+
+export const expectedAccountControlRows = [
+  [
+    "Only admins can open failure reports Example: none | sign in",
+    "Passed",
+    "4.1 s",
+    "1h ago",
+    "796b350",
+    "This file version",
+  ],
+  [
+    "Only admins can open failure reports Example: admin | failure reports",
+    "Passed",
+    "1.1 s",
+    "1h ago",
+    "796b350",
+    "This file version",
+  ],
+  [
+    "Only admins can open failure reports Example: non_admin | access denied",
+    "Passed",
+    "909 ms",
+    "1h ago",
+    "796b350",
     "This file version",
   ],
 ] as const;

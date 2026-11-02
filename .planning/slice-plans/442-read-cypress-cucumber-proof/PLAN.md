@@ -167,29 +167,83 @@ row's latest committed observation beside Purpose.
   Doughnut follow-up focused Cypress publish would own those bytes — not
   obtained in this Open Dough checkout. Playwright regression pins the same
   committed proof bytes under `dashboard/tests/fixtures/doughnut-cucumber-proof/`.
+- **2026-11-02 Doughnut follow-up (authorized `pnpm cy:run` + commit):** On
+  Doughnut worktree `cursor/cypress-cucumber-proof-followup` from
+  `origin/main` `796b350c`, focused
+  `./scripts/run.sh pnpm cy:run --spec e2e_test/features/users/account_control.feature`
+  recorded three outline rows with `example` cells; committed and pushed as
+  `e2e_test/proof/20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json`
+  at Doughnut SHA `1be2689d21` (branch `origin/cursor/cypress-cucumber-proof-followup`;
+  not yet on `origin/main`). Open Dough fixtures/regression pin those bytes
+  plus `account_control.feature`. Prior note_creation proof file unchanged
+  beside it. Slice 3 stays planned; Story obligations stay open for
+  coordinator acceptance. Terry usefulness (commitment 32) unobserved.
+
+### Proposed dispositions (coordinator acceptance pending)
+
+- **G1 → observed:** Outline rows published; Intent regression shows
+  outline name + `Example: …` cells for three distinct rows.
+- **G2 → return (blocker):** Doughnut `maintainScenarioProof` publishes only
+  successful observations and on failure clears that identity from existing
+  proof files (`e2e_test/config/cucumberProofStore.mjs`, comment "remove only
+  the failed identity"; recorder test `a final failed result clears earlier
+  successful proof`). A live product-scenario failure would mutate prior
+  committed proof and leave Intent as Not observed, not Failed — cannot meet
+  story example 3 / commitment 38 without SEED-096 design change or
+  sabotaging a product E2E. Related Open Dough plan
+  `446-last-successful-intent-proof` documents successful-only semantics.
+  Commitment 12 (focused updates only observed cases; others keep earlier)
+  remains partially covered by separate note_creation + account_control run
+  files, not by a failure replace.
+- **G3 → observed (cite existing tests + prior proof):** Recorder test
+  `proof failures and a missing Git checkout remain silent and harmless`
+  (`cucumberProofRecorder.test.mjs`); runner fixture preserves Cypress exit
+  with hook failures and scopes proof to executed Messages cases
+  (`cucumberProofRunner.test.mjs`). Prior committed note_creation proof still
+  present and Intent regression still reads it; no destructive live outside-Git
+  run required.
+- **G4 → observed (cannot produce on ordinary runner):** Ordinary Doughnut
+  Cypress `e2e_test/config/common.ts` has no `retries` key (only disposable
+  `cucumberProofRunnerFixture.mjs` sets `retries: 1`). Story defers changing
+  retries policy (X5). Recorder/fixture unit tests already map `attempts > 1`
+  (`only the last retry publishes…`; runner fixture Retry succeeds →
+  attempts: 2). No ordinary-runner retry-assisted committed proof without the
+  deferred policy change.
 
 ## Story obligations
 
 ### G1. Outline row not in published Doughnut proof
-Reported: slice 3 — "Landed file has no `example`; outline name + example cells uncovered."
+Reported: slice 3 follow-up — Doughnut `1be2689d21` (on main via PR #1651 /
+`6a8a34e967`) publishes `account_control.feature` outline rows with example
+cells; Open Dough `intent-doughnut-cucumber-proof.spec.ts` asserts Intent names
++ Example cells.
 Story clause: "A Scenario Outline row is observed: Intent names the outline's Gherkin scenario name and that row's example cells, distinct from other rows."
-Disposition: return
-Commitment: 10.3, 29, 39
+Disposition: proved by slice 3: Doughnut e2e_test/proof/20261102T064803493Z-e248a161-1d96-4341-b228-5e2723cdd0d3.json on origin/main + intent-doughnut-cucumber-proof.spec.ts outline Intent test
 
-### G2. Later focused run replacement not published for Doughnut
-Reported: slice 3 — "only one committed proof file; no second published run"
+### G2. Later focused run failure replace vs Doughnut successful-only store
+Reported: slice 3 follow-up — unmet for story example 3: Doughnut
+`maintainScenarioProof` publishes only passed observations and clears failed
+identities (`cucumberProofStore.mjs`); Intent would see Not observed, not Failed.
+Related Taken SEED-220#last-successful-intent-proof. Commitment 12 separately
+observed via coexisting note_creation + account_control proof files.
 Story clause: "A later focused run re-runs only one scenario and it fails. After commit, Intent shows the failure for that scenario and keeps the earlier observation for the other."
 Disposition: return
-Commitment: 12, 38
+Commitment: 38
 
 ### G3. Cannot-record / no-Messages path not exercised against prior Doughnut proof
-Reported: slice 3 — "record failure / no Messages leaves prior proof — Uncovered — not exercised"
+Reported: slice 3 follow-up — covered by Doughnut
+`cucumberProofRecorder.test.mjs` (missing Git / write failure silent) and
+`cucumberProofRunner.test.mjs` (hook failures preserve exit; proof scoped);
+prior note_creation proof unchanged and still Intent-readable.
 Story clause: "A run outside Git, or a spec whose hook failure yields no Messages contribution, leaves prior committed proof unchanged and does not fail Cypress for that reason."
-Disposition: return
-Commitment: 24, 42
+Disposition: proved by slice 3: cucumberProofRecorder.test.mjs silent missing-Git/write; cucumberProofRunner.test.mjs hook-failure exit preserved; note_creation proof still Intent-readable
 
 ### G4. Retry-assisted pass not in published Doughnut proof
-Reported: slice 3 — "all `attempts: 1`; retry-assisted pass uncovered"
+Reported: slice 3 follow-up — ordinary `common.ts` has no retries; cannot produce
+retry-assisted committed proof without deferred policy change (X5); fixture/unit
+tests already cover attempts>1 mapping. Story verification qualifies coverage
+"where Doughnut's runner can produce them"; key example 5 still names Intent
+retry-assisted pass.
 Story clause: "A scenario passes on a Cypress retry: Intent shows a retry-assisted pass with attempt count, not a clean single-attempt pass."
 Disposition: return
 Commitment: 30, 40
