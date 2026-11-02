@@ -4,11 +4,12 @@
 // trunk runs of shared commits counting and the run's branch named; another
 // selection replaces the judgment, never showing an earlier branch's result
 // under the new name, even when that answer arrives late; clearing the
-// selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7). A push to
-// the shown story branch, seen by the page's revision check, reads its
-// judgment again by itself; time alone, and a branch not shown moving, read
-// none. Stories without a branch to judge:
-// ./intent-ci-status-story-gaps.spec.ts.
+// selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7). A running
+// head shows its nearest completed ancestor with its run, and Check again
+// after it finishes shows Passed. A push to the shown story branch, seen by
+// the page's revision check, reads its judgment again by itself; time alone,
+// and a branch not shown moving, read none. Stories without a branch to
+// judge: ./intent-ci-status-story-gaps.spec.ts.
 
 import type { Request } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -125,6 +126,8 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel).toContainText(
       "Nearest completed ancestor: d4e5f6a (Add signup) — passed. Run on main.",
     );
+    // The ancestor's own run link.
+    await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
     ci.runs[running.branch] = [
       { headSha: started, conclusion: "success", url: runningRun },
     ];

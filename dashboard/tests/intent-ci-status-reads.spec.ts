@@ -1,11 +1,13 @@
 // Reading Intent's CI status (../src/IntentCiStatus.tsx) again and from its
 // configured source: a 404 on main's history or runs is Could not be read
-// with its reason, Check again replaces a judgment that could not be read
-// or was running, a running judgment shows its nearest completed ancestor, a
-// ciAdapter project is judged from its discover attempts (SEED-219 examples
-// 7, 8), and the boundary read refuses unsafe judged branch names, the
-// shared branch-read parameter, and a pinned revision before asking GitHub.
-// The tab itself is in ./intent-ci-status.spec.ts.
+// with its reason, Check again replaces a judgment that could not be read, a
+// ciAdapter project is judged from its discover attempts (SEED-219 example
+// 8), and the boundary read refuses unsafe judged branch names, the shared
+// branch-read parameter, and a pinned revision before asking GitHub. The tab
+// itself is in ./intent-ci-status.spec.ts; a running head with its nearest
+// completed ancestor, and Check again after it finishes showing Passed
+// (SEED-219 example 7), is the "a running head…" step of
+// ./intent-ci-status-story.spec.ts.
 
 import { writeFileSync, mkdirSync, chmodSync } from "node:fs";
 import path from "node:path";
@@ -88,45 +90,6 @@ test("CI status that could not be read names main and the reason; Check again re
     await expect(panel.locator(".intent-ci-reason")).toHaveCount(0);
     await expectChecked(panel);
   });
-});
-
-test("a running head shows its nearest completed ancestor; Check again after the run completes shows Passed", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestorUrl = "https://ci.invalid/runs/40";
-  const headUrl = "https://ci.invalid/runs/42";
-  let running = true;
-  publishProject(page, openDough).serveCi(
-    trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: ancestorUrl },
-      running
-        ? { headSha: openDough.revision, status: "in_progress", url: headUrl }
-        : { headSha: openDough.revision, conclusion: "success", url: headUrl },
-    ]),
-  );
-  await openUntilRead(page);
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  const panel = await chooseCiStatus(intent);
-  const head = openDough.revision.slice(0, 7);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    `Running at ${head} (Plan the next story)`,
-  );
-  await expect(panel).toContainText(
-    "Nearest completed ancestor: a1b2c3d (Add login) — passed.",
-  );
-  await expect(panel.getByRole("link", { name: headUrl })).toBeVisible();
-  await expect(panel.getByRole("link", { name: ancestorUrl })).toBeVisible();
-  await expect(panel).not.toContainText("later commit");
-
-  running = false;
-  await panel.getByRole("button", { name: "Check again" }).click();
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    `Passed at ${head} (Plan the next story)`,
-  );
-  await expect(panel).not.toContainText("Nearest completed ancestor");
-  await expect(panel.getByRole("link", { name: headUrl })).toBeVisible();
 });
 
 test("a project with a ciAdapter is judged from its discover attempts", async ({

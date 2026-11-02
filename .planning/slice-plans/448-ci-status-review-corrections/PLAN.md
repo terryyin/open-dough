@@ -14,8 +14,9 @@ same execution) excluded.
 ## Goal and scope
 
 Intent's CI status never calls the configured trunk "not published": a 404 on
-the trunk's history reads **Could not be read** with GitHub's reason. The
-Intent doc states the `ciAdapter` story-branch rule as built. The judged branch
+the trunk's history reads **Could not be read** with GitHub's reason. A
+`ciAdapter` project's story branch counts trunk results of shared commits, as a
+`ciWorkflow` project's does, and the Intent doc states that rule. The judged branch
 has its own read parameter, and the overlapping end-to-end tests are cut with
 their surviving coverage named.
 
@@ -33,7 +34,8 @@ coordinator against `a5df2c72`):
    run counts for any story branch; on the `ciAdapter` path
    (`dashboard/server/baseCiJudgment.ts`, adapter discover) no trunk results
    are merged, as plan 447's PFE chose. `dashboard/GITHUB-REQUESTS.md` is
-   already accurate.
+   already accurate. Amended 2026-11-02: Terry approved adapter parity, so
+   slice 4 makes the adapter path count trunk results and the doc follow.
 3. `dashboard/server/requestedRead.ts` adds an `intent !== "ci-status"`
    exception to branch-read dispatch, and `dashboard/server/intentCiStatusRead.ts`
    removes `branch` from the shared mixed-parameter refusal: one parameter name
@@ -54,9 +56,13 @@ published" by name (S2.7); trunk Running with completed ancestor (S3.8) and
 Failed for cancelled/timed out (S3.4b) keep an observation; request counts are
 unchanged.
 
-Out of scope (human decision, carried to wrap-up): whether `ciAdapter`
-projects should also count trunk results of shared commits (story clause
-"Results on shared commits" has no adapter condition; plan 447 narrowed it).
+Amendment (2026-11-02, Terry, CI status recommendation chat): `ciAdapter`
+trunk parity is in scope. For a story branch, also discover the configured
+trunk through `ciAdapter`, count only the selected check's results for commits
+actually in that branch's history, and name the run's branch honestly (for
+example "run on `main`"). Nearer or newer applicable failure or running
+results and unreadable evidence are preserved. This replaces the earlier
+docs-only adapter restriction; completed slices and their evidence stay.
 
 ## Ordered slices
 
@@ -95,13 +101,47 @@ renamed.
 
 ### 3. Cut overlapping CI status end-to-end tests
 Type: Structure
-Status: planned
+Status: done
 Proof: cancelled and timed-out → Failed move to
 `tests/support/dashboard-story-branch-ci.test.mjs` (run with
 `bash scripts/test.sh <path>`), one Failed E2E check kept; the trunk running
 test in `intent-ci-status-reads.spec.ts` removed, with S3.8 and E7a/E7b
 coverage named at `intent-ci-status-story.spec.ts` "a running head…"; all
 `intent-ci-status*.spec.ts` green.
+Accepted proof: `dashboard-story-branch-ci.test.mjs` "a cancelled or timed-out
+run is Failed, never passed" (red under both `completedStateOf` mutations,
+green after); one cancelled → Failed E2E step kept in `intent-ci-status.spec.ts`;
+the trunk running test removed, its ancestor run link now asserted in the
+story step; all `intent-ci-status*.spec.ts` (11) green; typecheck passes.
+
+### 4. A ciAdapter story branch counts trunk results of shared commits
+Type: Behavior
+Status: planned
+Change: `judgeCommandAdapter` (`dashboard/server/baseCiJudgment.ts`) also
+acquires and discovers the configured ref (`source.ref`) for a story branch,
+listing the trunk's results first as `judgeGitHubActions` does and naming them
+by `source.ref`; the trunk itself keeps one discover. The shared
+`judgeNearest` rule (`baseCiNearest.ts`) keeps deciding which results count
+(only commits in the judged branch's history) and their order. A failed trunk
+discover reads **Could not be read** with its reason, never passed. Replace the
+slice 1 doc sentence "with a `ciAdapter`, only the adapter's discover results
+for the judged branch count" in `docs/dashboard-development-intent.md` with the
+shared rule; update `dashboard/GITHUB-REQUESTS.md` or `LAUNCH-BASE-CI.md` only
+if they state the adapter restriction.
+Proof:
+- unit (`tests/support/dashboard-story-branch-ci.test.mjs`, or the adapter's
+  own unit test): an adapter story branch with no own result and a trunk
+  passed result at a commit in its history → Passed at that commit,
+  `runBranch` `main`; a trunk result for a commit not in its history is not
+  counted; a nearer own failed or running result still decides; a failing
+  trunk discover → unread with its reason;
+- E2E: the ciAdapter case in `intent-ci-status-reads.spec.ts` (or the story
+  spec) on a story branch shows "run on `main`", and the adapter still makes
+  no `actions-*` GitHub calls (request counts otherwise unchanged);
+- all `intent-ci-status*.spec.ts` and `agent-launch-base-ci*.spec.ts` green
+  (the launch judges the trunk, so its single discover is unchanged);
+- before publishing this last slice, run the full `npm test` and the whole
+  dashboard suite on the final state (shared runtime path).
 
 ## Local gates
 
@@ -122,5 +162,6 @@ coverage named at `intent-ci-status-story.spec.ts` "a running head…"; all
 
 ## Current decisions
 
-- The adapter trunk-run question stays with Terry; this correction only makes
-  the doc match the built behavior.
+- Terry approved `ciAdapter` trunk parity (2026-11-02); slice 4 builds it.
+- The older observer timeout (`db511594` / run 41436051947) belongs to a
+  separate investigation, not this correction.

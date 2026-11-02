@@ -92,6 +92,16 @@ test("a shared ancestor's trunk run is the story branch's nearest result, named 
   );
 });
 
+test("a cancelled or timed-out run is Failed, never passed", () => {
+  for (const conclusion of ["cancelled", "timed_out"]) {
+    const judgment = judgeNearest(history, [
+      run("c3", "main", "completed", conclusion, "2026-11-02T00:00:00Z"),
+    ]);
+    assert.equal(judgment.state, "failed", conclusion);
+    assert.equal(judgment.revision, "c3", conclusion);
+  }
+});
+
 test("the branch's own run is judged with its branch, and a running head's completed ancestor carries the trunk", () => {
   const trunkPass = run(
     "c1",

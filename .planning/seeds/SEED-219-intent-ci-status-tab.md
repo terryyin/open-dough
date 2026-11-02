@@ -20,8 +20,10 @@ scope: story
 
 **Goal:** A developer reading Intent's CI status when GitHub cannot list the
 trunk's history sees **Could not be read** with GitHub's reason, never "main
-is not published", and the maintained Intent doc describes when trunk runs
-count for a story branch as the dashboard actually judges them. Maintainers
+is not published". A `ciAdapter` project's story branch counts trunk results
+of shared commits as a `ciWorkflow` project's does, and the maintained Intent
+doc describes when trunk runs count for a story branch as the dashboard
+actually judges them. Maintainers
 get one plain parameter for the judged branch and no overlapping end-to-end
 tests. This corrects the CI status tab (SEED-219#intent-ci-status-tab, recoverable
 as `56c47e8e:.planning/seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab`)
@@ -29,16 +31,29 @@ after its execution retrospective.
 
 **Scope:** The configured ref is never marked no longer published; an unread
 trunk judgment keeps its reason visible. A story branch absent on GitHub
-still says so by name. The Intent doc states that a `ciAdapter` project
-judges a story branch from its own discover answer only. The `ci-status`
+still says so by name. For a story branch of a `ciAdapter` project, the
+dashboard also asks the adapter's discover for the configured trunk and counts
+only the selected check's results for commits actually in that branch's
+history, naming the run's branch honestly (for example "run on `main`"). A
+nearer or newer applicable failure or running result still decides the
+judgment, and unreadable evidence stays **Could not be read**, never passed.
+The Intent doc states this rule for both `ciWorkflow` and `ciAdapter`
+projects. The `ci-status`
 read names its judged branch with its own parameter instead of the shared
 `branch` read parameter. Overlapping CI status end-to-end tests move to
-unit tests or are removed with their surviving coverage named. Whether
-`ciAdapter` projects should also count trunk runs is not part of this
-correction.
+unit tests or are removed with their surviving coverage named. Amended
+2026-11-02: Terry approved `ciAdapter` trunk parity in the CI status
+recommendation chat, replacing the earlier docs-only adapter restriction.
 
 **Key example:** GitHub answers HTTP 404 for `main`'s commit history (for
 example after the repository is renamed). CI status names `main`, says
 **Could not be read**, and shows the 404 reason.
+
+**Key example:** A `ciAdapter` project's story branch `codex/x` has no result
+of its own at its head; the adapter's discover for `main` returns a passed
+result for a commit in `codex/x`'s history. CI status reads Passed at that
+commit, "run on `main`". A `main` result for a commit not in `codex/x`'s
+history is not counted, and a failed `codex/x` result nearer the head still
+reads Failed.
 
 **Plan:** [448-ci-status-review-corrections](../slice-plans/448-ci-status-review-corrections/PLAN.md)

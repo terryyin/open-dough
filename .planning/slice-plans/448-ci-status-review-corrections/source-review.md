@@ -1,29 +1,50 @@
 # Source review: SEED-219#ci-status-review-corrections
 
 Launch: a fresh general-purpose reviewer (no conversation inheritance, fork or
-resume), 2026-11-02, by the plan 448 coordinator. Input: only the correction
-story text of `.planning/seeds/SEED-219-intent-ci-status-tab.md#ci-status-review-corrections`
-(heading, Goal, Scope, Key example) at `ee132468d`; no plan, product, proof or
-slice scope. Instructions: use only that input, read no files, change nothing,
-return numbered commitments with qualifications, examples and exclusions.
-Reviewer note: the source does not say whether the trunk ref is named in every
-unread case or only in the 404 example (1.1 takes it from the key example).
+resume), 2026-11-02, by the plan 448 coordinator, after Terry's adapter-parity
+amendment of the story. It replaces the first review (ids 1-6, X1, E1, at
+`10f4eec`). Input: only the amended correction story text of
+`.planning/seeds/SEED-219-intent-ci-status-tab.md#ci-status-review-corrections`
+(heading, Goal, Scope, both Key examples); no plan, product, proof or slice
+scope. Instructions: use only that input, read no files, change nothing, return
+numbered commitments with qualifications, examples and exclusions.
+Reviewer note: the source does not define "applicable" in 6/6.1 (presumably the
+selected check, on a commit in the branch's history, per 5.2-5.3), nor whether
+"nearer or newer" means history distance or time.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | When GitHub cannot list the trunk's history, a developer reading Intent's CI status sees **Could not be read** along with GitHub's reason. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…": state Could not be read, reason contains 404 and /commits?sha=main |
-| 1.1 | In that unread case, CI status names the trunk ref. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…": heading "CI status of main" |
-| 1.2 | In that unread case, CI status says **Could not be read**. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…": .intent-ci-state "Could not be read" |
-| 1.3 | In that unread case, CI status shows GitHub's reason, such as the HTTP 404 reason; an unread trunk judgment keeps its reason visible. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…": .intent-ci-reason contains "404"; baseCiGitHubReads.ts readBranchHistory routes the trunk 404 through githubAcquisitionUnread |
-| 2 | The configured ref is never marked as no longer published; in the unread case it never says "main is not published". | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…": panel not toContainText "not published"; baseCiGitHubReads.ts guard branch !== source.ref; IntentCiJudgment.tsx trunk wording removed |
-| 3 | A story branch that is absent on GitHub is still reported as absent, by name. | slice 1 | observed: intent-ci-status-story-gaps.spec.ts step "a recorded branch no longer published is said so by name" (green in the 12-spec CI status run) |
-| 4 | The maintained Intent doc describes when trunk runs count for a story branch, matching how the dashboard actually judges them. | slice 1 | observed: docs/dashboard-development-intent.md CI status paragraph: trunk runs count for ciWorkflow story branches; trunk 404 is Could not be read |
-| 4.1 | The Intent doc states that a `ciAdapter` project judges a story branch from its own discover answer only. | slice 1 | observed: docs/dashboard-development-intent.md CI status paragraph: "with a ciAdapter, only the adapter's discover results for the judged branch count"; baseCiJudgment.ts adapter path merges no trunk listing |
-| 5 | Maintainers get one plain parameter for the judged branch: the `ci-status` read names its judged branch with its own parameter, not the shared `branch` read parameter. | slice 2 | observed: intentCiStatusRead.ts reads `judged` with no `branch` carve-out; requestedRead.ts has no ci-status exception; intent-ci-status-reads.spec.ts "the CI status read refuses an unsafe branch name…" refuses judged=main..other, judged twice and branch=main with 400; intent-ci-status-story.spec.ts judges the story branch through `judged` |
-| 6 | Maintainers get no overlapping CI status end-to-end tests. | slice 3 | |
-| 6.1 | Each overlapping CI status end-to-end test either moves to unit tests, or | slice 3 | |
-| 6.2 | is removed, with its surviving coverage named. | slice 3 | |
-| X1 | Exclusion: this correction does not decide whether `ciAdapter` projects should also count trunk runs. | slice 1 | observed: docs/dashboard-development-intent.md describes only the built adapter rule; the trunk-run question stays in PLAN.md Current decisions for Terry |
-| E1 | Trigger example: GitHub answers HTTP 404 for `main`'s commit history, for example after the repository is renamed. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" setup: serveCi answers httpErrorAnswer(404) to commit-list main |
+| 1 | When GitHub cannot list the trunk's history, a developer reading Intent's CI status sees **Could not be read** with GitHub's reason. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): state Could not be read, reason contains 404 and /commits?sha=main |
+| 1.1 | In that case CI status never says "main is not published". | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): panel not toContainText "not published" |
+| 2 | The configured ref is never marked as no longer published. | slice 1 | observed: baseCiGitHubReads.ts readBranchHistory guard branch !== source.ref; IntentCiJudgment.tsx has no trunk unpublished wording; intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1) |
+| 3 | When the trunk judgment cannot be read, its reason stays visible. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): .intent-ci-reason contains "404" |
+| 4 | A story branch that does not exist on GitHub is still reported as absent, by name. | slice 1 | observed: intent-ci-status-story-gaps.spec.ts step "a recorded branch no longer published is said so by name" (slice 1 run) |
+| 5 | A `ciAdapter` project's story branch counts trunk results of shared commits the same way a `ciWorkflow` project's does. | slice 4 | |
+| 5.1 | For a `ciAdapter` story branch, the dashboard also asks the adapter's discover for the configured trunk. | slice 4 | |
+| 5.2 | It counts only the selected check's results. | slice 4 | |
+| 5.3 | It counts only results for commits that are actually in that branch's history. | slice 4 | |
+| 5.4 | It names the run's branch honestly. | slice 4 | |
+| E5.4 | Example of the honest branch label: "run on `main`". | slice 4 | |
+| 6 | A nearer or newer applicable failure still decides the judgment. | slice 4 | |
+| 6.1 | A nearer or newer applicable running result still decides the judgment. | slice 4 | |
+| 7 | Evidence that cannot be read stays **Could not be read**. | slice 4 | |
+| X7 | Unreadable evidence is never shown as passed. | slice 4 | |
+| 8 | The maintained Intent doc describes when trunk runs count for a story branch, matching how the dashboard actually judges them. | slice 4 | |
+| 8.1 | The Intent doc states this rule for `ciWorkflow` projects. | slice 4 | |
+| 8.2 | The Intent doc states this rule for `ciAdapter` projects. | slice 4 | |
+| 9 | Maintainers get one plain parameter for the judged branch: the `ci-status` read names its judged branch with its own parameter. | slice 2 | observed: intentCiStatusRead.ts reads `judged`; client sends `&judged=`; intent-ci-status-story.spec.ts judges the story branch through `judged` (slice 2) |
+| X9 | The `ci-status` read does not use the shared `branch` read parameter for the judged branch. | slice 2 | observed: requestedRead.ts has no ci-status exception and intentCiStatusRead.ts no `branch` carve-out; intent-ci-status-reads.spec.ts refusal loop answers 400 for intent=ci-status&branch=main (slice 2) |
+| 10 | Maintainers get no overlapping end-to-end tests. | slice 3 | observed: intent-ci-status-reads.spec.ts trunk running test removed; intent-ci-status.spec.ts cancelled→timed-out Check again round trip removed (slice 3) |
+| 10.1 | Overlapping CI status end-to-end tests either move to unit tests or are removed, as alternatives. | slice 3 | observed: tests/support/dashboard-story-branch-ci.test.mjs "a cancelled or timed-out run is Failed, never passed" (red under both mutations, green after); one E2E Failed kept: intent-ci-status.spec.ts Doughnut step "Failed at a1b2c3d (Add login)" (slice 3) |
+| 10.2 | Each removed test has its surviving coverage named. | slice 3 | observed: intent-ci-status-reads.spec.ts header names intent-ci-status-story.spec.ts step "a running head shows its nearest completed ancestor, on main; Check again after it finishes shows Passed" (asserts ancestor line, ancestor run link mainRun, then Passed) (slice 3) |
+| X11 | The earlier restriction that limited adapters to docs only is replaced and no longer applies. | slice 4 | |
+| E1 | GitHub answers HTTP 404 for `main`'s commit history (for example, after the repository is renamed). | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1) setup: serveCi answers httpErrorAnswer(404) to commit-list main |
+| E1.1 | In that case CI status names `main`. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): heading "CI status of main" |
+| E1.2 | It says **Could not be read**. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): .intent-ci-state "Could not be read" |
+| E1.3 | It shows the 404 reason. | slice 1 | observed: intent-ci-status-reads.spec.ts "CI status that could not be read…" step "a 404 on main's history is Could not be read…" (slice 1): .intent-ci-reason contains "404" |
+| E2 | A `ciAdapter` project's story branch `codex/x` has no result of its own at its head, and the adapter's discover for `main` returns a passed result for a commit in `codex/x`'s history. | slice 4 | |
+| E2.1 | CI status reads Passed at that commit, labelled "run on `main`". | slice 4 | |
+| E2.2 | A `main` result for a commit that is not in `codex/x`'s history is not counted. | slice 4 | |
+| E2.3 | A failed `codex/x` result nearer the head still reads Failed. | slice 4 | |

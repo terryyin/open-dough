@@ -3,9 +3,12 @@
 // (../server/baseCiJudgment.ts) and names `main`, the state, the judged
 // revision, later commits without their own result, the run link, and when
 // it was checked. It is offered whether Intent locations are configured,
-// absent, or unreadable (SEED-219 examples 1, 9). Reading it again, a
-// running head, the ciAdapter and the read's refusals are in
-// ./intent-ci-status-reads.spec.ts.
+// absent, or unreadable (SEED-219 examples 1, 9); a cancelled run reads
+// Failed here, and every completed conclusion's state is the unit test
+// ../../tests/support/dashboard-story-branch-ci.test.mjs. Reading it again,
+// the ciAdapter and the read's refusals are in
+// ./intent-ci-status-reads.spec.ts; a running head with its nearest
+// completed ancestor is in ./intent-ci-status-story.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
@@ -99,14 +102,13 @@ test("CI status names main, its nearest Passed result, later commits without a r
   });
 });
 
-test("CI status is offered without Intent locations and with unreadable Intent settings; a cancelled or timed-out run is Failed and no result never reads as passed", async ({
+test("CI status is offered without Intent locations and with unreadable Intent settings; a cancelled run is Failed and no result never reads as passed", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  let doughnutConclusion: "cancelled" | "timed_out" = "cancelled";
   publishProject(page, doughnut).serveCi(
     trunkCi(doughnut.revision, () => [
-      { headSha: judged, conclusion: doughnutConclusion, url: runUrl },
+      { headSha: judged, conclusion: "cancelled", url: runUrl },
     ]),
   );
   publishProject(page, pygardon, {
@@ -132,20 +134,6 @@ test("CI status is offered without Intent locations and with unreadable Intent s
     );
     await expect(panel.getByRole("link", { name: runUrl })).toBeVisible();
     await expectChecked(panel);
-    const cancelledCheck = await panel
-      .getByRole("status")
-      .locator("time")
-      .getAttribute("datetime");
-    doughnutConclusion = "timed_out";
-    await panel.getByRole("button", { name: "Check again" }).click();
-    await expect
-      .poll(() =>
-        panel.getByRole("status").locator("time").getAttribute("datetime"),
-      )
-      .not.toBe(cancelledCheck);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at a1b2c3d (Add login)",
-    );
     await intentModeTab(intent, "Intent").click();
     await expect(intent).toContainText(
       "No intent locations are configured for Doughnut.",
