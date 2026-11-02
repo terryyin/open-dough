@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-223#deliberate-intent-proof",
+  "title": "Generate Intent proof only on explicit request",
+  "completedAt": "2026-11-02T09:57:37.061Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex"
+}
