@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-223#deliberate-intent-proof",
+  "mode": "trunk",
+  "branch": "origin/main",
+  "host": "codex"
+}
