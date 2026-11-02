@@ -51,3 +51,41 @@ expectations with Terry's amendment, preserving dated baseline provenance.
 Producer commitments span both recorders: slice 2
 proves Pygardon and slice 3 proves Doughnut; slice 3's acceptance must retain
 and compare both observations before closing those whole-product commitments.
+
+### Pygardon producer acceptance
+
+Inspected `cucumberProof.mts`'s actual final-attempt entry, `cucumberProofStore.mts`
+passing-only write and recursive identity cleanup, disk-read updates, atomic
+replacement and PID-symlink lock/recovery. Real fixture setup supplies scenarios
+and earlier proof; assertions read actual recorder files after the triggered
+runs. `cucumber-proof-lifecycle.test.mjs` observes pass → failure → recovery,
+unrelated/newer success retained, overlapping-run cleanup and interrupted owner
+recovery. `cucumber-proof-outcomes.test.mjs` observes retry counts/duration,
+mixed outcomes and independent outline rows; selection/source tests retain their
+prior boundaries. Four failed packaged proof files were removed latest-first;
+all six successful observations retain their original bytes and metadata.
+
+- `nix develop -c scripts/check-worktree.sh node --test tests/cucumber-proof-lifecycle.test.mjs tests/cucumber-proof-outcomes.test.mjs tests/cucumber-proof-source.test.mjs tests/cucumber-proof-selection.test.mjs tests/cucumber-proof-recorder.test.mjs` — 28 passed (4.53s).
+- `nix develop -c scripts/check-worktree.sh pytest tests/test_packaged_homepage.py` — 3 passed (4.54s), real packaged profile and unsuccessful-command output.
+- Independent refactor removed only dead expected-status tuple data. `nix develop -c scripts/check-worktree.sh node --test tests/cucumber-proof-outcomes.test.mjs` — 6 passed (3.09s). Remaining accepted boundaries stayed unchanged.
+- Consumer traces: `/tmp/pygardon-success-consumer-trace.md` (112 complete dispositions) and `/tmp/pygardon-success-refactor-consumer-trace.md` (test discovery inspected; no gap). A redundant trace regeneration was interrupted at exit 130 after its evidence artifact was completed; no verification command remains pending and no test failed.
+
+Parent interoperability command, run from the owned Open Dough workspace:
+
+```sh
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parseProofFile, latestSuccessfulObservations } from './dashboard/src/cucumberProof.ts';
+const fresh=parseProofFile(readFileSync('/tmp/pygardon-success-new-output.json','utf8'));
+assert.ok(fresh);const successful=latestSuccessfulObservations(fresh);
+assert.equal(successful.length,1);assert.equal(successful[0].attempts,2);
+const root='/Users/terryyin/git/pygardon-last-successful-proof';let count=0;
+for(const dir of ['e2e_test/proof','e2e_test/packaged/proof'])for(const name of readdirSync(`${root}/${dir}`,{recursive:true}).filter(name=>name.endsWith('.json'))){const rows=parseProofFile(readFileSync(`${root}/${dir}/${name}`,'utf8'));assert.ok(rows);assert.ok(rows.every(row=>row.outcome==='passed'));count+=rows.length;}
+console.log(JSON.stringify({freshSuccesses:successful.length,attempts:successful[0].attempts,retainedPassingObservations:count}));
+JS
+```
+
+Result: one new recorder success with two attempts; six retained passing
+observations parse. This proves C1–C3/C8 for Pygardon; Doughnut remains owned
+by slice 3 before those whole-product commitments close.

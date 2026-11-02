@@ -139,7 +139,7 @@ invalidates their older successes on a newer failure.
 
 ### 2. Keep Pygardon proof successful through ordinary scenario lifecycles
 Type: Behavior
-Status: planned
+Status: done
 Proof: Reuse prepared-worktree readiness and the real fixture baseline above;
 do not substitute shared checkout dependencies. Run
 `nix develop -c scripts/check-worktree.sh node --test tests/cucumber-proof-*.test.mjs`
@@ -218,3 +218,18 @@ Replacement proof after these affected-boundary moves:
 — 21 passed (18.2s). `npm run typecheck:dashboard` and `git diff --check`
 passed. The refactor consumer trace at
 `/tmp/intent-success-refactor-consumer-trace.md` has complete dispositions.
+
+### Pygardon accepted proof
+
+The actual recorder now maintains only successful proof, with final-result
+identity cleanup, atomic replacement and interrupted-owner recovery. Real
+Cucumber fixtures passed 28/28; packaged consumers passed 3/3; independent
+refactor retained behavior and its affected outcomes passed 6/6. Four failed
+packaged files were removed; six passing observations remain. The new two-attempt
+recorder output is accepted by Intent. Full commands and inspected observations
+are in [acceptance evidence](source-review.md#pygardon-producer-acceptance).
+Pygardon accepted publication: `9f5121798c42a32f0118a29991facd1246739fa3`
+on origin's `refs/heads/codex/last-successful-intent-proof`; observation reused
+`/tmp/dough-ci-501/watch-ASgokc`. Its component typecheck/lint hook passed
+after making the existing default UTF-8 directory encoding explicit; this
+mechanical type repair leaves accepted runtime observations unchanged.
