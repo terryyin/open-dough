@@ -58,8 +58,9 @@ Development (first-visit default) shows the Board; Intent reads Purpose from
 configured test-source locations in `.planning/open-dough.json` (`gherkin`,
 `typescript`, `javascript`, `python`, or `shell`, optional `include`), or says
 none are configured, without claiming tests or Proof are absent; its tabs
-also show **Optimization Candidates** and the trunk's **CI status**. Project
-changes, history, reload and System settings keep the perspective; choosing a
+also show **Optimization Candidates** and **CI status**, of the trunk or the
+selected story's published story branch. Project changes, history, reload
+and System settings keep the perspective; choosing a
 session opens Development ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 **Near-future direction** starts collapsed below the banner, opposite the

@@ -204,8 +204,8 @@ export function IntentPerspective({
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
 }) {
-  // Intent reads the page's selected story; the comparison overlay uses this
-  // identity once it lands.
+  // Intent reads the page's selected story: CI status judges its branch, and
+  // the comparison overlay uses this identity once it lands.
   const { selectedIdentity } = useStorySelection(source.id);
   const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(source.id);
   return (
@@ -230,7 +230,8 @@ export function IntentPerspective({
       />
       <IntentCiStatusPanel
         source={source}
-        revision={work?.revision}
+        work={work}
+        selectedIdentity={selectedIdentity}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
       />

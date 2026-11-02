@@ -41,10 +41,13 @@ function failureText(failure) {
   );
 }
 
-// A failed acquisition whose message contains only its route and safe cause.
+// A failed acquisition whose message contains only its route and safe cause;
+// `failure` keeps that cause, so a caller can tell GitHub having no such
+// thing (`{ kind: "http", status: 404 }`) from other failures.
 export class GitHubAcquisitionFailed extends Error {
   constructor(route, failure) {
     super(`GitHub request ${route} failed: ${failureText(failure)}`);
+    this.failure = failure;
   }
 }
 

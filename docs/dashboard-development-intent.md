@@ -66,16 +66,30 @@ Choosing a location an entry names selects **Intent** with that file's
 Purpose and Proof, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again. **CI status** shows, across the
 content area without the location tree, the selected check's judgment of the
-project's configured trunk (`main` here), by the same rule as the
+project's configured trunk (`main` here), or, while a story is selected on
+Development's board, of that story's published story branch: the branch its
+single agent profile records in Story Branch Mode. It is judged by the same
+rule as the
 [base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md): the
 newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at the
-trunk head or its nearest ancestor that has one. It names the branch and
+branch head or its nearest ancestor that has one; for a story branch, a run
+on the trunk for a commit in the branch's history counts as that commit's
+result, and the run's branch is named (for example "run on `main`"). A
+selected story with no published story branch (queued or being prepared,
+Trunk Mode, or Recently done) is named with that explanation; one whose agent
+profiles cannot be read, or that more than one profile names, says its branch
+is unknown and why; a recorded name the dashboard cannot use is that story's
+gap; and a recorded branch GitHub no longer publishes is said so by name.
+None of these shows a status, and no other branch's judgment stands in. A
+changed selection replaces the judgment, never showing one read for an
+earlier selection, and clearing it returns to the trunk. It names the branch and
 states **Passed**, **Failed** (including cancelled or timed out),
 **Running** or **Could not be read** with the reason, with the judged short
 SHA and subject, how many later commits have no result of their own, the run
 link when given, while running the nearest completed ancestor, and when it
 was checked; a history with no result is **Could not be read**, never
-passed. It is read each time the tab is shown, again when the page's
+passed. It is read each time the tab is shown, when the judged branch
+changes, again when the page's
 revision check observes a new trunk revision while it is shown, and on
 **Check again**, with no timed polling, and it is offered whether Intent locations are
 configured, absent, or unreadable: the strip stands above those

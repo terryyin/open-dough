@@ -1,13 +1,14 @@
 // Intent's CI status tab (`./IntentModeTabs.tsx`): the selected check's
-// judgment of the project's trunk (`./authenticatedIntentCiStatusRead.ts`),
-// across the content area without the location tree. It always names the
-// branch, states Passed, Failed, Running or Could not be read (with the
-// reason), the judged revision, later commits without their own result, the
-// run link, a running judgment's nearest completed ancestor, and when it was
-// checked. It is read each time it is shown, again when a new trunk revision
-// is observed while it is shown, and on Check again; a re-read keeps the
-// shown judgment until its answer replaces it. Wording is
-// shared with the launch's base-CI confirmation (`./baseCiWording.ts`).
+// judgment of the branch `./intentCiTarget.ts` names (the project's trunk, or
+// the selected story's published story branch) through
+// `./authenticatedIntentCiStatusRead.ts`, across the content area without
+// the location tree. It always names the branch and when it was checked,
+// and shows the judgment as `./IntentCiJudgment.tsx` does. A selected story
+// without a branch to judge is named with why, and nothing is judged. It is
+// read each time it is shown, when the judged branch changes, again when a
+// new trunk revision is observed while it is shown, and on Check again; a
+// re-read of the same branch keeps the shown judgment until its answer
+// replaces it, and a judgment of another branch is never shown.
 
 import { useEffect, useState } from "react";
 import {
@@ -15,25 +16,21 @@ import {
   type IntentCiStatus as Judgment,
 } from "./authenticatedIntentCiStatusRead.ts";
 import {
-  completedAncestorLine,
-  judgedStateName,
-  laterWithoutResultLine,
-  noCompletedAncestorLine,
-  shortSha,
-} from "./baseCiWording.ts";
-import {
   intentModePanelId,
   intentModeTabId,
   type IntentMode,
 } from "./IntentModeTabs.tsx";
+import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
+import { ShownJudgment } from "./IntentCiJudgment.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 import "./intent-ci-status.css";
 
-// A judgment the boundary could not answer at all still names the trunk and
+// A judgment the boundary could not answer at all still names the branch and
 // says why, never reading as passed.
-function boundaryUnread(source: PublishedSource, error: unknown): Judgment {
+function boundaryUnread(branch: string, error: unknown): Judgment {
   return {
-    branch: source.ref,
+    branch,
     checkedAt: new Date().toISOString(),
     state: "unread",
     revision: "unavailable",
@@ -46,65 +43,39 @@ function boundaryUnread(source: PublishedSource, error: unknown): Judgment {
   };
 }
 
-function RunLink({ url }: { readonly url: string | undefined }) {
-  if (url === undefined) return null;
+// The selected story's gap: named, with why, and no status.
+function StoryGap({
+  target,
+}: {
+  readonly target: Extract<CiTarget, { kind: "gap" }>;
+}) {
   return (
-    <p>
-      Run:{" "}
-      <a href={url} target="_blank" rel="noreferrer">
-        {url}
-      </a>
-    </p>
+    <section className="intent-ci-status" aria-label="CI status">
+      <h3>CI status of {target.story}</h3>
+      <p className="intent-ci-gap">{target.why}</p>
+    </section>
   );
 }
 
-function Shown({ judgment }: { readonly judgment: Judgment }) {
-  const { completedAncestor } = judgment;
-  const later = laterWithoutResultLine(judgment.laterWithoutResult);
-  return (
-    <>
-      <p className="intent-ci-state" data-state={judgment.state}>
-        {judgedStateName(judgment.state)}
-        {judgment.revision === "unavailable" ? (
-          ""
-        ) : (
-          <>
-            {" at "}
-            <code>{shortSha(judgment.revision)}</code> ({judgment.subject})
-          </>
-        )}
-      </p>
-      {later !== "" && <p>{later}</p>}
-      {judgment.reason !== undefined && (
-        <p className="intent-ci-reason">{judgment.reason}</p>
-      )}
-      <RunLink url={judgment.runUrl} />
-      {judgment.state === "running" &&
-        (completedAncestor === undefined ? (
-          <p>{noCompletedAncestorLine}</p>
-        ) : (
-          <>
-            <p>{completedAncestorLine(completedAncestor)}</p>
-            <RunLink url={completedAncestor.runUrl} />
-          </>
-        ))}
-    </>
-  );
-}
-
-export function IntentCiStatus({
+function JudgedBranch({
   source,
+  branch,
+  story,
   revision,
 }: {
   readonly source: PublishedSource;
+  readonly branch: string;
+  readonly story: string | undefined;
   // The page's observed trunk revision, once read.
   readonly revision: string | undefined;
 }) {
+  // The judgment shown, and the branch it was read for: a judgment of any
+  // other branch than `branch` is never shown.
   const [judgment, setJudgment] = useState<Judgment | undefined>(undefined);
   const [reading, setReading] = useState(true);
   const [check, setCheck] = useState(0);
   // The trunk head this judgment follows: the first revision read only
-  // records it, since the judgment already reads the trunk's head; a later
+  // records it, since the judgment already reads the branch's head; a later
   // one re-reads.
   const [followed, setFollowed] = useState(revision);
   if (revision !== undefined && revision !== followed) {
@@ -115,13 +86,13 @@ export function IntentCiStatus({
   useEffect(() => {
     const controller = new AbortController();
     setReading(true);
-    void readIntentCiStatus(source, controller.signal)
+    void readIntentCiStatus(source, branch, controller.signal)
       .then((answer) => {
         if (!controller.signal.aborted) setJudgment(answer);
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted)
-          setJudgment(boundaryUnread(source, error));
+          setJudgment(boundaryUnread(branch, error));
       })
       .finally(() => {
         if (!controller.signal.aborted) setReading(false);
@@ -129,31 +100,34 @@ export function IntentCiStatus({
     return () => {
       controller.abort();
     };
-  }, [source, check]);
+  }, [source, branch, check]);
 
-  const checkedAt =
-    judgment === undefined ? undefined : new Date(judgment.checkedAt);
+  const shown = judgment?.branch === branch ? judgment : undefined;
+  const checkedAt = shown === undefined ? undefined : new Date(shown.checkedAt);
   return (
     <section className="intent-ci-status" aria-label="CI status">
       <h3>
-        CI status of <code>{source.ref}</code>
+        CI status of <code>{branch}</code>
       </h3>
+      {story !== undefined && (
+        <p className="intent-ci-story">Story branch of {story}.</p>
+      )}
       <p role="status" className="quiet">
         {reading ? (
-          `Checking the CI of ${source.ref}…`
-        ) : checkedAt === undefined || judgment === undefined ? (
+          `Checking the CI of ${branch}…`
+        ) : checkedAt === undefined || shown === undefined ? (
           ""
         ) : (
           <>
             Checked at{" "}
-            <time dateTime={judgment.checkedAt}>
+            <time dateTime={shown.checkedAt}>
               {checkedAt.toLocaleTimeString()}
             </time>
             .
           </>
         )}
       </p>
-      {judgment !== undefined && <Shown judgment={judgment} />}
+      {shown !== undefined && <ShownJudgment judgment={shown} story={story} />}
       <p>
         <button
           type="button"
@@ -169,15 +143,41 @@ export function IntentCiStatus({
   );
 }
 
+export function IntentCiStatus({
+  source,
+  work,
+  selectedIdentity,
+}: {
+  readonly source: PublishedSource;
+  readonly work: PublishedWork | undefined;
+  // The page's selected story, if any.
+  readonly selectedIdentity: string | undefined;
+}) {
+  const target = ciTargetOf(source, work, selectedIdentity);
+  if (target.kind === "gap") return <StoryGap target={target} />;
+  // Keyed by branch, so a changed branch starts with nothing shown.
+  return (
+    <JudgedBranch
+      key={target.branch}
+      source={source}
+      branch={target.branch}
+      story={target.story}
+      revision={work?.revision}
+    />
+  );
+}
+
 // The CI status tab's panel, read only while that tab is chosen.
 export function IntentCiStatusPanel({
   source,
-  revision,
+  work,
+  selectedIdentity,
   mode,
   modeIdPrefix,
 }: {
   readonly source: PublishedSource;
-  readonly revision: string | undefined;
+  readonly work: PublishedWork | undefined;
+  readonly selectedIdentity: string | undefined;
   readonly mode: IntentMode;
   readonly modeIdPrefix: string;
 }) {
@@ -191,7 +191,11 @@ export function IntentCiStatusPanel({
       tabIndex={-1}
     >
       {mode === "ci-status" ? (
-        <IntentCiStatus source={source} revision={revision} />
+        <IntentCiStatus
+          source={source}
+          work={work}
+          selectedIdentity={selectedIdentity}
+        />
       ) : null}
     </div>
   );

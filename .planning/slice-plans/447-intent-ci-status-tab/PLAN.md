@@ -211,7 +211,7 @@ judged result's run branch. External behavior unchanged. Enables slice 4.
 
 ### 4. CI status follows the selected story's branch
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-ci-status-story.spec.ts` (examples 2, 3, 4,
 4', 5, the stale-answer case, and source example 7 on a story branch: Running
 at head with its completed ancestor, then Passed after Check again).
@@ -225,6 +225,17 @@ deselect. Result: as the examples say; the tab never shows a judgment read
 for a previous selection; the run branch is named when it differs from the
 judged branch. Docs: Intent section and GitHub requests (four requests for a
 story branch: history, its runs, the trunk's runs, workflow lookup).
+
+Accepted proof (slice 4, 2026-11-02): `intent-ci-status-story.spec.ts`
+(examples 2, 3, 4 with a held stale answer, 6, 7 on a story branch, four
+requests) and `intent-ci-status-story-gaps.spec.ts` (queued, Preparing, Trunk
+Mode, done, conflicting, unsafe, unpublished, unreadable profiles), repeated
+×3; 74 Intent, selection, progress and launch specs passed after refactor;
+mutation-checked run-branch wording and unpublished mark. The target is
+`ciTargetOf` (`dashboard/src/intentCiTarget.ts`); a branch absent on GitHub
+(history 404) reads as no longer published. For slice 5: story branches are
+watched only when routed for progress; feed the shown branch's watched head
+from `checkPublishedRevision(...).heads` into `JudgedBranch`.
 
 ### 5. Re-read when the shown branch's head moves
 Type: Behavior

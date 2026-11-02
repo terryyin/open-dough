@@ -1,4 +1,4 @@
-/* Intent's CI status (./IntentCiStatus.tsx): the trunk's judgment across the
+/* Intent's CI status (./IntentCiStatus.tsx): the judged branch across the
    content area, without the location tree. */
 .intent-ci-status-panel {
   flex: 1;

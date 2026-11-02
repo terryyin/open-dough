@@ -7,16 +7,12 @@
 // authenticated read boundary (`./intentCiStatusRead.ts`). ADR 0008: observe
 // without owning; nothing is kept beyond the request. GitHub Actions and
 // command-adapter (ciAdapter discover) projects share one judgment rule
-// (`./baseCiNearest.ts`); each judged result names the branch its run was on.
+// (`./baseCiNearest.ts`) and history read (`./baseCiGitHubReads.ts`); each
+// judged result names the branch its run was on.
 // Only a branch name the safe-branch rule accepts reaches `gh api` or the
 // adapter.
 import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
-import {
-  createGitHubActions,
-  GitHubAcquisitionFailed,
-  GitHubAcquisitionHeld,
-  readGitHubActions,
-} from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
 import {
   isSafeBranchName,
@@ -25,53 +21,18 @@ import {
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  githubAcquisitionUnread,
+  readBranchHistory,
+} from "./baseCiGitHubReads.ts";
+import {
   type BaseCiJudgment,
   judgeNearest,
-  type ListedCommit,
   type ListedRun,
   unread,
 } from "./baseCiNearest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
 export type { BaseCiJudgment } from "./baseCiNearest.ts";
-
-const historyPage = 30;
-
-function githubAcquisitionUnread(
-  error: unknown,
-  fallback: string,
-): BaseCiJudgment {
-  if (error instanceof GitHubAcquisitionHeld)
-    return unread(
-      `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
-    );
-  if (error instanceof GitHubAcquisitionFailed) return unread(error.message);
-  return unread(error instanceof Error ? error.message : fallback);
-}
-
-async function readBranchHistory(
-  source: PublishedSource,
-  branch: string,
-  signal: AbortSignal,
-): Promise<ListedCommit[] | BaseCiJudgment> {
-  try {
-    const commits = (await readGitHubActions(
-      [
-        "api",
-        `repos/${source.repository}/commits?sha=${encodeURIComponent(branch)}&per_page=${String(historyPage)}`,
-      ],
-      signal,
-    )) as ListedCommit[];
-    if (!Array.isArray(commits) || commits.length === 0)
-      return unread(`No commit history was returned for ${branch}`);
-    return commits;
-  } catch (error) {
-    return githubAcquisitionUnread(
-      error,
-      "The commit history could not be read",
-    );
-  }
-}
 
 async function judgeWithRuns(
   source: PublishedSource,

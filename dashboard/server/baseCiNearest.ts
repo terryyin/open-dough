@@ -27,6 +27,9 @@ export type BaseCiJudgment =
       readonly reason?: string;
       readonly runUrl?: string;
       readonly runBranch?: string;
+      // GitHub has no published branch of the judged name (its history
+      // listing answered `404`).
+      readonly unpublished?: true;
     };
 
 export type ListedCommit = {
@@ -51,7 +54,9 @@ function runBranchOf(run: ListedRun): { runBranch?: string } {
     : {};
 }
 
-export function unread(reason: string): BaseCiJudgment {
+export function unread(
+  reason: string,
+): Exclude<BaseCiJudgment, { state: "pass" }> {
   return {
     state: "unread",
     revision: "unavailable",
