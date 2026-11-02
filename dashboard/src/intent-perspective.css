@@ -20,7 +20,13 @@
 
 .intent-scroll .page-header {
   flex: none;
-  margin-block: var(--space-2);
+  margin-block: var(--space-1);
+}
+
+/* The spoken read result needs no reserved line above Intent's workspace.
+   An active read still shows its progress, and alerts keep their own room. */
+.intent-scroll .page-header > .read-status:not(:has(.read-status-line)) {
+  min-height: 0;
 }
 
 .intent-perspective {
