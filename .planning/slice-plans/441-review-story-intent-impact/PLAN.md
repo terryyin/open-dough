@@ -270,6 +270,28 @@ second caller needs, and its Structure proof observes the result.
 - Review changes and Intent share one comparison read, one change-kind model
   and style set, one tree, and one diff renderer.
 
+## Execution complete
+
+Product advice:
+- Story 5 gives "Review how well a story's intent is protected" and "Review
+  complexity introduced by a story's tests" their entry point: the selected
+  story's comparison overlaid on Intent, read most efficiently through
+  "Selected story only".
+- Proof describes only the published revision, and Open Dough's own
+  Playwright specs have no recorded Proof until "Read Open Dough dashboard
+  Playwright proof" lands; judge protection first on a Pygardon or Doughnut
+  Gherkin story, or sequence that proof story earlier.
+- Intent locations admit only their kind and include patterns, so support
+  code (49 files for this story) counts as outside; the complexity story must
+  read beyond Intent locations, for example through Review changes' list.
+- Completed stories whose history contains merge resolutions have no
+  comparison; choose evaluation stories without them.
+- Folder Summaries count only published files (G2), so an aggregate built on
+  them would omit added tests.
+- Correction SEED-192#align-intent-story-lens (plan 448) restores the
+  disclosure-click and Review-link promises and removes the residue; it awaits
+  disposition at wrap-up.
+
 ## Learnings
 
 - Page selection API mutators must stay referentially stable across selection

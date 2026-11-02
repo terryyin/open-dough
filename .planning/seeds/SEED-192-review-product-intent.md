@@ -498,6 +498,29 @@ existing Inspect button.
   redefine Purpose), and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   (reuse the existing solution). None conflicts.
 
+<a id="align-intent-story-lens"></a>
+
+### 5a. Keep the story lens consistent with Review changes
+
+**Identity:** SEED-192#align-intent-story-lens
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/448-align-intent-story-lens/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2bc3f637ec441cddab48b2edfc456c3382a37957f538e9e99b63d05ad45610df","plan":"072d727b7995ebb560a013c5862cc35ff763ea893b6fd2df43b2ce6adcaa3793"}}
+```
+
+**Goal:** A developer reviewing a story's test changes in Intent, such as Terry,
+gets the selection and comparison story 5 promised: clicks inside a card's
+opened disclosure leave the selection alone, and Intent's link to Review
+changes shows the same comparison Intent shows, even for a story with a review
+mark. This bounded retrospective correction of
+[story 5](#review-story-intent-impact) adds no new product promise.
+
+**Scope:** Exclude opened disclosure content from card selection; open Review
+changes from Intent on all changes, including uncommitted ones; describe board
+selection and Intent's folder default in the dashboard docs; and remove the
+residue the retrospective found in the story's code and tests.
+
+**Plan:** [slice plan](../slice-plans/448-align-intent-story-lens/PLAN.md)
+
 <a id="check-cucumber-proof-in-ci"></a>
 
 ### 7. Check locally collected Cucumber proof against CI
