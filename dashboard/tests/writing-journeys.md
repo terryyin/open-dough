@@ -64,7 +64,11 @@ the 15-second pace, the 30-second target, hidden-page pauses, and a rate
 limit's directed wait are observed in page time; they read the fake GitHub's
 `gh` call log to prove what was and was not asked. A journey that watches a
 session's state pace pauses the clock the same way
-(`pausePageClockAt` in `dashboardTest.ts`). Assert that no `gh` call
+(`pausePageClockAt` in `dashboardTest.ts`) and passes each read with
+`watchRecordReads(page).passOnePace` (`sessionStatePace.ts`), instead of waiting
+the pace out. Under a paused clock the terminal draws only as page time passes,
+so a journey reading terminal text lets whole paces pass with `passOnePace`:
+any partial step moves the next read off its pace. Assert that no `gh` call
 was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
