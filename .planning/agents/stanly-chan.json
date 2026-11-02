@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-192#read-cypress-cucumber-proof",
+  "mode": "story-branch",
+  "branch": "cursor/read-the-latest-doughnut-cypress-cucumber-proof",
+  "host": "cursor",
+  "model": "auto"
+}
