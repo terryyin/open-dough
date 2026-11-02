@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-218#fix-owned-calls-start-slack-hang",
+  "title": "End the held-gh start-slack deadlock and concurrent test-results race",
+  "completedAt": "2026-11-02T04:53:15.733Z",
+  "developer": "Terry Yin",
+  "agent": "juacompe-chan",
+  "host": "codex"
+}
