@@ -16,14 +16,14 @@ after failure.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C1 | Record proof only for scenarios that pass. | slice 3 | |
-| C2 | A passing scenario can produce proof even when another scenario fails and the overall run fails. | slice 3 | |
-| C3 | Preserve retry/attempt counts for recorded passing proof. | slice 3 | |
+| C1 | Record proof only for scenarios that pass. | slice 3 | observed: both producer stores write only pass inputs; both real runner suites assert retained successes |
+| C2 | A passing scenario can produce proof even when another scenario fails and the overall run fails. | slice 3 | observed: Pygardon outcomes/recorder real Cucumber cases and Doughnut real Cypress mixed-run proof assertions |
+| C3 | Preserve retry/attempt counts for recorded passing proof. | slice 3 | observed: both real retry fixtures retain two attempts; both actual outputs accepted by Intent parser/reducer |
 | C4 | Retain the “Passed after retry” distinction when applicable. | slice 1 | observed: intent-cucumber-proof.spec.ts expectedRows asserts Passed after retry (2 attempts) through published proof |
 | C5 | Present proof as the scenario’s last successful demonstration. | slice 1 | observed: IntentProof.tsx header and proofScenarioCountLine.ts; published file/location/folder journey assertions |
 | C6 | Show when that successful demonstration occurred. | slice 1 | observed: intent-cucumber-proof.spec.ts fixed clock and expectedRows time cells |
 | C7 | Show the revision associated with that successful demonstration. | slice 1 | observed: intent-cucumber-proof.spec.ts expectedRows commit and feature-version cells |
-| C8 | When a scenario fails, remove its earlier proof, if any. | slice 3 | |
+| C8 | When a scenario fails, remove its earlier proof, if any. | slice 3 | observed: Pygardon real lifecycle and Doughnut real Cypress pass/failure/recovery; recursive/outline/concurrent identity cleanup assertions |
 
 ## Qualifications and examples
 
@@ -89,3 +89,41 @@ JS
 Result: one new recorder success with two attempts; six retained passing
 observations parse. This proves C1–C3/C8 for Pygardon; Doughnut remains owned
 by slice 3 before those whole-product commitments close.
+
+### Doughnut producer acceptance
+
+Inspected `cucumberProofRecorder.mjs`'s final task-transport result and new
+`cucumberProofStore.mjs` pass write/recursive cleanup, atomic replacement,
+current-file updates and interrupted-owner recovery. The real Cypress fixture
+keeps its normal exit and diagnostics, retains three passing rows in a mixed
+run (including a two-attempt retry), and observes pass → failure with empty
+proof → recovery for the selected scenario. Six task-boundary lifecycle cases
+observe independent outline rows, recursive/newer success, overlapping writer
+cleanup, preserved non-runs and a killed lock owner. Existing nine passing
+observations remain unchanged.
+
+- `CURSOR_DEV=true nix develop -c pnpm test:cucumber-proof` — 21 passed (53.07s), including the isolated real Cypress runner.
+- Independent refactor removed one unused duration datum. `CURSOR_DEV=true nix develop -c node --test e2e_test/config/cucumberProofRecorder.test.mjs` — 13 passed (0.87s), including two attempts and 110ms; other accepted boundaries unchanged.
+- Consumer traces `/tmp/doughnut-success-consumer-trace.md` (46 complete dispositions) and `/tmp/doughnut-success-refactor-consumer-trace.md` (seven complete dispositions), with no uncovered consumer. All final project formatting/type/lint commit gates passed.
+- A one-off artifact write was removed from permanent tests after capturing actual output; no shared global temporary output remains in the test suite. This does not alter product code or behavioral assertions.
+
+Parent interoperability command from the owned Open Dough workspace:
+
+```sh
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parseProofFile, latestSuccessfulObservations } from './dashboard/src/cucumberProof.ts';
+const fresh=parseProofFile(readFileSync('/tmp/doughnut-success-new-output.json','utf8'));
+assert.ok(fresh);const successful=latestSuccessfulObservations(fresh);
+assert.equal(successful.length,3);assert.equal(successful.find(row=>row.scenario==='Retry succeeds').attempts,2);
+const directory='/Users/terryyin/git/doughnut-last-successful-proof/e2e_test/proof';let count=0;
+for(const name of readdirSync(directory,{recursive:true}).filter(name=>name.endsWith('.json'))){const rows=parseProofFile(readFileSync(`${directory}/${name}`,'utf8'));assert.ok(rows);assert.ok(rows.every(row=>row.outcome==='passed'));count+=rows.length;}
+console.log(JSON.stringify({freshSuccesses:successful.length,retryAttempts:2,retainedPassingObservations:count}));
+JS
+```
+
+Result: three actual new Cypress successes, two attempts for the retry; nine
+retained passing observations parse. With the retained Pygardon observations,
+C1–C3/C8 are now observed for both producer boundaries. No remaining source
+commitment, implementation gap or required local proof remains open.

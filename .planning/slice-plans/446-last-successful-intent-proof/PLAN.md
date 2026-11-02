@@ -157,7 +157,7 @@ Open Dough guidance.
 
 ### 3. Keep Doughnut proof successful through ordinary scenario lifecycles
 Type: Behavior
-Status: planned
+Status: done
 Proof: Reuse prepared-worktree readiness and the real Cypress fixture baseline
 above. Extend and run `CURSOR_DEV=true nix develop -c pnpm test:cucumber-proof`
 through the
@@ -233,3 +233,15 @@ on origin's `refs/heads/codex/last-successful-intent-proof`; observation reused
 `/tmp/dough-ci-501/watch-ASgokc`. Its component typecheck/lint hook passed
 after making the existing default UTF-8 directory encoding explicit; this
 mechanical type repair leaves accepted runtime observations unchanged.
+
+### Doughnut accepted proof
+
+The actual Cypress recorder maintains successful proof with the same identity
+cleanup and retry semantics. Full recorder/real Cypress proof passed 21/21;
+independent refactor's affected module passed 13/13. All nine retained successes
+remain unchanged; actual new retry-assisted output is accepted by Intent.
+Commands and observations are in [acceptance evidence](source-review.md#doughnut-producer-acceptance).
+Accepted publication: `b5836adf9a66fa9a29606d2d04438b8e4c4cac15` on origin's
+`refs/heads/codex/last-successful-intent-proof`, observed through
+`/tmp/dough-ci-501/watch-kvl5WN`. CI completion remains pending for the three
+published implementation branches; no CI success is inferred from local proof.
