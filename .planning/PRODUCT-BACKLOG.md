@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show summaries when selecting Intent entries and folders](seeds/SEED-217-intent-entry-folder-summaries.md#intent-entry-folder-summaries) — SEED-217#intent-entry-folder-summaries
 - [Review optimization candidates in a separate Intent tab](seeds/SEED-216-optimization-candidates-tab.md#optimization-candidates-tab) — SEED-216#optimization-candidates-tab
 - [Check locally collected Cucumber proof against CI](seeds/SEED-192-review-product-intent.md#check-cucumber-proof-in-ci) — SEED-192#check-cucumber-proof-in-ci
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost
