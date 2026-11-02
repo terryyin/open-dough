@@ -1,3 +1,15 @@
+## 0.3.83 - 2026-11-02
+
+- Read legacy planning identity evidence without treating readable context as missing allocation data. Preserve numeric reservations from metadata and filenames and recover explicitly declared identities across material historical versions, including nonnumeric identities.
+- Report a previously declared legacy story through `history.story` and `in-history`, so it cannot be mistaken for an unused identity. Malformed declarations and unreadable evidence remain visible gaps; evidence reading stays read-only.
+- Keep declaration syntax in the existing identity module and verify the behavior through both installed native roots after the release source is removed. Source-only test maintenance retains paced dashboard-read and suite-admission timing guidance.
+
+The Promoted payload changes five existing backlog identity modules and the identity reference. No payload path, installer, discovery or host-hook mechanism changes.
+
+Validation: 28 focused identity/home-reader/adoption/correction tests passed; real installed CLI regression passed for both physical roots; six focused payload/installer/release checks passed. Selective formatting, staged lint and post-reconciliation dashboard typecheck passed. The self-installation baseline check passed before metadata changes. Hosted CI remains separately observed through its final result.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code installation, discovery and hook mechanisms reuse their existing integration evidence documented in 0.3.82. The changed shared runtime has fresh Git/CLI regression proof. These checks are not fresh native-host acceptance; no native exception is selected.
+
 ## 0.3.82 - 2026-11-02
 
 - Make Cucumber proof deliberate: ordinary passing and failing tests leave proof untouched; an explicit project option generates or refreshes compact snapshots for executed scenarios. Explicit unsuccessful scenarios clear earlier success while unexecuted scenarios retain theirs. Existing Cucumber.js and Cypress Messages producers follow the same contract.
