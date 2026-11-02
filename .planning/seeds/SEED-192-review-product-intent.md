@@ -506,52 +506,151 @@ existing Inspect button.
 
 **Identity:** SEED-192#check-cucumber-proof-in-ci
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/450-check-cucumber-proof-in-ci/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ffb7c6e923faf5d8b457d1b09c66b79dd99780e2c0546ab442441521d7c311e","plan":"84ff8e97e0a37a7bb2f49efd320caab4aace08ee0ad032b5d2a5462237e602c5"}}
 ```
 
-- **For / why:** A Pygardon developer can tell whether independent CI corroborates
-  the applicable retained local Cucumber proof or why comparison is incomplete.
-- **Evaluation:** CI reads the local record published with a source basis, runs
-  its own selection, and reports matching observations, a specific discrepancy,
-  or an explicit unchecked scope. Matching outcomes need not have equal
-  durations, but a CI case taking more than five times its retained local proof
-  duration fails the comparison. Compare each observation's tested source and
-  selection, not merely the commit containing
-  the proof file or an unchanged Gherkin blob. Unestablished implementation,
-  steps or configuration provenance remains explicitly unchecked.
-- **Value / learning:** Tests the trust boundary before proliferating producers:
-  selection, evidence-only commits, CI exclusions, and nonidentical resources.
-- **Boundary:** One project, one runner family. CI's comparison output does not
-  create, refresh, or overwrite retained local observations. Define comparison of
-  case identities/outcomes, retries, incomplete runs, and report-only trigger
-  behavior. The five-times duration gate below is in scope; broader performance
-  policies and proof authenticity remain separate concerns.
-- **Effort hypothesis:** Unbanded; higher, low confidence. Actual Pygardon source
-  recipe/controller and differing local/CI tags must be respected.
-- **Product prerequisites:** Retained locally produced Cucumber evidence and an
-  independently runnable CI selection; only matched source/scope is corroborated.
-- **Safe stopping point:** An actionable CI consistency verdict for Cucumber.js;
-  source and latest local observations remain readable when CI is unavailable.
+**Refinement decisions (Terry, 2026-11-02):** the comparison table below was
+agreed first; refinement then settled changed Gherkin, orphaned identities,
+malformed proof and a location CI never runs, each as recommended.
 
-**Agreed comparison rules (Terry, 2026-11-02):**
+#### Goal
 
-Terry asked to record these decisions now and complete the story's refinement
-later. Apply the comparison per scenario or outline row, identified by feature
-path, scenario name, and example row values, using its latest retained local
-proof. Ordinary CI failures still fail CI.
+A Pygardon developer whose push reaches CI learns from that CI verdict whether
+independent CI reproduces the committed local Cucumber proof: each applicable
+scenario also passes in CI within five times its locally proved duration, and
+every case CI did not check is named with its reason. Today a passing CI says
+nothing about committed proof, so stale or misleadingly fast local proof goes
+unnoticed. Pygardon checks this by following one published Open Dough
+reference, the standard later Cucumber producers (Doughnut,
+[story 8](#read-cypress-cucumber-proof)) adopt with their own corroboration.
 
-| Situation | Comparison result |
-| --- | --- |
-| Case runs in CI but has no retained local proof | OK; missing local proof does not fail the comparison. |
-| Case has retained local proof but is explicitly excluded by CI tags | Skipped, with the exclusion reason shown. |
-| Case has retained local proof and is selected for CI, but is missing from CI results | Fail. An unexpected omission is not an exclusion. |
-| Matched case has CI duration greater than `5 ×` its retained local proof duration | Fail. Exactly `5 ×` is allowed. |
+#### Scope
 
-Compare the same case-duration measurement on both sides, including all retry
-attempts. Different machine resources or worker counts do not waive the duration
-gate. Source compatibility remains required before claiming corroboration;
-the detailed provenance, retry and incomplete-run policies, report-only triggers,
-and unavailable or zero-duration measurements remain for later refinement.
+Required behavior:
+
+- **Published CI check rules.** The released
+  [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md)
+  gains the rules for checking committed proof in CI, written for the agent
+  working in the project that adopts it
+  ([ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)).
+  The project implements the check in its own CI code; Open Dough ships no
+  comparison tool, as it ships no recorder.
+- **Pygardon adopts it.** Pygardon's CI recipe, after its Cucumber stage
+  passes, compares the proof committed at the checked revision with that same
+  CI run's observations and fails the check on any discrepancy below.
+- **Per-case comparison.** A case is a scenario or outline row identified by
+  feature path, scenario name and example row values, using its last
+  successful committed proof:
+
+  | Situation | Result |
+  | --- | --- |
+  | Case runs in CI but has no retained local proof | OK; missing local proof does not fail the comparison. |
+  | Retained proof matches, CI passes, CI duration ≤ `5 ×` local duration | Corroborated. Exactly `5 ×` is allowed. |
+  | Matched case has CI duration greater than `5 ×` its retained local proof duration | Fail. |
+  | Case has retained local proof and is selected for CI, but is missing from CI results | Fail. An unexpected omission is not an exclusion. |
+  | Case has retained local proof but is excluded by CI's tag expression | Skipped, naming the excluding tag. |
+  | Proof location whose features CI's selection never runs | Skipped, naming the location. |
+  | Feature file changed since the proof (`featureBlob` differs at the checked revision) | Unchecked, "Gherkin changed since local proof"; no duration gate. |
+  | Proof identity no longer present in current source | Unchecked, "no longer in source". |
+  | A committed proof file is unreadable or malformed | Fail, naming the file. |
+
+  Ordinary CI failures still fail CI. Both durations are the same measurement:
+  the reference's `durationMs` across all attempts, as the project's own proof
+  recorder measures it in each environment. Different machine resources or
+  worker counts do not waive the gate.
+- **Actionable report.** The CI log states the number corroborated, each
+  skipped or unchecked group with its reason and count, and every failing case
+  by identity with both durations or the missing/malformed cause. It states
+  once that implementation and step changes since each proof's commit are not
+  checked. A successful report fits Pygardon's successful-log
+  budget (`docs/successful-ci-check-logs.md` in Pygardon: 100 lines for the
+  whole log).
+
+Required restrictions:
+
+- CI's comparison never creates, refreshes or overwrites committed proof.
+  Observations the CI run records stay in its disposable checkout, as the
+  reference already says ("only committed proof is proof").
+- Corroboration claims only matched identity and Gherkin version passing at the
+  checked revision. It never claims the local observation's implementation was
+  the same, nor authenticates who produced the proof
+  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
+  published facts and observations stay distinguishable).
+
+Boundary facts, observed 2026-11-02 at Pygardon `a377b76b2`:
+
+- Committed proof under `e2e_test/proof` is not in the workflow's ignored paths
+  (`.planning/**`, `docs/**`), so a proof-only commit triggers ordinary CI. No
+  report-only trigger is needed.
+- Neither Cucumber profile configures retries; every committed observation has
+  `attempts: 1`. A retry-assisted CI pass is compared like any pass; its
+  attempts already count in its duration.
+- The `ci` profile carries the proof plugin, so CI records its own
+  observations with the same measurement. CI excludes
+  `@wip`, `@codec-gap` and `@host-docker`; the packaged configuration
+  (`e2e_test/packaged/proof`) does not run in CI.
+- Every observation field, `durationMs` included, is required, so an
+  unavailable duration is a malformed file. A CI case the recorder did not
+  record is missing. A zero local duration gets the literal rule.
+- A failed or interrupted Cucumber stage ends CI before the comparison; the
+  ordinary failure is the verdict.
+
+Scope limits (deferred, not rejected):
+
+- Showing per-scenario corroboration in Intent. The verdict is the CI check
+  and its log, which the dashboard already links, and its
+  [CI status tab](SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) will show.
+- Doughnut's Cypress-Cucumber corroboration, other runner families, broader
+  performance-regression policies, and proof authenticity.
+- Checking implementation, step or configuration provenance between a proof's
+  commit and the checked revision.
+
+#### Key examples
+
+1. **Corroborated.** `jobs.feature` "Retry a job after timeout" has proof of
+   800 ms at the current `featureBlob`; CI passes it in 3,900 ms → corroborated;
+   the check passes, counting it.
+2. **Too slow in CI.** Same proof; CI passes it in 4,001 ms (> 5 × 800) → the
+   check fails, naming the case with 800 ms and 4,001 ms.
+3. **Exact boundary.** CI takes 4,000 ms → corroborated.
+4. **Excluded by tag.** A `@codec-gap` scenario has proof; CI's tag expression
+   excludes it → skipped "excluded by @codec-gap"; CI stays green.
+5. **Location not run.** `e2e_test/packaged/proof` holds proof; CI never runs the
+   packaged configuration → skipped, naming that location.
+6. **Unexpected omission.** A selected scenario with proof yields no CI
+   observation although the Cucumber stage passed → fail, "missing from CI".
+7. **Gherkin changed.** A developer adds a step to a scenario without rerunning
+   the feature locally; its proof's `featureBlob` no longer matches → unchecked
+   "Gherkin changed since local proof", no duration gate; CI stays green.
+8. **Renamed scenario.** The old name's proof remains; the new name runs in CI
+   without proof → the old identity is unchecked "no longer in source"; the new
+   one is OK.
+9. **Malformed proof.** A committed proof file lacks `durationMs` → fail,
+   naming the file.
+10. **Proof-only commit.** A commit adds only refreshed proof → ordinary CI runs
+    and the comparison checks the new proof against that revision.
+
+#### Architecture
+
+Cohesion with the delivered recorder, not new structure:
+
+- **One measurement, two environments.** CI's observations come from the same
+  proof recorder the project already runs in every profile, so both durations
+  and identities share one definition. The comparison reads committed proof
+  from the checked revision's tree, not the working directory the CI run's
+  recorder writes into.
+- **Selection belongs to the CI configuration.** The comparison derives which
+  cases CI selects from the CI run's own configuration (profile paths and tag
+  expression) and current source, so "excluded" and "missing" cannot drift from
+  what CI actually runs. Identity and file-version rules come from the
+  reference's existing reading rules rather than a second definition.
+- **Ownership.** Open Dough owns the rules in the reference; the project owns
+  the comparison code and its CI integration. No Open Dough runtime, dashboard
+  or server responsibility changes. Applicable Accepted decisions:
+  [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md),
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  (reuse the recorder and CI recipe). None conflicts.
 
 
 <a id="inspect-hierarchical-proof-cost"></a>
@@ -839,13 +938,8 @@ what the first Proof claims.
 
 - First Proof's profile, tested basis, publication and retention were settled
   on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
-  a latest per-scenario snapshot, not run history. How source and proof-only changes
-  obtain CI corroboration remains with [story 7](#check-cucumber-proof-in-ci).
-- Complete [story 7's comparison refinement](#check-cucumber-proof-in-ci).
-  Terry settled missing-case handling, explicit CI-tag exclusions, and the
-  greater-than-five-times duration gate on 2026-11-02; tested-source provenance,
-  retry and incomplete-run verdicts, report-only triggers, and unavailable or
-  zero-duration measurements still need refinement.
+  a latest per-scenario snapshot, not run history. [Story 7](#check-cucumber-proof-in-ci)
+  settles CI corroboration for Pygardon.
 - Select a real story and a developer's prior review basis for each assessment
   case; define what decision and review cost would justify keeping the method.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
