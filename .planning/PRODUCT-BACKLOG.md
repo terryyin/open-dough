@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Read the latest Doughnut Cypress-Cucumber proof](seeds/SEED-192-review-product-intent.md#read-cypress-cucumber-proof) — SEED-192#read-cypress-cucumber-proof ([plan](slice-plans/442-read-cypress-cucumber-proof/PLAN.md))
 - [Record and read only successful scenario proof](seeds/SEED-220-last-successful-intent-proof.md#last-successful-intent-proof) — SEED-220#last-successful-intent-proof ([plan](slice-plans/446-last-successful-intent-proof/PLAN.md))
-- [End the held-gh start-slack deadlock and concurrent test-results race](seeds/SEED-218-end-local-suite-hangs.md#fix-owned-calls-start-slack-hang) — SEED-218#fix-owned-calls-start-slack-hang ([plan](slice-plans/444-fix-owned-calls-start-slack-hang/PLAN.md))
 
 ## Backlog list
 
