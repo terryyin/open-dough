@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-216#optimization-candidates-tab",
+  "host": "cursor",
+  "model": "auto"
+}
