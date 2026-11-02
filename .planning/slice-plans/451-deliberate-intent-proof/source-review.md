@@ -50,9 +50,9 @@ dashboard execution of commands or new framework adapters was requested.
 | 19 | Do not imply a whole-suite pass from observations combined across different runs. | slice 1 | observed: dashboard/src/IntentProofGeneration.tsx mixed-run qualification; dashboard/tests/intent-cucumber-proof.spec.ts independent times and no suite-verdict assertion |
 | 20 | Each client project configures a proof-generation command or skill for each intent entry. | slice 1 | observed: dashboard/src/proofGeneration.ts; dashboard/tests/boundary/authenticated-read-intent-proof-generation.spec.ts command/skill/config errors; dashboard/tests/intent-proof-generation.spec.ts inert instructions in file/folder/location |
 | 21 | Keep existing snapshots readable before migration. | slice 1 | observed: dashboard/tests/intent-proof-generation.spec.ts missing/malformed instructions retain successful proof; dashboard/tests/intent-cucumber-proof.spec.ts legacy observations remain readable |
-| 22 | Make a new Open Dough release. | slice 2 | |
-| 23 | Update all client projects. | slice 2 | |
-| 24 | Ask each client project to update itself accordingly. | slice 2 | |
+| 22 | Make a new Open Dough release. | slice 2 | observed: Published annotated v0.3.82 tag peels to 321ca2bd8c77a00cb2c3b2ef81d1d44bee52892d; origin/main contains that release; CHANGELOG.md notes and VERSION match; remote refs verified after atomic push |
+| 23 | Update all client projects. | slice 2 | observed: /tmp/open-dough-deliberate-proof-rollout.json: all six production repositories updated to0.3.82 in both roots; baseline/helper comparison, complete hooks, repeat unwritten update, selective formatter/hook and remote containment verified; configuration rescanned |
+| 24 | Ask each client project to update itself accordingly. | slice 2 | observed: Explicit authorized migration prompts accepted in existing Doughnut01a18b82-0e73-7cb3-9bb1-adb933d0c6e9, Pygardon01a18b81-f48b-76e1-bf64-357784695565 and Lizard01a18b82-4be1-7931-baa9-ef94185a324a project chats; every configured Cucumber proof project covered, including both Pygardon locations; other three repositories have no declared Cucumber proof producer |
 
 ## Qualifications and journeys returned
 

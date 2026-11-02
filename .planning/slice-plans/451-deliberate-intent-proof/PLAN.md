@@ -94,7 +94,7 @@ proof. Retained proof and CI verdicts remain independent observations.
 
 ### 2. Publish and adopt the deliberate-proof contract
 Type: Behavior
-Status: planned
+Status: done
 Proof: immutable release/tag identity, ordinary all-root update and repeat
 no-op receipts, verified rollout commits on each configured remote trunk,
 and accepted migration requests to affected projects.
@@ -178,3 +178,57 @@ to be complete merely by shipping guidance.
   case-insensitive basename collision between the schema and TSX component;
   source/schema placement changed to `dashboard/src/proofGeneration.ts`, with
   the two imports updated. `npm run typecheck:dashboard && npm run test:dashboard -- dashboard/tests/intent-proof-generation.spec.ts dashboard/tests/boundary/authenticated-read-intent-proof-generation.spec.ts --workers=2` passed (10 tests, two files). Other accepted boundaries are unchanged.
+
+## Accepted release and rollout observations
+
+Published annotated `v0.3.82` peels to
+`321ca2bd8c77a00cb2c3b2ef81d1d44bee52892d`, confirmed on remote with
+`origin/main` containing it. The intended source was committed first. Release
+self-installation passed before metadata writes. The fresh Git-pinned snapshot
+matched the reviewed release; installer/helpers are unchanged from 0.3.81.
+
+| Project | Previous version | Published update |
+| --- | --- | --- |
+| Open Dough | 0.3.81 | `714130ecb7035847ebca37ba28374a732f4b4c6a` |
+| Doughnut | 0.3.81 | `d43e39016a0d5941dfe0d4f86d41a1015a1e1737` |
+| Pygardon | 0.3.81 | `7780bdaf626e9d09b91dc71e1ddd239dc74cbd99` |
+| Terry Talks | 0.3.81 | `f97f35634acc58928975e2eb598f8dec68c14771` |
+| Lizard | 0.3.81 | `210ae3633086b989bea7fa4170268d6db3f4c711` |
+| Clipboard | 0.3.79 | `2b9c5d48855d96d62f1e92436c782a586beff96c` |
+
+Every project used the ordinary release helper from its recorded source,
+verified both physical roots with its payload comparison, checked complete host
+hooks, and repeated the update with matching payload/settings bytes and mtimes.
+Selective formatters and commit hooks passed where applicable; payloads were
+compared again afterward. No force, dropped paths, rewritten ignore rules or
+unrelated edits. Remote containment and the unchanged six-project production
+configuration were checked. Lizard's required unchanged-code Python suite
+passed: `nix develop -c python -m pytest` (2917 passed, seven skipped).
+
+Explicit migration prompts were accepted in the existing Doughnut, Pygardon
+and Lizard project chats; all three were observed active. Every currently
+declared Cucumber proof location is covered, including Pygardon's packaged
+entry. Other projects have no declared Cucumber proof producer; no new adapter
+is required. Producer completion remains with these project executions and is
+not claimed from installation or request acceptance.
+
+The temporary detailed receipts are in
+`/tmp/open-dough-deliberate-proof-rollout.json`. Source and release CI attempts
+were cancelled by subsequent main updates. Root observation retains the
+accepted installation SHA and later closure revisions for applicable final CI;
+no cancelled run is reported passing. Terry Talks/Clipboard CI is watched by
+this coordinator; each Cucumber project owns its requested migration and
+installation-revision CI. Final CI and shutdown receipts remain completion gates.
+
+Terry Talks update CI passed run `41420383953`; Clipboard update CI passed
+run `41420700065`, both observed through terminal `gh run watch --exit-status`
+success. Independent rollout-record refactoring preserved one legacy finding
+anchor's navigation without changing any occurrence or product behavior.
+
+## Execution complete
+
+Product advice: no change. The release and all six guidance updates are
+published. Concrete Cucumber producer migrations remain with their three
+active project executions and are not reported as complete. Product and
+process retrospective reviews are settled; applicable Open Dough final CI and
+observer shutdown remain the completion operation's gate.

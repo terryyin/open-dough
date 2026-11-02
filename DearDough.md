@@ -107,6 +107,15 @@ Former local code: DD-251 (plans 264 and 271 only). [Meaning, evidence and respo
 
 Former local code: DD-251 (plan 273 only). A failed formatter or verification result is visible but does not gate the next commit or publication step. [Evidence and current response](docs/maintainer/findings/ODF-097.md).
 
+### Occurrences
+- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
+  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
+  - Tool: Codex
+  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
+  - Evidence: coordinator rebase recovery tool history: the Python conflict-resolution step printed `Unexpected conflict count: .planning/seeds/SEED-192-review-product-intent.md: 1`, but following unguarded lines still ran `git add` and the backlog adapter's `continue`. A subsequent `set -e` command resolved all three planning conflicts, ran `git diff --check`, amended the unpublished candidate, and proved the product paths identical before publishing `7466db35`.
+  - Observed effect: conflict markers entered an unpublished replay commit, requiring correction, amendment and another hook pass. No marked-up candidate was pushed. The maintained fresh-delivery entry had separately stopped correctly on the earlier formatter failure.
+  - Inference: this is the existing failed-prerequisite gate problem in direct reconciliation shell orchestration, outside the fresh command's guard; it does not establish a failure of that maintained guard.
+
 ## ODF-222 — Post-commit managed delivery stalls at an unknown stage <a id="odf-222"></a>
 
 Former local code: DD-253 (Cursor plan 273 only). Managed delivery remains alive after a successful commit while its remote story-branch tip remains behind; the blocking subprocess is not located. [Evidence and current response](docs/maintainer/findings/ODF-222.md).
@@ -265,6 +274,15 @@ Former local code: DD-314. The plan started with eight slices and gained a ninth
 
 Former local code: DD-315. A Playwright file regex intended to select review specs also matched the execution worktree's directory name. A successful-looking invocation therefore started a much broader suite before the collected selection was checked. [Evidence and current response](docs/maintainer/findings/ODF-261.md).
 
+### Occurrences
+- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
+  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
+  - Tool: Codex
+  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
+  - Evidence: implementation hand-back `/root/deliberate_proof_implementation` and `7466db35:.planning/slice-plans/451-deliberate-intent-proof/PLAN.md` Learnings: `npm run test:dashboard -- intent- --workers=2` matched the owned worktree's `deliberate-intent-proof` path; corrected `dashboard/tests/intent-` and `dashboard/tests/boundary/authenticated-read-intent-` selectors collected and passed 60 tests in 26 files.
+  - Observed effect: an unintended whole-dashboard run, owned interruption after a bounded liveness check, and a corrected focused run. The interrupted terminal report contained no assertion/error diagnostic; its judged artifacts were removed.
+  - Inference: same absolute-path regex mechanism as the earlier occurrence; elapsed waste and total unintended tests were not measured.
+
 ## ODF-262 — Permission-only probes split a human click journey <a id="odf-262"></a>
 
 Former local code: DD-316. Two read-only permission probes each required a human notification click before separate callback probes exercised the operation consuming that permission. Combining consent with a minimal safe operation may reduce manual rounds when permission inspection resolves no independent risk. [Evidence and current response](docs/maintainer/findings/ODF-262.md).
@@ -384,6 +402,15 @@ Former local code: DD-344. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-361 — An implementation agent met a file line limit by joining wrapped lines
 
 Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/findings/ODF-361.md).
+
+### Occurrences
+- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
+  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
+  - Tool: Codex
+  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
+  - Evidence: independent `/root/proof_refactor` hand-back identified `docs/project-visibility-requirements.md` at 253 lines and reported only a word-preserving paragraph reflow to exactly 250. Published `7466db35:docs/project-visibility-requirements.md` holds the new proof paragraph on two long physical lines; the refactor's before/after split-word comparison was identical.
+  - Observed effect: the independent pass made a layout-only edit to satisfy the numeric cap, without reducing content or changing product behavior; all accepted proof was reused.
+  - Inference: same line-joining response to the file-size rule as ODF-361. This observation concerns the physical-line metric, not an established product defect or a measured cost of the whole review.
 
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 
