@@ -100,7 +100,7 @@ test("Intent Proof shows Doughnut's committed Cypress-Cucumber proof for note_cr
     ...expectedNoteCreationRows,
   ]);
 
-  await test.step("an unobserved Doughnut feature reads Not observed", async () => {
+  await test.step("a Doughnut feature without successful proof reads No successful proof", async () => {
     await intent
       .getByRole("button", { name: noteDeletionPath, exact: true })
       .click();
@@ -111,15 +111,15 @@ test("Intent Proof shows Doughnut's committed Cypress-Cucumber proof for note_cr
       name: `${noteDeletionPath} proof`,
     });
     await expect(proof).toContainText(
-      "Nothing has been observed yet for this file in e2e_test/proof.",
+      "No successful proof recorded for this file in e2e_test/proof.",
     );
-    await expect(unobserved).toContainText("Not observed");
+    await expect(unobserved).toContainText("No successful proof");
     await expect(unobserved.getByRole("row")).toHaveCount(2);
     await expect(unobserved.getByRole("row").nth(1)).toContainText(
       "Trash a note",
     );
     await expect(unobserved.getByRole("row").nth(1)).toContainText(
-      "Not observed",
+      "No successful proof",
     );
   });
 });

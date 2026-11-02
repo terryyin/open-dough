@@ -223,7 +223,7 @@ export const expectedCypressRetryRows = [
 
 export const proofHeader = [
   "Scenario",
-  "Latest outcome",
+  "Last successful proof",
   "Duration",
   "Observed",
   "Commit",
