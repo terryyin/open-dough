@@ -3,8 +3,9 @@
 **Identity:** SEED-219#ci-status-review-corrections
 **Source:** [correction story](../../seeds/SEED-219-intent-ci-status-tab.md#ci-status-review-corrections),
 a bounded retrospective correction of
-[SEED-219#intent-ci-status-tab](../../seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab)
-([plan 447](../447-intent-ci-status-tab/PLAN.md)). Reviewed commits:
+SEED-219#intent-ci-status-tab (recoverable as
+`56c47e8e:.planning/seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab`
+and plan `56c47e8e:.planning/slice-plans/447-intent-ci-status-tab/PLAN.md`). Reviewed commits:
 `713d91a6` (slice 1), `aa10a4f0` (slice 2), `609da43b` (slice 3), `3d1f5ae4`
 (slice 4), `a5df2c72` (slice 5); `276116fc` (unrelated flaky-test repair in the
 same execution) excluded.
@@ -45,7 +46,8 @@ coordinator against `a5df2c72`):
    (`baseCiNearest.ts`) end to end.
 
 Preserved promises: every SEED-219 commitment in
-[plan 447's source review](../447-intent-ci-status-tab/source-review.md)
+plan 447's source review
+(`56c47e8e:.planning/slice-plans/447-intent-ci-status-tab/source-review.md`)
 stays observed; a story branch absent on GitHub still says "no longer
 published" by name (S2.7); trunk Running with completed ancestor (S3.8) and
 Failed for cancelled/timed out (S3.4b) keep an observation; request counts are
