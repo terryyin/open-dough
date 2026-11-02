@@ -2,7 +2,9 @@
 
 **Identity:** SEED-192#align-intent-story-lens
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#align-intent-story-lens),
-correcting [story 5](../../seeds/SEED-192-review-product-intent.md#review-story-intent-impact).
+correcting story 5, recoverable as `git show 66cfcb6d:.planning/seeds/SEED-192-review-product-intent.md`
+(section `#review-story-intent-impact`) with its plan at
+`66cfcb6d:.planning/slice-plans/441-review-story-intent-impact/PLAN.md`.
 
 ## Provenance
 
