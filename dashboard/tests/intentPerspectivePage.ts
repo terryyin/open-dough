@@ -154,7 +154,7 @@ export async function expectCandidatesRevision(
 // One of Intent's reading-mode tabs under the banner.
 export function intentModeTab(
   intent: Locator,
-  name: "Intent" | "Optimization Candidates",
+  name: "Intent" | "Optimization Candidates" | "CI status",
 ) {
   return intent
     .getByRole("tablist", { name: "Intent reading" })

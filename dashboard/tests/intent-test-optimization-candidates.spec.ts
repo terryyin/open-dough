@@ -47,6 +47,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(intent.getByRole("tab")).toHaveText([
       "Intent",
       "Optimization Candidates",
+      "CI status",
     ]);
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");

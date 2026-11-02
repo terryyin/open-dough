@@ -16,7 +16,9 @@ starts without asking). Existing changes in Default main are asked first
 when both apply ([Existing changes](LAUNCH-EXISTING-CHANGES.md)).
 Refinement, Start session, and kept or established resumes are not asked.
 Observation is per request and kept nowhere
-([ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)). While Start waits:
+([ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+Intent's **CI status** tab shows the same judgment of the trunk
+([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)). While Start waits:
 “Checking base CI…” beside Starting… (acceptance still uses Starting…).
 
 When the nearest judged check is still running, that judgment and its

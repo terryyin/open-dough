@@ -5,11 +5,12 @@
 
 import { execFileSync } from "node:child_process";
 import {
+  noConnection,
   notFoundAnswer,
   type OriginAnswer,
   type RawAnswer,
 } from "./originAnswers.ts";
-import type { ChangedFile } from "./pathHistoryAnswers.ts";
+import type { ChangedFile, MadeCommit } from "./pathHistoryAnswers.ts";
 
 // How the head relates to the base: identical, ahead of it (the head contains
 // the base), behind it, or diverged from it.
@@ -120,4 +121,56 @@ export function comparisonIn(
   const behind = isAncestor(repoDir, head, base);
   if (ahead === undefined || behind === undefined) return notFoundAnswer();
   return compareAnswer(ahead ? "ahead" : behind ? "behind" : "diverged");
+}
+
+// Comparisons told from a configured ref's moves, in order, each with the
+// commits it was made by when it names them. Two revisions the ref named,
+// joined by its moves from the base to the head, compare as ahead by those
+// moves' commits, naming the files that differ between the two published
+// revisions (`filesAt`); joined through a move that names none, as no
+// connection. The reverse, from a later revision to an earlier one, is
+// behind, and any other comparison diverged.
+export function refMoveComparisons(
+  filesAt: (revision: string) => Readonly<Record<string, string>> | undefined,
+) {
+  const moves: {
+    readonly from: string;
+    readonly to: string;
+    readonly by: readonly MadeCommit[] | undefined;
+  }[] = [];
+  // The moves that took the ref from `base` to `head`, oldest first, or
+  // undefined when it never moved from one to the other.
+  const movesBetween = (base: string, head: string) => {
+    for (let first = 0; first < moves.length; first += 1) {
+      if (moves[first]?.from !== base) continue;
+      const last = moves.findIndex(({ to }, at) => at >= first && to === head);
+      if (last !== -1) return moves.slice(first, last + 1);
+    }
+    return undefined;
+  };
+  return {
+    moved(from: string, to: string, by: readonly MadeCommit[] | undefined) {
+      moves.push({ from, to, by });
+    },
+    // No connection, before the comparison is observed; undefined otherwise.
+    unconnected(base: string, head: string) {
+      return movesBetween(base, head)?.some(({ by }) => by === undefined) ===
+        true
+        ? noConnection
+        : undefined;
+    },
+    answer(base: string, head: string, perPage: number | undefined) {
+      const forward = movesBetween(base, head);
+      if (forward === undefined) {
+        return compareAnswer(
+          movesBetween(head, base) === undefined ? "diverged" : "behind",
+        );
+      }
+      return aheadByAnswer(
+        forward.flatMap(({ by = [] }) => by.map(({ sha }) => sha)),
+        perPage,
+        changedBetween(filesAt(base) ?? {}, filesAt(head) ?? {}),
+      );
+    },
+  };
 }

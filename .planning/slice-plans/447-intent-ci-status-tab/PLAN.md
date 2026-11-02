@@ -2,6 +2,7 @@
 
 **Identity:** SEED-219#intent-ci-status-tab
 **Source:** [selected story](../../seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab).
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -125,8 +126,9 @@ a selected story → the story-branch rule's branch, or its named gap.
 
 ### 1. Trunk CI status in Intent
 Type: Behavior
-Status: planned
-Proof: `dashboard/tests/intent-ci-status.spec.ts` (examples 1, 7, 8, 9);
+Status: done
+Proof: `dashboard/tests/intent-ci-status.spec.ts` (examples 1, 9) and
+`intent-ci-status-reads.spec.ts` (examples 7, 8, adapter, refusals);
 `agent-launch-base-ci*.spec.ts` green after the judgment generalization;
 Intent and frame journeys (`dashboard/tests/*intent*.spec.ts`,
 `development-intent*.spec.ts`) green after the strip moves.
@@ -141,8 +143,21 @@ Offered when Intent locations are absent or unreadable. Implementation: the
 judgment takes a named branch (trunk here), a new authenticated `ci-status`
 read answers it, shared base-CI wording is extracted from `LaunchBaseCi.tsx`,
 and the strip renders from `IntentPerspective`. Mode stays local in this
-slice (reset as today). Docs: Intent section and GitHub requests (two
-requests per judgment).
+slice (reset as today). Docs: Intent section and GitHub requests (three
+requests per judgment: history, runs, and the existing workflow lookup; O1).
+
+Learning (slice 1): the strip now renders before the revision is known, so a
+mode keyed on `source:revision` resets when the revision arrives; slice 1
+keeps a choice made before the first known revision, and slice 2's
+page-level owner must preserve that.
+
+Accepted proof (slice 1, 2026-11-02): `intent-ci-status.spec.ts` and
+`intent-ci-status-reads.spec.ts` 6 passed; launch base-CI, all `*intent*`,
+the touched boundary and `publishedFiles` consumer specs 129 passed after
+refactor; full `npm test` passed; whole dashboard suite 1898 passed, 1 failed
+(`boundary/agent-launch-sessions-unchanged.spec.ts`, unrelated sessions
+revision, passes 30/30 alone): flaky under load, repaired as its own
+increment under the failure policy.
 
 ### 2. Keep the chosen Intent tab per project
 Type: Behavior
@@ -179,7 +194,8 @@ judged result's run branch. External behavior unchanged. Enables slice 4.
 Type: Behavior
 Status: planned
 Proof: `dashboard/tests/intent-ci-status-story.spec.ts` (examples 2, 3, 4,
-4', 5, and the stale-answer case).
+4', 5, the stale-answer case, and source example 7 on a story branch: Running
+at head with its completed ancestor, then Passed after Check again).
 
 Pre-condition: board entries: a Taken Story Branch Mode story with its own
 failing run, one with only planning commits over a passing trunk ancestor,
@@ -188,8 +204,8 @@ profiles, an unsafe recorded name, and a recorded branch not published.
 Trigger: select each on Development, return to Intent's CI status, then
 deselect. Result: as the examples say; the tab never shows a judgment read
 for a previous selection; the run branch is named when it differs from the
-judged branch. Docs: Intent section and GitHub requests (three requests for a
-story branch).
+judged branch. Docs: Intent section and GitHub requests (four requests for a
+story branch: history, its runs, the trunk's runs, workflow lookup).
 
 ### 5. Re-read when the shown branch's head moves
 Type: Behavior
@@ -238,3 +254,12 @@ Slice-plan refinement was not needed: each slice has one proof loop, the
 Structure slice sits directly before the Behavior it enables, and the domain
 rule is one judgment with one branch rule. This review found no remaining
 slice-specific concern.
+
+
+## Story obligations
+
+### O1. Judgment request count includes the workflow lookup
+Reported: slice 1 — "Request count is three, not two. One judgment is three gh requests: the history listing, the runs listing, and a lookup of the workflow"
+Story clause: "Each judgment read costs the existing judgment's requests"
+Disposition: no user cost "The story's observable outcome is a correct, attributed CI judgment beside Intent": the tab calls the launch's unchanged judgment (judgeBranchCi via createGitHubActions), whose per-judgment workflow lookup already existed; no request is added beyond the existing judgment, and dashboard/GITHUB-REQUESTS.md states the actual three (history, runs, workflow lookup) as asserted by intent-ci-status.spec.ts "CI status names main…"
+Commitment: S8.1

@@ -1,0 +1,28 @@
+/* Intent's CI status (./IntentCiStatus.tsx): the trunk's judgment across the
+   content area, without the location tree. */
+.intent-ci-status-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.intent-ci-status-panel[hidden] {
+  display: none;
+}
+
+.intent-ci-status-panel:focus-visible {
+  outline-offset: -3px;
+}
+
+.intent-ci-status {
+  max-width: 42rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.intent-ci-state {
+  font-weight: 600;
+}

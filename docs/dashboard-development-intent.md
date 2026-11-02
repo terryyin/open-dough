@@ -53,16 +53,32 @@ Gherkin files so far. The selected perspective choice names the page, so
 Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. Directly under the
-banner, a strip of two Intent reading modes, **Intent** and **Optimization
-Candidates**, chooses what that content shows; it belongs to Intent and is
-not a third perspective. Entering Intent selects **Intent**: the location
+banner, a strip of three Intent reading modes, **Intent**, **Optimization
+Candidates** and **CI status**, chooses what that content shows; it belongs
+to Intent and is not another perspective, and arrow keys, Home and End move
+between its tabs. Entering Intent selects **Intent**: the location
 tree, which holds only Purpose locations, beside Purpose and Proof.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
 Purpose and Proof, and choosing **Optimization Candidates** again returns to
-that entry without reading the record again. The choice is disposable page
+that entry without reading the record again. **CI status** shows, across the
+content area without the location tree, the selected check's judgment of the
+project's configured trunk (`main` here), by the same rule as the
+[base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md): the
+newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at the
+trunk head or its nearest ancestor that has one. It names the branch and
+states **Passed**, **Failed** (including cancelled or timed out),
+**Running** or **Could not be read** with the reason, with the judged short
+SHA and subject, how many later commits have no result of their own, the run
+link when given, while running the nearest completed ancestor, and when it
+was checked; a history with no result is **Could not be read**, never
+passed. It is read each time the tab is shown and again on **Check again**,
+with no timed polling, and it is offered whether Intent locations are
+configured, absent, or unreadable: the strip stands above those
+explanations, which **Intent** and **Optimization Candidates** show when
+there is no location tree. The choice is disposable page
 state, not on the URL; a project change or a new revision starts again on
 **Intent**. A location that is
 missing, holds no `.feature` files, or names an unsupported kind says so

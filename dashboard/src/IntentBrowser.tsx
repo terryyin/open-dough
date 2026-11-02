@@ -1,7 +1,7 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`) and the
 // Test Optimization Candidates record, each one Intent reading mode chosen
-// under the banner (`./IntentModeTabs.tsx`); entering Intent shows the
-// locations. Locations and folders share caret (expansion only) and name
+// under the banner (`./IntentModeTabs.tsx`, drawn and owned by
+// `./IntentPerspective.tsx`); entering Intent shows the locations. Locations and folders share caret (expansion only) and name
 // (select; toggle once selected) controls; a caret never changes selection or
 // the reading pane. A file shows Purpose and Proof; a location or folder name
 // shows a Summary (`./IntentSummary.tsx`). The record fills the content area
@@ -18,12 +18,8 @@ import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import {
-  IntentModeTabs,
-  intentModePanelId,
-  intentModeTabId,
-  type IntentMode,
-} from "./IntentModeTabs.tsx";
+import { intentModePanelId, intentModeTabId } from "./IntentModeTabs.tsx";
+import type { ModeChoice } from "./intentModeChoice.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
@@ -45,6 +41,9 @@ export function IntentBrowser({
   locations,
   proofRereading,
   onProofRetry,
+  mode,
+  modeIdPrefix,
+  onModeChange,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -53,12 +52,17 @@ export function IntentBrowser({
   // proof read failed; the selection and reader stay as they are.
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
-}) {
+  // The strip's mode and ids; opening a test from the record returns this
+  // browser to Intent.
+} & ModeChoice) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
-  const [mode, setMode] = useState<IntentMode>("intent");
-  const [candidatesChosen, setCandidatesChosen] = useState(false);
+  // The record is read the first time Candidates is shown, then kept.
+  const [candidatesChosen, setCandidatesChosen] = useState(
+    mode === "candidates",
+  );
+  if (mode === "candidates" && !candidatesChosen) setCandidatesChosen(true);
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   // The answered read of one path; Purpose and Proof show it only while that
@@ -67,7 +71,6 @@ export function IntentBrowser({
   const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   const proofId = useId();
-  const modeIdPrefix = useId();
   const inventory = inventoryFromIntentLocations(locations);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
@@ -75,7 +78,7 @@ export function IntentBrowser({
   function openFromRecord(next: IntentSelection, entrySlug: string) {
     setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
     setReturnEntrySlug(entrySlug);
-    setMode("intent");
+    onModeChange("intent");
     const owning = locations.find((location) =>
       location.files.includes(next.path),
     );
@@ -85,12 +88,7 @@ export function IntentBrowser({
   function selectInTree(next: IntentSelection) {
     setSelection(next);
     setReturnEntrySlug(undefined);
-    setMode("intent");
-  }
-
-  function chooseMode(next: IntentMode) {
-    setMode(next);
-    if (next === "candidates") setCandidatesChosen(true);
+    onModeChange("intent");
   }
 
   // Clearing selection when the project or locations change is owned by the
@@ -125,11 +123,6 @@ export function IntentBrowser({
 
   return (
     <>
-      <IntentModeTabs
-        mode={mode}
-        idPrefix={modeIdPrefix}
-        onSelect={chooseMode}
-      />
       <div
         className="intent-browser"
         role="tabpanel"

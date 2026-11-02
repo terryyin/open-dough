@@ -1,6 +1,8 @@
-// The Intent perspective's two reading modes (`./IntentBrowser.tsx`):
-// Intent, its locations with Purpose and Proof, and Optimization Candidates,
-// the published record across the content area. One segmented strip under
+// The Intent perspective's three reading modes (`./IntentPerspective.tsx`):
+// Intent, its locations with Purpose and Proof (`./IntentBrowser.tsx`),
+// Optimization Candidates, the published record across the content area, and
+// CI status, the trunk's selected-check judgment across the content area
+// (`./IntentCiStatus.tsx`), offered whether or not locations are configured. One segmented strip under
 // the banner, drawn like the banner's Perspective choice
 // (`./project-select.css`) but a tablist of Intent's own, not another
 // perspective. Arrow keys, Home and End move between the tabs and choose the
@@ -9,12 +11,14 @@
 
 import type { KeyboardEvent } from "react";
 import "./project-select.css";
+import "./intent-mode-tabs.css";
 
-export type IntentMode = "intent" | "candidates";
+export type IntentMode = "intent" | "candidates" | "ci-status";
 
 const modes: readonly { readonly id: IntentMode; readonly label: string }[] = [
   { id: "intent", label: "Intent" },
   { id: "candidates", label: "Optimization Candidates" },
+  { id: "ci-status", label: "CI status" },
 ];
 
 export function intentModeTabId(idPrefix: string, mode: IntentMode) {

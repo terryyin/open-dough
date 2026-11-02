@@ -2,9 +2,13 @@
 // test-source locations at the observed revision through the authenticated
 // read boundary, and Proof shows the committed observations a location's
 // proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
-// each keep their own explanation; remaining locations stay browseable.
+// each keep their own explanation; remaining locations stay browseable. The
+// reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
+// explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
+// on Intent locations, is offered whatever their state. The chosen mode is
+// this perspective's own (`./intentModeChoice.ts`).
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   readIntentLocationsAt,
@@ -12,6 +16,13 @@ import {
   type IntentSettingsProblem,
 } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
+import {
+  IntentModeTabs,
+  intentModePanelId,
+  intentModeTabId,
+} from "./IntentModeTabs.tsx";
+import { useIntentModeChoice, type ModeChoice } from "./intentModeChoice.ts";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -55,10 +66,13 @@ function SettingsProblem({
 function IntentBody({
   source,
   work,
+  mode,
+  modeIdPrefix,
+  onModeChange,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
-}) {
+} & ModeChoice) {
   const [intent, setIntent] = useState<IntentLocations | "loading" | "failed">(
     work === undefined ? { status: "not-configured" } : "loading",
   );
@@ -112,15 +126,30 @@ function IntentBody({
       });
   };
 
+  // An explanation in place of the locations browser, shown as the panel of
+  // whichever location-reading mode is chosen.
+  const shown = mode === "ci-status" ? "intent" : mode;
+  const explained = (children: ReactNode) => (
+    <div
+      role="tabpanel"
+      id={intentModePanelId(modeIdPrefix, shown)}
+      aria-labelledby={intentModeTabId(modeIdPrefix, shown)}
+      hidden={mode === "ci-status"}
+    >
+      {children}
+    </div>
+  );
   if (work === undefined || intent === "loading") {
-    return work === undefined ? (
-      <NotConfigured label={source.label} />
-    ) : (
-      <p className="quiet">Reading Intent locations…</p>
+    return explained(
+      work === undefined ? (
+        <NotConfigured label={source.label} />
+      ) : (
+        <p className="quiet">Reading Intent locations…</p>
+      ),
     );
   }
   if (intent === "failed") {
-    return (
+    return explained(
       <p className="intent-settings-problem" role="alert">
         Intent locations for {source.label} could not be read at this revision.{" "}
         <button
@@ -131,21 +160,21 @@ function IntentBody({
         >
           Retry
         </button>
-      </p>
+      </p>,
     );
   }
   if (intent.status === "not-configured") {
-    return <NotConfigured label={source.label} />;
+    return explained(<NotConfigured label={source.label} />);
   }
   if (intent.status === "settings-problem") {
-    return (
+    return explained(
       <SettingsProblem
         label={source.label}
         problem={intent.problem}
         onRetry={() => {
           setLocationsRetry((n) => n + 1);
         }}
-      />
+      />,
     );
   }
   // Remount the selection owner on source/revision so tree and Purpose share
@@ -160,6 +189,9 @@ function IntentBody({
         onProofRetry={() => {
           retryProof(work.revision);
         }}
+        mode={mode}
+        modeIdPrefix={modeIdPrefix}
+        onModeChange={onModeChange}
       />
     </IntentWorkspaceSelectionProvider>
   );
@@ -175,6 +207,10 @@ export function IntentPerspective({
   // Intent reads the page's selected story; the comparison overlay uses this
   // identity once it lands.
   const { selectedIdentity } = useStorySelection(source.id);
+  const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(
+    source.id,
+    work?.revision,
+  );
   return (
     <main
       className="intent-perspective"
@@ -183,7 +219,23 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
-      <IntentBody source={source} work={work} />
+      <IntentModeTabs
+        mode={mode}
+        idPrefix={modeIdPrefix}
+        onSelect={onModeChange}
+      />
+      <IntentBody
+        source={source}
+        work={work}
+        mode={mode}
+        modeIdPrefix={modeIdPrefix}
+        onModeChange={onModeChange}
+      />
+      <IntentCiStatusPanel
+        source={source}
+        mode={mode}
+        modeIdPrefix={modeIdPrefix}
+      />
     </main>
   );
 }

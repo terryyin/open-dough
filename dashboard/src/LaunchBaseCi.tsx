@@ -3,9 +3,16 @@
 // many later commits lack their own result, and the run when given. Heading
 // takes the keyboard; Back/Escape returns to the choices; Continue resends
 // with the confirmed revision and state. A changed judgment asks again.
+// Judgment wording is shared with Intent's CI status (`./baseCiWording.ts`).
 
 import { useEffect, useRef } from "react";
 import type { BaseCiFound } from "./baseCiConfirmation.ts";
+import {
+  completedAncestorLine,
+  laterWithoutResultLine,
+  noCompletedAncestorLine,
+  shortSha,
+} from "./baseCiWording.ts";
 
 export const baseCiFailedHeading = "Base CI failed";
 export const baseCiRunningHeading = "Base CI still running";
@@ -21,17 +28,6 @@ export function baseCiContinueLabel(state: BaseCiFound["state"]): string {
   if (state === "failed") return "Continue on failing base";
   if (state === "running") return "Continue while CI runs";
   return "Continue without CI result";
-}
-
-function shortSha(revision: string): string {
-  return revision.slice(0, 7);
-}
-
-function laterLine(count: number): string {
-  if (count === 0) return "";
-  return count === 1
-    ? "One later commit has no result of its own."
-    : `${String(count)} later commits have no result of their own.`;
 }
 
 export function LaunchBaseCi({
@@ -80,7 +76,7 @@ export function LaunchBaseCi({
               : " could not have its CI read."}
         </p>
         {found.laterWithoutResult > 0 && (
-          <p>{laterLine(found.laterWithoutResult)}</p>
+          <p>{laterWithoutResultLine(found.laterWithoutResult)}</p>
         )}
         {found.reason !== undefined && <p>{found.reason}</p>}
         {found.runUrl !== undefined && (
@@ -92,19 +88,10 @@ export function LaunchBaseCi({
         )}
         {found.state === "running" &&
           (found.completedAncestor === undefined ? (
-            <p>
-              No completed ancestor result of the selected check was found in
-              the readable history.
-            </p>
+            <p>{noCompletedAncestorLine}</p>
           ) : (
             <>
-              <p>
-                Nearest completed ancestor:{" "}
-                {shortSha(found.completedAncestor.revision)} (
-                {found.completedAncestor.subject}) —{" "}
-                {found.completedAncestor.state === "pass" ? "passed" : "failed"}
-                .
-              </p>
+              <p>{completedAncestorLine(found.completedAncestor)}</p>
               {found.completedAncestor.runUrl !== undefined && (
                 <p>
                   <a

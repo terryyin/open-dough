@@ -1,9 +1,13 @@
-// Observes the origin target's CI for a new execution start: the newest
-// result of the project's selected check at the target head or its nearest
-// ancestor that has one. Pass starts without asking; every other state is
-// answered for the developer to confirm. ADR 0008: observe without owning;
-// nothing is kept beyond the request. GitHub Actions and command-adapter
-// (ciAdapter discover) projects share one judgment rule.
+// Judges one named branch of a published source's CI: the newest result of
+// the project's selected check at the branch head or its nearest ancestor
+// that has one. The launch judges the origin target (the configured ref)
+// before a new execution start (`./launchStart.ts`), where a pass starts
+// without asking and every other state is answered for the developer to
+// confirm; Intent's CI status tab judges the same way through the
+// authenticated read boundary (`./intentCiStatusRead.ts`). ADR 0008: observe
+// without owning; nothing is kept beyond the request. GitHub Actions and
+// command-adapter (ciAdapter discover) projects share one judgment rule. Only
+// a branch name the safe-branch rule accepts reaches `gh api` or the adapter.
 import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   createGitHubActions,
@@ -12,7 +16,10 @@ import {
   readGitHubActions,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
-import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
+import {
+  isSafeBranchName,
+  readWaitLimitMs,
+} from "../src/authenticatedReadRules.ts";
 import type {
   BaseCiCompletedAncestor,
   BaseCiFound,
@@ -59,20 +66,21 @@ function githubAcquisitionUnread(
   return unread(error instanceof Error ? error.message : fallback);
 }
 
-async function readTargetHistory(
+async function readBranchHistory(
   source: PublishedSource,
+  branch: string,
   signal: AbortSignal,
 ): Promise<ListedCommit[] | BaseCiJudgment> {
   try {
     const commits = (await readGitHubActions(
       [
         "api",
-        `repos/${source.repository}/commits?sha=${encodeURIComponent(source.ref)}&per_page=${String(historyPage)}`,
+        `repos/${source.repository}/commits?sha=${encodeURIComponent(branch)}&per_page=${String(historyPage)}`,
       ],
       signal,
     )) as ListedCommit[];
     if (!Array.isArray(commits) || commits.length === 0)
-      return unread("No commit history was returned for the origin target");
+      return unread(`No commit history was returned for ${branch}`);
     return commits;
   } catch (error) {
     return githubAcquisitionUnread(
@@ -84,11 +92,12 @@ async function readTargetHistory(
 
 async function judgeWithRuns(
   source: PublishedSource,
+  branch: string,
   signal: AbortSignal,
   loadRuns: () => Promise<ListedRun[]>,
   unreadOnError: (error: unknown) => BaseCiJudgment,
 ): Promise<BaseCiJudgment> {
-  const commits = await readTargetHistory(source, signal);
+  const commits = await readBranchHistory(source, branch, signal);
   if (!Array.isArray(commits)) return commits;
   try {
     return judgeNearest(commits, await loadRuns());
@@ -108,6 +117,7 @@ function ciConfiguration(folder: string): CiConfiguration {
 
 async function judgeGitHubActions(
   source: PublishedSource,
+  branch: string,
   folder: ProjectFolder,
   signal: AbortSignal,
 ): Promise<BaseCiJudgment> {
@@ -118,10 +128,11 @@ async function judgeGitHubActions(
   });
   return judgeWithRuns(
     source,
+    branch,
     signal,
     () =>
       github.listRuns(
-        { branch: source.ref, created: undefined, limit: 100 },
+        { branch, created: undefined, limit: 100 },
         signal,
       ) as Promise<ListedRun[]>,
     (error) =>
@@ -131,6 +142,7 @@ async function judgeGitHubActions(
 
 async function judgeCommandAdapter(
   source: PublishedSource,
+  branch: string,
   folder: ProjectFolder,
   adapter: readonly string[],
   signal: AbortSignal,
@@ -138,11 +150,12 @@ async function judgeCommandAdapter(
   const acquisition = createCommandAcquisition({
     command: adapter,
     repo: source.repository,
-    branch: source.ref,
+    branch,
     root: folder.path,
   });
   return judgeWithRuns(
     source,
+    branch,
     signal,
     async () => {
       await acquisition.acquireRuns(signal);
@@ -157,31 +170,45 @@ async function judgeCommandAdapter(
   );
 }
 
-// Judges the origin target's CI for `source` from the project folder's CI
-// settings. Bound by the authenticated read wait. A nonempty `ciAdapter`
-// uses discover attempts from the project folder; otherwise GitHub Actions.
-export async function judgeBaseCi(
+// Judges `branch` of `source` from the project folder's CI settings, at the
+// head its own commit listing resolves. Bound by the authenticated read wait,
+// and ended early by `signal` when given. A nonempty `ciAdapter` uses
+// discover attempts from the project folder; otherwise GitHub Actions. A name
+// the safe-branch rule refuses is never asked about.
+export async function judgeBranchCi(
   source: PublishedSource,
   folder: ProjectFolder,
+  branch: string,
+  signal?: AbortSignal,
 ): Promise<BaseCiJudgment> {
-  const controller = AbortSignal.timeout(readWaitLimitMs);
+  if (!isSafeBranchName(branch))
+    return unread(`${branch} is not a branch name this dashboard reads`);
+  const bound = AbortSignal.timeout(readWaitLimitMs);
+  const controller =
+    signal === undefined ? bound : AbortSignal.any([bound, signal]);
   try {
     const { adapter } = ciConfiguration(folder.path);
     if (adapter !== undefined)
-      return await judgeCommandAdapter(source, folder, adapter, controller);
-    return await judgeGitHubActions(source, folder, controller);
+      return await judgeCommandAdapter(
+        source,
+        branch,
+        folder,
+        adapter,
+        controller,
+      );
+    return await judgeGitHubActions(source, branch, folder, controller);
   } catch (error) {
     if (
       error instanceof Error &&
       (error.name === "TimeoutError" || error.name === "AbortError")
     )
       return unread(
-        `The base's CI could not be read within ${String(readWaitLimitMs / 1000)} seconds`,
+        `The CI of ${branch} could not be read within ${String(readWaitLimitMs / 1000)} seconds`,
       );
     return unread(
       error instanceof Error
         ? error.message
-        : "The base's CI could not be read",
+        : `The CI of ${branch} could not be read`,
     );
   }
 }

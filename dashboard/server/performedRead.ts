@@ -7,7 +7,8 @@
 // `./performedRevisionCheck.ts`, the records listed beside the backlog in
 // `./listedRecordsRead.ts`, the done catalog and the records it lists in
 // `./doneCatalogRead.ts`, Intent locations in `./intentLocationsRead.ts`,
-// Test Optimization Candidates in `./intentCandidatesRead.ts`, containment
+// Test Optimization Candidates in `./intentCandidatesRead.ts`, Intent's CI
+// status in `./intentCiStatusRead.ts`, containment
 // in `./containmentRead.ts`; failure naming in `./readingRequestedRead.ts`;
 // what a read comes to is `./readOutcome.ts`.
 
@@ -36,6 +37,7 @@ import {
   performIntentLocationsRead,
 } from "./intentLocationsRead.ts";
 import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
+import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
@@ -134,6 +136,8 @@ export async function perform(
                 signal,
                 naming,
               );
+            case "intent-ci-status":
+              return await performIntentCiStatusRead(source, read, signal);
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,
