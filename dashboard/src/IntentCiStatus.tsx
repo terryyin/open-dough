@@ -17,11 +17,8 @@ import {
   readIntentCiStatus,
   type IntentCiStatus as Judgment,
 } from "./authenticatedIntentCiStatusRead.ts";
-import {
-  intentModePanelId,
-  intentModeTabId,
-  type IntentMode,
-} from "./IntentModeTabs.tsx";
+import type { IntentMode } from "./IntentModeTabs.tsx";
+import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
 import { ShownJudgment } from "./IntentCiJudgment.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -187,8 +184,8 @@ export function IntentCiStatusPanel({
     <div
       className="intent-ci-status-panel"
       role="tabpanel"
-      id={intentModePanelId(modeIdPrefix, "ci-status")}
-      aria-labelledby={intentModeTabId(modeIdPrefix, "ci-status")}
+      id={intentTabPanelId(modeIdPrefix, "ci-status")}
+      aria-labelledby={intentTabId(modeIdPrefix, "ci-status")}
       hidden={mode !== "ci-status"}
       tabIndex={-1}
     >

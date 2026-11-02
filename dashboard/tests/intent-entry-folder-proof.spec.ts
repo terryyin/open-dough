@@ -6,6 +6,7 @@ import type { ProofObservation } from "../src/cucumberProof.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
+  chooseReadingTab,
   expandIntentGroup,
   intentFolderName,
 } from "./intentPerspectivePage.ts";
@@ -54,7 +55,7 @@ test("folder summaries retain last successful proof and clear a newer unsuccessf
     "Last successful proof: 2 scenarios: 1 passed, 1 without successful proof",
   );
   await intent.getByRole("button", { name: stooqPath, exact: true }).click();
-  const proof = intent.getByRole("region", { name: "Proof" });
+  const proof = await chooseReadingTab(intent, "Proof");
   await expect(proof).toContainText(
     "Last successful proof: 2 scenarios: 1 passed, 1 without successful proof",
   );

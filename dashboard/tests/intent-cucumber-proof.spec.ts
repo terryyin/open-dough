@@ -14,6 +14,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
+  chooseReadingTab,
   expandIntentGroup,
   intentLocationName,
 } from "./intentPerspectivePage.ts";
@@ -157,7 +158,7 @@ for (const [layout, proofFiles, expected, counts, summaryCounts] of [
       "Feature: Jobs",
     );
 
-    const proof = intent.getByRole("region", { name: "Proof" });
+    const proof = await chooseReadingTab(intent, "Proof");
     const table = proof.getByRole("table", { name: `${featurePath} proof` });
     await expect(table).toBeVisible();
     await expect(proof).toContainText(

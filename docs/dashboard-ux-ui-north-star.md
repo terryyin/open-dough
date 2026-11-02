@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-10-30, for the initial Intent browser and switchable Purpose/Proof layouts.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-02, for the initial Intent browser.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -93,8 +93,7 @@ UX/UI direction, not a story, executable plan, or implementation record.
 
 The [Development and Intent frame](dashboard-development-intent.md#development-and-intent)
 keeps Start session in Development. Its final placement is undecided: it may
-remain there or be a project-level action visible across perspectives. The
-chosen Purpose/Proof layout does not settle that placement.
+remain there or be a project-level action visible across perspectives.
 
 ### Test locations and browsing
 
@@ -108,19 +107,6 @@ The initial Purpose view is the static test-source file. Show actual source,
 including its maintained descriptions of expected behavior, rather than
 inventing a generated purpose narrative. The mechanism for identifying test
 locations remains open.
-
-### Purpose and Proof layouts
-
-Keep Purpose and Proof as two views of the same selection. Support both:
-
-- **Side by side:** source and execution evidence remain visible together.
-- **Tabs:** Purpose and Proof share the reader area, with a tab to switch views.
-
-Place a layout-switch button next to the Purpose/Proof controls so the reader
-can move between these modes in the same workspace. Preserve the selected file
-and story scope when switching. The initial default and exact button treatment
-remain design details; choosing a mode does not change the underlying evidence.
-Keep both views readable and operable at narrow widths and with keyboard use.
 
 ### Runtime proof and hierarchy
 

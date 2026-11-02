@@ -11,6 +11,7 @@ import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
+  chooseReadingTab,
   expandIntentGroup,
   expectCandidatesRevision,
   intentGroupToggle,
@@ -44,18 +45,16 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   const locations = intent.locator(".intent-locations");
 
   await test.step("entering Intent selects the Intent tab: locations, Purpose and Proof, no locations-column candidates control", async () => {
-    await expect(intent.getByRole("tab")).toHaveText([
-      "Intent",
-      "Optimization Candidates",
-      "CI status",
-    ]);
+    await expect(
+      intent.getByRole("tablist", { name: "Intent reading" }).getByRole("tab"),
+    ).toHaveText(["Intent", "Optimization Candidates", "CI status"]);
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
     await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();
     await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
       "Select a feature file to read its Purpose.",
     );
-    await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
+    await expect(await chooseReadingTab(intent, "Proof")).toContainText(
       "Select a feature file to see its Proof.",
     );
     await expect(
@@ -66,7 +65,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
 
   await chooseOptimizationCandidates(intent);
   await expect(intentTab).toHaveAttribute("aria-selected", "false");
-  await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(0);
+  await expect(intent.getByRole("region", { name: "Proof" })).toHaveCount(0);
   await expectCandidatesRevision(intent, openDough.revision);
   const [content, report] = await Promise.all([
     intent.boundingBox(),
@@ -159,7 +158,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(
       intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
     ).toContainText('test("browses"');
-    await expect(intent.getByRole("region", { name: "Proof" })).toBeVisible();
+    await chooseReadingTab(intent, "Proof");
 
     await intentTab.focus();
     await page.keyboard.press("ArrowRight");
@@ -172,6 +171,8 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await page.keyboard.press("ArrowLeft");
     await expect(intentTab).toBeFocused();
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await expect(intent.getByRole("region", { name: "Proof" })).toBeVisible();
+    await chooseReadingTab(intent, "Purpose");
     await expect(
       intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
     ).toBeVisible();

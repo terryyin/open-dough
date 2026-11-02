@@ -22,7 +22,7 @@ import {
   type RefObject,
   type SyntheticEvent,
 } from "react";
-import { keep, readKept } from "./keptPreference.ts";
+import { keptChoice } from "./keptPreference.ts";
 import { prefersReducedMotion } from "./reducedMotion.ts";
 
 export type ColumnPaging = {
@@ -69,20 +69,15 @@ function hiddenFrom(views: readonly number[], shown: number, columns: number) {
 
 // The position this browser keeps, if a usable one is kept, and otherwise the
 // one chosen on this page, even where the browser keeps nothing.
-const positionKey = "open-dough.board.position";
-let chosenOnPage = 0;
-
-function readPosition(): number {
-  const kept = readKept(positionKey, "open-dough.dashboardColumns.position");
-  if (kept === undefined) return chosenOnPage;
-  const position = Number(kept);
-  return Number.isInteger(position) && position > 0 ? position : 0;
-}
-
-function keepPosition(position: number) {
-  chosenOnPage = position;
-  keep(positionKey, String(position));
-}
+const keptPosition = keptChoice(
+  "open-dough.board.position",
+  0,
+  (kept) => {
+    const position = Number(kept);
+    return Number.isInteger(position) && position > 0 ? position : 0;
+  },
+  "open-dough.dashboardColumns.position",
+);
 
 // Asked of the Board's Columns by a part of the page about to be brought
 // into view, which bubbles to the row that holds it; elsewhere nothing hears.
@@ -115,7 +110,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
   const frame = useRef<HTMLDivElement>(null);
   const row = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(columns);
-  const [position, setPosition] = useState(readPosition);
+  const [position, setPosition] = useState(keptPosition.read);
   const [sliding, setSliding] = useState(false);
   // Where a slide started, whose columns stay until it ends.
   const [slidFrom, setSlidFrom] = useState(0);
@@ -147,7 +142,7 @@ export function useColumnPaging(columns: number): ColumnPaging {
   // end.
   const moveTo = useCallback((to: number, from: number) => {
     setPosition(to);
-    keepPosition(to);
+    keptPosition.choose(to);
     setSlidFrom(from);
     setSliding(!prefersReducedMotion());
   }, []);

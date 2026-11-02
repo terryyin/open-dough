@@ -7,6 +7,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import {
+  chooseReadingTab,
   expandIntentGroup,
   expectAddress,
   expectIntentGroupsCollapsed,
@@ -73,12 +74,12 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(intent).toContainText(
       `at revision ${shortRevision(doughnut.revision)}`,
     );
-    await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
+    const proof = await chooseReadingTab(intent, "Proof");
+    await expect(proof).toContainText(
       "Proof is not recorded for this project.",
     );
-    await expect(
-      intent.getByRole("region", { name: "Proof" }),
-    ).not.toContainText(/passed|failed|no tests/i);
+    await expect(proof).not.toContainText(/passed|failed|no tests/i);
+    await chooseReadingTab(intent, "Purpose");
   });
 
   await test.step("Gherkin keywords and steps are styled; line text equals the source; copy excludes line numbers", async () => {

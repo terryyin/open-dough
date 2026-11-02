@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 406. Removed numbers are never reused.
+- Highest allocated local number: 408. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -566,6 +566,14 @@ already-running implementer.
   - Evidence: this session delegated slice 1, then launched the source-only review; `56c47e8e:.planning/slice-plans/447-intent-ci-status-tab/source-review.md` slice-1 ids (S1.5c unreadable settings, S3.4b cancelled/timed out, S3.9 no result) were sent to the running implementer as an addendum
   - Observed effect: the implementer added observations for the late ids; the timed-out Check again assertion still came back weak and the coordinator strengthened it before acceptance
   - Inference: third occurrence of the same ordering: the delegation boundary reads the obligations listing, but the source review that feeds it is produced at the acceptance boundary
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: coordinator conversation delegates slice 1, then launches the source-only reviewer at slice 1 acceptance; `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/source-review.md` allocates no commitment to slice 1
+  - Observed effect: no correction reached the slice 1 agent; slices 2–4 briefs carried their allocated commitment ids from `story-obligations.mjs list`
+  - Inference: a Structure first slice owing no commitment hides the timing gap; it would have bitten had slice 1 been a Behavior slice
 
 ## DD-389 — Post-change refactor left a production module empty before delivery
 
@@ -783,3 +791,36 @@ reference run that was admitted at once.
   - Evidence: back-to-back runs recorded 2,063s and 4,068s shell wall, but Playwright reported 31.3 min and 29.6 min. Two other worktrees' full Playwright suites were running during the candidate run (`ps`). `dashboard/playwright.config.ts:18` calls `acquireLocalSuite`. `pmset -g log` showed no sleep. Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3, and Learnings.
   - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
   - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.
+
+## DD-407 — A plan's local gate names the hook-owned lint that delivery forbids running
+
+The slice plan's Local gates told the coordinator to run `npm run lint`
+before publishing slices 1 and 2, while Execute Plan delivery says not to run
+hook-owned lint independently because the commit hook runs it on staged
+files. The executor had to judge which instruction wins.
+
+### Occurrences
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/PLAN.md` Local gates ("plus `npm run lint` and the dashboard typecheck"); `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; `dough-execute-plan/references/wrap-up.md` delivery steps 1 and 7
+  - Observed effect: the coordinator skipped the plan's lint step and relied on the hook; every slice commit passed it. Delegates ran `npx eslint` on changed files instead
+  - Inference: slice planning names project gates without the hook contract that delivery owns; a plan should leave hook-owned checks to the commit
+
+## DD-408 — Coordinator issued a no-op background command while waiting on a delegate
+
+Right after delegating slice 1, the coordinator ran a background `echo
+waiting` solely to have something pending, although the delegation guidance
+says to wait through the host's notification without empty calls.
+
+### Occurrences
+- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
+  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
+  - Evidence: coordinator conversation after the slice 1 Agent launch; `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
+  - Observed effect: one wasted turn and a spurious completion notification; later waits ended the turn and resumed on the agent's notification
+  - Inference: executor slip against existing guidance, not a guidance gap; recorded as a one-off

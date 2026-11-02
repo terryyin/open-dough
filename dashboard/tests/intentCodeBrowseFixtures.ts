@@ -146,3 +146,14 @@ export function publishIntentProject(
     },
   });
 }
+
+// How many times the page read `path`'s content from a project published by
+// `publishIntentProject`.
+export function contentReadsOf(
+  requests: Awaited<ReturnType<typeof publishIntentProject>>,
+  path: string,
+) {
+  return requests.filter(
+    ({ request }) => request.kind === "content" && request.path === path,
+  ).length;
+}

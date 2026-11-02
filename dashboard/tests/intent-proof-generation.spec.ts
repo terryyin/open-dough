@@ -6,6 +6,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
+  chooseReadingTab,
   expandIntentGroup,
   intentFolderName,
   intentLocationName,
@@ -70,7 +71,7 @@ for (const [situation, generation, instruction] of [
     );
 
     await intent.getByRole("button", { name: stooqPath, exact: true }).click();
-    const proof = intent.getByRole("region", { name: "Proof" });
+    const proof = await chooseReadingTab(intent, "Proof");
     await expect(proof).toContainText(instruction);
     await expect(proof).toContainText("Proof is a published snapshot.");
     await expect(proof).toContainText(

@@ -11,7 +11,10 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import {
+  chooseReadingTab,
+  expandIntentGroup,
+} from "./intentPerspectivePage.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import {
   accountControlFeature,
@@ -58,7 +61,7 @@ async function openDoughnutFeature(
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
     sourceMarker,
   );
-  const proof = intent.getByRole("region", { name: "Proof" });
+  const proof = await chooseReadingTab(intent, "Proof");
   return { intent, proof };
 }
 

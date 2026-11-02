@@ -160,6 +160,7 @@
 }
 
 .intent-reading {
+  container: intent-reading / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -170,8 +171,6 @@
   outline-offset: -3px;
 }
 
-.intent-purpose,
-.intent-proof,
 .intent-summary {
   min-width: 0;
 }

@@ -17,11 +17,8 @@ import {
 } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
-import {
-  IntentModeTabs,
-  intentModePanelId,
-  intentModeTabId,
-} from "./IntentModeTabs.tsx";
+import { IntentModeTabs } from "./IntentModeTabs.tsx";
+import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
@@ -133,8 +130,8 @@ function IntentBody({
   const explained = (children: ReactNode) => (
     <div
       role="tabpanel"
-      id={intentModePanelId(modeIdPrefix, shown)}
-      aria-labelledby={intentModeTabId(modeIdPrefix, shown)}
+      id={intentTabPanelId(modeIdPrefix, shown)}
+      aria-labelledby={intentTabId(modeIdPrefix, shown)}
       hidden={mode === "ci-status"}
     >
       {children}

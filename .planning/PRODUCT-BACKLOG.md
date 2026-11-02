@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Review a story's impact on test intent](seeds/SEED-192-review-product-intent.md#review-story-intent-impact) — SEED-192#review-story-intent-impact ([plan](slice-plans/441-review-story-intent-impact/PLAN.md))
-- [Read Purpose and Proof in tabs or remembered split panels](seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout) — SEED-222#intent-purpose-proof-layout ([plan](slice-plans/449-intent-purpose-proof-layout/PLAN.md))
 - [Keep CI status unread failures readable and its read contract plain](seeds/SEED-219-intent-ci-status-tab.md#ci-status-review-corrections) — SEED-219#ci-status-review-corrections ([plan](slice-plans/448-ci-status-review-corrections/PLAN.md))
 - [Find expensive proof in the test hierarchy](seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost) — SEED-192#inspect-hierarchical-proof-cost ([plan](slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md))
 
