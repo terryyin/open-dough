@@ -941,6 +941,31 @@ across an unbuilt policy.
   useful without pretending it has the same detail as Cucumber or pytest.
 
 
+<a id="remove-candidate-pass-summary"></a>
+
+### 17. Remove the candidate pass summary
+
+**Identity:** SEED-192#remove-candidate-pass-summary
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Developers maintain test optimization candidates without a latest-pass
+summary in the record or its dashboard presentation.
+
+**Scope:** Remove the summary from source guidance, templates, this project's
+candidate record, and the dashboard reader and its affected proof. Preserve the
+four finding sections and their decisions and evidence. Do not add replacement
+review metadata or hand-edit installed managed skills.
+
+**Key examples:** A candidate record containing only the four finding sections
+opens in Intent; empty and populated records retain their existing behavior;
+subsequent profiling and resolution maintain findings without writing a pass
+summary. Historical records with a summary remain readable during rollout.
+
+**Source:** Terry's 2026-11-02 instruction to drop Latest pass from the process
+and from Open Dough's own candidate file.
+
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-192#remove-candidate-pass-summary",
+  "mode": "story-branch",
+  "branch": "codex/remove-candidate-pass-summary",
+  "host": "codex"
+}
