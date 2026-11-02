@@ -189,6 +189,21 @@ adjust (what), or reject. Steps Terry performs: run the dashboard with his
 registered projects and GitHub authentication; judge usefulness. An adjust
 answer within scope returns to slices 1–3; outside scope is a follow-up.
 
+Pre-observation, not Terry's verdict (2026-11-03, at `afdf296de`): a
+throwaway dev server from this worktree (port 4199, temp HOME holding only
+Doughnut's project entry, `GH_TOKEN` to that process), driven by headless
+Playwright, read Doughnut `origin/main` proof at `8930764691`. The
+`e2e_test/features` summary read "Summed duration of last successful proof:
+51.5 s over 23 of 395 scenarios", the not-elapsed note, and "Observations
+finished between 04:52 and 10:30 UTC on 2026-11-02, from 4 commits."; 4
+children had sums (cli 26.3 s over 10 of 61) and 17 said unknown; the
+slowest list started with `cli/cli_notebook_lfs.feature` "CLI publishes two
+LFS versions…" at 7.0 s. Clicking `cli` showed its own figures (one commit,
+`6c045cc`); clicking the top slowest row opened that file with Purpose on
+line 45 and a Proof row of the same 7.0 s, time and commit. Displayed child
+sums add to 51.6 s against 51.5 s, from rounding each child separately.
+Terry's keep, adjust, or reject answer remains open.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |
