@@ -3,9 +3,9 @@
 // with its reason, Check again replaces a judgment that could not be read
 // or was running, a running judgment shows its nearest completed ancestor, a
 // ciAdapter project is judged from its discover attempts (SEED-219 examples
-// 7, 8), and the boundary read refuses unsafe branch names and a pinned
-// revision before asking GitHub. The tab itself is in
-// ./intent-ci-status.spec.ts.
+// 7, 8), and the boundary read refuses unsafe judged branch names, the
+// shared branch-read parameter, and a pinned revision before asking GitHub.
+// The tab itself is in ./intent-ci-status.spec.ts.
 
 import { writeFileSync, mkdirSync, chmodSync } from "node:fs";
 import path from "node:path";
@@ -191,9 +191,11 @@ test("the CI status read refuses an unsafe branch name and a pinned revision bef
       };
     }, `${authenticatedReadEndpoint}?source=open-dough&${query}`);
   for (const query of [
-    "intent=ci-status&branch=main..other",
-    "intent=ci-status&branch=has%20space",
-    "intent=ci-status&branch=main&branch=other",
+    "intent=ci-status&judged=main..other",
+    "intent=ci-status&judged=has%20space",
+    "intent=ci-status&judged=main&judged=other",
+    // The shared `branch` parameter names only a branch read.
+    "intent=ci-status&branch=main",
     `intent=ci-status&revision=${openDough.revision}`,
   ]) {
     const answer = await ask(query);

@@ -1,7 +1,7 @@
 // Intent's CI status read for the local authenticated read boundary
 // (`./authenticatedRead.ts`): the selected check's judgment of one branch of
 // the published source (`intent=ci-status`), the configured ref unless the
-// request names a `branch` the safe-branch rule accepts. It names no
+// request names a `judged` branch the safe-branch rule accepts. It names no
 // revision: the judgment resolves the branch head from its own commit
 // listing (`./baseCiJudgment.ts`, the launch's rule). The project folder
 // supplies the CI settings (`./projectFolders.ts`). Anything else is
@@ -20,8 +20,8 @@ import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
 export type IntentCiStatusRead = {
   readonly kind: "intent-ci-status";
-  // The branch to judge; undefined judges the source's configured ref.
-  readonly branch?: string;
+  // The `judged` branch; undefined judges the source's configured ref.
+  readonly judged?: string;
 };
 
 // What a CI status read answers: the judged branch, when it was checked,
@@ -32,7 +32,7 @@ export type IntentCiStatusAnswer = {
 } & BaseCiJudgment;
 
 const ciStatusRefusal =
-  "A CI status read names only the Intent request and, optionally, one branch.";
+  "A CI status read names only the Intent request and, optionally, one judged branch.";
 
 const unsafeBranchRefusal = "The branch name is not one this dashboard reads.";
 
@@ -43,22 +43,20 @@ export function parseIntentCiStatusRead(
   if (params.get("intent") !== "ci-status") return undefined;
   if (
     params.getAll("intent").length !== 1 ||
-    params.getAll("branch").length > 1 ||
+    params.getAll("judged").length > 1 ||
     params.get("revision") !== null ||
-    intentReadMixedParameters
-      .filter((name) => name !== "branch")
-      .some((name) => params.get(name) !== null)
+    intentReadMixedParameters.some((name) => params.get(name) !== null)
   ) {
     return refused(ciStatusRefusal);
   }
-  const branch = params.get("branch");
-  if (branch === null) return { kind: "intent-ci-status" };
-  if (!isSafeBranchName(branch)) return refused(unsafeBranchRefusal);
-  return { kind: "intent-ci-status", branch };
+  const judged = params.get("judged");
+  if (judged === null) return { kind: "intent-ci-status" };
+  if (!isSafeBranchName(judged)) return refused(unsafeBranchRefusal);
+  return { kind: "intent-ci-status", judged };
 }
 
 function judgedBranch(source: PublishedSource, read: IntentCiStatusRead) {
-  return read.branch ?? source.ref;
+  return read.judged ?? source.ref;
 }
 
 // What a CI status read names as being read before any request is asked.

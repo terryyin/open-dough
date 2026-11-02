@@ -177,11 +177,7 @@ export function parseRequestedRead(
           "An addition read names only a pinned revision and an agent profile path.",
         );
   }
-  // Intent's CI status names its branch to judge, not a branch to read on.
-  if (
-    (branch !== null || params.get("head") !== null) &&
-    params.get("intent") !== "ci-status"
-  ) {
+  if (branch !== null || params.get("head") !== null) {
     return parseBranchRead(params, branch);
   }
   const catalogRead = parseDoneCatalogRead(params);

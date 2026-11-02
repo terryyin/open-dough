@@ -79,12 +79,19 @@ story, so a red check must revert both.
 
 ### 2. One parameter for the judged branch
 Type: Structure
-Status: planned
+Status: done
 Proof: boundary refusal cases in `intent-ci-status-reads.spec.ts` ("the CI
 status read refuses an unsafe branch name…") renamed to the new parameter and
 green; `dashboard/tests/boundary/authenticated-*` read specs and all
 `intent-ci-status*.spec.ts` green; the `requestedRead.ts` exception and the
 mixed-parameter carve-out are gone.
+Accepted proof: the judged branch is the `judged` parameter (parsed field
+`judged`; the answer keeps `branch`); `intent-ci-status*.spec.ts` plus all
+`boundary/authenticated-*.spec.ts` (229) green, the refusal loop also refusing
+`branch=main`; `npm run typecheck:dashboard` passes. Learning: a test that
+listens for a request parameter (`intent-ci-status-story.spec.ts` late read)
+times out at 90 s, rather than failing an assertion, when the parameter is
+renamed.
 
 ### 3. Cut overlapping CI status end-to-end tests
 Type: Structure

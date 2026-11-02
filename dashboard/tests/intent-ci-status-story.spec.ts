@@ -85,7 +85,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     const lateRead = new Promise<void>((resolve) => {
       const settled = (request: Request) => {
         if (
-          new URL(request.url()).searchParams.get("branch") === failing.branch
+          new URL(request.url()).searchParams.get("judged") === failing.branch
         )
           resolve();
       };
