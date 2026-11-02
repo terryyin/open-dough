@@ -14,12 +14,18 @@ export const baseCiConfirmationSchema = z.strictObject({
 
 export type BaseCiConfirmation = z.infer<typeof baseCiConfirmationSchema>;
 
+// The branch whose push produced a judged result. A result belongs to its
+// commit, so a story branch's judgment may rest on a trunk run of a shared
+// ancestor.
+const runBranchSchema = z.string().min(1).optional();
+
 // Historical context beside a running judgment; it never confirms the base.
 const completedAncestorSchema = z.object({
   revision: z.string().min(1),
   subject: z.string().min(1),
   state: z.enum(["pass", "failed"]),
   runUrl: z.url().optional(),
+  runBranch: runBranchSchema,
 });
 export type BaseCiCompletedAncestor = z.infer<typeof completedAncestorSchema>;
 
@@ -37,6 +43,7 @@ export const baseCiFoundSchema = z.object({
   // Why the base could not be read, when `state` is unread.
   reason: z.string().min(1).optional(),
   runUrl: z.url().optional(),
+  runBranch: runBranchSchema,
   completedAncestor: completedAncestorSchema.optional(),
 });
 

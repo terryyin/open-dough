@@ -6,8 +6,10 @@
 // confirm; Intent's CI status tab judges the same way through the
 // authenticated read boundary (`./intentCiStatusRead.ts`). ADR 0008: observe
 // without owning; nothing is kept beyond the request. GitHub Actions and
-// command-adapter (ciAdapter discover) projects share one judgment rule. Only
-// a branch name the safe-branch rule accepts reaches `gh api` or the adapter.
+// command-adapter (ciAdapter discover) projects share one judgment rule
+// (`./baseCiNearest.ts`); each judged result names the branch its run was on.
+// Only a branch name the safe-branch rule accepts reaches `gh api` or the
+// adapter.
 import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   createGitHubActions,
@@ -20,13 +22,10 @@ import {
   isSafeBranchName,
   readWaitLimitMs,
 } from "../src/authenticatedReadRules.ts";
-import type {
-  BaseCiCompletedAncestor,
-  BaseCiFound,
-  BaseCiState,
-} from "../src/baseCiConfirmation.ts";
+import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  type BaseCiJudgment,
   judgeNearest,
   type ListedCommit,
   type ListedRun,
@@ -34,23 +33,7 @@ import {
 } from "./baseCiNearest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 
-export type BaseCiJudgment =
-  | {
-      readonly state: "pass";
-      readonly revision: string;
-      readonly subject: string;
-      readonly laterWithoutResult: number;
-      readonly runUrl?: string;
-    }
-  | {
-      readonly state: BaseCiState;
-      readonly revision: string;
-      readonly subject: string;
-      readonly laterWithoutResult: number;
-      readonly completedAncestor?: BaseCiCompletedAncestor;
-      readonly reason?: string;
-      readonly runUrl?: string;
-    };
+export type { BaseCiJudgment } from "./baseCiNearest.ts";
 
 const historyPage = 30;
 
@@ -115,6 +98,16 @@ function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
 }
 
+// The runs one listing returns, each named by the branch listed.
+function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
+  return runs.map((run) => ({ ...run, branch }));
+}
+
+// A story branch (any branch but the configured ref) also lists the trunk's
+// runs, so a shared ancestor's trunk run counts as that commit's result; the
+// trunk is listed first so, at equal creation times, the branch's own run is
+// the newer. The trunk itself asks one listing, as the launch always has.
+// Listed one after the other so the workflow lookup is asked once.
 async function judgeGitHubActions(
   source: PublishedSource,
   branch: string,
@@ -126,15 +119,24 @@ async function judgeGitHubActions(
     repo: source.repository,
     workflow,
   });
+  const listed = async (listedBranch: string) =>
+    fromBranch(
+      (await github.listRuns(
+        { branch: listedBranch, created: undefined, limit: 100 },
+        signal,
+      )) as ListedRun[],
+      listedBranch,
+    );
   return judgeWithRuns(
     source,
     branch,
     signal,
-    () =>
-      github.listRuns(
-        { branch, created: undefined, limit: 100 },
-        signal,
-      ) as Promise<ListedRun[]>,
+    async () => {
+      const own = await listed(branch);
+      return branch === source.ref
+        ? own
+        : [...(await listed(source.ref)), ...own];
+    },
     (error) =>
       githubAcquisitionUnread(error, "The Actions runs could not be read"),
   );
@@ -158,8 +160,13 @@ async function judgeCommandAdapter(
     branch,
     signal,
     async () => {
+      // The adapter owns its discover semantics for the named branch; no
+      // trunk listing is added.
       await acquisition.acquireRuns(signal);
-      return (await acquisition.discoverAncestorCandidates()) as ListedRun[];
+      return fromBranch(
+        (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+        branch,
+      );
     },
     (error) =>
       unread(

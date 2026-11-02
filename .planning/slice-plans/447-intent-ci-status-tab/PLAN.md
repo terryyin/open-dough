@@ -186,13 +186,23 @@ runs with slice 3's on the final state.
 
 ### 3. One story-branch rule and a branch judgment with shared-commit results
 Type: Structure
-Status: planned
+Status: done
 Proof: progress journeys (`branch-slice-progress`, `branch-progress-reading`,
 `auto-refresh-branches`, `auto-refresh-unusable-branch`,
 `published-facts-failures`, `taken-execution-complete` specs) and
 `agent-launch-base-ci*.spec.ts` green; a focused unit test of the extracted
 rule's cases (not recorded, unreadable, conflicting, trunk, unsafe, branch)
 and of the nearest-ancestor rule merging trunk runs with run branch carried.
+
+Accepted proof (slice 3, 2026-11-02): `tests/support/dashboard-story-branch-ci.test.mjs`
+(rule cases, trunk-run merge with `runBranch`, mutation-checked); progress,
+launch base-CI and CI status journeys 34 passed; full `npm test` passed and
+the whole dashboard suite 1902 passed on the final state (also covering
+slice 2's `PageFrame` owner). For slice 4: `storyBranchOf(entry.owner)` in
+`dashboard/src/storyBranch.ts` (only kind `branch` is judged; `unsafe` keeps
+the recorded name for wording); the `ci-status` answer carries `runBranch`
+and `completedAncestor.runBranch`; the fake origin must answer the trunk's
+runs listing and the branch-name history.
 
 Extract the story-branch decision from `routeOf` into one rule both progress
 and CI status use; `routeOf` keeps the plan cases. Let the judgment of a
