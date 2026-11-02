@@ -104,10 +104,21 @@ async function filesUnderLocation(
 
 function locationFields(
   location: DeclaredLocation,
-): Pick<IntentLocation, "path" | "kind" | "include"> {
-  return location.include === undefined
-    ? { path: location.path, kind: location.kind }
-    : { path: location.path, kind: location.kind, include: location.include };
+): Pick<
+  IntentLocation,
+  "path" | "kind" | "include" | "proofGeneration" | "proofGenerationProblem"
+> {
+  return {
+    path: location.path,
+    kind: location.kind,
+    ...(location.include === undefined ? {} : { include: location.include }),
+    ...(location.proofGeneration === undefined
+      ? {}
+      : { proofGeneration: location.proofGeneration }),
+    ...(location.proofGenerationProblem === undefined
+      ? {}
+      : { proofGenerationProblem: location.proofGenerationProblem }),
+  };
 }
 
 function locationAnswer(

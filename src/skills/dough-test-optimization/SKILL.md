@@ -22,7 +22,9 @@ test locations, runtime/service setup, applicable test and architectural rules,
 and plan conventions from that project. Name genuinely missing context and
 stop only its dependent step; do not invent paths, commands, or a test taxonomy.
 When this project records [Cucumber proof](references/cucumber-proof.md), keep
-the proof recorder in every Cucumber profile an experiment changes.
+its explicit recording option and configured generation command or skill
+usable when an experiment changes Cucumber profiles. Normal experiments leave
+proof untouched; generate or refresh it only when explicitly requested.
 
 Default mode profiles, plans, experiments, and re-profiles. A profile-only request
 ends with findings and records them in the

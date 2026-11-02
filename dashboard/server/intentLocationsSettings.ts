@@ -6,6 +6,10 @@
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { SuccessfulProofObservation } from "../src/cucumberProof.ts";
+import {
+  proofGeneration,
+  type ProofGeneration,
+} from "../src/proofGeneration.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 
@@ -51,6 +55,8 @@ export type IntentLocation = {
   readonly problem?: IntentLocationProblem;
   // Present only when a Gherkin location declares a proof directory.
   readonly proof?: IntentLocationProof;
+  readonly proofGeneration?: ProofGeneration;
+  readonly proofGenerationProblem?: "malformed";
 };
 
 export type DeclaredLocation = {
@@ -60,6 +66,8 @@ export type DeclaredLocation = {
   // The repository directory the location's committed Cucumber proof lives
   // in, when declared as a safe repository path.
   readonly proof?: string;
+  readonly proofGeneration?: ProofGeneration;
+  readonly proofGenerationProblem?: "malformed";
 };
 
 export type DeclaredSettings =
@@ -108,23 +116,42 @@ export function declaredLocations(settings: string): DeclaredSettings {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       continue;
     }
-    const { path, kind, include, proof } = entry as {
+    const {
+      path,
+      kind,
+      include,
+      proof,
+      proofGeneration: generation,
+    } = entry as {
       path?: unknown;
       kind?: unknown;
       include?: unknown;
       proof?: unknown;
+      proofGeneration?: unknown;
     };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
     const proofOf =
       typeof proof === "string" && isSafeRepositoryPath(proof) ? { proof } : {};
+    const parsedGeneration = proofGeneration.safeParse(generation);
+    const generationOf = parsedGeneration.success
+      ? { proofGeneration: parsedGeneration.data }
+      : "proofGeneration" in entry
+        ? { proofGenerationProblem: "malformed" as const }
+        : {};
     if (!("include" in (entry as object))) {
-      declared.push({ path, kind, ...proofOf });
+      declared.push({ path, kind, ...proofOf, ...generationOf });
       continue;
     }
     const patterns = includePatternsOf(include);
     if (patterns === undefined) continue;
-    declared.push({ path, kind, include: patterns, ...proofOf });
+    declared.push({
+      path,
+      kind,
+      include: patterns,
+      ...proofOf,
+      ...generationOf,
+    });
   }
   return declared.length === 0
     ? { kind: "absent" }

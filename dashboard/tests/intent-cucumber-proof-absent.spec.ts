@@ -87,7 +87,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
   );
   const proof = intent.getByRole("region", { name: "Proof" });
   await expect(proof).toContainText(
-    "Proof is not recorded for this project. To record it, follow dough-test-optimization/references/cucumber-proof.md in this project’s installed Open Dough skills.",
+    "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/cucumber-proof.md in this project’s installed Open Dough skills.",
   );
   await expect(proof.getByRole("alert")).toHaveCount(0);
   await expect(proof).not.toContainText(

@@ -47,7 +47,9 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
   On 2026-11-01 Terry replaced rolling run history with a latest per-test
   snapshot that every ordinary run updates, under a published
   [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md); later stories still to be refined
-  use that latest-observation model. On 2026-11-02 Terry dropped local-proof/CI
+  use that latest-observation model. On 2026-11-02 Terry made proof generation
+  deliberate: normal runs leave snapshots untouched, and each proof-bearing
+  Intent entry declares its generation command or skill. Terry also dropped local-proof/CI
   comparison, including the proposed duration gate and comparison requirements
   for later producers: retained proof and CI verdicts are independent observations.
   Earlier direction notes below retain their original historical wording; active
@@ -153,8 +155,10 @@ schema, executable design, or a newly accepted architecture decision.
    published-directory helper lists files only, while story-review text is
    admitted within a particular comparison. Intent needs its own project/root
    reading scope without depending on a live session or story workspace.
-3. **Producer ownership:** a project's normal authorized test workflow produces
-   evidence; the dashboard reads it. Prefer compact repository-published run
+3. **Producer ownership:** a project's explicitly enabled recording workflow
+   produces evidence; normal test runs leave proof untouched. Each proof-bearing
+   Intent entry declares its project-owned generation command or skill; the
+   dashboard displays it and reads compact repository-published snapshot
    records for shared viewing without a developer clone. Local unpublished
    results may exist before publication but are not published Proof. Keep the
    current bounded working set small; deleting old records does not erase Git
@@ -167,7 +171,7 @@ schema, executable design, or a newly accepted architecture decision.
    identifiable or explicitly unmatched. Publishing an evidence-only commit
    must not invalidate its tested source merely because the enclosing commit
    changed. Keep the tested basis distinct from the commit publishing the report.
-5. **Last successful per-test proof:** each ordinary run maintains proof only
+5. **Last successful per-test proof:** each explicit recording run maintains proof only
    for the cases it executed. Retain passing observations with their time,
    attempts and source association; a final unsuccessful scenario removes its
    earlier proof, while cases not run keep theirs. A later pass restores proof.

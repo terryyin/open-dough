@@ -80,6 +80,9 @@ implementation fulfills a Product intent. Verification procedures are
 maintained artifacts; the results of particular executions are observations.
 Storage and presentation remain separate design choices.
 
+Published observations are deliberate snapshots. Normal test runs leave them untouched; each proof-bearing Intent entry supplies its
+project's command or skill for an explicit generation or refresh. The dashboard displays that instruction without executing it. Older proof remains readable when the instruction has not yet been configured.
+
 ##### Interpreting verification evidence
 
 The [initial Intent workspace](dashboard-ux-ui-north-star.md#initial-intent-workspace)

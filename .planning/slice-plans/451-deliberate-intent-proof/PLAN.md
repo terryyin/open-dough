@@ -2,6 +2,7 @@
 
 **Identity:** SEED-223#deliberate-intent-proof
 **Source:** [Deliberate Intent proof](../../seeds/SEED-223-deliberate-intent-proof.md#deliberate-intent-proof)
+**Source review:** [Independent source commitments](source-review.md)
 
 ## Goal and scope
 
@@ -80,7 +81,7 @@ implementation are outside this work. Preserve existing version-1 proof reads.
 
 ### 1. Choose when to refresh published Intent proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: representative guidance walk plus focused pinned-read and browser
 journeys observe the declaration, instruction, honest historical snapshot and
 preserved existing proof. Source/reference discovery mechanisms are unchanged.
@@ -90,6 +91,20 @@ only deliberately, declares its own generation command or skill, and a reader
 can find that instruction and understand the limits of the published snapshot.
 Update applicable current-product docs and planning prose to reflect deliberate
 proof. Retained proof and CI verdicts remain independent observations.
+
+### 2. Publish and adopt the deliberate-proof contract
+Type: Behavior
+Status: planned
+Proof: immutable release/tag identity, ordinary all-root update and repeat
+no-op receipts, verified rollout commits on each configured remote trunk,
+and accepted migration requests to affected projects.
+
+Behavior: the reviewed contract is available as a patch release and installed
+in every production-dashboard repository; each project with Cucumber proof
+receives the concrete request to adapt its producer and declare its command
+or skill. Read-only inspection accounts for other projects without requiring
+unsupported proof adapters. This is an interactive maintainer publication
+slice, performed by the coordinator using the release-and-update-clients skill.
 
 ## Delivery and rollout
 
@@ -109,11 +124,57 @@ through their required CI and keep repair ownership.
 
 ## Concern review
 
-Refinement not needed: one cohesive proof-publication contract uses existing
-Intent configuration and reading boundaries. No remaining slice-specific
-concern. Project migrations are explicitly delegated project work, not promised
+Refinement not needed: the contract uses existing Intent configuration and
+reading boundaries. Separate source behavior and release adoption have
+independent proof loops and safe stopping points. No remaining slice-specific
+concern. Project migrations are explicitly requested project work, not promised
 to be complete merely by shipping guidance.
 
 ## Learnings
 
-None yet.
+- Main advanced concurrently to human commit
+  `d7d01402583da929c87a3eaaae4048a70f7c8727`, dropping local-proof/CI
+  comparison and plan 450. Preserve that published change; only surviving
+  current producer assumptions in SEED-192 change to deliberate recording.
+  Dated November 1 direction remains historical, with November 2 direction
+  added explicitly.
+- Playwright CLI selectors match absolute paths. `intent-` matched this
+  worktree name and selected the whole dashboard suite. The implementer
+  observed fresh progress, interrupted only its identified process, observed
+  the interrupted terminal result with no assertion diagnostics, and removed
+  the judged attempt-owned artifacts. Explicit test-path prefixes selected
+  the intended 60 tests in 26 files and passed.
+
+## Accepted proof for slice 1
+
+- `npm run typecheck:dashboard` passed in the owned checkout.
+- `npm run test:dashboard -- intent-proof-generation.spec.ts authenticated-read-intent-proof-generation.spec.ts intent-cucumber-proof.spec.ts intent-cucumber-proof-absent.spec.ts intent-entry-folder-proof.spec.ts intent-entry-folder-summary-explanations.spec.ts authenticated-read-intent-locations.spec.ts --workers=2` passed.
+- `npm run test:dashboard -- dashboard/tests/intent- dashboard/tests/boundary/authenticated-read-intent- --workers=2` passed; an independent `--list --reporter=list` confirmed 60 tests in 26 files.
+- New `intent-proof-generation.spec.ts` publishes project settings and observes
+  command/skill/missing/invalid declarations beside historical rows through
+  folder, selected file and location views. Its DOM assertions establish
+  inert instructions and snapshot qualifications; its published fixture is
+  starting source/proof data, not the generation/rendered outcome.
+- New `boundary/authenticated-read-intent-proof-generation.spec.ts` supplies
+  Git-backed fixture settings/features/proof and observes real authenticated
+  answers for valid, absent, conflicting, blank and malformed declarations
+  while preserving the proof read. Existing Cucumber proof, absent/error,
+  folder, selection and pinned-revision journeys remain passing.
+- Representative conventional guidance walkthrough: ordinary passing/failing
+  runs leave existing A/B proof untouched; explicit B refresh preserves A;
+  explicit final failure of A clears A while unexecuted identities remain.
+  Project runtimes follow their separately requested migrations.
+- `python3 /Users/terryyin/.codex/skills/.system/skill-creator/scripts/quick_validate.py src/skills/dough-test-optimization` passed. `git diff --check` passed.
+- `OPEN_DOUGH_TEST_JOBS=2 PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/bash scripts/test.sh tests/install-all-tools.sh tests/update-skip-verified.sh tests/self-installation-baseline.sh tests/release-version-finalization-gate.sh tests/install-preserves-open-dough-json.sh tests/dough-update-guidance-payload.sh` passed. The initial Bash 3 invocation refused before running checks; use the project's required Bash 5 runtime.
+- Release self-installation check passed against both recorded 0.3.81 roots.
+  Installer, payload paths and host-discovery/registration mechanisms are
+  unchanged; their deterministic/reused evidence is not new native acceptance.
+- Consumer trace is retained in acceptance conversation at
+  `/tmp/deliberate-proof-consumer-trace.md`: real read/schema/Proof/summary
+  consumers passed the selected surface; managed copies wait for slice 2;
+  unrelated textual matches and historical records are excluded with reasons.
+- Independent refactoring completed. It only reflowed the new requirements
+  paragraph without changing its words. The guarded formatter then caught a
+  case-insensitive basename collision between the schema and TSX component;
+  source/schema placement changed to `dashboard/src/proofGeneration.ts`, with
+  the two imports updated. `npm run typecheck:dashboard && npm run test:dashboard -- dashboard/tests/intent-proof-generation.spec.ts dashboard/tests/boundary/authenticated-read-intent-proof-generation.spec.ts --workers=2` passed (10 tests, two files). Other accepted boundaries are unchanged.

@@ -10,6 +10,7 @@ import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import { IntentGherkinSummary } from "./IntentGherkinSummary.tsx";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
+import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function IntentSummary({
@@ -39,6 +40,7 @@ export function IntentSummary({
       <p className="intent-summary-files">
         {files.length} {intentFileCountWords(files.length)}
       </p>
+      <IntentProofGeneration location={location} />
       {gherkin ? (
         <IntentGherkinSummary
           path={path}

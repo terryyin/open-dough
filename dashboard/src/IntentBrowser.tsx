@@ -25,6 +25,7 @@ import {
   type IntentMode,
 } from "./IntentModeTabs.tsx";
 import { IntentProof } from "./IntentProof.tsx";
+import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
 import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
@@ -207,6 +208,7 @@ export function IntentBrowser({
               </section>
               <section className="intent-proof" aria-labelledby={proofId}>
                 <h3 id={proofId}>Proof</h3>
+                <IntentProofGeneration location={selectedLocation} />
                 <IntentProof
                   path={selectedPath}
                   kind={selectedLanguage}

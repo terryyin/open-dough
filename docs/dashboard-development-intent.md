@@ -43,7 +43,17 @@ order, each with its **Last successful proof** (retry-assisted passes marked
 with attempt counts), duration, time since, commit, and whether it was observed
 on this file version, or _No successful proof_, under a count line of those
 successful observations. A final unsuccessful scenario clears its earlier
-proof; a later pass restores it, while unexecuted scenarios keep their proof.
+proof during an explicit recording run; a later explicit pass restores it,
+while unexecuted scenarios keep their proof. Normal test runs leave proof
+untouched, including on failure. Proof is a published snapshot whose
+observations can come from different deliberate runs, not a claim about
+present product health. On every proof-bearing location,
+`proofGeneration` declares exactly one nonempty `command` string, run from
+the repository root, or `skill` string naming a project-owned invocation.
+File Proof and location/folder summaries show that instruction as text for
+generating or refreshing proof; the dashboard does not execute it. Missing or
+invalid instructions explain the setting on that location in
+`.planning/open-dough.json` without hiding readable historical proof.
 Legacy proof is reduced to the latest result before retaining successes, so
 an older pass cannot reappear behind a later failure. Proof files are read
 once with the locations at that revision. A file with no successful proof
@@ -52,7 +62,7 @@ proof, is reported by name as a read
 failure with retry, never as _No successful proof_, and the retry reads the
 locations again without changing the selection or Purpose. Without a
 declared directory, Proof says it is not recorded for the project and names
-the installed reference to follow; other kinds say Proof is read only for
+the installed reference for configuring deliberate generation; other kinds say Proof is read only for
 Gherkin files so far. The selected perspective choice names the page, so
 Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,

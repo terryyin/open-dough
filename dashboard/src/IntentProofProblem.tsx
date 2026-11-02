@@ -20,9 +20,9 @@ export function NotRecorded({ kind }: { readonly kind: string | undefined }) {
   }
   return (
     <p>
-      Proof is not recorded for this project. To record it, follow{" "}
-      <code>{cucumberProofReference}</code> in this project&rsquo;s installed
-      Open Dough skills.
+      Proof is not recorded for this project. To configure deliberate proof
+      generation, follow <code>{cucumberProofReference}</code> in this
+      project&rsquo;s installed Open Dough skills.
     </p>
   );
 }
