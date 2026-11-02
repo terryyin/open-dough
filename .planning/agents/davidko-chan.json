@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "DavidKo-chan",
-  "email": "davidko-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-219#intent-ci-status-tab",
-  "host": "claude",
-  "model": "opus"
-}
