@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-219#ci-status-review-corrections",
+  "mode": "story-branch",
+  "branch": "claude/keep-ci-status-unread-failures-readable-and-its",
+  "host": "claude",
+  "model": "opus"
+}
