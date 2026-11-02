@@ -290,7 +290,7 @@ second caller needs, and its Structure proof observes the result.
   `ENOENT` on `dashboard/test-results/<stamp>`. Piping through `| tee | tail`
   hid progress. Partial harness fixes (color env strip; pid-stamped Playwright
   output dirs) are in the checkout. Follow-up:
-  SEED-216#fix-owned-calls-start-slack-hang. This story returns to the backlog;
+  SEED-218#fix-owned-calls-start-slack-hang. This story returns to the backlog;
   resume after that hang fix, or with suite gates known green.
 
 ### Slice 1 accepted proof

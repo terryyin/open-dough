@@ -1,5 +1,5 @@
 ---
-id: SEED-216
+id: SEED-218
 status: active
 planted: 2026-11-02
 planted_during: SEED-192#review-story-intent-impact stopped after local suite hang
@@ -7,7 +7,7 @@ trigger_when: Local npm test or dashboard concurrent runs hang or race in this r
 scope: Open Dough local test-suite reliability for held GitHub fixture calls and concurrent Playwright output dirs
 ---
 
-# SEED-216: End local suite hangs that stall delivery
+# SEED-218: End local suite hangs that stall delivery
 
 ## Why This Matters
 
@@ -21,7 +21,7 @@ gates even when product work is otherwise ready.
 
 ### 1. End the held-gh start-slack deadlock and concurrent test-results race
 
-**Identity:** SEED-216#fix-owned-calls-start-slack-hang
+**Identity:** SEED-218#fix-owned-calls-start-slack-hang
 
 **Beneficiary:** A developer running `npm test` or local dashboard Playwright
 in this repository, including during story delivery publication gates.

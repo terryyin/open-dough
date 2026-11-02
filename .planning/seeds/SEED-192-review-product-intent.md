@@ -264,7 +264,7 @@ Individual refinements and their recorded facts below carry current preparation.
 **Execution note (2026-11-02):** Stopped mid slice 1 by human decision after
 local suite hang/stagnation. Uncommitted board-selection work and harness
 mitigations remain for landing with this stop. Plan Learnings record the suite
-root cause and point at SEED-216#fix-owned-calls-start-slack-hang. Resume this
+root cause and point at SEED-218#fix-owned-calls-start-slack-hang. Resume this
 story after that fix, or when full `npm test` and dashboard gates are known
 green again.
 
