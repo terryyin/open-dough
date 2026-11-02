@@ -11,6 +11,7 @@ import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import { IntentGherkinSummary } from "./IntentGherkinSummary.tsx";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
+import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function IntentSummary({
@@ -21,6 +22,7 @@ export function IntentSummary({
   revision,
   proofRereading,
   onProofRetry,
+  onOpen,
 }: {
   readonly path: string;
   readonly files: readonly string[];
@@ -29,6 +31,7 @@ export function IntentSummary({
   readonly revision: string;
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
+  readonly onOpen: (next: IntentSelection) => void;
 }) {
   const gherkin = location.kind === "gherkin" && location.problem === undefined;
   return (
@@ -50,6 +53,7 @@ export function IntentSummary({
           revision={revision}
           proofRereading={proofRereading}
           onProofRetry={onProofRetry}
+          onOpen={onOpen}
         />
       ) : (
         <IntentProofAbsence

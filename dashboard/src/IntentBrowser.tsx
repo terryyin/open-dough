@@ -1,23 +1,26 @@
 // Configured Intent locations browser (`./IntentPerspective.tsx`) and the
 // Test Optimization Candidates record, each one Intent reading mode chosen
 // under the banner (`./IntentModeTabs.tsx`, drawn and owned by
-// `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
-// shows the locations. Locations and folders share caret (expansion only) and name
-// (select; toggle once selected) controls; a caret never changes selection or
-// the reading pane. A file shows Purpose and Proof; a location or folder name
-// shows a Summary (`./IntentSummary.tsx`). The record fills the content area
-// without the locations; it is read the first time it is chosen and stays
-// mounted after, so opening a test from it and returning does not reread it. A
-// failed file read keeps its own explanation and retry; a failed proof read's
-// retry reads the locations again without changing the selection. Selection is
-// owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
+// `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`);
+// Intent shows the locations. Locations and folders share caret (expansion
+// only) and name (select; toggle once selected) controls; a caret never
+// changes selection or the reading pane. A file shows Purpose and Proof; a
+// location or folder name shows a Summary (`./IntentSummary.tsx`), whose child
+// names and slowest rows open their target as the record's links do. The
+// record replaces the locations in the content area, read once chosen and kept
+// mounted. A failed file read keeps its own explanation and retry; a failed
+// proof read's retry rereads the locations without changing the selection.
+// Selection is owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
 
 import { useEffect, useId, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
-import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import {
+  IntentLocationGroup,
+  type TreeReveal,
+} from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { intentModePanelId, intentModeTabId } from "./IntentModeTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
@@ -67,6 +70,7 @@ export function IntentBrowser({
   if (mode === "candidates" && !candidatesChosen) setCandidatesChosen(true);
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<TreeReveal | undefined>();
   // The answered read of one path; Purpose and Proof show it only while that
   // path is the one selected, so a new selection never pairs with the
   // previous text, and anything else reads as still reading.
@@ -77,20 +81,23 @@ export function IntentBrowser({
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
 
-  function openFromRecord(next: IntentSelection, entrySlug: string) {
-    setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
+  function select(next: IntentSelection, entrySlug?: string) {
+    setSelection(next);
     setReturnEntrySlug(entrySlug);
     onModeChange("intent");
-    const owning = locations.find((location) =>
-      location.files.includes(next.path),
-    );
-    if (owning !== undefined) setExpandedPath(owning.path);
   }
 
-  function selectInTree(next: IntentSelection) {
-    setSelection(next);
-    setReturnEntrySlug(undefined);
-    onModeChange("intent");
+  // Opening from the candidate record or drilling down from a summary
+  // selects as the tree does (a record entry is a file without a scope) and
+  // reveals it there: its location opens, its ancestor folders un-collapse.
+  function openRevealed(next: IntentSelection, entrySlug?: string) {
+    select(
+      next.scope === undefined ? { ...next, scope: "file" } : next,
+      entrySlug,
+    );
+    const owning = owningLocation(locations, next);
+    if (owning !== undefined) setExpandedPath(owning.path);
+    setReveal({ path: next.path });
   }
 
   // Clearing selection when the project or locations change is owned by the
@@ -139,7 +146,8 @@ export function IntentBrowser({
               key={location.path}
               location={location}
               selection={treeSelection}
-              onSelect={selectInTree}
+              onSelect={select}
+              reveal={reveal}
               idPrefix={intentLocationIdPrefix(location.path)}
               expanded={expandedPath === location.path}
               onToggle={() => {
@@ -162,6 +170,7 @@ export function IntentBrowser({
               revision={revision}
               proofRereading={proofRereading}
               onProofRetry={onProofRetry}
+              onOpen={openRevealed}
             />
           ) : null}
           {scope === "file" || scope === "none" ? (
@@ -229,7 +238,7 @@ export function IntentBrowser({
             source={source}
             revision={revision}
             inventory={inventory}
-            onOpenLocation={openFromRecord}
+            onOpenLocation={openRevealed}
             {...(mode === "candidates" && returnEntrySlug !== undefined
               ? { focusEntrySlug: returnEntrySlug }
               : {})}

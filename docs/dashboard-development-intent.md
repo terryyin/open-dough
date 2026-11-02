@@ -41,7 +41,12 @@ and file-version cells as file Proof; a selection without successful proof
 shows no list. Each
 child row adds its own sum and covered count, or says its summed duration is
 unknown when none of its rows has successful proof, never zero; children keep
-tree order. The figures are derived in the browser from the texts and proof the
+tree order. The summary drills down: a child's name selects that folder or
+file exactly as its tree name does (a folder shows its own summary, a file its
+Purpose and Proof), and a slowest row's scenario name opens its file with
+Purpose positioned on that row's line, as an Optimization Candidates case
+opens. Either reveals the target in the tree, opening its location and
+expanding any collapsed folders above it; both are keyboard-operable buttons. The figures are derived in the browser from the texts and proof the
 summary already reads and are not stored. Scenario totals, Proof count lines
 and summed duration lines are labelled _Partial_ with contributing-file
 coverage while any contained file is still reading or could not be read, for

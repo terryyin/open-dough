@@ -10,6 +10,23 @@
   margin: var(--space-1) 0 0;
 }
 
+/* A link-styled button that opens a target inside Intent: candidate-record
+   locations (`./IntentCandidatesLocationsText.tsx`,
+   `./RecordedMarkdownText.tsx`) and summary drill-down
+   (`./IntentSummaryChildren.tsx`, `./IntentSummarySlowest.tsx`). */
+.intent-open-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link, inherit);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
 .intent-proof-rows {
   border-collapse: collapse;
   font-size: var(--text-sm);

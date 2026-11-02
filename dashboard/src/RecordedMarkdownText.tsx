@@ -44,7 +44,7 @@ function Linked({
       return (
         <button
           type="button"
-          className="intent-candidate-location-link"
+          className="intent-open-link"
           onClick={() => {
             onOpenIntentFile({ path }, entrySlug);
           }}

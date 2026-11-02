@@ -144,7 +144,7 @@ for November fixtures pause the clock with `pausePageClockAt`
 
 ### 3. Drill down from a summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-summary-drill-down.spec.ts` (examples 3, 4);
 `intent-entry-folder-summaries-folders.spec.ts`,
 `intent-test-optimization-candidates-open.spec.ts`, and
@@ -160,6 +160,19 @@ owner. Docs: summary paragraph gains drill-down; the North Star's
 [Runtime proof and hierarchy](../../../docs/dashboard-ux-ui-north-star.md#runtime-proof-and-hierarchy)
 keeps only what remains unbuilt (run wall time, revision matching beyond
 file version) and drops what the code now explains.
+
+Accepted (2026-11-02): `intent-summary-drill-down.spec.ts` ("16.1, 16.2"
+test with Enter, Space, a collapsed ancestor and caret-only collapse;
+"17, 10.4" test from a closed location with `cli` collapsed), with all intent
+specs (68 passed) and story review specs (87 passed). `openRevealed` in
+`IntentBrowser.tsx` is the one open path for the candidate record and summary
+drill-down: it selects, opens the owning location, and sends a `TreeReveal`
+that `IntentLocationGroup` uses to un-collapse ancestors and scroll the
+pressed row into view. Record and summary open controls share
+`.intent-open-link`. Reveal is proven one folder deep. The North Star clauses
+this story's seed cites ("hierarchical Proof report", "Missing evidence stays
+explicit") are now explained by code and docs; wrap-up settles the seed's
+links.
 
 ### 4. Terry's evaluation on real published proof
 Type: Behavior
@@ -206,6 +219,14 @@ answer within scope returns to slices 1–3; outside scope is a follow-up.
   sum); every sum names its coverage; an unproven child's duration is
   unknown, never 0 s; the slowest list holds at most ten rows; a slowest row
   opens Purpose positioned, matching Optimization Candidates.
+- CI run 41463759771 attempt 1 on `a04e6e12a` (slice 2): only
+  "dashboard (10/12)" failed, at the 276 s suite deadline with two specs
+  still starting. Disposition: runner infrastructure. That job's "Set up job"
+  took 42 s and setup-node 30 s, against 1 s and 5–6 s on its sibling shards,
+  before any project code ran; its suite ran 3–10× slow for the first ~110 s,
+  then normally. No changed spec is in that shard. The same 10/12 set passed
+  locally, 146 tests in 1.6 min at 4 workers. No repair commit; the next
+  published revision's CI stays the applicable gate.
 
 ## Story obligations
 
@@ -215,6 +236,12 @@ Story clause: "Ranking or reordering folders and files by their sums"
 Disposition: excluded "Scope limits (deferred promises, not rejections)"
 Commitment: 22.1, 22.2, 22.3, 22.4, 22.5, 22.6, 22.7, 22.8, 22.9, 22.10
 
+
+### G2. Side by side keeps the opened Proof row in view
+Reported: slice 3 — "13.4's Side by side clause: the Purpose and Proof layout story is not on trunk, so no Side by side layout exists to show the Proof row beside positioned Purpose"
+Story clause: "with Side by side from"
+Disposition: no user cost "drills down to the folder, file, or scenario responsible": the slowest row opens Purpose positioned on its case (intent-summary-drill-down.spec.ts test 17, 10.4) and file Proof shows that row; Side by side does not exist yet, and SEED-222, which builds it, lays out whatever file is selected, this open path included
+Commitment: 13.4
 ## Concern evidence
 
 Slice-plan refinement was not needed: each Behavior slice has one proof loop

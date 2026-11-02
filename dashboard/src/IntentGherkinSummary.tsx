@@ -4,8 +4,8 @@
 // declared proof one aggregate count line and summed duration with its
 // coverage, the separate-observations note, observation spread and slowest
 // scenarios (`./IntentSummarySlowest.tsx`), plus a per-child breakdown with
-// each child's sum (`./intentSummaryCoverage.ts`,
-// `./intentSummaryProofCost.ts`).
+// each child's sum (`./IntentSummaryChildren.tsx`). Child names and slowest
+// rows drill down through `onOpen`.
 // Totals stay Partial while any file is pending or unread; a failed file is
 // named with a retry that rereads only it.
 
@@ -21,7 +21,6 @@ import {
   proofCountLineFor,
   scenarioCountForFiles,
   scenarioTotalLine,
-  type CoverageTally,
   type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
 import {
@@ -31,31 +30,13 @@ import {
   proofSpreadLine,
   slowestRowsOf,
 } from "./intentSummaryProofCost.ts";
+import { IntentSummaryChildren } from "./IntentSummaryChildren.tsx";
 import { IntentSummarySlowest } from "./IntentSummarySlowest.tsx";
-import type { SuccessfulProofObservation } from "./cucumberProof.ts";
+import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const summaryReadConcurrency = 4;
-
-function ChildProofLines({
-  coverage,
-  observed,
-}: {
-  readonly coverage: CoverageTally;
-  readonly observed: readonly (SuccessfulProofObservation | undefined)[];
-}) {
-  return (
-    <>
-      <p className="intent-proof-counts">
-        {proofCountLineFor(coverage, observed)}
-      </p>
-      <p className="intent-proof-counts">
-        {proofCostLineFor(coverage, proofCostOf(observed))}
-      </p>
-    </>
-  );
-}
 
 type ReadyTexts = ReadonlyMap<string, string>;
 
@@ -67,6 +48,7 @@ export function IntentGherkinSummary({
   revision,
   proofRereading,
   onProofRetry,
+  onOpen,
 }: {
   readonly path: string;
   readonly files: readonly string[];
@@ -75,6 +57,9 @@ export function IntentGherkinSummary({
   readonly revision: string;
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
+  // Opens a child folder or file, or a slowest row's file at its line, in
+  // Intent's one selection, revealing it in the tree.
+  readonly onOpen: (next: IntentSelection) => void;
 }) {
   const filesKey = files.join("\0");
   const [ready, setReady] = useState<ReadyTexts>(() => new Map());
@@ -198,43 +183,17 @@ export function IntentGherkinSummary({
                 path={path}
                 rows={slowestRowsOf(files, textOf, latest)}
                 featureBlobs={readable ? proof.featureBlobs : {}}
+                onOpen={onOpen}
               />
             </>
           )}
-          {children.length > 0 ? (
-            <ul
-              className="intent-summary-children"
-              aria-label="Summary by folder and file"
-            >
-              {children.map((child) => {
-                const childCoverage = coverageOf(child.files, statusOf);
-                const childScenarios = scenarioCountForFiles(
-                  child.files,
-                  textOf,
-                );
-                const showProof =
-                  childCoverage.readyCount > 0 || !childCoverage.incomplete;
-                return (
-                  <li key={child.path}>
-                    <code>{child.name}</code>
-                    <p className="intent-summary-scenarios">
-                      {scenarioTotalLine(childCoverage, childScenarios)}
-                    </p>
-                    {showProof ? (
-                      <ChildProofLines
-                        coverage={childCoverage}
-                        observed={observationsForFiles(
-                          child.files,
-                          textOf,
-                          latest,
-                        )}
-                      />
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
+          <IntentSummaryChildren
+            childList={children}
+            statusOf={statusOf}
+            textOf={textOf}
+            latest={latest}
+            onOpen={onOpen}
+          />
         </>
       ) : null}
     </>

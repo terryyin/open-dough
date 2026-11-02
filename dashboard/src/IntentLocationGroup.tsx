@@ -3,11 +3,12 @@
 // selection; the name selects the location (and toggles once selected).
 // Nested folders use the shared FileTree's opt-in caret + selectable name.
 // Selection is the Intent workspace's (`./intentWorkspaceSelection.ts`),
-// passed through the browser. An unsupported kind or a location with no
-// matching files says so by path, kind, and include patterns inside the
-// expanded body.
+// passed through the browser. A `reveal` request un-collapses the folders
+// above its path and scrolls the selected row into view. An unsupported kind
+// or a location with no matching files says so by path, kind, and include
+// patterns inside the expanded body.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
@@ -43,6 +44,18 @@ function FileRow({
   );
 }
 
+// A request to show a selected path in the tree; each new object is one
+// request.
+export type TreeReveal = { readonly path: string };
+
+// The folders above a location-relative path, outermost first.
+function folderAncestors(relative: string): readonly string[] {
+  const parts = relative.split("/").slice(0, -1);
+  return parts.map((part, at) =>
+    at === 0 ? part : `${parts.slice(0, at).join("/")}/${part}`,
+  );
+}
+
 function selectionPhrase(location: IntentLocation): string {
   if (location.include === undefined || location.include.length === 0) {
     return location.kind;
@@ -74,6 +87,7 @@ export function IntentLocationGroup({
   idPrefix,
   expanded,
   onToggle,
+  reveal,
 }: {
   readonly location: IntentLocation;
   readonly selection: IntentSelection;
@@ -81,10 +95,31 @@ export function IntentLocationGroup({
   readonly idPrefix: string;
   readonly expanded: boolean;
   readonly onToggle: () => void;
+  readonly reveal?: TreeReveal | undefined;
 }) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
+  const [revealed, setRevealed] = useState(reveal);
+  const sectionRef = useRef<HTMLElement>(null);
   const bodyId = `${idPrefix}-body`;
   const prefix = `${location.path}/`;
+  const revealHere =
+    reveal !== undefined &&
+    (reveal.path === location.path || reveal.path.startsWith(prefix));
+  if (reveal !== revealed) {
+    setRevealed(reveal);
+    if (revealHere) {
+      const above = folderAncestors(reveal.path.slice(prefix.length));
+      setCollapsed(
+        (was) => new Set([...was].filter((path) => !above.includes(path))),
+      );
+    }
+  }
+  useEffect(() => {
+    if (!revealHere) return;
+    sectionRef.current
+      ?.querySelector('[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [reveal, revealHere]);
   // Arrange paths relative to the location so the tree starts inside it.
   const files = location.files.flatMap((full) => {
     if (!full.startsWith(prefix)) return [];
@@ -114,6 +149,7 @@ export function IntentLocationGroup({
 
   return (
     <section
+      ref={sectionRef}
       className="intent-location story-review-files"
       aria-labelledby={`${idPrefix}-heading`}
     >

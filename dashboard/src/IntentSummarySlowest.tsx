@@ -2,7 +2,9 @@
 // (`./IntentGherkinSummary.tsx`): its slowest counted rows anywhere in the
 // selection (`./intentSummaryProofCost.ts`), each naming the scenario and its
 // file relative to the selection, with file Proof's row cells
-// (`./ProofObservationCells.tsx`). Nothing shows without counted rows.
+// (`./ProofObservationCells.tsx`). A row's scenario name opens its file with
+// Purpose positioned on the row's source line. Nothing shows without counted
+// rows.
 
 import type { SlowestRow } from "./intentSummaryProofCost.ts";
 import {
@@ -11,15 +13,18 @@ import {
   ScenarioName,
 } from "./ProofObservationCells.tsx";
 import { useTickingNow } from "./useTickingNow.ts";
+import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
 export function IntentSummarySlowest({
   path,
   rows,
   featureBlobs,
+  onOpen,
 }: {
   readonly path: string;
   readonly rows: readonly SlowestRow[];
   readonly featureBlobs: Readonly<Record<string, string>>;
+  readonly onOpen: (next: IntentSelection) => void;
 }) {
   const now = useTickingNow(30_000);
   if (rows.length === 0) return null;
@@ -45,7 +50,19 @@ export function IntentSummarySlowest({
         {rows.map(({ path: file, row, observation }) => (
           <tr key={`${file}:${String(row.line)}`}>
             <th scope="row">
-              <ScenarioName row={row} />
+              <button
+                type="button"
+                className="intent-open-link"
+                onClick={() => {
+                  onOpen({
+                    path: file,
+                    scope: "file",
+                    caseTarget: String(row.line),
+                  });
+                }}
+              >
+                <ScenarioName row={row} />
+              </button>
             </th>
             <td>
               <code>

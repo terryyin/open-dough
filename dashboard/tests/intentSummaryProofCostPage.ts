@@ -1,6 +1,7 @@
 // How the summary proof-cost specs (`./intent-summary-proof-cost.spec.ts`,
-// `./intent-summary-slowest.spec.ts`) read an Intent summary: its summed
-// lines, child rows, and slowest scenarios list.
+// `./intent-summary-slowest.spec.ts`, `./intent-summary-drill-down.spec.ts`)
+// read an Intent summary: its summed lines, child rows (each named by its
+// drill-down control), and slowest scenarios list.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -35,12 +36,17 @@ export async function expectSlowest(
   }
 }
 
+// The control naming one immediate child of the summary.
+export function childName(summary: Locator, name: string): Locator {
+  return childRows(summary).getByRole("button", { name, exact: true });
+}
+
 export async function expectChildren(
   summary: Locator,
   expected: readonly (readonly [string, string])[],
 ) {
   const rows = childRows(summary);
-  await expect(rows.locator(":scope > code")).toHaveText(
+  await expect(rows.locator(":scope > button")).toHaveText(
     expected.map(([name]) => name),
   );
   for (const [at, [, line]] of expected.entries()) {
