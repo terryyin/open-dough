@@ -44,12 +44,11 @@ export function ShownJudgment({
   readonly story: string | undefined;
 }) {
   const { completedAncestor } = judgment;
-  if (judgment.unpublished === true) {
+  // Only a story branch is unpublished; the trunk's 404 is unread.
+  if (judgment.unpublished === true && story !== undefined) {
     return (
       <p className="intent-ci-gap">
-        {story === undefined
-          ? `${judgment.branch} is not published, so it has no CI status.`
-          : `The recorded branch ${judgment.branch} of ${story} is no longer published, so it has no CI status.`}
+        {`The recorded branch ${judgment.branch} of ${story} is no longer published, so it has no CI status.`}
       </p>
     );
   }

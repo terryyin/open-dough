@@ -9,6 +9,7 @@ and plan `56c47e8e:.planning/slice-plans/447-intent-ci-status-tab/PLAN.md`). Rev
 `713d91a6` (slice 1), `aa10a4f0` (slice 2), `609da43b` (slice 3), `3d1f5ae4`
 (slice 4), `a5df2c72` (slice 5); `276116fc` (unrelated flaky-test repair in the
 same execution) excluded.
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -61,12 +62,20 @@ projects should also count trunk results of shared commits (story clause
 
 ### 1. A trunk history 404 reads Could not be read with its reason
 Type: Behavior
-Status: planned
+Status: done
 Proof: added step in `dashboard/tests/intent-ci-status-reads.spec.ts`: the
 fake origin answers 404 for `main`'s history → heading names `main`, **Could
 not be read**, reason contains "404", no "not published"; the unpublished
 story-branch step in `intent-ci-status-story-gaps.spec.ts` stays green. Doc
 sentence for the adapter rule in `docs/dashboard-development-intent.md`.
+Accepted proof: `intent-ci-status-reads.spec.ts` "CI status that could not be
+read names main and the reason…" step "a 404 on main's history is Could not be
+read…" (red against the pre-change server and client, green after); all
+`intent-ci-status*.spec.ts` (12) and `agent-launch-base-ci*.spec.ts` (13)
+green; `tests/support/dashboard-story-branch-ci.test.mjs` and
+`npm run typecheck:dashboard` pass. Learning: the rule lives in
+`readBranchHistory` (`branch !== source.ref`); `ShownJudgment` also requires a
+story, so a red check must revert both.
 
 ### 2. One parameter for the judged branch
 Type: Structure
