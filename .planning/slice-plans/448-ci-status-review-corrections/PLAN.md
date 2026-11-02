@@ -157,6 +157,13 @@ sequential adapter discovers would have doubled the worst case past the read
 wait; whether a project's own adapter tolerates two concurrent calls is the
 adapter's contract, as with watchers.
 
+## Execution complete
+
+Product advice: no change. Terry's adapter-parity amendment (slice 4) settled
+the one carried product question; the outcome review found no correction (the
+remaining items are pre-existing or cosmetic: an adapter timeout reads with the
+abort's own message rather than the 30 s wording, as before this correction).
+
 ## Local gates
 
 - Focused proof as listed, with

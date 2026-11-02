@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 406. Removed numbers are never reused.
+- Highest allocated local number: 407. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -402,6 +402,14 @@ Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator ran `node scripts/lint.mjs --fix` directly: "prettier: not found on PATH"; `npm run --silent format` then succeeded and was used as the delivery formatting operation
   - Observed effect: one failed formatter call before delivery; delivery itself used the npm script and did not fail
   - Inference: same binary-resolution cause outside the guarded entry: the project's selective formatter must be invoked through npm
+- Execution: SEED-219#ci-status-review-corrections (plan 448; first implementation commit 6316908648c11da2f1cfce275c54fccdc764937f)
+  - Timestamp: 2026-11-02T20:29+07:00 (slice 1 guarded delivery; approximate, from its preparation file)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54e; checkout VERSION 0.3.83)
+  - Evidence: `execution-increment-delivery.mjs fresh` with formatting `["node","scripts/lint.mjs","--fix"]` returned `preparation-failed`, operation `formatting`: "eslint: not found on PATH … prettier: not found on PATH"; the retry with `["npm","run","format"]` committed and published `6316908`
+  - Observed effect: one refused guarded preparation before the first increment; nothing was committed or published by the failed attempt
+  - Inference: the guarded entry runs commands without npm's PATH, so the same cause recurs inside it, not only outside; the coordinator chose the operation from `package.json`'s `format` target text rather than its npm invocation
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
@@ -783,3 +791,20 @@ reference run that was admitted at once.
   - Evidence: back-to-back runs recorded 2,063s and 4,068s shell wall, but Playwright reported 31.3 min and 29.6 min. Two other worktrees' full Playwright suites were running during the candidate run (`ps`). `dashboard/playwright.config.ts:18` calls `acquireLocalSuite`. `pmset -g log` showed no sleep. Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3, and Learnings.
   - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
   - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.
+
+## DD-407 — An implementation return claimed a bound its own constants contradict
+
+A slice return stated that two sequential adapter discovers "still sit under
+the read wait bound" although the 20 s adapter timeout twice exceeds the 30 s
+read wait. The coordinator's acceptance check of the cited constants caught it
+before refactoring or delivery.
+
+### Occurrences
+- Execution: SEED-219#ci-status-review-corrections (plan 448; first implementation commit 6316908648c11da2f1cfce275c54fccdc764937f)
+  - Timestamp: unknown (2026-11-02, slice 4 acceptance, before commit 549d57f)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54e; checkout VERSION 0.3.83)
+  - Evidence: slice 4 return, Gaps: "Both still sit under the read wait bound (`readWaitLimitMs`)"; `dashboard/src/authenticatedReadRules.ts:58` `readWaitLimitMs = 30_000`; `src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs:11` `defaultAdapterTimeoutMs = 20_000`; the returned slice ran the two discovers concurrently (`549d57f`, `judgeCommandAdapter`) with an overlap unit test
+  - Observed effect: one extra implementation round (about 3 minutes) and a design change that keeps a story branch's worst case at one adapter timeout
+  - Inference: useful practice: accept quantitative claims in a return only after reading the constants they cite; the focused tests could not reveal this, since fake adapters answer in milliseconds
