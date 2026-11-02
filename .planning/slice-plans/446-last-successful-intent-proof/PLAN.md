@@ -171,6 +171,12 @@ the same cleanup and retry meaning as Pygardon. Clean existing retained proof
 latest-first and update maintained recorder documentation. Preserve preprocessor
 reporting, task composition, selected features and runner behavior.
 
+## Execution complete
+
+Product advice: no change. All source commitments are observed; the retrospective
+found no product correction. Existing process findings retain this execution's
+occurrences in DearDough.md; its existing nonblocking 500-line warning applies.
+
 ## Current decisions and concern evidence
 
 One common scenario-success rule is implemented at the existing reader and
@@ -228,11 +234,7 @@ refactor retained behavior and its affected outcomes passed 6/6. Four failed
 packaged files were removed; six passing observations remain. The new two-attempt
 recorder output is accepted by Intent. Full commands and inspected observations
 are in [acceptance evidence](source-review.md#pygardon-producer-acceptance).
-Pygardon accepted publication: `9f5121798c42a32f0118a29991facd1246739fa3`
-on origin's `refs/heads/codex/last-successful-intent-proof`; observation reused
-`/tmp/dough-ci-501/watch-ASgokc`. Its component typecheck/lint hook passed
-after making the existing default UTF-8 directory encoding explicit; this
-mechanical type repair leaves accepted runtime observations unchanged.
+Pygardon accepted publication: `9f5121798c42a32f0118a29991facd1246739fa3` on origin's `refs/heads/codex/last-successful-intent-proof`; observation reused `/tmp/dough-ci-501/watch-ASgokc`. Its component typecheck/lint hook passed after making the existing default UTF-8 directory encoding explicit; this mechanical type repair leaves accepted runtime observations unchanged.
 
 ### Doughnut accepted proof
 
@@ -243,5 +245,5 @@ remain unchanged; actual new retry-assisted output is accepted by Intent.
 Commands and observations are in [acceptance evidence](source-review.md#doughnut-producer-acceptance).
 Accepted publication: `b5836adf9a66fa9a29606d2d04438b8e4c4cac15` on origin's
 `refs/heads/codex/last-successful-intent-proof`, observed through
-`/tmp/dough-ci-501/watch-kvl5WN`. CI completion remains pending for the three
-published implementation branches; no CI success is inferred from local proof.
+`/tmp/dough-ci-501/watch-kvl5WN`. Pygardon and Doughnut branch CI each returned
+exact success with confirmed observer shutdown; Open Dough completion is pending.
