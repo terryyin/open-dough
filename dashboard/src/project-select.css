@@ -4,7 +4,7 @@
    share the group. */
 .project-select,
 .perspective-select,
-.intent-mode-tabs {
+.intent-tabs {
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;

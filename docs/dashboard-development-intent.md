@@ -60,12 +60,21 @@ and it and the reading pane each scroll independently. Directly under the
 banner, a strip of two Intent reading modes, **Intent** and **Optimization
 Candidates**, chooses what that content shows; it belongs to Intent and is
 not a third perspective. Entering Intent selects **Intent**: the location
-tree, which holds only Purpose locations, beside Purpose and Proof.
+tree, which holds only Purpose locations, beside the reading pane. With a
+file selected, or nothing selected yet, the reading pane offers **Purpose**
+and **Proof** tabs that stay in sight at its top; the chosen tab fills the
+pane, **Purpose** when Intent opens. The chosen tab stays while other files
+are selected and is page state of the reader, so leaving Intent or reloading
+starts on **Purpose**. The tabs use the same Arrow, Home and End keys as the
+mode strip, which never reach project cycling. Switching tabs reads nothing
+again and keeps the selection, a positioned case and where each tab was
+read in that file; a location or folder summary has no tabs.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
-Purpose and Proof, and choosing **Optimization Candidates** again returns to
+**Purpose** chosen, positioned on the entry's case where that names one
+line, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again. The choice is disposable page
 state, not on the URL; a project change or a new revision starts again on
 **Intent**. A location that is

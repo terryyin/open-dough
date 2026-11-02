@@ -56,7 +56,7 @@ export function IntentTabs<T extends string>({
 
   return (
     <div
-      className="intent-mode-tabs"
+      className="intent-tabs"
       role="tablist"
       aria-label={label}
       onKeyDown={onKeyDown}
@@ -69,7 +69,7 @@ export function IntentTabs<T extends string>({
             type="button"
             role="tab"
             id={intentTabId(idPrefix, option.value)}
-            className="intent-mode-tab"
+            className="intent-tab"
             aria-selected={isSelected}
             aria-controls={intentTabPanelId(idPrefix, option.value)}
             tabIndex={isSelected ? 0 : -1}

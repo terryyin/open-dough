@@ -12,6 +12,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
+  chooseReadingTab,
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
@@ -56,7 +57,7 @@ test("selecting another feature never shows the previous feature's text in Purpo
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: otherPath, exact: true }).click();
-  const proof = intent.getByRole("region", { name: "Proof" });
+  const proof = await chooseReadingTab(intent, "Proof");
   const purpose = intent.getByRole("region", { name: "Purpose" });
   await expect(
     proof.getByRole("table", { name: `${otherPath} proof` }),
@@ -92,18 +93,20 @@ test("selecting another feature never shows the previous feature's text in Purpo
   const jobsRead = await holdAuthenticatedReadsOf(page, featurePath, releases);
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   await expect.poll(jobsRead.held).toBe(1);
-  await expect(purpose).toContainText(`Reading ${featurePath}…`);
   await expect(proof).toContainText(
     `Proof is shown once ${featurePath} is read.`,
   );
+  await chooseReadingTab(intent, "Purpose");
+  await expect(purpose).toContainText(`Reading ${featurePath}…`);
   await expect(intent).not.toContainText("Report free space");
 
   jobsRead.release();
-  const jobs = proof.getByRole("table", { name: `${featurePath} proof` });
-  await expect(jobs).toContainText("Archive a job");
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
     "Feature: Jobs",
   );
+  await chooseReadingTab(intent, "Proof");
+  const jobs = proof.getByRole("table", { name: `${featurePath} proof` });
+  await expect(jobs).toContainText("Archive a job");
   const labelled = await page.evaluate(
     () => (window as unknown as { labelled: string[] }).labelled,
   );
@@ -134,9 +137,9 @@ test("a feature selected while startup detail completes stays selected with its 
   await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   const source = intent.getByLabel(`${featurePath} source`);
-  const proof = intent.getByRole("region", { name: "Proof" });
-  const table = proof.getByRole("table", { name: `${featurePath} proof` });
   await expect(source).toContainText("Feature: Jobs");
+  const proof = await chooseReadingTab(intent, "Proof");
+  const table = proof.getByRole("table", { name: `${featurePath} proof` });
   await expect(table).toContainText("Archive a job");
   await expect.poll(detail.held).toBeGreaterThan(0);
   expect(locationsReads()).toBe(1);
@@ -201,7 +204,7 @@ test("a new published revision reads the locations again and starts with nothing
   await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
     "Select a feature file to read its Purpose.",
   );
-  await expect(intent.getByRole("region", { name: "Proof" })).toContainText(
+  await expect(await chooseReadingTab(intent, "Proof")).toContainText(
     "Select a feature file to see its Proof.",
   );
   await expandIntentGroup(intent, "e2e_test/features");

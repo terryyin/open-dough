@@ -6,16 +6,16 @@ Launch: a fresh general-purpose reviewer (no conversation inheritance) during sl
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | When a file is selected, or nothing is selected yet, Intent's reading area offers a **Purpose** tab and a **Proof** tab sharing the reading area. | slice 2 | |
+| 1 | When a file is selected, or nothing is selected yet, Intent's reading area offers a **Purpose** tab and a **Proof** tab sharing the reading area. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts step 'nothing selected' (tablist tabs Purpose, Proof) and Ex 1 step; dashboard/src/IntentFileReading.tsx |
 | 2 | Beside the tabs, the reading area offers a **Side by side** toggle (same condition: a file is selected or nothing is selected yet). | slice 3 | |
-| 3 | With Side by side off, the chosen tab's content fills the reading area. | slice 2 | |
-| 4 | **Purpose** is the chosen tab when Intent opens (example 1: selecting a feature file with Side by side off shows Purpose chosen, with the file's source). | slice 2 | |
-| 5 | Choosing **Proof** shows the same file's observed proof filling the reading area (example 1). | slice 2 | |
-| 6 | The chosen tab stays chosen while the developer selects other files (example 1: Proof stays chosen and shows the new file's proof). | slice 2 | |
-| 7.1 | The tabs use Intent's existing tab keyboard behavior: arrow keys. | slice 2 | |
-| 7.2 | The tabs use Intent's existing tab keyboard behavior: Home. | slice 2 | |
-| 7.3 | The tabs use Intent's existing tab keyboard behavior: End. | slice 2 | |
-| 7.4 | Tab keyboard handling never reaches page-wide project cycling. | slice 2 | |
+| 3 | With Side by side off, the chosen tab's content fills the reading area. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts expectChosen (chosen region visible, other region count 0; source hidden on Proof) |
+| 4 | **Purpose** is the chosen tab when Intent opens (example 1: selecting a feature file with Side by side off shows Purpose chosen, with the file's source). | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 1 step (Purpose aria-selected, source 'Feature: Jobs' visible) |
+| 5 | Choosing **Proof** shows the same file's observed proof filling the reading area (example 1). | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 1 step (Proof table contains 'Archive a job') |
+| 6 | The chosen tab stays chosen while the developer selects other files (example 1: Proof stays chosen and shows the new file's proof). | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts 'selecting another file keeps Proof chosen' step (Report free space) |
+| 7.1 | The tabs use Intent's existing tab keyboard behavior: arrow keys. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 7 key step (ArrowLeft/ArrowRight with wrap, expectChosen focus+selected) |
+| 7.2 | The tabs use Intent's existing tab keyboard behavior: Home. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 7 key step (Home) |
+| 7.3 | The tabs use Intent's existing tab keyboard behavior: End. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 7 key step (End) |
+| 7.4 | Tab keyboard handling never reaches page-wide project cycling. | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts Ex 7 key step (projectInAddress stays pygardon after every key) |
 | 8.1 | The Side by side toggle is a button that can be operated by keyboard. | slice 3 | |
 | 8.2 | The Side by side toggle shows whether it is pressed. | slice 3 | |
 | 9 | With Side by side on, Purpose and Proof appear together as two panels for the same file (example 2). | slice 3 | |
@@ -38,9 +38,9 @@ Launch: a fresh general-purpose reviewer (no conversation inheritance) during sl
 | 19.4 | Any selected story stays as it was. | slice 3 | |
 | 20 | Both layouts show the same file read and the same proof (example 7: when layouts or tabs switch, nothing is read again). | slice 3 | |
 | 21 | Opening a recorded file from **Optimization Candidates** shows its Purpose, positioned on its case, in either layout. | slice 3 | |
-| 22 | With tabs, opening a recorded file from Optimization Candidates makes Purpose the chosen tab (example 8: with tabs on Proof, opening a recorded file shows Purpose positioned on that case). | slice 2 | |
+| 22 | With tabs, opening a recorded file from Optimization Candidates makes Purpose the chosen tab (example 8: with tabs on Proof, opening a recorded file shows Purpose positioned on that case). | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs-case.spec.ts Ex 8 step (on Proof, open recorded file: Purpose selected, case is-target in viewport) |
 | X1 | Exclusion (deferred): keeping the chosen Purpose/Proof tab after leaving Intent or after a reload is not promised; only the Side by side choice is remembered. | slice 4 | |
-| X2 | Exclusion (deferred): there are no layout choices for a location or folder Summary. The Summary keeps its single reading pane with no tabs or toggle, and selecting a file brings the layout back. (The part about the layout returning when a file is selected is stated inside this limit.) | slice 2 | |
+| X2 | Exclusion (deferred): there are no layout choices for a location or folder Summary. The Summary keeps its single reading pane with no tabs or toggle, and selecting a file brings the layout back. (The part about the layout returning when a file is selected is stated inside this limit.) | slice 2 | observed: observed: dashboard/tests/intent-purpose-proof-tabs.spec.ts X2 step (location Summary: tablist count 0, no Purpose/Proof sections; file brings tabs back) |
 | X3.1 | Exclusion (deferred): resizing the panels. | slice 3 | |
 | X3.2 | Exclusion (deferred): collapsing the locations tree. | slice 3 | |
 | X3.3 | Exclusion (deferred): linking the scrolling of the two panels. | slice 3 | |

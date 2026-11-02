@@ -4,7 +4,8 @@
 // expand helpers for the locations column, how many Intent locations reads
 // the page asks, Intent's not-configured content when the project publishes
 // no intent locations, Intent's reading-mode tabs (../src/IntentModeTabs.tsx)
-// and the Test Optimization Candidates record they show.
+// and the Test Optimization Candidates record they show, and the Purpose and
+// Proof tabs over the reading area.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -168,4 +169,47 @@ export async function chooseOptimizationCandidates(intent: Locator) {
   await tab.click();
   await expect(tab).toHaveAttribute("aria-selected", "true");
   await expect(intent.locator(".intent-locations")).toBeHidden();
+}
+
+// One of the Purpose and Proof tabs over Intent's reading area
+// (../src/IntentFileReading.tsx).
+export function readingTab(intent: Locator, name: "Purpose" | "Proof") {
+  return intent
+    .getByRole("tablist", { name: "Purpose and Proof" })
+    .getByRole("tab", { name, exact: true });
+}
+
+// Choose Purpose or Proof: that tab is chosen and its region shown, the other
+// hidden. Returns the shown region.
+export async function chooseReadingTab(
+  intent: Locator,
+  name: "Purpose" | "Proof",
+) {
+  const tab = readingTab(intent, name);
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  const region = intent.getByRole("region", { name, exact: true });
+  await expect(region).toBeVisible();
+  return region;
+}
+
+// The tab is chosen and focused, its region shown and the other's gone.
+export async function expectReadingTabChosen(
+  intent: Locator,
+  name: "Purpose" | "Proof",
+) {
+  const other = name === "Purpose" ? "Proof" : "Purpose";
+  await expect(readingTab(intent, name)).toBeFocused();
+  await expect(readingTab(intent, name)).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(readingTab(intent, other)).toHaveAttribute(
+    "aria-selected",
+    "false",
+  );
+  await expect(intent.getByRole("region", { name, exact: true })).toBeVisible();
+  await expect(
+    intent.getByRole("region", { name: other, exact: true }),
+  ).toHaveCount(0);
 }

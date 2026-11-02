@@ -5,10 +5,12 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  chooseReadingTab,
   expandIntentGroup,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
+  readingTab,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -177,7 +179,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     await intent.getByRole("button", { name: stooqPath, exact: true }).click();
     const source = intent.getByLabel(`${stooqPath} source`);
     await expect(source).toContainText("Feature: Stooq refresh");
-    const proof = intent.getByRole("region", { name: "Proof" });
+    const proof = await chooseReadingTab(intent, "Proof");
     await expect(proof).toContainText("Refresh quotes");
     await expect(intentFolderName(intent, "jobs")).toHaveAttribute(
       "aria-pressed",
@@ -224,5 +226,6 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
       0,
     );
+    await expect(readingTab(intent, "Purpose")).toHaveCount(0);
   });
 });

@@ -3,24 +3,28 @@
 // under the banner (`./IntentModeTabs.tsx`); entering Intent shows the
 // locations. Locations and folders share caret (expansion only) and name
 // (select; toggle once selected) controls; a caret never changes selection or
-// the reading pane. A file shows Purpose and Proof; a location or folder name
-// shows a Summary (`./IntentSummary.tsx`). The record fills the content area
+// the reading pane. A file, or nothing selected yet, shows Purpose and Proof
+// tabs (`./IntentFileReading.tsx`); a location or folder name shows a Summary
+// (`./IntentSummary.tsx`). The record fills the content area
 // without the locations; it is read the first time it is chosen and stays
 // mounted after, so opening a test from it and returning does not reread it. A
 // failed file read keeps its own explanation and retry; a failed proof read's
 // retry reads the locations again without changing the selection. Selection is
 // owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
+import {
+  IntentFileReading,
+  type FileRead,
+  type IntentReadingTab,
+} from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentModeTabs, type IntentMode } from "./IntentModeTabs.tsx";
-import { IntentProof } from "./IntentProof.tsx";
-import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
@@ -30,10 +34,6 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-
-type FileRead =
-  | { readonly path: string; readonly state: "failed" }
-  | { readonly path: string; readonly state: "ready"; readonly text: string };
 
 export function IntentBrowser({
   source,
@@ -62,8 +62,13 @@ export function IntentBrowser({
   // previous text, and anything else reads as still reading.
   const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
-  const proofId = useId();
+  // Purpose or Proof, kept across file selections (`./IntentFileReading.tsx`).
+  const [readingTab, setReadingTab] = useState<IntentReadingTab>("purpose");
+  // Each open from the record starts a fresh reading, positioned on its case.
+  const [recordOpens, setRecordOpens] = useState(0);
+  const readingArea = useRef<HTMLDivElement | null>(null);
   const modeIdPrefix = useId();
+  const readingIdPrefix = useId();
   const inventory = inventoryFromIntentLocations(locations);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
@@ -72,6 +77,8 @@ export function IntentBrowser({
     setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
     setReturnEntrySlug(entrySlug);
     setMode("intent");
+    setReadingTab("purpose");
+    setRecordOpens((n) => n + 1);
     const owning = locations.find((location) =>
       location.files.includes(next.path),
     );
@@ -113,7 +120,6 @@ export function IntentBrowser({
 
   const selectedRead =
     scope === "file" && fileRead?.path === selectedPath ? fileRead : undefined;
-  const text = selectedRead?.state === "ready" ? selectedRead.text : undefined;
 
   const selectedLocation = owningLocation(locations, selection);
   const selectedLanguage =
@@ -151,7 +157,7 @@ export function IntentBrowser({
             />
           ))}
         </div>
-        <div className="intent-reading" tabIndex={-1}>
+        <div className="intent-reading" tabIndex={-1} ref={readingArea}>
           {(scope === "location" || scope === "folder") &&
           selectedLocation !== undefined ? (
             <IntentSummary
@@ -166,53 +172,24 @@ export function IntentBrowser({
             />
           ) : null}
           {scope === "file" || scope === "none" ? (
-            <>
-              <section className="intent-purpose" aria-label="Purpose">
-                <h3>Purpose</h3>
-                {selectedPath === "" ? (
-                  <p className="quiet">
-                    Select a feature file to read its Purpose.
-                  </p>
-                ) : selectedRead?.state === "failed" ? (
-                  <p className="intent-file-problem" role="alert">
-                    {selectedPath} could not be read.{" "}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFileRetry((n) => n + 1);
-                      }}
-                    >
-                      Retry
-                    </button>
-                  </p>
-                ) : text !== undefined ? (
-                  <IntentSourceLines
-                    text={text}
-                    revision={revision}
-                    path={selectedPath}
-                    {...(selectedLanguage === undefined
-                      ? {}
-                      : { language: selectedLanguage })}
-                    {...(selection.caseTarget === undefined
-                      ? {}
-                      : { caseTarget: selection.caseTarget })}
-                  />
-                ) : (
-                  <p className="quiet">Reading {selectedPath}…</p>
-                )}
-              </section>
-              <section className="intent-proof" aria-labelledby={proofId}>
-                <h3 id={proofId}>Proof</h3>
-                <IntentProof
-                  path={selectedPath}
-                  kind={selectedLanguage}
-                  text={text}
-                  proof={selectedLocation?.proof}
-                  rereading={proofRereading}
-                  onRetry={onProofRetry}
-                />
-              </section>
-            </>
+            <IntentFileReading
+              key={recordOpens}
+              tab={readingTab}
+              onChooseTab={setReadingTab}
+              idPrefix={readingIdPrefix}
+              readingArea={readingArea}
+              path={selectedPath}
+              revision={revision}
+              read={selectedRead}
+              kind={selectedLanguage}
+              caseTarget={selection.caseTarget}
+              proof={selectedLocation?.proof}
+              proofRereading={proofRereading}
+              onFileRetry={() => {
+                setFileRetry((n) => n + 1);
+              }}
+              onProofRetry={onProofRetry}
+            />
           ) : null}
         </div>
       </div>

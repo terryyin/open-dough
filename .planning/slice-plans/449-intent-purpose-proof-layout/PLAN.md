@@ -113,7 +113,7 @@ give Purpose/Proof an `idPrefix` distinct from the strip's.
 
 ### 2. Purpose and Proof tabs
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-purpose-proof-tabs.spec.ts` (examples 1, 7
 for tabs, 8); the 19 consumer tests in 8 specs the decisive premise names,
 updated to choose **Proof** before reading it (one helper in
@@ -129,6 +129,28 @@ open chooses Purpose. Location/folder Summary unchanged. Interim: until slice
 3 there is no way to see both at once (accepted; slice 3 replaces it).
 Docs: `docs/dashboard-development-intent.md` Intent section — Purpose and
 Proof tabs replace "beside Purpose and Proof" wording.
+
+Accepted (2026-11-02): `dashboard/src/IntentFileReading.tsx` renders the
+tabs in a sticky `.intent-reading-bar` (room for the toggle) and the two
+`.intent-reading-panel` tabpanels; `IntentBrowser.tsx` owns `readingTab`
+page state and remounts the reading (`key={recordOpens}`) on each record
+open so it starts positioned on its case. Each tab returns to where it was
+read in the current file (needed so a positioned case survives Proof and
+back). Classes renamed to `intent-tabs`/`intent-tab`. Proof:
+`intent-purpose-proof-tabs.spec.ts` and `intent-purpose-proof-tabs-case.spec.ts`
+(repeat-each 5 green); helpers `chooseReadingTab`/`expectReadingTabChosen`
+(`intentPerspectivePage.ts`), `contentReadsOf` (`intentCodeBrowseFixtures.ts`);
+the 19 consumer tests updated; all Intent specs plus `dashboard-header`,
+`board-scroll`, `project-selection`: 56 passed. Learnings for slice 3: in
+side by side each `.intent-reading-panel` becomes its own scroll container,
+so the sticky bar's `scroll-padding-top` and case `scrollIntoView` belong to
+the Purpose panel and the per-tab scroll memory applies only to tabs; the
+`<h3>` headings are visually hidden (tabs name the panels) and may need to
+show when side by side; keep the layout outside `IntentFileReading` (it
+remounts on record open); stacking needs `container-type` on
+`.intent-reading`; Playwright `locator.click()` on the stuck sticky bar
+scrolls the reading area to the top, so scroll-sensitive steps use
+`page.mouse.click` at the control's box.
 
 ### 3. Side by side panels
 Type: Behavior

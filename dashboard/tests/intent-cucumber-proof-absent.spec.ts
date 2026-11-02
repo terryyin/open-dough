@@ -13,6 +13,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
+  chooseReadingTab,
   countLocationsReads,
   expandIntentGroup,
 } from "./intentPerspectivePage.ts";
@@ -63,7 +64,7 @@ async function selectJobsFeature(page: Page) {
   return {
     intent,
     purpose,
-    proof: intent.getByRole("region", { name: "Proof" }),
+    proof: await chooseReadingTab(intent, "Proof"),
   };
 }
 
@@ -85,7 +86,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
   await expect(intent.getByLabel(`${doughnutFeature} source`)).toContainText(
     "Scenario: Recall a note",
   );
-  const proof = intent.getByRole("region", { name: "Proof" });
+  const proof = await chooseReadingTab(intent, "Proof");
   await expect(proof).toContainText(
     "Proof is not recorded for this project. To record it, follow dough-test-optimization/references/cucumber-proof.md in this project’s installed Open Dough skills.",
   );
@@ -140,7 +141,7 @@ test("Ex 8: a truncated proof file reads as a read failure with retry while Purp
     ...features,
     ...truncatedFiles,
   });
-  const { purpose, proof } = await selectJobsFeature(page);
+  const { intent, purpose, proof } = await selectJobsFeature(page);
   const alert = proof.getByRole("alert");
   await expect(alert).toContainText(
     `Proof could not be read: ${truncatedPath} is not a valid proof file.`,
@@ -153,6 +154,7 @@ test("Ex 8: a truncated proof file reads as a read failure with retry while Purp
   await expect(alert).toContainText(
     `${truncatedPath} is not a valid proof file.`,
   );
+  await chooseReadingTab(intent, "Purpose");
   await expect(purpose).toContainText("Feature: Jobs");
 });
 
@@ -171,7 +173,7 @@ test("a failed proof file read says so; Retry reads the proof again and shows it
     },
     unanswered: [truncatedPath],
   });
-  const { purpose, proof } = await selectJobsFeature(page);
+  const { intent, purpose, proof } = await selectJobsFeature(page);
   const alert = proof.getByRole("alert");
   await expect(alert).toContainText(
     `Proof could not be read: ${truncatedPath} could not be read at this revision.`,
@@ -188,6 +190,7 @@ test("a failed proof file read says so; Retry reads the proof again and shows it
     "5 scenarios: 2 passed, 1 passed after retry, 2 without successful proof",
   );
   await expect(proof.getByRole("alert")).toHaveCount(0);
+  await chooseReadingTab(intent, "Purpose");
   await expect(purpose).toContainText("Feature: Jobs");
   expect(
     requests.filter(
