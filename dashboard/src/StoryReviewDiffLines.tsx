@@ -46,11 +46,14 @@ export function DiffLines({
   printed,
   sides,
   textProblem,
+  contextReading,
   onRetryText,
 }: {
   readonly printed: string;
   readonly sides: FileLineSides | undefined;
   readonly textProblem?: string;
+  // Whether the file text the omitted lines come from is still being read.
+  readonly contextReading: boolean;
   readonly onRetryText: () => void;
 }) {
   const { binary, hunks } = parsedUnifiedDiff(printed);
@@ -136,6 +139,7 @@ export function DiffLines({
       className="story-review-code"
       // Long lines scroll here, never the page; the keyboard can reach it.
       tabIndex={0}
+      aria-busy={contextReading}
       style={
         {
           "--line-number-digits": String(

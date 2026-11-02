@@ -5,11 +5,15 @@
 // "changed files" wording (`./StoryReviewFileRow.tsx`,
 // `./StoryReviewSnapshotView.tsx`). Intent may pass `folderSelection` so each
 // folder is a caret disclosure plus a selectable name; Review changes passes
-// nothing and keeps one disclosure row.
+// nothing and keeps one disclosure row. Each file's row carries its change
+// kind (`data-kind`), and each folder whether it contains changes
+// (`data-contains-changes`), from the tree model (`./reviewFileTree.ts`); the
+// shared change-kind styles show the kind (`./change-kinds.css`).
 
 import { type ReactNode } from "react";
 import type { PathBearing, PathTreeNode } from "./reviewFileTree.ts";
 import "./story-review-files.css";
+import "./change-kinds.css";
 
 export {
   changedFiles,
@@ -17,6 +21,7 @@ export {
   FileRow,
   includesTrunkWords,
   kindWords,
+  reviewedFileWords,
 } from "./StoryReviewFileRow.tsx";
 
 function FolderCount({
@@ -85,7 +90,7 @@ export function FileTree<T extends PathBearing>({
       {nodes.map((node) => {
         if (node.kind === "file")
           return (
-            <li key={`file:${node.file.path}`}>
+            <li key={`file:${node.file.path}`} data-kind={node.file.kind}>
               {renderFile({
                 file: node.file,
                 name: node.name,
@@ -102,7 +107,10 @@ export function FileTree<T extends PathBearing>({
         if (folderSelection !== undefined) {
           const folderSelected = folderSelection.selectedPath === node.path;
           return (
-            <li key={`folder:${node.path}`}>
+            <li
+              key={`folder:${node.path}`}
+              data-contains-changes={node.containsChanges || undefined}
+            >
               <div className="story-review-folder-row">
                 <button
                   type="button"
@@ -143,7 +151,10 @@ export function FileTree<T extends PathBearing>({
           );
         }
         return (
-          <li key={`folder:${node.path}`}>
+          <li
+            key={`folder:${node.path}`}
+            data-contains-changes={node.containsChanges || undefined}
+          >
             <button
               type="button"
               className="story-review-folder"

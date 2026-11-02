@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 409. Removed numbers are never reused.
+- Highest allocated local number: 410. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -672,6 +672,14 @@ published the later waiver, then the product slice.
   - Evidence: plan slices 1 and 5 both `Status: done` under one waiver; delivery held; temporary slice-5 `done`→`planned`→`done`; published as `4ad7f2de` then `3e7c8d8d` before product `c0c97e0f`
   - Observed effect: extra plan-status edits and two planning-only publishes to restore delivery order
   - Inference: marking every waived gate done before the first ordered publish creates delivery-order friction; publishing (or leaving planned) one waived gate at a time would avoid the temporary mutation
+- Execution: SEED-192#review-story-intent-impact (plan 441; claim `9470bb4b`, first related commit `5b8aeba9`)
+  - Timestamp: 2026-11-02T12:16:50+07:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.81)
+  - Evidence: resumed execution marked slice 1 `done` (its code already on main in `c64319b6`) before slice 2's guarded fresh delivery; because that delivery documents refusing another `done` slice absent at HEAD, the coordinator first made a separate `--authority local-only` slice-1 commit `5b8aeba9`, then published slice 2 as `f0888fb9`
+  - Observed effect: one extra local-only delivery invocation and commit to keep order; no refusal occurred and no rework
+  - Inference: same friction as the waived-gate case: a slice settled without its own increment should be recorded through its own delivery before the next slice is marked
 
 ## DD-400 — A decisive premise probe proved the capability, not the story's restriction
 
@@ -849,3 +857,20 @@ before refactoring or delivery.
   - Evidence: slice 4 return, Gaps: "Both still sit under the read wait bound (`readWaitLimitMs`)"; `dashboard/src/authenticatedReadRules.ts:58` `readWaitLimitMs = 30_000`; `src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs:11` `defaultAdapterTimeoutMs = 20_000`; the returned slice ran the two discovers concurrently (`549d57f`, `judgeCommandAdapter`) with an overlap unit test
   - Observed effect: one extra implementation round (about 3 minutes) and a design change that keeps a story branch's worst case at one adapter timeout
   - Inference: useful practice: accept quantitative claims in a return only after reading the constants they cite; the focused tests could not reveal this, since fake adapters answer in milliseconds
+
+## DD-410 — An agent-operable evaluation slice was handed to the developer
+
+A plan's final slice named the developer as evaluator of a dashboard feature on
+a real project. Execution stopped and handed it to the developer, who replied
+"you do the evaluation"; the agent then ran it with headless Playwright against
+the branch's dev dashboard without further help.
+
+### Occurrences
+- Execution: SEED-192#review-story-intent-impact (plan 441; claim `9470bb4b`, first related commit `5b8aeba9`)
+  - Timestamp: 2026-11-02T17:42:58+07:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.81)
+  - Evidence: slice 7 "Terry evaluates a real story"; handoff reported `unfinished` to the dashboard (receipt `7702493f`); developer delegated; evaluation recorded in plan Learnings and published as `7c71049b`
+  - Observed effect: one developer round trip and a stopped/restarted CI observer before an evaluation the agent could already perform
+  - Inference: a developer-operated evaluation that needs only local, unpaid observation could be offered as agent-performed in the handoff (or attempted first, keeping the usefulness judgment explicit for the developer to confirm); generality across stories where the judgment itself is the promise is uncertain

@@ -8,6 +8,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
@@ -95,6 +96,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
       "No gherkin files are published at empty_features for this revision.",
     );
     await expandIntentGroup(intent, "e2e_test/features");
+    await expandIntentFolders(intent, "e2e_test/features");
     const usable = intent.getByRole("button", {
       name: "e2e_test/features/usable/usable.feature",
       exact: true,
@@ -165,6 +167,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await openUntilRead(page, "/?project=doughnut&perspective=intent");
     await expectIntentGroupsCollapsed(intent);
     await expandIntentGroup(intent, "e2e_test/features");
+    await expandIntentFolders(intent, "e2e_test/features");
     await intent
       .getByRole("button", {
         name: "e2e_test/features/usable/usable.feature",

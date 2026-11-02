@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#review-story-intent-impact",
+  "title": "Review a story's impact on test intent",
+  "completedAt": "2026-11-02T13:08:41.983Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "claude",
+  "model": "opus"
+}

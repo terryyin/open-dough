@@ -6,6 +6,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts, shortRevision } from "./dashboardPage.ts";
 import {
+  expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
@@ -49,6 +50,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expect(testsHeading).toContainText("typescript");
     await expect(testsHeading).toContainText("**/*.spec.ts");
     await expandIntentGroup(intent, "dashboard/tests");
+    await expandIntentFolders(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
         name: "dashboard/tests/intent-gherkin-browse.spec.ts",

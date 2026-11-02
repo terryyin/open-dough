@@ -8,6 +8,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   collapseIntentGroup,
+  expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
@@ -60,6 +61,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
 
   await test.step("expanding B while A is open closes A; collapsing leaves all closed", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
+    await expandIntentFolders(intent, "e2e_test/features");
     await expect(
       intent.getByRole("button", {
         name: "e2e_test/features/recall/recall_note.feature",

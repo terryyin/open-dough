@@ -1,0 +1,33 @@
+/* The one set of change-kind styles for every file browser that shows a
+   story's changes, Review changes and Intent alike (./StoryReviewFileTree.tsx
+   marks each changed file's row with its kind from ./reviewFileTree.ts). A
+   file's kind shows only in the style of its name; its control's name and
+   hover text, and its diff's heading, say the kind in words. An unchanged
+   file keeps the plain style. */
+
+.story-review-files [data-kind="added"] code {
+  color: var(--ready);
+}
+
+.story-review-files [data-kind="modified"] code {
+  color: var(--accent);
+}
+
+.story-review-files [data-kind="deleted"] code {
+  color: var(--quiet);
+  text-decoration-line: line-through;
+}
+
+.story-review-files [data-kind="renamed"] code {
+  font-style: italic;
+}
+
+/* Intent marks every folder and location group that contains a selected
+   story's change with one background (./intentStoryOverlay.ts), distinct
+   from a selected row's accent fill. Review changes lists only changed
+   files, so its folders need no such mark. */
+.intent-location[data-contains-changes] > .intent-location-header,
+.intent-location [data-contains-changes] > .story-review-folder-row {
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ready) 12%, transparent);
+}

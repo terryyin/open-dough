@@ -12,7 +12,15 @@
 // mounted after, so opening a test from it and returning does not reread it. A
 // failed file read keeps its own explanation and retry; a failed proof read's
 // retry reads the locations again without changing the selection. Selection is
-// owned by the Intent workspace (`./intentWorkspaceSelection.ts`).
+// owned by the Intent workspace (`./intentWorkspaceSelection.ts`). With a
+// selected story's comparison, the trees are its overlay on the published
+// files (`./intentStoryOverlay.ts`), or with "Selected story only" its changed
+// entries alone, locations without changes left out: the first time this
+// browser has one, and at each toggle either way, it opens the first
+// location and the folders containing changes and collapses the rest. A file
+// the published revision does not list is never read. The browser unmounts
+// with Intent, so a story selected while Intent is hidden applies when it
+// opens, with the toggle off.
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -25,7 +33,10 @@ import {
   type IntentReadingLayout,
   type IntentReadingTab,
 } from "./IntentFileReading.tsx";
-import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import {
+  IntentLocationGroup,
+  type LocationExpansion,
+} from "./IntentLocationGroup.tsx";
 import { keptChoice } from "./keptPreference.ts";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSummary } from "./IntentSummary.tsx";
@@ -37,7 +48,15 @@ import {
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
+import {
+  intentStoryOverlay,
+  overlayFilesByPath,
+  storyChangesOnly,
+  storyOverlayExpansion,
+  type StoryOverlayExpansion,
+} from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { StoryChangesScope, type ComparedStory } from "./IntentStoryLens.tsx";
 
 // The reader layout this browser keeps for every project, tabs where it keeps
 // an unusable one, and otherwise the one chosen on this page, even where the
@@ -57,10 +76,13 @@ export function IntentBrowser({
   mode,
   modeIdPrefix,
   onModeChange,
+  story,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
+  // The selected story and its comparison, once read.
+  readonly story: ComparedStory | undefined;
   // Whether the locations, with their proof, are being read again after a
   // proof read failed; the selection and reader stay as they are.
   readonly proofRereading: boolean;
@@ -95,6 +117,28 @@ export function IntentBrowser({
   const inventory = inventoryFromIntentLocations(locations);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
+  const overlay = intentStoryOverlay(locations, story?.shown.comparison.files);
+  const [storyOnly, setStoryOnly] = useState(false);
+  const changesOnly = story !== undefined && storyOnly;
+  const shownOverlay = changesOnly ? storyChangesOnly(overlay) : overlay;
+  // The expansion the story's overlay last asked for here: when it first had
+  // one, and at each toggle.
+  const [expansion, setExpansion] = useState<
+    { readonly round: number; readonly plan: StoryOverlayExpansion } | undefined
+  >();
+  function expandStory(round: number) {
+    const plan = storyOverlayExpansion(locations, overlay);
+    setExpansion({ round, plan });
+    setExpandedPath(plan.location ?? null);
+  }
+  if (story !== undefined && expansion === undefined) expandStory(1);
+  const locationExpansion = (index: number): LocationExpansion | undefined =>
+    expansion === undefined
+      ? undefined
+      : {
+          round: expansion.round,
+          folders: expansion.plan.folders[index] ?? [],
+        };
 
   function openFromRecord(next: IntentSelection, entrySlug: string) {
     setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
@@ -116,8 +160,14 @@ export function IntentBrowser({
 
   // Clearing selection when the project or locations change is owned by the
   // Intent workspace provider remounting on source/revision identity.
+  const selectedFile =
+    scope === "file"
+      ? overlayFilesByPath(locations, overlay).get(selectedPath)
+      : undefined;
+  // A file the published revision does not list has no published text.
+  const unpublished = selectedFile?.published === false;
   useEffect(() => {
-    if (scope !== "file" || selectedPath === "") return;
+    if (scope !== "file" || selectedPath === "" || unpublished) return;
     const controller = new AbortController();
     setFileRead(undefined);
     void readRepositoryFileAt(source, selectedPath, revision, controller.signal)
@@ -134,7 +184,7 @@ export function IntentBrowser({
     return () => {
       controller.abort();
     };
-  }, [source, revision, selectedPath, scope, fileRetry]);
+  }, [source, revision, selectedPath, scope, fileRetry, unpublished]);
 
   const selectedRead =
     scope === "file" && fileRead?.path === selectedPath ? fileRead : undefined;
@@ -154,21 +204,43 @@ export function IntentBrowser({
       >
         <div className="intent-locations">
           <h3 className="visually-hidden">Purpose locations</h3>
-          {locations.map((location) => (
-            <IntentLocationGroup
-              key={location.path}
-              location={location}
-              selection={treeSelection}
-              onSelect={selectInTree}
-              idPrefix={intentLocationIdPrefix(location.path)}
-              expanded={expandedPath === location.path}
-              onToggle={() => {
-                setExpandedPath((was) =>
-                  was === location.path ? null : location.path,
-                );
+          {story !== undefined && (
+            <StoryChangesScope
+              source={source.id}
+              story={story.lens}
+              outside={overlay.outside}
+              only={storyOnly}
+              noneInLocations={
+                !overlay.locations.some((each) => each.containsChanges)
+              }
+              onOnly={(only) => {
+                setStoryOnly(only);
+                expandStory((expansion?.round ?? 0) + 1);
               }}
             />
-          ))}
+          )}
+          {locations.map((location, index) => {
+            const shown = shownOverlay.locations[index];
+            if (changesOnly && !shown?.containsChanges) return null;
+            return (
+              <IntentLocationGroup
+                key={location.path}
+                location={location}
+                files={shown?.files ?? []}
+                containsChanges={shown?.containsChanges ?? false}
+                expansion={locationExpansion(index)}
+                selection={treeSelection}
+                onSelect={selectInTree}
+                idPrefix={intentLocationIdPrefix(location.path)}
+                expanded={expandedPath === location.path}
+                onToggle={() => {
+                  setExpandedPath((was) =>
+                    was === location.path ? null : location.path,
+                  );
+                }}
+              />
+            );
+          })}
         </div>
         <div className="intent-reading" tabIndex={-1} ref={readingArea}>
           {(scope === "location" || scope === "folder") &&
@@ -202,6 +274,8 @@ export function IntentBrowser({
               kind={selectedLanguage}
               caseTarget={selection.caseTarget}
               location={selectedLocation}
+              treeFile={selectedFile}
+              story={story}
               proofRereading={proofRereading}
               onFileRetry={() => {
                 setFileRetry((n) => n + 1);

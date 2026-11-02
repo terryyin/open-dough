@@ -18,7 +18,7 @@ export const includesTrunkWords = "includes trunk's changes";
 
 // A file's kind and full path in words, and its flag, as its control is
 // named.
-const reviewedFileWords = (file: ReviewedFile) =>
+export const reviewedFileWords = (file: ReviewedFile) =>
   `${kindWords[file.kind]} ${
     file.kind === "renamed" ? `${file.oldPath} → ${file.path}` : file.path
   }${file.includesTrunkFrom === undefined ? "" : `, ${includesTrunkWords}`}`;
@@ -58,7 +58,6 @@ export function FileRow({
       aria-describedby={counted === undefined ? undefined : countsId}
       title={reviewedFileWords(file)}
       aria-pressed={selected}
-      data-kind={file.kind}
       onClick={() => {
         onSelect(file.path);
       }}

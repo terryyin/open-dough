@@ -11,7 +11,10 @@ import {
   doughnutSettings,
   publishIntentProject,
 } from "./intentGherkinBrowseFixtures.ts";
-import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import {
+  expandIntentFolders,
+  expandIntentGroup,
+} from "./intentPerspectivePage.ts";
 
 test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
   page,
@@ -31,6 +34,7 @@ test("Intent fills the height below the banner; the location browser meets the l
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
+  await expandIntentFolders(intent, "e2e_test/features");
   await intent
     .getByRole("button", { name: "e2e_test/features/area/case_00.feature" })
     .click();

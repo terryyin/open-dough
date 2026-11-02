@@ -8,6 +8,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import {
   chooseReadingTab,
+  expandIntentFolders,
   expandIntentGroup,
   expectAddress,
   expectIntentGroupsCollapsed,
@@ -53,6 +54,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
 
   await test.step("selecting a nested feature shows exact text, line numbers and the observed revision", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
+    await expandIntentFolders(intent, "e2e_test/features");
     await expect(
       intent.getByRole("button", { name: "recall", exact: true }),
     ).toBeVisible();

@@ -6,7 +6,9 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   chooseReadingTab,
+  expandIntentFolders,
   expandIntentGroup,
+  expectIntentFoldersCollapsed,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
@@ -41,6 +43,23 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, featuresPath);
+
+  await test.step("Ex 8: with no story selected, every folder in the opened location starts collapsed", async () => {
+    await expectIntentFoldersCollapsed(intent, featuresPath);
+    for (const folder of ["jobs", "reports"]) {
+      await expect(
+        intent.getByRole("button", { name: `Expand ${folder}` }),
+      ).toBeVisible();
+    }
+    await expect(
+      intent.getByRole("button", { name: stooqPath, exact: true }),
+    ).toBeHidden();
+    await expect(
+      intent.getByRole("button", { name: topFeaturePath, exact: true }),
+    ).toBeVisible();
+    await expandIntentFolders(intent, featuresPath);
+  });
+
   await intentLocationName(intent, featuresPath).click();
 
   await test.step("folder caret toggles without moving selection", async () => {

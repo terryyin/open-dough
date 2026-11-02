@@ -67,6 +67,24 @@ export function reviewWorkspaceOf<
     : { kind: "ambiguous", found: holding };
 }
 
+// Whether a story has a comparison to review, as every view that offers one
+// decides it: a completed story always does, since the boundary may recover
+// its published historical comparison; an active story does when a workspace
+// is named for it (`reviewWorkspaceOf`), including an ambiguous one the review
+// explains.
+export function storyComparisonOffered(
+  records: readonly LaunchRecord[] | undefined,
+  workspaces: readonly LocalWorkspace[] | undefined,
+  sourceId: string,
+  identity: string,
+  completed: boolean,
+): boolean {
+  return (
+    completed ||
+    reviewWorkspaceOf(records, workspaces, sourceId, identity) !== undefined
+  );
+}
+
 // Why a review of several worktrees holding one story's claim reads none:
 // their agent and each worktree as the context line would show it, in path
 // order.

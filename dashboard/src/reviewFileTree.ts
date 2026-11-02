@@ -7,9 +7,19 @@
 // way. The browser's order reads the items from top to bottom with every
 // folder expanded. Review changes supplies its reviewed files; a renamed file
 // sits at its new path only.
+//
+// An item may carry its change kind, the one change-kind model Review changes
+// and Intent share; an item without one is unchanged. Each folder knows, once
+// here, whether it contains a changed item at any depth. The browser shows a
+// file's kind in the style of its name (`./change-kinds.css`).
+
+import type { ReviewedFile } from "./storyReviewFiles.ts";
+
+export type ChangeKind = ReviewedFile["kind"];
 
 export type PathBearing = {
   readonly path: string;
+  readonly kind?: ChangeKind;
 };
 
 export type PathFolderNode<T extends PathBearing = PathBearing> = {
@@ -20,6 +30,8 @@ export type PathFolderNode<T extends PathBearing = PathBearing> = {
   readonly path: string;
   // Items inside, at any depth.
   readonly fileCount: number;
+  // Whether an item inside, at any depth, carries a change kind.
+  readonly containsChanges: boolean;
   readonly children: readonly PathTreeNode<T>[];
 };
 
@@ -69,7 +81,14 @@ function compacted<T extends PathBearing>(
     (sum, child) => sum + (child.kind === "folder" ? child.fileCount : 1),
     0,
   );
-  return { kind: "folder", name, path, fileCount, children };
+  return {
+    kind: "folder",
+    name,
+    path,
+    fileCount,
+    containsChanges: reviewContainsChanges(children),
+    children,
+  };
 }
 
 export function reviewFileTree<T extends PathBearing>(
@@ -90,6 +109,17 @@ export function reviewFileTree<T extends PathBearing>(
   return arranged(root, "");
 }
 
+// Whether any of the nodes is, or holds, a changed item.
+export function reviewContainsChanges<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+): boolean {
+  return nodes.some((node) =>
+    node.kind === "folder"
+      ? node.containsChanges
+      : node.file.kind !== undefined,
+  );
+}
+
 // The items as the browser's rows read them, each folder's items in its
 // place, whether or not the browser shows it collapsed.
 export function reviewFileOrder<T extends PathBearing>(
@@ -97,5 +127,42 @@ export function reviewFileOrder<T extends PathBearing>(
 ): readonly T[] {
   return nodes.flatMap((node) =>
     node.kind === "file" ? [node.file] : reviewFileOrder(node.children),
+  );
+}
+
+// Every folder's path, outer folders before the folders they hold.
+export function reviewFolderPaths<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+): readonly string[] {
+  return nodes.flatMap((node) =>
+    node.kind === "file"
+      ? []
+      : [node.path, ...reviewFolderPaths(node.children)],
+  );
+}
+
+// The folders that hold `path` at any depth, outermost first; a folder does
+// not hold itself.
+export function reviewFoldersHolding<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+  path: string,
+): readonly string[] {
+  for (const node of nodes) {
+    if (node.kind === "folder" && path.startsWith(`${node.path}/`)) {
+      return [node.path, ...reviewFoldersHolding(node.children, path)];
+    }
+  }
+  return [];
+}
+
+// Every folder that contains a changed item, outer folders before the
+// folders they hold.
+export function reviewFoldersContainingChanges<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+): readonly string[] {
+  return nodes.flatMap((node) =>
+    node.kind === "folder" && node.containsChanges
+      ? [node.path, ...reviewFoldersContainingChanges(node.children)]
+      : [],
   );
 }

@@ -1,5 +1,6 @@
 // Real CLI claim and completion, with Git publication and workspace retirement.
-// No dashboard launch or comparison is supplied by this setup.
+// No dashboard launch or comparison is supplied by this setup. A journey may
+// add its own changes (`change`) to the story's implementation commit.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -34,6 +35,7 @@ export async function completedPublishedStory(
     | "ambiguous-merge"
     | "inseparable"
     | "unrelated-merge",
+  change?: (workspace: string) => void,
 ) {
   const ownConflict =
     variant === "own-conflict" || variant === "own-conflict-extra";
@@ -55,6 +57,7 @@ export async function completedPublishedStory(
     lines("line").replace("line 0\n", "story first\n"),
   );
   writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
+  change?.(workspace);
   commitAll(workspace, "story implementation");
   if (mode === "trunk") push(workspace);
   pull(origin.project);

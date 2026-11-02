@@ -7,6 +7,7 @@ import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   chooseReadingTab,
+  expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
   intentLocationName,
@@ -62,6 +63,7 @@ for (const [situation, generation, instruction] of [
     const { intent, intentChoice } = parts(page);
     await intentChoice.click();
     await expandIntentGroup(intent, featuresPath);
+    await expandIntentFolders(intent, featuresPath);
     await intentFolderName(intent, "jobs").click();
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText(instruction);

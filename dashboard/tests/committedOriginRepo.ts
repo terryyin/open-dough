@@ -65,3 +65,35 @@ export function commitOf(repoDir: string, name: string): string | undefined {
     return undefined;
   }
 }
+
+// Every file under the directory at the revision, at any depth, with its
+// committed text; undefined once the journey's repository is gone.
+export function filesUnder(
+  repoDir: string,
+  revision: string,
+  directory: string,
+): Record<string, string> | undefined {
+  try {
+    const listed = execFileSync(
+      "git",
+      [
+        "-C",
+        repoDir,
+        "ls-tree",
+        "-r",
+        "--name-only",
+        revision,
+        "--",
+        `${directory}/`,
+      ],
+      { encoding: "utf8" },
+    )
+      .split("\n")
+      .filter((file) => file !== "");
+    return Object.fromEntries(
+      listed.map((file) => [file, showAt(repoDir, revision, file) ?? ""]),
+    );
+  } catch {
+    return undefined;
+  }
+}

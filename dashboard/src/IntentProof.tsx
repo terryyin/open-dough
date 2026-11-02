@@ -1,4 +1,4 @@
-// Intent's Proof pane for one selected feature file (`./IntentBrowser.tsx`):
+// Intent's Proof pane for a selected feature file (`./IntentFileReading.tsx`):
 // every scenario and outline row the published text runs, in source order
 // (`./gherkinScenarios.ts`), each with its last successful committed proof
 // (`./cucumberProof.ts`) and that observation's own time, commit, and
@@ -23,6 +23,7 @@ import {
 } from "./proofScenarioCountLine.ts";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
+import "./intent-proof.css";
 
 // The outcome a row reads, with a retry-assisted pass named as such.
 function outcomeOf({ attempts }: SuccessfulProofObservation): string {

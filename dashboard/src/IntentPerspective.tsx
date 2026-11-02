@@ -6,7 +6,11 @@
 // reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
 // explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
 // on Intent locations, is offered whatever their state. The chosen mode is
-// kept by the page per project (`./pageIntentMode.tsx`).
+// kept by the page per project (`./pageIntentMode.tsx`). With a story selected
+// on the page, Intent names it above the strip and reads its default Review
+// changes comparison (`./useIntentStoryLens.ts`), which the browser overlays
+// on the published tree; the lens explains a comparison it cannot show
+// (`./IntentStoryLens.tsx`).
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -20,10 +24,14 @@ import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { IntentStoryLens, type ComparedStory } from "./IntentStoryLens.tsx";
+import type { LaunchRecord } from "./launchRecord.ts";
+import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
 import "./intent-proof.css";
 import "./intent-candidates.css";
@@ -67,9 +75,11 @@ function IntentBody({
   mode,
   modeIdPrefix,
   onModeChange,
+  story,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  readonly story: ComparedStory | undefined;
 } & ModeChoice) {
   const [intent, setIntent] = useState<IntentLocations | "loading" | "failed">(
     work === undefined ? { status: "not-configured" } : "loading",
@@ -190,6 +200,7 @@ function IntentBody({
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
+        story={story}
       />
     </IntentWorkspaceSelectionProvider>
   );
@@ -198,14 +209,27 @@ function IntentBody({
 export function IntentPerspective({
   source,
   work,
+  records,
+  workspaces,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  // This machine's kept launch records, unread until supplied, and the
+  // worktrees local Git found holding a story's claim.
+  readonly records: readonly LaunchRecord[] | undefined;
+  readonly workspaces: readonly LocalWorkspace[];
 }) {
   // Intent reads the page's selected story: CI status judges its branch, and
-  // the comparison overlay uses this identity once it lands.
+  // the lens names it and reads its comparison for the browser's overlay.
   const { selectedIdentity } = useStorySelection(source.id);
   const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(source.id);
+  const { story, comparison, compared, retry } = useIntentStoryLens({
+    source,
+    work,
+    selectedIdentity,
+    records,
+    workspaces,
+  });
   return (
     <main
       className="intent-perspective"
@@ -214,6 +238,13 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
+      {story !== undefined && (
+        <IntentStoryLens
+          story={story}
+          comparison={comparison}
+          onRetry={retry}
+        />
+      )}
       <IntentModeTabs
         mode={mode}
         idPrefix={modeIdPrefix}
@@ -225,6 +256,7 @@ export function IntentPerspective({
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
+        story={compared}
       />
       <IntentCiStatusPanel
         source={source}

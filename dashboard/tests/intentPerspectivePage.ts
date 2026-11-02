@@ -1,7 +1,7 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
-// expand helpers for the locations column, how many Intent locations reads
+// and folder expand helpers for the locations column, how many Intent locations reads
 // the page asks, Intent's not-configured content when the project publishes
 // no intent locations, Intent's reading-mode tabs (../src/IntentModeTabs.tsx)
 // and the Test Optimization Candidates record they show, and the Purpose and
@@ -70,6 +70,46 @@ export async function collapseIntentGroup(
     await toggle.click();
   }
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
+}
+
+// The folder carets inside one expanded Intent location's body.
+function intentFolderCarets(intent: Locator, locationPath: string) {
+  return intent
+    .locator(`[id="${intentLocationIdPrefix(locationPath)}-body"]`)
+    .locator("button.story-review-folder");
+}
+
+// Every folder in one expanded Intent location shows collapsed: only its
+// outermost folders are visible, each with its caret closed.
+export async function expectIntentFoldersCollapsed(
+  intent: Locator,
+  locationPath: string,
+) {
+  const carets = intentFolderCarets(intent, locationPath);
+  await expect(carets.first()).toBeVisible();
+  const count = await carets.count();
+  for (let i = 0; i < count; i += 1) {
+    await expect(carets.nth(i)).toHaveAttribute("aria-expanded", "false");
+  }
+}
+
+// Open every folder in one expanded Intent location by its caret, outer
+// folders first, so the journey reads the whole tree.
+export async function expandIntentFolders(
+  intent: Locator,
+  locationPath: string,
+) {
+  const closed = intentFolderCarets(intent, locationPath).and(
+    intent.locator('button[aria-expanded="false"]:visible'),
+  );
+  while ((await closed.count()) > 0) {
+    const caret = closed.first();
+    const controls = await caret.getAttribute("aria-controls");
+    await caret.click();
+    await expect(
+      intent.locator(`button[aria-controls="${controls}"]`),
+    ).toHaveAttribute("aria-expanded", "true");
+  }
 }
 
 // How many Intent locations reads, with their proof, the page has asked.

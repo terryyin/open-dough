@@ -1,4 +1,4 @@
-// Intent Purpose source pane (`./IntentBrowser.tsx`): path and observed
+// Intent Purpose source pane (`./IntentFileReading.tsx`): path and observed
 // revision beside the shared whole-file source-lines view. The location's
 // kind and path select the Shiki language (`sourceLanguage`); styling
 // arrives when that highlighter is ready. An optional case target from the

@@ -145,6 +145,31 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     ).toBeVisible();
   });
 
+  await test.step("Ex 8: a file opened from the record inside a folder shows selected, its folders opened in the collapsed tree", async () => {
+    await chooseOptimizationCandidates(intent);
+    await candidatesRecord(intent)
+      .getByRole("article", {
+        name: "story-review-completed-journey-landed-runs-tail",
+      })
+      .getByRole("button", {
+        name: openDoughSpecPaths.storyReviewBoundary,
+        exact: true,
+      })
+      .click();
+    await expect(
+      intent.getByLabel(`${openDoughSpecPaths.storyReviewBoundary} source`),
+    ).toBeVisible();
+    const row = intent.getByRole("button", {
+      name: openDoughSpecPaths.storyReviewBoundary,
+      exact: true,
+    });
+    await expect(row).toBeVisible();
+    await expect(row).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      intent.getByRole("button", { name: "Collapse boundary" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
   await test.step("Ex 6: moved path is not published; opens nothing", async () => {
     await chooseOptimizationCandidates(intent);
     const moved = candidatesRecord(intent).getByRole("article", {

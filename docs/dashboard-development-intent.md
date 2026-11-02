@@ -150,6 +150,27 @@ by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
 are configured and names the setting and file; it shows no empty tree. An
 unreadable or malformed settings file is a distinct explanation from absence.
+With a story selected on the page, Intent names it and the revisions its
+default Review changes comparison runs between, and overlays that
+comparison's changed files on the published tree: each is styled by its
+change kind, added files are inserted, deleted files stay, and a rename sits
+at its new path where a location selects it, else at its old path. A
+completed story is named by its done record's title and compared through its
+published completion, whose revisions need not be the published revision
+Intent and its Proof describe. Folders
+and locations containing changes share one background; the first time Intent
+has the comparison, those folders and the first changed location open and
+everything else collapses. **Selected story only**, off at first, leaves
+just the changed files and the locations and folders holding them, or says no
+test file in a location changed; turning it on or off opens the same folders
+again and collapses the rest. Changed files no location selects by either path
+are counted with a way to Review changes. A changed file's Purpose is Review
+changes' diff of it, and its Proof says it describes the published revision.
+A story without a comparison, and a failed read with retry, each say so while
+the published tree stays usable; deselecting the story removes the lens.
+The story is a lens on Intent, not a separate definition of it, and its
+changed files are an initial view of its impact: they do not by themselves
+establish every affected behavior or the regression proof it needs.
 Structure is not offered yet. The perspective is disposable
 presentation state on the URL (`perspective=intent`), independent of
 Development's stories/roster view, which Intent keeps to return to. Choosing

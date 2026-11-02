@@ -13,6 +13,7 @@ import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   chooseReadingTab,
+  expandIntentFolders,
   expandIntentGroup,
 } from "./intentPerspectivePage.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
@@ -57,6 +58,7 @@ async function openDoughnutFeature(
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
+  await expandIntentFolders(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
     sourceMarker,

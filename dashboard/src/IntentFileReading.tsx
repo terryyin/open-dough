@@ -9,19 +9,27 @@
 // candidates record chooses Purpose and starts a fresh reading positioned on
 // its case. The file read and proof are the
 // browser's, so a tab or layout switch reads nothing again, and each returns
-// to where it was read in this file (`./useIntentReadingPlaces.ts`).
+// to where it was read in this file (`./useIntentReadingPlaces.ts`). A file
+// the selected story changed (`./intentStoryOverlay.ts`) shows Review changes'
+// own diff of it as its Purpose, and its Proof says it describes the published
+// revision; a file the published revision does not list is never read there.
 
 import { useRef, type RefObject } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
+import type { ComparedStory } from "./IntentStoryLens.tsx";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
   IntentTabs,
   intentTabId,
   intentTabPanelId,
   type IntentTabOption,
 } from "./IntentTabs.tsx";
+import { shortRevision } from "./publishedWork.ts";
+import { FileDiff } from "./StoryReviewFileDiff.tsx";
+import { ReviewedFileName } from "./StoryReviewSnapshotView.tsx";
 import { useIntentReadingPlaces } from "./useIntentReadingPlaces.ts";
 import "./frame-controls.css";
 import "./intent-file-reading.css";
@@ -52,6 +60,8 @@ export function IntentFileReading({
   kind,
   caseTarget,
   location,
+  treeFile,
+  story,
   proofRereading,
   onFileRetry,
   onProofRetry,
@@ -72,6 +82,9 @@ export function IntentFileReading({
   readonly caseTarget: string | undefined;
   // The location owning the selected file, with its proof.
   readonly location: IntentLocation | undefined;
+  // The selected file as the location's tree shows it.
+  readonly treeFile: IntentTreeFile | undefined;
+  readonly story: ComparedStory | undefined;
   readonly proofRereading: boolean;
   readonly onFileRetry: () => void;
   readonly onProofRetry: () => void;
@@ -86,6 +99,12 @@ export function IntentFileReading({
   });
   const text = read?.state === "ready" ? read.text : undefined;
   const sideBySide = layout === "side-by-side";
+  const change = treeFile?.change;
+  // The selected change's *from* tree, as Review changes reads it.
+  const changeFrom =
+    change?.includesTrunkFrom ?? story?.shown.comparison.from ?? "";
+  // A file the published revision does not list has no published text.
+  const unpublished = treeFile?.published === false;
 
   function chooseTab(next: IntentReadingTab) {
     if (next === tab) return;
@@ -148,6 +167,20 @@ export function IntentFileReading({
                 <p className="quiet">
                   Select a feature file to read its Purpose.
                 </p>
+              ) : story !== undefined && change !== undefined ? (
+                <div className="intent-story-diff">
+                  <p className="intent-story-diff-name">
+                    <ReviewedFileName file={change} />
+                  </p>
+                  <FileDiff
+                    // A new comparison or file is a new read.
+                    key={`${changeFrom}:${story.shown.tree}:${change.path}`}
+                    reviewed={story.shown.reviewed}
+                    from={changeFrom}
+                    tree={story.shown.tree}
+                    file={change}
+                  />
+                </div>
               ) : read?.state === "failed" ? (
                 <p className="intent-file-problem" role="alert">
                   {path} could not be read.{" "}
@@ -174,14 +207,25 @@ export function IntentFileReading({
             <h3 className={headingClass}>Proof</h3>
             <div className="intent-reading-panel-body">
               <IntentProofGeneration location={location} />
-              <IntentProof
-                path={path}
-                kind={kind}
-                text={text}
-                proof={location?.proof}
-                rereading={proofRereading}
-                onRetry={onProofRetry}
-              />
+              {change !== undefined && (
+                <p className="intent-proof-published">
+                  Proof describes the published revision{" "}
+                  <code>{shortRevision(revision)}</code>, not this story&apos;s
+                  version of the file.
+                </p>
+              )}
+              {unpublished ? (
+                <p className="quiet">The published revision has no {path}.</p>
+              ) : (
+                <IntentProof
+                  path={path}
+                  kind={kind}
+                  text={text}
+                  proof={location?.proof}
+                  rereading={proofRereading}
+                  onRetry={onProofRetry}
+                />
+              )}
             </div>
           </section>
         </div>

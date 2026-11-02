@@ -5,6 +5,7 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts, shortRevision } from "./dashboardPage.ts";
 import {
+  expandIntentFolders,
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentLocationName,
@@ -87,6 +88,7 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     const frontendHeading = intentLocationName(intent, "frontend/src");
     await expect(frontendHeading).toContainText("**/*.spec.tsx");
     await expandIntentGroup(intent, "frontend/src");
+    await expandIntentFolders(intent, "frontend/src");
     await expect(
       intent.getByRole("button", {
         name: "frontend/src/pages/AspyPage.devices.spec.tsx",

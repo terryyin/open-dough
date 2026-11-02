@@ -13,6 +13,7 @@ import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
+import { defaultStoryComparison } from "./useStoryComparison.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
@@ -44,8 +45,9 @@ export function StoryReview({
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
   const [browserShown, setBrowserShown] = useState(true);
-  // Whether all changes include uncommitted changes: on at every opening.
-  const [includeUncommitted, setIncludeUncommitted] = useState(true);
+  const [includeUncommitted, setIncludeUncommitted] = useState(
+    defaultStoryComparison.includeUncommitted,
+  );
   const browser = { id: `${id}-files`, shown: browserShown };
   const {
     review,

@@ -1,4 +1,5 @@
-// Workspace snapshots and fixed historical comparisons share one browser and diff.
+// Workspace snapshots and fixed historical comparisons share one browser and
+// diff, over the comparison shown (`./storyComparisonShown.ts`).
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import type {
   ReviewComparison,
@@ -8,6 +9,7 @@ import type {
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";
+import { storyComparisonShown } from "./storyComparisonShown.ts";
 
 export function ReviewBody({
   review,
@@ -40,28 +42,24 @@ export function ReviewBody({
   readonly committedOnly: boolean;
 }) {
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const fixed =
-    review?.kind === "published" || review?.kind === "landed"
-      ? review
-      : undefined;
+  const shownComparison = storyComparisonShown({
+    source,
+    identity,
+    review,
+    comparison,
+    tree,
+  });
   return (
     <>
-      {fixed !== undefined && (
+      {snapshot === undefined && shownComparison !== undefined && (
         <SnapshotView
           key={
-            fixed.kind === "published"
-              ? fixed.completion
-              : fixed.landing.reference
+            shownComparison.reviewed.completion ??
+            shownComparison.reviewed.reference
           }
-          reviewed={{
-            sourceId: source,
-            identity,
-            ...(fixed.kind === "published"
-              ? { completion: fixed.completion }
-              : { reference: fixed.landing.reference }),
-          }}
-          comparison={{ from: fixed.baseline, files: fixed.files }}
-          tree={fixed.tree}
+          reviewed={shownComparison.reviewed}
+          comparison={shownComparison.comparison}
+          tree={shownComparison.tree}
           sinceReview={false}
           headingId={headingId}
           browser={browser}
@@ -76,21 +74,19 @@ export function ReviewBody({
             onSelect={onSelect}
           />
         )}
-      {snapshot !== undefined &&
-        comparison !== undefined &&
-        tree !== undefined && (
-          <SnapshotView
-            reviewed={{ sourceId: source, identity }}
-            snapshot={snapshot}
-            tree={tree}
-            commitsReview={shown === "commits"}
-            comparison={comparison}
-            sinceReview={since !== undefined}
-            committedOnly={committedOnly}
-            headingId={headingId}
-            browser={browser}
-          />
-        )}
+      {snapshot !== undefined && shownComparison !== undefined && (
+        <SnapshotView
+          reviewed={shownComparison.reviewed}
+          snapshot={snapshot}
+          tree={shownComparison.tree}
+          commitsReview={shown === "commits"}
+          comparison={shownComparison.comparison}
+          sinceReview={since !== undefined}
+          committedOnly={committedOnly}
+          headingId={headingId}
+          browser={browser}
+        />
+      )}
     </>
   );
 }
