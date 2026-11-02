@@ -6,10 +6,16 @@
 // at is counted until it is gone.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readdirSync, renameSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test } from "node:test";
+import { test as nodeTest } from "node:test";
 import { until } from "./ci-github-test-fixtures.mjs";
 import { loginMachine } from "./github-request-login-test-fixtures.mjs";
 import {
@@ -25,12 +31,16 @@ const args = (job) => [
   `repos/owner/repo/actions/jobs/${job}/logs`,
 ];
 
+const test = (name, run) => nodeTest(name, { timeout: 30_000 }, run);
+
 // An endpoint directory, and `gh` calls at GitHub that wait there until the
 // test is over, each as a process of this test: `exit` resolves with how it
 // ended.
 function leftCalls(t, onEnd) {
   const { github } = loginMachine(t, { holdLogs: true });
-  if (onEnd !== undefined) github.recordEndings(onEnd);
+  if (onEnd !== undefined) {
+    github.recordEndings(onEnd);
+  }
   const directory = mkdtempSync(join(tmpdir(), "request-calls-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   let started = 0;
@@ -38,11 +48,13 @@ function leftCalls(t, onEnd) {
     github,
     directory,
     records: () => readdirSync(directory).toSorted(),
-    async call(job) {
+    async call(job, owned, resource = "core") {
       const child = spawn(join(github.env.CI_GH_FIXTURE, "gh"), args(job), {
         env: github.env,
         stdio: "ignore",
       });
+      // Match the request owner: record at spawn, before observing startup.
+      owned?.started(child.pid, args(job), resource);
       const exit = new Promise((resolve) =>
         child.once("exit", (code, signal) => resolve(signal ?? code)),
       );
@@ -61,9 +73,7 @@ function leftCalls(t, onEnd) {
 test("the process a record names is asked to end, and its record removed with those of calls already gone", async (t) => {
   const { github, directory, records, call } = leftCalls(t, "end");
   const owned = new OwnedCalls(directory, 1);
-  const [left, gone] = [await call(1), await call(2)];
-  owned.started(left.pid, args(1), "core");
-  owned.started(gone.pid, args(2), "core");
+  const [left, gone] = [await call(1, owned), await call(2, owned)];
   process.kill(gone.pid, "SIGKILL");
   await gone.exit;
   assert.deepEqual(
@@ -83,10 +93,38 @@ test("the process a record names is asked to end, and its record removed with th
   assert.deepEqual(records(), []);
 });
 
+test("a held call is recognized after its fixture starts 3.5 seconds late", async (t) => {
+  const { github, directory, records, call } = leftCalls(t, "end");
+  const executable = join(github.env.CI_GH_FIXTURE, "gh");
+  const delayed = join(github.env.CI_GH_FIXTURE, "delayed-gh.cjs");
+  renameSync(executable, delayed);
+  // Delay the fixture itself in the same process, preserving its PID and
+  // command. Its startup acknowledgment arrives beyond the 2 s start slack.
+  writeFileSync(
+    executable,
+    `#!${process.execPath}\nsetTimeout(() => require(${JSON.stringify(delayed)}), 3500);\n`,
+    { mode: 0o755 },
+  );
+  const started = Date.now();
+  const left = await call(1, new OwnedCalls(directory, 1));
+  const asked = github.calls().find(({ phase }) => phase === "asked");
+  assert.ok(asked.at - started >= 3_500);
+
+  assert.deepEqual(await earlierCallsEnded(directory, 2), []);
+  assert.equal(await left.exit, 143);
+  assert.deepEqual(
+    github
+      .calls()
+      .filter(({ phase }) => phase === "told-to-end")
+      .map(({ pid }) => pid),
+    [left.pid],
+  );
+  assert.deepEqual(records(), []);
+});
+
 test("a call that does not end when asked is looked at again and killed a second later", async (t) => {
   const { github, directory, records, call } = leftCalls(t, "stay");
-  const left = await call(1);
-  new OwnedCalls(directory, 1).started(left.pid, args(1), "core");
+  const left = await call(1, new OwnedCalls(directory, 1));
 
   assert.deepEqual(await earlierCallsEnded(directory, 2), []);
   assert.equal(await left.exit, "SIGKILL");
@@ -97,8 +135,7 @@ test("a call that does not end when asked is looked at again and killed a second
 
 test("a call whose identity changes after TERM is never killed", async (t) => {
   const { github, directory, records, call } = leftCalls(t, "stay");
-  const left = await call(1);
-  new OwnedCalls(directory, 1).started(left.pid, args(1), "core");
+  const left = await call(1, new OwnedCalls(directory, 1));
   let reads = 0;
   const changed = async (pid) => {
     const seen = await shownProcess(pid);
@@ -123,8 +160,7 @@ for (const [form, seen] of [
 ]) {
   test(`a recorded call shown as ${form} is gone without a signal`, async (t) => {
     const { github, directory, records, call } = leftCalls(t, "end");
-    const left = await call(1);
-    new OwnedCalls(directory, 1).started(left.pid, args(1), "core");
+    const left = await call(1, new OwnedCalls(directory, 1));
 
     assert.deepEqual(
       await earlierCallsEnded(directory, 2, async () => seen),
@@ -163,8 +199,7 @@ test("a process running under a recorded process ID is never signalled unless it
 
 test("a recorded call that cannot be looked at is not signalled, and is counted until its process is gone", async (t) => {
   const { directory, records, call } = leftCalls(t, "end");
-  const left = await call(1);
-  new OwnedCalls(directory, 1).started(left.pid, args(1), "search");
+  const left = await call(1, new OwnedCalls(directory, 1), "search");
   const denied = () =>
     Promise.reject(Object.assign(new Error("denied"), { code: "EPERM" }));
 
@@ -182,11 +217,12 @@ test("a recorded call that cannot be looked at is not signalled, and is counted 
 
 test("a record its owner was killed while writing still names its call, and an owner's own records and later ones are left alone", async (t) => {
   const { directory, records, call } = leftCalls(t, "end");
-  const [drafted, own] = [await call(1), await call(2)];
-  new OwnedCalls(directory, 1).started(drafted.pid, args(1), "core");
+  const [drafted, own] = [
+    await call(1, new OwnedCalls(directory, 1)),
+    await call(2, new OwnedCalls(directory, 2)),
+  ];
   const record = join(directory, `call.1.${drafted.pid}.json`);
   renameSync(record, `${record}.draft`);
-  new OwnedCalls(directory, 2).started(own.pid, args(2), "core");
 
   assert.deepEqual(await earlierCallsEnded(directory, 2), []);
   assert.equal(await drafted.exit, 143);
