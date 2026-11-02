@@ -6,7 +6,7 @@
 
 **Identity:** SEED-220#last-successful-intent-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/446-last-successful-intent-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d0090b5dfc9b881f97dcd4064c762768786bed61978cc7c5abad5ee5d4607aa3","plan":"45740d4e5b17293f904f4f2eaf22121dbb7b21e11106569aab68c69f28f3e79a"}}
 ```
 
 **Goal:** A developer reading Intent sees the last successful proof for each
