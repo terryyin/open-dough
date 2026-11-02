@@ -3,7 +3,9 @@
 // comparison, the revisions it compares, read as Review changes reads them
 // (`./useStoryComparison.ts`); the locations browser says how many changed
 // files lie outside every Intent location, which Review changes shows
-// (`StoryOutsideLocations`). A story with no comparison
+// (`StoryOutsideLocations`), and offers "Selected story only", off until
+// chosen, which says so when no test file in a location changed
+// (`StoryChangesScope`). A story with no comparison
 // Review changes could offer (`storyComparisonOffered`) and a read that
 // failed each have their own explanation, the failure with a retry; neither
 // reads as a story without changes, and the published tree stays usable
@@ -14,6 +16,7 @@ import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
+import "./intent-story-lens.css";
 
 // The selected story as Intent names it.
 export type LensStory = {
@@ -106,6 +109,46 @@ export function StoryOutsideLocations({
         Review changes
       </button>
     </p>
+  );
+}
+
+// The "Selected story only" choice over a compared story's tree, what the
+// tree leaves out when it is on and no location's test file changed, and the
+// count of changed files outside the locations.
+export function StoryChangesScope({
+  source,
+  story,
+  outside,
+  only,
+  noneInLocations,
+  onOnly,
+}: {
+  readonly source: string;
+  readonly story: LensStory;
+  readonly outside: number;
+  readonly only: boolean;
+  readonly noneInLocations: boolean;
+  readonly onOnly: (only: boolean) => void;
+}) {
+  return (
+    <>
+      <label className="intent-story-only">
+        <input
+          type="checkbox"
+          checked={only}
+          onChange={(event) => {
+            onOnly(event.target.checked);
+          }}
+        />{" "}
+        Selected story only
+      </label>
+      {only && noneInLocations && (
+        <p className="intent-story-none" role="status">
+          No test files in Intent locations changed in this story
+        </p>
+      )}
+      <StoryOutsideLocations source={source} story={story} outside={outside} />
+    </>
   );
 }
 

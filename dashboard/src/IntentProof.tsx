@@ -20,6 +20,7 @@ import {
 } from "./proofScenarioCountLine.ts";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
+import "./intent-proof.css";
 
 // The outcome a row reads, with a retry-assisted pass named as such.
 function outcomeOf({ outcome, attempts }: ProofObservation): string {

@@ -9,7 +9,8 @@
 // to Review changes. A changed file's Purpose is the same diff Review
 // changes shows and its Proof says it describes the published revision; an
 // unchanged file shows its published source. Deselecting removes the lens.
-// Deletions and renames: ./intent-story-changes-moves.spec.ts. No
+// "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
+// renames: ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ./intent-story-changes-gaps.spec.ts.
 
 import { parts } from "./dashboardPage.ts";

@@ -3,7 +3,9 @@
 // no workspace on this machine says no comparison is available; a review
 // read that fails says so with a retry, which then shows the story's
 // changes. Either way the published tree stays usable beneath, without
-// change marks or an outside count. The highlighted journey:
+// change marks, an outside count, or a "Selected story only" toggle, which
+// would have no changes to show only; the retried read offers it, off. The
+// highlighted journey:
 // ./intent-story-changes.spec.ts.
 
 import type { Locator } from "@playwright/test";
@@ -19,6 +21,7 @@ import {
   intentFile,
   lens,
   selectTakenStoryInIntent,
+  storyOnly,
 } from "./support/intentStoryPage.ts";
 import { changed, publishIntentTrunk } from "./support/intentStoryWorktree.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
@@ -26,8 +29,10 @@ import { openBacklog } from "./support/sessionDialog.ts";
 test.setTimeout(120_000);
 
 // The published tree shows as without a story: no change marks, no outside
-// count, no claim that nothing changed, and a file reads its source.
+// count, no toggle, no claim that nothing changed, and a file reads its
+// source.
 async function expectPublishedTreeUsable(intent: Locator) {
+  await expect(storyOnly(intent)).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
   await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
@@ -97,6 +102,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await problem.getByRole("button", { name: "Retry" }).click();
   await expect(scoped.locator(".intent-story-revisions")).toBeVisible();
   await expect(problem).toHaveCount(0);
+  await expect(storyOnly(intent)).not.toBeChecked();
   await expect(intent.locator(".intent-story-outside")).toContainText(
     "2 changed files outside Intent locations",
   );

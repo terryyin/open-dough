@@ -24,7 +24,7 @@ No plan, return, product, or proof supplied.
 | 5.1 | Selection survives switching between Development and Intent | slice 1 | observed: story-card-selection.spec.ts: Intent round-trip keeps data-selected-story / selected mark |
 | 5.2 | Intent names the selected story | slice 4 | observed: intent-story-changes.spec.ts: step 'Intent names the story…' — .intent-story-name text |
 | 5.3 | Selection stays disposable page state, not URL (ADR 0008) | slice 1 | observed: pageStorySelection.tsx + PageFrame provider; no URL write in selection owner |
-| 6.1 | With story selected, Intent offers Selected story only toggle | slice 5 | |
+| 6.1 | With story selected, Intent offers Selected story only toggle | slice 5 | observed: intent-story-changes-only.spec.ts test 1: 'Selected story only' checkbox present, unchecked on arrival; intent-story-changes-gaps.spec.ts: absent without a comparison, offered unchecked after Retry |
 | 6.2 | Toggle off by default; whole tree with changes highlighted | slice 4 | observed: intent-story-changes.spec.ts: unchanged kept.spec.ts visible and plain beside changed files (no toggle until slice 5) |
 | 6.3 | Without selected story, Intent shows no toggle or highlight (apart from folder default) | slice 1 | observed: story-card-selection.spec.ts: deselected Intent has no Selected story only control/text |
 | 7.1 | Intent uses selected story's default Review changes comparison (all changes incl. uncommitted) | slice 4 | observed: intent-story-changes.spec.ts: revisions line 'uncommitted changes included'; untracked added b.spec.ts shown with Review's diff |
@@ -37,9 +37,9 @@ No plan, return, product, or proof supplied.
 | 8.2 | Added files shown where they belong | slice 4 | observed: intent-story-changes.spec.ts: Added boundary/b.spec.ts inserted at its path; intent-story-changes-moves.spec.ts: into-rename at new path |
 | 8.3 | Out-of-location changes not listed | slice 4 | observed: intent-story-changes.spec.ts: App.tsx and notes.md not listed; intent-story-changes-moves.spec.ts: docs rename not listed |
 | 8.4 | Count outside + Review changes pointer | slice 4 | observed: intent-story-changes.spec.ts: exact outside-count text with Review changes button opening the review; intent-story-changes-moves.spec.ts: count stays 2 (rename once) |
-| 9.1 | Selected story only: only in-scope changed files and folders | slice 5 | |
-| 9.2 | No in-scope changes message | slice 5 | |
-| 9.3 | Outside count when any | slice 5 | |
+| 9.1 | Selected story only: only in-scope changed files and folders | slice 5 | observed: intent-story-changes-only.spec.ts test 1 'on' step: only the changed files and their folders; intent-story-changes-moves.spec.ts: deleted and renamed entries in both states with equal diffs |
+| 9.2 | No in-scope changes message | slice 5 | observed: intent-story-changes-only.spec.ts test 2: .intent-story-none exact text, no location sections |
+| 9.3 | Outside count when any | slice 5 | observed: intent-story-changes-only.spec.ts test 2: outside-count text when off and on |
 | 10.1 | Full published tree; change-kind styles | slice 4 | observed: intent-story-changes.spec.ts: computed name styles for modified/added/deleted/renamed vs plain |
 | 10.2 | Contains-changes background on folders/groups with changes | slice 4 | observed: intent-story-changes.spec.ts: data-contains-changes and equal non-transparent background on changed folders and both location sections; 'other' has neither |
 | 10.3 | Deleted file stays visible and styled removed | slice 4 | observed: intent-story-changes.spec.ts and intent-story-changes-moves.spec.ts: Deleted gone.spec.ts visible with deleted style |
@@ -55,8 +55,8 @@ No plan, return, product, or proof supplied.
 | 14.2 | Open folders containing changes on Intent open with selection or toggle | slice 4 | observed: intent-story-changes.spec.ts: expansion step — arriving, boundary, out folders open |
 | 14.3 | First changed location group opens | slice 4 | observed: intent-story-changes.spec.ts: dashboard/tests group open, tests group collapsed |
 | 14.4 | Other folders stay collapsed | slice 4 | observed: intent-story-changes.spec.ts: 'other' folder collapsed, other/c.spec.ts hidden |
-| 14.5 | Story change while Intent hidden does not rearrange | slice 5 | |
-| 14.6 | Rule applies next Intent open or toggle | slice 5 | |
+| 14.5 | Story change while Intent hidden does not rearrange | slice 5 | observed: intent-story-changes-only.spec.ts test 1 hidden-selection step: Story B selected in Development while Intent hidden, Intent opens on B's state; reselecting A re-applies its expansion (Intent unmounts while hidden) |
+| 14.6 | Rule applies next Intent open or toggle | slice 5 | observed: intent-story-changes-only.spec.ts test 1: hand-collapsed folders reopen at each toggle; hidden-selection step shows the rule on next open |
 | 15.1 | One comparison-read implementation | slice 3 | observed: storyComparisonShown.ts used by StoryReviewBody and useStoryComparison; storyComparisonOffered gates StoryReviewAction |
 | 15.2 | One change-kind/styles implementation | slice 3 | observed: one ChangeKind in reviewFileTree.ts, one style file change-kinds.css |
 | 15.3 | One file-tree implementation | slice 3 | observed: reviewFileTree/FileTree remain the only tree, used by Review and IntentLocationGroup; Intent journeys green |
@@ -66,9 +66,9 @@ No plan, return, product, or proof supplied.
 | 16.3 | Apply failing and flaky test policy | slice 1 | observed: AGENTS.md failing/flaky policy applied; focused selection+navigation specs green |
 | 17 | Never present missing/failed comparison or no in-scope changes as empty change set | slice 4 | observed: intent-story-changes-gaps.spec.ts: expectPublishedTreeUsable in no-comparison and failed-read variants |
 | E1 | Journey: Taken workspace story select + Intent highlight/diff | slice 4 | observed: intent-story-changes.spec.ts: whole journey |
-| E2 | Journey: Selected story only toggle on/off | slice 5 | |
+| E2 | Journey: Selected story only toggle on/off | slice 5 | observed: intent-story-changes-only.spec.ts test 1 and intent-story-changes-moves.spec.ts both toggle states |
 | E3 | Journey: outside-locations count | slice 4 | observed: intent-story-changes.spec.ts and intent-story-changes-moves.spec.ts: outside-count steps |
-| E4 | Journey: product-only / no in-scope message | slice 5 | |
+| E4 | Journey: product-only / no in-scope message | slice 5 | observed: intent-story-changes-only.spec.ts test 2 (product-only change) |
 | E5 | Journey: completed Recently done + published comparison | slice 6 | |
 | E6 | Journey: no comparison explanation; tree usable | slice 4 | observed: intent-story-changes-gaps.spec.ts: no-workspace test then expand, select a.spec.ts, source 'a 11' |
 | E7 | Journey: deselect clears Intent toggle; Start/session do not select | slice 1 | observed: story-card-selection.spec.ts: deselect clears Intent toggle absence; Start/session do not select |

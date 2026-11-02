@@ -9,6 +9,7 @@
 
 import type { KeyboardEvent } from "react";
 import "./project-select.css";
+import "./intent-mode-tabs.css";
 
 export type IntentMode = "intent" | "candidates";
 

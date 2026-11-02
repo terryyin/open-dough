@@ -11,8 +11,9 @@
 // across a location's boundary stays reviewable. Either way a renamed file
 // is one entry: its old path's published entry gives way to it. A deleted
 // file stays, whether or not the published tree still lists it. Without a
-// story, the trees are the published files alone. The folders to open follow
-// from the same join (`storyOverlayExpansion`).
+// story, the trees are the published files alone. "Selected story only" is
+// the same join restricted to its changed entries (`storyChangesOnly`), and
+// the folders to open follow from it too (`storyOverlayExpansion`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationSelectsRepositoryPath } from "./intentLocationSelection.ts";
@@ -110,6 +111,18 @@ export function intentStoryOverlay(
   };
 }
 
+// The overlay with only the story's changed entries, deleted and renamed ones
+// included, each location still marked by whether it contains any.
+export function storyChangesOnly(overlay: StoryOverlay): StoryOverlay {
+  return {
+    outside: overlay.outside,
+    locations: overlay.locations.map((location) => ({
+      ...location,
+      files: location.files.filter((file) => file.change !== undefined),
+    })),
+  };
+}
+
 // Each overlaid tree file by its repository path.
 export function overlayFilesByPath(
   locations: readonly IntentLocation[],
@@ -127,8 +140,10 @@ export function overlayFilesByPath(
 
 // Which tree the story opens: the first location, in configured order, that
 // contains changes, and in each location the folders that contain changes;
-// every other folder and location stays collapsed. Intent applies it when it
-// opens with a selected story, never on a live selection change.
+// every other folder and location stays collapsed. Restricting the overlay to
+// its changes leaves this the same. Intent applies it when it opens with a
+// selected story's comparison and at each "Selected story only" toggle, never
+// on a live selection change.
 export type StoryOverlayExpansion = {
   readonly location: string | undefined;
   // Per location, in configured order, its folders to open by path relative

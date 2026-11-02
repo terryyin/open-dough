@@ -1,7 +1,8 @@
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's lens, a tree row's change-kind
-// style, the contains-changes background, and a changed file's diff in
-// Intent's Purpose beside the same file's diff in Review changes.
+// style, the contains-changes background, the "Selected story only" toggle,
+// and a changed file's diff in Intent's Purpose beside the same file's diff
+// in Review changes.
 
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
@@ -18,17 +19,19 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 
 // Story A taken in Story Branch Mode by a real start, its worktree changing
-// the tests Intent publishes; its Taken card selected by an empty-area click,
-// and Intent shown. The baseline is the claim, where the worktree meets
-// trunk; the head is the worktree's last commit.
+// the tests Intent publishes, or as `change` changes it; its Taken card
+// selected by an empty-area click, and Intent shown. The baseline is the
+// claim, where the worktree meets trunk; the head is the worktree's last
+// commit.
 export async function selectTakenStoryInIntent(
   page: Page,
   origin: StartOrigin,
+  change: (workspace: string) => void = changeIntentTests,
 ) {
   publishIntentTrunk(origin.project);
   await origin.takenByAnotherAgent();
   const workspace = path.join(origin.machine, "another-agent-workspace");
-  changeIntentTests(workspace);
+  change(workspace);
   await openBacklog(page, origin);
   const { taken, intentChoice, intent } = parts(page);
   const card = taken.getByRole("article", { name: "Story A" });
@@ -47,6 +50,10 @@ export async function selectTakenStoryInIntent(
 
 export const lens = (intent: Locator) =>
   intent.getByRole("region", { name: "Selected story", exact: true });
+
+// The "Selected story only" toggle.
+export const storyOnly = (intent: Locator) =>
+  intent.getByRole("checkbox", { name: "Selected story only", exact: true });
 
 // A file's control in Intent's tree, by its accessible name: its full path,
 // or for a changed file its kind and path as Review changes names it.

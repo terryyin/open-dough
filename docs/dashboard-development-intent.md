@@ -77,7 +77,10 @@ change kind, added files are inserted, deleted files stay, and a rename sits
 at its new path where a location selects it, else at its old path. Folders
 and locations containing changes share one background; the first time Intent
 has the comparison, those folders and the first changed location open and
-everything else collapses. Changed files no location selects by either path
+everything else collapses. **Selected story only**, off at first, leaves
+just the changed files and the locations and folders holding them, or says no
+test file in a location changed; turning it on or off opens the same folders
+again and collapses the rest. Changed files no location selects by either path
 are counted with a way to Review changes. A changed file's Purpose is Review
 changes' diff of it, and its Proof says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while

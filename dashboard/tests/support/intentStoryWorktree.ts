@@ -6,6 +6,7 @@
 // into a location from outside, and one out of a location, and changes a
 // product file and renames a document, neither in any location. Each test
 // rename adds one line, little enough that Git detects it as a rename.
+// Another story changes only the product file.
 
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -85,4 +86,10 @@ export function changeIntentTests(workspace: string) {
   writeAt(workspace, "dashboard/src/App.tsx", `${lines("app")}more\n`);
   commitAll(workspace, "change the tests");
   writeAt(workspace, "dashboard/tests/boundary/b.spec.ts", "added\n");
+}
+
+// A story's worktree changing only a product file, outside every location.
+export function changeProductOnly(workspace: string) {
+  writeAt(workspace, "dashboard/src/App.tsx", `${lines("app")}more\n`);
+  commitAll(workspace, "change the product");
 }

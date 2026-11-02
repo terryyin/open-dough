@@ -203,7 +203,7 @@ Deselecting removes the lens.
 
 ### 5. Show only the selected story's changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend slice 4's journey (example 2), retaining its deleted and renamed
 entries in both toggle states with the same change kinds and diffs, plus a
 product-only-change variant (example 4).
@@ -367,6 +367,20 @@ full gates on final state: npm test passed; whole dashboard suite 1898 passed (2
   `IntentBrowser` expansion round and recompute `storyOverlayExpansion` at
   each toggle. `IntentPerspective` unmounts when hidden, so a selection made in
   Development applies at the next mount.
+
+### Slice 5 accepted proof
+
+```
+command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list --workers=6 dashboard/tests/intent- dashboard/tests/boundary/authenticated-read-intent dashboard/tests/development-intent-frame dashboard/tests/story-card-selection
+covers: examples 2 and 4; deleted and renamed entries in both toggle states; expansion at each toggle and at Intent open
+observations: intent-story-changes-only.spec.ts tests 1-2, intent-story-changes-moves.spec.ts, intent-story-changes-gaps.spec.ts
+result: pass (57, rerun after refactor); story-review family 135 passed; --repeat-each=4 intent-story-changes 24 passed
+```
+
+- "Selected story only" is hidden while there is no comparison or the read
+  failed, so a restricted empty tree never reads as "no changes"; it appears
+  unchecked once Retry produces a comparison.
+- With the toggle on, locations without changes are not rendered.
 
 ## Story obligations
 
