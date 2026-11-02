@@ -1,8 +1,9 @@
 // The chosen Intent tab is kept per project by the page
 // (../src/pageIntentMode.tsx): CI status or Optimization Candidates stays
 // chosen across Development and back and across a new trunk revision, where
-// CI status reads the trunk's judgment again; a project change starts again
-// on Intent (SEED-219 examples 2, 10). Candidates read at a new revision are
+// CI status reads the trunk's judgment again, while time alone and another
+// branch moving read none; a project change starts again on Intent
+// (SEED-219 examples 2, 10). Candidates read at a new revision are
 // in ./intent-test-optimization-candidates-revision.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -86,7 +87,7 @@ test("CI status and Optimization Candidates stay chosen across Development and b
   });
 });
 
-test("a new trunk revision keeps CI status chosen and reads the trunk's judgment again at the new head", async ({
+test("a new trunk revision keeps CI status chosen and reads the trunk's judgment again at the new head; time alone and another branch moving read none", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -111,6 +112,22 @@ test("a new trunk revision keeps CI status chosen and reads the trunk's judgment
     "actions-workflow",
     "commit-list main",
   ]);
+
+  await test.step("time alone and another branch moving read no judgment", async () => {
+    await untilPageReadsAnswered(page);
+    await passTimeUntilCheckedAfterSettled(page);
+    published.moveBranch("story/unrelated-work", {
+      revision: "f6".repeat(20),
+      files: {},
+    });
+    await passTimeUntilCheckedAfterSettled(page);
+    await untilPageReadsAnswered(page);
+    expect(judgmentCalls(published.requests)).toEqual(firstCalls);
+    await expect(panel.locator("time")).toHaveAttribute(
+      "datetime",
+      firstCheck ?? "",
+    );
+  });
 
   // The trunk moves to a head with its own Failed run.
   const head = "e8".repeat(20);

@@ -13,14 +13,14 @@ text.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | Developers reviewing intent can see the project's CI status on the same page, without going to GitHub | slice 5 | |
+| G1 | Developers reviewing intent can see the project's CI status on the same page, without going to GitHub | slice 5 | observed: dashboard/tests/intent-ci-status*.spec.ts (five specs) green: status beside Intent without GitHub |
 | G2 | The status is scoped to the story under review when one is selected | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a Taken Story Branch Mode story…": heading CI status of codex/example-story, Failed at fa11ed0 with run link, main Passed before |
 | G3 | Developers do not mistake another branch's result for the story's | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" steps planning-only (no earlier failing branch shown) and "a selection whose answer arrives after the next selection never shows it" |
 | G4 | Add a **CI status** tab to the Intent reading strip | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": tab list [Intent, Optimization Candidates, CI status] |
 | G5 | With no story selected, it shows the selected check's status for the configured trunk (`main` here) | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": heading "CI status of main", Passed at a1b2c3d |
 | G6 | With a selected story that has a published story branch, it shows that branch's status | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a Taken Story Branch Mode story…": heading CI status of codex/example-story, Failed at fa11ed0 with run link, main Passed before |
-| G7 | Observable outcome: a correct, attributed CI judgment beside Intent | slice 5 | |
-| G8 | Exclusion: judging the story's intent protection stays with the near-future direction stories | slice 5 | |
+| G7 | Observable outcome: a correct, attributed CI judgment beside Intent | slice 5 | observed: dashboard/tests/intent-ci-status*.spec.ts: judged branch always named, run branch named when different |
+| G8 | Exclusion: judging the story's intent protection stays with the near-future direction stories | slice 5 | observed: No intent-protection judgment in the CI tab files (dashboard/src/IntentCiStatus.tsx, intentCiTarget.ts); out of scope as stated |
 | S1.1 | Third tab labelled **CI status** in Intent's reading strip | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": tab list includes "CI status" third |
 | S1.2 | Placed after **Optimization Candidates** | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": tab order Intent, Optimization Candidates, CI status |
 | S1.3 | Same keyboard behavior as the other tabs | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…" step "arrow keys, Home and End move between the three tabs" |
@@ -68,15 +68,15 @@ text.
 | S6.3 | **Optimization Candidates** reads its record at the new revision when shown after a revision change | slice 2 | observed: dashboard/tests/intent-test-optimization-candidates-revision.spec.ts "Optimization Candidates shown across a new revision stays chosen and reads that revision's record" |
 | S7.1a | Judgment is read when the tab is shown | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status names main…": judgment calls asserted on showing the tab |
 | S7.1b | Judgment is read when the judged branch changes | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…": each selection change makes a new branch judgment read (request counts per step) |
-| S7.1c | Judgment is read when the page's existing revision check finds that branch's head moved | slice 5 | |
+| S7.1c | Judgment is read when the page's existing revision check finds that branch's head moved | slice 5 | observed: dashboard/tests/intent-ci-status-story.spec.ts "a push to the shown story branch, seen by the revision check, reads its judgment again without Check again…" step (b): push → Passed at c0ffee1, four judgment calls, new checked datetime; dashboard/tests/intent-ci-status-kept.spec.ts "a new trunk revision keeps CI status chosen…" trunk move re-reads |
 | S7.2 | A **Check again** control re-reads on demand | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…" and dashboard/tests/intent-ci-status-reads.spec.ts "a running head shows…": Check again re-reads to Passed |
 | S7.3 | The tab shows when the shown judgment was checked | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts expectChecked: "Checked at" with time[datetime] ISO |
-| S7.4 | Exclusion: no timed polling | slice 5 | |
+| S7.4 | Exclusion: no timed polling | slice 5 | observed: dashboard/tests/intent-ci-status-story.spec.ts "a push to the shown story branch, seen by the revision check, reads its judgment again without Check again…" step (a) and dashboard/tests/intent-ci-status-kept.spec.ts "a new trunk revision keeps CI status chosen…" step "time alone and another branch moving read no judgment": paused clock, no judgment calls, datetime unchanged |
 | S8.1 | Each judgment read costs only the existing judgment's requests: one commit-history listing and one Actions runs listing |  | O1 |
 | S8.2 | Plus the trunk's runs listing for a story branch | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…": branchJudgmentCalls = [actions-runs codex/example-story, actions-runs main, actions-workflow, commit-list codex/example-story] |
 | S8.3 | Or the adapter's discover (adapter case) | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "a project with a ciAdapter…": adapter judgment with no actions-* calls; GITHUB-REQUESTS.md history listing only |
 | S8.4 | Requests are counted in Dashboard GitHub requests (GITHUB-REQUESTS.md) | slice 4 | observed: dashboard/GITHUB-REQUESTS.md four requests for a story branch; asserted by dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" request counts |
-| S8.5 | Restriction: nothing is kept beyond the page (ADR 0008) | slice 5 | |
+| S8.5 | Restriction: nothing is kept beyond the page (ADR 0008) | slice 5 | observed: dashboard/src/IntentCiStatus.tsx, IntentCiJudgment.tsx, intentCiTarget.ts, authenticatedIntentCiStatusRead.ts, pageIntentMode.tsx hold judgment and mode in React state only (no storage or URL); dashboard/GITHUB-REQUESTS.md "Nothing of a judgment is kept beyond the read" |
 | R1.1 | Restriction: never present a missing or unreadable result as passed | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status is offered without Intent locations…" unreadable settings and dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…": no passed text, Could not be read |
 | R1.2 | Restriction: never show one branch's result under another branch's name | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" steps planning-only (no earlier failing branch shown) and "a selection whose answer arrives after the next selection never shows it" |
 | R1.3 | Reason: purpose is trustworthy status for the reviewed scope; substituted/optimistic result misleads review | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" steps planning-only (no earlier failing branch shown) and "a selection whose answer arrives after the next selection never shows it" |
@@ -84,16 +84,16 @@ text.
 | R2.2 | Restriction: boundary judges at the head it resolves itself | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "the CI status read refuses an unsafe branch name…": revision=<sha> refused 400; parameterless read answers the boundary's own judgment |
 | R2.3 | Reason: name reaches `gh api` paths and possibly the configured `ciAdapter` command, as branch-head reads already guard | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "the CI status read refuses an unsafe branch name…": unsafe names reach no gh call; dashboard/tests/intent-ci-status-reads.spec.ts "a project with a ciAdapter…" adapter path |
 | R2.4 | A recorded branch the rule refuses is that story's gap, named as such (as slice progress already treats it) | slice 4 | observed: dashboard/tests/intent-ci-status-story-gaps.spec.ts "a selected story without a published story branch is named and explained…" step story/café: has a name this dashboard cannot use |
-| D1 | Deferred: CI for a Recently done story's landing revision | slice 5 | |
-| D2 | Deferred: CI for a Trunk Mode story's published trunk commits | slice 5 | |
-| D3 | Deferred: checks other than the selected one | slice 5 | |
-| D4 | Deferred: timed refresh while running | slice 5 | |
-| D5a | Deferred: starting CI | slice 5 | |
-| D5b | Deferred: rerunning CI | slice 5 | |
-| D5c | Deferred: owning CI | slice 5 | |
-| D6a | Deferred: putting the tab on the URL | slice 5 | |
-| D6b | Deferred: putting the branch on the URL | slice 5 | |
-| D7 | Deferred: selecting a story from within Intent | slice 5 | |
+| D1 | Deferred: CI for a Recently done story's landing revision | slice 5 | observed: dashboard/tests/intent-ci-status-story-gaps.spec.ts done step: gap, no status |
+| D2 | Deferred: CI for a Trunk Mode story's published trunk commits | slice 5 | observed: dashboard/tests/intent-ci-status-story-gaps.spec.ts Trunk Mode step: gap, no status |
+| D3 | Deferred: checks other than the selected one | slice 5 | observed: dashboard/server/baseCiJudgment.ts judges only the selected check (ciWorkflow or ciAdapter) |
+| D4 | Deferred: timed refresh while running | slice 5 | observed: dashboard/tests/intent-ci-status-story.spec.ts "a push to the shown story branch, seen by the revision check, reads its judgment again without Check again…" step (a) and dashboard/tests/intent-ci-status-kept.spec.ts "a new trunk revision keeps CI status chosen…" step "time alone…": no read on time alone |
+| D5a | Deferred: starting CI | slice 5 | observed: CI tab files only read (intentCiStatusRead.ts GET judgment); no dispatch or rerun call |
+| D5b | Deferred: rerunning CI | slice 5 | observed: CI tab files only read (intentCiStatusRead.ts GET judgment); no dispatch or rerun call |
+| D5c | Deferred: owning CI | slice 5 | observed: CI tab files only read (intentCiStatusRead.ts GET judgment); no dispatch or rerun call |
+| D6a | Deferred: putting the tab on the URL | slice 5 | observed: dashboard/src/pageIntentMode.tsx page state only, no URL |
+| D6b | Deferred: putting the branch on the URL | slice 5 | observed: dashboard/src/intentCiTarget.ts derives branch from selection, no URL |
+| D7 | Deferred: selecting a story from within Intent | slice 5 | observed: dashboard/src/IntentCiStatus.tsx reads useStorySelection only; selection changes only on Development |
 | B1 | Assumption: page-level story selection already exists on trunk (dashboard/src/pageStorySelection.tsx, SEED-192 slice 1) | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a Taken Story Branch Mode story…": heading CI status of codex/example-story, Failed at fa11ed0 with run link, main Passed before |
 | B2 | This story reads the selection | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a Taken Story Branch Mode story…": heading CI status of codex/example-story, Failed at fa11ed0 with run link, main Passed before |
 | B3 | Restriction: this story does not change selection behavior | slice 4 | observed: dashboard/tests/story-card-selection.spec.ts green; pageStorySelection.tsx unchanged |
@@ -105,7 +105,7 @@ text.
 | E6 | Clear selection: tab shows `main` again | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "clearing the selection shows main again" |
 | E7a | Story branch's latest run in progress: Running at head, nearest completed ancestor (Passed at `d4e5f6a`) as context | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a running head…": Running at 70a0001, Nearest completed ancestor d4e5f6a passed, Run on main |
 | E7b | After run finishes, Check again shows Passed | slice 4 | observed: dashboard/tests/intent-ci-status-story.spec.ts "CI status judges the selected story's branch…" step "a running head…": Check again shows Passed at 70a0001 |
-| E7c | A push to the branch, seen by the revision check, re-reads by itself | slice 5 | |
+| E7c | A push to the branch, seen by the revision check, re-reads by itself | slice 5 | observed: dashboard/tests/intent-ci-status-story.spec.ts "a push to the shown story branch, seen by the revision check, reads its judgment again without Check again…" step (b) |
 | E8a | GitHub rate-limited or runs cannot be listed: tab names branch, says Could not be read with reason | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…": runs listing fails → names main, Could not be read, reason |
 | E8b | Check again retries | slice 1 | observed: dashboard/tests/intent-ci-status-reads.spec.ts "CI status that could not be read…": Check again then Passed |
 | E9 | Project with no Intent locations: strip still offers CI status beside the not-configured explanation | slice 1 | observed: dashboard/tests/intent-ci-status.spec.ts "CI status is offered without Intent locations…" step "no Intent locations" |

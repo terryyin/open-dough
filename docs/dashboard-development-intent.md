@@ -90,8 +90,11 @@ link when given, while running the nearest completed ancestor, and when it
 was checked; a history with no result is **Could not be read**, never
 passed. It is read each time the tab is shown, when the judged branch
 changes, again when the page's
-revision check observes a new trunk revision while it is shown, and on
-**Check again**, with no timed polling, and it is offered whether Intent locations are
+revision check finds the judged branch's head moved while it is shown (a new
+trunk revision, or a new head of a story branch it watches because the story's
+progress is read there; a story branch without a counted plan is not watched
+and is re-read on **Check again**), and on **Check again**, with no timed
+polling, and it is offered whether Intent locations are
 configured, absent, or unreadable: the strip stands above those
 explanations, which **Intent** and **Optimization Candidates** show when
 there is no location tree. The chosen tab is kept while the page stays on

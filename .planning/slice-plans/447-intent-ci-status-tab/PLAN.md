@@ -239,7 +239,7 @@ from `checkPublishedRevision(...).heads` into `JudgedBranch`.
 
 ### 5. Re-read when the shown branch's head moves
 Type: Behavior
-Status: planned
+Status: done
 Proof: added case in `intent-ci-status-story.spec.ts` and
 `intent-ci-status-kept.spec.ts`: the revision check reports a new head for
 the shown story branch (and trunk) and the judgment is read again without
@@ -248,6 +248,14 @@ the shown story branch (and trunk) and the judgment is read again without
 Pre-condition: CI status shown for a watched branch. Trigger: the existing
 revision check finds its head moved. Result: one new judgment read; the
 checked time updates. No timed polling.
+
+Accepted proof (slice 5, 2026-11-02): `intent-ci-status-story.spec.ts` push
+test (time alone reads nothing; a push to the watched shown branch re-reads
+with four requests and a new checked time; a watched branch moving while
+`main` is shown reads no judgment) and the kept spec's "time alone and
+another branch moving" step; mutation-checked. The head followed is
+`CiTarget.head` in `dashboard/src/intentCiTarget.ts`. Final state: full
+`npm test` passed and the whole dashboard suite 1906 passed.
 
 ## Decisive premises
 

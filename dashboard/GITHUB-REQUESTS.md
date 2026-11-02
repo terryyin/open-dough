@@ -32,8 +32,9 @@ not already pinned, and, on selecting a location or folder summary, one
 contents read per contained feature file not already pinned; paths outside
 those locations are refused without a contents read. Each time Intent's
 **CI status** tab is shown, each time its judged branch changes with the
-selected story, each time a new trunk revision is observed while it is
-shown, and on each **Check again**, the trunk's judgment costs one listing of
+selected story, each time a new trunk revision is observed while the trunk
+is shown, each time the revision check finds a new head of the shown story
+branch it already watches for progress, and on each **Check again**, the trunk's judgment costs one listing of
 the configured ref's commit history (up to 30 commits) and one listing of the
 selected workflow's push runs on that ref, plus one lookup of the workflow; a
 selected story's branch costs four: its history listing, the push runs on

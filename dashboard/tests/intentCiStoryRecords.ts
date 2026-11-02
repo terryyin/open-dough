@@ -3,7 +3,8 @@
 // ./intentCiStoryBoard.ts and, beside it, the CI the judgment reads: each
 // published branch's history by name (any other name is not published,
 // GitHub's `404`), the selected check's workflow, and its push runs per
-// branch. A history can be held to answer late.
+// branch. A history can be held to answer late, and a commit pushed to a
+// branch moves its published head.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -78,6 +79,10 @@ export type StoryCi = {
   // Holds `branch`'s history listing until the returned release; `served`
   // says whether the held answer has since been given.
   hold(branch: string): { release: () => void; served: () => boolean };
+  // Pushes a commit of `sha` and `message` onto `branch`, a published branch
+  // or a new one from the trunk, moving its head to it with the board's
+  // files.
+  push(branch: string, sha: string, message: string): void;
 };
 
 // The board published for Open Dough with its CI served.
@@ -106,9 +111,12 @@ export function publishStoryCi(page: Page): StoryCi {
     ],
   };
   const held = new Map<string, Promise<void>>();
+  const branchHistories: Record<string, readonly Commit[]> = {
+    ...histories,
+  };
   const historyOf = async (branch: string): Promise<OriginAnswer> => {
     await held.get(branch);
-    const history = histories[branch];
+    const history = branchHistories[branch];
     return history === undefined
       ? notFoundAnswer()
       : headCommitListAnswer(history);
@@ -138,6 +146,17 @@ export function publishStoryCi(page: Page): StoryCi {
         }),
       );
       return { release, served: () => served };
+    },
+    push(branch, pushed, message) {
+      const history = branchHistories[branch] ?? trunkHistory;
+      branchHistories[branch] = [
+        { sha: pushed, message, parents: [history[0]?.sha ?? ""] },
+        ...history,
+      ];
+      published.moveBranch(branch, {
+        revision: pushed,
+        files: storyBoardFiles,
+      });
     },
   };
 }

@@ -5,10 +5,12 @@
 // the location tree. It always names the branch and when it was checked,
 // and shows the judgment as `./IntentCiJudgment.tsx` does. A selected story
 // without a branch to judge is named with why, and nothing is judged. It is
-// read each time it is shown, when the judged branch changes, again when a
-// new trunk revision is observed while it is shown, and on Check again; a
-// re-read of the same branch keeps the shown judgment until its answer
-// replaces it, and a judgment of another branch is never shown.
+// read each time it is shown, when the judged branch changes, again when the
+// page's revision check finds the judged branch at a new head while it is
+// shown (the head `./intentCiTarget.ts` gives the judged branch), and on
+// Check again; a re-read of the same branch keeps the shown judgment until
+// its answer replaces it, and a judgment of another branch is never shown.
+// Nothing is read on time alone.
 
 import { useEffect, useState } from "react";
 import {
@@ -61,25 +63,25 @@ function JudgedBranch({
   source,
   branch,
   story,
-  revision,
+  head,
 }: {
   readonly source: PublishedSource;
   readonly branch: string;
   readonly story: string | undefined;
-  // The page's observed trunk revision, once read.
-  readonly revision: string | undefined;
+  // The branch's head as the page last observed it, once read: undefined
+  // while the page observes none.
+  readonly head: string | undefined;
 }) {
   // The judgment shown, and the branch it was read for: a judgment of any
   // other branch than `branch` is never shown.
   const [judgment, setJudgment] = useState<Judgment | undefined>(undefined);
   const [reading, setReading] = useState(true);
   const [check, setCheck] = useState(0);
-  // The trunk head this judgment follows: the first revision read only
-  // records it, since the judgment already reads the branch's head; a later
-  // one re-reads.
-  const [followed, setFollowed] = useState(revision);
-  if (revision !== undefined && revision !== followed) {
-    setFollowed(revision);
+  // The head this judgment follows: the first one observed only records it,
+  // since the judgment already reads the branch's head; a later one re-reads.
+  const [followed, setFollowed] = useState(head);
+  if (head !== undefined && head !== followed) {
+    setFollowed(head);
     if (followed !== undefined) setCheck((n) => n + 1);
   }
 
@@ -162,7 +164,7 @@ export function IntentCiStatus({
       source={source}
       branch={target.branch}
       story={target.story}
-      revision={work?.revision}
+      head={target.head}
     />
   );
 }

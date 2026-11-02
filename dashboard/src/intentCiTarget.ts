@@ -3,18 +3,25 @@
 // selected story (`./pageStorySelection.tsx`), the branch the story-branch
 // rule finds for its Taken entry (`./storyBranch.ts`). Any other selected
 // story is named with why it has no branch to judge, and nothing is judged
-// in its place: no other branch's status stands in for a story's.
+// in its place: no other branch's status stands in for a story's. A judged
+// branch carries its head as the page last observed it, which its judgment
+// follows: the trunk's revision, or the head of a story branch the page
+// watches for progress (`./progressSource.ts`).
 
+import { watchedBranchHeads } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import { storyBranchOf } from "./storyBranch.ts";
 
 export type CiTarget =
-  // `branch` is judged; `story` names the selected story whose branch it is.
+  // `branch` is judged; `story` names the selected story whose branch it is;
+  // `head` is the branch's head as the page last observed it, undefined
+  // while it observes none.
   | {
       readonly kind: "judged";
       readonly branch: string;
       readonly story?: string;
+      readonly head: string | undefined;
     }
   // The selected story `story` has no branch to judge, for `why`.
   | { readonly kind: "gap"; readonly story: string; readonly why: string };
@@ -31,12 +38,17 @@ const unknownBranch = (story: string, because: string): CiTarget => ({
   why: `The story branch of ${story} is unknown: ${because}. No CI status is shown.`,
 });
 
-function takenTarget(entry: WorkEntry): CiTarget {
+function takenTarget(work: PublishedWork, entry: WorkEntry): CiTarget {
   const story = entry.title;
   const branch = storyBranchOf(entry.owner);
   switch (branch.kind) {
     case "branch":
-      return { kind: "judged", branch: branch.branch, story };
+      return {
+        kind: "judged",
+        branch: branch.branch,
+        story,
+        head: watchedBranchHeads(work).get(branch.branch),
+      };
     case "unknown":
       return unknownBranch(story, "its agent profile is still being read");
     case "profiles-unreadable":
@@ -77,11 +89,12 @@ export function ciTargetOf(
   selectedIdentity: string | undefined,
 ): CiTarget {
   if (selectedIdentity === undefined)
-    return { kind: "judged", branch: source.ref };
+    return { kind: "judged", branch: source.ref, head: work?.revision };
   const taken = work?.taken.find(
     (entry) => entry.identity === selectedIdentity,
   );
-  if (taken !== undefined) return takenTarget(taken);
+  if (work !== undefined && taken !== undefined)
+    return takenTarget(work, taken);
   const queued = work?.backlog.find(
     (entry) => entry.identity === selectedIdentity,
   );
