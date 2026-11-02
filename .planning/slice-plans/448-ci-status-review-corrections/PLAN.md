@@ -111,6 +111,15 @@ coverage named at `intent-ci-status-story.spec.ts` "a running head…"; all
   [AGENTS.md — Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests);
   carry it, by link or verbatim, into every delegation and repair handoff.
 
+## CI repairs
+
+- Run 41458179788 (`10f4eec`, dashboard 10/12):
+  `system-settings-feedback-maintenance.spec.ts` snapshotted the machine
+  directory before the page's published-work read retained its answers under
+  `retained-answers/`. The spec now waits with `untilPublishedWorkRead`. The
+  CI status change did not cause it. A forced-delay reproduction failed 3/3
+  before the fix and passed 5/5 after; the spec passed `--repeat-each=10`.
+
 ## Current decisions
 
 - The adapter trunk-run question stays with Terry; this correction only makes

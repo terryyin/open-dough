@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
+import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
 import { expect, test } from "./support/pageTest.ts";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 
@@ -45,6 +46,10 @@ test("feedback maintenance is off by default, saves a private host and model cho
   );
   await expect(button(page, "Turn off")).toHaveCount(0);
   expect(existsSync(file)).toBe(false);
+  // The page's published-work read retains its answers under
+  // retained-answers/ (../server/retainedAnswers.ts); the snapshot waits for
+  // it, so what the setting adds is all that differs afterwards.
+  await untilPublishedWorkRead(page);
   const before = new Map(
     readdirSync(dashboard, { withFileTypes: true }).map((entry) => [
       entry.name,
