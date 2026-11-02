@@ -1,6 +1,6 @@
 // The Intent perspective of the selected project: Purpose reads configured
 // test-source locations at the observed revision through the authenticated
-// read boundary, and Proof shows the committed observations a location's
+// read boundary, and Proof shows the last successful proof a location's
 // proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
 // each keep their own explanation; remaining locations stay browseable.
 
@@ -17,6 +17,7 @@ import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import "./intent-perspective.css";
+import "./intent-proof.css";
 import "./intent-candidates.css";
 
 function NotConfigured({ label }: { readonly label: string }) {

@@ -61,7 +61,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     await expect(summary).toContainText(featuresPath);
   });
 
-  await test.step("unselected folder name selects keeping open state; selected name toggles and keeps selection; E12 count line keeps Not observed", async () => {
+  await test.step("unselected folder name selects keeping open state; selected name toggles and keeps selection; E12 count line keeps No successful proof", async () => {
     const jobsName = intentFolderName(intent, "jobs");
     await expect(jobsName).toHaveAttribute("aria-pressed", "false");
     await jobsName.click();
@@ -76,7 +76,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
       summary.getByText("5 scenarios", { exact: true }),
     ).toBeVisible();
     await expect(summary).toContainText(
-      "5 scenarios: 2 passed, 3 not observed",
+      "5 scenarios: 2 passed, 3 without successful proof",
     );
     await expect(summary).not.toContainText("validated");
     const children = summary.getByRole("list", {
@@ -87,7 +87,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
       "batch.feature",
     );
     await expect(children.locator(":scope > li").nth(0)).toContainText(
-      "3 scenarios: 3 not observed",
+      "3 scenarios: 3 without successful proof",
     );
     await expect(children.locator(":scope > li").nth(1)).toContainText(
       "stooq_refresh.feature",

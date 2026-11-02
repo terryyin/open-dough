@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "jackson-chan",
-  "email": "jackson-chan@example.org",
-  "identity": "SEED-220#last-successful-intent-proof",
-  "mode": "story-branch",
-  "branch": "codex/last-successful-intent-proof",
-  "host": "codex"
-}

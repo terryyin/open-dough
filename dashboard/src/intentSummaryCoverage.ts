@@ -3,10 +3,13 @@
 // files only, labelled Partial while any contained file is pending or unread,
 // with contributing-file coverage for the selection and each immediate child
 // in the browser's tree order (`./reviewFileTree.ts`). An unread file is never
-// counted as passed or unobserved. A nonempty selection with no readable
+// counted as passed or without successful proof. A nonempty selection with no readable
 // files says its scenario total is unavailable, not zero.
 
-import { proofIdentity, type ProofObservation } from "./cucumberProof.ts";
+import {
+  proofIdentity,
+  type SuccessfulProofObservation,
+} from "./cucumberProof.ts";
 import { scenarioRowsOf } from "./gherkinScenarios.ts";
 import { proofScenarioCountLine } from "./proofScenarioCountLine.ts";
 import {
@@ -111,8 +114,8 @@ export function coverageOf(
 export function observationsForFiles(
   files: readonly string[],
   textOf: (path: string) => string | undefined,
-  latest: ReadonlyMap<string, ProofObservation>,
-): readonly (ProofObservation | undefined)[] {
+  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+): readonly (SuccessfulProofObservation | undefined)[] {
   return files.flatMap((path) => {
     const text = textOf(path);
     if (text === undefined) return [];
@@ -164,7 +167,7 @@ export function scenarioTotalLine(
 
 export function proofCountLineFor(
   coverage: CoverageTally,
-  observed: readonly (ProofObservation | undefined)[],
+  observed: readonly (SuccessfulProofObservation | undefined)[],
 ): string {
   return coverageLabelledLine(
     coverage,
@@ -174,8 +177,8 @@ export function proofCountLineFor(
 }
 
 export function latestByIdentity(
-  observations: readonly ProofObservation[],
-): ReadonlyMap<string, ProofObservation> {
+  observations: readonly SuccessfulProofObservation[],
+): ReadonlyMap<string, SuccessfulProofObservation> {
   return new Map(
     observations.map((observation) => [
       proofIdentity(observation),

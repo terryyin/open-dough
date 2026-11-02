@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-220_last-successful-intent-proof.json",
+      "identity": "SEED-220#last-successful-intent-proof",
+      "completedAt": "2026-11-02T05:29:10.308Z",
+      "blob": "b64ece743e82bd04df5810cfd82ba267c9140d43"
+    },
+    {
       "fileName": "SEED-218_fix-owned-calls-start-slack-hang.json",
       "identity": "SEED-218#fix-owned-calls-start-slack-hang",
       "completedAt": "2026-11-02T04:53:15.733Z",

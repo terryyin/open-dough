@@ -66,6 +66,15 @@ Former local code: DD-217. Startup does not report that the target trunk is alre
 
 Former local code: DD-219. An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
 
+### Occurrences
+- Execution: SEED-220#last-successful-intent-proof (plan 446; first implementation commit `9ef36af5788951cadde533cb869e879b69409d37`)
+  - Timestamp: unknown (2026-11-02; slice-1 independent refactor, before `9ef36af5` published)
+  - Tool: Codex
+  - Open Dough release: 0.3.81 (installed record at claim `6269a6d1`; installed skills unchanged through this execution)
+  - Evidence: coordinator history, `/root/intent_refactor` read-only hand-back cites `refactor-checks.md`'s every-diff-file 250-line instruction and seed 192 at 1,069 lines; parent retained the seed under the refactor scope gate, authorized cohesive Proof CSS/test extraction, and recorded the resolution in `9ef36af5:.planning/slice-plans/446-last-successful-intent-proof/PLAN.md`.
+  - Observed effect: one parent scope decision and agent follow-up before refactoring continued; unrelated stories were not reorganized and no human waiver was claimed.
+  - Inference: the unconditional numeric check again reached a pre-existing planning document beyond the current concept's warranted refactor; this occurrence does not assess the broader value of smaller files.
+
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
 Former local code: DD-221. [Meaning, evidence and response](docs/maintainer/findings/ODF-209.md).
@@ -526,6 +535,14 @@ and put only the new path in `ownedPaths`.
   - Evidence: preparation-failed JSON `operation: staging`, error `fatal: pathspec 'dashboard/src/IntentLocationTree.tsx' did not match any files`; retry with Tree in `stagedPaths` and Group in `ownedPaths` published `83216ac0`
   - Observed effect: one failed fresh attempt, then successful delivery after renaming staging split
   - Inference: Qualified. `--literal-pathspecs` treats a missing path as non-matching rather than a deletion to stage; callers must pre-stage the deletion or use another path list shape the preparation script accepts
+
+- Execution: SEED-220#last-successful-intent-proof (plan 446; parent implementation `9ef36af5`, producer increment `9f5121798c42a32f0118a29991facd1246739fa3`)
+  - Timestamp: unknown (2026-11-02; Pygardon slice-2 delivery, before `9f5121798` published)
+  - Tool: Codex
+  - Open Dough release: 0.3.81 (Pygardon's installed record at `30cbd42b5`; installed skills unchanged in the producer increment)
+  - Evidence: coordinator history: first `fresh` staged four removed `e2e_test/packaged/proof/*.json` files before its typecheck hook refused; after the type repair, the same `ownedPaths` retry stopped at `operation: staging`, `fatal: pathspec 'e2e_test/packaged/proof/20261102T000912Z-e21aecd3.json' did not match any files`; classifying the already staged deletions as `stagedPaths` allowed publication `9f5121798`.
+  - Observed effect: one additional staging refusal and a caller-side path-list split after the hook repair; proof deletions and the tested implementation remained preserved.
+  - Inference: the repeat depends on index state: fresh preparation had already removed these tracked paths from the index. This refines the earlier rename occurrence without asserting that every unstaged deletion fails.
 
 ## DD-392 — Source-review Slice cells need the `slice N` prefix
 

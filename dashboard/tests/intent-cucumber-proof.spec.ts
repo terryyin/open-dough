@@ -1,28 +1,36 @@
-// Intent's Proof pane reads the latest committed Cucumber proof of each
+// Intent's Proof pane reads the last successful committed Cucumber proof of each
 // scenario of a selected feature file at the observed revision
 // (../src/IntentProof.tsx, ../server/intentProofRead.ts): a Pygardon-like
 // Gherkin location declares its proof directory, a full run yesterday and a
 // focused run today each left a run file, and the same observations
 // consolidated into one file read as identical rows. Rows keep source order
-// and each its own outcome, duration, time, commit and file-version match;
-// a newer failure outranks an older pass, a retry-assisted pass is marked, a
-// scenario added since reads Not observed, and the count line includes it.
+// and each its own duration, time, commit and file-version match. A newer
+// legacy failure clears an older pass; a later pass restores proof. Retry
+// counts and outline-row independence survive, and absent successful proof
+// appears consistently in file and location summaries.
 // Proof files are read once with the locations, not per selection.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import {
+  expandIntentGroup,
+  intentLocationName,
+} from "./intentPerspectivePage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   consolidatedFiles,
+  failedOnlyFiles,
+  failedOutlineFiles,
   featurePath,
   otherFeature,
   otherPath,
   proofDirectory,
   publishedFeature,
+  restoredFiles,
   runFiles,
   settings,
+  tiedFiles,
   todayCommit,
   yesterdayCommit,
 } from "./intentCucumberProofFixtures.ts";
@@ -31,7 +39,7 @@ const now = new Date("2026-11-01T12:00:00.000Z");
 
 const header = [
   "Scenario",
-  "Latest outcome",
+  "Last successful proof",
   "Duration",
   "Observed",
   "Commit",
@@ -47,14 +55,7 @@ const expectedRows = [
     yesterdayCommit.slice(0, 7),
     "Earlier file version",
   ],
-  [
-    "Cancel a job",
-    "Failed",
-    "1m 5s",
-    "2h ago",
-    todayCommit.slice(0, 7),
-    "This file version",
-  ],
+  ["Cancel a job", "No successful proof", "", "", "", ""],
   [
     "Retry a job after <failure> Example: timeout | 3",
     "Passed after retry (2 attempts)",
@@ -71,14 +72,70 @@ const expectedRows = [
     yesterdayCommit.slice(0, 7),
     "Earlier file version",
   ],
-  ["Archive a job", "Not observed", "", "", "", ""],
+  ["Archive a job", "No successful proof", "", "", "", ""],
 ];
 
-for (const [layout, proofFiles] of [
-  ["two run files", runFiles],
-  ["one consolidated file", consolidatedFiles],
+const ordinaryCounts =
+  "5 scenarios: 2 passed, 1 passed after retry, 2 without successful proof";
+
+for (const [layout, proofFiles, expected, counts, summaryCounts] of [
+  [
+    "two legacy run files",
+    runFiles,
+    expectedRows,
+    ordinaryCounts,
+    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
+  ],
+  [
+    "one legacy consolidated file",
+    consolidatedFiles,
+    expectedRows,
+    ordinaryCounts,
+    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
+  ],
+  [
+    "a legacy pass and failure at the same finish time",
+    tiedFiles,
+    expectedRows,
+    ordinaryCounts,
+    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
+  ],
+  [
+    "a pass restored after failure",
+    restoredFiles,
+    expectedRows.map((row, at) =>
+      at === 1
+        ? [
+            "Cancel a job",
+            "Passed",
+            "700 ms",
+            "1h ago",
+            todayCommit.slice(0, 7),
+            "This file version",
+          ]
+        : row,
+    ),
+    "5 scenarios: 3 passed, 1 passed after retry, 1 without successful proof",
+    "6 scenarios: 4 passed, 1 passed after retry, 1 without successful proof",
+  ],
+  [
+    "one outline row's later failure",
+    failedOutlineFiles,
+    expectedRows.map((row, at) =>
+      at === 2 ? [row[0], "No successful proof", "", "", "", ""] : row,
+    ),
+    "5 scenarios: 2 passed, 3 without successful proof",
+    "6 scenarios: 3 passed, 3 without successful proof",
+  ],
+  [
+    "only failed legacy proof",
+    failedOnlyFiles,
+    expectedRows.map((row) => [row[0], "No successful proof", "", "", "", ""]),
+    undefined,
+    "6 scenarios: 6 without successful proof",
+  ],
 ] as const) {
-  test(`Intent Proof shows each scenario's latest committed observation from ${layout}`, async ({
+  test(`Intent shows last successful proof from ${layout}`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -104,7 +161,9 @@ for (const [layout, proofFiles] of [
     const table = proof.getByRole("table", { name: `${featurePath} proof` });
     await expect(table).toBeVisible();
     await expect(proof).toContainText(
-      "5 scenarios: 2 passed, 1 passed after retry, 1 failed, 1 not observed",
+      counts === undefined
+        ? `No successful proof recorded for this file in ${proofDirectory}.`
+        : `Last successful proof: ${counts}`,
     );
     await expect(proof).not.toContainText(/green|all passed|suite/i);
     await expect(proof).not.toContainText(/current/i);
@@ -117,7 +176,18 @@ for (const [layout, proofFiles] of [
           ),
         ),
       );
-    expect(cells).toEqual([header, ...expectedRows]);
+    expect(cells).toEqual([header, ...expected]);
+
+    await test.step("the location summary uses the same successful proof", async () => {
+      await intentLocationName(intent, "e2e_test/features").click();
+      const summary = intent.getByRole("region", { name: "Summary" });
+      await expect(summary).toContainText(
+        `Last successful proof: ${summaryCounts}`,
+      );
+      await intent
+        .getByRole("button", { name: featurePath, exact: true })
+        .click();
+    });
 
     await test.step("another feature reads its own rows; proof files are read once, not per selection", async () => {
       await intent
@@ -125,7 +195,11 @@ for (const [layout, proofFiles] of [
         .click();
       const other = proof.getByRole("table", { name: `${otherPath} proof` });
       await expect(other).toContainText("Report free space");
-      await expect(proof).toContainText("1 scenario: 1 passed");
+      await expect(proof).toContainText(
+        layout === "only failed legacy proof"
+          ? "No successful proof recorded for this file"
+          : "Last successful proof: 1 scenario: 1 passed",
+      );
       await intent
         .getByRole("button", { name: featurePath, exact: true })
         .click();

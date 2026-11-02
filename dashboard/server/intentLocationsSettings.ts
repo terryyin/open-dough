@@ -5,7 +5,7 @@
 // with the locations read.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { ProofObservation } from "../src/cucumberProof.ts";
+import type { SuccessfulProofObservation } from "../src/cucumberProof.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 
@@ -20,14 +20,14 @@ export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
 // The committed proof a Gherkin location declares (`./intentProofRead.ts`):
 // its directory, each listed feature file's Git blob sha at the revision,
-// and the latest observation of each scenario of those files; or the
+// and the last successful proof of each scenario of those files; or the
 // directory, why its proof could not be read, and the first proof file
 // (in path order) that could not be read or is not one, when one is known.
 export type IntentLocationProof =
   | {
       readonly path: string;
       readonly featureBlobs: Readonly<Record<string, string>>;
-      readonly observations: readonly ProofObservation[];
+      readonly observations: readonly SuccessfulProofObservation[];
     }
   | {
       readonly path: string;

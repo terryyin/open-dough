@@ -12,7 +12,6 @@ import {
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { proofOutcomes } from "./cucumberProof.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
@@ -21,7 +20,7 @@ const proofObservation = z.object({
   feature: z.string().min(1),
   scenario: z.string(),
   example: z.array(z.string()).optional(),
-  outcome: z.enum(proofOutcomes),
+  outcome: z.literal("passed"),
   attempts: z.number().int().min(1),
   durationMs: z.number().min(0),
   finishedAt: z.string().min(1),

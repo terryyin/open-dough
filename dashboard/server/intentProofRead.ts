@@ -2,14 +2,14 @@
 // same pinned revision as its feature files for the Intent locations read
 // (`./intentLocationsRead.ts`): one recursive Git tree of the proof
 // directory (`./ghTrees.ts`), each `.json` file's text by its blob sha
-// (`./pinnedTexts.ts`), and the latest observation of each scenario across
+// (`./pinnedTexts.ts`), and the last successful proof of each scenario across
 // every file (`../src/cucumberProof.ts`). Rate limits still fail the whole
 // read; any other failed read or malformed proof file leaves the location's
 // Purpose readable and reports which, naming the first such file.
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import {
-  latestObservations,
+  latestSuccessfulObservations,
   parseProofFile,
   type ProofObservation,
 } from "../src/cucumberProof.ts";
@@ -98,7 +98,7 @@ export async function locationProofAt(
     featureBlobs: Object.fromEntries(
       features.map((feature) => [feature.path, feature.sha]),
     ),
-    observations: latestObservations(
+    observations: latestSuccessfulObservations(
       read.observations.filter((observation) =>
         listed.has(observation.feature),
       ),

@@ -1,0 +1,32 @@
+/* Proof rows (./IntentProof.tsx) and shared summary count lines: one row per
+   scenario or outline example, with its last successful proof, time, commit
+   and file version, scrolling with the reading pane. */
+.intent-proof-counts {
+  margin: 0 0 var(--space-2);
+}
+
+.intent-summary-children .intent-summary-scenarios,
+.intent-summary-children .intent-proof-counts {
+  margin: var(--space-1) 0 0;
+}
+
+.intent-proof-rows {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.intent-proof-rows th,
+.intent-proof-rows td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.intent-proof-rows tbody th {
+  font-weight: 400;
+}
+
+.intent-proof-example {
+  color: var(--quiet);
+}

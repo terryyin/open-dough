@@ -4,9 +4,9 @@
 // ../server/intentProofRead.ts): a Doughnut-like project without a declared
 // proof directory names the installed reference to follow; a Pygardon-like
 // project's absent proof directory, or proof of its other feature only, says
-// nothing has been observed yet; a truncated proof file and a proof file
+// no successful proof is recorded; a truncated proof file and a proof file
 // whose read failed each read as a read failure with a Retry that reads the
-// proof again, never as Not observed. Purpose stays readable in every case.
+// proof again, distinct from No successful proof. Purpose stays readable in every case.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -90,7 +90,9 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
     "Proof is not recorded for this project. To record it, follow dough-test-optimization/references/cucumber-proof.md in this project’s installed Open Dough skills.",
   );
   await expect(proof.getByRole("alert")).toHaveCount(0);
-  await expect(proof).not.toContainText(/not observed|could not be read/i);
+  await expect(proof).not.toContainText(
+    /no successful proof|could not be read/i,
+  );
 
   await test.step("a non-Gherkin source does not offer Cucumber adoption", async () => {
     await expandIntentGroup(intent, "scripts");
@@ -111,7 +113,7 @@ for (const [situation, proofFiles] of [
   ["an absent proof directory", {}],
   ["proof of the other feature only", otherFeatureOnlyFiles],
 ] as const) {
-  test(`a declared proof directory with nothing for this file says nothing is observed yet: ${situation}`, async ({
+  test(`a declared proof directory with nothing for this file says no successful proof is recorded: ${situation}`, async ({
     page,
   }) => {
     await publishIntentProject(page, pygardon, settings, {
@@ -120,7 +122,7 @@ for (const [situation, proofFiles] of [
     });
     const { proof } = await selectJobsFeature(page);
     await expect(proof).toContainText(
-      `Nothing has been observed yet for this file in ${proofDirectory}.`,
+      `No successful proof recorded for this file in ${proofDirectory}.`,
     );
     await expect(
       proof.getByRole("table", { name: `${featurePath} proof` }),
@@ -143,7 +145,7 @@ test("Ex 8: a truncated proof file reads as a read failure with retry while Purp
   await expect(alert).toContainText(
     `Proof could not be read: ${truncatedPath} is not a valid proof file.`,
   );
-  await expect(proof).not.toContainText(/not observed|not recorded/i);
+  await expect(proof).not.toContainText(/no successful proof|not recorded/i);
   await expect(proof.getByRole("table")).toHaveCount(0);
   const before = locationsReads();
   await alert.getByRole("button", { name: "Retry" }).click();
@@ -174,7 +176,7 @@ test("a failed proof file read says so; Retry reads the proof again and shows it
   await expect(alert).toContainText(
     `Proof could not be read: ${truncatedPath} could not be read at this revision.`,
   );
-  await expect(proof).not.toContainText(/not observed|not recorded/i);
+  await expect(proof).not.toContainText(/no successful proof|not recorded/i);
 
   // The read failure clears: GitHub answers the same revision's file now.
   const requests = await publishIntentProject(page, pygardon, settings, {
@@ -183,7 +185,7 @@ test("a failed proof file read says so; Retry reads the proof again and shows it
   });
   await alert.getByRole("button", { name: "Retry" }).click();
   await expect(proof).toContainText(
-    "5 scenarios: 2 passed, 1 passed after retry, 1 failed, 1 not observed",
+    "5 scenarios: 2 passed, 1 passed after retry, 2 without successful proof",
   );
   await expect(proof.getByRole("alert")).toHaveCount(0);
   await expect(purpose).toContainText("Feature: Jobs");
