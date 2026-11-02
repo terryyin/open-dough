@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "YeongSheng-chan",
-  "email": "yeongsheng-chan@example.org",
-  "identity": "SEED-216#optimization-candidates-tab",
-  "mode": "story-branch",
-  "branch": "claude/review-optimization-candidates-in-a-separate-int",
-  "host": "claude"
-}

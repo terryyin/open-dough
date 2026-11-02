@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-216#optimization-candidates-tab",
+  "title": "Review optimization candidates in a separate Intent tab",
+  "completedAt": "2026-11-02T03:33:05.564Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "claude"
+}

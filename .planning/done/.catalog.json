@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-216_optimization-candidates-tab.json",
+      "identity": "SEED-216#optimization-candidates-tab",
+      "completedAt": "2026-11-02T03:33:05.564Z",
+      "blob": "bf59f7fe2f5e11183a2e530acf39bf99b72eb05b"
+    },
+    {
       "fileName": "SEED-192_review-test-optimization-candidates.json",
       "identity": "SEED-192#review-test-optimization-candidates",
       "completedAt": "2026-11-01T23:25:56.555Z",
