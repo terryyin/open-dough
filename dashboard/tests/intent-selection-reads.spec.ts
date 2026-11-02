@@ -8,7 +8,6 @@
 // selected feature, its Purpose or its Proof, while a new published revision
 // reads them again and starts with nothing selected.
 
-import type { Page, Route } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
@@ -18,7 +17,7 @@ import {
   intentGroupToggle,
   intentModeTab,
 } from "./intentPerspectivePage.ts";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { holdAuthenticatedReadsOf } from "./holdAuthenticatedReads.ts";
 import {
   pausePageClock,
   passTimeUntilCheckedAfterSettled,
@@ -37,33 +36,12 @@ import {
 } from "./intentCucumberProofFixtures.ts";
 
 const features = { [featurePath]: publishedFeature, [otherPath]: otherFeature };
-const readRoute = `**${authenticatedReadEndpoint}?*`;
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
 test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
-
-// Holds the page's reads of `path` until the returned release.
-async function holdReadsOf(page: Page, path: string) {
-  let release: () => void = () => undefined;
-  const released = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  releases.push(release);
-  const held: Route[] = [];
-  await page.route(readRoute, async (route) => {
-    if (new URL(route.request().url()).searchParams.get("path") !== path) {
-      await route.fallback();
-      return;
-    }
-    held.push(route);
-    await released;
-    await route.fallback();
-  });
-  return { held: () => held.length, release };
-}
 
 test("selecting another feature never shows the previous feature's text in Purpose or Proof", async ({
   page,
@@ -111,7 +89,7 @@ test("selecting another feature never shows the previous feature's text in Purpo
     });
   }, featurePath);
 
-  const jobsRead = await holdReadsOf(page, featurePath);
+  const jobsRead = await holdAuthenticatedReadsOf(page, featurePath, releases);
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   await expect.poll(jobsRead.held).toBe(1);
   await expect(purpose).toContainText(`Reading ${featurePath}…`);
@@ -146,7 +124,11 @@ test("a feature selected while startup detail completes stays selected with its 
   });
   // The queued story's Goal is part of the published work's detail; holding
   // it keeps startup unfinished while the developer picks a feature.
-  const detail = await holdReadsOf(page, pygardon.queuedPath);
+  const detail = await holdAuthenticatedReadsOf(
+    page,
+    pygardon.queuedPath,
+    releases,
+  );
   await page.goto("/?project=pygardon&perspective=intent");
   const { intent } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
