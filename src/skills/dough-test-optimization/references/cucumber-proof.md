@@ -1,11 +1,13 @@
 # Cucumber proof
 
-Record the latest observed result of every Cucumber scenario as committed
-proof, so a reader of this project's feature files sees, beside each
-scenario, when it was last observed, its outcome, and the commit and file
-version it was observed on. Open Dough's Intent reads these files from the
-project's published revision. Every ordinary run records the scenarios it
-ran; nobody runs the whole suite only to collect proof.
+Record only passing Cucumber scenarios as committed proof, so a reader of
+this project's feature files sees each scenario's last successful proof,
+including when it passed, its attempts, and the commit and file version it
+was observed on. A real unsuccessful final attempt clears that scenario's
+earlier proof. Open Dough's Intent reads these files from the project's
+published revision. Every ordinary run maintains proof for the scenarios it
+ran; nobody runs the whole suite only to collect proof. A passing scenario
+records proof even when another scenario makes the overall run fail.
 
 These rules are for this project's Cucumber.js setup. Implement them in this
 project's own code; Open Dough ships no recorder or consolidation tool.
@@ -59,23 +61,35 @@ project's own code; Open Dough ships no recorder or consolidation tool.
   run through the same configuration, such as throwaway features this
   project's own tests run, are not recorded.
 
-## One file per run
+## Maintain successful proof
 
 - Each run writes its own file in the proof directory, named uniquely, for
   example `<UTC start time>-<random suffix>.json`
-  (`20261101T095900Z-3f9a1c2e.json`). Never reuse a name, and never write to
-  another run's file. Concurrent worktrees and repeated runs then merge
-  without conflict.
-- After every finished scenario, rewrite the whole file atomically: write it
+  (`20261101T095900Z-3f9a1c2e.json`). Never reuse a name.
+- After every passing scenario, rewrite the run's file atomically: write it
   under a temporary name in the same directory that does not end in `.json`,
-  then rename it over the run's file. An interrupted run keeps what finished.
-  A run that finishes no scenario writes no file.
+  then rename it over the run's file. An interrupted run keeps its completed
+  successful proof. A run with no successful scenario writes no run file.
 - A scenario has finished when its last attempt has finished, that is, when
-  no retry follows. Record it once, then.
+  no retry follows. Record a final pass once, then, preserving all attempts
+  and their total duration. Intermediate retry failures do not clear proof.
+- For an executed scenario whose final result is unsuccessful, remove its
+  earlier observations from every proof file in this checkout, including the
+  current run's file. Match by `feature`, `scenario` and `example`; preserve
+  unrelated identities and observations newer than the unsuccessful attempt.
+  Rewrite changed files atomically through a non-JSON temporary file and
+  delete files made empty. Persist no failed observation or failure marker.
+  A later pass records successful proof again.
+- Serialize proof mutations by concurrent runs sharing this checkout, so
+  cleanup cannot lose another scenario's proof or an in-memory run snapshot
+  restore a removed success. Separate worktrees retain separate proof
+  directories; ordinary Git reconciliation must preserve identity cleanup.
+  Unique run filenames alone do not make cleanup merge without conflict.
 - Record only attempts that ran. Under `--dry-run`, and for scenarios that
   `--fail-fast` stops after an earlier failure, Cucumber reports every step,
   hooks included, as skipped without running it; record nothing for such an
-  attempt.
+  attempt, and do not clear its earlier proof. An executed unsuccessful
+  attempt, including hooks or executed pending/undefined steps, clears proof.
 - Every `.json` file in the proof directory, or in any directory below it, is
   read as proof. Keep nothing else there with that extension. One file that is
   not valid proof leaves the whole directory's proof unreadable until it is
@@ -115,11 +129,9 @@ Each observation has these fields:
 - `example`: outline rows only. The example row's cell values in column
   order, as Gherkin parses them: trimmed, with escaped pipes, backslashes and
   newlines unescaped. Omit it for a plain scenario.
-- `outcome`: status of the last attempt, lowercase: `passed`, `failed`,
-  `skipped`, `pending`, `undefined`, `ambiguous` or `unknown`. An attempt's
-  status is its worst step status, hooks included, in this order from worst:
-  `failed`, `ambiguous`, `undefined`, `pending`, `skipped`, `passed`,
-  `unknown`.
+- `outcome`: always `passed`. Determine the final attempt's result from all
+  steps and hooks; any unsuccessful executed result clears earlier proof
+  instead of recording an observation.
 - `attempts`: attempts made, retries included; `1` when the scenario was not
   retried.
 - `durationMs`: milliseconds spent across all attempts.
@@ -138,23 +150,34 @@ step details or other attachments.
 
 ## Reading proof
 
-The latest observation of a scenario, by `finishedAt`, wins across all files,
-whatever its outcome. Scenarios a run did not execute keep their earlier
-observations from other files. A matching `featureBlob` shows only that the
-scenario's Gherkin is unchanged since it was observed, not that the product or
-its steps are.
+The latest successful observation of a scenario, by `finishedAt`, is its
+last successful proof. Scenarios a run did not execute keep their earlier
+proof. When reading older version-1 files containing unsuccessful outcomes,
+first select each identity's latest observation across every file, then keep
+only passes: a later unsuccessful observation invalidates an older success.
+An unsuccessful result also clears a success with the same `finishedAt`,
+independently of file order.
+Do not filter unsuccessful observations before selecting the latest result.
+No retained success means **No successful proof**. Missing or unreadable
+proof remains a distinct explanation. A matching `featureBlob` shows only
+that the scenario's Gherkin is unchanged since it passed, not that the product
+or its steps are. Last successful proof does not assert current product health.
 
 ## Consolidating, optionally
 
 When the directory holds many files, consolidate: read every proof file, keep
-the latest observation of each identity, write them as a new uniquely named
-file in the same format, then delete the files consumed, and commit the
-change together. Readers see the same latest observations before and after;
+the latest observation of each identity before retaining only passes, write
+those successes as a new uniquely named file in the same format, then delete
+the files consumed, and commit the change together. If no success remains,
+delete the consumed files without creating an empty replacement. Use this
+same latest-first cleanup when adopting the contract over older proof files.
+Readers see the same successful proof before and after;
 nothing distinguishes a consolidated file from a run file. A setup that
 already keeps a single latest snapshot need not consolidate.
 
 ## Commit proof
 
-Commit proof files with the ordinary work they observed. Only committed proof
+Commit proof files and cleanup deletions with the ordinary work they observed.
+Only committed proof
 is proof; files written by runs that are never committed, such as in CI, do
 not count.

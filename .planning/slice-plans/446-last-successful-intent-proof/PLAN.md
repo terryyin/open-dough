@@ -119,7 +119,7 @@ evidence: `/tmp/nix-shell.wEuEL8/donut-cucumber-proof-runner-Rg5sYw`.
 
 ### 1. Read last successful proof throughout Intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the published-revision Intent journeys above to assert the new
 heading/absence wording, latest-first legacy invalidation, preserved retry
 attempts and consistent file/folder summaries. Include a later restored pass
@@ -183,4 +183,38 @@ Open Dough; honor a producer repository's supplied budgets at that boundary.
 
 ## Learnings
 
-None yet beyond the inspected source and observed baseline recorded above.
+### Slice 1 accepted proof
+
+Inspected `latestSuccessfulObservations`, `locationProofAt`, the passing-only
+authenticated response schema, file table and shared summary count line. The
+published fixtures supply input proof rather than the product outcome;
+`intent-cucumber-proof.spec.ts` observes the complete table (retry attempts,
+elapsed time, commit and file version) and location counts. The folder journey
+observes the same failed identity cleared in folder/child/file counts.
+
+- `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts dashboard/tests/intent-entry-folder-summaries.spec.ts dashboard/tests/intent-entry-folder-summaries-folders.spec.ts dashboard/tests/intent-entry-folder-summary-partial.spec.ts dashboard/tests/intent-entry-folder-summary-explanations.spec.ts dashboard/tests/intent-selection-reads.spec.ts` — 19 passed (15.8s).
+- After passing-only response schema: `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/authenticated-read-intent-proof-retained.spec.ts dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-entry-folder-summaries-folders.spec.ts` — 8 passed (9.4s).
+- After equal-time conservative invalidation: `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts` — 11 passed (10.9s).
+- `npm run typecheck:dashboard` — passed. No test failures.
+
+The consumer trace at `/tmp/intent-success-consumer-trace.md` identifies 71
+consumers with dispositions. Current seed 192 and plan 442 expectations were
+aligned by the parent; historical baseline commands retain their provenance.
+Installed managed copies are excluded by AGENTS.md's source-authoring rule.
+Guidance behavior review walked two passes → one final failure → retry-assisted
+recovery: identity cleanup, final retry counts and untouched non-runs match the
+instruction. Source-only commitments C4–C7 are observed; producer commitments
+remain owned by slices 2–3.
+
+Independent refactor completed: success-only types now continue through the
+reader's answer, rendering and counts, while legacy file parsing remains broad.
+Proof CSS moved intact to `intent-proof.css`; the folder-proof journey moved
+intact to `intent-entry-folder-proof.spec.ts`. Inspected those imports and
+observing assertions; no behavior gap remains. Existing seed 192 stayed intact
+because reorganizing unrelated active stories is outside this change's scope.
+
+Replacement proof after these affected-boundary moves:
+`env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-cucumber-proof.spec.ts dashboard/tests/intent-cucumber-proof-absent.spec.ts dashboard/tests/intent-entry-folder-summaries.spec.ts dashboard/tests/intent-entry-folder-summaries-folders.spec.ts dashboard/tests/intent-entry-folder-proof.spec.ts dashboard/tests/intent-entry-folder-summary-partial.spec.ts dashboard/tests/intent-entry-folder-summary-explanations.spec.ts dashboard/tests/intent-selection-reads.spec.ts dashboard/tests/boundary/authenticated-read-intent-proof-retained.spec.ts`
+— 21 passed (18.2s). `npm run typecheck:dashboard` and `git diff --check`
+passed. The refactor consumer trace at
+`/tmp/intent-success-refactor-consumer-trace.md` has complete dispositions.

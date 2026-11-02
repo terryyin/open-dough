@@ -1,20 +1,23 @@
 // Intent's Proof pane for one selected feature file (`./IntentBrowser.tsx`):
 // every scenario and outline row the published text runs, in source order
-// (`./gherkinScenarios.ts`), each with its latest committed observation
+// (`./gherkinScenarios.ts`), each with its last successful committed proof
 // (`./cucumberProof.ts`) and that observation's own time, commit, and
 // whether the feature file's Git blob then was the one published now. A
-// count line summarizes the latest outcomes, scenarios not observed
-// included; it is never a suite verdict. A file with nothing observed yet,
+// count line summarizes successful proof, scenarios without successful proof
+// included; it is never a suite verdict. A file without successful proof,
 // a project that records no proof, and proof that could not be read (with
 // retry) each say so differently (`./IntentProofAbsence.tsx`).
 
-import { proofIdentity, type ProofObservation } from "./cucumberProof.ts";
+import {
+  proofIdentity,
+  type SuccessfulProofObservation,
+} from "./cucumberProof.ts";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import {
-  notObserved,
-  outcomeWords,
+  noSuccessfulProof,
+  passed,
   passedAfterRetry,
   proofScenarioCountLine,
 } from "./proofScenarioCountLine.ts";
@@ -22,12 +25,10 @@ import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 
 // The outcome a row reads, with a retry-assisted pass named as such.
-function outcomeOf({ outcome, attempts }: ProofObservation): string {
-  if (attempts === 1) return outcomeWords[outcome];
+function outcomeOf({ attempts }: SuccessfulProofObservation): string {
+  if (attempts === 1) return passed;
   const tries = `${String(attempts)} attempts`;
-  return outcome === "passed"
-    ? `${passedAfterRetry} (${tries})`
-    : `${outcomeWords[outcome]} (${tries})`;
+  return `${passedAfterRetry} (${tries})`;
 }
 
 function durationWords(ms: number): string {
@@ -56,7 +57,7 @@ function ObservedCells({
   publishedBlob,
   now,
 }: {
-  readonly observation: ProofObservation;
+  readonly observation: SuccessfulProofObservation;
   readonly publishedBlob: string | undefined;
   readonly now: number;
 }) {
@@ -107,7 +108,7 @@ function ProofRows({
       <p className="intent-proof-counts">
         {latest.size === 0 ? (
           <>
-            Nothing has been observed yet for this file in{" "}
+            No successful proof recorded for this file in{" "}
             <code>{proof.path}</code>.
           </>
         ) : (
@@ -118,7 +119,7 @@ function ProofRows({
         <thead>
           <tr>
             <th scope="col">Scenario</th>
-            <th scope="col">Latest outcome</th>
+            <th scope="col">Last successful proof</th>
             <th scope="col">Duration</th>
             <th scope="col">Observed</th>
             <th scope="col">Commit</th>
@@ -133,7 +134,7 @@ function ProofRows({
               </th>
               {observation === undefined ? (
                 <>
-                  <td>{notObserved}</td>
+                  <td>{noSuccessfulProof}</td>
                   <td />
                   <td />
                   <td />

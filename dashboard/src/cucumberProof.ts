@@ -1,14 +1,14 @@
 // Cucumber proof files as the reference
 // (`../../src/skills/dough-test-optimization/references/cucumber-proof.md`)
 // defines them: parse one committed run or consolidated file, and reduce any
-// number of them to the latest observation of each scenario or outline row.
+// number of them to the last successful proof of each scenario or outline row.
 // Run files and consolidated files read the same way. Shared by the pinned
 // Intent read (`../server/intentProofRead.ts`), its answer's schema
 // (`./authenticatedIntentRead.ts`), and the Proof pane (`./IntentProof.tsx`).
 
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 
-export const proofOutcomes = [
+const proofOutcomes = [
   "passed",
   "failed",
   "skipped",
@@ -34,6 +34,11 @@ export type ProofObservation = {
   readonly finishedAt: string;
   readonly commit: string;
   readonly featureBlob: string;
+};
+
+// The retained proof Intent publishes after reducing legacy observations.
+export type SuccessfulProofObservation = ProofObservation & {
+  readonly outcome: "passed";
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -124,21 +129,29 @@ export function proofIdentity({
   return JSON.stringify([feature, scenario, example ?? null]);
 }
 
-// The latest observation of each identity, by finish time, whatever its
-// outcome. Of equal finish times the one met first is kept.
-export function latestObservations(
+// Read legacy outcomes latest-first, then expose only successful proof. A
+// later unsuccessful result clears the older success instead of reviving it.
+// At equal finish times an unsuccessful result clears the success regardless
+// of file ordering.
+export function latestSuccessfulObservations(
   observations: Iterable<ProofObservation>,
-): ProofObservation[] {
+): SuccessfulProofObservation[] {
   const latest = new Map<string, ProofObservation>();
   for (const observation of observations) {
     const identity = proofIdentity(observation);
     const kept = latest.get(identity);
     if (
       kept === undefined ||
-      Date.parse(observation.finishedAt) > Date.parse(kept.finishedAt)
+      Date.parse(observation.finishedAt) > Date.parse(kept.finishedAt) ||
+      (Date.parse(observation.finishedAt) === Date.parse(kept.finishedAt) &&
+        kept.outcome === "passed" &&
+        observation.outcome !== "passed")
     ) {
       latest.set(identity, observation);
     }
   }
-  return [...latest.values()];
+  return [...latest.values()].filter(
+    (observation): observation is SuccessfulProofObservation =>
+      observation.outcome === "passed",
+  );
 }

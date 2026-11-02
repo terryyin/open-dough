@@ -60,7 +60,7 @@ test("Gherkin summary Partial progress, unread retry, and unavailable totals", a
       name: "Summary by folder and file",
     });
     await expect(children.locator(":scope > li").nth(0)).toContainText(
-      "5 scenarios: 2 passed, 3 not observed",
+      "5 scenarios: 2 passed, 3 without successful proof",
     );
     await expect(children.locator(":scope > li").nth(0)).not.toContainText(
       "Partial:",
@@ -125,7 +125,7 @@ test("Gherkin summary Partial progress, unread retry, and unavailable totals", a
     ).toBeVisible();
     await expect(summary).not.toContainText("Partial:");
     await expect(summary).toContainText(
-      "9 scenarios: 2 passed, 7 not observed",
+      "9 scenarios: 2 passed, 7 without successful proof",
     );
     const afterRetry = requests.filter((path) => path === stooqPath).length;
     expect(afterRetry).toBe(beforeRetry + 1);

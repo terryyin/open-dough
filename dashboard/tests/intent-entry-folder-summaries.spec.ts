@@ -109,14 +109,14 @@ test("Intent location caret/name select a summary without opening on first name 
     await expect(summary).toContainText(packagedPath);
   });
 
-  await test.step("Gherkin location summary: scenario total, aggregate count line with Not observed, child breakdown", async () => {
+  await test.step("Gherkin location summary: scenario total, aggregate count line with No successful proof, child breakdown", async () => {
     await intentLocationName(intent, featuresPath).click();
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(
       summary.getByText("9 scenarios", { exact: true }),
     ).toBeVisible();
     await expect(summary).toContainText(
-      "9 scenarios: 2 passed, 7 not observed",
+      "9 scenarios: 2 passed, 7 without successful proof",
     );
     const children = summary.getByRole("list", {
       name: "Summary by folder and file",
@@ -124,19 +124,19 @@ test("Intent location caret/name select a summary without opening on first name 
     await expect(children.locator(":scope > li")).toHaveCount(3);
     await expect(children.locator(":scope > li").nth(0)).toContainText("jobs");
     await expect(children.locator(":scope > li").nth(0)).toContainText(
-      "5 scenarios: 2 passed, 3 not observed",
+      "5 scenarios: 2 passed, 3 without successful proof",
     );
     await expect(children.locator(":scope > li").nth(1)).toContainText(
       "reports",
     );
     await expect(children.locator(":scope > li").nth(1)).toContainText(
-      "1 scenario: 1 not observed",
+      "1 scenario: 1 without successful proof",
     );
     await expect(children.locator(":scope > li").nth(2)).toContainText(
       "disk_space.feature",
     );
     await expect(children.locator(":scope > li").nth(2)).toContainText(
-      "3 scenarios: 3 not observed",
+      "3 scenarios: 3 without successful proof",
     );
   });
 });

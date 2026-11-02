@@ -6,7 +6,7 @@
 ## Goal and scope
 
 A Doughnut developer reviewing a selected feature in Intent sees each scenario
-and outline row's latest committed Cypress-Cucumber observation beside Purpose.
+and outline row's last successful committed Cypress-Cucumber proof beside Purpose.
 Doughnut's ordinary Cypress runs record the compact Cucumber proof format;
 Intent reads it the same way it already reads Pygardon.
 
@@ -23,7 +23,7 @@ by generated IDs; never present missing/empty/unreadable proof as a pass.
 PFE:
 
 - **Intent reader (reuse).** Open Dough already parses version-1 compact proof,
-  reduces to latest observations, and shows them in Intent
+  reduces to last successful proof, and shows it in Intent
   (`dashboard/src/cucumberProof.ts`, `dashboard/server/intentProofRead.ts`,
   `dashboard/src/IntentProof.tsx`,
   [Cucumber proof reference](../../../src/skills/dough-test-optimization/references/cucumber-proof.md)).
@@ -66,9 +66,14 @@ One mapping from a Cypress Cucumber run's Messages to compact observations:
 - identity = feature path from repo root + Gherkin scenario name + outline
   example cells when present;
 - record only the last finished attempt that actually ran
-  (`willBeRetried` false; skip dry/filtered non-runs);
+  (`willBeRetried` false; skip dry/filtered non-runs): a pass records proof
+  with all retry attempts, while an unsuccessful final attempt removes that
+  identity's earlier proof without recording a failure;
 - one uniquely named version-1 file per run under the location's `proof`
-  directory; latest `finishedAt` wins across files in Intent.
+  directory; latest successful `finishedAt` wins across files in Intent.
+  For legacy files, select latest results before retaining passes. Terry's
+  2026-11-02 amendment owns this meaning; historical baseline observations below
+  retain their provenance.
 
 ## Decisive premises
 
@@ -84,9 +89,9 @@ One mapping from a Cypress Cucumber run's Messages to compact observations:
 
 | Story example | Observable signal |
 | --- | --- |
-| 1 ordinary / focused Cypress selection records without changing exit or diagnostics | Doughnut: same command exit and stdout/stderr shape with recorder on vs off; one new compact `.json` under the declared proof directory listing only the scenarios that ran |
-| 2 Intent at a published revision with those observations | Intent on project Doughnut: selected feature shows those scenarios' latest outcomes, times, commits, file-version match; an unobserved scenario reads Not observed |
-| 3 later focused run replaces only its cases | Second run file; Intent shows the new outcome for the re-run scenario and keeps the earlier observation for the other |
+| 1 ordinary / focused Cypress selection records without changing exit or diagnostics | Doughnut: same command exit and stdout/stderr shape with recorder on vs off; successful scenarios produce one new compact `.json` under the declared proof directory |
+| 2 Intent at a published revision with those observations | Intent on project Doughnut: selected feature shows last successful proof, times, commits, file-version match; a scenario without success reads No successful proof |
+| 3 later focused run replaces only its cases | A pass records new successful proof; a final failure clears that identity's earlier proof. Intent keeps the other scenario's earlier success |
 | 4 outline row | Observation and Intent row use Gherkin outline name + example cells |
 | 5 retry-assisted pass | Intent shows passed-after-retry with attempt count |
 | 6 no `proof` declaration | Intent absent-proof copy naming the Cucumber proof reference (already covered by Open Dough absent journey; reconfirm after Doughnut config change only if the undeclared path regresses) |

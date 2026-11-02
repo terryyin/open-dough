@@ -137,6 +137,44 @@ export const consolidatedFiles = {
   ]),
 };
 
+export const restoredFiles = {
+  ...runFiles,
+  [`${proofDirectory}/20261101T110000Z-restored.json`]: proofFile([
+    observed("Cancel a job", {
+      outcome: "passed",
+      durationMs: 700,
+      finishedAt: "2026-11-01T11:00:00.000Z",
+      commit: todayCommit,
+      featureBlob: publishedBlob,
+    }),
+  ]),
+};
+
+export const tiedFiles = {
+  ...runFiles,
+  [`${proofDirectory}/20261101T090000Z-tied-pass.json`]: proofFile([
+    { ...yesterdayRun[1], finishedAt: "2026-11-01T10:00:00.000Z" },
+  ]),
+};
+
+export const failedOutlineFiles = {
+  ...runFiles,
+  [`${proofDirectory}/20261101T110000Z-outline.json`]: proofFile([
+    observed("Retry a job after <failure>", {
+      example: ["timeout", "3"],
+      outcome: "failed",
+      durationMs: 300,
+      finishedAt: "2026-11-01T11:00:00.000Z",
+      commit: todayCommit,
+      featureBlob: publishedBlob,
+    }),
+  ]),
+};
+
+export const failedOnlyFiles = {
+  [todayRunPath]: proofFile([todayRun[0] as Observation]),
+};
+
 // A focused run of the other feature only.
 export const otherFeatureOnlyFiles = {
   [`${proofDirectory}/20261101T080000Z-worktree-c-1a2b.json`]: proofFile([

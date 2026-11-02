@@ -25,27 +25,31 @@ holds. For Gherkin it also reads each contained feature's published text at
 the observed revision (with bounded concurrency and "N of M files read"
 progress), counts scenarios and outline rows from successfully read files,
 and, when the location declares proof, shows one aggregate count line over
-those rows (never-observed counted as _Not observed_) plus a breakdown by
-immediate child in the browser's order. Scenario totals and Proof count lines
+those rows (rows without successful proof counted explicitly) plus a breakdown
+by immediate child in the browser's order. Scenario totals and Proof count lines
 are labelled _Partial_ with contributing-file coverage while any contained
 file is still reading or could not be read, for the selection and each
 affected child; fully read siblings stay complete. An unread file is named
 with a retry that reads only the failed files, and is never counted as
-passed or unobserved. A nonempty selection with no readable files says its
-scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,
+passed or without successful proof. A nonempty selection with no readable files
+says its scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,
 and unusable locations reuse the same Proof-absent or location explanations
 as a file; without declared proof a Gherkin summary still gives the
 statistics it can. When the location also declares a `proof` directory of
 committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
 a selected file's Proof lists the file's scenarios and outline rows in source
-order, each with its latest observation's outcome (retry-assisted passes
-marked), duration, time since, commit, and whether it was observed on this
-file version, or _Not observed_, under a count line of those latest
-outcomes; proof files are read once with the locations at that revision. A
-file with nothing observed yet in that directory says so. A proof file that
-could not be read, or is not valid proof, is reported by name as a read
-failure with retry, never as _Not observed_, and the retry reads the
+order, each with its **Last successful proof** (retry-assisted passes marked
+with attempt counts), duration, time since, commit, and whether it was observed
+on this file version, or _No successful proof_, under a count line of those
+successful observations. A final unsuccessful scenario clears its earlier
+proof; a later pass restores it, while unexecuted scenarios keep their proof.
+Legacy proof is reduced to the latest result before retaining successes, so
+an older pass cannot reappear behind a later failure. Proof files are read
+once with the locations at that revision. A file with no successful proof
+in that directory says so. A proof file that could not be read, or is not valid
+proof, is reported by name as a read
+failure with retry, never as _No successful proof_, and the retry reads the
 locations again without changing the selection or Purpose. Without a
 declared directory, Proof says it is not recorded for the project and names
 the installed reference to follow; other kinds say Proof is read only for

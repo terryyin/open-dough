@@ -19,10 +19,10 @@ after failure.
 | C1 | Record proof only for scenarios that pass. | slice 3 | |
 | C2 | A passing scenario can produce proof even when another scenario fails and the overall run fails. | slice 3 | |
 | C3 | Preserve retry/attempt counts for recorded passing proof. | slice 3 | |
-| C4 | Retain the “Passed after retry” distinction when applicable. | slice 1 | |
-| C5 | Present proof as the scenario’s last successful demonstration. | slice 1 | |
-| C6 | Show when that successful demonstration occurred. | slice 1 | |
-| C7 | Show the revision associated with that successful demonstration. | slice 1 | |
+| C4 | Retain the “Passed after retry” distinction when applicable. | slice 1 | observed: intent-cucumber-proof.spec.ts expectedRows asserts Passed after retry (2 attempts) through published proof |
+| C5 | Present proof as the scenario’s last successful demonstration. | slice 1 | observed: IntentProof.tsx header and proofScenarioCountLine.ts; published file/location/folder journey assertions |
+| C6 | Show when that successful demonstration occurred. | slice 1 | observed: intent-cucumber-proof.spec.ts fixed clock and expectedRows time cells |
+| C7 | Show the revision associated with that successful demonstration. | slice 1 | observed: intent-cucumber-proof.spec.ts expectedRows commit and feature-version cells |
 | C8 | When a scenario fails, remove its earlier proof, if any. | slice 3 | |
 
 ## Qualifications and examples
@@ -40,6 +40,14 @@ final outcome, preserving successful-after-retry proof.
 
 ## Acceptance observations
 
-Pending implementation. Producer commitments span both recorders: slice 2
+Slice 1 compares published legacy proof through the real reader and response
+schema: later failure and equal-time conflicting failure yield no success;
+later success restores its own timestamp/revision; one failed outline row
+does not clear its sibling. File/location/folder assertions agree. Absence,
+malformed proof and read failure remain distinct. Focused commands and terminal
+results are retained in PLAN.md. Parent aligned seed 192 and plan 442's current
+expectations with Terry's amendment, preserving dated baseline provenance.
+
+Producer commitments span both recorders: slice 2
 proves Pygardon and slice 3 proves Doughnut; slice 3's acceptance must retain
 and compare both observations before closing those whole-product commitments.
