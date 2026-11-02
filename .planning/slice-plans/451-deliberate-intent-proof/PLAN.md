@@ -88,8 +88,8 @@ preserved existing proof. Source/reference discovery mechanisms are unchanged.
 Behavior: a project leaves proof untouched on normal runs, enables recording
 only deliberately, declares its own generation command or skill, and a reader
 can find that instruction and understand the limits of the published snapshot.
-Update applicable current-product docs and conflicting future CI-comparison
-planning prose without implementing that queued work.
+Update applicable current-product docs and planning prose to reflect deliberate
+proof. Retained proof and CI verdicts remain independent observations.
 
 ## Delivery and rollout
 

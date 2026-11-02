@@ -22,8 +22,7 @@ not been measured; usefulness must be judged against that baseline.
 
 **Decomposition kept 2026-10-31:** Terry requested a visible Development/Intent
 frame first, explicit per-project test-folder types, source browsing before
-Proof, bounded rolling run history, folder summaries, further test families,
-and CI corroboration of locally produced proof with resource-aware timing.
+Proof, bounded rolling run history, folder summaries, and further test families.
 Terry kept this decomposition and directed the backlog to follow the order
 below, with optimization-candidate review after source browsing. Existing story
 identities are preserved. The stories remain preparation input; execution
@@ -43,13 +42,16 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
   needs no runtime reports, generated narrative, or authored intent catalogue.
 - Projects produce Proof through their test commands outside CI. Keep a bounded,
   rolling history, show selected-file Proof, then folder-level observations.
-  CI independently checks the relevant claims; it does not produce the retained
+  CI reports its configured checks separately; it does not produce the retained
   dashboard Proof history. CPU and other resources can change run time.
   On 2026-11-01 Terry replaced rolling run history with a latest per-test
   snapshot that every ordinary run updates, under a published
   [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md); later stories still to be refined
-  use that latest-observation model. Earlier direction notes below retain their
-  original historical wording; active guidance and stories use the replacement.
+  use that latest-observation model. On 2026-11-02 Terry dropped local-proof/CI
+  comparison, including the proposed duration gate and comparison requirements
+  for later producers: retained proof and CI verdicts are independent observations.
+  Earlier direction notes below retain their original historical wording; active
+  guidance and stories use the replacement.
 - Preserve the selected project and the shared frame. Purpose/Proof side-by-side
   and tabbed layouts share one selection; the switch preserves selection and any
   story scope. Near-future direction belongs in Development.
@@ -65,7 +67,7 @@ The first learning question is whether the real frame makes the two perspectives
 understandable without disrupting Development. The next is whether explicit
 locations make real test source easy to find. Before spreading report collection,
 test the more consequential assumption that retained local proof can be associated
-with tested source and meaningfully corroborated by independent CI.
+with tested source and honestly interpreted within its observed scope.
 
 ## Alternatives and Recommendation
 
@@ -85,10 +87,9 @@ with tested source and meaningfully corroborated by independent CI.
   different runner semantics. Reuse native reports and add one real producer
   family at a time. Avoid a plugin platform or a universal scoring model.
 - **Recommended:** deliver the visible frame, source access, the first project's
-  latest local observations, and early CI corroboration. Extend the shared
-  reading experience by actual runner family, with folder summaries once one
-  family's observations can already be read. Later families include their CI
-  corroboration under the policy learned from the first case.
+  latest local observations. Extend the shared reading experience by actual
+  runner family, with folder summaries once one family's observations can
+  already be read.
 
 ## Research Basis and Architectural Considerations
 
@@ -165,7 +166,7 @@ schema, executable design, or a newly accepted architecture decision.
    alone cannot show that current implementation was tested. Dirty source stays
    identifiable or explicitly unmatched. Publishing an evidence-only commit
    must not invalidate its tested source merely because the enclosing commit
-   changed; CI compares the tested basis, not blindly the report commit's HEAD.
+   changed. Keep the tested basis distinct from the commit publishing the report.
 5. **Last successful per-test proof:** each ordinary run maintains proof only
    for the cases it executed. Retain passing observations with their time,
    attempts and source association; a final unsuccessful scenario removes its
@@ -187,29 +188,10 @@ schema, executable design, or a newly accepted architecture decision.
    come from different runs; a sum of their durations is neither one run's
    elapsed wall time nor current suite cost. Attribute shared setup/hooks only
    where observed. A source listing is not the runner's collected-case inventory.
-8. **CI corroboration:** compare applicable tested source and selection before
-   comparing case outcomes. A broader CI run can corroborate the matched local
-   subset; excluded host-only cases remain unchecked. Missing expected cases,
-   changed source, malformed records, retry-assisted passes, and interrupted CI
-   need explicit classifications. CI reports its consistency verdict and any
-   diagnostic evidence without changing retained local observations. It
-   corroborates reproducibility; it does not authenticate who
-   created a local observation or prove that a test correctly expresses intent.
-9. **Resource-aware comparisons:** durations, timestamps, worker counts, and
-   execution order need not match exactly. Record relevant runner/browser/runtime
-   and resource context where available. For [story 7](#check-cucumber-proof-in-ci),
-   Terry selected a per-case failure threshold on 2026-11-02: CI duration greater
-   than five times the retained local proof duration fails; different resources
-   or worker counts do not waive it. Actual failures/timeouts retain their
-   observed outcome. Broader performance-regression policies remain separate
-   decisions.
-
-Both Open Dough and Pygardon's GitHub workflow declarations ignore pushes that
-change only `.planning/**` or `docs/**`. Pygardon uses its own source-check
-recipe/controller for execution. If report publication uses an ignored path,
-first-Proof/CI refinement must establish which source run is checked and how a
-report-only update requests corroboration; ordinary push behavior cannot be
-assumed sufficient. Respect existing CI adapters and test selection policies.
+8. **Run context and timing:** record relevant runner/browser/runtime and
+   resource context where available. Durations describe the observed execution;
+   they do not establish a cross-environment performance threshold. Actual
+   failures/timeouts retain their observed outcome.
 
 ### External reporting research
 
@@ -247,8 +229,8 @@ Open Dough has no established S/M/L calibration, as already recorded here and in
 [SEED-052](SEED-052-start-agent-work-from-dashboard.md#open-decisions-before-refinement-or-planning).
 No bands or time commitments are invented. Comparative hypotheses below are
 unbanded; confidence includes integration, verification, and cleanup. The new
-track has three source/frame outcomes and nine Proof/CI outcomes; four existing
-review candidates remain. Most uncertainty lies in the first Proof and CI cases.
+track has three source/frame outcomes and eight Proof outcomes; four existing
+review candidates remain. Most uncertainty lies in the first Proof cases.
 At decomposition, none had an execution approach or readiness assessment.
 Individual refinements and their recorded facts below carry current preparation.
 
@@ -500,159 +482,6 @@ existing Inspect button.
   redefine Purpose), and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   (reuse the existing solution). None conflicts.
 
-<a id="check-cucumber-proof-in-ci"></a>
-
-### 7. Check locally collected Cucumber proof against CI
-
-**Identity:** SEED-192#check-cucumber-proof-in-ci
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/450-check-cucumber-proof-in-ci/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ffb7c6e923faf5d8b457d1b09c66b79dd99780e2c0546ab442441521d7c311e","plan":"84ff8e97e0a37a7bb2f49efd320caab4aace08ee0ad032b5d2a5462237e602c5"}}
-```
-
-**Refinement decisions (Terry, 2026-11-02):** the comparison table below was
-agreed first; refinement then settled changed Gherkin, orphaned identities,
-malformed proof and a location CI never runs, each as recommended.
-
-#### Goal
-
-A Pygardon developer whose push reaches CI learns from that CI verdict whether
-independent CI reproduces the committed local Cucumber proof: each applicable
-scenario also passes in CI within five times its locally proved duration, and
-every case CI did not check is named with its reason. Today a passing CI says
-nothing about committed proof, so stale or misleadingly fast local proof goes
-unnoticed. Pygardon checks this by following one published Open Dough
-reference, the standard later Cucumber producers (Doughnut,
-[story 8](#read-cypress-cucumber-proof)) adopt with their own corroboration.
-
-#### Scope
-
-Required behavior:
-
-- **Published CI check rules.** The released
-  [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md)
-  gains the rules for checking committed proof in CI, written for the agent
-  working in the project that adopts it
-  ([ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)).
-  The project implements the check in its own CI code; Open Dough ships no
-  comparison tool, as it ships no recorder.
-- **Pygardon adopts it.** Pygardon's CI recipe, after its Cucumber stage
-  passes, compares the proof committed at the checked revision with that same
-  CI run's observations and fails the check on any discrepancy below.
-- **Per-case comparison.** A case is a scenario or outline row identified by
-  feature path, scenario name and example row values, using its last
-  successful committed proof:
-
-  | Situation | Result |
-  | --- | --- |
-  | Case runs in CI but has no retained local proof | OK; missing local proof does not fail the comparison. |
-  | Retained proof matches, CI passes, CI duration ≤ `5 ×` local duration | Corroborated. Exactly `5 ×` is allowed. |
-  | Matched case has CI duration greater than `5 ×` its retained local proof duration | Fail. |
-  | Case has retained local proof and is selected for CI, but is missing from CI results | Fail. An unexpected omission is not an exclusion. |
-  | Case has retained local proof but is excluded by CI's tag expression | Skipped, naming the excluding tag. |
-  | Proof location whose features CI's selection never runs | Skipped, naming the location. |
-  | Feature file changed since the proof (`featureBlob` differs at the checked revision) | Unchecked, "Gherkin changed since local proof"; no duration gate. |
-  | Proof identity no longer present in current source | Unchecked, "no longer in source". |
-  | A committed proof file is unreadable or malformed | Fail, naming the file. |
-
-  Ordinary CI failures still fail CI. Both durations are the same measurement:
-  the reference's `durationMs` across all attempts, as the project's own proof
-  recorder measures it in each environment. Different machine resources or
-  worker counts do not waive the gate.
-- **Actionable report.** The CI log states the number corroborated, each
-  skipped or unchecked group with its reason and count, and every failing case
-  by identity with both durations or the missing/malformed cause. It states
-  once that implementation and step changes since each proof's commit are not
-  checked. A successful report fits Pygardon's successful-log
-  budget (`docs/successful-ci-check-logs.md` in Pygardon: 100 lines for the
-  whole log).
-
-Required restrictions:
-
-- CI's comparison never creates, refreshes or overwrites committed proof.
-  Observations the CI run records stay in its disposable checkout, as the
-  reference already says ("only committed proof is proof").
-- Corroboration claims only matched identity and Gherkin version passing at the
-  checked revision. It never claims the local observation's implementation was
-  the same, nor authenticates who produced the proof
-  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-  published facts and observations stay distinguishable).
-
-Boundary facts, observed 2026-11-02 at Pygardon `a377b76b2`:
-
-- Committed proof under `e2e_test/proof` is not in the workflow's ignored paths
-  (`.planning/**`, `docs/**`), so a proof-only commit triggers ordinary CI. No
-  report-only trigger is needed.
-- Neither Cucumber profile configures retries; every committed observation has
-  `attempts: 1`. A retry-assisted CI pass is compared like any pass; its
-  attempts already count in its duration.
-- The `ci` profile carries the proof plugin, so CI records its own
-  observations with the same measurement. CI excludes
-  `@wip`, `@codec-gap` and `@host-docker`; the packaged configuration
-  (`e2e_test/packaged/proof`) does not run in CI.
-- Every observation field, `durationMs` included, is required, so an
-  unavailable duration is a malformed file. A CI case the recorder did not
-  record is missing. A zero local duration gets the literal rule.
-- A failed or interrupted Cucumber stage ends CI before the comparison; the
-  ordinary failure is the verdict.
-
-Scope limits (deferred, not rejected):
-
-- Showing per-scenario corroboration in Intent. The verdict is the CI check
-  and its log, which the dashboard already links, and its
-  [CI status tab](SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) will show.
-- Doughnut's Cypress-Cucumber corroboration, other runner families, broader
-  performance-regression policies, and proof authenticity.
-- Checking implementation, step or configuration provenance between a proof's
-  commit and the checked revision.
-
-#### Key examples
-
-1. **Corroborated.** `jobs.feature` "Retry a job after timeout" has proof of
-   800 ms at the current `featureBlob`; CI passes it in 3,900 ms → corroborated;
-   the check passes, counting it.
-2. **Too slow in CI.** Same proof; CI passes it in 4,001 ms (> 5 × 800) → the
-   check fails, naming the case with 800 ms and 4,001 ms.
-3. **Exact boundary.** CI takes 4,000 ms → corroborated.
-4. **Excluded by tag.** A `@codec-gap` scenario has proof; CI's tag expression
-   excludes it → skipped "excluded by @codec-gap"; CI stays green.
-5. **Location not run.** `e2e_test/packaged/proof` holds proof; CI never runs the
-   packaged configuration → skipped, naming that location.
-6. **Unexpected omission.** A selected scenario with proof yields no CI
-   observation although the Cucumber stage passed → fail, "missing from CI".
-7. **Gherkin changed.** A developer adds a step to a scenario without rerunning
-   the feature locally; its proof's `featureBlob` no longer matches → unchecked
-   "Gherkin changed since local proof", no duration gate; CI stays green.
-8. **Renamed scenario.** The old name's proof remains; the new name runs in CI
-   without proof → the old identity is unchecked "no longer in source"; the new
-   one is OK.
-9. **Malformed proof.** A committed proof file lacks `durationMs` → fail,
-   naming the file.
-10. **Proof-only commit.** A commit adds only refreshed proof → ordinary CI runs
-    and the comparison checks the new proof against that revision.
-
-#### Architecture
-
-Cohesion with the delivered recorder, not new structure:
-
-- **One measurement, two environments.** CI's observations come from the same
-  proof recorder the project already runs in every profile, so both durations
-  and identities share one definition. The comparison reads committed proof
-  from the checked revision's tree, not the working directory the CI run's
-  recorder writes into.
-- **Selection belongs to the CI configuration.** The comparison derives which
-  cases CI selects from the CI run's own configuration (profile paths and tag
-  expression) and current source, so "excluded" and "missing" cannot drift from
-  what CI actually runs. Identity and file-version rules come from the
-  reference's existing reading rules rather than a second definition.
-- **Ownership.** Open Dough owns the rules in the reference; the project owns
-  the comparison code and its CI integration. No Open Dough runtime, dashboard
-  or server responsibility changes. Applicable Accepted decisions:
-  [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md),
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
-  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-  (reuse the recorder and CI recipe). None conflicts.
-
-
 <a id="inspect-hierarchical-proof-cost"></a>
 
 ### 9. Find expensive proof in the test hierarchy
@@ -762,18 +591,18 @@ Cohesion with the delivered recorder, not new structure:
 - **For / why:** Doughnut and Pygardon developers can review frontend test results
   and latest observations beside the TypeScript source already readable in Intent.
 - **Evaluation:** Collect a real local Vitest run in each frontend, inspect
-  latest file/case outcomes, use supported folder summaries, and corroborate
-  comparable claims against each project's CI selection.
+  latest file/case outcomes, and use supported folder summaries with the
+  observed selection and environment explicit.
 - **Value / learning:** Tests shared reporting across browser-mode and happy-dom
   Vitest without conflating their execution environments.
 - **Boundary:** The two frontends, including explicit browser-project identity,
   retries, and existing reporter/failure behavior. Open Dough dashboard tests
   remain Playwright. CLI Vitest is a later selection rather than hidden scope.
 - **Effort hypothesis:** Unbanded; middle, medium confidence after the first
-  proof/CI case. Split the frontend variants only if real reporting behavior
+  proof case. Split the frontend variants only if real reporting behavior
   proves materially different; Vue versus React alone does not require a split.
 - **Product prerequisites:** TypeScript source reading and established latest-observation
-  and CI comparison semantics at integration.
+  semantics at integration.
 - **Safe stopping point:** Usable frontend Proof in both projects, with
   environment and unsupported observations explicit.
 
@@ -790,8 +619,8 @@ Cohesion with the delivered recorder, not new structure:
 - **For / why:** An Open Dough developer can inspect observed dashboard protection
   beside its TypeScript tests using the existing strict run semantics.
 - **Evaluation:** Retain a real dashboard run, review its selection, attempts,
-  strict terminal outcome and latest case observations in Intent, and corroborate its
-  applicable claims against the actual CI selection/shards.
+  strict terminal outcome and latest case observations in Intent, keeping
+  selection and shard scope explicit.
 - **Value / learning:** Brings the dashboard's own test intent into Proof and
   tests reuse of its already available opt-in record.
 - **Boundary:** Add missing source association, publication, and latest observations around
@@ -799,7 +628,7 @@ Cohesion with the delivered recorder, not new structure:
   cannot be upgraded to executed strict pass. Preserve quiet diagnostics.
 - **Effort hypothesis:** Unbanded; middle, medium confidence. Repetition/retry,
   shared hooks, and shard scope already have meaningful distinctions to retain.
-- **Product prerequisites:** Source reader and established Proof/CI semantics.
+- **Product prerequisites:** Source reader and established Proof semantics.
 - **Safe stopping point:** Honest dashboard file/folder Proof without migrating
   tests to another runner or waiting for Python/script collection.
 
@@ -816,8 +645,8 @@ Cohesion with the delivered recorder, not new structure:
 - **For / why:** A Pygardon developer can review observed Python test protection
   and latest observations alongside the configured pytest source.
 - **Evaluation:** Record an actual authorized pytest selection, inspect file/case
-  and parameterized outcomes, then corroborate the applicable subset in CI.
-  Slow and host-Docker selections absent from CI stay explicitly unchecked.
+  and parameterized outcomes, keeping the actual selection explicit. Slow and
+  host-Docker cases not executed remain outside that observation.
 - **Value / learning:** Extends evidence to Python while preserving its real
   collection, setup/teardown, expected-failure, and parallel-run meanings.
 - **Boundary:** Pygardon's selected pytest suite; not legacy Python trees or
@@ -825,7 +654,7 @@ Cohesion with the delivered recorder, not new structure:
   separate facts; visible source does not imply executed coverage.
 - **Effort hypothesis:** Unbanded; middle-to-higher, low-to-medium confidence.
   Existing progress containment, plugins, and xdist must retain their behavior.
-- **Product prerequisites:** Python source reading and established Proof/CI semantics.
+- **Product prerequisites:** Python source reading and established Proof semantics.
 - **Safe stopping point:** Reviewable Python Proof with its actual limits; no
   invented per-folder wall cost or current pass from an unmatched older run.
 
@@ -842,8 +671,8 @@ Cohesion with the delivered recorder, not new structure:
 - **For / why:** Open Dough and Doughnut developers can inspect script-test
   evidence alongside the configured Node test source.
 - **Evaluation:** Capture a real `node --test` selection in each project through
-  its existing command, read cases/subtests, latest outcomes and attempts, and
-  corroborate matched CI observations.
+  its existing command, and read cases/subtests, latest outcomes and attempts
+  within the observed selection.
 - **Value / learning:** Makes script protection visible at the runner's actual
   case granularity without treating a wrapper's exit as every case passing.
 - **Boundary:** Node test events and the selected project commands. Preserve
@@ -851,7 +680,7 @@ Cohesion with the delivered recorder, not new structure:
   A suite plus its child cases must not inflate counts or summed duration.
 - **Effort hypothesis:** Unbanded; middle, medium confidence. Two project wrappers
   use one runner family; console scraping is not a reporting contract.
-- **Product prerequisites:** Configured script source and shared Proof/CI semantics.
+- **Product prerequisites:** Configured script source and shared Proof semantics.
 - **Safe stopping point:** Useful Node-script Proof independently of shell checks,
   Java/JUnit, or other not-yet-selected runners.
 
@@ -868,8 +697,8 @@ Cohesion with the delivered recorder, not new structure:
 - **For / why:** An Open Dough developer can review retained evidence for shell
   checks whose protection is currently visible only through command output.
 - **Evaluation:** Run selected checks through the existing scheduler, review
-  each check's observed result and duration beside its source, and corroborate
-  comparable check-level observations in CI.
+  each check's observed result and duration beside its source, within the
+  observed selection.
 - **Value / learning:** Extends the review to a real remaining test family without
   manufacturing case identities or counts unavailable from the command.
 - **Boundary:** Selected Open Dough shell checks. A shell process can truthfully
@@ -879,15 +708,15 @@ Cohesion with the delivered recorder, not new structure:
 - **Effort hypothesis:** Unbanded; middle, low-to-medium confidence. The existing
   scheduler already observes job exit/time, but retention and source mapping
   still need integration; parsing arbitrary scripts is not part of this story.
-- **Product prerequisites:** Configured source and shared Proof/CI semantics.
+- **Product prerequisites:** Configured source and shared Proof semantics.
 - **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
   useful without pretending it has the same detail as Cucumber or pytest.
 
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
-they do not establish a mandatory dependency chain. The existing seven identities
-remain canonical here. Specifically, the Cucumber source pilot closed as SEED-192#browse-test-purpose;
+they do not establish a mandatory dependency chain. Remaining identities stay
+canonical here. Specifically, the Cucumber source pilot closed as SEED-192#browse-test-purpose;
 `read-observed-test-proof` delivered Pygardon's first local Cucumber case, and
 `inspect-hierarchical-proof-cost` keeps folder Proof. These are not duplicated
 under new identities. Other existing review candidates retain their outcomes.
@@ -900,25 +729,17 @@ learning, not merely as infrastructure for later readers.
 
 The earlier optimization-candidate priority becomes selected position 4, after
 its source-navigation prerequisites. Story impact (5) keeps the review centered
-on a story. First local Proof (6) precedes CI corroboration (7), then Doughnut's
-second producer (8). Folder Proof (9) needs only one producer and may move before
-8 if that offers earlier value. Preserve the bounded protection/complexity
+on a story. First local Proof (6) precedes Doughnut's second producer (8).
+Folder Proof (9) needs only one producer and may move before 8 if that offers
+earlier value. Preserve the bounded protection/complexity
 learning (10–11) before expanding collection across every remaining family
 (12–16). Those review cases can also use existing tools sooner.
 
-The kept decomposition differs from Terry's rough sequence in three deliberate ways:
+The kept decomposition differs from Terry's rough sequence in two deliberate ways:
 
 - Combine language-only source extensions when they share the same reading
   outcome; retain TypeScript, Python, Node, and shell as real evaluation examples.
 - Separate runner-specific collection even where the source language matches.
-- Check CI consistency on one Cucumber family early, then include corroboration
-  in each later producer's complete outcome rather than postpone one very large
-  cross-runner reconciliation story until last.
-
-Once the comparison policy is understood, corroboration is part of a later
-producer's promised evidence quality. If a new runner introduces a separate
-unsettled comparison policy, split that learning from its latest-local-Proof outcome
-instead of silently enlarging the producer story.
 
 No formal blocking dependency has been recorded: common code and delivery order
 alone do not establish that another story cannot start. Each consumer owns its
@@ -926,7 +747,7 @@ integration. Establish a blocking agreement later only if refinement demonstrate
 an actual supplier outcome required before work can start.
 
 If investment must shrink, retain the source-only product after 3. Next retain
-one Cucumber producer plus its corroboration (6–7). Drop additional producer
+one Cucumber producer (6). Drop additional producer
 families in reverse order of demonstrated use; shell/Node and unrequested
 Java/CLI expansion are the first candidates to defer, rather than spreading
 partially trustworthy evidence everywhere. Keep an early protection review to
@@ -938,8 +759,7 @@ what the first Proof claims.
 
 - First Proof's profile, tested basis, publication and retention were settled
   on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
-  a latest per-scenario snapshot, not run history. [Story 7](#check-cucumber-proof-in-ci)
-  settles CI corroboration for Pygardon.
+  a latest per-scenario snapshot, not run history.
 - Select a real story and a developer's prior review basis for each assessment
   case; define what decision and review cost would justify keeping the method.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
@@ -959,8 +779,7 @@ execution planning; reevaluate wider producer work from actual early use.
   tests at priority 2, with links into the test-source browser.
 - Terry's current 2026-10-31 request: decompose the broad first story, lead with
   the real frame, use explicit folder types across Open Dough/Doughnut/Pygardon,
-  collect bounded local Proof history and folder observations, then corroborate
-  against CI with resource-aware timings.
+  collect bounded local Proof history and folder observations.
 - Terry's 2026-10-31 keep and landing instruction: retain this decomposition,
   queue its stories in the proposed order, and place optimization-candidate
   review after source browsing.

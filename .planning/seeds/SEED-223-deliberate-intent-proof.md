@@ -31,5 +31,5 @@ rolls out to every production project; producer migration applies to projects
 with Cucumber proof and is owned by each project's execution.
 
 No dashboard command execution, new proof runners, or new test-framework
-adapters are requested. CI comparison planning must use deliberate published
-proof and must not reinstate automatic recording.
+adapters are requested. Retained proof and CI verdicts remain independent
+observations.
