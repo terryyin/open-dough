@@ -158,3 +158,36 @@ Remaining slice-specific concerns: none identified in this review.
   Refactor returned `## REFACTOR COMPLETE`, no gaps. Consumer trace:
   `/tmp/plan444-refactor-consumers.aCT4yS/trace.md`; parallel logs:
   `/tmp/plan444-parallel-refactor.EAsEXO/{1,2,3,4}.log` (all empty).
+
+## Retrospective
+
+- Attribution: Take `39424d5b25f0bdad27eae03389dd740fe5e47055` is claim
+  provenance; implementation `78ce26f44f289e274c73e6dba96d635638548ef7` is the
+  related delivered change on the execution branch. Other trunk work is not
+  attributed to this execution. Initial preparation `d9f70140` is planning
+  provenance only. CI on the execution branch remains pending at review time.
+- Outcome review compared the original seed, the explicit permanent-regression
+  amendment, all source-review commitments and the net delivered patch. No
+  implementation correction or architecture exception is needed. Real process
+  identity/termination tests retain the negative identity cases; the new delay
+  exercises the demonstrated start-slack failure rather than reproducing its
+  expected outcome in setup. Focused, parallel and mutation proof are retained;
+  unchanged wider boundaries reuse the successful full suite.
+- ADR 0000 keeps this test implementation detail with the work; ADR 0010's
+  evidence/cost rule supports the bounded fix and added 3.5 s regression.
+  No published guidance or production responsibility changed. This urgent
+  reliability repair supports the backlog's delivery/intent-proof direction.
+- Process review enabled by project configuration and based on this full
+  coordinator/agent conversation. Recorded `DD-404` in `DearDough.md`: generic
+  planning basenames overwhelmed the consumer trace. Log changed from 638 to
+  654 physical lines: above the 500-line warning threshold, below the 1000-line
+  ceiling. No maintenance cycle or improvement implementation was invoked.
+- Product learning: retain the narrow fix and existing dashboard mitigation;
+  no new story, queue change, follow-up correction, or broader timeout/progress
+  behavior is justified or authorized.
+
+## Execution complete
+
+Product advice: no change. The permanent delayed-start regression and file-local
+bound cover the demonstrated defect; retain the existing Playwright mitigation
+and keep runner-wide timeout and live progress output deferred as directed.

@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 403. Removed numbers are never reused.
+- Highest allocated local number: 404. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -636,3 +636,19 @@ then restored the execution evidence — on both slice deliveries.
   - Evidence: amendment `272f7c29` on origin; coordinator transcript `ce83dd3b-85a9-40d2-b173-4327eb2a3b2c` (freshness conflict then strip/restore before `51825cdc` and again before `881309f4`); check JSON `result:conflict`, plan `reason:overlapping-edit`, `from:44887208` (Take) while story `from:272f7c29` stayed `unchanged`; source-freshness.md “Stop on a conflict”
   - Observed effect: two delivery gates needed a temporary exact-trunk plan for `unchanged`, then re-application of Status/accepted-proof/obligations, without an `awaiting story review` stop
   - Inference: three-way freshness does not treat absorbed trunk text plus additive execution records as `unchanged`/`amended` when base remains Take; the strip/restore pattern bypasses the required conflict stop
+
+## DD-404 — Planning basenames overwhelm a test-local consumer trace
+
+A test-local change plus its plan/source-review edits made `consumer-trace.mjs`
+automatically search `PLAN.md` and `source-review.md` across the checkout. Most
+rows were unrelated planning, guidance, and historical matches. Specific supplied
+terms (`leftCalls`, `testOptions`) did not prevent that derived-path noise.
+
+### Occurrences
+- Execution: SEED-218#fix-owned-calls-start-slack-hang (plan 444; first implementation `78ce26f44f289e274c73e6dba96d635638548ef7`)
+  - Timestamp: unknown (2026-11-02)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance at Take `39424d5b25f0bdad27eae03389dd740fe5e47055`
+  - Evidence: implementation trace `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/plan444-consumers.nr9p2cxx/trace.md`, Effect terms and Located consumers; coordinator's full trace read reported 34,965 original tokens and truncated output. Refactor trace `/tmp/plan444-refactor-consumers.aCT4yS/trace.md` restricted the changed path to the test and exposed its actual job-label/timing/story consumers.
+  - Observed effect: irrelevant trace rows consumed output/context; the coordinator followed with bounded searches and inspected the narrower trace. No missed consumer, test failure, or hang was established.
+  - Inference: generated generic planning basenames need separate handling or an explicit changed-path selection. Related to ODF-350/ODF-352, but this observation concerns automatic path basenames, not supplied substring terms or data keys; shared reconciliation is not performed here.
