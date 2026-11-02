@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-221#launch-records-poll-waits
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/448-launch-records-poll-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a026bebe753260066fc13f95a3f2188ca3bc0d54a4631718dde4401ea1abcc34","plan":"7220f61ed5132f8d19dab446336aa3c0e3042f368a5ab953fe3fb93160e9146b"}}
 ```
 
 **For / why:** Developers waiting on `npm run test:dashboard` lose about a
