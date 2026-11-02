@@ -11,12 +11,12 @@
 import type { Page } from "@playwright/test";
 import { expect, test as base } from "./support/pageTest.ts";
 import {
+  alertsAnswered,
+  alertsSettled,
   launch,
   launchRequest,
   machineSessions,
 } from "./agentLaunchBoundary.ts";
-import { rawRequest } from "./support/rawHttp.ts";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
@@ -58,15 +58,6 @@ async function openSidebar(server: DashboardServer, page: Page) {
   await button.click();
   await expect(sidebar).toBeVisible();
   return { sidebar, button };
-}
-
-// The `alerts` field of the machine's sessions answer.
-async function alertsAnswered(server: DashboardServer): Promise<unknown> {
-  const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
-    headers: { Origin: server.origin },
-  });
-  return (JSON.parse(response.body) as { alerts: unknown }).alerts;
 }
 
 test.describe("a working notifier", () => {
@@ -179,9 +170,7 @@ test.describe("a notification refused after successful diagnostics", () => {
   test("explains refusal without raw stderr and recovers on the next transition", async ({
     server,
   }) => {
-    await expect
-      .poll(() => alertsAnswered(server))
-      .toEqual({ available: true });
+    await alertsSettled(server);
     const response = await launch(server, launchRequest);
     const session = (
       JSON.parse(response.body) as {
@@ -200,9 +189,7 @@ test.describe("a notification refused after successful diagnostics", () => {
     server.claudeSessionBecomes(session, "blocked");
     // The retry's diagnostics answer available before its notification ends.
     await expect.poll(() => server.notifierCalls().length).toBe(2);
-    await expect
-      .poll(() => alertsAnswered(server))
-      .toEqual({ available: true });
+    await alertsSettled(server);
     expect(server.notifierProbes()).toHaveLength(4);
   });
 });

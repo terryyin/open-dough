@@ -21,6 +21,21 @@ async function sessionsAnswer<T>(server: DashboardServer): Promise<T> {
   return JSON.parse(response.body) as T;
 }
 
+// Whether the server can raise its alerts, as the boundary answers the
+// machine's sessions.
+export async function alertsAnswered(
+  server: DashboardServer,
+): Promise<unknown> {
+  return (await sessionsAnswer<{ alerts: unknown }>(server)).alerts;
+}
+
+// Until the boundary answers the notifier as available. Alerts read as
+// checking until the server's startup diagnostic answers, which changes the
+// sessions answer, so a revision held before then may not stand.
+export async function alertsSettled(server: DashboardServer): Promise<void> {
+  await expect.poll(() => alertsAnswered(server)).toEqual({ available: true });
+}
+
 // The machine's sessions as the boundary answers them: every project's kept
 // records, each naming its project.
 export async function machineSessions(

@@ -3,7 +3,12 @@
 // (../../server/machineSessionObservation.ts).
 import { createHash } from "node:crypto";
 import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
-import { launch, markDone, refinementRequest } from "../agentLaunchBoundary.ts";
+import {
+  alertsSettled,
+  launch,
+  markDone,
+  refinementRequest,
+} from "../agentLaunchBoundary.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { observed, sessionsRequest } from "../support/codexObservation.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -52,6 +57,7 @@ test("a viewer holding the current revision is answered unchanged, and in full o
   if (native === undefined) throw new Error("Missing native fixture");
   await launch(dashboard, { ...refinementRequest, host: "codex" });
   observed(native, native.threadId, { type: "idle" }, "completed");
+  await alertsSettled(dashboard);
 
   const first = await askHolding(dashboard);
   const held = first.answer.revision;
