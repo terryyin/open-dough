@@ -163,3 +163,42 @@ run_offline_record_state_and_reader_proof \
   "${installed_skill}" \
   "${claude_target}" \
   "${temporary_dir}"
+
+# The identity declaration reader must work from either installed root after
+# its release source has gone away, including legacy records and context.
+for runtime in "${agents_scripts_root}" "${scripts_root}"; do
+  node --input-type=module - "${runtime}/product-backlog.mjs" "${temporary_dir}" << 'NODE'
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const [cli, temporary] = process.argv.slice(2);
+const root = mkdtempSync(join(temporary, 'installed-identities-'));
+const planning = join(root, '.planning');
+mkdirSync(join(planning, 'seeds'), { recursive: true });
+writeFileSync(join(planning, 'PRODUCT-BACKLOG.md'), '# Product backlog\n\n## Taken\n\n## Backlog list\n');
+writeFileSync(join(planning, 'seeds/context.md'), '# Context\n\nReference to SEED-999 is not an allocation.\n');
+writeFileSync(join(planning, 'seeds/SEED-100-notes.md'), '# Existing numeric reservation\n');
+writeFileSync(join(planning, 'seeds/legacy.md'), '# Old heading layout\n\n**Identity:** scheduler-wake#overdue-jobs\n');
+const git = (...args) => execFileSync('git', ['-c', 'user.name=Installed proof', '-c', 'user.email=installed@example.invalid', ...args], { cwd: root, encoding: 'utf8' }).trim();
+git('init', '--quiet');
+git('add', '-A');
+git('commit', '--quiet', '-m', 'Legacy identity evidence');
+git('rm', '--quiet', '.planning/seeds/legacy.md');
+git('commit', '--quiet', '-m', 'Closed legacy home');
+const snapshot = () => readdirSync(planning, { recursive: true }).sort().map(name => {
+  const file = join(planning, name);
+  return [name, name === 'seeds' ? '(directory)' : readFileSync(file, 'utf8')];
+});
+const before = snapshot();
+const head = git('rev-parse', 'HEAD');
+const report = JSON.parse(execFileSync(process.execPath, [cli, 'identity-evidence', '--identity', 'scheduler-wake#overdue-jobs'], { cwd: root, encoding: 'utf8' }));
+assert.deepEqual(report.gaps, []);
+assert.equal(report.highest.seed, 'SEED-100');
+assert.equal(report.next, 'SEED-101');
+assert.equal(report.candidate.status, 'in-history');
+assert.equal(report.candidate.history.story.evidence, 'seeds/legacy.md');
+assert.deepEqual(snapshot(), before);
+assert.equal(git('rev-parse', 'HEAD'), head);
+NODE
+done
