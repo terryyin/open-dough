@@ -32,7 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Show CI status in an Intent tab](seeds/SEED-219-intent-ci-status-tab.md#intent-ci-status-tab) — SEED-219#intent-ci-status-tab ([plan](slice-plans/447-intent-ci-status-tab/PLAN.md))
 - [Pass launch-records reads without waiting the poll interval](seeds/SEED-221-launch-records-poll-waits.md#launch-records-poll-waits) — SEED-221#launch-records-poll-waits ([plan](slice-plans/448-launch-records-poll-waits/PLAN.md))
 - [Read Purpose and Proof in tabs or remembered split panels](seeds/SEED-222-intent-purpose-proof-layout.md#intent-purpose-proof-layout) — SEED-222#intent-purpose-proof-layout ([plan](slice-plans/449-intent-purpose-proof-layout/PLAN.md))
-- [Generate Intent proof only on explicit request](seeds/SEED-223-deliberate-intent-proof.md#deliberate-intent-proof) — SEED-223#deliberate-intent-proof
+- [Generate Intent proof only on explicit request](seeds/SEED-223-deliberate-intent-proof.md#deliberate-intent-proof) — SEED-223#deliberate-intent-proof ([plan](slice-plans/451-deliberate-intent-proof/PLAN.md))
 
 ## Backlog list
 

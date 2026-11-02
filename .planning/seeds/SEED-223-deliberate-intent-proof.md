@@ -6,7 +6,7 @@
 
 **Identity:** SEED-223#deliberate-intent-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/451-deliberate-intent-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fe0e0db3922d90b3db7e18cf94ce6ba8d73ee22b81281cfe2f34c22858f9ca18","plan":"19899e26f5b4fc9df560690762da22884532b785046507cfc95eed9e41db249f"}}
 ```
 
 **Goal:** Keep published Intent proof in the product repository without normal
