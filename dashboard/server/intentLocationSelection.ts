@@ -1,53 +1,16 @@
-// Selection of files under a declared Intent location: kind extensions and
-// optional include patterns (`./intentLocationsSettings.ts`). Listing and
-// `file-at` admission both use this rule (`./intentLocationsRead.ts`,
-// `./performedRead.ts`).
+// `file-at` admission of a path by the declared Intent locations
+// (`./intentLocationsSettings.ts`, `./performedRead.ts`): a safe repository
+// path one location selects by the shared location-selection rule
+// (`../src/intentLocationSelection.ts`), the rule listing also uses
+// (`./intentLocationsRead.ts`).
 
-import path from "node:path";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 import { agentSettingsTextAt } from "./recordsBesideBacklog.ts";
 import {
   declaredLocations,
   type DeclaredLocation,
 } from "./intentLocationsSettings.ts";
-
-// Supported Intent source kinds and the file extensions each lists. The kind
-// also names the Shiki grammar; there is no other mapping (`.tsx` within
-// `typescript` is the highlighter's per-extension choice).
-export const intentSourceKinds = {
-  gherkin: { extensions: [".feature"] },
-  typescript: { extensions: [".ts", ".tsx"] },
-  javascript: { extensions: [".js", ".mjs", ".cjs"] },
-  python: { extensions: [".py"] },
-  shell: { extensions: [".sh", ".bash"] },
-} as const;
-
-export type IntentSourceKind = keyof typeof intentSourceKinds;
-
-export function extensionsOf(kind: string): readonly string[] | undefined {
-  return kind in intentSourceKinds
-    ? intentSourceKinds[kind as IntentSourceKind].extensions
-    : undefined;
-}
-
-// Whether a path relative to a location is one that location lists: its kind's
-// extensions, narrowed by optional include patterns (`*` one folder, `**`
-// across folders). One function answers listing and `file-at` admission.
-export function locationSelectsRelativePath(
-  relativePath: string,
-  kind: string,
-  include: readonly string[] | undefined,
-): boolean {
-  const extensions = extensionsOf(kind);
-  if (extensions === undefined) return false;
-  if (!extensions.some((extension) => relativePath.endsWith(extension))) {
-    return false;
-  }
-  if (include === undefined) return true;
-  return include.some((pattern) =>
-    path.posix.matchesGlob(relativePath, pattern),
-  );
-}
+import { locationSelectsRepositoryPath } from "../src/intentLocationSelection.ts";
 
 // Whether `path` is a file a declared location lists (kind + include), not
 // merely a path under that location's folder.
@@ -56,9 +19,7 @@ export function locationSelectsPath(
   location: DeclaredLocation,
 ): boolean {
   if (!isSafeRepositoryPath(filePath)) return false;
-  if (!filePath.startsWith(`${location.path}/`)) return false;
-  const relative = filePath.slice(location.path.length + 1);
-  return locationSelectsRelativePath(relative, location.kind, location.include);
+  return locationSelectsRepositoryPath(filePath, location);
 }
 
 // Whether `path` is selected by one of the declared locations.

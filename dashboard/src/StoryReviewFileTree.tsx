@@ -21,6 +21,7 @@ export {
   FileRow,
   includesTrunkWords,
   kindWords,
+  reviewedFileWords,
 } from "./StoryReviewFileRow.tsx";
 
 function FolderCount({

@@ -1,4 +1,4 @@
-// Intent's Proof pane for one selected feature file (`./IntentBrowser.tsx`):
+// Intent's Proof pane for a selected feature file (`./IntentFileReading.tsx`):
 // every scenario and outline row the published text runs, in source order
 // (`./gherkinScenarios.ts`), each with its latest committed observation
 // (`./cucumberProof.ts`) and that observation's own time, commit, and

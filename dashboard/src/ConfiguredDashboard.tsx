@@ -169,7 +169,12 @@ export function ConfiguredDashboard({
                   </main>
                 )}
                 {showsIntent && (
-                  <IntentPerspective source={source} work={work} />
+                  <IntentPerspective
+                    source={source}
+                    work={work}
+                    records={launches.records}
+                    workspaces={launches.workspaces}
+                  />
                 )}
                 {showsRoster && (
                   <main>

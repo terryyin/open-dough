@@ -1,0 +1,86 @@
+// Deleted and renamed files under Intent's location rule
+// (./support/intentStoryWorktree.ts): a deleted spec stays visible as
+// removed; a rename between the two configured locations sits at its new
+// path, its old folder gone; a rename into a location from outside is
+// inserted at its new path; a rename out of a location stays reviewable at
+// its old path; each opens the same diff Review changes shows. A rename with
+// neither path in a location is not listed and counts once, with the
+// product change, among the changed files outside the locations. The
+// highlighted journey: ./intent-story-changes.spec.ts.
+
+import { expect, test } from "./support/preparationPage.ts";
+import {
+  intentDiff,
+  intentFile,
+  kindStyles,
+  nameStyle,
+  openReviewFromIntent,
+  reviewDiff,
+  selectTakenStoryInIntent,
+} from "./support/intentStoryPage.ts";
+import { changed } from "./support/intentStoryWorktree.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
+
+test.setTimeout(120_000);
+
+test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits counts once outside", async ({
+  page,
+  origin,
+}) => {
+  const { intent } = await selectTakenStoryInIntent(page, origin);
+  const style = await kindStyles(intent);
+
+  await test.step("the deletion and the renames show with their kind, each once", async () => {
+    for (const [name, expected] of [
+      [changed.deleted, style.deleted],
+      [changed.into, style.renamed],
+      [changed.outOf, style.renamed],
+    ] as const) {
+      const file = intentFile(intent, name);
+      await expect(file).toHaveCount(1);
+      await expect(file).toBeVisible();
+      expect(await nameStyle(file)).toEqual(expected);
+    }
+    // The rename out of `dashboard/tests` sits at its old path, by name.
+    await expect(intentFile(intent, changed.outOf)).toHaveText(
+      "leaving.spec.ts",
+    );
+    // The rename between locations left its old folder behind.
+    await expect(intent.getByRole("button", { name: /between/ })).toHaveCount(
+      0,
+    );
+    await expandIntentGroup(intent, "tests");
+    const between = intentFile(intent, changed.between);
+    await expect(between).toHaveCount(1);
+    await expect(between).toHaveText("moved.sh");
+    expect(await nameStyle(between)).toEqual(style.renamed);
+    await expect(intentFile(intent, "tests/check.sh")).toBeVisible();
+  });
+
+  await test.step("a rename neither path admits is not listed and counts once outside", async () => {
+    await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
+    await expect(intent.locator(".intent-story-outside")).toContainText(
+      "2 changed files outside Intent locations are shown in Review changes.",
+    );
+  });
+
+  await test.step("each deletion and rename opens the same diff Review changes shows", async () => {
+    const inIntent = new Map<string, string>();
+    await expandIntentGroup(intent, "dashboard/tests");
+    for (const name of [changed.deleted, changed.into, changed.outOf])
+      inIntent.set(name, await intentDiff(intent, name));
+    await expandIntentGroup(intent, "tests");
+    inIntent.set(changed.between, await intentDiff(intent, changed.between));
+    expect(inIntent.get(changed.deleted)).toContain("gone 0");
+    expect(inIntent.get(changed.between)).toContain("renamed");
+    await openReviewFromIntent(page, intent);
+    for (const [name, diff] of inIntent)
+      expect(await reviewDiff(page, name), name).toBe(diff);
+    await expect(
+      page.getByRole("region", { name: "Story review" }).getByRole("button", {
+        name: "Renamed docs/notes.md → docs/renamed-notes.md",
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+});

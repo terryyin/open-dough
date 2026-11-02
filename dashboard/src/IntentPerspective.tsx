@@ -2,7 +2,11 @@
 // test-source locations at the observed revision through the authenticated
 // read boundary, and Proof shows the committed observations a location's
 // proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
-// each keep their own explanation; remaining locations stay browseable.
+// each keep their own explanation; remaining locations stay browseable. With
+// a story selected on the page, Intent names it and reads its default Review
+// changes comparison (`./useIntentStoryLens.ts`), which the browser overlays
+// on the published tree; the lens explains a comparison it cannot show
+// (`./IntentStoryLens.tsx`).
 
 import { useEffect, useRef, useState } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -13,9 +17,13 @@ import {
 } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { IntentStoryLens, type ComparedStory } from "./IntentStoryLens.tsx";
+import type { LaunchRecord } from "./launchRecord.ts";
+import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
 import "./intent-candidates.css";
 
@@ -55,9 +63,11 @@ function SettingsProblem({
 function IntentBody({
   source,
   work,
+  story,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  readonly story: ComparedStory | undefined;
 }) {
   const [intent, setIntent] = useState<IntentLocations | "loading" | "failed">(
     work === undefined ? { status: "not-configured" } : "loading",
@@ -160,6 +170,7 @@ function IntentBody({
         onProofRetry={() => {
           retryProof(work.revision);
         }}
+        story={story}
       />
     </IntentWorkspaceSelectionProvider>
   );
@@ -168,13 +179,24 @@ function IntentBody({
 export function IntentPerspective({
   source,
   work,
+  records,
+  workspaces,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  // This machine's kept launch records, unread until supplied, and the
+  // worktrees local Git found holding a story's claim.
+  readonly records: readonly LaunchRecord[] | undefined;
+  readonly workspaces: readonly LocalWorkspace[];
 }) {
-  // Intent reads the page's selected story; the comparison overlay uses this
-  // identity once it lands.
   const { selectedIdentity } = useStorySelection(source.id);
+  const { story, comparison, compared, retry } = useIntentStoryLens({
+    source: source.id,
+    work,
+    selectedIdentity,
+    records,
+    workspaces,
+  });
   return (
     <main
       className="intent-perspective"
@@ -183,7 +205,14 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
-      <IntentBody source={source} work={work} />
+      {story !== undefined && (
+        <IntentStoryLens
+          story={story}
+          comparison={comparison}
+          onRetry={retry}
+        />
+      )}
+      <IntentBody source={source} work={work} story={compared} />
     </main>
   );
 }

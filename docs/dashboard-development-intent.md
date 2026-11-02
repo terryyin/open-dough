@@ -70,6 +70,18 @@ by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
 are configured and names the setting and file; it shows no empty tree. An
 unreadable or malformed settings file is a distinct explanation from absence.
+With a story selected on the page, Intent names it and the revisions its
+default Review changes comparison runs between, and overlays that
+comparison's changed files on the published tree: each is styled by its
+change kind, added files are inserted, deleted files stay, and a rename sits
+at its new path where a location selects it, else at its old path. Folders
+and locations containing changes share one background; the first time Intent
+has the comparison, those folders and the first changed location open and
+everything else collapses. Changed files no location selects by either path
+are counted with a way to Review changes. A changed file's Purpose is Review
+changes' diff of it, and its Proof says it describes the published revision.
+A story without a comparison, and a failed read with retry, each say so while
+the published tree stays usable; deselecting the story removes the lens.
 Structure and Purpose/Proof layout switching are not offered yet. The perspective is disposable
 presentation state on the URL (`perspective=intent`), independent of
 Development's stories/roster view, which Intent keeps to return to. Choosing

@@ -21,3 +21,13 @@
 .story-review-files [data-kind="renamed"] code {
   font-style: italic;
 }
+
+/* Intent marks every folder and location group that contains a selected
+   story's change with one background (./intentStoryOverlay.ts), distinct
+   from a selected row's accent fill. Review changes lists only changed
+   files, so its folders need no such mark. */
+.intent-location[data-contains-changes] > .intent-location-header,
+.intent-location [data-contains-changes] > .story-review-folder-row {
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ready) 12%, transparent);
+}

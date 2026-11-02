@@ -8,7 +8,9 @@
 // Git trees call per location (`./ghTrees.ts`). The pinned-text memo and
 // project setting path are reused (`./pinnedTexts.ts`,
 // `./recordsBesideBacklog.ts`). Settings parse and text live in
-// `./intentLocationsSettings.ts`; selection in `./intentLocationSelection.ts`;
+// `./intentLocationsSettings.ts`; selection in
+// `../src/intentLocationSelection.ts`, admission in
+// `./intentLocationSelection.ts`;
 // a Gherkin location's declared Cucumber proof in `./intentProofRead.ts`.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -30,7 +32,7 @@ import { locationProofAt, type ListedFeature } from "./intentProofRead.ts";
 import {
   extensionsOf,
   locationSelectsRelativePath,
-} from "./intentLocationSelection.ts";
+} from "../src/intentLocationSelection.ts";
 
 export type {
   IntentLocation,
@@ -40,12 +42,9 @@ export type {
 } from "./intentLocationsSettings.ts";
 
 export {
-  intentSourceKinds,
   locationSelectsPath,
-  locationSelectsRelativePath,
   pathSelectedByIntentLocations,
   pathSelectedByLocations,
-  type IntentSourceKind,
 } from "./intentLocationSelection.ts";
 
 export type IntentLocationsRead = {

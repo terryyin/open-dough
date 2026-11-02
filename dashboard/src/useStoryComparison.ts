@@ -27,12 +27,15 @@ export function useStoryComparison({
   identity,
   completed = false,
   round = 0,
+  enabled = true,
 }: {
   readonly source: string;
   readonly identity: string;
   readonly completed?: boolean;
   // How many times the reader asked for a new read.
   readonly round?: number;
+  // A disabled comparison reads nothing and shows none.
+  readonly enabled?: boolean;
 }): {
   // The review read, which explains a comparison it cannot show.
   readonly review: StoryReview | undefined;
@@ -41,14 +44,21 @@ export function useStoryComparison({
   readonly shown: ShownStoryComparison | undefined;
 } {
   const { review, reading, problem, snapshot, selectedRun } =
-    useStoryReviewSelection(source, identity, round, completed);
+    useStoryReviewSelection(source, identity, round, completed, enabled);
   const { comparison, tree } = useStoryReviewComparison({
     source,
     identity,
     snapshot,
     ...defaultStoryComparison,
-    active: selectedRun === undefined,
+    active: enabled && selectedRun === undefined,
   });
+  if (!enabled)
+    return {
+      review: undefined,
+      reading: false,
+      problem: undefined,
+      shown: undefined,
+    };
   return {
     review,
     reading,

@@ -154,3 +154,15 @@ export function reviewFoldersHolding<T extends PathBearing>(
   }
   return [];
 }
+
+// Every folder that contains a changed item, outer folders before the
+// folders they hold.
+export function reviewFoldersContainingChanges<T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+): readonly string[] {
+  return nodes.flatMap((node) =>
+    node.kind === "folder" && node.containsChanges
+      ? [node.path, ...reviewFoldersContainingChanges(node.children)]
+      : [],
+  );
+}

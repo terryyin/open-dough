@@ -45,7 +45,7 @@ import {
   kindWords,
 } from "./StoryReviewFileTree.tsx";
 
-function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
+export function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
   return (
     <>
       <span className="story-review-kind">{kindWords[file.kind]}</span>{" "}

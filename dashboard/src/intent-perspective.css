@@ -279,3 +279,43 @@
 .intent-proof-example {
   color: var(--quiet);
 }
+
+/* The selected story's lens (./IntentStoryLens.tsx): the story, then the
+   revisions its comparison runs between or why there is none, above the
+   reading modes. The count of its changed files outside every location
+   heads the locations browser. */
+.intent-story-lens {
+  flex: none;
+  margin: 0 var(--page-gutter) var(--space-2);
+  line-height: 1.5;
+}
+
+.intent-story-lens p {
+  margin: 0;
+}
+
+.intent-story-lens .record-identity {
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.intent-story-problem button,
+.intent-story-outside button {
+  margin-left: var(--space-1);
+}
+
+.intent-story-outside {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  line-height: 1.5;
+}
+
+.intent-story-diff-name {
+  margin: 0 0 var(--space-2);
+}
+
+.intent-proof-published {
+  margin: 0 0 var(--space-2);
+  color: var(--quiet);
+}

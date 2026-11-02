@@ -2,8 +2,9 @@
 // the local `gh` behind the page's dashboard (./support/fakeGitHub.ts). The
 // journey records preparation through the real CLI, commits those files, and
 // answers contents requests with `git show <revision>:path` and directory
-// listings with `git ls-tree` at that revision — never with hand-constructed
-// display state; each listed agent profile's history is its addition by a
+// listings with `git ls-tree` at that revision (Intent's recursive location
+// listing with `git ls-tree -r`) — never with hand-constructed display
+// state; each listed agent profile's history is its addition by a
 // commit of its own (./pathHistoryAnswers.ts). A listing and a history read
 // are answered but not observed. A comparison of an accepted publication with
 // a shown revision is answered from the repository's own history
@@ -24,12 +25,18 @@ import {
   rawFileAnswer,
   type OriginAnswer,
 } from "./originAnswers.ts";
-import { directoryListingAnswer } from "./listingAnswers.ts";
+import { directoryListingAnswer, treeListingAnswer } from "./listingAnswers.ts";
 import { asksContainment, comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
-import { commitOf, listAt, listedAt, showAt } from "./committedOriginRepo.ts";
+import {
+  commitOf,
+  filesUnder,
+  listAt,
+  listedAt,
+  showAt,
+} from "./committedOriginRepo.ts";
 import {
   passingActionsAnswer,
   targetHistoryAnswer,
@@ -123,12 +130,17 @@ export function publishCommittedOrigin(
     }
     if (request.kind === "listing" && readable(request.revision)) {
       const overridden = instead.get(request.path);
-      if (overridden !== undefined) {
-        return overridden;
-      }
+      if (overridden !== undefined) return overridden;
       const listed = listedAt(repoDir, request.revision, request.path);
       // Absent directory: empty listing, not a temporary connection loss.
       return directoryListingAnswer(request.path, listed ?? []);
+    }
+    // Intent's recursive location listing, from the files committed under it.
+    if (request.kind === "tree" && readable(request.revision)) {
+      return treeListingAnswer(
+        request.path,
+        filesUnder(repoDir, request.revision, request.path) ?? {},
+      );
     }
     // Each agent profile listed at the revision was added by a commit of its
     // own; these history reads are answered but not observed.
@@ -180,9 +192,7 @@ export function publishCommittedOrigin(
     observe(requests, call);
     await held.get(request.path);
     const overridden = instead.get(request.path);
-    if (overridden !== undefined) {
-      return overridden;
-    }
+    if (overridden !== undefined) return overridden;
     const body = showAt(repoDir, request.revision, request.path);
     return body === undefined ? notFoundAnswer() : rawFileAnswer(body);
   });

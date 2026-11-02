@@ -15,12 +15,15 @@ export function useStoryReviewSelection(
   identity: string,
   round: number,
   completed = false,
+  // A disabled selection reads nothing.
+  enabled = true,
 ) {
   const workspaceRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
     { source, identity, ...(completed ? { completed: "true" } : {}) },
     storyReviewSchema,
     round,
+    enabled,
   );
   const [selection, setSelection] = useState<{
     of: StoryReview | undefined;
@@ -61,7 +64,9 @@ export function useStoryReviewSelection(
     { source, identity, run: selection.run ?? "" },
     storyReviewSchema,
     round,
-    selection.run !== undefined && answer?.selectedRun !== selection.run,
+    enabled &&
+      selection.run !== undefined &&
+      answer?.selectedRun !== selection.run,
   );
   const review =
     selection.run === undefined

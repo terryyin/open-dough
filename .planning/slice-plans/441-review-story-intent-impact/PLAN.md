@@ -173,7 +173,7 @@ model with shared styles, including modified. Enables slice 4.
 
 ### 4. Intent highlights the selected story's changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: new Intent journey on a workspace fixture with Intent settings
 (examples 1, 3, and 6). This journey also proves the overlay join. Include a
 deleted test and rename variants between two configured locations, into a
@@ -342,6 +342,32 @@ full gates on final state: whole dashboard suite 1894 passed (29.1m); npm test p
 - Review changes itself opens on "since" when a review mark exists; Intent
   uses the story's "all changes, including uncommitted" (commitment 7.1).
 
+### Slice 4 accepted proof
+
+```
+command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list --workers=6 dashboard/tests/intent- dashboard/tests/story-review- dashboard/tests/boundary/story-review- dashboard/tests/boundary/authenticated-read-intent dashboard/tests/development-intent-frame dashboard/tests/story-card-selection dashboard/tests/side-panel-content-replacement dashboard/tests/recently-done-one-shot-review
+covers: examples 1, 3, 6 and the deletion/rename variants; failed read with retry
+observations: intent-story-changes.spec.ts, intent-story-changes-moves.spec.ts, intent-story-changes-gaps.spec.ts (per id in source-review.md)
+result: pass (190); after refactor focused 57 passed, --repeat-each=4 intent-story-changes 16 passed
+full gates on final state: npm test passed; whole dashboard suite 1898 passed (29.3m)
+```
+
+- The location selection rule (kind + include) now lives in
+  `dashboard/src/intentLocationSelection.ts` on pinned `minimatch` (the
+  matcher Node's `matchesGlob` is built on, POSIX), shared by the server's
+  listing and `file-at` admission and by the overlay join
+  `intentStoryOverlay.ts`.
+- Placement: a change sits at its path where a location admits it; a rename
+  whose new path no location admits sits at its old path; a placed rename
+  removes its old published entry; a change neither path admits counts once
+  outside.
+- `committedOrigin.ts` already answers Intent's recursive `git/trees` read
+  (slice 6's first step).
+- Slice 5: filter `intentStoryOverlay` to changed entries; bump the
+  `IntentBrowser` expansion round and recompute `storyOverlayExpansion` at
+  each toggle. `IntentPerspective` unmounts when hidden, so a selection made in
+  Development applies at the next mount.
+
 ## Story obligations
 
 ### X1. Other Intent comparisons deferred
@@ -373,6 +399,26 @@ Reported: slice 1 — "Story selection through the URL and beyond today's sideba
 Story clause: "Story selection through the URL, and selecting a story from the sidebar or from story references beyond today's behavior."
 Disposition: excluded "Story selection through the URL, and selecting a story from the sidebar or from story references beyond today's behavior."
 Commitment: X5
+
+### G1. Unavailable review explanation unobserved
+Reported: slice 4 — "A review answer of unavailable or landing-unavailable shows its own explanation as unavailable with no retry. No test covers this path."
+Story clause: "A story with no comparison Review changes could offer, such as an active story with no recoverable workspace, gets an explanation."
+Disposition: receiving slice 6
+
+### G2. Summaries count only published files
+Reported: slice 4 — "Location and folder Summaries still count only published files, so inserted files are not in Summary counts."
+Story clause: "Proof keeps describing the published revision and says so."
+Disposition: no user cost "sees that story's test-file changes in place in the project's test source": Summaries report the published revision's files and their proof; an inserted file is absent from that revision, yet it is still shown in place with its change kind and its own note that the published revision lacks it (intent-story-changes spec)
+
+### G3. Completed story named by identity only
+Reported: slice 4 — "A completed story is named by its identity and read with completed: true. Slice 6 should supply the done record's title and prove it."
+Story clause: "Intent names the selected story"
+Disposition: receiving slice 6
+
+### G4. Compared revisions equal Intent's published revision in the fixture
+Reported: slice 4 — "The compared baseline and Intent's published revision are the same commit in this fixture, so the ADR 0008 distinction is shown as two separate elements but not observed with two different values."
+Story clause: "Intent states which revisions it compared."
+Disposition: receiving slice 6
 
 ## Concern evidence
 
