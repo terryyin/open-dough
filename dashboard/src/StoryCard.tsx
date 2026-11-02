@@ -43,6 +43,7 @@ import {
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { storyCardSessionsOf } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
+import { isStoryCardControl } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
 export function StoryCard({
@@ -97,6 +98,17 @@ export function StoryCard({
         .join(" ")}
       aria-label={entry.title}
       aria-describedby={reason}
+      onClick={(event) => {
+        // Empty-area clicks select as Inspect does; nested controls keep their
+        // own behavior. Startup keeps the card unselected while protected.
+        if (
+          starting ||
+          isStoryCardControl(event.target, event.currentTarget, event)
+        ) {
+          return;
+        }
+        onSelect(entry.identity);
+      }}
       {...storyCardMarks(entry.identity)}
     >
       <fieldset className="story-card-frame" disabled={starting}>

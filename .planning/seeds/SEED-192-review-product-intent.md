@@ -261,6 +261,13 @@ Individual refinements and their recorded facts below carry current preparation.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/441-review-story-intent-impact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9840a41e74f59afdf926142ada9c2ecc959dcfab6612a368f5a0a4fcccb7c16d","plan":"4e2f55876911b0fe7445f52efbd2c44dd263ca82c1f39e35d051bc69405227fc"}}
 ```
 
+**Execution note (2026-11-02):** Stopped mid slice 1 by human decision after
+local suite hang/stagnation. Uncommitted board-selection work and harness
+mitigations remain for landing with this stop. Plan Learnings record the suite
+root cause and point at SEED-218#fix-owned-calls-start-slack-hang. Resume this
+story after that fix, or when full `npm test` and dashboard gates are known
+green again.
+
 **Beneficiary:** A developer reviewing what one story changed in a configured
 project's maintained tests, such as Terry reviewing an Open Dough story in
 progress or one just completed.

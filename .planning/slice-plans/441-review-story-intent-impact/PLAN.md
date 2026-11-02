@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#review-story-intent-impact
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#review-story-intent-impact).
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -271,7 +272,69 @@ second caller needs, and its Structure proof observes the result.
 
 ## Learnings
 
-None yet.
+- Page selection API mutators must stay referentially stable across selection
+  changes, or reveal-and-select effects re-select after Hide detail.
+- Disabled card buttons do not receive clicks; empty-area handlers need
+  point-in-bounds control hit-testing so those clicks do not toggle selection.
+- Selection mark styling belongs in one CSS home (`story-cards.css`); splitting
+  it across `story-detail.css` forced dual edits for one rule.
+- Open `.story-detail` content is not empty area: treating it as a card-area
+  click closed Inspect mid-journey (`source-navigation` hostile pinned links).
+- Nested quiet Playwright proof runs must drop both `FORCE_COLOR` and
+  `NO_COLOR`; Cursor shells often set both and Node's conflict warning fails
+  empty-stderr expectations.
+- **Stopped 2026-11-02 (human):** Slice 1 selection is implemented with
+  focused proof green, but not published. Full `npm test` stalled for hours on
+  `github-request-owned-calls` (held fixture `gh` + start-slack misrecognition
+  deadlock; `--test-timeout=0`) and failed `dashboard-concurrent-runs` with
+  `ENOENT` on `dashboard/test-results/<stamp>`. Piping through `| tee | tail`
+  hid progress. Partial harness fixes (color env strip; pid-stamped Playwright
+  output dirs) are in the checkout. Follow-up:
+  SEED-218#fix-owned-calls-start-slack-hang. This story returns to the backlog;
+  resume after that hang fix, or with suite gates known green.
+
+### Slice 1 accepted proof
+
+```
+command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/story-card-selection.spec.ts
+covers: example 7 — empty-area/keyboard select/deselect; Hide detail; Start/session/sidebar/disclosure non-select; done no detail; Intent survival without Selected story only
+boundary: board story selection + Intent read of page selection
+result: pass (2)
+```
+
+Also green: `steady-refresh-inspection.spec.ts`, `story-reference-navigation.spec.ts`, `notification-story-navigation.spec.ts` (13).
+
+## Story obligations
+
+### X1. Other Intent comparisons deferred
+Reported: slice 1 — "Choosing another comparison in Intent is deferred."
+Story clause: "Choosing another comparison in Intent: since review mark, commit range, or committed only."
+Disposition: excluded "Choosing another comparison in Intent: since review mark, commit range, or committed only."
+Commitment: X1
+
+### X2. Story-changed Intent configuration deferred
+Reported: slice 1 — "Intent configuration as changed by the story itself is deferred."
+Story clause: "Intent configuration as changed by the story itself. Locations stay those of the published revision."
+Disposition: excluded "Intent configuration as changed by the story itself. Locations stay those of the published revision."
+Commitment: X2
+
+### X3. Story-version proof and judgment deferred
+Reported: slice 1 — "Proof for the story's changed version and protection or complexity judgment are deferred."
+Story clause: "Proof for the story's changed version, and judging whether the changes protect the story's intent (story 10) or how complex they are (story 11)."
+Disposition: excluded "Proof for the story's changed version, and judging whether the changes protect the story's intent (story 10) or how complex they are (story 11)."
+Commitment: X3
+
+### X4. Marking review from Intent deferred
+Reported: slice 1 — "Marking review progress from Intent is deferred."
+Story clause: "Marking review progress from Intent."
+Disposition: excluded "Marking review progress from Intent."
+Commitment: X4
+
+### X5. URL and beyond-today selection deferred
+Reported: slice 1 — "Story selection through the URL and beyond today's sidebar or reference behavior is deferred."
+Story clause: "Story selection through the URL, and selecting a story from the sidebar or from story references beyond today's behavior."
+Disposition: excluded "Story selection through the URL, and selecting a story from the sidebar or from story references beyond today's behavior."
+Commitment: X5
 
 ## Concern evidence
 

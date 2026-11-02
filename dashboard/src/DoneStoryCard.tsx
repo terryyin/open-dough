@@ -14,6 +14,8 @@
 // Review changes is always offered, independently of nested sessions, launch
 // records and whether done details or native state are readable. Published Git
 // history supplies the fallback when no usable local comparison remains.
+// Empty-area clicks and a native selection button select the story without
+// opening detail; nested controls keep their own behavior.
 
 import { useId } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
@@ -25,6 +27,7 @@ import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
+import { isStoryCardControl } from "./pageStorySelection.tsx";
 import { StorySessions } from "./SessionLists.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
@@ -48,6 +51,8 @@ export function DoneStoryCard({
   sessions,
   sourceId,
   launchRecords,
+  selected,
+  onSelect,
 }: {
   // The story and when it was done, as its done catalog names it.
   readonly identity: string;
@@ -61,6 +66,8 @@ export function DoneStoryCard({
   // Full retained launches, independently of which sessions are marked done.
   readonly launchRecords: readonly LaunchRecord[] | undefined;
   readonly sourceId: string;
+  readonly selected: boolean;
+  readonly onSelect: (identity: string) => void;
 }) {
   const heading = useId();
   const title = story?.title ?? identity;
@@ -78,9 +85,17 @@ export function DoneStoryCard({
   ];
   return (
     <article
-      className="done-story"
+      className={["done-story", selected && "story-card-selected"]
+        .filter(Boolean)
+        .join(" ")}
       aria-labelledby={heading}
       aria-busy={said !== undefined && !said.gap}
+      onClick={(event) => {
+        if (isStoryCardControl(event.target, event.currentTarget, event)) {
+          return;
+        }
+        onSelect(identity);
+      }}
       {...doneStoryMarks(identity)}
     >
       <h3 id={heading}>{title}</h3>
@@ -108,12 +123,28 @@ export function DoneStoryCard({
         className="done-story-sessions"
         onStoryCard={false}
       />
-      <StoryReviewAction
-        completed
-        sourceId={sourceId}
-        records={launchRecords}
-        work={{ identity, title }}
-      />
+      <div
+        className="story-card-action-group story-card-inspection-group"
+        role="group"
+        aria-label="Story actions"
+      >
+        <button
+          type="button"
+          className="select-story frame-disclosure-button"
+          aria-pressed={selected}
+          onClick={() => {
+            onSelect(identity);
+          }}
+        >
+          Select story
+        </button>
+        <StoryReviewAction
+          completed
+          sourceId={sourceId}
+          records={launchRecords}
+          work={{ identity, title }}
+        />
+      </div>
     </article>
   );
 }

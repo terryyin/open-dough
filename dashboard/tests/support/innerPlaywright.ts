@@ -27,7 +27,11 @@ export async function runInnerPlaywright(
   const env = {
     ...Object.fromEntries(
       Object.entries(process.env).filter(
-        ([name]) => !name.startsWith("TEST_") && !name.startsWith("PW_"),
+        ([name]) =>
+          !name.startsWith("TEST_") &&
+          !name.startsWith("PW_") &&
+          name !== "FORCE_COLOR" &&
+          name !== "NO_COLOR",
       ),
     ),
     ...extraEnv,

@@ -13,6 +13,7 @@ import {
 } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
+import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import "./intent-perspective.css";
@@ -171,8 +172,17 @@ export function IntentPerspective({
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
 }) {
+  // Intent reads the page's selected story; the comparison overlay uses this
+  // identity once it lands.
+  const { selectedIdentity } = useStorySelection(source.id);
   return (
-    <main className="intent-perspective" aria-label="Intent">
+    <main
+      className="intent-perspective"
+      aria-label="Intent"
+      {...(selectedIdentity !== undefined
+        ? { "data-selected-story": selectedIdentity }
+        : {})}
+    >
       <IntentBody source={source} work={work} />
     </main>
   );
