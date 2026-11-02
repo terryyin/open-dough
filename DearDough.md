@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 404. Removed numbers are never reused.
+- Highest allocated local number: 405. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -142,6 +142,16 @@ Former local code: DD-261. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 
 Former local code: DD-262. [Meaning, evidence and response](docs/maintainer/findings/ODF-226.md).
+
+### Occurrences
+- Execution: SEED-221#launch-records-poll-waits (plan 448; first implementation commit `aaa8e768d2c49bd1445b1d6560ed7af7b13b6c9f`)
+  - Timestamp: 2026-11-02T14:40+07:00 (slice-3 full-suite re-profile launch)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.81 (repository VERSION at claim `362bc06d`; installed skills unchanged through this execution)
+  - Evidence: coordinator's slice-3 script ran `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=… npm run --silent test:dashboard -- --reporter=dot` for the reference and the candidate; neither proof-record JSON was written (`dashboard/playwright.config.ts:67` wires that record through the configured reporters). Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3.
+  - Observed effect: the full-suite re-profile lost its per-test durations and the configured proof record, so the suite comparison rests on Playwright's summary line and earlier focused timings. Both runs still reported 1,898 passed.
+  - Inference: the same reporter-replacement mechanism as the original finding, reached here through a presentation flag on a full measurement run rather than a focused proof. A second pair of full runs (about an hour) would have been needed to recover the per-test data; it was not run.
 
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 
@@ -679,3 +689,21 @@ terms (`leftCalls`, `testOptions`) did not prevent that derived-path noise.
   - Evidence: implementation trace `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/plan444-consumers.nr9p2cxx/trace.md`, Effect terms and Located consumers; coordinator's full trace read reported 34,965 original tokens and truncated output. Refactor trace `/tmp/plan444-refactor-consumers.aCT4yS/trace.md` restricted the changed path to the test and exposed its actual job-label/timing/story consumers.
   - Observed effect: irrelevant trace rows consumed output/context; the coordinator followed with bounded searches and inspected the narrower trace. No missed consumer, test failure, or hang was established.
   - Inference: generated generic planning basenames need separate handling or an explicit changed-path selection. Related to ODF-350/ODF-352, but this observation concerns automatic path basenames, not supplied substring terms or data keys; shared reconciliation is not performed here.
+
+## DD-405 — Full local suite wall includes waiting for repository-wide admission
+
+`scripts/local-test-suite.mjs` admits one full local verification per
+repository across linked worktrees, so a `npm run test:dashboard` started while
+another worktree's suite runs waits before Playwright starts. Shell wall time
+for a re-profile then includes that queue, and it is not comparable with a
+reference run that was admitted at once.
+
+### Occurrences
+- Execution: SEED-221#launch-records-poll-waits (plan 448; first implementation commit `aaa8e768d2c49bd1445b1d6560ed7af7b13b6c9f`)
+  - Timestamp: 2026-11-02T15:15+07:00 (candidate full-suite run start; finished 16:23+07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.81 (repository VERSION at claim `362bc06d`; installed skills unchanged through this execution)
+  - Evidence: back-to-back runs recorded 2,063s and 4,068s shell wall, but Playwright reported 31.3 min and 29.6 min. Two other worktrees' full Playwright suites were running during the candidate run (`ps`). `dashboard/playwright.config.ts:18` calls `acquireLocalSuite`. `pmset -g log` showed no sleep. Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3, and Learnings.
+  - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
+  - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.

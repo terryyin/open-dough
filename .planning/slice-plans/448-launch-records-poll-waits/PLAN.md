@@ -123,6 +123,18 @@ when the work is done.
 Internal change: measurement and record update only; it closes the
 transferred `launch-records-poll-waits` obligation.
 
+## Execution complete
+
+Product advice: no backlog change. This execution removed recorded test cost
+rather than adding product behavior, and it leaves no pending or transferred
+candidate. The remaining accepted necessary costs keep their decisions, now
+with current focused timings. Near-future direction (Purpose and Proof review)
+is unaffected and keeps its priority. For wrap-up to assimilate as lasting
+test guidance: under a paused page clock xterm draws only as page time passes,
+so a journey that reads terminal text advances whole paces with `passOnePace`.
+Also, compare a full local suite's Playwright-reported time, not shell wall,
+because repository-wide admission can queue it.
+
 ## Current decisions
 
 - Retain a slice only with a measured focused gain; summed or fewer seconds
