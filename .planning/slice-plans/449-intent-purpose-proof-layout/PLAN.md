@@ -154,7 +154,7 @@ scrolls the reading area to the top, so scroll-sensitive steps use
 
 ### 3. Side by side panels
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/intent-purpose-proof-side-by-side.spec.ts`
 (examples 2, 4, 7 for layouts).
 
@@ -168,6 +168,26 @@ above Proof with the toggle still pressed (container width, so the existing
 52rem tree breakpoint and a wide tree both stack correctly); pressing again
 restores tabs with the previously chosen tab. Choice lasts for the page in
 this slice (interim, replaced by slice 4).
+
+Accepted (2026-11-02): `IntentBrowser.tsx` owns one page value
+`readingLayout` (`"tabs" | "side-by-side"`, `IntentReadingLayout` from
+`IntentFileReading.tsx`), outside the record-open remount; slice 4
+initialises it from `readKept` and keeps it in the setter passed as
+`onChooseLayout`. The toggle (`button.intent-reading-layout`, `aria-pressed`)
+sits in the reading bar; side by side drops the tablist, shows the headings
+and scrolls each `.intent-reading-panel-body`; `@container intent-reading
+(width < 52rem)` stacks. Reading-place memory is `useIntentReadingPlaces.ts`;
+reading-bar and panel rules are `intent-file-reading.css`. Story selection
+(19.4) is the page-level `data-selected-story`. Proof:
+`intent-purpose-proof-side-by-side.spec.ts` and `-side-by-side-case.spec.ts`
+(four Purpose/Proof specs repeat-each 10: 40 passed); the Intent, header,
+board-scroll, project-selection and story-card-selection set: 64 passed.
+Docs: the Intent section already describes Side by side and dropped "layout
+switching not offered yet"; slice 4 adds only the kept-in-this-browser
+wording, the North Star removal and design-review wording. Learnings for
+slice 4: `IntentBrowser` remounts per source/revision, so read the kept value
+on mount; use `sideBySideToggle`/`expectSideBySide`; wait for the source text
+before counting reads.
 
 ### 4. Remember Side by side in this browser
 Type: Behavior

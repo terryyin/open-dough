@@ -5,7 +5,7 @@
 // the page asks, Intent's not-configured content when the project publishes
 // no intent locations, Intent's reading-mode tabs (../src/IntentModeTabs.tsx)
 // and the Test Optimization Candidates record they show, and the Purpose and
-// Proof tabs over the reading area.
+// Proof tabs over the reading area with the Side by side toggle beside them.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -212,4 +212,36 @@ export async function expectReadingTabChosen(
   await expect(
     intent.getByRole("region", { name: other, exact: true }),
   ).toHaveCount(0);
+}
+
+// The Side by side toggle beside the Purpose and Proof tabs.
+export function sideBySideToggle(intent: Locator) {
+  return intent.getByRole("button", { name: "Side by side", exact: true });
+}
+
+// Purpose and Proof, both shown as panels without tabs, named by their
+// headings. Returns the two regions.
+export async function expectSideBySide(intent: Locator) {
+  await expect(sideBySideToggle(intent)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(
+    intent.getByRole("tablist", { name: "Purpose and Proof" }),
+  ).toHaveCount(0);
+  const regions = {
+    purpose: intent.getByRole("region", { name: "Purpose", exact: true }),
+    proof: intent.getByRole("region", { name: "Proof", exact: true }),
+  };
+  for (const [region, name] of [
+    [regions.purpose, "Purpose"],
+    [regions.proof, "Proof"],
+  ] as const) {
+    await expect(region).toBeVisible();
+    // Shown to the reader, not only named: a visually hidden heading is 1px.
+    const heading = region.getByRole("heading", { name, exact: true });
+    await expect(heading).toBeVisible();
+    expect((await heading.boundingBox())?.height ?? 0).toBeGreaterThan(8);
+  }
+  return regions;
 }

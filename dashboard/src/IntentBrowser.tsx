@@ -4,7 +4,8 @@
 // locations. Locations and folders share caret (expansion only) and name
 // (select; toggle once selected) controls; a caret never changes selection or
 // the reading pane. A file, or nothing selected yet, shows Purpose and Proof
-// tabs (`./IntentFileReading.tsx`); a location or folder name shows a Summary
+// as tabs or side by side (`./IntentFileReading.tsx`), one reader layout for
+// the page; a location or folder name shows a Summary
 // (`./IntentSummary.tsx`). The record fills the content area
 // without the locations; it is read the first time it is chosen and stays
 // mounted after, so opening a test from it and returning does not reread it. A
@@ -20,6 +21,7 @@ import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import {
   IntentFileReading,
   type FileRead,
+  type IntentReadingLayout,
   type IntentReadingTab,
 } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
@@ -64,6 +66,10 @@ export function IntentBrowser({
   const [fileRetry, setFileRetry] = useState(0);
   // Purpose or Proof, kept across file selections (`./IntentFileReading.tsx`).
   const [readingTab, setReadingTab] = useState<IntentReadingTab>("purpose");
+  // Tabs or side by side, for the page; kept here so a record open, which
+  // starts a fresh reading, keeps it.
+  const [readingLayout, setReadingLayout] =
+    useState<IntentReadingLayout>("tabs");
   // Each open from the record starts a fresh reading, positioned on its case.
   const [recordOpens, setRecordOpens] = useState(0);
   const readingArea = useRef<HTMLDivElement | null>(null);
@@ -176,6 +182,8 @@ export function IntentBrowser({
               key={recordOpens}
               tab={readingTab}
               onChooseTab={setReadingTab}
+              layout={readingLayout}
+              onChooseLayout={setReadingLayout}
               idPrefix={readingIdPrefix}
               readingArea={readingArea}
               path={selectedPath}

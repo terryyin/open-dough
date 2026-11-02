@@ -1,13 +1,16 @@
 // Purpose and Proof of the selected file, or of nothing selected yet
-// (`./IntentBrowser.tsx`): two tabs of one Intent tablist (`./IntentTabs.tsx`)
-// at the top of the reading area, the chosen tab's panel filling it. The
-// chosen tab is the reader's page state, owned by the browser so selecting
-// another file keeps it, and opening from the candidates record chooses
-// Purpose and starts a fresh reading positioned on its case. The file read
-// and proof are the browser's, so a tab switch reads nothing again; each tab
-// returns to where it was read in this file, a positioned case included.
+// (`./IntentBrowser.tsx`), in one of two reader layouts. With tabs, two tabs
+// of one Intent tablist (`./IntentTabs.tsx`) at the top of the reading area,
+// the chosen tab's panel filling it; side by side, both panels together, each
+// named by its heading and scrolling on its own. The **Side by side** toggle
+// beside the tabs switches layouts. The layout and the chosen tab are the
+// reader's page state, owned by the browser so selecting another file keeps
+// them, and opening from the candidates record chooses Purpose and starts a
+// fresh reading positioned on its case. The file read and proof are the
+// browser's, so a tab or layout switch reads nothing again, and each returns
+// to where it was read in this file (`./useIntentReadingPlaces.ts`).
 
-import { useLayoutEffect, useRef, type RefObject } from "react";
+import { useRef, type RefObject } from "react";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
@@ -17,8 +20,13 @@ import {
   intentTabPanelId,
   type IntentTabOption,
 } from "./IntentTabs.tsx";
+import { useIntentReadingPlaces } from "./useIntentReadingPlaces.ts";
+import "./frame-controls.css";
+import "./intent-file-reading.css";
 
 export type IntentReadingTab = "purpose" | "proof";
+
+export type IntentReadingLayout = "tabs" | "side-by-side";
 
 export type FileRead =
   | { readonly path: string; readonly state: "failed" }
@@ -32,6 +40,8 @@ const tabs: readonly IntentTabOption<IntentReadingTab>[] = [
 export function IntentFileReading({
   tab,
   onChooseTab,
+  layout,
+  onChooseLayout,
   idPrefix,
   readingArea,
   path,
@@ -46,8 +56,10 @@ export function IntentFileReading({
 }: {
   readonly tab: IntentReadingTab;
   readonly onChooseTab: (next: IntentReadingTab) => void;
+  readonly layout: IntentReadingLayout;
+  readonly onChooseLayout: (next: IntentReadingLayout) => void;
   readonly idPrefix: string;
-  // The reading area that scrolls the chosen panel.
+  // The reading area that scrolls the chosen panel with tabs.
   readonly readingArea: RefObject<HTMLDivElement | null>;
   // The selected file's path, or "" when nothing is selected.
   readonly path: string;
@@ -61,28 +73,32 @@ export function IntentFileReading({
   readonly onFileRetry: () => void;
   readonly onProofRetry: () => void;
 }) {
-  // Where each tab was last read, for one file.
-  const places = useRef({ path, top: { purpose: 0, proof: 0 } });
+  const purposeBody = useRef<HTMLDivElement | null>(null);
+  const keepPlaces = useIntentReadingPlaces({
+    path,
+    tab,
+    layout,
+    readingArea,
+    purposeBody,
+  });
   const text = read?.state === "ready" ? read.text : undefined;
+  const sideBySide = layout === "side-by-side";
 
   function chooseTab(next: IntentReadingTab) {
     if (next === tab) return;
-    if (places.current.path !== path) {
-      places.current = { path, top: { purpose: 0, proof: 0 } };
-    }
-    places.current.top[tab] = readingArea.current?.scrollTop ?? 0;
+    keepPlaces();
     onChooseTab(next);
   }
 
-  useLayoutEffect(() => {
-    const area = readingArea.current;
-    if (area === null || places.current.path !== path) return;
-    area.scrollTop = places.current.top[tab];
-    // Only a tab switch returns to a place; a new file starts its own.
-  }, [tab]);
+  function toggleLayout() {
+    keepPlaces();
+    onChooseLayout(sideBySide ? "tabs" : "side-by-side");
+  }
 
   function panel(value: IntentReadingTab) {
+    if (sideBySide) return { className: "intent-reading-panel" } as const;
     return {
+      className: "intent-reading-panel",
       role: "tabpanel",
       id: intentTabPanelId(idPrefix, value),
       "aria-labelledby": intentTabId(idPrefix, value),
@@ -90,54 +106,81 @@ export function IntentFileReading({
     } as const;
   }
 
+  // Tabs name the panels; side by side, their headings do.
+  const headingClass = sideBySide ? undefined : "visually-hidden";
+
   return (
     <>
       <div className="intent-reading-bar">
-        <IntentTabs
-          options={tabs}
-          selected={tab}
-          onSelect={chooseTab}
-          label="Purpose and Proof"
-          idPrefix={idPrefix}
-        />
-      </div>
-      <div className="intent-reading-panel" {...panel("purpose")}>
-        <section className="intent-purpose" aria-label="Purpose">
-          <h3 className="visually-hidden">Purpose</h3>
-          {path === "" ? (
-            <p className="quiet">Select a feature file to read its Purpose.</p>
-          ) : read?.state === "failed" ? (
-            <p className="intent-file-problem" role="alert">
-              {path} could not be read.{" "}
-              <button type="button" onClick={onFileRetry}>
-                Retry
-              </button>
-            </p>
-          ) : text !== undefined ? (
-            <IntentSourceLines
-              text={text}
-              revision={revision}
-              path={path}
-              {...(kind === undefined ? {} : { language: kind })}
-              {...(caseTarget === undefined ? {} : { caseTarget })}
-            />
-          ) : (
-            <p className="quiet">Reading {path}…</p>
-          )}
-        </section>
-      </div>
-      <div className="intent-reading-panel" {...panel("proof")}>
-        <section className="intent-proof" aria-label="Proof">
-          <h3 className="visually-hidden">Proof</h3>
-          <IntentProof
-            path={path}
-            kind={kind}
-            text={text}
-            proof={proof}
-            rereading={proofRereading}
-            onRetry={onProofRetry}
+        {sideBySide ? null : (
+          <IntentTabs
+            options={tabs}
+            selected={tab}
+            onSelect={chooseTab}
+            label="Purpose and Proof"
+            idPrefix={idPrefix}
           />
-        </section>
+        )}
+        <button
+          type="button"
+          className="frame-button intent-reading-layout"
+          aria-pressed={sideBySide}
+          onClick={toggleLayout}
+        >
+          Side by side
+        </button>
+      </div>
+      <div
+        className={
+          sideBySide
+            ? "intent-reading-panels is-side-by-side"
+            : "intent-reading-panels"
+        }
+      >
+        <div {...panel("purpose")}>
+          <section className="intent-purpose" aria-label="Purpose">
+            <h3 className={headingClass}>Purpose</h3>
+            <div className="intent-reading-panel-body" ref={purposeBody}>
+              {path === "" ? (
+                <p className="quiet">
+                  Select a feature file to read its Purpose.
+                </p>
+              ) : read?.state === "failed" ? (
+                <p className="intent-file-problem" role="alert">
+                  {path} could not be read.{" "}
+                  <button type="button" onClick={onFileRetry}>
+                    Retry
+                  </button>
+                </p>
+              ) : text !== undefined ? (
+                <IntentSourceLines
+                  text={text}
+                  revision={revision}
+                  path={path}
+                  {...(kind === undefined ? {} : { language: kind })}
+                  {...(caseTarget === undefined ? {} : { caseTarget })}
+                />
+              ) : (
+                <p className="quiet">Reading {path}…</p>
+              )}
+            </div>
+          </section>
+        </div>
+        <div {...panel("proof")}>
+          <section className="intent-proof" aria-label="Proof">
+            <h3 className={headingClass}>Proof</h3>
+            <div className="intent-reading-panel-body">
+              <IntentProof
+                path={path}
+                kind={kind}
+                text={text}
+                proof={proof}
+                rereading={proofRereading}
+                onRetry={onProofRetry}
+              />
+            </div>
+          </section>
+        </div>
       </div>
     </>
   );

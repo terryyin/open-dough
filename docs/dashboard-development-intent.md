@@ -69,12 +69,20 @@ starts on **Purpose**. The tabs use the same Arrow, Home and End keys as the
 mode strip, which never reach project cycling. Switching tabs reads nothing
 again and keeps the selection, a positioned case and where each tab was
 read in that file; a location or folder summary has no tabs.
+A **Side by side** toggle beside the tabs shows Purpose and Proof together
+instead, each named by its heading and scrolling on its own, both following
+the selection; where the reading pane is too narrow for two columns,
+including whenever the location tree sits above it, Purpose stacks above
+Proof with the toggle still on. Turning it off brings back the tab chosen
+before. The layout lasts for the page; switching it reads nothing again and
+keeps the selection, the reading mode, the selected story and the line
+Purpose was read at, so a positioned case stays in view.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
-**Purpose** chosen, positioned on the entry's case where that names one
-line, and choosing **Optimization Candidates** again returns to
+**Purpose** chosen, or shown side by side, positioned on the entry's case
+where that names one line, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again. The choice is disposable page
 state, not on the URL; a project change or a new revision starts again on
 **Intent**. A location that is
@@ -83,7 +91,7 @@ by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
 are configured and names the setting and file; it shows no empty tree. An
 unreadable or malformed settings file is a distinct explanation from absence.
-Structure and Purpose/Proof layout switching are not offered yet. The perspective is disposable
+Structure is not offered yet. The perspective is disposable
 presentation state on the URL (`perspective=intent`), independent of
 Development's stories/roster view, which Intent keeps to return to. Choosing
 a perspective adds one history entry and never selects another project;
