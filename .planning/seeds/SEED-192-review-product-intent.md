@@ -947,7 +947,7 @@ across an unbuilt policy.
 
 **Identity:** SEED-192#remove-candidate-pass-summary
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/445-remove-candidate-pass-summary/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aab5bba84c473892781c3bf6c4d10887e181ba098475fc0a33bb1ab39c191f09","plan":"27facbe727ee088d31e66133f62ead1ad2159909772b7b20be9890c889882179"}}
 ```
 
 **Goal:** Developers maintain test optimization candidates without a latest-pass
