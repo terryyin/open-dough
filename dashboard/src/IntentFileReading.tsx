@@ -7,8 +7,8 @@
 // and the layout one choice this browser keeps, both owned by the Intent
 // browser so selecting another file keeps them, and opening from the
 // candidates record chooses Purpose and starts a fresh reading positioned on
-// its case. The file read and proof are the
-// browser's, so a tab or layout switch reads nothing again, and each returns
+// its case, side by side with its Proof row in view. The file read and proof
+// are the browser's, so a tab or layout switch reads nothing again, and each returns
 // to where it was read in this file (`./useIntentReadingPlaces.ts`). A file
 // the selected story changed (`./intentStoryOverlay.ts`) shows Review changes'
 // own diff of it as its Purpose, and its Proof says it describes the published
@@ -16,6 +16,7 @@
 
 import { useRef, type RefObject } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
@@ -98,6 +99,11 @@ export function IntentFileReading({
     purposeBody,
   });
   const text = read?.state === "ready" ? read.text : undefined;
+  // The opened case's line, which Purpose and Proof each position on.
+  const targetLine =
+    text === undefined || caseTarget === undefined
+      ? undefined
+      : resolveCaseTargetLine(text, caseTarget);
   const sideBySide = layout === "side-by-side";
   const change = treeFile?.change;
   // The selected change's *from* tree, as Review changes reads it.
@@ -194,7 +200,7 @@ export function IntentFileReading({
                   revision={revision}
                   path={path}
                   {...(kind === undefined ? {} : { language: kind })}
-                  {...(caseTarget === undefined ? {} : { caseTarget })}
+                  {...(targetLine === undefined ? {} : { targetLine })}
                 />
               ) : (
                 <p className="quiet">Reading {path}…</p>
@@ -222,6 +228,8 @@ export function IntentFileReading({
                   kind={kind}
                   text={text}
                   proof={location?.proof}
+                  targetLine={targetLine}
+                  sideBySide={sideBySide}
                   rereading={proofRereading}
                   onRetry={onProofRetry}
                 />

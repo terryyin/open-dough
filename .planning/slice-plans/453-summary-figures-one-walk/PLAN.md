@@ -93,7 +93,7 @@ the path and sum line.
 
 ### 3. Side by side shows the opened case's Proof row
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-summary-drill-down.spec.ts` Side by side step on a fixture
 whose Proof table exceeds the pane, with the plan's intent specs green.
 
