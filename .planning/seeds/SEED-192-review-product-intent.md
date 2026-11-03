@@ -246,7 +246,7 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#intent-link-follows-landed-run
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/455-intent-link-follows-landed-run/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/455-intent-link-follows-landed-run/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1089b42c241e711b2125072ea57b6ce4b58986bd0b09dd7fb91e3b0b58a156ad","plan":"7b921a134ba3126f77099f3ebfa2f8a9cfb707f03cdc4b4b98a166333f5edbf1"}}
 ```
 
 **Goal:** A developer reviewing a story in Intent, such as Terry, who has

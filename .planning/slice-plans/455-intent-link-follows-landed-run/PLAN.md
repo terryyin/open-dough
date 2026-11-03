@@ -31,6 +31,9 @@ run. The guard is right only when the workspace answer itself carries
 exception. `dashboard/tests/intent-story-changes-marked.spec.ts` has no
 landed run.
 
+Still present at trunk `a29f6252` (2026-11-03): `useStoryReviewRequest.ts`
+is unchanged since `2a11506c`.
+
 ## Goal and scope
 
 Intent's link returns a review showing a developer-chosen landed run to
@@ -42,18 +45,39 @@ choice inside Intent.
 
 ## Existing solutions and decisions
 
-- `useStoryReviewSelection` already distinguishes the answer's own
-  `selectedRun` from a chosen run; `onWorkspace` clears a chosen run.
-- The marked journey's fixture (`support/intentStoryPage.ts`
-  `selectTakenStoryInIntent`, `support/storyReviewMark.ts`) and the landed-run
-  fixtures used by `story-review` journeys supply the starting state.
+- `useStoryReviewSelection` distinguishes the answer's own `selectedRun` from
+  a chosen run internally (`answer.selectedRun !== selection.run` drives its
+  historical read) but does not return that distinction. `onWorkspace` clears
+  a chosen run; clearing the answer's own run would leave a landed review
+  without its run choice, since the selection follows the answer only when
+  the answer changes. The request hook therefore needs to know whether the
+  shown run is the answer's own before it yields to Intent's request.
+- The server answers the landed fallback when the story's workspace is not
+  readable and a captured landing exists (`server/storyReviewRequest.ts`),
+  for a Taken story whose worktree is gone and for a completed one; Intent
+  shows a landed review as a fixed comparison (`src/storyComparisonShown.ts`).
+- Starting states, settled in this checkout on 2026-11-03:
+  - A live-workspace snapshot whose `runs` list landed runs, with the
+    Comparison switch offering **Landed runs**, is observed by
+    `story-review-one-shot-choice.spec.ts` and
+    `story-review-story-branch-landed.spec.ts`. `capturedChoice`
+    (`support/oneShotReviewChoices.ts`) lands a one-shot run for Story A
+    through the real installed delivery with the Codex native fixture, which
+    `support/preparationPage.ts` supplies under
+    `test.use({ preparationHost: "codex" })`; `selectTakenStoryInIntent`
+    (`support/intentStoryPage.ts`) then takes Story A with a live workspace
+    and shows Intent, and `support/storyReviewMark.ts` marks it.
+  - The landed fallback with capture is observed after retirement on the
+    Recently done card in `story-review-story-branch-landed.spec.ts`
+    (`kind: "landed"` with `selectedRun`); Intent selects a done card as
+    `intent-story-completed.spec.ts` does.
 
 ## Outside-in proof
 
 | Example | Signal |
 | --- | --- |
 | Taken story with a live workspace and a landed run; Review switched to Landed run; Intent's **Review changes** followed | Review shows All changes with uncommitted changes included, and a changed file's diff equals Intent's |
-| A review whose workspace answer falls back to a landed run | following Intent's link keeps that run, which Intent shows too |
+| A review whose workspace answer falls back to a landed run (workspace retired, landing captured) | following Intent's link keeps that run, which Intent shows too |
 
 Command:
 `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list <specs>`
@@ -69,11 +93,11 @@ written.
 ### 1. Intent's link leaves a chosen landed run
 Type: Behavior
 Status: planned
-Proof: extend an Intent journey with a landed run: switch Review to Landed
-run, follow Intent's link, and observe All changes with Intent's diff; a
-landed-fallback review stays on its run; the `intent-`, `story-review` and
-`boundary/story-review` suites stay green. Update the sentence in
-`dashboard/STORY-REVIEW-MARKS.md`.
+Proof: extend an Intent journey with a landed run from the fixtures above:
+switch Review to Landed run, follow Intent's link, and observe All changes
+with Intent's diff; a landed-fallback review stays on its run; the `intent-`,
+`story-review` and `boundary/story-review` suites stay green. Update the
+sentence in `dashboard/STORY-REVIEW-MARKS.md`.
 
 Behavior: a review showing a developer-chosen landed run → the developer
 follows Intent's **Review changes** → Review shows Intent's comparison.
@@ -86,4 +110,6 @@ follows Intent's **Review changes** → Review shows Intent's comparison.
 ## Concern evidence
 
 Refinement not needed: one slice with one proof loop, a directly owned
-correction of one finding.
+correction of one finding. Decisive premises (the finding's presence and the
+fixtures for both examples) were settled on 2026-11-03 in this checkout, as
+recorded above; no slice-specific concern remains.
