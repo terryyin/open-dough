@@ -2,8 +2,10 @@
 
 **Identity:** SEED-192#intent-link-follows-landed-run
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run),
-correcting story 5a (`SEED-192#align-intent-story-lens`), whose plan was
-`.planning/slice-plans/448-align-intent-story-lens/PLAN.md`.
+correcting story 5a (`SEED-192#align-intent-story-lens`), recoverable as
+`git show 6a3a18c5:.planning/seeds/SEED-192-review-product-intent.md`
+(section `#align-intent-story-lens`) with its plan at
+`6a3a18c5:.planning/slice-plans/448-align-intent-story-lens/PLAN.md`.
 
 ## Provenance
 

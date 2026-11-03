@@ -240,29 +240,6 @@ Individual refinements and their recorded facts below carry current preparation.
 
 ## Story Decomposition
 
-<a id="align-intent-story-lens"></a>
-
-### 5a. Keep the story lens consistent with Review changes
-
-**Identity:** SEED-192#align-intent-story-lens
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/448-align-intent-story-lens/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"78125237365a814e9b29498fe4395764f2278a2ea3c0585124649e71e8d7cc68","plan":"280053fbb9165128393b5df69d3a9227f353ab7f91853c1d9ea4c4c525be49bc"}}
-```
-
-**Goal:** A developer reviewing a story's test changes in Intent, such as Terry,
-gets the selection and comparison story 5 promised: clicks inside a card's
-opened disclosure leave the selection alone, and Intent's link to Review
-changes shows the same comparison Intent shows, even for a story with a review
-mark. This bounded retrospective correction of
-[story 5](https://github.com/terryyin/open-dough/blob/66cfcb6d4ad1797c0e1fcbb187fe5b674102219c/.planning/seeds/SEED-192-review-product-intent.md#review-story-intent-impact) adds no new product promise.
-
-**Scope:** Exclude opened disclosure content from card selection; open Review
-changes from Intent on all changes, including uncommitted ones; describe board
-selection and Intent's folder default in the dashboard docs; and remove the
-residue the retrospective found in the story's code and tests.
-
-**Plan:** [slice plan](../slice-plans/448-align-intent-story-lens/PLAN.md)
-
 <a id="intent-link-follows-landed-run"></a>
 
 ### 5b. Return a landed-run review to Intent's comparison
@@ -276,7 +253,9 @@ residue the retrospective found in the story's code and tests.
 switched Review changes to **Landed run** and then follows Intent's **Review
 changes** link again, sees the comparison Intent shows, so the two views do
 not disagree. This bounded retrospective correction of
-[story 5a](#align-intent-story-lens) adds no new product promise.
+story 5a (`SEED-192#align-intent-story-lens`, recoverable as
+`git show 6a3a18c5:.planning/seeds/SEED-192-review-product-intent.md`, section
+`#align-intent-story-lens`) adds no new product promise.
 
 **Scope:** Intent's link returns a shown review from a landed run the
 developer chose to Intent's comparison; a review whose workspace answer

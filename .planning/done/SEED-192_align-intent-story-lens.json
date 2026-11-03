@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#align-intent-story-lens",
+  "title": "Keep the story lens consistent with Review changes",
+  "completedAt": "2026-11-03T03:13:14.437Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "claude",
+  "model": "opus"
+}
