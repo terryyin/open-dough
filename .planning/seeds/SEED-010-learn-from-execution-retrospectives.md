@@ -214,6 +214,98 @@ native delivery evidence remain distinct under
 [ADR 0005 — Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 No architectural exception or new ADR is proposed here.
 
+## Stories
+
+<a id="settle-lifecycle-commitments-outside-slices"></a>
+
+### 19. Settle post-execution lifecycle commitments outside slice acceptance
+
+**Identity:** SEED-010#settle-lifecycle-commitments-outside-slices
+
+**Beneficiary and outcome:** A coordinator executing a Story Branch plan can
+complete every slice when the story or its source review also promises
+landing, final target CI, a release from trunk or completion reporting. Each
+such commitment has an owner that can observe it after execution, or the plan
+names the retained landing its trunk step needs at its human checkpoint. No
+commitment is recorded as observed from a pending gate, and no human stop is
+needed merely to break the circular gate.
+
+**Evidence:** [ODF-333](../../docs/maintainer/findings/ODF-333.md) retains
+Pygardon SEED-120 and SEED-150 executions and, this cycle, Pygardon
+SEED-20261073#story-deliberate-cucumber-proof, Open Dough
+SEED-192#read-observed-test-proof (source DD-401) and
+SEED-208#trustworthy-ci-completion (source DD-387), and Doughnut
+SEED-096#cucumber-proof (source DD-333). Effects include owner round trips, a
+second stop inside an approved rollout, observations that name a pending gate,
+and a separate phase disposition before delivery. No waived product promise or
+false completion is claimed.
+
+**Bounded scope:** Reuse current planning, source-review allocation, Story
+obligations, completion and wrap-up. Distinguish commitments that can only be
+observed after execution completion and give them that later owner; keep them
+mandatory and unobserved until it observes them. Plans whose slice must act
+from trunk name the retained landing at the checkpoint that authorizes the
+step, or choose Trunk Mode. Do not weaken CI, landing or release gates, change
+the ODF-267/270 vocabularies, or alter release procedure.
+
+**Key examples:** A source review returns "final target CI is settled": it is
+owned by completion, the last slice completes, and closure still refuses until
+that CI is observed. A rollout slice releases from trunk: the plan names the
+retained landing and one go-ahead covers both. A lifecycle commitment still
+unobserved at wrap-up blocks closure with its owner named.
+
+**Evaluation:** Replay at least the Pygardon plan G2/commitment-52 case,
+Doughnut plan 079's G3 split and Open Dough plan 432's completion-owned rows
+through the changed path; confirm no circular refusal and no gate-only human
+stop, and that closure still refuses each unobserved lifecycle commitment.
+Retain actual effort and limits. At closure, record the actual response
+revision and first containing release (or explicitly unreleased status) at
+ODF-333; later ordinary use remains a separate observation. **Queued, not
+refined or implemented.**
+
+<a id="proportionate-refactor-for-records-and-repairs"></a>
+
+### 20. Proportion the fresh refactor pass for records-only increments and small repairs
+
+**Identity:** SEED-010#proportionate-refactor-for-records-and-repairs
+
+**Beneficiary and outcome:** A coordinator delivering an increment that
+changes only planning or execution records, or a few-line CI repair inside
+code its slice's accepted refactor already reviewed, follows one explicit
+rule: a recorded coordinator disposition naming that scope replaces a fresh
+full refactor agent. Product-changing work keeps the independent pass.
+Coordinators neither pay a no-op agent turn nor skip the pass silently.
+
+**Evidence:** [ODF-141](../../docs/maintainer/findings/ODF-141.md) retains
+no-op fresh passes across all four earlier projects; this cycle adds three
+Pygardon, two Doughnut and two Clipboard executions (about 50–60k subagent
+tokens or 4–12 reported minutes per pass where recorded). Clipboard
+SEED-001#copy-files skipped the pass for small repairs without an authorizing
+rule, as did the three executions at
+[ODF-276](../../docs/maintainer/findings/ODF-276.md). Other passes in the
+same executions made useful edits; that benefit must be kept.
+
+**Bounded scope:** Change only the delivery and refactor guidance, and any
+delivery check that requires the pass, for records-only increments and small
+repairs within already-reviewed code. Keep the full pass for new or moved
+product responsibility, changes outside the reviewed scope and any uncertain
+case. Do not change refactor criteria or file-size policy.
+
+**Key examples:** A plan-only waiver slice records the disposition. A
+three-line test-fixture CI repair in a file the slice's refactor reviewed
+records the disposition naming that review. A new product module gets the
+full pass. A small repair in another subsystem gets the full pass.
+
+**Evaluation:** Replay retained no-op cases (Doughnut plan 080 slices 1–2,
+Clipboard SEED-001#portable-text repairs, Pygardon plan 482 slices 6–8) and at
+least one retained pass that found real residue, confirming the rule still
+requires that pass. Report agent turns and tokens avoided in replay with their
+limits. At closure, record the actual response revision and first containing
+release (or explicitly unreleased status) at ODF-141 and ODF-276; later
+ordinary use remains a separate observation. **Queued, not refined or
+implemented.**
+
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

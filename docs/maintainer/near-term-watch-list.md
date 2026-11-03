@@ -1,18 +1,18 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-11-01","reviewAfter":"2026-11-04"}
+{"schemaVersion":1,"reviewed":"2026-11-03","reviewAfter":"2026-11-10"}
 ```
 
-Reviewed 2026-11-01 (Asia/Singapore): combined-cycle review of Open Dough,
-Doughnut, Pygardon and Lizard post-local sources and authoritative retained
-findings; production inventory rechecked unchanged. Terry Talks is outside
-shared collection because process retrospective defaults off, with no local
-findings record. No encountered execution supplies the scope-watch’s complete
-post-adoption restriction/independent-reason/decision event; installation and
-unrelated successful delivery do not establish that use. Watch start remains
-unknown. Response observations at ODF-139/354 and counterevidence at
-ODF-150/264 change no watch state here.
+Reviewed 2026-11-03 (Asia/Bangkok): combined-cycle review of Open Dough,
+Doughnut, Pygardon, Lizard and newly maintained Clipboard post-local sources
+and authoritative retained findings; production inventory rechecked
+unchanged. Terry Talks is outside shared collection because process
+retrospective is off. No encountered execution supplies the scope-watch's
+post-adoption restriction/independent-reason/decision event; installation
+and unrelated delivery do not establish that use. Watch start remains
+unknown. Response observations at ODF-275, ODF-354 and ODF-380 change no
+watch state here.
 
 <a id="scope-limits-and-required-restrictions"></a>
 
@@ -52,7 +52,7 @@ ODF-150/264 change no watch state here.
   Avoiding or questioning that restriction is useful only if required safety,
   correctness and delivery commitments remain intact; forced broader support or
   removal of a justified guard is a contrary effect. Count executions, not symptoms.
-- **Review after:** 2026-11-04 for release/use status at the next shared review;
+- **Review after:** 2026-11-10 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-11-01 (Asia/Singapore), complete selected shared-source review and targeted response connections; no qualifying ordinary restriction decision using the fix was established.
+- **Last assessed:** 2026-11-03 (Asia/Bangkok), complete selected shared-source review including Clipboard and targeted response connections; no qualifying ordinary restriction decision using the fix was established.

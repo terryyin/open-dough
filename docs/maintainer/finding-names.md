@@ -1,5 +1,62 @@
 # Finding names and current follow-up
 
+Reviewed 2026-11-03 (Asia/Bangkok) under the combined feedback-maintenance
+invocation. Local passes preceded shared collection for all six configured
+projects. Terry Talks stays outside shared collection because process
+retrospective is off. Open Dough, Doughnut, Pygardon, Lizard and newly
+maintained Clipboard supplied readable post-local sources; production
+inventory was rechecked unchanged before selection and before the report.
+Clipboard has no project findings record; its project-owned DD-001/005/010
+stay in its log. Open Dough DD-412, added after its local pass, records a
+local practice gap and was not collected.
+
+Retained 19 new identities ODF-398–416 and new rows at 23 existing owners.
+Practice confirmations (Clipboard DD-006/008/011, Lizard DD-010/015) are not
+problems and allocate nothing. Repeated reports and aliases add no
+executions; a synthesized comparison counts a project/execution once.
+Mapping consolidations still need Terry: Open Dough DD-400→ODF-074,
+DD-408→ODF-325 and DD-392→ODF-381 would merge into existing source headings;
+DD-387 and DD-401 both map to ODF-333; Clipboard DD-003, DD-004 and DD-013 all
+map to ODF-074. Their evidence is retained; their source codes stay.
+
+Selected shared work: SEED-010#settle-lifecycle-commitments-outside-slices
+first (ODF-333) and SEED-010#proportionate-refactor-for-records-and-repairs
+second (ODF-141 with ODF-276). Post-execution lifecycle duties held inside
+slice gates caused owner round trips or stops in four new executions across
+three projects (Pygardon, Open Dough twice, Doughnut), atop two earlier
+Pygardon cases, and one execution recorded observations as pending gates.
+The fixed fresh-refactor cost recurred in seven new executions across three
+projects, often 50–60k tokens or 4–12 minutes per no-op pass, and one
+coordinator now skips the pass without authority; a bounded proportionality
+rule can keep useful passes. The strongest alternative, the freshness family
+(ODF-403 false conflicts after absorption, ODF-097's unacted conflict and
+ODF-404's concurrent rewrite), produced two stop bypasses and one wrong
+published record in three executions across two projects; it is narrower
+and was corrected before harm, so it stays open and unqueued. ODF-367's late
+source review (four Open Dough executions) caused mid-task corrections only.
+No implementation is performed; direction, Taken SEED-225 and unselected
+order stay intact. SEED-208 and SEED-010#record-source-review-observations,
+selected last cycle, completed and first shipped in v0.3.80.
+
+Response checking connected Clipboard SEED-001#read-html to ODF-275's
+hosted-proof progress request (qualified on the publication route), ODF-354's
+freshness response to four amendment executions (all detected; false
+conflicts and an unacted conflict are counterevidence), and Open Dough plan
+452's `CI_INCOMPLETE` inventory to ODF-380 as counterevidence (ODF-409).
+DD-385 shows ODF-142's normalization omits the candidate input; the
+abbreviated-base request stays open. Post-response rows also reached ODF-074,
+ODF-097, ODF-150 and ODF-264. ODF-369, ODF-376, ODF-378, ODF-381/391 and the
+scope watch had no verified qualifying event among encountered executions.
+
+Added review effort: one connection pass over about 40 encountered
+executions, tag containment for v0.3.80 responses, and targeted reads of
+Clipboard read-html commits, plan status and three hosted runs. No native
+session or application measurement was run; marginal time and tokens are
+unmeasured. Next watch review is due 2026-11-10; no automation, installation,
+release or dashboard configuration is changed.
+
+### Previous review — 2026-11-01
+
 Reviewed 2026-11-01 (Asia/Singapore) under the combined feedback-maintenance
 invocation. Local passes preceded shared collection for all five configured
 projects. Terry Talks has no local record and is outside shared collection
@@ -115,7 +172,7 @@ priority decision, not a claim that discarded problems were fixed or cannot recu
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-397. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-416. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -580,3 +637,41 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-396 — [Source-derived consumer terms flood module-move listings](findings/ODF-396.md) <a id="odf-396"></a>
 
 ## ODF-397 — [Native Git bypasses backlog domain reconciliation](findings/ODF-397.md) <a id="odf-397"></a>
+
+## ODF-398 — [Trunk-repaired CI failure has no Story Branch incorporation path](findings/ODF-398.md) <a id="odf-398"></a>
+
+## ODF-399 — [Post-change refactor leaves a production module empty](findings/ODF-399.md) <a id="odf-399"></a>
+
+## ODF-400 — [Foreign unpublished commits ride an execution tip toward publication](findings/ODF-400.md) <a id="odf-400"></a>
+
+## ODF-401 — [Ordered delivery of several settled slices forces temporary Status edits](findings/ODF-401.md) <a id="odf-401"></a>
+
+## ODF-402 — [Stopping an already-ended CI mailbox crashes without a result](findings/ODF-402.md) <a id="odf-402"></a>
+
+## ODF-403 — [Additive branch records keep freshness in conflict after trunk text is absorbed](findings/ODF-403.md) <a id="odf-403"></a>
+
+## ODF-404 — [A concurrent Taken story rewrites the active story's section](findings/ODF-404.md) <a id="odf-404"></a>
+
+## ODF-405 — [Wall-time measurement guidance omits suite admission waits](findings/ODF-405.md) <a id="odf-405"></a>
+
+## ODF-406 — [A plan's local gate names hook-owned lint that delivery forbids running](findings/ODF-406.md) <a id="odf-406"></a>
+
+## ODF-407 — [An implementation return asserts a bound its cited constants contradict](findings/ODF-407.md) <a id="odf-407"></a>
+
+## ODF-408 — [Agent-operable observation is handed to the developer first](findings/ODF-408.md) <a id="odf-408"></a>
+
+## ODF-409 — [CI failure inventory omits cancelled jobs whose step failed](findings/ODF-409.md) <a id="odf-409"></a>
+
+## ODF-410 — [A delegated agent hands back while its own background work still runs](findings/ODF-410.md) <a id="odf-410"></a>
+
+## ODF-411 — [A delegated agent marks the slice done before delivery](findings/ODF-411.md) <a id="odf-411"></a>
+
+## ODF-412 — [Contributor publication carries spent qualification evidence](findings/ODF-412.md) <a id="odf-412"></a>
+
+## ODF-413 — [An observation is recorded before its output is read](findings/ODF-413.md) <a id="odf-413"></a>
+
+## ODF-414 — [A settled evidence-limit premise still runs per-target Behavior slices](findings/ODF-414.md) <a id="odf-414"></a>
+
+## ODF-415 — [Planning omits pre-existing over-limit files it will edit](findings/ODF-415.md) <a id="odf-415"></a>
+
+## ODF-416 — [A progress increment holds a locally accepted Behavior slice open](findings/ODF-416.md) <a id="odf-416"></a>
