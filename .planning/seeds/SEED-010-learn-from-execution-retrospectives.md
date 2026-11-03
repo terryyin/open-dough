@@ -268,34 +268,125 @@ implemented.**
 **Identity:** SEED-010#prove-planning-premises-at-their-use
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/458-prove-planning-premises-at-their-use/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"df66d731ff5e01ecc7785708c191daae1002422875e2cf2bbf1236a312bda2e7","plan":"1d899eedec59aa92beef89f57790bc6faa4f3721fb4ba63a6da58152fda5d309"}}
 ```
 
-**Goal.** A developer reviewing readiness can see which consuming operation
-settled a decisive premise and which inputs or host conditions remain
-unverified. The executing agent can reuse that result or see the remaining
-boundary before starting work.
+**Goal.** A developer reviewing readiness can see, for each decisive
+premise, the consuming operation and the exact form (command, flags,
+input identity, profile, checkout) that settled it, and which inputs or host
+conditions remain unverified. The executing agent can reuse that result or
+see the remaining boundary before starting work, instead of discovering at
+the first slice that the planner observed a proxy for the operation the
+slice actually runs.
 
 **Evidence.** [ODF-074](../../docs/maintainer/findings/ODF-074.md) retains
-post-response examples in Doughnut and Pygardon. The isolated Python command
-changed import behavior and real export data contradicted the proposed time
-measure in Doughnut. In Pygardon, verified manifest files coexisted with a
-missing dataset in the actual launch profile, costing a failed launch and
-about 15 minutes. An Open Dough slice also stopped on an omitted dashboard
-selection premise, with execution release unknown.
+three post-response cases on 0.3.82 and 0.3.83, which contain the 0.3.58
+consuming-operation rule. Doughnut plan (SEED-100#story-2) observed
+`python3 -c "import pandas"` while prescribing `python3 -I`, which disables
+the user site holding pandas, and defined a time measure from a field the
+real export shows is generated days ahead. Pygardon plan 485 verified the
+terminal manifest's hash and factor files but not that the dataset was still
+published in the production profile; the first launch failed with
+`DatasetNotFoundError` and cost about 15 minutes. Open Dough plan 456
+slice 6 promised "the shown done sessions" with no premise row for how the
+Board selects them; the implementer stopped before writing code. In each
+case the observation that settled the premise, or the absence of one, did
+not match the form or profile the slice consumed.
 
-**Scope.** Strengthen the existing decisive-premise review using a bounded
-check of the exact invocation or consuming profile when its difference can
-change the outcome. Reuse current observation records. Preserve honest
-unverified boundaries when a probe is unavailable or costly, with no new
-requirement to run full suites or native probes. The separate owner-held
-handoff problem remains under ODF-252.
+**Scope.** Strengthen the existing premise review in slice planning's
+[settle decisive premises](../../src/skills/dough-slice-planning/references/settle-decisive-premises.md),
+its readiness criteria, and the execution brief, without a new observation
+format or a mechanical recorder check:
 
-**Evaluation.** Replay the two retained command/profile cases and one
-already valid low-cost premise. Show that a proxy import and a companion
-manifest check cannot settle the respective premises, while a relevant
-existing observation can be reused. Record review effort, the actual
-response and containing release, and what remains to observe at ODF-074.
+- *Match the observation to the use.* A premise about a command, its flags
+  or interpreter mode, a named input, or the profile or environment that
+  consumes it is settled by an observation in that same form and profile.
+  An observation in a different form, such as `python3 -c` for a slice that
+  runs `python3 -I`, a companion file for the profile's own published
+  inputs, or a development checkout for a deployed profile, is a proxy. A
+  proxy settles the premise only when the plan records why the difference
+  cannot change the outcome; otherwise the premise stays open and the row
+  names the unverified difference as an input or host condition.
+- *Record the boundary where readiness is read.* Each premise row names the
+  consuming operation, the form and profile observed, when or at which
+  revision, the result, and any unverified remainder. An unverified
+  remainder that can change a slice's outcome is a `not-ready` reason naming
+  it, unless an early probe slice bounds it as today.
+- *Reuse a matching observation.* A retained observation that already
+  reached the exact form in the consumed profile, such as a retained proof
+  record, an earlier plan's premise row, or a dated host listing, settles
+  the premise by citation with its time or revision and result, when nothing
+  that changes the result has changed since. No re-run is required for that.
+- *Derive selection premises from the slice's wording.* A promised outcome
+  that names a selected set or restriction, such as "the shown done
+  sessions", carries a premise about how the product selects it; derivation
+  reads the selecting code before the slice is sized.
+- *Carry the boundary into execution.* The delegation brief for a slice
+  carries that slice's premise rows and their unverified remainder; the
+  executing agent reuses a settled result or checks the remainder in the
+  exact form before dependent work, and returns a false premise through
+  execution reassessment.
+
+Preserved constraints: the smallest safe observation rule, scratch
+observations only in the owned workspace with a revert before recording,
+and paid, credentialed, owner-held, or state-changing steps staying in early
+probe slices. No new requirement to run full suites or native probes; a
+read-only query of the consuming profile is an observation, an experiment on
+a shared or production system is not.
+
+Scope limits: the owner-held handoff problem stays under ODF-252; the
+recorder keeps storing the agent's judgment without parsing premise rows;
+plans already recorded `ready` are not reassessed; Pygardon and Doughnut
+logs are not edited, the replay uses the evidence retained at ODF-074.
+
+**Key examples.**
+
+1. *Command form.* A slice prescribes `python3 -I analyze.py`; the planner
+   ran `python3 -c "import pandas"` and it succeeded. The row stays open:
+   `-I` changes module resolution, so the proxy's result does not carry.
+   Running `python3 -I -c "import pandas"` in the owned workspace settles it
+   with that command's result; a failure changes the plan before slice 1.
+2. *Consuming profile.* A slice launches search containers in the production
+   profile with dataset `eab666f4…`; the planner verified the manifest's hash
+   and factor files on the host. The row names "published in the production
+   profile" as unverified; a read-only listing of that profile's published
+   datasets, cited with its retrieval time, settles it. The listing already
+   retrieved that morning showed the dataset absent, so the plan changes
+   before kickoff instead of the launch failing.
+3. *Reused observation.* A slice's proof is a focused command already run at
+   the current revision in this checkout and recorded in a retained proof
+   record or an earlier plan's premise row with its result. The planner cites
+   that record and its revision; the premise is settled without a re-run.
+   When the checkout has moved past that revision on the paths the command
+   runs through, the citation no longer settles it.
+4. *Readiness view.* A developer reads the plan's premise table before Take
+   and sees, per row, operation, observed form and profile, time or revision,
+   result, and unverified remainder. A row whose remainder can change the
+   outcome and has no bounding probe slice shows in the recorded
+   `not-ready` reasons by name.
+5. *Selection premise.* A slice promises a regular answer holding "the shown
+   done sessions". Derivation reads the browser code that selects those
+   sessions; the row records what it consults. Where the selection is wider
+   than the slice assumed, the plan splits before execution rather than at
+   the implementer's stop.
+6. *Honest boundary.* The exact form is a native host run or a credentialed
+   production launch. The planner observes its unpaid parts, records the
+   remainder as an early probe slice whose failure stops dependents, and the
+   plan can still be `ready`; no full suite or native probe is required.
+7. *Executing agent.* The brief for slice 2 carries its premise rows, one
+   with an unverified host condition. The implementer checks that condition
+   in the prescribed form first; when it is false, the slice returns under
+   execution reassessment before dependent work rather than after a failed
+   run.
+
+**Evaluation.** Replay examples 1 and 2 from the retained ODF-074 evidence
+and example 3 from a retained observation in this repository against the
+revised text, showing that the proxy import and the companion manifest check
+leave their premises open with the difference named, while the retained
+observation settles its premise by citation. Record review effort, the
+actual response commits and first containing release or explicitly
+unreleased status, and what remains to observe at ODF-074; later ordinary
+use remains a separate observation.
 
 ## Separately pending lifecycle validation obligations
 
