@@ -261,6 +261,42 @@ implemented.**
 
 <a id="pending-lifecycle-validation-obligations"></a>
 
+<a id="prove-planning-premises-at-their-use"></a>
+
+### 21. Prove decisive planning premises where the slice uses them
+
+**Identity:** SEED-010#prove-planning-premises-at-their-use
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer reviewing readiness can see which consuming operation
+settled a decisive premise and which inputs or host conditions remain
+unverified. The executing agent can reuse that result or see the remaining
+boundary before starting work.
+
+**Evidence.** [ODF-074](../../docs/maintainer/findings/ODF-074.md) retains
+post-response examples in Doughnut and Pygardon. The isolated Python command
+changed import behavior and real export data contradicted the proposed time
+measure in Doughnut. In Pygardon, verified manifest files coexisted with a
+missing dataset in the actual launch profile, costing a failed launch and
+about 15 minutes. An Open Dough slice also stopped on an omitted dashboard
+selection premise, with execution release unknown.
+
+**Scope.** Strengthen the existing decisive-premise review using a bounded
+check of the exact invocation or consuming profile when its difference can
+change the outcome. Reuse current observation records. Preserve honest
+unverified boundaries when a probe is unavailable or costly, with no new
+requirement to run full suites or native probes. The separate owner-held
+handoff problem remains under ODF-252.
+
+**Evaluation.** Replay the two retained command/profile cases and one
+already valid low-cost premise. Show that a proxy import and a companion
+manifest check cannot settle the respective premises, while a relevant
+existing observation can be reused. Record review effort, the actual
+response and containing release, and what remains to observe at ODF-074.
+
 ## Separately pending lifecycle validation obligations
 
 These obligations remain pending under the recorded release exceptions. This

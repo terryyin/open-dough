@@ -1,18 +1,16 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-11-03","reviewAfter":"2026-11-10"}
+{"schemaVersion":1,"reviewed":"2026-11-04","reviewAfter":"2026-11-10"}
 ```
 
-Reviewed 2026-11-03 (Asia/Bangkok): combined-cycle review of Open Dough,
-Doughnut, Pygardon, Lizard and newly maintained Clipboard post-local sources
-and authoritative retained findings; production inventory rechecked
-unchanged. Terry Talks is outside shared collection because process
-retrospective is off. No encountered execution supplies the scope-watch's
-post-adoption restriction/independent-reason/decision event; installation
-and unrelated delivery do not establish that use. Watch start remains
-unknown. Response observations at ODF-275, ODF-354 and ODF-380 change no
-watch state here.
+Reviewed 2026-11-04 (Asia/Jakarta): Open Dough, Doughnut, Pygardon,
+Lizard and Clipboard supplied post-local sources and retained evidence.
+Terry Talks skips shared review because its process retrospective is off.
+Doughnut's independent source review caught a narrowing, but the record
+does not establish use of the independent-reason restriction check. No
+encountered execution supplied the qualifying restriction decision.
+Response observations at ODF-139 and ODF-275 do not change the watch state.
 
 <a id="scope-limits-and-required-restrictions"></a>
 
@@ -55,4 +53,6 @@ watch state here.
 - **Review after:** 2026-11-10 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-11-03 (Asia/Bangkok), complete selected shared-source review including Clipboard and targeted response connections; no qualifying ordinary restriction decision using the fix was established.
+- **Last assessed:** 2026-11-04 (Asia/Jakarta). All five eligible sources
+  were reviewed, with targeted checks of the encountered executions. No
+  qualifying ordinary restriction decision using the fix was established.

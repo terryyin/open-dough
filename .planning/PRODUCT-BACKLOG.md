@@ -32,8 +32,9 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Protect long local proof from Maintenance Sleep](seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep) — SEED-227#protect-long-local-proof-from-maintenance-sleep
+- [Prove decisive planning premises where the slice uses them](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-planning-premises-at-their-use) — SEED-010#prove-planning-premises-at-their-use
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs
+- [Protect long local proof from Maintenance Sleep](seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep) — SEED-227#protect-long-local-proof-from-maintenance-sleep
 - [Calculate expensive proof figures on demand](seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand) — SEED-226#calculate-proof-figures-on-demand
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity

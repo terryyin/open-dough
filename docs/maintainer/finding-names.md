@@ -1,5 +1,40 @@
 # Finding names and current follow-up
 
+## Combined maintenance — 2026-11-04 (Asia/Jakarta)
+
+All six production projects received a local result. Five supplied readable
+post-local shared sources; Terry Talks has no active findings record and
+its process retrospective is off. Open Dough moved DD-412 to its project
+findings and queued SEED-227 for the local macOS proof setup. Clipboard
+updated local findings without a new story.
+
+Reconciliation retained new evidence at existing owners and allocated
+ODF-417–419. Open Dough DD-414 is retained as a successful proof practice
+with unknown execution release, without a catalog code. Doughnut DD-337
+matches ODF-074 in the catalog; its full source entry remains because
+Doughnut already uses that destination heading. No cross-project count
+duplicates one execution reported under multiple findings.
+
+Selected the ODF-074 consuming-premise response first. Two new distinct
+post-response executions had actual kickoff or implementation cost, and
+Open Dough supplied a similar qualified case. Reselected the already queued
+ODF-141/276 proportional-refactor response second. The Pygardon research
+execution spent 247k reported subagent tokens across four passes and corrected
+two material claims, so evaluation must distinguish mechanical records from
+substantive research conclusions. The strongest alternative, ODF-419,
+recorded one unauthorized live desktop mutation with unknown guidance
+provenance and no known unique data loss. The next briefs expressly guarded
+the helper and no repeat was reported. ODF-333's response remains unreleased.
+
+Targeted plan, source-review, release and CI reads connect Doughnut to ODF-139
+and Clipboard to ODF-275. ODF-074 records post-response counterevidence.
+Open Dough's SEED-225 effects are already retained at four owners, with
+execution release unknown. No qualifying event changed the scope watch.
+The added review used existing records for five encountered execution sets
+and no new native runs. Individual unresolved response requests remain open.
+
+## Prior reviews
+
 Reviewed 2026-11-03 (Asia/Bangkok) under the combined feedback-maintenance
 invocation. Local passes preceded shared collection for all six configured
 projects. Terry Talks stays outside shared collection because process
