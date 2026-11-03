@@ -74,7 +74,12 @@ function failureMessage(
   const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
     case "owner-unavailable":
-      return `${ownerFailureText(reason.cause)} ${reading} could not be read; reload after correcting the endpoint.`;
+      // A lost connection, as when the owner is replaced, needs no
+      // correction: the page's next check asks through the owner then
+      // standing.
+      return reason.cause === "connection-failed"
+        ? `The connection to the local GitHub request owner was lost while reading ${reading}.`
+        : `${ownerFailureText(reason.cause)} ${reading} could not be read; reload after correcting the endpoint.`;
     case "not-logged-in":
       return `The local GitHub CLI is not logged in, so ${reading} could not be read. Run \`gh auth login\` (check with \`gh auth status\`), then reload the page.`;
     case "not-installed":

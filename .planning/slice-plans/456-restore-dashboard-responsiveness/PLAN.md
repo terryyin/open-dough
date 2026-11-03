@@ -177,7 +177,7 @@ diagnostics read shows the stall; a process ends without closing its record
 
 ### 3. Recovery across an owner replacement keeps the snapshot and leaves evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: page spec built on the owner-replacement fixtures (example 7): the
 page shows revision A with its retrieval time; the owner is replaced while
 a read is queued before dispatch; the read fails `local`, the snapshot stays
@@ -295,6 +295,16 @@ done sessions or opens a retained session → that history is read then.
   `process-started`/`process-ended`, so `incidents/` always exists after a
   server has run. Test switches: `DOUGH_TEST_EVENT_LOOP_BLOCK=allow`,
   `DOUGH_STALL_THRESHOLD_MS`, `DOUGH_STALL_WINDOW_MS`.
+
+- 2026-11-03 slice 3: the existing steady 15-second revision check, not the
+  transient schedule, recovers a read lost with its owner; `owner-unavailable`
+  stays out of transient recovery so an ambiguous post-dispatch loss is not
+  re-asked early. A lost owner connection is now worded as a lost connection
+  without endpoint or reload advice (`readFailureMessage.ts`). A revision
+  check cannot be the queued read in such a proof: a failed heads listing
+  falls back to a ref read through the new owner. The proof's queued-read
+  step waits 1 s for lack of a queued signal; it fails loudly, not falsely,
+  if the read arrives after the kill.
 
 ## Concern evidence
 

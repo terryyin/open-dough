@@ -15,8 +15,8 @@ return numbered commitments with sub-ids for listed compound items.
 | --- | --- | --- | --- |
 | 1 | The user is "a developer working in the production dashboard, on this Mac or through the Tailscale proxy from another device" | slice 6 |  |
 | 2 | The developer "keeps the Board, Intent, and the Sessions sidebar usable while the dashboard's own refreshes run" | slice 6 |  |
-| 3 | "when a published read or the local service fails, keeps the last successful snapshot labelled with its revision and retrieval time" | slice 3 |  |
-| 4 | The developer "recovers eligible reads without a reload" | slice 3 |  |
+| 3 | "when a published read or the local service fails, keeps the last successful snapshot labelled with its revision and retrieval time" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": alert shows the earlier snapshot retrieved at A's time while B's read fails |
+| 4 | The developer "recovers eligible reads without a reload" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": the next steady check settles B with no main-frame navigation and the window marker intact |
 | 5 | The developer "can read evidence that locates the failure even after the production preview was replaced" | slice 2 | observed: authenticated-read-incident-record-lifecycle.spec.ts "a clean close ends the record after its queued failure, and a successor reads a killed process as lost": successor's diagnostics read lists the earlier processes' entries and states (ended, lost, current) |
 | 6 | Business contribution: "a dashboard Terry can trust during the day instead of reloading it, and incidents that can be attributed and fixed instead of re-investigated from nothing" | slice 6 |  |
 | 7 | **Incident evidence that outlives the process** | slice 2 | observed: authenticated-read-incident-record-lifecycle.spec.ts "a clean close ends the record after its queued failure, and a successor reads a killed process as lost" and production-deployment.spec.ts "installs, builds, and serves": process-started and process-ended survive the real preview stop |
@@ -56,16 +56,16 @@ return numbered commitments with sub-ids for listed compound items.
 | 10c | The replay reports "one active state change" | slice 4 |  |
 | 10d | The replay reports "the latency of a concurrent trivial request" | slice 4 |  |
 | 10e | Reported "before and after, so the targets below are measured, not asserted" | slice 6 |  |
-| 11 | Preserved: "the last successful snapshot stays shown with its revision and retrieval time while a read fails" | slice 3 |  |
-| 12 | Preserved: "the existing bounded visible-page recovery re-asks eligible reads without a reload once the owner is reachable again, including across an owner replacement" | slice 3 |  |
+| 11 | Preserved: "the last successful snapshot stays shown with its revision and retrieval time while a read fails" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": membership and Board links stay A's, labelled with A's retrieval time |
+| 12 | Preserved: "the existing bounded visible-page recovery re-asks eligible reads without a reload once the owner is reachable again, including across an owner replacement" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": recovery through the new owner (different pid) without a reload |
 | 13 | Preserved on retained sessions (listed) | slice 6 |  |
 | 13a | "historical reports" remain available | slice 6 |  |
 | 13b | "reattachment" remains available | slice 6 |  |
 | 13c | "Mark as done" remains available | slice 6 |  |
 | 13d | "deletion" remains available | slice 6 |  |
 | 13e | "fresh action-time checks on retained sessions" remain available | slice 6 |  |
-| 14 | Preserved: "the eight-call cap ... unchanged" | slice 3 |  |
-| 15 | Preserved: "the GitHub-directed cooldown are unchanged" | slice 3 |  |
+| 14 | Preserved: "the eight-call cap ... unchanged" | slice 3 | observed: shared-request-owner.spec.ts eight-call cap assertions green with slice 3 unchanged owner code |
+| 15 | Preserved: "the GitHub-directed cooldown are unchanged" | slice 3 | observed: shared-request-owner.spec.ts directed cooldown assertions green with slice 3 unchanged owner code |
 | 16 | "The evidence record is readable only by this user" | slice 1 | observed: authenticated-read-incident-record.spec.ts "a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret": incidents/ 0700, files 0600 |
 | 17 | The record "names no" (listed fields) | slice 1 | observed: authenticated-read-incident-record.spec.ts "a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret": answer body and record files contain no secret |
 | 17a | no "token" | slice 1 | observed: authenticated-read-incident-record.spec.ts "a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret": no GH_TOKEN marker or owner token |
@@ -87,7 +87,7 @@ return numbered commitments with sub-ids for listed compound items.
 | 24 | Deferred: "Retained-answer cache scan changes, after event-loop delay is measured" | slice 6 |  |
 | 25 | Scope limit: "no new metrics product or UI beyond the diagnostics read" | slice 6 |  |
 | 26 | Scope limit: "no change to the Sessions sidebar's visible behavior beyond when history loads" | slice 6 |  |
-| 27 | Scope limit: "no change to the request owner's protocol" | slice 3 |  |
+| 27 | Scope limit: "no change to the request owner's protocol" | slice 3 | observed: no change to github-request-owner-wire.mjs protocol across slices 1-3 (git diff b10839504 -- src/skills/dough-execute-plan/scripts/github-request-owner-wire.mjs is empty); owner identity reaches evidence from its standing record |
 | 28 | Boundary: "the SEED-118 cache-validation story stays separate and is not a prerequisite" | slice 6 |  |
 | 29 | Boundary: "Published Git remains the authority for workflow facts and local evidence stays separate under ADR 0008" | slice 6 |  |
 | 30 | "Plans, delegation briefs, and repair handoffs carry the project's Failing and flaky tests policy" | slice 1 | observed: PLAN.md Outside-in proof carries the policy link; slice 1 delegation brief carried it verbatim |
@@ -106,10 +106,10 @@ return numbered commitments with sub-ids for listed compound items.
 | 43 | Example 5, Live overview, history on demand: 1,000 done records and five open sessions → page loads → regular answer "carries the five open sessions and the done sessions the Board's Recently done cards and the sidebar's collapsed section need" | slice 6 |  |
 | 43a | Example 5 continued: "expanding Recently done sessions or opening a done session's report reads that history then, and the report shows as before" | slice 6 |  |
 | 44 | Example 6, One state change, nothing else recomputed: replay changes one open session's native state → next poll "answers a new revision whose content differs from the previous answer only in that Session entry, within the unchanged-poll target plus that one session's observation" | slice 5 |  |
-| 45 | Example 7, Recovery across owner replacement: page shows revision A with retrieval time; owner replaced while a read is queued before dispatch → "the read fails as local" | slice 3 |  |
-| 45a | Example 7: "the snapshot stays shown labelled A with its time" | slice 3 |  |
-| 45b | Example 7: "the failure is in the evidence record" | slice 3 |  |
-| 45c | Example 7: "the page's existing recovery re-asks once the new owner answers, without a reload" | slice 3 |  |
-| 45d | Example 7: "without ... a duplicate dispatch of an ambiguous post-dispatch loss" | slice 3 |  |
+| 45 | Example 7, Recovery across owner replacement: page shows revision A with retrieval time; owner replaced while a read is queued before dispatch → "the read fails as local" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": B's backlog read answers 502 classified local; GitHub never asked before the kill |
+| 45a | Example 7: "the snapshot stays shown labelled A with its time" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": alert's second time equals A's retrieval time; wording names a lost connection with no reload advice |
+| 45b | Example 7: "the failure is in the evidence record" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": exactly one failed-read entry pinned to B, failureCategory local, dispatched false, killed owner's pid and generation |
+| 45c | Example 7: "the page's existing recovery re-asks once the new owner answers, without a reload" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": next steady check answers 200 and B shows settled without reload |
+| 45d | Example 7: "without ... a duplicate dispatch of an ambiguous post-dispatch loss" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": B's backlog asked of GitHub exactly once; each held call asked exactly once |
 | 46 | Example 8, Evidence is safe: raw error "names the socket path and includes a token fragment" → "the recorded entry names the safe category and status only" | slice 1 | observed: authenticated-read-incident-record.spec.ts "a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret": upstream entry names failureCategory and status 403 only |
 | 46a | Example 8: "the diagnostics read, and the file itself, contain neither" | slice 1 | observed: authenticated-read-incident-record.spec.ts "a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret": neither the answer nor any record file contains the socket path or marker |
