@@ -176,7 +176,7 @@ links.
 
 ### 4. Terry's evaluation on real published proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: developer-operated observation recorded in this plan.
 
 Question: does the summary let Terry find where Doughnut's or Pygardon's
@@ -202,7 +202,15 @@ LFS versions…" at 7.0 s. Clicking `cli` showed its own figures (one commit,
 `6c045cc`); clicking the top slowest row opened that file with Purpose on
 line 45 and a Proof row of the same 7.0 s, time and commit. Displayed child
 sums add to 51.6 s against 51.5 s, from rounding each child separately.
-Terry's keep, adjust, or reject answer remains open.
+Verdict (2026-11-03): keep. Terry delegated the check ("You help me to do
+the check by yourself. If it's good enough, proceed to complete the story
+and wrap up. I will test it by myself in the production after you wrap
+up."). The pre-observation above shows where Doughnut's retained proof time
+goes (cli 26.3 s of 51.5 s, its slowest scenario one click away) and where
+proof is missing (17 unknown folders, 372 of 395 scenarios uncovered),
+without reading proof JSON. The 51.6 s child total is rounding, not a
+mismatch; the proof-command hint is outside this story. Terry tests in
+production after wrap-up.
 
 ## Decisive premises
 
