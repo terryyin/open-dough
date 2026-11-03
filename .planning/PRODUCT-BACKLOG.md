@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Restore dashboard responsiveness and reliable GitHub access](seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness) — SEED-225#restore-dashboard-responsiveness ([plan](slice-plans/456-restore-dashboard-responsiveness/PLAN.md))
 - [Return a landed-run review to Intent's comparison](seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run) — SEED-192#intent-link-follows-landed-run ([plan](slice-plans/455-intent-link-follows-landed-run/PLAN.md))
+- [Settle post-execution lifecycle commitments outside slice acceptance](seeds/SEED-010-learn-from-execution-retrospectives.md#settle-lifecycle-commitments-outside-slices) — SEED-010#settle-lifecycle-commitments-outside-slices ([plan](slice-plans/457-settle-lifecycle-commitments-outside-slices/PLAN.md))
 
 ## Backlog list
 
-- [Settle post-execution lifecycle commitments outside slice acceptance](seeds/SEED-010-learn-from-execution-retrospectives.md#settle-lifecycle-commitments-outside-slices) — SEED-010#settle-lifecycle-commitments-outside-slices
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs
 - [Calculate expensive proof figures on demand](seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand) — SEED-226#calculate-proof-figures-on-demand
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
