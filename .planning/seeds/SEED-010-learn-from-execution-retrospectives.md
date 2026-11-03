@@ -221,14 +221,20 @@ No architectural exception or new ADR is proposed here.
 ### 19. Settle post-execution lifecycle commitments outside slice acceptance
 
 **Identity:** SEED-010#settle-lifecycle-commitments-outside-slices
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/457-settle-lifecycle-commitments-outside-slices/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2419062636b479b7ed8f964e0ee5852633047e4d3907e02ee73a1894f425290c","plan":"7f47f0c6f6815d2696dea9daadfcbd0e83d4834e0b22ec2048c8ebadedc1718d"}}
+```
 
-**Beneficiary and outcome:** A coordinator executing a Story Branch plan can
-complete every slice when the story or its source review also promises
-landing, final target CI, a release from trunk or completion reporting. Each
-such commitment has an owner that can observe it after execution, or the plan
-names the retained landing its trunk step needs at its human checkpoint. No
-commitment is recorded as observed from a pending gate, and no human stop is
-needed merely to break the circular gate.
+**Goal:** A coordinator executing a Story Branch plan can complete every slice
+when the story or its source review also promises landing, final target CI, a
+release from trunk or completion reporting. Each commitment that only a later
+operation can observe has that operation as its owner and stays mandatory and
+unobserved until it is observed; a slice that must act from trunk has its
+retained landing named in the plan, covered by the checkpoint that authorizes
+the step. The developer gets no human stop whose only purpose is to break a
+circular gate, and no record calls a commitment observed while it still waits
+on a gate. This keeps planned execution moving without weakening the evidence
+that closure rests on.
 
 **Evidence:** [ODF-333](../../docs/maintainer/findings/ODF-333.md) retains
 Pygardon SEED-120 and SEED-150 executions and, this cycle, Pygardon
@@ -240,28 +246,69 @@ second stop inside an approved rollout, observations that name a pending gate,
 and a separate phase disposition before delivery. No waived product promise or
 false completion is claimed.
 
-**Bounded scope:** Reuse current planning, source-review allocation, Story
-obligations, completion and wrap-up. Distinguish commitments that can only be
-observed after execution completion and give them that later owner; keep them
-mandatory and unobserved until it observes them. Plans whose slice must act
-from trunk name the retained landing at the checkpoint that authorizes the
-step, or choose Trunk Mode. Do not weaken CI, landing or release gates, change
-the ODF-267/270 vocabularies, or alter release procedure.
+**Scope:**
 
-**Key examples:** A source review returns "final target CI is settled": it is
-owned by completion, the last slice completes, and closure still refuses until
-that CI is observed. A rollout slice releases from trunk: the plan names the
-retained landing and one go-ahead covers both. A lifecycle commitment still
-unobserved at wrap-up blocks closure with its owner named.
+- *Required behavior — lifecycle owners.* A source-review commitment that only
+  an operation after execution completion can observe is allocated to that
+  owner instead of a slice. The owners are the existing operations: landing
+  or Story Branch integration (the accepted integration receipt), final target
+  CI (the success completion receipt for the final accepted SHA with confirmed
+  shutdown), and completion reporting (the final dashboard operation). Slice
+  acceptance, the execution-complete check and Dough Land's planned-completion
+  check do not refuse such a row for lacking an observation; they still
+  refuse an unallocated row and a lifecycle row whose owner is not one of these
+  operations.
+- *Required behavior — closure observes them.* Wrap-up carries every
+  lifecycle-owned row past deletion of the spent plan and source review, since
+  those records are deleted before integration and final CI. Closure does not
+  report success while any of them lacks its owner's observation, and its report
+  names each such commitment and its owner.
+- *Required behavior — trunk steps in Story Branch plans.* Slice planning gives a
+  Story Branch slice that must act from trunk, such as a release from trunk, a
+  named retained landing (Dough Land `--keep-worktree`) before the step, inside
+  the human checkpoint that authorizes it, or chooses Trunk Mode. Execution then
+  performs that named landing under the checkpoint's go-ahead without a separate
+  stop. The plan naming it is the explicit retained-landing choice; Dough Land
+  still never infers it from a bare request to land.
+- *Required restrictions.* A lifecycle-owned row is never recorded as observed
+  from a pending gate, current branch evidence or the enforcing check itself:
+  that would let closure rest on an unobserved CI or landing result (the DD-387
+  record). Commitments a slice's output owes stay with that slice.
+- *Scope limits.* Reuse current planning, source-review allocation, Story
+  obligations, completion and wrap-up; add no second promise registry. Do not
+  weaken CI, landing, release or retirement gates, change the ODF-267/270
+  vocabularies, or alter release procedure. Trunk Mode plans need no change.
 
-**Evaluation:** Replay at least the Pygardon plan G2/commitment-52 case,
-Doughnut plan 079's G3 split and Open Dough plan 432's completion-owned rows
-through the changed path; confirm no circular refusal and no gate-only human
-stop, and that closure still refuses each unobserved lifecycle commitment.
-Retain actual effort and limits. At closure, record the actual response
-revision and first containing release (or explicitly unreleased status) at
-ODF-333; later ordinary use remains a separate observation. **Queued, not
-refined or implemented.**
+**Key examples:**
+
+- Story Branch plan; the source review returns "final target CI is settled" →
+  it is allocated to final target CI → the last slice completes, the
+  execution-complete record and an ordinary Dough Land proceed, and closure
+  still refuses success until the final accepted SHA's CI success receipt holds.
+- Story Branch plan whose slice 4 releases from trunk → the plan names the
+  retained landing before slice 4 inside its release checkpoint → one go-ahead
+  covers landing and release, with no mid-slice landing question (Open Dough
+  plan 439).
+- Story Branch execution where integration is refused at wrap-up → closure does
+  not report success; it names the landing-owned commitment and Story Branch
+  integration as its owner, and keeps the resources as today.
+- A source review returns both "the dialog lists the source" and "the work is
+  landed normally" (Pygardon commitment 52) → the first stays with the slice
+  that renders the dialog; the second goes to landing, so the last slice no
+  longer waits for landing evidence.
+- A row allocated to final target CI is marked `observed:` with the current
+  branch CI run → the check refuses it; branch CI is not the final target CI.
+
+**Evaluation:** Replay at least the Pygardon plan G2/commitment-52 case
+(recoverable at Pygardon `e192edb0`), Doughnut plan 079's G3 split
+(`e87c86c6`) and Open Dough plan 432's completion-owned rows (before
+`d0bd00eda`) through the changed path; confirm no circular refusal and no
+gate-only human stop, and that closure still refuses each unobserved lifecycle
+commitment. Retain actual effort and limits. At closure, record the actual
+response revision and first containing release (or explicitly unreleased
+status) at ODF-333; later ordinary use remains a separate observation.
+
+**Plan:** [slice plan](../slice-plans/457-settle-lifecycle-commitments-outside-slices/PLAN.md)
 
 <a id="proportionate-refactor-for-records-and-repairs"></a>
 
