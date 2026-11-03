@@ -113,8 +113,8 @@ export function coverageOf(
 }
 
 // One scenario row of a read file with its latest successful observation,
-// if any: the single matching of rows to proof that summary counts, sums,
-// and slowest scenarios (`./intentSummaryProofCost.ts`) all read.
+// if any: the single matching of rows to proof that summary totals, counts,
+// sums, and slowest scenarios (`./intentSummaryProofCost.ts`) all read.
 export type ObservedRow = {
   readonly path: string;
   readonly row: ScenarioRow;
@@ -135,26 +135,6 @@ export function observedRowsForFiles(
       observation: latest.get(proofIdentity({ feature: path, ...row })),
     }));
   });
-}
-
-export function observationsForFiles(
-  files: readonly string[],
-  textOf: (path: string) => string | undefined,
-  latest: ReadonlyMap<string, SuccessfulProofObservation>,
-): readonly (SuccessfulProofObservation | undefined)[] {
-  return observedRowsForFiles(files, textOf, latest).map(
-    ({ observation }) => observation,
-  );
-}
-
-export function scenarioCountForFiles(
-  files: readonly string[],
-  textOf: (path: string) => string | undefined,
-): number {
-  return files.reduce((sum, path) => {
-    const text = textOf(path);
-    return text === undefined ? sum : sum + scenarioRowsOf(text).length;
-  }, 0);
 }
 
 // Labels a complete line Partial with contributing-file coverage while any

@@ -13,32 +13,32 @@ Launch (2026-11-03): fresh general-purpose agent, no conversation inheritance, i
 | 4.1 | The spread line's multi-day form (for example "between 2026-11-01 23:50 and 2026-11-02 01:05 UTC") is proved. | slice 1 | observed: tests/support/intent-summary-proof-cost.test.mjs 'observations finishing on different UTC days name both days': exact 'between 2026-11-01 23:50 and 2026-11-02 01:05 UTC' with 1 and 2 commits |
 | 4.2 | Example trigger: Pygardon's published proof spans runs on 2026-11-01 and 2026-11-02. | slice 1 | observed: tests/support/intent-summary-proof-cost.test.mjs 'observations finishing on different UTC days name both days': observations on 2026-11-01 and 2026-11-02 |
 | 5 | Trust covers sums of a minute or more (for example "1m 5s"), and those sums are proved. | slice 1 | observed: tests/support/intent-summary-proof-cost.test.mjs 'a sum of a minute or more reads in minutes and seconds': 40 s + 25 s reads '1m 5s over 2 of 3 scenarios' |
-| 6 | The selection and each child derive their summary figures from one rule. | slice 2 |  |
-| 6.1 | That one shared rule covers coverage. | slice 2 |  |
-| 6.2 | That one shared rule covers the scenario total. | slice 2 |  |
-| 6.3 | That one shared rule covers the count line. | slice 2 |  |
-| 6.4 | That one shared rule covers the cost line. | slice 2 |  |
-| 7 | The selection and each child derive their figures from one matching walk of the read files, at runtime as well as in code (read files are not re-parsed by separate passes for each figure or child on every render or file arrival). | slice 2 |  |
-| 8 | Adding the next figure needs one edit. | slice 2 |  |
-| 9 | The drill-down spec no longer repeats folder-figure assertions that the proof-cost spec already owns (for example the cli folder's 17.0 s line, three child lines and four slowest names). | slice 2 |  |
+| 6 | The selection and each child derive their summary figures from one rule. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk'; dashboard/src/intentSummaryProofCost.ts figuresOfWalk, reached by IntentGherkinSummary.tsx (selection) and IntentSummaryChildren.tsx (child.figures) through summaryFiguresFor |
+| 6.1 | That one shared rule covers coverage. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk': coverage deepEqual for selection and each child |
+| 6.2 | That one shared rule covers the scenario total. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk': scenarioCount from the walk's rows |
+| 6.3 | That one shared rule covers the count line. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk'; count lines read figures.observed in both components; all 43 dashboard/tests/*intent*.spec.ts green (82 passed) with wording unchanged |
+| 6.4 | That one shared rule covers the cost line. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk'; cost lines read figures.cost in both components; all 43 dashboard/tests/*intent*.spec.ts green (82 passed) with wording unchanged |
+| 7 | The selection and each child derive their figures from one matching walk of the read files, at runtime as well as in code (read files are not re-parsed by separate passes for each figure or child on every render or file arrival). | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk': each file's text taken once for selection and all children; summaryWalkOf is the only observedRowsForFiles caller; IntentGherkinSummary.tsx useMemo on inventory, texts, statuses, proof |
+| 8 | Adding the next figure needs one edit. | slice 2 | observed: dashboard/src/intentSummaryProofCost.ts figuresOfWalk returns SummaryFigures for both selection and children (one field addition reaches both) |
+| 9 | The drill-down spec no longer repeats folder-figure assertions that the proof-cost spec already owns (for example the cli folder's 17.0 s line, three child lines and four slowest names). | slice 2 | observed: dashboard/tests/intent-summary-drill-down.spec.ts step 16.1 keeps toggle, selection, reveal, path and 17.0 s sum only; cli child lines and slowest names remain in intent-summary-proof-cost.spec.ts |
 | 10 | When a case opens in Side by side, the case's Proof row is kept in view, as the predecessor promised. | slice 3 |  |
 | 10.1 | The Proof pane is brought to the opened case, so this does not depend on the Proof table being short. | slice 3 |  |
 | 10.2 | A slowest scenario still opens Purpose positioned on its case. | slice 3 |  |
-| 11 | Restriction: summary wording stays unchanged. | slice 2 |  |
-| 12 | Restriction: summary layout stays unchanged. | slice 2 |  |
-| 13 | Restriction: the predecessor story's promises stay otherwise unchanged. | slice 2 |  |
-| 13.1 | Wording is preserved. | slice 2 |  |
-| 13.2 | Number formats are preserved. | slice 2 |  |
-| 13.3 | Placement is preserved. | slice 2 |  |
-| 13.4 | Tree order is preserved. | slice 2 |  |
-| 13.5 | Unknown is never shown as 0 s. | slice 2 |  |
-| 13.6 | Partial labelling is preserved. | slice 2 |  |
-| 13.7 | Slowest order is preserved. | slice 2 |  |
-| 13.8 | The slowest cap is preserved. | slice 2 |  |
+| 11 | Restriction: summary wording stays unchanged. | slice 2 | observed: no wording strings changed in the diff; all 43 dashboard/tests/*intent*.spec.ts green (82 passed) with wording unchanged |
+| 12 | Restriction: summary layout stays unchanged. | slice 2 | observed: JSX structure unchanged in IntentGherkinSummary.tsx and IntentSummaryChildren.tsx; all 43 dashboard/tests/*intent*.spec.ts green (82 passed) with wording unchanged |
+| 13 | Restriction: the predecessor story's promises stay otherwise unchanged. | slice 2 | observed: all 43 dashboard/tests/*intent*.spec.ts green (82 passed) with wording unchanged |
+| 13.1 | Wording is preserved. | slice 2 | observed: dashboard/tests/intent-summary-proof-cost.spec.ts both tests green |
+| 13.2 | Number formats are preserved. | slice 2 | observed: dashboard/tests/intent-summary-proof-cost.spec.ts sum and spread lines; tests/support/intent-summary-proof-cost.test.mjs |
+| 13.3 | Placement is preserved. | slice 2 | observed: dashboard/tests/intent-summary-proof-cost.spec.ts and intent-summary-drill-down.spec.ts green |
+| 13.4 | Tree order is preserved. | slice 2 | observed: dashboard/tests/intent-summary-proof-cost.spec.ts children in tree order step |
+| 13.5 | Unknown is never shown as 0 s. | slice 2 | observed: dashboard/tests/intent-summary-proof-cost.spec.ts unproven children unknown, no 0 s |
+| 13.6 | Partial labelling is preserved. | slice 2 | observed: dashboard/tests/intent-entry-folder-summary-partial.spec.ts and intent-summary-proof-cost.spec.ts ex7 Partial lines green |
+| 13.7 | Slowest order is preserved. | slice 2 | observed: tests/support/intent-summary-proof-cost.test.mjs 'the selection and each child derive their figures from one rule over one walk' slowest order; dashboard/tests/intent-summary-slowest.spec.ts ties tree then source order |
+| 13.8 | The slowest cap is preserved. | slice 2 | observed: dashboard/tests/intent-summary-slowest.spec.ts ten slowest cap |
 | 13.9 | Drill-down is preserved. | slice 3 |  |
-| 14 | Restriction: both visibility gates stay as they are and are not unified. | slice 2 |  |
-| 14.1 | The selection shows proof lines when settled or readyCount > 0. | slice 2 |  |
-| 14.2 | A child shows proof lines when readyCount > 0 or it is not incomplete. | slice 2 |  |
+| 14 | Restriction: both visibility gates stay as they are and are not unified. | slice 2 | observed: both conditions unchanged in the diff of IntentGherkinSummary.tsx and IntentSummaryChildren.tsx |
+| 14.1 | The selection shows proof lines when settled or readyCount > 0. | slice 2 | observed: dashboard/src/IntentGherkinSummary.tsx unchanged `settled \|\| coverage.readyCount > 0` gate |
+| 14.2 | A child shows proof lines when readyCount > 0 or it is not incomplete. | slice 2 | observed: dashboard/src/IntentSummaryChildren.tsx unchanged `showProof = coverage.readyCount > 0 \|\| !coverage.incomplete` |
 | 15 | Restriction: the correction changes no visible behavior (apart from restoring the promised Side by side Proof row view). | slice 3 |  |
-| 16 | Restriction: figures stay derived in the browser and are not stored (ADR 0008). | slice 2 |  |
-| 17 | Restriction: no reads are added (ADR 0008). | slice 2 |  |
+| 16 | Restriction: figures stay derived in the browser and are not stored (ADR 0008). | slice 2 | observed: figures computed in IntentGherkinSummary.tsx render memos; nothing persisted |
+| 17 | Restriction: no reads are added (ADR 0008). | slice 2 | observed: the read effect and readRepositoryFileAt calls in IntentGherkinSummary.tsx are unchanged |

@@ -78,7 +78,7 @@ is repaired here.
 
 ### 2. One summary-figures derivation from one walk
 Type: Structure
-Status: planned
+Status: done
 Proof: all `dashboard/tests/*intent*.spec.ts` from `dashboard/` with
 `env -u NO_COLOR -u FORCE_COLOR npx playwright test $(ls tests/*intent*.spec.ts) --reporter=list`;
 slice 1's unit file; `npm run typecheck:dashboard`, `npm run lint`.

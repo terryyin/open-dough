@@ -9,26 +9,22 @@
 // Totals stay Partial while any file is pending or unread; a failed file is
 // named with a retry that rereads only it.
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
+import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import {
-  coverageOf,
   immediateChildrenOf,
   latestByIdentity,
-  observationsForFiles,
   proofCountLineFor,
-  scenarioCountForFiles,
   scenarioTotalLine,
   type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
 import {
   proofCostLineFor,
   proofCostNote,
-  proofCostOf,
-  proofSpreadLine,
-  slowestRowsOf,
+  summaryFiguresFor,
 } from "./intentSummaryProofCost.ts";
 import { IntentSummaryChildren } from "./IntentSummaryChildren.tsx";
 import { IntentSummarySlowest } from "./IntentSummarySlowest.tsx";
@@ -39,6 +35,9 @@ import type { PublishedSource } from "./publishedSource.ts";
 const summaryReadConcurrency = 4;
 
 type ReadyTexts = ReadonlyMap<string, string>;
+
+const noObservations: ReadonlyMap<string, SuccessfulProofObservation> =
+  new Map();
 
 export function IntentGherkinSummary({
   path,
@@ -62,6 +61,12 @@ export function IntentGherkinSummary({
   readonly onOpen: (next: IntentSelection) => void;
 }) {
   const filesKey = files.join("\0");
+  // The inventory by value, so a new array of the same files neither rereads
+  // nor rewalks them.
+  const inventory = useMemo(
+    () => (filesKey === "" ? [] : filesKey.split("\0")),
+    [filesKey],
+  );
   const [ready, setReady] = useState<ReadyTexts>(() => new Map());
   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const [retryTargets, setRetryTargets] = useState<readonly string[] | null>(
@@ -70,7 +75,6 @@ export function IntentGherkinSummary({
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    const inventory = filesKey === "" ? [] : filesKey.split("\0");
     if (inventory.length === 0) {
       setReady(new Map());
       setFailed(new Set());
@@ -115,25 +119,36 @@ export function IntentGherkinSummary({
     return () => {
       controller.abort();
     };
-  }, [source, revision, filesKey, retryTargets, retryKey]);
+  }, [source, revision, inventory, retryTargets, retryKey]);
 
-  const statusOf = (filePath: string): SummaryFileStatus => {
-    if (ready.has(filePath)) return "ready";
-    if (failed.has(filePath)) return "failed";
-    return "pending";
-  };
-  const textOf = (filePath: string) => ready.get(filePath);
-  const coverage = coverageOf(files, statusOf);
-  const scenarioCount = scenarioCountForFiles(files, textOf);
-  const settled = coverage.pendingCount === 0;
   const proof = location.proof;
-  const children = immediateChildrenOf(path, files);
-  const readable = proof !== undefined && !("problem" in proof);
-  const latest = readable ? latestByIdentity(proof.observations) : undefined;
-  const observed =
-    latest === undefined ? [] : observationsForFiles(files, textOf, latest);
-  const cost = proofCostOf(observed);
-  const spread = proofSpreadLine(cost);
+  const readableProof =
+    proof !== undefined && !("problem" in proof) ? proof : undefined;
+  const latest = useMemo(
+    () =>
+      readableProof === undefined
+        ? undefined
+        : latestByIdentity(readableProof.observations),
+    [readableProof],
+  );
+  // One walk of the read files per change of inventory, texts, statuses, or
+  // proof, not per figure, child, or render.
+  const { selection, children } = useMemo(() => {
+    const statusOf = (filePath: string): SummaryFileStatus => {
+      if (ready.has(filePath)) return "ready";
+      if (failed.has(filePath)) return "failed";
+      return "pending";
+    };
+    return summaryFiguresFor(
+      inventory,
+      immediateChildrenOf(path, inventory),
+      statusOf,
+      (filePath) => ready.get(filePath),
+      latest ?? noObservations,
+    );
+  }, [path, inventory, ready, failed, latest]);
+  const { coverage, scenarioCount, observed, cost, spread } = selection;
+  const settled = coverage.pendingCount === 0;
 
   return (
     <>
@@ -181,19 +196,13 @@ export function IntentGherkinSummary({
               <p className="intent-proof-counts">{spread}</p>
               <IntentSummarySlowest
                 path={path}
-                rows={slowestRowsOf(files, textOf, latest)}
-                featureBlobs={readable ? proof.featureBlobs : {}}
+                rows={selection.slowest}
+                featureBlobs={readableProof?.featureBlobs ?? {}}
                 onOpen={onOpen}
               />
             </>
           )}
-          <IntentSummaryChildren
-            childList={children}
-            statusOf={statusOf}
-            textOf={textOf}
-            latest={latest}
-            onOpen={onOpen}
-          />
+          <IntentSummaryChildren childList={children} onOpen={onOpen} />
         </>
       ) : null}
     </>

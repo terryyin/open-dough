@@ -29,7 +29,6 @@ import {
 } from "./intentSummaryProofCostFixtures.ts";
 import {
   childName,
-  expectChildren,
   slowestList,
   sumLine,
 } from "./intentSummaryProofCostPage.ts";
@@ -68,7 +67,7 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
   const { intent, summary } = await openFeatures(page);
   const toggle = intentGroupToggle(intent, featuresPath);
 
-  await test.step("16.1: from the closed location, the cli name selects and reveals cli with only its own figures", async () => {
+  await test.step("16.1: from the closed location, the cli name selects and reveals cli with its own sum", async () => {
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await childName(summary, "cli").click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
@@ -86,17 +85,6 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
         exact: true,
       }),
     ).toBeVisible();
-    await expectChildren(summary, [
-      ["cli_help.feature", `${sumLine} unknown`],
-      ["cli_login.feature", `${sumLine}: 2.0 s over 2 of 2 scenarios`],
-      ["cli_notebook_lfs.feature", `${sumLine}: 15.0 s over 2 of 4 scenarios`],
-    ]);
-    await expect(slowestList(summary).locator("tbody th")).toHaveText([
-      "Push a large notebook",
-      "Sync <size> Example: 1MB",
-      "Log in",
-      "Log out",
-    ]);
   });
 
   await test.step("16.2 and 10.5: Enter on a file row's name shows that file's Purpose and Proof, selected in the tree", async () => {
