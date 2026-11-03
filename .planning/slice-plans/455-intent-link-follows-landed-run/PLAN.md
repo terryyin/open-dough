@@ -113,6 +113,11 @@ branch. The `intent-`, `story-review` and `boundary/story-review` set passed
 212/212 after the refactor pass. `expectShown` now lives in
 `tests/support/storyReviewMark.ts`.
 
+## Execution complete
+
+Product advice: no change. The correction restores story 5a's contract
+without new promises; no queued SEED-192 work depends on it.
+
 ## Current decisions
 
 - Only a developer-chosen run yields to Intent's request; the answer's own
