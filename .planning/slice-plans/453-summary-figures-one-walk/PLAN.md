@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#summary-figures-one-walk
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#summary-figures-one-walk).
+**Source review:** [source-review.md](source-review.md)
 
 ## Source and provenance
 
@@ -69,7 +70,7 @@ not stored, with no added reads
 
 ### 1. Prove multi-day spread and minute-or-more sums
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/intent-summary-proof-cost.test.mjs`.
 
 The current wording is the expected result; a defect found while proving it
