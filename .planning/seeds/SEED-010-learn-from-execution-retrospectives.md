@@ -64,6 +64,11 @@ The selected case is Doughnut's note-details disclosure and the owner's
 post-deployment request to restore visible properties and footer timestamps.
 This queues an assessment in Open Dough; it does not reopen that product decision.
 
+On 2026-11-04, Terry directed that refactoring stays whole-product in scope:
+proportionality for records-only increments and small repairs governs only
+whether a fresh pass is triggered, and a triggered pass still examines the
+implicated concepts across the entire product, not the story's own change.
+
 The shared [project-findings maintenance contract](../../src/skills/dough-triage-project-findings/SKILL.md)
 provides explicitly invoked local maintenance, repair observation, priority selection,
 and commit/sync. Later stories compose or evaluate that capability.
@@ -222,41 +227,123 @@ No architectural exception or new ADR is proposed here.
 
 **Identity:** SEED-010#proportionate-refactor-for-records-and-repairs
 
-**Beneficiary and outcome:** A coordinator delivering an increment that
-changes only planning or execution records, or a few-line CI repair inside
-code its slice's accepted refactor already reviewed, follows one explicit
-rule: a recorded coordinator disposition naming that scope replaces a fresh
-full refactor agent. Product-changing work keeps the independent pass.
-Coordinators neither pay a no-op agent turn nor skip the pass silently.
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/458-proportionate-refactor-for-records-and-repairs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f6b0ef58a021a518f92253694f3053935d49061e7777fdc0f99c378a9f7550fd","plan":"0983f0d993fb61a1d2a065c1ae1ccf90ff48277e4e65a60282360717331b0ee4"}}
+```
+
+**Goal:** A coordinator delivering an increment that changes only planning or
+execution records, or an owned repair that stays within the concepts a slice's
+accepted refactor return already traced, follows one explicit rule: a recorded
+coordinator disposition naming that scope replaces the fresh full refactor
+agent for that delivery. Every other delivery keeps the independent pass, and
+the pass, once triggered, examines the implicated concepts across the whole
+product as it does today. Coordinators neither pay a no-op agent turn on a
+change with nothing to refactor nor skip the pass without an authorizing
+record, so the passes that find real residue keep running.
 
 **Evidence:** [ODF-141](../../docs/maintainer/findings/ODF-141.md) retains
-no-op fresh passes across all four earlier projects; this cycle adds three
-Pygardon, two Doughnut and two Clipboard executions (about 50–60k subagent
-tokens or 4–12 reported minutes per pass where recorded). Clipboard
-SEED-001#copy-files skipped the pass for small repairs without an authorizing
-rule, as did the three executions at
-[ODF-276](../../docs/maintainer/findings/ODF-276.md). Other passes in the
-same executions made useful edits; that benefit must be kept.
+no-op fresh passes across Open Dough, Pygardon, Doughnut and Clipboard
+(about 48–80k subagent tokens or 2–12 reported minutes per pass where
+recorded), including plan-only slices and every retained owned CI repair.
+Other passes in the same executions made useful edits, and one records-only
+pass (Open Dough plan 200 slice 4) corrected wrong code citations in a new
+seed. [ODF-276](../../docs/maintainer/findings/ODF-276.md) and Clipboard
+SEED-001#copy-files skipped the pass for records-only slices and small
+repairs with no authorizing rule. Current delivery guidance (execute-plan
+wrap-up step 1, the CI repair sequence, one-shot execution and bug fixing)
+requires the fresh agent unconditionally; no script enforces the
+`## REFACTOR COMPLETE` marker, so the requirement and its exception are prose.
 
-**Bounded scope:** Change only the delivery and refactor guidance, and any
-delivery check that requires the pass, for records-only increments and small
-repairs within already-reviewed code. Keep the full pass for new or moved
-product responsibility, changes outside the reviewed scope and any uncertain
-case. Do not change refactor criteria or file-size policy.
+**Scope:**
 
-**Key examples:** A plan-only waiver slice records the disposition. A
-three-line test-fixture CI repair in a file the slice's refactor reviewed
-records the disposition naming that review. A new product module gets the
-full pass. A small repair in another subsystem gets the full pass.
+- *Required behavior — the disposition rule.* Before the fresh-agent step of
+  delivery, the coordinator classifies the uncommitted change once. A
+  *records-only* change touches only planning, execution, finding or research
+  records (plans, seeds, backlog, source reviews, agent records, DearDough
+  entries, maintainer findings): the coordinator records the disposition
+  `records-only` and delivers without an agent. An *already-traced repair* is
+  an owned CI repair or small change whose every changed concept lies within
+  the representations the slice's accepted refactor return traced (its
+  reported changed paths and consumer-trace record) and that adds no
+  representation, helper, dependency or path outside that return: the
+  coordinator records the disposition naming that accepted return and
+  delivers without an agent. Any other change, and any case the coordinator
+  cannot classify with confidence, gets the fresh full pass as today.
+- *Required behavior — the disposition is a record.* The disposition is
+  retained where the delivery's accepted proof is retained: beside the slice
+  in the plan for planned execution, in the delivery boundary kept in the
+  conversation for quick execution. It names the classification and, for a
+  repair, the accepted return it relies on. The delivery check that today
+  requires `## REFACTOR COMPLETE` accepts that disposition in its place for
+  these two cases only; a missing disposition and a missing marker both still
+  prevent commit.
+- *Required behavior — dispositions feed the next pass.* The next fresh
+  pass's handoff lists the dispositions recorded since the last fresh pass,
+  and that pass includes those changes in its discovery. The execution
+  retrospective's residue assessment over the aggregate commits stays the
+  whole-product check for dispositions after the last pass.
+- *Required behavior — one rule for every delivery path.* Slice delivery,
+  owned CI repair, one-shot execution and bug fixing follow this one rule
+  through the shared wrap-up; no path keeps a separate unconditional
+  requirement or a separate exception.
+- *Required restriction — whole-product reach (Terry, 2026-11-04).*
+  Proportionality governs only whether a pass is triggered. A triggered pass
+  examines and may edit the implicated concepts wherever they live in the
+  product, under ADR 0002's whole-product focus and the refactor skill's
+  existing discovery and cross-subsystem gate; the rule never limits a pass
+  to the story's files, the slice's files or the repair's file.
+- *Required restriction — uncertainty keeps the pass.* The fresh pass is the
+  only independent review of a change's product residue, and about half of
+  the retained small code passes made useful edits. A classification the
+  coordinator cannot support from the return it names is not a waiver.
+- *Scope limits.* Do not change the refactor checks, file-size policy, the
+  cross-subsystem gate, proof acceptance, or the retrospective. Add no token
+  or duration measurement tooling and no new script; the evaluation reports
+  avoided turns from retained records with their limits. Independent review
+  of records-only text for citation correctness stays with the coordinator's
+  acceptance review against the source, not with this rule.
+
+**Key examples:**
+
+- Plan-only waiver slice (Doughnut plan 080 slices 1–2; Open Dough plan 427
+  slice 1): the diff touches only `PLAN.md` → delivery records `records-only`
+  → no agent is spawned, the commit and publication proceed.
+- A slice's accepted refactor return traced one spec and its helper; CI
+  fails on a few-line change inside one function of that spec, the shape of
+  the Clipboard SEED-001#portable-text repairs → the repair's changed concept
+  lies within that return → delivery records the disposition naming that
+  return and commits without an agent.
+- A CI repair adds a new helper, or edits a probe script the accepted return
+  never traced → not already-traced → the fresh full pass runs, and it may
+  edit the helper's concept wherever it is represented across the product.
+- A slice adds a product module → the fresh full pass runs as today.
+- A records-only increment whose new seed text cites code locations (Open
+  Dough plan 200 slice 4) → `records-only` disposition, no agent; the
+  coordinator's acceptance review against the source owns the citations.
+- Two already-traced repairs were recorded since slice 4's pass; slice 5
+  changes product code → slice 5's refactor handoff lists both dispositions
+  → the fresh pass traces the repaired concepts along with slice 5's change.
+- The coordinator cannot tell whether a repair's changed concept was traced by
+  the return it would name → the fresh full pass runs.
+
+**Explored alternatives:** A fresh agent with an early-return triage keeps
+independence but still pays the context reading that makes up the cost
+(about 50k tokens before the first edit decision). A coordinator-run check
+without a fresh agent loses the independent reading that found the retained
+residue. Deferring every small change to the next slice's pass is kept only
+as the dispositions-feed-the-next-pass behavior above, so no change goes
+permanently unreviewed. Changing nothing keeps paying the no-op turns.
 
 **Evaluation:** Replay retained no-op cases (Doughnut plan 080 slices 1–2,
 Clipboard SEED-001#portable-text repairs, Pygardon plan 482 slices 6–8) and at
-least one retained pass that found real residue, confirming the rule still
-requires that pass. Report agent turns and tokens avoided in replay with their
-limits. At closure, record the actual response revision and first containing
-release (or explicitly unreleased status) at ODF-141 and ODF-276; later
-ordinary use remains a separate observation. **Queued, not refined or
-implemented.**
+least one retained pass that found real residue (Pygardon plan 431 slice 2's
+extracted generation, or Open Dough plan 200 slice 4 as the records-only
+trade-off), confirming the rule still requires that pass or names the
+trade-off. Report agent turns and
+tokens avoided in replay with their limits. At closure, record the actual
+response revision and first containing release (or explicitly unreleased
+status) at ODF-141 and ODF-276; later ordinary use remains a separate
+observation.
 
 
 <a id="pending-lifecycle-validation-obligations"></a>
