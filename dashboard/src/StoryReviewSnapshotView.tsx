@@ -33,6 +33,7 @@ import {
   type ReviewedFile,
   type TakenStoryReview,
 } from "./storyReviewContract.ts";
+import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
@@ -145,7 +146,7 @@ export function SnapshotView({
   if (selected !== undefined && selected.path !== selectedPath)
     setSelectedPath(selected.path);
   // The selected file's *from* tree.
-  const from = selected?.includesTrunkFrom ?? comparison.from;
+  const from = diffStartOf(comparison, selected);
   // A move asks for its file's row to be brought into view once shown.
   const browserPane = useRef<HTMLElement>(null);
   const revealing = useRef(false);

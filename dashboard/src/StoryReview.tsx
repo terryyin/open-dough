@@ -12,8 +12,7 @@ import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
-import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
-import { defaultStoryComparison } from "./useStoryComparison.ts";
+import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
@@ -45,9 +44,6 @@ export function StoryReview({
   // How many times Refresh asked for a new snapshot.
   const [round, setRound] = useState(0);
   const [browserShown, setBrowserShown] = useState(true);
-  const [includeUncommitted, setIncludeUncommitted] = useState(
-    defaultStoryComparison.includeUncommitted,
-  );
   const browser = { id: `${id}-files`, shown: browserShown };
   const {
     review,
@@ -60,11 +56,9 @@ export function StoryReview({
     chosen,
     onWorkspace,
     onRun,
-  } = useStoryReviewSelection(source, identity, round, request.completed);
-  // A snapshot without uncommitted changes offers no check; the next that
-  // holds some offers it on.
-  if (!includeUncommitted && workspace !== undefined && !workspace.committed)
-    setIncludeUncommitted(true);
+    includeUncommitted,
+    setIncludeUncommitted,
+  } = useStoryReviewRequest(request, round);
   // Mark reviewed's answer for the review it marked, and whether a mark is
   // still being made.
   const [made, setMade] = useState<{

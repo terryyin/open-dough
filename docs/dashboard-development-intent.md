@@ -9,7 +9,8 @@ roster, near-future direction, Start session and published-state
 qualifications. Intent replaces that content with the project's Purpose and
 Proof reading surface. When the selected project's
 `.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
-Intent lists each location's nested `.feature` files in a collapsible tree.
+Intent lists each location's nested `.feature` files in a collapsible tree,
+whose folders start collapsed.
 Locations and folders share separate caret and name controls: a caret toggles
 expansion without changing the selection or the reading pane (Purpose, Proof,
 or summary); clicking an unselected name selects that location or folder and
@@ -119,7 +120,8 @@ Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
 **Purpose** chosen, or shown side by side, positioned on the entry's case
-where that names one line, and choosing **Optimization Candidates** again returns to
+where that names one line, with its location and the folders holding it
+opened so the file shows selected in the tree, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again. **CI status** shows, across the
 content area without the location tree, the selected check's judgment of the
 project's configured trunk (`main` here), or, while a story is selected on
@@ -185,8 +187,10 @@ everything else collapses. **Selected story only**, off at first, leaves
 just the changed files and the locations and folders holding them, or says no
 test file in a location changed; turning it on or off opens the same folders
 again and collapses the rest. Changed files no location selects by either path
-are counted with a way to Review changes. A changed file's Purpose is Review
-changes' diff of it, and its Proof says it describes the published revision.
+are counted with a way to Review changes, which opens on Intent's comparison
+(All changes, uncommitted changes included) even for a story with a review
+mark. A changed file's Purpose is Review changes' diff of it, and its Proof
+says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while
 the published tree stays usable; deselecting the story removes the lens.
 The story is a lens on Intent, not a separate definition of it, and its

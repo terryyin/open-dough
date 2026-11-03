@@ -9,7 +9,7 @@ import {
   storyComparisonShown,
   type ShownStoryComparison,
 } from "./storyComparisonShown.ts";
-import type { ShownComparison } from "./StoryReviewComparison.tsx";
+import type { RequestedComparison } from "./pageStoryReviews.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
@@ -17,10 +17,10 @@ import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
 // opening.
-export const defaultStoryComparison: {
-  readonly chosen: ShownComparison;
-  readonly includeUncommitted: boolean;
-} = { chosen: "all", includeUncommitted: true };
+export const defaultStoryComparison: RequestedComparison = {
+  chosen: "all",
+  includeUncommitted: true,
+};
 
 export function useStoryComparison({
   source,

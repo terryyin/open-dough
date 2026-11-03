@@ -11,6 +11,7 @@
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
+import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import {
   nestedTreeRows,
   treeFolder,
@@ -80,51 +81,19 @@ test("a story's changed files show by name under their folders", async ({
   });
 
   await test.step("each file's kind shows only in the style of its name", async () => {
-    // The dashboard's own colours, as this page resolves them.
-    const tokens = await files.evaluate((list) => {
-      const probe = document.createElement("span");
-      list.append(probe);
-      const resolve = (token: string) => {
-        probe.style.color = `var(${token})`;
-        return getComputedStyle(probe).color;
-      };
-      const resolved = {
-        text: resolve("--text"),
-        ready: resolve("--ready"),
-        accent: resolve("--accent"),
-        quiet: resolve("--quiet"),
-      };
-      probe.remove();
-      return resolved;
-    });
-    const nameStyle = (name: string) =>
-      files
-        .getByRole("button", { name, exact: true })
-        .locator("code")
-        .evaluate((code) => {
-          const style = getComputedStyle(code);
-          return {
-            color: style.color,
-            line: style.textDecorationLine,
-            fontStyle: style.fontStyle,
-          };
-        });
-    const plain = { color: tokens.text, line: "none", fontStyle: "normal" };
-    for (const [name, style] of [
-      ["Added dashboard/src/a.tsx", { ...plain, color: tokens.ready }],
-      [
-        "Added docs/adrs/drafts/0009-tree.md",
-        { ...plain, color: tokens.ready },
-      ],
-      ["Modified dashboard/src/b.ts", { ...plain, color: tokens.accent }],
-      ["Modified README.md", { ...plain, color: tokens.accent }],
-      [
-        "Deleted dashboard/server/c.ts",
-        { ...plain, color: tokens.quiet, line: "line-through" },
-      ],
-      ["Renamed old/a.ts → new/a.ts", { ...plain, fontStyle: "italic" }],
+    const style = await kindStyles(files);
+    for (const [name, expected] of [
+      ["Added dashboard/src/a.tsx", style.added],
+      ["Added docs/adrs/drafts/0009-tree.md", style.added],
+      ["Modified dashboard/src/b.ts", style.modified],
+      ["Modified README.md", style.modified],
+      ["Deleted dashboard/server/c.ts", style.deleted],
+      ["Renamed old/a.ts → new/a.ts", style.renamed],
     ] as const) {
-      expect(await nameStyle(name), name).toEqual(style);
+      expect(
+        await nameStyle(files.getByRole("button", { name, exact: true })),
+        name,
+      ).toEqual(expected);
     }
     // Each row carries its kind from the shared change-kind model.
     await expect(
@@ -137,7 +106,13 @@ test("a story's changed files show by name under their folders", async ({
     ).toHaveAttribute("data-kind", "modified");
     // The kinds' colours differ from each other and from plain text, so the
     // comparison above can tell them.
-    expect(new Set(Object.values(tokens)).size).toBe(4);
+    expect(
+      new Set(
+        [style.plain, style.added, style.modified, style.deleted].map(
+          ({ color }) => color,
+        ),
+      ).size,
+    ).toBe(4);
   });
 
   await test.step("a keyboard-focused file says its kind and full path in words", async () => {

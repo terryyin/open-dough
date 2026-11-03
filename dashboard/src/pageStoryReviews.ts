@@ -5,16 +5,27 @@
 // whatever session the panel showed without ending it.
 
 import { createContext, useContext } from "react";
+import type { ShownComparison } from "./StoryReviewComparison.tsx";
+
+// A workspace comparison a request asks the review to show.
+export type RequestedComparison = {
+  readonly chosen: ShownComparison;
+  readonly includeUncommitted: boolean;
+};
 
 // A request to review one story of one project: the project and story it
 // names, kept while the dashboard's own selection moves on, and the control
-// that asked, which gets the keyboard back once the review closes.
+// that asked, which gets the keyboard back once the review closes. A view
+// showing its own comparison of the story, as Intent does, asks for it, so
+// the review it opens shows the same; without one the review opens on its
+// own default.
 export type StoryReviewRequest = {
   readonly source: string;
   readonly identity: string;
   readonly title: string;
   readonly control: HTMLElement;
   readonly completed?: boolean;
+  readonly comparison?: RequestedComparison;
 };
 
 export type OpenStoryReview = (request: StoryReviewRequest) => void;

@@ -84,8 +84,9 @@ export function intentStoryOverlay(
       const prefix = `${location.path}/`;
       const published = new Set(location.files);
       const files: IntentTreeFile[] = [];
+      // The read lists a location's files by repository path under it.
       for (const full of location.files) {
-        if (!full.startsWith(prefix) || movedAway.has(full)) continue;
+        if (movedAway.has(full)) continue;
         const change = placed.get(full);
         files.push({
           path: full.slice(prefix.length),

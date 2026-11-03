@@ -17,6 +17,8 @@ export function useStoryReviewSelection(
   completed = false,
   // A disabled selection reads nothing.
   enabled = true,
+  // The workspace choice it opens on.
+  initial: ShownComparison = "since",
 ) {
   const workspaceRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
@@ -29,7 +31,7 @@ export function useStoryReviewSelection(
     of: StoryReview | undefined;
     run?: string;
     workspace: ShownComparison;
-  }>({ of: undefined, workspace: "since" });
+  }>({ of: undefined, workspace: initial });
   const answer = workspaceRead.answer;
   const runs = answer?.runs ?? [];
   if (
