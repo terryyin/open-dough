@@ -6,6 +6,7 @@ correcting story 5a (`SEED-192#align-intent-story-lens`), recoverable as
 `git show 6a3a18c5:.planning/seeds/SEED-192-review-product-intent.md`
 (section `#align-intent-story-lens`) with its plan at
 `6a3a18c5:.planning/slice-plans/448-align-intent-story-lens/PLAN.md`.
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance
 
@@ -92,7 +93,7 @@ written.
 
 ### 1. Intent's link leaves a chosen landed run
 Type: Behavior
-Status: planned
+Status: done
 Proof: extend an Intent journey with a landed run from the fixtures above:
 switch Review to Landed run, follow Intent's link, and observe All changes
 with Intent's diff; a landed-fallback review stays on its run; the `intent-`,
@@ -102,10 +103,29 @@ sentence in `dashboard/STORY-REVIEW-MARKS.md`.
 Behavior: a review showing a developer-chosen landed run → the developer
 follows Intent's **Review changes** → Review shows Intent's comparison.
 
+Accepted proof (2026-11-03): `dashboard/tests/intent-story-changes-landed-run.spec.ts`.
+Its first test switches a live-workspace review to Landed runs, follows
+Intent's link, and sees All changes with uncommitted checked and both diffs
+equal to Intent's; it fails on the old hook. Its second test lands two runs,
+retires the workspace, and sees the review stay on the answer's own run, and
+return to it from the other chosen run; it fails without the `onRun(own)`
+branch. The `intent-`, `story-review` and `boundary/story-review` set passed
+212/212 after the refactor pass. `expectShown` now lives in
+`tests/support/storyReviewMark.ts`.
+
 ## Current decisions
 
 - Only a developer-chosen run yields to Intent's request; the answer's own
   landed fallback is what Intent shows and stays.
+- `useStoryReviewSelection` returns `answerRun` (the answer's own
+  `selectedRun`); the request hook returns to it, or to the workspace
+  comparison Intent asked for when there is none.
+
+## Learnings
+
+- A journey where a captured one-shot run precedes a live Taken workspace
+  must keep a launch record for that workspace; otherwise the review
+  resolves the retired run's record first and answers the landed fallback.
 
 ## Concern evidence
 

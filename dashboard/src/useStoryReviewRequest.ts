@@ -1,9 +1,12 @@
 // A story review's (`./StoryReview.tsx`) selection for its request
 // (`./pageStoryReviews.ts`), with whether it includes its workspace's
 // uncommitted changes. A request naming a comparison, as Intent's does,
-// opens the review on it; asked again while shown, the review returns its
-// workspace to it unless a captured run is shown. Without one the review
-// opens on its own default (`./useStoryReviewSelection.ts`).
+// opens the review on it; asked again while shown, the review returns to it
+// from any choice, a landed run chosen in the review included. A workspace
+// answer that falls back to a landed run (its workspace gone, its landing
+// captured) is what Intent shows too, so the review returns to that run.
+// Without one the review opens on its own default
+// (`./useStoryReviewSelection.ts`).
 import { useState } from "react";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { defaultStoryComparison } from "./useStoryComparison.ts";
@@ -29,7 +32,9 @@ export function useStoryReviewRequest(
   const [answered, setAnswered] = useState(request);
   if (answered !== request) {
     setAnswered(request);
-    if (asked !== undefined && selection.selectedRun === undefined) {
+    const own = selection.answerRun;
+    if (asked !== undefined && own !== undefined) selection.onRun(own);
+    else if (asked !== undefined) {
       selection.onWorkspace(asked.chosen);
       setIncludeUncommitted(asked.includeUncommitted);
     }

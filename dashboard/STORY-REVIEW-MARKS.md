@@ -51,7 +51,10 @@ review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
 changes since the review, except one from Intent's way to Review changes
 (`src/useStoryReviewRequest.ts`), which starts on, or returns the review
-shown to, Intent's comparison: All changes with uncommitted changes included.
+shown to, Intent's comparison: All changes with uncommitted changes included,
+even from a landed run chosen in the review. A review whose workspace answer
+falls back to a landed run (the workspace gone, its landing captured) returns
+to that run, which Intent shows too.
 When the repository no longer holds the marked
 tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
