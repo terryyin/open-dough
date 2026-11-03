@@ -81,7 +81,7 @@ entries and lifecycle stay its own.
 
 ### 2. The owner-replacement proof waits on a queued signal
 Type: Structure
-Status: planned
+Status: done
 Proof: `owner-replacement-recovery.spec.ts` waits for an observable sign
 that the read is queued at the owner (for example a test-only count of
 waiting requests in the private owner fixture) instead of wall time; its
@@ -130,3 +130,10 @@ Structure: the history-only field rule has one home in the browser code.
   instances; proof restarts a real dev server through
   `tests/fixtures/restarting-dev-server.mjs` on SIGUSR2
   (`authenticated-read-incident-record-restart.spec.ts`).
+
+## Story obligations
+
+### G1. Other specs order on the refusal marker (discovered at slice 2 acceptance)
+Reported: slice 2 — "The comment on refusedMarker in dashboard/tests/support/sharedReads.ts claims every request sent before it waits on its gh call; that is not true, since the marker is refused inside the dashboard."
+Story clause: "a recovery proof that does not depend on machine speed"
+Disposition: no user cost "a recovery proof that does not depend on machine speed": the clause names the owner-replacement recovery proof, which slice 2 moved to the ownerSends signal; the other refusedMarker users (authenticated-read-turns, -wait-in-turn, -resumption, -diagnostics, -shared-waiters, -shared-failures specs, sharedRequestOwner.ts) are not that proof, have no observed failure, and most follow the marker with a poll on GitHub calls; handed to the execution retrospective as a candidate finding.
