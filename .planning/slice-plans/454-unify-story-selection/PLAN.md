@@ -159,6 +159,16 @@ the Side panel description in `dashboard/AGENT-LAUNCH-TERMINALS.md` with the
 story's terms. Remove wording that ties selection to inspection or to a
 card mark for Side panel content.
 
+## Execution complete
+
+Product advice: no change to the queue. The story's outcome is delivered as
+written: one page-wide selected story set by the Side panel and Select story,
+a highlight as the card's only selection mark, and inspection on its own.
+Plan 448 (SEED-192#align-intent-story-lens, Taken) rebases onto this story,
+as its Coordination section anticipates: its findings still describe a
+selected mark distinct from "shown in Side panel" and a per-project selection,
+so its owner aligns that wording to Selected story, Highlight, and Inspect.
+
 ## Learnings
 
 - Slice 1 moved the README's story-card paragraph into
