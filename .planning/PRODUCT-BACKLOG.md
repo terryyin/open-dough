@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Restore dashboard responsiveness and reliable GitHub access](seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness) — SEED-225#restore-dashboard-responsiveness
+- [Calculate expensive proof figures on demand](seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand) — SEED-226#calculate-proof-figures-on-demand
 - [Return a landed-run review to Intent's comparison](seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run) — SEED-192#intent-link-follows-landed-run
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
