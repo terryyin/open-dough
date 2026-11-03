@@ -50,7 +50,7 @@ function Reference({
       <span className="intent-candidate-location-with-case">
         <button
           type="button"
-          className="intent-candidate-location-link"
+          className="intent-open-link"
           onClick={() => {
             onOpen(
               match.caseTarget === undefined
@@ -80,7 +80,7 @@ function Reference({
               ;{" "}
               <button
                 type="button"
-                className="intent-candidate-location-link"
+                className="intent-open-link"
                 onClick={() => {
                   onOpen({ path }, entrySlug);
                 }}

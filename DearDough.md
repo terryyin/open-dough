@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 410. Removed numbers are never reused.
+- Highest allocated local number: 411. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -874,3 +874,21 @@ the branch's dev dashboard without further help.
   - Evidence: slice 7 "Terry evaluates a real story"; handoff reported `unfinished` to the dashboard (receipt `7702493f`); developer delegated; evaluation recorded in plan Learnings and published as `7c71049b`
   - Observed effect: one developer round trip and a stopped/restarted CI observer before an evaluation the agent could already perform
   - Inference: a developer-operated evaluation that needs only local, unpaid observation could be offered as agent-performed in the handoff (or attempted first, keeping the usefulness judgment explicit for the developer to confirm); generality across stories where the judgment itself is the promise is uncertain
+
+## DD-411 — CI diagnostic reports an empty complete inventory for a cancelled job whose suite step failed
+
+`ci-github-diagnostic.mjs failure` filters jobs through `isFailedJob`
+(`ci-failures.mjs:214`), which excludes `cancelled`. A job cancelled at the
+workflow's suite deadline, after its own test step failed, therefore yields
+`inventory: {complete: true, failedJobs: 0, gaps: []}` for a `CI_INCOMPLETE`
+run. That reads as "nothing failed" while the run has no verdict.
+
+### Occurrences
+- Execution: SEED-192#inspect-hierarchical-proof-cost (plan 452; first implementation commit `f310f5739a8de2c1a09116d0c32d230ea80dd1b7`)
+  - Timestamp: 2026-11-02T14:44:14Z (CI_INCOMPLETE run completion; triage followed)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.83 (repository VERSION at claim `5260f2bc4`; installed skills unchanged through this execution)
+  - Evidence: run 41463759771 attempt 1 on `a04e6e12a`; job "dashboard (10/12)" conclusion `cancelled` with step "Run the dashboard browser suite" `failure` ("Timed out waiting 276.021s for the test suite to run"). The diagnostic returned zero failed jobs and no gaps. The disposition is recorded in `45d6975c0:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md` Current decisions.
+  - Observed effect: the coordinator found the failed step only through a separate `gh run view` and job log. It then stashed slice 3's work and delegated a repair agent (about 455 s, 101k tokens), which concluded runner degradation. One `gh api …/runs/RUN/jobs` comparison of "Set up job" (42 s against 1 s) and setup-node (30 s against 5–6 s) across sibling shards showed the same thing afterwards.
+  - Inference: the inventory should list a cancelled job with a failed step, or mark it as a gap, so `CI_INCOMPLETE` triage starts from evidence. Comparing pre-project setup-step durations across sibling jobs is a cheap first infrastructure check before pausing writers. That second point is a single observation.

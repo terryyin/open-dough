@@ -3,14 +3,15 @@
 // files only, labelled Partial while any contained file is pending or unread,
 // with contributing-file coverage for the selection and each immediate child
 // in the browser's tree order (`./reviewFileTree.ts`). An unread file is never
-// counted as passed or without successful proof. A nonempty selection with no readable
-// files says its scenario total is unavailable, not zero.
+// counted as passed or without successful proof. A nonempty selection with no
+// readable files says its scenario total is unavailable, not zero. Summed
+// proof duration over the same rows lives in `./intentSummaryProofCost.ts`.
 
 import {
   proofIdentity,
   type SuccessfulProofObservation,
 } from "./cucumberProof.ts";
-import { scenarioRowsOf } from "./gherkinScenarios.ts";
+import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
 import { proofScenarioCountLine } from "./proofScenarioCountLine.ts";
 import {
   reviewFileOrder,
@@ -111,18 +112,39 @@ export function coverageOf(
   };
 }
 
+// One scenario row of a read file with its latest successful observation,
+// if any: the single matching of rows to proof that summary counts, sums,
+// and slowest scenarios (`./intentSummaryProofCost.ts`) all read.
+export type ObservedRow = {
+  readonly path: string;
+  readonly row: ScenarioRow;
+  readonly observation: SuccessfulProofObservation | undefined;
+};
+
+export function observedRowsForFiles(
+  files: readonly string[],
+  textOf: (path: string) => string | undefined,
+  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+): readonly ObservedRow[] {
+  return files.flatMap((path) => {
+    const text = textOf(path);
+    if (text === undefined) return [];
+    return scenarioRowsOf(text).map((row) => ({
+      path,
+      row,
+      observation: latest.get(proofIdentity({ feature: path, ...row })),
+    }));
+  });
+}
+
 export function observationsForFiles(
   files: readonly string[],
   textOf: (path: string) => string | undefined,
   latest: ReadonlyMap<string, SuccessfulProofObservation>,
 ): readonly (SuccessfulProofObservation | undefined)[] {
-  return files.flatMap((path) => {
-    const text = textOf(path);
-    if (text === undefined) return [];
-    return scenarioRowsOf(text).map((row) =>
-      latest.get(proofIdentity({ feature: path, ...row })),
-    );
-  });
+  return observedRowsForFiles(files, textOf, latest).map(
+    ({ observation }) => observation,
+  );
 }
 
 export function scenarioCountForFiles(
@@ -138,7 +160,7 @@ export function scenarioCountForFiles(
 // Labels a complete line Partial with contributing-file coverage while any
 // contained file is pending or unread, and names the unavailable form when
 // nothing readable has contributed yet.
-function coverageLabelledLine(
+export function coverageLabelledLine(
   coverage: CoverageTally,
   complete: string,
   unavailable: string,

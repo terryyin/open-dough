@@ -2,18 +2,16 @@
 // (`./IntentBrowser.tsx`): caret discloses the body without changing
 // selection; the name selects the location (and toggles once selected).
 // Nested folders use the shared FileTree's opt-in caret + selectable name.
-// Every folder starts collapsed; the folders holding the selection open
-// whenever the selection moves to another file or folder, so a test opened
-// from elsewhere (the candidates record) shows selected in the tree. A
+// Which folders are open is `./useLocationOpenFolders.ts`'s; a `reveal`
+// request inside the location also scrolls the selected row into view. A
 // selected story's overlay (`./intentStoryOverlay.ts`) supplies the files with
-// their change kinds, and each new expansion it asks for opens exactly the
-// folders it names; a group that contains changes is marked as a folder is.
+// their change kinds; a group that contains changes is marked as a folder is.
 // Selection is the Intent workspace's (`./intentWorkspaceSelection.ts`),
 // passed through the browser. An unsupported kind or a location with no
 // matching files says so by path, kind, and include patterns inside the
 // expanded body.
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
@@ -22,12 +20,13 @@ import {
   selectionScope,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import {
-  reviewFileTree,
-  reviewFolderPaths,
-  reviewFoldersHolding,
-} from "./reviewFileTree.ts";
+import { reviewFileTree } from "./reviewFileTree.ts";
 import { FileTree, reviewedFileWords } from "./StoryReviewFileTree.tsx";
+import {
+  useLocationOpenFolders,
+  type LocationExpansion,
+  type TreeReveal,
+} from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
 
 function FileRow({
@@ -78,13 +77,6 @@ function LocationLabel({ location }: { readonly location: IntentLocation }) {
   );
 }
 
-// A new set of folders for a location to open, asked for each time its round
-// changes.
-export type LocationExpansion = {
-  readonly round: number;
-  readonly folders: readonly string[];
-};
-
 export function IntentLocationGroup({
   location,
   files,
@@ -95,6 +87,7 @@ export function IntentLocationGroup({
   idPrefix,
   expanded,
   onToggle,
+  reveal,
 }: {
   readonly location: IntentLocation;
   // The location's tree files, relative to it (`./intentStoryOverlay.ts`).
@@ -106,6 +99,7 @@ export function IntentLocationGroup({
   readonly idPrefix: string;
   readonly expanded: boolean;
   readonly onToggle: () => void;
+  readonly reveal?: TreeReveal | undefined;
 }) {
   const bodyId = `${idPrefix}-body`;
   const prefix = `${location.path}/`;
@@ -123,46 +117,28 @@ export function IntentLocationGroup({
     scope === "location" && selection.path === location.path;
   const revealPath = selectedRelative || selectedFolderRelative;
 
-  // Folders are tracked by the ones open, so a folder not yet seen starts
-  // collapsed and only those holding the selection start open; the selection
-  // last revealed keeps a moved selection opening its folders without
-  // reopening one collapsed around it since.
-  const [openFolders, setOpenFolders] = useState<ReadonlySet<string>>(
-    () => new Set(reviewFoldersHolding(tree, revealPath)),
-  );
-  const [revealed, setRevealed] = useState(revealPath);
-  const [expandedRound, setExpandedRound] = useState<number | undefined>();
-  // The folders open in this render, after a new expansion and a moved
-  // selection have both been applied.
-  let open = openFolders;
-  if (expansion !== undefined && expansion.round !== expandedRound) {
-    setExpandedRound(expansion.round);
-    open = new Set(expansion.folders);
-    setOpenFolders(open);
-  }
-  if (revealed !== revealPath) {
-    setRevealed(revealPath);
-    const holding = reviewFoldersHolding(tree, revealPath);
-    if (holding.some((folderPath) => !open.has(folderPath))) {
-      open = new Set([...open, ...holding]);
-      setOpenFolders(open);
-    }
-  }
-  const collapsed = new Set(
-    reviewFolderPaths(tree).filter((folderPath) => !open.has(folderPath)),
-  );
-
-  function toggleFolder(folderPath: string) {
-    setOpenFolders((was) => {
-      const next = new Set(was);
-      if (next.has(folderPath)) next.delete(folderPath);
-      else next.add(folderPath);
-      return next;
-    });
-  }
+  const revealHere =
+    reveal !== undefined &&
+    (reveal.path === location.path || reveal.path.startsWith(prefix));
+  const { collapsed, toggleFolder } = useLocationOpenFolders({
+    tree,
+    revealPath,
+    expansion,
+    reveal: revealHere
+      ? { request: reveal, path: reveal.path.slice(prefix.length) }
+      : undefined,
+  });
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!revealHere) return;
+    sectionRef.current
+      ?.querySelector('[aria-pressed="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [reveal, revealHere]);
 
   return (
     <section
+      ref={sectionRef}
       className="intent-location story-review-files"
       aria-labelledby={`${idPrefix}-heading`}
       data-contains-changes={containsChanges || undefined}

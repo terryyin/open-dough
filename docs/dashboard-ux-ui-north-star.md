@@ -110,16 +110,13 @@ locations remains open.
 
 ### Runtime proof and hierarchy
 
-Proof includes available execution observations, such as when validation last
-ran and how long it took. A hierarchical report lets a folder or group show
-statistics for its contained tests as well as individual-file observations.
-
-Associate observations with their actual run, revision, and scope. Distinguish
-run wall time from summed case durations when tests run concurrently. Keep
-missing or historical evidence explicit; a folder must not appear validated
-merely because some children have results. Mockups use real files and observed
-results, or show that a result is unavailable, rather than fabricating values.
-Collection, storage, revision matching, and exact aggregation rules remain open.
+Distinguish a run's wall time from summed case durations when tests run
+concurrently: summaries sum separate scenario observations, and no run's
+elapsed time is recorded or shown yet. Associate observations with their
+actual run and revision, beyond whether each was observed on the current file
+version. Mockups use real files and observed results, or show that a result is
+unavailable, rather than fabricating values. Collecting run identity and wall
+time, and how a summary would show it, remain open.
 
 ## Questions the Development perspective should answer
 

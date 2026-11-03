@@ -66,6 +66,7 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     await expect(summary).toContainText(
       "dough-test-optimization/references/cucumber-proof.md",
     );
+    await expect(summary).not.toContainText("Summed duration");
     await expect(
       intentGroupToggle(intent, "e2e_test/features"),
     ).toHaveAttribute("aria-expanded", "false");
@@ -107,6 +108,7 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     await expect(summary).toContainText(
       "Intent reads Proof only for Gherkin feature files so far.",
     );
+    await expect(summary).not.toContainText("Summed duration");
   });
 });
 
@@ -140,4 +142,5 @@ test("commitments 56/58: summary of a location with unreadable declared proof ke
     `Proof could not be read: ${proofRunPath} could not be read at this revision.`,
   );
   await expect(alert.getByRole("button", { name: "Retry" })).toBeVisible();
+  await expect(summary).not.toContainText("Summed duration");
 });

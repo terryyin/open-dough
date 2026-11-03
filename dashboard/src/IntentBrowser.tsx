@@ -7,7 +7,8 @@
 // the reading pane. A file, or nothing selected yet, shows Purpose and Proof
 // as tabs or side by side (`./IntentFileReading.tsx`), one reader layout this
 // browser keeps (`./keptPreference.ts`); a location or folder name shows a
-// Summary (`./IntentSummary.tsx`). The record fills the content area
+// Summary (`./IntentSummary.tsx`), whose child names and slowest rows open
+// their target as the record's links do. The record fills the content area
 // without the locations; it is read the first time it is chosen and stays
 // mounted after, so opening a test from it and returning does not reread it. A
 // failed file read keeps its own explanation and retry; a failed proof read's
@@ -22,21 +23,16 @@
 // with Intent, so a story selected while Intent is hidden applies when it
 // opens, with the toggle off.
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
 import {
   IntentFileReading,
-  type FileRead,
   type IntentReadingLayout,
   type IntentReadingTab,
 } from "./IntentFileReading.tsx";
-import {
-  IntentLocationGroup,
-  type LocationExpansion,
-} from "./IntentLocationGroup.tsx";
+import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { keptChoice } from "./keptPreference.ts";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSummary } from "./IntentSummary.tsx";
@@ -56,6 +52,11 @@ import {
   type StoryOverlayExpansion,
 } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { useIntentFileRead } from "./useIntentFileRead.ts";
+import type {
+  LocationExpansion,
+  TreeReveal,
+} from "./useLocationOpenFolders.ts";
 import { StoryChangesScope, type ComparedStory } from "./IntentStoryLens.tsx";
 
 // The reader layout this browser keeps for every project, tabs where it keeps
@@ -100,18 +101,14 @@ export function IntentBrowser({
   if (mode === "candidates" && !candidatesChosen) setCandidatesChosen(true);
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
-  // The answered read of one path; Purpose and Proof show it only while that
-  // path is the one selected, so a new selection never pairs with the
-  // previous text, and anything else reads as still reading.
-  const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
-  const [fileRetry, setFileRetry] = useState(0);
+  const [reveal, setReveal] = useState<TreeReveal | undefined>();
   // Purpose or Proof, kept across file selections (`./IntentFileReading.tsx`).
   const [readingTab, setReadingTab] = useState<IntentReadingTab>("purpose");
   // Tabs or side by side, one choice this browser keeps for every project;
-  // held here so a record open, which starts a fresh reading, keeps it.
+  // held here so a revealed open, which starts a fresh reading, keeps it.
   const [readingLayout, setReadingLayout] = useState(keptLayout.read);
-  // Each open from the record starts a fresh reading, positioned on its case.
-  const [recordOpens, setRecordOpens] = useState(0);
+  // Each revealed open starts a fresh reading, positioned on its case.
+  const [revealedOpens, setRevealedOpens] = useState(0);
   const readingArea = useRef<HTMLDivElement | null>(null);
   const readingIdPrefix = useId();
   const inventory = inventoryFromIntentLocations(locations);
@@ -140,22 +137,26 @@ export function IntentBrowser({
           folders: expansion.plan.folders[index] ?? [],
         };
 
-  function openFromRecord(next: IntentSelection, entrySlug: string) {
-    setSelection(next.scope === undefined ? { ...next, scope: "file" } : next);
+  function select(next: IntentSelection, entrySlug?: string) {
+    setSelection(next);
     setReturnEntrySlug(entrySlug);
     onModeChange("intent");
-    setReadingTab("purpose");
-    setRecordOpens((n) => n + 1);
-    const owning = locations.find((location) =>
-      location.files.includes(next.path),
-    );
-    if (owning !== undefined) setExpandedPath(owning.path);
   }
 
-  function selectInTree(next: IntentSelection) {
-    setSelection(next);
-    setReturnEntrySlug(undefined);
-    onModeChange("intent");
+  // Opening from the candidate record or drilling down from a summary
+  // selects as the tree does (a record entry is a file without a scope),
+  // starts a fresh reading on Purpose, and reveals the target in the tree:
+  // its location opens and the folders holding it open.
+  function openRevealed(next: IntentSelection, entrySlug?: string) {
+    select(
+      next.scope === undefined ? { ...next, scope: "file" } : next,
+      entrySlug,
+    );
+    setReadingTab("purpose");
+    setRevealedOpens((n) => n + 1);
+    const owning = owningLocation(locations, next);
+    if (owning !== undefined) setExpandedPath(owning.path);
+    setReveal({ path: next.path });
   }
 
   // Clearing selection when the project or locations change is owned by the
@@ -166,28 +167,13 @@ export function IntentBrowser({
       : undefined;
   // A file the published revision does not list has no published text.
   const unpublished = selectedFile?.published === false;
-  useEffect(() => {
-    if (scope !== "file" || selectedPath === "" || unpublished) return;
-    const controller = new AbortController();
-    setFileRead(undefined);
-    void readRepositoryFileAt(source, selectedPath, revision, controller.signal)
-      .then((text) => {
-        if (!controller.signal.aborted) {
-          setFileRead({ path: selectedPath, state: "ready", text });
-        }
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setFileRead({ path: selectedPath, state: "failed" });
-        }
-      });
-    return () => {
-      controller.abort();
-    };
-  }, [source, revision, selectedPath, scope, fileRetry, unpublished]);
-
-  const selectedRead =
-    scope === "file" && fileRead?.path === selectedPath ? fileRead : undefined;
+  const fileRead = useIntentFileRead({
+    source,
+    revision,
+    path: selectedPath,
+    file: scope === "file",
+    unpublished,
+  });
 
   const selectedLocation = owningLocation(locations, selection);
   const selectedLanguage =
@@ -230,7 +216,8 @@ export function IntentBrowser({
                 containsChanges={shown?.containsChanges ?? false}
                 expansion={locationExpansion(index)}
                 selection={treeSelection}
-                onSelect={selectInTree}
+                onSelect={select}
+                reveal={reveal}
                 idPrefix={intentLocationIdPrefix(location.path)}
                 expanded={expandedPath === location.path}
                 onToggle={() => {
@@ -254,11 +241,12 @@ export function IntentBrowser({
               revision={revision}
               proofRereading={proofRereading}
               onProofRetry={onProofRetry}
+              onOpen={openRevealed}
             />
           ) : null}
           {scope === "file" || scope === "none" ? (
             <IntentFileReading
-              key={recordOpens}
+              key={revealedOpens}
               tab={readingTab}
               onChooseTab={setReadingTab}
               layout={readingLayout}
@@ -270,16 +258,14 @@ export function IntentBrowser({
               readingArea={readingArea}
               path={selectedPath}
               revision={revision}
-              read={selectedRead}
+              read={fileRead.read}
               kind={selectedLanguage}
               caseTarget={selection.caseTarget}
               location={selectedLocation}
               treeFile={selectedFile}
               story={story}
               proofRereading={proofRereading}
-              onFileRetry={() => {
-                setFileRetry((n) => n + 1);
-              }}
+              onFileRetry={fileRead.retry}
               onProofRetry={onProofRetry}
             />
           ) : null}
@@ -298,7 +284,7 @@ export function IntentBrowser({
             source={source}
             revision={revision}
             inventory={inventory}
-            onOpenLocation={openFromRecord}
+            onOpenLocation={openRevealed}
             {...(mode === "candidates" && returnEntrySlug !== undefined
               ? { focusEntrySlug: returnEntrySlug }
               : {})}

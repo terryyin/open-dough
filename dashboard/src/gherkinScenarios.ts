@@ -1,13 +1,15 @@
 // The scenarios and outline example rows a published feature file runs, in
 // source order and named as Cucumber proof names them
 // (`./cucumberProof.ts`): the scenario name as written and, for each row of
-// an outline's Examples tables, that row's cell values. Read from the text
+// an outline's Examples tables, that row's cell values, each with the 1-based
+// source line of its Scenario or Examples table row. Read from the text
 // itself, never from runner IDs, for Intent's Proof pane
 // (`./IntentProof.tsx`). English Gherkin keywords only.
 
 export type ScenarioRow = {
   readonly scenario: string;
   readonly example?: readonly string[];
+  readonly line: number;
 };
 
 const scenarioLine =
@@ -51,7 +53,7 @@ export function scenarioRowsOf(text: string): ScenarioRow[] {
   let plainAt = -1;
   let examples: "none" | "header" | "rows" = "none";
   let docString: string | undefined;
-  for (const raw of text.split(/\r?\n/)) {
+  for (const [at, raw] of text.split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (docString !== undefined) {
       if (line.startsWith(docString)) docString = undefined;
@@ -66,7 +68,7 @@ export function scenarioRowsOf(text: string): ScenarioRow[] {
     if (named !== null) {
       scenario = (named[1] ?? "").trim();
       plainAt = rows.length;
-      rows.push({ scenario });
+      rows.push({ scenario, line: at + 1 });
       examples = "none";
       continue;
     }
@@ -87,7 +89,7 @@ export function scenarioRowsOf(text: string): ScenarioRow[] {
       if (examples === "header") {
         examples = "rows";
       } else {
-        rows.push({ scenario, example: cellsOf(line) });
+        rows.push({ scenario, example: cellsOf(line), line: at + 1 });
       }
     }
   }

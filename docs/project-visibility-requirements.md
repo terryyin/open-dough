@@ -89,8 +89,8 @@ The [initial Intent workspace](dashboard-ux-ui-north-star.md#initial-intent-work
 selects test-file browsing, switchable side-by-side or tabbed Purpose/Proof,
 last-validation and duration observations, hierarchical group statistics, and
 story-scoped inspection. Revision, environment, coverage, freshness, and result
-help interpret available observations. Proof collection, revision matching, and
-exact aggregation remain open design questions.
+help interpret available observations. Collecting run identity and wall time,
+and revision matching beyond the file version, remain open design questions.
 
 A passing check supports the claim it actually observed under its conditions.
 A pass on an older revision must be assessed for relevance to the current
