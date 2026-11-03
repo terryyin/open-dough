@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-192#intent-link-follows-landed-run",
+  "mode": "story-branch",
+  "branch": "claude/return-a-landed-run-review-to-intent-s-compariso",
+  "host": "claude",
+  "model": "opus"
+}
