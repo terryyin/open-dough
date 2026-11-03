@@ -298,6 +298,24 @@ against 300 ms, and that slice 5's unchanged-poll numbers held; the
 Behavior: a page polls → it receives only the attempts that still need
 attention; resolved attempts are read with the history.
 
+## Execution complete
+
+Product advice:
+- Queue the bounded correction
+  [SEED-225#correct-incident-and-workspace-observation-residue](../457-correct-incident-and-workspace-observation-residue/PLAN.md)
+  (story in the SEED-225 seed): per-load incident identity across a Vite
+  dev restart, a queued signal instead of a 1 s wait in the
+  owner-replacement proof, a Git identity without folder times, the
+  lost-connection wording limited to a mid-request loss, and one list of
+  history-only fields.
+- Keep the deferred promises deferred until the incident record has seen the
+  next outage in production: its queue waits, owner generations, stalls and
+  lost processes are the evidence the story names for judging Intent fan-out,
+  owner handoff and proxy supervision.
+- Consider a separate story for G4: a story attempt whose session completed
+  without an outcome stays "reconciling"; it predates this story and is
+  preserved by it.
+
 ## Current decisions
 
 - Evidence names the owner by pid and generation only; token and socket

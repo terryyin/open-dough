@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 411. Removed numbers are never reused.
+- Highest allocated local number: 412. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -900,3 +900,16 @@ run. That reads as "nothing failed" while the run has no verdict.
   - Evidence: run 41463759771 attempt 1 on `a04e6e12a`; job "dashboard (10/12)" conclusion `cancelled` with step "Run the dashboard browser suite" `failure` ("Timed out waiting 276.021s for the test suite to run"). The diagnostic returned zero failed jobs and no gaps. The disposition is recorded in `45d6975c0:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md` Current decisions.
   - Observed effect: the coordinator found the failed step only through a separate `gh run view` and job log. It then stashed slice 3's work and delegated a repair agent (about 455 s, 101k tokens), which concluded runner degradation. One `gh api …/runs/RUN/jobs` comparison of "Set up job" (42 s against 1 s) and setup-node (30 s against 5–6 s) across sibling shards showed the same thing afterwards.
   - Inference: the inventory should list a cancelled job with a failed step, or mark it as a gap, so `CI_INCOMPLETE` triage starts from evidence. Comparing pre-project setup-step durations across sibling jobs is a cheap first infrastructure check before pausing writers. That second point is a single observation.
+
+## DD-412 — Asking for proof of an untested mechanism found a defect in it
+A return listed a mechanism the slice's restriction depended on as untested; the coordinator asked for focused proof before acceptance, and writing that proof exposed a defect that also affected the already passing case.
+
+### Occurrences
+- Execution: SEED-225#restore-dashboard-responsiveness (plan 456-restore-dashboard-responsiveness; first implementation commit `fc23efe0c5926dfc7a42aacb8de00e8e3b9fb75d`)
+  - Timestamp: unknown (2026-11-03, slice 2 acceptance before `1c986e7f`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: slice 2 return listed stall coalescing as "Not tested"; the coordinator resumed the agent for a fold proof (`authenticated-read-incident-record-stalls.spec.ts`), whose first run recorded 1 of 5 stalls: `histogram.reset()` in `dashboard/server/eventLoopWatch.ts` discarded a just-ended stall on Node v24.21.0. The fix measures from count and mean without reset.
+  - Observed effect: a production-relevant measurement defect fixed before publication; the earlier lifecycle spec had passed by timing.
+  - Inference: practice worth keeping — treat a return's untested mechanism behind a story restriction as missing proof, not a note.

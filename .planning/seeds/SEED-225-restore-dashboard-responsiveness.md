@@ -349,3 +349,28 @@ proposals and both within Accepted decisions:
   ([North Star](../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation)).
   No Accepted decision conflicts; [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)
   judges the result by the measured targets above.
+
+<a id="correct-incident-and-workspace-observation-residue"></a>
+
+### Correct incident identity and observation residue
+
+**Identity:** SEED-225#correct-incident-and-workspace-observation-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/457-correct-incident-and-workspace-observation-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca2885155abbc8f0884df1bd99ef0dd703bceaa9cb2c50d7b57615d60d62ddf0","plan":"9d6bc2ea03266b39b77a56887d0d191be1e1bbbb386a54c512deb4bfe38255c4"}}
+```
+
+**Goal.** A developer relying on the dashboard's incident record and cheap
+Sessions refreshes gets evidence that stays attributable across a dev-server
+restart, refreshes that stay cheap while Git runs in a project's main
+checkout, accurate advice when the request owner cannot be reached, and a
+recovery proof that does not depend on machine speed: the residue the
+execution retrospective of
+[Restore dashboard responsiveness](#restore-dashboard-responsiveness) found.
+
+**Scope.** Correct the five reviewed defects named in the plan without
+changing that story's promises: a per-load incident identity, a queued signal
+for the owner-replacement proof, a Git identity without folder times, the
+lost-connection wording limited to a mid-request loss, and one declared list
+of history-only fields. No new product behavior beyond those corrections.
+
+**Plan:** [457-correct-incident-and-workspace-observation-residue](../slice-plans/457-correct-incident-and-workspace-observation-residue/PLAN.md)
