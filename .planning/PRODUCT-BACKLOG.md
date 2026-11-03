@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Restore dashboard responsiveness and reliable GitHub access](seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness) — SEED-225#restore-dashboard-responsiveness ([plan](slice-plans/456-restore-dashboard-responsiveness/PLAN.md))
 - [Return a landed-run review to Intent's comparison](seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run) — SEED-192#intent-link-follows-landed-run ([plan](slice-plans/455-intent-link-follows-landed-run/PLAN.md))
-- [Settle post-execution lifecycle commitments outside slice acceptance](seeds/SEED-010-learn-from-execution-retrospectives.md#settle-lifecycle-commitments-outside-slices) — SEED-010#settle-lifecycle-commitments-outside-slices ([plan](slice-plans/457-settle-lifecycle-commitments-outside-slices/PLAN.md))
 
 ## Backlog list
 
