@@ -112,7 +112,7 @@ it is lost mid-request → the page says it was lost and recovers.
 
 ### 5. One declared list of history-only fields
 Type: Structure
-Status: planned
+Status: done
 Proof: `doneListing` and `withRetainedDetail` derive from one list; the
 listing, retained-history and done-listing specs stay green.
 
