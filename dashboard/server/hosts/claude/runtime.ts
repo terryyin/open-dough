@@ -134,6 +134,21 @@ export async function removeClaude(
 // `claude agents --json --all`, parsed by `./listing.ts`.
 const listingArgs = ["agents", "--json", "--all"] as const;
 
+// The last listing printed and what it parsed to: a listing printed the same
+// again is not parsed again.
+let lastListing:
+  | {
+      readonly stdout: string;
+      readonly parsed: readonly ListedSession[] | undefined;
+    }
+  | undefined;
+
+function parsedOnce(stdout: string): readonly ListedSession[] | undefined {
+  if (lastListing?.stdout !== stdout)
+    lastListing = { stdout, parsed: parsedListing(stdout) };
+  return lastListing.parsed;
+}
+
 // Every session Claude Code lists, running or not, as it answers in the
 // project folder, or undefined when its listing could not be read. Both a
 // launch's confirmation and a read of the launch records ask this.
@@ -144,7 +159,7 @@ export async function claudeSessions(
   const listing = await execClaude(listingArgs, folder, signal);
   return listing.error || signal.aborted
     ? undefined
-    : parsedListing(listing.stdout);
+    : parsedOnce(listing.stdout);
 }
 
 // One machine-wide listing answers only the recorded conversations requested.
@@ -156,12 +171,15 @@ export async function observeClaudeSessions(
   signal: AbortSignal,
 ): Promise<readonly SessionObservation[]> {
   const listed = await claudeSessions(folder, signal);
+  const states = new Map<string, ListedSession["sessionState"]>();
+  for (const entry of listed ?? [])
+    if (!states.has(entry.session.sessionId))
+      states.set(entry.session.sessionId, entry.sessionState);
   return records.map(({ session }) => ({
     session,
     sessionState:
       listed === undefined
         ? { kind: "unknown" }
-        : (listed.find((entry) => entry.session.sessionId === session.sessionId)
-            ?.sessionState ?? { kind: "unavailable" }),
+        : (states.get(session.sessionId) ?? { kind: "unavailable" }),
   }));
 }

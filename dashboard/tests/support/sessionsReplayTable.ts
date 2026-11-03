@@ -32,7 +32,10 @@ export type ReplayReport = {
   readonly changeWallMs: number;
   readonly changeLoop: LoopTime;
   readonly changeRevisionChanged: boolean;
-  readonly changeRecordsDiffering: number;
+  // The session entries that differ from the cold answer's, and the
+  // answer's other fields that do.
+  readonly changeRecordsDiffering: readonly string[];
+  readonly changeFieldsDiffering: readonly string[];
   readonly trivialDuringPolls: readonly number[];
   readonly trivialIdle: readonly number[];
 };
@@ -89,8 +92,15 @@ export function replayTable(report: ReplayReport): string {
     ],
     [
       "One state change, records differing",
-      String(report.changeRecordsDiffering),
-      "1",
+      `${String(report.changeRecordsDiffering.length)}: ${report.changeRecordsDiffering.join(", ")}`,
+      "1: the changed session",
+    ],
+    [
+      "One state change, other fields differing",
+      report.changeFieldsDiffering.length === 0
+        ? "none"
+        : report.changeFieldsDiffering.join(", "),
+      "none",
     ],
     [
       "Trivial request during polls",

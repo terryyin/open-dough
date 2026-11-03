@@ -3,11 +3,14 @@
 // observer (`./sessionAlerts.ts`) through one shared observation
 // (`./sharedObservation.ts`): every catalog project's launch records with each
 // session's state, the launch attempts, creations, catalog facts, starts,
-// alerts availability, and workspaces, serialized once per observation with
-// the SHA-256 of that serialization as its revision, which the answer
-// carries. A viewer naming the revision it holds is answered only that it is
-// unchanged while it still stands. A demand within a second
-// of a settled observation, or while one runs, is answered by it, so the
+// alerts availability, and workspaces. Its revision, which the answer
+// carries, is the digest of the answer's fragments
+// (`./machineSessionsFragments.ts`): an observation serializes only the
+// session entries that moved since the last, and puts the whole answer
+// together only for a viewer needing it. The checkouts' workspaces are read
+// again only when their Git files changed (`./localWorkspaces.ts`). A viewer
+// naming the revision it holds is answered only that it is unchanged while it
+// still stands. A demand within a second of a settled observation, or while one runs, is answered by it, so the
 // saved-session services refresh and each host's native listing run once for
 // all of them. A fresh demand is answered only by an observation begun after
 // it arrived: it skips that settled reuse and waits out a running observation
@@ -20,7 +23,6 @@
 // wait, then is told to ask again; one leaving never ends the observation for
 // the others.
 
-import { createHash } from "node:crypto";
 import type { ServerResponse } from "node:http";
 import type {
   Alerts,
@@ -40,6 +42,7 @@ import { hostOperations } from "./launchHosts.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { machineDocumentsRevision } from "./machineJsonStore.ts";
+import { SessionsAnswerFragments } from "./machineSessionsFragments.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { SharedObservation } from "./sharedObservation.ts";
 
@@ -50,9 +53,8 @@ const reuseMs = () => configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000);
 
 const unanswered = `The machine's sessions were not observed within ${readWaitLimitMs / 1000} seconds. Ask again.`;
 
-// The machine's sessions answer.
-type MachineSessionsBody = {
-  readonly records: readonly LaunchWithState[];
+// The machine's sessions answer after its records.
+type MachineSessionsRest = {
   readonly feedbackMaintenance?: FeedbackMaintenanceState;
   readonly attempts: readonly AttemptObservation[];
   readonly attemptsReadable: boolean;
@@ -75,8 +77,8 @@ type MachineSessionsBody = {
 
 export type ObservedMachineSessions = {
   readonly records: readonly LaunchWithState[];
-  // The whole sessions answer with its revision, as sent.
-  readonly serialized: string;
+  // The whole sessions answer led by its revision, put together on first need.
+  readonly serialized: () => string;
   // The answer to a viewer already holding this revision, as sent.
   readonly unchanged: string;
   readonly revision: string;
@@ -86,12 +88,12 @@ async function observeMachineSessions(
   launches: AgentLaunches,
   alerts: () => Alerts,
   maintenance: Pick<FeedbackMaintenanceCheck, "state">,
+  fragments: SessionsAnswerFragments,
 ): Promise<ObservedMachineSessions> {
   const { attempts, readable } = await launches.attempts();
   const records = await launches.machineSessions();
   const feedbackMaintenance = maintenance.state(records, attempts);
-  const body: MachineSessionsBody = {
-    records,
+  const rest: MachineSessionsRest = {
     ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),
     attempts,
     attemptsReadable: readable,
@@ -107,14 +109,11 @@ async function observeMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  const serializedBody = JSON.stringify(body);
-  const revision = createHash("sha256").update(serializedBody).digest("hex");
-  const leadingRevision = `{"revision":${JSON.stringify(revision)}`;
+  const { revision, serialized } = fragments.answer(records, rest);
   return {
     records,
-    // The body as serialized, led by its revision, without serializing again.
-    serialized: `${leadingRevision},${serializedBody.slice(1)}`,
-    unchanged: `${leadingRevision},"unchanged":true}`,
+    serialized,
+    unchanged: `{"revision":${JSON.stringify(revision)},"unchanged":true}`,
     revision,
   };
 }
@@ -127,8 +126,9 @@ export class MachineSessionObservation {
     alerts: () => Alerts,
     maintenance: Pick<FeedbackMaintenanceCheck, "state">,
   ) {
+    const fragments = new SessionsAnswerFragments();
     this.shared = new SharedObservation(
-      () => observeMachineSessions(launches, alerts, maintenance),
+      () => observeMachineSessions(launches, alerts, maintenance, fragments),
       reuseMs,
     );
   }
@@ -168,7 +168,7 @@ export class MachineSessionObservation {
       const observed = await this.observed(departed.signal, fresh);
       return observed.revision === held
         ? observed.unchanged
-        : observed.serialized;
+        : observed.serialized();
     } finally {
       res.off("close", leave);
     }

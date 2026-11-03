@@ -15,7 +15,13 @@ window or by one already running when it arrived; concurrent fresh re-reads
 share one suitable observation, and at most one observation runs at a time.
 Each answer leads with its observation's
 revision, and a page that sends the revision of its last full answer
-(`x-open-dough-sessions-revision`) is told only that it is unchanged. A read
+(`x-open-dough-sessions-revision`) is told only that it is unchanged. The
+revision is the digest of the answer's fragments: each session entry and the
+rest of the answer. An observation serializes again only the entries whose
+kept record or observed reading changed, and runs Git for a checkout's
+worktrees only when that checkout's Git files (worktree entries, heads, refs,
+config) changed identity; each host's native listing still runs on every
+observation past the reuse window. A read
 not answered within 30 seconds gets a retryable 503 and the page keeps what it
 shows. A hidden or departing page ends only its own wait. Running Cursor
 sessions reads join the one runner read in flight, with no reuse once it
@@ -36,7 +42,8 @@ unavailable/unrecognized may. Each server has its own alert baseline.
 
 The one-second reuse window limits how old an answer may be, not how long
 the server retains it. Each server may keep one parsed copy per machine
-document and the latest shared observation until replacement. Terry accepted
+document, each session entry's serialization, and the latest shared
+observation until replacement. Terry accepted
 this memory tradeoff on 2026-10-31 and kept `SEED-202#bounded-dashboard-refresh`
 closed: its recorded probe settled at 51 MiB for one, three and eight viewers,
 compared with 22 MiB before the change. The additional working set consists of

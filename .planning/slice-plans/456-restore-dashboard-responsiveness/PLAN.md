@@ -207,7 +207,7 @@ reproducibly.
 
 ### 5. The observation re-observes only what moved
 Type: Structure
-Status: planned
+Status: done
 Proof: examples 4 and 6 on the replay: unchanged poll within 250 ms wall
 and 20 ms event-loop time, concurrent trivial request within 20 ms; a single
 native state change yields a new revision whose body differs only in that
@@ -334,6 +334,19 @@ done sessions or opens a retained session → that history is read then.
   stats ~7 ms, serialize and hash 15–20 ms; zod parse of the machine
   documents 192 ms mostly cold. Not covered: Cursor records, the 15 s
   notification watch, Vite preview, the real claude's 160–200 ms start.
+
+- 2026-11-03 slice 5 (replay, load 10.5–16.2): unchanged poll wall median
+  59–64 ms, loop net 0 (raw 14–24 ms), trivial p99 6–8 ms, one state change
+  59–75 ms with only that entry differing; warm full answer 171–262 ms, first
+  after start 580–733 ms. Workspaces are keyed by Git file identity
+  (`gitFilesIdentity.ts`; files changed within the last second are not
+  trusted); session entries keep their JSON and digest in
+  `machineSessionsFragments.ts` while their record object and observed facts
+  hold; the revision is the digest of fragment digests, no longer the body's
+  SHA-256, so tests must not recompute it from the body. The body is
+  assembled lazily (`serialized()` is a function). Host listings still run
+  past the 1 s reuse window. Slice 6 can answer `history` from the same
+  per-entry digests.
 
 ## Concern evidence
 

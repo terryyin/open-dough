@@ -140,9 +140,27 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
     const before = new Map(
       recorded.map((entry) => [entry.session.sessionId, JSON.stringify(entry)]),
     );
-    const differing = recordsOf(change.body).filter(
-      (entry) => before.get(entry.session.sessionId) !== JSON.stringify(entry),
+    const differing = recordsOf(change.body)
+      .filter(
+        (entry) =>
+          before.get(entry.session.sessionId) !== JSON.stringify(entry),
+      )
+      .map((entry) =>
+        entry.session.sessionId === changedSession
+          ? "the changed session"
+          : entry.session.sessionId,
+      );
+    // The answer's other fields, apart from its records and revision.
+    const fieldsOf = (body: string) =>
+      Object.entries(JSON.parse(body) as Record<string, unknown>).filter(
+        ([key]) => key !== "records" && key !== "revision",
+      );
+    const coldFields = new Map(
+      fieldsOf(cold.body).map(([key, value]) => [key, JSON.stringify(value)]),
     );
+    const changedFields = fieldsOf(change.body)
+      .filter(([key, value]) => coldFields.get(key) !== JSON.stringify(value))
+      .map(([key]) => key);
 
     const [changeLoop, ...spans] = await loopTimes(machine, [
       change,
@@ -167,7 +185,8 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
         changeWallMs: change.wallMs,
         changeLoop: changeLoop ?? { loopMs: NaN, coveredMs: NaN },
         changeRevisionChanged: revisionOf(change.body) !== held,
-        changeRecordsDiffering: differing.length,
+        changeRecordsDiffering: differing,
+        changeFieldsDiffering: changedFields,
         trivialDuringPolls,
         trivialIdle,
       })}\n`,
