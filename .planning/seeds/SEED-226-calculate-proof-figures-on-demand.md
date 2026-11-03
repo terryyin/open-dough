@@ -60,7 +60,7 @@ and complete results and existing drill-down behavior. Carry the
 [Failing and flaky tests policy](../../AGENTS.md#failing-and-flaky-tests)
 into any plan or repair handoff.
 
-**Related work.** [SEED-225](SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness)
+**Related work.** [SEED-225](SEED-225-restore-dashboard-responsiveness.md#deferred-proposals)
 owns dashboard-wide responsiveness, safe GitHub recovery, and deferring
 published proof reads until a selection needs them. This story owns
 deferral and reuse of the browser calculations after source data becomes

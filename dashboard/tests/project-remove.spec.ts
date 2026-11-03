@@ -1,5 +1,6 @@
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { machineRecordNames } from "./support/machineRecordNames.ts";
 import { expect, test } from "./support/pageTest.ts";
 import { projectAddMachine } from "./support/projectAddMachine.ts";
 import { addProjectOnPage } from "./support/projectAddPage.ts";
@@ -148,8 +149,9 @@ test("removing a configured project retains its checkout and records, hides sess
       ({ id }) => id,
     ),
   ).toEqual(["open-dough", "doughnut", "pygardon", "terry-talks"]);
-  // Runner/log, notifier and retained GitHub answers are not project records.
-  expect(readdirSync(path.dirname(file)).sort()).toEqual([
+  // Runner/log, notifier, retained GitHub answers and the incident record
+  // are not project records.
+  expect(machineRecordNames(path.dirname(file))).toEqual([
     "agent-launches.json",
     "cursor-runner.json",
     "cursor-runner.log",

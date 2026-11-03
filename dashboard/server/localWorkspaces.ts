@@ -10,7 +10,11 @@
 // started it. The main worktree and a worktree without a branch are passed
 // over. A Git failure on one worktree passes that worktree over, and a
 // failure listing a project's worktrees leaves that project without any.
-// Nothing is fetched, nothing is kept between reads and nothing is published.
+// Nothing is fetched and nothing is published. The sessions answer's reads
+// (`localWorkspaces`) keep each project's found worktrees while its
+// checkout's Git files keep their identity (`./gitFilesIdentity.ts`), so
+// Git runs again only for a checkout that changed; a read that ran out of
+// time is not kept.
 
 import { realpath } from "node:fs/promises";
 import path from "node:path";
@@ -24,6 +28,7 @@ import {
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
+import { gitFilesIdentity } from "./gitFilesIdentity.ts";
 import { folderExists, projectFolder } from "./projectFolders.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 
@@ -57,13 +62,31 @@ function linkedWorktrees(
     });
 }
 
+// The remote-tracking trunk a worktree's agent profile is published on.
+const trunkOf = (source: PublishedSource) => `origin/${source.ref}`;
+
 // The worktrees of the project's local checkout holding a story's claim.
 export async function localWorkspacesOf(
   source: PublishedSource,
 ): Promise<FoundWorkspace[]> {
+  return (await scannedWorkspaces(source)).found;
+}
+
+// The same, and whether the read finished within its time.
+async function scannedWorkspaces(
+  source: PublishedSource,
+): Promise<{ readonly found: FoundWorkspace[]; readonly finished: boolean }> {
+  const signal = AbortSignal.timeout(scanWaitMs);
+  const found = await workspacesFound(source, signal);
+  return { found, finished: !signal.aborted };
+}
+
+async function workspacesFound(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<FoundWorkspace[]> {
   const project = projectFolder(source);
   if (!(await folderExists(project))) return [];
-  const signal = AbortSignal.timeout(scanWaitMs);
   const git = async (cwd: string, ...args: string[]) =>
     (
       await runGit(args, { cwd, signal, maxBuffer: defaultGitOutputLimit })
@@ -106,7 +129,7 @@ export async function localWorkspacesOf(
           const held = await profileAt("HEAD");
           if (held === undefined) return [];
           // Trunk publishes the agent for the story the head names.
-          const published = await profileAt(`origin/${source.ref}`);
+          const published = await profileAt(trunkOf(source));
           if (published?.identity !== held.identity) return [];
           const relative = path.relative(resolved, listedPath);
           const workspace =
@@ -134,10 +157,39 @@ export async function localWorkspacesOf(
   }
 }
 
+// Each project's last finished read, with the configuration and Git files'
+// identity it was read under.
+const kept = new Map<
+  string,
+  { readonly identity: string; readonly found: FoundWorkspace[] }
+>();
+
+// The project's found worktrees, read again only when its checkout's Git
+// files changed since the kept read.
+async function observedWorkspacesOf(
+  source: PublishedSource,
+): Promise<FoundWorkspace[]> {
+  const project = projectFolder(source);
+  const files = await gitFilesIdentity(project.path, trunkOf(source));
+  const identity =
+    files === undefined
+      ? undefined
+      : `${JSON.stringify(source)}|${project.path}|${files}`;
+  const held = kept.get(source.id);
+  if (identity !== undefined && held?.identity === identity) return held.found;
+  const { found, finished } = await scannedWorkspaces(source);
+  if (identity !== undefined && finished)
+    kept.set(source.id, { identity, found });
+  else kept.delete(source.id);
+  return found;
+}
+
 // Every configured project's found worktrees, as the sessions answer carries
 // them: without this machine's own path when the page shows another.
 export async function localWorkspaces(): Promise<LocalWorkspace[]> {
-  const found = await Promise.all(configuredProjects().map(localWorkspacesOf));
+  const found = await Promise.all(
+    configuredProjects().map(observedWorkspacesOf),
+  );
   return found.flat().map(({ source, identity, agent, workspace, branch }) => ({
     source,
     identity,

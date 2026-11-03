@@ -236,7 +236,7 @@ export async function admitted(
   if (url.pathname === cursorRunnerSessionsEndpoint) {
     return { kind: "cursor-sessions" };
   }
-  return sessionsRequest(req);
+  return sessionsRequest(req, url);
 }
 
 export { admittedAttach } from "./terminalAdmission.ts";

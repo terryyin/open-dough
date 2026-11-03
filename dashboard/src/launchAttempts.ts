@@ -93,6 +93,8 @@ export type LaunchAttempts = StartupRecoveries & {
 // runs gets once it changes. `reads` counts the reads answered so far.
 export function useLaunchAttempts({
   observed,
+  resolved,
+  readHistory,
   keptStarts,
   hostOperations,
   attemptEvidence,
@@ -104,6 +106,10 @@ export function useLaunchAttempts({
   published,
 }: {
   readonly observed: readonly AttemptObservation[];
+  // The attempts the history read so far says no longer need attention, and
+  // how to ask it (`./retainedHistory.ts`).
+  readonly resolved: readonly AttemptObservation[];
+  readonly readHistory: () => void;
   readonly keptStarts: readonly KeptStart[];
   readonly hostOperations: HostOperations;
   readonly attemptEvidence: AttemptEvidence;
@@ -120,7 +126,15 @@ export function useLaunchAttempts({
     pages: attempts,
     latest,
     launch,
-  } = useAskedLaunches({ observed, records, answeredAsk, asksSoFar, reread });
+  } = useAskedLaunches({
+    observed,
+    resolved,
+    readHistory,
+    records,
+    answeredAsk,
+    asksSoFar,
+    reread,
+  });
 
   const start = useCallback(
     (
@@ -167,14 +181,14 @@ export function useLaunchAttempts({
     [launch],
   );
 
-  // Every attempt the machine's sessions name, and those this page had
-  // accepted that no read has named yet.
+  // Every attempt the machine's sessions carry as still needing attention,
+  // and those this page had accepted that they do not carry, as last observed.
   const known: readonly AttemptObservation[] = [
     ...observed,
     ...[...attempts.values()].flatMap((page) =>
       page.kind === "accepted" &&
       !observed.some((read) => read.id === page.attempt.id)
-        ? [page.attempt]
+        ? [latest(page.attempt)]
         : [],
     ),
   ];

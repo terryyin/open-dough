@@ -16,6 +16,9 @@ export type ReadSessions = {
   readonly rereadOffers: () => void;
   readonly creations: MachineAnswer["creations"];
   readonly hostOperations: MachineAnswer["hostOperations"];
+  // Asks for the retained sessions' full entries (`./retainedHistory.ts`),
+  // which `records` then carries, when a retained session is opened.
+  readonly readHistory: () => void;
   // Records oldest first per project, with latest observations; unread until supplied.
   readonly records: readonly LaunchWithState[] | undefined;
   // Worktrees local Git found holding a story's claim at the latest read.

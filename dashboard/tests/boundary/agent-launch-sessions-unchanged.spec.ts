@@ -1,7 +1,6 @@
 // A viewer naming the revision of the sessions answer it holds is answered
 // only that it is unchanged while nothing changed, and in full otherwise
 // (../../server/machineSessionObservation.ts).
-import { createHash } from "node:crypto";
 import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
 import {
   alertsSettled,
@@ -41,13 +40,15 @@ async function askHolding(server: DashboardServer, held?: string) {
   };
 }
 
-// The revision a full answer body names: the SHA-256 of the body it leads.
+// The revision a full answer body names, leading it: a digest of the
+// answer's content (../../server/machineSessionsFragments.ts).
 function revisionOf(body: string): string {
-  const { revision, ...rest } = JSON.parse(body) as Answer;
+  const { revision } = JSON.parse(body) as Answer;
   expect(body.startsWith(`{"revision":${JSON.stringify(revision)},`)).toBe(
     true,
   );
-  return createHash("sha256").update(JSON.stringify(rest)).digest("hex");
+  expect(revision).toMatch(/^[0-9a-f]{64}$/);
+  return revision;
 }
 
 test("a viewer holding the current revision is answered unchanged, and in full once a Done mark changes it", async ({

@@ -56,6 +56,57 @@ export const laterAttempt = (
 ): AttemptObservation =>
   one === undefined || one.acceptedAt < other.acceptedAt ? other : one;
 
+// An attempt's lane: its project's story, or its project's ad hoc sessions,
+// whose latest attempt the page's startup, reconciliation and recovery read.
+const laneOf = ({ request }: AttemptObservation) =>
+  JSON.stringify([
+    request.source,
+    request.workflow === "ad-hoc" ? null : request.identity,
+  ]);
+
+// Whether an attempt never settled, unless its session completed.
+const unsettled = (attempt: AttemptObservation) =>
+  attempt.outcome === undefined && attempt.completion?.outcome !== "completed";
+
+// The attempts among `known` that still need attention, which the machine's
+// sessions overview carries; the rest are its history
+// (`./machineSessionsRevision.ts`). Every attempt a server runs or that never
+// settled, as `unresolvedAttempt` reads them, and the latest and first
+// attempts of each lane that holds one of those, whose latest attempt needs
+// reconciliation, or whose latest is a story's attempt no page has yet
+// reconciled with the published snapshot (`./startupReconciliation.ts`). So
+// each lane read from the overview has the same latest attempt as read from
+// all of them, and its stories are listed in the same order.
+export function attemptsNeedingAttention(
+  known: readonly AttemptObservation[],
+): ReadonlySet<AttemptObservation> {
+  const lanes = new Map<string, AttemptObservation[]>();
+  for (const attempt of known) {
+    const lane = laneOf(attempt);
+    const ofLane = lanes.get(lane);
+    if (ofLane === undefined) lanes.set(lane, [attempt]);
+    else ofLane.push(attempt);
+  }
+  const attending = new Set<AttemptObservation>();
+  for (const ofLane of lanes.values()) {
+    const open = ofLane.filter(
+      (attempt) => attempt.running || unsettled(attempt),
+    );
+    for (const attempt of open) attending.add(attempt);
+    const latest = ofLane.reduce(laterAttempt);
+    if (
+      open.length > 0 ||
+      needsReconciliation(latest) ||
+      (latest.request.workflow !== "ad-hoc" &&
+        latest.reconciledAt === undefined)
+    ) {
+      attending.add(latest);
+      attending.add(ofLane[0] ?? latest);
+    }
+  }
+  return attending;
+}
+
 // A story's unresolved attempt among its attempts on this machine (`ofStory`),
 // which no fresh start of that story may duplicate and only its own
 // continuation resumes: one a server runs now, else one that never settled
@@ -63,18 +114,14 @@ export const laterAttempt = (
 export function unresolvedAttempt(
   ofStory: readonly AttemptObservation[],
 ): AttemptObservation | undefined {
-  const unsettled = ofStory.filter(
-    (attempt) =>
-      attempt.outcome === undefined &&
-      attempt.completion?.outcome !== "completed",
-  );
+  const unsettledOfStory = ofStory.filter(unsettled);
   const latest = ofStory.reduce<AttemptObservation | undefined>(
     laterAttempt,
     undefined,
   );
   return (
-    unsettled.find((attempt) => attempt.running) ??
-    unsettled[0] ??
+    unsettledOfStory.find((attempt) => attempt.running) ??
+    unsettledOfStory[0] ??
     (latest !== undefined && needsReconciliation(latest) ? latest : undefined)
   );
 }

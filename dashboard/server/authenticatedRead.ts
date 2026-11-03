@@ -24,8 +24,9 @@
 // branch heads: `./branchHeads.ts`; one request's wait for its `gh`
 // answers: `./trackedGh.ts`; failure wording and any directed wait:
 // `./readFailureMessage.ts`; bounded local failure history:
-// `./readDiagnostics.ts`; where an answer's time went, in its
-// `Server-Timing` header: `./readTiming.ts`. Beside it, a second path serves
+// `./readDiagnostics.ts`, kept across processes in `./incidentRecord.ts`;
+// where an answer's time went, in its `Server-Timing` header:
+// `./readTiming.ts`. Beside it, a second path serves
 // the GitHub avatar of the human credited for one listed profile
 // (`./avatarRead.ts`, images kept by `./avatarImages.ts`), and a third
 // inspects recent failed upstream reads without asking GitHub.
@@ -107,10 +108,7 @@ async function answer(
   }
   if (url.pathname === authenticatedReadDiagnosticsEndpoint) {
     // Local inspection only: never asks GitHub.
-    return {
-      kind: "diagnostics",
-      failures: diagnosticsForSource(source.id),
-    };
+    return { kind: "diagnostics", ...(await diagnosticsForSource(source.id)) };
   }
   if (url.pathname === authenticatedAvatarEndpoint) {
     return performAvatarRead(req, boundary, source, url.searchParams);
@@ -146,7 +144,9 @@ function respond(
   }
   if (outcome.kind === "diagnostics") {
     res.writeHead(200, headers);
-    res.end(JSON.stringify({ failures: outcome.failures }));
+    res.end(
+      JSON.stringify({ failures: outcome.failures, record: outcome.record }),
+    );
     return;
   }
   if (outcome.kind === "answered") {

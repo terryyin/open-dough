@@ -7,6 +7,8 @@ import {
 } from "./sessionCapabilities.ts";
 // One kept session, shown consistently on cards and in either session column.
 // Its native observations and supported controls stay distinct from story facts.
+// A retained (done) session shows its listing facts; any of its controls asks
+// the page's history read for its full entry (`./retainedHistory.ts`).
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronRight, Ellipsis } from "lucide-react";
@@ -33,6 +35,7 @@ import { SessionDetails } from "./SessionDetails.tsx";
 import type { AgentAssignment } from "./agentAssignments.ts";
 import { assignedAgent } from "./launchRecord.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
+import { useReadRetainedHistory } from "./retainedHistory.ts";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -79,6 +82,7 @@ export function SessionEntry({
   const detailsId = useId();
   const actionsId = useId();
   const described = useFrameDescription();
+  const readHistory = useReadRetainedHistory();
   const hasActions =
     offersStopSession(record, hostOperations) ||
     offersMarkDone(hostOperations, record) ||
@@ -97,6 +101,7 @@ export function SessionEntry({
       }
       tabIndex={-1}
       {...showsSession(sessionKey(record.session))}
+      {...(markedDone ? { onClickCapture: readHistory } : {})}
     >
       {!onStoryCard && (
         <>

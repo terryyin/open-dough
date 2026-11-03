@@ -3,8 +3,12 @@
 import { configuredProject } from "./projectConfiguration.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
-import { recordedWorkspaceState } from "./sessionWorkspace.ts";
-import type { LaunchRecord, LaunchWithState } from "../src/agentLaunch.ts";
+import { recordedWorkspaceStates } from "./sessionWorkspace.ts";
+import type {
+  LaunchRecord,
+  LaunchWithState,
+  SessionState,
+} from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { SessionObservation } from "./hostLaunch.ts";
@@ -39,33 +43,53 @@ async function observed(
   }
 }
 
+// Each session's state by its key, as the first observation naming it says.
+async function observedStates(
+  folder: ProjectFolder,
+  records: readonly LaunchRecord[],
+): Promise<ReadonlyMap<string, SessionState>> {
+  const byHost = new Map<string, LaunchRecord[]>();
+  for (const record of records) {
+    const hostRecords = byHost.get(record.session.host);
+    if (hostRecords === undefined) byHost.set(record.session.host, [record]);
+    else hostRecords.push(record);
+  }
+  const states = new Map<string, SessionState>();
+  for (const observations of await Promise.all(
+    [...byHost.values()].map((hostRecords) => observed(hostRecords, folder)),
+  ))
+    for (const { session, sessionState } of observations) {
+      const key = sessionKey(session);
+      if (!states.has(key)) states.set(key, sessionState);
+    }
+  return states;
+}
+
 export async function withStates(
   folder: ProjectFolder,
   records: readonly LaunchRecord[],
 ): Promise<readonly LaunchWithState[]> {
-  const hosts = [...new Set(records.map((record) => record.session.host))];
-  const observations = (
-    await Promise.all(
-      hosts.map((host) =>
-        observed(
-          records.filter((record) => record.session.host === host),
-          folder,
-        ),
-      ),
-    )
-  ).flat();
-  return records.map((record) => {
-    const project = configuredProject(record.request.source);
-    return {
-      ...record,
-      ...shownLaunchWorkspace(
-        record,
+  const [states, workspaceStates] = await Promise.all([
+    observedStates(folder, records),
+    recordedWorkspaceStates(records),
+  ]);
+  const folders = new Map<string, ProjectFolder | undefined>();
+  const folderOf = (source: string) => {
+    if (!folders.has(source)) {
+      const project = configuredProject(source);
+      folders.set(
+        source,
         project === undefined ? undefined : projectFolder(project),
-      ),
-      workspaceState: recordedWorkspaceState(record),
-      sessionState: observations.find(
-        (entry) => sessionKey(entry.session) === sessionKey(record.session),
-      )?.sessionState ?? { kind: "unknown" },
-    };
-  });
+      );
+    }
+    return folders.get(source);
+  };
+  return records.map((record, index) => ({
+    ...record,
+    ...shownLaunchWorkspace(record, folderOf(record.request.source)),
+    workspaceState: workspaceStates[index],
+    sessionState: states.get(sessionKey(record.session)) ?? {
+      kind: "unknown",
+    },
+  }));
 }

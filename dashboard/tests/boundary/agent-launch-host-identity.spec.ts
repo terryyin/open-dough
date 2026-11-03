@@ -5,12 +5,12 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { machineRecordNames } from "../support/machineRecordNames.ts";
 import { expect, test } from "../support/pageTest.ts";
 import {
   deleteRecord,
@@ -116,9 +116,10 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       expect(record).not.toHaveProperty("sessionState");
       expect(record).not.toHaveProperty("workspaceState");
     }
-    // The runner's address and log and the notification sender sit beside
-    // the store. They are not a quarantined copy of these records.
-    expect(readdirSync(path.dirname(storeFile)).sort()).toEqual([
+    // The runner's address and log, the notification sender and the
+    // incident record sit beside the store. They are not a quarantined copy
+    // of these records.
+    expect(machineRecordNames(path.dirname(storeFile))).toEqual([
       "agent-launches.json",
       "cursor-runner.json",
       "cursor-runner.log",

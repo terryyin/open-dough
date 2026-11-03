@@ -16,6 +16,7 @@ import { launchOffers, type LaunchOffers } from "./launchOffers.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import type { ReadSessions } from "./readSessions.ts";
+import { useRetainedHistory } from "./retainedHistory.ts";
 
 export type MachineSessions = ReadSessions &
   LaunchOffers &
@@ -37,6 +38,8 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       // Which read, counted as asked, answered latest.
       readonly answeredAsk: number;
       readonly alerts?: Alerts;
+      // The history revision the latest full answer names.
+      readonly historyRevision?: string | undefined;
     } & Omit<ReadFacts, "alerts">
   >({
     known: [],
@@ -65,6 +68,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     attempts: observed,
     attemptsReadable,
     answeredAsk,
+    historyRevision,
   } = sessions;
   // Reads predating deletion must not restore the deleted record.
   const deletedAt = useRef(new Map<string, number>());
@@ -97,8 +101,11 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const reread = useCallback(() => {
     setRequested((value) => value + 1);
   }, []);
+  const retained = useRetainedHistory(known, historyRevision);
   const attempts = useLaunchAttempts({
     observed,
+    resolved: retained.attempts,
+    readHistory: retained.readHistory,
     keptStarts,
     hostOperations: sessions.hostOperations,
     attemptEvidence: !readAnswered
@@ -192,7 +199,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     deletedAt,
   });
 
-  const configuredKnown = known.filter((record) =>
+  const configuredKnown = retained.records.filter((record) =>
     projects.some((project) => project.id === record.request.source),
   );
   return {
@@ -202,6 +209,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       reread();
     },
     records: readAnswered ? configuredKnown : undefined,
+    readHistory: retained.readHistory,
     workspaces: sessions.workspaces,
     sessionsSettled: settledFor === projects,
     creations,

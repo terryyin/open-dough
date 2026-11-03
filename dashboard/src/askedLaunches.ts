@@ -5,7 +5,9 @@
 // presented by the action that asked for it (`onLaunched`) once its record is
 // listed; a failed or uncertain one stays beside that action. A lost answer
 // is only a problem once a read asked after it answered, which shows any
-// attempt the service accepted.
+// attempt the service accepted. An accepted attempt that such a read no
+// longer carries needs no attention any more: the page reads how it settled
+// from the machine's sessions history (`./retainedHistory.ts`).
 
 import { useCallback, useEffect } from "react";
 import type {
@@ -27,12 +29,18 @@ import { sessionKey } from "./sessionReference.ts";
 
 export function useAskedLaunches({
   observed,
+  resolved,
+  readHistory,
   records,
   answeredAsk,
   asksSoFar,
   reread,
 }: {
   readonly observed: readonly AttemptObservation[];
+  // The attempts the history read so far says no longer need attention, and
+  // how to ask it.
+  readonly resolved: readonly AttemptObservation[];
+  readonly readHistory: () => void;
   readonly records: readonly LaunchWithState[];
   // Which read of the machine's sessions, counted as asked, answered
   // latest, and how many were asked so far.
@@ -43,11 +51,14 @@ export function useAskedLaunches({
   const { values: pages, set: setPage } = useKeyedState<PageAttempt>();
 
   // The latest observation of an attempt: as the machine's sessions last
-  // answered it, or as accepted when no read has named it yet.
+  // answered it, else as their history did, or as accepted when no read has
+  // named it yet.
   const latest = useCallback(
     (attempt: AttemptObservation) =>
-      observed.find((read) => read.id === attempt.id) ?? attempt,
-    [observed],
+      observed.find((read) => read.id === attempt.id) ??
+      resolved.find((read) => read.id === attempt.id) ??
+      attempt,
+    [observed, resolved],
   );
 
   useEffect(() => {
@@ -56,7 +67,14 @@ export function useAskedLaunches({
         setPage(key, page.problem);
       if (page.kind !== "accepted") continue;
       const { outcome } = latest(page.attempt);
-      if (outcome === undefined) continue;
+      if (outcome === undefined) {
+        if (
+          page.acceptedAfter < answeredAsk &&
+          !observed.some((read) => read.id === page.attempt.id)
+        )
+          readHistory();
+        continue;
+      }
       if (outcome.kind !== "launched") {
         setPage(key, problemOf(outcome));
         continue;
@@ -68,7 +86,7 @@ export function useAskedLaunches({
       setPage(key, undefined);
       page.onLaunched(record);
     }
-  }, [pages, latest, records, setPage, answeredAsk]);
+  }, [pages, latest, observed, readHistory, records, setPage, answeredAsk]);
 
   // Asks the local service to accept `request`, kept under `key`. Image files
   // from the dialog are claimed first so the JSON accept names only claim ids.

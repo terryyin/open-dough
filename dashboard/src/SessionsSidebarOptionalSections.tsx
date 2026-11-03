@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import { RecentlyDoneSessions } from "./RecentlyDoneSessions.tsx";
+import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { ResizeDivider, type DividerRange } from "./ResizeDivider.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
@@ -58,6 +59,7 @@ export function useOptionalSidebarSectionState(
   sidebarOpen: boolean,
 ) {
   const [recentlyDoneOpen, setRecentlyDoneOpen] = useState(false);
+  const readHistory = useReadRetainedHistory();
   const [cursorOpen, setCursorOpen] = useState(false);
   const heights = useSessionsSidebarHeights(sidebar, {
     recentlyDone: sidebarOpen && recentlyDoneOpen,
@@ -75,6 +77,8 @@ export function useOptionalSidebarSectionState(
     style: optionalSectionsStyle(heights),
     recentlyDoneOpen,
     toggleRecentlyDone: () => {
+      // Expanding the retained list reads their full entries.
+      if (!recentlyDoneOpen) readHistory();
       setRecentlyDoneOpen((current) => !current);
     },
     cursorOpen,

@@ -12,7 +12,7 @@
 // refused. A story whose latest attempt settled uncertain blocks a fresh start
 // the same way (./boundary/agent-launch-uncertain-continuation.spec.ts).
 
-import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import type { AttemptObservation } from "../src/agentLaunch.ts";
@@ -27,6 +27,7 @@ import {
 import { keptAttempts, settledOutcome } from "./acceptedAttempts.ts";
 import { parts } from "./dashboardPage.ts";
 import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
+import { machineRecordNames } from "./support/machineRecordNames.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 import { test, expect, stored } from "./support/codexLaunch.ts";
 import {
@@ -210,9 +211,9 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
   await untilPublishedWorkRead(page);
   expect(readFileSync(file, "utf8")).toBe("{ not json");
   // The unreadable attempts file stays. The runner's address and log, the
-  // notification sender, and retained GitHub answers are not a replacement
-  // of it.
-  expect(readdirSync(folder).sort()).toEqual([
+  // notification sender, retained GitHub answers and the incident record are
+  // not a replacement of it.
+  expect(machineRecordNames(folder)).toEqual([
     "cursor-runner.json",
     "cursor-runner.log",
     "launch-attempts.json",

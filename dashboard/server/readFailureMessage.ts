@@ -31,7 +31,9 @@ export type ReportedFailure = {
 };
 
 // Whether this classified failure may enter the page's transient recovery.
-// Rate limits and held-back reads use rate-limit recovery instead.
+// Rate limits and held-back reads use rate-limit recovery instead. A lost
+// request owner stays out: its read may already have been asked of GitHub,
+// so the page's steady check, not an early re-ask, recovers it.
 function recoveryOf(reason: GhFailureReason): "transient" | undefined {
   switch (reason.kind) {
     case "unreachable":
@@ -74,7 +76,12 @@ function failureMessage(
   const checkAccess = `Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`;
   switch (reason.kind) {
     case "owner-unavailable":
-      return `${ownerFailureText(reason.cause)} ${reading} could not be read; reload after correcting the endpoint.`;
+      // A lost connection, as when the owner is replaced, needs no
+      // correction: the page's next check asks through the owner then
+      // standing.
+      return reason.cause === "connection-failed"
+        ? `The connection to the local GitHub request owner was lost while reading ${reading}.`
+        : `${ownerFailureText(reason.cause)} ${reading} could not be read; reload after correcting the endpoint.`;
     case "not-logged-in":
       return `The local GitHub CLI is not logged in, so ${reading} could not be read. Run \`gh auth login\` (check with \`gh auth status\`), then reload the page.`;
     case "not-installed":

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-225_restore-dashboard-responsiveness.json",
+      "identity": "SEED-225#restore-dashboard-responsiveness",
+      "completedAt": "2026-11-03T18:25:05.955Z",
+      "blob": "cd51c170781d4267a01c8bff94ba69670fc09aad"
+    },
+    {
       "fileName": "SEED-010_settle-lifecycle-commitments-outside-slices.json",
       "identity": "SEED-010#settle-lifecycle-commitments-outside-slices",
       "completedAt": "2026-11-03T16:17:57.807Z",
