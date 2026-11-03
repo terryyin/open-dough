@@ -127,3 +127,10 @@ Slice-plan refinement was not needed: one proof-only Behavior slice, one
 behavior-preserving Structure slice over the same two modules, and one
 Behavior slice on the shared open path. This review
 found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The correction restores the predecessor's
+promises without new product learning. Side by side Proof positioning now
+also applies to opens from Optimization Candidates through the shared open
+path; only the summary's slowest-row open is specced with recorded proof.

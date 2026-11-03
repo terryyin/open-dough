@@ -380,6 +380,14 @@ Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: fresh delivery of the flaky-test repair returned `preparation-refused`, "the plan must be included in ownedPaths"; the retry with PLAN.md added published 276116fc
   - Observed effect: one refused attempt and retry; nothing committed or published by the refused attempt
   - Inference: a repair increment that leaves the plan unchanged still needs the plan path in ownedPaths; the coordinator built the list from changed files only
+- Execution: SEED-192#summary-figures-one-walk (plan 453; first implementation commit 1269310af)
+  - Timestamp: unknown (2026-11-03, before slice 2 publication edbaad4a2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` in the execution checkout; checkout VERSION 0.3.83)
+  - Evidence: slice 2 fresh delivery returned `preparation-refused`, `operation: context`, "the plan must be included in ownedPaths"; the retry with PLAN.md added published edbaad4a2
+  - Observed effect: one refused attempt and retry; nothing committed or published by the refused attempt
+  - Inference: slice 2's plan edits were only the status line the delivery itself writes, so the coordinator again listed changed files only; the `plan` field in fresh-increment.md does not say its path must also be in ownedPaths
 
 <a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
 
