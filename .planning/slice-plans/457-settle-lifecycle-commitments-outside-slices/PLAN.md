@@ -139,7 +139,7 @@ owners. Learning: a new reference must join `install.sh` `managed_files`.
 
 ### 3. Story Branch plans name the retained landing for trunk steps
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice-planning guidance (slice planning `SKILL.md` "Write the plan" or
 the executable-plan section of `planning.md`) requires a Story Branch slice
 that acts from trunk to name a Dough Land `--keep-worktree` landing inside its
@@ -153,6 +153,16 @@ and Pygardon plan 389: one go-ahead covers landing and release.
 Behavior: a Story Branch plan whose slice releases from trunk → planning and
 execution follow the changed guidance → one checkpoint go-ahead covers the
 retained landing and the release, with no mid-slice landing question.
+
+Accepted (slice 3): the planning rule lives in `dough-slice-planning/SKILL.md`
+"Write the plan"; execution's landing under the checkpoint is
+`execution-decisions.md` "Land before a trunk step under its checkpoint";
+Dough Land accepts an answered plan checkpoint as the explicit
+`--keep-worktree` choice. Walks of plan 439 slice 4 (`2d2d6a2f`) and Pygardon
+plan 389 slice 10 (`492047ac8`) give one go-ahead for landing and release. A
+replan that changes what the landing carries is a new checkpoint; the
+go-ahead covers only the checkpoint it answers. Full `npm test` (Bash 5,
+`caffeinate -s -i`) passed on the final state.
 
 ## Story obligations
 

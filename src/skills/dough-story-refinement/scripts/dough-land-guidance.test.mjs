@@ -166,6 +166,14 @@ test("Dough Land judges execution completion before commit and on accepted rerun
     judgment,
     /dough-story-wrap-up\/SKILL\.md#establish-execution-completion/,
   );
+  assert.match(
+    judgment,
+    /explain `--keep-worktree` as the explicit retained-landing\s+choice, never inferred from a bare request to land\./,
+  );
+  assert.match(
+    judgment,
+    /An explicit `--keep-worktree` selects a retained increment[\s\S]+So does a\s+plan's human checkpoint that names this landing, once answered with its\s+go-ahead\./,
+  );
   assert.match(land, /rerun.*completion.*before.*commit/s);
   const rerun = land.slice(land.indexOf("## Stop, rerun, and report"));
   assert.match(rerun, /Tip already contained.*completion.*gates/);
