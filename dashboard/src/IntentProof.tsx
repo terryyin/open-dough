@@ -5,8 +5,11 @@
 // count line summarizes successful proof, scenarios without successful proof
 // included; it is never a suite verdict. A file without successful proof,
 // a project that records no proof, and proof that could not be read (with
-// retry) each say so differently (`./IntentProofAbsence.tsx`).
+// retry) each say so differently (`./IntentProofAbsence.tsx`). Side by side,
+// a file opened at a case (`./IntentBrowser.tsx`) brings that case's row into
+// view beside Purpose positioned on it; with tabs, Proof keeps its own place.
 
+import { useEffect, useRef } from "react";
 import { proofIdentity } from "./cucumberProof.ts";
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
 import { scenarioRowsOf } from "./gherkinScenarios.ts";
@@ -27,12 +30,23 @@ function ProofRows({
   path,
   text,
   proof,
+  targetLine,
+  sideBySide,
 }: {
   readonly path: string;
   readonly text: string;
   readonly proof: Extract<IntentLocationProof, { observations: unknown }>;
+  readonly targetLine: number | undefined;
+  readonly sideBySide: boolean;
 }) {
   const now = useTickingNow(30_000);
+  const targetRow = useRef<HTMLTableRowElement | null>(null);
+  useEffect(() => {
+    if (!sideBySide) return;
+    targetRow.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+    // Only showing an opened case positions Proof; a layout switch keeps its
+    // place (`./useIntentReadingPlaces.ts`).
+  }, [path, targetLine]);
   const latest = new Map(
     proof.observations
       .filter((observation) => observation.feature === path)
@@ -68,7 +82,7 @@ function ProofRows({
         </thead>
         <tbody>
           {rows.map(({ row, observation }, at) => (
-            <tr key={at}>
+            <tr key={at} ref={row.line === targetLine ? targetRow : undefined}>
               <th scope="row">
                 <ScenarioName row={row} />
               </th>
@@ -100,6 +114,8 @@ export function IntentProof({
   kind,
   text,
   proof,
+  targetLine,
+  sideBySide,
   rereading,
   onRetry,
 }: {
@@ -107,6 +123,10 @@ export function IntentProof({
   readonly kind: string | undefined;
   readonly text: string | undefined;
   readonly proof: IntentLocationProof | undefined;
+  // The line of the case the file was opened at, and whether Proof sits
+  // beside Purpose.
+  readonly targetLine: number | undefined;
+  readonly sideBySide: boolean;
   // Whether the proof is being read again after a failed read.
   readonly rereading: boolean;
   readonly onRetry: () => void;
@@ -127,5 +147,13 @@ export function IntentProof({
   if (text === undefined) {
     return <p className="quiet">Proof is shown once {path} is read.</p>;
   }
-  return <ProofRows path={path} text={text} proof={proof} />;
+  return (
+    <ProofRows
+      path={path}
+      text={text}
+      proof={proof}
+      targetLine={targetLine}
+      sideBySide={sideBySide}
+    />
+  );
 }

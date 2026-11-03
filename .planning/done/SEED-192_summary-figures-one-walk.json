@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#summary-figures-one-walk",
+  "title": "Prove and unify summary proof figures",
+  "completedAt": "2026-11-03T03:24:27.442Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "claude",
+  "model": "opus"
+}

@@ -3,7 +3,8 @@
 // of nine feature files whose committed proof mixes times, commits, a retried
 // row, an earlier file version, and scenarios without successful proof, a
 // packaged location with one observation, and a bulk location with more
-// proven rows than the slowest list holds.
+// proven rows than the slowest list holds; and, published on its own, a
+// location whose one file has more scenarios than a reading pane shows.
 
 import { filesOf } from "./catalogProjectRecords.ts";
 import { gitBlobSha } from "./listingAnswers.ts";
@@ -203,4 +204,44 @@ export const publishedFiles: Readonly<Record<string, string>> = {
   "e2e_test/packaged/proof/latest.json": packagedProof,
   ...bulkFeatures,
   "e2e_test/bulk/proof/latest.json": bulkProof,
+};
+
+// One file of forty scenarios whose last is the slowest proven row, so its
+// Proof row starts below the Proof pane's end (`./intent-summary-drill-down.spec.ts`).
+export const longPath = "e2e_test/long/features";
+export const longFeaturePath = `${longPath}/long.feature`;
+export const lastCase = "Case 40";
+// "Case 40"'s Scenario line: two lines per scenario after the Feature line.
+export const lastCaseLine = 80;
+const longFeature = feature(
+  "Long",
+  scenarios(...[...Array(40).keys()].map((n) => `Case ${String(n + 1)}`)),
+);
+const longSettings = JSON.stringify(
+  {
+    intent: {
+      locations: [
+        { path: longPath, kind: "gherkin", proof: "e2e_test/long/proof" },
+      ],
+    },
+  },
+  null,
+  2,
+);
+
+export const longPublishedFiles: Readonly<Record<string, string>> = {
+  ...filesOf(doughnut),
+  ".planning/open-dough.json": `${longSettings}\n`,
+  [longFeaturePath]: longFeature,
+  "e2e_test/long/proof/latest.json": proofFile([
+    observed(longFeaturePath, longFeature, "Case 1", 500, at("09:00"), commitA),
+    observed(
+      longFeaturePath,
+      longFeature,
+      lastCase,
+      7000,
+      at("09:30"),
+      commitB,
+    ),
+  ]),
 };

@@ -5,8 +5,9 @@
 // location and un-collapsing its folders (../src/IntentSummaryChildren.tsx,
 // ../src/IntentSummarySlowest.tsx, ../src/IntentBrowser.tsx,
 // ../src/IntentLocationGroup.tsx). An open shows Purpose; with Tabs, Proof is
-// its own tab, and with Side by side the slowest row's Proof row is in view
-// beside it.
+// its own tab, and with Side by side the slowest row's Proof row is brought
+// into view beside it, however long the file's Proof table
+// (../src/IntentProof.tsx).
 
 import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -25,11 +26,15 @@ import { folderCaret } from "./support/intentStoryPage.ts";
 import {
   doughnut,
   featuresPath,
+  lastCase,
+  lastCaseLine,
+  longFeaturePath,
+  longPath,
+  longPublishedFiles,
   publishedFiles,
 } from "./intentSummaryProofCostFixtures.ts";
 import {
   childName,
-  expectChildren,
   slowestList,
   sumLine,
 } from "./intentSummaryProofCostPage.ts";
@@ -43,23 +48,32 @@ const syncOneMbLine = 10;
 const fileName = (intent: Locator, path: string) =>
   intent.getByRole("button", { name: path, exact: true });
 
-async function openFeatures(page: Parameters<typeof parts>[0]) {
+async function openIntent(
+  page: Parameters<typeof parts>[0],
+  files: Readonly<Record<string, string>>,
+) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await pausePageClockAt(page, new Date("2026-11-02T12:00:00.000Z"));
   await publishFiles(page, {
     repository: doughnut.repository,
     ref: doughnut.ref,
     revision: doughnut.revision,
-    files: publishedFiles,
+    files,
   });
   await openUntilRead(page, "/?project=doughnut&perspective=intent");
-  const { intent } = parts(page);
-  await intentLocationName(intent, featuresPath).click();
+  return parts(page).intent;
+}
+
+async function openSummary(intent: Locator, location: string) {
+  await intentLocationName(intent, location).click();
   const summary = intent.getByRole("region", { name: "Summary" });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    featuresPath,
-  );
-  return { intent, summary };
+  await expect(summary.locator(".intent-summary-path")).toHaveText(location);
+  return summary;
+}
+
+async function openFeatures(page: Parameters<typeof parts>[0]) {
+  const intent = await openIntent(page, publishedFiles);
+  return { intent, summary: await openSummary(intent, featuresPath) };
 }
 
 test("16.1, 16.2: child names select their folder or file as the tree does and reveal it, by mouse or keyboard", async ({
@@ -68,7 +82,7 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
   const { intent, summary } = await openFeatures(page);
   const toggle = intentGroupToggle(intent, featuresPath);
 
-  await test.step("16.1: from the closed location, the cli name selects and reveals cli with only its own figures", async () => {
+  await test.step("16.1: from the closed location, the cli name selects and reveals cli with its own sum", async () => {
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await childName(summary, "cli").click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
@@ -86,17 +100,6 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
         exact: true,
       }),
     ).toBeVisible();
-    await expectChildren(summary, [
-      ["cli_help.feature", `${sumLine} unknown`],
-      ["cli_login.feature", `${sumLine}: 2.0 s over 2 of 2 scenarios`],
-      ["cli_notebook_lfs.feature", `${sumLine}: 15.0 s over 2 of 4 scenarios`],
-    ]);
-    await expect(slowestList(summary).locator("tbody th")).toHaveText([
-      "Push a large notebook",
-      "Sync <size> Example: 1MB",
-      "Log in",
-      "Log out",
-    ]);
   });
 
   await test.step("16.2 and 10.5: Enter on a file row's name shows that file's Purpose and Proof, selected in the tree", async () => {
@@ -217,4 +220,42 @@ test("17, 10.4: a slowest outline row opens its file with Purpose on that Exampl
     await expect(proofRow.locator("td")).toHaveText(observed);
     await expect(proofRow).toBeInViewport();
   });
+});
+
+test("10, 10.1, 10.2: with Side by side, a slowest scenario below the Proof pane's end opens Purpose on its line and brings its Proof row into view", async ({
+  page,
+}) => {
+  const intent = await openIntent(page, longPublishedFiles);
+  await sideBySideToggle(intent).click();
+  await expectSideBySide(intent);
+  const summary = await openSummary(intent, longPath);
+  await slowestList(summary)
+    .getByRole("button", { name: lastCase, exact: true })
+    .click();
+  await expectSideBySide(intent);
+
+  const target = intent
+    .getByLabel(`${longFeaturePath} source`)
+    .locator(".source-line.is-target");
+  await expect(target).toHaveAttribute("data-line", String(lastCaseLine));
+  await expect(target).toBeInViewport();
+
+  const proofTable = intent.getByRole("table", {
+    name: `${longFeaturePath} proof`,
+  });
+  const proofRow = proofTable.locator("tbody tr").filter({
+    has: page.getByRole("rowheader", { name: lastCase, exact: true }),
+  });
+  await expect(proofRow.locator("td").first()).toHaveText("Passed");
+  // The table is taller than its pane, so only positioning shows the row.
+  const pane = intent
+    .getByRole("region", { name: "Proof", exact: true })
+    .locator(".intent-reading-panel-body");
+  expect(
+    await pane.evaluate((body) => body.scrollHeight > 2 * body.clientHeight),
+  ).toBe(true);
+  await expect(proofRow).toBeInViewport();
+  await expect(proofTable.locator("tbody tr").first()).not.toBeInViewport();
+  // Bringing the Proof row into view leaves Purpose on its case.
+  await expect(target).toBeInViewport();
 });

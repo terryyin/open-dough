@@ -1,34 +1,25 @@
 // A Gherkin location or folder summary's per-child breakdown
 // (`./IntentGherkinSummary.tsx`): each immediate folder or file in tree order
 // with its scenario total and, once any of its files is read, its proof count
-// and summed duration (`./intentSummaryCoverage.ts`,
-// `./intentSummaryProofCost.ts`). Each child's name opens that folder or file
+// and summed duration, sliced from the selection's one walk
+// (`./intentSummaryProofCost.ts`). Each child's name opens that folder or file
 // in Intent's one selection, as its tree name does.
 
 import {
-  coverageOf,
-  observationsForFiles,
   proofCountLineFor,
-  scenarioCountForFiles,
   scenarioTotalLine,
-  type SummaryChild,
-  type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
-import { proofCostLineFor, proofCostOf } from "./intentSummaryProofCost.ts";
-import type { SuccessfulProofObservation } from "./cucumberProof.ts";
+import {
+  proofCostLineFor,
+  type ChildFigures,
+} from "./intentSummaryProofCost.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
 export function IntentSummaryChildren({
   childList,
-  statusOf,
-  textOf,
-  latest,
   onOpen,
 }: {
-  readonly childList: readonly SummaryChild[];
-  readonly statusOf: (path: string) => SummaryFileStatus;
-  readonly textOf: (path: string) => string | undefined;
-  readonly latest: ReadonlyMap<string, SuccessfulProofObservation>;
+  readonly childList: readonly ChildFigures[];
   readonly onOpen: (next: IntentSelection) => void;
 }) {
   if (childList.length === 0) return null;
@@ -38,10 +29,8 @@ export function IntentSummaryChildren({
       aria-label="Summary by folder and file"
     >
       {childList.map((child) => {
-        const coverage = coverageOf(child.files, statusOf);
-        const scenarios = scenarioCountForFiles(child.files, textOf);
+        const { coverage, scenarioCount, observed, cost } = child.figures;
         const showProof = coverage.readyCount > 0 || !coverage.incomplete;
-        const observed = observationsForFiles(child.files, textOf, latest);
         return (
           <li key={child.path}>
             <button
@@ -54,7 +43,7 @@ export function IntentSummaryChildren({
               <code>{child.name}</code>
             </button>
             <p className="intent-summary-scenarios">
-              {scenarioTotalLine(coverage, scenarios)}
+              {scenarioTotalLine(coverage, scenarioCount)}
             </p>
             {showProof ? (
               <>
@@ -62,7 +51,7 @@ export function IntentSummaryChildren({
                   {proofCountLineFor(coverage, observed)}
                 </p>
                 <p className="intent-proof-counts">
-                  {proofCostLineFor(coverage, proofCostOf(observed))}
+                  {proofCostLineFor(coverage, cost)}
                 </p>
               </>
             ) : null}

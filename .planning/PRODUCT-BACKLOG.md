@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove and unify summary proof figures](seeds/SEED-192-review-product-intent.md#summary-figures-one-walk) — SEED-192#summary-figures-one-walk ([plan](slice-plans/453-summary-figures-one-walk/PLAN.md))
 - [Unify story selection across Development and Intent](seeds/SEED-224-unify-story-selection.md#unify-story-selection) — SEED-224#unify-story-selection ([plan](slice-plans/454-unify-story-selection/PLAN.md))
 
 ## Backlog list

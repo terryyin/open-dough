@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_summary-figures-one-walk.json",
+      "identity": "SEED-192#summary-figures-one-walk",
+      "completedAt": "2026-11-03T03:24:27.442Z",
+      "blob": "3c17c6744a140c6b18891890e3b13a0c8dc2f606"
+    },
+    {
       "fileName": "SEED-192_align-intent-story-lens.json",
       "identity": "SEED-192#align-intent-story-lens",
       "completedAt": "2026-11-03T03:13:14.437Z",

@@ -463,33 +463,6 @@ the Review changes marks doc states the rule.
 - **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
   useful without pretending it has the same detail as Cucumber or pytest.
 
-<a id="summary-figures-one-walk"></a>
-
-### 17. Prove and unify summary proof figures
-
-**Identity:** SEED-192#summary-figures-one-walk
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/453-summary-figures-one-walk/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d57e483f53679b19ca719cdc354771fe133c2fda567c0555a868b5ae90b14bb","plan":"a616ea9910d01b42cfd47191c9db75223240ff55c880278b4d9c300ffcb7f19a"}}
-```
-
-**Goal:** A developer reading Intent location and folder summaries, such as
-Terry comparing Pygardon or Doughnut proof cost, can trust every
-summed-duration and spread wording the summaries can show, including
-observations finishing on different UTC days and sums of a minute or more.
-The selection and each child derive their figures from one rule and one
-walk of the read files, so the next figure needs one edit.
-
-**Scope:** correction of Find expensive proof in the test hierarchy
-(SEED-192#inspect-hierarchical-proof-cost, recoverable at
-`abf14757:.planning/seeds/SEED-192-review-product-intent.md`), from its
-retrospective. It
-covers proof for the spread line's multi-day form and minute-or-more sums,
-one shared derivation of a summary's figures for the selection and each child
-from a single matching walk, and removal of the drill-down spec's repeated
-folder-figure assertions, and keeping the case's Proof row in view when a
-case opens in Side by side, as the predecessor promised. Summary wording,
-layout and the story's promises are otherwise unchanged. [Plan](../slice-plans/453-summary-figures-one-walk/PLAN.md).
-
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
