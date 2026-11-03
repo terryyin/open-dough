@@ -160,7 +160,19 @@ test("Dough Land judges execution completion before commit and on accepted rerun
   assert.match(judgment, /story-obligations\.mjs.*--planned-completion/s);
   assert.match(
     judgment,
+    /allocated\s+to a lifecycle owner\s+\(`landing`, `target CI` or `reporting`\) do not stop\s+landing[\s\S]+`pendingLifecycle`, still owed to their\s+owners' receipts[\s\S]+never mark one\s+observed to land/,
+  );
+  assert.match(
+    judgment,
     /dough-story-wrap-up\/SKILL\.md#establish-execution-completion/,
+  );
+  assert.match(
+    judgment,
+    /explain `--keep-worktree` as the explicit retained-landing\s+choice, never inferred from a bare request to land\./,
+  );
+  assert.match(
+    judgment,
+    /An explicit `--keep-worktree` selects a retained increment[\s\S]+So does a\s+plan's human checkpoint that names this landing, once answered with its\s+go-ahead\./,
   );
   assert.match(land, /rerun.*completion.*before.*commit/s);
   const rerun = land.slice(land.indexOf("## Stop, rerun, and report"));

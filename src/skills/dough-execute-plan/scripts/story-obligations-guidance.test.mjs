@@ -1,9 +1,21 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
 import { readStoryObligations } from "./story-obligations.mjs";
-import { fixture, slicePlan } from "./story-obligations-test-fixtures.mjs";
-import { check, list, refuses } from "./story-obligations-test-cli.mjs";
+import {
+  fixture,
+  holdings,
+  obligation,
+  reviewed,
+  slicePlan,
+} from "./story-obligations-test-fixtures.mjs";
+import {
+  check,
+  list,
+  refuses,
+  refusesCommitment,
+} from "./story-obligations-test-cli.mjs";
 import { markdownSection } from "../../../../tests/support/markdown-section.mjs";
 
 const reference = (name) =>
@@ -12,6 +24,12 @@ const obligations = reference("story-obligations.md");
 const example = /```markdown\n([\s\S]*?)\n```/.exec(obligations)?.[1];
 assert.ok(example, "the record format has an executable Markdown example");
 const entries = example.replace(/^## Story obligations\s*/, "");
+// Slice by H2 anchors: the Commitments example fences a `##` line, so
+// markdownSection would end the source-review body early.
+const sourceReview = obligations.slice(
+  obligations.indexOf("## Record the source review"),
+  obligations.indexOf("## Use the record at execution boundaries"),
+);
 const documentedStory = {
   story: "Each result names its source, so the owner can inspect its basis.",
   clause: "Each result names its source",
@@ -53,15 +71,9 @@ test("the documented obligation is read, listed, and blocks commit until proved"
 });
 
 test("guidance documents record under the source review and list/check at boundaries", () => {
-  // Slice by H2 anchors: the Commitments example fences a `##` line, so
-  // markdownSection would end the source-review body early.
-  const sourceReview = obligations.slice(
-    obligations.indexOf("## Record the source review"),
-    obligations.indexOf("## Use the record at execution boundaries"),
-  );
   assert.match(
     sourceReview,
-    /Settle a commitment's slice allocation, `observed:` location/,
+    /Settle a commitment's slice allocation, lifecycle owner, `observed:` location/,
   );
   assert.match(
     sourceReview,
@@ -165,5 +177,73 @@ test("planning retains one record format and carries obligations across replanni
   assert.match(
     obligations,
     /Until such a return[\s\S]+retains its\s+reporting origin/,
+  );
+});
+
+test("the documented Commitments table allocates a lifecycle owner that checks list unobserved", (t) => {
+  const table = /```markdown\n(## Commitments[\s\S]*?)\n```/.exec(
+    obligations,
+  )?.[1];
+  assert.ok(table, "the source review has an executable Commitments example");
+  const { plan, writePlan } = reviewed(t, []);
+  const done = [1, 2, 3, 4, 5, 6];
+  const g2 = obligation(holdings, "receiving slice 8", "G2");
+  writePlan(
+    slicePlan(g2, { done, indices: [1, 2, 3, 4, 5, 6, 7, 8], review: true }),
+  );
+  const writeTable = (source) =>
+    writeFileSync(
+      join(dirname(plan), "source-review.md"),
+      `# Source review\n\n${source}\n`,
+    );
+  writeTable(table);
+  // Slice 7 is about to finish: its own row needs an observation, the
+  // target CI row does not and is listed as pending lifecycle.
+  const result = check(plan, "--slice", "7");
+  refusesCommitment(result, "unobserved-commitment", "7", { slice: 7 });
+  assert.equal(result.problems.length, 1, JSON.stringify(result));
+  assert.deepEqual(result.pendingLifecycle, [
+    { id: "8", text: "Final target CI is settled", owner: "target CI" },
+  ]);
+  writeTable(
+    table.replace(
+      "| target CI | |",
+      "| target CI | observed: branch CI run 42 |",
+    ),
+  );
+  refusesCommitment(
+    check(plan, "--slice", "6"),
+    "observed-lifecycle-commitment",
+    "8",
+    { owner: "target CI" },
+  );
+});
+
+test("guidance allocates post-execution commitments to their owners and never observes them in the plan", () => {
+  assert.match(
+    sourceReview,
+    /only an operation after\s+execution completion can observe[\s\S]+`landing`[\s\S]+`target CI`[\s\S]+`reporting`[\s\S]+No other owner exists; another value is malformed/,
+  );
+  assert.match(
+    sourceReview,
+    /A commitment a slice's output owes stays with that\s+slice/,
+  );
+  assert.match(
+    sourceReview,
+    /Never record it as observed\s+from a pending gate, current branch CI or other branch evidence, or the\s+enforcing check itself/,
+  );
+  assert.match(sourceReview, /--lifecycle '<landing\|target CI\|reporting>'/);
+  const boundaries = obligations.slice(
+    obligations.indexOf("## Use the record at execution boundaries"),
+  );
+  assert.match(
+    boundaries,
+    /A lifecycle row needs no\s+observation here; each result lists it in `pendingLifecycle` with its `id`,\s+`text` and `owner`/,
+  );
+  assert.match(boundaries, /still owed to that owner/);
+  const retention = markdownSection(reference("wrap-up.md"), "## Accept proof");
+  assert.match(
+    retention,
+    /allocate every id before the next obligations\s+listing or check: to the slice whose output owes it[\s\S]+\[lifecycle owner\]\(story-obligations\.md#record-the-source-review\)/,
   );
 });

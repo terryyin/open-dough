@@ -300,6 +300,7 @@ managed_files=(
   dough-execution-retrospective/references/process-review-of-a-run.md
   dough-story-wrap-up/SKILL.md
   dough-story-wrap-up/references/follow-up-disposition.md
+  dough-story-wrap-up/references/lifecycle-commitments.md
   dough-story-wrap-up/references/story-branch-integration.md
   dough-story-wrap-up/scripts/trunk-closure-arguments.mjs
   dough-story-wrap-up/scripts/trunk-closure-observer.mjs

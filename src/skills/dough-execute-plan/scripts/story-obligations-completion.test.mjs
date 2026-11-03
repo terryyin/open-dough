@@ -4,10 +4,16 @@ import {
   exclusion,
   fixture,
   obligation,
+  reviewed,
   slicePlan,
 } from "./story-obligations-test-fixtures.mjs";
 import { recordDuringStop } from "./story-obligations-cross-slice-test-fixtures.mjs";
-import { check, list, refuses } from "./story-obligations-test-cli.mjs";
+import {
+  check,
+  list,
+  refuses,
+  refusesCommitment,
+} from "./story-obligations-test-cli.mjs";
 
 test("completion refuses every open return, receiver, and interim even while slices are planned", (t) => {
   const { plan, writePlan } = fixture(t, recordDuringStop);
@@ -136,4 +142,41 @@ test("planned completion names an unavailable selected plan and rejects incompat
     assert.equal(result.ok, false);
     assert.equal(result.problems[0].reason, "invalid-input");
   }
+});
+
+test("planned completion passes unobserved lifecycle rows and names each with its owner", (t) => {
+  // Pygardon plan 484 commitment 52 split as story 19's key example: the
+  // dialog stays with its slice, landing goes to its post-execution owner.
+  const rows = [
+    ["52", "The dialog lists the source", "slice 4", ""],
+    ["52L", "The work is landed normally", "landing", ""],
+    ["C1", "Final target CI is settled", "target CI", ""],
+  ];
+  const { plan, writePlan, writeReview } = reviewed(t, rows, {
+    done: [1, 2, 3],
+  });
+  const pendingLifecycle = [
+    { id: "52L", text: "The work is landed normally", owner: "landing" },
+    { id: "C1", text: "Final target CI is settled", owner: "target CI" },
+  ];
+  // Pending slices and slice-owned rows still refuse; the listing remains.
+  const early = check(plan, "--planned-completion");
+  assert.deepEqual(early.problems[0], {
+    reason: "pending-slice",
+    slice: 4,
+    name: "Work 4",
+  });
+  refusesCommitment(early, "unobserved-commitment", "52");
+  assert.deepEqual(early.pendingLifecycle, pendingLifecycle);
+  writePlan(slicePlan("", { done: [1, 2, 3, 4], review: true }));
+  writeReview([
+    ["52", "The dialog lists the source", "slice 4", "observed: dialog.test"],
+    ...rows.slice(1),
+  ]);
+  assert.deepEqual(check(plan, "--planned-completion"), {
+    ok: true,
+    entryCount: 0,
+    commitmentCount: 3,
+    pendingLifecycle,
+  });
 });

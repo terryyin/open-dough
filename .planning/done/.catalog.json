@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_settle-lifecycle-commitments-outside-slices.json",
+      "identity": "SEED-010#settle-lifecycle-commitments-outside-slices",
+      "completedAt": "2026-11-03T16:17:57.807Z",
+      "blob": "c832b34d28c72a74e21115939416e53689aea224"
+    },
+    {
       "fileName": "SEED-192_intent-link-follows-landed-run.json",
       "identity": "SEED-192#intent-link-follows-landed-run",
       "completedAt": "2026-11-03T16:02:01.238Z",
