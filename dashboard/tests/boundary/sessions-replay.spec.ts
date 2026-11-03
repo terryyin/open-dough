@@ -9,6 +9,7 @@
 // table, what the story's targets measure: startup, the first full answer
 // cold, the regular answer's size, unchanged polls (held revision, each
 // past the production one-second reuse window) by wall and event-loop time,
+// the history ask's first full answer and its unchanged asks the same way,
 // one native state change, and the latency of a trivial request during
 // polls and without them (../support/sessionsReplayMeasures.ts,
 // ../support/sessionsReplayTable.ts). It asserts
@@ -104,6 +105,24 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
         revision: held,
         unchanged: true,
       });
+    // The history: its first full answer, then unchanged asks holding it.
+    await pause(beyondReuseMs);
+    const history = await askSessions(server, undefined, true);
+    const heldHistory = revisionOf(history.body);
+    expect(heldHistory).toBe(
+      (JSON.parse(regular.body) as { historyRevision: string }).historyRevision,
+    );
+    const quietHistory: Asked[] = [];
+    for (let poll = 0; poll < polls; poll += 1) {
+      await pause(beyondReuseMs);
+      quietHistory.push(await askSessions(server, heldHistory, true));
+    }
+    for (const asked of quietHistory)
+      expect(JSON.parse(asked.body)).toEqual({
+        revision: heldHistory,
+        unchanged: true,
+      });
+
     // Quiet seconds without polls: the measure's floor on this machine.
     const idle: { from: number; until: number }[] = [];
     for (let span = 0; span < 3; span += 1) {
@@ -166,6 +185,7 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
       change,
       ...quiet,
       ...idle,
+      ...quietHistory,
     ]);
     const codexRecords = seed.records.filter(
       ({ session }) => session.host === "codex",
@@ -181,7 +201,10 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
         unchangedWallMs: quiet.map((asked) => asked.wallMs),
         unchangedLoop: spans.slice(0, polls),
         unchangedBytes: quiet[0]?.bytes ?? NaN,
-        idleLoop: spans.slice(polls),
+        idleLoop: spans.slice(polls, polls + idle.length),
+        history,
+        unchangedHistoryWallMs: quietHistory.map((asked) => asked.wallMs),
+        unchangedHistoryLoop: spans.slice(polls + idle.length),
         changeWallMs: change.wallMs,
         changeLoop: changeLoop ?? { loopMs: NaN, coveredMs: NaN },
         changeRevisionChanged: revisionOf(change.body) !== held,

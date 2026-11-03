@@ -25,8 +25,10 @@
 // with each session's current state, and the launch attempts accepted with
 // their receipts and outcomes, and whether those kept could be read, from one
 // observation every viewer and the notification observer share
-// (`./machineSessionObservation.ts`), or a retryable 503 past its read wait. A
-// same-origin GET of `/__agent-launch/cursor-sessions` reads whether the
+// (`./machineSessionObservation.ts`), or, asked with `?audience=history`,
+// its retained done sessions and resolved attempts from the same observation
+// (`../src/machineSessionsRevision.ts`); either a retryable 503 past its read
+// wait. A same-origin GET of `/__agent-launch/cursor-sessions` reads whether the
 // Cursor runner is running and which sessions it holds, and starts nothing.
 // A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done

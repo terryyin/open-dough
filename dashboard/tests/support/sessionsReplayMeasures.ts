@@ -17,7 +17,11 @@
 
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
+import {
+  sessionsAudienceParameter,
+  sessionsHistoryAudience,
+  sessionsRevisionHeader,
+} from "../../src/machineSessionsRevision.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { incidentEntries, type RecordedStall } from "./readDiagnostics.ts";
@@ -46,15 +50,16 @@ export type Asked = {
 };
 
 // The sessions answer to a viewer holding `held`, if any, timed from send
-// to the last byte received.
+// to the last byte received; the history's when `history`.
 export async function askSessions(
   server: DashboardServer,
   held?: string,
+  history = false,
 ): Promise<Asked> {
   const from = Date.now();
   const started = performance.now();
   const response = await rawRequest({
-    url: `${server.baseURL}/__agent-launch`,
+    url: `${server.baseURL}/__agent-launch${history ? `?${sessionsAudienceParameter}=${sessionsHistoryAudience}` : ""}`,
     headers: {
       Origin: server.origin,
       ...(held === undefined ? {} : { [sessionsRevisionHeader]: held }),

@@ -29,6 +29,9 @@ export type ReplayReport = {
   readonly unchangedLoop: readonly LoopTime[];
   readonly unchangedBytes: number;
   readonly idleLoop: readonly LoopTime[];
+  readonly history: Asked;
+  readonly unchangedHistoryWallMs: readonly number[];
+  readonly unchangedHistoryLoop: readonly LoopTime[];
   readonly changeWallMs: number;
   readonly changeLoop: LoopTime;
   readonly changeRevisionChanged: boolean;
@@ -74,6 +77,21 @@ export function replayTable(report: ReplayReport): string {
     ],
     ["Unchanged poll, event-loop time", loop(report.unchangedLoop), "≤ 20 ms"],
     ["Unchanged poll, answer size", `${String(report.unchangedBytes)} B`, "—"],
+    [
+      "History ask, first full answer",
+      `${ms(report.history.wallMs)}, ${mb(report.history.bytes)}`,
+      "—",
+    ],
+    [
+      "Unchanged history ask, wall (median, range)",
+      range(report.unchangedHistoryWallMs),
+      "as unchanged poll",
+    ],
+    [
+      "Unchanged history ask, event-loop time",
+      loop(report.unchangedHistoryLoop),
+      "as unchanged poll",
+    ],
     [
       "Quiet 1 s without polls, event-loop time",
       range(report.idleLoop.map(({ loopMs }) => loopMs)),

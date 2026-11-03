@@ -17,7 +17,7 @@ scope: story
 
 **Identity:** SEED-225#restore-dashboard-responsiveness
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/456-restore-dashboard-responsiveness/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"427ab701f1b8ee070beebb40936cc73efd97f9b7aca168c03e41d3c26d12c69a","plan":"ee6ff6532cc34a5b7fed8411e8f51ba3abc185078e9b1ea03eb678e05e3241f2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/456-restore-dashboard-responsiveness/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"427ab701f1b8ee070beebb40936cc73efd97f9b7aca168c03e41d3c26d12c69a","plan":"a2cf4c91139f2be94dd3a373a6b5fe776e1290310f3741de1a08492625c840b5"}}
 ```
 
 **Goal.** A developer working in the production dashboard, on this Mac or

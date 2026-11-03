@@ -222,24 +222,80 @@ by its own reuse window; workspaces; derived facts), the answer revision is
 the digest of fragment digests, and the serialized history is kept per
 fragment instead of rebuilt per demand.
 
-### 6. The regular answer is the live overview; history is read on demand
+### 6. The sessions boundary answers a history ask
+Type: Structure
+Status: done
+Proof: a boundary case on the sessions endpoint: an explicit `history`
+parameter answers every retained done session in full and the resolved
+attempts, with its own revision (the digest of its fragment digests, from
+slice 5's per-entry digests) and the unchanged rule (`unchanged` when the
+caller names the current history revision); the regular answer is still
+complete and byte-for-byte unchanged and names the current history
+revision; an unchanged history ask stays as cheap as an unchanged poll on
+the replay. Same endpoint and admission, no second endpoint.
+`agent-launch-sessions-unchanged`, `-fresh` and `shared-observation` stay
+green. Enables slices 7–9.
+
+Structure: the observation keeps the overview and history as separate
+fragment groups with separate revisions; the endpoint answers either
+audience.
+
+### 7. The browser reads retained-session detail through the history read
+Type: Structure
+Status: planned
+Proof: one read module (`dashboard/src/machineSessionsReads.ts`) gains the
+history read under the same revision rule; every consumer that needs a
+retained session's full entry (`launchRecord`, `completionReport`,
+`SessionDetails`, `sessionRecordActions`, `sessionRecovery`,
+`sessionCapabilities`, `sessionShown`, `nativeSessionShown`,
+`SessionsSidebarSessionEntry`, `SessionEntry`, `PageFrame`, Review changes
+on a done card) takes it from the history read when a developer opens or
+acts on a retained session, opens Review changes, or expands Recently done
+sessions, and reasks history only when the overview names a newer history
+revision. Consumers traced with the consumer-trace script; the
+`agent-launch-*` page and boundary suites stay green while the regular
+answer is still complete, and page journeys observe one history read per
+opening and none while nothing retained is opened.
+
+Structure: retained-session consumers depend on the history read instead of
+the regular answer's done entries.
+
+### 8. Done sessions in the regular answer carry only their listing facts
 Type: Behavior
 Status: planned
-Proof: example 5 as a boundary case (regular answer holds the five open and
-the shown done sessions; a `history` ask returns the rest) and a page
-journey (Recently done sessions expanded shows the retained list; opening a
-done session's report renders as before; Mark as done, delete, reattach,
-and fresh action-time checks on a retained session still work). Consumers:
-every reader of `records` with `doneAt` in `dashboard/src`
-(`sessionShown`, `launchRecord`, `completionReport`, `nativeSessionShown`,
-`SessionsSidebarSessionEntry`, `sessionRecovery`, `sessionRecordActions`,
-`SessionEntry`, `SessionDetails`, `sessionCapabilities`, `PageFrame`) are
-traced with the consumer-trace script; the `agent-launch-*` page and
-boundary suites stay green. Replay reports the regular answer size and the
-cold time against the 300 ms target. Update `dashboard/AGENT-LAUNCH-HISTORY.md`.
+Proof: example 5 as a boundary case: with 1,000 done and five open, the
+regular answer holds the five open sessions in full and, for each retained
+done session, only the facts the Board's Recently done count, placement
+and listing and the sidebar's section show (session key, project, story
+identity, title, launch and done times, the state facts the entry shows);
+a `history` ask returns their full entries. A page journey: the Board's
+Recently done heading count, older-entry counts and card placement match
+the full-answer page; expanding Recently done sessions shows the retained
+list as before; opening a done session's report renders as before; Mark as
+done, delete, reattach and fresh action-time checks on a retained session
+still work. Replay reports the regular answer size before and after.
+Update `dashboard/AGENT-LAUNCH-HISTORY.md`.
 
-Behavior: a page polls → it receives the live overview; it expands Recently
-done sessions or opens a retained session → that history is read then.
+Behavior: a page polls → done sessions arrive as listing facts; opening,
+acting on, or expanding retained sessions reads their history then.
+
+### 9. Only attempts still needing attention travel with the overview
+Type: Behavior
+Status: planned
+Proof: define, from the code, which attempts still need attention (for
+example, not yet resolved by a recorded session) and trace every reader of
+known attempts (`storyStartup.ts`, `launchAttempts.ts`, startup recovery
+and reconciliation, sidebar attempt entries) with the consumer-trace
+script; readers that need resolved attempts take them from the history
+read. A boundary case: resolved attempts leave the regular answer and are
+in the history answer; a page journey: startup, recovery and reconciliation
+of an open attempt behave as before. Replay (three runs) reports the
+regular answer size against "live overview only", the warm full answer
+against 300 ms, and that slice 5's unchanged-poll numbers held; the
+`agent-launch-*` suites stay green.
+
+Behavior: a page polls → it receives only the attempts that still need
+attention; resolved attempts are read with the history.
 
 ## Current decisions
 
@@ -267,8 +323,18 @@ done sessions or opens a retained session → that history is read then.
 - The 20 ms event-loop target is judged on the replay's net loop time
   together with the trivial request's p99, since the quiet floor on this
   machine is about 55 ms per second.
+- The live overview keeps every retained done session as listing facts
+  (option A), because the Board's Recently done counts and placement are
+  computed in the browser from the published done catalog merged with all
+  of the project's done sessions, which the server cannot see. Rejected:
+  scoping the answer to the shown project (little gain; most records are in
+  one project) and having the Board read history at page load (changes the
+  visible Board, which the story excludes). The overview names the history
+  revision so the browser reasks history only when it moved.
 - Slices 1–3 are a safe stopping point: evidence and recovery land without
-  the sessions change. Slices 4–6 are the second.
+  the sessions change. Slices 4–5 are the second; slices 6–7 add the
+  history read without changing what pages receive, and slices 8–9 shrink
+  the regular answer.
 
 ## Learnings
 
@@ -348,14 +414,30 @@ done sessions or opens a retained session → that history is read then.
   past the 1 s reuse window. Slice 6 can answer `history` from the same
   per-entry digests.
 
+- 2026-11-03 slice 6: `GET /__agent-launch?audience=history` answers retained
+  done entries and resolved attempts (`resolvedAttempt` in
+  `dashboard/src/launchAttemptSelection.ts`, provisional until slice 9) under
+  the same revision rule; the regular body ends with `historyRevision`, which
+  non-strict browser schemas drop. Attempts are per-item fragments. Replay:
+  unchanged history ask 57–58 ms wall, net loop 0; first history answer 9.88
+  MB in 67–72 ms. Slim listing entries (slice 8) need their own per-entry
+  digest beside the full one.
+
 ## Concern evidence
 
 Refinement ran as part of planning: the first draft had the replay after
 the observation change; it was moved before it so the baseline is observed
 on unchanged code, and the fixture-size premise became slice 4's early
 probe. Remaining concerns: none beyond that probe, which the plan bounds.
-Slice 6 is the largest (client consumers of done records); its
-consumer-trace obligation is named in its proof.
+
+Refinement on 2026-11-03 after the slice 6 attempt (no code written): the
+attempt found that the "shown done sessions" are every retained done
+session of the project, placed in the browser, and that attempts are half
+the answer. Slice 6 was split into a history ask (6), consumers moving to
+it while the answer stays complete (7), slim done entries (8) and attempts
+(9), so each has one proof loop and the visible Board stays unchanged
+until the regular answer shrinks. Remaining concerns: the definition of
+attempts still needing attention is settled inside slice 9 from the code.
 
 ## Story obligations
 

@@ -3,10 +3,12 @@
 // observer (`./sessionAlerts.ts`) through one shared observation
 // (`./sharedObservation.ts`): every catalog project's launch records with each
 // session's state, the launch attempts, creations, catalog facts, starts,
-// alerts availability, and workspaces. Its revision, which the answer
-// carries, is the digest of the answer's fragments
+// alerts availability, and workspaces; and, for a viewer asking for the
+// history instead, its retained done sessions and resolved attempts
+// (`../src/machineSessionsRevision.ts`). Each answer's revision, which it
+// carries, is the digest of that answer's fragments
 // (`./machineSessionsFragments.ts`): an observation serializes only the
-// session entries that moved since the last, and puts the whole answer
+// session entries that moved since the last, and puts a whole answer
 // together only for a viewer needing it. The checkouts' workspaces are read
 // again only when their Git files changed (`./localWorkspaces.ts`). A viewer
 // naming the revision it holds is answered only that it is unchanged while it
@@ -35,6 +37,7 @@ import type {
 import type { FeedbackMaintenanceState } from "../src/feedbackMaintenanceState.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
+import { resolvedAttempt } from "../src/launchAttemptSelection.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
@@ -42,8 +45,12 @@ import { hostOperations } from "./launchHosts.ts";
 import { localWorkspaces } from "./localWorkspaces.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { machineDocumentsRevision } from "./machineJsonStore.ts";
-import { SessionsAnswerFragments } from "./machineSessionsFragments.ts";
+import {
+  type AnswerFragments,
+  SessionsAnswerFragments,
+} from "./machineSessionsFragments.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
+import type { AdmittedSessions } from "./sessionsAdmission.ts";
 import { SharedObservation } from "./sharedObservation.ts";
 
 // How long a waiter waits for the observation. A test may shorten it.
@@ -75,14 +82,29 @@ type MachineSessionsRest = {
   readonly workspaces: readonly LocalWorkspace[];
 };
 
-export type ObservedMachineSessions = {
-  readonly records: readonly LaunchWithState[];
-  // The whole sessions answer led by its revision, put together on first need.
+// One audience's answer of an observation.
+type ObservedAnswer = {
+  // The whole answer led by its revision, put together on first need.
   readonly serialized: () => string;
   // The answer to a viewer already holding this revision, as sent.
   readonly unchanged: string;
   readonly revision: string;
 };
+
+// The regular answer, with the observation's records and its history.
+export type ObservedMachineSessions = ObservedAnswer & {
+  readonly records: readonly LaunchWithState[];
+  readonly history: ObservedAnswer;
+};
+
+const observedAnswer = ({
+  revision,
+  serialized,
+}: AnswerFragments): ObservedAnswer => ({
+  serialized,
+  unchanged: `{"revision":${JSON.stringify(revision)},"unchanged":true}`,
+  revision,
+});
 
 async function observeMachineSessions(
   launches: AgentLaunches,
@@ -109,12 +131,15 @@ async function observeMachineSessions(
     sessionPolicies: await launches.sessionPolicies(),
     workspaces: await localWorkspaces(),
   };
-  const { revision, serialized } = fragments.answer(records, rest);
-  return {
+  const { overview, history } = fragments.answers(
     records,
-    serialized,
-    unchanged: `{"revision":${JSON.stringify(revision)},"unchanged":true}`,
-    revision,
+    rest,
+    resolvedAttempt,
+  );
+  return {
+    ...observedAnswer(overview),
+    records,
+    history: observedAnswer(history),
   };
 }
 
@@ -151,13 +176,13 @@ export class MachineSessionObservation {
     throw new RefusedRequest(503, unanswered);
   }
 
-  // The serialized answer for a viewer, whose wait ends when it leaves: only
-  // that it is unchanged when the viewer holds this observation's revision.
-  // When `fresh`, the answer comes from an observation begun after this ask.
+  // The serialized answer the viewer's audience asks for, whose wait ends
+  // when it leaves: only that it is unchanged when the viewer holds that
+  // answer's revision. When `fresh`, the answer comes from an observation
+  // begun after this ask.
   async answerFor(
     res: ServerResponse,
-    held: string | undefined,
-    fresh = false,
+    { audience, held, fresh }: Omit<AdmittedSessions, "kind">,
   ): Promise<string> {
     const departed = new AbortController();
     const leave = () => {
@@ -166,9 +191,8 @@ export class MachineSessionObservation {
     res.on("close", leave);
     try {
       const observed = await this.observed(departed.signal, fresh);
-      return observed.revision === held
-        ? observed.unchanged
-        : observed.serialized();
+      const asked = audience === "history" ? observed.history : observed;
+      return asked.revision === held ? asked.unchanged : asked.serialized();
     } finally {
       res.off("close", leave);
     }

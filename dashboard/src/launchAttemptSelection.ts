@@ -50,6 +50,12 @@ export function needsReconciliation(attempt: AttemptObservation): boolean {
         worktreeUpdateNeeded(attempt);
 }
 
+// Whether an attempt no longer needs attention, so the machine's sessions
+// history holds it (`./machineSessionsRevision.ts`): no server runs it and it
+// needs no reconciliation, so it settled or its session completed.
+export const resolvedAttempt = (attempt: AttemptObservation): boolean =>
+  !attempt.running && !needsReconciliation(attempt);
+
 export const laterAttempt = (
   one: AttemptObservation | undefined,
   other: AttemptObservation,

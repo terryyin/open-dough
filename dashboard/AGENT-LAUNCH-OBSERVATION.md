@@ -16,10 +16,15 @@ share one suitable observation, and at most one observation runs at a time.
 Each answer leads with its observation's
 revision, and a page that sends the revision of its last full answer
 (`x-open-dough-sessions-revision`) is told only that it is unchanged. The
-revision is the digest of the answer's fragments: each session entry and the
-rest of the answer. An observation serializes again only the entries whose
-kept record or observed reading changed, and runs Git for a checkout's
-worktrees only when that checkout's Git files (worktree entries, heads, refs,
+revision is the digest of the answer's fragments: each session entry, each
+attempt, and the rest of the answer. A read with `?audience=history` is
+answered from the same observation with the history instead: every retained
+done session's entry and the attempts that no longer need attention, under
+the history's own revision, which every full regular answer names as
+`historyRevision`; the same revision header asks whether it still stands,
+and any other audience is refused. An observation serializes again only the
+entries whose kept record or observed reading changed, and runs Git for a
+checkout's worktrees only when that checkout's Git files (worktree entries, heads, refs,
 config) changed identity; each host's native listing still runs on every
 observation past the reuse window. A read
 not answered within 30 seconds gets a retryable 503 and the page keeps what it
@@ -61,6 +66,7 @@ checkouts hold 44 linked worktrees
 [projects](tests/support/sessionsReplayProjects.ts)). It prints one table:
 startup, the first full answer cold and warm, the regular answer's size,
 unchanged polls past the one-second reuse window by wall and event-loop time,
+the history ask's first full answer and its unchanged asks the same way,
 one native state change, and a trivial request's latency during polls and
 without them ([measures](tests/support/sessionsReplayMeasures.ts)). The normal
 suites skip it. Run it from the repository root, with the load average beside

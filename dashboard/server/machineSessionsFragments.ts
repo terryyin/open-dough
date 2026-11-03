@@ -1,16 +1,23 @@
-// The machine's sessions answer (`./machineSessionObservation.ts`) kept as
+// The machine's sessions answers (`./machineSessionObservation.ts`) kept as
 // fragments, each with the digest of its serialization: every session entry
-// on its own, and the rest of the answer. An entry whose kept record is the
-// same document the machine store still holds (`./machineJsonStore.ts`) and
-// whose observed facts -- shown workspace, workspace state, session state --
-// read the same keeps the serialization and digest it had, so an
-// observation serializes only the entries that moved. The answer's revision
+// and every attempt on its own, and the rest of each answer. The regular
+// answer holds every entry and attempt; the history holds the retained done
+// entries, in the same order, and the attempts it is given, and has its own
+// revision, which the regular answer's rest names. An entry whose kept record
+// is the same document the machine store still holds
+// (`./machineJsonStore.ts`) and whose observed facts -- shown workspace,
+// workspace state, session state -- read the same keeps the serialization
+// and digest it had, so an observation serializes only the entries that
+// moved; every attempt is serialized again by each observation. An answer's revision
 // is the digest of its fragments' digests: the same answer always has the
-// same revision, and a changed one another. The whole answer is put together
+// same revision, and a changed one another. A whole answer is put together
 // from its fragments only when a viewer needs it in full, once per revision.
 
 import { createHash } from "node:crypto";
-import type { LaunchWithState } from "../src/agentLaunch.ts";
+import type {
+  AttemptObservation,
+  LaunchWithState,
+} from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
 const digestOf = (text: string) =>
@@ -62,16 +69,58 @@ export type AnswerFragments = {
   readonly serialized: () => string;
 };
 
+// An attempt and the digest of its serialization.
+type HeldAttempt = {
+  readonly attempt: AttemptObservation;
+  readonly digest: string;
+};
+
+// The rest of an answer: its attempts, and its other fields in order.
+type Rest = Readonly<Record<string, unknown>> & {
+  readonly attempts: readonly AttemptObservation[];
+};
+
+// The answer of `held` entries followed by `rest`'s fields, as one object
+// would serialize with its records first, whose attempts are `attempts`.
+function assembled(
+  held: readonly HeldEntry[],
+  attempts: readonly HeldAttempt[],
+  rest: Rest,
+): AnswerFragments {
+  const digests = (fragments: readonly { readonly digest: string }[]) =>
+    digestOf(fragments.map(({ digest }) => digest).join(""));
+  // The other fields, which the serialization leaves out of an undefined key.
+  const others = JSON.stringify({ ...rest, attempts: undefined });
+  const revision = digestOf(
+    `${digests(held)}${digests(attempts)}${digestOf(others)}`,
+  );
+  let whole: string | undefined;
+  return {
+    revision,
+    serialized: () => {
+      whole ??= `{"revision":${JSON.stringify(revision)},"records":[${held.map(({ json }) => json).join(",")}],${JSON.stringify(rest).slice(1)}`;
+      return whole;
+    },
+  };
+}
+
+type SessionsAnswers = {
+  readonly overview: AnswerFragments;
+  readonly history: AnswerFragments;
+};
+
 // The fragments this server last serialized, reused by its next observation.
 export class SessionsAnswerFragments {
   private entries = new Map<string, HeldEntry>();
 
-  // The answer of `records` followed by `rest`'s fields, as one object would
-  // serialize with its records first.
-  answer(
+  // The regular answer of `records` followed by `rest`'s fields and the
+  // history's revision as `historyRevision`; and the history of the retained
+  // done `records` and the attempts of `rest` that are `historied`.
+  answers(
     records: readonly LaunchWithState[],
-    rest: Readonly<Record<string, unknown>>,
-  ): AnswerFragments {
+    rest: Rest,
+    historied: (attempt: AttemptObservation) => boolean,
+  ): SessionsAnswers {
     const previous = this.entries;
     const entries = new Map<string, HeldEntry>();
     const held = records.map((entry) => {
@@ -88,16 +137,24 @@ export class SessionsAnswerFragments {
       return kept;
     });
     this.entries = entries;
-    const recordsDigest = digestOf(held.map(({ digest }) => digest).join(""));
-    const restJson = JSON.stringify(rest);
-    const revision = digestOf(`${recordsDigest}${digestOf(restJson)}`);
-    let whole: string | undefined;
+    const attempts = rest.attempts.map((attempt) => ({
+      attempt,
+      digest: digestOf(JSON.stringify(attempt)),
+    }));
+    const historyAttempts = attempts.filter(({ attempt }) =>
+      historied(attempt),
+    );
+    const history = assembled(
+      held.filter(({ entry }) => entry.doneAt !== undefined),
+      historyAttempts,
+      { attempts: historyAttempts.map(({ attempt }) => attempt) },
+    );
     return {
-      revision,
-      serialized: () => {
-        whole ??= `{"revision":${JSON.stringify(revision)},"records":[${held.map(({ json }) => json).join(",")}]${restJson === "{}" ? "}" : `,${restJson.slice(1)}`}`;
-        return whole;
-      },
+      overview: assembled(held, attempts, {
+        ...rest,
+        historyRevision: history.revision,
+      }),
+      history,
     };
   }
 }
