@@ -31,7 +31,9 @@ export type ReportedFailure = {
 };
 
 // Whether this classified failure may enter the page's transient recovery.
-// Rate limits and held-back reads use rate-limit recovery instead.
+// Rate limits and held-back reads use rate-limit recovery instead. A lost
+// request owner stays out: its read may already have been asked of GitHub,
+// so the page's steady check, not an early re-ask, recovers it.
 function recoveryOf(reason: GhFailureReason): "transient" | undefined {
   switch (reason.kind) {
     case "unreachable":
