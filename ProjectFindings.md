@@ -15,6 +15,8 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
+**Maintenance assessment (2026-11-03):** No new project story. DD-376 is retired after 68 post-repair runs without an install failure ([history](docs/maintainer/project-findings-history.md#earlier-reviews)). DD-406's local facet is already repaired in project documentation and awaits a re-profile. DD-411's slow-setup shard breach is runner speed on a story branch, recorded under DD-279 without counting against its allocator criterion. DD-347's third row-pressure exposure keeps it open; its remedy reshapes shared guidance reads and is not selected here. DD-374 and DD-378's responses are on `main` and released in `v0.3.80`; their observations remain open.
+
 **Maintenance assessment (2026-10-25):** Select one new project response: SEED-151#balance-test-shares (since implemented and closed; story recoverable at `8dd20d66:.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares`), queued at the time, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
 
 **Maintenance assessment (2026-10-21):** DD-309's measured repository-tooling response first ships in `v0.3.67`; later usage remains unobserved. DD-297's source-directory race was repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`, while its separate loaded child-start observation remains qualified. The selected response to DD-320's extra paid run and inconclusive replay is implemented at `fba97e9fbb90c4f97909a5e2ab899a0031c58308`: the [maintained pre-launch comparison](tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) advances useful learning before spending another native run; its native outcome remains unobserved. The strongest alternative is the older browser-restart race (DD-296): its concrete failing callers were repaired, and the remaining related exposure has no new observed failure. Preserve that residual and other open findings without another implementation commitment. Existing repaired responses remain historical; incomplete exposure does not establish retirement. No new occurrence is added by this review.
@@ -283,28 +285,31 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
   - Later evidence: SEED-208#trustworthy-ci-completion slice 5 (2026-11-01) added the completion-accounting rule to `ci-monitor.md#await-the-applicable-revision-at-completion` and repair-review wording to `finish-or-stop.md`; the "Before finishing or stopping" row went from 29772 to 29991 bytes after removing one sentence and one clause that the same row already stated elsewhere.
 
-## Hosted CI npm install stalls at its acquisition deadline (repaired)
+## A full local suite's shell wall includes admission wait (repaired, awaiting a re-profile)
 
-<a id="dd-376"></a>
+<a id="dd-406"></a>
 
-### DD-376 — `setup-native.mjs npm` exceeded its 45 s deadline on hosted runners with a warm npm cache
+### DD-406 — Local facet: this repository's one-suite admission made a re-profile's shell walls incomparable
 
-Two consecutive CI runs failed one or two jobs each at "Install npm dependencies":
-`Infrastructure setup: npm source stalled: acquisition deadline exceeded`.
-The cache restore had succeeded first. Every other job in those runs passed. The
-failure is classified as infrastructure, but it recurs. A failed job leaves
-that revision's lint or shard unobserved until a later push, and the observer
-reports the run as a failure.
+The occurrence (SEED-221#launch-records-poll-waits, plan 448, 2026-11-02) stays
+in [DearDough.md](DearDough.md) under DD-406 with its shared facet:
+test-optimization measurement guidance names no repository admission or queue
+among wall-time distortions. This record keeps the repository-owned facet once:
+`scripts/local-test-suite.mjs` (via `dashboard/playwright.config.ts`
+`acquireLocalSuite`) holds a second full run until another worktree's suite
+finishes, and `tests/local-test-resources.md` did not then say that its shell
+wall includes that wait. About 38 minutes of the candidate run's 4,068 s wall
+were admission (Playwright reported 29.6 min), and the coordinator spent
+several investigation steps before finding the gate.
 
-- Execution: SEED-202#bounded-dashboard-refresh; first related implementation `bd5a9094e88fb9d0ca30c0539a4c306d768bf342`
-  - Timestamp: 2026-10-31T09:20:54Z (run 41188326936, `lint` and `dashboard (8/12)`); 2026-10-31T10:05:36Z (run 41191328229, `test (1/3)` and `dashboard (2/12)`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.79
-  - Evidence: `ci-github-diagnostic.mjs failure` excerpts for both runs show the cache restored (~46 MB) and then the 45 s acquisition deadline exceeded. `gh run view` showed all other jobs succeeding.
-  - Observed effect: two CI-failure notifications, each classified and ignored as infrastructure. Lint for `bd5a9094` and three shards were covered only by the next revision.
-  - Inference: repaired in the same execution. Over the last 60 runs, the install step took a median of 4 s on 2026-10-30 and 38 s on 2026-10-31. The npm summary lines put the time in `npm audit` ("audited 136 packages in 29s/33s/45s"), not acquisition. The story branch repaired it at `d4190ce4` with `--no-audit --no-fund`. Trunk independently set `NPM_CONFIG_AUDIT=false NPM_CONFIG_FUND=false` (`7b9777c7`), and the integration kept trunk's form. Both keep the 45 s stall bound. The hosted outcome on trunk is not yet observed.
-  - Later evidence (2026-11-01, SEED-208#trustworthy-ci-completion): the last failed `Install npm dependencies` step is still #3358 (run 41195930489, attempt 1, 2026-10-31T11:12:58Z). `gh run list --repo terryyin/open-dough --workflow ci.yml` with each run's `gh api …/actions/runs/RUN/jobs` step conclusions covered all 68 completed runs #3359–#3426, 19 of them on main (including #3404 `aef7858b` and #3422 `ecd1e23f`), with no reruns: none of their 1,088 install steps failed. The hosted trunk outcome is now observed passing. This is post-repair exposure, not proof that setup cannot fail; a recurrence is examined for a repository cause before another infrastructure disposition.
+**Response:** `ad8b1f3afafa91eca1cfd3b36295716f52d90fe6` (2026-11-02, alongside
+SEED-221's closure) adds to `tests/local-test-resources.md`: a full run's
+shell wall includes any admission wait; compare runs by the runner's own
+reported duration. **Observation criterion:** the next full-suite timing
+comparison in this repository taken while another worktree's suite may hold
+admission uses the runner-reported duration (or checks admission) before
+reading a slowdown. No such comparison has been observed since adoption; open,
+unqueued.
 
 ## Review and recovery
 

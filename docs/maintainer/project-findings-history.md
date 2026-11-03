@@ -161,6 +161,21 @@ Neither is a project-only backlog candidate.
 
 ### Earlier reviews
 
+Resolved and removed on 2026-11-03 (recovery:
+`b108395049f91f0ed7d3e713a8ca8362b17d1295:ProjectFindings.md`, section "Hosted
+CI npm install stalls at its acquisition deadline"): DD-376
+(`setup-native.mjs npm` exceeded its 45 s deadline on hosted runners during
+`npm audit`; runs 41188326936 and 41191328229, SEED-202#bounded-dashboard-refresh,
+2026-10-31). Repair: trunk `7b9777c7` sets `NPM_CONFIG_AUDIT=false
+NPM_CONFIG_FUND=false` (story-branch `d4190ce4` used `--no-audit --no-fund`;
+the integration kept trunk's form), keeping the 45 s stall bound. Outcome: the
+last failed `Install npm dependencies` step is run 41195930489 (#3358,
+2026-10-31T11:12:58Z); all 68 completed runs #3359–#3426, 19 on `main`, with
+1,088 install steps had none fail (SEED-208#trustworthy-ci-completion,
+2026-11-01). Supported retirement of the hosted audit stall, not proof that
+setup cannot fail; a later install failure is examined for a repository cause
+before an infrastructure disposition.
+
 Moved from DearDough.md on 2026-10-05 (recovery: `a5c0ded1:DearDough.md`):
 DD-220's plan 233 and 240 occurrences, which used the same code for the same
 cause seen from the readiness check, merged into DD-220; DD-224; and

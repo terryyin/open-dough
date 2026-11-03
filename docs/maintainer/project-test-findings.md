@@ -66,6 +66,14 @@ that had asked for nothing.
   - Evidence: Node suite job "test (3/3)" failed only with `OVER BUDGET: all jobs took 711.1 job-seconds; the total ceiling is 710`. The slice added one 1.0 s test file; `tests/longest-first` listed 81 labels, so the bytewise round-robin moved about 31 jobs between shares and share 3 went from 683.3 (main run 39875064344) to 711.1 while common jobs ran at the same speed (1788.0 vs 1794.3 s). `bash scripts/ci-test-times.sh` already showed share 3 at 706.6 of 710 on main (headroom 3.4, "thin"). Plan 350 named no time-budget baseline although `tests/time-budget.md` asks a slice adding test time to. Repair `9b762292` refreshed the list by its documented procedure (165 labels; projected 612.9 / 588.6 / 593.8).
   - Observed effect: one CI failure on sound code, costing a parked-work stash, a repair agent, a refactor agent, and a repair publication.
   - Inference: qualified. Same mechanism in the Node suite's budget rather than the dashboard deadline: a partly stale `longest-first` leaves the bytewise remainder to decide shares, so any added or renamed test file reshuffles them; the refresh holds only until the file set drifts. Dealing known-time jobs to the least-loaded share would remove the dependence on order; not selected.
+- Execution: `SEED-192#inspect-hierarchical-proof-cost` / plan 452, first implementation `f310f5739a8de2c1a09116d0c32d230ea80dd1b7` (moved here once from DearDough DD-411, whose shared diagnostic-inventory facet stays there)
+  - Timestamp: 2026-11-02T14:44:14Z (run 41463759771 attempt 1 completion, `CI_INCOMPLETE`, push to story branch `claude/find-expensive-proof-in-the-test-hierarchy` at `a04e6e12a`, a revision later on `main`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.83 (repository VERSION at claim `5260f2bc4`)
+  - Evidence: job "dashboard (10/12)" ended `cancelled` after "Run the dashboard browser suite" failed with "Timed out waiting 276.021s for the test suite to run"; the deadline counts from job start (`.github/workflows/ci.yml` "browser suite (320 seconds) deadlines"), and that job's "Set up job" took 42 s against 1 s and setup-node 30 s against 5–6 s on sibling shards, whose eleven jobs finished in 168 to 259 s. The revision added one spec file (`intent-summary-slowest.spec.ts`), dealt unrecorded.
+  - Observed effect: an incomplete run on sound code; a stash of slice 3 work and a repair agent (about 455 s, 101k tokens) that concluded runner degradation.
+  - Inference: qualified. Runner/setup speed, the response's deferred item, not allocation: the slow shard lost its time in pre-suite setup. A story-branch run is not one of the criterion's `main` runs, and this is not a failure of SEED-151's allocator.
 
 <a id="dd-336"></a>
 

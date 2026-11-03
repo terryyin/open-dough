@@ -13,7 +13,7 @@ evidence. Source and catalog identities do not imply resolution.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
-- Project-owned DD-275/DD-309/DD-390 and repaired DD-283/DD-290/DD-312 remain linked from [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
+- Project-owned DD-275/DD-309/DD-390, the local facets of DD-406 and DD-411, and repaired DD-283/DD-290/DD-312 remain linked from [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
 Linked occurrence records preserve distinct executions, original provenance,
 observations and qualified inferences. Rereading adds no occurrence.
@@ -552,6 +552,8 @@ current branch evidence as the observation.
 
 ## DD-388 — Source-only review arrived after the first slice was delegated
 
+Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
+
 The coordinator delegated slice 1 from the plan's slice text, then launched the
 source-only review that acceptance requires. That review listed two source
 commitments the plan's slice 1 had not carried: counts update when the reading
@@ -691,6 +693,8 @@ published the later waiver, then the product slice.
 
 ## DD-400 — A decisive premise probe proved the capability, not the story's restriction
 
+Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`.
+
 The plan settled "a project formatter observes every attempt without changing
 runs" from probes that checked the formatter received events and the exit
 stayed 0. Neither probe compared the existing formatter's output, although the
@@ -709,6 +713,8 @@ Cucumber.js `format` entry without its own target replaces the stdout formatter.
 
 ## DD-401 — A rollout slice released from trunk without a step landing the earlier slices
 
+Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`.
+
 Plan 439 slice 4 ran `release-and-update-clients`, which releases only Open
 Dough `main`, while slices 1–3 of the Story Branch execution existed only on the
 execution branch. The plan named no trunk landing before the release, so the
@@ -725,6 +731,8 @@ coordinator stopped mid-slice to ask for a Dough Land `--keep-worktree` landing.
   - Inference: a Story Branch plan whose slice publishes from trunk should name the retained landing, and its human checkpoint should cover it, so one go-ahead suffices.
 
 ## DD-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
+
+Former local code: DD-395 (`6c354905e`), renumbered in merge `966aad8b1`.
 
 At a human-judgment stop, `ci-mailbox.mjs stop <recorded directory>` printed a
 Node stack ending in `ENOENT ... request.json` from `readMailbox`
@@ -816,6 +824,11 @@ reference run that was admitted at once.
   - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
   - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.
 
+**Responsibility (2026-11-03):** the shared facet stays here: measurement
+guidance names no repository admission or queue among wall-time distortions.
+This repository's gate and its missing note are the local facet, repaired at
+`ad8b1f3af` and kept once in [ProjectFindings.md](ProjectFindings.md#dd-406).
+
 ## DD-407 — A plan's local gate names the hook-owned lint that delivery forbids running
 
 The slice plan's Local gates told the coordinator to run `npm run lint`
@@ -900,3 +913,9 @@ run. That reads as "nothing failed" while the run has no verdict.
   - Evidence: run 41463759771 attempt 1 on `a04e6e12a`; job "dashboard (10/12)" conclusion `cancelled` with step "Run the dashboard browser suite" `failure` ("Timed out waiting 276.021s for the test suite to run"). The diagnostic returned zero failed jobs and no gaps. The disposition is recorded in `45d6975c0:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md` Current decisions.
   - Observed effect: the coordinator found the failed step only through a separate `gh run view` and job log. It then stashed slice 3's work and delegated a repair agent (about 455 s, 101k tokens), which concluded runner degradation. One `gh api …/runs/RUN/jobs` comparison of "Set up job" (42 s against 1 s) and setup-node (30 s against 5–6 s) across sibling shards showed the same thing afterwards.
   - Inference: the inventory should list a cancelled job with a failed step, or mark it as a gap, so `CI_INCOMPLETE` triage starts from evidence. Comparing pre-project setup-step durations across sibling jobs is a cheap first infrastructure check before pausing writers. That second point is a single observation.
+
+**Responsibility (2026-11-03):** the inventory that omits a cancelled job with
+a failed step is shared (`ci-failures.mjs`) and stays here. The shard's
+deadline breach under slow runner setup is this repository's CI exposure,
+kept once as a DD-279 occurrence in
+[project test findings](docs/maintainer/project-test-findings.md#dd-279).

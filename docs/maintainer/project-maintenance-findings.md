@@ -119,6 +119,13 @@ carries the project's policy by link or verbatim. The reusable wording is
 unreleased; the project policy takes effect when the story reaches main.
 **Delivered, awaiting observation in later delegation briefs; not resolved.**
 
+**Adoption (2026-11-03 review):** the AGENTS.md policy reached `main` in merge
+`bc72a379b` (2026-11-01T11:05+08:00), and the `delegation.md` wording ships
+from `v0.3.80` and is installed in this repository's `.agents/skills/`. No
+later delegation brief has been inspected against it; a brief that meets a
+failing or flaky test and carries the policy by link or verbatim satisfies the
+observation. Open.
+
 <a id="dd-378"></a>
 
 ## DD-378 — Planning treats pre-existing failures as exclusions from completion
@@ -155,3 +162,8 @@ response's own use, not an ordinary-use observation. The AGENTS.md policy takes
 effect for this repository when the story reaches main; the reusable wording is
 unreleased. **Delivered, awaiting observation in later ordinary executions; not
 resolved.**
+
+**Adoption (2026-11-03 review):** on `main` since `bc72a379b` and released in
+`v0.3.80` (see DD-374). No later plan that attributes a failure to an earlier
+revision has been inspected; such a plan keeping the failure in its executor's
+repair satisfies the observation. Open.
