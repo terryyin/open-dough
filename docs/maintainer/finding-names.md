@@ -8,9 +8,11 @@ maintained Clipboard supplied readable post-local sources; production
 inventory was rechecked unchanged before selection and before the report.
 Clipboard has no project findings record; its project-owned DD-001/005/010
 stay in its log. Open Dough DD-412, added after its local pass, records a
-local practice gap and was not collected.
+local practice gap and was not collected. Clipboard DD-019, added after its
+local pass, is retained at ODF-259 with qualified responsibility; its source
+entry stays unrenamed and uncompacted for the next local pass.
 
-Retained 19 new identities ODF-398–416 and new rows at 23 existing owners.
+Retained 19 new identities ODF-398–416 and new rows at 24 existing owners.
 Practice confirmations (Clipboard DD-006/008/011, Lizard DD-010/015) are not
 problems and allocate nothing. Repeated reports and aliases add no
 executions; a synthesized comparison counts a project/execution once.
