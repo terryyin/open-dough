@@ -212,6 +212,24 @@ without reading proof JSON. The 51.6 s child total is rounding, not a
 mismatch; the proof-command hint is outside this story. Terry tests in
 production after wrap-up.
 
+## Execution complete
+
+Product advice: no new story; correction
+[SEED-192#summary-figures-one-walk](../453-summary-figures-one-walk/PLAN.md)
+proves the multi-day spread and minute-or-more sums and unifies the figures
+derivation.
+
+- Plan 449 (Purpose and Proof layout) should add
+  `intent-summary-drill-down.spec.ts` to its Proof consumers. It should also
+  decide whether opening a slowest row brings Proof into view under its Tabs
+  default (obligation G2).
+- Plan 441 (story intent impact) changes folder-collapse defaults, which
+  this story's drill-down spec exercises. It should reuse `TreeReveal` and
+  `openRevealed` as the one un-collapse path.
+- Coverage limits the value now, not presentation: 372 of Doughnut's 395
+  scenarios are unproven. Keep ranking by sums deferred, and let proof
+  recording come before more summary presentation.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |

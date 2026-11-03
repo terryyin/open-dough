@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 406. Removed numbers are never reused.
+- Highest allocated local number: 407. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -783,3 +783,21 @@ reference run that was admitted at once.
   - Evidence: back-to-back runs recorded 2,063s and 4,068s shell wall, but Playwright reported 31.3 min and 29.6 min. Two other worktrees' full Playwright suites were running during the candidate run (`ps`). `dashboard/playwright.config.ts:18` calls `acquireLocalSuite`. `pmset -g log` showed no sleep. Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3, and Learnings.
   - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
   - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.
+
+## DD-407 — CI diagnostic reports an empty complete inventory for a cancelled job whose suite step failed
+
+`ci-github-diagnostic.mjs failure` filters jobs through `isFailedJob`
+(`ci-failures.mjs:214`), which excludes `cancelled`. A job cancelled at the
+workflow's suite deadline, after its own test step failed, therefore yields
+`inventory: {complete: true, failedJobs: 0, gaps: []}` for a `CI_INCOMPLETE`
+run. That reads as "nothing failed" while the run has no verdict.
+
+### Occurrences
+- Execution: SEED-192#inspect-hierarchical-proof-cost (plan 452; first implementation commit `f310f5739a8de2c1a09116d0c32d230ea80dd1b7`)
+  - Timestamp: 2026-11-02T14:44:14Z (CI_INCOMPLETE run completion; triage followed)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.83 (repository VERSION at claim `5260f2bc4`; installed skills unchanged through this execution)
+  - Evidence: run 41463759771 attempt 1 on `a04e6e12a`; job "dashboard (10/12)" conclusion `cancelled` with step "Run the dashboard browser suite" `failure` ("Timed out waiting 276.021s for the test suite to run"). The diagnostic returned zero failed jobs and no gaps. The disposition is recorded in `45d6975c0:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md` Current decisions.
+  - Observed effect: the coordinator found the failed step only through a separate `gh run view` and job log. It then stashed slice 3's work and delegated a repair agent (about 455 s, 101k tokens), which concluded runner degradation. One `gh api …/runs/RUN/jobs` comparison of "Set up job" (42 s against 1 s) and setup-node (30 s against 5–6 s) across sibling shards showed the same thing afterwards.
+  - Inference: the inventory should list a cancelled job with a failed step, or mark it as a gap, so `CI_INCOMPLETE` triage starts from evidence. Comparing pre-project setup-step durations across sibling jobs is a cheap first infrastructure check before pausing writers. That second point is a single observation.

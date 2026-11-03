@@ -881,6 +881,30 @@ the other.
 - **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
   useful without pretending it has the same detail as Cucumber or pytest.
 
+<a id="summary-figures-one-walk"></a>
+
+### 17. Prove and unify summary proof figures
+
+**Identity:** SEED-192#summary-figures-one-walk
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/453-summary-figures-one-walk/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b6437e78bc4c3560199f56182aa70492ce117830c7d4b1de438e4587f611bb86","plan":"66ea85f93630336ec1e178a089592d7e3497cdf5a829e86161d30d9fabbe618e"}}
+```
+
+**Goal:** A developer reading Intent location and folder summaries, such as
+Terry comparing Pygardon or Doughnut proof cost, can trust every
+summed-duration and spread wording the summaries can show, including
+observations finishing on different UTC days and sums of a minute or more.
+The selection and each child derive their figures from one rule and one
+walk of the read files, so the next figure needs one edit.
+
+**Scope:** correction of [Find expensive proof in the test
+hierarchy](#inspect-hierarchical-proof-cost), from its retrospective. It
+covers proof for the spread line's multi-day form and minute-or-more sums,
+one shared derivation of a summary's figures for the selection and each child
+from a single matching walk, and removal of the drill-down spec's repeated
+folder-figure assertions. Summary wording, layout and the story's promises
+are unchanged. [Plan](../slice-plans/453-summary-figures-one-walk/PLAN.md).
+
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
