@@ -102,7 +102,7 @@ the workspaces.
 
 ### 4. Only a mid-request loss reads as a lost connection
 Type: Behavior
-Status: planned
+Status: done
 Proof: a greeting-time `connection-failed` keeps the endpoint advice, while
 the owner-replacement page spec still reads the lost-connection wording;
 consumer trace over the cause and `ownerFailureText`.

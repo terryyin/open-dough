@@ -151,7 +151,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
       const [local, unknown, upstream] = listed;
       expect(local).toMatchObject({
         cause: "owner-unavailable",
-        ownerCause: "connection-failed",
+        ownerCause: "connection-lost",
         dispatched: false,
       });
       expect(local?.queueWaitMs).toBeUndefined();

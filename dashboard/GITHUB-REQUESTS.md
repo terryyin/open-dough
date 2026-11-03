@@ -118,13 +118,16 @@ version's protocol -- each read fails without asking GitHub.
 
 An unavailable owner names only its observed local cause: an endpoint that is
 not a directory, belongs to another user, is open to others, or has a path too
-long for a socket; failed startup or connection; an explicit protocol or caller
-refusal; or no usable answer. Silence stays unknown, rather than establishing
-a protocol mismatch. Notices and failed-read history keep these safe categories
-without endpoint paths, tokens, credentials or raw error text. Recovery addresses
-the local endpoint configuration and restarts the reader. No private fallback
-asks `gh`. A failure before connection leaves the read unasked; after dispatch,
-a lost connection cannot establish whether GitHub was asked. A waiter's abort
+long for a socket; failed startup or connection; a connection lost while the
+request was outstanding; an explicit protocol or caller refusal; or no usable
+answer. Silence stays unknown, rather than establishing a protocol mismatch.
+Notices and failed-read history keep these safe categories without endpoint
+paths, tokens, credentials or raw error text. Recovery addresses the local
+endpoint configuration and restarts the reader; a dashboard read whose
+connection was lost needs no correction, since its next check asks through the
+owner then standing. No private fallback asks `gh`. A failure before connection
+leaves the read unasked; after dispatch, a lost connection cannot establish
+whether GitHub was asked. A waiter's abort
 and timeout retain their own rejection behavior.
 
 An owner that is killed, or lost in any way it could not prepare for, is

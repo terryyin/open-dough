@@ -206,7 +206,7 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
           category: "backlog",
           failureCategory: "local",
           cause: "owner-unavailable",
-          ownerCause: "connection-failed",
+          ownerCause: "connection-lost",
           dispatched: false,
           ownerPid: killed?.pid,
           ownerGeneration: generation,

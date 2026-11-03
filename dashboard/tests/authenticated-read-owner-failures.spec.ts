@@ -25,6 +25,7 @@ for (const [fault, ownerCause, message] of [
   ["incompatible", "incompatible", "explicitly refused the protocol"],
   ["unauthenticated", "unauthenticated", "explicitly refused this caller"],
   ["unknown", "unknown", "gave no usable answer"],
+  ["close", "connection-failed", "its local connection failed"],
 ] as const) {
   test(`the browser and diagnostic history name observed owner ${fault} with safe endpoint recovery`, async ({
     page,
@@ -44,7 +45,9 @@ for (const [fault, ownerCause, message] of [
             defer: (cleanup: () => Promise<void>) => cleanups.push(cleanup),
           },
         },
-        { refused: fault === "unknown" ? ownerSecret : fault },
+        fault === "close"
+          ? "close"
+          : { refused: fault === "unknown" ? ownerSecret : fault },
       );
     const server = await startDashboardServer({
       mode: "preview",
