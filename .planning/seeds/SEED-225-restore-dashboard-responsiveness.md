@@ -58,3 +58,27 @@ lost-connection wording limited to a mid-request loss, and one declared list
 of history-only fields. No new product behavior beyond those corrections.
 
 **Plan:** [457-correct-incident-and-workspace-observation-residue](../slice-plans/457-correct-incident-and-workspace-observation-residue/PLAN.md)
+
+<a id="resolve-stuck-attempt-reconciliation"></a>
+
+### Resolve attempts that appear to be reconciling forever
+
+**Identity:** SEED-225#resolve-stuck-attempt-reconciliation
+
+**Goal.** A developer reviewing an execution attempt in the dashboard can
+tell whether reconciliation is still in progress or has reached an outcome.
+
+**Report.** The responsiveness story's final report noted an older issue in
+which an attempt can appear to be “reconciling” indefinitely. The report
+does not include a reproducible example or the affected attempt's persisted
+state. Treat this as a separate bug from the incident and workspace correction.
+
+**Scope.** Capture one affected attempt and compare the displayed status
+with its persisted state and reconciliation activity. If the attempt has
+settled, correct the stale display. If reconciliation itself is stuck,
+identify and address the failure that prevents it from settling.
+
+**Evaluation.** Reproduce the confirmed failure and verify through the
+dashboard that the affected attempt shows its actual outcome after
+reconciliation settles. An attempt still making progress continues to show
+that reconciliation is in progress.
