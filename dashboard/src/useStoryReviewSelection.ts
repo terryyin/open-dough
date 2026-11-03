@@ -82,6 +82,8 @@ export function useStoryReviewSelection(
     review,
     runs,
     selectedRun,
+    // The run the workspace answer itself shows: its landed fallback.
+    answerRun: answer?.selectedRun,
     snapshot: answer?.kind === "snapshot" ? answer : undefined,
     published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,

@@ -6,7 +6,7 @@
 // the changes since the review. The unmarked journey:
 // ./intent-story-changes.spec.ts.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -17,7 +17,7 @@ import {
 } from "./support/intentStoryPage.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
 import {
-  comparison,
+  expectShown,
   markReviewed,
   openStoryReview,
   reviewRegion,
@@ -25,9 +25,6 @@ import {
 } from "./support/storyReviewMark.ts";
 
 test.setTimeout(120_000);
-
-const expectShown = (review: Locator, shown: string) =>
-  expect(comparison(review).getByRole("radio", { name: shown })).toBeChecked();
 
 // Review changes lists every file Intent counted, the outside ones too.
 async function expectIntentFiles(page: Page) {

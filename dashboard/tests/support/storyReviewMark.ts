@@ -34,6 +34,13 @@ export const reviewRegion = (page: Page) =>
 export const comparison = (review: Locator) =>
   review.getByRole("radiogroup", { name: "Comparison" });
 
+// The comparison switch says the one comparison shown.
+export async function expectShown(review: Locator, shown: string) {
+  const choices = comparison(review);
+  await expect(choices.getByRole("radio", { name: shown })).toBeChecked();
+  await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
+}
+
 // The check that leaves uncommitted changes out of all changes, among the
 // marking controls, and the line they show while it is off.
 export const uncommittedCheck = (review: Locator) =>

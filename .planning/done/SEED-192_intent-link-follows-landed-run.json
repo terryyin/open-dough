@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#intent-link-follows-landed-run",
+  "title": "Return a landed-run review to Intent's comparison",
+  "completedAt": "2026-11-03T16:02:01.238Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "claude",
+  "model": "opus"
+}

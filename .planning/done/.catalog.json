@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_intent-link-follows-landed-run.json",
+      "identity": "SEED-192#intent-link-follows-landed-run",
+      "completedAt": "2026-11-03T16:02:01.238Z",
+      "blob": "b002138564b9c75758733cd3edb720db1fb7e569"
+    },
+    {
       "fileName": "SEED-224_unify-story-selection.json",
       "identity": "SEED-224#unify-story-selection",
       "completedAt": "2026-11-03T13:21:39.481Z",

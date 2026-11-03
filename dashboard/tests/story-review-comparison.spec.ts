@@ -9,12 +9,13 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   comparison,
+  expectShown,
   expectSinceTheReview,
   keptStoryAMark,
   markedThenChanged,
@@ -26,13 +27,6 @@ import {
   twelveFileWorktree,
 } from "./support/storyReviewMark.ts";
 import { keepLaunchRecord } from "./support/storyLaunchRecord.ts";
-
-// The comparison switch says the one comparison shown.
-async function expectShown(review: Locator, shown: string) {
-  const choices = comparison(review);
-  await expect(choices.getByRole("radio", { name: shown })).toBeChecked();
-  await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
-}
 
 // How many snapshot reads the page has asked for so far.
 function snapshotReads(page: Page) {

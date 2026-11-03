@@ -188,7 +188,10 @@ export const extentOf = (page: Page) =>
   boardScroll(page).evaluate((region) => region.scrollHeight);
 
 // Wheels the Board to `y` as a developer reads, by exactly as far as is left,
-// so no wheel movement outlasts the read.
+// so no wheel movement outlasts the read. Wheel only on a settled page
+// (`expectSettledPage`): a card above the reading place that lengthens later
+// keeps the developer on what they read, so the Board's scroll place moves
+// with it.
 export async function wheelTo(page: Page, y: number) {
   const left = y - (await scrollYOf(page));
   const region = await box(boardScroll(page));

@@ -240,30 +240,6 @@ Individual refinements and their recorded facts below carry current preparation.
 
 ## Story Decomposition
 
-<a id="intent-link-follows-landed-run"></a>
-
-### 5b. Return a landed-run review to Intent's comparison
-
-**Identity:** SEED-192#intent-link-follows-landed-run
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/455-intent-link-follows-landed-run/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1089b42c241e711b2125072ea57b6ce4b58986bd0b09dd7fb91e3b0b58a156ad","plan":"7b921a134ba3126f77099f3ebfa2f8a9cfb707f03cdc4b4b98a166333f5edbf1"}}
-```
-
-**Goal:** A developer reviewing a story in Intent, such as Terry, who has
-switched Review changes to **Landed run** and then follows Intent's **Review
-changes** link again, sees the comparison Intent shows, so the two views do
-not disagree. This bounded retrospective correction of
-story 5a (`SEED-192#align-intent-story-lens`, recoverable as
-`git show 6a3a18c5:.planning/seeds/SEED-192-review-product-intent.md`, section
-`#align-intent-story-lens`) adds no new product promise.
-
-**Scope:** Intent's link returns a shown review from a landed run the
-developer chose to Intent's comparison; a review whose workspace answer
-itself falls back to a landed run, which Intent shows too, stays on that run;
-the Review changes marks doc states the rule.
-
-**Plan:** [slice plan](../slice-plans/455-intent-link-follows-landed-run/PLAN.md)
-
 <a id="assess-story-intent-protection"></a>
 
 ### 10. Review how well a story's intent is protected
