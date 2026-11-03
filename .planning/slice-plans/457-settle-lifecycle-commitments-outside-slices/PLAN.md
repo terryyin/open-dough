@@ -164,6 +164,20 @@ replan that changes what the landing carries is a new checkpoint; the
 go-ahead covers only the checkpoint it answers. Full `npm test` (Bash 5,
 `caffeinate -s -i`) passed on the final state.
 
+## Execution complete
+
+Product advice: no correction needed; the story's promises hold across the
+aggregate diff. Two learnings for future work:
+- execute-plan's "Before delivery" and "Before finishing or stopping" read
+  sets have about 58 and 0 bytes of headroom under
+  `read-budget-guidance.test.mjs`; the next guidance addition there needs a
+  trimming story first, so consider queueing one before such work.
+- A replan that changes what a checkpoint-named retained landing carries is
+  treated as a new checkpoint (Pygardon 389 relanded after added slices);
+  watch for recurrence before adding a rule.
+Product-direction alignment unassessed: no direction document covers skill
+guidance.
+
 ## Story obligations
 
 ### G1. Wrap-up does not yet name lifecycle rows at closure (first reported in slice 1)
