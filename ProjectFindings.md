@@ -311,6 +311,15 @@ admission uses the runner-reported duration (or checks admission) before
 reading a slowdown. No such comparison has been observed since adoption; open,
 unqueued.
 
+## Long local dashboard suites can lose proof to Maintenance Sleep
+
+<a id="dd-412"></a>
+
+[DD-412](docs/maintainer/project-test-findings.md#dd-412) records two invalidated
+whole-suite runs in one execution and the passing AC-powered retry.
+[SEED-227](.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
+is queued to preserve the local setup in the maintained proof instructions.
+
 ## Review and recovery
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)

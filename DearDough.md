@@ -680,22 +680,7 @@ deadline breach under slow runner setup is this repository's CI exposure,
 kept once as a DD-279 occurrence in
 [project test findings](docs/maintainer/project-test-findings.md#dd-279).
 
-## DD-412 — The plan's sleep guard let Maintenance Sleep break two whole-suite runs
-
-The plan prescribed `caffeinate -i` for the full local gates. On AC power the
-machine still entered system Maintenance Sleep repeatedly, freezing all
-Playwright workers at once, so two whole dashboard suite runs failed with
-scattered, non-overlapping tests and were discarded.
-
-### Occurrences
-- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
-  - Timestamp: unknown (2026-11-03, about 12:00–17:00 +07:00 per the slice 2 agent's `pmset -g log` reading)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
-  - Evidence: `1c8898b23ac6:.planning/slice-plans/454-unify-story-selection/PLAN.md` Outside-in proof "Local gates" (`caffeinate -i`) and Learnings; slice 2 implementation return (runs of 95 and 52 failures, about 60 sleeps totalling about 4 h; final run under `caffeinate -s -i` 1945/1945)
-  - Observed effect: about 3.4 h of slice 2's wall time went to two invalid whole-suite runs and their attribution checks (a base worktree comparison)
-  - Inference: `-i` prevents idle sleep only; `-s` is needed on AC. The planner copied the guard from local memory, so the gap is in the local practice, not Open Dough guidance
+DD-412 moved to [the project test findings](docs/maintainer/project-test-findings.md#dd-412).
 
 ## ODF-410 — An implementation agent handed back while its own background work kept running
 

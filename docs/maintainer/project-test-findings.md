@@ -512,3 +512,32 @@ The execution's option-value probes detected the defect and its strict consumer
 suite subsequently passed. Preserve this as a useful test-design observation;
 no further implementation story is justified by this evidence alone. Original
 source and provenance are recoverable at `a47f4814:DearDough.md`.
+
+<a id="dd-412"></a>
+
+## DD-412 — The plan's sleep guard let Maintenance Sleep break two whole-suite runs
+
+The plan prescribed `caffeinate -i` for the full local gates. On AC power the
+machine still entered system Maintenance Sleep repeatedly, freezing all
+Playwright workers at once, so two whole dashboard suite runs failed with
+scattered, non-overlapping tests and were discarded.
+
+### Occurrences
+- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
+  - Timestamp: unknown (2026-11-03, about 12:00–17:00 +07:00 per the slice 2 agent's `pmset -g log` reading)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
+  - Evidence: `1c8898b23ac6:.planning/slice-plans/454-unify-story-selection/PLAN.md` Outside-in proof "Local gates" (`caffeinate -i`) and Learnings; slice 2 implementation return (runs of 95 and 52 failures, about 60 sleeps totalling about 4 h; final run under `caffeinate -s -i` 1945/1945)
+  - Observed effect: about 3.4 h of slice 2's wall time went to two invalid whole-suite runs and their attribution checks (a base worktree comparison)
+  - Inference: `-i` prevents idle sleep only; `-s` is needed on AC. The planner copied the guard from local memory, so the gap is in the local practice, not Open Dough guidance
+
+**Responsibility and disposition (2026-11-04):** The repository's plan
+chose the local macOS sleep guard. The successful AC-powered retry established
+a usable guard for that machine; the repository's local test instructions
+still give future planners no durable guidance for this case. Original source
+is recoverable at `d5b59b92b:DearDough.md`. The process execution release remains
+unknown.
+
+**Follow-up:** [SEED-227#protect-long-local-proof-from-maintenance-sleep](../../.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
+is queued. Adoption and subsequent ordinary-use evidence are pending.

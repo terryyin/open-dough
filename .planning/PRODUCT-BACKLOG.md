@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Protect long local proof from Maintenance Sleep](seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep) — SEED-227#protect-long-local-proof-from-maintenance-sleep
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs
 - [Calculate expensive proof figures on demand](seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand) — SEED-226#calculate-proof-figures-on-demand
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
