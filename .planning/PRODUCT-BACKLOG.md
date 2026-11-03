@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep the story lens consistent with Review changes](seeds/SEED-192-review-product-intent.md#align-intent-story-lens) — SEED-192#align-intent-story-lens ([plan](slice-plans/448-align-intent-story-lens/PLAN.md))
+- [Prove and unify summary proof figures](seeds/SEED-192-review-product-intent.md#summary-figures-one-walk) — SEED-192#summary-figures-one-walk ([plan](slice-plans/453-summary-figures-one-walk/PLAN.md))
 
 ## Backlog list
 
-- [Prove and unify summary proof figures](seeds/SEED-192-review-product-intent.md#summary-figures-one-walk) — SEED-192#summary-figures-one-walk
 - [Unify story selection across Development and Intent](seeds/SEED-224-unify-story-selection.md#unify-story-selection) — SEED-224#unify-story-selection
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
