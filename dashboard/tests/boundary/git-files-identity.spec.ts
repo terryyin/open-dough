@@ -4,10 +4,17 @@
 // recent to trust, and changes with every Git change a found workspace
 // depends on -- a worktree's author config, its branch moving, trunk moving,
 // its head switching branches, a worktree added or its folder removed, and
-// refs being packed.
+// refs being packed -- but not with Git run in the main checkout, such as a
+// plain `git status` that rewrites its index, or a new file there.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
@@ -42,21 +49,27 @@ async function settled(checkout: string): Promise<string> {
   throw new Error("The checkout's Git files never settled");
 }
 
-test("a checkout's Git identity changes with every Git change its workspaces depend on", async () => {
-  test.setTimeout(60_000);
-  const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
+// A checkout on `main` with trunk at its commit and one linked worktree.
+function checkoutWithWorktree(home: string) {
   const git = gitIn(home);
   const checkout = path.join(home, "checkout");
   const worktree = path.join(checkout, ".worktrees", "a");
+  mkdirSync(checkout);
+  writeFileSync(path.join(checkout, "file.txt"), "one\n");
+  git(checkout, "init", "--quiet", "--initial-branch=main");
+  git(checkout, "config", "extensions.worktreeConfig", "true");
+  git(checkout, "add", ".");
+  git(checkout, "commit", "--quiet", "--no-gpg-sign", "-m", "one");
+  git(checkout, "update-ref", "refs/remotes/origin/main", "HEAD");
+  git(checkout, "worktree", "add", "--quiet", "-b", "claude/a", worktree);
+  return { git, checkout, worktree };
+}
+
+test("a checkout's Git identity changes with every Git change its workspaces depend on", async () => {
+  test.setTimeout(60_000);
+  const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
   try {
-    mkdirSync(checkout);
-    writeFileSync(path.join(checkout, "file.txt"), "one\n");
-    git(checkout, "init", "--quiet", "--initial-branch=main");
-    git(checkout, "config", "extensions.worktreeConfig", "true");
-    git(checkout, "add", ".");
-    git(checkout, "commit", "--quiet", "--no-gpg-sign", "-m", "one");
-    git(checkout, "update-ref", "refs/remotes/origin/main", "HEAD");
-    git(checkout, "worktree", "add", "--quiet", "-b", "claude/a", worktree);
+    const { git, checkout, worktree } = checkoutWithWorktree(home);
 
     let held = await settled(checkout);
     expect(await gitFilesIdentity(checkout, "origin/main")).toBe(held);
@@ -131,6 +144,26 @@ test("a checkout's Git identity changes with every Git change its workspaces dep
   }
 });
 
+test("Git run in the main checkout keeps the checkout's Git identity", async () => {
+  test.setTimeout(30_000);
+  const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
+  try {
+    const { git, checkout } = checkoutWithWorktree(home);
+    const held = await settled(checkout);
+    const dotGit = path.join(checkout, ".git");
+    const before = statSync(dotGit, { bigint: true }).mtimeNs;
+
+    writeFileSync(path.join(checkout, "notes.txt"), "new\n");
+    git(checkout, "status");
+    // `git status` refreshed the index, so the folders Git keeps changed.
+    expect(statSync(dotGit, { bigint: true }).mtimeNs).not.toBe(before);
+
+    expect(await settled(checkout)).toBe(held);
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
 test("a missing or plain folder has an identity", async () => {
   const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
   try {
@@ -138,7 +171,6 @@ test("a missing or plain folder has an identity", async () => {
     expect(await gitFilesIdentity(missing, "origin/main")).toBe(
       "ENOENT|no-git",
     );
-    await pause(1_100);
     expect(await gitFilesIdentity(home, "origin/main")).toMatch(/\|no-git$/);
   } finally {
     rmSync(home, { recursive: true, force: true });

@@ -92,7 +92,7 @@ Structure: the proof's queued precondition is observed, not timed.
 
 ### 3. Git in the main checkout leaves the workspace identity alone
 Type: Behavior
-Status: planned
+Status: done
 Proof: `git-files-identity.spec.ts` gains a case where `git status` and a
 new top-level file in the main checkout keep the identity, while every
 existing change case still moves it; the replay's unchanged poll holds.
