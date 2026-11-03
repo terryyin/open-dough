@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "philip-chan",
+  "email": "philip-chan@example.org",
+  "identity": "SEED-225#restore-dashboard-responsiveness",
+  "mode": "story-branch",
+  "branch": "claude/restore-dashboard-responsiveness-and-reliable-gi",
+  "host": "claude",
+  "model": "opus"
+}

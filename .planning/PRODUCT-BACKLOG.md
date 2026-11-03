@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Unify story selection across Development and Intent](seeds/SEED-224-unify-story-selection.md#unify-story-selection) — SEED-224#unify-story-selection ([plan](slice-plans/454-unify-story-selection/PLAN.md))
+- [Restore dashboard responsiveness and reliable GitHub access](seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness) — SEED-225#restore-dashboard-responsiveness ([plan](slice-plans/456-restore-dashboard-responsiveness/PLAN.md))
 
 ## Backlog list
 
-- [Restore dashboard responsiveness and reliable GitHub access](seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness) — SEED-225#restore-dashboard-responsiveness
 - [Calculate expensive proof figures on demand](seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand) — SEED-226#calculate-proof-figures-on-demand
 - [Return a landed-run review to Intent's comparison](seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run) — SEED-192#intent-link-follows-landed-run
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
