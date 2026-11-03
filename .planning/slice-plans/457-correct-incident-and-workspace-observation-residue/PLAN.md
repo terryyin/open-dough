@@ -6,7 +6,9 @@
 ## Provenance
 
 Execution retrospective of SEED-225#restore-dashboard-responsiveness (plan
-456), reviewing `b108395049..0eec7393f` (commits `fc23efe0`, `fb8e6b05`,
+456, recoverable at
+`7c0fd67273be4abbff2c55b5820ee8e2ccc10938:.planning/slice-plans/456-restore-dashboard-responsiveness/PLAN.md`),
+reviewing `b108395049..0eec7393f` (commits `fc23efe0`, `fb8e6b05`,
 `1c986e7f`, `f1e43552`, `77ad1d86`, `c80ed8bf`, `4c0ae9b1`, `41dd68ff`,
 `9c69dcc6`, `0eec7393`). The original story's promises, examples and
 restrictions stand; this plan only corrects defects in the delivered code
