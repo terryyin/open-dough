@@ -9,6 +9,7 @@ import { isSafeCount, safeText } from "./readDiagnosticSanitize.ts";
 
 const safeString = z.string().refine((value) => safeText(value) === value);
 export const safeCount = z.number().refine(isSafeCount);
+const loadValue = z.number().nonnegative();
 
 // Every entry names the process that wrote it: its pid and start, the
 // sequence number it gave the entry, the dashboard revision it runs when
@@ -52,13 +53,40 @@ const failedReadSchema = z.object({
     .optional(),
 });
 
+// One stall this process observed in its own event loop
+// (`./eventLoopWatch.ts`): the longest delay it measured, the machine's load
+// average then (1, 5, and 15 minutes), and how many stalls the entry folds
+// together, `at` being the first one's start.
+const stallSchema = z.object({
+  kind: z.literal("stall"),
+  ...processFields,
+  delayMs: safeCount,
+  loadAverage: z.tuple([loadValue, loadValue, loadValue]),
+  stalls: safeCount.refine((count) => count >= 1),
+});
+
+// This process began writing to the record, or ended it on a clean close
+// (`./incidentLifecycle.ts`). A process whose record has no end is lost.
+const processStartedSchema = z.object({
+  kind: z.literal("process-started"),
+  ...processFields,
+});
+const processEndedSchema = z.object({
+  kind: z.literal("process-ended"),
+  ...processFields,
+});
+
 // Every kind the record holds; a later kind joins this union.
 export const incidentEntrySchema = z.discriminatedUnion("kind", [
   failedReadSchema,
+  stallSchema,
+  processStartedSchema,
+  processEndedSchema,
 ]);
 
 export type IncidentEntry = z.infer<typeof incidentEntrySchema>;
 export type FailedReadIncident = z.infer<typeof failedReadSchema>;
+export type StallIncident = z.infer<typeof stallSchema>;
 
 // The fields a writer gives an entry of each kind; the record adds who wrote
 // it and, unless the writer names one, when.

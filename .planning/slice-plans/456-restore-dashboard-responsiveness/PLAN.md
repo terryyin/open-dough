@@ -164,7 +164,7 @@ process's diagnostics read lists them with their attribution.
 
 ### 2. A self-observed stall and a lost process are recorded
 Type: Behavior
-Status: planned
+Status: done
 Proof: boundary spec with a test-only block endpoint or env hook (examples
 2 and 3): one `stall` entry with delay, load average, revision, process age;
 `process-started` and `process-ended` entries around a clean close; a
@@ -285,6 +285,17 @@ done sessions or opens a retained session → that history is read then.
   out through `dashboard/tests/support/machineRecordNames.ts`. Any later
   listing of `~/.open-dough/dashboard` must use it.
 
+- 2026-11-03 slice 2: never `reset()` the event-loop delay histogram you
+  read periodically; Node v24.21.0 then drops the stall that just ended.
+  `eventLoopWatch.ts` derives each read's delay from the histogram's count and
+  mean since the last read. The production stop (`stopProcess`) sends SIGTERM
+  to the npm process group, so the preview receives it twice; the incident
+  boundary keeps a SIGTERM listener while mounted so the close completes,
+  bounded by a 10 s exit. Every dashboard server now writes
+  `process-started`/`process-ended`, so `incidents/` always exists after a
+  server has run. Test switches: `DOUGH_TEST_EVENT_LOOP_BLOCK=allow`,
+  `DOUGH_STALL_THRESHOLD_MS`, `DOUGH_STALL_WINDOW_MS`.
+
 ## Concern evidence
 
 Refinement ran as part of planning: the first draft had the replay after
@@ -299,9 +310,14 @@ consumer-trace obligation is named in its proof.
 ### G1. A failure queued for writing is lost when its process ends
 Reported: slice 1 — "a failure queued for writing when the process is killed is lost"
 Story clause: "Each failed upstream read the dashboard waited on"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: authenticated-read-incident-record-lifecycle.spec.ts "a clean close ends the record after its queued failure, and a successor reads a killed process as lost" (entry order process-started, failed-read, process-ended) and production-deployment.spec.ts "installs, builds, and serves" (the real npm preview stop now completes its close); a SIGKILL or crash loses at most entries queued in its last milliseconds, and that process then reads as lost, so the replacement still locates the failure
 
 ### G2. An append during another process's prune can be lost uncounted
 Reported: slice 1 — "An entry another process appends between a prune's read and its rename is lost and not counted"
 Story clause: "how many entries it dropped at its bound"
 Disposition: no user cost "can read evidence that locates the failure even after the production preview was replaced": the loss needs two dashboard processes of one user appending within the same prune's read-and-rename window; production runs one preview per user, and the replaced preview has stopped writing before its successor starts, so the evidence of a replacement incident is not lost
+
+### G3. A dev server stopped with Ctrl-C reads as lost
+Reported: slice 2 — "SIGINT (Ctrl-C on the dev server) does not end the record, so a dev server stopped that way reads as lost"
+Story clause: "labels it as process lost, not as a quiet period"
+Disposition: no user cost "can read evidence that locates the failure even after the production preview was replaced": the production preview is stopped by SIGTERM, which ends its record; only a developer's interactive dev server is stopped by Ctrl-C, and reading it as lost still marks where its evidence ends

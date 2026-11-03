@@ -43,9 +43,10 @@ export type DiagnosticFailure = {
   };
 };
 
-// A failure as the incident record holds it: with the process that wrote it.
-export type RecordedFailure = DiagnosticFailure & {
-  readonly kind: "failed-read";
+// Fields every entry of the incident record carries: the process that
+// wrote it.
+type WrittenBy = {
+  readonly at: string;
   readonly pid: number;
   readonly processStartedAt: string;
   readonly seq: number;
@@ -53,10 +54,36 @@ export type RecordedFailure = DiagnosticFailure & {
   readonly processAgeMs: number;
 };
 
+// Any entry of the incident record, of whichever kind.
+export type RecordedEntry = WrittenBy & { readonly kind: string };
+
+// A failure as the incident record holds it: with the process that wrote it.
+export type RecordedFailure = DiagnosticFailure &
+  WrittenBy & { readonly kind: "failed-read" };
+
+export type RecordedStall = WrittenBy & {
+  readonly kind: "stall";
+  readonly delayMs: number;
+  readonly loadAverage: [number, number, number];
+  readonly stalls: number;
+};
+
+export type RecordedProcess = {
+  readonly pid: number;
+  readonly processStartedAt: string;
+  readonly revision?: string;
+  readonly startedAt: string;
+  readonly lastAt: string;
+  readonly endedAt?: string;
+  readonly state: "current" | "running" | "ended" | "lost";
+};
+
 export type DiagnosticRecord = {
   readonly startedAt?: string;
   readonly dropped: number;
   readonly failures: RecordedFailure[];
+  readonly stalls: RecordedStall[];
+  readonly processes: RecordedProcess[];
 };
 
 export function diagnosticsUrl(
@@ -88,7 +115,12 @@ export async function inspect(
     status: response.status,
     body: response.body,
     failures: parsed.failures ?? [],
-    record: parsed.record ?? { dropped: 0, failures: [] },
+    record: parsed.record ?? {
+      dropped: 0,
+      failures: [],
+      stalls: [],
+      processes: [],
+    },
   };
 }
 
@@ -136,6 +168,13 @@ export function incidentEntryLines(machine: string): string[] {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
   }
+}
+
+// The entries the incident record holds now, oldest first, as written.
+export function incidentEntries(machine: string): RecordedEntry[] {
+  return incidentEntryLines(machine).map(
+    (line) => JSON.parse(line) as RecordedEntry,
+  );
 }
 
 export { developmentBoundary, startDashboardServer, type DashboardServer };

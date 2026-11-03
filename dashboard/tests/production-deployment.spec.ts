@@ -12,6 +12,7 @@ import { processRunning } from "./support/processGroup.ts";
 import { deploymentCheckout } from "./support/productionWatcher.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 import { expectSuppliedIcons } from "./support/brandIcons.ts";
+import { incidentRecordInHome } from "./support/machineRecordNames.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -157,6 +158,19 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     expect(processRunning(pid)).toBe(false);
     await expect(request.get(url, { timeout: 2_000 })).rejects.toThrow();
     preview = undefined;
+    // Stopped as a replacement stops it, the preview closed cleanly: its
+    // incident record (../server/incidentLifecycle.ts) has its start and end.
+    const recorded = (
+      await readFile(
+        path.join(fixture.home, incidentRecordInHome, "entries.jsonl"),
+        "utf8",
+      )
+    )
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => (JSON.parse(line) as { kind: string }).kind)
+      .filter((kind) => kind.startsWith("process-"));
+    expect(recorded).toEqual(["process-started", "process-ended"]);
   } finally {
     await preview?.stop();
     await staged?.remove();

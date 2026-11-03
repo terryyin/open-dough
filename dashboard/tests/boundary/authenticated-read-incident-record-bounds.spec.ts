@@ -1,8 +1,10 @@
 // Bounds of this user's incident record (../../server/incidentRecord.ts,
 // files: ../../server/incidentRecordFiles.ts) across processes: it keeps its
 // newest entries within its entry and byte bounds and counts what it
-// dropped. The record across a replacement:
-// ./authenticated-read-incident-record.spec.ts.
+// dropped. Each server also records its start and, on its clean close, its
+// end (../../server/incidentLifecycle.ts); its stall threshold is raised so
+// no stall a loaded machine causes changes the counts. The record across a
+// replacement: ./authenticated-read-incident-record.spec.ts.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -38,11 +40,12 @@ test("the incident record keeps its newest entries within its entry and byte bou
     ).toBe(502);
   };
   const entryLines = () => incidentEntryLines(machine);
+  const noStalls = { DOUGH_STALL_THRESHOLD_MS: String(600_000) };
   try {
     const byCount = await startDashboardServer({
       ...developmentBoundary,
       machine,
-      extraEnv: { DOUGH_INCIDENT_RECORD_ENTRIES: "3" },
+      extraEnv: { ...noStalls, DOUGH_INCIDENT_RECORD_ENTRIES: "3" },
     });
     let startedAt: string | undefined;
     try {
@@ -52,11 +55,12 @@ test("the incident record keeps its newest entries within its entry and byte bou
         .poll(async () => (await inspect(byCount)).record.dropped, {
           timeout: 10_000,
         })
-        .toBe(2);
+        .toBe(3);
       const seen = await inspect(byCount);
-      // This process still reports all five; the record keeps the newest three.
+      // This process still reports all five; the record keeps the newest
+      // three entries, after its start (seq 1) and the first two failures.
       expect(seen.failures).toHaveLength(5);
-      expect(seen.record.failures.map((entry) => entry.seq)).toEqual([5, 4, 3]);
+      expect(seen.record.failures.map((entry) => entry.seq)).toEqual([6, 5, 4]);
       expect(entryLines()).toHaveLength(3);
       startedAt = seen.record.startedAt;
     } finally {
@@ -70,19 +74,21 @@ test("the incident record keeps its newest entries within its entry and byte bou
     const byBytes = await startDashboardServer({
       ...developmentBoundary,
       machine,
-      extraEnv: { DOUGH_INCIDENT_RECORD_BYTES: String(bytes) },
+      extraEnv: { ...noStalls, DOUGH_INCIDENT_RECORD_BYTES: String(bytes) },
     });
     try {
       await failOnce(byBytes, "wave-6");
       await failOnce(byBytes, "wave-7");
-      // Every entry written is kept or counted once pruning settles.
+      // Every entry written is kept or counted once pruning settles: the
+      // first server's start, five failures, and end, and this one's start
+      // and two failures.
       await expect
         .poll(
           async () =>
             (await inspect(byBytes)).record.dropped + entryLines().length,
           { timeout: 10_000 },
         )
-        .toBe(7);
+        .toBe(10);
       const kept = entryLines();
       expect(
         kept.reduce((total, line) => total + Buffer.byteLength(line) + 1, 0),
@@ -90,11 +96,13 @@ test("the incident record keeps its newest entries within its entry and byte bou
       expect(kept.length).toBeGreaterThanOrEqual(1);
       expect(kept.length).toBeLessThanOrEqual(2);
       const seen = await inspect(byBytes);
-      expect(seen.record.failures).toHaveLength(kept.length);
-      expect(seen.record.dropped).toBe(7 - kept.length);
+      expect(seen.record.failures).toHaveLength(
+        kept.filter((line) => line.includes('"kind":"failed-read"')).length,
+      );
+      expect(seen.record.dropped).toBe(10 - kept.length);
       expect(seen.record.startedAt).toBe(startedAt);
       // The newest kept is this process's last failure.
-      expect(seen.record.failures[0]).toMatchObject({ seq: 2, status: 503 });
+      expect(seen.record.failures[0]).toMatchObject({ seq: 3, status: 503 });
       expect(seen.body).not.toContain(secretMarker);
       for (const file of incidentFiles(machine).files) {
         expect(file.text).not.toContain(secretMarker);

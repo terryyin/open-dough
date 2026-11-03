@@ -15,12 +15,21 @@ import {
   type OwnerUnavailableCause,
 } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
-import { incidentIdentity, type FailedReadIncident } from "./incidentEntry.ts";
+import type {
+  FailedReadIncident,
+  IncidentEntry,
+  StallIncident,
+} from "./incidentEntry.ts";
+import {
+  incidentProcesses,
+  type IncidentProcess,
+} from "./incidentProcesses.ts";
 import {
   appendIncident,
-  notYetRecorded,
+  processStartedAt,
   readIncidentRecord,
 } from "./incidentRecord.ts";
+import { sampleEventLoopSoon } from "./eventLoopWatch.ts";
 import {
   currentReadDiagnosticContext,
   type DiagnosticCategory,
@@ -78,50 +87,55 @@ export type DiagnosticOutcome = {
   readonly kind: "diagnostics";
   // This process's failures, oldest first.
   readonly failures: readonly ReadDiagnosticEntry[];
-  // The incident record's failures of this source across processes, this
-  // process's included, newest first, with when the record began and how
-  // many entries it dropped at its bounds.
+  // The incident record across processes, this process's included, with
+  // when it began and how many entries it dropped at its bounds: this
+  // source's failures and every stall, newest first, and the processes that
+  // wrote it, each with how its record ends (`./incidentProcesses.ts`).
   readonly record: {
     readonly startedAt?: string;
     readonly dropped: number;
     readonly failures: readonly FailedReadIncident[];
+    readonly stalls: readonly StallIncident[];
+    readonly processes: readonly IncidentProcess[];
   };
 };
 
-// Newest last; oldest are dropped once size exceeds `historyLimit`. Each
-// failure as this process reports it and as its incident record holds it.
-const failures: {
-  readonly entry: ReadDiagnosticEntry;
-  readonly incident?: FailedReadIncident;
-}[] = [];
+// Newest last; oldest are dropped once size exceeds `historyLimit`.
+const failures: ReadDiagnosticEntry[] = [];
 
 // That source's entries among the newest failures kept in this process and
-// in the incident record. Reads only local files.
+// in the incident record, with the record's stalls and processes. Reads
+// only local files.
 export async function diagnosticsForSource(
   sourceId: string,
 ): Promise<Omit<DiagnosticOutcome, "kind">> {
-  const own = failures.filter(({ entry }) => entry.source === sourceId);
-  // Taken before the record is read, so an entry written meanwhile is in
-  // one or the other.
-  const unwritten = own.flatMap(({ incident }) =>
-    incident !== undefined && notYetRecorded(incident) ? [incident] : [],
-  );
+  const own = failures.filter((entry) => entry.source === sourceId);
+  // A stall that ended just before this read is recorded before it is read.
+  await sampleEventLoopSoon();
   const record = await readIncidentRecord();
-  const merged = new Map<string, FailedReadIncident>();
-  for (const entry of [...record.entries, ...unwritten]) {
-    if (entry.source === sourceId) merged.set(incidentIdentity(entry), entry);
-  }
   return {
-    failures: own.map(({ entry }) => entry),
+    failures: own,
     record: {
       ...(record.startedAt !== undefined && { startedAt: record.startedAt }),
       dropped: record.dropped,
-      failures: [...merged.values()].sort(newestFirst),
+      failures: record.entries
+        .filter(
+          (entry): entry is FailedReadIncident =>
+            entry.kind === "failed-read" && entry.source === sourceId,
+        )
+        .sort(newestFirst),
+      stalls: record.entries
+        .filter((entry): entry is StallIncident => entry.kind === "stall")
+        .sort(newestFirst),
+      processes: incidentProcesses(record.entries, {
+        pid: process.pid,
+        processStartedAt,
+      }),
     },
   };
 }
 
-function newestFirst(a: FailedReadIncident, b: FailedReadIncident): number {
+function newestFirst(a: IncidentEntry, b: IncidentEntry): number {
   return Date.parse(b.at) - Date.parse(a.at) || b.seq - a.seq;
 }
 
@@ -197,11 +211,8 @@ export function recordFailedRead(input: FailedGhRequest): void {
     ...(requestId !== undefined && { requestId }),
     ...(rateLimit !== undefined && { rateLimit }),
   };
-  const incident = appendIncident({ kind: "failed-read", ...entry });
-  failures.push({
-    entry,
-    ...(incident !== undefined && { incident }),
-  });
+  appendIncident({ kind: "failed-read", ...entry });
+  failures.push(entry);
   while (failures.length > historyLimit) {
     failures.shift();
   }

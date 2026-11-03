@@ -252,10 +252,35 @@ the protocol version it reported (`ownerPid`, `ownerGeneration`,
 never a body, raw CLI output, or credential. Writes happen after the failed
 read has answered, one at a time per process; a request never waits for them.
 Pruning keeps the newest 1,000 entries within 512 KiB and adds the rest to the
-dropped count. The diagnostics response keeps `failures`, this process's
-entries oldest first, and adds `record`: the source's recorded failures across
-processes, this process's included, newest first, with the record's
-`startedAt` and `dropped`. Recording and reading it ask GitHub nothing.
+dropped count.
+
+Each dashboard server also records itself there
+([incidentLifecycle.ts](server/incidentLifecycle.ts)): `process-started` when
+it mounts its boundaries and, on a clean close (its SIGTERM, as a production
+replacement sends), every entry it had queued and then `process-ended`. A
+process killed outright (SIGKILL, a crash) writes nothing more, so the entries
+it had queued in its last milliseconds are lost and its record ends without
+`process-ended`. While it runs, it watches its own event loop
+([eventLoopWatch.ts](server/eventLoopWatch.ts)) with the runtime's delay
+histogram, which costs the loop nothing, read every 250 ms and never reset
+(a reset drops the stall its timer is still timing), and records each
+stall of at least 500 ms as a `stall` entry: the measured `delayMs`, the
+machine's `loadAverage` (1, 5, 15 minutes), and, like every entry, the
+revision and process age; its `at` is when the stall began, so it aligns with
+a proxy error logged in the same second. Within each minute the first three
+stalls are written as read and the rest are folded into one entry (longest
+delay, `stalls` count, the first folded stall's `at`) written when the
+minute ends or the process closes, so a sustained stall
+cannot push failed reads out of the record.
+
+The diagnostics response keeps `failures`, this process's entries oldest
+first, and adds `record`: the source's recorded failures and every recorded
+stall across processes, this process's included, newest first; the processes
+that wrote it, newest first, each with its `state` (`current`, `running` for
+another whose pid still answers, `ended`, or `lost` for one whose record ends
+without `process-ended` and that no longer runs, with `lastAt`, its last
+entry); and the record's `startedAt` and `dropped`. Recording and reading it
+ask GitHub nothing.
 
 An actual subprocess output bound is reported as `output-bound`; its partial
 body is discarded, while known upstream status/headers and directed-rate-limit

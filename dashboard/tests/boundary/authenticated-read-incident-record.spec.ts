@@ -24,7 +24,7 @@ import {
 import { httpErrorAnswer } from "../originAnswers.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import {
-  incidentEntryLines,
+  incidentEntries,
   incidentFiles,
   inspect,
   knownSourceId,
@@ -103,7 +103,13 @@ test("a replaced server lists the failures the earlier one retained, newest firs
       expect((await held).status).toBe(502);
       // Written to the record, which the request never waited for.
       await expect
-        .poll(() => incidentEntryLines(machine).length, { timeout: 10_000 })
+        .poll(
+          () =>
+            incidentEntries(machine).filter(
+              (entry) => entry.kind === "failed-read",
+            ).length,
+          { timeout: 10_000 },
+        )
         .toBe(3);
     } finally {
       await first.close();

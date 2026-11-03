@@ -4,9 +4,12 @@
 // (`./incidentRecordFiles.ts`), and the local diagnostics read
 // (`./readDiagnostics.ts`) lists it across processes. Writing is asynchronous
 // and serialized within this process, never awaited by a request, and a
-// failed write leaves the record as it was. Nothing here asks GitHub. Entries
-// are built from already sanitized fields and validated again when read
-// back, so a damaged or foreign line is skipped, never repeated.
+// failed write leaves the record as it was. A clean close waits for the
+// queue (`flushIncidents`); a process killed outright loses what it had
+// queued, milliseconds of entries, rather than write on the event loop.
+// Nothing here asks GitHub. Entries are built from already sanitized fields
+// and validated again when read back, so a damaged or foreign line is
+// skipped, never repeated.
 
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -28,11 +31,11 @@ export type IncidentRecord = {
   readonly startedAt?: string;
   // How many entries pruning dropped at its bounds since then.
   readonly dropped: number;
-  // Oldest first, as appended.
+  // Oldest first, as appended, then this process's entries not written yet.
   readonly entries: readonly IncidentEntry[];
 };
 
-const processStartedAt = new Date(
+export const processStartedAt = new Date(
   Date.now() - Math.round(process.uptime() * 1000),
 ).toISOString();
 
@@ -55,9 +58,10 @@ const revision = new Promise<string | undefined>((resolve) => {
 
 let sequence = 0;
 let pending: Promise<void> = Promise.resolve();
-// This process's entries not yet in the record: still queued, or their
-// write failed.
-const unwritten = new Set<string>();
+// This process's entries not yet in the record, by identity: still queued,
+// or their write failed.
+const unwritten = new Map<string, IncidentEntry>();
+const unwrittenLimit = 1_000;
 
 // Writes in this process run one at a time, in the order asked.
 function queued(write: () => Promise<void>): void {
@@ -87,7 +91,13 @@ export function appendIncident<Facts extends IncidentFacts>(
     { readonly kind: Facts["kind"] }
   >;
   const identity = incidentIdentity(entry);
-  unwritten.add(identity);
+  unwritten.set(identity, entry);
+  // Entries whose writes keep failing are held as far as the record's own
+  // default entry bound, oldest let go first.
+  for (const oldest of unwritten.keys()) {
+    if (unwritten.size <= unwrittenLimit) break;
+    unwritten.delete(oldest);
+  }
   queued(async () => {
     const sha = await revision;
     await appendIncidentLine(
@@ -103,31 +113,40 @@ export function appendIncident<Facts extends IncidentFacts>(
   return entry;
 }
 
-// Whether this process's `entry` is not in the record yet. One already
-// written there and pruned since is not.
-export function notYetRecorded(entry: IncidentEntry): boolean {
-  return unwritten.has(incidentIdentity(entry));
+// Settles once every entry this process asked to append so far has been
+// written or has failed to be.
+export function flushIncidents(): Promise<void> {
+  return pending;
 }
 
-// The record as every process left it, oldest entry first: lines that are
-// not a valid entry of a known kind are skipped.
+// The record as every process left it, oldest entry first, with this
+// process's entries not written yet after them: lines that are not a valid
+// entry of a known kind are skipped.
 export async function readIncidentRecord(): Promise<IncidentRecord> {
+  // Taken before the files are read, so an entry written meanwhile is in one
+  // or the other.
+  const own = [...unwritten.values()];
   const [lines, meta] = await Promise.all([
     incidentLines().catch(() => []),
     incidentRecordMeta(),
   ]);
-  const entries: IncidentEntry[] = [];
+  const entries = new Map<string, IncidentEntry>();
   for (const line of lines) {
     try {
       const parsed = incidentEntrySchema.safeParse(JSON.parse(line));
-      if (parsed.success) entries.push(parsed.data);
+      if (parsed.success)
+        entries.set(incidentIdentity(parsed.data), parsed.data);
     } catch {
       // A line cut short or damaged is no entry.
     }
   }
+  for (const entry of own) {
+    const identity = incidentIdentity(entry);
+    if (!entries.has(identity)) entries.set(identity, entry);
+  }
   return {
     ...(meta !== undefined && { startedAt: meta.startedAt }),
     dropped: meta?.dropped ?? 0,
-    entries,
+    entries: [...entries.values()],
   };
 }
