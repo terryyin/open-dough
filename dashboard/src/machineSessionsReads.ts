@@ -1,14 +1,20 @@
 // The browser's GET of the machine's sessions from the local launch boundary
 // (`../server/launchBoundary.ts`), naming the revision it holds, if any
-// (`./machineSessionsRevision.ts`). What it answers crossed a process/HTTP
-// boundary, so it is checked as external input.
+// (`./machineSessionsRevision.ts`), and its GET of their history, under the
+// same revision rule. What either answers crossed a process/HTTP boundary, so
+// it is checked as external input.
 
+import type { z } from "zod";
 import { agentLaunchEndpoint, type MachineAnswer } from "./agentLaunch.ts";
 import {
   machineSessionsReadSchema,
+  sessionsAudienceParameter,
   sessionsFreshHeader,
+  sessionsHistoryAudience,
+  sessionsHistoryReadSchema,
   sessionsRevisionHeader,
   type MachineSessionsRead,
+  type SessionsHistoryRead,
 } from "./machineSessionsRevision.ts";
 
 export type MachineSessionsReadOptions = {
@@ -37,16 +43,52 @@ export async function readMachineSessionsSince(
   signal?: AbortSignal,
   options?: MachineSessionsReadOptions,
 ): Promise<MachineSessionsRead | undefined> {
+  return readSince(
+    agentLaunchEndpoint,
+    machineSessionsReadSchema,
+    held,
+    signal,
+    options?.fresh === true,
+  );
+}
+
+// The machine's sessions history: every retained done session in full, with
+// the history's revision, or only that `held`,
+// the revision of the asker's latest history, still stands; undefined when
+// no trustworthy answer came.
+export async function readSessionsHistorySince(
+  held: string | undefined,
+  signal?: AbortSignal,
+): Promise<SessionsHistoryRead | undefined> {
+  const audience = new URLSearchParams({
+    [sessionsAudienceParameter]: sessionsHistoryAudience,
+  });
+  return readSince(
+    `${agentLaunchEndpoint}?${audience.toString()}`,
+    sessionsHistoryReadSchema,
+    held,
+    signal,
+    false,
+  );
+}
+
+async function readSince<Answer>(
+  url: string,
+  schema: z.ZodType<Answer>,
+  held: string | undefined,
+  signal: AbortSignal | undefined,
+  fresh: boolean,
+): Promise<Answer | undefined> {
   try {
     const headers: Record<string, string> = {};
     if (held !== undefined) headers[sessionsRevisionHeader] = held;
-    if (options?.fresh === true) headers[sessionsFreshHeader] = "1";
-    const response = await fetch(agentLaunchEndpoint, {
+    if (fresh) headers[sessionsFreshHeader] = "1";
+    const response = await fetch(url, {
       signal: signal ?? null,
       ...(Object.keys(headers).length > 0 ? { headers } : {}),
     });
     if (!response.ok) return undefined;
-    const answer = machineSessionsReadSchema.safeParse(await response.json());
+    const answer = schema.safeParse(await response.json());
     return answer.success ? answer.data : undefined;
   } catch {
     return undefined;

@@ -242,7 +242,7 @@ audience.
 
 ### 7. The browser reads retained-session detail through the history read
 Type: Structure
-Status: planned
+Status: done
 Proof: one read module (`dashboard/src/machineSessionsReads.ts`) gains the
 history read under the same revision rule; every consumer that needs a
 retained session's full entry (`launchRecord`, `completionReport`,
@@ -265,10 +265,11 @@ Type: Behavior
 Status: planned
 Proof: example 5 as a boundary case: with 1,000 done and five open, the
 regular answer holds the five open sessions in full and, for each retained
-done session, only the facts the Board's Recently done count, placement
-and listing and the sidebar's section show (session key, project, story
-identity, title, launch and done times, the state facts the entry shows);
-a `history` ask returns their full entries. A page journey: the Board's
+done session, only the listing facts the Board's Recently done entries,
+count and placement and the sidebar's section show, as settled in slice 7
+(`dashboard/src/doneSessionListing.ts`: the whole entry except
+`request.reporting`, `firstInput.instruction`, `landing` and
+`landingReporting`); a `history` ask returns their full entries. A page journey: the Board's
 Recently done heading count, older-entry counts and card placement match
 the full-answer page; expanding Recently done sessions shows the retained
 list as before; opening a done session's report renders as before; Mark as
@@ -422,6 +423,19 @@ attention; resolved attempts are read with the history.
   unchanged history ask 57–58 ms wall, net loop 0; first history answer 9.88
   MB in 67–72 ms. Slim listing entries (slice 8) need their own per-entry
   digest beside the full one.
+
+- 2026-11-03 slice 7: the Board renders a full `SessionEntry` for every shown
+  done session while nothing is opened (state words, report label, host,
+  first-input notices, actions, and `start`/`preparation` for an active
+  card's Review offer), so the listing facts are the whole done entry except
+  `request.reporting`, `firstInput.instruction`, `landing` and
+  `landingReporting` (about 57% of production done-record bytes; no browser
+  code reads them; the server's story review reads the machine store
+  itself). The browser projects done entries to that set when parsing the
+  overview, reads `?audience=history` through `useRetainedHistory`
+  (`retainedHistory.ts`) when a done entry is opened or acted on or Recently
+  done sessions is expanded, and reasks only when the overview names another
+  history revision. Read-counting test watchers also count history reads.
 
 ## Concern evidence
 
