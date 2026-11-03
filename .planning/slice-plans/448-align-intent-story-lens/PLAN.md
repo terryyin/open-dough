@@ -161,3 +161,15 @@ suite passes 1944 with no failures or flakes (29.8 min, load 7–9).
 Refinement not needed: three slices, each with its own proof; slice 3 is one
 directly owned correction of findings 3 and 4. No remaining slice-specific
 concern.
+
+## Execution complete
+
+Product advice: no change to priorities. The retrospective found that
+Intent's **Review changes** link leaves a review on a landed run the developer
+chose, so the views can still disagree; the follow-up correction
+[SEED-192#intent-link-follows-landed-run](../../seeds/SEED-192-review-product-intent.md#intent-link-follows-landed-run)
+([plan 455](../455-intent-link-follows-landed-run/PLAN.md)) owns it.
+SEED-224#unify-story-selection, now Taken on trunk, changes card selection
+(selection by **Select story**, **Inspect story** only opening detail), so its
+execution must revise the selection paragraph this correction added to
+`dashboard/README.md` and the disclosure rule in `pageStorySelection.tsx`.

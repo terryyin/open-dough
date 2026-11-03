@@ -263,6 +263,28 @@ residue the retrospective found in the story's code and tests.
 
 **Plan:** [slice plan](../slice-plans/448-align-intent-story-lens/PLAN.md)
 
+<a id="intent-link-follows-landed-run"></a>
+
+### 5b. Return a landed-run review to Intent's comparison
+
+**Identity:** SEED-192#intent-link-follows-landed-run
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/455-intent-link-follows-landed-run/PLAN.md"}
+```
+
+**Goal:** A developer reviewing a story in Intent, such as Terry, who has
+switched Review changes to **Landed run** and then follows Intent's **Review
+changes** link again, sees the comparison Intent shows, so the two views do
+not disagree. This bounded retrospective correction of
+[story 5a](#align-intent-story-lens) adds no new product promise.
+
+**Scope:** Intent's link returns a shown review from a landed run the
+developer chose to Intent's comparison; a review whose workspace answer
+itself falls back to a landed run, which Intent shows too, stays on that run;
+the Review changes marks doc states the rule.
+
+**Plan:** [slice plan](../slice-plans/455-intent-link-follows-landed-run/PLAN.md)
+
 <a id="inspect-hierarchical-proof-cost"></a>
 
 ### 9. Find expensive proof in the test hierarchy
