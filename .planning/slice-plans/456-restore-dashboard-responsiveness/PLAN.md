@@ -2,6 +2,7 @@
 
 **Identity:** SEED-225#restore-dashboard-responsiveness
 **Source:** [story](../../seeds/SEED-225-restore-dashboard-responsiveness.md#restore-dashboard-responsiveness)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -146,8 +147,9 @@ active owner's uncommitted repair.
 
 ### 1. Failed reads outlive the process
 Type: Behavior
-Status: planned
-Proof: extend `boundary/authenticated-read-diagnostics.spec.ts` with a
+Status: done
+Proof: `boundary/authenticated-read-incident-record.spec.ts` (and its
+`-bounds` companion) with a
 restart on the same machine directory (examples 1 and 8): the diagnostics
 answer lists the earlier process's failures newest first with `category`
 (`local` | `upstream` | `unknown`), `queueWaitMs`, `dispatched`, `ownerPid`,
@@ -261,6 +263,23 @@ done sessions or opens a retained session → that history is read then.
   request p99 130 ms during polls, 1.1 ms p90 without; Claude listing
   0.16–0.20 s for 1,176 entries; machine load average 31–33 on 16 cores.
 
+- 2026-11-03 slice 1: the incident record is `dashboard/server/incidentEntry.ts`
+  (entry schemas; add `stall`, `process-started`, `process-ended` to its
+  discriminated union), `incidentRecordFiles.ts` (append-and-prune files under
+  `~/.open-dough/dashboard/incidents/`), and `incidentRecord.ts` (process
+  fields, serialized write queue). The diagnostics answer keeps `failures`
+  (this process, oldest first) and adds `record` (`startedAt`, `dropped`,
+  cross-process `failures` newest first, filtered by source); slice 2's
+  source-less stall and lifecycle entries need their own place in `record`.
+  Failure classes are named `failureCategory` because `category` already names
+  the read category. The owner identity reaches the failure callback from the
+  link's standing record as `{pid, generation, protocol}`. Accepted proof:
+  `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/authenticated-read-diagnostics.spec.ts dashboard/tests/boundary/authenticated-read-diagnostics-bounds.spec.ts dashboard/tests/boundary/authenticated-read-incident-record.spec.ts dashboard/tests/boundary/authenticated-read-incident-record-bounds.spec.ts dashboard/tests/authenticated-read-owner-failures.spec.ts`
+  (16 passed) and the wider authenticated-read/shared-request-owner family
+  (218 passed). Once full, each append re-reads and rewrites up to 512 KiB;
+  off the request path, revisit with a prune margin if stall bursts make it
+  matter.
+
 ## Concern evidence
 
 Refinement ran as part of planning: the first draft had the replay after
@@ -269,3 +288,15 @@ on unchanged code, and the fixture-size premise became slice 4's early
 probe. Remaining concerns: none beyond that probe, which the plan bounds.
 Slice 6 is the largest (client consumers of done records); its
 consumer-trace obligation is named in its proof.
+
+## Story obligations
+
+### G1. A failure queued for writing is lost when its process ends
+Reported: slice 1 — "a failure queued for writing when the process is killed is lost"
+Story clause: "Each failed upstream read the dashboard waited on"
+Disposition: receiving slice 2
+
+### G2. An append during another process's prune can be lost uncounted
+Reported: slice 1 — "An entry another process appends between a prune's read and its rename is lost and not counted"
+Story clause: "how many entries it dropped at its bound"
+Disposition: no user cost "can read evidence that locates the failure even after the production preview was replaced": the loss needs two dashboard processes of one user appending within the same prune's read-and-rename window; production runs one preview per user, and the replaced preview has stopped writing before its successor starts, so the evidence of a replacement incident is not lost

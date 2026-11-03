@@ -6,7 +6,8 @@
 // bounds, departure, and pin attribution:
 // ./authenticated-read-diagnostics-bounds.spec.ts. Shares the harness with
 // ./authenticated-read-boundary.spec.ts and the short-bound / shared-read
-// fixtures used by subprocess-lifecycle and shared-waiters.
+// fixtures used by subprocess-lifecycle and shared-waiters. The failures
+// kept across processes: ./authenticated-read-incident-record.spec.ts.
 
 import { expect, test } from "../support/pageTest.ts";
 import { everyRepository, hangs } from "../support/fakeGitHub.ts";

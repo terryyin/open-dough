@@ -23,7 +23,7 @@ import { GitHubRequests } from "./github-requests.mjs";
 // while a `hold` file stands (removed with the fixture), then answers by the
 // route asked.
 function syntheticGh(t) {
-  enterPrivateRequestOwner(t);
+  const owner = enterPrivateRequestOwner(t);
   const directory = mkdtempSync(join(tmpdir(), "dough-github-requests-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const log = join(directory, "calls.log");
@@ -56,6 +56,7 @@ esac
   return {
     calls: () =>
       existsSync(log) ? readFileSync(log, "utf8").trimEnd().split("\n") : [],
+    owners: owner.records,
     hold: () => writeFileSync(join(directory, "hold"), ""),
     release: () => writeFileSync(join(directory, "release"), ""),
   };
@@ -114,7 +115,7 @@ test("requesters of one outstanding call share it, and a later requester asks ag
   assert.equal(gh.calls().length, 3);
 });
 
-test("a failed answer settles the request and is told once to the owner", async (t) => {
+test("a failed answer settles the request and is told once, naming the owner it was sent to", async (t) => {
   const gh = syntheticGh(t);
   const { github, failed } = requests();
   const answer = await github.request(["api", "repos/o/missing"], never());
@@ -126,6 +127,12 @@ test("a failed answer settles the request and is told once to the owner", async 
   assert.equal(failed[0].askedAt, answer.askedAt);
   assert.equal(failed[0].answer, answer);
   assert.ok(failed[0].startedAtMs <= Date.parse(answer.askedAt));
+  const [standing] = gh.owners();
+  assert.deepEqual(failed[0].owner, {
+    pid: standing.pid,
+    generation: Number(/owner\.(\d+)\.json$/.exec(standing.file)[1]),
+    protocol: standing.protocol,
+  });
 });
 
 test("a directed rate limit holds back the next request unasked, for the wait left", async (t) => {

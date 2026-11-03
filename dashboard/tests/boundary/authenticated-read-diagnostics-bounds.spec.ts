@@ -3,7 +3,8 @@
 // optional/malformed/oversized metadata omission, ordinary waiter departure,
 // and admitted pin on pinned content. Cause naming, refusal, shared-waiter
 // count, and launch-mode mounting:
-// ./authenticated-read-diagnostics.spec.ts.
+// ./authenticated-read-diagnostics.spec.ts. The incident record's bounds:
+// ./authenticated-read-incident-record-bounds.spec.ts.
 
 import { expect, test } from "../support/pageTest.ts";
 import {

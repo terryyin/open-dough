@@ -1,7 +1,11 @@
 // Shared helpers for local authenticated-read diagnostics inspection
 // (`../boundary/authenticated-read-diagnostics.spec.ts` and
-// `../boundary/authenticated-read-diagnostics-bounds.spec.ts`).
+// `../boundary/authenticated-read-diagnostics-bounds.spec.ts`), and the
+// incident record a machine directory holds (`../../server/incidentRecord.ts`,
+// `../boundary/authenticated-read-incident-record*.spec.ts`).
 
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -20,6 +24,12 @@ export type DiagnosticFailure = {
   readonly pin?: string;
   readonly cause: string;
   readonly ownerCause?: string;
+  readonly failureCategory: "local" | "upstream" | "unknown";
+  readonly dispatched: boolean;
+  readonly queueWaitMs?: number;
+  readonly ownerPid?: number;
+  readonly ownerGeneration?: number;
+  readonly ownerProtocol?: number;
   readonly elapsedMs: number;
   readonly status?: number;
   readonly requestId?: string;
@@ -30,6 +40,22 @@ export type DiagnosticFailure = {
     readonly resource?: string;
     readonly retryAfterSeconds?: number;
   };
+};
+
+// A failure as the incident record holds it: with the process that wrote it.
+export type RecordedFailure = DiagnosticFailure & {
+  readonly kind: "failed-read";
+  readonly pid: number;
+  readonly processStartedAt: string;
+  readonly seq: number;
+  readonly revision?: string;
+  readonly processAgeMs: number;
+};
+
+export type DiagnosticRecord = {
+  readonly startedAt?: string;
+  readonly dropped: number;
+  readonly failures: RecordedFailure[];
 };
 
 export function diagnosticsUrl(
@@ -46,6 +72,7 @@ export async function inspect(
   readonly status: number;
   readonly body: string;
   readonly failures: DiagnosticFailure[];
+  readonly record: DiagnosticRecord;
 }> {
   const response = await rawRequest({
     url: diagnosticsUrl(server, source),
@@ -53,13 +80,61 @@ export async function inspect(
   });
   const parsed = JSON.parse(response.body) as {
     failures?: DiagnosticFailure[];
+    record?: DiagnosticRecord;
     error?: string;
   };
   return {
     status: response.status,
     body: response.body,
     failures: parsed.failures ?? [],
+    record: parsed.record ?? { dropped: 0, failures: [] },
   };
+}
+
+// The incident record's folder in a machine directory's HOME.
+const incidentsOn = (machine: string) =>
+  path.join(machine, "home", ".open-dough", "dashboard", "incidents");
+
+// Every file the incident record keeps there, with its permission bits and
+// text, and the folder's own permission bits. A file a prune replaced while
+// this looked is not listed.
+export function incidentFiles(machine: string) {
+  const folder = incidentsOn(machine);
+  return {
+    mode: statSync(folder).mode & 0o777,
+    files: readdirSync(folder, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .flatMap(({ name }) => {
+        const file = path.join(folder, name);
+        try {
+          return [
+            {
+              name,
+              mode: statSync(file).mode & 0o777,
+              text: readFileSync(file, "utf8"),
+            },
+          ];
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+          throw error;
+        }
+      }),
+  };
+}
+
+// The entry lines the incident record holds now; none before it exists.
+export function incidentEntryLines(machine: string): string[] {
+  try {
+    return readFileSync(
+      path.join(incidentsOn(machine), "entries.jsonl"),
+      "utf8",
+    )
+      .split("\n")
+      .filter((line) => line.length > 0);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
 }
 
 export { developmentBoundary, startDashboardServer, type DashboardServer };

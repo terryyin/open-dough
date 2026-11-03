@@ -227,11 +227,13 @@ Check `gh auth status`, then confirm, for example,
 does, reload the page (or, with a snapshot shown, let the next check find it).
 The dashboard never logs in on its own.
 
-On the launching machine, a maintainer can inspect this process's newest failed
-upstream reads without a diagnostics screen or persistent storage. Same-origin
-loopback `GET /__authenticated-read-diagnostics?source=<configured-id>` returns
-that configured source's entries from the newest 100 failures kept in memory
-for this dashboard process (oldest dropped), and asks GitHub nothing. Unknown
+On the launching machine, a maintainer can inspect the newest failed upstream
+reads without a diagnostics screen. Same-origin loopback
+`GET /__authenticated-read-diagnostics?source=<configured-id>` returns that
+configured source's entries from the newest 100 failures kept in memory for
+this dashboard process (oldest dropped), and those this user's dashboard
+processes kept in the bounded incident record that outlives each of them
+([Dashboard GitHub requests](GITHUB-REQUESTS.md)), and asks GitHub nothing. Unknown
 sources and disallowed origins or methods are refused before any GitHub call,
 under the same local-origin protections as the read boundary. Each shared `gh`
 invocation that failed contributes one entry, attributed to the admitted reader
@@ -247,4 +249,5 @@ returned. A read held back by admission stays identifiable in the ordinary
 limited response and does not invent an upstream diagnostic event; a local
 deadline or lost connection records its cause without inventing a GitHub status
 or request id. Ordinary waiter departure is not recorded as a retryable
-failure. A newly started dashboard has an empty history.
+failure. A newly started dashboard has an empty in-memory history; its
+record lists what earlier processes recorded.
