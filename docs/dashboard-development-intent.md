@@ -113,7 +113,10 @@ switches, reloads and later visits; the chosen tab is not kept. Where the
 browser keeps none, refuses storage, or keeps an unusable value, Intent starts
 with tabs and a layout chosen lasts for the page. Switching the layout reads
 nothing again and keeps the selection, the reading mode, the selected story and the line
-Purpose was read at, so a positioned case stays in view.
+Purpose was read at, so a positioned case stays in view. Opening a file at a
+case side by side, from a summary's slowest row or an Optimization Candidates
+entry, also brings that case's Proof row into view beside it; with tabs,
+Proof keeps its own place.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
