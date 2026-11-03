@@ -10,6 +10,7 @@ Released responses await their specific ordinary-use observations; the
 evidence. Source and catalog identities do not imply resolution.
 
 - Highest allocated local number: 413. Removed numbers are never reused.
+- Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. DD-387 and DD-401 (ODF-333), DD-392 (ODF-381), DD-400 (ODF-074) and DD-408 (ODF-325) keep their local codes until a consolidation decision.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -67,13 +68,8 @@ Former local code: DD-217. Startup does not report that the target trunk is alre
 Former local code: DD-219. An absolute changed-file size check conflicts with an approved staged decomposition and mechanical edits to pre-existing oversized callers. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
 
 ### Occurrences
-- Execution: SEED-220#last-successful-intent-proof (plan 446; first implementation commit `9ef36af5788951cadde533cb869e879b69409d37`)
-  - Timestamp: unknown (2026-11-02; slice-1 independent refactor, before `9ef36af5` published)
-  - Tool: Codex
-  - Open Dough release: 0.3.81 (installed record at claim `6269a6d1`; installed skills unchanged through this execution)
-  - Evidence: coordinator history, `/root/intent_refactor` read-only hand-back cites `refactor-checks.md`'s every-diff-file 250-line instruction and seed 192 at 1,069 lines; parent retained the seed under the refactor scope gate, authorized cohesive Proof CSS/test extraction, and recorded the resolution in `9ef36af5:.planning/slice-plans/446-last-successful-intent-proof/PLAN.md`.
-  - Observed effect: one parent scope decision and agent follow-up before refactoring continued; unrelated stories were not reorganized and no human waiver was claimed.
-  - Inference: the unconditional numeric check again reached a pre-existing planning document beyond the current concept's warranted refactor; this occurrence does not assess the broader value of smaller files.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-152](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-152.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
@@ -108,13 +104,8 @@ Former local code: DD-251 (plans 264 and 271 only). [Meaning, evidence and respo
 Former local code: DD-251 (plan 273 only). A failed formatter or verification result is visible but does not gate the next commit or publication step. [Evidence and current response](docs/maintainer/findings/ODF-097.md).
 
 ### Occurrences
-- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
-  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
-  - Tool: Codex
-  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
-  - Evidence: coordinator rebase recovery tool history: the Python conflict-resolution step printed `Unexpected conflict count: .planning/seeds/SEED-192-review-product-intent.md: 1`, but following unguarded lines still ran `git add` and the backlog adapter's `continue`. A subsequent `set -e` command resolved all three planning conflicts, ran `git diff --check`, amended the unpublished candidate, and proved the product paths identical before publishing `7466db35`.
-  - Observed effect: conflict markers entered an unpublished replay commit, requiring correction, amendment and another hook pass. No marked-up candidate was pushed. The maintained fresh-delivery entry had separately stopped correctly on the earlier formatter failure.
-  - Inference: this is the existing failed-prerequisite gate problem in direct reconciliation shell orchestration, outside the fresh command's guard; it does not establish a failure of that maintained guard.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-097](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-097.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-222 — Post-commit managed delivery stalls at an unknown stage <a id="odf-222"></a>
 
@@ -153,14 +144,8 @@ Former local code: DD-261. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-262. [Meaning, evidence and response](docs/maintainer/findings/ODF-226.md).
 
 ### Occurrences
-- Execution: SEED-221#launch-records-poll-waits (plan 448; first implementation commit `aaa8e768d2c49bd1445b1d6560ed7af7b13b6c9f`)
-  - Timestamp: 2026-11-02T14:40+07:00 (slice-3 full-suite re-profile launch)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.81 (repository VERSION at claim `362bc06d`; installed skills unchanged through this execution)
-  - Evidence: coordinator's slice-3 script ran `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=… npm run --silent test:dashboard -- --reporter=dot` for the reference and the candidate; neither proof-record JSON was written (`dashboard/playwright.config.ts:67` wires that record through the configured reporters). Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3.
-  - Observed effect: the full-suite re-profile lost its per-test durations and the configured proof record, so the suite comparison rests on Playwright's summary line and earlier focused timings. Both runs still reported 1,898 passed.
-  - Inference: the same reporter-replacement mechanism as the original finding, reached here through a presentation flag on a full measurement run rather than a focused proof. A second pair of full runs (about an hour) would have been needed to recover the per-test data; it was not run.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-226](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-226.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 
@@ -285,13 +270,8 @@ Former local code: DD-314. The plan started with eight slices and gained a ninth
 Former local code: DD-315. A Playwright file regex intended to select review specs also matched the execution worktree's directory name. A successful-looking invocation therefore started a much broader suite before the collected selection was checked. [Evidence and current response](docs/maintainer/findings/ODF-261.md).
 
 ### Occurrences
-- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
-  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
-  - Tool: Codex
-  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
-  - Evidence: implementation hand-back `/root/deliberate_proof_implementation` and `7466db35:.planning/slice-plans/451-deliberate-intent-proof/PLAN.md` Learnings: `npm run test:dashboard -- intent- --workers=2` matched the owned worktree's `deliberate-intent-proof` path; corrected `dashboard/tests/intent-` and `dashboard/tests/boundary/authenticated-read-intent-` selectors collected and passed 60 tests in 26 files.
-  - Observed effect: an unintended whole-dashboard run, owned interruption after a bounded liveness check, and a corrected focused run. The interrupted terminal report contained no assertion/error diagnostic; its judged artifacts were removed.
-  - Inference: same absolute-path regex mechanism as the earlier occurrence; elapsed waste and total unintended tests were not measured.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-261](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-261.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-262 — Permission-only probes split a human click journey <a id="odf-262"></a>
 
@@ -318,14 +298,8 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
 
 ### Occurrences
-
-- Execution: `SEED-192#remove-candidate-pass-summary` / plan 445, first related implementation `04481f7f228db2cf4ec03af288d490410cd36936`
-  - Timestamp: unknown (2026-11-02, startup before implementation)
-  - Tool: Codex
-  - Open Dough release: unknown; installed execution guidance at starting revision `d9f70140a8ade624f89d4305d0c5ce9f74ee5a17`
-  - Evidence: coordinator conversation startup `functions.exec` batches reported 13,274 and 21,550 original output tokens with truncation; later calls retrieved publication, identity/preparation, and workflow passages again before the implementation delegation. This automatic retrospective also initially batched 10,879 original tokens and lost part of its reader excerpt to truncation.
-  - Observed effect: repeated retrieval expanded the context needed for one candidate-format removal; accepted implementation and focused proof still completed.
-  - Inference: recurrence of broad-read execution deviation under existing targeted-retrieval guidance. No measured duration or token saving is established, and no new process rule is proposed.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-264](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-264.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
@@ -372,22 +346,8 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
 ### Occurrences
-- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
-  - Timestamp: unknown (2026-11-02, before repair commit 276116fc)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
-  - Evidence: fresh delivery of the flaky-test repair returned `preparation-refused`, "the plan must be included in ownedPaths"; the retry with PLAN.md added published 276116fc
-  - Observed effect: one refused attempt and retry; nothing committed or published by the refused attempt
-  - Inference: a repair increment that leaves the plan unchanged still needs the plan path in ownedPaths; the coordinator built the list from changed files only
-- Execution: SEED-192#summary-figures-one-walk (plan 453; first implementation commit 1269310af)
-  - Timestamp: unknown (2026-11-03, before slice 2 publication edbaad4a2)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` in the execution checkout; checkout VERSION 0.3.83)
-  - Evidence: slice 2 fresh delivery returned `preparation-refused`, `operation: context`, "the plan must be included in ownedPaths"; the retry with PLAN.md added published edbaad4a2
-  - Observed effect: one refused attempt and retry; nothing committed or published by the refused attempt
-  - Inference: slice 2's plan edits were only the status line the delivery itself writes, so the coordinator again listed changed files only; the `plan` field in fresh-increment.md does not say its path must also be in ownedPaths
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-330](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-330.md); source recovery remains in this project’s pre-compaction revision.
 
 <a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
 
@@ -402,22 +362,8 @@ Former local code: DD-337. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/findings/ODF-356.md).
 
 ### Occurrences
-- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
-  - Timestamp: unknown (2026-11-02, before slice 1 commit 713d91a6)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
-  - Evidence: coordinator ran `node scripts/lint.mjs --fix` directly: "prettier: not found on PATH"; `npm run --silent format` then succeeded and was used as the delivery formatting operation
-  - Observed effect: one failed formatter call before delivery; delivery itself used the npm script and did not fail
-  - Inference: same binary-resolution cause outside the guarded entry: the project's selective formatter must be invoked through npm
-- Execution: SEED-219#ci-status-review-corrections (plan 448; first implementation commit 6316908648c11da2f1cfce275c54fccdc764937f)
-  - Timestamp: 2026-11-02T20:29+07:00 (slice 1 guarded delivery; approximate, from its preparation file)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54e; checkout VERSION 0.3.83)
-  - Evidence: `execution-increment-delivery.mjs fresh` with formatting `["node","scripts/lint.mjs","--fix"]` returned `preparation-failed`, operation `formatting`: "eslint: not found on PATH … prettier: not found on PATH"; the retry with `["npm","run","format"]` committed and published `6316908`
-  - Observed effect: one refused guarded preparation before the first increment; nothing was committed or published by the failed attempt
-  - Inference: the guarded entry runs commands without npm's PATH, so the same cause recurs inside it, not only outside; the coordinator chose the operation from `package.json`'s `format` target text rather than its npm invocation
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-356](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-356.md); source recovery remains in this project’s pre-compaction revision.
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 
@@ -450,13 +396,8 @@ Former local code: DD-344. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/findings/ODF-361.md).
 
 ### Occurrences
-- Execution: SEED-223#deliberate-intent-proof (plan 451; first related implementation `7466db352c07222d13a7c0a9d5220913677bc773`)
-  - Timestamp: unknown (2026-11-02, slice-1 execution before source publication)
-  - Tool: Codex
-  - Open Dough release: 0.3.81 (checkout-bound installed VERSION at admission `81bd2b54`; installed workflow unchanged during slice 1)
-  - Evidence: independent `/root/proof_refactor` hand-back identified `docs/project-visibility-requirements.md` at 253 lines and reported only a word-preserving paragraph reflow to exactly 250. Published `7466db35:docs/project-visibility-requirements.md` holds the new proof paragraph on two long physical lines; the refactor's before/after split-word comparison was identical.
-  - Observed effect: the independent pass made a layout-only edit to satisfy the numeric cap, without reducing content or changing product behavior; all accepted proof was reused.
-  - Inference: same line-joining response to the file-size rule as ODF-361. This observation concerns the physical-line metric, not an established product defect or a measured cost of the whole review.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-361](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-361.md); source recovery remains in this project’s pre-compaction revision.
 
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 
@@ -496,7 +437,9 @@ Former local code: DD-375. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-377. [Meaning, evidence and response](docs/maintainer/findings/ODF-384.md).
 
-## DD-385 — Abbreviated validated candidate stops delivery as candidate-mismatch
+## ODF-142 — Abbreviated validated candidate stops delivery as candidate-mismatch
+
+Former local code: DD-385.
 
 Managed `deliver` with `--validated-candidate` given as a short SHA stopped
 with `candidate-mismatch` although the abbreviation named the committed
@@ -504,16 +447,12 @@ candidate; the full SHA was accepted. The base input documents abbreviated IDs,
 the candidate input does not, and the stop does not say the form was the cause.
 
 ### Occurrences
-- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
-  - Timestamp: unknown (2026-11-01, during the CI repair publication)
-  - Evidence: deliver for 4cb318ba with `--validated-candidate 4cb318ba` → candidate-mismatch, remoteTip 482b644e; retry with the full SHA accepted 4cb318ba
-  - Observed effect: one refused publication and a retry
-  - Inference: the candidate is compared as a string; resolving it like the base, or naming the form, would avoid the stop
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-142](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-142.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-386 — Story Branch CI failure already repaired on trunk has no named path
+## ODF-398 — Story Branch CI failure already repaired on trunk has no named path
+
+Former local code: DD-386.
 
 On a Story Branch, CI failed five dashboard journeys on a Markdown-only slice.
 The same five failed on main at the branch's fork ancestry and passed from a
@@ -522,14 +461,8 @@ trunk into the story branch as the owned repair; the coordinator merged
 `origin/main` through the repair stash and `deliver`, which worked.
 
 ### Occurrences
-- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
-  - Timestamp: unknown (2026-11-01, after run 41261530651 completed)
-  - Evidence: run 41261530651 on 482b644e; main runs 41259613925 (c26577b5, failed same five) and 41260942864 (62defee5, green); merge 4cb318ba, branch CI green
-  - Observed effect: correct repair, chosen from general Git judgment rather than guidance
-  - Inference: ci-monitor "Handle a notification" step 4 or source freshness could name trunk incorporation when the diagnosed repair already exists on trunk
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-398](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-398.md); source recovery remains in this project’s pre-compaction revision.
 
 ## DD-387 — Closure commitments must be observed before the closure gate runs
 
@@ -541,16 +474,12 @@ and wrap-up trunk observation. The coordinator recorded the enforcing gate and
 current branch evidence as the observation.
 
 ### Occurrences
-- Execution: SEED-208#trustworthy-ci-completion (plan 432; first implementation commit 482b644e)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown; installed payload in a source checkout whose VERSION is 0.3.79 at 74fabfdd
-  - Timestamp: 2026-11-01 (slice 5 acceptance; time unknown)
-  - Evidence: plan 432 source-review.md rows 1.1, 4f.1, 4f.3, E9, V3, K2
-  - Observed effect: observations name a pending gate rather than its result
-  - Inference: the record lacks a disposition for a commitment owned by completion or wrap-up
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-333](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-333.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-388 — Source-only review arrived after the first slice was delegated
+## ODF-367 — Source-only review arrived after the first slice was delegated
+
+Former local code: DD-388.
 
 Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
 
@@ -561,39 +490,12 @@ updates, and no visible labels beside the icons. Both had to be sent to the
 already-running implementer.
 
 ### Occurrences
-- Execution: SEED-211#sessions-sidebar-host-status, first implementation commit 65192a9b
-  - Timestamp: unknown (2026-11-01, before 2026-11-01T10:55:42+08:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 74418a53; checkout VERSION 0.3.79)
-  - Evidence: `.planning/slice-plans/436-sessions-sidebar-host-status/source-review.md` commitments 2.4 and 3.3 at 65192a9b; the plan's slice 1 Behavior text lacks both.
-  - Observed effect: a mid-task correction message reached the slice 1 agent, and the agent added proof for both before returning. No rework of committed work was needed.
-  - Inference: running the source-only review before the first delegation would have let the brief carry every source commitment. The guidance places the review at acceptance only.
-- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first product implementation commit `c0c97e0f`)
-  - Timestamp: unknown (2026-11-01; after physical-iPhone waiver; source review launched after slice-2 Task delegation)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: coordinator transcript `60e22314-a376-487e-aa74-b511ff265df2` delegates slice 2, then launches source-only review; `source-review.md` and D1–D5 Story obligations written after that delegation
-  - Observed effect: deferred exclusions D1–D5 were recorded after the implementer was already running; no mid-run product correction was required for this execution
-  - Inference: same timing gap as the prior occurrence; deferred-only late commitments reduced impact here
-- Execution: SEED-219#intent-ci-status-tab (plan 447; first implementation commit 713d91a6)
-  - Timestamp: unknown (2026-11-02, before the 2026-11-02 slice 1 commit 713d91a6)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at d0a7e717; checkout VERSION 0.3.81)
-  - Evidence: this session delegated slice 1, then launched the source-only review; `56c47e8e:.planning/slice-plans/447-intent-ci-status-tab/source-review.md` slice-1 ids (S1.5c unreadable settings, S3.4b cancelled/timed out, S3.9 no result) were sent to the running implementer as an addendum
-  - Observed effect: the implementer added observations for the late ids; the timed-out Check again assertion still came back weak and the coordinator strengthened it before acceptance
-  - Inference: third occurrence of the same ordering: the delegation boundary reads the obligations listing, but the source review that feeds it is produced at the acceptance boundary
-- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
-  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
-  - Evidence: coordinator conversation delegates slice 1, then launches the source-only reviewer at slice 1 acceptance; `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/source-review.md` allocates no commitment to slice 1
-  - Observed effect: no correction reached the slice 1 agent; slices 2–4 briefs carried their allocated commitment ids from `story-obligations.mjs list`
-  - Inference: a Structure first slice owing no commitment hides the timing gap; it would have bitten had slice 1 been a Behavior slice
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-367](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-367.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-389 — Post-change refactor left a production module empty before delivery
+## ODF-399 — Post-change refactor left a production module empty before delivery
+
+Former local code: DD-389.
 
 After a slice-1 post-change refactor reported complete with selection extracted
 into `intentLocationSelection.ts`, delivery diagnosis found
@@ -602,15 +504,12 @@ missing listing/admission exports. A resumed refactor restore rewrote the
 module and focused proof passed before the increment published.
 
 ### Occurrences
-- Execution: SEED-192#browse-configured-test-source (plan 434; first implementation commit ed99ac6b)
-  - Timestamp: 2026-11-01T12:51:00+08:00 (approx.; CRITICAL restore prompt before ed99ac6b at 12:52:27+08:00)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: coordinator transcript `90876999-4c26-45c3-9ee9-3164f1af460b` line diagnosing empty `intentLocationsRead.ts`; refactor subagent `9fbc149f-715e-4977-98b8-0640ee9d9d9e` first claimed REFACTOR COMPLETE, then on resume restored 0 bytes → 194 lines with typecheck and 9 focused Playwright passes
-  - Observed effect: slice 1 delivery stopped for restore; one extra refactor resume and focused re-proof before `ed99ac6b`
-  - Inference: qualified. The emptying happened after the first complete return and before delivery; cause (host write loss, intervening edit, or extract mishap) is not established from the record
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-399](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-399.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-391 — Fresh delivery ownedPaths cannot stage a deleted rename source
+## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
+
+Former local code: DD-391.
 
 Guarded fresh preparation stages `ownedPaths` with `git add --literal-pathspecs`.
 A rename whose old path is already absent from the working tree fails that add
@@ -619,21 +518,8 @@ Recovery was to leave the old path already staged (deletion) in `stagedPaths`
 and put only the new path in `ownedPaths`.
 
 ### Occurrences
-- Execution: SEED-213#renovate-intent-sidebar (plan 438; implementation commit `83216ac0`)
-  - Timestamp: 2026-11-01T16:08:00+08:00 (approx.; first fresh delivery refusal before accepted `83216ac0`)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: preparation-failed JSON `operation: staging`, error `fatal: pathspec 'dashboard/src/IntentLocationTree.tsx' did not match any files`; retry with Tree in `stagedPaths` and Group in `ownedPaths` published `83216ac0`
-  - Observed effect: one failed fresh attempt, then successful delivery after renaming staging split
-  - Inference: Qualified. `--literal-pathspecs` treats a missing path as non-matching rather than a deletion to stage; callers must pre-stage the deletion or use another path list shape the preparation script accepts
-
-- Execution: SEED-220#last-successful-intent-proof (plan 446; parent implementation `9ef36af5`, producer increment `9f5121798c42a32f0118a29991facd1246739fa3`)
-  - Timestamp: unknown (2026-11-02; Pygardon slice-2 delivery, before `9f5121798` published)
-  - Tool: Codex
-  - Open Dough release: 0.3.81 (Pygardon's installed record at `30cbd42b5`; installed skills unchanged in the producer increment)
-  - Evidence: coordinator history: first `fresh` staged four removed `e2e_test/packaged/proof/*.json` files before its typecheck hook refused; after the type repair, the same `ownedPaths` retry stopped at `operation: staging`, `fatal: pathspec 'e2e_test/packaged/proof/20261102T000912Z-e21aecd3.json' did not match any files`; classifying the already staged deletions as `stagedPaths` allowed publication `9f5121798`.
-  - Observed effect: one additional staging refusal and a caller-side path-list split after the hook repair; proof deletions and the tested implementation remained preserved.
-  - Inference: the repeat depends on index state: fresh preparation had already removed these tracked paths from the index. This refines the earlier rename occurrence without asserting that every unstaged deletion fails.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-337](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-337.md); source recovery remains in this project’s pre-compaction revision.
 
 ## DD-392 — Source-review Slice cells need the `slice N` prefix
 
@@ -642,15 +528,12 @@ Commitments Slice column. `story-obligations.mjs` requires `slice N` and
 refused every row as `malformed-commitment` until rewritten.
 
 ### Occurrences
-- Execution: SEED-213#renovate-intent-sidebar (plan 438; implementation commit `83216ac0`)
-  - Timestamp: 2026-11-01T16:02:00+08:00 (approx.; first obligations check after drafting source-review.md)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: check JSON problems `malformed-commitment` for commitment ids 1–38d/E1–E6/D1–D4; corrected table uses `slice 1` and deferred rows name obligation ids D1–D4
-  - Observed effect: acceptance blocked until the table matched the reader; no product rework
-  - Inference: Related shape friction to ODF-381 (wrong Slice-cell contents) but a distinct required token shape (`slice N` vs bare number or obligation id)
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-381](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-381.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-398 — Foreign unpublished commits on an execution tip block story-branch publish
+## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
+
+Former local code: DD-398.
 
 Another agent's unpublished preparation commits sat on the SEED-212 story-branch
 tip ahead of Take. Publishing the owned slice would have carried that foreign
@@ -658,15 +541,12 @@ history (and a colliding plan-436 prep) onto the remote story branch until a
 human authorized dropping the tip commits while keeping uncommitted owned work.
 
 ### Occurrences
-- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first related commit after Take `4ad7f2de`)
-  - Timestamp: unknown (2026-11-01; after slice-2 proof/refactor, before first product publish)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: local tip had `ed541ce7` / `b9af529c` (ebacky-chan SEED-208 prep) while `origin/...` remained at Take `22497b66`; developer authorized drop; owned SEED-212 work kept
-  - Observed effect: slice-2 delivery held for a human decision; tip reset to Take; foreign prep removed from this branch history before `c0c97e0f`
-  - Inference: an execution checkout that retains another agent's unpublished tip commits needs an explicit ownership check before publish; stopping for the developer was the useful stop
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-400](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-400.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-399 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
+## ODF-401 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
+
+Former local code: DD-399.
 
 Two waived planning-only slices were marked `done` in the working tree before
 any increment published. Delivery of the next implementation slice refused the
@@ -675,21 +555,8 @@ slice back to `planned`, published the earlier waiver, then re-marked and
 published the later waiver, then the product slice.
 
 ### Occurrences
-- Execution: SEED-212#use-terminal-with-mobile-keyboard (plan 436; first related commit after Take `4ad7f2de`)
-  - Timestamp: unknown (2026-11-01; between waiver recording and `c0c97e0f`)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: plan slices 1 and 5 both `Status: done` under one waiver; delivery held; temporary slice-5 `done`→`planned`→`done`; published as `4ad7f2de` then `3e7c8d8d` before product `c0c97e0f`
-  - Observed effect: extra plan-status edits and two planning-only publishes to restore delivery order
-  - Inference: marking every waived gate done before the first ordered publish creates delivery-order friction; publishing (or leaving planned) one waived gate at a time would avoid the temporary mutation
-- Execution: SEED-192#review-story-intent-impact (plan 441; claim `9470bb4b`, first related commit `5b8aeba9`)
-  - Timestamp: 2026-11-02T12:16:50+07:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.81)
-  - Evidence: resumed execution marked slice 1 `done` (its code already on main in `c64319b6`) before slice 2's guarded fresh delivery; because that delivery documents refusing another `done` slice absent at HEAD, the coordinator first made a separate `--authority local-only` slice-1 commit `5b8aeba9`, then published slice 2 as `f0888fb9`
-  - Observed effect: one extra local-only delivery invocation and commit to keep order; no refusal occurred and no rework
-  - Inference: same friction as the waived-gate case: a slice settled without its own increment should be recorded through its own delivery before the next slice is marked
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-401](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-401.md); source recovery remains in this project’s pre-compaction revision.
 
 ## DD-400 — A decisive premise probe proved the capability, not the story's restriction
 
@@ -702,14 +569,8 @@ story promises existing output stays unchanged. The slice 3 walk then showed a
 Cucumber.js `format` entry without its own target replaces the stdout formatter.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
-  - Timestamp: unknown (2026-11-01; walk finding before commit `4487c435` at 2026-11-01T22:24:08+07:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.79
-  - Evidence: plan 439 "Decisive premises" (Pygardon probe with `--format <probe formatter>`, scratch probe with `format: ['progress', './proof2.js']`); slice 3 walk `runs/finding-format.out` 0 bytes, exit 0; reference corrected to a plugin in `4487c435`; slice 4 premise note added
-  - Observed effect: the drafted reference's configuration example, settled by those premises, would have erased an adopting project's progress output; the walk caught it before release.
-  - Inference: a premise consumed by a restriction ("output unchanged") needs an observation of that restriction, not only of the capability; related to ODF-074 but the premise was inspected, only incompletely.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-074](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-074.md); source recovery remains in this project’s pre-compaction revision.
 
 ## DD-401 — A rollout slice released from trunk without a step landing the earlier slices
 
@@ -721,16 +582,12 @@ execution branch. The plan named no trunk landing before the release, so the
 coordinator stopped mid-slice to ask for a Dough Land `--keep-worktree` landing.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
-  - Timestamp: unknown (2026-11-01; question asked before landing `bdeb210a` at 2026-11-01T23:14:09+07:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.79
-  - Evidence: plan 439 slice 4 Proof text; `.agents/skills/release-and-update-clients/SKILL.md` "Work on Open Dough's `main`"; the coordinator's landing question and Terry's "Land with keep-worktree" answer
-  - Observed effect: a second human stop inside an already approved rollout, and two later trunk CI repairs ran before the release could start.
-  - Inference: a Story Branch plan whose slice publishes from trunk should name the retained landing, and its human checkpoint should cover it, so one go-ahead suffices.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-333](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-333.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
+## ODF-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
+
+Former local code: DD-402.
 
 Former local code: DD-395 (`6c354905e`), renumbered in merge `966aad8b1`.
 
@@ -741,16 +598,12 @@ absent and no worker for it ran, so shutdown succeeded, but the command
 reported no terminal result.
 
 ### Occurrences
-- Execution: SEED-192#read-observed-test-proof (plan 439-read-observed-test-proof, removed at wrap-up, recoverable at `2d2d6a2f`; first implementation commit `58350c9d`)
-  - Timestamp: unknown (2026-11-01, at the slice 4 checkpoint after commit `4487c435`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.79
-  - Evidence: two `stop /tmp/dough-ci-501/watch-SJuZJr` calls, both exiting with the stack (the first output tail ends in `}` and the Node version); then `ls` reported the directory missing and `pgrep -fl watch-SJuZJr` found no process
-  - Observed effect: the coordinator verified shutdown by hand instead of from a stop receipt.
-  - Inference: the first call may have removed the mailbox before failing, or the worker ended on its own first; either way an already-ended mailbox needs a reported result, not a crash.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-402](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-402.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-403 — Absorbed mid-flight plan amendment plus execution evidence reports freshness conflict
+## ODF-403 — Absorbed mid-flight plan amendment plus execution evidence reports freshness conflict
+
+Former local code: DD-403.
 
 After Terry’s trunk plan amendment was absorbed into the story-branch working
 tree and the plan gained only additive execution evidence (Status, accepted
@@ -761,15 +614,12 @@ instead temporarily replaced the plan with exact trunk text to pass the gate,
 then restored the execution evidence — on both slice deliveries.
 
 ### Occurrences
-- Execution: SEED-217#intent-entry-folder-summaries (plan 443; first related implementation commit `51825cdc`)
-  - Timestamp: 2026-11-02T10:34:00+07:00
-  - Tool: Cursor
-  - Open Dough release: 0.3.81
-  - Evidence: amendment `272f7c29` on origin; coordinator transcript `ce83dd3b-85a9-40d2-b173-4327eb2a3b2c` (freshness conflict then strip/restore before `51825cdc` and again before `881309f4`); check JSON `result:conflict`, plan `reason:overlapping-edit`, `from:44887208` (Take) while story `from:272f7c29` stayed `unchanged`; source-freshness.md “Stop on a conflict”
-  - Observed effect: two delivery gates needed a temporary exact-trunk plan for `unchanged`, then re-application of Status/accepted-proof/obligations, without an `awaiting story review` stop
-  - Inference: three-way freshness does not treat absorbed trunk text plus additive execution records as `unchanged`/`amended` when base remains Take; the strip/restore pattern bypasses the required conflict stop
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-403](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-403.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-404 — Planning basenames overwhelm a test-local consumer trace
+## ODF-396 — Planning basenames overwhelm a test-local consumer trace
+
+Former local code: DD-404.
 
 A test-local change plus its plan/source-review edits made `consumer-trace.mjs`
 automatically search `PLAN.md` and `source-review.md` across the checkout. Most
@@ -777,15 +627,12 @@ rows were unrelated planning, guidance, and historical matches. Specific supplie
 terms (`leftCalls`, `testOptions`) did not prevent that derived-path noise.
 
 ### Occurrences
-- Execution: SEED-218#fix-owned-calls-start-slack-hang (plan 444; first implementation `78ce26f44f289e274c73e6dba96d635638548ef7`)
-  - Timestamp: unknown (2026-11-02)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance at Take `39424d5b25f0bdad27eae03389dd740fe5e47055`
-  - Evidence: implementation trace `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/plan444-consumers.nr9p2cxx/trace.md`, Effect terms and Located consumers; coordinator's full trace read reported 34,965 original tokens and truncated output. Refactor trace `/tmp/plan444-refactor-consumers.aCT4yS/trace.md` restricted the changed path to the test and exposed its actual job-label/timing/story consumers.
-  - Observed effect: irrelevant trace rows consumed output/context; the coordinator followed with bounded searches and inspected the narrower trace. No missed consumer, test failure, or hang was established.
-  - Inference: generated generic planning basenames need separate handling or an explicit changed-path selection. Related to ODF-350/ODF-352, but this observation concerns automatic path basenames, not supplied substring terms or data keys; shared reconciliation is not performed here.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-396](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-396.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-405 — Concurrent Taken sibling rewrote the active story mid-execution
+## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
+
+Former local code: DD-405.
 
 A second Taken story rewrote the same seed/plan section the active Story Branch
 was finishing. `source-freshness.mjs check` correctly reported `conflict` /
@@ -798,15 +645,12 @@ conflict stop) and from ODF-383 (deletion-only amendment with no commitment
 change): here the sibling rewrite was substantive and the stop was honored.
 
 ### Occurrences
-- Execution: SEED-192#read-cypress-cucumber-proof (plan 442; first related implementation commit `a289a6b6`)
-  - Timestamp: 2026-11-02T14:06:00+07:00
-  - Tool: Cursor
-  - Open Dough release: 0.3.81
-  - Evidence: coordinator transcript `e3276439-2476-44f5-9723-3c6f5de52364` (freshness conflict at tip `69363d7a` vs trunk `362bc06d` SEED-220 last-successful wording; unfinished `awaiting story review`; user “as recommended and retry”; absorb then fresh source review before delivery `7253d174`); Taken SEED-220#last-successful-intent-proof on the same backlog
-  - Observed effect: slice-3 finish delayed for human absorb decision, trunk-text restore of execution evidence, and a second source-only review/obligation realign, after Intent Doughnut proof and Terry usefulness were already in hand
-  - Inference: concurrent Taken work that edits a shared active story section predictably forces late conflict + absorb + re-review cost even when the conflict stop is followed
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-404](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-404.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-406 — Full local suite wall includes waiting for repository-wide admission
+## ODF-405 — Full local suite wall includes waiting for repository-wide admission
+
+Former local code: DD-406.
 
 `scripts/local-test-suite.mjs` admits one full local verification per
 repository across linked worktrees, so a `npm run test:dashboard` started while
@@ -815,21 +659,17 @@ for a re-profile then includes that queue, and it is not comparable with a
 reference run that was admitted at once.
 
 ### Occurrences
-- Execution: SEED-221#launch-records-poll-waits (plan 448; first implementation commit `aaa8e768d2c49bd1445b1d6560ed7af7b13b6c9f`)
-  - Timestamp: 2026-11-02T15:15+07:00 (candidate full-suite run start; finished 16:23+07:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.81 (repository VERSION at claim `362bc06d`; installed skills unchanged through this execution)
-  - Evidence: back-to-back runs recorded 2,063s and 4,068s shell wall, but Playwright reported 31.3 min and 29.6 min. Two other worktrees' full Playwright suites were running during the candidate run (`ps`). `dashboard/playwright.config.ts:18` calls `acquireLocalSuite`. `pmset -g log` showed no sleep. Recorded in `c6367e6b:.planning/slice-plans/448-launch-records-poll-waits/PLAN.md`, Accepted proof, slice 3, and Learnings.
-  - Observed effect: about 38 minutes of the candidate's wall was admission wait. The coordinator first read it as a slowdown and spent several investigation steps (progress count, sleep log, global-setup and config reading) before finding the admission gate.
-  - Inference: test-optimization measurement guidance names startup, caches and load as wall-time distortions but not this repository's suite admission. A re-profile should take Playwright's reported run time, or check admission, before comparing walls. Generality beyond repositories with such a gate is unassessed.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-405](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-405.md); source recovery remains in this project’s pre-compaction revision.
 
 **Responsibility (2026-11-03):** the shared facet stays here: measurement
 guidance names no repository admission or queue among wall-time distortions.
 This repository's gate and its missing note are the local facet, repaired at
 `ad8b1f3af` and kept once in [ProjectFindings.md](ProjectFindings.md#dd-406).
 
-## DD-407 — A plan's local gate names the hook-owned lint that delivery forbids running
+## ODF-406 — A plan's local gate names the hook-owned lint that delivery forbids running
+
+Former local code: DD-407.
 
 The slice plan's Local gates told the coordinator to run `npm run lint`
 before publishing slices 1 and 2, while Execute Plan delivery says not to run
@@ -837,14 +677,8 @@ hook-owned lint independently because the commit hook runs it on staged
 files. The executor had to judge which instruction wins.
 
 ### Occurrences
-- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
-  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
-  - Evidence: `f882d5ba:.planning/slice-plans/449-intent-purpose-proof-layout/PLAN.md` Local gates ("plus `npm run lint` and the dashboard typecheck"); `.githooks/pre-commit` runs `npm run --silent lint -- --staged`; `dough-execute-plan/references/wrap-up.md` delivery steps 1 and 7
-  - Observed effect: the coordinator skipped the plan's lint step and relied on the hook; every slice commit passed it. Delegates ran `npx eslint` on changed files instead
-  - Inference: slice planning names project gates without the hook contract that delivery owns; a plan should leave hook-owned checks to the commit
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-406](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-406.md); source recovery remains in this project’s pre-compaction revision.
 
 ## DD-408 — Coordinator issued a no-op background command while waiting on a delegate
 
@@ -853,24 +687,12 @@ waiting` solely to have something pending, although the delegation guidance
 says to wait through the host's notification without empty calls.
 
 ### Occurrences
-- Execution: SEED-222#intent-purpose-proof-layout (plan 449; first implementation commit `4d5e976e`)
-  - Timestamp: unknown (2026-11-02, before 2026-11-02T14:45:13+07:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at dbecb55a; checkout VERSION 0.3.81)
-  - Evidence: coordinator conversation after the slice 1 Agent launch; `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
-  - Observed effect: one wasted turn and a spurious completion notification; later waits ended the turn and resumed on the agent's notification
-  - Inference: executor slip against existing guidance, not a guidance gap; recorded as a one-off
-- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
-  - Timestamp: unknown (2026-11-03, between the slice 1 Agent launch and 2026-11-03T11:03:16+07:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
-  - Evidence: coordinator conversation after the slice 1 Agent launch (background `echo waiting`); `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
-  - Observed effect: one wasted turn and a spurious completion notification
-  - Inference: second occurrence of the same executor slip by the same tool and model; the guidance names the rule but the slip recurs right after delegation
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-325](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-325.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-409 — An implementation return claimed a bound its own constants contradict
+## ODF-407 — An implementation return claimed a bound its own constants contradict
+
+Former local code: DD-409.
 
 A slice return stated that two sequential adapter discovers "still sit under
 the read wait bound" although the 20 s adapter timeout twice exceeds the 30 s
@@ -878,16 +700,12 @@ read wait. The coordinator's acceptance check of the cited constants caught it
 before refactoring or delivery.
 
 ### Occurrences
-- Execution: SEED-219#ci-status-review-corrections (plan 448; first implementation commit 6316908648c11da2f1cfce275c54fccdc764937f)
-  - Timestamp: unknown (2026-11-02, slice 4 acceptance, before commit 549d57f)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54e; checkout VERSION 0.3.83)
-  - Evidence: slice 4 return, Gaps: "Both still sit under the read wait bound (`readWaitLimitMs`)"; `dashboard/src/authenticatedReadRules.ts:58` `readWaitLimitMs = 30_000`; `src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs:11` `defaultAdapterTimeoutMs = 20_000`; the returned slice ran the two discovers concurrently (`549d57f`, `judgeCommandAdapter`) with an overlap unit test
-  - Observed effect: one extra implementation round (about 3 minutes) and a design change that keeps a story branch's worst case at one adapter timeout
-  - Inference: useful practice: accept quantitative claims in a return only after reading the constants they cite; the focused tests could not reveal this, since fake adapters answer in milliseconds
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-407](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-407.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-410 — An agent-operable evaluation slice was handed to the developer
+## ODF-408 — An agent-operable evaluation slice was handed to the developer
+
+Former local code: DD-410.
 
 A plan's final slice named the developer as evaluator of a dashboard feature on
 a real project. Execution stopped and handed it to the developer, who replied
@@ -895,16 +713,12 @@ a real project. Execution stopped and handed it to the developer, who replied
 the branch's dev dashboard without further help.
 
 ### Occurrences
-- Execution: SEED-192#review-story-intent-impact (plan 441; claim `9470bb4b`, first related commit `5b8aeba9`)
-  - Timestamp: 2026-11-02T17:42:58+07:00
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.81)
-  - Evidence: slice 7 "Terry evaluates a real story"; handoff reported `unfinished` to the dashboard (receipt `7702493f`); developer delegated; evaluation recorded in plan Learnings and published as `7c71049b`
-  - Observed effect: one developer round trip and a stopped/restarted CI observer before an evaluation the agent could already perform
-  - Inference: a developer-operated evaluation that needs only local, unpaid observation could be offered as agent-performed in the handoff (or attempted first, keeping the usefulness judgment explicit for the developer to confirm); generality across stories where the judgment itself is the promise is uncertain
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-408](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-408.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-411 — CI diagnostic reports an empty complete inventory for a cancelled job whose suite step failed
+## ODF-409 — CI diagnostic reports an empty complete inventory for a cancelled job whose suite step failed
+
+Former local code: DD-411.
 
 `ci-github-diagnostic.mjs failure` filters jobs through `isFailedJob`
 (`ci-failures.mjs:214`), which excludes `cancelled`. A job cancelled at the
@@ -913,14 +727,8 @@ workflow's suite deadline, after its own test step failed, therefore yields
 run. That reads as "nothing failed" while the run has no verdict.
 
 ### Occurrences
-- Execution: SEED-192#inspect-hierarchical-proof-cost (plan 452; first implementation commit `f310f5739a8de2c1a09116d0c32d230ea80dd1b7`)
-  - Timestamp: 2026-11-02T14:44:14Z (CI_INCOMPLETE run completion; triage followed)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.83 (repository VERSION at claim `5260f2bc4`; installed skills unchanged through this execution)
-  - Evidence: run 41463759771 attempt 1 on `a04e6e12a`; job "dashboard (10/12)" conclusion `cancelled` with step "Run the dashboard browser suite" `failure` ("Timed out waiting 276.021s for the test suite to run"). The diagnostic returned zero failed jobs and no gaps. The disposition is recorded in `45d6975c0:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md` Current decisions.
-  - Observed effect: the coordinator found the failed step only through a separate `gh run view` and job log. It then stashed slice 3's work and delegated a repair agent (about 455 s, 101k tokens), which concluded runner degradation. One `gh api …/runs/RUN/jobs` comparison of "Set up job" (42 s against 1 s) and setup-node (30 s against 5–6 s) across sibling shards showed the same thing afterwards.
-  - Inference: the inventory should list a cancelled job with a failed step, or mark it as a gap, so `CI_INCOMPLETE` triage starts from evidence. Comparing pre-project setup-step durations across sibling jobs is a cheap first infrastructure check before pausing writers. That second point is a single observation.
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-409](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-409.md); source recovery remains in this project’s pre-compaction revision.
 
 **Responsibility (2026-11-03):** the inventory that omits a cancelled job with
 a failed step is shared (`ci-failures.mjs`) and stays here. The shard's
@@ -945,18 +753,14 @@ scattered, non-overlapping tests and were discarded.
   - Observed effect: about 3.4 h of slice 2's wall time went to two invalid whole-suite runs and their attribution checks (a base worktree comparison)
   - Inference: `-i` prevents idle sleep only; `-s` is needed on AC. The planner copied the guard from local memory, so the gap is in the local practice, not Open Dough guidance
 
-## DD-413 — An implementation agent handed back while its own background work kept running
+## ODF-410 — An implementation agent handed back while its own background work kept running
+
+Former local code: DD-413.
 
 The slice 1 implementation agent delivered its final report but its task kept
 reporting "waiting on its own background work". The coordinator stopped it
 before starting the refactor agent in the same checkout.
 
 ### Occurrences
-- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
-  - Timestamp: unknown (2026-11-03, after the slice 1 hand-back and before the 2026-11-03T11:03:16+07:00 slice 1 commit)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
-  - Evidence: coordinator conversation: three "waiting on its own background work" notifications for the slice 1 agent after its SubagentHandback, then `TaskStop`; `delegation.md` "Own verification to its terminal result" and "Retire owned watches when verification ends"
-  - Observed effect: no stray edits were found, but a second writer could have touched the checkout during the refactor pass; the coordinator added an explicit "nothing still running before returning" rule to the slice 2 and refactor briefs
-  - Inference: the agent did not retire a background command or watch before reporting; whether it was a test run or a watch is not visible in the coordinator record
+Distinct executions, original provenance, observations and qualified inferences are
+[retained at ODF-410](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-410.md); source recovery remains in this project’s pre-compaction revision.
