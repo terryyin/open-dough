@@ -280,6 +280,11 @@ done sessions or opens a retained session → that history is read then.
   off the request path, revisit with a prune margin if stall bursts make it
   matter.
 
+- 2026-11-03 CI run 41650965339 (slice 1): tests that list the machine
+  dashboard home failed once `incidents/` appeared there; they now leave it
+  out through `dashboard/tests/support/machineRecordNames.ts`. Any later
+  listing of `~/.open-dough/dashboard` must use it.
+
 ## Concern evidence
 
 Refinement ran as part of planning: the first draft had the replay after

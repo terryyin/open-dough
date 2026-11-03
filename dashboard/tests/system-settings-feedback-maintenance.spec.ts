@@ -2,16 +2,11 @@
 // launch-dialog host and model, saved privately on this machine and shown
 // after a reload, turned off by removing its file, and a malformed file
 // reported without being rewritten by a read. Nothing else is written.
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
+import { machineRecordNames } from "./support/machineRecordNames.ts";
 import { expect, test } from "./support/pageTest.ts";
 import { systemSettingsMachine } from "./support/systemSettingsMachine.ts";
 
@@ -51,10 +46,10 @@ test("feedback maintenance is off by default, saves a private host and model cho
   // it, so what the setting adds is all that differs afterwards.
   await untilPublishedWorkRead(page);
   const before = new Map(
-    readdirSync(dashboard, { withFileTypes: true }).map((entry) => [
-      entry.name,
-      entry.isFile()
-        ? readFileSync(path.join(dashboard, entry.name), "utf8")
+    machineRecordNames(dashboard).map((name) => [
+      name,
+      statSync(path.join(dashboard, name)).isFile()
+        ? readFileSync(path.join(dashboard, name), "utf8")
         : undefined,
     ]),
   );
@@ -68,8 +63,8 @@ test("feedback maintenance is off by default, saves a private host and model cho
   expect(readFileSync(file, "utf8")).toBe('{"host":"claude","model":"opus"}\n');
   expect(statSync(file).mode & 0o777).toBe(0o600);
   // Only the setting's own file was added; no project, launch or other
-  // machine file changed, and no session started.
-  expect(readdirSync(dashboard).sort()).toEqual(
+  // machine file changed (the incident record aside), and no session started.
+  expect(machineRecordNames(dashboard)).toEqual(
     [...before.keys(), "feedback-maintenance.json"].sort(),
   );
   for (const [name, text] of before)

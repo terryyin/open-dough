@@ -11,6 +11,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
+import { incidentRecordInHome } from "./machineRecordNames.ts";
 import { rawRequest } from "./rawHttp.ts";
 
 export const knownSourceId = "open-dough";
@@ -93,7 +94,7 @@ export async function inspect(
 
 // The incident record's folder in a machine directory's HOME.
 const incidentsOn = (machine: string) =>
-  path.join(machine, "home", ".open-dough", "dashboard", "incidents");
+  path.join(machine, "home", incidentRecordInHome);
 
 // Every file the incident record keeps there, with its permission bits and
 // text, and the folder's own permission bits. A file a prune replaced while

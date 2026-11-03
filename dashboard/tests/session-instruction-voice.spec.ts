@@ -1,6 +1,7 @@
 import { readdirSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "./support/voiceTest.ts";
+import { inIncidentRecord } from "./support/machineRecordNames.ts";
 import { voiceBrowserOptions } from "./support/voiceRecovery.ts";
 import {
   builtDashboardDir,
@@ -53,9 +54,13 @@ test("saved settings survive restart; two real clips append once and the reviewe
       name: "Instruction (optional)",
     });
     await field.fill("Keep this work local");
-    const filesBeforeRecording = readdirSync(restarted.home, {
-      recursive: true,
-    }).sort();
+    // Recording writes nothing; the incident record any read may append to
+    // is not a file recording would write.
+    const homeFiles = () =>
+      readdirSync(restarted.home, { recursive: true, encoding: "utf8" })
+        .filter((name) => !inIncidentRecord(name))
+        .sort();
+    const filesBeforeRecording = homeFiles();
     await recordClip(page, dialog);
     await expect(field).toHaveValue(
       "Keep this work local\n\nDo not implement yet",
@@ -66,9 +71,7 @@ test("saved settings survive restart; two real clips append once and the reviewe
       "Keep this work local\n\nDo not implement yet\n\nInspect Open Dough first",
     );
     expect(restarted.claudeCalls()).toEqual([]);
-    expect(readdirSync(restarted.home, { recursive: true }).sort()).toEqual(
-      filesBeforeRecording,
-    );
+    expect(homeFiles()).toEqual(filesBeforeRecording);
     expect(
       restarted
         .ghCalls()
