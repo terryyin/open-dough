@@ -22,14 +22,6 @@ import {
   expectEntries,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
-import {
-  consumer,
-  test as dependencyTest,
-  twoDependencies,
-} from "./storyDependencyFixture.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { pausePageClock } from "./autoRefreshJourney.ts";
 import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
@@ -218,36 +210,3 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     await development.click();
   });
 });
-
-dependencyTest(
-  "a dependency disclosure and link do not select the card",
-  async ({ page, origin }) => {
-    const revision = await twoDependencies(origin, true);
-    await publishCommittedOrigin(page, {
-      repoDir: origin.project,
-      revision,
-      repository: "terryyin/open-dough",
-      follows: true,
-    });
-    await pausePageClock(page);
-    await openUntilRead(page);
-    const card = parts(page).backlog.getByRole("article", {
-      name: consumer.title,
-      exact: true,
-    });
-    const summary = card.locator(".story-dependencies summary");
-    await summary.click();
-    await expectSelected(card, false);
-    await card.getByRole("link", { name: "SEED-B#b", exact: true }).click();
-    // Reveal-and-select opens the supplier; the consumer stays unselected.
-    await expectSelected(card, false);
-    const supplier = parts(page).backlog.getByRole("article", {
-      name: "Story B",
-      exact: true,
-    });
-    await expectSelected(supplier, true);
-    await expect(
-      supplier.getByRole("button", { name: "Hide detail" }),
-    ).toBeVisible();
-  },
-);

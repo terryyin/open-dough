@@ -5,6 +5,7 @@
 correcting story 5, recoverable as `git show 66cfcb6d:.planning/seeds/SEED-192-review-product-intent.md`
 (section `#review-story-intent-impact`) with its plan at
 `66cfcb6d:.planning/slice-plans/441-review-story-intent-impact/PLAN.md`.
+**Source review:** [source review](source-review.md)
 
 ## Provenance
 
@@ -97,13 +98,18 @@ written.
 
 ### 1. Disclosure content leaves the selection alone
 Type: Behavior
-Status: planned
+Status: done
 Proof: move the dependency test out of `story-card-selection.spec.ts` into its
 own spec (bringing both files under 250 lines) and add clicks on the opened
 explanation text for an unselected and a selected card.
 
 Behavior: a card with an opened Dependencies disclosure → the developer clicks
 its explanation text → the selection and detail are unchanged.
+
+Accepted proof: `storyCardControlSelector` lists `details` in place of
+`summary`; `story-card-dependency-selection.spec.ts` failed at the explanation
+click before the fix and passes after; 44 related selection, board and Intent
+specs and typecheck pass. `story-card-selection.spec.ts` is 212 lines.
 
 ### 2. Intent's Review changes link shows Intent's comparison
 Type: Behavior

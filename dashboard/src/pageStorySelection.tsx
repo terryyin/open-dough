@@ -95,7 +95,7 @@ const storyCardControlSelector = [
   "select",
   "textarea",
   "label",
-  "summary",
+  "details",
   "[role='button']",
   "[role='link']",
   "[role='menuitem']",
@@ -103,9 +103,10 @@ const storyCardControlSelector = [
 ].join(", ");
 
 // Nested controls and the open detail are not empty area: buttons, links,
-// inputs, session entries, disclosures, and `.story-detail` content keep their
-// own behavior and must not change selection. Disabled controls do not receive
-// the event, so a point-in-bounds check covers them too.
+// inputs, session entries, disclosures (summary and opened content), and
+// `.story-detail` content keep their own behavior and must not change
+// selection. Disabled controls do not receive the event, so a point-in-bounds
+// check covers them too.
 const storyCardNonEmptyAreaSelector = [
   storyCardControlSelector,
   ".story-detail",
