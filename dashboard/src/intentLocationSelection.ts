@@ -4,15 +4,17 @@
 // (`../server/intentLocationsRead.ts`) and `file-at` admission
 // (`../server/intentLocationSelection.ts`) and for the story overlay that
 // places a story's changed files in Intent (`./intentStoryOverlay.ts`).
-// Patterns match as Node's `path.matchesGlob` matches them on POSIX, through
-// the same matcher it is built on.
+// Patterns match through the matcher Node's `path.matchesGlob` is built on,
+// with POSIX rules and case-sensitively on every platform. Node's own
+// `matchesGlob` differs on macOS, where it ignores case in a pattern's
+// wildcard parts (`a/*.ts` matches `a/B.TS`).
 
 import { minimatch } from "minimatch";
 
 // Supported Intent source kinds and the file extensions each lists. The kind
 // also names the Shiki grammar; there is no other mapping (`.tsx` within
 // `typescript` is the highlighter's per-extension choice).
-export const intentSourceKinds = {
+const intentSourceKinds = {
   gherkin: { extensions: [".feature"] },
   typescript: { extensions: [".ts", ".tsx"] },
   javascript: { extensions: [".js", ".mjs", ".cjs"] },
@@ -20,7 +22,7 @@ export const intentSourceKinds = {
   shell: { extensions: [".sh", ".bash"] },
 } as const;
 
-export type IntentSourceKind = keyof typeof intentSourceKinds;
+type IntentSourceKind = keyof typeof intentSourceKinds;
 
 export function extensionsOf(kind: string): readonly string[] | undefined {
   return kind in intentSourceKinds

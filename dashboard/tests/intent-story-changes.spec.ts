@@ -24,14 +24,13 @@ import {
   folderRow,
   intentDiff,
   intentFile,
-  kindStyles,
   lens,
   locationGroup,
-  nameStyle,
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
 } from "./support/intentStoryPage.ts";
+import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
 import {
   chooseReadingTab,

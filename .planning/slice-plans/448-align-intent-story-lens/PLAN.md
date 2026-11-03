@@ -132,7 +132,7 @@ fix (opened on Since the review) and passes after; 203 `intent-`,
 
 ### 3. Remove the lens residue and describe it
 Type: Structure
-Status: planned
+Status: done
 Proof: existing Intent and Review changes journeys unchanged
 (`intent-`, `story-review`, `boundary/story-review`, `story-card-selection`);
 the new boundary overlay spec; typecheck.
@@ -143,6 +143,13 @@ guard; reword the matcher comment; make `story-review-tree.spec.ts` use
 `kindStyles`; add the boundary overlay spec and keep the both-toggle-states
 diff check in one integrated journey only; add the README and Intent doc
 sentences for findings 3.
+
+Accepted proof: `diffStartOf` beside `storyComparisonShown` serves both client
+callers; the server admission's own copy of the rule stays outside this
+correction. `boundary/intent-story-overlay.spec.ts` covers the overlay rules;
+the change-kind probe lives in `support/changeKindStyle.ts`. 209 surface specs
+and typecheck pass. Final state: `npm test` passes, and the whole dashboard
+suite passes 1944 with no failures or flakes (29.8 min, load 7–9).
 
 ## Current decisions
 

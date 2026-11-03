@@ -3,10 +3,16 @@
 // the comparison's *from* tree and changed files, and the tree it reaches. A
 // published completion or a landed run shows its fixed comparison; a workspace
 // snapshot shows the comparison chosen for it
-// (`./useStoryReviewComparison.ts`), once that is known.
+// (`./useStoryReviewComparison.ts`), once that is known. A changed file's diff
+// runs from its own tree when it includes trunk's changes, else from the
+// comparison's *from* tree (`diffStartOf`), in Review changes and Intent alike.
 
 import type { ReviewedStory } from "./StoryReviewFileDiff.tsx";
-import type { ReviewComparison, StoryReview } from "./storyReviewContract.ts";
+import type {
+  ReviewComparison,
+  ReviewedFile,
+  StoryReview,
+} from "./storyReviewContract.ts";
 
 export type ShownStoryComparison = {
   readonly reviewed: ReviewedStory;
@@ -47,4 +53,13 @@ export function storyComparisonShown({
   )
     return { reviewed: { sourceId: source, identity }, comparison, tree };
   return undefined;
+}
+
+// The tree a changed file's diff runs from in `comparison`; without a file,
+// the comparison's *from* tree.
+export function diffStartOf(
+  comparison: ReviewComparison,
+  file: ReviewedFile | undefined,
+): string {
+  return file?.includesTrunkFrom ?? comparison.from;
 }

@@ -1,8 +1,8 @@
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
-// read of the page: the selected story's lens, a tree row's change-kind
-// style, the contains-changes background, the "Selected story only" toggle,
-// and a changed file's diff in Intent's Purpose beside the same file's diff
-// in Review changes.
+// read of the page: the selected story's lens, the contains-changes
+// background, the "Selected story only" toggle, and a changed file's diff in
+// Intent's Purpose beside the same file's diff in Review changes. A row's
+// change-kind style: ./changeKindStyle.ts.
 
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
@@ -62,49 +62,6 @@ export const intentFile = (intent: Locator, name: string) =>
   intent
     .locator(".intent-locations")
     .getByRole("button", { name, exact: true });
-
-// The style a file's name shows its kind in.
-export const nameStyle = (file: Locator) =>
-  file.locator("code").evaluate((code) => {
-    const style = getComputedStyle(code);
-    return {
-      color: style.color,
-      line: style.textDecorationLine,
-      fontStyle: style.fontStyle,
-    };
-  });
-
-// The dashboard's colours as the page resolves them.
-export const colours = (intent: Locator) =>
-  intent.evaluate((root) => {
-    const probe = document.createElement("span");
-    root.append(probe);
-    const resolve = (token: string) => {
-      probe.style.color = `var(${token})`;
-      return getComputedStyle(probe).color;
-    };
-    const resolved = {
-      text: resolve("--text"),
-      ready: resolve("--ready"),
-      accent: resolve("--accent"),
-      quiet: resolve("--quiet"),
-    };
-    probe.remove();
-    return resolved;
-  });
-
-// Each kind's expected name style, from the shared change-kind styles.
-export async function kindStyles(intent: Locator) {
-  const tokens = await colours(intent);
-  const plain = { color: tokens.text, line: "none", fontStyle: "normal" };
-  return {
-    plain,
-    added: { ...plain, color: tokens.ready },
-    modified: { ...plain, color: tokens.accent },
-    deleted: { ...plain, color: tokens.quiet, line: "line-through" },
-    renamed: { ...plain, fontStyle: "italic" },
-  };
-}
 
 // A folder's caret in Intent, by the folder's name and whether it is open.
 export const folderCaret = (intent: Locator, name: string, open: boolean) =>

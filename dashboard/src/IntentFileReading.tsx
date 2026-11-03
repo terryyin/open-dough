@@ -28,6 +28,7 @@ import {
   type IntentTabOption,
 } from "./IntentTabs.tsx";
 import { shortRevision } from "./publishedWork.ts";
+import { diffStartOf } from "./storyComparisonShown.ts";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileName } from "./StoryReviewSnapshotView.tsx";
 import { useIntentReadingPlaces } from "./useIntentReadingPlaces.ts";
@@ -102,7 +103,7 @@ export function IntentFileReading({
   const change = treeFile?.change;
   // The selected change's *from* tree, as Review changes reads it.
   const changeFrom =
-    change?.includesTrunkFrom ?? story?.shown.comparison.from ?? "";
+    story === undefined ? "" : diffStartOf(story.shown.comparison, change);
   // A file the published revision does not list has no published text.
   const unpublished = treeFile?.published === false;
 

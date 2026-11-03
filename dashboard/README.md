@@ -136,6 +136,19 @@ returns focus to the card. The dependency explanation opens in place from the
 card's **Dependencies** summary (see
 [Blocking story dependencies](#blocking-story-dependencies)).
 
+Each project has at most one selected story. Clicking a card's empty area
+selects it as **Inspect story** does, and clicking it again or **Hide detail**
+clears it; the card's buttons, links, inputs, session entries and
+disclosures, an opened **Dependencies** explanation included, keep their own
+behavior. A **Recently done** entry is selected by its empty area or its
+**Select story** toggle, without a detail. A selected card or entry shows an
+accent ring and border, a mark distinct from the soft fill and outline of a
+card whose session is shown in the Side panel. The selection is page state,
+not on the URL, and it scopes Intent: Intent overlays the selected story's
+changes on its published tree, and **CI status** judges that story's
+published story branch
+([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
+
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or
 prepares each story, the agent roster, and the credited human developer.
 

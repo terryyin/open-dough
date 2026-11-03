@@ -14,13 +14,12 @@ import { expect, test } from "./support/preparationPage.ts";
 import {
   intentDiff,
   intentFile,
-  kindStyles,
-  nameStyle,
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
   storyOnly,
 } from "./support/intentStoryPage.ts";
+import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
 import { expandIntentGroup } from "./intentPerspectivePage.ts";
 

@@ -7,9 +7,10 @@
 // story deleted is absent from the published tree, yet stays in Intent as
 // removed in both "Selected story only" states, with the deletion diff
 // Review changes shows; the modified and added files show Review's diffs
-// too. A completed story whose published comparison cannot be recovered
-// says why, with no retry, and leaves the published tree usable. The
-// workspace journey: ./intent-story-changes.spec.ts.
+// too. That a diff is the same in both states is proved with the moves
+// (./intent-story-changes-moves.spec.ts). A completed story whose published
+// comparison cannot be recovered says why, with no retry, and leaves the
+// published tree usable. The workspace journey: ./intent-story-changes.spec.ts.
 
 import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
@@ -26,13 +27,12 @@ import {
   folderCaret,
   intentDiff,
   intentFile,
-  kindStyles,
   lens,
-  nameStyle,
   openReviewFromIntent,
   reviewDiff,
   storyOnly,
 } from "./support/intentStoryPage.ts";
+import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { git } from "./support/storyReviewWorktree.ts";
 
 test.setTimeout(180_000);
@@ -90,7 +90,6 @@ test("Intent overlays a completed story's published history comparison, naming i
   });
 
   const style = await kindStyles(intent);
-  const inIntent = new Map<string, string>();
   for (const only of [false, true]) {
     const state = only ? "on" : "off";
     if (only) await storyOnly(intent).check();
@@ -116,22 +115,19 @@ test("Intent overlays a completed story's published history comparison, naming i
         "6 changed files outside Intent locations are shown in Review changes. Review changes",
       );
     });
-
-    await test.step(`Selected story only ${state}: each changed file opens its diff, Proof naming the published revision`, async () => {
-      for (const name of Object.values(changed)) {
-        const diff = await intentDiff(intent, name);
-        if (only) expect(diff, name).toBe(inIntent.get(name));
-        inIntent.set(name, diff);
-        await expect(await proofRevision()).toHaveText(
-          shortRevision(published),
-        );
-      }
-      await intentFile(intent, changed.deleted).click();
-      await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-        `The published revision has no ${gone}.`,
-      );
-    });
   }
+
+  const inIntent = new Map<string, string>();
+  await test.step("each changed file opens its diff, Proof naming the published revision", async () => {
+    for (const name of Object.values(changed)) {
+      inIntent.set(name, await intentDiff(intent, name));
+      await expect(await proofRevision()).toHaveText(shortRevision(published));
+    }
+    await intentFile(intent, changed.deleted).click();
+    await expect(await chooseReadingTab(intent, "Proof")).toContainText(
+      `The published revision has no ${gone}.`,
+    );
+  });
 
   await test.step("each changed file's diff in Intent is the one Review changes shows", async () => {
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
