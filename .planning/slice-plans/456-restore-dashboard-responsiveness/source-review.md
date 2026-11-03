@@ -50,11 +50,11 @@ return numbered commitments with sub-ids for listed compound items.
 | 9d | "the historical remainder is read when a developer opens or acts on a retained session or expands the Recently done sessions section" | slice 6 |  |
 | 9e | "A poll's work stays off the request path of other viewers" | slice 5 |  |
 | 9f | Poll work stays "within the targets below" | slice 5 |  |
-| 10 | **Repeatable baselines**: "A local replay with roughly 1,000 records and attempts" | slice 4 |  |
-| 10a | The replay reports "startup" | slice 4 |  |
-| 10b | The replay reports "an unchanged poll" | slice 4 |  |
-| 10c | The replay reports "one active state change" | slice 4 |  |
-| 10d | The replay reports "the latency of a concurrent trivial request" | slice 4 |  |
+| 10 | **Repeatable baselines**: "A local replay with roughly 1,000 records and attempts" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: 1,005 records, 1,034 attempts, 1,191-entry Claude listing, 9.90 MB answer |
+| 10a | The replay reports "startup" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: startup to listening 237-274 ms |
+| 10b | The replay reports "an unchanged poll" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: unchanged poll wall and event-loop time, raw and net of the quiet floor |
+| 10c | The replay reports "one active state change" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: one working-to-blocked change, revision differs, exactly one record differs |
+| 10d | The replay reports "the latency of a concurrent trivial request" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: trivial request p50/p99/max during polls and without polls |
 | 10e | Reported "before and after, so the targets below are measured, not asserted" | slice 6 |  |
 | 11 | Preserved: "the last successful snapshot stays shown with its revision and retrieval time while a read fails" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": membership and Board links stay A's, labelled with A's retrieval time |
 | 12 | Preserved: "the existing bounded visible-page recovery re-asks eligible reads without a reload once the owner is reachable again, including across an owner replacement" | slice 3 | observed: owner-replacement-recovery.spec.ts "a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask": recovery through the new owner (different pid) without a reload |
@@ -91,7 +91,7 @@ return numbered commitments with sub-ids for listed compound items.
 | 28 | Boundary: "the SEED-118 cache-validation story stays separate and is not a prerequisite" | slice 6 |  |
 | 29 | Boundary: "Published Git remains the authority for workflow facts and local evidence stays separate under ADR 0008" | slice 6 |  |
 | 30 | "Plans, delegation briefs, and repair handoffs carry the project's Failing and flaky tests policy" | slice 1 | observed: PLAN.md Outside-in proof carries the policy link; slice 1 delegation brief carried it verbatim |
-| 31 | Baseline context: "Production on 2026-11-03 with 1,023 records and 1,034 attempts; targets apply to the replay at that scale and to production" | slice 4 |  |
+| 31 | Baseline context: "Production on 2026-11-03 with 1,023 records and 1,034 attempts; targets apply to the replay at that scale and to production" | slice 4 | observed: sessions-replay.spec.ts (DOUGH_SESSIONS_REPLAY=1) output table: seeded at production scale (5.66 MB records, 5.56 MB attempts vs 5.71/5.55 MB) and within noise of production after load |
 | 32 | Unchanged poll wall time: baseline "390–580 ms" → "at most 250 ms, bounded by one host listing (0.16–0.20 s for 1,176 Claude entries today)" | slice 5 |  |
 | 33 | Unchanged poll event-loop time: baseline "about 130 ms" → "at most 20 ms" | slice 5 |  |
 | 34 | Trivial request during a poll, p99: baseline "130 ms" → "at most 20 ms" | slice 5 |  |

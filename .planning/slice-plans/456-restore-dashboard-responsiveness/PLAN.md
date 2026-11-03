@@ -191,7 +191,7 @@ keeps its snapshot, and recovers once the new owner answers.
 
 ### 4. A repeatable replay reports the Sessions baseline
 Type: Behavior
-Status: planned
+Status: done
 Proof: a boundary-mode measurement spec (or `scripts/` node script using the
 harness) seeds ~1,000 done records and attempts plus five open sessions in
 the test HOME, then reports startup, cold full answer size and time, an
@@ -253,6 +253,20 @@ done sessions or opens a retained session → that history is read then.
   event-loop time.
 - The history ask reuses the sessions endpoint with an explicit parameter,
   not a second endpoint.
+- The workspaces fragment gets a real identity or leaves the event loop:
+  the replay measured its 66 Git processes at about 170 ms of loop time per
+  observation, more than the whole 20 ms target. Prefer keying it by Git
+  file identity (the checkouts' `.git` HEAD, refs and worktree entries) when
+  that identity covers every workspace fact the answer shows; otherwise run
+  its Git work asynchronously off the loop with the host listing's reuse
+  window.
+- The story's "first full answer, cold" baseline (production 420 ms) is a
+  full answer computed without reuse on a running server: the replay's warm
+  full answer (377–451 ms). The first answer after start (764–1,125 ms) is
+  reported, not targeted.
+- The 20 ms event-loop target is judged on the replay's net loop time
+  together with the trivial request's p99, since the quiet floor on this
+  machine is about 55 ms per second.
 - Slices 1–3 are a safe stopping point: evidence and recovery land without
   the sessions change. Slices 4–6 are the second.
 
@@ -305,6 +319,21 @@ done sessions or opens a retained session → that history is read then.
   falls back to a ref read through the new owner. The proof's queued-read
   step waits 1 s for lack of a queued signal; it fails loudly, not falsely,
   if the read arrives after the kill.
+
+- 2026-11-03 slice 4 baseline, HEAD f1e43552, replay
+  `uptime; DOUGH_SESSIONS_REPLAY=1 env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/sessions-replay.spec.ts`
+  (1,005 records, 1,034 attempts, 1,191 Claude entries, 268 Codex threads,
+  six projects with 44 worktrees), three runs at load 8–15: startup
+  237–274 ms; first answer after start 764–1,125 ms, 9.90 MB; warm full
+  answer 377–451 ms; unchanged poll wall median 325–376 ms (313–501), loop
+  time raw 170–195 ms, net 142–168 ms; quiet floor 54–61 ms/s; one state
+  change 335–425 ms; trivial p99 158–203 ms during polls, 3–9 ms without.
+  Within noise of production after load. Profile per observation: Git
+  workspace checks ~170 ms (66 synchronous spawns), `withStates` ~45 ms
+  (quadratic `find` in `launchStates.ts` and Claude's listing join), record
+  stats ~7 ms, serialize and hash 15–20 ms; zod parse of the machine
+  documents 192 ms mostly cold. Not covered: Cursor records, the 15 s
+  notification watch, Vite preview, the real claude's 160–200 ms start.
 
 ## Concern evidence
 

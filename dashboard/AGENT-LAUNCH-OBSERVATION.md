@@ -42,3 +42,29 @@ closed: its recorded probe settled at 51 MiB for one, three and eight viewers,
 compared with 22 MiB before the change. The additional working set consists of
 the parsed documents and latest observation; returning to the earlier heap
 baseline or expiring the observation after one second is not required.
+
+## Measuring the Sessions answer
+
+The Sessions replay measures this observation at production's scale on
+2026-11-03 without a page or a real host: a boundary server on about 1,000
+done and five open sessions, 1,034 attempts, a 1,191-entry Claude listing,
+Codex threads answered by the fake app server, and six projects whose
+checkouts hold 44 linked worktrees
+([seed](tests/support/sessionsReplaySeed.ts),
+[projects](tests/support/sessionsReplayProjects.ts)). It prints one table:
+startup, the first full answer cold and warm, the regular answer's size,
+unchanged polls past the one-second reuse window by wall and event-loop time,
+one native state change, and a trivial request's latency during polls and
+without them ([measures](tests/support/sessionsReplayMeasures.ts)). The normal
+suites skip it. Run it from the repository root, with the load average beside
+each run, and compare runs relative to that load:
+
+```sh
+uptime; DOUGH_SESSIONS_REPLAY=1 env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/sessions-replay.spec.ts
+```
+
+Event-loop time is the server's own event-loop watch, read from the incident
+record: the timer lateness its samples measured while a poll ran, a lower
+bound on time the loop was held, also shown net of the quiet floor the same
+run measures. `DOUGH_SESSIONS_REPLAY_PROFILE=<directory>` additionally writes
+each server-started Node process's CPU profile there.
