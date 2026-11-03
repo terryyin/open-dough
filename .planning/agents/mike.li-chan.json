@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mike.li-chan",
-  "email": "mike.li-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-225#restore-dashboard-responsiveness",
-  "host": "claude",
-  "model": "fable"
-}
