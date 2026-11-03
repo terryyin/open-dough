@@ -118,6 +118,14 @@ listing, retained-history and done-listing specs stay green.
 
 Structure: the history-only field rule has one home in the browser code.
 
+## Execution complete
+
+Product advice: no change. The five corrections restore the original story's
+promises without new behavior. Obligation G1 notes that seven boundary specs
+still order on the refusal marker's premise; if one of them flakes, the
+`ownerSends` signal from slice 2 (or a GitHub-call poll) is the ready
+replacement.
+
 ## Current decisions
 
 - Findings 1–5 form one bounded correction of plan 456's delivered code;
