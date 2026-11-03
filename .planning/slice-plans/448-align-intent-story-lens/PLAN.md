@@ -113,7 +113,7 @@ specs and typecheck pass. `story-card-selection.spec.ts` is 212 lines.
 
 ### 2. Intent's Review changes link shows Intent's comparison
 Type: Behavior
-Status: planned
+Status: done
 Proof: an Intent journey on a marked Taken story: Intent shows its changes;
 the outside-count **Review changes** button opens Review on All changes with
 the counted files listed and a changed file's diff equal to Intent's; Review
@@ -122,6 +122,13 @@ opened from the card opens on "since".
 Behavior: a Taken story with a review mark, selected in Intent → the developer
 follows **Review changes** → Review changes shows all changes including
 uncommitted ones, the comparison Intent shows.
+
+Accepted proof: `StoryReviewRequest` carries an optional `comparison`;
+Intent's outside-count button passes `defaultStoryComparison`, and
+`useStoryReviewRequest` opens on it or returns a shown review to it unless a
+captured run is shown. `intent-story-changes-marked.spec.ts` failed before the
+fix (opened on Since the review) and passes after; 203 `intent-`,
+`story-review` and `boundary/story-review` specs and typecheck pass.
 
 ### 3. Remove the lens residue and describe it
 Type: Structure

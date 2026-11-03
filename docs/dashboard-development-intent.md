@@ -164,8 +164,10 @@ everything else collapses. **Selected story only**, off at first, leaves
 just the changed files and the locations and folders holding them, or says no
 test file in a location changed; turning it on or off opens the same folders
 again and collapses the rest. Changed files no location selects by either path
-are counted with a way to Review changes. A changed file's Purpose is Review
-changes' diff of it, and its Proof says it describes the published revision.
+are counted with a way to Review changes, which opens on Intent's comparison
+(All changes, uncommitted changes included) even for a story with a review
+mark. A changed file's Purpose is Review changes' diff of it, and its Proof
+says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while
 the published tree stays usable; deselecting the story removes the lens.
 The story is a lens on Intent, not a separate definition of it, and its

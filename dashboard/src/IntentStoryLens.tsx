@@ -16,6 +16,7 @@ import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { defaultStoryComparison } from "./useStoryComparison.ts";
 import "./intent-story-lens.css";
 
 // The selected story as Intent names it.
@@ -102,6 +103,7 @@ function StoryOutsideLocations({
             identity: story.identity,
             title: story.title,
             control: event.currentTarget,
+            comparison: defaultStoryComparison,
             ...(story.completed ? { completed: true } : {}),
           });
         }}

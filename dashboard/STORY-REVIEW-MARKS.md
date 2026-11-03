@@ -49,7 +49,10 @@ Since the review uses the same snapshot and reads nothing anew
 (`src/StoryReviewComparison.tsx`); while all changes are shown, the
 review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
-changes since the review. When the repository no longer holds the marked
+changes since the review, except one from Intent's way to Review changes
+(`src/useStoryReviewRequest.ts`), which starts on, or returns the review
+shown to, Intent's comparison: All changes with uncommitted changes included.
+When the repository no longer holds the marked
 tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
 be compared: the answer carries the mark and `markUncomparable: "unreadable"`
