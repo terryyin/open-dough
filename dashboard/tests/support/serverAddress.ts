@@ -22,6 +22,14 @@ import { serverBundleVariable } from "./serverBundle.ts";
 export type DashboardServerMode = "dev" | "preview" | "boundary";
 
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
+// Vite's dev server through its API, restarted in place on SIGUSR2.
+const restartingDevServer = path.join(
+  repoRoot,
+  "dashboard",
+  "tests",
+  "fixtures",
+  "restarting-dev-server.mjs",
+);
 const bundle = process.env[serverBundleVariable];
 const boundaryServerEntry = path.join(
   repoRoot,
@@ -98,12 +106,13 @@ type Launch = {
 };
 
 // What a server of `mode` launches as, and the directory a preview serves:
-// the boundary entry in its project environment, Vite's dev server, or
-// Vite's preview of `prebuilt`, else of a build of its own made now in
-// `buildDir`.
+// the boundary entry in its project environment, Vite's dev server (one a
+// test restarts in place when `restartable`), or Vite's preview of
+// `prebuilt`, else of a build of its own made now in `buildDir`.
 export function serverLaunch(
   options: {
     readonly mode: DashboardServerMode;
+    readonly restartable?: boolean | undefined;
     readonly port: number | undefined;
     readonly environment: ProjectEnvironment;
     readonly prebuilt: string | undefined;
@@ -122,7 +131,12 @@ export function serverLaunch(
     // Dev mode compiles on the fly; it never reads or writes `dist`.
     return {
       spawn: () =>
-        spawnVite(["--config", "dashboard/vite.config.mts", ...listen], env),
+        options.restartable === true
+          ? spawnServer(process.execPath, [restartingDevServer, ...listen], env)
+          : spawnVite(
+              ["--config", "dashboard/vite.config.mts", ...listen],
+              env,
+            ),
       outDir: undefined,
     };
   }

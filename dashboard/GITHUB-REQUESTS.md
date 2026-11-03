@@ -241,7 +241,10 @@ that evidence after the process that wrote it is replaced. It lives in
 (`0700`, files `0600`): `entries.jsonl`, one entry appended per line by every
 dashboard process of this user, and `record.json`, when the record began and
 how many entries it dropped. Each entry carries its wall-clock `at`, the
-writing process's `pid`, start, and age, and the dashboard `revision` it ran.
+writing process's `pid`, start, and age, the `serverInstance` within it that
+wrote it (a dev server restarted in place, as Vite does when a server file
+changes, is a new instance of the same process, with its own entries and
+lifecycle), and the dashboard `revision` it ran.
 A `failed-read` entry adds the diagnostics fields above and where the read
 failed (`failureCategory`: `local` before GitHub could answer, `upstream`
 when GitHub refused, `unknown` when the process cannot tell), whether the
@@ -273,14 +276,14 @@ delay, `stalls` count, the first folded stall's `at`) written when the
 minute ends or the process closes, so a sustained stall
 cannot push failed reads out of the record.
 
-The diagnostics response keeps `failures`, this process's entries oldest
-first, and adds `record`: the source's recorded failures and every recorded
-stall across processes, this process's included, newest first; the processes
-that wrote it, newest first, each with its `state` (`current`, `running` for
-another whose pid still answers, `ended`, or `lost` for one whose record ends
-without `process-ended` and that no longer runs, with `lastAt`, its last
-entry); and the record's `startedAt` and `dropped`. Recording and reading it
-ask GitHub nothing.
+The diagnostics response keeps `failures`, this server instance's entries
+oldest first, and adds `record`: the source's recorded failures and every
+recorded stall across processes, this process's included, newest first; the
+server instances that wrote it, newest first, each with its `state`
+(`current`, `running` for another whose pid still answers, `ended`, or `lost`
+for one whose record ends without `process-ended` and that no longer runs,
+with `lastAt`, its last entry); and the record's `startedAt` and `dropped`.
+Recording and reading it ask GitHub nothing.
 
 An actual subprocess output bound is reported as `output-bound`; its partial
 body is discarded, while known upstream status/headers and directed-rate-limit

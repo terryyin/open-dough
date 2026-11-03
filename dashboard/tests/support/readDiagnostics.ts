@@ -49,6 +49,7 @@ type WrittenBy = {
   readonly at: string;
   readonly pid: number;
   readonly processStartedAt: string;
+  readonly serverInstance?: string;
   readonly seq: number;
   readonly revision?: string;
   readonly processAgeMs: number;
@@ -71,6 +72,7 @@ export type RecordedStall = WrittenBy & {
 export type RecordedProcess = {
   readonly pid: number;
   readonly processStartedAt: string;
+  readonly serverInstance?: string;
   readonly revision?: string;
   readonly startedAt: string;
   readonly lastAt: string;

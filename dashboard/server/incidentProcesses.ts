@@ -1,20 +1,27 @@
-// The dashboard processes this user's incident record (`./incidentRecord.ts`)
+// The dashboard servers this user's incident record (`./incidentRecord.ts`)
 // names, as the local diagnostics read (`./readDiagnostics.ts`) lists them:
-// each process that recorded its start (`./incidentLifecycle.ts`), with how
-// its record ends. A record that ends without a `process-ended` entry, of a
-// process that no longer runs, is a process lost: killed or crashed, never
-// a quiet period. Reads no file and asks nothing of GitHub.
+// each server instance that recorded its start (`./incidentLifecycle.ts`),
+// with how its record ends. A dev server restarted in place is a new
+// instance of the same process, listed apart. A record that ends without a
+// `process-ended` entry, of a process that no longer runs, is a process
+// lost: killed or crashed, never a quiet period. Reads no file and asks
+// nothing of GitHub.
 
-import type { IncidentEntry } from "./incidentEntry.ts";
+import {
+  incidentWriterKey,
+  type IncidentEntry,
+  type IncidentWriter,
+} from "./incidentEntry.ts";
 
-// `current` is the process answering; `running` another whose pid still
-// answers (it may, rarely, be a later process given the same pid); `ended`
-// one that closed its record; `lost` one that did not and is gone.
+// `current` is the server instance answering; `running` another whose pid
+// still answers (it may, rarely, be a later process given the same pid);
+// `ended` one that closed its record; `lost` one that did not and is gone.
 export type IncidentProcessState = "current" | "running" | "ended" | "lost";
 
 export type IncidentProcess = {
   readonly pid: number;
   readonly processStartedAt: string;
+  readonly serverInstance?: string;
   readonly revision?: string;
   // When it recorded its start, and its last entry: for a lost process, the
   // last time it is known to have run.
@@ -24,30 +31,21 @@ export type IncidentProcess = {
   readonly state: IncidentProcessState;
 };
 
-type ProcessOf = Pick<IncidentEntry, "pid" | "processStartedAt">;
-
-const processKey = ({ pid, processStartedAt }: ProcessOf) =>
-  `${String(pid)}@${processStartedAt}`;
-
-// Each process with a `process-started` entry among `entries` (oldest
+// Each server instance with a `process-started` entry among `entries` (oldest
 // first), newest start first. One whose start was pruned away is not
 // listed, since nothing then says where its record began.
 export function incidentProcesses(
   entries: readonly IncidentEntry[],
-  current: ProcessOf,
+  current: IncidentWriter,
 ): IncidentProcess[] {
   const seen = new Map<
     string,
     { started?: IncidentEntry; ended?: IncidentEntry; last: IncidentEntry }
   >();
   for (const entry of entries) {
-    const key = processKey(entry);
+    const key = incidentWriterKey(entry);
     const known = seen.get(key) ?? { last: entry };
-    // A server restarted within one process starts its record again.
-    if (entry.kind === "process-started") {
-      known.started = entry;
-      delete known.ended;
-    }
+    if (entry.kind === "process-started") known.started = entry;
     if (entry.kind === "process-ended") known.ended = entry;
     if (Date.parse(entry.at) >= Date.parse(known.last.at)) known.last = entry;
     seen.set(key, known);
@@ -56,7 +54,7 @@ export function incidentProcesses(
   for (const [key, { started, ended, last }] of seen) {
     if (started === undefined) continue;
     const state: IncidentProcessState =
-      key === processKey(current)
+      key === incidentWriterKey(current)
         ? "current"
         : ended !== undefined
           ? "ended"
@@ -67,6 +65,9 @@ export function incidentProcesses(
     listed.push({
       pid: started.pid,
       processStartedAt: started.processStartedAt,
+      ...(started.serverInstance !== undefined && {
+        serverInstance: started.serverInstance,
+      }),
       ...(revision !== undefined && { revision }),
       startedAt: started.at,
       lastAt: last.at,

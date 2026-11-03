@@ -2,6 +2,7 @@
 
 **Identity:** SEED-225#correct-incident-and-workspace-observation-residue
 **Source:** [correction story](../../seeds/SEED-225-restore-dashboard-responsiveness.md#correct-incident-and-workspace-observation-residue)
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance
 
@@ -68,7 +69,7 @@ active owner's uncommitted repair.
 
 ### 1. A restarted dev server keeps its own incident identity
 Type: Behavior
-Status: planned
+Status: done
 Proof: a focused test mounting the incident boundary twice in one process
 (as a Vite restart does): both instances' entries stay listed, the closed
 instance reads `ended`, the running one `current`, and a killed process
@@ -124,4 +125,8 @@ Structure: the history-only field rule has one home in the browser code.
 
 ## Learnings
 
-None yet.
+- Slice 1: Vite's in-place restart reloads the server modules, so an
+  identity fixed at module load (`incidentWriter.serverInstance`) separates
+  instances; proof restarts a real dev server through
+  `tests/fixtures/restarting-dev-server.mjs` on SIGUSR2
+  (`authenticated-read-incident-record-restart.spec.ts`).
