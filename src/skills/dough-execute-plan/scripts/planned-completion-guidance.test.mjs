@@ -161,3 +161,11 @@ test("integrated-state evidence stays accurate without requiring a routine recap
   );
   assert.match(mechanics, /Keep the accepted SHA as the publication receipt/);
 });
+
+test("the execution-complete record leaves lifecycle commitments unobserved for their owners", () => {
+  const record = section(finish, "## Record execution completion");
+  assert.match(
+    record,
+    /every unobserved slice commitment of a\s+linked source review, before continuing; a lifecycle row stays unobserved for\s+its owner/,
+  );
+});

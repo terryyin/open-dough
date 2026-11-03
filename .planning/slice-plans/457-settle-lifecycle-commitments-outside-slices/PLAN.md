@@ -3,6 +3,7 @@
 **Identity:** SEED-010#settle-lifecycle-commitments-outside-slices
 **Source:** [story 19](../../seeds/SEED-010-learn-from-execution-retrospectives.md#settle-lifecycle-commitments-outside-slices),
 evidence at [ODF-333](../../../docs/maintainer/findings/ODF-333.md).
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -77,7 +78,7 @@ written.
 
 ### 1. Lifecycle-owned commitments pass execution checks unobserved
 Type: Behavior
-Status: planned
+Status: done
 Proof: script tests in `story-obligations-source-review*.test.mjs` and
 `story-obligations-completion.test.mjs` for: each owner accepted in the Slice
 cell and by `record --lifecycle <owner>`; unobserved lifecycle rows passing
@@ -98,6 +99,19 @@ it as pending lifecycle.
 Interim: until slice 2, closure relies on wrap-up's existing receipt gates
 without naming the lifecycle rows; nothing lands from this story branch before
 wrap-up.
+
+Accepted (slice 1): owners are spelled `landing`, `target CI`, `reporting`
+(case-sensitive, unprefixed in Slice). Every check returns
+`pendingLifecycle: [{id, text, owner}]` in table order, also on refusals,
+absent when no lifecycle row exists; `observed:` on a lifecycle row refuses
+`observed-lifecycle-commitment`. Proof:
+`story-obligations-source-review-lifecycle.test.mjs`, the completion and
+guidance tests, and replays of Pygardon 484 (`f144646a`, 52/53/55/63–66
+reallocated: `ok` with seven pending rows) and Open Dough 432 (`d0bd00eda^`:
+six original `observed:` cells refused; cleared: `ok`).
+Learning for slices 2–3: `read-budget-guidance.test.mjs` leaves almost no
+headroom in execute-plan's "Before delivery" and "Before finishing or
+stopping" read sets; put closure detail in `dough-story-wrap-up` files.
 
 ### 2. Wrap-up carries lifecycle commitments to closure
 Type: Behavior
@@ -131,6 +145,13 @@ and Pygardon plan 389: one go-ahead covers landing and release.
 Behavior: a Story Branch plan whose slice releases from trunk → planning and
 execution follow the changed guidance → one checkpoint go-ahead covers the
 retained landing and the release, with no mid-slice landing question.
+
+## Story obligations
+
+### G1. Wrap-up does not yet name lifecycle rows at closure
+Reported: slice 1 — "Wrap-up does not yet consume `pendingLifecycle` or refuse closure on it."
+Story clause: "Closure does not report success while any of them lacks its owner's observation, and its report names each such commitment and its owner."
+Disposition: interim until slices 2
 
 ## Current decisions
 

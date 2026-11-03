@@ -84,8 +84,7 @@ not execution; completed preparation keeps its existing release and landing
 journey. Do not label ordinary reviewed work unfinished merely because it has no
 story or plan.
 
-For execution, apply wrap-up's
-[execution-completion judgment](../dough-story-wrap-up/SKILL.md#establish-execution-completion)
+For execution, apply wrap-up's [execution-completion judgment](../dough-story-wrap-up/SKILL.md#establish-execution-completion)
 to the selected source and available results. For a resolved executable plan,
 check its recorded slices and obligations before any Git change:
 
@@ -93,13 +92,14 @@ check its recorded slices and obligations before any Git change:
 node <installed>/dough-execute-plan/scripts/story-obligations.mjs check --plan <PLAN.md> --planned-completion
 ```
 
-Use this project's selected plan, not a plan found by guessing from this skill's
-location. The command reuses the existing plan and obligation readers: it names
-pending slices, open obligations, source-review commitments without an owner
-or observation, and unreadable or missing slice evidence. A
-clear result checks those records only; judge the promised outcome and accepted
-proof too. For planless execution, judge its instruction, changes and execution
-results; absence of a plan is not completion evidence.
+Use this project's selected plan, never a guessed one. The command names pending
+slices, open obligations, unowned or unobserved source-review commitments, and
+unreadable or missing slice evidence. Commitments allocated to a lifecycle owner
+(`landing`, `target CI` or `reporting`) do not stop landing: the result lists
+them as `pendingLifecycle`, still owed to their owners' receipts; never mark one
+observed to land. A clear result checks those records only; judge the promised
+outcome and accepted proof too. For planless execution, judge its instruction,
+changes and results; absence of a plan is not completion evidence.
 
 On an ordinary invocation, unfinished execution or missing or ambiguous completion
 evidence stops here, before commit or publication. Keep the checkout, branches,

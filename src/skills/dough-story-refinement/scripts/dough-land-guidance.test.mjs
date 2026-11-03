@@ -160,6 +160,10 @@ test("Dough Land judges execution completion before commit and on accepted rerun
   assert.match(judgment, /story-obligations\.mjs.*--planned-completion/s);
   assert.match(
     judgment,
+    /allocated\s+to a lifecycle owner\s+\(`landing`, `target CI` or `reporting`\) do not stop\s+landing[\s\S]+`pendingLifecycle`, still owed to their\s+owners' receipts[\s\S]+never mark one\s+observed to land/,
+  );
+  assert.match(
+    judgment,
     /dough-story-wrap-up\/SKILL\.md#establish-execution-completion/,
   );
   assert.match(land, /rerun.*completion.*before.*commit/s);
