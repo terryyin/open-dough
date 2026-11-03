@@ -282,7 +282,7 @@ acting on, or expanding retained sessions reads their history then.
 
 ### 9. Only attempts still needing attention travel with the overview
 Type: Behavior
-Status: planned
+Status: done
 Proof: define, from the code, which attempts still need attention (for
 example, not yet resolved by a recorded session) and trace every reader of
 known attempts (`storyStartup.ts`, `launchAttempts.ts`, startup recovery
@@ -445,6 +445,20 @@ attention; resolved attempts are read with the history.
   are now the bulk of the regular answer. A test route that rebuilds a full
   answer must send `origin` itself.
 
+- 2026-11-04 slice 9: the overview carries `attemptsNeedingAttention`
+  (running or unsettled attempts, and the first and latest attempt of each
+  lane holding one, needing reconciliation, or not yet reconciled); every
+  other attempt is in the history, and a page following its own settled
+  launch reads it there. Settled by a 5,000-machine equivalence spec over
+  every page reader. Replay (load 5.7–6.6): regular answer 2.03 MB (9.90 MB
+  before), warm full answer 261–283 ms, unchanged poll 67–81 ms with net
+  loop 0, trivial p99 6–11 ms. Tests that hide launch outcomes must hide
+  them in the history too.
+  Final state, 2026-11-04: full `npm test` passed (load 5–12); the whole
+  dashboard suite passed 1,960 with one failure,
+  `production-watcher-updates.spec.ts` reading a settled attempt from the
+  regular answer, fixed to read the history too (file 7/7).
+
 ## Concern evidence
 
 Refinement ran as part of planning: the first draft had the replay after
@@ -477,3 +491,13 @@ Disposition: no user cost "can read evidence that locates the failure even after
 Reported: slice 2 — "SIGINT (Ctrl-C on the dev server) does not end the record, so a dev server stopped that way reads as lost"
 Story clause: "labels it as process lost, not as a quiet period"
 Disposition: no user cost "can read evidence that locates the failure even after the production preview was replaced": the production preview is stopped by SIGTERM, which ends its record; only a developer's interactive dev server is stopped by Ctrl-C, and reading it as lost still marks where its evidence ends
+
+### G4. A story attempt completed without an outcome stays reconciling
+Reported: slice 9 — "A story attempt with no outcome but a completed session stays \"reconciling\" forever, because `latestSettled` never notes it"
+Story clause: "no change to the Sessions sidebar's visible behavior beyond when history loads"
+Disposition: no user cost "keeps the Board, Intent, and the Sessions sidebar usable while the dashboard's own refreshes run": the display predates this story and slice 9 keeps that attempt in the overview, so pages show exactly what they showed before; the defect itself is outside this story's goal and is reported for a follow-up
+
+### G5. An unusable history answer is asked again at each poll while a launch is followed
+Reported: slice 9 — "If the history answer is unusable while the page follows an accepted attempt, the page asks the history again each time the overview names a revision it does not hold"
+Story clause: "the historical remainder is read when a developer opens or acts on a retained session"
+Disposition: no user cost "keeps the Board, Intent, and the Sessions sidebar usable while the dashboard's own refreshes run": the re-ask happens at most once per poll and only while the page follows its own launch, and an unchanged history ask costs about 60 ms with no event-loop time

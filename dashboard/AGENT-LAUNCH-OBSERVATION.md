@@ -20,14 +20,23 @@ revision is the digest of the answer's fragments: each session entry, each
 attempt, and the rest of the answer. The regular answer holds open sessions in
 full and each retained done session only as its listing facts, everything its
 entries show while nothing retained is opened; the launch's reporting handoff,
-the first input's text and the landing evidence stay with the history. A read
+the first input's text and the landing evidence stay with the history. It
+carries only the attempts that still need attention
+([selection](src/launchAttemptSelection.ts)): every attempt a server runs or
+that never settled, and each story's or project's ad hoc latest attempt while
+it needs reconciliation, while it is a story's settled start no page has yet
+reconciled with the published snapshot, or while another attempt of its story
+is carried; so startup, reconciliation and recovery read the same latest
+attempt from it as from all attempts. A read
 with `?audience=history` is answered from the same observation with the
 history instead: every retained done session's full entry and the attempts
 that no longer need attention, under the history's own revision, which every
 full regular answer names as `historyRevision`; the same revision header asks
 whether it still stands, and any other audience is refused. A page reads the
 history when a developer opens or acts on a retained session, opens its
-Review changes, or expands Recently done sessions, and again only once the
+Review changes, or expands Recently done sessions, or when a launch it asked
+for is no longer among the regular answer's attempts once a read asked after
+its acceptance answered, and again only once the
 regular answer names a newer `historyRevision`. An observation serializes again only the
 entries whose kept record or observed reading changed, and runs Git for a
 checkout's worktrees only when that checkout's Git files (worktree entries, heads, refs,
@@ -74,7 +83,9 @@ startup, the first full answer cold and warm, the regular answer's size,
 unchanged polls past the one-second reuse window by wall and event-loop time,
 the history ask's first full answer and its unchanged asks the same way,
 one native state change, and a trivial request's latency during polls and
-without them ([measures](tests/support/sessionsReplayMeasures.ts)). The normal
+without them ([measures](tests/support/sessionsReplayMeasures.ts)), each
+beside the baseline three runs measured before this observation was changed
+([table](tests/support/sessionsReplayTable.ts)). The normal
 suites skip it. Run it from the repository root, with the load average beside
 each run, and compare runs relative to that load:
 

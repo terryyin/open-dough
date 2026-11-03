@@ -4,8 +4,9 @@
 // (`./sharedObservation.ts`): every catalog project's launch records with each
 // session's state, the launch attempts, creations, catalog facts, starts,
 // alerts availability, and workspaces; and, for a viewer asking for the
-// history instead, its retained done sessions and resolved attempts
-// (`../src/machineSessionsRevision.ts`). Each answer's revision, which it
+// history instead, its retained done sessions and the attempts that no longer
+// need attention (`../src/launchAttemptSelection.ts`,
+// `../src/machineSessionsRevision.ts`). Each answer's revision, which it
 // carries, is the digest of that answer's fragments
 // (`./machineSessionsFragments.ts`): an observation serializes only the
 // session entries that moved since the last, and puts a whole answer
@@ -37,7 +38,7 @@ import type {
 import type { FeedbackMaintenanceState } from "../src/feedbackMaintenanceState.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
-import { resolvedAttempt } from "../src/launchAttemptSelection.ts";
+import { attemptsNeedingAttention } from "../src/launchAttemptSelection.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
@@ -134,7 +135,7 @@ async function observeMachineSessions(
   const { overview, history } = fragments.answers(
     records,
     rest,
-    resolvedAttempt,
+    attemptsNeedingAttention(attempts),
   );
   return {
     ...observedAnswer(overview),

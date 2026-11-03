@@ -7,14 +7,17 @@
 // observation begun after that read arrived.
 // A read naming `sessionsHistoryAudience` in `sessionsAudienceParameter` is
 // answered the machine's sessions history instead: every retained done
-// session in full and the resolved attempts, under the history's own
+// session in full and the attempts that no longer need attention
+// (`./launchAttemptSelection.ts`), under the history's own
 // revision, which every full answer names as `historyRevision`; the same
 // header rules apply to it. Any other audience is refused. A full answer
 // carries each retained done session only as its listing facts
-// (`./doneSessionListing.ts`); its full entry is the history's.
+// (`./doneSessionListing.ts`), whose full entry is the history's, and only
+// the attempts that still need attention.
 
 import { z } from "zod";
 import { launchRecordsSchema, launchWithStateSchema } from "./agentLaunch.ts";
+import { attemptObservationSchema } from "./launchOutcome.ts";
 
 export const sessionsRevisionHeader = "x-open-dough-sessions-revision";
 export const sessionsFreshHeader = "x-open-dough-sessions-fresh";
@@ -39,13 +42,15 @@ export const machineSessionsReadSchema = z.union([
 
 export type MachineSessionsRead = z.infer<typeof machineSessionsReadSchema>;
 
-// The retained done sessions in full under the history's revision, or the
-// word that the held history revision still stands.
+// The retained done sessions in full and the attempts that no longer need
+// attention under the history's revision, or the word that the held history
+// revision still stands.
 export const sessionsHistoryReadSchema = z.union([
   unchangedSchema,
   z.object({
     revision: z.string().min(1),
     records: z.array(launchWithStateSchema),
+    attempts: z.array(attemptObservationSchema).default([]),
   }),
 ]);
 

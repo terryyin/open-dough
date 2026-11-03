@@ -3,8 +3,9 @@
 // and every attempt on its own, and the rest of each answer. The regular
 // answer holds every open entry in full and every retained done entry as its
 // listing facts (`../src/doneSessionListing.ts`), each with its own digest
-// beside its full one, and every attempt; the history holds the retained done
-// entries in full, in the same order, and the attempts it is given, and has
+// beside its full one, and the attempts that still need attention; the
+// history holds the retained done entries in full, in the same order, and
+// every other attempt, and has
 // its own revision, which the regular answer's rest names. An entry whose
 // kept record is the same document the machine store still holds
 // (`./machineJsonStore.ts`) and whose observed facts -- shown workspace,
@@ -95,13 +96,15 @@ type Rest = Readonly<Record<string, unknown>> & {
   readonly attempts: readonly AttemptObservation[];
 };
 
-// The answer of `entries` followed by `rest`'s fields, as one object would
-// serialize with its records first, whose attempts are `attempts`.
+// The answer of `entries` followed by `fields`, as one object would
+// serialize with its records first, whose attempts are `attempts`, in place
+// of any attempts `fields` name.
 function assembled(
   entries: readonly Serialized[],
   attempts: readonly HeldAttempt[],
-  rest: Rest,
+  fields: Readonly<Record<string, unknown>>,
 ): AnswerFragments {
+  const rest = { ...fields, attempts: attempts.map(({ attempt }) => attempt) };
   const digests = (fragments: readonly { readonly digest: string }[]) =>
     digestOf(fragments.map(({ digest }) => digest).join(""));
   // The other fields, which the serialization leaves out of an undefined key.
@@ -130,12 +133,13 @@ export class SessionsAnswerFragments {
 
   // The regular answer of `records`, retained done ones as listing facts,
   // followed by `rest`'s fields and the history's revision as
-  // `historyRevision`; and the history of the retained done `records` in full
-  // and the attempts of `rest` that are `historied`.
+  // `historyRevision`, carrying only the attempts of `rest` that are
+  // `attending`; and the history of the retained done `records` in full and
+  // the other attempts of `rest`.
   answers(
     records: readonly LaunchWithState[],
     rest: Rest,
-    historied: (attempt: AttemptObservation) => boolean,
+    attending: ReadonlySet<AttemptObservation>,
   ): SessionsAnswers {
     const previous = this.entries;
     const entries = new Map<string, HeldEntry>();
@@ -157,24 +161,24 @@ export class SessionsAnswerFragments {
       attempt,
       digest: digestOf(JSON.stringify(attempt)),
     }));
-    const historyAttempts = attempts.filter(({ attempt }) =>
-      historied(attempt),
+    const overviewAttempts = attempts.filter(({ attempt }) =>
+      attending.has(attempt),
+    );
+    const historyAttempts = attempts.filter(
+      ({ attempt }) => !attending.has(attempt),
     );
     const history = assembled(
       held
         .filter(({ entry }) => entry.doneAt !== undefined)
         .map(({ full }) => full),
       historyAttempts,
-      { attempts: historyAttempts.map(({ attempt }) => attempt) },
+      {},
     );
     return {
       overview: assembled(
         held.map(({ listed }) => listed),
-        attempts,
-        {
-          ...rest,
-          historyRevision: history.revision,
-        },
+        overviewAttempts,
+        { ...rest, historyRevision: history.revision },
       ),
       history,
     };

@@ -1,11 +1,14 @@
 // The page's one owner of the machine's sessions history
 // (`./machineSessionsReads.ts`): the full entries of retained done sessions,
-// whose listing facts alone the overview carries (`./doneSessionListing.ts`).
-// Nothing reads it until a developer opens or acts on a retained session or
-// expands Recently done sessions; each such opening reads it once, and only
-// when the overview names a history revision the page does not hold. Until a
-// read answers, or when it fails, every retained session shows its listing
-// facts as before, and the next opening asks again.
+// whose listing facts alone the overview carries (`./doneSessionListing.ts`),
+// and the attempts that no longer need attention, which the overview leaves
+// out (`./launchAttemptSelection.ts`). Nothing reads it until a developer
+// opens or acts on a retained session or expands Recently done sessions, or
+// the page follows a launch it asked for whose attempt the overview no longer
+// carries (`./askedLaunches.ts`); each such need reads it once, and only when
+// the overview names a history revision the page does not hold. Until a read
+// answers, or when it fails, every retained session shows its listing facts
+// as before, and the next need asks again.
 
 import {
   createContext,
@@ -17,6 +20,7 @@ import {
   useState,
 } from "react";
 import { withRetainedDetail } from "./doneSessionListing.ts";
+import type { AttemptObservation } from "./launchOutcome.ts";
 import type { LaunchWithState } from "./launchRecord.ts";
 import { readSessionsHistorySince } from "./machineSessionsReads.ts";
 import { sessionKey } from "./sessionReference.ts";
@@ -24,14 +28,19 @@ import { sessionKey } from "./sessionReference.ts";
 type HeldHistory = {
   readonly revision: string;
   readonly entries: ReadonlyMap<string, LaunchWithState>;
+  readonly attempts: readonly AttemptObservation[];
 };
 
 export type RetainedHistory = {
   // The machine's sessions with each retained one's full entry once read.
   readonly records: readonly LaunchWithState[];
+  // The attempts that no longer need attention, once read.
+  readonly attempts: readonly AttemptObservation[];
   // Asks for the history when the page does not hold its named revision.
   readonly readHistory: () => void;
 };
+
+const noAttempts: readonly AttemptObservation[] = [];
 
 // `known` are the overview's sessions, and `named` the history revision its
 // latest full answer names, if any.
@@ -69,6 +78,7 @@ export function useRetainedHistory(
                   entry,
                 ]),
               ),
+              attempts: answer.attempts,
             };
       heldNow.current = now;
       setHeld(now);
@@ -86,7 +96,7 @@ export function useRetainedHistory(
           ),
     [known, held],
   );
-  return { records, readHistory };
+  return { records, attempts: held?.attempts ?? noAttempts, readHistory };
 }
 
 // Asks the page's history read, wherever a retained session is opened or

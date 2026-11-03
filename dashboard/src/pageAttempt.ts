@@ -33,10 +33,13 @@ export type PageAttempt =
       readonly problem: LaunchProblem;
       readonly lostAfter: number;
     }
+  // Accepted once the first `acceptedAfter` reads were asked: a read asked
+  // after them that no longer carries it shows it no longer needs attention.
   | {
       readonly kind: "accepted";
       readonly attempt: AttemptObservation;
       readonly onLaunched: OnLaunched;
+      readonly acceptedAfter: number;
     }
   | LaunchProblem;
 
@@ -85,9 +88,9 @@ export function shownAttempt(
 }
 
 // What this page keeps of a launch once its acceptance was answered (but
-// for existing changes, which the dialog asks about): the accepted attempt
-// it follows, a lost answer still to check against a read asked after the
-// first `lostAfter` reads, or the problem answered.
+// for existing changes, which the dialog asks about), once the first `asked`
+// reads were asked: the accepted attempt it follows, a lost answer still to
+// check against a read asked after them, or the problem answered.
 export function answeredAttempt(
   answer: Exclude<
     AcceptanceAnswer,
@@ -97,13 +100,18 @@ export function answeredAttempt(
   >,
   request: AgentLaunchRequest,
   onLaunched: OnLaunched,
-  lostAfter: number,
+  asked: number,
 ): PageAttempt {
   if (answer.kind === "accepted")
-    return { kind: "accepted", attempt: answer.attempt, onLaunched };
+    return {
+      kind: "accepted",
+      attempt: answer.attempt,
+      onLaunched,
+      acceptedAfter: asked,
+    };
   const problem = { kind: answer.kind, explanation: answer.explanation };
   return answer.kind === "uncertain" && answer.unacknowledged === true
-    ? { kind: "unacknowledged", request, problem, lostAfter }
+    ? { kind: "unacknowledged", request, problem, lostAfter: asked }
     : problem;
 }
 

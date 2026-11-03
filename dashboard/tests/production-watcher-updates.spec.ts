@@ -24,6 +24,10 @@ import {
 import { productionUpdatePolicies } from "./support/productionUpdatePolicies.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import type { Acceptance, MachineAnswer } from "../src/agentLaunch.ts";
+import {
+  sessionsAudienceParameter,
+  sessionsHistoryAudience,
+} from "../src/machineSessionsRevision.ts";
 
 test.describe.configure({ mode: "serial" });
 const journey = productionUpdateJourney();
@@ -118,7 +122,14 @@ test("a commit held in its build is served exactly at the same URL, and a later 
     headers: { Origin: state.served.url },
   });
   const established = (await sessions.json()) as MachineAnswer;
-  const attempt = established.attempts.find(
+  // A settled launch no longer needs attention, so its attempt is read with
+  // the history rather than the regular answer.
+  const history = await request.get(
+    `${state.served.url}/__agent-launch?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
+    { headers: { Origin: state.served.url } },
+  );
+  const retained = (await history.json()) as Pick<MachineAnswer, "attempts">;
+  const attempt = [...established.attempts, ...retained.attempts].find(
     (entry) => entry.id === accepted.attempt.id,
   );
   expect(attempt).toMatchObject({

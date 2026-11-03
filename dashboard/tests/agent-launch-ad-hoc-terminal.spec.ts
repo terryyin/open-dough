@@ -8,6 +8,8 @@
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import type { Page } from "@playwright/test";
+import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   expectQuietAdHocActionsRow,
@@ -25,11 +27,13 @@ test.use({ projectFolders: ["open-dough"] });
 
 // While withheld, the page reads every launch attempt of this machine as still
 // starting, though its session may already be listed: the window between the
-// service keeping a session's record and noting its attempt launched.
+// service keeping a session's record and noting its attempt launched. That
+// holds for the sessions history too, where a settled ad hoc attempt goes.
 // Releasing lets the next read see the launched outcome.
 async function withholdLaunchOutcomes(page: Page) {
   let withheld = true;
-  await page.route("**/__agent-launch", async (route) => {
+  const sessionsRead = (url: URL) => url.pathname === agentLaunchEndpoint;
+  await page.route(sessionsRead, async (route) => {
     if (route.request().method() !== "GET" || !withheld) {
       await route.continue();
       return;
@@ -44,14 +48,24 @@ async function withholdLaunchOutcomes(page: Page) {
     const body = (await response.json()) as {
       attempts?: Record<string, unknown>[];
       revision?: string;
+      historyRevision?: string;
     };
     for (const attempt of body.attempts ?? []) {
       delete attempt["outcome"];
       delete attempt["settledAt"];
     }
     // The withheld answer is not the observation it was taken from, so the
-    // page holds no revision and every read is answered in full.
-    delete body.revision;
+    // page holds no revision and every read is answered in full. A withheld
+    // history is named apart from the history it was taken from, by the
+    // regular answer too: the page keeps it without asking again until the
+    // release names the real one.
+    const history = new URL(route.request().url()).searchParams.has(
+      sessionsAudienceParameter,
+    );
+    if (history) body.revision = `withheld-${body.revision ?? ""}`;
+    else delete body.revision;
+    if (body.historyRevision !== undefined)
+      body.historyRevision = `withheld-${body.historyRevision}`;
     await route.fulfill({ response, json: body });
   });
   return () => {

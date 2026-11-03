@@ -1,22 +1,24 @@
 // A sessions ask naming the history audience is answered the machine's
-// retained done sessions in full and its resolved attempts, under the
-// history's own revision, which the regular answer names
-// (../../src/machineSessionsRevision.ts,
+// retained done sessions in full and the attempts that no longer need
+// attention, under the history's own revision, which the regular answer
+// names; the regular answer carries only the attempts that still do
+// (../../src/launchAttemptSelection.ts,
+// ../../src/machineSessionsRevision.ts,
 // ../../server/machineSessionObservation.ts). A viewer holding the current
 // history revision is answered only that it is unchanged; a change to an open
-// session leaves it standing, and a session marked done moves it. Any other
-// audience is refused.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// session leaves it standing, and a session marked done or an attempt
+// reconciled moves it. Any other audience is refused.
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { launchRecordsSchema } from "../../src/agentLaunch.ts";
-import { resolvedAttempt } from "../../src/launchAttemptSelection.ts";
+import { attemptsNeedingAttention } from "../../src/launchAttemptSelection.ts";
 import type { AttemptObservation } from "../../src/launchOutcome.ts";
 import {
   machineSessionsReadSchema,
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
-import { markDone } from "../agentLaunchBoundary.ts";
+import { markDone, noteReconciled } from "../agentLaunchBoundary.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import {
   startDashboardServer,
@@ -24,6 +26,7 @@ import {
 } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/pageTest.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import { keepUnsettledAttempt } from "../support/unsettledAttempt.ts";
 import {
   type AnsweredEntry,
   withoutRetainedDetail,
@@ -72,33 +75,6 @@ const entriesIn = (body: string) =>
 const attemptIds = (answer: Answer) =>
   (answer.attempts ?? []).map(({ id }) => id).toSorted();
 
-// Keeps an unsettled copy of the project's first attempt, which no server
-// runs, so it still needs reconciliation.
-function keepUnsettledAttempt(server: DashboardServer): string {
-  const file = path.join(
-    server.home,
-    ".open-dough",
-    "dashboard",
-    "launch-attempts.json",
-  );
-  const kept = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    Record<string, unknown>[]
-  >;
-  const project = kept["open-dough"] ?? [];
-  const [first] = project;
-  if (first === undefined) throw new Error("No kept attempt");
-  const unsettled = Object.fromEntries(
-    Object.entries(first).filter(
-      ([key]) => !["outcome", "settledAt", "reconciledAt"].includes(key),
-    ),
-  );
-  const id = "00000000-0000-4000-8000-0000000000aa";
-  project.push({ ...unsettled, id });
-  writeFileSync(file, JSON.stringify(kept));
-  return id;
-}
-
 test.describe("the sessions history ask", () => {
   let machine: string;
   let server: DashboardServer;
@@ -117,7 +93,7 @@ test.describe("the sessions history ask", () => {
     rmSync(machine, { recursive: true, force: true });
   });
 
-  test("answers retained done sessions and resolved attempts under its own revision, which the regular answer names", async () => {
+  test("answers retained done sessions and attempts no longer needing attention under its own revision, which the regular answer names", async () => {
     const done = await launched(server);
     const open = await launched(server);
     expect(
@@ -129,6 +105,27 @@ test.describe("the sessions history ask", () => {
       ).status,
     ).toBe(200);
     const unsettled = keepUnsettledAttempt(server);
+    // Both launches settled; no page has reconciled either with the
+    // published snapshot yet, so both still need attention.
+    const before = await ask(server);
+    const attemptOf = (sessionId: string) =>
+      (before.answer.attempts ?? []).find(
+        ({ outcome }) =>
+          outcome?.kind === "launched" &&
+          outcome.session.sessionId === sessionId,
+      )?.id ?? "";
+    const doneAttempt = attemptOf(done.sessionId);
+    const openAttempt = attemptOf(open.sessionId);
+    expect(attemptIds(before.answer)).toEqual(
+      [doneAttempt, openAttempt, unsettled].toSorted(),
+    );
+    // A page reconciles the open session's start: it no longer needs
+    // attention. The done session's start shares its story with the
+    // unsettled copy, which no server runs, so it still does.
+    expect((await noteReconciled(server, openAttempt)).status).toBe(200);
+    await expect
+      .poll(async () => attemptIds((await ask(server)).answer))
+      .toEqual([doneAttempt, unsettled].toSorted());
 
     const regular = await ask(server);
     expect(regular.status).toBe(200);
@@ -168,10 +165,20 @@ test.describe("the sessions history ask", () => {
     expect(entriesIn(regular.body).get(done.sessionId)).toBe(
       JSON.stringify(withoutRetainedDetail(JSON.parse(full) as AnsweredEntry)),
     );
-    const resolved = (regular.answer.attempts ?? []).filter(resolvedAttempt);
-    expect(resolved).toHaveLength(2);
-    expect(asked.answer.attempts).toEqual(resolved);
-    expect(attemptIds(asked.answer)).not.toContain(unsettled);
+    // Each attempt is in exactly one of the two answers, as the selection
+    // over all of them puts it.
+    expect(attemptIds(asked.answer)).toEqual([openAttempt]);
+    const all = [
+      ...(regular.answer.attempts ?? []),
+      ...(asked.answer.attempts ?? []),
+    ];
+    const attending = attemptsNeedingAttention(all);
+    expect(attemptIds({ ...regular.answer, attempts: [...attending] })).toEqual(
+      attemptIds(regular.answer),
+    );
+    expect(asked.answer.attempts?.[0]?.reconciledAt).toEqual(
+      expect.any(String),
+    );
     expect(Object.keys(asked.answer)).toEqual([
       "revision",
       "records",

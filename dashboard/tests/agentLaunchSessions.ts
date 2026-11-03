@@ -8,13 +8,20 @@ import {
   agentLaunchEndpoint,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
+import {
+  sessionsAudienceParameter,
+  sessionsHistoryAudience,
+} from "../src/machineSessionsRevision.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
 
-// The machine's sessions as the boundary answers them.
-async function sessionsAnswer<T>(server: DashboardServer): Promise<T> {
+// The machine's sessions as the boundary answers them, or their history.
+async function sessionsAnswer<T>(
+  server: DashboardServer,
+  query = "",
+): Promise<T> {
   const response = await rawRequest({
-    url: `${server.baseURL}${agentLaunchEndpoint}`,
+    url: `${server.baseURL}${agentLaunchEndpoint}${query}`,
     headers: { Origin: server.origin },
   });
   expect(response.status).toBe(200);
@@ -105,10 +112,19 @@ export async function runningStarts(
   return (await sessionsAnswer<{ starts: unknown[] }>(server)).starts;
 }
 
-// The launch attempts the boundary answers with the machine's sessions.
+// The launch attempts the boundary answers: those still needing attention
+// with the machine's sessions, then the others with their history.
 export async function attempts(
   server: DashboardServer,
 ): Promise<AttemptObservation[]> {
-  return (await sessionsAnswer<{ attempts: AttemptObservation[] }>(server))
-    .attempts;
+  type Answered = { attempts: AttemptObservation[] };
+  return [
+    ...(await sessionsAnswer<Answered>(server)).attempts,
+    ...(
+      await sessionsAnswer<Answered>(
+        server,
+        `?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
+      )
+    ).attempts,
+  ];
 }

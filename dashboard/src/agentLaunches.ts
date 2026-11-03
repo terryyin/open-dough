@@ -101,8 +101,11 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const reread = useCallback(() => {
     setRequested((value) => value + 1);
   }, []);
+  const retained = useRetainedHistory(known, historyRevision);
   const attempts = useLaunchAttempts({
     observed,
+    resolved: retained.attempts,
+    readHistory: retained.readHistory,
     keptStarts,
     hostOperations: sessions.hostOperations,
     attemptEvidence: !readAnswered
@@ -196,7 +199,6 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
     deletedAt,
   });
 
-  const retained = useRetainedHistory(known, historyRevision);
   const configuredKnown = retained.records.filter((record) =>
     projects.some((project) => project.id === record.request.source),
   );
