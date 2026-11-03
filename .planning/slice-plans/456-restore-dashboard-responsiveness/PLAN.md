@@ -262,7 +262,7 @@ the regular answer's done entries.
 
 ### 8. Done sessions in the regular answer carry only their listing facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: example 5 as a boundary case: with 1,000 done and five open, the
 regular answer holds the five open sessions in full and, for each retained
 done session, only the listing facts the Board's Recently done entries,
@@ -436,6 +436,14 @@ attention; resolved attempts are read with the history.
   (`retainedHistory.ts`) when a done entry is opened or acted on or Recently
   done sessions is expanded, and reasks only when the overview names another
   history revision. Read-counting test watchers also count history reads.
+
+- 2026-11-03 slice 8: the server lists done entries with the browser's
+  `doneListing` rule (`dashboard/src/doneSessionListing.ts`), keeping a full
+  and a listed serialization per entry; the browser no longer projects.
+  Replay: regular answer 9.90 → 6.91 MB, history 9.88 MB in 92–95 ms,
+  unchanged poll 54–73 ms with net loop 0–4 ms, trivial p99 10 ms. Attempts
+  are now the bulk of the regular answer. A test route that rebuilds a full
+  answer must send `origin` itself.
 
 ## Concern evidence
 

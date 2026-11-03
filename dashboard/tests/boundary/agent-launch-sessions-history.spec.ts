@@ -24,6 +24,10 @@ import {
 } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/pageTest.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import {
+  type AnsweredEntry,
+  withoutRetainedDetail,
+} from "../support/retainedDetail.ts";
 
 type Entry = {
   readonly session: { readonly sessionId: string };
@@ -156,10 +160,14 @@ test.describe("the sessions history ask", () => {
         `{"revision":${JSON.stringify(historyRevision)},"records":[`,
       ),
     ).toBe(true);
-    // The done session's entry exactly as the regular answer sends it.
-    expect([...entriesIn(asked.body)]).toEqual([
-      [done.sessionId, entriesIn(regular.body).get(done.sessionId)],
-    ]);
+    // The done session's entry in full, which the regular answer lists
+    // without its reporting handoff, first input's text and landing evidence
+    // (agent-launch-sessions-listing.spec.ts).
+    const full = entriesIn(asked.body).get(done.sessionId) ?? "{}";
+    expect([...entriesIn(asked.body).keys()]).toEqual([done.sessionId]);
+    expect(entriesIn(regular.body).get(done.sessionId)).toBe(
+      JSON.stringify(withoutRetainedDetail(JSON.parse(full) as AnsweredEntry)),
+    );
     const resolved = (regular.answer.attempts ?? []).filter(resolvedAttempt);
     expect(resolved).toHaveLength(2);
     expect(asked.answer.attempts).toEqual(resolved);

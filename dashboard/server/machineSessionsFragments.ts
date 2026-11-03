@@ -1,10 +1,12 @@
 // The machine's sessions answers (`./machineSessionObservation.ts`) kept as
 // fragments, each with the digest of its serialization: every session entry
 // and every attempt on its own, and the rest of each answer. The regular
-// answer holds every entry and attempt; the history holds the retained done
-// entries, in the same order, and the attempts it is given, and has its own
-// revision, which the regular answer's rest names. An entry whose kept record
-// is the same document the machine store still holds
+// answer holds every open entry in full and every retained done entry as its
+// listing facts (`../src/doneSessionListing.ts`), each with its own digest
+// beside its full one, and every attempt; the history holds the retained done
+// entries in full, in the same order, and the attempts it is given, and has
+// its own revision, which the regular answer's rest names. An entry whose
+// kept record is the same document the machine store still holds
 // (`./machineJsonStore.ts`) and whose observed facts -- shown workspace,
 // workspace state, session state -- read the same keeps the serialization
 // and digest it had, so an observation serializes only the entries that
@@ -18,6 +20,7 @@ import type {
   AttemptObservation,
   LaunchWithState,
 } from "../src/agentLaunch.ts";
+import { doneListing } from "../src/doneSessionListing.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
 const digestOf = (text: string) =>
@@ -35,11 +38,21 @@ const factsOf = (entry: LaunchWithState) =>
     [...observedKeys].map((key) => (entry as Record<string, unknown>)[key]),
   );
 
+// A serialization and its digest.
+type Serialized = { readonly json: string; readonly digest: string };
+
+const serialized = (value: unknown): Serialized => {
+  const json = JSON.stringify(value);
+  return { json, digest: digestOf(json) };
+};
+
+// An entry in full, as the history gives it, and as the regular answer lists
+// it: a done entry's listing facts, an open entry in full.
 type HeldEntry = {
   readonly entry: LaunchWithState;
   readonly facts: string;
-  readonly json: string;
-  readonly digest: string;
+  readonly full: Serialized;
+  readonly listed: Serialized;
 };
 
 // Whether two entries hold the same kept record's values, key for key in the
@@ -59,8 +72,10 @@ function sameKept(a: LaunchWithState, b: LaunchWithState): boolean {
 }
 
 function serializedEntry(entry: LaunchWithState, facts: string): HeldEntry {
-  const json = JSON.stringify(entry);
-  return { entry, facts, json, digest: digestOf(json) };
+  const full = serialized(entry);
+  const listing = doneListing(entry);
+  const listed = listing === entry ? full : serialized(listing);
+  return { entry, facts, full, listed };
 }
 
 export type AnswerFragments = {
@@ -80,10 +95,10 @@ type Rest = Readonly<Record<string, unknown>> & {
   readonly attempts: readonly AttemptObservation[];
 };
 
-// The answer of `held` entries followed by `rest`'s fields, as one object
-// would serialize with its records first, whose attempts are `attempts`.
+// The answer of `entries` followed by `rest`'s fields, as one object would
+// serialize with its records first, whose attempts are `attempts`.
 function assembled(
-  held: readonly HeldEntry[],
+  entries: readonly Serialized[],
   attempts: readonly HeldAttempt[],
   rest: Rest,
 ): AnswerFragments {
@@ -92,13 +107,13 @@ function assembled(
   // The other fields, which the serialization leaves out of an undefined key.
   const others = JSON.stringify({ ...rest, attempts: undefined });
   const revision = digestOf(
-    `${digests(held)}${digests(attempts)}${digestOf(others)}`,
+    `${digests(entries)}${digests(attempts)}${digestOf(others)}`,
   );
   let whole: string | undefined;
   return {
     revision,
     serialized: () => {
-      whole ??= `{"revision":${JSON.stringify(revision)},"records":[${held.map(({ json }) => json).join(",")}],${JSON.stringify(rest).slice(1)}`;
+      whole ??= `{"revision":${JSON.stringify(revision)},"records":[${entries.map(({ json }) => json).join(",")}],${JSON.stringify(rest).slice(1)}`;
       return whole;
     },
   };
@@ -113,9 +128,10 @@ type SessionsAnswers = {
 export class SessionsAnswerFragments {
   private entries = new Map<string, HeldEntry>();
 
-  // The regular answer of `records` followed by `rest`'s fields and the
-  // history's revision as `historyRevision`; and the history of the retained
-  // done `records` and the attempts of `rest` that are `historied`.
+  // The regular answer of `records`, retained done ones as listing facts,
+  // followed by `rest`'s fields and the history's revision as
+  // `historyRevision`; and the history of the retained done `records` in full
+  // and the attempts of `rest` that are `historied`.
   answers(
     records: readonly LaunchWithState[],
     rest: Rest,
@@ -145,15 +161,21 @@ export class SessionsAnswerFragments {
       historied(attempt),
     );
     const history = assembled(
-      held.filter(({ entry }) => entry.doneAt !== undefined),
+      held
+        .filter(({ entry }) => entry.doneAt !== undefined)
+        .map(({ full }) => full),
       historyAttempts,
       { attempts: historyAttempts.map(({ attempt }) => attempt) },
     );
     return {
-      overview: assembled(held, attempts, {
-        ...rest,
-        historyRevision: history.revision,
-      }),
+      overview: assembled(
+        held.map(({ listed }) => listed),
+        attempts,
+        {
+          ...rest,
+          historyRevision: history.revision,
+        },
+      ),
       history,
     };
   }

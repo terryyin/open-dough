@@ -17,12 +17,18 @@ Each answer leads with its observation's
 revision, and a page that sends the revision of its last full answer
 (`x-open-dough-sessions-revision`) is told only that it is unchanged. The
 revision is the digest of the answer's fragments: each session entry, each
-attempt, and the rest of the answer. A read with `?audience=history` is
-answered from the same observation with the history instead: every retained
-done session's entry and the attempts that no longer need attention, under
-the history's own revision, which every full regular answer names as
-`historyRevision`; the same revision header asks whether it still stands,
-and any other audience is refused. An observation serializes again only the
+attempt, and the rest of the answer. The regular answer holds open sessions in
+full and each retained done session only as its listing facts, everything its
+entries show while nothing retained is opened; the launch's reporting handoff,
+the first input's text and the landing evidence stay with the history. A read
+with `?audience=history` is answered from the same observation with the
+history instead: every retained done session's full entry and the attempts
+that no longer need attention, under the history's own revision, which every
+full regular answer names as `historyRevision`; the same revision header asks
+whether it still stands, and any other audience is refused. A page reads the
+history when a developer opens or acts on a retained session, opens its
+Review changes, or expands Recently done sessions, and again only once the
+regular answer names a newer `historyRevision`. An observation serializes again only the
 entries whose kept record or observed reading changed, and runs Git for a
 checkout's worktrees only when that checkout's Git files (worktree entries, heads, refs,
 config) changed identity; each host's native listing still runs on every
