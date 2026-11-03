@@ -136,7 +136,7 @@ both.
 
 ### 2. The Side panel sets and clears the selected story
 Type: Behavior
-Status: planned
+Status: done
 Proof: `side-panel-content-switching.spec.ts`,
 `sessions-sidebar-navigation.spec.ts`,
 `session-workspace-retirement(-attach).spec.ts`, and
@@ -171,6 +171,12 @@ card mark for Side panel content.
   several identities open. Select story and the empty-area rule have one home
   in `pageStorySelection.tsx` (`SelectStory`, `toggleOnEmptyArea`), shared by
   `StoryCard` and `DoneStoryCard`; slice 2 replaces only the selection state.
+- Slice 2: a Side panel review now selects its story, so Intent's lens reads
+  that story's comparison too (one more review read per selection;
+  `side-panel-content-replacement.spec.ts` counts it).
+- Long local suites need `caffeinate -s -i`: under `caffeinate -i` the
+  machine entered Maintenance Sleep repeatedly and two whole-suite runs had
+  95 and 52 scattered failures; the run under `-s` passed 1945 of 1945.
 
 ## Plan review
 
@@ -185,9 +191,15 @@ remaining slice-specific concern.
 ### G1. Selection stays per project and ignores the Side panel
 Reported: slice 1 — "Selection is still per project, the Side panel doesn't set it, and story cards keep the `in-side-panel` outline."
 Story clause: "Opening other content in the Side panel replaces any earlier selection, including one made on a card."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: dashboard/tests/intent-ci-status-side-panel.spec.ts and side-panel-content-switching.spec.ts; pageStorySelection.tsx is one page-wide selection set by pageSidePanel.ts openings and cleared by its closes
 
 ### G2. Story cards keep the Side panel outline
 Reported: slice 1 — "story cards keep the `in-side-panel` outline."
 Story clause: "The highlight replaces both the inspection border and the Side panel outline on cards."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: StoryCard.tsx and agent-launch.css carry no story-card in-side-panel; sessions-sidebar-navigation.spec.ts asserts the highlight on cards
+
+### G3. Review-open clear uses keyboard Select story (first reported in slice 2)
+Reported: slice 2 — "the clear step uses keyboard Select story instead of an empty-area click, because the open review covers the done card at the test viewport."
+Story clause: "Clicking the card's empty area clears the selection and leaves the review open."
+Disposition: proved by slice 2: DoneStoryCard.tsx routes both its empty-area click (toggleOnEmptyArea) and Select story to the same onSelect toggle; story-card-selection.spec.ts proves the done card's empty-area click toggles, and intent-story-completed.spec.ts's last step proves the toggle clears while the review stays open
+Commitment: E6.3

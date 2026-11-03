@@ -1,7 +1,8 @@
 // Mark as done in the page's one terminal (./agent-terminal.spec.ts), on the
 // committed story-columns origin (./launchJourney.ts): while it marks, the panel
-// says so quietly; then the panel closes, the session leaves its card, and
-// Recently done shows the entry Done under its `done-` name, still openable.
+// says so quietly; then the panel closes, clearing its story's selection, the
+// session leaves its card, and Recently done shows the entry Done under its
+// `done-` name, still openable.
 // How the boundary renames and stops the session is ./boundary/agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
 // entry's own Mark as done is ./agent-launch-story-card-done.spec.ts. A refused mark
@@ -38,6 +39,7 @@ import {
 } from "./launchJourney.ts";
 import { colourOf, tokenColour } from "./pageColours.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 import { holdDoneRequests } from "./support/holdDoneRequest.ts";
 import {
   doneQuestion,
@@ -92,6 +94,7 @@ test.describe("marking a session done from its terminal", () => {
     );
     await listed.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expectSelected(card(readyStory), true);
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
     const rows = panel.locator(".xterm-rows");
@@ -120,6 +123,8 @@ test.describe("marking a session done from its terminal", () => {
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
     await expect(panel).toHaveCount(0);
+    // The panel the mark closed leaves no selected story.
+    await expectSelected(card(readyStory), false);
 
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");

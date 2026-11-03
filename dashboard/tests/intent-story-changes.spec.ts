@@ -161,13 +161,12 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(intent.locator(".intent-proof-published")).toHaveCount(0);
   });
 
-  await test.step("deselecting the story removes the lens", async () => {
+  await test.step("closing the story's review clears the selected story and removes the lens", async () => {
     const { development, intentChoice } = parts(page);
     const review = page.getByRole("region", { name: "Story review" });
     await review.getByRole("button", { name: "Close", exact: true }).click();
     await expect(review).toHaveCount(0);
     await development.click();
-    await card.getByRole("heading", { level: 3 }).click();
     await expectSelected(card, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");

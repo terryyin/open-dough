@@ -4,7 +4,7 @@ import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // (./launchJourney.ts): while the listing cannot be read the session is State
 // unknown and still offers Open terminal; deleting its record from its card
 // entry closes the panel, as Mark as done does (./agent-terminal-done.spec.ts),
-// leaves no "Shown in terminal" mark, detaches the attach, and stops nothing.
+// leaves no "Shown in terminal" mark or selected story, detaches the attach, and stops nothing.
 // The conversation stays in Claude Code, so it is listed again once the
 // listing recovers. The keyboard follows the entry rule of
 // ./agent-launch-story-card-delete.spec.ts. Origin alone still places the story. The
@@ -27,6 +27,7 @@ import {
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { attachesOf } from "./sessionNavigationJourney.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -65,6 +66,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await entry.getByRole("button", { name: "Open terminal" }).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
+    await expectSelected(card(readyStory), true);
 
     await (
       await sessionActions(entry)
@@ -78,6 +80,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await expect(panel).toHaveCount(0);
     await expect(entry).toHaveCount(0);
     await expect(page.getByText("Shown in terminal")).toHaveCount(0);
+    await expectSelected(card(readyStory), false);
     await expect(card(readyStory)).toBeFocused();
     await expect
       .poll(() => attachesOf(dashboard, sessionName).at(-1)?.endedBy)

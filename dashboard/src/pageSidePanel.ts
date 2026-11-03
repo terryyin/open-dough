@@ -1,18 +1,18 @@
-// The page's one side panel owns its selection, maximization and focus return.
+// The page's one side panel owns what it shows, maximization and focus return.
 // It shows one item: a session's terminal or final report, or a story's
 // review. Opening different content replaces what it showed, detaching a
 // terminal without ending its session, and returns to the normal split.
+// Each opening selects the content's story, or clears the page's selected
+// story for a session attached to no story; each close clears it. A card's
+// toggle may select another story while the panel stays as it is, so the
+// selection is set here rather than derived from what the panel shows.
 // Session operations retain their host-qualified identity across
 // asynchronous answers; a review is not a session and has no session mark.
 // How the keyboard returns is `./keyboardReturn.ts`.
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import {
-  launchSubject,
-  type LaunchRecord,
-  type LaunchWithState,
-} from "./agentLaunch.ts";
+import { launchSubject } from "./agentLaunch.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { sessionAccess, type SessionAccess } from "./sessionAccess.ts";
+import { sessionAccess } from "./sessionAccess.ts";
 import { embeddedTerminal } from "./sessionCapabilities.ts";
 import { sessionKey } from "./sessionReference.ts";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
@@ -26,43 +26,17 @@ import {
   type MarkSessionRead,
   type DeleteSessionRecord,
 } from "./pageSessions.ts";
-import {
-  sameStory,
-  type OpenStoryReview,
-  type StoryReviewRequest,
-} from "./pageStoryReviews.ts";
+import { sameStory, type OpenStoryReview } from "./pageStoryReviews.ts";
+import type { PageStorySelection } from "./pageStorySelection.tsx";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
+import {
+  shownSessionOf,
+  shownStory,
+  type Shown,
+  type SidePanel,
+} from "./sidePanelContent.ts";
 import { storyCardHome } from "./storyCardFocus.ts";
 import { useKeyboardReturn } from "./keyboardReturn.ts";
-
-// What the panel shows, and whether it takes the page column's room too.
-// Maximization belongs to the shown content, so new content starts split.
-type SidePanel = (
-  | { readonly kind: SessionAccess; readonly request: SessionRequest }
-  | { readonly kind: "story-review"; readonly request: StoryReviewRequest }
-) & { readonly maximized?: boolean };
-type Shown = SidePanel["request"];
-
-const shownSessionOf = (sidePanel: SidePanel | undefined) =>
-  sidePanel === undefined || sidePanel.kind === "story-review"
-    ? undefined
-    : sidePanel.request;
-
-// The session a panel shows as the page reads it now, from the machine's
-// sessions of every project, since the panel keeps the record it was opened
-// with; until the page has read it, the opened record, with its reading
-// unknown if it was opened without one.
-export function shownRecord(
-  records: readonly LaunchWithState[] | undefined,
-  { record }: SessionRequest,
-): LaunchWithState {
-  const opened: LaunchRecord & Partial<LaunchWithState> = record;
-  return (
-    records?.find(
-      (known) => sessionKey(known.session) === sessionKey(record.session),
-    ) ?? { ...record, sessionState: opened.sessionState ?? { kind: "unknown" } }
-  );
-}
 
 export function usePageSidePanel({
   markDone,
@@ -72,6 +46,7 @@ export function usePageSidePanel({
   stopSession,
   hostOperations,
   range,
+  selection,
 }: Pick<
   MachineSessions,
   | "markDone"
@@ -80,7 +55,10 @@ export function usePageSidePanel({
   | "recoverSession"
   | "stopSession"
   | "hostOperations"
-> & { readonly range: RecentlyDoneRange }) {
+> & {
+  readonly range: RecentlyDoneRange;
+  readonly selection: PageStorySelection;
+}) {
   const [sidePanel, setSidePanel] = useState<SidePanel | undefined>();
   const shown = sidePanel?.request;
   const latest = useRef<SidePanel | undefined>(undefined);
@@ -98,28 +76,53 @@ export function usePageSidePanel({
   // The sessions whose terminal the developer opened themselves on this page,
   // which a launch's presentation then leaves as the developer left them.
   const openedByDeveloper = useRef(new Set<string>());
-  const openTerminal = useCallback<OpenTerminal>((request) => {
-    setSidePanel((current) =>
-      current?.kind === "terminal" &&
-      sessionKey(current.request.record.session) ===
-        sessionKey(request.record.session)
-        ? current
-        : { kind: "terminal", request },
-    );
-  }, []);
-  const openFinalReport = useCallback<OpenFinalReport>((request) => {
-    setSidePanel({ kind: "final-report", request });
-  }, []);
+  // Content selects its story; a session attached to no story clears it.
+  const selectStoryOf = useCallback(
+    (shown: Shown) => {
+      const story = shownStory(shown);
+      if (story === undefined) selection.clear();
+      else selection.select(story);
+    },
+    [selection],
+  );
+  const empty = () => {
+    setSidePanel(undefined);
+    selection.clear();
+  };
+  const openTerminal = useCallback<OpenTerminal>(
+    (request) => {
+      selectStoryOf(request);
+      setSidePanel((current) =>
+        current?.kind === "terminal" &&
+        sessionKey(current.request.record.session) ===
+          sessionKey(request.record.session)
+          ? current
+          : { kind: "terminal", request },
+      );
+    },
+    [selectStoryOf],
+  );
+  const openFinalReport = useCallback<OpenFinalReport>(
+    (request) => {
+      selectStoryOf(request);
+      setSidePanel({ kind: "final-report", request });
+    },
+    [selectStoryOf],
+  );
   // Asking again for the story's review already shown keeps that review, its
   // snapshot included, and takes the new request so the review takes the
   // keyboard; any other opening reads a fresh one.
-  const openStoryReview = useCallback<OpenStoryReview>((request) => {
-    setSidePanel((current) =>
-      current?.kind === "story-review" && sameStory(current.request, request)
-        ? { ...current, request }
-        : { kind: "story-review", request },
-    );
-  }, []);
+  const openStoryReview = useCallback<OpenStoryReview>(
+    (request) => {
+      selectStoryOf(request);
+      setSidePanel((current) =>
+        current?.kind === "story-review" && sameStory(current.request, request)
+          ? { ...current, request }
+          : { kind: "story-review", request },
+      );
+    },
+    [selectStoryOf],
+  );
   const maximize = useCallback((maximized: boolean) => {
     setSidePanel((current) => current && { ...current, maximized });
   }, []);
@@ -133,11 +136,7 @@ export function usePageSidePanel({
   );
   const close = (closed: Shown) => {
     if (latest.current?.request !== closed) return;
-    setSidePanel(undefined);
-    const identity =
-      "record" in closed
-        ? launchSubject(closed.record.request).identity
-        : closed.identity;
+    empty();
     setReturning({
       control: closed.control,
       shows: undefined,
@@ -145,7 +144,7 @@ export function usePageSidePanel({
       home: () =>
         ("record" in closed
           ? sessionEntry(sessionKey(closed.record.session))
-          : null) ?? storyCardHome(identity),
+          : null) ?? storyCardHome(shownStory(closed)?.identity),
     });
   };
   const markSessionDone: MarkSessionDone = async ({ record, control }) => {
@@ -186,7 +185,7 @@ export function usePageSidePanel({
     const closes =
       (open === undefined ? undefined : sessionKey(open.record.session)) ===
       sessionKey(record.session);
-    if (closes) setSidePanel(undefined);
+    if (closes) empty();
     setReturning({
       control,
       shows: closes ? undefined : latest.current?.request,

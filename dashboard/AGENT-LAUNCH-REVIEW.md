@@ -202,8 +202,9 @@ panes' places. Where the panel is too narrow for the browser beside the
 diff, the browser sits above the diff with at most two fifths of the height,
 each still scrolling on its own; Hide files gives the diff the whole work
 area. Close or Command+Shift+Escape returns the keyboard to Review changes,
-or to the story's card when that control is no longer shown. A review is not
-a session: it marks no session entry as shown.
+or to the story's card when that control is no longer shown. Opening a review
+selects its story, highlighting its card, and closing it clears the selected
+story. A review is not a session: it marks no session entry as shown.
 
 Phone and tablet views use those same panes and panel controls. Rotation
 keeps the selected comparison and file and the diff's reading position;

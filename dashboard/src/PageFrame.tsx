@@ -3,9 +3,10 @@ import { sessionKey } from "./sessionReference.ts";
 // Story selection and the chosen Intent mode are kept here as page state.
 // The panel shows one item: a session's terminal or final report, or a story's
 // story review. Sidebar navigation reveals the chosen project/story without
-// remounting the page. pageSidePanel owns selection, current marks,
-// maximization and focus return; sidePanelWidth its width beside the page;
-// terminal readiness alone rereads a done record after native attachment.
+// remounting the page. pageSidePanel owns what the panel shows, current
+// marks, maximization and focus return, and sets the selected story;
+// sidePanelWidth its width beside the page; terminal readiness alone rereads
+// a done record after native attachment.
 // The page's one Recently done range (`./recentlyDoneRange.ts`) is kept here
 // too, so a journey's destination can ask it for the entry it lands on.
 
@@ -23,10 +24,14 @@ import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEn
 import { Terminal } from "./Terminal.tsx";
 import { StoryReview } from "./StoryReview.tsx";
 import { StoryReviewsOnPage } from "./pageStoryReviews.ts";
-import { shownRecord, usePageSidePanel } from "./pageSidePanel.ts";
+import { usePageSidePanel } from "./pageSidePanel.ts";
+import { shownRecord } from "./sidePanelContent.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
 import { IntentModeProvider } from "./pageIntentMode.tsx";
-import { StorySelectionProvider } from "./pageStorySelection.tsx";
+import {
+  StorySelectionProvider,
+  usePageStorySelection,
+} from "./pageStorySelection.tsx";
 import { StoryInspectionProvider } from "./pageStoryInspection.tsx";
 import { useSessionNavigation } from "./sessionNavigation.ts";
 import {
@@ -78,6 +83,7 @@ export function PageFrame({
   const projects = useProjects();
   const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
+  const selection = usePageStorySelection();
   const sidePanel = usePageSidePanel({
     markDone,
     markRead,
@@ -86,6 +92,7 @@ export function PageFrame({
     stopSession,
     hostOperations,
     range,
+    selection: selection.api,
   });
   const { terminal, finalReport, storyReview, maximized, markSessionDone } =
     sidePanel;
@@ -133,7 +140,7 @@ export function PageFrame({
   return (
     <SessionsOnPage value={sidePanel.sessions}>
       <StoryReviewsOnPage value={sidePanel.openStoryReview}>
-        <StorySelectionProvider>
+        <StorySelectionProvider selection={selection}>
           <StoryInspectionProvider>
             <PanelDividerOnPage value={shownMaximized ? undefined : divider}>
               <div

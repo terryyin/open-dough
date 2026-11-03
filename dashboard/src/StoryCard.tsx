@@ -24,7 +24,6 @@ import { useId, useRef, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import "./frame-controls.css";
-import { sessionKey } from "./sessionReference.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { StoryCardDependencies } from "./StoryCardDependencies.tsx";
 import { StoryCardPreparationFacts } from "./StoryCardPreparation.tsx";
@@ -45,7 +44,6 @@ import {
 } from "./startEligibility.ts";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { storyCardSessionsOf } from "./agentLaunch.ts";
-import { usePageSessions } from "./pageSessions.ts";
 import { SelectStory, toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
@@ -81,13 +79,6 @@ export function StoryCard({
 }) {
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-  // Outlined while the page's panel shows one of the card's sessions.
-  const { shownSession } = usePageSessions();
-  const inSidePanel = storyCardSessionsOf(
-    launches.launched,
-    sourceId,
-    entry.identity,
-  ).some((record) => sessionKey(record.session) === shownSession?.key);
   // Every startup of the story protects its frame.
   const starting =
     launches.storyStartupOf(sourceId, entry.identity) !== undefined;
@@ -100,7 +91,6 @@ export function StoryCard({
       className={[
         "story-card",
         selected && "story-card-selected",
-        inSidePanel && "in-side-panel",
         starting && "story-card-starting",
       ]
         .filter(Boolean)

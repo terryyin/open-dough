@@ -23,7 +23,12 @@ progress branch and revision, slice evidence, product advice, and source links;
 their detail open, and inspecting never changes the selected story. **Select
 story**, or a click on an empty area of the card, makes the story the page's
 selected story, which Intent reads, and highlights its card with an inset accent
-ring and a pale fill; toggling it again clears the selection. Selecting never
-opens or closes detail, and stays available while the story starts. The
+ring and a pale fill; toggling it again clears the selection. Opening the
+story's terminal, final report, or review in the Side panel selects it too;
+closing the Side panel, or showing a session attached to no story, clears the
+selection, and selecting a card leaves the Side panel as it is. The page has one
+selected story across its projects, so a project that does not hold it shows
+none. The highlight is the card's only selection mark. Selecting never opens or
+closes detail, and stays available while the story starts. The
 dependency explanation opens in place from the card's **Dependencies** summary
 (see [Blocking story dependencies](README.md#blocking-story-dependencies)).

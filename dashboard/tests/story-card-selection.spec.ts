@@ -2,9 +2,9 @@
 // Select story (pointer or keyboard) and empty-area clicks toggle the selected
 // story's highlight without opening or closing detail; Inspect story opens and
 // closes only its card's detail and leaves the selection alone; nested
-// controls do not select; selection survives Intent without a "Selected story
-// only" toggle. Several open details and dependency references:
-// ./story-card-inspection.spec.ts.
+// controls do not select; showing an ad hoc session clears the selection;
+// selection survives Intent without a "Selected story only" toggle. Several
+// open details and dependency references: ./story-card-inspection.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -144,19 +144,21 @@ test("Select story and empty-area clicks toggle the selected story on active and
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  await test.step("Sessions sidebar open does not change selection", async () => {
+  await test.step("showing a session attached to no story clears the selection", async () => {
     await openSessionsSidebar(page);
     const shown = recentlyDoneParts(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true") {
       await shown.header.click();
     }
-    // Sidebar ad-hoc session may open the Side panel; selection must stay.
     await shown.entry("Open Dough session").click();
     await expect(
       page.getByRole("region", { name: /Terminal|Final report/ }),
     ).toBeVisible();
-    await expectSelected(active, true);
+    await expectSelected(active, false);
     await expectInspected(active, false);
+    await intentChoice.click();
+    await expect(intent).not.toHaveAttribute("data-selected-story");
+    await development.click();
     await shown.button.click();
   });
 

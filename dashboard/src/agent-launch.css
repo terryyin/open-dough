@@ -119,9 +119,9 @@
   border-left-width: 4px;
 }
 
-/* "Shown in terminal" identifies the selected session. Its card or standalone
-   entry also uses the selection outline; every card has the accent left edge. */
-.story-card.in-side-panel,
+/* "Shown in terminal" identifies the session the Side panel shows. Its
+   session entry also has the shown outline; every card has the accent left
+   edge. */
 .recently-done .session-entry.in-side-panel,
 .column > .story-cards > li > .session-entry.in-side-panel {
   outline: 3px solid var(--accent);

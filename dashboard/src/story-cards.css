@@ -24,9 +24,9 @@
   background: var(--surface);
 }
 
-/* The selected story's highlight: an inset accent ring, accent border, and a
-   pale fill. Inspection opens detail without it; the Side panel keeps its
-   outer outline (agent-launch.css). */
+/* The selected story's highlight, a card's only selection mark: an inset
+   accent ring, accent border, and a pale fill. Inspection opens detail
+   without it. */
 .story-card-selected,
 .done-story.story-card-selected {
   box-shadow: inset 0 0 0 2px var(--accent);
