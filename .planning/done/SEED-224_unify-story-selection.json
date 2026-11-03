@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-224#unify-story-selection",
+  "title": "Unify story selection across Development and Intent",
+  "completedAt": "2026-11-03T13:21:39.481Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude",
+  "model": "opus"
+}
