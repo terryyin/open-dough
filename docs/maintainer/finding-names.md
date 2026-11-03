@@ -176,7 +176,7 @@ priority decision, not a claim that discarded problems were fixed or cannot recu
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-416. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-419. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -679,3 +679,9 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-415 — [Planning omits pre-existing over-limit files it will edit](findings/ODF-415.md) <a id="odf-415"></a>
 
 ## ODF-416 — [A progress increment holds a locally accepted Behavior slice open](findings/ODF-416.md) <a id="odf-416"></a>
+
+## ODF-417 — [Planning misses an existing sibling solution](findings/ODF-417.md) <a id="odf-417"></a>
+
+## ODF-418 — [Hosted proof after a progress publication lacks a named observation step](findings/ODF-418.md) <a id="odf-418"></a>
+
+## ODF-419 — [A delegated smoke check mutates the owner desktop](findings/ODF-419.md) <a id="odf-419"></a>
