@@ -6,8 +6,10 @@
 ## Source and provenance
 
 Retrospective correction of
-[Find expensive proof in the test hierarchy](../../seeds/SEED-192-review-product-intent.md#inspect-hierarchical-proof-cost),
-plan 452, executed on branch `claude/find-expensive-proof-in-the-test-hierarchy`
+Find expensive proof in the test hierarchy
+(SEED-192#inspect-hierarchical-proof-cost; story and plan 452 recoverable at
+`abf14757:.planning/seeds/SEED-192-review-product-intent.md` and
+`abf14757:.planning/slice-plans/452-inspect-hierarchical-proof-cost/PLAN.md`), executed on branch `claude/find-expensive-proof-in-the-test-hierarchy`
 from Take `5260f2bc4`: slice commits `f310f5739` (summed duration and spread),
 `a04e6e12a` (slowest list), `afdf296de` (drill-down), and plan-only commits
 `c9ac761de`, `45d6975c0`. Reviewed at `45d6975c0`.
@@ -39,7 +41,7 @@ from Take `5260f2bc4`: slice commits `f310f5739` (summed duration and spread),
 
 ## Preserved promises and constraints
 
-All of plan 452's promises (its [source review](../452-inspect-hierarchical-proof-cost/source-review.md)):
+All of plan 452's promises (its source review, `abf14757:.planning/slice-plans/452-inspect-hierarchical-proof-cost/source-review.md`):
 wording, number formats, placement, tree order, unknown-never-0 s, Partial
 labelling, slowest order and cap, drill-down. Both visibility gates stay as
 they are (the selection's gate predates this story from SEED-217; this

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#inspect-hierarchical-proof-cost",
+  "title": "Find expensive proof in the test hierarchy",
+  "completedAt": "2026-11-03T01:19:40.644Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "claude",
+  "model": "opus"
+}
