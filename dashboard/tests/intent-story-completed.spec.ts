@@ -11,7 +11,10 @@
 // (./intent-story-changes-moves.spec.ts). A completed story whose published
 // comparison cannot be recovered says why, with no retry, and leaves the
 // published tree usable. The workspace journey: ./intent-story-changes.spec.ts.
+// The done card's Review changes selects it too, and toggling its selection
+// clears it while the review stays open.
 
+import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
 import {
@@ -34,6 +37,7 @@ import {
 } from "./support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { git } from "./support/storyReviewWorktree.ts";
+import { expectSelected, selectStory } from "./storyCardSelection.ts";
 
 test.setTimeout(180_000);
 
@@ -47,10 +51,8 @@ test("Intent overlays a completed story's published history comparison, naming i
   origin,
 }) => {
   test.slow();
-  const { intent, completion, published } = await selectCompletedStoryInIntent(
-    page,
-    origin,
-  );
+  const { card, intent, completion, published } =
+    await selectCompletedStoryInIntent(page, origin);
   const scoped = lens(intent);
   // Proof's revision note, after choosing its tab.
   const proofRevision = async () =>
@@ -142,6 +144,35 @@ test("Intent overlays a completed story's published history comparison, naming i
     );
     for (const [name, diff] of inIntent)
       expect(await reviewDiff(page, name), name).toBe(diff);
+  });
+
+  await test.step("the done card's Review changes selects and highlights it for Intent's lens; toggling its selection clears it and leaves the review open", async () => {
+    const review = page.getByRole("region", { name: "Story review" });
+    const { development, intentChoice } = parts(page);
+    // Beside the review the Board shows one column; the keyboard reaches the
+    // done card's controls where a pointer would land on the review. Select
+    // story runs the empty-area toggle (./story-card-selection.spec.ts).
+    const press = async (control: Locator) => {
+      await control.focus();
+      await page.keyboard.press("Enter");
+    };
+    await development.click();
+    await press(selectStory(card));
+    await expectSelected(card, false);
+    await press(card.getByRole("button", { name: "Review changes" }));
+    await expectSelected(card, true);
+    await intentChoice.click();
+    await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
+    await expect(scoped.locator(".intent-story-name")).toHaveText(
+      "Story Story A SEED-A#a",
+    );
+    await development.click();
+    await press(selectStory(card));
+    await expectSelected(card, false);
+    await expect(review.locator(".story-review-files")).toBeVisible();
+    await intentChoice.click();
+    await expect(intent).not.toHaveAttribute("data-selected-story");
+    await expect(scoped).toHaveCount(0);
   });
 });
 

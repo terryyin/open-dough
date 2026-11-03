@@ -21,6 +21,7 @@ import {
   passive,
 } from "./support/retainedReport.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -56,7 +57,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(panel.locator(".final-report-body")).toBeFocused();
   await expect(entry).toContainText("Shown in final report");
-  await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
+  await expectSelected(card(notRefinedStory), true);
   await expect(panel.locator(".side-panel-names p")).toHaveText(
     "Refinement session",
   );
@@ -65,6 +66,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await page.keyboard.press("Meta+Shift+Escape");
   await expect(panel).toHaveCount(0);
   await expect(open).toBeFocused();
+  await expectSelected(card(notRefinedStory), false);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

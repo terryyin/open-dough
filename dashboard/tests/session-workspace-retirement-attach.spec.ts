@@ -23,6 +23,7 @@ import {
   codexTerminalMode,
 } from "./support/codexTerminal.ts";
 import { processRunning } from "./support/processGroup.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -104,8 +105,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
       page.getByText("The session could not be attached", { exact: true }),
     ).toHaveCount(0);
     await expect(entry).toContainText("Shown in final report");
-    if (doneAt === undefined)
-      await expect(card(notRefinedStory)).toHaveClass(/in-side-panel/);
+    await expectSelected(card(notRefinedStory), true);
     if (loss === "unknown")
       await expect(panel).not.toContainText("workspace is missing");
     await expect(
@@ -114,6 +114,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     await page.keyboard.press("Meta+Shift+Escape");
     await expect(panel).toHaveCount(0);
     await expect(open).toBeFocused();
+    await expectSelected(card(notRefinedStory), false);
     expect(stored(dashboard.home)[0]?.session).toEqual(record.session);
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);

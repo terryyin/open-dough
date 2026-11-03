@@ -38,7 +38,7 @@ import {
   expectSideBySideInOrder,
   expectStackedInOrder,
 } from "./partArrangement.ts";
-import { expectSelected } from "./storyCardSelection.ts";
+import { expectSelected, selectStory } from "./storyCardSelection.ts";
 
 // Purpose before Proof across the reading area, or down it.
 async function expectArranged(
@@ -70,7 +70,7 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
   await openUntilRead(page, "/?project=pygardon");
   const { backlog, intent, intentChoice } = parts(page);
   const story = backlog.getByRole("article", { name: pygardon.queued });
-  await story.getByRole("button", { name: "Inspect story" }).click();
+  await selectStory(story).click();
   await expectSelected(story, true);
   await intentChoice.click();
   const selectedStory =

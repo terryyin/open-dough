@@ -79,24 +79,26 @@ export function card(board: Locator, title: string | RegExp): Locator {
 }
 
 // A card's source links are secondary detail: none is on its scan view, and
-// Inspect story reveals them, from the snapshot already read, in its detail.
+// Inspect story reveals them, from the snapshot already read, in its detail,
+// read from the closed card even when its detail is already open.
 export async function inspectedSources(story: Locator): Promise<Locator> {
+  const hide = story.getByRole("button", { name: "Hide detail" });
+  if ((await hide.count()) > 0) await hide.click();
   await expect(story.getByRole("link")).toHaveCount(0);
   return (await inspectedDetail(story)).getByRole("list", {
     name: "Pinned source links",
   });
 }
 
-// Each card's source links in turn, each read in its own detail once the
-// card is closed again.
+// Each card's source links in turn, each read in its own detail, which is
+// closed again after reading.
 export async function forEachStoryCardsSources(
   board: Locator,
   read: (sources: Locator) => Promise<void>,
 ) {
   for (const each of await board.getByRole("article").all()) {
-    const hide = each.getByRole("button", { name: "Hide detail" });
-    if ((await hide.count()) > 0) await hide.click();
     await read(await inspectedSources(each));
+    await each.getByRole("button", { name: "Hide detail" }).click();
   }
 }
 

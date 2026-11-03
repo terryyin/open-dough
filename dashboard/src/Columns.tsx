@@ -10,6 +10,7 @@ import {
 import type { UnreadableProfile } from "./agentAssignments.ts";
 import { revealStory } from "./pageEntries.ts";
 import { useStorySelection } from "./pageStorySelection.tsx";
+import { useStoryInspection } from "./pageStoryInspection.tsx";
 import { useStoryNavigation } from "./storyNavigation.tsx";
 import { columnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
@@ -58,6 +59,8 @@ function Column({
   offersStart,
   selectedIdentity,
   onSelect,
+  inspected,
+  onInspect,
   onOpenRoster,
   unreadableProfiles,
 }: {
@@ -69,6 +72,8 @@ function Column({
   offersStart: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
+  inspected: readonly string[];
+  onInspect: (identity: string) => void;
   onOpenRoster: OpenRoster;
   unreadableProfiles?: readonly UnreadableProfile[] | undefined;
 }) {
@@ -108,6 +113,8 @@ function Column({
                 offersStart={offersStart}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
+                inspected={inspected.includes(entry.identity)}
+                onInspect={onInspect}
                 onOpenRoster={onOpenRoster}
               />
             </li>
@@ -125,7 +132,8 @@ function Column({
 
 // The projected columns keep published story membership/order separate from
 // machine-local sessions. Cards retain work identity and storyCardFocus marks.
-// Selection is the page's per-project owner (`./pageStorySelection.tsx`).
+// Selection is the page's per-project owner (`./pageStorySelection.tsx`), and
+// inspection its own page-level owner (`./pageStoryInspection.tsx`).
 export function Columns({
   work,
   columns,
@@ -138,9 +146,12 @@ export function Columns({
   onOpenRoster: OpenRoster;
 }) {
   const [backlog, taken] = columns;
-  const { selectedIdentity, toggle, select } = useStorySelection(
-    work.source.id,
-  );
+  const { selectedIdentity, toggle } = useStorySelection(work.source.id);
+  const {
+    inspected,
+    toggle: toggleInspection,
+    open: inspect,
+  } = useStoryInspection(work.source.id);
   const { opening } = useStoryNavigation();
   useLayoutEffect(() => {
     if (opening?.project !== work.source.id) return;
@@ -148,10 +159,11 @@ export function Columns({
     if (stop === undefined) return;
     // Startup protection still owns whether inspection is available. Revealing
     // its card must not invoke its disabled inspection or any launch action.
+    // Revealing opens the target's detail and leaves the selection alone.
     if (launches.storyStartupOf(work.source.id, opening.identity) === undefined)
-      select(opening.identity);
+      inspect(opening.identity);
     return stop;
-  }, [opening, work.source.id, select]);
+  }, [opening, work.source.id, inspect]);
   return (
     <>
       <div className="columns">
@@ -164,6 +176,8 @@ export function Columns({
           offersStart
           selectedIdentity={selectedIdentity}
           onSelect={toggle}
+          inspected={inspected}
+          onInspect={toggleInspection}
           onOpenRoster={onOpenRoster}
         />
         <Column
@@ -175,6 +189,8 @@ export function Columns({
           offersStart={false}
           selectedIdentity={selectedIdentity}
           onSelect={toggle}
+          inspected={inspected}
+          onInspect={toggleInspection}
           onOpenRoster={onOpenRoster}
           unreadableProfiles={work.unreadableProfiles}
         />

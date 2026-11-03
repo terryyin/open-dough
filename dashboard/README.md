@@ -59,7 +59,9 @@ configured test-source locations in `.planning/open-dough.json` (`gherkin`,
 `typescript`, `javascript`, `python`, or `shell`, optional `include`), or says
 none are configured, without claiming tests or Proof are absent; its tabs
 also show **Optimization Candidates** and **CI status**, of the trunk or the
-selected story's published story branch. Project changes, history, reload
+selected story's published story branch. The page's one selected story is set
+by a card's **Select story** or by that story's content in the Side panel
+([Story cards](STORY-CARDS.md)). Project changes, history, reload
 and System settings keep the perspective; choosing a
 session opens Development ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
@@ -113,40 +115,16 @@ not claim physical iOS keyboard or remote-connectivity validation.
 refresh, bounded read gaps, recovery, and project switching. Only published
 changes supply story facts; Taken records a claim, not current agent activity.
 
-Each story card has scan and detail views. The scan starts with title, backlog
-priority, and the assigned or preparing developer with its
-credited human, tool and model, preparation and readiness badges, dependencies
-and evidence warnings, a Taken story's slice count with its clock or
-completion and a short source qualification, its launch group, its compact sessions,
-and its inspection group. The [Session entry contract](AGENT-LAUNCH-SESSION-ENTRIES.md)
-defines compact facts, disclosures, attention and readiness. The launch group holds
-**Start execution** and **Start refinement**, each with any launch answer beside
-it and any note in its tooltip; the inspection group holds **Inspect story** and, when
-offered, **Review changes**. Each group's actions share a line when the card is
-wide enough and wrap in reading order when it is not. Each action leads with a
-decorative icon that says what it does: a play glyph for **Start execution**
-and a pencil for **Start refinement**, noted or disabled alike; a chevron for
-**Inspect story** that points right and turns down while the detail is open;
-and a compare glyph for **Review changes**, which also ends with an arrow
-toward the side panel. **Inspect story** opens
-its detail from facts already read: full identity, purpose, what the
-assignment records with its mode and branch context, preparation
-explanations, the exact progress branch and revision, slice evidence, product advice, and source links; **Hide detail**
-returns focus to the card. The dependency explanation opens in place from the
-card's **Dependencies** summary (see
-[Blocking story dependencies](#blocking-story-dependencies)).
+[Story cards](STORY-CARDS.md) describes each card's scan and detail views, its
+launch and inspection actions, and the page's selected story.
 
-Each project has at most one selected story. Clicking a card's empty area
-selects it as **Inspect story** does, and clicking it again or **Hide detail**
-clears it; the card's buttons, links, inputs, session entries and
-disclosures, an opened **Dependencies** explanation included, keep their own
-behavior. A **Recently done** entry is selected by its empty area or its
-**Select story** toggle, without a detail. A selected card or entry shows an
-accent ring and border, a mark distinct from the soft fill and outline of a
-card whose session is shown in the Side panel. The selection is page state,
-not on the URL, and it scopes Intent: Intent overlays the selected story's
-changes on its published tree, and **CI status** judges that story's
-published story branch
+A card's buttons, links, inputs, session entries and disclosures, an opened
+**Dependencies** explanation included, keep their own behavior, so clicking
+them neither toggles the selected story nor opens detail. A **Recently done**
+entry is selected by its empty area or its **Select story** toggle, without a
+detail. The selection is page state, not on the URL, and it scopes Intent:
+Intent overlays the selected story's changes on its published tree, and
+**CI status** judges that story's published story branch
 ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or

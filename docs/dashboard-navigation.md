@@ -203,8 +203,7 @@ when the soft keyboard or orientation changes, keeping controls and Close reacha
 for toolbar, composer Insert, and scroll-versus-navigate behavior. Chromium checks cover phone/tablet viewports, rotation, and desktop;
 they do not establish physical-device keyboard or remote-connectivity behavior.
 
-A story card's pale blue fill lasts while its detail is open or its session is shown in the Side panel.
-It retains the inspection border and current-session outline, returning to ordinary fill when neither selection applies.
+The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal, final report, or review in the Side panel selects that story, and closing the Side panel or showing a session attached to no story clears it. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.
@@ -226,10 +225,11 @@ its region, priority, and badges; Preparing is not a Column every story passes
 through or evidence that an agent is running. The badge legend explains it.
 
 Following a supplier story reference in a dependency explanation stays in the
-dashboard, opens the referenced active story's existing inspection, and brings
-its card into view with the keyboard there. Following it again keeps inspection
-open and reveals the same card again. A reference to a published story in
-Recently done reveals its existing card, extending the shown range exactly
+dashboard, opens the referenced active story's detail, and brings its card into
+view with the keyboard there. Other open details and the selected story stay as
+they are. Following it again keeps the detail open and reveals the same card
+again. A reference to a published story in Recently done reveals its existing
+card, extending the shown range exactly
 through it when needed, without requiring or opening a session. The same list
 keeps its ordering, retained longer range, and ordinary detail reads; an
 identified card with unreadable detail keeps its read-gap explanation and

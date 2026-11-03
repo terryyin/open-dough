@@ -227,7 +227,9 @@ test("a review and a final report stay shown with their selection while the page
       await expect(items).toHaveCount(1);
     }
     await expect(intent).toHaveCount(0);
-    expect(reviewReads.length).toBe(reads);
+    // The review selected Story A, so Intent read Story A's comparison for its
+    // lens; the shown review read none again.
+    expect(reviewReads.slice(reads)).toEqual([queuedIdentity]);
   });
 
   await test.step("the final report keeps its session's report, still not done", async () => {

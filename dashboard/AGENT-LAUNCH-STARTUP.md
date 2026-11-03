@@ -48,8 +48,8 @@ unavailable, ignores Escape, and says “Startup is underway and can no longer b
 cancelled here.” Acceptance closes it; a refusal stays beside the action, and a
 lost answer is uncertain, never accepted. Until the start reconciles, the
 story's whole card frame is protected wherever origin lists it: no action
-button runs, including alternate launches, Inspect story and card session
-actions, while facts and source links stay readable and other cards,
+button but Select story runs, including alternate launches, Inspect story and
+card session actions, while facts and source links stay readable and other cards,
 navigation, the Sessions sidebar and the terminal work. Its dashed edge joins
 the selection and “Shown in terminal” marks. Its status says the start phase
 (“Preparing execution…” / “Preparing refinement…”, then “Starting execution

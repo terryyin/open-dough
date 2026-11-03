@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 411. Removed numbers are never reused.
+- Highest allocated local number: 413. Removed numbers are never reused.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -861,6 +861,14 @@ says to wait through the host's notification without empty calls.
   - Evidence: coordinator conversation after the slice 1 Agent launch; `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
   - Observed effect: one wasted turn and a spurious completion notification; later waits ended the turn and resumed on the agent's notification
   - Inference: executor slip against existing guidance, not a guidance gap; recorded as a one-off
+- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
+  - Timestamp: unknown (2026-11-03, between the slice 1 Agent launch and 2026-11-03T11:03:16+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
+  - Evidence: coordinator conversation after the slice 1 Agent launch (background `echo waiting`); `dough-execute-plan/references/delegation.md` "Await delegated results without empty calls"
+  - Observed effect: one wasted turn and a spurious completion notification
+  - Inference: second occurrence of the same executor slip by the same tool and model; the guidance names the rule but the slip recurs right after delegation
 
 ## DD-409 — An implementation return claimed a bound its own constants contradict
 
@@ -919,3 +927,36 @@ a failed step is shared (`ci-failures.mjs`) and stays here. The shard's
 deadline breach under slow runner setup is this repository's CI exposure,
 kept once as a DD-279 occurrence in
 [project test findings](docs/maintainer/project-test-findings.md#dd-279).
+
+## DD-412 — The plan's sleep guard let Maintenance Sleep break two whole-suite runs
+
+The plan prescribed `caffeinate -i` for the full local gates. On AC power the
+machine still entered system Maintenance Sleep repeatedly, freezing all
+Playwright workers at once, so two whole dashboard suite runs failed with
+scattered, non-overlapping tests and were discarded.
+
+### Occurrences
+- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
+  - Timestamp: unknown (2026-11-03, about 12:00–17:00 +07:00 per the slice 2 agent's `pmset -g log` reading)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
+  - Evidence: `1c8898b23ac6:.planning/slice-plans/454-unify-story-selection/PLAN.md` Outside-in proof "Local gates" (`caffeinate -i`) and Learnings; slice 2 implementation return (runs of 95 and 52 failures, about 60 sleeps totalling about 4 h; final run under `caffeinate -s -i` 1945/1945)
+  - Observed effect: about 3.4 h of slice 2's wall time went to two invalid whole-suite runs and their attribution checks (a base worktree comparison)
+  - Inference: `-i` prevents idle sleep only; `-s` is needed on AC. The planner copied the guard from local memory, so the gap is in the local practice, not Open Dough guidance
+
+## DD-413 — An implementation agent handed back while its own background work kept running
+
+The slice 1 implementation agent delivered its final report but its task kept
+reporting "waiting on its own background work". The coordinator stopped it
+before starting the refactor agent in the same checkout.
+
+### Occurrences
+- Execution: SEED-224#unify-story-selection (plan 454; first implementation commit `041f863a`)
+  - Timestamp: unknown (2026-11-03, after the slice 1 hand-back and before the 2026-11-03T11:03:16+07:00 slice 1 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed `.claude/skills` at 1e743f54; checkout VERSION 0.3.83)
+  - Evidence: coordinator conversation: three "waiting on its own background work" notifications for the slice 1 agent after its SubagentHandback, then `TaskStop`; `delegation.md` "Own verification to its terminal result" and "Retire owned watches when verification ends"
+  - Observed effect: no stray edits were found, but a second writer could have touched the checkout during the refactor pass; the coordinator added an explicit "nothing still running before returning" rule to the slice 2 and refactor briefs
+  - Inference: the agent did not retire a background command or watch before reporting; whether it was a test run or a watch is not visible in the coordinator record

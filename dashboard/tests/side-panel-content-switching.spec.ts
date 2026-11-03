@@ -7,18 +7,21 @@
 // terminal, which detaches without ending the session or marking it done, and
 // opening that session again attaches to the same session. Review and
 // terminal share the panel's frame icon controls, maximize into the same
-// room, and any change of content returns the normal split. The real
-// `claude` is never reached.
+// room, and any change of content returns the normal split. Each opening
+// selects and highlights its story, which Intent reads; inspecting or
+// selecting another card leaves the panel as it is. The real `claude` is
+// never reached.
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { box, pressWhereShown } from "./pageLayout.ts";
+import { expectInspected, expectSelected } from "./storyCardSelection.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
-import { otherQueuedIdentity } from "./support/startOrigin.ts";
+import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
 import {
   keptSession,
   listed,
@@ -67,7 +70,12 @@ test("review and terminal take turns in the one side panel beside a usable Board
   });
   const cardA = await openBacklog(page, origin);
   const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
-  const { banner } = parts(page);
+  const { banner, development, intentChoice, intent } = parts(page);
+  const expectIntentReads = async (identity: string) => {
+    await intentChoice.click();
+    await expect(intent).toHaveAttribute("data-selected-story", identity);
+    await development.click();
+  };
   const sidebar = sessionsSidebarParts(page);
   const items = sidePanelContents(page);
   const terminal = page.getByRole("region", { name: "Terminal" });
@@ -95,6 +103,10 @@ test("review and terminal take turns in the one side panel beside a usable Board
   await expect(rows).toContainText("echo keep this line");
   const shownMark = storyCardSessions(cardA).getByText("Shown in terminal");
   await expect(shownMark).toBeVisible();
+  // Opening Story A's terminal selects and highlights Story A.
+  await expectSelected(cardA, true);
+  await expectSelected(cardB, false);
+  await expectIntentReads(queuedIdentity);
   const splitPanel = await box(terminal);
   await pressWhereShown(control(terminal, "Maximize"));
   const maximizedRoom = await box(terminal);
@@ -122,10 +134,25 @@ test("review and terminal take turns in the one side panel beside a usable Board
         attachesOfA().every((attached) => attached.endedBy !== undefined),
       )
       .toBe(true);
-    // A review is no session: no session entry is marked as shown.
+    // A review is no session: no session entry is marked as shown. Story B's
+    // review moves the selection to Story B.
     await expect(shownMark).toHaveCount(0);
-    await expect(cardA).not.toHaveClass(/in-side-panel/);
+    await expectSelected(cardB, true);
+    await expectSelected(cardA, false);
     expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
+  });
+
+  await test.step("inspecting another card, or opening the shown review again, leaves its story selected", async () => {
+    await expectIntentReads(otherQueuedIdentity);
+    const inspect = cardA.getByRole("button", { name: "Inspect story" });
+    await inspect.click();
+    await expectInspected(cardA, true);
+    await cardA.getByRole("button", { name: "Hide detail" }).click();
+    await expectInspected(cardA, false);
+    await expectSelected(cardB, true);
+    await expectSelected(cardA, false);
+    await reviewOf(cardB).click();
+    await expectSelected(cardB, true);
   });
 
   await test.step("the dashboard stays usable beside the review", async () => {
@@ -188,5 +215,22 @@ test("review and terminal take turns in the one side panel beside a usable Board
     expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeHidden();
+    await expectSelected(cardA, true);
+    await expectSelected(cardB, false);
+  });
+
+  await test.step("an empty-area click selects another card and clears it, leaving the terminal and every detail as they are", async () => {
+    const heading = cardB.getByRole("heading", { level: 3 });
+    const details = page.getByRole("region", { name: /^Detail for / });
+    await heading.click();
+    await expectSelected(cardB, true);
+    await expectSelected(cardA, false);
+    await expect(rows).toContainText(`attached ${sessionA.slice(0, 8)}`);
+    await expectIntentReads(otherQueuedIdentity);
+    await heading.click();
+    await expectSelected(cardB, false);
+    await expectSelected(cardA, false);
+    await expect(terminal).toBeVisible();
+    await expect(details).toHaveCount(0);
   });
 });

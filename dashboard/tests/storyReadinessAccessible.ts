@@ -28,6 +28,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 import {
   plannedBlocked,
   plannedReady,
@@ -164,22 +165,17 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
     detail.getByRole("link", { name: /^Canonical record/ }),
   ).toBeVisible();
 
-  await expect(
-    backlog
-      .getByRole("article", { name: plannedBlocked.title })
-      .getByText("Not ready", { exact: true }),
-  ).toBeVisible();
-  // Inspecting the blocked story moves the detail to it; its links follow
-  // Hide detail in reading order.
+  // The blocked story's detail opens beside the ready story's, which stays
+  // open; its links follow Hide detail in reading order.
   const blockedCard = backlog.getByRole("article", {
     name: plannedBlocked.title,
   });
+  await expect(
+    blockedCard.getByText("Not ready", { exact: true }),
+  ).toBeVisible();
   await showColumn(page, "Backlog");
-  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
-  await expect(detail).toHaveCount(0);
-  const blockedDetail = blockedCard.getByRole("region", {
-    name: `Detail for ${plannedBlocked.title}`,
-  });
+  const blockedDetail = await inspectedDetail(blockedCard);
+  await expect(detail).toBeVisible();
   const queuedPlan = blockedDetail.getByRole("link", { name: /^Slice plan / });
   await queuedPlan.scrollIntoViewIfNeeded();
   await blockedDetail.getByRole("link", { name: /^Canonical record / }).focus();

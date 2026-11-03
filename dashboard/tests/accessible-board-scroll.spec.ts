@@ -47,15 +47,15 @@ test("accessible Board reads a backlog longer than one screen by scrolling the B
   await test.step("keyboard focus moving back up is never hidden under that heading", async () => {
     await lastInspect.focus();
     for (let place = queuedCount - 1; place >= 1; place -= 1) {
-      // Each queued card offers its enabled launch actions before its Inspect
-      // story, its last control, so Shift+Tab past them reaches the previous
-      // card's Inspect story.
+      // Each queued card offers its enabled launch actions and its Select
+      // story before its Inspect story, its last control, so Shift+Tab past
+      // them reaches the previous card's Inspect story.
       const card = backlog.getByRole("article", {
         name: queuedTitle(place + 1),
         exact: true,
       });
       const launches = await enabledStoryCardLaunchActions(card);
-      for (let step = 0; step < launches.length + 1; step += 1) {
+      for (let step = 0; step < launches.length + 2; step += 1) {
         await page.keyboard.press("Shift+Tab");
       }
       const inspect = backlog

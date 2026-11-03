@@ -127,8 +127,9 @@ where that names one line, with its location and the folders holding it
 opened so the file shows selected in the tree, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again. **CI status** shows, across the
 content area without the location tree, the selected check's judgment of the
-project's configured trunk (`main` here), or, while a story is selected on
-Development's board, of that story's published story branch: the branch its
+project's configured trunk (`main` here), or, while the page has a selected
+story (chosen on its card or through its content in the Side panel), of that
+story's published story branch: the branch its
 single agent profile records in Story Branch Mode. It is judged by the same
 rule as the
 [base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md): the
@@ -195,7 +196,7 @@ are counted with a way to Review changes, which opens on Intent's comparison
 mark. A changed file's Purpose is Review changes' diff of it, and its Proof
 says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while
-the published tree stays usable; deselecting the story removes the lens.
+the published tree stays usable; clearing the selected story removes the lens.
 The story is a lens on Intent, not a separate definition of it, and its
 changed files are an initial view of its impact: they do not by themselves
 establish every affected behavior or the regression proof it needs.

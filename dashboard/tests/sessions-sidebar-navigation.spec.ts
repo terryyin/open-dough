@@ -2,9 +2,10 @@
 // page shows the session's project's stories, from the agent roster too, as
 // one history entry; the terminal opens the session as Open terminal does,
 // with the keyboard in it; once that project's stories are read, the story's
-// card scrolls into view, outlined and saying "Shown in terminal", and the
-// entry is current. Another entry moves both marks, the entry already shown
-// is not attached again, and closing the terminal clears the marks and
+// card scrolls into view, highlighted as the selected story, its session entry
+// saying "Shown in terminal", and the sidebar entry is current. Another entry
+// moves the selection and both marks, the entry already shown is not attached
+// again, and closing the terminal clears the selection and the marks and
 // returns the keyboard to the entry. Nothing it does changes a story or a
 // session. The page's own dashboard server launches and attaches the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
@@ -25,6 +26,7 @@ import {
 } from "./launchJourney.ts";
 import { expectRoute } from "./agentRosterRecords.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 import {
   attachesOf,
   expectRevealsSince,
@@ -102,11 +104,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(pygardonStoryCard).toBeInViewport();
       // Brought into view smoothly, and kept there as the page settled.
       await expectRevealsSince(page, 0, pygardonStory.title, "smooth");
-      await expect(pygardonStoryCard).toHaveCSS("outline-style", "solid");
-      await expect(pygardonStoryCard).toHaveCSS(
-        "outline-color",
-        "rgb(27, 95, 168)",
-      );
+      await expectSelected(pygardonStoryCard, true);
       await expect(
         pygardonStoryCard.getByText("Shown in terminal"),
       ).toBeVisible();
@@ -136,7 +134,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect
         .poll(() => attachesOf(dashboard, sessions.storyB).length)
         .toBe(1);
-      await expect(card(readyStory)).toHaveCSS("outline-style", "solid");
+      await expectSelected(card(readyStory), true);
       await expect(
         card(readyStory).getByText("Shown in terminal"),
       ).toBeVisible();
@@ -145,7 +143,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
         "aria-current",
       );
       for (const other of [takenStory, notRefinedStory]) {
-        await expect(card(other)).toHaveCSS("outline-style", "none");
+        await expectSelected(card(other), false);
       }
       expect(await keyboardInside(page, "Terminal")).toBe(true);
     });
@@ -168,6 +166,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
       await expect(page.locator(".in-side-panel")).toHaveCount(0);
+      await expectSelected(card(readyStory), false);
       await expect(sidebar.locator("[aria-current]")).toHaveCount(0);
       await expect(entry(readyStory)).toBeFocused();
     });

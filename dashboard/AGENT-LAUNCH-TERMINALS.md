@@ -116,7 +116,10 @@ the new width without attaching again.
 Reload has no terminal. Disconnection offers Reconnect; native attach exit offers
 Open again, each for the same session. Close restores the originating control,
 or the session's story card when that control is no longer shown.
-Shown entries/cards are outlined and Sessions sidebar Session entry current; closing clears them.
+The shown Session entry is outlined and says it is shown, its Sessions sidebar
+Session entry is current, and its story becomes the page's selected story, its
+card highlighted; a session attached to no story clears the selected story.
+Closing clears all of them.
 
 The terminal header offers **Dictate into terminal** immediately before Mark as
 done, or with the other actions when Done is unavailable. The microphone becomes

@@ -1,7 +1,10 @@
 // Two published repositories, each with its own revision and its own
 // telling of a story identity the two projects happen to share. Selecting a
 // project shows only that project's Board, through the same reader and
-// presentation Open Dough already used when it was the only source.
+// presentation Open Dough already used when it was the only source. The
+// page's one selected story names its project: a project that does not own it
+// has none, even for the identity they share, and selecting one of its cards
+// moves the selection there.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
@@ -17,6 +20,7 @@ import {
   publishOrigin,
   rawFileAnswer,
 } from "./publishedOrigin.ts";
+import { expectSelected } from "./storyCardSelection.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
@@ -105,6 +109,8 @@ test("project selection shows each project's own Board, and returning to a proje
 
   await page.goto("/");
   const { project, direction, readRevision } = parts(page);
+  const card = (title: string) =>
+    page.getByRole("article", { name: title, exact: true });
 
   await test.step("Open Dough is the default selection, read once, and Doughnut is not requested", async () => {
     await expect(
@@ -119,6 +125,8 @@ test("project selection shows each project's own Board, and returning to a proje
     await expect(readRevision).toContainText(shortRevision(revisionOpenDough));
     expect(openDoughRequests).toHaveLength(2);
     expect(doughnutRequests).toHaveLength(0);
+    await card(openDoughSharedTitle).getByRole("heading").click();
+    await expectSelected(card(openDoughSharedTitle), true);
   });
 
   await test.step("selecting Doughnut shows only Doughnut's Board; Open Dough is not read again", async () => {
@@ -134,12 +142,16 @@ test("project selection shows each project's own Board, and returning to a proje
     await expect(page.locator("body")).not.toContainText(openDoughSharedTitle);
     expect(doughnutRequests).toHaveLength(2);
     expect(openDoughRequests).toHaveLength(2);
+    // Open Dough owns the selection, so Doughnut's telling has none.
+    await expectSelected(card(doughnutSharedTitle), false);
   });
 
   await test.step("the shared story identity is Doughnut's own entry, linked into Doughnut's snapshot", async () => {
     const sharedCard = page.getByRole("article", {
       name: doughnutSharedTitle,
     });
+    await sharedCard.getByRole("heading").click();
+    await expectSelected(sharedCard, true);
     // Its identity and source links are read in its detail.
     await sharedCard.getByRole("button", { name: "Inspect story" }).click();
     await expect(sharedCard).toContainText(sharedStoryIdentity);
@@ -170,6 +182,8 @@ test("project selection shows each project's own Board, and returning to a proje
       "ref",
     ]);
     expect(doughnutRequests).toHaveLength(2);
+    // Selecting Doughnut's card moved the page's one selection there.
+    await expectSelected(card(openDoughSharedTitle), false);
   });
 
   await test.step("the shared story identity is again Open Dough's own entry, linked into Open Dough's snapshot", async () => {

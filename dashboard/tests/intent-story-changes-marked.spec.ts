@@ -62,7 +62,9 @@ test("Intent's Review changes link opens a marked story's review on Intent's com
     await development.click();
     await openStoryReview(page, card);
     await markReviewed(review);
+    // Closing the review clears the selected story; select it again for Intent.
     await closeReview(page);
+    await card.getByRole("heading", { level: 3 }).click();
     await intentChoice.click();
   });
 
