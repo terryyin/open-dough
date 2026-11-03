@@ -6,9 +6,10 @@ projects. Terry Talks stays outside shared collection because process
 retrospective is off. Open Dough, Doughnut, Pygardon, Lizard and newly
 maintained Clipboard supplied readable post-local sources; production
 inventory was rechecked unchanged before selection and before the report.
-Clipboard has no project findings record; its project-owned DD-001/005/010
-stay in its log. Open Dough DD-412, added after its local pass, records a
-local practice gap and was not collected. Clipboard DD-019, added after its
+Clipboard had no project findings record; Terry approved adding
+`/ProjectFindings.md` in terryyin/clipboard for its project-owned
+DD-001/005/010, which that repository's maintenance moves there. Open Dough
+DD-412, added after its local pass, records a local practice gap and was not collected. Clipboard DD-019, added after its
 local pass, is retained at ODF-259 with qualified responsibility; its source
 entry stays unrenamed and uncompacted for the next local pass.
 
@@ -16,10 +17,11 @@ Retained 19 new identities ODF-398–416 and new rows at 24 existing owners.
 Practice confirmations (Clipboard DD-006/008/011, Lizard DD-010/015) are not
 problems and allocate nothing. Repeated reports and aliases add no
 executions; a synthesized comparison counts a project/execution once.
-Mapping consolidations still need Terry: Open Dough DD-400→ODF-074,
-DD-408→ODF-325 and DD-392→ODF-381 would merge into existing source headings;
-DD-387 and DD-401 both map to ODF-333; Clipboard DD-003, DD-004 and DD-013 all
-map to ODF-074. Their evidence is retained; their source codes stay.
+Terry approved the mapping consolidations: Open Dough DD-400→ODF-074,
+DD-408→ODF-325 and DD-392→ODF-381 joined their existing source headings, and
+DD-387 with DD-401 became one ODF-333 entry; Clipboard DD-003, DD-004 and
+DD-013 consolidate as ODF-074 in Clipboard's repository. Every former-code
+alias and distinct occurrence is retained; no name decision remains pending.
 
 Selected shared work: SEED-010#settle-lifecycle-commitments-outside-slices
 first (ODF-333) and SEED-010#proportionate-refactor-for-records-and-repairs

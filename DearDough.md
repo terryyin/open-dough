@@ -10,7 +10,7 @@ Released responses await their specific ordinary-use observations; the
 evidence. Source and catalog identities do not imply resolution.
 
 - Highest allocated local number: 413. Removed numbers are never reused.
-- Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. DD-387 and DD-401 (ODF-333), DD-392 (ODF-381), DD-400 (ODF-074) and DD-408 (ODF-325) keep their local codes until a consolidation decision.
+- Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
@@ -33,7 +33,7 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 
-Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
+Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -323,7 +323,7 @@ Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded
 
 ## ODF-325 — Coordinator launched an empty agent while waiting on delegated work
 
-Former local code: DD-329. [Meaning, evidence and response](docs/maintainer/findings/ODF-325.md).
+Former local code: DD-329. Former local code: DD-408. [Meaning, evidence and response](docs/maintainer/findings/ODF-325.md).
 
 ## ODF-326 — A second source-only review repeated unchanged inputs
 
@@ -423,7 +423,7 @@ Former local code: DD-368. Former local code: DD-373. [Meaning, evidence and res
 
 ## ODF-381 — Source-review put obligation IDs in the Slice column
 
-Former local code: DD-369. [Meaning, evidence and response](docs/maintainer/findings/ODF-381.md).
+Former local code: DD-369. Former local code: DD-392. [Meaning, evidence and response](docs/maintainer/findings/ODF-381.md).
 
 ## ODF-382 — First-pass helper-gone proof used address drift instead of a deleted wire helper
 
@@ -464,18 +464,9 @@ trunk into the story branch as the owned repair; the coordinator merged
 Distinct executions, original provenance, observations and qualified inferences are
 [retained at ODF-398](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-398.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-387 — Closure commitments must be observed before the closure gate runs
+## ODF-333 — Story Branch proof requires trunk before closure <a id="odf-333"></a>
 
-The source-review check refuses the last slice's done transition while any
-whole-story commitment allocated to it is unobserved, but commitments such as
-"the applicable published state has successful CI" and "final target CI and
-shutdown are settled" can only be observed by the later completion operation
-and wrap-up trunk observation. The coordinator recorded the enforcing gate and
-current branch evidence as the observation.
-
-### Occurrences
-Distinct executions, original provenance, observations and qualified inferences are
-[retained at ODF-333](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-333.md); source recovery remains in this project’s pre-compaction revision.
+Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
 
 ## ODF-367 — Source-only review arrived after the first slice was delegated
 
@@ -521,16 +512,6 @@ and put only the new path in `ownedPaths`.
 Distinct executions, original provenance, observations and qualified inferences are
 [retained at ODF-337](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-337.md); source recovery remains in this project’s pre-compaction revision.
 
-## DD-392 — Source-review Slice cells need the `slice N` prefix
-
-Coordinator-authored `source-review.md` put bare integers (`1`) in the
-Commitments Slice column. `story-obligations.mjs` requires `slice N` and
-refused every row as `malformed-commitment` until rewritten.
-
-### Occurrences
-Distinct executions, original provenance, observations and qualified inferences are
-[retained at ODF-381](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-381.md); source recovery remains in this project’s pre-compaction revision.
-
 ## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
 
 Former local code: DD-398.
@@ -557,33 +538,6 @@ published the later waiver, then the product slice.
 ### Occurrences
 Distinct executions, original provenance, observations and qualified inferences are
 [retained at ODF-401](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-401.md); source recovery remains in this project’s pre-compaction revision.
-
-## DD-400 — A decisive premise probe proved the capability, not the story's restriction
-
-Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`.
-
-The plan settled "a project formatter observes every attempt without changing
-runs" from probes that checked the formatter received events and the exit
-stayed 0. Neither probe compared the existing formatter's output, although the
-story promises existing output stays unchanged. The slice 3 walk then showed a
-Cucumber.js `format` entry without its own target replaces the stdout formatter.
-
-### Occurrences
-Distinct executions, original provenance, observations and qualified inferences are
-[retained at ODF-074](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-074.md); source recovery remains in this project’s pre-compaction revision.
-
-## DD-401 — A rollout slice released from trunk without a step landing the earlier slices
-
-Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`.
-
-Plan 439 slice 4 ran `release-and-update-clients`, which releases only Open
-Dough `main`, while slices 1–3 of the Story Branch execution existed only on the
-execution branch. The plan named no trunk landing before the release, so the
-coordinator stopped mid-slice to ask for a Dough Land `--keep-worktree` landing.
-
-### Occurrences
-Distinct executions, original provenance, observations and qualified inferences are
-[retained at ODF-333](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-333.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
 
@@ -679,16 +633,6 @@ files. The executor had to judge which instruction wins.
 ### Occurrences
 Distinct executions, original provenance, observations and qualified inferences are
 [retained at ODF-406](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-406.md); source recovery remains in this project’s pre-compaction revision.
-
-## DD-408 — Coordinator issued a no-op background command while waiting on a delegate
-
-Right after delegating slice 1, the coordinator ran a background `echo
-waiting` solely to have something pending, although the delegation guidance
-says to wait through the host's notification without empty calls.
-
-### Occurrences
-Distinct executions, original provenance, observations and qualified inferences are
-[retained at ODF-325](https://github.com/terryyin/open-dough/blob/a29f625255a3368eb721249c01df96e0f98edfd4/docs/maintainer/findings/ODF-325.md); source recovery remains in this project’s pre-compaction revision.
 
 ## ODF-407 — An implementation return claimed a bound its own constants contradict
 
