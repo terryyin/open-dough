@@ -14,8 +14,8 @@
 // Review changes is always offered, independently of nested sessions, launch
 // records and whether done details or native state are readable. Published Git
 // history supplies the fallback when no usable local comparison remains.
-// Empty-area clicks and a native selection button select the story without
-// opening detail; nested controls keep their own behavior.
+// Empty-area clicks and Select story toggle the page's selected story
+// (`./pageStorySelection.tsx`); nested controls keep their own behavior.
 
 import { useId } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
@@ -27,7 +27,7 @@ import type { DoneStory } from "./doneStories.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
-import { isStoryCardControl } from "./pageStorySelection.tsx";
+import { SelectStory, toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { StorySessions } from "./SessionLists.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
@@ -90,12 +90,9 @@ export function DoneStoryCard({
         .join(" ")}
       aria-labelledby={heading}
       aria-busy={said !== undefined && !said.gap}
-      onClick={(event) => {
-        if (isStoryCardControl(event.target, event.currentTarget, event)) {
-          return;
-        }
+      onClick={toggleOnEmptyArea(() => {
         onSelect(identity);
-      }}
+      })}
       {...doneStoryMarks(identity)}
     >
       <h3 id={heading}>{title}</h3>
@@ -128,16 +125,12 @@ export function DoneStoryCard({
         role="group"
         aria-label="Story actions"
       >
-        <button
-          type="button"
-          className="select-story frame-disclosure-button"
-          aria-pressed={selected}
-          onClick={() => {
+        <SelectStory
+          selected={selected}
+          onToggle={() => {
             onSelect(identity);
           }}
-        >
-          Select story
-        </button>
+        />
         <StoryReviewAction
           completed
           sourceId={sourceId}

@@ -106,7 +106,10 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
   ).toBeVisible();
   await expect(first).toBeFocused();
   await expect(first).toBeInViewport({ ratio: 0.5 });
-  await expect(second.getByRole("region")).toHaveCount(0);
+  // The earlier reference's detail stays open beside it.
+  await expect(
+    second.getByRole("region", { name: "Detail for Second story in seed B" }),
+  ).toBeVisible();
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(dashboard.claudeAttaches()).toEqual([]);
 });

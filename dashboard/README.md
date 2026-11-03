@@ -113,28 +113,8 @@ not claim physical iOS keyboard or remote-connectivity validation.
 refresh, bounded read gaps, recovery, and project switching. Only published
 changes supply story facts; Taken records a claim, not current agent activity.
 
-Each story card has scan and detail views. The scan starts with title, backlog
-priority, and the assigned or preparing developer with its
-credited human, tool and model, preparation and readiness badges, dependencies
-and evidence warnings, a Taken story's slice count with its clock or
-completion and a short source qualification, its launch group, its compact sessions,
-and its inspection group. The [Session entry contract](AGENT-LAUNCH-SESSION-ENTRIES.md)
-defines compact facts, disclosures, attention and readiness. The launch group holds
-**Start execution** and **Start refinement**, each with any launch answer beside
-it and any note in its tooltip; the inspection group holds **Inspect story** and, when
-offered, **Review changes**. Each group's actions share a line when the card is
-wide enough and wrap in reading order when it is not. Each action leads with a
-decorative icon that says what it does: a play glyph for **Start execution**
-and a pencil for **Start refinement**, noted or disabled alike; a chevron for
-**Inspect story** that points right and turns down while the detail is open;
-and a compare glyph for **Review changes**, which also ends with an arrow
-toward the side panel. **Inspect story** opens
-its detail from facts already read: full identity, purpose, what the
-assignment records with its mode and branch context, preparation
-explanations, the exact progress branch and revision, slice evidence, product advice, and source links; **Hide detail**
-returns focus to the card. The dependency explanation opens in place from the
-card's **Dependencies** summary (see
-[Blocking story dependencies](#blocking-story-dependencies)).
+[Story cards](STORY-CARDS.md) describes each card's scan and detail views, its
+launch and inspection actions, and the page's selected story.
 
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or
 prepares each story, the agent roster, and the credited human developer.

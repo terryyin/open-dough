@@ -23,6 +23,7 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 
 export async function expectFailedCheckKeepsPriorRevision(
   page: Page,
@@ -53,7 +54,8 @@ export async function expectFailedCheckKeepsPriorRevision(
   ).toBeVisible();
   // The retained snapshot's links stay pinned to it in each story's detail.
   const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
+  // Its detail may still be open from earlier; several can be open at once.
+  await inspectedDetail(readyCard);
   await expect(
     readyCard.locator(`a[href*="/blob/${retainedRevision}/"]`).first(),
   ).toBeVisible();
@@ -61,7 +63,7 @@ export async function expectFailedCheckKeepsPriorRevision(
   const blockedCard = backlog.getByRole("article", {
     name: plannedBlocked.title,
   });
-  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
+  await inspectedDetail(blockedCard);
   await expect(
     blockedCard.getByRole("link", { name: /^Slice plan / }),
   ).toHaveAttribute("href", planHref("terryyin/open-dough", retainedRevision));

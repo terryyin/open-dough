@@ -1,6 +1,10 @@
-// Example 7: empty-area and keyboard selection for active and Recently done
-// cards; nested controls do not select; selection survives Intent without a
-// "Selected story only" toggle while deselected.
+// Selection and inspection are separate on active and Recently done cards:
+// Select story (pointer or keyboard) and empty-area clicks toggle the selected
+// story's highlight without opening or closing detail; Inspect story opens and
+// closes only its card's detail and leaves the selection alone; nested
+// controls do not select; selection survives Intent without a "Selected story
+// only" toggle. Several open details and dependency references:
+// ./story-card-inspection.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
@@ -22,21 +26,18 @@ import {
   expectEntries,
   sessionsOutsideDoneStories,
 } from "./recentlyDoneColumn.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
-import {
-  consumer,
-  test as dependencyTest,
-  twoDependencies,
-} from "./storyDependencyFixture.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { pausePageClock } from "./autoRefreshJourney.ts";
 import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
-import { expectSelected } from "./storyCardSelection.ts";
+import {
+  expectInspected,
+  expectSelected,
+  selectStory,
+  storyDetail,
+} from "./storyCardSelection.ts";
 
 test.setTimeout(120_000);
 
-test("empty-area and keyboard selection work for active and Recently done cards without nested controls selecting", async ({
+test("Select story and empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
   dashboard,
 }) => {
@@ -91,39 +92,49 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     removedQueued.title,
   ]);
 
-  await test.step("empty-area click selects an active card with detail and a selected mark", async () => {
-    await active.getByRole("heading", { level: 3 }).click();
-    await expectSelected(active, true);
-    await expect(
-      active.getByRole("region", { name: `Detail for ${queuedTitle}` }),
-    ).toBeVisible();
-    await expect(
-      active.getByRole("button", { name: "Hide detail" }),
-    ).toBeVisible();
+  const detail = active.getByRole("region", {
+    name: `Detail for ${queuedTitle}`,
   });
+  const heading = active.getByRole("heading", { level: 3 });
 
-  await test.step("clicks inside open detail do not deselect", async () => {
-    const detail = active.getByRole("region", {
-      name: `Detail for ${queuedTitle}`,
-    });
-    await detail.click();
+  await test.step("empty-area click selects and clears an active card without opening detail", async () => {
+    await heading.click();
     await expectSelected(active, true);
-    await expect(detail).toBeVisible();
-  });
-
-  await test.step("Hide detail deselects and restores Inspect story", async () => {
-    await active.getByRole("button", { name: "Hide detail" }).click();
+    await expectInspected(active, false);
+    await heading.click();
     await expectSelected(active, false);
-    await expect(
-      active.getByRole("region", { name: `Detail for ${queuedTitle}` }),
-    ).toHaveCount(0);
-    await expect(
-      active.getByRole("button", { name: "Inspect story" }),
-    ).toBeVisible();
+    await expectInspected(active, false);
   });
 
-  await test.step("Start does not change selection; second empty-area click deselects", async () => {
-    await active.getByRole("heading", { level: 3 }).click();
+  await test.step("Inspect story opens and closes only detail; selection toggles without closing it", async () => {
+    await active.getByRole("button", { name: "Inspect story" }).click();
+    await expectInspected(active, true);
+    await expectSelected(active, false);
+    await detail.click();
+    await expectSelected(active, false);
+    await heading.click();
+    await expectSelected(active, true);
+    await expectInspected(active, true);
+    await heading.click();
+    await expectSelected(active, false);
+    await expectInspected(active, true);
+    await active.getByRole("button", { name: "Hide detail" }).click();
+    await expectInspected(active, false);
+    await expectSelected(active, false);
+  });
+
+  await test.step("Enter and Space on Select story toggle a Backlog card without detail", async () => {
+    await selectStory(active).focus();
+    await page.keyboard.press("Enter");
+    await expectSelected(active, true);
+    await expectInspected(active, false);
+    await page.keyboard.press("Space");
+    await expectSelected(active, false);
+    await expectInspected(active, false);
+  });
+
+  await test.step("disabled Start does not change selection", async () => {
+    await heading.click();
     await expectSelected(active, true);
     // Disabled Start must not select via event fall-through.
     const start = active.getByRole("button", { name: "Start execution" });
@@ -131,16 +142,9 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     await start.click({ force: true });
     await expectSelected(active, true);
     await expect(page.getByRole("dialog")).toHaveCount(0);
-    await active.getByRole("heading", { level: 3 }).click();
-    await expectSelected(active, false);
-    await expect(
-      active.getByRole("button", { name: "Inspect story" }),
-    ).toBeVisible();
   });
 
-  await test.step("Inspect selects; Sessions sidebar open does not change selection", async () => {
-    await active.getByRole("button", { name: "Inspect story" }).click();
-    await expectSelected(active, true);
+  await test.step("Sessions sidebar open does not change selection", async () => {
     await openSessionsSidebar(page);
     const shown = recentlyDoneParts(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true") {
@@ -152,9 +156,7 @@ test("empty-area and keyboard selection work for active and Recently done cards 
       page.getByRole("region", { name: /Terminal|Final report/ }),
     ).toBeVisible();
     await expectSelected(active, true);
-    await expect(
-      active.getByRole("button", { name: "Hide detail" }),
-    ).toBeVisible();
+    await expectInspected(active, false);
     await shown.button.click();
   });
 
@@ -162,12 +164,8 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     await done.locator(":scope > h3").click();
     await expectSelected(done, true);
     await expectSelected(active, false);
-    await expect(
-      active.getByRole("button", { name: "Inspect story" }),
-    ).toBeVisible();
-    await expect(
-      done.getByRole("region", { name: /^Detail for / }),
-    ).toHaveCount(0);
+    await expectInspected(active, false);
+    await expect(storyDetail(done)).toHaveCount(0);
     const session = done
       .getByRole("list", { name: "Sessions" })
       .getByRole("article")
@@ -175,13 +173,11 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     await expect(session).toBeVisible();
     await session.click();
     await expectSelected(done, true);
-    await expect(
-      done.getByRole("region", { name: /^Detail for / }),
-    ).toHaveCount(0);
+    await expect(storyDetail(done)).toHaveCount(0);
   });
 
   await test.step("Recently done Select story toggles once by pointer and keyboard", async () => {
-    const select = done.getByRole("button", { name: "Select story" });
+    const select = selectStory(done);
     await expect(select).toHaveAttribute("aria-pressed", "true");
     await select.click();
     await expectSelected(done, false);
@@ -218,36 +214,3 @@ test("empty-area and keyboard selection work for active and Recently done cards 
     await development.click();
   });
 });
-
-dependencyTest(
-  "a dependency disclosure and link do not select the card",
-  async ({ page, origin }) => {
-    const revision = await twoDependencies(origin, true);
-    await publishCommittedOrigin(page, {
-      repoDir: origin.project,
-      revision,
-      repository: "terryyin/open-dough",
-      follows: true,
-    });
-    await pausePageClock(page);
-    await openUntilRead(page);
-    const card = parts(page).backlog.getByRole("article", {
-      name: consumer.title,
-      exact: true,
-    });
-    const summary = card.locator(".story-dependencies summary");
-    await summary.click();
-    await expectSelected(card, false);
-    await card.getByRole("link", { name: "SEED-B#b", exact: true }).click();
-    // Reveal-and-select opens the supplier; the consumer stays unselected.
-    await expectSelected(card, false);
-    const supplier = parts(page).backlog.getByRole("article", {
-      name: "Story B",
-      exact: true,
-    });
-    await expectSelected(supplier, true);
-    await expect(
-      supplier.getByRole("button", { name: "Hide detail" }),
-    ).toBeVisible();
-  },
-);

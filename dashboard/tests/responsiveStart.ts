@@ -1,5 +1,6 @@
 // Shared by the responsive start specs (./responsive-session-start*.spec.ts,
-// ./responsive-session-reconciliation*.spec.ts): a test against a real start
+// ./responsive-session-reconciliation*.spec.ts, ./responsive-session-access.spec.ts,
+// ./responsive-session-refinement-restart.spec.ts): a test against a real start
 // origin, the stories it publishes, commits made beside them, the
 // acceptance answers held from the page, and what a submitted dialog, a
 // protected story, and the rest of the page show meanwhile.
@@ -15,6 +16,7 @@ import {
   type StartOrigin,
 } from "./support/startOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { selectStory } from "./storyCardSelection.ts";
 
 // A test whose dashboard uses the machine of a real bare origin
 // (./support/startOrigin.ts) with the installed starts.
@@ -31,6 +33,10 @@ export const test = base.extend<{ origin: StartOrigin }>({
 });
 
 export const instruction = "Keep this exact instruction.";
+
+// What a protected story card and each of its unavailable actions say.
+export const startupUnavailable =
+  "Local startup in progress; this story's actions are unavailable until it settles.";
 
 // Lets the page's launch requests reach the service at once and holds each
 // answer from the page until `release`; `reached` settles once the service
@@ -104,10 +110,12 @@ export async function expectSubmitted(page: Page, dialog: Locator) {
   await expect(dialog).toBeVisible();
 }
 
-// Every action button on the card is unavailable; its source links stay.
+// Every action button on the card is unavailable, while Select story, no
+// protected action, stays available; its source links stay.
 export async function expectProtected(card: Locator) {
   await expect(card.getByRole("button").first()).toBeVisible();
-  await expect(card.getByRole("button", { disabled: false })).toHaveCount(0);
+  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
+  await expect(selectStory(card)).toBeEnabled();
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeDisabled();

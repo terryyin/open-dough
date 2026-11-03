@@ -1,9 +1,10 @@
 // The page's one selected story per project: disposable UI state
 // (ADR 0008), not part of the URL. Columns, Recently done, and Intent share
 // it through this owner (`./PageFrame.tsx`), in the style of page sessions
-// and story navigation. Empty-area card clicks and Inspect (or a Recently
-// done selection control) toggle it; reveal-and-select from story navigation
-// sets it without toggling.
+// and story navigation. Each card's Select story control and empty-area
+// click toggle it, and the selected card is highlighted. Inspection is a
+// separate per-card state (`./pageStoryInspection.tsx`) that never changes
+// the selection.
 
 import {
   createContext,
@@ -11,6 +12,7 @@ import {
   useContext,
   useMemo,
   useState,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 
@@ -18,8 +20,6 @@ import {
 export type PageStorySelection = {
   // Selects `identity` for `project`, or clears when it is already selected.
   readonly toggle: (project: string, identity: string) => void;
-  // Selects `identity` for `project` without toggling off.
-  readonly select: (project: string, identity: string) => void;
 };
 
 export const StorySelectionOnPage = createContext<
@@ -47,14 +47,7 @@ export function StorySelectionProvider({
       return { ...current, [project]: identity };
     });
   }, []);
-  const select = useCallback((project: string, identity: string) => {
-    setByProject((current) =>
-      current[project] === identity
-        ? current
-        : { ...current, [project]: identity },
-    );
-  }, []);
-  const api = useMemo(() => ({ toggle, select }), [toggle, select]);
+  const api = useMemo(() => ({ toggle }), [toggle]);
   return (
     <StorySelectionOnPage value={api}>
       <StorySelectionState value={byProject}>{children}</StorySelectionState>
@@ -76,16 +69,40 @@ export function useStorySelection(project: string) {
     },
     [api, project],
   );
-  const select = useCallback(
-    (identity: string) => {
-      api.select(project, identity);
-    },
-    [api, project],
-  );
   return useMemo(
-    () => ({ selectedIdentity, toggle, select }),
-    [selectedIdentity, toggle, select],
+    () => ({ selectedIdentity, toggle }),
+    [selectedIdentity, toggle],
   );
+}
+
+// A card's Select story control, pressed while its story is selected. It
+// toggles the selection as an empty-area click on the card does.
+export function SelectStory({
+  selected,
+  onToggle,
+}: {
+  readonly selected: boolean;
+  readonly onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="select-story frame-disclosure-button"
+      aria-pressed={selected}
+      onClick={onToggle}
+    >
+      Select story
+    </button>
+  );
+}
+
+// A card's click handler: an empty-area click toggles its story's selection.
+export function toggleOnEmptyArea(onToggle: () => void) {
+  return (event: MouseEvent<HTMLElement>) => {
+    if (!isStoryCardControl(event.target, event.currentTarget, event)) {
+      onToggle();
+    }
+  };
 }
 
 const storyCardControlSelector = [
@@ -111,7 +128,7 @@ const storyCardNonEmptyAreaSelector = [
   ".story-detail",
 ].join(", ");
 
-export function isStoryCardControl(
+function isStoryCardControl(
   target: EventTarget | null,
   card?: EventTarget | null,
   point?: { readonly clientX: number; readonly clientY: number },

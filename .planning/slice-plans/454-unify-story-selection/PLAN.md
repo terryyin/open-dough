@@ -2,6 +2,7 @@
 
 **Identity:** SEED-224#unify-story-selection
 **Source:** [story](../../seeds/SEED-224-unify-story-selection.md#unify-story-selection)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -112,7 +113,7 @@ as written.
 
 ### 1. Inspection and card selection are separate
 Type: Behavior
-Status: planned
+Status: done
 Proof: rewritten `story-card-selection.spec.ts` (kept under 250 lines, and
 split by journey if needed), the dependency journey, and
 `responsive-session-access.spec.ts` with its starting-card assertions on
@@ -151,11 +152,25 @@ still selects without changing the panel. The selection is one page-wide
 project and story. Story cards lose the `in-side-panel` outline, so the
 highlight is their only selection mark. Add **Selected story**,
 **Highlight**, and **Inspect** to ADR 0008's Dashboard UI concepts. Align
-`dashboard/README.md`, `docs/dashboard-navigation.md`,
+`dashboard/README.md`, `dashboard/STORY-CARDS.md` (the card description
+slice 1 moved out of the README), `docs/dashboard-navigation.md`,
 `docs/dashboard-development-intent.md` (selected story and CI status), and
 the Side panel description in `dashboard/AGENT-LAUNCH-TERMINALS.md` with the
 story's terms. Remove wording that ties selection to inspection or to a
 card mark for Side panel content.
+
+## Learnings
+
+- Slice 1 moved the README's story-card paragraph into
+  `dashboard/STORY-CARDS.md` to keep the README under 250 lines. Story-card
+  selection, highlight, and inspection wording now lives there.
+- With Select story added, a Backlog or Taken card's inspection group no
+  longer fits on one line at 1440px: Review changes wraps after Select story
+  and Inspect story (`story-review-action.spec.ts` asserts that order).
+- Inspection is `dashboard/src/pageStoryInspection.tsx`, per project with
+  several identities open. Select story and the empty-area rule have one home
+  in `pageStorySelection.tsx` (`SelectStory`, `toggleOnEmptyArea`), shared by
+  `StoryCard` and `DoneStoryCard`; slice 2 replaces only the selection state.
 
 ## Plan review
 
@@ -164,3 +179,15 @@ first is how cards toggle selection and inspection. The second is how the
 Side panel changes selection, and it completes the terminology. Slice 1's
 interim behavior is named, and slice 2 replaces it. This review found no
 remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Selection stays per project and ignores the Side panel
+Reported: slice 1 — "Selection is still per project, the Side panel doesn't set it, and story cards keep the `in-side-panel` outline."
+Story clause: "Opening other content in the Side panel replaces any earlier selection, including one made on a card."
+Disposition: interim until slices 2
+
+### G2. Story cards keep the Side panel outline
+Reported: slice 1 — "story cards keep the `in-side-panel` outline."
+Story clause: "The highlight replaces both the inspection border and the Side panel outline on cards."
+Disposition: interim until slices 2

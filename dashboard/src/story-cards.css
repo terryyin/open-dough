@@ -24,16 +24,13 @@
   background: var(--surface);
 }
 
-/* Selection and "shown in Side panel" are distinct marks: selection uses an
-   inset accent ring and accent border; the Side panel keeps its soft fill and
+/* The selected story's highlight: an inset accent ring, accent border, and a
+   pale fill. Inspection opens detail without it; the Side panel keeps its
    outer outline (agent-launch.css). */
 .story-card-selected,
 .done-story.story-card-selected {
   box-shadow: inset 0 0 0 2px var(--accent);
   border-color: var(--accent);
-}
-
-.story-card.in-side-panel {
   background: var(--accent-soft);
 }
 

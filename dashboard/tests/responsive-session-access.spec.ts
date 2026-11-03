@@ -1,12 +1,15 @@
 // Keyboard/reduced-motion startup journeys use the real bare origin and
 // installed starts from ./responsive-session-start.spec.ts. Focus transfers to
 // the protected card or Start session progress, with unavailable actions
-// described. Status stays distinct from Column/selection; pending marks join
-// selection and Shown in terminal. Progress animates only without reduced
+// described, while Select story stays available. Status stays distinct from
+// Column, highlight, and inspection; pending marks join the highlight, open
+// detail, and Shown in terminal. Progress animates only without reduced
 // motion. Transitions announce once; settling presents the session without
-// stealing focus from a newer task. Static protection is in responsiveRecovery.ts.
+// stealing focus from a newer task. Static protection is in responsiveRecovery.ts;
+// a refinement settling, then starting again, is in
+// ./responsive-session-refinement-restart.spec.ts.
 
-import { storyCardSessions, parts, sessionNamedBy } from "./dashboardPage.ts";
+import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   countMachineReads,
@@ -16,22 +19,20 @@ import {
   recordAnnouncements,
   tabTo,
 } from "./responsiveAccess.ts";
-import { startExecution } from "./responsiveRecovery.ts";
-import { instruction, openStories, test } from "./responsiveStart.ts";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import {
+  expectInspected,
+  expectSelected,
+  selectStory,
+} from "./storyCardSelection.ts";
+import {
+  instruction,
+  openStories,
+  startupUnavailable as unavailable,
+  test,
+} from "./responsiveStart.ts";
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
-test.use({
-  projectFolders: ["open-dough"],
-  launchTimeoutMs: 60_000,
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
-});
+test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
-const unavailable =
-  "Local startup in progress; this story's actions are unavailable until it settles.";
-// Said by a protected card and each of its unavailable actions.
 const reason = new RegExp(unavailable.replace(/[.]/g, "\\."));
 const inProgress = "Story A: execution start, local startup in progress.";
 const waiting =
@@ -52,9 +53,13 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   const announced = await recordAnnouncements(page);
   const reads = countMachineReads(page);
 
-  // Selected first, by keyboard: the startup's marks join the selection's.
+  // Inspected and selected first, by keyboard: the startup's marks join the
+  // open detail and the highlight.
   const hide = await inspectByKeyboard(page, story);
   await expect(hide).toHaveAttribute("aria-expanded", "true");
+  await selectStory(story).focus();
+  await page.keyboard.press("Space");
+  await expectSelected(story, true);
 
   const start = story.getByRole("button", { name: "Start execution" });
   // Focus does not wait for the canonical dependency and machine reads.
@@ -87,13 +92,16 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await expect(
     other.getByRole("button", { name: "Start execution" }),
   ).not.toHaveAccessibleDescription(/Local startup/);
+  // Selecting is no protected action.
+  await expect(selectStory(story)).toBeEnabled();
+  await expect(selectStory(story)).not.toHaveAccessibleDescription(reason);
 
   // The status is the startup's own, apart from the column and selection.
   const status = story.locator(".story-card-startup-status");
   await expect(status).toContainText(unavailable);
   await expect(status).not.toContainText(/Backlog|Taken|detail/);
   await expect(takenStory).toHaveCount(0);
-  await expect(hide).toHaveAttribute("aria-expanded", "true");
+  await expectInspected(story, true);
   const marks = await marksOf(story);
   expect(marks.classes).toEqual(
     expect.arrayContaining(["story-card-selected", "story-card-starting"]),
@@ -132,9 +140,11 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await expect(storyCardSessions(takenStory)).toHaveCount(1, {
     timeout: 30_000,
   });
+  // Its detail stayed open while another card's opened.
   await expect(
-    takenStory.getByRole("button", { name: "Inspect story" }),
+    takenStory.getByRole("button", { name: "Hide detail" }),
   ).toBeEnabled();
+  await expectInspected(takenStory, true);
   await expect.poll(async () => (await announced()).at(-1)).toBe(reconciled);
   await expect(otherHide).toBeFocused();
   await expect(storyCardSessions(takenStory)).not.toBeFocused();
@@ -187,63 +197,4 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   await expect(parts(page).adHocStarted).toHaveCount(0);
   await expect(otherHide).toBeFocused();
   await expect(button).toBeEnabled();
-});
-
-test("a refinement settling on its card leaves a task begun meanwhile focused; starting the card again keeps its Shown in terminal mark beside its own, its session's actions unavailable and said why, while the terminal works", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  test.setTimeout(120_000);
-  dashboard.claudeScenario("held");
-  const { story, other } = await openStories(page, origin);
-  await story.getByRole("button", { name: "Start refinement" }).click();
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Start", exact: true })
-    .click();
-  await expect(story).toBeFocused();
-  // The card stays in the Backlog, where its session is listed on settling.
-  const otherHide = await inspectByKeyboard(page, other);
-  dashboard.releaseHeldClaude();
-  const entry = storyCardSessions(story);
-  await expect(entry).toHaveCount(1, { timeout: 30_000 });
-  await expect(
-    story.getByRole("button", { name: "Inspect story" }),
-  ).toBeEnabled({ timeout: 30_000 });
-  await expect(otherHide).toBeFocused();
-  await entry.getByRole("button", { name: "Open terminal" }).click();
-  await expect(entry).toContainText("Shown in terminal");
-
-  idleBetweenSteps(dashboard, await sessionNamedBy(entry));
-  await markDoneAnyway(entry);
-  await expect(storyCardSessions(story)).toHaveCount(0);
-
-  const push = origin.holdPushes();
-  dashboard.claudeScenario("held");
-  await startExecution(page, story);
-  await expect(story).toContainText(unavailable);
-  const marks = await marksOf(story);
-  expect(marks.classes).toEqual(
-    expect.arrayContaining(["story-card-starting"]),
-  );
-  expect(marks.edge).toBe("dashed");
-  // The terminal closed with Mark as done; no current-session mark on a new start.
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toHaveCount(0);
-  // Recently done lists the done session outside the frame.
-  await expect(
-    parts(page).recentlyDone.getByRole("button", { disabled: true }),
-  ).toHaveCount(0);
-
-  push.release();
-  dashboard.releaseHeldClaude();
-  const { taken } = parts(page);
-  const takenStory = taken.getByRole("article", { name: "Story A" });
-  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-    timeout: 30_000,
-  });
-  await expect(
-    takenStory.getByRole("button", { name: "Inspect story" }),
-  ).toBeEnabled();
 });
