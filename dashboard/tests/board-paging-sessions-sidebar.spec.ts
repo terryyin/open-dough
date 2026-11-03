@@ -7,7 +7,7 @@
 // ./board-paging.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { expectMembership } from "./dashboardPage.ts";
+import { expectSettledPage } from "./dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -46,7 +46,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       dashboard,
       columnsJourney,
     );
-    await expectMembership(page, {
+    await expectSettledPage(page, {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
     });

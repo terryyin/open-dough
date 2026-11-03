@@ -11,7 +11,6 @@ import {
 } from "./accessibleBoard.ts";
 import {
   chooseProject,
-  expectMembership,
   expectProjectChoice,
   expectSettledPage,
   parts,
@@ -182,7 +181,7 @@ test.describe("touch reading", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await publishLargeBacklog(page);
     await openUntilRead(page);
-    await expectMembership(page, {
+    await expectSettledPage(page, {
       taken: ["Repair the installer's update report"],
       backlog: queuedTitles,
     });

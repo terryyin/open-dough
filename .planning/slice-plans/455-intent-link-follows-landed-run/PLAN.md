@@ -131,6 +131,12 @@ without new promises; no queued SEED-192 work depends on it.
 - A journey where a captured one-shot run precedes a live Taken workspace
   must keep a launch record for that workspace; otherwise the review
   resolves the retired run's record first and answers the landed fallback.
+- CI run 41665622630 (shard 9) failed on `c4b0664d` in
+  `accessible-board-touch.spec.ts`: it wheeled before preparation answers
+  lengthened cards above the reading place, and scroll anchoring moved the
+  place 1000→1337. Repaired by waiting with `expectSettledPage` there and in
+  `board-paging-sessions-sidebar.spec.ts`; `wheelTo` now states that
+  precondition.
 
 ## Concern evidence
 
