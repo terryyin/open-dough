@@ -13,7 +13,7 @@ paragraph was named but not supplied; nothing derives from it.
 | --- | --- | --- | --- |
 | 1 | A coordinator executing a Story Branch plan can complete every slice when the story or its source review also promises landing, final target CI, a release from trunk or completion reporting | slice 3 | |
 | 2 | Each commitment that only a later operation can observe has that operation as its owner | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs "each lifecycle owner allocates a row that every check passes unobserved and reports as pending" |
-| 3 | Such a commitment stays mandatory and unobserved until it is observed | slice 2 | |
+| 3 | Such a commitment stays mandatory and unobserved until it is observed | slice 2 | observed: dough-story-wrap-up/references/lifecycle-commitments.md intro and "Carry them past deletion" (never observed: in plan); lifecycle-commitments-guidance.test.mjs "completion reads pendingLifecycle and retains it before the plan is deleted" |
 | 4 | A slice that must act from trunk has its retained landing named in the plan | slice 3 | |
 | 5 | That named retained landing is covered by the checkpoint that authorizes the step | slice 3 | |
 | 6 | The developer gets no human stop whose only purpose is to break a circular gate | slice 3 | |
@@ -28,9 +28,9 @@ paragraph was named but not supplied; nothing derives from it.
 | 11.3 | Dough Land's planned-completion check does not refuse such a row for lacking an observation | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs "planned completion passes unobserved lifecycle rows and names each with its owner"; dough-land/SKILL.md planned-completion paragraph |
 | 12 | Those checks still refuse an unallocated row | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs "an unknown owner or an obligation on a lifecycle row is malformed; unallocated rows stay refused" |
 | 13 | Those checks still refuse a lifecycle row whose owner is not one of these operations | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs same test, malformed-commitment for release and Target CI |
-| 14 | Wrap-up carries every lifecycle-owned row past deletion of the spent plan and source review | slice 2 | |
-| 15 | Closure does not report success while any lifecycle-owned row lacks its owner's observation | slice 2 | |
-| 16 | Closure's report names each such unobserved commitment and its owner | slice 2 | |
+| 14 | Wrap-up carries every lifecycle-owned row past deletion of the spent plan and source review | slice 2 | observed: dough-story-wrap-up/SKILL.md retention paragraph and "Establish execution completion" bullet; dough-story-wrap-up/references/lifecycle-commitments.md "Carry them past deletion"; lifecycle-commitments-guidance.test.mjs same test (section order Establish < Delete spent history < Integrate); Doughnut 079 replay lists 18 rows |
+| 15 | Closure does not report success while any lifecycle-owned row lacks its owner's observation | slice 2 | observed: dough-story-wrap-up/references/lifecycle-commitments.md "Report the outcome" (never --outcome completed while landing/target CI unobserved; reporting observed by final operation receipt); SKILL.md Report paragraph; lifecycle-commitments-guidance.test.mjs "closure refuses success and names each unobserved commitment and owner" and "the reporting row is observed by the final operation's own receipt" |
+| 16 | Closure's report names each such unobserved commitment and its owner | slice 2 | observed: dough-story-wrap-up/references/lifecycle-commitments.md "Report the outcome" names id, text and owner operation; SKILL.md Report "name each such commitment and its owner"; lifecycle-commitments-guidance.test.mjs closure-refuses test |
 | 17.1 | Slice planning gives a Story Branch slice that must act from trunk a named retained landing (Dough Land --keep-worktree) before the step, inside the human checkpoint that authorizes it | slice 3 | |
 | 17.2 | Or slice planning chooses Trunk Mode for it | slice 3 | |
 | 18 | Execution performs that named landing under the checkpoint's go-ahead without a separate stop | slice 3 | |
@@ -53,13 +53,13 @@ paragraph was named but not supplied; nothing derives from it.
 | 29.2 | The last slice completes | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs each-owner test check --slice; src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs planned-completion test |
 | 29.3 | The execution-complete record proceeds | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs check --completion ok; planned-completion-guidance.test.mjs "the execution-complete record leaves lifecycle commitments unobserved for their owners" |
 | 29.4 | An ordinary Dough Land proceeds | slice 1 | observed: src/skills/dough-execute-plan/scripts/story-obligations-completion.test.mjs planned-completion test ok with pendingLifecycle; dough-land/SKILL.md paragraph pinned by dough-land-guidance.test.mjs |
-| 29.5 | Closure still refuses success until the final accepted SHA's CI success receipt holds | slice 2 | |
+| 29.5 | Closure still refuses success until the final accepted SHA's CI success receipt holds | slice 2 | observed: dough-story-wrap-up/references/lifecycle-commitments.md "Observe each owner's receipt" target CI bullet (success completion receipt for final accepted SHA, branch CI excluded); lifecycle-commitments-guidance.test.mjs "each owner is observed only by its existing receipt" |
 | 30.1 | The plan names the retained landing before slice 4, inside its release checkpoint | slice 3 | |
 | 30.2 | One go-ahead covers both landing and release | slice 3 | |
 | 30.3 | There is no mid-slice landing question | slice 3 | |
-| 31.1 | Integration refused at wrap-up: closure does not report success | slice 2 | |
-| 31.2 | It names the landing-owned commitment and Story Branch integration as its owner | slice 2 | |
-| 31.3 | It keeps the resources as today | slice 2 | |
+| 31.1 | Integration refused at wrap-up: closure does not report success | slice 2 | observed: story-branch-integration.md unresolved-integration paragraph; dough-story-wrap-up/references/lifecycle-commitments.md refused-integration example; lifecycle-commitments-guidance.test.mjs "refused Story Branch integration keeps resources and names the landing owner" |
+| 31.2 | It names the landing-owned commitment and Story Branch integration as its owner | slice 2 | observed: story-branch-integration.md names each landing lifecycle commitment unobserved with Story Branch integration as owner; lifecycle-commitments-guidance.test.mjs refused-integration test |
+| 31.3 | It keeps the resources as today | slice 2 | observed: story-branch-integration.md "preserves the execution resources" unchanged; dough-story-wrap-up/references/lifecycle-commitments.md "resources stay wherever those gates leave them"; lifecycle-commitments-guidance.test.mjs refused-integration test |
 | 32.1 | "The dialog lists the source" stays with the slice that renders the dialog | slice 1 | observed: story-obligations.md "Allocate to a lifecycle owner" split example |
 | 32.2 | "The work is landed normally" goes to landing | slice 1 | observed: story-obligations.md split example; Pygardon 484 replay, record --lifecycle landing on 52 |
 | 32.3 | The last slice no longer waits for landing evidence | slice 1 | observed: Pygardon 484 replay (f144646a), check --slice 5 and --planned-completion ok with pendingLifecycle |

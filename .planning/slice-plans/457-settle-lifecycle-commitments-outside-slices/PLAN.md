@@ -115,7 +115,7 @@ stopping" read sets; put closure detail in `dough-story-wrap-up` files.
 
 ### 2. Wrap-up carries lifecycle commitments to closure
 Type: Behavior
-Status: planned
+Status: done
 Proof: wrap-up guidance reads the pending lifecycle rows from
 `check --planned-completion` at "Establish execution completion", retains them
 in closure evidence before deleting the plan, and reports success only when
@@ -128,6 +128,14 @@ refused-integration example through `dough-story-wrap-up/SKILL.md` and
 Behavior: a completed Story Branch execution with lifecycle rows → wrap-up runs
 → closure succeeds only after landing, final target CI and reporting are
 observed, else names each unobserved row and owner.
+
+Accepted (slice 2): closure detail lives in
+`dough-story-wrap-up/references/lifecycle-commitments.md` (added to
+`install.sh` managed files). `landing` and `target CI` rows are judged before
+final wording; a `reporting` row is observed by the final dashboard
+operation's own receipt. Doughnut 079 replay (`e87c86c6`, seed extracted
+beside the plan; 18 rows reallocated, G3 removed): `ok`, all 18 listed with
+owners. Learning: a new reference must join `install.sh` `managed_files`.
 
 ### 3. Story Branch plans name the retained landing for trunk steps
 Type: Behavior
@@ -148,10 +156,10 @@ retained landing and the release, with no mid-slice landing question.
 
 ## Story obligations
 
-### G1. Wrap-up does not yet name lifecycle rows at closure
-Reported: slice 1 — "Wrap-up does not yet consume `pendingLifecycle` or refuse closure on it."
+### G1. Wrap-up does not yet name lifecycle rows at closure (first reported in slice 1)
+Reported: slice 2 — "Wrap-up does not yet consume `pendingLifecycle` or refuse closure on it."
 Story clause: "Closure does not report success while any of them lacks its owner's observation, and its report names each such commitment and its owner."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: dough-story-wrap-up/references/lifecycle-commitments.md and lifecycle-commitments-guidance.test.mjs; Doughnut 079 replay lists all 18 rows with owners
 
 ## Current decisions
 
