@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 415. Removed numbers are never reused.
+- Highest allocated local number: 416. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -581,3 +581,16 @@ A source-review commitment defined a class with examples in parentheses; slice a
   - Evidence: commitment 2.1 ("planning, execution, finding or research records (plans, seeds, …)") was recorded observed at wrap-up step 1 "touches only plans, seeds, backlog, …"; the slice 3 replay then classed proof records, a candidate catalog, research notes and the North Star as fresh-pass; obligation G1 (`return`, proved by slice 3) in plan 458.
   - Observed effect: one extra correction agent (about 79k reported tokens) and one more refactor pass (about 60k); five of seven replay rows changed classification.
   - Inference: the coordinator matched the example list rather than the stated class; a replay against real cases found what phrase-level acceptance missed.
+
+## DD-416 — A real observation passed only because the producer happened to supply the promised order
+Acceptance recorded an ordering commitment `observed:` at real data whose order came from the recorder's sort, not from the reader the commitment is about; the reader's own spec pinned the opposite order. The outcome review found it.
+
+### Occurrences
+- Execution: SEED-192#read-pytest-proof (plan 459-read-pytest-proof; first related implementation commit `85ce0030a2465bc2a5e1260127f36883e59ff8af`)
+  - Timestamp: unknown (2026-11-04, slice 6 acceptance before `5082cb99`; found by the execution retrospective)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: after Terry amended the story ("ordered by parameter id"), source-review rows 4.2.2 and E6.R3 were recorded observed at the dev dashboard on Pygardon `8dc7cad1a`, whose `tests/proof/latest.json` is sorted by the plugin (`sorted(kept, key=_identity_key)`); `dashboard/src/pytestCases.ts` keeps snapshot order and `dashboard/tests/intent-pytest-proof.spec.ts` asserts `up` before `even`. The 4.2.2 cell itself names "snapshot order".
+  - Observed effect: an amended promise accepted without reader behavior or proof; one correction story and plan written by the retrospective.
+  - Inference: when a promise changes after the product was built, acceptance needs a precondition that would fail without the promised behavior (here an unsorted snapshot), not a real run whose upstream already supplies it.

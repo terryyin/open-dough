@@ -90,10 +90,10 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
     await toggle.click();
     const regions = await expectSideBySide(intent);
     await expect(regions.purpose).toContainText(
-      "Select a feature file to read its Purpose.",
+      "Select a file to read its Purpose.",
     );
     await expect(regions.proof).toContainText(
-      "Select a feature file to see its Proof.",
+      "Select a file to see its Proof.",
     );
     await expectArranged(regions, "beside");
     await toggle.click();

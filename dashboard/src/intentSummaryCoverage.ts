@@ -1,18 +1,23 @@
-// How a Gherkin location or folder summary (`./IntentSummary.tsx`) covers its
-// inventory: scenario totals and Proof count lines over successfully read
-// files only, labelled Partial while any contained file is pending or unread,
-// with contributing-file coverage for the selection and each immediate child
-// in the browser's tree order (`./reviewFileTree.ts`). An unread file is never
-// counted as passed or without successful proof. A nonempty selection with no
-// readable files says its scenario total is unavailable, not zero. Summed
+// How a location or folder summary (`./IntentSummary.tsx`) covers its
+// inventory: inventory totals and Proof count lines over successfully read
+// files only, in the proof kind's words (`./proofKinds.ts`), labelled Partial
+// while any contained file is pending or unread, with contributing-file
+// coverage for the selection and each immediate child in the browser's tree
+// order (`./reviewFileTree.ts`). An unread file is never counted as passed or
+// without successful proof. A nonempty selection with no
+// readable files says its inventory total is unavailable, not zero. Summed
 // proof duration over the same rows lives in `./intentSummaryProofCost.ts`.
 
 import {
-  proofIdentity,
-  type SuccessfulProofObservation,
-} from "./cucumberProof.ts";
-import { scenarioRowsOf, type ScenarioRow } from "./gherkinScenarios.ts";
-import { proofScenarioCountLine } from "./proofScenarioCountLine.ts";
+  observedRowsOf,
+  type CaseRowsOf,
+  type LatestProof,
+  type ObservedRow,
+  type SuccessfulCaseObservation,
+} from "./proofCases.ts";
+import { proofCountLine } from "./proofCountLine.ts";
+import type { ProofKindWords } from "./proofKinds.ts";
+import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import {
   reviewFileOrder,
   reviewFileTree,
@@ -57,8 +62,9 @@ export function immediateChildrenOf(
   });
 }
 
-export function scenarioWords(count: number): string {
-  return `${String(count)} ${count === 1 ? "scenario" : "scenarios"}`;
+// A count of files, in the singular for one.
+export function fileCount(count: number): string {
+  return `${String(count)} ${intentFileCountWords(count)}`;
 }
 
 export function coverageClause(options: {
@@ -68,17 +74,9 @@ export function coverageClause(options: {
   readonly failedCount: number;
 }): string {
   const { readyCount, inventory, pendingCount, failedCount } = options;
-  const parts = [`across ${String(readyCount)} of ${String(inventory)} files`];
-  if (pendingCount > 0) {
-    parts.push(
-      `${String(pendingCount)} ${pendingCount === 1 ? "file" : "files"} reading`,
-    );
-  }
-  if (failedCount > 0) {
-    parts.push(
-      `${String(failedCount)} ${failedCount === 1 ? "file" : "files"} unread`,
-    );
-  }
+  const parts = [`across ${String(readyCount)} of ${fileCount(inventory)}`];
+  if (pendingCount > 0) parts.push(`${fileCount(pendingCount)} reading`);
+  if (failedCount > 0) parts.push(`${fileCount(failedCount)} unread`);
   return parts.join("; ");
 }
 
@@ -112,28 +110,19 @@ export function coverageOf(
   };
 }
 
-// One scenario row of a read file with its latest successful observation,
-// if any: the single matching of rows to proof that summary totals, counts,
-// sums, and slowest scenarios (`./intentSummaryProofCost.ts`) all read.
-export type ObservedRow = {
-  readonly path: string;
-  readonly row: ScenarioRow;
-  readonly observation: SuccessfulProofObservation | undefined;
-};
-
+// The case rows of the read files matched to their latest successful
+// observations (`./proofCases.ts`), which summary totals, counts, sums, and
+// slowest cases (`./intentSummaryProofCost.ts`) all read.
 export function observedRowsForFiles(
   files: readonly string[],
   textOf: (path: string) => string | undefined,
-  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+  rowsOf: CaseRowsOf,
+  latest: LatestProof,
 ): readonly ObservedRow[] {
   return files.flatMap((path) => {
     const text = textOf(path);
     if (text === undefined) return [];
-    return scenarioRowsOf(text).map((row) => ({
-      path,
-      row,
-      observation: latest.get(proofIdentity({ feature: path, ...row })),
-    }));
+    return observedRowsOf(path, text, rowsOf, latest);
   });
 }
 
@@ -156,35 +145,26 @@ export function coverageLabelledLine(
   return complete;
 }
 
-export function scenarioTotalLine(
+export function inventoryTotalLine(
   coverage: CoverageTally,
-  scenarioCount: number,
+  inventoryCount: number,
+  words: ProofKindWords,
 ): string {
   return coverageLabelledLine(
     coverage,
-    scenarioWords(scenarioCount),
-    "Scenario total unavailable",
+    words.inventory(inventoryCount),
+    words.inventoryUnavailable,
   );
 }
 
 export function proofCountLineFor(
   coverage: CoverageTally,
-  observed: readonly (SuccessfulProofObservation | undefined)[],
+  observed: readonly (SuccessfulCaseObservation | undefined)[],
+  words: ProofKindWords,
 ): string {
   return coverageLabelledLine(
     coverage,
-    proofScenarioCountLine(observed),
+    proofCountLine(observed, words.cases),
     "Proof count unavailable",
-  );
-}
-
-export function latestByIdentity(
-  observations: readonly SuccessfulProofObservation[],
-): ReadonlyMap<string, SuccessfulProofObservation> {
-  return new Map(
-    observations.map((observation) => [
-      proofIdentity(observation),
-      observation,
-    ]),
   );
 }

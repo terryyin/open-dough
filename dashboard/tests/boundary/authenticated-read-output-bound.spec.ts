@@ -1,5 +1,6 @@
-// A real gh subprocess exceeds the authenticated read's 1 MiB output bound;
-// the request owner carries its safe cause through the HTTP notice/history.
+// A real gh subprocess exceeds the authenticated read's 32 MiB output bound
+// (../../server/ghRead.ts); the request owner carries its safe cause through
+// the HTTP notice/history.
 import { expect, test } from "../support/pageTest.ts";
 import { everyRepository } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
@@ -18,6 +19,9 @@ import {
   startDashboardServer,
 } from "../support/readDiagnostics.ts";
 
+// Past the bound by a margin the answer's JSON framing cannot make up.
+const pastBound = 33 * 1024 * 1024;
+
 test("oversized gh output names its cause without retry advice, raw output or an invented upstream status", async () => {
   const server = await startDashboardServer(developmentBoundary);
   try {
@@ -26,7 +30,7 @@ test("oversized gh output names its cause without retry advice, raw output or an
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          sha: secretMarker + "x".repeat(2 * 1024 * 1024),
+          sha: secretMarker + "x".repeat(pastBound),
         }),
       }),
     );
@@ -66,7 +70,7 @@ test("an oversized branch listing still falls back to the ref alone without clai
       contentType: "application/json",
       body: JSON.stringify([
         {
-          ref: `refs/heads/${"x".repeat(2 * 1024 * 1024)}`,
+          ref: `refs/heads/${"x".repeat(pastBound)}`,
           object: { type: "commit", sha: revisionA },
         },
       ]),

@@ -1,9 +1,10 @@
-// Gherkin location or folder summary body (`./IntentSummary.tsx`): reads each
-// contained feature (`./authenticatedRead.ts`, `./boundedPool.ts`), shows
-// reading progress, scenario totals from successfully read files, and with
-// declared proof one aggregate count line and summed duration with its
-// coverage, the separate-observations note, observation spread and slowest
-// scenarios (`./IntentSummarySlowest.tsx`), plus a per-child breakdown with
+// Location or folder summary body for a kind Intent reads proof for
+// (`./IntentSummary.tsx`, `./proofKinds.ts`): reads each contained file
+// (`./authenticatedRead.ts`, `./boundedPool.ts`), shows reading progress,
+// inventory totals from successfully read files, and with declared proof one
+// aggregate count line and summed duration with its coverage, the
+// separate-observations note, observation spread and slowest cases
+// (`./IntentSummarySlowest.tsx`), plus a per-child breakdown with
 // each child's sum (`./IntentSummaryChildren.tsx`). Child names and slowest
 // rows drill down through `onOpen`.
 // Totals stay Partial while any file is pending or unread; a failed file is
@@ -13,36 +14,34 @@ import { useEffect, useMemo, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
-import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import {
+  fileCount,
   immediateChildrenOf,
-  latestByIdentity,
+  inventoryTotalLine,
   proofCountLineFor,
-  scenarioTotalLine,
   type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
 import {
   proofCostLineFor,
-  proofCostNote,
   summaryFiguresFor,
 } from "./intentSummaryProofCost.ts";
 import { IntentSummaryChildren } from "./IntentSummaryChildren.tsx";
 import { IntentSummarySlowest } from "./IntentSummarySlowest.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
+import { latestProofOf, noLatestProof } from "./proofCases.ts";
+import type { ProofKind } from "./proofKinds.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const summaryReadConcurrency = 4;
 
 type ReadyTexts = ReadonlyMap<string, string>;
 
-const noObservations: ReadonlyMap<string, SuccessfulProofObservation> =
-  new Map();
-
-export function IntentGherkinSummary({
+export function IntentProofSummary({
   path,
   files,
   location,
+  proofKind,
   source,
   revision,
   proofRereading,
@@ -52,6 +51,7 @@ export function IntentGherkinSummary({
   readonly path: string;
   readonly files: readonly string[];
   readonly location: IntentLocation;
+  readonly proofKind: ProofKind;
   readonly source: PublishedSource;
   readonly revision: string;
   readonly proofRereading: boolean;
@@ -128,7 +128,7 @@ export function IntentGherkinSummary({
     () =>
       readableProof === undefined
         ? undefined
-        : latestByIdentity(readableProof.observations),
+        : latestProofOf(readableProof.observations),
     [readableProof],
   );
   // One walk of the read files per change of inventory, texts, statuses, or
@@ -144,10 +144,12 @@ export function IntentGherkinSummary({
       immediateChildrenOf(path, inventory),
       statusOf,
       (filePath) => ready.get(filePath),
-      latest ?? noObservations,
+      proofKind.rowsOf,
+      latest ?? noLatestProof,
     );
-  }, [path, inventory, ready, failed, latest]);
-  const { coverage, scenarioCount, observed, cost, spread } = selection;
+  }, [path, inventory, ready, failed, proofKind, latest]);
+  const { coverage, inventoryCount, observed, cost, spread } = selection;
+  const { words } = proofKind;
   const settled = coverage.pendingCount === 0;
 
   return (
@@ -155,11 +157,11 @@ export function IntentGherkinSummary({
       {coverage.pendingCount > 0 ? (
         <p className="intent-summary-progress quiet">
           {String(coverage.readyCount + coverage.failedCount)} of{" "}
-          {String(coverage.inventory)} files read
+          {fileCount(coverage.inventory)} read
         </p>
       ) : null}
       <p className="intent-summary-scenarios">
-        {scenarioTotalLine(coverage, scenarioCount)}
+        {inventoryTotalLine(coverage, inventoryCount, words)}
       </p>
       {[...failed].map((filePath) => (
         <p key={filePath} className="intent-file-problem" role="alert">
@@ -185,24 +187,29 @@ export function IntentGherkinSummary({
       ) : settled || coverage.readyCount > 0 ? (
         <>
           <p className="intent-proof-counts intent-summary-proof-counts">
-            {proofCountLineFor(coverage, observed)}
+            {proofCountLineFor(coverage, observed, words)}
           </p>
           <p className="intent-proof-counts">
-            {proofCostLineFor(coverage, cost)}
+            {proofCostLineFor(coverage, cost, words)}
           </p>
           {spread === undefined ? null : (
             <>
-              <p className="intent-proof-counts quiet">{proofCostNote}</p>
+              <p className="intent-proof-counts quiet">{words.costNote}</p>
               <p className="intent-proof-counts">{spread}</p>
               <IntentSummarySlowest
                 path={path}
                 rows={selection.slowest}
-                featureBlobs={readableProof?.featureBlobs ?? {}}
+                fileBlobs={readableProof?.fileBlobs ?? {}}
+                words={words}
                 onOpen={onOpen}
               />
             </>
           )}
-          <IntentSummaryChildren childList={children} onOpen={onOpen} />
+          <IntentSummaryChildren
+            childList={children}
+            words={words}
+            onOpen={onOpen}
+          />
         </>
       ) : null}
     </>

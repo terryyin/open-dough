@@ -1,31 +1,46 @@
-// How one scenario row's last successful proof reads: its name with example
-// cells, and its outcome with attempts, duration, time since, short commit,
-// and whether the feature file's Git blob then was the one published now.
-// Shared by file Proof rows (`./IntentProof.tsx`) and a summary's slowest
-// scenarios (`./IntentSummarySlowest.tsx`), with the duration wording of
+// How one case row's last successful proof reads: its name with its variant
+// in the proof kind's words (`./proofKinds.ts`), and its outcome with
+// attempts, duration, time since, short commit, and whether the file's Git
+// blob then was the one published now. Shared by file Proof rows
+// (`./IntentProof.tsx`) and a summary's slowest cases
+// (`./IntentSummarySlowest.tsx`), with the duration wording of
 // `./proofDurationWords.ts`.
 
-import type { SuccessfulProofObservation } from "./cucumberProof.ts";
-import type { ScenarioRow } from "./gherkinScenarios.ts";
+import type { CaseRow, SuccessfulCaseObservation } from "./proofCases.ts";
 import { durationWords } from "./proofDurationWords.ts";
-import { passed, passedAfterRetry } from "./proofScenarioCountLine.ts";
+import { passed, passedAfterRetry } from "./proofCountLine.ts";
+import type { ProofKindWords } from "./proofKinds.ts";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 
 // The outcome a row reads, with a retry-assisted pass named as such.
-function outcomeOf({ attempts }: SuccessfulProofObservation): string {
+function outcomeOf({ attempts }: SuccessfulCaseObservation): string {
   if (attempts === 1) return passed;
   const tries = `${String(attempts)} attempts`;
   return `${passedAfterRetry} (${tries})`;
 }
 
-export function ScenarioName({ row }: { readonly row: ScenarioRow }) {
+// A case name with a line-break opportunity after each `_` and `::`, so a
+// long pytest name wraps between its words rather than inside them.
+function breakableName(name: string) {
+  return name
+    .split(/(?<=_|::)/)
+    .flatMap((part, at) => (at === 0 ? [part] : [<wbr key={at} />, part]));
+}
+
+export function CaseName({
+  row,
+  words,
+}: {
+  readonly row: CaseRow;
+  readonly words: ProofKindWords;
+}) {
   return (
     <>
-      {row.scenario}
-      {row.example === undefined ? null : (
+      {breakableName(row.name)}
+      {row.variant === undefined ? null : (
         <span className="intent-proof-example">
           {" "}
-          Example: {row.example.join(" | ")}
+          {words.variant(row.variant)}
         </span>
       )}
     </>
@@ -46,7 +61,7 @@ export function ObservedCells({
   publishedBlob,
   now,
 }: {
-  readonly observation: SuccessfulProofObservation;
+  readonly observation: SuccessfulCaseObservation;
   readonly publishedBlob: string | undefined;
   readonly now: number;
 }) {
@@ -64,7 +79,7 @@ export function ObservedCells({
         <code>{observation.commit.slice(0, 7)}</code>
       </td>
       <td>
-        {observation.featureBlob === publishedBlob
+        {observation.fileBlob === publishedBlob
           ? "This file version"
           : "Earlier file version"}
       </td>

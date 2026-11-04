@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_read-pytest-proof.json",
+      "identity": "SEED-192#read-pytest-proof",
+      "completedAt": "2026-11-04T05:57:46.601Z",
+      "blob": "58534dd2d3e1ee0669de2abc339d123a474c1ccf"
+    },
+    {
       "fileName": "SEED-228_compact-selected-story-intent.json",
       "identity": "SEED-228#compact-selected-story-intent",
       "completedAt": "2026-11-04T04:51:26.712Z",

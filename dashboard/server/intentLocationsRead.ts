@@ -11,7 +11,8 @@
 // `./intentLocationsSettings.ts`; selection in
 // `../src/intentLocationSelection.ts`, admission in
 // `./intentLocationSelection.ts`;
-// a Gherkin location's declared Cucumber proof in `./intentProofRead.ts`.
+// declared proof of a location whose kind Intent reads proof for
+// (`../src/proofKinds.ts`) in `./intentProofRead.ts`.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
@@ -28,7 +29,8 @@ import {
   type IntentLocationProof,
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
-import { locationProofAt, type ListedFeature } from "./intentProofRead.ts";
+import { locationProofAt, type ListedFile } from "./intentProofRead.ts";
+import { proofKindOf } from "../src/proofKinds.ts";
 import {
   extensionsOf,
   locationSelectsRelativePath,
@@ -82,7 +84,7 @@ async function filesUnderLocation(
   location: DeclaredLocation,
   signal: AbortSignal,
   naming: (reading: string) => void,
-): Promise<readonly ListedFeature[]> {
+): Promise<readonly ListedFile[]> {
   if (extensionsOf(location.kind) === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
@@ -122,7 +124,7 @@ function locationFields(
 
 function locationAnswer(
   location: DeclaredLocation,
-  files: readonly ListedFeature[],
+  files: readonly ListedFile[],
   proof: IntentLocationProof | undefined,
 ): IntentLocation {
   const fields = locationFields(location);
@@ -138,25 +140,27 @@ function locationAnswer(
     : { ...fields, files: paths, proof };
 }
 
-// Proof is read for a Gherkin location that declares a proof directory and
-// lists feature files.
+// Proof is read for a location of a proof kind that declares a proof
+// directory and lists files.
 function proofOfLocation(
   pinned: PinnedTexts,
   source: PublishedSource,
   revision: string,
   location: DeclaredLocation,
-  files: readonly ListedFeature[],
+  files: readonly ListedFile[],
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<IntentLocationProof> | undefined {
+  const proofKind = proofKindOf(location.kind);
   if (
     location.proof === undefined ||
-    location.kind !== "gherkin" ||
+    proofKind === undefined ||
     files.length === 0
   ) {
     return undefined;
   }
   return locationProofAt(
+    proofKind,
     pinned,
     source,
     revision,

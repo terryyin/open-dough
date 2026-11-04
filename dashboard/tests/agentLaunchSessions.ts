@@ -114,6 +114,8 @@ export async function runningStarts(
 
 type AnsweredAttempts = { attempts: AttemptObservation[] };
 
+const historyQuery = `?${sessionsAudienceParameter}=${sessionsHistoryAudience}`;
+
 // The launch attempts still needing attention, which the boundary answers
 // with the machine's sessions.
 export async function attemptsAttending(
@@ -126,21 +128,28 @@ export async function attemptsAttending(
 export async function attemptsInHistory(
   server: DashboardServer,
 ): Promise<AttemptObservation[]> {
-  return (
-    await sessionsAnswer<AnsweredAttempts>(
-      server,
-      `?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
-    )
-  ).attempts;
+  return (await sessionsAnswer<AnsweredAttempts>(server, historyQuery))
+    .attempts;
 }
 
 // The launch attempts the boundary answers: those still needing attention
-// with the machine's sessions, then the others with their history.
+// with the machine's sessions, then the others with their history, as one
+// observation answered them. The two reads are separate asks, so an attempt
+// that stops needing attention between them (a page reconciling it) would
+// read in both; a pair is taken only when the history read is the one the
+// sessions answer names as its `historyRevision`.
 export async function attempts(
   server: DashboardServer,
 ): Promise<AttemptObservation[]> {
-  return [
-    ...(await attemptsAttending(server)),
-    ...(await attemptsInHistory(server)),
-  ];
+  for (let tries = 0; tries < 20; tries += 1) {
+    const overview = await sessionsAnswer<
+      AnsweredAttempts & { historyRevision?: string }
+    >(server);
+    const history = await sessionsAnswer<
+      AnsweredAttempts & { revision: string }
+    >(server, historyQuery);
+    if (history.revision === overview.historyRevision)
+      return [...overview.attempts, ...history.attempts];
+  }
+  throw new Error("The sessions history kept moving between paired reads");
 }

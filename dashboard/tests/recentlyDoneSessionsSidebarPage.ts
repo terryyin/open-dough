@@ -4,8 +4,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
-import { recentlyDoneSessionsInitialLimit } from "../src/agentLaunch.ts";
+import {
+  agentLaunchEndpoint,
+  recentlyDoneSessionsInitialLimit,
+} from "../src/agentLaunch.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
+import { sessionKey } from "../src/sessionReference.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { box } from "./pageLayout.ts";
@@ -63,6 +68,32 @@ export async function keepProjectLaunchRecords(
   );
   await mkdir(path.dirname(store), { recursive: true });
   await writeFile(store, JSON.stringify(byProject));
+}
+
+// Resolves on the page's sessions read that shows `held` reopened. Only the
+// attach's admission signal, which follows first paint, makes the page read
+// the reopen; a Close before it arrives leaves the Done row until the next
+// sessions check. Arm it before the attach so no answer is missed.
+export function pageReadReopened(page: Page, held: LaunchRecord) {
+  return page.waitForResponse(async (response) => {
+    const url = new URL(response.url());
+    if (
+      url.pathname !== agentLaunchEndpoint ||
+      url.searchParams.has(sessionsAudienceParameter) ||
+      response.request().method() !== "GET" ||
+      !response.ok()
+    )
+      return false;
+    const answer = (await response.json().catch(() => undefined)) as
+      { readonly records?: readonly LaunchRecord[] } | undefined;
+    return (
+      answer?.records?.some(
+        (record) =>
+          sessionKey(record.session) === sessionKey(held.session) &&
+          record.doneAt === undefined,
+      ) === true
+    );
+  });
 }
 
 export function doneRecord(options: {

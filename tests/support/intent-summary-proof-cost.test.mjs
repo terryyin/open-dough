@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  immediateChildrenOf,
-  latestByIdentity,
-} from "../../dashboard/src/intentSummaryCoverage.ts";
+import { immediateChildrenOf } from "../../dashboard/src/intentSummaryCoverage.ts";
+import { latestProofOf } from "../../dashboard/src/proofCases.ts";
+import { proofKindOf } from "../../dashboard/src/proofKinds.ts";
 import {
   proofCostLineFor,
   proofCostOf,
@@ -11,15 +10,17 @@ import {
   summaryFiguresFor,
 } from "../../dashboard/src/intentSummaryProofCost.ts";
 
+const gherkin = proofKindOf("gherkin");
+
 const observed = (finishedAt, commit, durationMs = 1000) => ({
-  feature: "Feature",
-  scenario: "Scenario",
+  file: "Feature",
+  name: "Scenario",
   outcome: "passed",
   attempts: 1,
   durationMs,
   finishedAt,
   commit,
-  featureBlob: "blob",
+  fileBlob: "blob",
 });
 
 const spreadOf = (...observations) =>
@@ -89,7 +90,7 @@ test("a sum of a minute or more reads in minutes and seconds", () => {
     undefined,
   ]);
   assert.equal(
-    proofCostLineFor(complete, cost),
+    proofCostLineFor(complete, cost, gherkin.words),
     "Summed duration of last successful proof: 1m 5s over 2 of 3 scenarios",
   );
 });
@@ -113,13 +114,13 @@ test("the selection and each child derive their figures from one rule over one w
   ];
   const statusOf = (path) =>
     texts.has(path) ? "ready" : path === unread ? "failed" : "pending";
-  const proofOf = (feature, scenario, [finishedAt, commit, durationMs]) => ({
+  const proofOf = (file, name, [finishedAt, commit, durationMs]) => ({
     ...observed(finishedAt, commit, durationMs),
-    feature,
-    scenario,
+    file,
+    name,
   });
   const login = "features/cli/login.feature";
-  const latest = latestByIdentity([
+  const latest = latestProofOf([
     proofOf(login, "Log in", ["2026-11-01T23:50:00Z", "aaaaaaa1111", 2000]),
     proofOf(login, "Log out", ["2026-11-02T01:05:00Z", "bbbbbbb2222", 5000]),
     proofOf("features/recall.feature", "Recall", [
@@ -140,6 +141,7 @@ test("the selection and each child derive their figures from one rule over one w
     childList,
     statusOf,
     textOf,
+    gherkin.rowsOf,
     latest,
   );
 
@@ -150,15 +152,22 @@ test("the selection and each child derive their figures from one rule over one w
   for (const child of children) {
     assert.deepEqual(
       child.figures,
-      summaryFiguresFor(child.files, [], statusOf, readText, latest).selection,
+      summaryFiguresFor(
+        child.files,
+        [],
+        statusOf,
+        readText,
+        gherkin.rowsOf,
+        latest,
+      ).selection,
     );
   }
 
-  assert.equal(selection.scenarioCount, 4);
+  assert.equal(selection.inventoryCount, 4);
   assert.equal(selection.coverage.failedCount, 1);
   assert.equal(selection.cost.summedMs, 10_000);
   assert.deepEqual(
-    selection.slowest.map(({ row }) => row.scenario),
+    selection.slowest.map(({ row }) => row.name),
     ["Log out", "Recall", "Log in"],
   );
   assert.equal(
@@ -168,7 +177,7 @@ test("the selection and each child derive their figures from one rule over one w
   assert.deepEqual(
     children.map(({ name, figures }) => [
       name,
-      figures.scenarioCount,
+      figures.inventoryCount,
       figures.cost.summedMs,
     ]),
     [

@@ -143,7 +143,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       "true",
     );
     await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-      "Select a feature file to read its Purpose.",
+      "Select a file to read its Purpose.",
     );
     await expandIntentGroup(intent, "e2e_test/packaged/features");
     await intent

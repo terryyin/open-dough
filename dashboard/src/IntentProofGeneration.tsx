@@ -3,13 +3,18 @@
 // hides readable historical proof.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { proofKindOf } from "./proofKinds.ts";
 
 export function IntentProofGeneration({
   location,
 }: {
   readonly location: IntentLocation | undefined;
 }) {
-  if (location?.kind !== "gherkin" || location.problem !== undefined) {
+  if (
+    location === undefined ||
+    proofKindOf(location.kind) === undefined ||
+    location.problem !== undefined
+  ) {
     return null;
   }
   const generation = location.proofGeneration;

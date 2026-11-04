@@ -5,7 +5,7 @@
 // with the locations read.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { SuccessfulProofObservation } from "../src/cucumberProof.ts";
+import type { SuccessfulCucumberObservation } from "../src/cucumberProof.ts";
 import {
   proofGeneration,
   type ProofGeneration,
@@ -22,16 +22,18 @@ export type IntentSettingsProblem = "malformed" | "unreadable";
 // supported, or the path holds none of the kind's selected files.
 export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
-// The committed proof a Gherkin location declares (`./intentProofRead.ts`):
-// its directory, each listed feature file's Git blob sha at the revision,
-// and the last successful proof of each scenario of those files; or the
-// directory, why its proof could not be read, and the first proof file
-// (in path order) that could not be read or is not one, when one is known.
+// The committed proof a location of a proof kind declares
+// (`./intentProofRead.ts`, `../src/proofKinds.ts`): its directory, each
+// listed file's Git blob sha at the revision, and the last successful proof
+// of each case of those files, both in the answer's Cucumber fields
+// (`featureBlobs`, `../src/cucumberProof.ts`) whatever the kind; or the
+// directory, why its proof could not be read, and the first proof file (in
+// path order) that could not be read or is not one, when one is known.
 export type IntentLocationProof =
   | {
       readonly path: string;
       readonly featureBlobs: Readonly<Record<string, string>>;
-      readonly observations: readonly SuccessfulProofObservation[];
+      readonly observations: readonly SuccessfulCucumberObservation[];
     }
   | {
       readonly path: string;
@@ -53,7 +55,7 @@ export type IntentLocation = {
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
-  // Present only when a Gherkin location declares a proof directory.
+  // Present only when a location of a proof kind declares a proof directory.
   readonly proof?: IntentLocationProof;
   readonly proofGeneration?: ProofGeneration;
   readonly proofGenerationProblem?: "malformed";
@@ -63,7 +65,7 @@ export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
   readonly include?: readonly string[];
-  // The repository directory the location's committed Cucumber proof lives
+  // The repository directory the location's committed proof lives
   // in, when declared as a safe repository path.
   readonly proof?: string;
   readonly proofGeneration?: ProofGeneration;

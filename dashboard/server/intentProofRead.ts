@@ -1,18 +1,21 @@
-// Committed Cucumber proof a Gherkin Intent location declares, read at the
-// same pinned revision as its feature files for the Intent locations read
+// Committed proof an Intent location of a proof kind declares, read at the
+// same pinned revision as its files for the Intent locations read
 // (`./intentLocationsRead.ts`): one recursive Git tree of the proof
 // directory (`./ghTrees.ts`), each `.json` file's text by its blob sha
-// (`./pinnedTexts.ts`), and the last successful proof of each scenario across
-// every file (`../src/cucumberProof.ts`). Rate limits still fail the whole
+// (`./pinnedTexts.ts`) parsed by the location's kind (`../src/proofKinds.ts`),
+// and the last successful proof of each case across every file
+// (`../src/proofCases.ts`), answered in the Cucumber fields every kind's
+// answer carries (`../src/cucumberProof.ts`). Rate limits still fail the whole
 // read; any other failed read or malformed proof file leaves the location's
 // Purpose readable and reports which, naming the first such file.
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
+import { cucumberOfCase } from "../src/cucumberProof.ts";
 import {
   latestSuccessfulObservations,
-  parseProofFile,
-  type ProofObservation,
-} from "../src/cucumberProof.ts";
+  type CaseObservation,
+} from "../src/proofCases.ts";
+import type { ProofKind } from "../src/proofKinds.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { rateLimitStop } from "./ghFailure.ts";
 import type { TreeEntry } from "./ghTrees.ts";
@@ -22,11 +25,11 @@ import type {
   IntentProofProblem,
 } from "./intentLocationsSettings.ts";
 
-// A feature file the location lists, by repository path, with its blob sha.
-export type ListedFeature = { readonly path: string; readonly sha: string };
+// A file the location lists, by repository path, with its blob sha.
+export type ListedFile = { readonly path: string; readonly sha: string };
 
 type ProofRead =
-  | { readonly observations: readonly ProofObservation[] }
+  | { readonly observations: readonly CaseObservation[] }
   | { readonly problem: IntentProofProblem; readonly file?: string };
 
 // A failed read leaves the location's Purpose readable unless it is a rate
@@ -36,6 +39,7 @@ function rethrownUnlessReadFailure(error: unknown, signal: AbortSignal) {
 }
 
 async function proofFilesUnder(
+  proofKind: ProofKind,
   pinned: PinnedTexts,
   source: PublishedSource,
   revision: string,
@@ -60,31 +64,33 @@ async function proofFilesUnder(
       rethrownUnlessReadFailure(text.reason, signal);
     }
   }
-  const observations: ProofObservation[] = [];
+  const observations: CaseObservation[] = [];
   for (const [at, file] of files.entries()) {
     const text = read[at];
     if (text === undefined || text.status === "rejected") {
       return { problem: "unreadable", file: file.path };
     }
-    const parsed = parseProofFile(text.value);
+    const parsed = proofKind.parseFile(text.value);
     if (parsed === undefined) return { problem: "malformed", file: file.path };
     observations.push(...parsed);
   }
   return { observations };
 }
 
-// The declared proof of a location's listed features at the revision.
+// The declared proof of a location's listed files at the revision.
 export async function locationProofAt(
+  proofKind: ProofKind,
   pinned: PinnedTexts,
   source: PublishedSource,
   revision: string,
   directory: string,
-  features: readonly ListedFeature[],
+  files: readonly ListedFile[],
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<IntentLocationProof> {
   naming(readingPathAt(directory, revision));
   const read = await proofFilesUnder(
+    proofKind,
     pinned,
     source,
     revision,
@@ -92,16 +98,14 @@ export async function locationProofAt(
     signal,
   );
   if ("problem" in read) return { path: directory, ...read };
-  const listed = new Set(features.map((feature) => feature.path));
+  const listed = new Set(files.map((file) => file.path));
   return {
     path: directory,
     featureBlobs: Object.fromEntries(
-      features.map((feature) => [feature.path, feature.sha]),
+      files.map((file) => [file.path, file.sha]),
     ),
     observations: latestSuccessfulObservations(
-      read.observations.filter((observation) =>
-        listed.has(observation.feature),
-      ),
-    ),
+      read.observations.filter((observation) => listed.has(observation.file)),
+    ).map(cucumberOfCase),
   };
 }

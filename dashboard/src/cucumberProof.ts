@@ -1,14 +1,21 @@
 // Cucumber proof files as the reference
 // (`../../src/skills/dough-test-optimization/references/cucumber-proof.md`)
-// defines them: parse one committed run or consolidated file, and reduce any
-// number of them to the last successful proof of each scenario or outline row.
-// Run files and consolidated files read the same way. Shared by the pinned
-// Intent read (`../server/intentProofRead.ts`), its answer's schema
-// (`./authenticatedIntentRead.ts`), and the Proof pane (`./IntentProof.tsx`).
+// defines them, read into Intent's case model (`./proofCases.ts`): feature
+// path → file, scenario name → case name, outline example cells → variant,
+// feature blob → file blob. Run files and consolidated files read the same
+// way. The pinned Intent read (`../server/intentProofRead.ts`) answers in the
+// same Cucumber fields, and its answer's schema
+// (`./authenticatedIntentRead.ts`) reads them back into the case model.
 
-import { commitShaPattern } from "./authenticatedReadRules.ts";
+import {
+  isRecord,
+  proofFileObservations,
+  proofMeasureOf,
+  type CaseObservation,
+  type SuccessfulCaseObservation,
+} from "./proofCases.ts";
 
-const proofOutcomes = [
+const cucumberOutcomes = [
   "passed",
   "failed",
   "skipped",
@@ -18,17 +25,17 @@ const proofOutcomes = [
   "unknown",
 ] as const;
 
-type ProofOutcome = (typeof proofOutcomes)[number];
+type CucumberOutcome = (typeof cucumberOutcomes)[number];
 
-// One finished scenario or outline row, named by its source: feature path
-// from the repository root, scenario name as written, and for an outline the
-// example row's cell values. Its commit and feature blob are full Git object
-// ids.
-export type ProofObservation = {
+// One finished scenario or outline row as a Cucumber proof file records it:
+// feature path from the repository root, scenario name as written, and for
+// an outline the example row's cell values. Its commit and feature blob are
+// full Git object ids.
+export type CucumberObservation = {
   readonly feature: string;
   readonly scenario: string;
   readonly example?: readonly string[] | undefined;
-  readonly outcome: ProofOutcome;
+  readonly outcome: CucumberOutcome;
   readonly attempts: number;
   readonly durationMs: number;
   readonly finishedAt: string;
@@ -36,28 +43,54 @@ export type ProofObservation = {
   readonly featureBlob: string;
 };
 
-// The retained proof Intent publishes after reducing legacy observations.
-export type SuccessfulProofObservation = ProofObservation & {
+export type SuccessfulCucumberObservation = CucumberObservation & {
   readonly outcome: "passed";
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
+// A retained Cucumber observation as a case observation.
+export function caseOfCucumber({
+  feature,
+  scenario,
+  example,
+  featureBlob,
+  ...measured
+}: SuccessfulCucumberObservation): SuccessfulCaseObservation {
+  const named = { file: feature, name: scenario };
+  const recorded = { ...measured, fileBlob: featureBlob };
+  return example === undefined
+    ? { ...named, ...recorded }
+    : { ...named, variant: example, ...recorded };
 }
 
-function observationOf(value: unknown): ProofObservation | undefined {
-  if (!isRecord(value)) return undefined;
-  const {
-    feature,
-    scenario,
-    example,
-    outcome,
+// A retained case observation in the Cucumber fields the Intent answer
+// carries.
+export function cucumberOfCase({
+  file,
+  name,
+  variant,
+  fileBlob,
+  outcome,
+  attempts,
+  durationMs,
+  finishedAt,
+  commit,
+}: SuccessfulCaseObservation): SuccessfulCucumberObservation {
+  const named = { feature: file, scenario: name, outcome };
+  const measured = {
     attempts,
     durationMs,
     finishedAt,
     commit,
-    featureBlob,
-  } = value;
+    featureBlob: fileBlob,
+  };
+  return variant === undefined
+    ? { ...named, ...measured }
+    : { ...named, example: variant, ...measured };
+}
+
+function observationOf(value: unknown): CaseObservation | undefined {
+  if (!isRecord(value)) return undefined;
+  const { feature, scenario, example, outcome } = value;
   if (typeof feature !== "string" || feature.length === 0) return undefined;
   if (typeof scenario !== "string") return undefined;
   if (
@@ -67,91 +100,19 @@ function observationOf(value: unknown): ProofObservation | undefined {
   ) {
     return undefined;
   }
-  if (!proofOutcomes.includes(outcome as ProofOutcome)) return undefined;
-  if (
-    typeof attempts !== "number" ||
-    !Number.isInteger(attempts) ||
-    attempts < 1
-  ) {
-    return undefined;
-  }
-  if (
-    typeof durationMs !== "number" ||
-    !Number.isFinite(durationMs) ||
-    durationMs < 0
-  ) {
-    return undefined;
-  }
-  if (typeof finishedAt !== "string" || Number.isNaN(Date.parse(finishedAt))) {
-    return undefined;
-  }
-  if (typeof commit !== "string" || !commitShaPattern.test(commit)) {
-    return undefined;
-  }
-  if (typeof featureBlob !== "string" || !commitShaPattern.test(featureBlob)) {
-    return undefined;
-  }
-  const named = { feature, scenario, outcome: outcome as ProofOutcome };
-  const measured = { attempts, durationMs, finishedAt, commit, featureBlob };
+  if (!cucumberOutcomes.includes(outcome as CucumberOutcome)) return undefined;
+  const measured = proofMeasureOf(value, value.featureBlob);
+  if (measured === undefined) return undefined;
+  const named = { file: feature, name: scenario, outcome: outcome as string };
   return example === undefined
     ? { ...named, ...measured }
-    : { ...named, example: example as string[], ...measured };
+    : { ...named, variant: example as string[], ...measured };
 }
 
-// The observations one proof file holds, or undefined when its text is not
-// a version 1 proof file whose every observation is complete.
-export function parseProofFile(
+// The observations one Cucumber proof file holds, or undefined when its text
+// is not a version 1 proof file whose every observation is complete.
+export function parseCucumberProofFile(
   text: string,
-): readonly ProofObservation[] | undefined {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    return undefined;
-  }
-  if (!isRecord(parsed) || parsed.version !== 1) return undefined;
-  if (!Array.isArray(parsed.observations)) return undefined;
-  const observations: ProofObservation[] = [];
-  for (const entry of parsed.observations) {
-    const observation = observationOf(entry);
-    if (observation === undefined) return undefined;
-    observations.push(observation);
-  }
-  return observations;
-}
-
-// The identity a scenario or outline row keeps across runs and files.
-export function proofIdentity({
-  feature,
-  scenario,
-  example,
-}: Pick<ProofObservation, "feature" | "scenario" | "example">): string {
-  return JSON.stringify([feature, scenario, example ?? null]);
-}
-
-// Read legacy outcomes latest-first, then expose only successful proof. A
-// later unsuccessful result clears the older success instead of reviving it.
-// At equal finish times an unsuccessful result clears the success regardless
-// of file ordering.
-export function latestSuccessfulObservations(
-  observations: Iterable<ProofObservation>,
-): SuccessfulProofObservation[] {
-  const latest = new Map<string, ProofObservation>();
-  for (const observation of observations) {
-    const identity = proofIdentity(observation);
-    const kept = latest.get(identity);
-    if (
-      kept === undefined ||
-      Date.parse(observation.finishedAt) > Date.parse(kept.finishedAt) ||
-      (Date.parse(observation.finishedAt) === Date.parse(kept.finishedAt) &&
-        kept.outcome === "passed" &&
-        observation.outcome !== "passed")
-    ) {
-      latest.set(identity, observation);
-    }
-  }
-  return [...latest.values()].filter(
-    (observation): observation is SuccessfulProofObservation =>
-      observation.outcome === "passed",
-  );
+): readonly CaseObservation[] | undefined {
+  return proofFileObservations(text, observationOf);
 }

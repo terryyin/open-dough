@@ -5,7 +5,7 @@
 // immediate child adds its own sum or says its duration is unknown, never
 // 0 s, with Partial labelling like the count line; its slowest proven rows
 // read as file Proof reads them, the cap in `./intent-summary-slowest.spec.ts`
-// (../src/IntentGherkinSummary.tsx, ../src/intentSummaryProofCost.ts,
+// (../src/IntentProofSummary.tsx, ../src/intentSummaryProofCost.ts,
 // ../src/IntentSummarySlowest.tsx).
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";

@@ -97,7 +97,7 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     await expect(summary).not.toContainText("Partial:");
   });
 
-  await test.step("typescript location: summary gives file count and Gherkin-only Proof wording", async () => {
+  await test.step("typescript location: summary gives file count and the kinds Proof is read for", async () => {
     await page.goto("/?project=open-dough&perspective=intent");
     await openUntilRead(page, "/?project=open-dough&perspective=intent");
     const { intent } = parts(page);
@@ -106,7 +106,7 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     await expect(summary).toContainText("dashboard/tests");
     await expect(summary).toContainText("1 file");
     await expect(summary).toContainText(
-      "Intent reads Proof only for Gherkin feature files so far.",
+      "Proof is read for Gherkin feature files and pytest files so far.",
     );
     await expect(summary).not.toContainText("Summed duration");
   });

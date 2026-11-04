@@ -202,10 +202,10 @@ test("a new published revision reads the locations again and starts with nothing
     "true",
   );
   await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-    "Select a feature file to read its Purpose.",
+    "Select a file to read its Purpose.",
   );
   await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-    "Select a feature file to see its Proof.",
+    "Select a file to see its Proof.",
   );
   await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();

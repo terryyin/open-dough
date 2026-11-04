@@ -292,6 +292,7 @@ managed_files=(
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
   dough-test-optimization/references/cucumber-proof.md
+  dough-test-optimization/references/pytest-proof.md
   dough-manual-testing/SKILL.md
   dough-manual-testing/references/exploration-workspace.md
   dough-execution-retrospective/SKILL.md

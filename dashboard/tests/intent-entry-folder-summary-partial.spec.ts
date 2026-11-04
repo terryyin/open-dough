@@ -2,13 +2,18 @@
 // totals while contained files are still reading or unread, name a failed
 // file with a retry that rereads only it, and say scenario total unavailable
 // (not zero) when a nonempty selection has no readable files
-// (../src/IntentGherkinSummary.tsx, ../src/intentSummaryCoverage.ts).
+// (../src/IntentProofSummary.tsx, ../src/intentSummaryCoverage.ts).
 // Companion to ./intent-entry-folder-summaries.spec.ts toggle/name and complete
 // aggregation coverage.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { intentLocationName } from "./intentPerspectivePage.ts";
+import {
+  expandIntentFolders,
+  expandIntentGroup,
+  intentFolderName,
+  intentLocationName,
+} from "./intentPerspectivePage.ts";
 import {
   authenticatedReadRoute,
   holdAuthenticatedReadsOf,
@@ -24,6 +29,7 @@ import {
   pygardonFeatureSources,
   pygardonSettings,
   reportsFeaturePath,
+  reportsFolder,
   stooqPath,
   topFeaturePath,
 } from "./intentEntryFolderSummariesFixtures.ts";
@@ -159,5 +165,28 @@ test("Gherkin summary Partial progress, unread retry, and unavailable totals", a
     await expect(summary).toContainText("Scenario total unavailable");
     await expect(summary).not.toContainText("0 scenarios");
     await page.unroute(authenticatedReadRoute);
+  });
+
+  await test.step("a folder of one file still reading counts that file in the singular", async () => {
+    await page.reload();
+    await openUntilRead(page, "/?project=pygardon&perspective=intent");
+    const { intent: current } = parts(page);
+    const held = await holdAuthenticatedReadsOf(
+      page,
+      reportsFeaturePath,
+      releases,
+    );
+    await expandIntentGroup(current, featuresPath);
+    await expandIntentFolders(current, featuresPath);
+    await intentFolderName(
+      current,
+      reportsFolder.split("/").at(-1) ?? "",
+    ).click();
+    const summary = current.getByRole("region", { name: "Summary" });
+    await expect.poll(held.held).toBeGreaterThan(0);
+    await expect(summary).toContainText("0 of 1 file read");
+    await expect(summary).toContainText("across 0 of 1 file; 1 file reading");
+    held.release();
+    await expect(summary).not.toContainText("Partial:");
   });
 });

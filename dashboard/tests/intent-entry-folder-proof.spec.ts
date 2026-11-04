@@ -2,7 +2,7 @@
 // after a later legacy result invalidates one scenario's earlier success.
 
 import { expect, test } from "./dashboardTest.ts";
-import type { ProofObservation } from "../src/cucumberProof.ts";
+import type { CucumberObservation } from "../src/cucumberProof.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -25,7 +25,7 @@ test("folder summaries retain last successful proof and clear a newer unsuccessf
   page,
 }) => {
   const earlier = JSON.parse(pygardonFeatureSources[proofRunPath]) as {
-    observations: ProofObservation[];
+    observations: CucumberObservation[];
   };
   await publishIntentProject(page, pygardon, pygardonSettings, {
     ...pygardonFeatureSources,
