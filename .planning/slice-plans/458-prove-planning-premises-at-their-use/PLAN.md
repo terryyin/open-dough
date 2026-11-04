@@ -167,7 +167,7 @@ queries locate it".
 
 ### 2. Readiness names the unverified input or host condition
 Type: Behavior
-Status: planned
+Status: done
 Proof: Behavior review on the revised "Criteria" in `record-preparation.md`:
 walk example 4. A plan whose row records "manifest hash and factor files
 verified on the host" with "published in the production profile" as the
@@ -189,6 +189,20 @@ when none remain.
 
 Deliver together: the `ready` criteria row and the blocking-reason paragraph
 (currently lines 76 and 93–97).
+
+Accepted proof (2026-11-04): the focused command above, plus
+`refinement-outcome-guidance.test.mjs`, `preparation-handoff-guidance.test.mjs`
+and `one-shot-refinement-guidance.test.mjs` (the other readers of
+`record-preparation.md`), passes; the new criteria test fails on the base
+text. Behavior review, about 5 minutes (tokens unavailable): example 4's
+unbounded "published in the production profile" remainder yields
+`not-ready` with a `--reason` naming the premise and that host condition;
+the cited read-only listing, or an early probe slice stopping dependents,
+yields `ready`. Learning: the unchanged "clear a premise-based reason only
+with a fresh observation" sentence contradicted reuse by citation (story
+commitment 3.1); it now admits a matching retained observation cited with
+its time or revision, while re-citing the evidence that left the premise
+open still does not clear it.
 
 ### 3. The brief carries the slice's premise boundary
 Type: Behavior
