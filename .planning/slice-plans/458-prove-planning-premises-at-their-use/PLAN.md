@@ -237,7 +237,7 @@ was pushed: proven supersession.
 
 ### 4. ODF-074 records the response and the replay
 Type: Behavior
-Status: planned
+Status: done
 Proof: Read `docs/maintainer/findings/ODF-074.md`. Its Follow-up reads
 "delivered, unreleased: SEED-010#prove-planning-premises-at-their-use" with
 the story link kept; its Response / limit names slices 1–3's commits, the
@@ -255,6 +255,15 @@ actual response commits, that the containing release is pending, what the
 replay showed and cost, and what remains to observe.
 
 Deliver together: the record edits and the dated verification line.
+
+Accepted proof (2026-11-04): the entry's Follow-up reads "delivered,
+unreleased" with the story link and the prior 0.3.58 response kept; Response
+/ limit names `4165f1f20`, `ddbc5bb45` and `0aaa8f1f1` as story-branch
+revisions, `git tag --contains` none, native evaluation unverified and later
+use separate; "Response replay — 2026-11-04" replaces the selected-response
+section. `git diff --stat` shows only ODF-074.md; no test reads
+`docs/maintainer/findings`. Learning: landing may rewrite the story-branch
+SHAs; wrap-up replaces them with the landed revisions if so.
 
 ## Current decisions
 
