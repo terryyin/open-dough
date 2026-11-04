@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#order-pytest-parameter-rows
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows)
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, handed off by the execution
 retrospective, in the reviewed story's workspace (branch
 `claude/read-pygardon-pytest-proof`); the invoking execution commits these
@@ -147,7 +148,7 @@ as written, carried verbatim:
 
 ### 1. A parametrized function's rows read in parameter id order
 Type: Behavior
-Status: planned
+Status: done
 Proof: Change `intent-pytest-proof.spec.ts` to expect
 `test_rounding Parameters: even` before `test_rounding Parameters: up`, keep
 the fixture's unsorted `up`-then-`even` snapshot (name it unsorted in the
@@ -202,4 +203,10 @@ Remaining slice-specific concerns: none identified in this review.
 
 ## Learnings
 
-None yet.
+- Slice 1: the slowest-case tie promise has its own unit observation
+  (`intent-pytest-cases.test.mjs` "slowest test cases with equal durations
+  follow parameter id order", through `summaryFiguresFor` with the python
+  kind's rows); no journey fixture has a duration tie. Accepted proof: the
+  three pytest Proof journeys (9 passed), the unit tests,
+  `typecheck:dashboard` and payload links, rerun after the refactor that
+  shares one lexicographic comparator for code points and ids.

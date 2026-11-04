@@ -63,9 +63,9 @@ const passed = (
 
 const corsBlob = gitBlobSha(corsSource);
 
-// One maintained snapshot: `[down]` failed in the last run, so only `[up]`
-// and `[even]` of `test_rounding` keep proof, and `test_rejects_unknown_origin`
-// has none.
+// One maintained snapshot, unsorted: `[down]` failed in the last run, so only
+// `[up]` and then `[even]` of `test_rounding` keep proof, out of parameter id
+// order, and `test_rejects_unknown_origin` has none.
 const observations: readonly Observation[] = [
   passed(corsPath, "test_allows_listed_origin", {
     durationMs: 120,

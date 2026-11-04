@@ -1,0 +1,53 @@
+# Source review: Order pytest parameter rows by parameter id
+
+Launch: fresh general-purpose sub-agent, no conversation inheritance,
+2026-11-04, during execution of SEED-192#order-pytest-parameter-rows. Input:
+only the story section's Goal and Scope from
+`.planning/seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows`
+and the plan's Provenance, Findings, and Preserved promises and constraints
+sections (its complete correction input), without slicing, returns, product
+or proof. Instruction: use only these inputs, read no files, change nothing,
+and return numbered commitments, qualifications, examples and exclusions.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | A Pygardon developer reading pytest Proof in Intent sees a parametrized function's observed rows in parameter id order | slice 1 | observed: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases…": even (80 ms) before up (2.4 s) from the unsorted up-then-even fixture, red before the reader change; tests/support/intent-pytest-cases.test.mjs "parameter ids up, even / even, up read in parameter id order" |
+| 1.1 | whatever order the snapshot holds them in (a recorder that does not sort, a merged snapshot, or a hand-edited snapshot) | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs "parameter ids up, even / even, up read in parameter id order" (both input orders); fixture intentPytestProofFixtures.ts named unsorted |
+| 1.2 | Ordered by parameter id because pytest's collection order is not recorded (Terry's amendment) | slice 1 | observed: pytestRowsOf sorts observed variants itself (dashboard/src/pytestCases.ts); recorder order not consulted |
+| 1.3 | Key example 6 (amended): a parametrized function expands to its observed ids in parameter id order | slice 1 | observed: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases…": even (80 ms) before up (2.4 s) from the unsorted up-then-even fixture, red before the reader change |
+| 2 | The reference and Intent guidance describe that order truthfully | slice 1 | observed: src/skills/dough-test-optimization/references/pytest-proof.md Reading proof and docs/dashboard-development-intent.md pytest paragraph state parameter id order |
+| 3 | The reference and Intent guidance describe pytest summaries truthfully | slice 1 | observed: docs/dashboard-development-intent.md: without declared proof a Gherkin or pytest summary still gives the statistics it can (IntentSummary.tsx gates on proofKindOf) |
+| 4 | Correct the reviewed defects named in the plan without changing the promises of the original story (Read Pygardon pytest proof) | slice 2 |  |
+| 4a | The corrections: | slice 2 |  |
+| 4a.1 | Intent orders a function's observed parameter ids itself | slice 1 | observed: dashboard/src/pytestCases.ts pytestRowsOf .sort(byParameterId); tests/support/intent-pytest-cases.test.mjs "parameter ids up, even / even, up read in parameter id order" |
+| 4a.1.1 | Order is code-point order, the way Python's `sorted` orders `str` | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs code-point tests: Z before a; ｡ before U+1F600 from both orders; dashboard/src/pytestCases.ts byCodePoint |
+| 4a.1.2 | The reader no longer depends on the recorder's snapshot ordering | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs "parameter ids up, even / even, up read in parameter id order": up-then-even input reads even, up |
+| 4a.2 | Its journey proves the order from an unsorted snapshot | slice 1 | observed: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases…": even (80 ms) before up (2.4 s) from the unsorted up-then-even fixture, red before the reader change |
+| 4a.2.1 | Journey example: `up` published before `even` displays as `Parameters: even` then `Parameters: up` | slice 1 | observed: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases…": even (80 ms) before up (2.4 s) from the unsorted up-then-even fixture, red before the reader change |
+| 4a.3 | A unit test covers that order | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs "parameter ids up, even / even, up read in parameter id order"; tests/support/intent-pytest-cases.test.mjs code-point tests: Z before a; ｡ before U+1F600 from both orders; dashboard/src/pytestCases.ts byCodePoint |
+| 4a.4 | A unit test covers the Python definition scanner's rules | slice 2 |  |
+| 4a.4.1 | Scanner rules to cover: strings, triple-quoted docstrings, open brackets, indentation blocks, nested helpers, non-`Test*` classes, `async def` | slice 2 |  |
+| 4a.5 | The pytest reference's "Reading proof" section states the order | slice 1 | observed: pytest-proof.md Reading proof: one row per observed id, in parameter id order whatever order the snapshot holds them in |
+| 4a.6 | `docs/dashboard-development-intent.md` states the order | slice 1 | observed: docs/dashboard-development-intent.md pytest paragraph: in parameter id order, test_rounding Parameters: even before Parameters: up |
+| 4a.7 | The guidance names the kinds Intent reads no proof for | slice 1 | observed: docs/dashboard-development-intent.md: Kinds Intent reads no proof for and unusable locations reuse the Proof-absent or location explanations |
+| 4a.8 | The guidance names the summaries both kinds give without declared proof | slice 1 | observed: docs/dashboard-development-intent.md: without declared proof a Gherkin or pytest summary still gives the statistics it can |
+| 4a.8.1 | Context: a `python` location gets a summary and an inventory without declared proof, since `IntentSummary.tsx` gates on `proofKindOf` | slice 1 | observed: IntentSummary.tsx renders IntentProofSummary when proofKindOf(kind) is defined (gherkin, python); intent-pytest-proof-absent.spec.ts passes |
+| 5 | Ties in the slowest cases between rows on one line follow parameter id order instead of snapshot order | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs "slowest test cases with equal durations follow parameter id order": summaryFiguresFor python rowsOf over up-then-even reads even, up |
+| 6 | No new product behavior beyond those corrections | slice 2 |  |
+| 7 | Everything the original plan proved stays proved | slice 2 |  |
+| 7.1 | Functions are shown in definition order | slice 1 | observed: tests/support/intent-pytest-cases.test.mjs "functions keep definition order…" lines 1 then 4; intent-pytest-proof.spec.ts row order |
+| 7.2 | Observed-id expansion, with only observed ids as rows | slice 1 | observed: intent-pytest-proof.spec.ts: only even and up rows, [down] absent |
+| 7.3 | A function without an observation shows as one _No successful proof_ row | slice 1 | observed: intent-pytest-proof.spec.ts test_rejects_unknown_origin No successful proof; unit test plain row {name, line} |
+| 7.4 | Gherkin rows are unchanged | slice 2 |  |
+| 7.5 | Wording is unchanged | slice 2 |  |
+| 7.6 | Summaries are unchanged | slice 2 |  |
+| 7.7 | The Intent answer fields are unchanged | slice 2 |  |
+| 7.8 | The proof file fields are unchanged | slice 2 |  |
+| 7.9 | Collection order is never recorded | slice 2 |  |
+| 7.10 | The original story's other promises, examples and restrictions stand | slice 2 |  |
+| 8 | The recorder's own snapshot ordering recommendation stays ("to limit diff noise") | slice 1 | observed: pytest-proof.md recorder sorting recommendation (to limit diff noise) unchanged in diff |
+| 9 | Exclusion: renaming the Cucumber-named answer fields (a separate decision for Terry) | slice 2 |  |
+| 10 | Exclusion: consolidating the overlapping pytest summary and parser journeys | slice 2 |  |
+| 11 | Exclusion: the installed copies under `.agents/skills/` and `.claude/skills/`, which update only from a released payload | slice 2 |  |

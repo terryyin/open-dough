@@ -111,9 +111,10 @@ test("a pytest file's Proof lists its test cases in definition order with observ
       "Observed on",
     ],
     ["test_allows_listed_origin", ...passedNow("120 ms")],
-    // Only the ids observed passing are rows: `[down]` failed last.
-    ["test_rounding Parameters: up", ...passedNow("2.4 s")],
+    // Only the ids observed passing are rows, in parameter id order whatever
+    // the snapshot's order: `[down]` failed last.
     ["test_rounding Parameters: even", ...passedNow("80 ms")],
+    ["test_rounding Parameters: up", ...passedNow("2.4 s")],
     ["test_preflight", ...passedNow("45 ms")],
     ["test_rejects_unknown_origin", "No successful proof", "", "", "", ""],
     [
