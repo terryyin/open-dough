@@ -302,7 +302,15 @@ this slice.
 
 ### 3. Intent reads `playwright` proof and names `test.describe` paths
 Type: Behavior
-Status: planned
+Status: done
+
+**Slice 3 accepted proof (2026-11-04):** unit
+`intent-vitest-cases` / templates / `intent-proof-runner` /
+`intent-playwright-cases`; focused Intent journeys including
+`intent-playwright-proof.spec.ts` (21 passed with vitest/cucumber/pytest
+absence); `typecheck:dashboard`; full dashboard suite under
+`caffeinate -s -i` on AC Power exit 0 (~121m).
+
 Proof: `vitestCases.ts` reads a family name as a member of `test` with the
 line of the `test` token, with `serial`, `parallel`, `fixme` and `fail`
 in the modifier set; a unit test through `bash scripts/test.sh` pins

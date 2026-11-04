@@ -70,32 +70,32 @@ commitments with compound items given own ids.
 | 6a.9 | Snapshot field `fileBlob` | slice 2 | observed: fileBlob |
 | 6b | At most one observation per identity | slice 2 | observed: proofStore fold: at most one per identity |
 | 6c | Ordered by `file`, then `test`, then `project` | slice 2 | observed: proofStore order by file,test,project |
-| 6d | Playwright snapshot parses with Vitest parser | slice 3 | |
+| 6d | Playwright snapshot parses with Vitest parser | slice 3 | observed: intent-playwright-proof.spec.ts Ex6; parseVitestProofFile via playwright kind |
 | 7a | `runner: "playwright"` on typescript/javascript location that declares `proof` | slice 2 | observed: .planning/open-dough.json runner playwright on dashboard/tests |
-| 7b | Dashboard reads `proof` and `proofGeneration` as on any location | slice 3 | |
-| 7c | Declared `proof` without usable `runner` names `playwright` among runners | slice 3 | |
-| 8a | Rows from published TS under test-call rule extended by one form | slice 3 | |
-| 8b.1 | Family call: describe, suite, it, or test | slice 3 | |
-| 8b.2 | bare or member of `test` (`test.describe`, `test.it`) | slice 3 | |
-| 8b.3 | modifier chain admits `.serial`, `.parallel`, `.fixme`, `.fail` | slice 3 | |
-| 8b.4 | names are string/template literals without substitutions | slice 3 | |
-| 8b.5 | in definition order | slice 3 | |
-| 8b.6 | each at its call's line | slice 3 | |
-| 8b.7 | named by whole describe path | slice 3 | |
-| 8c | Anonymous `test.describe(fn)` adds no segment | slice 3 | |
-| 8d.1 | `test.describe.configure` names no case | slice 3 | |
-| 8d.2 | `test.use` names no case | slice 3 | |
-| 8d.3 | hooks name no case | slice 3 | |
-| 8d.4 | `test.step` names no case | slice 3 | |
-| 8e | Each test one Vitest-shaped row or _No successful proof_ | slice 3 | |
-| 8f | Header reads Test case | slice 3 | |
-| 8g | Count line counts test cases | slice 3 | |
-| 8h | Vitest and Node files keep their rows | slice 3 | |
-| 9 | Playwright location/folder summaries use Vitest figures with test words | slice 3 | |
-| 10a | Other-kinds sentence lists Playwright tests | slice 3 | |
-| 10b | Location without `proof` names declared runner's reference when Intent reads it, else every runner's | slice 3 | |
-| 10c | Unreadable/malformed proof keep retry explanations | slice 3 | |
-| 10d | Cucumber- or pytest-shaped file under playwright location is malformed | slice 3 | |
+| 7b | Dashboard reads `proof` and `proofGeneration` as on any location | slice 3 | observed: intent-playwright fixtures declare proof+proofGeneration; shown in Proof |
+| 7c | Declared `proof` without usable `runner` names `playwright` among runners | slice 3 | observed: undeclared-runner wording names vitest or playwright |
+| 8a | Rows from published TS under test-call rule extended by one form | slice 3 | observed: vitestCases member form + intent-playwright-cases.test.mjs |
+| 8b.1 | Family call: describe, suite, it, or test | slice 3 | observed: vitestCases family describe/suite/it/test |
+| 8b.2 | bare or member of `test` (`test.describe`, `test.it`) | slice 3 | observed: test.describe / test.it member form |
+| 8b.3 | modifier chain admits `.serial`, `.parallel`, `.fixme`, `.fail` | slice 3 | observed: .serial .parallel .fixme .fail modifiers |
+| 8b.4 | names are string/template literals without substitutions | slice 3 | observed: literal/template without substitutions (existing rule) |
+| 8b.5 | in definition order | slice 3 | observed: definition order in Ex6 journey |
+| 8b.6 | each at its call's line | slice 3 | observed: case line at test token |
+| 8b.7 | named by whole describe path | slice 3 | observed: whole describe path naming |
+| 8c | Anonymous `test.describe(fn)` adds no segment | slice 3 | observed: anonymous test.describe(fn) adds no segment (unit) |
+| 8d.1 | `test.describe.configure` names no case | slice 3 | observed: test.describe.configure names no case (unit) |
+| 8d.2 | `test.use` names no case | slice 3 | observed: test.use names no case (unit) |
+| 8d.3 | hooks name no case | slice 3 | observed: hooks name no case (unit) |
+| 8d.4 | `test.step` names no case | slice 3 | observed: test.step names no case (unit) |
+| 8e | Each test one Vitest-shaped row or _No successful proof_ | slice 3 | observed: Ex6 Vitest-shaped rows or No successful proof |
+| 8f | Header reads Test case | slice 3 | observed: header Test case |
+| 8g | Count line counts test cases | slice 3 | observed: count line counts test cases |
+| 8h | Vitest and Node files keep their rows | slice 3 | observed: intent-vitest-cases + vitest journeys unchanged rows |
+| 9 | Playwright location/folder summaries use Vitest figures with test words | slice 3 | observed: intent-playwright-proof Ex8 folder summary test words |
+| 10a | Other-kinds sentence lists Playwright tests | slice 3 | observed: proofFamilies includes Playwright tests |
+| 10b | Location without `proof` names declared runner's reference when Intent reads it, else every runner's | slice 3 | observed: unrecordedReferenceOf generalized; playwright-without-proof names playwright ref |
+| 10c | Unreadable/malformed proof keep retry explanations | slice 3 | observed: malformed keeps retry (Ex9) |
+| 10d | Cucumber- or pytest-shaped file under playwright location is malformed | slice 3 | observed: cucumber-shaped under playwright malformed (Ex9) |
 | 11a | One proof store module in `tests/support` | slice 2 | observed: tests/support/proofStore.mjs |
 | 11b.1 | atomic `latest.json` | slice 2 | observed: proofStore atomic latest.json |
 | 11b.2 | lock without `.json` extension | slice 2 | observed: proofStore lock without .json |
@@ -135,25 +135,25 @@ commitments with compound items given own ids.
 | 15a | Intent shows recorded files' rows and a folder summary | slice 4 | |
 | 15b | Root summary opened once with read time and GitHub request count as learning | slice 4 | |
 | 15c | Terry evaluates against quiet reporter output plus editor | slice 4 | |
-| 16a | `docs/dashboard-development-intent.md` describes playwright Proof | slice 3 | |
+| 16a | `docs/dashboard-development-intent.md` describes playwright Proof | slice 3 | observed: docs/dashboard-development-intent.md playwright beside Vitest |
 | 16b | README and proof-record.md distinguish run transcript vs committed Proof | slice 2 | observed: dashboard/tests/README.md and proof-record.md distinguish records |
 | 16c | Reference linked where the others are | slice 1 | observed: SKILL.md and install.sh link/declare the reference where the others are |
 | C1 | Only plain strict pass records; executed non-pass clears | slice 2 | observed: proofSnapshot strict plain pass only; keep-clear specs |
 | C2 | Normal runs never create/change/delete proof | slice 2 | observed: Ex1 non-recording runs leave proof unchanged |
-| C3 | Missing/empty/unreadable/malformed never shown as pass | slice 3 | |
+| C3 | Missing/empty/unreadable/malformed never shown as pass | slice 3 | observed: Ex9 malformed never shown as pass |
 | C4 | Identity uses Playwright title path and file suite path | slice 2 | observed: identity file suite path + title path in snapshot |
-| C5 | Existing Cucumber/pytest/Vitest/node:test unchanged; member form changes no existing rows | slice 3 | |
+| C5 | Existing Cucumber/pytest/Vitest/node:test unchanged; member form changes no existing rows | slice 3 | observed: vitest/cucumber/pytest absence + vitest file journeys green; unit pins hold |
 | C6 | Suite output, diagnostics, exit, run record, times, shard, local-suite admission unchanged | slice 2 | observed: quiet-reporter and proof-record specs green with recording off path |
 | Ex1 | Explicit focused recording journey | slice 2 | observed: Ex1 recording + non-recording verify commands |
 | Ex2 | Retries and repetitions fold journey | slice 2 | observed: proof-snapshot-retries.spec.ts |
 | Ex3 | No verdict keeps; verdict clears journey | slice 2 | observed: proof-snapshot-keep-clear.spec.ts |
 | Ex4 | Projects journey | slice 2 | observed: proof-snapshot-projects.spec.ts + Ex1 no project |
 | Ex5 | Nested runs record nothing here | slice 2 | observed: RECORD_PLAYWRIGHT_PROOF=1 outer proof-record/quiet-reporter; nested strip |
-| Ex6 | File Proof with describe names | slice 3 | |
-| Ex7 | Unlisted proof | slice 3 | |
-| Ex8 | Folder summary | slice 3 | |
-| Ex9 | Declaration problems and explanations | slice 3 | |
-| Ex10 | Cucumber, pytest, Vitest and Node unchanged | slice 3 | |
+| Ex6 | File Proof with describe names | slice 3 | observed: intent-playwright-proof.spec.ts file proof with describe names |
+| Ex7 | Unlisted proof | slice 3 | observed: intent-playwright-proof unlisted loop/helper cases |
+| Ex8 | Folder summary | slice 3 | observed: intent-playwright-proof folder summary |
+| Ex9 | Declaration problems and explanations | slice 3 | observed: intent-playwright-proof declaration problems |
+| Ex10 | Cucumber, pytest, Vitest and Node unchanged | slice 3 | observed: vitest/cucumber/pytest journeys green after wording-only updates |
 | E1 | src/skills and tests locations carry no Playwright commitment | | E1 |
 | E2 | Other projects' Cucumber Playwright suites keep Cucumber proof; no other adoption here | | E2 |
 | E3 | Deferred: template-literal-with-substitutions and helper-defined tests have no row | | E3 |

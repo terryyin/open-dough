@@ -93,19 +93,35 @@ const python: ProofKind = {
   },
 };
 
+// Shared inventory and case words for runners that reuse the Vitest-shaped
+// snapshot and row rule (Vitest and Playwright).
+const runnerTestWords = {
+  cases: testCases,
+  inventory: (count: number) => counted(count, "test", "tests"),
+  inventoryUnavailable: "Test total unavailable",
+  caseHeader: "Test case",
+  slowestCases: "Slowest test cases",
+  variant: (project: readonly string[]) => `Project: ${project.join(" | ")}`,
+  costNote: testCaseCostNote,
+} as const;
+
 const vitest: ProofKind = {
   parseFile: parseVitestProofFile,
   rowsOf: vitestRowsOf,
   words: {
-    cases: testCases,
-    inventory: (count) => counted(count, "test", "tests"),
-    inventoryUnavailable: "Test total unavailable",
-    caseHeader: "Test case",
-    slowestCases: "Slowest test cases",
-    variant: (project) => `Project: ${project.join(" | ")}`,
-    costNote: testCaseCostNote,
+    ...runnerTestWords,
     reference: "dough-test-optimization/references/vitest-proof.md",
     family: "Vitest tests",
+  },
+};
+
+const playwright: ProofKind = {
+  parseFile: parseVitestProofFile,
+  rowsOf: vitestRowsOf,
+  words: {
+    ...runnerTestWords,
+    reference: "dough-test-optimization/references/playwright-proof.md",
+    family: "Playwright tests",
   },
 };
 
@@ -118,7 +134,10 @@ const runnerSelectedKinds: ReadonlySet<string> = new Set([
   "typescript",
   "javascript",
 ]);
-const runnerProofKinds: Readonly<Record<string, ProofKind>> = { vitest };
+const runnerProofKinds: Readonly<Record<string, ProofKind>> = {
+  vitest,
+  playwright,
+};
 
 // The runners a `typescript` or `javascript` location may declare.
 export const proofRunners: readonly string[] = Object.keys(runnerProofKinds);
@@ -165,17 +184,19 @@ export function runnerProblemOf(
     : undefined;
 }
 
-// The reference a location of `kind` without recorded proof names, whatever
-// runner it declares: its kind's own, or for a kind whose runner selects the
-// format, the reference of the runners Intent reads so far (Vitest's).
-// Undefined for a kind Intent reads no proof for.
+// The reference(s) a location of `kind` without recorded proof names: its
+// kind's own, or for a kind whose runner selects the format, the declared
+// runner's reference when Intent reads that runner, otherwise every such
+// runner's. Undefined for a kind Intent reads no proof for.
 export function unrecordedReferenceOf(
   kind: string | undefined,
   runner: string | undefined,
-): string | undefined {
+): readonly string[] | undefined {
   const own = proofKindOf(kind, runner);
-  if (own !== undefined) return own.words.reference;
+  if (own !== undefined) return [own.words.reference];
   return kind !== undefined && runnerSelectedKinds.has(kind)
-    ? vitest.words.reference
+    ? Object.values(runnerProofKinds).map(
+        (proofKind) => proofKind.words.reference,
+      )
     : undefined;
 }

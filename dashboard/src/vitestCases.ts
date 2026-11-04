@@ -1,28 +1,21 @@
 // The test cases a published TypeScript or JavaScript test file defines for
-// the `describe`/`suite` and `it`/`test` call family Vitest runs, in source
-// order, each a case row (`./proofCases.ts`) at the 1-based line where its
-// call starts. Read from the text itself, never from the runner, through its
-// tokens (`./scriptTokens.ts`): calls inside comments, strings, template
-// literals, JSX text and regular expressions are not read, and a test belongs
-// to the suites whose call arguments enclose it.
-//
-// A call is `describe`, `suite`, `it` or `test`, not a member of another
-// value, with an optional modifier chain (`.skip`, `.only`, `.todo`,
-// `.concurrent`, `.sequential`, `.fails`, `.shuffle`, `.skipIf(…)`,
-// `.runIf(…)`, `.each(…)` or `.each` with a tagged table, `.for(…)`) and its
-// name as the first argument: a string literal or a template literal without
-// substitutions. A test with any other name is not read, nor is a suite with
-// any other name or anything inside it, since its tests' names would be
-// wrong. A case is named as Vitest names it (`./vitestCaseNames.ts`).
-//
-// A name under `.each` or `.for` with placeholders names the observed names
-// that fit it, one row each in Unicode code-point order whatever order the
-// snapshot holds them in, and one row named as written while none is
-// observed. An observed name a literal test of the file names, or an earlier
-// template already fits, is not another template's. A name observed under
-// several projects gives one row per project, varied by it, in code-point
-// order (`observedVariantsOf`), a name observed without a project first; an
-// unobserved name is one plain row.
+// the `describe`/`suite` and `it`/`test` call family Vitest, Playwright and
+// Node run, in source order, each a case row (`./proofCases.ts`) at the
+// 1-based line where its call starts (the `test` token when the family name
+// is a member of `test`). Read from the text through its tokens
+// (`./scriptTokens.ts`); a case is named as Vitest names it
+// (`./vitestCaseNames.ts`). A call is `describe`, `suite`, `it` or `test`,
+// bare or as a member of `test` (`test.describe`, `test.it`), with an
+// optional modifier chain (`.skip`, `.only`, `.todo`, `.concurrent`,
+// `.sequential`, `.fails`, `.fail`, `.fixme`, `.serial`, `.parallel`,
+// `.shuffle`, `.skipIf(…)`, `.runIf(…)`, `.each(…)` / tagged `.each`,
+// `.for(…)`) and a literal or unsubstituted template name. Other names are
+// not read; a non-literal suite hides its interior; an anonymous suite
+// (`describe(fn)` / `test.describe(fn)`) adds no path segment and is read
+// through; `test.describe.configure`, `test.use`, hooks and `test.step`
+// name no case. A templated `.each`/`.for` name expands to fitting observed
+// names in code-point order (`observedVariantsOf`), one row per project
+// when varied.
 
 import {
   byCodePoint,
@@ -56,11 +49,19 @@ const modifiers = new Set([
   "concurrent",
   "sequential",
   "fails",
+  "fail",
+  "fixme",
+  "serial",
+  "parallel",
   "shuffle",
 ]);
 
 // Words before a name that make it a declaration rather than a call.
 const declaringWords = new Set(["function", "class", "interface", "type"]);
+
+// First tokens of a suite's only argument that mark an anonymous callback,
+// so the suite adds no path segment and its interior is still read.
+const anonymousSuiteStarts = new Set(["(", "async", "function"]);
 
 type Call = {
   readonly role: "suite" | "test";
@@ -121,7 +122,9 @@ function afterModifiers(
   }
 }
 
-// The test-family call starting at `at`, undefined when none does.
+// The test-family call starting at `at`, undefined when none does. A family
+// name that is a member of bare `test` (`test.describe`) is a call; the case
+// line is the line of that `test` token.
 function callAt(
   tokens: readonly Token[],
   closings: ReadonlyMap<number, number>,
@@ -132,10 +135,16 @@ function callAt(
     return undefined;
   }
   const before = tokens[at - 1];
-  if (
-    isPunct(before, ".") ||
-    (before?.kind === "name" && declaringWords.has(before.text))
-  ) {
+  const owner = tokens[at - 2];
+  const memberOfTest =
+    isPunct(before, ".") &&
+    owner?.kind === "name" &&
+    owner.text === "test" &&
+    !isPunct(tokens[at - 3], ".");
+  if (isPunct(before, ".") && !memberOfTest) {
+    return undefined;
+  }
+  if (before?.kind === "name" && declaringWords.has(before.text)) {
     return undefined;
   }
   const chain = afterModifiers(tokens, closings, at + 1);
@@ -153,10 +162,19 @@ function callAt(
       name?.kind === "literal" && (isPunct(after, ",") || isPunct(after, ")"))
         ? nameSegmentOf(name.text, chain.templated)
         : undefined,
-    line: start.line,
+    line: memberOfTest ? owner.line : start.line,
     from: open + 1,
     to: close,
   };
+}
+
+function isAnonymousSuite(tokens: readonly Token[], call: Call): boolean {
+  const first = tokens[call.from];
+  return (
+    first !== undefined &&
+    (first.kind === "punct" || first.kind === "name") &&
+    anonymousSuiteStarts.has(first.text)
+  );
 }
 
 type Definition = {
@@ -182,6 +200,8 @@ function vitestDefinitionsOf(text: string): Definition[] {
         const named = [...path, call.segment];
         if (call.role === "suite") read(call.from, call.to, named);
         else definitions.push({ path: named, line: call.line });
+      } else if (call.role === "suite" && isAnonymousSuite(tokens, call)) {
+        read(call.from, call.to, path);
       }
       at = call.to + 1;
     }
