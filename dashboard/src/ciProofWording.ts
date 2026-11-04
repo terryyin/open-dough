@@ -47,13 +47,16 @@ export function entryGapLines(entry: CiProofEntry): string[] {
 const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
   none: "This run published no CI proof summary.",
   expired: "This run's CI proof summary has expired.",
-  refused: "GitHub did not give this run's CI proof summary.",
-  mismatched: "This run's CI proof summary is for another run.",
-  invalid: "This run's CI proof summary could not be read as one.",
+  unreadable: "This run's CI proof summary could not be read.",
+  invalid: "This run's CI proof summary is not a valid summary.",
+  mismatched:
+    "This run's CI proof summary is for another run, attempt or revision.",
   "ci-adapter":
     "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
 };
 
+// The one line under Proof saying why no proof can be shown, with what the
+// reason observed when it says more.
 export function unavailableLine(
   reason: CiProofUnavailableReason,
   detail: string | undefined,
@@ -64,4 +67,4 @@ export function unavailableLine(
 }
 
 export const noRunLine =
-  "The shown result names no GitHub Actions run, so it has no CI proof to show.";
+  "No completed GitHub Actions run is shown, so there is no CI proof to show.";

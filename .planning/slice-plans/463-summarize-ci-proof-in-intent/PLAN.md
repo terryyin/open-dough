@@ -133,7 +133,7 @@ lists each entry with counts, the counted unit and any gap.
 
 ### 3. Proof follows the shown run and explains each unavailability
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same spec, extended. A running story branch shows its completed ancestor's run proof. Each of an expired, refused, mismatched (another attempt or revision) and invalid summary, and a `ciAdapter` project, shows one reason under Proof while the verdict text is identical to the no-proof case. Showing the tab again for the same run attempt makes no second artifact download. GITHUB-REQUESTS.md and the Intent development doc are updated.
 
 Behavior: In each displayed state, the tab either shows the proof of exactly
@@ -193,4 +193,4 @@ Disposition: proved by slice 1: hosted CI run 41806711276 (90764ef71) artifact c
 ### G2. An older GitHub request owner passes the summary zip as text
 Reported: slice 2 — "while an older owner still runs on the machine, the proof read cannot get the bytes"
 Story clause: "When no proof can be shown, the tab gives one reason: no summary in the run, expired, unreadable, invalid or for another run, attempt or revision."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: tests/support/dashboard-ci-proof-read.test.mjs 'an archive the local GitHub request owner passed on as text is unreadable, saying what restarts the owner' — the one reason is unreadable, naming the restart remedy (owner ends 5 s after its last consumer; the next read starts a current one)

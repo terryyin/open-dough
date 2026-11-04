@@ -13,16 +13,17 @@ export type CiProofRun = {
   readonly revision: string;
 };
 
-// Why no proof can be shown: the run has no summary, it has expired, GitHub
-// refused or could not answer, the summary names another repository, run,
-// attempt or revision, the summary is not one, or the project's CI is read
-// through a ciAdapter.
+// Why no proof can be shown: the run has no summary, it has expired, it
+// could not be read (GitHub refused or could not answer, or its archive
+// could not be opened), it is not a valid summary, it names another
+// repository, run, attempt or revision, or the project's CI is read through
+// a ciAdapter.
 export const ciProofUnavailableReasons = [
   "none",
   "expired",
-  "refused",
-  "mismatched",
+  "unreadable",
   "invalid",
+  "mismatched",
   "ci-adapter",
 ] as const;
 export type CiProofUnavailableReason =

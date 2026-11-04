@@ -44,6 +44,17 @@ function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
 }
 
+// Whether the project folder's CI is read through a ciAdapter, whose results
+// name no GitHub Actions run; false when its CI settings cannot be read,
+// which the judgment itself reports.
+export function readsCiThroughAdapter(folder: ProjectFolder): boolean {
+  try {
+    return ciConfiguration(folder.path).adapter !== undefined;
+  } catch {
+    return false;
+  }
+}
+
 // The runs one listing returns, each named by the branch listed.
 function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));

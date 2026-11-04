@@ -83,16 +83,20 @@ export async function expectStartProgress(
   await expect
     .poll(() => runningStarts(dashboard), { timeout: 20_000 })
     .toEqual(running("preparing"));
-  expect(await keptStarts(dashboard)).toEqual([
-    expect.objectContaining({
-      workflow,
-      host,
-      source: "open-dough",
-      identity: queuedIdentity,
-      branch: `${host}/story-a`,
-      workspace: "~/git/open-dough/.worktrees/story-a",
-    }),
-  ]);
+  // Preparing is registered before the start chooses its workspace, and the
+  // kept start is written after that choice, ahead of the held push.
+  await expect
+    .poll(() => keptStarts(dashboard), { timeout: 20_000 })
+    .toEqual([
+      expect.objectContaining({
+        workflow,
+        host,
+        source: "open-dough",
+        identity: queuedIdentity,
+        branch: `${host}/story-a`,
+        workspace: "~/git/open-dough/.worktrees/story-a",
+      }),
+    ]);
   const observer = await page.context().newPage();
   await observer.goto(dashboard.baseURL);
   await readColumns(observer);

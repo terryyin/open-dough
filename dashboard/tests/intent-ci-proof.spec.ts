@@ -4,75 +4,26 @@
 // revision, link and attempt -- then one row per entry the run's CI
 // declared, with counts, unit and any gap. The summary is the collector's
 // own, served as a real zip from the run's artifact download through the
-// controlled `gh` (./support/ciProofArtifacts.ts). Unavailable proof's other
-// reasons and a running result's ancestor proof are slice 3's.
+// controlled `gh` (./support/ciProofArtifacts.ts). Each other reason no
+// proof can be shown, a running result's ancestor proof and the per-attempt
+// memory: ./intent-ci-proof-reasons.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { judged, runUrl } from "./intentCiStatusPage.ts";
 import {
-  browseSpec,
-  openDough,
-  openDoughSettings,
-} from "./intentCodeBrowseFixtures.ts";
-import {
-  chooseCiStatus,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "./intentCiStatusPage.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
+  artifactId,
+  failedVerdict,
+  openFailedRun,
+  proofCalls,
+  run,
+} from "./intentCiProofPage.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import {
   counts,
   proofSummary,
   runArtifactsAnswer,
   summaryZipAnswer,
-  type ProofRun,
 } from "./support/ciProofArtifacts.ts";
-import type { CiAnswerer } from "./support/baseCiActions.ts";
-import type { OriginAnswer } from "./originAnswers.ts";
-import type { Page } from "@playwright/test";
-
-const run: ProofRun = {
-  repository: openDough.repository,
-  runId: 41,
-  attempt: 1,
-  revision: judged,
-};
-const artifactId = 9041;
-
-// Open Dough's trunk, whose judged run 41 failed, with the run's proof
-// calls answered by `artifacts` and `zip`.
-async function openFailedRun(
-  page: Page,
-  artifacts: () => OriginAnswer,
-  zip: () => OriginAnswer | Promise<OriginAnswer>,
-) {
-  const judgment = trunkCi(openDough.revision, () => [
-    { headSha: judged, conclusion: "failure", id: run.runId, url: runUrl },
-  ]);
-  const ci: CiAnswerer = (call) => {
-    const { request } = call;
-    if (request.kind === "actions-run-artifacts") return artifacts();
-    if (request.kind === "actions-artifact-zip") return zip();
-    return judgment(call);
-  };
-  const published = publishProject(page, openDough, {
-    ".planning/open-dough.json": `${openDoughSettings}\n`,
-    "dashboard/tests/browse.spec.ts": browseSpec,
-  });
-  published.serveCi(ci);
-  await openUntilRead(page);
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  const panel = await chooseCiStatus(intent);
-  return {
-    published,
-    panel,
-    proof: panel.getByRole("region", { name: "Proof" }),
-  };
-}
 
 test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and parts", async ({
   page,
@@ -103,9 +54,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
   );
 
   await test.step("the verdict is shown while Proof is still being read", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at a1b2c3d (Add login)",
-    );
+    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
     await expect(proof).toContainText("Checking the CI proof of this run…");
     await expect(
       panel.locator(".intent-ci-state ~ .intent-ci-proof"),
@@ -126,20 +75,11 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       "tests: 5 passed checks; 1 of 1 part present.",
     ]);
     await expect(proof.locator(".intent-ci-proof-gap")).toHaveCount(0);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at a1b2c3d (Add login)",
-    );
+    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
   });
 
   await test.step("Proof was read for that run's attempt by its artifact name, then one download", () => {
-    const proofCalls = published.requests.flatMap(({ request }) =>
-      request.kind === "actions-run-artifacts"
-        ? [`artifacts of run ${String(request.runId)}: ${request.name ?? ""}`]
-        : request.kind === "actions-artifact-zip"
-          ? [`zip ${String(request.artifactId)}`]
-          : [],
-    );
-    expect(proofCalls).toEqual([
+    expect(proofCalls(published.requests)).toEqual([
       "artifacts of run 41: ci-proof-summary-attempt-1",
       `zip ${String(artifactId)}`,
     ]);
@@ -181,9 +121,7 @@ test("a run without a summary says so under Proof, and the verdict reads the sam
     "This run published no CI proof summary.",
   );
   await expect(proof.getByRole("listitem")).toHaveCount(0);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Failed at a1b2c3d (Add login)",
-  );
+  await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
 });
 
 test("the CI proof read names one run, its attempt and its revision, and refuses anything else before asking GitHub", async ({

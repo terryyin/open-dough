@@ -5,7 +5,10 @@
 // used only when it names the asked repository, run, attempt and revision
 // (ADR 0008: missing, outdated or conflicting evidence is never a result).
 // Every request goes through the CI evidence requests
-// (`ci-github-actions.mjs`); nothing is kept beyond the request.
+// (`ci-github-actions.mjs`). A summary is immutable per run attempt, so a
+// valid one is remembered by repository, run and attempt for this process's
+// lifetime and never asked of GitHub again; every other answer is asked
+// again on the next read.
 import {
   summaryArtifactName,
   summaryProblems,
@@ -40,15 +43,28 @@ const unavailable = (
   ...(detail === undefined ? {} : { detail }),
 });
 
-// GitHub refused or could not answer; a directed wait is GitHub's too.
-function refusedBy(error: unknown): CiProof {
+// What a developer can do when the local GitHub request owner passes an
+// archive on as text: it ends once nothing on this machine uses it.
+export const olderRequestOwnerDetail =
+  "This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one";
+
+// GitHub refused or could not answer, a directed wait is GitHub's too, or
+// the local GitHub request owner could not pass the archive on.
+export function unreadableBy(error: unknown): CiProof {
   if (error instanceof GitHubAcquisitionHeld)
     return unavailable(
-      "refused",
+      "unreadable",
       `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
     );
-  if (error instanceof GitHubAcquisitionFailed)
-    return unavailable("refused", error.message);
+  if (error instanceof GitHubAcquisitionFailed) {
+    const { failure } = error as { readonly failure?: { kind?: unknown } };
+    return unavailable(
+      "unreadable",
+      failure?.kind === "archive-as-text"
+        ? olderRequestOwnerDetail
+        : error.message,
+    );
+  }
   throw error;
 }
 
@@ -72,6 +88,9 @@ function mismatchOf(
   return undefined;
 }
 
+const unreadableListing = () =>
+  unavailable("unreadable", "GitHub's artifact listing is unreadable");
+
 // The one listed artifact of `name` for `run` that can be read, or why none
 // can.
 function chosenArtifact(
@@ -81,8 +100,7 @@ function chosenArtifact(
 ): number | CiProof {
   const listing: unknown =
     (listed as { readonly artifacts?: unknown } | null)?.artifacts ?? [];
-  if (!Array.isArray(listing))
-    return unavailable("invalid", "GitHub's artifact listing is unreadable");
+  if (!Array.isArray(listing)) return unreadableListing();
   const artifacts = listing as readonly ListedArtifact[];
   const named = artifacts.filter(
     (artifact) =>
@@ -95,8 +113,7 @@ function chosenArtifact(
   const [only] = kept;
   if (kept.length > 1 || only === undefined)
     return unavailable("invalid", `The run has more than one ${name}`);
-  if (typeof only.id !== "number")
-    return unavailable("invalid", "GitHub's artifact listing is unreadable");
+  if (typeof only.id !== "number") return unreadableListing();
   if (
     typeof only.size_in_bytes === "number" &&
     only.size_in_bytes > summaryLimitBytes
@@ -105,9 +122,23 @@ function chosenArtifact(
   return only.id;
 }
 
-// The proof of `run` in `repository`: its summary, or why there is none to
-// show.
-export async function readCiProofArtifact(
+// Valid summaries read so far, by repository, run and attempt; the oldest
+// is forgotten past `rememberedLimit`, far more than one dashboard shows.
+const remembered = new Map<string, Record<string, unknown>>();
+const rememberedLimit = 256;
+const rememberedKey = (repository: string, run: CiProofRun) =>
+  `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
+
+function remember(key: string, summary: Record<string, unknown>) {
+  remembered.set(key, summary);
+  const [oldest] = remembered.keys();
+  if (remembered.size > rememberedLimit && oldest !== undefined)
+    remembered.delete(oldest);
+}
+
+// The valid summary of `run`'s attempt as GitHub has it, not yet checked
+// against the asked run, or why none can be read.
+async function readSummary(
   repository: string,
   run: CiProofRun,
   signal: AbortSignal,
@@ -129,23 +160,40 @@ export async function readCiProofArtifact(
       signal,
     );
   } catch (error) {
-    return refusedBy(error);
+    return unreadableBy(error);
   }
   let summary: unknown;
   try {
     summary = JSON.parse(onlyZipEntry(archive, summaryFile, summaryLimitBytes));
   } catch (error) {
-    return unavailable(
-      "invalid",
-      error instanceof ZipEntryProblem
-        ? `The ${name} artifact is unreadable: ${error.message}`
-        : `${summaryFile} is not JSON`,
-    );
+    if (error instanceof ZipEntryProblem)
+      return unavailable(
+        "unreadable",
+        `The ${name} artifact could not be opened: ${error.message}`,
+      );
+    return unavailable("invalid", `${summaryFile} is not JSON`);
   }
   const problems = summaryProblems(summary) as readonly string[];
   if (problems.length > 0)
     return unavailable("invalid", `${summaryFile}: ${problems.join("; ")}`);
-  const valid = summary as Record<string, unknown>;
+  return { kind: "summary", summary } as CiProof;
+}
+
+// The proof of `run` in `repository`: its summary, or why there is none to
+// show.
+export async function readCiProofArtifact(
+  repository: string,
+  run: CiProofRun,
+  signal: AbortSignal,
+): Promise<CiProof> {
+  const key = rememberedKey(repository, run);
+  let valid = remembered.get(key);
+  if (valid === undefined) {
+    const read = await readSummary(repository, run, signal);
+    if (read.kind !== "summary") return read;
+    valid = read.summary;
+    remember(key, valid);
+  }
   const mismatch = mismatchOf(valid, repository, run);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);
   return { kind: "summary", summary: valid } as CiProof;

@@ -160,7 +160,19 @@ SHA and subject, how many later commits have no result of their own, the run
 link when given, while running the nearest completed ancestor, and when it
 was checked; a history with no result is **Could not be read**, never
 passed, and so is a trunk whose history GitHub answers `404` for, with
-GitHub's reason: only a story branch is called no longer published. It is
+GitHub's reason: only a story branch is called no longer published. Below
+the judgment, its own **Proof** part shows the CI proof of the run whose
+result it shows (for a running result, that completed ancestor's run): it
+names that run's revision, link and attempt once, then one row per entry the
+run's CI declares (an Intent location `path`) with its passed, failed and
+other counts in their unit, how many declared parts are present, and each
+missing or ambiguous part as a gap that is not counted. A summary is used
+only when it names the same repository, run, attempt and revision. Proof is
+read apart from the judgment, which shows first and reads the same whether
+proof is shown, still being checked, or unavailable; then one line says why:
+no summary in the run, expired, could not be read, not a valid summary, for
+another run, attempt or revision, a `ciAdapter` project, or no completed
+GitHub Actions run shown. Proof is read again with each judgment, which is
 read each time the tab is shown, when the judged branch changes, again when
 the page's
 revision check finds the judged branch's head moved while it is shown (a new

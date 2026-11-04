@@ -67,6 +67,10 @@ export function receive(socket, onMessage, limitBytes = Infinity) {
 // is read as UTF-8 text, as `gh` printed it.
 const archiveTypes = /^application\/(?:zip|octet-stream)\s*(?:;|$)/i;
 
+/** @param {ReadonlyMap<string, string>} headers */
+export const labelledArchive = (headers) =>
+  archiveTypes.test(headers.get("content-type") ?? "");
+
 /**
  * @param {{ readonly code?: string | number | null | undefined } | null} error
  * @param {Buffer} stdout
@@ -81,8 +85,7 @@ export function printedAnswer(error, stdout, stderr, askedAt) {
     stderr.toString("utf8"),
     askedAt,
   );
-  if (error || !archiveTypes.test(answer.headers.get("content-type") ?? ""))
-    return answer;
+  if (error || !labelledArchive(answer.headers)) return answer;
   // The body follows the head's first blank line; Latin-1 keeps one
   // character per byte, so its index is the body's byte offset.
   const blank = /\n\r?\n/.exec(stdout.toString("latin1"));

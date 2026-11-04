@@ -98,10 +98,12 @@ export function zipOf(name: string, text: string): Buffer {
 }
 
 // The run's artifact listing, filtered by name as GitHub filters it: the
-// summary artifact, as `artifactId`, when one is given.
+// summary artifact, as `artifactId`, when one is given, and `expired` when
+// GitHub says so.
 export function runArtifactsAnswer(
   run: ProofRun,
   artifactId: number | undefined,
+  expired = false,
 ): OriginAnswer {
   const name = summaryArtifactName(run.attempt);
   const artifacts =
@@ -112,7 +114,7 @@ export function runArtifactsAnswer(
             id: artifactId,
             name,
             size_in_bytes: 512,
-            expired: false,
+            expired,
             workflow_run: { id: run.runId, head_sha: run.revision },
           },
         ];

@@ -5,6 +5,7 @@
 import { GitHubRequests } from "./github-requests.mjs";
 import { GhFailure } from "./github-request-answer.mjs";
 import { ownerFailureText } from "./github-request-owner-failure.mjs";
+import { labelledArchive } from "./github-request-owner-wire.mjs";
 import { readCiConfiguration } from "./ci-project-configuration.mjs";
 
 // Every request this process asks of GitHub for CI evidence: one `gh api`
@@ -37,8 +38,9 @@ function failureText(failure) {
       unreachable: "GitHub is unreachable",
       "output-bound": "gh output exceeded the request's size limit",
       "timed-out": "gh did not answer within the request's time limit",
-      "not-archive":
-        "the archive arrived as text, as a GitHub request owner of an earlier Open Dough passes it on",
+      "not-archive": "GitHub's answer is not an archive",
+      "archive-as-text":
+        "the local GitHub request owner, started by an earlier Open Dough, passed the archive on as text",
     }[failure.kind] ?? "gh failed"
   );
 }
@@ -76,14 +78,22 @@ export async function askGitHub(args, signal = new AbortController().signal) {
   return (await answered(args, signal)).body;
 }
 
+// The bytes of `answer` to `route`, which GitHub labels as an archive; a
+// `GitHubAcquisitionFailed` when it is not one ("not-archive"), or when the
+// local GitHub request owner passed it on as text, as one an earlier Open
+// Dough started does ("archive-as-text").
+export function archiveBytes(route, answer) {
+  if (answer.bodyEncoding === "base64")
+    return Buffer.from(answer.body, "base64");
+  throw new GitHubAcquisitionFailed(route, {
+    kind: labelledArchive(answer.headers) ? "archive-as-text" : "not-archive",
+  });
+}
+
 // The bytes of one `gh api` answer GitHub labels as an archive, such as an
-// Actions artifact's zip, as `answered` asks it; a `GitHubAcquisitionFailed`
-// when its answer arrived as text.
+// Actions artifact's zip, as `answered` asks it (`archiveBytes`).
 export async function askGitHubArchive(args, signal) {
-  const answer = await answered(args, signal);
-  if (answer.bodyEncoding !== "base64")
-    throw new GitHubAcquisitionFailed(args[1], { kind: "not-archive" });
-  return Buffer.from(answer.body, "base64");
+  return archiveBytes(args[1], await answered(args, signal));
 }
 
 export async function readGitHubActions(args, signal) {

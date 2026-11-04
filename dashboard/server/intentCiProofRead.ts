@@ -7,10 +7,10 @@
 // has no such run, and is answered without asking GitHub. Anything else is
 // refused here before any `gh` call.
 
-import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
 import { readingCiProofOf } from "../src/authenticatedReadRules.ts";
 import type { CiProof, CiProofRun } from "../src/ciProof.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { readsCiThroughAdapter } from "./baseCiJudgment.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import { parsePinnedIntentRead } from "./intentReadParameters.ts";
 import { projectFolder } from "./projectFolders.ts";
@@ -71,13 +71,6 @@ export function readingIntentCiProofOf(
   return readingCiProofOf(read, source.repository);
 }
 
-function ciAdapterOf(source: PublishedSource): boolean {
-  const { adapter } = readCiConfiguration(projectFolder(source).path) as {
-    readonly adapter: readonly string[] | undefined;
-  };
-  return adapter !== undefined;
-}
-
 // Performs one CI proof read: it always answers, with the reason when no
 // proof can be shown.
 export async function performIntentCiProofRead(
@@ -87,7 +80,7 @@ export async function performIntentCiProofRead(
 ): Promise<Outcome> {
   const { runId, runAttempt, revision } = read;
   const run = { runId, runAttempt, revision };
-  const proof: CiProof = ciAdapterOf(source)
+  const proof: CiProof = readsCiThroughAdapter(projectFolder(source))
     ? { kind: "unavailable", reason: "ci-adapter" }
     : await readCiProofArtifact(source.repository, run, signal);
   return answered({ ...run, checkedAt: new Date().toISOString(), proof });

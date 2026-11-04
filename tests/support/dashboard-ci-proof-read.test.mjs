@@ -1,8 +1,11 @@
 // Intent's CI proof read on the dashboard server: the judged result names
 // its GitHub Actions run's id and attempt, which key the read
 // (../../dashboard/server/baseCiNearest.ts), and one small zip's only file
-// is extracted and checked (../../dashboard/server/zipEntry.ts). The read's
-// refusals are ../../dashboard/tests/intent-ci-proof.spec.ts.
+// is extracted and checked (../../dashboard/server/zipEntry.ts). An archive
+// the local GitHub request owner passed on as text, as one an earlier Open
+// Dough started does, is unreadable with what the developer can do
+// (../../dashboard/server/ciProofArtifact.ts). The read's refusals are
+// ../../dashboard/tests/intent-ci-proof.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { judgeNearest } from "../../dashboard/server/baseCiNearest.ts";
@@ -11,6 +14,12 @@ import {
   ZipEntryProblem,
 } from "../../dashboard/server/zipEntry.ts";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
+import {
+  olderRequestOwnerDetail,
+  unreadableBy,
+} from "../../dashboard/server/ciProofArtifact.ts";
+import { unavailableLine } from "../../dashboard/src/ciProofWording.ts";
+import { archiveBytes } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 
 const sha = (digit) => digit.repeat(40);
 const commits = [
@@ -82,4 +91,54 @@ test("an archive that is not one small file of that name is a problem that says 
   corrupted[30 + "ci-proof-summary.json".length] ^= 0xff;
   problem(corrupted);
   problem(archive.subarray(0, archive.length - 30));
+});
+
+const route = "repos/o/r/actions/artifacts/9/zip";
+const answerOf = (contentType, body, bodyEncoding) => ({
+  status: 200,
+  headers: new Map([["content-type", contentType]]),
+  body,
+  ...(bodyEncoding && { bodyEncoding }),
+  failure: undefined,
+  askedAt: "2026-11-04T00:00:00Z",
+});
+const unreadableOf = (answer) => {
+  try {
+    archiveBytes(route, answer);
+  } catch (error) {
+    return unreadableBy(error);
+  }
+  assert.fail("the answer was read as an archive");
+};
+
+test("an archive passed on as base64 keeps its bytes", () => {
+  const bytes = zipOf("ci-proof-summary.json", summaryText);
+  assert.deepEqual(
+    archiveBytes(
+      route,
+      answerOf("application/zip", bytes.toString("base64"), "base64"),
+    ),
+    bytes,
+  );
+});
+
+test("an archive the local GitHub request owner passed on as text is unreadable, saying what restarts the owner", () => {
+  const proof = unreadableOf(answerOf("application/zip", "PK\u0003\u0004"));
+  assert.deepEqual(proof, {
+    kind: "unavailable",
+    reason: "unreadable",
+    detail: olderRequestOwnerDetail,
+  });
+  assert.equal(
+    unavailableLine(proof.reason, proof.detail),
+    "This run's CI proof summary could not be read. This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one.",
+  );
+});
+
+test("an answer GitHub does not label as an archive is unreadable as GitHub's", () => {
+  assert.deepEqual(unreadableOf(answerOf("text/html", "<html></html>")), {
+    kind: "unavailable",
+    reason: "unreadable",
+    detail: `GitHub request ${route} failed: GitHub's answer is not an archive`,
+  });
 });

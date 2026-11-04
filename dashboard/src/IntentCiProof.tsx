@@ -5,9 +5,10 @@
 // never changes with it. It names that run once -- its revision, link and
 // attempt -- then one row per declared entry, in the order the project's CI
 // declares them, with the counts, their unit and any gap
-// (`./ciProofWording.ts`); otherwise it says why there is no proof to show.
-// A running result's proof is its completed ancestor's run's, the result the
-// tab shows beside it.
+// (`./ciProofWording.ts`); otherwise one line says why there is no proof to
+// show. A running result's proof is its completed ancestor's run's, the
+// result the tab shows beside it. Proof is read again with each judgment
+// the tab reads, so Check again refreshes both.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
@@ -44,7 +45,7 @@ export function shownRunOf(judgment: Judgment): ShownRun | undefined {
 function boundaryUnavailable(error: unknown): CiProof {
   return {
     kind: "unavailable",
-    reason: "refused",
+    reason: "unreadable",
     ...(error instanceof Error && error.message !== ""
       ? { detail: error.message }
       : {}),
@@ -94,6 +95,7 @@ function ReadProof({
   readonly source: PublishedSource;
   readonly run: ShownRun;
 }) {
+  // Read once per mount: the parent keys it by the run and the judgment.
   const [proof, setProof] = useState<CiProof | undefined>(undefined);
   const { runId, runAttempt, revision } = run;
   useEffect(() => {
@@ -147,11 +149,15 @@ export function IntentCiProof({
   return (
     <section className="intent-ci-proof" aria-labelledby={heading}>
       <h4 id={heading}>Proof</h4>
-      {run === undefined ? (
+      {judgment.ciAdapter === true ? (
+        <p className="intent-ci-proof-unavailable">
+          {unavailableLine("ci-adapter", undefined)}
+        </p>
+      ) : run === undefined ? (
         <p className="intent-ci-proof-unavailable">{noRunLine}</p>
       ) : (
         <ReadProof
-          key={`${String(run.runId)}/${String(run.runAttempt)}/${run.revision}`}
+          key={`${String(run.runId)}/${String(run.runAttempt)}/${run.revision}/${judgment.checkedAt}`}
           source={source}
           run={run}
         />
