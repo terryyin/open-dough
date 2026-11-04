@@ -173,11 +173,12 @@ function respond(
 export function installAuthenticatedReadMiddleware(
   middlewares: BoundaryMiddlewares,
 ): () => void {
+  const tracked = new Set<AbortController>();
   const boundary: Boundary = {
-    tracked: new Set<AbortController>(),
+    tracked,
     // Answers at resolved commits outlive this process; nothing else here does.
     pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
-    checks: new RevisionChecks(),
+    checks: new RevisionChecks({ tracked }),
     branches: new BranchHeads(),
     avatars: new AvatarImages(),
   };

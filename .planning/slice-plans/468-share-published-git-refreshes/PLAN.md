@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes)
 in SEED-232, refined 2026-11-04 with explore, borrow, challenge, clarify,
 investigate and architecture.
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/keep-the-same-project-fresh-across-views-with-fe`, agent
 terry-chan), continuing the refinement in the same session.
@@ -44,12 +45,13 @@ on PATH, and on AC power `caffeinate -s -i` around the run
   result for a reuse window, joins a running observation, keys demands by
   their inputs, keeps nothing from a failure, and lets a departed waiter
   leave the observation to settle. Host status uses it with
-  `reuseMs: () => checkIntervalMs - 1_000` (`hostStatusObservation.ts`);
-  machine sessions use its `fresh` demand. Revision checks adopt it the same
-  way: `RevisionChecks` (`dashboard/server/revisionChecks.ts`) keeps one
-  `SharedObservation` per catalog source beside its `304` hint, bounded by
-  the catalog as the hint is, keyed by the request owner's scope, with the
-  host-status window. No new cache, scheduler or owner protocol.
+  `reuseMs: () => checkReuseMs` (`hostStatusObservation.ts`,
+  `checkReuseMs` from `revisionCheckSchedule.ts`); machine sessions use its
+  `fresh` demand. Revision checks adopt it the same way: `RevisionChecks`
+  (`dashboard/server/revisionChecks.ts`) keeps one `SharedObservation` per
+  catalog source beside its `304` hint, bounded by the catalog as the hint
+  is, keyed by the request owner's scope, with that same window. No new
+  cache, scheduler or owner protocol.
 - **Keep each page's own answer.** `performRevisionCheck`
   (`dashboard/server/performedRevisionCheck.ts`) compares the shared
   listing with each request's own `since` and watched branches after
@@ -139,14 +141,14 @@ the policy above.
 
 ### 1. The boundary answers a project's checks from one listing per window
 Type: Behavior
-Status: planned
+Status: done
 Proof: `GitHubRequests.scope()` passthrough with a unit case in
 `github-requests.test.mjs`; `RevisionChecks` holds one `SharedObservation`
-per source keyed by scope, window `checkIntervalMs - 1_000` read on each
-demand and injectable for the spec, the listing under its own tracked
-controller; a new boundary spec beside `authenticated-read-shared.spec.ts`
-through real HTTP and the synthetic `gh` asserts examples 1, 2, 5, 6 and 7
-at the boundary: sequential checks of one source cost one listing while the
+per source keyed by scope, window `checkReuseMs` read on each demand and
+  injectable for the spec, the listing under its own tracked controller; a
+  new boundary spec beside `authenticated-read-shared.spec.ts` (split under
+  the file-size limit into listing and listing-failures) through real HTTP
+  and the synthetic `gh` asserts examples 1, 2, 5, 6 and 7 at the boundary: sequential checks of one source cost one listing while the
 second is within the window and two at window zero; different `since` and
 watched branches each answered their own way from the settled listing; a
 requester gone before settlement leaves the listing to settle and the next
@@ -196,19 +198,33 @@ one listing per pace for the project.
 
 ## Current decisions
 
-- The reuse window is the host-status window, `checkIntervalMs - 1_000`,
-  so a page's own pace is never answered from its previous listing while two
-  pages at the pace share one.
+- The reuse window is `checkReuseMs` (one second under the check pace),
+  shared with host status, so a page's own pace is never answered from its
+  previous listing while two pages at the pace share one.
 - The key is the catalog source and the request owner's scope; an
   undefined scope shares nothing. Separately launched dashboards share only
   outstanding requests, as the story defers cross-process sharing.
 - A page's reload or return keeps resolving the ref afresh; the shared
   listing serves scheduled and revealed checks only.
 - A listing every requester left still settles under the boundary's own
-  controller; closing the boundary aborts it. The documents say so.
+  controller; closing the boundary aborts it. The documents say so after
+  slice 2 (G1 interim until then).
+- Specs inject `DOUGH_REVISION_CHECK_REUSE_MS` (including zero);
+  `configuredLimit` rejects zero, so that injection stays a dedicated reader.
 - Slices 1 and 2 are a safe stopping point: the saving and the freshness
   promise hold with fixture proof; slice 3 adds the real observation the
   evaluation basis names.
+
+## Slice 1 accepted proof (reuse)
+
+- Boundary listing reuse/failure specs:
+  `authenticated-read-shared-listing.spec.ts`,
+  `authenticated-read-shared-listing-failures.spec.ts`, plus existing
+  revision-check, shared, waiter, and `shared-observation` suites.
+- `github-requests.test.mjs` for `scope()`.
+- `npm run --silent typecheck:dashboard`.
+- consumer-trace terms `never reused` / `abandons a check`: docs interim G1
+  until slice 2; listing lifetime covered by the new listing specs.
 
 ## Concern evidence
 
@@ -218,3 +234,22 @@ serves, and the sequence reuses the server's existing shared observation
 rather than a second sharing rule. No slice-specific concern remains.
 Interim behavior: between slices 1 and 2 the documents still describe the
 old rule while the boundary already reuses listings; slice 2 replaces them.
+
+## Story obligations
+
+### G1. Documents still describe finished-answer never reused
+Reported: slice 1 — "PUBLISHED-OBSERVATION.md and GITHUB-REQUESTS.md still say a finished ref, branch-head, or check answer is never reused and that a check under way is abandoned, while the boundary already reuses settled listings within the window."
+Story clause: "A page's scheduled revision check is answered from the branch-head listing this dashboard process last settled for that project when that listing is younger than the check pace"
+Disposition: interim until slices 2
+
+### G-excl-deferred. Deferred promises stay deferred
+Reported: slice 1 — "Deferred promises named in the story remain out of this delivery."
+Story clause: "Deferred promises: sharing settled listings across separately launched dashboard processes, decided from those servers' measurements (see Open Decisions); delivering updates to pages without their recurring local check (the SSE story); fewer requests for a single page; an immediate shared check on a known publication event."
+Disposition: excluded "Deferred promises: sharing settled listings across separately launched dashboard processes, decided from those servers' measurements (see Open Decisions); delivering updates to pages without their recurring local check (the SSE story); fewer requests for a single page; an immediate shared check on a known publication event."
+Commitment: D1, D2, D3, D4
+
+### G-excl-limits. Scope limits unchanged
+Reported: slice 1 — "No change to what a page shows or when it reads content; no new daemon, database, or scheduler; no change to the request owner's protocol."
+Story clause: "Scope limits: no change to what a page shows or when it reads content; no new daemon, database, or scheduler; no change to the request owner's protocol."
+Disposition: excluded "Scope limits: no change to what a page shows or when it reads content; no new daemon, database, or scheduler; no change to the request owner's protocol."
+Commitment: E1, E2, E3, E4, E5, E6

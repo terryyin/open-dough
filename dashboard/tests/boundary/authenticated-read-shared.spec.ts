@@ -121,7 +121,7 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     expect(askedSince(server, later)).toEqual(["ref main"]);
   });
 
-  test("checks of different revisions and of different watched branches share one head listing, each learning its own answer; a later check asks again", async () => {
+  test("checks of different revisions and of different watched branches share one head listing, each learning its own answer; a later check asks again past the window", async () => {
     const revision = revisionOf("5c");
     const watching = (branch: string) =>
       `&since=${revision}&watch=${encodeURIComponent(branch)}`;
@@ -156,6 +156,7 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     expect(whileHeld).toEqual(["matching-refs"]);
     expect(askedSince(server, holding.before)).toEqual(["matching-refs"]);
 
+    // This server's reuse window is zero, so a later check is already past it.
     const later = server.github.calls.length;
     expect((await readAt(server, `&since=${revision}`)).status).toBe(200);
     expect(askedSince(server, later)).toEqual(["matching-refs"]);

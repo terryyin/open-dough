@@ -102,12 +102,12 @@ export async function startDashboardServer(
     readonly codexProtocol?: FakeCodex | undefined;
     // The server's own bound when unset.
     readonly readTimeoutMs?: number | undefined;
-    // The server's first wait after a rate limit that directs none
-    // (`github-request-admission.mjs`); one minute when unset.
+    // Rate-limit backoff base (`github-request-admission.mjs`); 1 min unset.
     readonly limitBackoffMs?: number | undefined;
-    // The byte budget of answers retained on this machine
-    // (`../../server/retainedAnswers.ts`); 64 MiB when unset.
+    // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
     readonly retainedAnswersBytes?: number | undefined;
+    // Listing reuse ms (`../../server/revisionChecks.ts`); 0 unset (no reuse).
+    readonly revisionCheckReuseMs?: number | undefined;
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the
     // server, when omitted.
     readonly github?: FakeGitHub;
@@ -179,15 +179,16 @@ export async function startDashboardServer(
       : requestOwnerEnvironmentAt(options.requestOwnerRoot)),
     ...options.extraEnv,
   };
-  if (options.readTimeoutMs !== undefined) {
-    env["DOUGH_READ_TIMEOUT_MS"] = String(options.readTimeoutMs);
+  for (const [key, value] of [
+    ["DOUGH_READ_TIMEOUT_MS", options.readTimeoutMs],
+    ["DOUGH_LIMIT_BACKOFF_MS", options.limitBackoffMs],
+    ["DOUGH_RETAINED_ANSWERS_BYTES", options.retainedAnswersBytes],
+  ] as const) {
+    if (value !== undefined) env[key] = String(value);
   }
-  if (options.limitBackoffMs !== undefined) {
-    env["DOUGH_LIMIT_BACKOFF_MS"] = String(options.limitBackoffMs);
-  }
-  if (options.retainedAnswersBytes !== undefined) {
-    env["DOUGH_RETAINED_ANSWERS_BYTES"] = String(options.retainedAnswersBytes);
-  }
+  env["DOUGH_REVISION_CHECK_REUSE_MS"] = String(
+    options.revisionCheckReuseMs ?? 0,
+  );
 
   const { spawn, outDir } = serverLaunch(
     {

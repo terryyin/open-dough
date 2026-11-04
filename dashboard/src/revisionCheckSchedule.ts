@@ -30,6 +30,12 @@ import { useLimitedUntil } from "./readingLimit.ts";
 // published work appears within 30 seconds, including the read itself.
 export const checkIntervalMs = 15_000;
 
+// How long a settled shared observation at that pace (host status, a
+// revision-check listing) serves later demand: one second under the
+// interval, so a page's own next check is never answered from its previous
+// sample or listing while concurrent pages at the pace share one.
+export const checkReuseMs = checkIntervalMs - 1_000;
+
 type ScheduledChecks = {
   readonly source: PublishedSource;
   readonly shownRevision: string | undefined;

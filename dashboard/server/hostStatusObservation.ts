@@ -22,7 +22,7 @@
 import { statfs } from "node:fs/promises";
 import { cpus } from "node:os";
 import path from "node:path";
-import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
+import { checkReuseMs } from "../src/revisionCheckSchedule.ts";
 import type { HostStatus } from "../src/hostStatus.ts";
 import { machineDashboardDirectory } from "./machineHome.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -93,7 +93,7 @@ const machineReaders: HostStatusReaders = {
     new Promise((resolve) => {
       setTimeout(resolve, primingMs);
     }),
-  reuseMs: () => checkIntervalMs - 1_000,
+  reuseMs: () => checkReuseMs,
 };
 
 const unanswered = `The host status was not sampled within ${String(waitMs / 1000)} seconds. Ask again.`;
