@@ -10,20 +10,58 @@
 // (`./machineSessionsRevision.ts`), read when a developer opens or acts on a
 // retained session or expands Recently done sessions (`./retainedHistory.ts`).
 
-import type { LaunchWithState } from "./launchRecord.ts";
+import type { FirstInput, LaunchWithState } from "./launchRecord.ts";
+
+// The detail only the sessions history carries, by where it sits in a
+// record: `doneListing` leaves these out and `withRetainedDetail` restores
+// them from the history's full record.
+const historyOnlyFields = {
+  record: ["landing", "landingReporting"],
+  request: ["reporting"],
+  firstInput: ["instruction"],
+} as const satisfies {
+  record: readonly (keyof LaunchWithState)[];
+  request: readonly (keyof LaunchWithState["request"])[];
+  firstInput: readonly (keyof FirstInput)[];
+};
+
+function withoutFields<T extends object>(
+  value: T,
+  fields: readonly (keyof T)[],
+): T {
+  const leftOut: readonly PropertyKey[] = fields;
+  return Object.fromEntries(
+    Object.entries(value).filter(([key]) => !leftOut.includes(key)),
+  ) as T;
+}
+
+function definedFields<T extends object, K extends keyof T>(
+  value: T | undefined,
+  fields: readonly K[],
+): { [Field in K]?: T[Field] } {
+  const picked: { [Field in K]?: T[Field] } = {};
+  if (value === undefined) return picked;
+  for (const field of fields) {
+    if (value[field] !== undefined) picked[field] = value[field];
+  }
+  return picked;
+}
 
 // A done session's listing facts. An open session is the overview's in full.
 export function doneListing(record: LaunchWithState): LaunchWithState {
   if (record.doneAt === undefined) return record;
-  const listed = { ...record, request: { ...record.request } };
-  delete listed.landing;
-  delete listed.landingReporting;
-  delete listed.request.reporting;
-  if (record.firstInput !== undefined) {
-    listed.firstInput = { ...record.firstInput };
-    delete listed.firstInput.instruction;
-  }
-  return listed;
+  return {
+    ...withoutFields(record, historyOnlyFields.record),
+    request: withoutFields(record.request, historyOnlyFields.request),
+    ...(record.firstInput === undefined
+      ? {}
+      : {
+          firstInput: withoutFields(
+            record.firstInput,
+            historyOnlyFields.firstInput,
+          ),
+        }),
+  };
 }
 
 // A retained session as the history read gives it in full, kept current by
@@ -34,27 +72,19 @@ export function withRetainedDetail(
   full: LaunchWithState | undefined,
 ): LaunchWithState {
   if (full === undefined || listing.doneAt === undefined) return listing;
-  const detail = {
-    ...(full.landing === undefined ? {} : { landing: full.landing }),
-    ...(full.landingReporting === undefined
-      ? {}
-      : { landingReporting: full.landingReporting }),
-  };
-  const { reporting } = full.request;
-  const instruction = full.firstInput?.instruction;
   return {
     ...listing,
-    ...detail,
+    ...definedFields(full, historyOnlyFields.record),
     request: {
       ...listing.request,
-      ...(reporting === undefined ? {} : { reporting }),
+      ...definedFields(full.request, historyOnlyFields.request),
     },
     ...(listing.firstInput === undefined
       ? {}
       : {
           firstInput: {
             ...listing.firstInput,
-            ...(instruction === undefined ? {} : { instruction }),
+            ...definedFields(full.firstInput, historyOnlyFields.firstInput),
           },
         }),
   };

@@ -191,7 +191,7 @@ export class OwnerLink {
             settle({
               failure: {
                 kind: "owner-unavailable",
-                cause: "connection-failed",
+                cause: "connection-lost",
               },
             });
         });

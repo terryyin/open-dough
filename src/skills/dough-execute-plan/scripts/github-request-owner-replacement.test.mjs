@@ -52,7 +52,7 @@ test("an owner killed with eight calls at GitHub is replaced by one that ends th
   for (const { settled } of waits)
     assert.deepEqual(await settled, {
       settled: (await settled).settled,
-      failure: { kind: "owner-unavailable", cause: "connection-failed" },
+      failure: { kind: "owner-unavailable", cause: "connection-lost" },
       body: "",
     });
   assert.deepEqual(consumers[0].failed, Array(4).fill("owner-unavailable"));
@@ -193,7 +193,7 @@ test("an owner whose record is overtaken while its calls are at GitHub asks noth
   for (const { settled } of waits) {
     const answer = await settled;
     if (answer.failure.kind === "owner-unavailable")
-      assert.equal(answer.failure.cause, "connection-failed");
+      assert.equal(answer.failure.cause, "connection-lost");
     else assert.deepEqual(answer.failure, { kind: "failed" });
     assert.equal(answer.status, undefined);
   }

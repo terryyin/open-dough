@@ -38,20 +38,21 @@ import {
   titlesOfA,
   titlesOfB,
 } from "./refreshJourney.ts";
-import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeGitHub, GhCall } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
+import { ownerSends, type OwnerSends } from "./support/ownerSends.ts";
 import { inspect } from "./support/readDiagnostics.ts";
-import { readAt, refusedMarker } from "./support/sharedReads.ts";
+import { readAt } from "./support/sharedReads.ts";
 import { turns } from "./support/turnReads.ts";
 
 type StandingOwner = { readonly pid: number; readonly file: string };
 
-// The page's dashboard asks GitHub through an endpoint of this test's own,
-// so the test can find and kill the owner standing there.
+// The page's dashboard asks GitHub through this test's own endpoint, so the
+// test sees each read handed to the owner standing there and can kill it.
 const test = base.extend<{
   requestOwner: ReturnType<typeof privateRequestOwner>;
+  sent: OwnerSends;
 }>({
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
@@ -60,8 +61,13 @@ const test = base.extend<{
     await use(owner);
     await owner.end();
   },
-  extraEnv: async ({ requestOwner }, use) => {
-    await use(requestOwner.env);
+  // Playwright's fixture API requires the empty destructuring pattern.
+  // eslint-disable-next-line no-empty-pattern
+  sent: async ({}, use, testInfo) => {
+    await use(ownerSends(testInfo.outputPath("owner-sends")));
+  },
+  extraEnv: async ({ requestOwner, sent }, use) => {
+    await use({ ...requestOwner.env, ...sent.env });
   },
 });
 
@@ -75,21 +81,18 @@ const isHeldRead = (request: GhRequest) =>
 const isHeld = ({ request }: GhCall) => isHeldRead(request);
 const backlogAtB = `${backlogPath}?ref=${revisionB}`;
 
-// A request sent to this dashboard waits on its call once local refusals
-// asked after it have been answered for a second. Were it sent on to the
-// owner only after the kill, the next owner would answer it and the record
-// would not name the killed owner: the test then fails.
-async function waitingOnItsCall(dashboard: DashboardServer) {
-  for (let marker = 0; marker < 10; marker += 1) {
-    await refusedMarker(dashboard);
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+// A read naming `part` waits on its call once this dashboard has handed it
+// to the owner's connection. Were it handed on only after the kill, the next
+// owner would answer it and the record would not name the killed owner.
+async function waitingOnItsCall(sent: OwnerSends, part: string) {
+  await expect.poll(() => sent.asked(part), { timeout: 10_000 }).toBe(1);
 }
 
 test("a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask", async ({
   page,
   dashboard,
   requestOwner,
+  sent,
 }) => {
   const github = githubFor(page);
   await pausePageClock(page);
@@ -134,7 +137,7 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
       .toBe(1);
     // Next in line for the check's turn once it is answered.
     hold(turns - 1);
-    await waitingOnItsCall(dashboard);
+    await waitingOnItsCall(sent, heldRevisions[turns - 1] ?? "");
     const backlogRead = page.waitForRequest((request) =>
       request.url().includes(`revision=${revisionB}`),
     );
@@ -142,7 +145,7 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
     expect((await checked).status()).toBe(200);
     await expect.poll(heldSince, { timeout: 10_000 }).toBe(turns);
     await backlogRead;
-    await waitingOnItsCall(dashboard);
+    await waitingOnItsCall(sent, `/contents/${backlogAtB}`);
     expect(contentReads(callsSince(page, before))).not.toContain(backlogAtB);
 
     const [owner, ...others] = requestOwner.records() as StandingOwner[];
@@ -203,7 +206,7 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
           category: "backlog",
           failureCategory: "local",
           cause: "owner-unavailable",
-          ownerCause: "connection-failed",
+          ownerCause: "connection-lost",
           dispatched: false,
           ownerPid: killed?.pid,
           ownerGeneration: generation,

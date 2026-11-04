@@ -1,7 +1,7 @@
 // What one entry of this user's incident record (`./incidentRecord.ts`)
-// holds: the process that wrote it and the facts of its kind, each field
+// holds: the server that wrote it and the facts of its kind, each field
 // already sanitized and validated again when read back. Entries are told
-// apart across processes by `incidentIdentity`.
+// apart across the record by `incidentIdentity`.
 
 import { z } from "zod";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
@@ -12,13 +12,16 @@ export const safeCount = z.number().refine(isSafeCount);
 const loadValue = z.number().nonnegative();
 
 // Every entry names the process that wrote it: its pid and start, the
-// sequence number it gave the entry, the dashboard revision it runs when
-// known, its age when it wrote the entry, and the entry's wall-clock time.
+// server instance within it (a dev server restarted in place is a new
+// instance of the same process), the sequence number that instance gave the
+// entry, the dashboard revision it runs when known, its age when it wrote
+// the entry, and the entry's wall-clock time.
 // `kind` names what the entry records; readers skip kinds they do not know.
 const processFields = {
   at: z.iso.datetime(),
   pid: safeCount,
   processStartedAt: z.iso.datetime(),
+  serverInstance: z.uuid().optional(),
   seq: safeCount,
   revision: z.string().regex(commitShaPattern).optional(),
   processAgeMs: safeCount,
@@ -95,7 +98,21 @@ type FactsOf<Entry> = Entry extends unknown
   : never;
 export type IncidentFacts = FactsOf<IncidentEntry>;
 
-// One entry's identity across the record: its writer's pid alone is not,
-// since a later process may reuse it.
+// The server instance that wrote an entry, told apart across the record: its
+// pid alone is not, since a later process may reuse it, and its process
+// alone is not, since a restarted dev server numbers its entries afresh.
+export type IncidentWriter = Pick<
+  IncidentEntry,
+  "pid" | "processStartedAt" | "serverInstance"
+>;
+
+export const incidentWriterKey = ({
+  pid,
+  processStartedAt,
+  serverInstance,
+}: IncidentWriter): string =>
+  `${String(pid)}@${processStartedAt}/${serverInstance ?? ""}`;
+
+// One entry's identity across the record.
 export const incidentIdentity = (entry: IncidentEntry): string =>
-  `${String(entry.pid)}@${entry.processStartedAt}#${String(entry.seq)}`;
+  `${incidentWriterKey(entry)}#${String(entry.seq)}`;

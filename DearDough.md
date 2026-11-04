@@ -326,6 +326,16 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
+### Occurrences
+- Execution: SEED-225#correct-incident-and-workspace-observation-residue (plan 457, first implementation commit beda7f32d)
+  - Timestamp: unknown (between slice 2 commit 7f365a1bf and slice 3 commit 9c27e94c0, 2026-11-04 +07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 3 `execution-increment-delivery.mjs fresh` returned `preparation-refused`, "the plan must be included in ownedPaths"
+  - Observed effect: ownedPaths was built from `git status`; the plan had no edit before delivery, so it was absent. One refused attempt, then a retry with the plan appended was accepted.
+  - Inference: deriving ownedPaths from changed files omits a plan that only delivery's own done-marking will change.
+
 <a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
 
 ## ODF-355 — Preparation recorded measured allocations without their full sort key
@@ -337,6 +347,15 @@ Former local code: DD-337. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-356 — A direct formatter command in fresh delivery lacked the package's binaries
 
 Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/findings/ODF-356.md).
+
+### Occurrences
+- Execution: SEED-225#correct-incident-and-workspace-observation-residue (plan 457, first implementation commit beda7f32d)
+  - Timestamp: unknown (before slice 1 commit beda7f32d, 2026-11-04T06:22:33+07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 1 fresh delivery with formatting `["node","scripts/lint.mjs","--fix"]` returned `operation: formatting`, "eslint: not found on PATH"
+  - Observed effect: preparation failed before commit; the retry with `["npm","run","--silent","format"]` committed and published.
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 

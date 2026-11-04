@@ -12,6 +12,7 @@
 // skipped, never repeated.
 
 import { execFile } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 import {
@@ -19,6 +20,7 @@ import {
   incidentIdentity,
   type IncidentEntry,
   type IncidentFacts,
+  type IncidentWriter,
 } from "./incidentEntry.ts";
 import {
   appendIncidentLine,
@@ -35,9 +37,17 @@ export type IncidentRecord = {
   readonly entries: readonly IncidentEntry[];
 };
 
-export const processStartedAt = new Date(
-  Date.now() - Math.round(process.uptime() * 1000),
-).toISOString();
+// The server instance this module serves, which writes this module's
+// entries. A dev server restarted in place loads this module again in the
+// same process (`../vite.config.mts` imports the boundaries), so each load is
+// an instance of its own, with its own sequence and lifecycle.
+export const incidentWriter: IncidentWriter = {
+  pid: process.pid,
+  processStartedAt: new Date(
+    Date.now() - Math.round(process.uptime() * 1000),
+  ).toISOString(),
+  serverInstance: randomUUID(),
+};
 
 // The commit this dashboard's own checkout is at, asked of local Git once
 // when this module loads; absent when it cannot say.
@@ -78,8 +88,7 @@ export function appendIncident<Facts extends IncidentFacts>(
   const parsed = incidentEntrySchema.safeParse({
     ...facts,
     at: facts.at ?? new Date().toISOString(),
-    pid: process.pid,
-    processStartedAt,
+    ...incidentWriter,
     seq: sequence,
     processAgeMs: Math.round(process.uptime() * 1000),
     ...(knownRevision !== undefined && { revision: knownRevision }),

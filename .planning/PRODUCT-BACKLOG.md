@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Correct incident identity and observation residue](seeds/SEED-225-restore-dashboard-responsiveness.md#correct-incident-and-workspace-observation-residue) — SEED-225#correct-incident-and-workspace-observation-residue ([plan](slice-plans/457-correct-incident-and-workspace-observation-residue/PLAN.md))
-
 ## Backlog list
 
 - [Resolve attempts that appear to be reconciling forever](seeds/SEED-225-restore-dashboard-responsiveness.md#resolve-stuck-attempt-reconciliation) — SEED-225#resolve-stuck-attempt-reconciliation

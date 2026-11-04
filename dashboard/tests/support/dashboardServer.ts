@@ -88,6 +88,8 @@ export async function startDashboardServer(
     // for a spec that never opens a page (../boundary/); `dev` and `preview`
     // start Vite.
     readonly mode: DashboardServerMode;
+    // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
+    readonly restartable?: boolean;
     // Boundary only: the project environment the server keeps its project
     // list in (./projectConfiguration.ts); production when unset. Dev is
     // always development and preview always production.
@@ -190,6 +192,7 @@ export async function startDashboardServer(
   const { spawn, outDir } = serverLaunch(
     {
       mode: options.mode,
+      restartable: options.restartable,
       port: options.port,
       environment,
       prebuilt: options.prebuilt,

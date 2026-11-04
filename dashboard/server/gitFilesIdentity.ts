@@ -1,17 +1,21 @@
 // The identity of the Git files a checkout's local workspaces are read from
 // (`./localWorkspaces.ts`), so an unchanged checkout is not read again: the
-// checkout folder and its `.git`, the repository's config, packed refs and
-// reftable list, the trunk's remote-tracking ref, and for every linked
-// worktree its administrative entry (head, location, worktree config) with
-// the branch ref its head names and the worktree's own `.git` file. Every
-// workspace fact Git answers there -- which worktrees are listed and on which
-// branch, each one's author config, and the profiles its head commit and
-// trunk's commit hold -- is read from those files or from objects their
-// commits name, which never change. Each file's identity is its inode,
-// modification time, and size, as `./machineJsonStore.ts` trusts a file's;
-// a file changed within the last second is not yet trusted, and then there is
-// no identity, so the caller reads Git afresh. Only file metadata and the two
-// small files naming each worktree's branch and location are read.
+// repository folders the checkout's `.git` names, the repository's config,
+// packed refs and reftable list, the trunk's remote-tracking ref, and for
+// every linked worktree its administrative entry (head, location, worktree
+// config) with the branch ref its head names and the worktree's own `.git`
+// file. Every workspace fact Git answers there -- which linked worktrees are
+// listed and on which branch, each one's author config, and the profiles its
+// head commit and trunk's commit hold -- is read from those files or from
+// objects their commits name, which never change. The main worktree is
+// passed over there, so nothing Git keeps for it alone counts: no folder's
+// modification time (Git's index refresh moves `.git`'s on a plain
+// `git status`, and a new file moves the checkout's), and not its head. Each
+// file's identity is its inode, modification time, and size, as
+// `./machineJsonStore.ts` trusts a file's; a file changed within the last
+// second is not yet trusted, and then there is no identity, so the caller
+// reads Git afresh. Only file metadata and the small files naming the
+// repository folders and each worktree's branch and location are read.
 
 import type { BigIntStats } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
@@ -30,15 +34,25 @@ function identityOf(stats: BigIntStats): string {
   return `${String(stats.ino)}:${String(stats.mtimeNs)}:${String(stats.size)}`;
 }
 
-// A file's identity, or how it could not be looked at.
-async function fileIdentity(file: string): Promise<string> {
+// What `identify` makes of the entry's metadata, or how it could not be
+// looked at.
+async function lookedAt(
+  entry: string,
+  identify: (stats: BigIntStats) => string,
+): Promise<string> {
   try {
-    return identityOf(await stat(file, { bigint: true }));
+    return identify(await stat(entry, { bigint: true }));
   } catch (error) {
     if (error instanceof Unsettled) throw error;
     return (error as NodeJS.ErrnoException).code ?? "unreadable";
   }
 }
+
+const fileIdentity = (file: string) => lookedAt(file, identityOf);
+
+// A folder's identity is its inode alone.
+const folderIdentity = (folder: string) =>
+  lookedAt(folder, (stats) => String(stats.ino));
 
 async function text(file: string): Promise<string | undefined> {
   try {
@@ -95,7 +109,7 @@ export async function gitFilesIdentity(
   trunk: string,
 ): Promise<string | undefined> {
   try {
-    const folder = await fileIdentity(checkout);
+    const folder = await folderIdentity(checkout);
     const folders = await gitFolders(checkout);
     if (folders === undefined) return `${folder}|no-git`;
     const { own, common } = folders;
@@ -106,8 +120,6 @@ export async function gitFilesIdentity(
       names = [];
     }
     const parts = await Promise.all([
-      fileIdentity(path.join(checkout, ".git")),
-      fileIdentity(path.join(own, "HEAD")),
       fileIdentity(path.join(common, "config")),
       fileIdentity(path.join(common, "packed-refs")),
       fileIdentity(path.join(common, "reftable", "tables.list")),

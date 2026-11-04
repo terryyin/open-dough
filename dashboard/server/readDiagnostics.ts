@@ -26,7 +26,7 @@ import {
 } from "./incidentProcesses.ts";
 import {
   appendIncident,
-  processStartedAt,
+  incidentWriter,
   readIncidentRecord,
 } from "./incidentRecord.ts";
 import { sampleEventLoopSoon } from "./eventLoopWatch.ts";
@@ -127,10 +127,7 @@ export async function diagnosticsForSource(
       stalls: record.entries
         .filter((entry): entry is StallIncident => entry.kind === "stall")
         .sort(newestFirst),
-      processes: incidentProcesses(record.entries, {
-        pid: process.pid,
-        processStartedAt,
-      }),
+      processes: incidentProcesses(record.entries, incidentWriter),
     },
   };
 }
