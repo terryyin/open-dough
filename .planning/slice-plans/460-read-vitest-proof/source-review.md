@@ -116,7 +116,7 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | E3 | A kind with no proof reading yet says which families Proof is read for so far, Vitest tests included | slice 6 | |
 | E4 | Unreadable and malformed proof keep their retry explanations | slice 6 | |
 | E5 | A proof file shaped for another family, under a Vitest location, is malformed | slice 6 | |
-| A1 | Adoption happens in subordinate Doughnut and Pygardon workspaces of this execution, as plan 446 did | slice 2 | |
+| A1 | Adoption happens in subordinate Doughnut and Pygardon workspaces of this execution, as plan 446 did | slice 2 | observed: plan slice 2 retained workspaces: ~/git/doughnut.worktrees/read-vitest-proof and ~/git/pygardon.worktrees/read-vitest-proof, prepared, as plan 446 did |
 | A2 | Each project gets a project-owned Vitest reporter that follows the reference | slice 4 | |
 | A3 | The reporter is loaded by the ordinary local and CI commands, with recording off | slice 4 | |
 | A4 | It shares the project's existing proof store, where that keeps one store per project | slice 4 | |

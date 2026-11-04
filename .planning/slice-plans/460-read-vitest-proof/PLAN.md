@@ -241,7 +241,7 @@ successful proof_). Example 5 → Identity (project in identity), Reading
 
 ### 2. Subordinate Doughnut and Pygardon workspaces are prepared
 Type: Structure
-Status: planned
+Status: done
 Proof: `git worktree add` from each fetched trunk; Doughnut
 `./scripts/run.sh bash scripts/worktree_setup.sh` then
 `./scripts/run.sh pnpm -C frontend exec vitest list tests/utils/titlePatternRender.spec.ts tests/toolbars/DonutMenu.search.touch.spec.ts`
@@ -254,6 +254,22 @@ Doughnut's publication route is confirmed from its AGENTS.md before slice 4.
 Internal change: the two subordinate workspaces this execution owns, at
 recorded bases, with prepared environments. Enables slices 3 and 4. Keep both
 default checkouts untouched.
+
+Retained (2026-11-04, slice 2): Doughnut workspace
+`~/git/doughnut.worktrees/read-vitest-proof`, branch `claude/read-vitest-proof`,
+created from fetched `origin/main` at `f08c51e4ce`; `./scripts/run.sh bash
+scripts/worktree_setup.sh` exit 0; `vitest list` printed the three
+`[chromium]` `titlePatternRender.spec.ts` cases and the `[chromium-touch]`
+`DonutMenu.search.touch.spec.ts` table (listed once as its `%s` template).
+Pygardon workspace `~/git/pygardon.worktrees/read-vitest-proof`, branch
+`claude/read-vitest-proof`, created from fetched `origin/main` at `8dc7cad1a`;
+`nix develop -c scripts/prepare-worktree.sh` exit 0; `vitest list` printed 17
+`verifyStatsFormat.test.ts` cases; the CI adapter check printed "Pygardon CI
+adapter access confirmed for terryyin/pygardon main". Publication route for
+both: commit in the subordinate workspace under the project's AGENTS.md
+wrap-up (`format:changed` once, check-only lint hook) and push to that
+project's `main`, as the pytest story's Pygardon commit `8dc7cad1a` was.
+Both default checkouts untouched.
 
 ### 3. Pygardon records Vitest proof on explicit request
 Type: Behavior
