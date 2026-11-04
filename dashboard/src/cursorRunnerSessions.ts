@@ -8,6 +8,11 @@ import { launchRecordSchema } from "./launchRecord.ts";
 
 export const cursorRunnerSessionsEndpoint = `${agentLaunchEndpoint}/cursor-sessions`;
 
+// Minimum gap after a settled Running Cursor sessions list answer before the
+// section's next owned ask. Matches the held-session reuse default
+// (DOUGH_SESSIONS_REUSE_MS).
+export const askGapMs = 1_000;
+
 // Whether this read found a runner that is already accepting, and answered.
 export const cursorRunnerStatusSchema = z.enum([
   "running",

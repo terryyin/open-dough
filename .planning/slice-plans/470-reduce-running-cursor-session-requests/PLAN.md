@@ -123,7 +123,7 @@ unanswered observation.
 
 ### 2. The expanded section asks once per second and still shows changes promptly
 Type: Behavior
-Status: planned
+Status: done
 Proof: `askGapMs` in `RunningCursorSessions.tsx` is `1_000`; the demand spec's
 gap-related waits follow that constant; a journey keeps the section expanded
 and quiet for about ten seconds and counts about ten browser list asks (and,
@@ -156,6 +156,9 @@ one second; collapsing the section ends that demand.
   launch's settled observation almost immediately; proofs of the production
   one-second window must set `sessionsReuseMs` / `extraEnv` to `1000` and wait
   past that window before forcing a new in-flight read.
+- Dashboard tests under `tsconfig.node` cannot import `.tsx` modules; keep
+  shared constants such as `askGapMs` in a `.ts` module
+  (`cursorRunnerSessions.ts`).
 
 ## Accepted proof
 
@@ -182,6 +185,32 @@ proof:
   boundary: dashboard types
   observations:
     - exit_code 0
+  setup: none
+  result: pass
+```
+
+### Slice 2
+
+```
+proof:
+  command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/cursor-runner-sessions-demand.spec.ts dashboard/tests/cursor-runner-sessions.spec.ts dashboard/tests/cursor-runner-sessions-quiet-rate.spec.ts
+  covers: quiet ~1 ask/s; label and membership leave within ~1s; collapse ends demand; listing/unreachable/feedback; demand lifecycle with 1s gap
+  boundary: browser list ask pace + section demand
+  observations:
+    - quiet-rate: 8–12 browser asks and runner reads in 10s; follow-up within askGapMs+500; membership leave rows→0 within bound; collapse freezes demand
+    - demand.spec: slowerThanAskGapMs follows askGapMs
+    - cursor-runner-sessions.spec.ts: listing/not-running/unreachable/feedback green
+  setup: holdRunnerSessionsReads for runner counts; askGapMs from cursorRunnerSessions.ts
+  result: pass (10 tests)
+```
+
+```
+proof:
+  command: npm run --silent typecheck:dashboard
+  covers: askGapMs export and quiet-rate/demand imports after refactor
+  boundary: dashboard types
+  observations:
+    - exit_code 0 after refactor re-run
   setup: none
   result: pass
 ```
