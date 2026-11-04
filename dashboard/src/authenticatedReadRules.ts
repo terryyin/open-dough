@@ -81,6 +81,14 @@ export function readingCiStatusOf(branch: string, repository: string): string {
   return `the CI status of ${readingBranchHeadOf(branch, repository)}`;
 }
 
+// One GitHub Actions run attempt's CI proof (`../server/intentCiProofRead.ts`).
+export function readingCiProofOf(
+  run: { readonly runId: number; readonly runAttempt: number },
+  repository: string,
+): string {
+  return `the CI proof of run ${String(run.runId)} attempt ${String(run.runAttempt)} of ${repository}`;
+}
+
 export function readingPathAt(path: string, revision: string): string {
   return `${path} at ${revision}`;
 }

@@ -19,6 +19,16 @@ export type BaseCiConfirmation = z.infer<typeof baseCiConfirmationSchema>;
 // ancestor.
 const runBranchSchema = z.string().min(1).optional();
 
+// A GitHub Actions run a judged result rests on: its id and attempt, which
+// with the result's revision key the run's CI proof read. A ciAdapter's
+// results name neither.
+const runIdentitySchema = z.object({
+  runId: z.number().int().positive().optional(),
+  runAttempt: z.number().int().positive().optional(),
+});
+export const runIdentityShape = runIdentitySchema.shape;
+export type BaseCiRunIdentity = Readonly<z.infer<typeof runIdentitySchema>>;
+
 // Historical context beside a running judgment; it never confirms the base.
 const completedAncestorSchema = z.object({
   revision: z.string().min(1),
@@ -26,6 +36,7 @@ const completedAncestorSchema = z.object({
   state: z.enum(["pass", "failed"]),
   runUrl: z.url().optional(),
   runBranch: runBranchSchema,
+  ...runIdentityShape,
 });
 export type BaseCiCompletedAncestor = z.infer<typeof completedAncestorSchema>;
 

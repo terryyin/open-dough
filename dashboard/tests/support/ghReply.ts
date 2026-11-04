@@ -9,6 +9,8 @@ import type { GhRequest } from "./ghRequest.ts";
 
 export type GhReply = {
   readonly stdout: string;
+  // Base64 of the bytes printed instead of `stdout`, for a binary answer.
+  readonly stdoutBase64?: string;
   readonly stderr: string;
   readonly exitCode: number;
 };
@@ -175,6 +177,17 @@ export function asGhReply(
     };
   }
   const head = included ? includedHead(answer.status, headers) : "";
+  if (answer.encoding === "base64" && answer.status < 300) {
+    const bytes = Buffer.from(answer.body, "base64");
+    return {
+      stdout: "",
+      stdoutBase64: Buffer.concat([Buffer.from(head), bytes]).toString(
+        "base64",
+      ),
+      stderr: "",
+      exitCode: 0,
+    };
+  }
   const body = /[/+]json(;|$)/.test(answer.contentType)
     ? sanitizedAsJson(answer.body)
     : answer.body;

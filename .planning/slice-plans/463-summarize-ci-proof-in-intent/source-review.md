@@ -8,11 +8,11 @@
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | A developer reviewing a project in Intent's **CI status** tab can see, for the CI run whose result the tab shows, which of the project's configured Intent entries that run proved | slice 2 | |
-| G2 | (same view shows) with what outcome counts | slice 2 | |
-| G3 | (G1–G2 are visible) without opening CI logs or downloading artifacts | slice 2 | |
-| G4 | A failed run then points to the entry that failed | slice 2 | |
-| G5 | a passing run shows what it actually covered | slice 2 | |
+| G1 | A developer reviewing a project in Intent's **CI status** tab can see, for the CI run whose result the tab shows, which of the project's configured Intent entries that run proved | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' listitem texts name each entry the run proved |
+| G2 | (same view shows) with what outcome counts | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' listitem texts carry passed/failed counts |
+| G3 | (G1–G2 are visible) without opening CI logs or downloading artifacts | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' rows render in the CI status tab from the server-read summary; no log or artifact opened by the developer |
+| G4 | A failed run then points to the entry that failed | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' 'dashboard/tests: 19 passed and 1 failed tests…' names the failing entry |
+| G5 | a passing run shows what it actually covered | slice 2 | observed: dashboard/src/ciProofWording.ts rows render the same for any verdict (test 1 path); live read of passing run 41806711276 gave dashboard/tests 1972 tests 12/12, tests 183 checks, src/skills 290 checks |
 | G6 | This adds CI observations beside the existing deliberate Proof workflow | slice 4 | |
 | G7 | it does not change retained Proof | slice 4 | |
 | G8 | it does not change … the CI verdict | slice 3 | |
@@ -34,13 +34,13 @@
 | S4.4.1 | For each entry it names the runner's counted unit, such as Playwright tests or `npm test` checks | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total…' unit tests/checks |
 | S4.4.2 | (For each entry it names) the passed, failed and other counts | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total…' passed/failed/other |
 | S4.4.3 | (For each entry it names) parts that are missing or ambiguous | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'a missing part is a gap, a duplicated part is ambiguous, and neither is counted (example 2)' |
-| S5.1 | The tab shows that summary for the same repository, workflow run, attempt and tested revision as its displayed result. | slice 2 | |
+| S5.1 | The tab shows that summary for the same repository, workflow run, attempt and tested revision as its displayed result. | slice 3 |  |
 | S5.2 | For a running result, it shows the summary for the completed ancestor's run that the tab already shows. | slice 3 | |
-| S5.3.1 | It names the tested revision | slice 2 | |
-| S5.3.2 | (It names) the run with its link | slice 2 | |
-| S5.3.3 | (It names) the attempt | slice 2 | |
-| S5.4 | A missing or ambiguous part is shown as a gap | slice 2 | |
-| S5.5 | (a missing or ambiguous part) is not counted as passed | slice 2 | |
+| S5.3.1 | It names the tested revision | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' .intent-ci-proof-run 'Attempt 1 of run 41 at a1b2c3d.' |
+| S5.3.2 | (It names) the run with its link | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' link 'run 41' href is the run URL |
+| S5.3.3 | (It names) the attempt | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' .intent-ci-proof-run 'Attempt 1 of run 41…' |
+| S5.4 | A missing or ambiguous part is shown as a gap | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a missing part is shown as a gap and its counts are not counted' .intent-ci-proof-gap '; part 4 of 12 missing' |
+| S5.5 | (a missing or ambiguous part) is not counted as passed | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a missing part is shown as a gap…' '110 passed tests; 11 of 12 parts present' |
 | S5.6 | (a missing or ambiguous part) is not filled from another attempt | slice 3 | |
 | S6.1 | The verdict and proof stay independent | slice 3 | |
 | S6.2 | the verdict appears and reads the same whether proof is available, missing or still being read | slice 3 | |
@@ -76,12 +76,12 @@
 | X5 | (rejected) having the dashboard aggregate the raw per-job artifacts (27 artifacts of up to 0.7 MB each per Open Dough run, and no independent list of expected parts) | slice 4 | |
 | X6 | (rejected) publishing through check runs or third-party test-report actions (needs `checks: write`, and the summary would have to be parsed back out of rendered text) | slice 4 | |
 | X7 | (rejected) committing CI results to the repository (conflicts with deliberate Proof) | slice 4 | |
-| E1 | Trigger: Two `dashboard/tests` shards report 12 passes, and 7 passes plus 1 failure. `tests` reports 5 passing checks in one share. The run failed. | slice 2 | |
-| E1.1 | Expected: The tab shows **Failed** at the run's revision as today | slice 2 | |
-| E1.2 | Expected: below it Proof for that run | slice 2 | |
-| E1.3 | Expected: `dashboard/tests` with 19 passed and 1 failed tests | slice 2 | |
-| E1.4 | Expected: `tests` with 5 passed checks | slice 2 | |
-| E1.5 | Expected: each with every declared part present | slice 2 | |
+| E1 | Trigger: Two `dashboard/tests` shards report 12 passes, and 7 passes plus 1 failure. `tests` reports 5 passing checks in one share. The run failed. | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' setup: two dashboard/tests shards (12; 7+1 failed), tests one share 5 checks, failed trunk run |
+| E1.1 | Expected: The tab shows **Failed** at the run's revision as today | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' .intent-ci-state 'Failed at a1b2c3d (Add login)' before and after proof |
+| E1.2 | Expected: below it Proof for that run | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' .intent-ci-state ~ .intent-ci-proof visible |
+| E1.3 | Expected: `dashboard/tests` with 19 passed and 1 failed tests | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' 'dashboard/tests: 19 passed and 1 failed tests; 2 of 2 parts present.' |
+| E1.4 | Expected: `tests` with 5 passed checks | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' 'tests: 5 passed checks; 1 of 1 part present.' |
+| E1.5 | Expected: each with every declared part present | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' '2 of 2 parts present' / '1 of 1 part present' |
 | E1.6 | Expected: No part overwrites or double-counts another. | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total without overwriting or double counting (example 1)' |
 | E2 | Trigger: Shard 4 is cancelled, or only failed jobs are rerun as attempt 2. | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'a missing part is a gap…' (cancelled shard) and 'an earlier attempt's … fragment is excluded' (attempt-2 rerun) |
 | E2.1 | Expected: The attempt-2 summary shows `dashboard/tests` with its present parts' counts and "part 4 of 12 missing" | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'a missing part is a gap…'; 'the command line writes fragments per entry and one summary from them' stdout 'part 2 of 2 missing' |
@@ -95,13 +95,13 @@
 | E5 | Trigger: The project has no collector, the summary has expired, GitHub refuses the read, or the summary names another attempt or revision. | slice 3 | |
 | E5.1 | Expected: The tab still shows the verdict exactly as before | slice 3 | |
 | E5.2 | Expected: under Proof one line explains why proof is unavailable for this run. | slice 3 | |
-| U1 | Proof follows the existing judgment as its own labelled part of the tab. | slice 2 | |
-| U2 | It names the run (revision, link and attempt) once | slice 2 | |
-| U3 | then gives one row per declared entry in configuration order | slice 2 | |
-| U4.1 | Each row shows the location path | slice 2 | |
-| U4.2 | (Each row shows) counts with their unit | slice 2 | |
-| U4.3 | (Each row shows) any gap | slice 2 | |
-| U4.4 | (Each row) needs no colour to be understood | slice 2 | |
+| U1 | Proof follows the existing judgment as its own labelled part of the tab. | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' region heading 'Proof' after .intent-ci-state |
+| U2 | It names the run (revision, link and attempt) once | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' .intent-ci-proof-run once |
+| U3 | then gives one row per declared entry in configuration order | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' listitems in declared order dashboard/tests, tests |
+| U4.1 | Each row shows the location path | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' rows start with the location path |
+| U4.2 | (Each row shows) counts with their unit | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' 'passed … tests' / 'checks' units |
+| U4.3 | (Each row shows) any gap | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a missing part is shown as a gap…' gap text in row |
+| U4.4 | (Each row) needs no colour to be understood | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' rows are plain text; meaning carried by words, no colour-only state |
 | U5.1 | While the summary is being read, the verdict is already shown | slice 3 | |
 | U5.2 | (While the summary is being read,) Proof says it is checking | slice 3 | |
 | U6 | **Check again** refreshes both. | slice 3 | |
@@ -110,8 +110,8 @@
 | A3 | (recipe/CI side) standalone under ADR 0004 | slice 4 | |
 | A4 | written for the agent working in that project under ADR 0006 | slice 4 | |
 | A5 | The dashboard stays an observer under ADR 0008. | slice 3 | |
-| A6 | It reads the summary through the authenticated read boundary. | slice 2 | |
-| A7 | The GitHub Actions judgment must therefore carry the shown run's id, attempt and head SHA, which today carries only its URL. | slice 2 | |
-| A8 | Proof is a separate read keyed by that run | slice 2 | |
+| A6 | It reads the summary through the authenticated read boundary. | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'a failed run with a summary shows Failed as before, then Proof…' observed gh calls through the request owner: 'artifacts of run 41: ci-proof-summary-attempt-1', 'zip 9041' |
+| A7 | The GitHub Actions judgment must therefore carry the shown run's id, attempt and head SHA, which today carries only its URL. | slice 2 | observed: tests/support/dashboard-ci-proof-read.test.mjs judged result and completedAncestor carry runId and runAttempt |
+| A8 | Proof is a separate read keyed by that run | slice 2 | observed: dashboard/tests/intent-ci-proof.spec.ts 'the CI proof read names one run, its attempt and its revision…'; test 1 checking line while zip held |
 | A9 | so a slow or failed artifact read never delays or alters the verdict | slice 3 | |
-| A10 | GitHub delivers artifacts as zip archives, so the server must extract one small file. | slice 2 | |
+| A10 | GitHub delivers artifacts as zip archives, so the server must extract one small file. | slice 2 | observed: tests/support/dashboard-ci-proof-read.test.mjs extraction; src/skills/dough-execute-plan/scripts/github-request-owner-wire.test.mjs byte survival |

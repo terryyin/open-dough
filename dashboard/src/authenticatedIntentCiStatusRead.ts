@@ -9,13 +9,18 @@
 import { z } from "zod";
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import { readingCiStatusOf } from "./authenticatedReadRules.ts";
-import { baseCiFoundSchema, baseCiStates } from "./baseCiConfirmation.ts";
+import {
+  baseCiFoundSchema,
+  baseCiStates,
+  runIdentityShape,
+} from "./baseCiConfirmation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 // The launch's base-CI answer (`./baseCiConfirmation.ts`) with a passing
-// state possible, when it was checked, and whether GitHub has no published
-// branch of that name.
+// state possible, when it was checked, whether GitHub has no published
+// branch of that name, and the run the result rests on.
 const ciStatus = baseCiFoundSchema.omit({ kind: true }).extend({
+  ...runIdentityShape,
   checkedAt: z.iso.datetime(),
   state: z.enum(["pass", ...baseCiStates]),
   unpublished: z.literal(true).optional(),

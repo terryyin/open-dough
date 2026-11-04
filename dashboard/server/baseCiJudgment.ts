@@ -49,6 +49,17 @@ function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));
 }
 
+// A ciAdapter's attempts, which name no GitHub Actions run to read proof of.
+const runIdentityFields = new Set(["databaseId", "attempt"]);
+function withoutRunIdentity(runs: readonly ListedRun[]): ListedRun[] {
+  return runs.map(
+    (run) =>
+      Object.fromEntries(
+        Object.entries(run).filter(([field]) => !runIdentityFields.has(field)),
+      ) as ListedRun,
+  );
+}
+
 // Judges `branch` from its listed history and `workflow`'s Actions runs. A
 // story branch (any branch but the configured ref) also lists the trunk's
 // runs, so a shared ancestor's trunk run counts as that commit's result; the
@@ -119,7 +130,9 @@ export async function judgeCommandAdapter(
       throw error;
     }
     return fromBranch(
-      (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+      withoutRunIdentity(
+        (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+      ),
       discoveredBranch,
     );
   };

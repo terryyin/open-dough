@@ -30,6 +30,7 @@ import { parts } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
 import {
   established,
@@ -49,10 +50,11 @@ const carries =
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
 
-// The records kept so far, the last being the launch just made.
+// The records kept so far, the last being the launch just made, waited for
+// as long as a start may take.
 async function records(dashboard: DashboardServer, count: number) {
   await expect
-    .poll(() => recordsOf(dashboard, "open-dough"))
+    .poll(() => recordsOf(dashboard, "open-dough"), { timeout: launchWaitMs })
     .toHaveLength(count);
   return (await recordsOf(dashboard, "open-dough")) as LaunchWithState[];
 }

@@ -37,6 +37,8 @@ function failureText(failure) {
       unreachable: "GitHub is unreachable",
       "output-bound": "gh output exceeded the request's size limit",
       "timed-out": "gh did not answer within the request's time limit",
+      "not-archive":
+        "the archive arrived as text, as a GitHub request owner of an earlier Open Dough passes it on",
     }[failure.kind] ?? "gh failed"
   );
 }
@@ -51,9 +53,9 @@ export class GitHubAcquisitionFailed extends Error {
   }
 }
 
-// The body of one `gh api` answer, for a fixed argument array starting with
+// One successful `gh api` answer, for a fixed argument array starting with
 // `api`. A wait GitHub directed is a `GitHubAcquisitionHeld`.
-export async function askGitHub(args, signal = new AbortController().signal) {
+async function answered(args, signal) {
   let answer;
   try {
     answer = await requests.request(args, signal);
@@ -62,11 +64,26 @@ export async function askGitHub(args, signal = new AbortController().signal) {
       throw new GitHubAcquisitionFailed(args[1], error.reason);
     throw error;
   }
-  const { failure, body } = answer;
-  if (failure === undefined) return body;
+  const { failure } = answer;
+  if (failure === undefined) return answer;
   if (failure.kind === "rate-limited" || failure.kind === "held-back")
     throw new GitHubAcquisitionHeld(failure.waitSeconds);
   throw new GitHubAcquisitionFailed(args[1], failure);
+}
+
+// The body of one `gh api` answer, as `answered` asks it.
+export async function askGitHub(args, signal = new AbortController().signal) {
+  return (await answered(args, signal)).body;
+}
+
+// The bytes of one `gh api` answer GitHub labels as an archive, such as an
+// Actions artifact's zip, as `answered` asks it; a `GitHubAcquisitionFailed`
+// when its answer arrived as text.
+export async function askGitHubArchive(args, signal) {
+  const answer = await answered(args, signal);
+  if (answer.bodyEncoding !== "base64")
+    throw new GitHubAcquisitionFailed(args[1], { kind: "not-archive" });
+  return Buffer.from(answer.body, "base64");
 }
 
 export async function readGitHubActions(args, signal) {

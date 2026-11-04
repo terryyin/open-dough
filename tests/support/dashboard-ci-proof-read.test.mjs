@@ -1,0 +1,85 @@
+// Intent's CI proof read on the dashboard server: the judged result names
+// its GitHub Actions run's id and attempt, which key the read
+// (../../dashboard/server/baseCiNearest.ts), and one small zip's only file
+// is extracted and checked (../../dashboard/server/zipEntry.ts). The read's
+// refusals are ../../dashboard/tests/intent-ci-proof.spec.ts.
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { judgeNearest } from "../../dashboard/server/baseCiNearest.ts";
+import {
+  onlyZipEntry,
+  ZipEntryProblem,
+} from "../../dashboard/server/zipEntry.ts";
+import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
+
+const sha = (digit) => digit.repeat(40);
+const commits = [
+  {
+    sha: sha("2"),
+    commit: { message: "Running" },
+    parents: [{ sha: sha("1") }],
+  },
+  { sha: sha("1"), commit: { message: "Done" }, parents: [] },
+];
+const run = (digit, status, conclusion, identity) => ({
+  headSha: sha(digit),
+  status,
+  conclusion,
+  url: `https://ci.invalid/${digit}`,
+  createdAt: "2026-11-01T00:00:00Z",
+  ...identity,
+});
+
+test("a judged result and a running result's completed ancestor name their run's id and attempt", () => {
+  const judgment = judgeNearest(commits, [
+    run("2", "in_progress", null, { databaseId: 22, attempt: 1 }),
+    run("1", "completed", "failure", { databaseId: 11, attempt: 2 }),
+  ]);
+  assert.equal(judgment.state, "running");
+  assert.equal(judgment.runId, 22);
+  assert.equal(judgment.runAttempt, 1);
+  assert.equal(judgment.revision, sha("2"));
+  assert.deepEqual(judgment.completedAncestor, {
+    revision: sha("1"),
+    subject: "Done",
+    state: "failed",
+    runUrl: "https://ci.invalid/1",
+    runId: 11,
+    runAttempt: 2,
+  });
+});
+
+test("a result whose run names no id and attempt names no run", () => {
+  const judgment = judgeNearest(commits.slice(1), [
+    run("1", "completed", "success", { databaseId: 11 }),
+  ]);
+  assert.equal(judgment.state, "pass");
+  assert.equal("runId" in judgment, false);
+  assert.equal("runAttempt" in judgment, false);
+});
+
+const summaryText = '{"schemaVersion":1}\n';
+
+test("the archive's only file is inflated and checked against its recorded size and checksum", () => {
+  const archive = zipOf("ci-proof-summary.json", summaryText);
+  assert.equal(
+    onlyZipEntry(archive, "ci-proof-summary.json", 1024),
+    summaryText,
+  );
+});
+
+test("an archive that is not one small file of that name is a problem that says why", () => {
+  const archive = zipOf("ci-proof-summary.json", summaryText);
+  const problem = (bytes, name = "ci-proof-summary.json", limit = 1024) =>
+    assert.throws(() => onlyZipEntry(bytes, name, limit), ZipEntryProblem);
+  problem(Buffer.from("not a zip archive at all, only text"));
+  problem(archive, "other.json");
+  problem(archive, "ci-proof-summary.json", 4);
+  const twoFiles = Buffer.from(archive);
+  twoFiles.writeUInt16LE(2, twoFiles.length - 22 + 10);
+  problem(twoFiles);
+  const corrupted = Buffer.from(archive);
+  corrupted[30 + "ci-proof-summary.json".length] ^= 0xff;
+  problem(corrupted);
+  problem(archive.subarray(0, archive.length - 30));
+});

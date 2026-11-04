@@ -3,7 +3,8 @@
 // the selected story's published story branch) through
 // `./authenticatedIntentCiStatusRead.ts`, across the content area without
 // the location tree. It always names the branch and when it was checked,
-// and shows the judgment as `./IntentCiJudgment.tsx` does. A selected story
+// and shows the judgment as `./IntentCiJudgment.tsx` does, then the shown
+// run's CI proof as `./IntentCiProof.tsx` reads it. A selected story
 // without a branch to judge is named with why, and nothing is judged. It is
 // read each time it is shown, when the judged branch changes, again when the
 // page's revision check finds the judged branch at a new head while it is
@@ -20,6 +21,7 @@ import {
 import type { IntentMode } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
+import { IntentCiProof } from "./IntentCiProof.tsx";
 import { ShownJudgment } from "./IntentCiJudgment.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -127,6 +129,9 @@ function JudgedBranch({
         )}
       </p>
       {shown !== undefined && <ShownJudgment judgment={shown} story={story} />}
+      {shown !== undefined && shown.unpublished !== true && (
+        <IntentCiProof source={source} judgment={shown} />
+      )}
       <p>
         <button
           type="button"

@@ -26,3 +26,19 @@
 .intent-ci-state {
   font-weight: 600;
 }
+
+/* The shown run's CI proof (./IntentCiProof.tsx), after the judgment. */
+.intent-ci-proof {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+
+.intent-ci-proof h4 {
+  margin: 0 0 var(--space-1);
+}
+
+.intent-ci-proof-entries {
+  margin: 0;
+  padding-left: 1.25rem;
+}

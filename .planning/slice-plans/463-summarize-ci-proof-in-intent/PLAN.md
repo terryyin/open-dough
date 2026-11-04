@@ -124,7 +124,7 @@ duplicate and earlier-attempt fragments show as gaps or are excluded.
 
 ### 2. The CI status tab shows the shown run's proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `intent-ci-proof.spec.ts` using the controlled `gh` of `intentCiStatusPage.ts`. A failed trunk run with a summary shows **Failed** as before, and below it Proof for that revision, run link and attempt: `dashboard/tests` 19 passed and 1 failed tests, and `tests` 5 passed checks. A summary with part 4 of 12 missing shows that gap. A run without a summary says so. The existing `intent-ci-status*.spec.ts` files stay green.
 
 Behavior: A developer opens the CI status tab for a project whose shown run
@@ -189,3 +189,8 @@ merge rules the local collector and declaration tests prove first.
 Reported: slice 1 — "The story branch's hosted run must upload ci-proof-summary-attempt-<n> with every declared part present; observed only after push."
 Story clause: "It then uploads one versioned, compact summary artifact"
 Disposition: proved by slice 1: hosted CI run 41806711276 (90764ef71) artifact ci-proof-summary-attempt-1: schemaVersion 1, repository/runId/runAttempt/revision match; dashboard/tests 12/12 present 1972 passed 0 failed 8 other tests; tests 3/3 present 183 checks; src/skills 3/3 present 290 checks, equal to the discovered checks
+
+### G2. An older GitHub request owner passes the summary zip as text
+Reported: slice 2 — "while an older owner still runs on the machine, the proof read cannot get the bytes"
+Story clause: "When no proof can be shown, the tab gives one reason: no summary in the run, expired, unreadable, invalid or for another run, attempt or revision."
+Disposition: interim until slices 3

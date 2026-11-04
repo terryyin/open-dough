@@ -51,7 +51,11 @@ const request = http.request(
     response.on("data", (chunk) => chunks.push(chunk));
     response.on("end", () => {
       const reply = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-      process.stdout.write(reply.stdout || "");
+      process.stdout.write(
+        reply.stdoutBase64
+          ? Buffer.from(reply.stdoutBase64, "base64")
+          : reply.stdout || "",
+      );
       process.stderr.write(reply.stderr || "");
       process.exitCode = reply.exitCode || 0;
     });
