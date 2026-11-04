@@ -10,10 +10,10 @@ updated local findings without a new story.
 
 Reconciliation retained new evidence at existing owners and allocated
 ODF-417–419. Open Dough DD-414 is retained as a successful proof practice
-with unknown execution release, without a catalog code. Doughnut DD-337
-matches ODF-074 in the catalog; its full source entry remains because
-Doughnut already uses that destination heading. No cross-project count
-duplicates one execution reported under multiple findings.
+with unknown execution release, without a catalog code. Doughnut
+[consolidated DD-337 into its existing ODF-074 entry](https://github.com/nerds-odd-e/doughnut/blob/8cc171f7bd098463c990bd8b582a2f9798cd4eb4/DearDough.md#dd-337),
+preserving the former-code alias and the full occurrence. No cross-project
+count duplicates one execution reported under multiple findings.
 
 Selected the ODF-074 consuming-premise response first. Two new distinct
 post-response executions had actual kickoff or implementation cost, and
