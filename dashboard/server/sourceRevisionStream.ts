@@ -91,8 +91,18 @@ export class SourceRevisionStream {
     res.on("close", leave);
     controller.signal.addEventListener("abort", leave, { once: true });
     this.subscribers.add(subscriber);
-    void this.answerFromDemand(subscriber);
-    if (this.paceTimer === undefined) this.schedulePace();
+    // Answer from a shared demand first; schedule the pace only after that
+    // settles so a lowered test pace cannot start a second listing before the
+    // open answers are observed.
+    void this.answerFromDemand(subscriber).finally(() => {
+      if (
+        !this.closed &&
+        this.subscribers.size > 0 &&
+        this.paceTimer === undefined
+      ) {
+        this.schedulePace();
+      }
+    });
   }
 
   close(): void {

@@ -10,13 +10,13 @@
 // and while the page's record of GitHub's rate limit stands (`./readingLimit.ts`)
 // no check is asked before its time, hidden, seen again, or not. Reaction to
 // each answer — changed, unchanged, moved branches, failure, or limit — lives
-// in `./revisionAnswer.ts`, shared with a later stream delivery. Any new read,
+// in `./revisionAnswer.ts`, shared with stream delivery
+// (`./revisionStreamSchedule.ts`). Any new read,
 // a project switch, or hiding the page cancels a pending or outstanding check,
 // and its late answer is ignored.
 
 import { useEffect, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
-import { checkPublishedRevision } from "./authenticatedRead.ts";
 import type { Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useLimitedUntil } from "./readingLimit.ts";
@@ -25,6 +25,7 @@ import {
   reactToRevisionCheckFailure,
   type RevisionAnswerHandlers,
 } from "./revisionAnswer.ts";
+import { checkPublishedRevision } from "./revisionCheckRead.ts";
 import type { RevisionDelivery } from "./revisionStreamSlot.ts";
 
 // How long a shown snapshot waits before asking whether the selected
@@ -32,17 +33,18 @@ import type { RevisionDelivery } from "./revisionStreamSlot.ts";
 // published work appears within 30 seconds, including the read itself.
 export const checkIntervalMs = 15_000;
 
-type ScheduledChecks = RevisionAnswerHandlers & {
+// Shared inputs for check and stream delivery (`./revisionStreamSchedule.ts`).
+export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
   readonly source: PublishedSource;
   readonly shownRevision: string | undefined;
   // The story branches the shown progress is read from, with the heads shown.
   readonly watchedHeads: StoryBranchHeads;
-  // Whether the latest read, detail included, has finished. Checks wait for
-  // it, so a check and a read never overlap.
+  // Whether the latest read, detail included, has finished. Delivery waits
+  // for it, so a check or stream and a read never overlap.
   readonly readSettled: boolean;
   readonly visibility: Visibility;
   // Observation's chosen delivery; only `"check"` asks here.
-  readonly delivery?: RevisionDelivery;
+  readonly delivery: RevisionDelivery;
 };
 
 export function useRevisionCheckSchedule({
@@ -51,12 +53,12 @@ export function useRevisionCheckSchedule({
   watchedHeads,
   readSettled,
   visibility,
-  delivery = "check",
+  delivery,
   onChanged,
   onUnchanged,
   onBranchesMoved,
   onFailed,
-}: ScheduledChecks): void {
+}: RevisionDeliveryAnswers): void {
   // The page-clock time before which no check may be asked. While a check is
   // outstanding the schedule keeps the time it was asked under, so the limit
   // that check's own answer sets never cancels it; once it settles, the next

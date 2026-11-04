@@ -36,6 +36,7 @@ import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
+import { useRevisionStreamSchedule } from "./revisionStreamSchedule.ts";
 import { useRevisionDelivery } from "./revisionStreamSlot.ts";
 import {
   focusedStoryCard,
@@ -178,7 +179,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   });
 
   const delivery = useRevisionDelivery(visibility !== "hidden");
-  useRevisionCheckSchedule({
+  const revisionAnswers = {
     source,
     shownRevision: work?.revision,
     watchedHeads,
@@ -191,11 +192,13 @@ export function usePublishedObservation(initialSource: PublishedSource) {
       findUnchanged();
       settleRevealed();
     },
-    onFailed: (error) => {
+    onFailed: (error: unknown) => {
       fail(error);
       settleRevealed();
     },
-  });
+  } as const;
+  useRevisionCheckSchedule(revisionAnswers);
+  useRevisionStreamSchedule(revisionAnswers);
 
   useLayoutEffect(() => {
     deferredFocus.current = restoreSnapshotFocus(

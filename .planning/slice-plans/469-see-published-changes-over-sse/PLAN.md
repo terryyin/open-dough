@@ -111,24 +111,20 @@ behavior is unchanged. Enables slice 4.
 
 ### 4. The Board follows published changes over its stream
 Type: Behavior
-Status: planned
-Proof: New journeys, without pre-held slots and with the server pace
-lowered, show:
+Status: done
+Proof (coordinator 2026-11-05):
 
-- a streaming page sends no `since` request over a quiet minute;
-- two pages show R' from one listing after a publication, with one
-  backlog read;
-- a watched branch move reads only that entry's plan and last commit time,
-  and the other page reads nothing;
-- hiding closes the stream, and with no other stream the fake GitHub sees
-  no further listing; revealing answers at once;
-- after reading R' the page reopens its stream at R';
-- seven pages of one context all load, two stream and five check at the
-  pace, and hiding a holder lets a checking page stream.
-
-`PUBLISHED-OBSERVATION.md` and `GITHUB-REQUESTS.md` describe streams, the
-cap and the remaining check delivery. Run the whole dashboard suite once
-before publication.
+- `dashboard/tests/revision-stream.spec.ts` (no pre-hold slots,
+  `DOUGH_REVISION_STREAM_MS` lowered): quiet minute with no `since`; two
+  pages one listing/one backlog; watched-branch move; hide/reveal; reopen
+  at R'; seven pages two stream / five check with slot handoff — focused
+  stream + boundary specs 13 passed; `typecheck:dashboard` exit 0.
+- Full `npm run test:dashboard` under `caffeinate -s -i` exit 0 after fixing
+  open-vs-pace race in `sourceRevisionStream.ts` (pace starts only after
+  first open demand settles).
+- Docs: `PUBLISHED-OBSERVATION.md`, `GITHUB-REQUESTS.md`.
+- Implementation: `revisionStreamSchedule.ts` EventSource; slot holders
+  get `"stream"` via `revisionDeliveryForSlot`.
 
 Behavior: A visible settled page on a route with a free slot → it holds a
 stream instead of recurring checks and reads each published change the
@@ -234,3 +230,8 @@ Commitment: D5
 
 - 2026-11-04 slice 1: Tailscale HTTPS delivered each 1 Hz SSE event as written
   (Chromium lag 1–4 ms; curl ~1 s steady). Premise holds; slices 4–6 unchanged.
+- 2026-11-04 slice 4 interim (until slice 5): a failed or silent stream is not
+  yet reported as lost freshness; the browser's EventSource reconnect may retry
+  sooner than the revision-stream pace. Web Locks `ifAvailable` cannot be
+  combined with `signal` (Chromium NotSupportedError); slot acquisition uses
+  `ifAvailable` alone and aborts the held wait separately.

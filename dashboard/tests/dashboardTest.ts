@@ -36,7 +36,8 @@ import { publishes } from "./support/publishedRepository.ts";
 
 // Hold both capped stream slots before the page's own scripts run, so journey
 // pages see a genuine "other tabs hold the slots" condition and keep proving
-// check delivery. Stream journeys will opt out of this init script.
+// check delivery. Stream journeys opt out with `preholdRevisionStreamSlots:
+// false`.
 function holdRevisionStreamSlots(names: readonly string[]): void {
   for (const name of names) {
     void navigator.locks.request(name, () => new Promise(() => {}));
@@ -99,6 +100,10 @@ export const test = base.extend<{
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
   serverMode: FixtureServerMode;
+  // When true (the default), the context pre-holds both stream slots so
+  // existing check journeys keep proving check delivery. Stream journeys set
+  // false so pages may take the slots themselves.
+  preholdRevisionStreamSlots: boolean;
   afterGitHubStops: (removal: Removal) => void;
   github: FakeGitHub;
   dashboard: DashboardServer;
@@ -112,6 +117,7 @@ export const test = base.extend<{
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
   serverMode: ["preview", { option: true }],
+  preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   github: async ({}, use) => {
@@ -167,12 +173,14 @@ export const test = base.extend<{
   baseURL: async ({ dashboard }, use) => {
     await use(dashboard.baseURL);
   },
-  context: async ({ context, github }, use) => {
+  context: async ({ context, github, preholdRevisionStreamSlots }, use) => {
     githubServing.set(context, github);
-    await context.addInitScript(
-      holdRevisionStreamSlots,
-      revisionStreamSlotLockNames(),
-    );
+    if (preholdRevisionStreamSlots) {
+      await context.addInitScript(
+        holdRevisionStreamSlots,
+        revisionStreamSlotLockNames(),
+      );
+    }
     const directGitHubReads: string[] = [];
     await context.route(
       /^https?:\/\/(?!(localhost|127\.0\.0\.1)[:/])/,

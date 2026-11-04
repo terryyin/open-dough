@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  revisionDeliveryForSlot,
   revisionStreamSlotCap,
   revisionStreamSlotLockNames,
 } from "../../dashboard/src/revisionStreamSlot.ts";
@@ -19,4 +20,9 @@ test("the capped budget names two Web Lock slots", () => {
     "open-dough-revision-stream-slot-0",
     "open-dough-revision-stream-slot-1",
   ]);
+});
+
+test("a held slot streams; a page without one keeps the check", () => {
+  assert.equal(revisionDeliveryForSlot(true), "stream");
+  assert.equal(revisionDeliveryForSlot(false), "check");
 });

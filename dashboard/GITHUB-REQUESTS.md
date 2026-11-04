@@ -65,11 +65,17 @@ next needed. Revoking GitHub access does not remove them; deleting the
 directory does, and costs only the requests it saved. These count against the
 launching person's own GitHub API allowance. Each revision check is one more
 `gh` request, whatever the number of branches, or two when the listing fails
-and `main` is asked alone (at most four a minute per visible page, none while
-it is hidden, and none before a rate limit's wait ends); checks asked from
-several pages while one listing is outstanding share it. GitHub documents
+and `main` is asked alone (at most four a minute per visible checking page,
+none while it is hidden, and none before a rate limit's wait ends); checks
+asked from several pages while one listing is outstanding share it. Visible
+settled pages that hold a revision stream do not send those recurring checks:
+while any stream for a project and request-owner scope is open, the dashboard
+process asks the same listing once per 15-second pace for that scope and
+answers every open stream from it, so two streaming pages of one project cost
+one listing per pace rather than one per page. On a non-multiplexing route at
+most two pages of one browser stream; the rest keep the check. GitHub documents
 an unchanged `304` as not counting against the primary allowance, but that has
-not been confirmed here, so count each check as a request. A newly published
+not been confirmed here, so count each check or stream listing as a request. A newly published
 commit then costs, without resolving `main` again, one read of its backlog,
 which answers its membership without waiting on anything else; then, for its
 details, one comparison of it with the revision at which any dashboard

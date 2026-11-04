@@ -38,13 +38,10 @@ export function revisionStreamSlotLockNames(
   return names;
 }
 
-// Observation chooses delivery from whether it holds a slot. Stream delivery
-// is not wired yet, so every page — holder or not — keeps the check.
+// Observation chooses delivery from whether it holds a slot: a holder streams;
+// a page without a slot keeps the recurring check.
 export function revisionDeliveryForSlot(holdsSlot: boolean): RevisionDelivery {
-  if (holdsSlot) {
-    return "check";
-  }
-  return "check";
+  return holdsSlot ? "stream" : "check";
 }
 
 function waitUntilAborted(signal: AbortSignal): Promise<void> {
@@ -88,12 +85,13 @@ export function useRevisionStreamSlot(wantSlot: boolean): boolean {
         if (release.signal.aborted) {
           return;
         }
+        // `ifAvailable` cannot be combined with `signal` (LockManager).
         const acquired = { value: false };
         await locks.request(
           revisionStreamSlotLockName(index),
-          { ifAvailable: true, signal: release.signal },
+          { ifAvailable: true },
           async (lock) => {
-            if (lock === null) {
+            if (lock === null || release.signal.aborted) {
               return;
             }
             acquired.value = true;

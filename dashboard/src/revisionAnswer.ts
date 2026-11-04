@@ -1,10 +1,11 @@
 // How the published observation reacts to one revision answer, apart from how
-// that answer was delivered (`./revisionCheckSchedule.ts` today; a stream
-// later). Changed and moved-branch answers ask for a read; unchanged and
-// failed or limited answers leave delivery free to continue at its pace.
+// that answer was delivered (`./revisionCheckSchedule.ts` or
+// `./revisionStreamSchedule.ts`). Changed and moved-branch answers ask for a
+// read; unchanged and failed or limited answers leave delivery free to
+// continue at its pace.
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
-import type { RevisionCheck } from "./authenticatedRead.ts";
+import type { RevisionCheck } from "./revisionCheckRead.ts";
 import { movedBranches } from "./movedBranchProgress.ts";
 
 export type RevisionAnswerHandlers = {

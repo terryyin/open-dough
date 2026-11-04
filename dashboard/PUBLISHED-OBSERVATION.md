@@ -33,11 +33,20 @@ that asked, and another process's answers serve only a commit this process
 heard GitHub name in this run, as the ref, in a check, or as a branch head; a
 read at any other commit asks GitHub as before. A record
 GitHub answered as missing, or that could not be read, is asked for again. While a snapshot
-is shown and the page is visible, it also asks every 15 seconds whether the
-project's configured ref still names the shown revision -- one conditional listing of
-every published branch head, which GitHub answers with `304 Not Modified` when
-no branch moved, so an unchanged ref reads no backlog or record and changes
-neither the revision nor the retrieval time. When the configured ref names a new commit,
+is shown and the page is visible, it follows whether the project's configured
+ref still names the shown revision. On a route whose navigation protocol is
+`h2` or `h3`, every visible settled page holds a server-sent event stream to
+the local read boundary for its shown revision and watched story branches
+(`at`, not a recurring `since` check). On any other route (including loopback
+HTTP/1.1), at most two pages of one browser hold such a stream at once; a
+visible page without a free stream slot keeps today's recurring revision
+check every 15 seconds. While any stream for a project and request-owner
+scope is open, the dashboard process observes origin once per that same
+15-second pace and answers each open stream in the revision-check shape,
+sharing one conditional listing of every published branch head across those
+streams. GitHub answers an unchanged listing with `304 Not Modified`, so an
+unchanged ref reads no backlog or record and changes neither the revision nor
+the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
 about 30 seconds. Its backlog is read there directly, so its cards appear
 without waiting on anything else, while the details that follow may reuse
@@ -60,8 +69,12 @@ most 300 files), or the comparison fails other than by a rate limit, the new com
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
-a minimized window) asks nothing and abandons a check under way; when it is
-seen again it checks once at once, then resumes the 15-second pace. Each read
+a minimized window) asks nothing, closes its stream when it held one, and
+abandons a check under way; when it is seen again a streaming page opens its
+stream again (the first answer is the catch-up), and a checking page checks
+once at once, then resumes the 15-second pace. Hiding or closing a stream
+holder frees its slot so a queued checking page on a capped route can take
+over and stream. Each read
 settles on one revision's facts. A new revision's membership and order show as
 soon as its backlog is read; a story it still lists keeps what the page showed
 for each part, the agent roster and Recently done included, until that
@@ -73,14 +86,16 @@ Taken means recorded as taken, not that anyone is working now.
 Pages served by one dashboard process share what they ask GitHub: a request
 that needs an answer another request already waits for waits on that same
 `gh` request instead of asking again. Two tabs opening one project together
-resolve its ref once and read each record once, and revision checks from pages
-showing different revisions or watching different branches share one
-branch-head listing, each learning its own answer. Each page still shows what
-it would have read alone, under its own observation, and a shared resolution
-of the ref answers when GitHub was asked. A page that closes, is hidden, or
-switches project stops waiting without ending a read another page still waits
-for; the last one leaving ends it, as closing the dashboard does. A finished
-ref or branch-head answer is never reused: a later open or check asks again.
+resolve its ref once and read each record once, and revision checks or open
+revision streams from pages showing different revisions or watching different
+branches share one branch-head listing, each learning its own answer. Each
+page still shows what it would have read alone, under its own observation, and
+a shared resolution of the ref answers when GitHub was asked. A page that
+closes, is hidden, or switches project stops waiting without ending a read
+another page still waits for; the last one leaving ends it, as closing the
+dashboard does. The last open stream for a project and scope ending also ends
+that scope's paced observation. A finished ref or branch-head answer is never
+reused: a later open, check, or stream tick asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
