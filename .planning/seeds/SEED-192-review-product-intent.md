@@ -505,8 +505,10 @@ Required behavior:
   source order: every module-level `def test_*` or `async def test_*`, and
   `test_*` methods of `Test*` classes, each with its definition line. A
   function with observed parameter ids shows one row per observed id, named
-  with its parameters as an outline row is named with its example cells; a
-  function with no observation shows one row reading _No successful proof_.
+  with its parameters as an outline row is named with its example cells and
+  ordered by parameter id, since pytest's collection order is not recorded
+  (Terry, 2026-11-04); a function with no observation shows one row reading
+  _No successful proof_.
   Each observed row shows the same cells as a scenario: last successful proof
   with attempts, duration, time since, commit, and whether the test file's
   published blob is the one observed. The header reads **Test case**, and the
@@ -603,7 +605,8 @@ Scope limits:
 6. **File Proof.** Select `tests/test_cors.py` in Pygardon's Intent at the
    published revision → a table headed Test case, Last successful proof,
    Duration, Observed, Commit, Observed on; rows in definition order; a
-   parametrized function expands to its observed ids; the count line reads,
+   parametrized function expands to its observed ids in parameter id order;
+   the count line reads,
    for example, "Last successful proof: 6 test cases: 5 passed, 1 without
    successful proof"; the Purpose pane positions on a row's definition line
    when opened from a summary or Optimization Candidates.

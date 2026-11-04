@@ -32,16 +32,34 @@
   font-size: var(--text-sm);
 }
 
+/* A Proof table scrolls sideways within its own box when the pane is too
+   narrow for whole words, such as on a phone; the pane and page stay put. */
+.intent-proof-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Headers and observed cells keep whole words, whatever the reading pane
+   inherits. A case name or a file path wraps within its own column, between
+   name parts (`./ProofObservationCells.tsx`) where it can, and the column is
+   never narrower than its longest part. */
 .intent-proof-rows th,
 .intent-proof-rows td {
   padding: var(--space-1) var(--space-2);
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: top;
+  overflow-wrap: normal;
 }
 
 .intent-proof-rows tbody th {
   font-weight: 400;
+}
+
+.intent-proof-rows tbody th,
+.intent-proof-rows tbody .intent-open-link,
+.intent-proof-rows .intent-proof-file {
+  overflow-wrap: break-word;
 }
 
 .intent-proof-example {

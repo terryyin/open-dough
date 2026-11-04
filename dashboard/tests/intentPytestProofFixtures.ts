@@ -119,7 +119,7 @@ const observations: readonly Observation[] = [
   }),
 ];
 
-const proofFile = (entries: readonly Observation[]) =>
+export const proofFile = (entries: readonly Observation[]) =>
   `${JSON.stringify({ version: 1, observations: entries }, null, 2)}\n`;
 
 export const snapshotFiles = { [snapshotPath]: proofFile(observations) };

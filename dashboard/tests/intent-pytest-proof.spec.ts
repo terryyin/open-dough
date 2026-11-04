@@ -8,6 +8,8 @@
 // observation and text that only looks like a test are not listed, and the
 // count line counts test cases. The generation instruction shows as text.
 // A snapshot of about 2 MB, a whole Pygardon suite's, is read like any other.
+// Long test names wrap within their column while headers and observed cells
+// keep whole words; on a phone only the table scrolls sideways.
 // Summaries: ./intent-pytest-proof-summary.spec.ts. Explanations:
 // ./intent-pytest-proof-absent.spec.ts.
 
@@ -19,13 +21,19 @@ import {
   expandIntentGroup,
 } from "./intentPerspectivePage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
+import { gitBlobSha } from "./listingAnswers.ts";
+import { expectNoSidewaysScrollAndWholeText } from "./pageLayout.ts";
+import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
+import { wordsBrokenApart } from "./wholeWords.ts";
 import {
   earlierCommit,
   generationCommand,
+  proofFile,
   largeSnapshotFiles,
   recordedCommit,
   settings,
   snapshotFiles,
+  snapshotPath,
 } from "./intentPytestProofFixtures.ts";
 import {
   corsPath,
@@ -52,8 +60,9 @@ async function openProof(
   proofFiles: Record<string, string>,
   path: string,
   sourceLine: string,
+  viewport = { width: 1280, height: 900 },
 ) {
-  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.setViewportSize(viewport);
   await page.clock.setFixedTime(now);
   await publishIntentProject(page, pygardon, settings, {
     ...sources,
@@ -148,4 +157,69 @@ test("a pytest snapshot of about 2 MB is read and its file's Proof shows its row
     "Last successful proof: 1 test case: 1 passed",
   );
   await expect(proof.getByRole("alert")).toHaveCount(0);
+});
+
+// Column headers and observed cells, whose words must read whole.
+const headersAndObservedCells = "thead th, tbody td";
+
+// A Pygardon test name with long parameter ids, as its search_run suite has.
+const longNameSource = `import pytest
+
+
+@pytest.mark.parametrize(
+    "span",
+    ["cell-expected0", "cell,2008-2010-expected1"],
+)
+def test_search_run_cli_maps_declared_ranking_span(span):
+    assert span
+
+
+def test_search_run_cli_unknown_ranking_span_fails_closed():
+    assert True
+`;
+const longNameFiles = {
+  [healthPath]: longNameSource,
+  [snapshotPath]: proofFile(
+    [
+      ["test_search_run_cli_maps_declared_ranking_span", "cell-expected0"],
+      [
+        "test_search_run_cli_maps_declared_ranking_span",
+        "cell,2008-2010-expected1",
+      ],
+      ["test_search_run_cli_unknown_ranking_span_fails_closed", undefined],
+    ].map(([test, parameterId]) => ({
+      file: healthPath,
+      test,
+      ...(parameterId === undefined ? {} : { parameterId }),
+      durationMs: 424,
+      fileBlob: gitBlobSha(longNameSource),
+      outcome: "passed",
+      attempts: 1,
+      finishedAt: "2026-11-04T09:00:00.000Z",
+      commit: recordedCommit,
+    })),
+  ),
+};
+
+test("long test case names wrap in their own column; headers and observed cells keep whole words, and on a phone only the table scrolls sideways", async ({
+  page,
+}) => {
+  const proof = await openProof(
+    page,
+    longNameFiles,
+    healthPath,
+    "def test_search_run_cli_maps_declared_ranking_span(span):",
+    { width: 1400, height: 900 },
+  );
+  const table = proof.getByRole("table", { name: `${healthPath} proof` });
+  await expect(table.locator("tbody tr")).toHaveCount(3);
+  await expect(table.locator("tbody tr td code").first()).toHaveText(recorded);
+  expect(await wordsBrokenApart(table, headersAndObservedCells)).toEqual([]);
+
+  await test.step("at a phone width the table scrolls sideways in its own box with words whole; the page and reading pane do not", async () => {
+    await page.setViewportSize(phoneLaunchTouchViewport.portrait);
+    await expect(table).toBeVisible();
+    expect(await wordsBrokenApart(table, headersAndObservedCells)).toEqual([]);
+    await expectNoSidewaysScrollAndWholeText(page, [".intent-proof-table"]);
+  });
 });

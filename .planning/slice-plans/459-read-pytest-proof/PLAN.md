@@ -329,7 +329,7 @@ stops on `PytestAssertRewriteWarning` with or without the plugin.
 
 ### 6. Intent shows Pygardon's published pytest proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Open the dashboard on project Pygardon at the revision that published
 slice 5: the recorded file's Proof shows its cases with example 6's cells,
 `tests/search_run` (or the recorded file's folder) shows example 7's lines,
@@ -340,6 +340,22 @@ observation in this plan's retained-proof fields; Terry's evaluation against
 
 Behavior: Pygardon's published snapshot → Intent reads it as examples 6–7
 describe on real source; nothing is fabricated for the demonstration.
+
+Accepted proof (2026-11-04): a dev dashboard from this checkout at
+`d5249a45a`, with a private HOME, request owner and counting `gh` wrapper, on
+Pygardon `main` `8dc7cad1a`. `tests/test_cors.py`: "Last successful proof: 2
+test cases: 2 passed", headers Test case, Last successful proof, Duration,
+Observed, Commit, Observed on. `tests/search_run/test_search_run_cli_ranking_span.py`:
+4 test cases in definition order, the parametrized function expanded to
+`cell,2008-2010-expected1` then `cell-expected0` (parameter id order, Terry's
+amendment, O1). A slowest row opened Purpose at `data-line=33`, its `def`.
+`tests/search_run`: "149 test functions", "150 test cases: 4 passed, 146
+without successful proof", "476 ms over 4 of 150 test cases", the note,
+slowest cases, 50 children, a child opening its Purpose and Proof. Returned
+and fixed in this slice: O2 (table words broke inside at 1400 px) and O3
+("of 1 files"); after them every `intent-*` and
+`boundary/authenticated-read-intent-*` spec passed (106). Screenshots under
+the execution's job temp directory (`e6-*`, `e7-*`, `root-*`).
 
 ## Current decisions
 
@@ -390,6 +406,16 @@ describe on real source; nothing is fabricated for the demonstration.
   `inline_run("--confcutdir", …, "-o", "addopts=", plugins=[…])`). The worktree
   wrapper passes the caller's environment to pytest. CI runs `-n auto --dist
   loadfile`. Pygardon tests use no sleeps or time budgets.
+- Slice 6: the `tests` root summary on real Pygardon, opened once from cold,
+  took 208.2 s to complete and 1,298 GitHub requests (1,283 files, about 6
+  requests per second, none failed): "4488 test functions", "4489 test
+  cases: 6 passed, 4483 without successful proof", "888 ms over 6 of 4489
+  test cases". That cost is the measured input for a cheaper root summary.
+  The dashboard reaches GitHub through a machine-wide request owner; counting
+  requests needs a private `DOUGH_GITHUB_REQUEST_OWNER_ROOT` for the dev
+  server. A summary of retained files still flashes Partial for under a
+  second (O4).
+
 
 ## Concern evidence
 
@@ -400,3 +426,25 @@ slice-specific concern remains. Interim behavior: between slices 2 and 5,
 Intent can read pytest proof while Pygardon publishes none; a `python`
 location without `proof` keeps its honest absence wording, so this needs no
 replacing slice. The xdist premise is bounded by slice 5's first test.
+
+## Story obligations
+
+### O1. Parameter rows follow snapshot id order, not pytest's
+Reported: slice 6 — "the parameter rows come out as expected1 then expected0. That is the snapshot's sorted order (the comma sorts before the hyphen); `pytest -q` collects them as expected0 then expected1."
+Story clause: "rows in definition order"
+Disposition: owner changed "ordered by parameter id, since pytest's collection order is not recorded"
+
+### O2. Proof table headers and commits break inside words
+Reported: slice 6 — "Proof table columns squeeze into broken words at a 1400 px viewport when test names are long: 'Duratio/n', 'Observe/d', 'Commi/t', and the commit splits as 'ac093a/e'."
+Story clause: "a table headed Test case, Last successful proof"
+Disposition: proved by slice 6: dashboard/tests/intent-pytest-proof.spec.ts "long test case names wrap in their own column; headers and observed cells keep whole words, and on a phone only the table scrolls sideways" (`wordsBrokenApart` failed with Duration, Observed, Commit and commit cells before the CSS fix, passes after)
+
+### O3. Partial labelling says "1 files"
+Reported: slice 6 — "Wording 'across 0 of 1 files; 1 file reading': '1 files' is not pluralized correctly."
+Story clause: "Partial labelling while files read or failed"
+Disposition: proved by slice 6: dashboard/tests/intent-entry-folder-summary-partial.spec.ts step "a folder of one file still reading counts that file in the singular" ("0 of 1 file read", "across 0 of 1 file; 1 file reading"; red on the earlier wording)
+
+### O4. Partial flashes while retained files settle
+Reported: slice 6 — "re-selecting `tests/search_run` with every answer retained still showed Partial ('0 of 1 files; 1 file reading') on each child for under a second."
+Story clause: "Partial labelling while files read or failed"
+Disposition: no user cost "a location or folder summary gives the same figures as for": the shared summary shows the same sub-second Partial for Gherkin folders while retained file reads settle, and the complete figures follow without another request

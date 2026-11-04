@@ -15,6 +15,7 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
 import {
+  fileCount,
   immediateChildrenOf,
   inventoryTotalLine,
   proofCountLineFor,
@@ -156,7 +157,7 @@ export function IntentProofSummary({
       {coverage.pendingCount > 0 ? (
         <p className="intent-summary-progress quiet">
           {String(coverage.readyCount + coverage.failedCount)} of{" "}
-          {String(coverage.inventory)} files read
+          {fileCount(coverage.inventory)} read
         </p>
       ) : null}
       <p className="intent-summary-scenarios">

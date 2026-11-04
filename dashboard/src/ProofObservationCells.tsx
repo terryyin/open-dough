@@ -19,6 +19,14 @@ function outcomeOf({ attempts }: SuccessfulCaseObservation): string {
   return `${passedAfterRetry} (${tries})`;
 }
 
+// A case name with a line-break opportunity after each `_` and `::`, so a
+// long pytest name wraps between its words rather than inside them.
+function breakableName(name: string) {
+  return name
+    .split(/(?<=_|::)/)
+    .flatMap((part, at) => (at === 0 ? [part] : [<wbr key={at} />, part]));
+}
+
 export function CaseName({
   row,
   words,
@@ -28,7 +36,7 @@ export function CaseName({
 }) {
   return (
     <>
-      {row.name}
+      {breakableName(row.name)}
       {row.variant === undefined ? null : (
         <span className="intent-proof-example">
           {" "}

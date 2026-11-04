@@ -33,53 +33,55 @@ export function IntentSummarySlowest({
   if (rows.length === 0) return null;
   const prefix = `${path}/`;
   return (
-    <table
-      className="intent-proof-rows intent-summary-slowest"
-      aria-label={words.slowestCases}
-    >
-      <caption>{words.slowestCases}</caption>
-      <thead>
-        <tr>
-          <th scope="col">{words.caseHeader}</th>
-          <th scope="col">File</th>
-          {observedCellHeaders.map((header) => (
-            <th key={header} scope="col">
-              {header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(({ path: file, row, observation }) => (
-          <tr key={JSON.stringify([file, row.line, row.variant ?? null])}>
-            <th scope="row">
-              <button
-                type="button"
-                className="intent-open-link"
-                onClick={() => {
-                  onOpen({
-                    path: file,
-                    scope: "file",
-                    caseTarget: String(row.line),
-                  });
-                }}
-              >
-                <CaseName row={row} words={words} />
-              </button>
-            </th>
-            <td>
-              <code>
-                {file.startsWith(prefix) ? file.slice(prefix.length) : file}
-              </code>
-            </td>
-            <ObservedCells
-              observation={observation}
-              publishedBlob={fileBlobs[file]}
-              now={now}
-            />
+    <div className="intent-proof-table">
+      <table
+        className="intent-proof-rows intent-summary-slowest"
+        aria-label={words.slowestCases}
+      >
+        <caption>{words.slowestCases}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{words.caseHeader}</th>
+            <th scope="col">File</th>
+            {observedCellHeaders.map((header) => (
+              <th key={header} scope="col">
+                {header}
+              </th>
+            ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map(({ path: file, row, observation }) => (
+            <tr key={JSON.stringify([file, row.line, row.variant ?? null])}>
+              <th scope="row">
+                <button
+                  type="button"
+                  className="intent-open-link"
+                  onClick={() => {
+                    onOpen({
+                      path: file,
+                      scope: "file",
+                      caseTarget: String(row.line),
+                    });
+                  }}
+                >
+                  <CaseName row={row} words={words} />
+                </button>
+              </th>
+              <td className="intent-proof-file">
+                <code>
+                  {file.startsWith(prefix) ? file.slice(prefix.length) : file}
+                </code>
+              </td>
+              <ObservedCells
+                observation={observation}
+                publishedBlob={fileBlobs[file]}
+                now={now}
+              />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

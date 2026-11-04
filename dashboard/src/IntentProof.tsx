@@ -68,42 +68,47 @@ function ProofRows({
           )
         )}
       </p>
-      <table className="intent-proof-rows" aria-label={`${path} proof`}>
-        <thead>
-          <tr>
-            <th scope="col">{words.caseHeader}</th>
-            {observedCellHeaders.map((header) => (
-              <th key={header} scope="col">
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ row, observation }, at) => (
-            <tr key={at} ref={row.line === targetLine ? targetRow : undefined}>
-              <th scope="row">
-                <CaseName row={row} words={words} />
-              </th>
-              {observation === undefined ? (
-                <>
-                  <td>{noSuccessfulProof}</td>
-                  <td />
-                  <td />
-                  <td />
-                  <td />
-                </>
-              ) : (
-                <ObservedCells
-                  observation={observation}
-                  publishedBlob={publishedBlob}
-                  now={now}
-                />
-              )}
+      <div className="intent-proof-table">
+        <table className="intent-proof-rows" aria-label={`${path} proof`}>
+          <thead>
+            <tr>
+              <th scope="col">{words.caseHeader}</th>
+              {observedCellHeaders.map((header) => (
+                <th key={header} scope="col">
+                  {header}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map(({ row, observation }, at) => (
+              <tr
+                key={at}
+                ref={row.line === targetLine ? targetRow : undefined}
+              >
+                <th scope="row">
+                  <CaseName row={row} words={words} />
+                </th>
+                {observation === undefined ? (
+                  <>
+                    <td>{noSuccessfulProof}</td>
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                  </>
+                ) : (
+                  <ObservedCells
+                    observation={observation}
+                    publishedBlob={publishedBlob}
+                    now={now}
+                  />
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

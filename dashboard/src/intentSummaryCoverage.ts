@@ -17,6 +17,7 @@ import {
 } from "./proofCases.ts";
 import { proofCountLine } from "./proofCountLine.ts";
 import type { ProofKindWords } from "./proofKinds.ts";
+import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import {
   reviewFileOrder,
   reviewFileTree,
@@ -61,6 +62,11 @@ export function immediateChildrenOf(
   });
 }
 
+// A count of files, in the singular for one.
+export function fileCount(count: number): string {
+  return `${String(count)} ${intentFileCountWords(count)}`;
+}
+
 export function coverageClause(options: {
   readonly readyCount: number;
   readonly inventory: number;
@@ -68,17 +74,9 @@ export function coverageClause(options: {
   readonly failedCount: number;
 }): string {
   const { readyCount, inventory, pendingCount, failedCount } = options;
-  const parts = [`across ${String(readyCount)} of ${String(inventory)} files`];
-  if (pendingCount > 0) {
-    parts.push(
-      `${String(pendingCount)} ${pendingCount === 1 ? "file" : "files"} reading`,
-    );
-  }
-  if (failedCount > 0) {
-    parts.push(
-      `${String(failedCount)} ${failedCount === 1 ? "file" : "files"} unread`,
-    );
-  }
+  const parts = [`across ${String(readyCount)} of ${fileCount(inventory)}`];
+  if (pendingCount > 0) parts.push(`${fileCount(pendingCount)} reading`);
+  if (failedCount > 0) parts.push(`${fileCount(failedCount)} unread`);
   return parts.join("; ");
 }
 
