@@ -2,7 +2,7 @@
 // proof reuse the same absent-Proof wording as file Proof
 // (../src/IntentSummary.tsx, ../src/IntentProofAbsence.tsx). Gherkin without
 // proof still gives scenario statistics, including Partial totals. Companion
-// to ./intent-entry-folder-summaries.spec.ts caret/name selection coverage.
+// to ./intent-entry-folder-summaries.spec.ts toggle/name selection coverage.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";

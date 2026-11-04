@@ -25,7 +25,7 @@
 
 /* A folder's disclosure: its name, marked open or closed, and while
    collapsed how many changed files it holds. Intent's opt-in path splits
-   caret (`.story-review-folder`) and selectable name
+   folder-icon toggle (`.story-review-folder`) and selectable name
    (`.story-review-folder-name`) in one row. */
 .story-review-folder-row {
   display: flex;
@@ -52,21 +52,16 @@
   text-align: start;
 }
 
-.story-review-folder::before {
-  display: inline-block;
-  width: 1ch;
+/* The folder toggle's open or closed folder icon, sized to the row's text. */
+.story-review-folder .icon {
+  width: 1em;
+  height: 1em;
   margin-inline-end: 0.3rem;
-  content: "\25BE";
-  content: "\25BE" / "";
+  vertical-align: -0.125em;
 }
 
-.story-review-folder-row > .story-review-folder::before {
+.story-review-folder-row > .story-review-folder .icon {
   margin-inline-end: 0;
-}
-
-.story-review-folder[aria-expanded="false"]::before {
-  content: "\25B8";
-  content: "\25B8" / "";
 }
 
 .story-review-folder-count {

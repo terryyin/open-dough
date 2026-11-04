@@ -27,7 +27,7 @@ import {
   selectCompletedStoryInIntent,
 } from "./support/intentCompletedStory.ts";
 import {
-  folderCaret,
+  folderToggle,
   intentDiff,
   intentFile,
   lens,
@@ -110,7 +110,7 @@ test("Intent overlays a completed story's published history comparison, naming i
         expect(await nameStyle(file)).toEqual(expected);
       }
       // The unchanged folder stays in the whole tree only.
-      await expect(folderCaret(intent, "other", false)).toHaveCount(
+      await expect(folderToggle(intent, "other", false)).toHaveCount(
         only ? 0 : 1,
       );
       await expect(intent.locator(".intent-story-outside")).toHaveText(

@@ -11,12 +11,12 @@ Proof reading surface. When the selected project's
 `.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
 Intent lists each location's nested `.feature` files in a collapsible tree,
 whose folders start collapsed.
-Locations and folders share separate caret and name controls: a caret toggles
-expansion without changing the selection or the reading pane (Purpose, Proof,
+Locations and folders share separate toggle and name controls: a toggle, shown
+as an open or closed folder icon, opens or closes expansion without changing the selection or the reading pane (Purpose, Proof,
 or summary); clicking an unselected name selects that location or folder and
 shows its summary without changing expansion; clicking the selected name
 toggles expansion and keeps the selection and summary. Locations still allow
-only one open at a time via caret (or a selected name's toggle); selecting a
+only one open at a time via toggle (or a selected name's toggle); selecting a
 closed location's name leaves it closed and leaves any other open location
 open. Both controls are keyboard-operable, and a selected location or folder
 reads as pressed. Selecting a file still reads its exact published text with

@@ -19,7 +19,7 @@ import { shortRevision } from "./dashboardParts.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   background,
-  folderCaret,
+  folderToggle,
   folderItem,
   folderRow,
   intentDiff,
@@ -85,8 +85,8 @@ test("Intent highlights a selected Taken story's test changes over the published
       "false",
     );
     for (const name of ["arriving", "boundary", "out"])
-      await expect(folderCaret(intent, name, true)).toBeVisible();
-    await expect(folderCaret(intent, "other", false)).toBeVisible();
+      await expect(folderToggle(intent, name, true)).toBeVisible();
+    await expect(folderToggle(intent, "other", false)).toBeVisible();
     await expect(
       intentFile(intent, "dashboard/tests/other/c.spec.ts"),
     ).toBeHidden();

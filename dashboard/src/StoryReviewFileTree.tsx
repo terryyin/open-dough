@@ -1,16 +1,19 @@
 // Shared folder disclosure rows (`./reviewFileTree.ts`) and Review changes'
 // file row: each folder a disclosure that collapses and expands, a collapsed
 // folder telling how many files it holds in caller-supplied words, and each
-// file rendered by the caller. Review changes supplies its FileRow and
+// file rendered by the caller. A folder toggle shows an open or closed folder
+// icon (`FolderToggleIcon`), which Intent's location toggles share. Review changes supplies its FileRow and
 // "changed files" wording (`./StoryReviewFileRow.tsx`,
 // `./StoryReviewSnapshotView.tsx`). Intent may pass `folderSelection` so each
-// folder is a caret disclosure plus a selectable name; Review changes passes
+// folder is a folder-icon disclosure plus a selectable name; Review changes passes
 // nothing and keeps one disclosure row. Each file's row carries its change
 // kind (`data-kind`), and each folder whether it contains changes
 // (`data-contains-changes`), from the tree model (`./reviewFileTree.ts`); the
 // shared change-kind styles show the kind (`./change-kinds.css`).
 
 import { type ReactNode } from "react";
+import { FolderClosed, FolderOpen } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import type { PathBearing, PathTreeNode } from "./reviewFileTree.ts";
 import "./story-review-files.css";
 import "./change-kinds.css";
@@ -23,6 +26,12 @@ export {
   kindWords,
   reviewedFileWords,
 } from "./StoryReviewFileRow.tsx";
+
+// A folder toggle's visual: an open folder while expanded, closed while
+// collapsed. The toggle carries its name and expanded state.
+export function FolderToggleIcon({ open }: { readonly open: boolean }) {
+  return <Icon icon={open ? FolderOpen : FolderClosed} />;
+}
 
 function FolderCount({
   count,
@@ -42,7 +51,7 @@ function FolderCount({
   );
 }
 
-// Opt-in Intent path: caret toggles disclosure; name selects (or toggles
+// Opt-in Intent path: folder icon toggles disclosure; name selects (or toggles
 // when already selected). Review changes omits this and keeps one row.
 export type FolderSelection = {
   readonly selectedPath: string;
@@ -121,7 +130,9 @@ export function FileTree<T extends PathBearing>({
                   onClick={() => {
                     onToggle(node.path);
                   }}
-                />
+                >
+                  <FolderToggleIcon open={!folderCollapsed} />
+                </button>
                 <button
                   type="button"
                   className="story-review-folder-name"
@@ -164,6 +175,7 @@ export function FileTree<T extends PathBearing>({
                 onToggle(node.path);
               }}
             >
+              <FolderToggleIcon open={!folderCollapsed} />
               <code>{node.name}</code>
               {count}
             </button>

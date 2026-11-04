@@ -1,12 +1,12 @@
-// Intent location caret/name selection shows a summary page
+// Intent location toggle/name selection shows a summary page
 // (../src/IntentBrowser.tsx, ../src/IntentSummary.tsx,
-// ../src/IntentLocationGroup.tsx): caret toggles without moving selection;
+// ../src/IntentLocationGroup.tsx): toggle opens or closes without moving selection;
 // unselected name selects keeping open state; selected name toggles and
 // keeps selection; closed location name selects without opening. Gherkin
 // summaries give scenario totals, aggregate count lines, and child
 // breakdown. Partial coverage, unread retry, and unavailable totals:
 // ./intent-entry-folder-summary-partial.spec.ts. Folder controls, keyboard,
-// and caret reader preservation:
+// and toggle reader preservation:
 // ./intent-entry-folder-summaries-folders.spec.ts. Absent-Proof wording:
 // ./intent-entry-folder-summary-explanations.spec.ts. Review changes keeps
 // disclosure-only folders (./story-review-tree*.spec.ts).
@@ -28,7 +28,7 @@ import {
   pygardonSettings,
 } from "./intentEntryFolderSummariesFixtures.ts";
 
-test("Intent location caret/name select a summary without opening on first name click", async ({
+test("Intent location toggle/name select a summary without opening on first name click", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -44,11 +44,11 @@ test("Intent location caret/name select a summary without opening on first name 
   await intentChoice.click();
 
   await test.step("unselected location name selects without opening; summary names path and file count", async () => {
-    const caret = intentGroupToggle(intent, featuresPath);
+    const toggle = intentGroupToggle(intent, featuresPath);
     const name = intentLocationName(intent, featuresPath);
-    await expect(caret).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await name.click();
-    await expect(caret).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await expect(name).toHaveAttribute("aria-pressed", "true");
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText(featuresPath);
@@ -58,20 +58,20 @@ test("Intent location caret/name select a summary without opening on first name 
     );
   });
 
-  await test.step("location caret toggles without moving selection; selected name toggles and keeps summary", async () => {
-    const caret = intentGroupToggle(intent, featuresPath);
+  await test.step("location toggle opens or closes without moving selection; selected name toggles and keeps summary", async () => {
+    const toggle = intentGroupToggle(intent, featuresPath);
     const name = intentLocationName(intent, featuresPath);
     const summary = intent.getByRole("region", { name: "Summary" });
-    await caret.click();
-    await expect(caret).toHaveAttribute("aria-expanded", "true");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect(name).toHaveAttribute("aria-pressed", "true");
     await expect(summary).toContainText(featuresPath);
     await name.click();
-    await expect(caret).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await expect(name).toHaveAttribute("aria-pressed", "true");
     await expect(summary).toContainText("4 files");
     await name.click();
-    await expect(caret).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect(summary).toContainText(featuresPath);
   });
 

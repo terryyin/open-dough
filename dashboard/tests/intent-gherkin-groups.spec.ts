@@ -1,7 +1,7 @@
 // Intent location groups expand exclusively
 // (../src/IntentPerspective.tsx): start collapsed, one open body at a time,
-// all-closed reachable, Purpose survives caret collapse, empty/unsupported
-// bodies participate, and nested folder caret disclosure stays local to the
+// all-closed reachable, Purpose survives toggle collapse, empty/unsupported
+// bodies participate, and nested folder toggle disclosure stays local to the
 // open group.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -134,11 +134,11 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     await expect(intent).toContainText("Kind java is not yet supported.");
   });
 
-  await test.step("nested folder caret toggles without collapsing the Intent group", async () => {
+  await test.step("nested folder toggle opens or closes without collapsing the Intent group", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
-    const caret = intent.getByRole("button", { name: "Collapse recall" });
-    await expect(caret).toHaveAttribute("aria-expanded", "true");
-    await caret.click();
+    const toggle = intent.getByRole("button", { name: "Collapse recall" });
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await toggle.click();
     await expect(
       intent.getByRole("button", { name: "Expand recall" }),
     ).toHaveAttribute("aria-expanded", "false");

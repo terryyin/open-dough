@@ -1,7 +1,7 @@
 // One configured Intent location as an expandable group
-// (`./IntentBrowser.tsx`): caret discloses the body without changing
+// (`./IntentBrowser.tsx`): a folder-icon toggle discloses the body without changing
 // selection; the name selects the location (and toggles once selected).
-// Nested folders use the shared FileTree's opt-in caret + selectable name.
+// Nested folders use the shared FileTree's opt-in folder-icon toggle + selectable name.
 // Which folders are open is `./useLocationOpenFolders.ts`'s; a `reveal`
 // request inside the location also scrolls the selected row into view. A
 // selected story's overlay (`./intentStoryOverlay.ts`) supplies the files with
@@ -21,7 +21,11 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import { reviewFileTree } from "./reviewFileTree.ts";
-import { FileTree, reviewedFileWords } from "./StoryReviewFileTree.tsx";
+import {
+  FileTree,
+  FolderToggleIcon,
+  reviewedFileWords,
+} from "./StoryReviewFileTree.tsx";
 import {
   useLocationOpenFolders,
   type LocationExpansion,
@@ -151,7 +155,9 @@ export function IntentLocationGroup({
           aria-controls={bodyId}
           aria-label={`${expanded ? "Collapse" : "Expand"} ${location.path}`}
           onClick={onToggle}
-        />
+        >
+          <FolderToggleIcon open={expanded} />
+        </button>
         <button
           type="button"
           id={`${idPrefix}-heading`}

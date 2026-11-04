@@ -22,7 +22,7 @@ import {
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { folderCaret } from "./support/intentStoryPage.ts";
+import { folderToggle } from "./support/intentStoryPage.ts";
 import {
   doughnut,
   featuresPath,
@@ -125,7 +125,7 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
 
   await test.step("10.1 and 10.5: with cli collapsed, Space on a file name from cli's summary un-collapses cli to show it", async () => {
     await intentFolderName(intent, "cli").click();
-    await folderCaret(intent, "cli", true).click();
+    await folderToggle(intent, "cli", true).click();
     await expect(fileName(intent, notebookPath)).toHaveCount(0);
     await expect(intentFolderName(intent, "cli")).toHaveAttribute(
       "aria-pressed",
@@ -143,8 +143,8 @@ test("16.1, 16.2: child names select their folder or file as the tree does and r
     );
   });
 
-  await test.step("13.3: a caret alone still toggles without selecting", async () => {
-    await folderCaret(intent, "cli", true).click();
+  await test.step("13.3: a toggle alone still toggles without selecting", async () => {
+    await folderToggle(intent, "cli", true).click();
     await expect(fileName(intent, notebookPath)).toHaveCount(0);
     await expect(intent.getByLabel(`${notebookPath} source`)).toBeVisible();
     await expect(intentFolderName(intent, "cli")).toHaveAttribute(
@@ -162,7 +162,7 @@ test("17, 10.4: a slowest outline row opens its file with Purpose on that Exampl
   // Every folder starts collapsed: open the location to see cli collapsed,
   // then close it, so the reveal must open the location and un-collapse cli.
   await toggle.click();
-  await expect(folderCaret(intent, "cli", false)).toBeVisible();
+  await expect(folderToggle(intent, "cli", false)).toBeVisible();
   await toggle.click();
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
 

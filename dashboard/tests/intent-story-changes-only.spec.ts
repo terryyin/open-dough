@@ -14,7 +14,7 @@ import { intentGroupToggle } from "./intentPerspectivePage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
-  folderCaret,
+  folderToggle,
   folderRow,
   intentFile,
   lens,
@@ -45,7 +45,7 @@ async function expectStoryExpansion(intent: Locator) {
     "false",
   );
   for (const name of ["arriving", "boundary", "out"])
-    await expect(folderCaret(intent, name, true)).toBeVisible();
+    await expect(folderToggle(intent, name, true)).toBeVisible();
 }
 
 test("Selected story only shows just the story's changed files, expanded, and off again the whole tree with its changed folders open", async ({
@@ -60,8 +60,8 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await test.step("on, only the changed files and their folders remain, expanded", async () => {
     await expect(toggle).not.toBeChecked();
     // Arranged by hand, which the toggle's expansion replaces.
-    await folderCaret(intent, "boundary", true).click();
-    await folderCaret(intent, "other", false).click();
+    await folderToggle(intent, "boundary", true).click();
+    await folderToggle(intent, "other", false).click();
     await toggle.check();
     await expectStoryExpansion(intent);
     for (const name of changedInFirstLocation)
@@ -76,10 +76,10 @@ test("Selected story only shows just the story's changed files, expanded, and of
   });
 
   await test.step("off, the whole tree shows with changed folders open and the rest collapsed", async () => {
-    await folderCaret(intent, "out", true).click();
+    await folderToggle(intent, "out", true).click();
     await toggle.uncheck();
     await expectStoryExpansion(intent);
-    await expect(folderCaret(intent, "other", false)).toBeVisible();
+    await expect(folderToggle(intent, "other", false)).toBeVisible();
     await expect(intentFile(intent, kept)).toBeVisible();
     await expect(intentFile(intent, other)).toBeHidden();
     for (const name of changedInFirstLocation)
@@ -87,7 +87,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   });
 
   await test.step("a story selected while Intent is hidden applies when Intent opens, the toggle off", async () => {
-    await folderCaret(intent, "other", false).click();
+    await folderToggle(intent, "other", false).click();
     await toggle.check();
     const { development, intentChoice, backlog } = parts(page);
     await development.click();
@@ -110,7 +110,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(toggle).not.toBeChecked();
     await expectStoryExpansion(intent);
-    await expect(folderCaret(intent, "other", false)).toBeVisible();
+    await expect(folderToggle(intent, "other", false)).toBeVisible();
     await expect(intentFile(intent, kept)).toBeVisible();
   });
 });

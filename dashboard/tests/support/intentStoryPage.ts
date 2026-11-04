@@ -63,14 +63,14 @@ export const intentFile = (intent: Locator, name: string) =>
     .locator(".intent-locations")
     .getByRole("button", { name, exact: true });
 
-// A folder's caret in Intent, by the folder's name and whether it is open.
-export const folderCaret = (intent: Locator, name: string, open: boolean) =>
+// A folder's toggle in Intent, by the folder's name and whether it is open.
+export const folderToggle = (intent: Locator, name: string, open: boolean) =>
   intent.getByRole("button", {
     name: `${open ? "Collapse" : "Expand"} ${name}`,
     exact: true,
   });
 
-// A folder's row (caret and name) in Intent, and the list item it heads,
+// A folder's row (toggle and name) in Intent, and the list item it heads,
 // which carries the contains-changes mark.
 export const folderRow = (intent: Locator, name: string) =>
   intent.locator(".story-review-folder-row").filter({

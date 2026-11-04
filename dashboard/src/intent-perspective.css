@@ -104,7 +104,7 @@
   padding: var(--space-2) var(--space-3);
 }
 
-/* Location caret + selectable name (same split as Intent folder rows). */
+/* Location folder-icon toggle + selectable name (same split as Intent folder rows). */
 .intent-location-header {
   display: flex;
   align-items: baseline;
@@ -125,16 +125,10 @@
   cursor: pointer;
 }
 
-.intent-location-toggle::before {
-  display: inline-block;
-  width: 1ch;
-  content: "\25BE";
-  content: "\25BE" / "";
-}
-
-.intent-location-toggle[aria-expanded="false"]::before {
-  content: "\25B8";
-  content: "\25B8" / "";
+.intent-location-toggle .icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
 }
 
 .intent-location-name {

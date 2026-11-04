@@ -1,6 +1,6 @@
-// Intent folder caret/name selection, keyboard operation, and caret reader
+// Intent folder toggle/name selection, keyboard operation, and toggle reader
 // preservation (../src/StoryReviewFileTree.tsx, ../src/IntentBrowser.tsx).
-// Location caret/name: ./intent-entry-folder-summaries.spec.ts.
+// Location toggle/name: ./intent-entry-folder-summaries.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -28,7 +28,7 @@ import {
   topFeaturePath,
 } from "./intentEntryFolderSummariesFixtures.ts";
 
-test("Intent folder caret/name, keyboard, and location caret preserve the reader", async ({
+test("Intent folder toggle/name, keyboard, and location toggle preserve the reader", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -62,11 +62,11 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
 
   await intentLocationName(intent, featuresPath).click();
 
-  await test.step("folder caret toggles without moving selection", async () => {
+  await test.step("folder toggle opens or closes without moving selection", async () => {
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText(featuresPath);
-    const caret = intent.getByRole("button", { name: "Collapse jobs" });
-    await caret.click();
+    const toggle = intent.getByRole("button", { name: "Collapse jobs" });
+    await toggle.click();
     await expect(
       intent.getByRole("button", { name: "Expand jobs" }),
     ).toHaveAttribute("aria-expanded", "false");
@@ -150,19 +150,19 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
   });
 
   await test.step("location and folder controls work by keyboard", async () => {
-    const locationCaret = intentGroupToggle(intent, featuresPath);
-    await locationCaret.press("Enter");
-    await expect(locationCaret).toHaveAttribute("aria-expanded", "false");
-    await locationCaret.press(" ");
-    await expect(locationCaret).toHaveAttribute("aria-expanded", "true");
+    const locationToggle = intentGroupToggle(intent, featuresPath);
+    await locationToggle.press("Enter");
+    await expect(locationToggle).toHaveAttribute("aria-expanded", "false");
+    await locationToggle.press(" ");
+    await expect(locationToggle).toHaveAttribute("aria-expanded", "true");
     await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
       reportsFolder,
     );
 
-    const folderCaret = intent.getByRole("button", {
+    const folderToggle = intent.getByRole("button", {
       name: "Collapse reports",
     });
-    await folderCaret.press("Enter");
+    await folderToggle.press("Enter");
     await expect(
       intent.getByRole("button", { name: "Expand reports" }),
     ).toHaveAttribute("aria-expanded", "false");
@@ -193,7 +193,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
     );
   });
 
-  await test.step("file Purpose and Proof; E10 caret opens another location without changing reader; E11 closed original name selects summary", async () => {
+  await test.step("file Purpose and Proof; E10 toggle opens another location without changing reader; E11 closed original name selects summary", async () => {
     await expandIntentGroup(intent, featuresPath);
     await intent.getByRole("button", { name: stooqPath, exact: true }).click();
     const source = intent.getByLabel(`${stooqPath} source`);
@@ -208,7 +208,7 @@ test("Intent folder caret/name, keyboard, and location caret preserve the reader
       intent.getByRole("button", { name: stooqPath, exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
 
-    // E10: open a different location by caret; Purpose/Proof stay on the file.
+    // E10: open a different location by toggle; Purpose/Proof stay on the file.
     await intentGroupToggle(intent, packagedPath).click();
     await expect(intentGroupToggle(intent, packagedPath)).toHaveAttribute(
       "aria-expanded",
