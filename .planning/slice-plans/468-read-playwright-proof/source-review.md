@@ -10,7 +10,7 @@ commitments with compound items given own ids.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G | Goal: published Playwright reference, dashboard declaration, quiet reporter + shared store, Intent shows last successful committed proof by describe path, summaries match other runners | slice 4 | |
+| G | Goal: published Playwright reference, dashboard declaration, quiet reporter + shared store, Intent shows last successful committed proof by describe path, summaries match other runners | slice 4 | observed: Slices 1–3 delivered; Intent locations+observedRowsOf at tip 25076885 show playwright proof beside dashboard specs |
 | 1 | Open Dough publishes `src/skills/dough-test-optimization/references/playwright-proof.md` | slice 1 | observed: src/skills/dough-test-optimization/references/playwright-proof.md exists (new file, 302 lines) |
 | 1a | That reference is linked from `dough-test-optimization` like Cucumber, pytest, Vitest and `node:test` | slice 1 | observed: src/skills/dough-test-optimization/SKILL.md links Playwright proof beside Cucumber/pytest/Vitest |
 | 1b | That reference is declared by `install.sh` | slice 1 | observed: install.sh declares dough-test-optimization/references/playwright-proof.md |
@@ -132,9 +132,9 @@ commitments with compound items given own ids.
 | 14b | `proof` declared (e.g. `dashboard/tests/proof`) | slice 2 | observed: open-dough.json proof dashboard/tests/proof |
 | 14c | Real recording command declared | slice 2 | observed: open-dough.json proofGeneration recording command |
 | 14d | One explicit focused recording run committed as first snapshot | slice 2 | observed: dashboard/tests/proof/latest.json first focused snapshot |
-| 15a | Intent shows recorded files' rows and a folder summary | slice 4 | |
-| 15b | Root summary opened once with read time and GitHub request count as learning | slice 4 | |
-| 15c | Terry evaluates against quiet reporter output plus editor | slice 4 | |
+| 15a | Intent shows recorded files' rows and a folder summary | slice 4 | observed: intent=locations + observedRowsOf: 3 touch reading rows proved; quiet 0 listed; boundary 266 specs |
+| 15b | Root summary opened once with read time and GitHub request count as learning | slice 4 | observed: Cold intent=locations ~4830ms, 1 HTTP locations request, 720 files; learning recorded under plan slice 4 |
+| 15c | Terry evaluates against quiet reporter output plus editor | slice 4 | observed: Agent first-look evidence recorded in plan; Terry quiet-reporter+editor product judgment deferred to execution-complete after trunk Intent carries the tip |
 | 16a | `docs/dashboard-development-intent.md` describes playwright Proof | slice 3 | observed: docs/dashboard-development-intent.md playwright beside Vitest |
 | 16b | README and proof-record.md distinguish run transcript vs committed Proof | slice 2 | observed: dashboard/tests/README.md and proof-record.md distinguish records |
 | 16c | Reference linked where the others are | slice 1 | observed: SKILL.md and install.sh link/declare the reference where the others are |
