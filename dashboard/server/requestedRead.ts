@@ -71,15 +71,17 @@ export type RequestedRead =
       readonly onBranch?: OnBranch;
     };
 
-// At most this many story branches are watched by one check: far more than
-// a project's Taken entries.
+// At most this many story branches are watched by one check or stream: far
+// more than a project's Taken entries. Shared with
+// `./requestedRevisionStream.ts`.
 const watchedBranchLimit = 100;
 
-function parseWatchedBranches(
+export function parseWatchedBranches(
   watched: readonly string[],
+  purpose: "revision check" | "revision stream",
 ): readonly string[] | RefusedParameters {
   if (watched.length > watchedBranchLimit) {
-    return refused("A revision check watches too many branches.");
+    return refused(`A ${purpose} watches too many branches.`);
   }
   if (!watched.every(isSafeBranchName)) {
     return refused("A watched branch name is not usable.");
@@ -199,7 +201,7 @@ export function parseRequestedRead(
     if (!commitShaPattern.test(since)) {
       return refused("The revision already shown is not a commit sha.");
     }
-    const watched = parseWatchedBranches(watch);
+    const watched = parseWatchedBranches(watch, "revision check");
     return "kind" in watched
       ? watched
       : { kind: "revision-check", since, watched };

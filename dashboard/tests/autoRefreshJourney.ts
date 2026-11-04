@@ -97,6 +97,14 @@ export function headsCheckArgv(
 // which the page asked for it has passed.
 const pageTimeStepMs = 250;
 
+// Advances the page clock in small steps so timers armed for `ms` of page
+// time can fire (silence, reopen, rate-limit waits) without waiting wall time.
+export async function passPageMs(page: Page, ms: number): Promise<void> {
+  for (let passed = 0; passed < ms; passed += pageTimeStepMs) {
+    await page.clock.runFor(Math.min(pageTimeStepMs, ms - passed));
+  }
+}
+
 // Lets page time pass in small steps until the page asks for the next
 // revision check, without waiting for its answer. Says how much page time
 // passed before the check was asked.

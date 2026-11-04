@@ -33,11 +33,20 @@ that asked, and another process's answers serve only a commit this process
 heard GitHub name in this run, as the ref, in a check, or as a branch head; a
 read at any other commit asks GitHub as before. A record
 GitHub answered as missing, or that could not be read, is asked for again. While a snapshot
-is shown and the page is visible, it also asks every 15 seconds whether the
-project's configured ref still names the shown revision -- one conditional listing of
-every published branch head, which GitHub answers with `304 Not Modified` when
-no branch moved, so an unchanged ref reads no backlog or record and changes
-neither the revision nor the retrieval time. When the configured ref names a new commit,
+is shown and the page is visible, it follows whether the project's configured
+ref still names the shown revision. On a route whose navigation protocol is
+`h2` or `h3`, every visible settled page holds a server-sent event stream to
+the local read boundary for its shown revision and watched story branches
+(`at`, not a recurring `since` check). On any other route (including loopback
+HTTP/1.1), at most two pages of one browser hold such a stream at once; a
+visible page without a free stream slot keeps today's recurring revision
+check every 15 seconds. While any stream for a project and request-owner
+scope is open, the dashboard process observes origin once per that same
+15-second pace and answers each open stream in the revision-check shape,
+sharing one conditional listing of every published branch head across those
+streams. GitHub answers an unchanged listing with `304 Not Modified`, so an
+unchanged ref reads no backlog or record and changes neither the revision nor
+the retrieval time. When the configured ref names a new commit,
 the page reads exactly that commit, so newly published work appears within
 about 30 seconds. Its backlog is read there directly, so its cards appear
 without waiting on anything else, while the details that follow may reuse
@@ -60,27 +69,39 @@ most 300 files), or the comparison fails other than by a rate limit, the new com
 entry's Story Branch Mode profile records and that names a new head (or is no
 longer published) has only that entry's plan and its last commit time read
 again at the new head; any other branch moving reads nothing. A hidden page (another tab,
-a minimized window) asks nothing and abandons a check under way; when it is
-seen again it checks once at once, then resumes the 15-second pace. Each read
-settles on one revision's facts. A new revision's membership and order show as
-soon as its backlog is read; a story it still lists keeps what the page showed
-for each part, the agent roster and Recently done included, until that
-revision answers for that part, so unchanged work neither blanks nor moves,
-while a story new to the backlog reads as on a first visit. No local
-checkout, unpushed change, or running agent is a source of what it shows:
-Taken means recorded as taken, not that anyone is working now.
+a minimized window) asks nothing, closes its stream when it held one, and
+abandons a check under way; when it is seen again a streaming page opens its
+stream again (the first answer is the catch-up), and a checking page checks
+once at once, then resumes the 15-second pace. Hiding or closing a stream
+holder frees its slot so a queued checking page on a capped route can take
+over and stream. A stream that fails, closes, or stays silent longer than one
+15-second pace plus the 30-second read wait bound is reported as a failed
+check is today (snapshot kept; problem says freshness was lost); the page
+closes that EventSource itself, reopens no more often than the pace, and
+clears the problem on the first answer after a reopen. A rate-limited stream
+answer starts today's limit record and notice, closes the stream, and asks
+nothing until that time, then reopens. Each read settles on one revision's
+facts. A new revision's membership and order show as soon as its backlog is
+read; a story it still lists keeps what the page showed for each part, the
+agent roster and Recently done included, until that revision answers for that
+part, so unchanged work neither blanks nor moves, while a story new to the
+backlog reads as on a first visit. No local checkout, unpushed change, or running
+agent is a source of what it shows: Taken means recorded as taken, not that anyone
+is working now.
 
 Pages served by one dashboard process share what they ask GitHub: a request
 that needs an answer another request already waits for waits on that same
 `gh` request instead of asking again. Two tabs opening one project together
-resolve its ref once and read each record once, and revision checks from pages
-showing different revisions or watching different branches share one
-branch-head listing, each learning its own answer. Each page still shows what
-it would have read alone, under its own observation, and a shared resolution
-of the ref answers when GitHub was asked. A page that closes, is hidden, or
-switches project stops waiting without ending a read another page still waits
-for; the last one leaving ends it, as closing the dashboard does. A finished
-ref or branch-head answer is never reused: a later open or check asks again.
+resolve its ref once and read each record once, and revision checks or open
+revision streams from pages showing different revisions or watching different
+branches share one branch-head listing, each learning its own answer. Each
+page still shows what it would have read alone, under its own observation, and
+a shared resolution of the ref answers when GitHub was asked. A page that
+closes, is hidden, or switches project stops waiting without ending a read
+another page still waits for; the last one leaving ends it, as closing the
+dashboard does. The last open stream for a project and scope ending also ends
+that scope's paced observation. A finished ref or branch-head answer is never
+reused: a later open, check, or stream tick asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it
 alike, so a page that joined it late can be told so sooner than 30 seconds
@@ -225,29 +246,5 @@ project and missing or inaccessible file, without CLI advice or a full hash.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, reload the page (or, with a snapshot shown, let the next check find it).
-The dashboard never logs in on its own.
-
-On the launching machine, a maintainer can inspect the newest failed upstream
-reads without a diagnostics screen. Same-origin loopback
-`GET /__authenticated-read-diagnostics?source=<configured-id>` returns that
-configured source's entries from the newest 100 failures kept in memory for
-this dashboard process (oldest dropped), and those this user's dashboard
-processes kept in the bounded incident record that outlives each of them
-([Dashboard GitHub requests](GITHUB-REQUESTS.md)), and asks GitHub nothing. Unknown
-sources and disallowed origins or methods are refused before any GitHub call,
-under the same local-origin protections as the read boundary. Each shared `gh`
-invocation that failed contributes one entry, attributed to the admitted reader
-that started it — not one per waiter — with time, configured source id, fixed
-request category, pinned revision when the request already knew one, failure
-classification, elapsed time from when that invocation started, and, only when
-GitHub answered, HTTP status, GitHub request id, and validated rate-limit
-limit/remaining/reset/resource and Retry-After values. Each textual metadata
-field is at most 256 characters; numeric values are finite nonnegative safe
-integers. Credentials, request or response bodies, raw CLI output, arbitrary
-headers, and caller-supplied command or path text are never retained or
-returned. A read held back by admission stays identifiable in the ordinary
-limited response and does not invent an upstream diagnostic event; a local
-deadline or lost connection records its cause without inventing a GitHub status
-or request id. Ordinary waiter departure is not recorded as a retryable
-failure. A newly started dashboard has an empty in-memory history; its
-record lists what earlier processes recorded.
+The dashboard never logs in on its own. Failed-read inspection, diagnostics response
+shape, field bounds, and what is never retained are in [Dashboard read diagnostics](READ-DIAGNOSTICS.md).

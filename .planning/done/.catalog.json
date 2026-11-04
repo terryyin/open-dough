@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-232_see-published-changes-over-sse.json",
+      "identity": "SEED-232#see-published-changes-over-sse",
+      "completedAt": "2026-11-04T22:31:23.047Z",
+      "blob": "73f3b417161954c54d9f87d5e3c44994ca8a6d46"
+    },
+    {
       "fileName": "SEED-192_read-playwright-proof.json",
       "identity": "SEED-192#read-playwright-proof",
       "completedAt": "2026-11-04T20:24:51.512Z",

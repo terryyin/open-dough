@@ -18,7 +18,7 @@ import { unrecordedBranch } from "./performedBranchRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RequestedRead } from "./requestedRead.ts";
-import type { RevisionChecks } from "./revisionChecks.ts";
+import type { CheckedHeads, RevisionChecks } from "./revisionChecks.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 type CheckReaders = {
@@ -32,6 +32,9 @@ export async function performRevisionCheck(
   source: PublishedSource,
   { since, watched }: Extract<RequestedRead, { kind: "revision-check" }>,
   signal: AbortSignal,
+  // A listing this process already settled for the same source and scope; a
+  // revision stream tick shares one across every open stream.
+  listing?: CheckedHeads,
 ): Promise<Outcome> {
   for (const branch of watched) {
     const recorded = await branchRecordedAtRevision(
@@ -45,7 +48,7 @@ export async function performRevisionCheck(
       return unrecordedBranch;
     }
   }
-  const { revision, heads } = await checks.check(source, signal);
+  const { revision, heads } = listing ?? (await checks.check(source, signal));
   pinned.namedByRef(source, revision);
   const checked = { revision, changed: revision !== since };
   if (heads === undefined) {

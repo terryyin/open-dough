@@ -20,14 +20,16 @@ import {
 import type { RepositoryAnswerer } from "./fakeGitHub.ts";
 import { defaultPassingBaseCi } from "./baseCiActions.ts";
 
-// Answers `revision` for any ref, and as the only branch head `main` of a
-// head listing; for any content read, the named file in
-// `files` or else `backlog`; for a directory listing, the `files` in that
-// directory; and for a path's commit list, the commits `history` lists for
-// it, or else its time in `committed`, as many as it asks for, each listed
-// commit answering for its own change to that path; a published agent
-// profile nothing else dates was added by a commit of its own
-// (../pathHistoryAnswers.ts).
+// Answers `revision` for any ref, and as the only branch head the published
+// default branch (`main` when unset) of a head listing — so a revision
+// check or stream that looks the configured ref up in that listing finds the
+// same branch `repository.default_branch` named; for any content read, the
+// named file in `files` or else `backlog`; for a directory listing, the
+// `files` in that directory; and for a path's commit list, the commits
+// `history` lists for it, or else its time in `committed`, as many as it
+// asks for, each listed commit answering for its own change to that path; a
+// published agent profile nothing else dates was added by a commit of its
+// own (../pathHistoryAnswers.ts).
 export function publishes(published: {
   readonly revision: string;
   readonly defaultBranch?: string;
@@ -71,7 +73,7 @@ export function publishes(published: {
       return Promise.resolve(commitAnswer(published.revision));
     }
     if (request.kind === "matching-refs") {
-      return Promise.resolve(headsAnswer({ main: published.revision }));
+      return Promise.resolve(headsAnswer({ [branch]: published.revision }));
     }
     if (request.kind === "content") {
       const { files, backlog } = published;

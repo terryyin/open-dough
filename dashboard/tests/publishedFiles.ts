@@ -8,6 +8,7 @@ import {
   branchRefAnswer,
   commitAnswer,
   headsAnswer,
+  httpErrorAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -30,36 +31,19 @@ import { observe, type ObservedRequest } from "./originObservation.ts";
 import { isCiJudgmentCall, type CiAnswerer } from "./support/baseCiActions.ts";
 import { isActionsRequest } from "./support/ghActionsRequest.ts";
 
-// A repository whose configured ref (default `main`) names one revision at which these files are
-// published: every contents read at that revision is observed and answered
-// with the file's bytes, or not-found for any other path, and a directory
-// listing with the published files directly in that directory. A commit list
-// for a path at that revision is observed and answered with the commit time
-// `committed` gives that path, or with the commits `history` lists for it,
-// as many as it asks for, each of which answers for its own change to that
-// path; a published agent profile nothing else dates was added by a commit of
-// its own (./pathHistoryAnswers.ts); for any other path GitHub's empty commit
-// list answers (established absence), not a lost connection.
-// Each of `branches` is a published branch head, answered and observed the
-// same way at its own revision; any other branch is not published. Each of
-// `unanswered` is listed in its directory, but reading it fails as a lost
-// connection would. A check
-// lists the configured ref and every published branch head; checks are answered but not
-// observed (./originObservation.ts). A comparison is answered from the ref's
-// moves (`refMoveComparisons`, ./comparisonAnswers.ts) and observed unless it
-// has no connection; each commit a move was made by answers with every file it
-// changed. While comparisons are held, each one asked is observed at once
-// and answered only once they are released. Once CI is served, the selected
-// check's Actions answers and the history listing of a branch by its name
-// (`commits?sha=<branch>`, no path) are answered by it first, each observed;
-// until then they have no answer.
+// Configured ref (default `main`) names one revision of these published files:
+// contents, directory listings, and path commit lists/history answer as origin
+// would (./pathHistoryAnswers.ts); unanswered paths list but fail as a lost
+// connection; checks list the ref and branch heads without observation
+// (./originObservation.ts); comparisons follow ref moves
+// (./comparisonAnswers.ts) and may be held; once CI is served, Actions and
+// branch-by-name history answer through it first.
 export type PublishedRevision = {
   readonly revision: string;
   readonly files: Readonly<Record<string, string>>;
   readonly unanswered?: readonly string[];
   readonly committed?: Readonly<Record<string, Date>>;
-  // Each path's history as of this revision, newest first; null when it is
-  // not published.
+  // Newest-first path history at this revision; null when not published.
   readonly history?: PathHistories;
 };
 
@@ -81,10 +65,10 @@ export type MovingFiles = {
   moveBranch(branch: string, at: PublishedRevision | undefined): void;
   // Holds every comparison asked from now on until the returned release.
   holdComparisons(): () => void;
-  // Answers CI judgment calls (Actions workflow and runs, and a branch's
-  // history by name) with `answer` from now on; undefined leaves a call to
-  // the published files.
+  // Answers CI judgment calls from now on; undefined leaves them to published files.
   serveCi(answer: CiAnswerer): void;
+  // Branch-head listings fail with HTTP 504 until restored (ref alone still answers).
+  failListing(): () => void;
 };
 
 export function publishMovingFiles(
@@ -106,6 +90,7 @@ export function publishMovingFiles(
   const madeCommits = new Map<string, MadeCommit>();
   let comparisonsHeld: Promise<void> = Promise.resolve();
   let ci: CiAnswerer | undefined;
+  let listingFails = false;
   githubFor(page).serve(repository, async (call) => {
     const { request } = call;
     if (ci !== undefined && isCiJudgmentCall(call)) {
@@ -127,6 +112,9 @@ export function publishMovingFiles(
     }
     if (request.kind === "matching-refs") {
       observe(requests, call);
+      if (listingFails) {
+        return Promise.resolve(httpErrorAnswer(504, "Server Error"));
+      }
       return Promise.resolve(
         headsAnswer({
           ...Object.fromEntries(
@@ -231,6 +219,12 @@ export function publishMovingFiles(
       }
       branches.set(branch, at);
       revisions.push(at);
+    },
+    failListing() {
+      listingFails = true;
+      return () => {
+        listingFails = false;
+      };
     },
   };
 }
