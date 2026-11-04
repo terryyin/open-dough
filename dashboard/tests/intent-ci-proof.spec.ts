@@ -6,7 +6,8 @@
 // own, served as a real zip from the run's artifact download through the
 // controlled `gh` (./support/ciProofArtifacts.ts). Each other reason no
 // proof can be shown, a running result's ancestor proof and the per-attempt
-// memory: ./intent-ci-proof-reasons.spec.ts.
+// memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals of
+// `parseIntentCiProofRead`: ../../tests/support/dashboard-ci-proof-parse.test.mjs.
 
 import { expect, test } from "./dashboardTest.ts";
 import { judged, runUrl } from "./intentCiStatusPage.ts";
@@ -106,25 +107,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
   ]);
 });
 
-test("a run without a summary says so under Proof, and the verdict reads the same", async ({
-  page,
-}) => {
-  const { panel, proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, undefined),
-    () => ({ status: 404, contentType: "application/json", body: "{}" }),
-  );
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-    "Attempt 1 of run 41 at a1b2c3d.",
-  );
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText(
-    "This run published no CI proof summary.",
-  );
-  await expect(proof.getByRole("listitem")).toHaveCount(0);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
-});
-
-test("the CI proof read names one run, its attempt and its revision, and refuses anything else before asking GitHub", async ({
+test("a CI proof query that omits the attempt is refused before asking GitHub", async ({
   page,
 }) => {
   const { published, proof } = await openFailedRun(
@@ -134,33 +117,14 @@ test("the CI proof read names one run, its attempt and its revision, and refuses
   );
   // The page's own proof read has settled before any is counted.
   await expect(proof.locator(".intent-ci-proof-unavailable")).toBeVisible();
-  const ask = (query: string) =>
-    page.evaluate(async (url) => {
-      const response = await fetch(url);
-      return {
-        status: response.status,
-        body: (await response.json()) as unknown,
-      };
-    }, `${authenticatedReadEndpoint}?source=open-dough&intent=ci-proof&${query}`);
   const before = published.requests.length;
-  for (const query of [
-    `run=41&revision=${judged}`,
-    `run=0&attempt=1&revision=${judged}`,
-    `run=4.1&attempt=1&revision=${judged}`,
-    "run=41&attempt=1&revision=main",
-    `run=41&run=42&attempt=1&revision=${judged}`,
-    `run=41&attempt=1&revision=${judged}&judged=main`,
-    `run=41&attempt=1&revision=${judged}&path=tests`,
-  ]) {
-    expect((await ask(query)).status, query).toBe(400);
-  }
+  const answer = await page.evaluate(async (url) => {
+    const response = await fetch(url);
+    return {
+      status: response.status,
+      body: (await response.json()) as unknown,
+    };
+  }, `${authenticatedReadEndpoint}?source=open-dough&intent=ci-proof&run=41&revision=${judged}`);
+  expect(answer.status).toBe(400);
   expect(published.requests.length).toBe(before);
-  const answer = await ask(`run=41&attempt=2&revision=${judged}`);
-  expect(answer.status).toBe(200);
-  expect(answer.body).toMatchObject({
-    runId: 41,
-    runAttempt: 2,
-    revision: judged,
-    proof: { kind: "unavailable", reason: "none" },
-  });
 });

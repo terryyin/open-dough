@@ -10,7 +10,9 @@ import type {
 } from "../src/baseCiConfirmation.ts";
 
 // One judged result, unread with its reason when no state could be judged.
-export type BaseCiJudgment =
+// `ciAdapter` is set when the judgment's own CI configuration read selected
+// a nonempty adapter, so a CI status answer need not read the settings again.
+export type BaseCiJudgment = (
   | ({
       readonly state: "pass";
       readonly revision: string;
@@ -31,7 +33,10 @@ export type BaseCiJudgment =
       // GitHub has no published story branch of the judged name (its
       // history listing answered `404`); never the configured ref.
       readonly unpublished?: true;
-    } & RunIdentity);
+    } & RunIdentity)
+) & {
+  readonly ciAdapter?: true;
+};
 
 export type ListedCommit = {
   readonly sha?: unknown;

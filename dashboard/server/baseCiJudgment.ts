@@ -44,17 +44,6 @@ function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
 }
 
-// Whether the project folder's CI is read through a ciAdapter, whose results
-// name no GitHub Actions run; false when its CI settings cannot be read,
-// which the judgment itself reports.
-export function readsCiThroughAdapter(folder: ProjectFolder): boolean {
-  try {
-    return ciConfiguration(folder.path).adapter !== undefined;
-  } catch {
-    return false;
-  }
-}
-
 // The runs one listing returns, each named by the branch listed.
 function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));
@@ -181,14 +170,17 @@ export async function judgeBranchCi(
     const commits = await readBranchHistory(source, branch, controller);
     if (!Array.isArray(commits)) return commits;
     if (adapter !== undefined)
-      return await judgeCommandAdapter(
-        commits,
-        source,
-        branch,
-        folder.path,
-        adapter,
-        controller,
-      );
+      return {
+        ...(await judgeCommandAdapter(
+          commits,
+          source,
+          branch,
+          folder.path,
+          adapter,
+          controller,
+        )),
+        ciAdapter: true,
+      };
     return await judgeGitHubActions(
       commits,
       source,

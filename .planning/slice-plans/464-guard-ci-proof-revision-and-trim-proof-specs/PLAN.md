@@ -3,6 +3,7 @@
 **Identity:** SEED-230#guard-ci-proof-revision-and-trim-proof-specs
 
 **Source:** [Correction story](../../seeds/SEED-230-summarize-ci-proof-in-intent.md#guard-ci-proof-revision-and-trim-proof-specs)
+**Source review:** [source-review.md](./source-review.md)
 
 **Provenance:** execution retrospective (2026-11-04) of
 SEED-230#summarize-ci-proof-in-intent, recoverable at
@@ -52,12 +53,26 @@ ciAdapter reason without a GitHub proof request. Every file stays at or under
 
 ### 1. Guard the revision, trim the proof specs and read the CI configuration once
 Type: Structure
-Status: planned
-Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/ci-proof-declaration.test.mjs tests/support/dashboard-ci-proof-read.test.mjs <new parser unit test>`; `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-ci-proof.spec.ts dashboard/tests/intent-ci-proof-reasons.spec.ts dashboard/tests/intent-ci-proof-ancestor.spec.ts dashboard/tests/intent-ci-status.spec.ts dashboard/tests/intent-ci-status-reads.spec.ts dashboard/tests/intent-ci-status-story.spec.ts dashboard/tests/intent-ci-status-story-gaps.spec.ts --reporter=list`; `npm run --silent typecheck:dashboard`.
+Status: done
+Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/ci-proof-declaration.test.mjs tests/support/dashboard-ci-proof-read.test.mjs tests/support/dashboard-ci-proof-parse.test.mjs`; `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-ci-proof.spec.ts dashboard/tests/intent-ci-proof-reasons.spec.ts dashboard/tests/intent-ci-proof-ancestor.spec.ts dashboard/tests/intent-ci-status.spec.ts dashboard/tests/intent-ci-status-reads.spec.ts dashboard/tests/intent-ci-status-story.spec.ts dashboard/tests/intent-ci-status-story-gaps.spec.ts --reporter=list`; `npm run --silent typecheck:dashboard`; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/dashboard-story-branch-ci.test.mjs`.
 
 Structure: the tab's behaviour is unchanged; the guard and the moved
 refusal checks keep the restrictions proved at a cheaper level.
 
+Accepted: declaration test guards
+`github.event.pull_request.head.sha || github.sha`; duplicated no-summary
+browser test removed (reasons spec keeps that baseline); ciAdapter reasons
+test title names only that case; query refusals live in
+`tests/support/dashboard-ci-proof-parse.test.mjs` with one browser refusal;
+`judgeBranchCi` sets `ciAdapter` from its one configuration read and the
+unreachable proof-path `ci-adapter` short-circuit is removed; refactor
+collapsed `BaseCiJudgment.ciAdapter` onto one intersection.
+
 ## Current decisions
 
 - One slice: the three findings are small and share the proof specs.
+- Finding 3 chose plan option 2: remove the unreachable proof-path
+  `ci-adapter` branch; the tab still shows the ciAdapter reason from the
+  status judgment without a GitHub proof request.
+- Parser refusals are cheaper as `parseIntentCiProofRead` unit tests; one
+  browser refusal proves no GitHub call on refuse.

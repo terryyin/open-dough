@@ -3,17 +3,18 @@
 // attempt a CI status judgment named (`intent=ci-proof`, with `run`,
 // `attempt` and the run's `revision`), read apart from the judgment so a
 // slow or failed proof read never delays or alters it
-// (`./ciProofArtifact.ts`). A project whose CI is read through a ciAdapter
-// has no such run, and is answered without asking GitHub. Anything else is
-// refused here before any `gh` call.
+// (`./ciProofArtifact.ts`). A ciAdapter project never reaches this read from
+// the CI status tab: the judgment already carries `ciAdapter` from its one
+// configuration read, and Proof shows that reason without asking here. The
+// former `ci-adapter` short-circuit on this path was unreachable from the
+// tab and is removed so this read does not open the CI settings again.
+// Anything else is refused here before any `gh` call.
 
 import { readingCiProofOf } from "../src/authenticatedReadRules.ts";
 import type { CiProof, CiProofRun } from "../src/ciProof.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { readsCiThroughAdapter } from "./baseCiJudgment.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import { parsePinnedIntentRead } from "./intentReadParameters.ts";
-import { projectFolder } from "./projectFolders.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
@@ -80,8 +81,6 @@ export async function performIntentCiProofRead(
 ): Promise<Outcome> {
   const { runId, runAttempt, revision } = read;
   const run = { runId, runAttempt, revision };
-  const proof: CiProof = readsCiThroughAdapter(projectFolder(source))
-    ? { kind: "unavailable", reason: "ci-adapter" }
-    : await readCiProofArtifact(source.repository, run, signal);
+  const proof = await readCiProofArtifact(source.repository, run, signal);
   return answered({ ...run, checkedAt: new Date().toISOString(), proof });
 }
