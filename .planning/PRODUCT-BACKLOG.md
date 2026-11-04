@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove decisive planning premises where the slice uses them](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-planning-premises-at-their-use) — SEED-010#prove-planning-premises-at-their-use ([plan](slice-plans/458-prove-planning-premises-at-their-use/PLAN.md))
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs ([plan](slice-plans/458-proportionate-refactor-for-records-and-repairs/PLAN.md))
 - [Protect long local proof from Maintenance Sleep](seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep) — SEED-227#protect-long-local-proof-from-maintenance-sleep ([plan](slice-plans/458-protect-long-local-proof-from-maintenance-sleep/PLAN.md))
 
