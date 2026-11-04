@@ -663,6 +663,32 @@ Playwright, Node, shell) will find the model in code and the pytest reference.
   plugin each keep value alone: Gherkin behavior unchanged, a readable pytest
   snapshot wherever one is committed, and honest absence elsewhere.
 
+<a id="order-pytest-parameter-rows"></a>
+
+### Order pytest parameter rows by parameter id
+
+**Identity:** SEED-192#order-pytest-parameter-rows
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/464-order-pytest-parameter-rows/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"952647d94e38500dabd98df5c3c8422957facfc3bcadd9be8e1f884df1271c61","plan":"4b2bd17b57e3bdd23c47970921a79874b94437426e86f2b6bcf63faee10ac290"}}
+```
+
+**Goal.** A Pygardon developer reading pytest Proof in Intent sees a
+parametrized function's observed rows in parameter id order whatever order
+the snapshot holds them in, and the reference and Intent guidance describe
+that order and pytest summaries truthfully: the residue the execution
+retrospective of [Read Pygardon pytest proof](#read-pytest-proof) found.
+
+**Scope.** Correct the reviewed defects named in the plan without changing
+that story's promises: Intent orders a function's observed parameter ids
+itself (code-point order, as Python's `sorted` orders `str`); its journey
+proves it from an unsorted snapshot; a unit test covers that order and the
+Python definition scanner's rules; the pytest reference's "Reading proof"
+and `docs/dashboard-development-intent.md` state the order, and the guidance
+names the kinds Intent reads no proof for and the summaries both kinds give
+without declared proof. No new product behavior beyond those corrections.
+
+**Plan:** [464-order-pytest-parameter-rows](../slice-plans/464-order-pytest-parameter-rows/PLAN.md)
+
 
 <a id="read-node-test-proof"></a>
 

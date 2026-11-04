@@ -357,6 +357,29 @@ and fixed in this slice: O2 (table words broke inside at 1400 px) and O3
 `boundary/authenticated-read-intent-*` spec passed (106). Screenshots under
 the execution's job temp directory (`e6-*`, `e7-*`, `root-*`).
 
+## Execution complete
+
+Product advice:
+- Correct the parameter order before relying on it beyond Pygardon: the
+  reader keeps snapshot order, and real Pygardon matched the amended story
+  only because its plugin sorts the snapshot. The retrospective wrote
+  [SEED-192#order-pytest-parameter-rows](../../seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows)
+  with ready [plan 464](../464-order-pytest-parameter-rows/PLAN.md), which
+  also corrects the Intent guidance's other-kinds and summary sentences.
+- Consider a story for summarizing a large Intent location without reading
+  every source file per selection: Pygardon's `tests` root took 208 s and
+  1,298 GitHub requests for 1,283 files. No queued story covers this; SEED-226
+  covers browser calculations and SEED-225 holds only a deferred proposal.
+  It likely ranks below story-scoped review unless whole-suite summaries
+  become routine.
+- Decide before the next proof kind whether the Intent answer keeps
+  Cucumber-named fields (`featureBlobs`, feature/scenario/example) for every
+  kind or renames them to the case model's file/name/variant; five files
+  carry them today.
+- The case count grows with recording (4,489 counted against 6,537 collected
+  until a full refresh); worth keeping in mind in Terry's evaluation against
+  `pytest -q`.
+
 ## Current decisions
 
 - Pygardon owns the plugin; Open Dough ships the reference and the reader.
