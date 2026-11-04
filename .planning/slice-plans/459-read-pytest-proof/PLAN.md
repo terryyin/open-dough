@@ -211,6 +211,16 @@ from the text. One gap fixed during review: xpass under `strict` is reported
 as a failure, not with `wasxfail`. Example 3 still rests on the open xdist
 premise slice 5 settles first.
 
+CI repair after slice 2 (run 41768486158, dashboard 11/12):
+`agent-launch-publication-receipt-failure.spec.ts:17` failed because the test
+helper `attempts()` (`dashboard/tests/agentLaunchSessions.ts`) read the
+sessions and history answers separately, so an attempt the page reconciled
+between them read twice. It now pairs the reads by the history `revision`
+the sessions answer names as `historyRevision`. Proof: a hand-interleaved
+scratch spec showed the duplicate before and one attempt after; the spec
+40/40 under `--repeat-each 20 --workers 4` at load up to 93; all 46
+`attempts()` consumer specs 108 passed.
+
 ### 3. A multi-megabyte proof snapshot is read
 Type: Behavior
 Status: planned
