@@ -23,3 +23,37 @@ suite fixtures reuse a live ancestor's admission. Success, failure and signals
 release it; after an abrupt owner death the next run atomically takes over and
 retires surviving marked processes before it starts. No manual lock cleanup is
 needed. Copied runner fixtures outside Git have no cross-worktree admission.
+
+## Machine sleep on macOS
+
+Start every long run from a fully awake machine. On AC power, wrap a full run
+in `caffeinate -s -i`, for example `caffeinate -s -i npm test` or
+`caffeinate -s -i npm run test:dashboard`. `-s` prevents system sleep and is
+honored only on AC. `-i` alone prevents idle sleep from a fully awake machine
+but has no effect once the machine is in its sleep/dark-wake cycle; two whole
+dashboard runs under `-i` failed that way on 2026-11-03
+([DD-412](../docs/maintainer/project-test-findings.md#dd-412)). On battery
+`-s` is inert: plug in, or start fully awake with the lid open under
+`caffeinate -i` and read the sleep log afterwards. Whether `-s` keeps a run
+going once the machine is already in its sleep cycle is not yet observed.
+
+When a full run fails with worker or command timeouts, or with scattered
+failures a rerun does not repeat, read the sleep log before reading the
+failures as defects:
+
+```sh
+pmset -g log | grep -E 'Entering Sleep|Wake from'
+```
+
+Look for `Sleep` and `Wake` entries inside the run's window: its start time
+plus the runner-reported duration. For the dashboard suite the start time is
+the `dashboard/test-results/<stamp>` directory name: an ISO UTC time with
+colons written as `-`, then the runner's pid; the log prints local time. The
+log reaches back about a week, so read it soon.
+
+A sleep in the window explains a failure but changes no verdict: record the
+run as invalid for sleep and rerun under the guard. The
+[failing and flaky test policy](../AGENTS.md#failing-and-flaky-tests) applies
+to the rerun as written, and no test is excused. No sleep in the window
+excludes sleep; continue under the ordinary policy, for example by classifying
+external load.

@@ -17,7 +17,8 @@ A relative path is resolved from the directory `scripts/test.sh` starts in;
 `npm test` starts it at the repository root. A path that is not a file, or not
 one of those kinds, fails the run naming it before any check starts.
 
-[Local resource use](local-test-resources.md) covers concurrency and cleanup.
+[Local resource use](local-test-resources.md) covers concurrency, cleanup and
+machine sleep on macOS.
 
 ## Check environment
 

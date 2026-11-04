@@ -126,3 +126,6 @@ paraphrase it as "fix or report".
   authorizing one landing despite a failure, covers only its stated scope.
   Report the outcome it qualifies truthfully; it never becomes the default
   for later work.
+
+A plan's local-gate line names the maintained macOS sleep guard and its power
+condition from [machine sleep on macOS](tests/local-test-resources.md#machine-sleep-on-macos).

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-227#protect-long-local-proof-from-maintenance-sleep
 **Source:** [story](../../seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -78,7 +79,7 @@ confirmation that the file still satisfies them.
 
 ### 1. Local proof instructions name the sleep guard and the sleep-log check
 Type: Behavior
-Status: planned
+Status: done
 Proof: Outside-in proof rows 1–6; `node scripts/lint.mjs --staged`;
 `bash scripts/test.sh tests/install-omits-internal.sh`; consumer-trace record
 with `--base HEAD` naming no consumer.
@@ -114,9 +115,21 @@ its sleep cycle is not yet observed.
   before Take; execution of this plan as it stands adds no script change.
 - The instructions do not instruct a machine-wide power setting.
 
+## Accepted proof
+
+Slice 1 (2026-11-04): commitments G.1–E.6 observed in
+[source review](source-review.md). `pmset -g log | grep -E 'Entering Sleep|Wake from' | tail -5`
+printed dated `Maintenance Sleep`/`Wake` entries on the executing Mac;
+`node scripts/lint.mjs --staged` passed;
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/install-omits-internal.sh`
+passed; the consumer trace (`--base HEAD --term machine-sleep-on-macos --term local-test-resources`)
+named no consumer of the changed content. The refactor pass extended
+`tests/README.md:20` to mention machine sleep.
+
 ## Learnings
 
-None yet.
+- The dashboard run stamp is UTC (`toISOString()`), while `pmset -g log`
+  prints local time; the section says so to keep the window reading correct.
 
 ## Plan review
 

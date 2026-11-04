@@ -540,4 +540,6 @@ is recoverable at `d5b59b92b:DearDough.md`. The process execution release remain
 unknown.
 
 **Follow-up:** [SEED-227#protect-long-local-proof-from-maintenance-sleep](../../.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
-is queued. Adoption and subsequent ordinary-use evidence are pending.
+delivered the instructions in
+[Machine sleep on macOS](../../tests/local-test-resources.md#machine-sleep-on-macos).
+Subsequent ordinary-use evidence is pending.
