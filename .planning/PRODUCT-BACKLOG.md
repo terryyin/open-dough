@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent ([plan](slice-plans/463-summarize-ci-proof-in-intent/PLAN.md))
-- [Read JSX text safely and trim repeated Vitest journeys](seeds/SEED-192-review-product-intent.md#read-tsx-text-and-trim-vitest-journeys) — SEED-192#read-tsx-text-and-trim-vitest-journeys ([plan](slice-plans/465-read-tsx-text-and-trim-vitest-journeys/PLAN.md))
 
 ## Backlog list
 

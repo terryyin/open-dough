@@ -3,8 +3,8 @@
 // order, each a case row (`./proofCases.ts`) at the 1-based line where its
 // call starts. Read from the text itself, never from the runner, through its
 // tokens (`./scriptTokens.ts`): calls inside comments, strings, template
-// literals and regular expressions are not read, and a test belongs to the
-// suites whose call arguments enclose it.
+// literals, JSX text and regular expressions are not read, and a test belongs
+// to the suites whose call arguments enclose it.
 //
 // A call is `describe`, `suite`, `it` or `test`, not a member of another
 // value, with an optional modifier chain (`.skip`, `.only`, `.todo`,

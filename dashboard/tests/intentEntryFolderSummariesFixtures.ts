@@ -176,9 +176,9 @@ export const openDoughSettings = JSON.stringify(
     intent: {
       locations: [
         {
-          path: "dashboard/tests",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
+          path: "scripts",
+          kind: "shell",
+          include: ["*.sh"],
         },
       ],
     },
@@ -187,9 +187,8 @@ export const openDoughSettings = JSON.stringify(
   2,
 );
 
-export const openDoughSpec = `import { test } from "@playwright/test";
-test("summaries", async () => {});
-`;
+export const openDoughShellPath = "scripts/check.sh";
+export const openDoughShellSource = "echo ok\n";
 
 export function publishIntentProject(
   page: Parameters<typeof publishFiles>[0],

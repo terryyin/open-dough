@@ -1,10 +1,11 @@
 // Intent explains pytest Proof it cannot show (../src/IntentProofProblem.tsx,
 // ../server/intentProofRead.ts): a `python` location without declared proof
-// names the pytest reference; a `typescript` location without proof names
-// the Vitest reference; a snapshot that is not pytest proof, such as one in
-// Cucumber's fields, reads as not a valid proof file with a Retry, and a
-// pytest snapshot under a Gherkin location's proof directory likewise.
-// Purpose and the summary's inventory stay readable in each case.
+// names the pytest reference; a `shell` location says which files Proof is
+// read for; a snapshot that is not pytest proof, such as one in Cucumber's
+// fields, reads as not a valid proof file with a Retry, and a pytest
+// snapshot under a Gherkin location's proof directory likewise. Purpose and
+// the summary's inventory stay readable in each case. Vitest reference
+// wording: ./intent-vitest-proof-absent.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -25,15 +26,14 @@ import {
 } from "./intentPytestProofFixtures.ts";
 import {
   corsPath,
-  frontendSpecPath,
+  shellPath,
   sources,
   testsPath,
 } from "./intentPytestSourceFixtures.ts";
+import { proofReadForFamiliesSoFar } from "./intentProofAbsenceText.ts";
 
 const notRecorded =
   "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/pytest-proof.md in this project’s installed Open Dough skills.";
-const vitestNotRecorded =
-  "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/vitest-proof.md in this project’s installed Open Dough skills.";
 
 async function openPygardon(page: Parameters<typeof parts>[0]) {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -49,7 +49,7 @@ async function selectCors(intent: ReturnType<typeof parts>["intent"]) {
   return { purpose, proof: await chooseReadingTab(intent, "Proof") };
 }
 
-test("a python location without proof names the pytest reference; a typescript location names the Vitest reference", async ({
+test("a python location without proof names the pytest reference; a shell location names the kinds Proof is read for", async ({
   page,
 }) => {
   await publishIntentProject(page, pygardon, settingsWithoutProof, sources);
@@ -71,20 +71,18 @@ test("a python location without proof names the pytest reference; a typescript l
     await expect(summary).not.toContainText("Last successful proof");
   });
 
-  await test.step("typescript file Proof and location summary name the Vitest reference", async () => {
-    await expandIntentGroup(intent, "frontend/src");
-    await intent
-      .getByRole("button", { name: frontendSpecPath, exact: true })
-      .click();
-    await expect(intent.getByLabel(`${frontendSpecPath} source`)).toContainText(
-      'test("renders"',
+  await test.step("shell file Proof and location summary name the kinds Proof is read for", async () => {
+    await expandIntentGroup(intent, "scripts");
+    await intent.getByRole("button", { name: shellPath, exact: true }).click();
+    await expect(intent.getByLabel(`${shellPath} source`)).toContainText(
+      "echo ok",
     );
     const proof = await chooseReadingTab(intent, "Proof");
-    await expect(proof).toContainText(vitestNotRecorded);
+    await expect(proof).toContainText(proofReadForFamiliesSoFar);
     await expect(proof).not.toContainText("pytest-proof.md");
-    await intentLocationName(intent, "frontend/src").click();
+    await intentLocationName(intent, "scripts").click();
     await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
-      vitestNotRecorded,
+      proofReadForFamiliesSoFar,
     );
   });
 });

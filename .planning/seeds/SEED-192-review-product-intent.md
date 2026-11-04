@@ -306,35 +306,6 @@ Individual refinements and their recorded facts below carry current preparation.
   heuristic's limitations remain useful even if no automated metric follows.
   The assessment changes no tests or project testing rules by itself.
 
-<a id="read-tsx-text-and-trim-vitest-journeys"></a>
-
-### Read JSX text safely and trim repeated Vitest journeys
-
-**Identity:** SEED-192#read-tsx-text-and-trim-vitest-journeys
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/465-read-tsx-text-and-trim-vitest-journeys/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"523bb9b85913028b8b7adc8354bbe874500120456ef7df8d015b530b1498e0a5","plan":"8d55c04c1a3b0f87866c447584390bd0f2f686a7ea3ba9f6d58c9ee8431d3a3a"}}
-```
-
-**Goal.** A developer reading Vitest Proof for a React `.tsx` test file in
-Intent sees every test at its own definition line even when a rendered JSX
-text contains an apostrophe, `//` or a backtick, and the Intent Vitest
-journeys prove each rule once: the residue the execution retrospective of
-Read frontend Vitest proof in both projects (`134da134afd70acbba0ee7d2856acee660f6025c:.planning/seeds/SEED-192-review-product-intent.md#read-vitest-proof`) found.
-
-**Scope.** Correct the reviewed defects named in the plan without changing
-that story's promises: the TypeScript test-call reader does not read JSX
-text as code (so a JSX apostrophe, URL or backtick neither drops a test nor
-shifts later lines) and counts the newline after an unclosed string; unit
-tests pin those cases; the Vitest journeys that repeat a kind-independent
-rule or a unit-proved rule are removed or folded, and the three absence
-steps retargeted to the Vitest reference prove the other-kinds sentence
-again for a kind Intent reads no proof for. No new product behavior. A
-placeholder-only template listing stale sibling observations is outside this
-correction: it awaits Terry's decision on that story's promise.
-
-**Plan:** [465-read-tsx-text-and-trim-vitest-journeys](../slice-plans/465-read-tsx-text-and-trim-vitest-journeys/PLAN.md)
-
-
 <a id="read-playwright-proof"></a>
 
 ### 13. Read Open Dough dashboard Playwright proof

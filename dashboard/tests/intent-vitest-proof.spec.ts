@@ -6,11 +6,10 @@
 // path, a `%s` template expands to its observed names in code-point order
 // whatever the snapshot's order, a placeholder-less table is one case, a
 // test observed under two projects shows one row per project with
-// `chromium` first, a test without an observation (or whose proof a later
-// failing run cleared) reads No successful proof, and a renamed test's stale
-// observation is not listed. The count line counts test cases.
-// Summaries: ./intent-vitest-proof-summary.spec.ts. Explanations:
-// ./intent-vitest-proof-absent.spec.ts.
+// `chromium` first, a test without an observation reads No successful
+// proof, and a renamed test's stale observation is not listed. The count
+// line counts test cases. Summaries: ./intent-vitest-proof-summary.spec.ts.
+// Explanations: ./intent-vitest-proof-absent.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -23,7 +22,6 @@ import {
 } from "./intentPerspectivePage.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import {
-  clearedSnapshotFiles,
   earlierCommit,
   generationCommand,
   recordedCommit,
@@ -31,7 +29,6 @@ import {
   snapshotFiles,
 } from "./intentVitestProofFixtures.ts";
 import {
-  datesPath,
   locationPath,
   sources,
   titlePatternPath,
@@ -155,26 +152,6 @@ test("a Vitest file's Proof lists its tests by describe path in definition order
   });
 });
 
-test("a Vitest file of plain tests counts its test cases, with fractional durations read rounded", async ({
-  page,
-}) => {
-  const { proof } = await openProof(
-    page,
-    snapshotFiles,
-    datesPath,
-    'it("pads months"',
-  );
-  await expect(proof).toContainText(
-    "Last successful proof: 3 test cases: 3 passed",
-  );
-  expect(await cellsOf(proof, datesPath)).toEqual([
-    headers,
-    ["formatDate > pads months Project: chromium", ...passedNow("10 ms")],
-    ["formatDate > pads days Project: chromium", ...passedNow("20 ms")],
-    ["formatDate > pads years Project: chromium", ...passedNow("30 ms")],
-  ]);
-});
-
 test("project rows: a touch spec names chromium-touch, and a test observed under both projects shows chromium first, each with its own proof", async ({
   page,
 }) => {
@@ -229,23 +206,4 @@ test("project rows: a touch spec names chromium-touch, and a test observed under
       "Last successful proof: 4 test cases: 4 passed",
     );
   });
-});
-
-test("a test whose proof a later failing run cleared reads No successful proof", async ({
-  page,
-}) => {
-  const { proof } = await openProof(
-    page,
-    clearedSnapshotFiles,
-    titlePatternPath,
-    'it("leaves them unchanged"',
-  );
-  const cells = await cellsOf(proof, titlePatternPath);
-  expect(cells[2]).toEqual([
-    "renderTitleFromPattern > unknown placeholders > leaves them unchanged",
-    ...noProof,
-  ]);
-  await expect(proof).toContainText(
-    "Last successful proof: 7 test cases: 4 passed, 1 passed after retry, 2 without successful proof",
-  );
 });

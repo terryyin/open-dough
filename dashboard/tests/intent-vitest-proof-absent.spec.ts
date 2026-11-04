@@ -34,11 +34,10 @@ import {
   scriptPath,
   sources,
 } from "./intentVitestSourceFixtures.ts";
+import { proofReadForFamiliesSoFar } from "./intentProofAbsenceText.ts";
 
 const notRecorded =
   "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/vitest-proof.md in this project’s installed Open Dough skills.";
-const otherKinds =
-  "Proof is read for Gherkin feature files, pytest files and Vitest tests so far.";
 const setRunner = `Set runner on ${locationPath} in .planning/open-dough.json to the runner that records its proof: vitest.`;
 
 async function openDoughnut(
@@ -145,11 +144,11 @@ test("a typescript location without proof names the Vitest reference; a shell lo
       "echo ok",
     );
     const proof = await chooseReadingTab(intent, "Proof");
-    await expect(proof).toContainText(otherKinds);
+    await expect(proof).toContainText(proofReadForFamiliesSoFar);
     await expect(proof).not.toContainText("vitest-proof.md");
     await intentLocationName(intent, "scripts").click();
     await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
-      otherKinds,
+      proofReadForFamiliesSoFar,
     );
   });
 });

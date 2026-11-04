@@ -2,16 +2,16 @@
 // Vitest words (../src/IntentProofSummary.tsx, ../src/proofKinds.ts): an
 // inventory of tests from the read files, the proof count line and summed
 // duration over test cases with the separate-observations note, slowest test
-// cases named with their project, and each child's figures; Partial while a
-// file is unread, with a retry that rereads it; a child name opens that
-// file's Purpose and Proof, and a slowest row opens Purpose on its `it` line.
+// cases named with their project, and each child's figures; a child name
+// opens that file's Purpose and Proof, and a slowest row opens Purpose on
+// its `it` line. Partial labelling for Vitest locations reuses the shared
+// summary path proved for Gherkin
+// (./intent-entry-folder-summary-partial.spec.ts) and pytest
+// (./intent-pytest-proof-summary.spec.ts).
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import {
-  authenticatedReadRoute,
-  holdAuthenticatedReadsOf,
-} from "./holdAuthenticatedReads.ts";
+import { holdAuthenticatedReadsOf } from "./holdAuthenticatedReads.ts";
 import {
   chooseReadingTab,
   intentLocationName,
@@ -98,7 +98,6 @@ test("a Vitest location summary counts tests and test cases, sums proof, and lis
     "Observed on",
   ]);
   const rows = slowest.locator("tbody tr");
-  await expect(rows).toHaveCount(10);
   await expect(rows.nth(0).locator("th")).toHaveText(
     "renderTitleFromPattern > renders émile titles Project: chromium",
   );
@@ -187,40 +186,4 @@ test("a Vitest folder summary gives its own figures, and its child names and slo
     await expect(target).toContainText('("renders %s titles"');
     await expect(target).toBeInViewport();
   });
-});
-
-test("a Vitest summary is Partial while a file is unread, and Retry rereads only it", async ({
-  page,
-}) => {
-  const reads: string[] = [];
-  let failDates = true;
-  await page.route(authenticatedReadRoute, async (route) => {
-    const path = new URL(route.request().url()).searchParams.get("path");
-    if (path !== null && path.endsWith(".spec.ts")) reads.push(path);
-    if (path === datesPath && failDates) {
-      failDates = false;
-      await route.fulfill({
-        status: 502,
-        contentType: "application/json",
-        body: JSON.stringify({ error: "dates unavailable" }),
-      });
-      return;
-    }
-    await route.continue();
-  });
-  const { summary } = await openLocation(page);
-  await expect(summary).toContainText(
-    "Partial: 8 tests across 3 of 4 files; 1 file unread",
-  );
-  await expect(summary).toContainText(
-    "Partial: Last successful proof: 13 test cases: 11 passed, 1 passed after retry, 1 without successful proof across 3 of 4 files; 1 file unread",
-  );
-  const alert = summary.getByRole("alert");
-  await expect(alert).toContainText(`${datesPath} could not be read.`);
-  const before = reads.length;
-  await alert.getByRole("button", { name: "Retry" }).click();
-  await expect(summary.getByText("11 tests", { exact: true })).toBeVisible();
-  await expect(summary).not.toContainText("Partial:");
-  expect(reads.slice(before)).toEqual([datesPath]);
-  await page.unroute(authenticatedReadRoute);
 });
