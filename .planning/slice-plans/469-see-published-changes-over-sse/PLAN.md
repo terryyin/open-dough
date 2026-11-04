@@ -95,18 +95,16 @@ the check's shape, sharing one listing across that source's streams.
 
 ### 3. The page's revision observation separates answers from their delivery
 Type: Structure
-Status: planned
-Proof:
+Status: done
+Proof (coordinator rerun 2026-11-04):
 
-- `useRevisionCheckSchedule`'s reaction to an answer (changed, unchanged,
-  moved branches, failure, limit) is separated from its recurring-check
-  delivery.
-- The page asks for a delivery slot by the route's protocol. A slot holder
-  still checks until slice 4.
-- The test fixture's pages pre-hold both slots.
-- A unit case covers the protocol choice (`h2` and `h3` uncapped, anything
-  else capped at two).
-- The focused journeys of slices 3–5 stay green unchanged.
+- `revisionAnswer.ts` holds reaction; `revisionCheckSchedule.ts` is check
+  delivery only; `revisionStreamSlot.ts` + `publishedObservation.ts` choose
+  delivery (`revisionDeliveryForSlot` still returns `"check"`).
+- `dashboardTest.ts` init script pre-holds both Web Lock slots.
+- `tests/support/revision-stream-slot.test.mjs`: h2/h3 uncapped, else 2
+  (2 passed).
+- Focused journeys 33 passed; `typecheck:dashboard` exit 0.
 
 Internal change: delivery becomes the observation's choice, and external
 behavior is unchanged. Enables slice 4.

@@ -3,34 +3,36 @@
 // whether the story branches its progress is read from still name the heads
 // shown.
 //
-// While a snapshot is shown, the page is visible, and no read is under
-// way, ask at a steady pace whether the selected project's ref still names
-// its revision; a page seen again asks once at once. A failed check or read
-// keeps that pace rather than retrying at once, and while the page's record
-// of GitHub's rate limit stands (`./readingLimit.ts`) no check is asked
-// before its time, hidden, seen again, or not. An unchanged answer
-// leaves the snapshot, its retrieval time, and its detail exactly as they
-// are; a changed one reads the newly named commit. While the ref is
-// unchanged, a watched branch found at another head, or no longer published,
-// has only the progress read from it read again (`./movedBranchProgress.ts`);
-// any other branch moving asks nothing further. Any new read, a project
-// switch, or hiding the page cancels a pending or outstanding check, and
-// its late answer is ignored.
+// This module is the recurring-check delivery: while a snapshot is shown, the
+// page is visible, and no read is under way, ask at a steady pace whether the
+// selected project's ref still names its revision; a page seen again asks once
+// at once. A failed check or read keeps that pace rather than retrying at once,
+// and while the page's record of GitHub's rate limit stands (`./readingLimit.ts`)
+// no check is asked before its time, hidden, seen again, or not. Reaction to
+// each answer — changed, unchanged, moved branches, failure, or limit — lives
+// in `./revisionAnswer.ts`, shared with a later stream delivery. Any new read,
+// a project switch, or hiding the page cancels a pending or outstanding check,
+// and its late answer is ignored.
 
 import { useEffect, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { checkPublishedRevision } from "./authenticatedRead.ts";
-import { movedBranches } from "./movedBranchProgress.ts";
 import type { Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useLimitedUntil } from "./readingLimit.ts";
+import {
+  reactToRevisionCheck,
+  reactToRevisionCheckFailure,
+  type RevisionAnswerHandlers,
+} from "./revisionAnswer.ts";
+import type { RevisionDelivery } from "./revisionStreamSlot.ts";
 
 // How long a shown snapshot waits before asking whether the selected
 // project's `main` still names its revision: often enough that newly
 // published work appears within 30 seconds, including the read itself.
 export const checkIntervalMs = 15_000;
 
-type ScheduledChecks = {
+type ScheduledChecks = RevisionAnswerHandlers & {
   readonly source: PublishedSource;
   readonly shownRevision: string | undefined;
   // The story branches the shown progress is read from, with the heads shown.
@@ -39,13 +41,8 @@ type ScheduledChecks = {
   // it, so a check and a read never overlap.
   readonly readSettled: boolean;
   readonly visibility: Visibility;
-  // The ref names another commit, which the caller reads.
-  readonly onChanged: (revision: string) => void;
-  // The shown snapshot is still what the ref names.
-  readonly onUnchanged: () => void;
-  // These watched branches name other heads, which the caller reads.
-  readonly onBranchesMoved: (moved: StoryBranchHeads) => void;
-  readonly onFailed: (error: unknown) => void;
+  // Observation's chosen delivery; only `"check"` asks here.
+  readonly delivery?: RevisionDelivery;
 };
 
 export function useRevisionCheckSchedule({
@@ -54,6 +51,7 @@ export function useRevisionCheckSchedule({
   watchedHeads,
   readSettled,
   visibility,
+  delivery = "check",
   onChanged,
   onUnchanged,
   onBranchesMoved,
@@ -73,6 +71,7 @@ export function useRevisionCheckSchedule({
   const [checksSettled, setChecksSettled] = useState(0);
   useEffect(() => {
     if (
+      delivery !== "check" ||
       !readSettled ||
       shownRevision === undefined ||
       visibility === "hidden"
@@ -80,6 +79,7 @@ export function useRevisionCheckSchedule({
       return;
     }
     const checking = new AbortController();
+    const handlers = { onChanged, onUnchanged, onBranchesMoved, onFailed };
     const waiting = setTimeout(
       () => {
         setAskedUnder(checksResumeAt);
@@ -93,24 +93,19 @@ export function useRevisionCheckSchedule({
             if (checking.signal.aborted) {
               return;
             }
-            if (check.changed) {
-              onChanged(check.revision);
-              return;
+            if (
+              reactToRevisionCheck(check, watchedHeads, handlers) === "continue"
+            ) {
+              setChecksSettled((settled) => settled + 1);
             }
-            onUnchanged();
-            const moved = movedBranches(watchedHeads, check.heads);
-            if (moved.size > 0) {
-              onBranchesMoved(moved);
-              return;
-            }
-            setChecksSettled((settled) => settled + 1);
           },
           (error: unknown) => {
             if (checking.signal.aborted) {
               return;
             }
-            onFailed(error);
-            setChecksSettled((settled) => settled + 1);
+            if (reactToRevisionCheckFailure(error, handlers) === "continue") {
+              setChecksSettled((settled) => settled + 1);
+            }
           },
         );
       },
@@ -127,6 +122,7 @@ export function useRevisionCheckSchedule({
   }, [
     checksResumeAt,
     checksSettled,
+    delivery,
     readSettled,
     shownRevision,
     source,

@@ -36,6 +36,7 @@ import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
+import { useRevisionDelivery } from "./revisionStreamSlot.ts";
 import {
   focusedStoryCard,
   restoreSnapshotFocus,
@@ -176,12 +177,14 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     },
   });
 
+  const delivery = useRevisionDelivery(visibility !== "hidden");
   useRevisionCheckSchedule({
     source,
     shownRevision: work?.revision,
     watchedHeads,
     readSettled: checksMayRun,
     visibility,
+    delivery,
     onChanged: askRead,
     onBranchesMoved: askMovedProgress,
     onUnchanged: () => {

@@ -18,6 +18,7 @@
 // repository gone.
 
 import type { BrowserContext, Page } from "@playwright/test";
+import { revisionStreamSlotLockNames } from "../src/revisionStreamSlot.ts";
 import { test as base, expect } from "./support/pageTest.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
@@ -32,6 +33,15 @@ import {
 } from "./support/fakeGitHub.ts";
 import { defaultBaseCiRevision } from "./support/baseCiActions.ts";
 import { publishes } from "./support/publishedRepository.ts";
+
+// Hold both capped stream slots before the page's own scripts run, so journey
+// pages see a genuine "other tabs hold the slots" condition and keep proving
+// check delivery. Stream journeys will opt out of this init script.
+function holdRevisionStreamSlots(names: readonly string[]): void {
+  for (const name of names) {
+    void navigator.locks.request(name, () => new Promise(() => {}));
+  }
+}
 
 export { expect };
 
@@ -159,6 +169,10 @@ export const test = base.extend<{
   },
   context: async ({ context, github }, use) => {
     githubServing.set(context, github);
+    await context.addInitScript(
+      holdRevisionStreamSlots,
+      revisionStreamSlotLockNames(),
+    );
     const directGitHubReads: string[] = [];
     await context.route(
       /^https?:\/\/(?!(localhost|127\.0\.0\.1)[:/])/,
