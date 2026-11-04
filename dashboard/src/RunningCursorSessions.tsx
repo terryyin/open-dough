@@ -15,17 +15,13 @@ import {
 } from "./agentLaunch.ts";
 import { readRunningCursorSessions } from "./agentLaunchClient.ts";
 import {
+  askGapMs,
   cursorRunnerSentence,
   type RunningCursorSessions,
 } from "./cursorRunnerSessions.ts";
 import { projectLabel, useProjects } from "./projectList.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
-
-// Minimum gap after a settled read before the next owned ask. The follow-up
-// prompt keeps that process; slow answers still publish because demand never
-// overlaps.
-const askGapMs = 50;
 
 type Listed = RunningCursorSessions | "unanswered";
 

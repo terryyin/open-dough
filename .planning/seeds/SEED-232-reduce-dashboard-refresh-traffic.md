@@ -18,10 +18,11 @@ changes promptly while the browser and dashboard make fewer requests.
 Each visible dashboard view schedules its own Git revision checks. The
 GitHub request owner already shares identical outstanding reads and
 rate-limit waits, but staggered views can repeat a check after it settles.
-The expanded Running Cursor sessions section can ask again 50 ms after a
-response, even while the displayed list stays the same. These are separate
-request costs. The completed remote Sessions traffic story reduced the bytes
-of full overview and history responses.
+Running Cursor sessions already share a one-second settled held-session
+observation and match that pace in the expanded section. Remaining GitHub
+and published-delivery request costs are separate. The completed remote
+Sessions traffic story reduced the bytes of full overview and history
+responses.
 
 Git origin is authoritative for published progress. Running Cursor sessions
 are machine-local evidence. Evaluate gains against the current behavior,
@@ -177,163 +178,12 @@ and request-counting tests at the boundary and in the browser already exist.
 Developers get fewer upstream requests at the existing refresh pace even if
 browser delivery stays as it is.
 
-<a id="reduce-running-cursor-session-requests"></a>
-
-### Keep Running Cursor sessions current with fewer local requests
-
-**Identity:** SEED-232#reduce-running-cursor-session-requests
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/470-reduce-running-cursor-session-requests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a8a10e49c278fd8bb8fede2bbccf47a2f418c2076d01ef23e72c499c5192d7a9","plan":"98b9e50dcef4ffca5b2408f89af1c6fea6760e2049babc81ecdb2e3d50721e3a"}}
-```
-
-**Goal.** A developer watching the expanded Running Cursor sessions section
-sees which sessions the Cursor runner holds and what their screen labels say,
-while the browser and the dashboard make far fewer requests during a quiet
-period than today, and a session appearing, leaving, or changing label still
-shows within about one second of the change. Today that expanded section asks
-the dashboard again 50 ms after each settled answer, and each settled answer
-re-reads the runner (`SharedObservation` reuse is zero), so a quiet runner
-that answers in milliseconds is asked on the order of sixteen times a second
-from one open section. Overlapping asks already share one in-flight runner
-read. The outcome is fewer browser-to-dashboard and dashboard-to-runner
-requests for the same quiet watch, with runner-up / unreachable / empty-list
-distinctions, collapse ending demand, and independence from the published Git
-feed kept as they are.
-
-**Scope.**
-
-Required behavior:
-
-- While the Sessions sidebar is open and the Running Cursor sessions section
-  is expanded, each list ask is answered from the held-session observation
-  this dashboard process last settled for the current home and machine-document
-  revision when that observation is younger than about one second (the same
-  reuse window machine-session observation already uses for related Cursor
-  evidence), joins an observation already outstanding otherwise, and reads the
-  runner only when neither exists. Session cards and other readers of the same
-  held evidence keep sharing that observation as today.
-- The section's own ask gap matches that reuse window: after a settled answer
-  it waits about one second before the next owned ask while still expanded and
-  visible, instead of 50 ms. A page that becomes visible again asks at once
-  under the same reuse. Collapse, sidebar close, or unmount ends owned demand;
-  a hidden document pauses further asks until it is seen again.
-- A runner that is not running, cannot be reached, or answers no sessions stays
-  distinct in the section as today. A failed or unanswered observation keeps no
-  settled answer for reuse, as other shared observations do; the next ask reads
-  again.
-- The section remains machine-local evidence, independent of the published Git
-  revision feed and of the Board's other recurring reads.
-
-Boundary assumption: a settled held-session observation younger than the
-window is an observation of the runner at its settlement time, so a label that
-flipped inside that window may appear up to about one second later than today's
-near-continuous ask. That bound is the permitted freshness trade-off.
-
-Deferred promises: delivering local session updates over SSE or another push
-without recurring browser asks (sibling published-SSE growth path); sharing
-settled runner observations across separately launched dashboard processes;
-unchanged / digest answers that shrink quiet response bytes while the ask pace
-stays high; a sub-second continuous watch; aligning this section to the Board's
-15-second pace.
-
-Scope limits: no change to what a row shows or how choosing a row opens the
-terminal; no new daemon, database, or scheduler; no change to the runner
-protocol or to machine-session observation's own 15-second page pace; no
-carrying of this list on the published-progress stream.
-
-**Key examples.**
-
-1. *Quiet watch.* The sidebar is open, the section is expanded, three sessions
-   stay held with unchanged labels, and the runner answers quickly. Over the
-   next minute the browser sends about sixty list asks (one per second), where
-   today it sends on the order of a thousand, and the dashboard reads the
-   runner about sixty times, where today it reads on the order of a thousand.
-   The section keeps showing the same three rows and runner sentence with no
-   problem.
-2. *Label change within the bound.* One held session's screen moves from
-   working to the follow-up prompt. Within about one second of that change,
-   the section's next settled ask shows the follow-up label on that row.
-3. *List membership.* A new session is kept, or a held session leaves. Within
-   about one second the section gains or drops that row.
-4. *Seen again under reuse.* The page is hidden for ten seconds while another
-   reader on this process settled a held-session observation one second ago.
-   Seen again with the section still expanded, the section asks at once and is
-   answered from that observation without a new runner read when it is still
-   inside the window; after the window it reads the runner.
-5. *Collapse ends demand.* The developer collapses the section. No further list
-   asks leave the browser for it; machine-session and other readers keep their
-   own demand as today.
-6. *Unreachable stays distinct.* The runner stops answering. The section shows
-   today's unreachable wording and no session rows, and does not reuse an
-   earlier successful list as if the runner were still fine.
-7. *Independent of Git.* Origin publishes a new revision while the section is
-   expanded and the runner is quiet. The section's ask and runner-read counts
-   for that quiet minute stay as in example 1; the published Board refresh is
-   unchanged by this story.
-
-**Evaluation basis.** Set before the observed run, under
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-Baseline, from the current design and a 2026-11-04 observation of a live
-runner answering `/sessions` in milliseconds with three held sessions: one
-expanded visible section costs on the order of sixteen browser list asks and
-sixteen runner `/sessions` reads per second. Target: the same quiet watch costs
-about one browser ask and at most one runner read per second, and a
-session-list or label change appears within about one second of the change.
-Count browser `GET` requests to the cursor-sessions endpoint and dashboard
-`GET` requests to the runner's `/sessions`. Measure change-to-display from the
-runner holding the new label or membership to the section showing it. The
-permitted trade-off is that bound. Disclose that machine-session page reads
-remain every 15 seconds and already share this held observation.
-
-**Architecture.** The shared held-session read
-(`dashboard/server/hosts/cursor/heldSessions.ts`) already joins overlapping
-asks through `SharedObservation` and deliberately reuses nothing once settled,
-so labels stay as current as the next ask. This story sets that observation's
-reuse window to about one second under the same home and machine-document
-revision key, matching the window machine-session observation already uses
-(`dashboard/server/machineSessionObservation.ts`,
-`dashboard/AGENT-LAUNCH-OBSERVATION.md`), and raises the section's ask gap in
-`dashboard/src/RunningCursorSessions.tsx` to the same bound. The list stays an
-in-process, rebuildable observation of the runner, not a new authority, daemon,
-database, or cross-process cache
-([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-machine-local evidence supplements the published view; derived caches
-rebuildable from their sources). Session cards keep sharing the same evidence
-path. Push delivery and connection-budget choices stay with the published SSE
-story's deferred local-session path. Evaluation follows
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md) with the
-basis above. No conflict with an Accepted decision was found.
-
-**Alternatives considered.** Leaving the 50 ms gap and zero reuse preserves
-near-instant labels and saves nothing in the quiet case that dominates. Raising
-only the browser gap to the Board's 15-second pace cuts requests furthest among
-poll options, but can leave a follow-up or membership change unseen for a full
-pace—materially weaker than "promptly" for a section whose job is live local
-labels. Unchanged/digest answers alone shrink bytes while the ask rate stays
-high and still re-read the runner without settled reuse. SSE or runner push
-meets both goals with the least quiet traffic, at the cost and connection-budget
-coupling of the larger published-SSE design; defer it. Borrowed mechanism:
-settled `SharedObservation` reuse already used for machine sessions and host
-status—roles map (demand → shared observe → short age bound → no reuse of
-failures); the analogy breaks if this list required sub-second continuous
-truth, which would need push instead. Recommended direction: one-second settled
-reuse plus a matching section ask gap.
-
-**Effort hypothesis.** Smaller than the published SSE story with good
-confidence: the sharing primitive, in-flight join, demand lifecycle, and
-request-counting tests already exist; the change is the reuse window and ask
-gap, with proof of quiet rates and change-within-bound.
-
-**Prerequisite and stopping point.** No blocking story prerequisite. Lower
-local request volume at a one-second bound is useful even if published delivery
-stays as it is.
-
 ## Ordering and Scope Reduction
 
 Queue shared GitHub refreshes first for the immediate upstream saving and
 to measure freshness independently of transport. Follow with published SSE
 for the browser request saving and reconnect behavior. Running Cursor
-sessions comes third and can be deferred first if time is limited.
+sessions local-request reduction is already done.
 Open Dough has no calibrated S/M/L bands, so the estimates are comparative.
 
 ## Open Decisions

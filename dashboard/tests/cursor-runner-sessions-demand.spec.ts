@@ -1,9 +1,11 @@
 // Running Cursor sessions demand stays sequential: slow answers still publish
 // under at most one owned read; collapse and a hidden page end or pause that
 // demand. Listing and follow journeys stay in ./cursor-runner-sessions.spec.ts.
-import type { Page, Request } from "@playwright/test";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
-import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
+import {
+  askGapMs,
+  cursorRunnerSessionsEndpoint,
+} from "../src/cursorRunnerSessions.ts";
 import {
   heldSessionsAnswer,
   holdSession,
@@ -12,42 +14,12 @@ import {
   showPageWithTaken,
   withRunningCursor,
 } from "./runningCursorSessionsPage.ts";
+import { trackCursorSessionsDemand } from "./support/cursorSessionsDemand.ts";
 import { expect } from "./support/cursorStart.ts";
 
 // Longer than the section's minimum ask gap so a success that used to lose
 // the overlapping-poll race still has to publish under bounded demand.
-const slowerThanAskGapMs = 80;
-
-function isCursorSessionsRead(request: Request): boolean {
-  return (
-    request.method() === "GET" &&
-    new URL(request.url()).pathname === cursorRunnerSessionsEndpoint
-  );
-}
-
-function trackCursorSessionsDemand(page: Page) {
-  let outstanding = 0;
-  let peak = 0;
-  let started = 0;
-  const noteStart = (request: Request) => {
-    if (!isCursorSessionsRead(request)) return;
-    started += 1;
-    outstanding += 1;
-    if (outstanding > peak) peak = outstanding;
-  };
-  const noteEnd = (request: Request) => {
-    if (!isCursorSessionsRead(request)) return;
-    outstanding = Math.max(0, outstanding - 1);
-  };
-  page.on("request", noteStart);
-  page.on("requestfinished", noteEnd);
-  page.on("requestfailed", noteEnd);
-  return {
-    peak: () => peak,
-    started: () => started,
-    outstanding: () => outstanding,
-  };
-}
+const slowerThanAskGapMs = askGapMs + 200;
 
 const bounded = withRunningCursor({ screen: "working" });
 bounded(

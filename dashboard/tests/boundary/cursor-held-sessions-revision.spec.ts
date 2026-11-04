@@ -3,7 +3,8 @@
 // where the runner's address forwards (../support/cursorRunnerHeldReads.ts):
 // a launch record written while a held read is outstanding is labeled from a
 // read that includes it, and overlapping asks under unchanged documents still
-// share one runner read.
+// share one runner read. A settled read answers later asks for about one
+// second under those documents; past that window the next ask reads again.
 import { setTimeout as delay } from "node:timers/promises";
 import { expect, test } from "../support/pageTest.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
@@ -21,6 +22,7 @@ import { rawRequest } from "../support/rawHttp.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 
 const instruction = "hold this session";
+const reuseMs = 1_000;
 
 const askList = (dashboard: DashboardServer) =>
   rawRequest({
@@ -99,39 +101,59 @@ test("a Cursor record written while a held read is outstanding is labeled from a
 
 test("overlapping asks under unchanged documents still share one runner read", async () => {
   const cursor = installFakeCursor({ screen: "working" });
-  await withCursorLaunch({ mode: "boundary" }, cursor, async (dashboard) => {
-    const gate = await holdRunnerSessionsReads(dashboard.home);
-    try {
-      const launched = await launch(
-        dashboard,
-        instructedCursorRequest(instruction),
-      );
-      expect(launched.status).toBe(200);
-      await expect.poll(() => cursor.attaches()).toHaveLength(1);
-
-      const before = gate.sessionsReads();
-      gate.hold();
-      let lists: ReturnType<typeof askList>[] = [];
-      let observation!: ReturnType<typeof askSessions>;
+  await withCursorLaunch(
+    { mode: "boundary" },
+    cursor,
+    async (dashboard) => {
+      const gate = await holdRunnerSessionsReads(dashboard.home);
       try {
-        lists = [askList(dashboard)];
-        await expect.poll(() => gate.sessionsReads()).toBe(before + 1);
-        lists.push(askList(dashboard), askList(dashboard));
-        observation = askSessions(dashboard);
-        await delay(300);
+        const launched = await launch(
+          dashboard,
+          instructedCursorRequest(instruction),
+        );
+        expect(launched.status).toBe(200);
+        await expect.poll(() => cursor.attaches()).toHaveLength(1);
+
+        // Past the launch's settled observation, so overlapping asks start a
+        // new runner read instead of being answered from it.
+        await delay(reuseMs + 200);
+        const before = gate.sessionsReads();
+        gate.hold();
+        let lists: ReturnType<typeof askList>[] = [];
+        let observation!: ReturnType<typeof askSessions>;
+        try {
+          lists = [askList(dashboard)];
+          await expect.poll(() => gate.sessionsReads()).toBe(before + 1);
+          lists.push(askList(dashboard), askList(dashboard));
+          observation = askSessions(dashboard);
+          await delay(300);
+          expect(gate.sessionsReads()).toBe(before + 1);
+        } finally {
+          gate.release();
+        }
+        const answers = await Promise.all(lists);
+        expect(answers.map(({ status }) => status)).toEqual([200, 200, 200]);
+        expect(new Set(answers.map(({ body }) => body)).size).toBe(1);
+        const sessions = await observation;
+        expect(sessions.status).toBe(200);
+        expect(sessions.body).toContain(cursor.sessionId);
         expect(gate.sessionsReads()).toBe(before + 1);
+
+        const settledAt = Date.now();
+        const settled = gate.sessionsReads();
+        const reused = await askList(dashboard);
+        expect(reused.body).toBe(answers[0]?.body);
+        expect(gate.sessionsReads()).toBe(settled);
+
+        await delay(reuseMs + 200 - (Date.now() - settledAt));
+        const next = await askList(dashboard);
+        expect(next.body).toBe(answers[0]?.body);
+        expect(gate.sessionsReads()).toBeGreaterThan(settled);
       } finally {
-        gate.release();
+        await gate.close();
       }
-      const answers = await Promise.all(lists);
-      expect(answers.map(({ status }) => status)).toEqual([200, 200, 200]);
-      expect(new Set(answers.map(({ body }) => body)).size).toBe(1);
-      const sessions = await observation;
-      expect(sessions.status).toBe(200);
-      expect(sessions.body).toContain(cursor.sessionId);
-      expect(gate.sessionsReads()).toBe(before + 1);
-    } finally {
-      await gate.close();
-    }
-  });
+    },
+    undefined,
+    { sessionsReuseMs: reuseMs },
+  );
 });

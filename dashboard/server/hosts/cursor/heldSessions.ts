@@ -4,14 +4,15 @@
 // this server (the Running Cursor sessions list, session admission, and Cursor
 // session observation) joins the one read running for its home and the current
 // machine-document revision, so overlapping asks under unchanged documents
-// share one runner read; a settled read answers nobody later, so the next ask
-// reads the runner again.
+// share one runner read; a settled read answers later asks for about one
+// second under that same key, then the next ask reads the runner again.
 import { homedir } from "node:os";
 import type { CursorHeldLabel } from "../../../src/cursorHeldLabel.ts";
 import type { LaunchRecord } from "../../../src/launchRecord.ts";
 import type { RunningCursorSessions } from "../../../src/cursorRunnerSessions.ts";
 import { sessionKey } from "../../../src/sessionReference.ts";
 import { readWaitLimitMs } from "../../../src/authenticatedReadRules.ts";
+import { configuredLimit } from "../../configuredLimit.ts";
 import { keptRecordsByProject } from "../../launchRecordStore.ts";
 import { machineDocumentsRevision } from "../../machineJsonStore.ts";
 import { SharedObservation } from "../../sharedObservation.ts";
@@ -34,13 +35,15 @@ export type HeldCursorSessions = {
 };
 
 // The read now running answers whoever asks while it runs under the same
-// home and machine-document revision; none is reused. A reader after a
-// launch-record write demands under the new revision and gets its own read.
-// One not answered within the read wait says the runner cannot be reached,
-// as a silent runner does; a failed one fails each reader it was answering.
+// home and machine-document revision; a settled one serves later demand for
+// the same machine-session reuse window. A reader after a launch-record write
+// demands under the new revision and gets its own read. One not answered
+// within the read wait says the runner cannot be reached, as a silent runner
+// does; a failed one fails each reader it was answering and keeps no settled
+// answer.
 const sharedRead = new SharedObservation(
   ([home]: readonly [string, string]) => readHeldCursorSessions(home),
-  () => 0,
+  () => configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000),
 );
 // Nobody abandons this read early: each reader waits for its answer.
 const staying = new AbortController().signal;

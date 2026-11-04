@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 421. Removed numbers are never reused.
+- Highest allocated local number: 422. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -580,6 +580,14 @@ Former local code: DD-413.
 A return listed a mechanism the slice's restriction depended on as untested; the coordinator asked for focused proof before acceptance, and writing that proof exposed a defect that also affected the already passing case.
 
 ### Occurrences
+- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
+  - Timestamp: 2026-11-05T05:58:00+07:00
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` delegated slice 1 (subagent `88e91963-42fd-4d56-8fa8-1f5d2e11a93f` at 05:54+07:00) before launching the source-only reviewer (`05ed7080-9e96-414a-b209-6162203edfd3` at 05:58+07:00); source-review.md and Story obligations X-D1–X-S8 were written after that return
+  - Observed effect: slice 1 brief carried only the plan's proof; source commitments 11–15, 25–26, E4 and E6 were recorded at acceptance after the implementer had already returned. No mid-run product correction was required because those commitments matched the plan's rewrite of the sharing proofs
+  - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
+
 - Execution: SEED-225#restore-dashboard-responsiveness (plan 456-restore-dashboard-responsiveness; first implementation commit `fc23efe0c5926dfc7a42aacb8de00e8e3b9fb75d`)
   - Timestamp: unknown (2026-11-03, slice 2 acceptance before `1c986e7f`)
   - Tool: Claude Code
@@ -666,3 +674,15 @@ Slice 5 first deferred stream open after a rate-limit wait only through `schedul
   - Evidence: coordinator return: focused proof 40 passed / 2 stream journeys failed; before-cleanup plan learning and slice 5 proof: keep effect-level rate-limit guard; do not defer open via page-clock `scheduleOpenAfter` alone; `revision-stream-lost.spec.ts` rate-limit journey then passed in the 42-focused run; published at `40eb66ce52`.
   - Observed effect: lost-freshness / rate-limit stream work blocked until the open path matched how check journeys pause the page clock.
   - Inference: stream delivery that must reopen while tests pause `page.clock` cannot treat a page-clock timeout as the only gate for a standing limit; wall-clock or effect re-entry is required for those journeys (and matches production when the limit ends without a clock advance).
+
+## DD-422 — Exclusion story-clause recording still needs hand-matched exact substrings
+`story-obligations.mjs record` for excluded dispositions refuses paraphrased story clauses with `quote-not-in-story`, so the coordinator must rediscover the seed's exact substring even when the disposition meaning is already clear.
+
+### Occurrences
+- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
+  - Timestamp: unknown (2026-11-05, between source-review write ~05:58+07:00 and slice 1 delivery `18ad9cdc7` at 06:06+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` turns recording X-S2/X-S4/X-S5/X-S7; first exclusion batch used paraphrases such as "no change to how choosing a row opens the terminal" and "no new database"; `record`/`check` refused `quote-not-in-story` until the clauses were shortened to exact Scope substrings ("how choosing a row opens the terminal", "no new daemon, database, or scheduler", "machine-session observation's own 15-second page pace")
+  - Observed effect: two repair rounds on planning records before slice 1 obligation check passed; no product rework and no incorrect exclusion published
+  - Inference: the observation/exclusion writer removed table hand-edits (ODF-391 response) but still leaves exact-substring discovery to trial and error when Scope wording and the disposition title diverge

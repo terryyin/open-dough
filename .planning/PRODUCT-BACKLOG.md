@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep the same project fresh across views with fewer GitHub requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes) — SEED-232#share-published-git-refreshes ([plan](slice-plans/468-share-published-git-refreshes/PLAN.md))
-- [Keep Running Cursor sessions current with fewer local requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#reduce-running-cursor-session-requests) — SEED-232#reduce-running-cursor-session-requests ([plan](slice-plans/470-reduce-running-cursor-session-requests/PLAN.md))
 
 ## Backlog list
 
