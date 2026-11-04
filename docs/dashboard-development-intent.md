@@ -12,8 +12,9 @@ Proof reading surface. When the selected project's
 Intent lists each location's nested `.feature` files in a collapsible tree,
 whose folders start collapsed.
 Locations and folders share separate toggle and name controls: a toggle, shown
-as an open or closed folder icon, opens or closes expansion without changing the selection or the reading pane (Purpose, Proof,
-or summary); clicking an unselected name selects that location or folder and
+as an open or closed book for a configured location and an open or closed
+folder for a folder, opens or closes expansion without changing the selection
+or the reading pane (Purpose, Proof, or summary); clicking an unselected name selects that location or folder and
 shows its summary without changing expansion; clicking the selected name
 toggles expansion and keeps the selection and summary. Locations still allow
 only one open at a time via toggle (or a selected name's toggle); selecting a

@@ -2,7 +2,7 @@
 // file row: each folder a disclosure that collapses and expands, a collapsed
 // folder telling how many files it holds in caller-supplied words, and each
 // file rendered by the caller. A folder toggle shows an open or closed folder
-// icon (`FolderToggleIcon`), which Intent's location toggles share. Review changes supplies its FileRow and
+// icon (`FolderToggleIcon`). Review changes supplies its FileRow and
 // "changed files" wording (`./StoryReviewFileRow.tsx`,
 // `./StoryReviewSnapshotView.tsx`). Intent may pass `folderSelection` so each
 // folder is a folder-icon disclosure plus a selectable name; Review changes passes

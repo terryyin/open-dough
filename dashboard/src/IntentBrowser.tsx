@@ -2,12 +2,13 @@
 // Test Optimization Candidates record, each one Intent reading mode chosen
 // under the banner (`./IntentModeTabs.tsx`, drawn and owned by
 // `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
-// shows the locations. Locations and folders share folder-icon toggle (expansion
-// only) and name (select; toggle once selected) controls; a toggle never changes
-// selection or the reading pane. A file, or nothing selected yet, shows Purpose and Proof
-// as tabs or side by side (`./IntentFileReading.tsx`), one reader layout this
-// browser keeps (`./keptPreference.ts`); a location or folder name shows a
-// Summary (`./IntentSummary.tsx`), whose child names and slowest rows open
+// shows the locations. Locations (book icon) and folders (folder icon) share
+// toggle (expansion only) and name (select; toggle once selected) controls; a
+// toggle never changes selection or the reading pane. A file, or nothing
+// selected yet, shows Purpose and Proof as tabs or side by side
+// (`./IntentFileReading.tsx`), one reader layout this browser keeps
+// (`./keptPreference.ts`); a location or folder name shows a Summary
+// (`./IntentSummary.tsx`), whose child names and slowest rows open
 // their target as the record's links do (`./IntentCandidatesRecord.tsx`). A
 // failed file read keeps its own explanation and retry; a failed proof read's
 // retry reads the locations again without changing the selection. Selection is

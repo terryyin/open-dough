@@ -1,7 +1,8 @@
 // One configured Intent location as an expandable group
-// (`./IntentBrowser.tsx`): a folder-icon toggle discloses the body without changing
-// selection; the name selects the location (and toggles once selected).
-// Nested folders use the shared FileTree's opt-in folder-icon toggle + selectable name.
+// (`./IntentBrowser.tsx`): a toggle showing an open or closed book, unlike the
+// folders inside it, discloses the body without changing selection; the name
+// selects the location (and toggles once selected). Nested folders use the
+// shared FileTree's opt-in folder-icon toggle + selectable name.
 // Which folders are open is `./useLocationOpenFolders.ts`'s; a `reveal`
 // request inside the location also scrolls the selected row into view. A
 // selected story's overlay (`./intentStoryOverlay.ts`) supplies the files with
@@ -14,6 +15,8 @@
 // expanded body.
 
 import { useEffect, useRef } from "react";
+import { Book, BookOpen } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
@@ -23,11 +26,7 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import { reviewFileTree } from "./reviewFileTree.ts";
-import {
-  FileTree,
-  FolderToggleIcon,
-  reviewedFileWords,
-} from "./StoryReviewFileTree.tsx";
+import { FileTree, reviewedFileWords } from "./StoryReviewFileTree.tsx";
 import {
   useLocationOpenFolders,
   type LocationExpansion,
@@ -161,7 +160,7 @@ export function IntentLocationGroup({
           aria-label={`${expanded ? "Collapse" : "Expand"} ${location.path}`}
           onClick={onToggle}
         >
-          <FolderToggleIcon open={expanded} />
+          <Icon icon={expanded ? BookOpen : Book} />
         </button>
         <button
           type="button"
