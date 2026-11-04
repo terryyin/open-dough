@@ -66,10 +66,13 @@ page first reads this machine's attempts.
 
 A publishing start reconciles when the shown revision is its accepted
 publication or, by the authenticated comparison in
-[GitHub requests](GITHUB-REQUESTS.md), contains it, and its native outcome has
-settled, whether or not the shown snapshot still lists its story. A refusal
-that published nothing, or a start that publishes nothing, waits for a
-published read asked after its outcome. An older or unrelated snapshot never
+[GitHub requests](GITHUB-REQUESTS.md), contains it, and it has settled,
+whether or not the shown snapshot still lists its story. A start settles by
+its recorded native outcome or, without one, by its session's completed
+report, at the time that report was received; a start whose worker was lost
+after its session launched thus settles once its session reports completion.
+A refusal that published nothing, or a start that publishes nothing, waits for
+a published read asked after it settled. An older or unrelated snapshot never
 clears protection. A published start whose session was refused reconciles to
 its Taken card with the kept start's continuation. A reconciled start stays so
 on this machine: the page notes it with its attempt through

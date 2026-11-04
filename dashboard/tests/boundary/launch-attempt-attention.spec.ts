@@ -45,7 +45,16 @@ function machine(seed: number): AttemptObservation[] {
   return [...Array(count).keys()].map((index) => {
     const adHoc = pick(4) === 0;
     const outcome = outcomes[pick(outcomes.length)];
-    const settled = outcome !== undefined;
+    const completion =
+      pick(4) === 0
+        ? {
+            outcome: pick(2) === 0 ? "completed" : "unfinished",
+            receivedAt: "2026-11-01T01:30:00.000Z",
+          }
+        : undefined;
+    // Settled by its outcome, or by its session's completed report.
+    const settled =
+      outcome !== undefined || completion?.outcome === "completed";
     return {
       id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
       request: {
@@ -56,15 +65,12 @@ function machine(seed: number): AttemptObservation[] {
       },
       acceptedAt: new Date(Date.UTC(2026, 10, 1, 0, pick(6))).toISOString(),
       publication: { kind: ["none", "unknown", "published"][pick(3)] },
-      ...(outcome && { outcome }),
-      ...(settled && { settledAt: "2026-11-01T01:00:00.000Z" }),
+      ...(outcome && { outcome, settledAt: "2026-11-01T01:00:00.000Z" }),
       ...(settled &&
         pick(2) === 0 && { reconciledAt: "2026-11-01T02:00:00.000Z" }),
-      ...(pick(4) === 0 && {
-        completion: { outcome: pick(2) === 0 ? "completed" : "unfinished" },
-      }),
+      ...(completion && { completion }),
       owned: false,
-      running: !settled && pick(2) === 0,
+      running: outcome === undefined && pick(2) === 0,
     } as unknown as AttemptObservation;
   });
 }

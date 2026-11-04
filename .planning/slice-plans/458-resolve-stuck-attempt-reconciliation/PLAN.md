@@ -2,6 +2,7 @@
 
 **Identity:** SEED-225#resolve-stuck-attempt-reconciliation
 **Source:** [story](../../seeds/SEED-225-restore-dashboard-responsiveness.md#resolve-stuck-attempt-reconciliation)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -84,7 +85,7 @@ active owner's uncommitted repair.
 
 ### 1. A story attempt whose session completed reconciles with published state
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new journey spec (the scratch journey above, kept) in
 `dashboard/tests/`: before the completion report the restarted page shows
 "Startup needs reconciliation" with recovery offered; after the report and
@@ -121,7 +122,16 @@ completed, with its settlement time) consumed by `unsettled`,
 
 ## Learnings
 
-None yet.
+- Slice 1: "settled" now lives only in `settlement()` in
+  `dashboard/src/launchAttemptSelection.ts`; anything needing a settlement
+  time calls it rather than reading `settledAt`. Startup recovery's known
+  facts say "Its session reported completion." for an attempt settled that
+  way instead of "It never settled.".
+- Slice 1 accepted proof: `responsive-session-reconciliation-completed.spec.ts`
+  (journey, red against the outcome-only rule), `boundary/settled-attempt-reconciliation.spec.ts`,
+  the stays-green set (36 passed), 24 consumer specs, and
+  `npm run typecheck:dashboard`; per-commitment observations in
+  [source-review.md](source-review.md).
 
 ## Concern evidence
 

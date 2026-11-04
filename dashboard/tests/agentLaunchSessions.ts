@@ -112,19 +112,35 @@ export async function runningStarts(
   return (await sessionsAnswer<{ starts: unknown[] }>(server)).starts;
 }
 
+type AnsweredAttempts = { attempts: AttemptObservation[] };
+
+// The launch attempts still needing attention, which the boundary answers
+// with the machine's sessions.
+export async function attemptsAttending(
+  server: DashboardServer,
+): Promise<AttemptObservation[]> {
+  return (await sessionsAnswer<AnsweredAttempts>(server)).attempts;
+}
+
+// The launch attempts the boundary answers only with the sessions history.
+export async function attemptsInHistory(
+  server: DashboardServer,
+): Promise<AttemptObservation[]> {
+  return (
+    await sessionsAnswer<AnsweredAttempts>(
+      server,
+      `?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
+    )
+  ).attempts;
+}
+
 // The launch attempts the boundary answers: those still needing attention
 // with the machine's sessions, then the others with their history.
 export async function attempts(
   server: DashboardServer,
 ): Promise<AttemptObservation[]> {
-  type Answered = { attempts: AttemptObservation[] };
   return [
-    ...(await sessionsAnswer<Answered>(server)).attempts,
-    ...(
-      await sessionsAnswer<Answered>(
-        server,
-        `?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
-      )
-    ).attempts,
+    ...(await attemptsAttending(server)),
+    ...(await attemptsInHistory(server)),
   ];
 }

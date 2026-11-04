@@ -8,6 +8,7 @@
 
 import {
   needsReconciliation,
+  settled,
   type ReconciledAnswer,
 } from "../src/agentLaunch.ts";
 import { keepAttempt, keptAttempts } from "./launchAttemptStore.ts";
@@ -31,8 +32,9 @@ const unresolved = refused(
   "This start has not settled or needs reconciliation, so it was not noted as reconciled.",
 );
 
-// Notes the project's settled attempt `id` reconciled, an attempt this server
-// holds (`owned`) as it holds it, or answers why not.
+// Notes the project's settled attempt `id` (`settled`: by its outcome or its
+// session's completed report) reconciled, an attempt this server holds
+// (`owned`) as it holds it, or answers why not.
 export async function reconcileAttempt(
   owned: OwnedAttempts,
   sourceId: string,
@@ -43,8 +45,7 @@ export async function reconcileAttempt(
   const found = owned.held(kept, sourceId, id);
   if (found === undefined) return unknown;
   const observed = owned.observed(found);
-  if (observed.outcome === undefined || needsReconciliation(observed))
-    return unresolved;
+  if (!settled(observed) || needsReconciliation(observed)) return unresolved;
   if (found.reconciledAt !== undefined)
     return { kind: "reconciled", attempt: observed };
   const reconciled = { ...found, reconciledAt: new Date().toISOString() };
