@@ -69,46 +69,59 @@ test("a streaming page sends no since request over a quiet minute", async ({
   ).toBeGreaterThanOrEqual(2);
 });
 
-test("two streaming pages show a publication from one listing with one backlog read", async ({
-  page,
-}) => {
-  const origin = await openStreamingAtA(page);
-  const other = await openSecondStreamingAtA(page);
-  const before = githubFor(page).calls.length;
-  const pageAtB = untilStreamingAt(page, revisionB);
-  const otherAtB = untilStreamingAt(other, revisionB);
-  origin.push(revisionB, backlogB, recordsAt("B"));
-  // Transport drop reopens at the pace: advance both page clocks to it.
-  await page.clock.runFor(checkIntervalMs);
-  await other.clock.runFor(checkIntervalMs);
-  await expectSettledPage(page, titlesOfB);
-  await expectSettledPage(other, titlesOfB);
-  const { readRevision } = parts(page);
-  await expect(readRevision).toContainText(shortRevision(revisionB));
-  const calls = [...callsSince(page, before)];
-  const backlogIndex = calls.findIndex(
-    ({ request }) =>
-      request.kind === "content" &&
-      request.path === ".planning/PRODUCT-BACKLOG.md" &&
-      request.revision === revisionB,
-  );
-  expect(backlogIndex).toBeGreaterThanOrEqual(0);
-  expect(
-    calls
-      .slice(0, backlogIndex + 1)
-      .filter(({ request }) => request.kind === "matching-refs"),
-  ).toHaveLength(1);
-  expect(
-    calls.filter(
+// A slow CI backlog read can otherwise interleave the next 80 ms pace listing
+// before the one-listing assertion; this journey keeps the shared-listing
+// claim with a pace longer than that read.
+test.describe("shared publication listing", () => {
+  test.use({
+    preholdRevisionStreamSlots: false,
+    extraEnv: { DOUGH_REVISION_STREAM_MS: "3000" },
+  });
+
+  test("two streaming pages show a publication from one listing with one backlog read", async ({
+    page,
+  }) => {
+    const origin = await openStreamingAtA(page);
+    const other = await openSecondStreamingAtA(page);
+    // Finish one paced listing so `before` is not mid-flight when we publish.
+    const drained = githubFor(page).calls.length;
+    await untilMatchingRefsSince(page, drained, 1);
+    const before = githubFor(page).calls.length;
+    const pageAtB = untilStreamingAt(page, revisionB);
+    const otherAtB = untilStreamingAt(other, revisionB);
+    origin.push(revisionB, backlogB, recordsAt("B"));
+    // Transport drop reopens at the pace: advance both page clocks to it.
+    await page.clock.runFor(checkIntervalMs);
+    await other.clock.runFor(checkIntervalMs);
+    await expectSettledPage(page, titlesOfB);
+    await expectSettledPage(other, titlesOfB);
+    const { readRevision } = parts(page);
+    await expect(readRevision).toContainText(shortRevision(revisionB));
+    const calls = [...callsSince(page, before)];
+    const backlogIndex = calls.findIndex(
       ({ request }) =>
         request.kind === "content" &&
         request.path === ".planning/PRODUCT-BACKLOG.md" &&
         request.revision === revisionB,
-    ),
-  ).toHaveLength(1);
-  await pageAtB;
-  await otherAtB;
-  await other.close();
+    );
+    expect(backlogIndex).toBeGreaterThanOrEqual(0);
+    expect(
+      calls
+        .slice(0, backlogIndex + 1)
+        .filter(({ request }) => request.kind === "matching-refs"),
+    ).toHaveLength(1);
+    expect(
+      calls.filter(
+        ({ request }) =>
+          request.kind === "content" &&
+          request.path === ".planning/PRODUCT-BACKLOG.md" &&
+          request.revision === revisionB,
+      ),
+    ).toHaveLength(1);
+    await pageAtB;
+    await otherAtB;
+    await other.close();
+  });
 });
 
 test("a watched branch move reads only that entry's plan and commit time; the other page reads nothing further", async ({
