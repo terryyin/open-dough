@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-230#summarize-ci-proof-in-intent",
+  "mode": "story-branch",
+  "branch": "claude/summarize-ci-proof-in-intent",
+  "host": "claude",
+  "model": "opus"
+}
