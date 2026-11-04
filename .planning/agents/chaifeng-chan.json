@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-225#resolve-stuck-attempt-reconciliation",
+  "mode": "story-branch",
+  "branch": "claude/resolve-attempts-that-appear-to-be-reconciling-f",
+  "host": "claude",
+  "model": "opus"
+}
