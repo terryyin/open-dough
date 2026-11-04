@@ -8,6 +8,7 @@ import {
   startName,
   publicationRecordingStopped,
   sessionStartRetained,
+  settled,
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "./agentLaunch.ts";
@@ -55,7 +56,11 @@ function KnownFacts({ attempt }: { readonly attempt: AttemptObservation }) {
       Accepted on this machine <Moment at={new Date(attempt.acceptedAt)} />.{" "}
       {publicationWords(attempt)}{" "}
       {outcome === undefined ? (
-        "It never settled."
+        settled(attempt) ? (
+          "Its session reported completion."
+        ) : (
+          "It never settled."
+        )
       ) : outcome.kind === "launched" ? (
         "Its session started."
       ) : outcome.kind === "existing-changes" ? (

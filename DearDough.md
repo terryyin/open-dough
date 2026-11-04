@@ -356,6 +356,14 @@ Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: unknown
   - Evidence: slice 1 fresh delivery with formatting `["node","scripts/lint.mjs","--fix"]` returned `operation: formatting`, "eslint: not found on PATH"
   - Observed effect: preparation failed before commit; the retry with `["npm","run","--silent","format"]` committed and published.
+- Execution: SEED-225#resolve-stuck-attempt-reconciliation (plan 458, first implementation commit 63b37546b)
+  - Timestamp: unknown (before slice 1 commit 63b37546b, 2026-11-04)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown
+  - Evidence: slice 1 fresh delivery with formatting `["node","scripts/lint.mjs","--fix"]` returned `operation: formatting`, "eslint: not found on PATH"
+  - Observed effect: preparation failed before commit; the retry with `["npm","run","--silent","format"]` committed and published.
+  - Inference: the coordinator repeated the occurrence a few hours after it was recorded; the recorded finding alone did not reach the next execution's preparation choice.
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
 

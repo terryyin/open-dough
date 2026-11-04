@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Resolve attempts that appear to be reconciling forever](seeds/SEED-225-restore-dashboard-responsiveness.md#resolve-stuck-attempt-reconciliation) — SEED-225#resolve-stuck-attempt-reconciliation ([plan](slice-plans/458-resolve-stuck-attempt-reconciliation/PLAN.md))
 - [Prove decisive planning premises where the slice uses them](seeds/SEED-010-learn-from-execution-retrospectives.md#prove-planning-premises-at-their-use) — SEED-010#prove-planning-premises-at-their-use ([plan](slice-plans/458-prove-planning-premises-at-their-use/PLAN.md))
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs ([plan](slice-plans/458-proportionate-refactor-for-records-and-repairs/PLAN.md))
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-225_resolve-stuck-attempt-reconciliation.json",
+      "identity": "SEED-225#resolve-stuck-attempt-reconciliation",
+      "completedAt": "2026-11-04T01:04:20.032Z",
+      "blob": "3cfe4e78366bed535355a891c28364232077df2d"
+    },
+    {
       "fileName": "SEED-225_correct-incident-and-workspace-observation-residue.json",
       "identity": "SEED-225#correct-incident-and-workspace-observation-residue",
       "completedAt": "2026-11-04T00:04:10.979Z",

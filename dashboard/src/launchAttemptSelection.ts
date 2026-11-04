@@ -64,9 +64,35 @@ const laneOf = ({ request }: AttemptObservation) =>
     request.workflow === "ad-hoc" ? null : request.identity,
   ]);
 
-// Whether an attempt never settled, unless its session completed.
-const unsettled = (attempt: AttemptObservation) =>
-  attempt.outcome === undefined && attempt.completion?.outcome !== "completed";
+// The facts that tell whether and when an attempt settled.
+type SettlingFacts = Pick<
+  AttemptObservation,
+  "outcome" | "settledAt" | "completion"
+>;
+
+// How an attempt settled: by its recorded outcome, or by its session's
+// completed report, which settles an attempt that lost its worker before
+// recording one. It settled when its outcome was recorded (`settledAt`),
+// else when that report was received; nothing is written onto the attempt.
+// `at` is absent only for an outcome recorded with no time. Undefined while
+// it never settled.
+export function settlement(
+  attempt: SettlingFacts,
+): { readonly at?: string } | undefined {
+  const completed =
+    attempt.completion?.outcome === "completed"
+      ? attempt.completion.receivedAt
+      : undefined;
+  if (attempt.outcome === undefined && completed === undefined)
+    return undefined;
+  const at = attempt.settledAt ?? completed;
+  return at === undefined ? {} : { at };
+}
+
+export const settled = (attempt: SettlingFacts): boolean =>
+  settlement(attempt) !== undefined;
+
+const unsettled = (attempt: AttemptObservation) => !settled(attempt);
 
 // The attempts among `known` that still need attention, which the machine's
 // sessions overview carries; the rest are its history

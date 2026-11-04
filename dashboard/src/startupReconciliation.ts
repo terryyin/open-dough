@@ -6,7 +6,9 @@
 // arriving later, or elapsed time never is. An attempt that published
 // nothing, or published at no named revision, is reconciled by a fully read
 // snapshot whose read was asked after it settled. Either is reconciled
-// whether or not the snapshot still lists its story. Whether an attempt that
+// whether or not the snapshot still lists its story. An attempt is settled by
+// its recorded outcome or, without one, by its session's completed report
+// (`settlement` in `./launchAttemptSelection.ts`). Whether one that
 // may or may not have published did is not told here. Once reconciled, an
 // attempt stays so on this page and is noted with the local service, so every
 // page on this machine reads it so (`reconciledAt`); while it waits, a page
@@ -16,6 +18,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
   laterAttempt,
+  settled,
+  settlement,
   storyOf,
   type AttemptObservation,
 } from "./agentLaunch.ts";
@@ -70,7 +74,7 @@ export type Reconciliation =
   | { readonly kind: "waiting"; readonly problem?: string }
   | { readonly kind: "unconfirmed" };
 
-// The latest attempt of each story, when it is settled.
+// The latest attempt of each story, when it is settled (`settled`).
 function latestSettled(
   known: readonly AttemptObservation[],
 ): readonly AttemptObservation[] {
@@ -81,9 +85,7 @@ function latestSettled(
     const key = JSON.stringify([attempt.request.source, identity]);
     latest.set(key, laterAttempt(latest.get(key), attempt));
   }
-  return [...latest.values()].filter(
-    (attempt) => attempt.outcome !== undefined,
-  );
+  return [...latest.values()].filter(settled);
 }
 
 // The accepted revision an attempt's publication names, when usable.
@@ -96,14 +98,15 @@ function acceptedRevision(attempt: AttemptObservation): string | undefined {
     : undefined;
 }
 
-const askedAfterSettling = (
+// Whether the shown snapshot's read was asked after the attempt settled.
+export const askedAfterSettling = (
   attempt: AttemptObservation,
-  shown: ShownSnapshot,
-) => shown.askedAt > Date.parse(attempt.settledAt ?? "");
+  shown: Pick<ShownSnapshot, "askedAt">,
+) => shown.askedAt > Date.parse(settlement(attempt)?.at ?? "");
 
 // One settling of an attempt.
 const settling = (attempt: AttemptObservation) =>
-  `${attempt.id}@${attempt.settledAt ?? ""}`;
+  `${attempt.id}@${settlement(attempt)?.at ?? ""}`;
 
 export function useStartupReconciliation({
   known,

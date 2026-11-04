@@ -184,6 +184,8 @@ export {
   worktreeUpdateNeeded,
   publicationRecordingStopped,
   laterAttempt,
+  settled,
+  settlement,
   unresolvedAttempt,
 } from "./launchAttemptSelection.ts";
 
