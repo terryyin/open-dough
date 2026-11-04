@@ -4,6 +4,7 @@
 **Source:** [story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#prove-planning-premises-at-their-use)
 in SEED-010, selected on 2026-11-04 as the response to
 [ODF-074](../../../docs/maintainer/findings/ODF-074.md).
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/prove-decisive-planning-premises-where-the-slice`, agent
 aki-chan).
@@ -107,7 +108,7 @@ repair.
 
 ### 1. A premise is settled in the form and profile the slice uses
 Type: Behavior
-Status: planned
+Status: done
 Proof: Behavior review per AGENTS.md on the revised
 `settle-decisive-premises.md`: walk examples 1, 2, 3, 5 and 6 and show the
 one reading of the text that yields each recorded result: `python3 -c` for
@@ -146,6 +147,23 @@ credentialed, owner-held, or state-changing remainders stay as they are.
 Deliver together: the revised reference (its "settled only when" sentence,
 the derivation paragraph, the record sentence, and a short reuse sentence),
 phrased for the executing agent, and the new guidance test.
+
+Accepted proof (2026-11-04): the focused command above passes (15 cases);
+the five new cases fail on the base text in a temporary copy. Behavior
+review, about 2 minutes (whole slice about 8 minutes; tokens unavailable):
+examples 1 and 2 stay open as named proxies (`python3 -c` for `-I`; the
+manifest's companion files for the profile's published dataset), and the
+read-only profile listing settles example 2; example 3 cites CI run
+41744226091 (`ci.yml`, success, 2026-11-04T00:05:50Z) at `6f2a50ec8`, whose
+suite paths are unchanged to `06839e887`, and this slice's `src/skills`
+edits reopen it; example 5 sends derivation to
+`dashboard/src/recentlyDoneView.ts` `useRecentlyDone`; example 6's early
+probe paragraph is unchanged. Consumer trace: only
+`developer-observation-guidance.test.mjs` reads the reference (green);
+`install.sh:121` and `dough-slice-planning/SKILL.md:121` cite the path.
+Learning: the read-only profile query sentence says it *settles* a premise
+about that profile's own state, so it does not read against "read-only host
+queries locate it".
 
 ### 2. Readiness names the unverified input or host condition
 Type: Behavior
