@@ -72,6 +72,16 @@ Former local code: DD-219. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-221. [Meaning, evidence and response](docs/maintainer/findings/ODF-209.md).
 
+### Occurrences
+- Execution: SEED-229#reduce-remote-sessions-traffic (plan 462-reduce-remote-sessions-traffic, first implementation commit `75e80cff0890d46699f20d877040c6146390b185`)
+  - Timestamp: unknown (2026-11-04, between about 14:10 and 14:26 +07:00, during the coordinator's full `npm run test:dashboard` that started at 13:08)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: the coordinator's repair brief for `authenticated-read-incident-record-bounds.spec.ts` asked for repeats "some under extra CPU load" while it also said the full suite might still be running. The repair agent ran 8 `yes` CPU burners at load about 53. In the same window the full suite failed at `story-reference-navigation.spec.ts:106` and `session-terminal-voice-lifecycle.spec.ts:185`, where load reached 45–56. The next repair brief forbade burners while the suite ran.
+  - Observed effect: two more repair agents (about 125k and 107k reported tokens) and base-worktree comparisons. Both failures had tight fixed waits that also failed on base, so they were real test defects and were repaired. A 5-repeat comparison at fluctuating load (change 5/5 against base 2/5) suggested a regression that traces then disproved.
+  - Inference: qualified. The brief created competing owned heavy work on the shared host that delegation guidance asks the coordinator to name and sequence. The extra load probably exposed the tight waits sooner, but did not cause defects.
+
 ## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
 
 Former local code: DD-234. [Evidence and current response](docs/maintainer/findings/ODF-210.md).

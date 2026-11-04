@@ -193,3 +193,10 @@ Learnings:
 
 Slice-plan refinement was not needed. The shared response path and both
 audiences deliver one user outcome with one proof owner and one safe stop.
+
+## Execution complete
+
+Product advice: no change now. After this ships, measure deployed Sessions
+traffic over the remote route. If it stays heavy, the story's deferred
+options remain the follow-up candidates: Brotli for HTTPS origins, a
+narrower done listing, or changed-record updates.
