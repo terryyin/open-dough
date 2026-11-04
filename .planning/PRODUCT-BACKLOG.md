@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Correct incident identity and observation residue](seeds/SEED-225-restore-dashboard-responsiveness.md#correct-incident-and-workspace-observation-residue) — SEED-225#correct-incident-and-workspace-observation-residue ([plan](slice-plans/457-correct-incident-and-workspace-observation-residue/PLAN.md))
-
 ## Backlog list
 
 - [Proportion the fresh refactor pass for records-only increments and small repairs](seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs) — SEED-010#proportionate-refactor-for-records-and-repairs

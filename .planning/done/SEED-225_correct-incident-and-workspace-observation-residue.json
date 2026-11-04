@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-225#correct-incident-and-workspace-observation-residue",
+  "title": "Correct incident identity and observation residue",
+  "completedAt": "2026-11-04T00:04:10.979Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "claude",
+  "model": "opus"
+}
