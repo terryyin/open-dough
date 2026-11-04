@@ -173,7 +173,7 @@ Gherkin or pytest summary still gives the statistics it can. Update the
 
 ### 2. The Python definition scanner's rules are pinned by unit tests
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/support/intent-pytest-cases.test.mjs` gains cases for the
 scanner over small texts, each asserting names and 1-based definition lines:
 `def test_` inside a triple-quoted docstring and inside a bracketed
@@ -210,3 +210,11 @@ Remaining slice-specific concerns: none identified in this review.
   three pytest Proof journeys (9 passed), the unit tests,
   `typecheck:dashboard` and payload links, rerun after the refactor that
   shares one lexicographic comparator for code points and ids.
+- Slice 2: the scanner cases live in a sibling
+  `tests/support/intent-pytest-definitions.test.mjs`, since one file would
+  pass 250 lines; each test was mutation-checked against its rule. Reading
+  the scanner found differences from pytest's defaults that no promise
+  covers and this correction leaves alone: any `test` prefix
+  (`python_functions`), a redefined name collected once, a `Test*` class
+  with `__init__` skipped, and project `python_functions`/`python_classes`
+  settings unread.
