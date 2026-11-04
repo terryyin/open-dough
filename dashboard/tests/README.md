@@ -8,7 +8,8 @@ hosts; [proof records](proof-record.md); and [CI shards](shards.md) for allocati
 recorded times and deadlines.
 
 See [local resource use](../../tests/local-test-resources.md) for full-suite
-admission across linked worktrees, worker defaults, overrides and cleanup.
+admission across linked worktrees, worker defaults, overrides, cleanup and
+machine sleep on macOS.
 
 ## Two tiers: browser journeys and boundary tests
 

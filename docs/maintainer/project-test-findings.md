@@ -539,5 +539,15 @@ still give future planners no durable guidance for this case. Original source
 is recoverable at `d5b59b92b:DearDough.md`. The process execution release remains
 unknown.
 
-**Follow-up:** [SEED-227#protect-long-local-proof-from-maintenance-sleep](../../.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
-is queued. Adoption and subsequent ordinary-use evidence are pending.
+**Follow-up:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04)
+delivered the instructions in
+[Machine sleep on macOS](../../tests/local-test-resources.md#machine-sleep-on-macos).
+Subsequent ordinary-use evidence is pending. Two settling observations remain
+open: whether `caffeinate -s` keeps a run going that starts inside the
+sleep/dark-wake cycle, and the next sleep-attributed failure after adoption.
+If such a failure recurs, the considered responses are an automatic guard,
+`caffeinate -s -i -w <pid>` started by `acquireLocalSuite` in
+`scripts/local-test-suite.mjs` when a full run takes admission on macOS
+(proved with a substitute guard command), and a failing full run printing the
+sleep entries inside its own window. The fuller analysis is recoverable from
+`b52c1d3bdad7369fc1042a5f2744e9ebedadecbe:.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md`.
