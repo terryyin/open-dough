@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 414. Removed numbers are never reused.
+- Highest allocated local number: 415. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -568,3 +568,16 @@ A return listed a mechanism the slice's restriction depended on as untested; the
   - Evidence: slice 2 return listed stall coalescing as "Not tested"; the coordinator resumed the agent for a fold proof (`authenticated-read-incident-record-stalls.spec.ts`), whose first run recorded 1 of 5 stalls: `histogram.reset()` in `dashboard/server/eventLoopWatch.ts` discarded a just-ended stall on Node v24.21.0. The fix measures from count and mean without reset.
   - Observed effect: a production-relevant measurement defect fixed before publication; the earlier lifecycle spec had passed by timing.
   - Inference: practice worth keeping — treat a return's untested mechanism behind a story restriction as missing proof, not a note.
+
+## DD-415 — Acceptance observed a class commitment at text listing only its examples
+A source-review commitment defined a class with examples in parentheses; slice acceptance recorded it `observed:` at product text that kept the examples and dropped the class, although the source-review rules call a narrower result a mismatch. A later slice's replay exposed it and needed a return.
+
+### Occurrences
+- Execution: SEED-010#proportionate-refactor-for-records-and-repairs (plan 458-proportionate-refactor-for-records-and-repairs; first implementation commit `451de1e082f90ef8641e0644e6c08a40dcb58d1d`)
+  - Timestamp: unknown (2026-11-04, slice 1 acceptance before `451de1e0`; caught at slice 3 acceptance before `5c15a9d0`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: commitment 2.1 ("planning, execution, finding or research records (plans, seeds, …)") was recorded observed at wrap-up step 1 "touches only plans, seeds, backlog, …"; the slice 3 replay then classed proof records, a candidate catalog, research notes and the North Star as fresh-pass; obligation G1 (`return`, proved by slice 3) in plan 458.
+  - Observed effect: one extra correction agent (about 79k reported tokens) and one more refactor pass (about 60k); five of seven replay rows changed classification.
+  - Inference: the coordinator matched the example list rather than the stated class; a replay against real cases found what phrase-level acceptance missed.

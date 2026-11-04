@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#proportionate-refactor-for-records-and-repairs",
+  "title": "Proportion the fresh refactor pass for records-only increments and small repairs",
+  "completedAt": "2026-11-04T01:45:26.042Z",
+  "developer": "Terry Yin",
+  "agent": "juacompe-chan",
+  "host": "claude",
+  "model": "opus"
+}
