@@ -115,6 +115,14 @@ completed, with its settlement time) consumed by `unsettled`,
 `askedAfterSettling`, `settling`, the containment questions) and
 `launchAttemptReconciliation.ts`; `needsReconciliation` keeps its meaning.
 
+## Execution complete
+
+Product advice: no change. The shared settled rule closes the reported
+symptom with no new product learning beyond it; store retention still keys
+on `settledAt`, so an attempt settled only by its session's report is kept
+like an unsettled one, which matches the story's "no purge or edit of stored
+attempts" limit and no current attempt is in that state.
+
 ## Current decisions
 
 - Settlement by completed session uses the completion's `receivedAt` as the
