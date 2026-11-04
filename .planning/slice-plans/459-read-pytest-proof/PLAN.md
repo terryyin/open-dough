@@ -38,8 +38,7 @@ Included scope, one source each:
 
 Material exclusions (from the story): other Python trees and projects, run
 wall time, CI comparison, staleness rules, observations the published file no
-longer defines, dynamically generated tests, a cheaper root summary
-([SEED-226](../../seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand)),
+longer defines, dynamically generated tests, a cheaper root summary,
 rerun plugins, and a full-suite Pygardon refresh, which is Terry's deliberate
 run after slice 5. Also outside this plan: the installed copies under
 `.agents/skills/` and `.claude/skills/`, which update only from a released
@@ -249,7 +248,7 @@ describe on real source; nothing is fabricated for the demonstration.
 - Parametrized rows are observation-derived; the inventory line counts test
   functions and the proof lines count test cases.
 - The root `tests` summary keeps the shared read-every-file behavior; its
-  measured cost in slice 6 informs SEED-226 or a follow-up.
+  measured cost in slice 6 informs a follow-up.
 
 ## Learnings
 
