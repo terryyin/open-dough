@@ -158,28 +158,18 @@ first answer catches it up.
 
 ### 6. The gain is observed on a real dashboard
 Type: Behavior
-Status: planned
-Proof: On a throwaway preview server built from this checkout (private
-HOME with a one-project list, `GH_TOKEN="$(gh auth token)"`, a private
-`DOUGH_GITHUB_REQUEST_OWNER_ROOT`), headless Playwright measures the Open
-Dough Board over one quiet minute:
+Status: done
+Proof (coordinator 2026-11-05): Throwaway preview at `40eb66ce` (private
+HOME, keyring `GH_TOKEN`, private request-owner root). Learning records:
 
-- Count `since` requests and transferred bytes from CDP
-  `Network.loadingFinished` and `Network.dataReceived` encoded lengths. Do
-  this once with slots pre-held (the check delivery, the baseline route)
-  and once streaming.
-- Measure publication-to-display with the project's configured ref set to
-  a scratch branch cut from `main`: push one commit to it, time it to the
-  page showing that revision, and delete the branch afterwards. Trunk is
-  not touched.
-- Repeat the streaming minute through the Tailscale route, using slice 1's
-  authorization, or record it as the post-deployment check that wrap-up
-  confirms.
-- Record the revision, counts, bytes and times as a learning.
-
-A stream that costs more bytes than the checks is a defect to diagnose,
-not a result to report and move on from. No production dashboard is
-restarted.
+- Check quiet minute: `since` **3** / **1860** B → four-check baseline
+  ≈**2480** B; stream quiet minute: `since` **0** / **1008** B
+  (**1008 < 2480**).
+- Publication-to-display **15302** ms on scratch branch (deleted; trunk
+  untouched).
+- Sessions still **4**/min (**1160** B) — M7 disclosed.
+- Tailscale Board quiet-minute: **post-deployment wrap-up check** (direct
+  serve blocked by Vite Host + loopback origin; production uses Caddy).
 
 Behavior: The landed dashboard with one real visible page → no recurring
 check requests, fewer bytes than four checks a minute, and no later
@@ -233,3 +223,19 @@ Commitment: D5
   sooner than the revision-stream pace. Web Locks `ifAvailable` cannot be
   combined with `signal` (Chromium NotSupportedError); slot acquisition uses
   `ifAvailable` alone and aborts the held wait separately.
+- 2026-11-05 slice 6 measurement (`40eb66ce`, `vite preview` `127.0.0.1:52491`,
+  private HOME one-project list, keyring `GH_TOKEN`, private
+  `DOUGH_GITHUB_REQUEST_OWNER_ROOT` 0700; CDP `loadingFinished` /
+  `dataReceived`; no production restart; trunk untouched). Check quiet
+  (`http/1.1`, slots held): `since` **3** / **1860** B → four-check ≈**2480** B
+  (~15.5 s; 60.003 s window). Stream quiet: `since` **0** / **1008** B one
+  EventSource (**1008 < 2480**, not a defect). Sessions (M7): still **4**
+  `/__agent-launch` / **1160** B each quiet minute. Publication-to-display
+  **15302** ms: scratch `slice6-sse-measure-1793829261431` from
+  `origin/main` `7e4a9287…`, empty commit `736ca7d1…`, status showed
+  `Published work read at revision 736ca7d`, branch deleted. Tailscale Board
+  quiet-minute deferred to **post-deployment wrap-up**: temporary
+  `tailscale serve --bg --https=9443` added then removed (status restored
+  `:443`→43128, `:8443`→17235); Vite Host + loopback-only
+  `__authenticated-read` block direct serve; production reaches Board via
+  Caddy Host rewrite — confirm stream quiet-minute bytes after deploy.
