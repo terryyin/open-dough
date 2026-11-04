@@ -45,12 +45,23 @@ the work it adds, as required by
   semantics. Keep unchanged replies small and uncompressed. Follow
   [HTTP Semantics §12.5.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-12.5.3)
   for explicit coding preferences.
+- Encode each full answer at most once per revision and share the encoded
+  bytes between viewers, as the serialized answer is already shared. On
+  2026-11-04, level-6 gzip of the projected 2.31 MB overview took about
+  60 ms of CPU at a load average of about 16. Every changed revision repeats
+  that work, so per-request encoding would add it for each open page.
 
 ## Baseline and decisive premises
 
 - The earlier Tailscale trace establishes the user impact on production
   revision `4b5c31481`. The 2.3 MB identity and 0.50 MB gzip figures
   are an offline projection from the same records, not deployed results.
+- On 2026-11-04 the local production dashboard, which still served the
+  pre-split 9.88 MB answer, compressed to 1.58 MB with level-6 gzip. Its
+  records, given the overview's listing projection, compressed from
+  2.31 MB to 0.50 MB, a 78% reduction. During a 4-minute window with active
+  sessions, 14 polls returned full answers. Five of these changed attempts
+  but no records. No poll returned a full answer during the next 3 minutes.
 - At `83af9a833` in this preparation checkout, the existing Sessions
   replay passed on Node 24.21.0. Its boundary served 1,005 records and 1,034
   attempts at fixture scale. The identity overview was 2.03 MB, history

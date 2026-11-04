@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-229#reduce-remote-sessions-traffic",
-  "host": "claude",
-  "model": "opus"
-}
