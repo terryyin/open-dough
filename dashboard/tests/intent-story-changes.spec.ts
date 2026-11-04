@@ -265,24 +265,17 @@ test("a long story title is shortened on one line, in full on hover and when the
   const name = disclosure.locator(".intent-story-name");
   await expect(name).toHaveText(`Story ${long}`);
   await expect(disclosure).toHaveAttribute("title", long);
-  // One line, cut short: it overflows its width but not its line. Measured
-  // where it settles, heading the locations tree: until the tree is read the
-  // summary sits above "Reading Intent locations…", and the element measured
-  // there is replaced (detached, measuring nothing) when the tree arrives.
-  await expect(
-    intent.locator(".intent-locations .intent-story-name"),
-  ).toBeVisible();
-  await expect
-    .poll(() =>
-      name.evaluate((element) => ({
-        overflows: element.scrollWidth > element.clientWidth,
-        lines: Math.round(
-          element.getBoundingClientRect().height /
-            parseFloat(getComputedStyle(element).lineHeight),
-        ),
-      })),
-    )
-    .toEqual({ overflows: true, lines: 1 });
+  // Loading the locations tree replaces the title shown in the loading panel.
+  const loadedName = intent.locator(".intent-locations .intent-story-name");
+  await expect(loadedName).toBeVisible();
+  const box = await loadedName.evaluate((element) => ({
+    overflows: element.scrollWidth > element.clientWidth,
+    lines: Math.round(
+      element.getBoundingClientRect().height /
+        parseFloat(getComputedStyle(element).lineHeight),
+    ),
+  }));
+  expect(box).toEqual({ overflows: true, lines: 1 });
 
   const detail = await expandStorySummary(intent);
   await expect(detail.locator(".intent-story-full-title")).toHaveText(
