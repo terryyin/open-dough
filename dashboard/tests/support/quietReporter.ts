@@ -26,6 +26,7 @@ import type {
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ProofRecord } from "./proofRecord.ts";
+import { ProofSnapshot } from "./proofSnapshot.ts";
 import { SpecTimes } from "./specTimes.ts";
 
 type Write = typeof process.stdout.write;
@@ -45,11 +46,11 @@ function indent(block: string): string {
   return block.replace(/^(?=.)/gm, "    ");
 }
 
-// `proofRecord` names the run's proof record (proofRecord.ts) and `times` its
-// per-spec-file seconds (specTimes.ts); each is written only when named.
+// `proofRecord` / `times` / `snapshot`: run record, per-spec seconds, committed proof.
 export type QuietReporterOptions = {
   proofRecord?: string | undefined;
   times?: string | undefined;
+  snapshot?: boolean | undefined;
 };
 
 export default class QuietReporter implements Reporter {
@@ -62,12 +63,16 @@ export default class QuietReporter implements Reporter {
   private watching = true;
   private proof: ProofRecord | undefined;
   private times: SpecTimes | undefined;
+  private snapshot: ProofSnapshot | undefined;
 
   constructor(private readonly options: QuietReporterOptions = {}) {
     this.writeOut = process.stdout.write.bind(process.stdout);
     this.writeErr = process.stderr.write.bind(process.stderr);
     process.stdout.write = this.watch(this.writeOut);
     process.stderr.write = this.watch(this.writeErr);
+    if (this.options.snapshot === true) {
+      this.snapshot = new ProofSnapshot(true);
+    }
   }
 
   // The reporter itself writes the console; no default reporter is added.
@@ -90,6 +95,7 @@ export default class QuietReporter implements Reporter {
         this.writeErr(message),
       );
     }
+    this.snapshot?.onBegin(config);
   }
 
   onTestBegin(test: TestCase, result: TestResult): void {
@@ -114,6 +120,7 @@ export default class QuietReporter implements Reporter {
   onTestEnd(test: TestCase, result: TestResult): void {
     this.proof?.end(test, result);
     this.times?.add(test, result);
+    this.snapshot?.onTestEnd(test, result);
     const outcome = test.outcome();
     const output = [...result.stdout, ...result.stderr].map(text).join("");
     if (outcome === "skipped" || (outcome === "expected" && output === "")) {
@@ -162,6 +169,7 @@ export default class QuietReporter implements Reporter {
       nothingShown && result.status === "passed" ? "passed" : "failed";
     this.proof?.finish(result, strictStatus);
     this.times?.write();
+    this.snapshot?.onEnd();
     if (strictStatus === "passed") {
       return Promise.resolve(undefined);
     }

@@ -22,6 +22,16 @@ const listed = (items: readonly string[]) =>
     ? items.join("")
     : `${items.slice(0, -1).join(", ")} and ${items.at(-1) ?? ""}`;
 
+// "`a` or `b`" for runner names or reference paths.
+function codedAlternatives(items: readonly string[]) {
+  return items.map((item, at) => (
+    <span key={item}>
+      {at > 0 ? " or " : null}
+      <code>{item}</code>
+    </span>
+  ));
+}
+
 function RunnerProblem({ location }: { readonly location: IntentLocation }) {
   return (
     <p>
@@ -38,14 +48,7 @@ function RunnerProblem({ location }: { readonly location: IntentLocation }) {
       )}{" "}
       Set <code>runner</code> on <code>{location.path}</code> in{" "}
       <code>.planning/open-dough.json</code> to the runner that records its
-      proof:{" "}
-      {proofRunners.map((runner, at) => (
-        <span key={runner}>
-          {at > 0 ? " or " : null}
-          <code>{runner}</code>
-        </span>
-      ))}
-      .
+      proof: {codedAlternatives(proofRunners)}.
     </p>
   );
 }
@@ -60,10 +63,11 @@ export function NotRecorded({
   if (location?.runnerProblem !== undefined) {
     return <RunnerProblem location={location} />;
   }
-  const reference =
-    proofKind?.words.reference ??
-    unrecordedReferenceOf(location?.kind, location?.runner);
-  if (reference === undefined) {
+  const references =
+    proofKind !== undefined
+      ? [proofKind.words.reference]
+      : unrecordedReferenceOf(location?.kind, location?.runner);
+  if (references === undefined || references.length === 0) {
     return (
       <p className="quiet">Proof is read for {listed(proofFamilies)} so far.</p>
     );
@@ -71,7 +75,7 @@ export function NotRecorded({
   return (
     <p>
       Proof is not recorded for this project. To configure deliberate proof
-      generation, follow <code>{reference}</code> in this project&rsquo;s
+      generation, follow {codedAlternatives(references)} in this project&rsquo;s
       installed Open Dough skills.
     </p>
   );

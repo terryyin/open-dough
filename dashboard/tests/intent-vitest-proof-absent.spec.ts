@@ -34,11 +34,16 @@ import {
   scriptPath,
   sources,
 } from "./intentVitestSourceFixtures.ts";
-import { proofReadForFamiliesSoFar } from "./intentProofAbsenceText.ts";
+import {
+  notRecordedFollowing,
+  proofReadForFamiliesSoFar,
+  setRunnerThatRecordsProof,
+} from "./intentProofAbsenceText.ts";
 
-const notRecorded =
-  "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/vitest-proof.md in this project’s installed Open Dough skills.";
-const setRunner = `Set runner on ${locationPath} in .planning/open-dough.json to the runner that records its proof: vitest.`;
+const notRecorded = notRecordedFollowing(
+  "dough-test-optimization/references/vitest-proof.md or dough-test-optimization/references/playwright-proof.md",
+);
+const setRunner = setRunnerThatRecordsProof(locationPath);
 
 async function openDoughnut(
   page: Page,

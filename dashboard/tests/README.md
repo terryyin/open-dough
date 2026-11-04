@@ -4,8 +4,11 @@ Run the dashboard's single Playwright suite from the repository root with
 `npm run test:dashboard`. Its two tiers share one run and shard selection.
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
-hosts; [proof records](proof-record.md); and [CI shards](shards.md) for allocation,
-recorded times and deadlines.
+hosts; the per-run [proof record](proof-record.md) (a caller-owned transcript,
+not committed Proof); committed Playwright Proof under `proof/` via
+`RECORD_PLAYWRIGHT_PROOF=1` (see the installed
+`dough-test-optimization/references/playwright-proof.md`); and
+[CI shards](shards.md) for allocation, recorded times and deadlines.
 
 See [local resource use](../../tests/local-test-resources.md) for full-suite
 admission across linked worktrees, worker defaults, overrides, cleanup and

@@ -10,7 +10,12 @@
       {
         "path": "dashboard/tests",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"]
+        "include": ["**/*.spec.ts"],
+        "runner": "playwright",
+        "proof": "dashboard/tests/proof",
+        "proofGeneration": {
+          "command": "RECORD_PLAYWRIGHT_PROOF=1 npm run --silent test:dashboard -- <files>"
+        }
       },
       {
         "path": "tests",

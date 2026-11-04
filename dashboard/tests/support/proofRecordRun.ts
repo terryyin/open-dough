@@ -46,6 +46,7 @@ export function startProofCommand(
         name !== "OPEN_DOUGH_DASHBOARD_SPLIT" &&
         name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD" &&
         name !== "OPEN_DOUGH_DASHBOARD_TIMES" &&
+        name !== "RECORD_PLAYWRIGHT_PROOF" &&
         name !== "FORCE_COLOR" &&
         name !== "NO_COLOR",
     ),
@@ -83,6 +84,11 @@ export function startProofRun(options: {
   recordPath?: string | false;
   // The per-spec-file times file (support/specTimes.ts); none unless named.
   timesPath?: string;
+  // Committed Playwright proof via proofSnapshot.ts; off unless true.
+  snapshot?: boolean;
+  // Nested run working directory; repository root unless a fixture checkout.
+  cwd?: string;
+  testDir?: string;
   config?: Readonly<Record<string, unknown>>;
   args?: string[];
   env?: Readonly<Record<string, string>>;
@@ -95,7 +101,7 @@ export function startProofRun(options: {
   const outputDir = path.join(directory, "test-results");
   const configFile = path.join(directory, "playwright.config.mjs");
   const config = {
-    testDir: proofFixtures,
+    testDir: options.testDir ?? proofFixtures,
     testMatch: options.spec,
     outputDir,
     retries: 0,
@@ -105,7 +111,11 @@ export function startProofRun(options: {
       [
         quietReporter,
         // JSON.stringify leaves out an option that is undefined.
-        { proofRecord: recordPath, times: options.timesPath },
+        {
+          proofRecord: recordPath,
+          times: options.timesPath,
+          snapshot: options.snapshot === true ? true : undefined,
+        },
       ],
     ],
     ...options.config,
@@ -120,7 +130,7 @@ export function startProofRun(options: {
       configFile,
       ...(options.args ?? []),
     ],
-    repoRoot,
+    options.cwd ?? repoRoot,
     options.env,
   );
   return { ...run, directory, recordPath, outputDir, configFile };
