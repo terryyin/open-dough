@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-228#compact-selected-story-intent",
+  "mode": "story-branch",
+  "branch": "claude/make-selected-story-intent-easier-to-scan",
+  "host": "claude",
+  "model": "opus"
+}
