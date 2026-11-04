@@ -124,6 +124,26 @@ const proofFile = (entries: readonly Observation[]) =>
 
 export const snapshotFiles = { [snapshotPath]: proofFile(observations) };
 
+// The same snapshot grown to about 2 MB, as a Pygardon snapshot of its whole
+// suite is: passing observations of many other test files' cases follow.
+const generatedFileCount = 280;
+const generatedCasesPerFile = 20;
+const numbersBelow = (count: number) => [...Array(count).keys()];
+export const largeSnapshotFiles = {
+  [snapshotPath]: proofFile([
+    ...observations,
+    ...numbersBelow(generatedFileCount).flatMap((file) =>
+      numbersBelow(generatedCasesPerFile).map((test) =>
+        passed(`${testsPath}/generated/test_module_${file}.py`, "test_case", {
+          parameterId: `case-${test}`,
+          durationMs: 10 + test,
+          fileBlob: gitBlobSha(`generated ${file}`),
+        }),
+      ),
+    ),
+  ]),
+};
+
 // The same snapshot in Cucumber's fields: not valid pytest proof.
 export const cucumberShapedFiles = {
   [snapshotPath]: proofFile(

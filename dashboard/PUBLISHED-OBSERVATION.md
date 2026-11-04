@@ -105,8 +105,8 @@ open story inspection. When the story and focused control remain present, the
 keyboard and visible reading context stay there as the facts enrich the page.
 
 The branch-head listing (`matching-refs/heads/`) is one unpaginated answer, and
-the local boundary accepts at most 1 MiB of `gh` output (`maxBuffer` in
-`server/ghRead.ts`), about 2,700 branches. When that listing fails for any
+the local boundary accepts at most 32 MiB of `gh` output (`maxAnswerBytes` in
+`server/ghRead.ts`), about 85,000 branches. When that listing fails for any
 reason but a rate limit -- GitHub gives up on it (for example with a `504`), or
 it is larger than that -- that check asks only which commit the configured ref names
 (`commits/<ref>`) and reports no branch heads: a move of the configured ref is still found,

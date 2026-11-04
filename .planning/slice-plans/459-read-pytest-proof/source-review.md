@@ -91,9 +91,9 @@ and texts are kept below as returned.
 | 5.1.7 | Drill-down to a file or to a case's definition line | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-summary.spec.ts folder drill-down opens test_search_run.py Purpose and Proof; slowest row opens Purpose at data-line |
 | 5.1.8 | The generation instruction | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-summary.spec.ts location summary: 11 test functions; 13 test cases: 10 passed, 3 without successful proof; 5.1 s over 10 of 13 test cases with the cost note; Slowest test cases table; generation command; no scenario wording |
 | 5.2 | Wording says test functions and test cases where Gherkin says scenarios | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-summary.spec.ts location summary: 11 test functions; 13 test cases: 10 passed, 3 without successful proof; 5.1 s over 10 of 13 test cases with the cost note; Slowest test cases table; generation command; no scenario wording |
-| 6.1 | Proof file reads accept snapshots well above 1 MiB (a bound of 32 MiB), so Pygardon's single snapshot is read | slice 3 | |
+| 6.1 | Proof file reads accept snapshots well above 1 MiB (a bound of 32 MiB), so Pygardon's single snapshot is read | slice 3 | observed: slice 3: dashboard/server/ghRead.ts maxAnswerBytes 32 MiB; dashboard/tests/intent-pytest-proof.spec.ts "a pytest snapshot of about 2 MB is read and its file's Proof shows its rows" red before (Proof could not be read) and green after |
 | 6.2 | The reference says one snapshot per proof directory | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Refresh the snapshot: one maintained snapshot per proof directory, latest.json |
-| 6.3 | The reference names that bound | slice 3 | |
+| 6.3 | The reference names that bound | slice 3 | observed: slice 3: pytest-proof.md Refresh the snapshot: Intent reads a proof file of up to 32 MiB |
 | 7.1 | A `python` location without `proof` says proof is not recorded and names the pytest reference | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts python without proof: Proof is not recorded ... dough-test-optimization/references/pytest-proof.md, in file Proof and summary |
 | 7.2 | A kind with no proof reading yet says Proof is read for Gherkin feature files and pytest files so far | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts typescript location: Proof is read for Gherkin feature files and pytest files so far. |
 | 7.3 | Unreadable and malformed proof keep their retry explanations | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts Proof could not be read: tests/proof/latest.json is not a valid proof file. with Retry; kind mismatch both ways malformed; missing/empty via shared absence path in intent-cucumber-proof-absent.spec.ts |
@@ -183,9 +183,9 @@ and texts are kept below as returned.
 | E7.R5 | Children with their sums | slice 6 | |
 | E7.R6 | Partial labelling and unread file retry as for Gherkin | slice 6 | |
 | E7.R7 | A child name opens that file's Purpose and Proof | slice 6 | |
-| E8.T | A published pytest snapshot of 2 MB | slice 3 | |
-| E8.R1 | Intent reads it and shows rows | slice 3 | |
-| E8.R2 | No read failure | slice 3 | |
+| E8.T | A published pytest snapshot of 2 MB | slice 3 | observed: slice 3: dashboard/tests/intent-pytest-proof.spec.ts "a pytest snapshot of about 2 MB is read and its file's Proof shows its rows" 2,042,817-byte snapshot, row test_health with cells, count line, no alert |
+| E8.R1 | Intent reads it and shows rows | slice 3 | observed: slice 3: dashboard/tests/intent-pytest-proof.spec.ts "a pytest snapshot of about 2 MB is read and its file's Proof shows its rows" 2,042,817-byte snapshot, row test_health with cells, count line, no alert |
+| E8.R2 | No read failure | slice 3 | observed: slice 3: dashboard/tests/intent-pytest-proof.spec.ts "a pytest snapshot of about 2 MB is read and its file's Proof shows its rows" 2,042,817-byte snapshot, row test_health with cells, count line, no alert |
 | E9.T1 | The `python` location without `proof` | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts python without proof: Proof is not recorded ... dough-test-optimization/references/pytest-proof.md, in file Proof and summary |
 | E9.R1 | 'Proof is not recorded for this project. To configure deliberate proof generation, follow `dough-test-optimization/references/pytest-proof.md` …' | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts python without proof: Proof is not recorded ... dough-test-optimization/references/pytest-proof.md, in file Proof and summary |
 | E9.T2 | A `typescript` location | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts typescript location: Proof is read for Gherkin feature files and pytest files so far. |

@@ -139,7 +139,8 @@ parameters are added or reordered, so prefer explicit `ids=` or
 ## Refresh the snapshot
 
 - Keep one maintained snapshot per proof directory, `latest.json`. Do not
-  accumulate a file per run.
+  accumulate a file per run. Intent reads a proof file of up to 32 MiB, so
+  one snapshot of the whole suite stays readable.
 - After every finished executed case, refresh the snapshot atomically: write
   a non-JSON temporary file in the same directory, then rename it over
   `latest.json`. Re-read the snapshot before each refresh and preserve

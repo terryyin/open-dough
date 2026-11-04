@@ -7,6 +7,7 @@
 // observation reads No successful proof, a renamed function's stale
 // observation and text that only looks like a test are not listed, and the
 // count line counts test cases. The generation instruction shows as text.
+// A snapshot of about 2 MB, a whole Pygardon suite's, is read like any other.
 // Summaries: ./intent-pytest-proof-summary.spec.ts. Explanations:
 // ./intent-pytest-proof-absent.spec.ts.
 
@@ -21,11 +22,17 @@ import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   earlierCommit,
   generationCommand,
+  largeSnapshotFiles,
   recordedCommit,
   settings,
   snapshotFiles,
 } from "./intentPytestProofFixtures.ts";
-import { corsPath, sources, testsPath } from "./intentPytestSourceFixtures.ts";
+import {
+  corsPath,
+  healthPath,
+  sources,
+  testsPath,
+} from "./intentPytestSourceFixtures.ts";
 
 const now = new Date("2026-11-04T12:00:00.000Z");
 
@@ -38,26 +45,39 @@ const passedNow = (duration: string) => [
   "This file version",
 ];
 
-test("a pytest file's Proof lists its test cases in definition order with observed parameter rows", async ({
-  page,
-}) => {
+// Publishes Pygardon with `proofFiles` and opens `path`'s Proof once its
+// source shows `sourceLine`.
+async function openProof(
+  page: Parameters<typeof parts>[0],
+  proofFiles: Record<string, string>,
+  path: string,
+  sourceLine: string,
+) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.clock.setFixedTime(now);
   await publishIntentProject(page, pygardon, settings, {
     ...sources,
-    ...snapshotFiles,
+    ...proofFiles,
   });
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, testsPath);
-  await intent.getByRole("button", { name: corsPath, exact: true }).click();
-  await expect(intent.getByLabel(`${corsPath} source`)).toContainText(
+  await intent.getByRole("button", { name: path, exact: true }).click();
+  await expect(intent.getByLabel(`${path} source`)).toContainText(sourceLine);
+  return chooseReadingTab(intent, "Proof");
+}
+
+test("a pytest file's Proof lists its test cases in definition order with observed parameter rows", async ({
+  page,
+}) => {
+  const proof = await openProof(
+    page,
+    snapshotFiles,
+    corsPath,
     "def test_rounding(direction):",
   );
-
-  const proof = await chooseReadingTab(intent, "Proof");
   const table = proof.getByRole("table", { name: `${corsPath} proof` });
   await expect(table).toBeVisible();
   await expect(proof).toContainText(
@@ -109,4 +129,23 @@ test("a pytest file's Proof lists its test cases in definition order with observ
       0,
     );
   });
+});
+
+test("a pytest snapshot of about 2 MB is read and its file's Proof shows its rows", async ({
+  page,
+}) => {
+  const proof = await openProof(
+    page,
+    largeSnapshotFiles,
+    healthPath,
+    "def test_health(client):",
+  );
+  const table = proof.getByRole("table", { name: `${healthPath} proof` });
+  await expect(table.locator("tbody tr")).toHaveCount(1);
+  await expect(table.locator("tbody tr th")).toHaveText("test_health");
+  await expect(table.locator("tbody tr td")).toHaveText(passedNow("30 ms"));
+  await expect(proof).toContainText(
+    "Last successful proof: 1 test case: 1 passed",
+  );
+  await expect(proof.getByRole("alert")).toHaveCount(0);
 });

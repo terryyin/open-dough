@@ -223,7 +223,7 @@ scratch spec showed the duplicate before and one attempt after; the spec
 
 ### 3. A multi-megabyte proof snapshot is read
 Type: Behavior
-Status: planned
+Status: done
 Proof: A journey or server test serving a proof file above 1 MiB (about 2 MB
 of generated passing observations) through the test GitHub stand-in: the
 location's Proof renders rows, no read failure; the reference names the
@@ -231,6 +231,16 @@ bound.
 
 Behavior: A published snapshot of 2 MB → Intent reads it; the GitHub answer
 bound in `ghRead.ts` is 32 MiB.
+
+Accepted proof (2026-11-04): `intent-pytest-proof.spec.ts` "a pytest
+snapshot of about 2 MB is read…" (2,042,817 bytes through the synthetic `gh`
+on PATH, so the bounded process) failed without the `ghRead.ts` bound ("could
+not be read at this revision") and passes with it; the oversized answers in
+`boundary/authenticated-read-output-bound.spec.ts` moved to 33 MiB (red at
+2 MiB, then 2 passed); Intent and every `boundary/authenticated-read-*` plus
+project-add-validation 304 passed; `github-request*.test.mjs` and payload
+links quiet pass. `dashboard/PUBLISHED-OBSERVATION.md` now states the 32 MiB
+bound.
 
 ### 4. Pygardon workspace is prepared and its CI route checked
 Type: Structure

@@ -53,11 +53,15 @@ function limitBackoffBaseMs(): number {
 // This server process's requests to GitHub, asked through the machine's
 // request owner. A failed call this process waited on is recorded once for
 // local diagnostics (`./readDiagnostics.ts`), including a bound that ends
-// it; held-back and ordinary waiter departures are not.
+// it; held-back and ordinary waiter departures are not. One answer may be up
+// to `maxAnswerBytes`: a repository's whole-suite proof snapshot runs to
+// several megabytes.
+const maxAnswerBytes = 32 * 1024 * 1024;
 const github = new GitHubRequests({
   boundMs: readTimeoutMs(),
   backoffBaseMs: limitBackoffBaseMs(),
   failed: recordFailedRead,
+  maxBufferBytes: maxAnswerBytes,
 });
 
 // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
