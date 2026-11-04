@@ -35,8 +35,12 @@ test("delivery classifies the change once before spawning a refactor agent", () 
 });
 
 test("a records-only change records the `records-only` disposition", () => {
-  assert.match(delivery, /Record `records-only` when it touches only plans/i);
+  assert.match(
+    delivery,
+    /Record `records-only` when it touches only planning, execution, finding or research records/i,
+  );
   for (const record of [
+    "plans",
     "seeds",
     "backlog",
     "source reviews",

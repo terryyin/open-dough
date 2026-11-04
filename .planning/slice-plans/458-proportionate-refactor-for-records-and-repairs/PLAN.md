@@ -146,7 +146,7 @@ no separate exception.
 
 ### 3. The retained cases replay against the rule and the findings record the response
 Type: Behavior
-Status: planned
+Status: done
 Proof: this plan's Learnings holds a replay table, one row per retained
 case, with the diff read (repository, SHA, paths), the classification the
 rule as written yields, whether that matches the retained outcome
@@ -204,6 +204,49 @@ limits → later ordinary use remains a separate observation.
   `src/skills/dough-story-refinement/scripts/dough-land-guidance.test.mjs` and
   `tests/payload-declaration-links.sh` to slice 1's command (quiet pass).
   Refactor disposition: fresh pass ran (`## REFACTOR COMPLETE`, no edits).
+- Slice 3 replay (2026-11-04): wrap-up step 1 applied to each retained diff,
+  file lists read with read-only `gh api repos/<owner>/<repo>/commits/<sha>`
+  (this repository: `git show`). The first pass, at `451de1e`, listed only the
+  example kinds and sent generated proof, the candidate catalog, research
+  records and the North Star to the fresh pass (obligation G1); the rows below
+  apply the corrected rule, where `records-only` is the class of planning,
+  execution, finding or research records. Costs are the retained records'
+  agent-reported figures, not measured totals; no record reports turns.
+
+  | Case | Repository / SHA | Paths read | Rule yields | Retained outcome / match | Reported cost |
+  | --- | --- | --- | --- | --- | --- |
+  | Doughnut 080 s1 | nerds-odd-e/doughnut `0d343fdc2a` | 080 `PLAN.md`, `source-review.md`, 3 timestamped `e2e_test/proof/*.json` | `records-only`: the commit "records … the runs' Cucumber proof", per-run output, not fixtures a test reads | No-op (one wording edit); **avoided** | 58,306 tokens / 54 s |
+  | Doughnut 080 s2 | nerds-odd-e/doughnut `4ae0329ed8` | 080 `PLAN.md`, `source-review.md` | `records-only` | No-op (one wording edit, coordinator-sized); **avoided** | 48,367 tokens / 27 s |
+  | Pygardon 482 s6 | terryyin/pygardon `fb822a040a` | `.planning/TEST-OPTIMIZATION-CANDIDATES.md`, 482 `PLAN.md`, `slice-6-*.md`, `source-review.md` | `records-only`: the candidate catalog is a planning record | No-op; **avoided** | none recorded |
+  | Pygardon 482 s7 | terryyin/pygardon `321a5b50fd` | same catalog, 482 `PLAN.md`, `settled-premises.md`, `slice-7-*.md`, `source-review.md` | `records-only` | No-op; **avoided** | none recorded |
+  | Pygardon 482 s8 | terryyin/pygardon `e949151132` | 482 `PLAN.md`, `slice-8-*.md`, `source-review.md` | `records-only` | No-op; **avoided** | none recorded |
+  | Clipboard 010 CI repair | terryyin/clipboard `c086e20` | 010 `PLAN.md`, `clipboard/_text_native_x11.py`, `scripts/linux_x11_native_text_support.py`, `tests/fake_xclip_text.py`, `tests/test_text_x11.py`, added `tests/test_linux_x11_native_text_support.py` | Fresh pass: adds a path outside any return; the retained record lacks the slice's refactor return | No-op; **still paid** | 47.8k tokens |
+  | Clipboard 010 clamp repair | terryyin/clipboard `43ee728` | 010 `PLAN.md`, `source-review.md`, `clipboard/_text_native_{linux,wayland,x11}.py`, added `tests/test_text_native_linux_bound.py` | Fresh pass: adds a path; the retained record lacks the slice's refactor return | No-op; **still paid** | 50.4k tokens |
+  | Pygardon 431 s2 (residue) | terryyin/pygardon `da3f3e9aaa` | routes, added `pygardon_service/entry_decision_generation.py`, 8 tests, docs, `EVIDENCE.md`, `PLAN.md` | Fresh pass (product change, not a repair) | Pass extracted generation; **still required** | not measured |
+  | Open Dough 200 s4 (residue) | this repo `c63a1c0b0` | `.planning/NORTH-STAR.md`, `PRODUCT-BACKLOG.md`, added `SEED-075-*.md`, 200 `PLAN.md` | `records-only` (the North Star is a planning record) | Pass corrected two wrong seed citations; under the rule they are the **named trade-off** owned by the coordinator's acceptance review | not recorded for s4 (s1–3: 56k, 78k, 49k) |
+  | Pygardon 485 s3–4 (ODF-276 counterevidence) | terryyin/pygardon `0373cfa6`, `a5c35692` | `.planning/research/gate-off-overnight-20261103/README.md`, 5 run JSONs, 485 `PLAN.md` | `records-only` (research records) | Passes corrected two research claims; under the rule they are the same **named trade-off** | 78k, 61k tokens |
+
+  Limits: costs are agent-reported, and no record reports turns; the
+  retained Pygardon 482 SHAs `8e6796d4`, `e11cb7fa`, `de0e9085` return HTTP
+  422 from `gh api`, so those rows use the slice commits in plan 482's path
+  history at `60b7a10a`, matched by slice title (inference). No retained
+  record holds the Clipboard slice 4 refactor return, so no already-traced
+  case can be judged; both repairs add a test path outside any return, which
+  the rule sends to the fresh pass anyway. Result: of seven retained no-op
+  passes the rule avoids five (Doughnut 080 s1–2, about 106.7k reported
+  tokens; Pygardon 482 s6–8, unmeasured) and still pays two (the Clipboard
+  repairs, about 98.2k reported tokens). It keeps the product-change pass
+  that found residue (Pygardon 431 s2). Two residue-finding passes become
+  `records-only` (Open Dough 200 s4; Pygardon 485 s3–4, about 139k reported
+  tokens): their four corrections, two seed citations and two research
+  claims, are the story's named trade-off, left to the coordinator's
+  acceptance review. Later ordinary use is a separate observation.
+- Slice 3 accepted proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+  src/skills/dough-execute-plan/scripts/*guidance*.test.mjs
+  tests/install-omits-internal.sh tests/payload-declaration-links.sh
+  tests/support/feedback-review.test.mjs` (quiet pass). G1's correction grew
+  the "Before delivery…" read row to about 29948 of 30000 bytes. Refactor
+  disposition: fresh pass ran (`## REFACTOR COMPLETE`, no edits).
 
 ## Concern evidence
 
@@ -211,3 +254,12 @@ Slice-plan refinement was not needed: three slices, each with one bounded
 outcome and one proof loop, no hidden preparation, and no accumulating
 special cases (one classification rule applied by every path). No remaining
 slice-specific concern was identified.
+
+
+## Story obligations
+
+### G1. Records-only lists only the example kinds (discovered in slice 3 replay acceptance)
+Reported: slice 3 — "Records-only list (plans, seeds, backlog, source reviews, agent records, DearDough entries, maintainer findings) leaves out generated proof JSON, test-optimization candidate catalogs, .planning/research/ records and the North Star."
+Story clause: "A *records-only* change touches only planning, execution, finding or research records (plans, seeds, backlog, source reviews, agent records, DearDough entries, maintainer findings)"
+Disposition: proved by slice 3: wrap-up.md Deliver the change step 1 "touches only planning, execution, finding or research records, such as plans, seeds, …"; refactor-disposition-guidance.test.mjs "a records-only change records the `records-only` disposition" asserts the class phrase
+Commitment: 2.1

@@ -171,8 +171,9 @@ first. Never follow failure with a separate commit or older-HEAD delivery.
 Without publication authority, select local-only and retain its receipt.
 
 1. Classify the uncommitted change once. Record `records-only` when it touches
-   only plans, seeds, backlog, source reviews, agent records, DearDough entries
-   or maintainer findings. For an owned CI repair or small change whose every
+   only planning, execution, finding or research records, such as plans, seeds,
+   backlog, source reviews, agent records, DearDough entries or maintainer
+   findings. For an owned CI repair or small change whose every
    changed concept lies within a slice's accepted refactor return (its reported
    changed paths and consumer-trace record), adding no representation, helper,
    dependency or path, record an already-traced disposition naming that return.
