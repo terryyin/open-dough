@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-230_summarize-ci-proof-in-intent.json",
+      "identity": "SEED-230#summarize-ci-proof-in-intent",
+      "completedAt": "2026-11-04T15:05:29.957Z",
+      "blob": "74dae1ab507b70844598c402cd2c473a7c979485"
+    },
+    {
       "fileName": "SEED-192_read-tsx-text-and-trim-vitest-journeys.json",
       "identity": "SEED-192#read-tsx-text-and-trim-vitest-journeys",
       "completedAt": "2026-11-04T15:02:15.466Z",

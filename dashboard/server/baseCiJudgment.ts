@@ -44,9 +44,31 @@ function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
 }
 
+// Whether the project folder's CI is read through a ciAdapter, whose results
+// name no GitHub Actions run; false when its CI settings cannot be read,
+// which the judgment itself reports.
+export function readsCiThroughAdapter(folder: ProjectFolder): boolean {
+  try {
+    return ciConfiguration(folder.path).adapter !== undefined;
+  } catch {
+    return false;
+  }
+}
+
 // The runs one listing returns, each named by the branch listed.
 function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));
+}
+
+// A ciAdapter's attempts, which name no GitHub Actions run to read proof of.
+const runIdentityFields = new Set(["databaseId", "attempt"]);
+function withoutRunIdentity(runs: readonly ListedRun[]): ListedRun[] {
+  return runs.map(
+    (run) =>
+      Object.fromEntries(
+        Object.entries(run).filter(([field]) => !runIdentityFields.has(field)),
+      ) as ListedRun,
+  );
 }
 
 // Judges `branch` from its listed history and `workflow`'s Actions runs. A
@@ -119,7 +141,9 @@ export async function judgeCommandAdapter(
       throw error;
     }
     return fromBranch(
-      (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+      withoutRunIdentity(
+        (await acquisition.discoverAncestorCandidates()) as ListedRun[],
+      ),
       discoveredBranch,
     );
   };

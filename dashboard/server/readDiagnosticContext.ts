@@ -94,6 +94,7 @@ function categoryOf(read: RequestedRead): DiagnosticCategory {
     case "intent-locations-at":
     case "intent-candidates-at":
     case "intent-ci-status":
+    case "intent-ci-proof":
       return "intent";
     case "containment-at":
       return "containment";
@@ -118,6 +119,7 @@ function pinOf(read: RequestedRead): string | undefined {
     case "done-bodies-at":
     case "intent-locations-at":
     case "intent-candidates-at":
+    case "intent-ci-proof":
     case "containment-at":
       return read.revision;
   }

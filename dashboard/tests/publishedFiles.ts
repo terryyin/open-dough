@@ -28,6 +28,7 @@ import {
 import { refMoveComparisons } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
 import { isCiJudgmentCall, type CiAnswerer } from "./support/baseCiActions.ts";
+import { isActionsRequest } from "./support/ghActionsRequest.ts";
 
 // A repository whose configured ref (default `main`) names one revision at which these files are
 // published: every contents read at that revision is observed and answered
@@ -168,8 +169,7 @@ export function publishMovingFiles(
     if (
       request.kind === "unknown" ||
       request.kind === "ref" ||
-      request.kind === "actions-workflow" ||
-      request.kind === "actions-runs"
+      isActionsRequest(request)
     ) {
       return Promise.resolve(noConnection);
     }

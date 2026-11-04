@@ -382,6 +382,14 @@ with load 16 at the start and 65 at the end.
   - Evidence: each new runtime module needed a `managed_files` entry in `install.sh`, which sat at the 250-line limit, so entries were joined onto existing lines. In slice 5, the refactor's first join put a module on `ci-github-diagnostic.mjs`'s line. `ci-github-acquisition.test.mjs` "no installed file asks gh outside the one request source…" matches single-entry lines (`/^ {2}(dough-[\w./-]+)$/gm`) and failed until the entry moved. In slice 4, the refactor added two lines (252) and left the coordinator to rejoin them.
   - Observed effect: two extra fix-and-rerun rounds around installer declarations.
   - Inference: qualified. The file-length rule and a test's reliance on line shape conflict as the payload grows. The anchor convention is undocumented beside the list.
+- Execution: SEED-230#summarize-ci-proof-in-intent (plan 463-summarize-ci-proof-in-intent; first implementation commit `99d0f70e7c503bcafb7cc79d3183277eaec28c96`)
+  - Timestamp: unknown (2026-11-04, slice 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: `install.sh` was already 312 lines, solely the ADR 0003 `managed_files` declaration; slice 4 added the CI proof recipe and four collector modules one per line (317). Terry had refused size exceptions earlier in the story; for `install.sh` he allowed 317 for this slice, since staying under 250 would need splitting the single declaration that about 21 tests and install scripts parse as text.
+  - Observed effect: one human decision stop at slice 4; earlier in the same story the gate drove `ci.yml` into composite actions and YAML anchors.
+  - Inference: qualified. The 250-line gate keeps meeting the one-declaration list; either the declaration's shape or the gate's scope for it needs a decision.
 
 
 

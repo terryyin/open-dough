@@ -9,6 +9,9 @@ export type RawAnswer = {
   readonly status: number;
   readonly contentType: string;
   readonly body: string;
+  // Set when `body` is base64 of the answer's bytes, such as an artifact's
+  // zip archive, which `gh` prints byte for byte.
+  readonly encoding?: "base64";
   // The entity tag GitHub gives this answer, when it gives one. A request
   // that sends it back in `If-None-Match` while the answer is unchanged gets
   // `304 Not Modified` instead (./support/fakeGitHub.ts).

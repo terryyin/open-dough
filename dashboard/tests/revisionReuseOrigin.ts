@@ -3,37 +3,14 @@
 // (./boundary/revisionReuseBoundary.ts): every record a project shows at one revision,
 // the commits a move of the ref is made by, and one answerer for the
 // revisions, the comparisons, and the commits between (./originAnswers.ts,
-// ./pathHistoryAnswers.ts).
+// ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
-import type { GhCall } from "./support/fakeGitHub.ts";
-import {
-  branchRefAnswer,
-  commitAnswer,
-  headsAnswer,
-  noConnection,
-  notFoundAnswer,
-  rawFileAnswer,
-  type OriginAnswer,
-} from "./originAnswers.ts";
-import {
-  directoryListingAnswer,
-  listedFiles,
-  treeListingAnswer,
-} from "./listingAnswers.ts";
-import {
-  commitAnswerIn,
-  commitListIn,
-  madeCommitAnswer,
-  type ChangedFile,
-  type MadeCommit,
-  type PathHistories,
+import type {
+  ChangedFile,
+  MadeCommit,
+  PathHistories,
 } from "./pathHistoryAnswers.ts";
-import {
-  aheadBy,
-  changedBetween,
-  compareAnswer,
-  type Comparison,
-} from "./comparisonAnswers.ts";
+import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 
@@ -173,87 +150,4 @@ export function moved(
   trunk.revision = revision;
 }
 
-export function answerFrom(
-  published: Publication,
-  { request }: GhCall,
-): OriginAnswer {
-  switch (request.kind) {
-    case "repository":
-      return {
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ default_branch: "main" }),
-      };
-    case "ref":
-      return commitAnswer(published.trunk.revision);
-    case "matching-refs":
-      return headsAnswer({
-        ...Object.fromEntries(published.branches),
-        main: published.trunk.revision,
-      });
-    case "branch": {
-      const head = published.branches.get(request.branch);
-      return head === undefined
-        ? notFoundAnswer()
-        : branchRefAnswer(request.branch, head);
-    }
-    case "compare": {
-      const compared = published.compared.get(
-        `${request.base}...${request.head}`,
-      );
-      return (
-        compared?.(
-          request.perPage,
-          changedBetween(
-            published.revisions.get(request.base) ?? {},
-            published.revisions.get(request.head) ?? {},
-          ),
-        ) ?? compareAnswer("diverged")
-      );
-    }
-    case "commit": {
-      const made = published.made.get(request.sha);
-      if (made !== undefined) return madeCommitAnswer(made);
-      return (
-        commitAnswerIn(
-          [...(published.histories ?? [])].map(([revision, history]) => ({
-            files: published.revisions.get(revision) ?? {},
-            history,
-          })),
-          request.sha,
-        ) ?? noConnection
-      );
-    }
-    case "content":
-    case "listing":
-    case "tree":
-    case "commit-list": {
-      const files = published.revisions.get(request.revision);
-      if (files === undefined) return noConnection;
-      if (request.kind === "listing") {
-        return directoryListingAnswer(request.path, listedFiles(files));
-      }
-      if (request.kind === "tree") {
-        return treeListingAnswer(request.path, files);
-      }
-      if (request.kind === "commit-list") {
-        const history = published.histories?.get(request.revision);
-        return commitListIn(
-          {
-            files,
-            committed: { [request.path]: new Date() },
-            ...(history !== undefined && { history }),
-          },
-          request.path,
-          request.perPage,
-        );
-      }
-      const text = files[request.path];
-      return text === undefined ? notFoundAnswer() : rawFileAnswer(text);
-    }
-    case "actions-workflow":
-    case "actions-runs":
-    case "unknown":
-      return noConnection;
-  }
-}
+export { answerFrom } from "./revisionReuseAnswers.ts";

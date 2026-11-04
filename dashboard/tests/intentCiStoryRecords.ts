@@ -74,6 +74,8 @@ const histories: Readonly<Record<string, readonly Commit[]>> = {
 
 export type StoryCi = {
   readonly published: MovingFiles;
+  // The CI answers served, for a journey that serves more beside them.
+  readonly answer: CiAnswerer;
   // Push runs per branch, as listed now.
   readonly runs: Record<string, readonly CiRunAnswer[]>;
   // Holds `branch`'s history listing until the returned release; `served`
@@ -132,6 +134,7 @@ export function publishStoryCi(page: Page): StoryCi {
   published.serveCi(answer);
   return {
     published,
+    answer,
     runs,
     hold(branch) {
       let release: () => void = () => undefined;

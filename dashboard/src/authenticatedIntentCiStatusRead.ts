@@ -9,16 +9,23 @@
 import { z } from "zod";
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import { readingCiStatusOf } from "./authenticatedReadRules.ts";
-import { baseCiFoundSchema, baseCiStates } from "./baseCiConfirmation.ts";
+import {
+  baseCiFoundSchema,
+  baseCiStates,
+  runIdentityShape,
+} from "./baseCiConfirmation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 // The launch's base-CI answer (`./baseCiConfirmation.ts`) with a passing
-// state possible, when it was checked, and whether GitHub has no published
-// branch of that name.
+// state possible, when it was checked, whether GitHub has no published
+// branch of that name, the run the result rests on, and whether the
+// project's CI is read through a ciAdapter, whose results name no run.
 const ciStatus = baseCiFoundSchema.omit({ kind: true }).extend({
+  ...runIdentityShape,
   checkedAt: z.iso.datetime(),
   state: z.enum(["pass", ...baseCiStates]),
   unpublished: z.literal(true).optional(),
+  ciAdapter: z.literal(true).optional(),
 });
 
 export type IntentCiStatus = z.infer<typeof ciStatus>;

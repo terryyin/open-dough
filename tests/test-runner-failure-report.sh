@@ -205,3 +205,26 @@ mapfile -t timed < "${times}"
 for name in lost kept; do
   expect_in_log "${times}" -E -- "^[0-9]+\.[0-9]"$'\t'"${lost}/${name}\\.sh\$"
 done
+
+# OPEN_DOUGH_TEST_OUTCOMES receives each job's reported outcome and label: a
+# job reported as failing, including one that passed but printed output, is
+# `failed`, and every other job is `passed`.
+graded="${temporary_dir}/graded"
+mkdir -p -- "${graded}"
+write_check_in "${graded}" quiet.sh 'true'
+write_check_in "${graded}" failing.sh 'exit 1'
+write_check_in "${graded}" noisy.sh 'echo noisy'
+outcomes="${temporary_dir}/outcomes"
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="${outcomes}" run_suite graded "${graded}"
+if ((suite_status != 1)); then
+  printf 'FAIL: the graded run exited %s, not 1.\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/graded.log" >&2
+  exit 1
+fi
+printf 'failed\t%s\n' "${graded}/failing.sh" "${graded}/noisy.sh" > "${temporary_dir}/expected-outcomes"
+printf 'passed\t%s\n' "${graded}/quiet.sh" >> "${temporary_dir}/expected-outcomes"
+LC_ALL=C sort -- "${outcomes}" > "${temporary_dir}/sorted-outcomes"
+if ! diff -- "${temporary_dir}/expected-outcomes" "${temporary_dir}/sorted-outcomes" >&2; then
+  echo 'FAIL: OPEN_DOUGH_TEST_OUTCOMES does not name each job with its reported outcome.' >&2
+  exit 1
+fi

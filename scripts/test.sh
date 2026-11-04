@@ -51,6 +51,9 @@ output_root=$(mktemp -d)
 # Each job's seconds and label, longest first; see scripts/test-budget.sh.
 # OPEN_DOUGH_TEST_TIMES names this run's file.
 times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
+# OPEN_DOUGH_TEST_OUTCOMES names a file that receives each job's reported
+# outcome and label, `passed` or `failed`, one tab-separated line per job.
+outcomes_file=${OPEN_DOUGH_TEST_OUTCOMES:-}
 # fd 4 keeps the runner's stderr while it goes to a launching job's launch file
 # (see the launch loop); an exit mid-launch restores it and shows that file.
 exec 4>&2
@@ -144,10 +147,12 @@ job_seconds() {
 # ended from the same signal, is reported as interrupted with its elapsed time
 # and the tail of its output. Otherwise a job that ended without recording a
 # status, such as one whose shell was killed, failed. A reported job sets the
-# run's status to 1.
+# run's status to 1 and its outcome to `failed`; any other job's is `passed`.
+outcomes=()
 report_job() {
   local index=$1 log="${output_root}/$1.log" launch="${output_root}/$1.launch"
   local job_status='' seconds heading show_log=(cat --)
+  outcomes[index]=failed
   if [[ -e ${output_root}/${index}.status ]]; then
     read -r job_status < "${output_root}/${index}.status"
   fi
@@ -163,6 +168,7 @@ report_job() {
   elif [[ -s ${log} || -s ${launch} ]]; then
     heading="FAIL: ${labels[index]} (passed but printed output)"
   else
+    outcomes[index]=passed
     # An explicit status: under the interrupt trap, Bash before 5.3 gives a
     # bare `return` the interrupted `wait`'s status, which `set -e` ends on.
     return 0
@@ -241,6 +247,11 @@ for index in "${!labels[@]}"; do
   seconds=$(job_seconds "${index}")
   printf '%s\t%s\n' "${seconds}" "${labels[index]}"
 done | sort -rn > "${times_file}"
+if [[ -n ${outcomes_file} ]]; then
+  for index in "${!labels[@]}"; do
+    printf '%s\t%s\n' "${outcomes[index]}" "${labels[index]}"
+  done > "${outcomes_file}"
+fi
 # The time budget is CI's and the whole suite's (or a split share's): only a CI
 # run (`CI=true`) without chosen checks is judged against it.
 budget=${test_dir}/time-budget

@@ -1,0 +1,50 @@
+name: CI proof fragments
+description: >-
+  Writes one job part's CI proof fragments, one per proof entry its test
+  report covers, and keeps them as that part's attempt-named artifact for the
+  ci-proof job. Names the run's revision from CI_PROOF_REVISION.
+inputs:
+  part:
+    description: This job's part (its matrix value).
+    required: true
+  parts:
+    description: The job's part count (strategy.job-total).
+    required: true
+  entries:
+    description: Space-separated proof entries (Intent location paths) in the report.
+    required: true
+  report-format:
+    description: "`outcomes` (scripts/test.sh) or `playwright-record` (dashboard proof record)."
+    required: true
+  report:
+    description: >-
+      The test report file. A run that wrote no complete report gives no
+      fragment, leaving the part missing from the summary.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Write the CI proof fragments
+      shell: bash
+      env:
+        ENTRIES: ${{ inputs.entries }}
+        FORMAT: ${{ inputs.report-format }}
+        REPORT: ${{ inputs.report }}
+        PART: ${{ inputs.part }}
+        PARTS: ${{ inputs.parts }}
+      run: |
+        entries=()
+        read -r -a names <<< "${ENTRIES}"
+        for name in "${names[@]}"; do entries+=(--entry "${name}"); done
+        node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
+          "--${FORMAT}" "${REPORT}" "${entries[@]}" --part "${PART}" --of "${PARTS}" \
+          --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
+          --out "${RUNNER_TEMP}/ci-proof"
+    - name: Keep the CI proof fragments
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: ci-proof-fragments-${{ github.job }}-${{ inputs.part }}-attempt-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/ci-proof/
+        if-no-files-found: ignore
+        retention-days: 7

@@ -6,6 +6,7 @@
 import { execFileSync } from "node:child_process";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { GhCall } from "./fakeGitHub.ts";
+import { isActionsRequest } from "./ghActionsRequest.ts";
 
 // Default published head when a journey has not served its own origin yet
 // (SEED-210): every-repository and owned-GitHub defaults answer this revision.
@@ -16,6 +17,7 @@ export type CiRunAnswer = {
   readonly conclusion?: "success" | "failure" | "cancelled" | "timed_out";
   readonly status?: "completed" | "in_progress" | "queued";
   readonly id?: number;
+  readonly attempt?: number;
   readonly url?: string;
 };
 
@@ -39,7 +41,7 @@ export function actionsRunsAnswer(
         const status = run.status ?? "completed";
         return {
           id: run.id ?? index + 1,
-          run_attempt: 1,
+          run_attempt: run.attempt ?? 1,
           head_sha: run.headSha,
           head_branch: branch,
           event: "push",
@@ -106,11 +108,11 @@ export type CiAnswerer = (
 ) => OriginAnswer | Promise<OriginAnswer> | undefined;
 
 // The calls a judgment asks: the selected check's Actions workflow and runs,
-// and a branch's history listed by its name (no path, not a pinned sha).
+// and a branch's history listed by its name (no path, not a pinned sha);
+// and the Actions calls of the shown run's CI proof read.
 export function isCiJudgmentCall({ request }: GhCall): boolean {
   return (
-    request.kind === "actions-workflow" ||
-    request.kind === "actions-runs" ||
+    isActionsRequest(request) ||
     (request.kind === "commit-list" &&
       request.path === "" &&
       !/^[0-9a-f]{40}$/.test(request.revision))

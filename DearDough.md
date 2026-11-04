@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 417. Removed numbers are never reused.
+- Highest allocated local number: 419. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -627,3 +627,16 @@ An execution that publishes to another project's trunk (a subordinate Doughnut o
   - Evidence: the execution's observer (`/tmp/dough-ci-501/watch-l6pc3b`) watched only `terryyin/open-dough`; Doughnut run 41806231388 failed in `pnpm lint:all` ("Unexpected .only modifier", Vitest's CI default under `GITHUB_ACTIONS`); Terry pushed `6e53933393` "Allow the proof reporter's focus fixture to run on CI" at 09:27:24Z; the coordinator found the failure by `gh run list` about 25 minutes after its push, reproduced it, committed the same fix and dropped it as a duplicate when its push met trunk. Pygardon `2a48f97fd` also failed (an unrelated settings race) and was found by a manual adapter `discover`, then repaired in `64a16e0b8`.
   - Observed effect: a human repaired an agent-published CI failure; the agent spent a reproduction and repair on work already done; the Pygardon failure stayed unknown until the agent happened to look.
   - Inference: the subordinate publication route ("commit and push under the project's own rules") carries no CI ownership step for that project's CI, and the recorder's fixture runs were never tried with the CI environment variables set locally.
+
+## DD-418 — A push the remote refused for permission returned `needs-validation` without its reason
+Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth `workflow` scope) as a rejected push, fetched, reconciled onto the unchanged tip and stopped with `needs-validation`; neither the fresh nor the `deliver --validated-candidate` receipt carried the remote's refusal text, so the retry repeated the same stop.
+
+### Occurrences
+- Execution: SEED-230#summarize-ci-proof-in-intent (plan 463-summarize-ci-proof-in-intent; first implementation commit `99d0f70e7c503bcafb7cc79d3183277eaec28c96`)
+  - Timestamp: unknown (2026-11-04, slice 1 delivery of `99d0f70e7`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: both receipts had `remoteTip` and `suffixBase` `88cf77a06` equal to the published base, `reconciliations: 1`, `status: needs-validation`; `execution-increment-publication.mjs` sends any `rejected` push into `reconcileOnto(..., retry=true)`, whose proof gate never holds on retry; a manual `git push` then printed "refusing to allow an OAuth App to create or update workflow `.github/workflows/ci.yml` without `workflow` scope"; after `gh auth refresh -s workflow` the same `deliver` was accepted.
+  - Observed effect: two refused deliveries and about eight diagnostic tool calls before a credential stop for Terry.
+  - Inference: qualified. A remote refusal (`[remote rejected]` with a reason) is a credential or policy stop, not contention; reporting its text as its own status would have reached the human decision at the first receipt.

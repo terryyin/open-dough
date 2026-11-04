@@ -235,6 +235,23 @@ historical 134 GB remains unknown.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
 
+## A focused local run waits for another worktree's full suite (open, unqueued)
+
+<a id="dd-419"></a>
+
+### DD-419 — Named `scripts/test.sh` runs queued behind another worktree's whole suite
+
+### Occurrences
+
+- Execution: SEED-230#summarize-ci-proof-in-intent (plan 463-summarize-ci-proof-in-intent; first implementation commit `99d0f70e7c503bcafb7cc79d3183277eaec28c96`)
+  - Timestamp: unknown (2026-11-04, slice 1 acceptance and implementation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: the coordinator's five-path `bash scripts/test.sh …` started 14:25 and ran only after `scripts/local-test-suite.mjs repository` held for the `reduce-remote-sessions-traffic` worktree's full run released `refs/dough/local-test-suite` (the 600 s tool bound moved it to the background); the slice 1 implementer reported a share run stalled over 30 min because `tests/test-runner-github-requests.sh`, `test-runner-budget.sh` and `test-runner-split.sh` start nested full runners that wait for the same lock.
+  - Observed effect: about 15 minutes of idle focused proof and one abandoned share run.
+  - Inference: qualified. One-suite admission protects whole-suite timings, but focused and nested fixture runs sharing that slot make focused proof latency depend on unrelated work on the machine.
+
 ## Selective formatting during delivery (implemented and measured, released in v0.3.67)
 
 <a id="dd-309"></a>
