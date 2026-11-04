@@ -104,6 +104,13 @@ ordinary-use evidence pending". Keep the section to what the seed's
 Investigation supports; say explicitly that `-s` holding a machine already in
 its sleep cycle is not yet observed.
 
+## Execution complete
+
+Product advice: no change to the delivered scope. The seed's deferred
+automatic guard (`caffeinate -s -i -w <admission owner pid>` from
+`acquireLocalSuite`) remains the recommended next step and Terry's decision;
+the instructions still depend on a reader finding them.
+
 ## Current decisions
 
 - Story Branch Mode by default; no trunk step, so no human checkpoint.
