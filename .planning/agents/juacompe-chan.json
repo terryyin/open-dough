@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "juacompe-chan",
+  "email": "juacompe-chan@example.org",
+  "identity": "SEED-010#proportionate-refactor-for-records-and-repairs",
+  "mode": "story-branch",
+  "branch": "claude/proportion-the-fresh-refactor-pass-for-records-o",
+  "host": "claude",
+  "model": "opus"
+}
