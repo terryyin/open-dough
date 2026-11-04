@@ -322,6 +322,16 @@ Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
 
+### Occurrences
+- Execution: SEED-192#order-pytest-parameter-rows (plan 464, first implementation commit a0d44f3ca)
+  - Timestamp: unknown (before slice 1 commit a0d44f3ca, 2026-11-04T13:44:04+07:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: slice 1 `execution-increment-delivery.mjs fresh` returned `operation: formatting`, `@typescript-eslint/no-misused-spread` at `dashboard/src/pytestCases.ts` 131 (`[...text]` in the refactor's `codePointsOf`; the implementation's `byCodePoint` had spread strings the same way)
+  - Observed effect: implementation and refactor returns both passed focused proof and typecheck with the spread; delivery's formatter refused it, the coordinator replaced it with `Array.from(text, …)`, reran the unit test and typecheck, and the second fresh delivery was accepted.
+  - Inference: agents barred from hook-owned lint learn its rules only at delivery; naming a known rule in the brief (done for slice 2) avoided a repeat there.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).

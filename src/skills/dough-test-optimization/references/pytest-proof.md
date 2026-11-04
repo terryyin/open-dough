@@ -216,8 +216,9 @@ tracebacks, longrepr, warnings, keywords or other report details.
 Intent lists a file's test cases from its published Python source in
 definition order: module-level `def test_*` and `async def test_*`
 functions, and `test_*` methods of `Test*` classes. A function whose
-parameter ids were observed shows one row per observed id; any other
-function shows one row, its proof or **No successful proof**. Observations
+parameter ids were observed shows one row per observed id, in parameter id
+order whatever order the snapshot holds them in; any other function shows
+one row, its proof or **No successful proof**. Observations
 whose identity the published file no longer defines, such as a renamed test,
 are not shown, and neither are cases pytest generates dynamically or
 collects under other naming rules. Missing or unreadable proof remains a

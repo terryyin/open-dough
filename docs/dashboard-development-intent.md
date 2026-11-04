@@ -57,10 +57,10 @@ coverage while any contained file is still reading or could not be read, for
 the selection and each affected child; fully read siblings stay complete. An unread file is named
 with a retry that reads only the failed files, and is never counted as
 passed or without successful proof. A nonempty selection with no readable files
-says its scenario total is unavailable, not zero. Non-Gherkin kinds, undeclared proof,
-and unusable locations reuse the same Proof-absent or location explanations
-as a file; without declared proof a Gherkin summary still gives the
-statistics it can. When the location also declares a `proof` directory of
+says its scenario total is unavailable, not zero. Kinds Intent reads no proof
+for and unusable locations reuse the same Proof-absent or location
+explanations as a file; without declared proof a Gherkin or pytest summary
+still gives the statistics it can. When the location also declares a `proof` directory of
 committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
 a selected file's Proof lists the file's scenarios and outline rows in source
@@ -74,8 +74,9 @@ reads the same way in pytest's words: a selected file's Proof lists, under a
 **Test case** header, its module-level `def test_*` and `async def test_*`
 functions and the `test_*` methods of its `Test*` classes in definition
 order, a function with observed parameter ids as one row per observed id
-(for example "test_rounding Parameters: up") and any other function as one
-row; observations the published file no longer defines are not listed, and
+in parameter id order, whatever order the snapshot holds them in (for
+example "test_rounding Parameters: even" before "Parameters: up"), and any
+other function as one row; observations the published file no longer defines are not listed, and
 the count line counts test cases. Its location and folder summaries give the
 Gherkin figures with an inventory of test functions and count, summed
 duration and **Slowest test cases** lines over test cases. A final

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#order-pytest-parameter-rows",
+  "title": "Order pytest parameter rows by parameter id",
+  "completedAt": "2026-11-04T07:02:05.059Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "claude",
+  "model": "opus"
+}
