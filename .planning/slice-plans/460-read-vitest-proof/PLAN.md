@@ -5,6 +5,7 @@
 in SEED-192, refined 2026-11-04 under Terry's instruction that, like the
 pytest story, this story includes Vitest proof generation, declared in the
 project configuration, as well as reading it.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/read-frontend-vitest-proof-in-both-projects`, agent yilv-chan);
 revised the same day by agent dbs-chan after the pytest story
@@ -200,7 +201,7 @@ named above).
 
 ### 1. The Vitest proof reference tells a project how to record
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-test-optimization/references/vitest-proof.md` exists
 with the contract the story records (option, reporter placement, identity of
 `file`/`test`/`project`, finished case, attempts and duration, folding of
@@ -218,6 +219,25 @@ recorded here; `tests/payload-declaration-links.sh` and
 Behavior: An agent in Doughnut or Pygardon asked to record Vitest proof →
 reads the installed reference and can configure the option, write the
 reporter and declare the location without asking Open Dough anything else.
+
+Behavior review (2026-11-04, slice 1): invocation from
+`dough-test-optimization` "Establish context" when the project records Vitest
+proof, for `typescript`/`javascript` locations with `runner: "vitest"` only;
+required context is the location, proof directory and command from the
+project's settings, with a named-missing-input stop; examples use neutral
+`web/tests` paths. Example 1 (browser mode, two instances, CI-only reporter
+list) → Configure once (option in no profile, recorder in each profile's
+reporter list, no `--reporter`), Record (one Node process sees both
+instances), Identity (`project`), File format, intro (unchanged output and
+exit). Example 2 (happy-dom, project `""`, no configured reporters, wrapper
+with `--reporter`) → list `"default"` beside the recorder, empty project
+omitted, `--reporter` check before declaring such a command. Example 3 →
+Identity (formatted `%i` names) and Record folding. Example 4 → Record
+(attempts, clearing, skip/filter keep), Refresh (shard), Reading (_No
+successful proof_). Example 5 → Identity (project in identity), Reading
+(code-point project order). Remainders G1 and G2 go to slice 3.
+`tests/payload-declaration-links.sh` and the install payload tests pass;
+`install.sh` declares the new reference.
 
 ### 2. Subordinate Doughnut and Pygardon workspaces are prepared
 Type: Structure
@@ -386,6 +406,23 @@ describe on real source; nothing is fabricated for the demonstration.
   stopping point.
 - Snapshot sizes stay under the 32 MiB bound by a wide margin; no further
   bound change.
+
+## Story obligations
+
+### G1. Retried-case duration and single final result unverified
+Reported: slice 1 — "Retried-case duration and once-per-case delivery: unverified, left for slice 3's retry fixture."
+Story clause: "`durationMs` the case's duration across its attempts as the reporter sees it"
+Disposition: receiving slice 3
+
+### G2. Command-line reporter option and the configured recorder unverified
+Reported: slice 1 — "`--reporter` dropping configured reporters: unverified, left for slice 3. Once observed, the answer should be written back into the reference."
+Story clause: "the recording command runs the project's configured reporters, with no `--reporter` option, so the recorder is loaded"
+Disposition: receiving slice 3
+
+### G3. Reference describes Intent's Vitest reading before the reader exists
+Reported: slice 1 — "The reference describes the `runner` declaration and Intent's Vitest reading ahead of the dashboard slices (5 and 6) that implement them."
+Story clause: "the reference's reading section states the row order Intent applies"
+Disposition: interim until slices 6
 
 ## Learnings
 
