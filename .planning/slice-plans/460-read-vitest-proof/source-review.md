@@ -6,19 +6,19 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| B1 | Serves a Doughnut or Pygardon developer reviewing frontend test protection in Intent, reading what a spec's tests last proved and in which browser project | slice 7 | |
+| B1 | Serves a Doughnut or Pygardon developer reviewing frontend test protection in Intent, reading what a spec's tests last proved and in which browser project | slice 7 | observed: slice 7 Doughnut Intent: titlePatternRender (3 chromium) and DonutMenu.search.touch (2 chromium-touch) rows beside source, frontend/tests/utils summary |
 | G1 | Doughnut and Pygardon record deliberate Vitest proof the way they record Cucumber proof | slice 4 | observed: doughnut main 5b2f8de6ab and pygardon main 2a48f97fd record Vitest proof only on explicit RECORD_VITEST_PROOF=1, as their Cucumber recorders record on explicit request |
 | G2 | A published Open Dough reference defines the compact snapshot and the explicit recording run | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md (whole reference, slice 1) |
 | G3.1 | Each frontend's typescript Intent location declares its runner in .planning/open-dough.json | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
 | G3.2 | It declares its proof directory there | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
 | G3.3 | It declares its generation command there | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
 | G4 | A project-owned Vitest reporter maintains the snapshot | slice 4 | observed: doughnut frontend/vitestProofReporter.ts and pygardon frontend/vitest-proof-reporter.ts maintain latest.json |
-| G5 | Selecting a test file in Intent shows each test's last successful committed proof beside its TypeScript source | slice 7 | |
-| G6 | The Vitest project is named on every observation that has one (chromium, chromium-touch) | slice 7 | |
-| G7 | A location or folder summary gives the same figures as for Gherkin and pytest | slice 7 | |
-| G8 | Extends Proof to both frontends and tests whether one reporting contract serves browser-mode and happy-dom Vitest without conflating their environments | slice 7 | |
+| G5 | Selecting a test file in Intent shows each test's last successful committed proof beside its TypeScript source | slice 7 | observed: slice 7 Doughnut Intent: titlePatternRender (3 chromium) and DonutMenu.search.touch (2 chromium-touch) rows beside source, frontend/tests/utils summary |
+| G6 | The Vitest project is named on every observation that has one (chromium, chromium-touch) | slice 7 | observed: slice 7: every observed Doughnut row names Project: chromium or chromium-touch; Pygardon rows have none |
+| G7 | A location or folder summary gives the same figures as for Gherkin and pytest | slice 7 | observed: slice 7 folder and root summaries for both frontends give the Gherkin figures in test and test-case words |
+| G8 | Extends Proof to both frontends and tests whether one reporting contract serves browser-mode and happy-dom Vitest without conflating their environments | slice 7 | observed: slice 7: one reader shows Doughnut browser-mode proof with projects and Pygardon happy-dom proof without, unmixed |
 | G9a | The story includes generating Vitest proof, declared in project configuration and produced when the project generates proof | slice 4 | observed: proofGeneration declared on both frontend locations; recording runs produced the committed snapshots |
-| G9b | The rest of the story is reading that proof | slice 7 | |
+| G9b | The rest of the story is reading that proof | slice 7 | observed: slice 7 Pygardon main 64a16e0b8: verifyStatsFormat.test.ts 17 rows, 17 passed; frontend/src/api/__tests__ summary 17 tests, 4 ms over 17 of 17 |
 | R1 | The reference lives at src/skills/dough-test-optimization/references/vitest-proof.md | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md exists |
 | R2 | That skill links it the way it links the Cucumber and pytest references | slice 1 | observed: src/skills/dough-test-optimization/SKILL.md links Vitest proof beside Cucumber and pytest; install.sh managed_files; tests/payload-declaration-links.sh pass |
 | R3 | It is written for the agent working in the recording project (ADR 0006) | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md addresses the agent in this project, no Open Dough-only vocabulary (behavior review in plan slice 1) |
@@ -137,12 +137,12 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | A7 | One explicit focused recording run is committed as the first snapshot | slice 4 | observed: doughnut frontend/tests/proof/latest.json (5 observations) and pygardon frontend/proof/latest.json (17), each from one focused explicit run |
 | A8 | In Doughnut, that run covers one plain spec and one touch spec | slice 4 | observed: doughnut frontend/tests/proof/latest.json: titlePatternRender.spec.ts (plain) and DonutMenu.search.touch.spec.ts (touch) |
 | A9 | Each project's publication follows that project's own rules | slice 4 | observed: doughnut main 5b2f8de6ab and pygardon main 2a48f97fd, each committed under its AGENTS.md wrap-up (format:changed once, check-only lint hook) and pushed |
-| RR1 | With both snapshots published, Intent on Doughnut shows the recorded specs' cases with their projects | slice 7 | |
-| RR2 | Intent on Doughnut shows a folder summary | slice 7 | |
-| RR3 | Intent on Pygardon shows the recorded file's cases | slice 7 | |
-| RR4 | Intent on Pygardon shows a folder summary | slice 7 | |
-| RR5 | Each frontend root summary is opened once, and its read time and GitHub request count are recorded as a learning | slice 7 | |
-| RR6 | Terry evaluates against vitest run output plus an editor | slice 7 | |
+| RR1 | With both snapshots published, Intent on Doughnut shows the recorded specs' cases with their projects | slice 7 | observed: slice 7 Doughnut Intent: titlePatternRender (3 chromium) and DonutMenu.search.touch (2 chromium-touch) rows beside source, frontend/tests/utils summary |
+| RR2 | Intent on Doughnut shows a folder summary | slice 7 | observed: slice 7 Doughnut Intent: titlePatternRender (3 chromium) and DonutMenu.search.touch (2 chromium-touch) rows beside source, frontend/tests/utils summary |
+| RR3 | Intent on Pygardon shows the recorded file's cases | slice 7 | observed: slice 7 Pygardon main 64a16e0b8: verifyStatsFormat.test.ts 17 rows, 17 passed; frontend/src/api/__tests__ summary 17 tests, 4 ms over 17 of 17 |
+| RR4 | Intent on Pygardon shows a folder summary | slice 7 | observed: slice 7 Pygardon main 64a16e0b8: verifyStatsFormat.test.ts 17 rows, 17 passed; frontend/src/api/__tests__ summary 17 tests, 4 ms over 17 of 17 |
+| RR5 | Each frontend root summary is opened once, and its read time and GitHub request count are recorded as a learning | slice 7 | observed: slice 7 cold root summaries: Doughnut frontend/tests 396 files 54.0 s 402 GitHub requests; Pygardon frontend/src 197 files 26.2 s 199 requests; recorded in plan Learnings |
+| RR6 | Terry evaluates against vitest run output plus an editor | slice 7 | observed: slice 7 retained views and screenshots for Terry's evaluation against vitest run plus an editor, handed off at execution complete |
 | DOC1.1 | docs/dashboard-development-intent.md describes Vitest Proof beside Gherkin and pytest | slice 6 | observed: docs/dashboard-development-intent.md Vitest paragraph (runner declaration, project rows, runner problem) and Vitest added to the restated sentences |
 | DOC1.2 | It describes the runner declaration | slice 6 | observed: docs/dashboard-development-intent.md Vitest paragraph (runner declaration, project rows, runner problem) and Vitest added to the restated sentences |
 | DOC1.3 | It describes project rows | slice 6 | observed: docs/dashboard-development-intent.md Vitest paragraph (runner declaration, project rows, runner problem) and Vitest added to the restated sentences |
@@ -173,7 +173,7 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | X4 | Exclusion: non-literal or dynamically built tests are not derived from source; their observations stay in the snapshot | slice 6 | observed: tests/support/intent-vitest-cases.test.mjs non-literal names skipped with their suite |
 | X5 | Exclusion: observations whose identity the published file no longer defines are not listed | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts: stale renamed-test observation (9000 ms) not listed nor in sums or slowest |
 | X6 | Exclusion: includeTaskLocation not required; definition lines come from the source rule | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts definition lines from source; fixtures carry no location |
-| X7 | Exclusion: a cheaper root summary is deferred; this story measures and does not create it | slice 7 | |
+| X7 | Exclusion: a cheaper root summary is deferred; this story measures and does not create it | slice 7 | observed: slice 7 measured root summaries only; no cheaper root summary built |
 | X8 | Exclusion: full-suite proof refresh is Terry's deliberate run; this story commits focused selections first | slice 4 | observed: both snapshots are focused selections; no full-suite refresh |
 | K1.1 | Doughnut focused browser-mode run: latest.json holds one passing observation per executed case | slice 4 | observed: doughnut frontend/tests/proof/latest.json: 5 passing observations, one per executed case |
 | K1.2 | The plain spec's observations have project "chromium" | slice 4 | observed: 3 titlePatternRender.spec.ts observations with project chromium |
@@ -202,24 +202,24 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | K5.3 | chromium comes before chromium-touch, whatever order the snapshot holds | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts project rows test: chromium rows before chromium-touch though the snapshot holds touch first, each with its own duration and commit, named Project: <name> |
 | K5.4 | Each of those rows has its own proof | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts project rows test: chromium rows before chromium-touch though the snapshot holds touch first, each with its own duration and commit, named Project: <name> |
 | K5.5 | A failure in one instance clears only that project's observation | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs two-project failure test |
-| K6.1.1 | titlePatternRender.spec.ts File Proof column: Test case | slice 7 | |
-| K6.1.2 | Column: Last successful proof | slice 7 | |
-| K6.1.3 | Column: Duration | slice 7 | |
-| K6.1.4 | Column: Observed | slice 7 | |
-| K6.1.5 | Column: Commit | slice 7 | |
-| K6.1.6 | Column: Observed on | slice 7 | |
-| K6.2 | Rows are in definition order, named by their describe path and name | slice 7 | |
+| K6.1.1 | titlePatternRender.spec.ts File Proof column: Test case | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.1.2 | Column: Last successful proof | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.1.3 | Column: Duration | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.1.4 | Column: Observed | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.1.5 | Column: Commit | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.1.6 | Column: Observed on | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof headers Test case \| Last successful proof \| Duration \| Observed \| Commit \| Observed on |
+| K6.2 | Rows are in definition order, named by their describe path and name | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof rows in definition order (lines 5, 12, 19) named renderTitleFromPattern > <name>, Project: chromium |
 | K6.3 | A template row expands to its observed names in code-point order, even when the snapshot holds another order | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts: %s rows Beta, alpha, émile (code-point order) from a snapshot holding émile, alpha, Beta |
-| K6.4 | The count line reads, for example, "Last successful proof: 3 test cases: 3 passed" | slice 7 | |
+| K6.4 | The count line reads, for example, "Last successful proof: 3 test cases: 3 passed" | slice 7 | observed: slice 7 dev server on Doughnut main 6e53933393: titlePatternRender.spec.ts Proof count line: Last successful proof: 3 test cases: 3 passed |
 | K6.5 | When opened from a summary, the Purpose pane positions on the row's it line | slice 6 | observed: dashboard/tests/intent-vitest-proof-summary.spec.ts: child opens Purpose and Proof; slowest row opens Purpose at line 14 (.is-target in viewport) |
-| K7.1 | frontend/tests/utils summary: "N tests", counted from the read files | slice 7 | |
-| K7.2 | The proof count line, over cases | slice 7 | |
-| K7.3 | Summed duration with "over M of N test cases" | slice 7 | |
-| K7.4 | The separate-observations note | slice 7 | |
-| K7.5 | Slowest cases | slice 7 | |
-| K7.6 | Children with their sums | slice 7 | |
+| K7.1 | frontend/tests/utils summary: "N tests", counted from the read files | slice 7 | observed: slice 7 Doughnut frontend/tests/utils (26 files): 211 tests |
+| K7.2 | The proof count line, over cases | slice 7 | observed: same: Last successful proof: 211 test cases: 3 passed, 208 without successful proof |
+| K7.3 | Summed duration with "over M of N test cases" | slice 7 | observed: same: Summed duration of last successful proof: 1 ms over 3 of 211 test cases |
+| K7.4 | The separate-observations note | slice 7 | observed: same: A sum of separate test case observations, retries included, not a run's elapsed time. |
+| K7.5 | Slowest cases | slice 7 | observed: same: Slowest test cases table with the 3 titlePatternRender cases |
+| K7.6 | Children with their sums | slice 7 | observed: same: 26 children with tests, count lines and sums |
 | K7.7 | Partial labelling and unread-file retry, as for Gherkin | slice 6 | observed: dashboard/tests/intent-vitest-proof-summary.spec.ts Partial test: Partial: 8 tests across 3 of 4 files; 1 file unread, Retry rereads that file |
-| K7.8 | A child name opens that file's Purpose and Proof | slice 7 | |
+| K7.8 | A child name opens that file's Purpose and Proof | slice 7 | observed: same: child appendOverlapWikiLinkToNoteContent.spec.ts opens its Purpose and Proof |
 | K8.1 | frontend/tests with proof but no runner: the location explains runner is not declared for its proof | slice 6 | observed: dashboard/tests/intent-vitest-proof-absent.spec.ts runner-setting tests: runner sentence with Set runner … vitest in Proof and Summary, files and 4 files inventory still shown |
 | K8.2 | In that case, its files and inventory stay readable | slice 6 | observed: dashboard/tests/intent-vitest-proof-absent.spec.ts runner-setting tests: runner sentence with Set runner … vitest in Proof and Summary, files and 4 files inventory still shown |
 | K8.3 | runner "vitest" with a pytest-shaped proof file shows "Proof could not be read: … is not a valid proof file", with Retry | slice 6 | observed: dashboard/tests/intent-vitest-proof-absent.spec.ts pytest-shaped test: Proof could not be read: frontend/tests/proof/latest.json is not a valid proof file. with Retry; tests/support/intent-vitest-proof.test.mjs Cucumber- and pytest-shaped files malformed |
@@ -232,7 +232,7 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | U4 | Rows are named by the whole describe path | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts first test: exact table, definition order, full describe path incl. nested suite; dashboard/tests/intent-vitest-proof-summary.spec.ts slowest drill-down opens line 14 |
 | U5 | The row derivation follows nesting in the TypeScript text rather than scanning lines | slice 5 | observed: dashboard/src/vitestCases.ts tokenizer and bracket-matched describe/suite/it/test calls; tests/support/intent-vitest-cases.test.mjs nesting tests |
 | U6 | The full path is kept because a bare it name repeats across suites | slice 6 | observed: dashboard/tests/intent-vitest-proof.spec.ts first test: exact table, definition order, full describe path incl. nested suite; dashboard/tests/intent-vitest-proof-summary.spec.ts slowest drill-down opens line 14 |
-| U7 | Selecting frontend/tests reads its source files for the summary; the story keeps the shared behavior and measures it | slice 7 | |
+| U7 | Selecting frontend/tests reads its source files for the summary; the story keeps the shared behavior and measures it | slice 7 | observed: slice 7 cold root summaries: Doughnut frontend/tests 396 files 54.0 s 402 GitHub requests; Pygardon frontend/src 197 files 26.2 s 199 requests; recorded in plan Learnings |
 | X9 | Exclusion: no layout, component or technology is chosen here | slice 6 | observed: slice 6 diff adds none of these |
 | AR1 | The case model gains its third family, the first where a location's kind does not determine its proof format | slice 6 | observed: dashboard/src/proofKinds.ts runnerProofKinds {vitest} chooses parseVitestProofFile and vitestRowsOf; dashboard/tests/intent-vitest-proof-absent.spec.ts pytest-shaped file malformed |
 | AR2 | runner on the location selects the proof parser and, within the kind, the row derivation | slice 6 | observed: dashboard/src/proofKinds.ts runnerProofKinds {vitest} chooses parseVitestProofFile and vitestRowsOf; dashboard/tests/intent-vitest-proof-absent.spec.ts pytest-shaped file malformed |
@@ -244,4 +244,4 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | AR8 | runner is project-owned configuration in the same settings file | slice 5 | observed: dashboard/server/intentLocationsSettings.ts declaredLocations reads runner from .planning/open-dough.json |
 | AR9 | In each project, the reporter is the second producer of the project's one proof store | slice 4 | observed: doughnut e2e_test/config/proofStore.mjs, pygardon e2e_test/plugins/proofStore.mts: the reporter is the store's second producer |
 | AR10 | The project generalizes that store to the shared observation shape rather than adding a second store | slice 4 | observed: the shared stores take a ProofFormat (identity, order, identifies) with the Cucumber format kept separate; no second store |
-| X10 | Exclusion: design within the product, not an ADR proposal; no conflict, exception or North Star topic | slice 7 | |
+| X10 | Exclusion: design within the product, not an ADR proposal; no conflict, exception or North Star topic | slice 7 | observed: no ADR, North Star topic, conflict or exception arose in slices 1–7 |

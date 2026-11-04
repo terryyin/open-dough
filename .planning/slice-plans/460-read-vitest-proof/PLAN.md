@@ -458,7 +458,7 @@ dashboard suite before publication: 1999 passed, 1 skipped (56.7 min, load
 
 ### 7. Intent shows both frontends' published Vitest proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Open the dashboard on project Doughnut at the revision that published
 slice 4: `frontend/tests/utils/titlePatternRender.spec.ts` shows example 6's
 cells, `DonutMenu.search.touch.spec.ts` shows its `chromium-touch` rows,
@@ -478,6 +478,20 @@ against `vitest run` plus an editor is the story's acceptance.
 
 Behavior: Both published snapshots → Intent reads them as examples 6–7
 describe on real source; nothing is fabricated for the demonstration.
+
+Retained (2026-11-04, slice 7): a throwaway dev server from this checkout at
+`311288943` (private HOME with a Doughnut and Pygardon project list,
+`GH_TOKEN`, private `DOUGH_GITHUB_REQUEST_OWNER_ROOT`, a `gh` wrapper logging
+every call) read Doughnut `main` `6e53933393` and Pygardon `main`
+`64a16e0b8`. Doughnut `titlePatternRender.spec.ts` showed the six headers,
+three `chromium` rows in definition order and "Last successful proof: 3 test
+cases: 3 passed"; `DonutMenu.search.touch.spec.ts` its two `%s` rows under
+`chromium-touch`; `frontend/tests/utils` (26 files) "211 tests", "211 test
+cases: 3 passed, 208 without successful proof", "1 ms over 3 of 211 test
+cases", the note, slowest cases and 26 children; a slowest row opened Purpose
+at its `it` line. Pygardon `verifyStatsFormat.test.ts` showed 17 rows without
+a project and its folder summary. Screenshots are kept outside the repository
+for Terry's evaluation, which is the story's acceptance.
 
 ## Current decisions
 
@@ -536,6 +550,12 @@ Disposition: no user cost "a project-owned Vitest reporter maintains the snapsho
   load (the service allows 30 s, `dashboard/tests/support/launchWait.ts`).
   Repaired after slice 5 by waiting `launchWaitMs` there: 18 of 30 failing at
   `--repeat-each=3 --workers=4` before, 30 of 30 passing after.
+- Root summaries from cold (slice 7): Doughnut `frontend/tests`, 396 files,
+  54.0 s and 402 GitHub requests (398 file reads, two of them repeated by the
+  development server, plus 4 branch polls); Pygardon `frontend/src`, 197
+  files, 26.2 s and 199 requests; about 7.5 requests a second, linear in
+  files, matching the expectation from the pytest baseline (208 s, 1,298
+  requests for 1,283 files). Input for the deferred cheaper root summary.
 - Subordinate CI on this execution's publications: Pygardon `2a48f97fd`
   failed in an unrelated settings-profile race and was repaired in
   `64a16e0b8` (green), with a proof-store tie fix and the startup-hint mask;
