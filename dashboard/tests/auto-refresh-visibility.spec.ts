@@ -80,7 +80,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
   const queueLink = queueCard.getByRole("link", canonical);
   await queueLink.focus();
 
-  await test.step("hiding the page abandons its outstanding check; nothing it would have said is shown", async () => {
+  await test.step("hiding the page ends its wait on an outstanding check; the listing may settle while hidden, and nothing from that wait is shown", async () => {
     const releaseMain = origin.hold("main");
     origin.push(revisionB, backlogB, recordsAt("B"));
     const beforeHidden = githubFor(page).calls.length;
@@ -90,6 +90,8 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
       .poll(() => headsChecks(callsSince(page, beforeHidden)).length)
       .toBe(1);
     await setPageVisibility(page, "hidden");
+    // Releasing while hidden lets the shared listing settle and refresh the
+    // 304 hint; the page already ended its wait, so it applies nothing.
     releaseMain();
     expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
     const calls = callsSince(page, beforeHidden);
@@ -102,7 +104,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     await expect(queueLink).toBeFocused();
   });
 
-  await test.step("seen again, its one prompt check finds what was published meanwhile and reads exactly that", async () => {
+  await test.step("seen again, its one prompt check uses the settled listing's etag, finds what was published meanwhile, and reads exactly that", async () => {
     const beforeSeen = githubFor(page).calls.length;
     await setPageVisibility(page, "visible");
     await checkedAtOnce(page);
@@ -118,8 +120,10 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     // pace starts from its end, so let it end with page time standing still.
     await untilPageRequestsAnswered(page);
     const calls = callsSince(page, beforeSeen);
+    // Past the reuse window the next heads check is conditional on the
+    // listing that settled while hidden (main at B), not on A's earlier hint.
     expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(revisionA),
+      headsCheckArgv(revisionB),
     ]);
     // The check found B; main was not resolved again.
     expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
